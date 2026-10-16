@@ -1,0 +1,88 @@
+const MAX_NODES: usize = 128
+
+def threaded_binary_tree_put_i32_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def threaded_binary_tree_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 1 or input[0] < 0 or input[0] > MAX_NODES.i64(): return -1
+    count: usize = input[0].usize()
+    if length != 1 + count: return -1
+    for index in 0..<count:
+        if input[index + 1] < -2147483648 or input[index + 1] > 2147483647: return -1
+
+    required: usize = count * 4
+    if required > 0 and (output.is_null() or output_capacity < required): return -2
+
+    keys: mutable i64[128] = zeroed
+    lefts: mutable i64[128] = zeroed
+    rights: mutable i64[128] = zeroed
+    left_is_thread: mutable bool[128] = zeroed
+    right_is_thread: mutable bool[128] = zeroed
+    root: mutable i64 = -1
+
+    for inserted in 0..<count:
+        node: usize = inserted
+        key: i64 = input[inserted + 1]
+        keys[node] <- key
+        lefts[node] <- -1
+        rights[node] <- -1
+        if root == -1:
+            root <- node.i64()
+            continue
+
+        current: mutable i64 = root
+        parent: mutable i64 = -1
+        while true:
+            parent <- current
+            parent_index: usize = current.usize()
+            if key < keys[parent_index]:
+                if not left_is_thread[parent_index] and lefts[parent_index] != -1:
+                    current <- lefts[parent_index]
+                else:
+                    break
+            else:
+                if not right_is_thread[parent_index] and rights[parent_index] != -1:
+                    current <- rights[parent_index]
+                else:
+                    break
+
+        parent_index: usize = parent.usize()
+        if key < keys[parent_index]:
+            lefts[node] <- lefts[parent_index]
+            left_is_thread[node] <- left_is_thread[parent_index]
+            rights[node] <- parent
+            right_is_thread[node] <- true
+            lefts[parent_index] <- node.i64()
+            left_is_thread[parent_index] <- false
+        else:
+            rights[node] <- rights[parent_index]
+            right_is_thread[node] <- right_is_thread[parent_index]
+            lefts[node] <- parent
+            left_is_thread[node] <- true
+            rights[parent_index] <- node.i64()
+            right_is_thread[parent_index] <- false
+
+    current: mutable i64 = root
+    while current != -1:
+        index: usize = current.usize()
+        if left_is_thread[index] or lefts[index] == -1: break
+        current <- lefts[index]
+    written: mutable usize = 0
+    while current != -1:
+        index: usize = current.usize()
+        threaded_binary_tree_put_i32_le(output, written, keys[index])
+        written <- written + 4
+        if right_is_thread[index]:
+            current <- rights[index]
+        else:
+            current <- rights[index]
+            while current != -1:
+                next_index: usize = current.usize()
+                if left_is_thread[next_index] or lefts[next_index] == -1: break
+                current <- lefts[next_index]
+    written.i64()
+
+export fn threaded_binary_tree(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = threaded_binary_tree_impl

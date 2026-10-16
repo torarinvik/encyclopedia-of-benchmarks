@@ -16,6 +16,7 @@ import subprocess
 from build_abi import ROOT, sha256_file
 from vector3_axis_rotation_oracle import expected_result as vector3_axis_rotation_oracle
 from vector3_perspective_projection_oracle import expected_result as vector3_perspective_projection_oracle
+from vector2_oracle import expected_result as vector2_oracle
 from vectors_3d_oracle import expected_result as vectors_3d_oracle
 from dimensionality_reduction_pca_oracle import expected_result as dimensionality_reduction_pca_oracle
 from dimensionality_reduction_lda_oracle import expected_result as dimensionality_reduction_lda_oracle
@@ -25,6 +26,9 @@ from gauss_optimization_oracle import expected_result as gauss_optimization_orac
 from geo_location_oracle import expected_result as geo_location_oracle
 from gravitational_force_oracle import expected_result as gravitational_force_oracle
 from circular_orbit_velocity_oracle import expected_result as circular_orbit_velocity_oracle
+from projectile_motion_oracle import expected_result as projectile_motion_oracle
+from radar_target_calculation_oracle import expected_result as radar_target_calculation_oracle
+from rayleigh_quotient_oracle import expected_result as rayleigh_quotient_oracle
 from softmax_oracle import expected_result as softmax_oracle
 from trig_functions_oracle import expected_result as trig_functions_oracle
 from verlet_oracle import expected_result as verlet_oracle
@@ -32,6 +36,7 @@ from verlet_oracle import expected_result as verlet_oracle
 ORACLES = {
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
     "vector3_perspective_projection": vector3_perspective_projection_oracle,
+    "vector2": vector2_oracle,
     "vectors_3d": vectors_3d_oracle,
     "dimensionality_reduction_pca": dimensionality_reduction_pca_oracle,
     "dimensionality_reduction_lda": dimensionality_reduction_lda_oracle,
@@ -41,10 +46,14 @@ ORACLES = {
     "geo_location": geo_location_oracle,
     "gravitational_force": gravitational_force_oracle,
     "circular_orbit_velocity": circular_orbit_velocity_oracle,
+    "projectile_motion": projectile_motion_oracle,
+    "radar_target_calculation": radar_target_calculation_oracle,
+    "rayleigh_quotient": rayleigh_quotient_oracle,
     "softmax": softmax_oracle,
     "trig_functions": trig_functions_oracle,
     "verlet": verlet_oracle,
 }
+MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH = 1 + 16 * 16 + 16
 
 
 def _output_value(value: object) -> float:
@@ -91,8 +100,10 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
     if oracle is None:
         raise ValueError(f"no float64-slice oracle registered for {algorithm}")
     raw_values = case.get("input_values")
+    max_input_length = (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH
+                        if algorithm == "rayleigh_quotient" else 64)
     if (not isinstance(raw_values, list) or case.get("input_length") != len(raw_values)
-            or not raw_values or len(raw_values) > 64
+            or not raw_values or len(raw_values) > max_input_length
             or any(type(value) not in (int, float) or not math.isfinite(float(value))
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")

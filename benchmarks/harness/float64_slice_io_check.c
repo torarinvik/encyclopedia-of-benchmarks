@@ -12,7 +12,7 @@
 #error "Compile with -DBENCHMARK_FUNCTION=<exported function symbol>"
 #endif
 
-#define MAX_INPUT_LENGTH 64
+#define MAX_INPUT_LENGTH 273
 #define MAX_OUTPUT_ELEMENTS 64
 #define SENTINEL 0x1.5a5a5a5a5a5a5p+40
 extern int64_t BENCHMARK_FUNCTION(const double *input, size_t input_len,

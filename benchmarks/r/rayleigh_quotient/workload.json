@@ -1,0 +1,650 @@
+{
+  "schema_version": 1,
+  "id": "rayleigh-quotient-f64-slice-io-v1",
+  "algorithm": "rayleigh_quotient",
+  "function_symbol": "rayleigh_quotient",
+  "workspace": {
+    "elements": 1
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n, row-major A entries (n*n), vector v entries (n)]",
+    "dimension_range": [
+      1,
+      16
+    ],
+    "matrix_entry_range": [
+      -1000.0,
+      1000.0
+    ],
+    "matrix_requirement": "exactly_symmetric",
+    "vector_entry_range": [
+      -100.0,
+      100.0
+    ],
+    "vector_requirement": "v_transpose_v_must_be_positive_in_float64",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "definition": "[rayleigh_quotient]",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "absolute_tolerance": 1e-09,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 500,
+    "absolute_tolerance": 1e-09,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "one_by_one_positive",
+      "input_values": [
+        1,
+        5,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        5.0
+      ]
+    },
+    {
+      "id": "one_by_one_negative",
+      "input_values": [
+        1,
+        -9,
+        -3
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        -9.0
+      ]
+    },
+    {
+      "id": "diagonal_two_by_two",
+      "input_values": [
+        2,
+        2,
+        0,
+        0,
+        8,
+        1,
+        1
+      ],
+      "input_length": 7,
+      "expected_result": 1,
+      "expected_output": [
+        5.0
+      ]
+    },
+    {
+      "id": "symmetric_off_diagonal",
+      "input_values": [
+        2,
+        3,
+        2,
+        2,
+        7,
+        1,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": 1,
+      "expected_output": [
+        7.8
+      ]
+    },
+    {
+      "id": "diagonal_three_by_three",
+      "input_values": [
+        3,
+        1,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        10,
+        1,
+        2,
+        3
+      ],
+      "input_length": 13,
+      "expected_result": 1,
+      "expected_output": [
+        7.642857142857143
+      ]
+    },
+    {
+      "id": "dense_symmetric_three_by_three",
+      "input_values": [
+        3,
+        4,
+        -2,
+        1,
+        -2,
+        5,
+        3,
+        1,
+        3,
+        2,
+        2,
+        -1,
+        3
+      ],
+      "input_length": 13,
+      "expected_result": 1,
+      "expected_output": [
+        2.9285714285714284
+      ]
+    },
+    {
+      "id": "indefinite_four_by_four",
+      "input_values": [
+        4,
+        -10,
+        0,
+        0,
+        0,
+        0,
+        -2,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        8,
+        -1,
+        1,
+        2,
+        0.5
+      ],
+      "input_length": 21,
+      "expected_result": 1,
+      "expected_output": [
+        0.96
+      ]
+    },
+    {
+      "id": "constant_matrix_two_by_two",
+      "input_values": [
+        2,
+        1000,
+        1000,
+        1000,
+        1000,
+        1,
+        1
+      ],
+      "input_length": 7,
+      "expected_result": 1,
+      "expected_output": [
+        2000.0
+      ]
+    },
+    {
+      "id": "small_nonzero_vector",
+      "input_values": [
+        2,
+        1,
+        4,
+        4,
+        9,
+        1e-06,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "mixed_sign_vector",
+      "input_values": [
+        3,
+        2,
+        -1,
+        0,
+        -1,
+        3,
+        4,
+        0,
+        4,
+        6,
+        2,
+        -3,
+        2
+      ],
+      "input_length": 13,
+      "expected_result": 1,
+      "expected_output": [
+        1.3529411764705883
+      ]
+    },
+    {
+      "id": "maximum_dimension_and_entry_bounds",
+      "input_values": [
+        16,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1000.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "input_length": 273,
+      "expected_result": 1,
+      "expected_output": [
+        1000.0
+      ]
+    },
+    {
+      "id": "zero_dimension",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dimension_above_maximum",
+      "input_values": [
+        17
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "non_integral_dimension",
+      "input_values": [
+        2.5
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        2,
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "long_input",
+      "input_values": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonsymmetric_matrix",
+      "input_values": [
+        2,
+        1,
+        2,
+        3,
+        4,
+        1,
+        1
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_vector",
+      "input_values": [
+        2,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "matrix_entry_below_minimum",
+      "input_values": [
+        1,
+        -1000.000001,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "matrix_entry_above_maximum",
+      "input_values": [
+        1,
+        1000.000001,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "vector_entry_below_minimum",
+      "input_values": [
+        1,
+        0,
+        -100.000001
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "vector_entry_above_maximum",
+      "input_values": [
+        1,
+        0,
+        100.000001
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

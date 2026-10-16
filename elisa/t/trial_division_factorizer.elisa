@@ -1,0 +1,10 @@
+def trial_division_factorizer_impl(input: i64) -> i64:
+    if input < -2147483648 or input > 2147483647 or input == 0 or input == -2147483648: return -1
+    number: i64 = if input < 0: -input else: input
+    divisor: mutable i64 = 2
+    while divisor <= number / divisor:
+        if number % divisor == 0: return divisor
+        divisor <- divisor + 1
+    0
+
+export fn trial_division_factorizer(input: i64) -> i64 = trial_division_factorizer_impl

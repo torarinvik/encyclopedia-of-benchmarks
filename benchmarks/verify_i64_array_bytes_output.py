@@ -47,6 +47,11 @@ from graph_adjacency_matrix_oracle import MAX_OUTPUT_BYTES as GRAPH_ADJACENCY_MA
 from graph_adjacency_matrix_oracle import MAX_VERTEX_ID_EXCLUSIVE as GRAPH_ADJACENCY_MATRIX_MAX_VERTEX_ID_EXCLUSIVE
 from graph_adjacency_matrix_oracle import MAX_VERTICES as GRAPH_ADJACENCY_MATRIX_MAX_VERTICES
 from graph_adjacency_matrix_oracle import expected_output as graph_adjacency_matrix_oracle
+from threaded_binary_tree_oracle import MAX_I32 as THREADED_BINARY_TREE_MAX_I32
+from threaded_binary_tree_oracle import MAX_NODES as THREADED_BINARY_TREE_MAX_NODES
+from threaded_binary_tree_oracle import MAX_OUTPUT_LENGTH as THREADED_BINARY_TREE_MAX_OUTPUT_LENGTH
+from threaded_binary_tree_oracle import MIN_I32 as THREADED_BINARY_TREE_MIN_I32
+from threaded_binary_tree_oracle import expected_output as threaded_binary_tree_oracle
 from gabor_filter_oracle import MAX_KERNEL_SIZE as GABOR_FILTER_MAX_KERNEL_SIZE
 from gabor_filter_oracle import MAX_OUTPUT_BYTES as GABOR_FILTER_MAX_OUTPUT_BYTES
 from gabor_filter_oracle import MAX_PARSEABLE_INPUT_LENGTH as GABOR_FILTER_MAX_PARSEABLE_INPUT_LENGTH
@@ -767,9 +772,11 @@ ALGORITHMS = (*ALGORITHMS, "graph_adjacency_list")
 ALGORITHMS = (*ALGORITHMS, "graph_centrality")
 ALGORITHMS = (*ALGORITHMS, "graph_peripherality")
 ALGORITHMS = (*ALGORITHMS, "graph_adjacency_matrix")
+ALGORITHMS = (*ALGORITHMS, "threaded_binary_tree")
 WORKSPACE_ALGORITHMS.add("graph_centrality")
 WORKSPACE_ALGORITHMS.add("graph_peripherality")
 WORKSPACE_ALGORITHMS.add("graph_adjacency_matrix")
+WORKSPACE_ALGORITHMS.add("threaded_binary_tree")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 
@@ -1475,7 +1482,77 @@ def red_black_tree_oracle(values: tuple[int, ...] | list[int]) -> tuple[int, byt
 def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     records: list[tuple[tuple[int, ...], int, bytes, int | None]] = []
     null_input_cases: set[tuple[tuple[int, ...], int | None]] = set()
-    if algorithm == "trifid_cipher":
+    if algorithm == "threaded_binary_tree":
+        input_contract = workload.get("input", {})
+        if (input_contract.get("maximum_nodes") != THREADED_BINARY_TREE_MAX_NODES
+                or input_contract.get("key_range") != [THREADED_BINARY_TREE_MIN_I32,
+                                                        THREADED_BINARY_TREE_MAX_I32]
+                or input_contract.get("duplicate_policy") != "equal keys are inserted into the right subtree and retained"
+                or workload.get("output", {}).get("kind") != "bytes"
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"):
+            raise ValueError("threaded_binary_tree workload bounds do not match its reviewed contract")
+        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+
+        def add(values: tuple[int, ...], capacity: int | None = None) -> None:
+            result, output = threaded_binary_tree_oracle(values)
+            if capacity is None:
+                capacity = len(output)
+            if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
+                raise ValueError("threaded_binary_tree output capacity is out of range")
+            if result >= 0 and capacity < len(output):
+                result, output = -2, b""
+            cases[(values, capacity)] = result, output
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("workspace_bytes")
+            result, output = threaded_binary_tree_oracle(values)
+            effective_capacity = len(output) if capacity is None else capacity
+            if (type(effective_capacity) is not int
+                    or not 0 <= effective_capacity <= MAX_OUTPUT_CAPACITY):
+                raise ValueError(f"threaded_binary_tree workload capacity is out of range: {case['id']}")
+            if result >= 0 and effective_capacity < len(output):
+                result, output = -2, b""
+            if (case.get("input_length") != len(values)
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"threaded_binary_tree workload mismatch: {case['id']}")
+            if case.get("id") == "maximum-node-count" and len(values) != THREADED_BINARY_TREE_MAX_NODES + 1:
+                raise ValueError("threaded_binary_tree maximum-node trace has an incorrect packed length")
+            add(values, capacity)
+
+        if not any(case.get("id") == "maximum-node-count" for case in workload["cases"]):
+            raise ValueError("threaded_binary_tree workload is missing its maximum-node case")
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            count = rng.randint(0, THREADED_BINARY_TREE_MAX_NODES)
+            keys = tuple(rng.randint(THREADED_BINARY_TREE_MIN_I32,
+                                     THREADED_BINARY_TREE_MAX_I32) for _ in range(count))
+            add((count, *keys))
+
+        capacity_probe = (4, 1, 1, -2, 3)
+        required = len(threaded_binary_tree_oracle(capacity_probe)[1])
+        for capacity in (0, required - 1, required, THREADED_BINARY_TREE_MAX_OUTPUT_LENGTH):
+            add(capacity_probe, capacity)
+
+        malformed = (
+            (), (0, 0), (-1,), (THREADED_BINARY_TREE_MAX_NODES + 1,),
+            (2, 1), (1, 1, 2), (1, THREADED_BINARY_TREE_MIN_I32 - 1),
+            (1, THREADED_BINARY_TREE_MAX_I32 + 1),
+            tuple([0] * (THREADED_BINARY_TREE_MAX_NODES + 2)),
+        )
+        for values in malformed:
+            add(tuple(values))
+
+        null_values = (2, 1, 1)
+        null_key = (null_values, len(threaded_binary_tree_oracle(null_values)[1]))
+        cases[null_key] = (-1, b"")
+        null_input_cases.add(null_key)
+        records.extend((values, result, output, capacity)
+                       for (values, capacity), (result, output) in sorted(cases.items()))
+    elif algorithm == "trifid_cipher":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
         default_capacity = workload.get("workspace", {}).get("bytes", 256)
         if type(default_capacity) is not int or default_capacity < 256:

@@ -165,7 +165,7 @@ export fn undirected_graph(input: [*c]const i64, length: usize) i64 {
     if (n_value < 0 or n_value > MAX_VERTICES or initial_count_value < 0 or initial_count_value > MAX_EDGES) return -1;
     const n: usize = @intCast(n_value);
     const initial_count: usize = @intCast(initial_count_value);
-    if (initial_count > n * (n - 1) / 2) return -1;
+    if (initial_count > n * (if (n > 0) n - 1 else 0) / 2) return -1;
     const count_position = 2 + 3 * initial_count;
     if (count_position >= length) return -1;
     const operation_count_value = input[count_position];

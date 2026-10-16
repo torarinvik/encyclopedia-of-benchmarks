@@ -1,0 +1,16 @@
+def mersenne_primes_impl(n: i64) -> i64:
+    if n < 2 or n > 31:
+        return -1
+    if n == 2:
+        return 1
+    modulus: i64 = (1 << n) - 1
+    residue: mutable i64 = 4
+    round: mutable i64 = 0
+    while round < n - 2:
+        residue <- (residue * residue - 2) % modulus
+        round <- round + 1
+    if residue == 0:
+        return 1
+    0
+
+export fn mersenne_primes(n: i64) -> i64 = mersenne_primes_impl

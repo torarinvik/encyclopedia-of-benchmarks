@@ -1,0 +1,89 @@
+# Go transposition cipher over the bounded ASCII scalar contract.
+const MAX_KEY: usize = 32
+const MAX_TEXT: usize = 512
+const MAX_INPUT: usize = 3 + MAX_KEY + MAX_TEXT
+const MAX_PADDED: usize = MAX_TEXT + MAX_KEY
+
+def transposition_hash(bytes: u8&, count: usize) -> i64:
+    hash: mutable u64 = 14695981039346656037
+    for shift in 0..<8:
+        byte: u64 = (count.u64() >> (shift * 8)) & 255
+        hash <- (hash ^ byte) * 1099511628211
+    for index in 0..<count:
+        codepoint: u64 = bytes[index].u64()
+        for shift in 0..<4:
+            byte: u64 = (codepoint >> (shift * 8)) & 255
+            hash <- (hash ^ byte) * 1099511628211
+    (hash & 0x7fffffffffffffff).i64()
+
+def transposition_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT: return -1
+    mode: i64 = input[0]
+    key_length_value: i64 = input[1]
+    if (mode != 0 and mode != 1) or key_length_value < 1 or key_length_value > i64(MAX_KEY): return -1
+    key_length: usize = key_length_value.usize()
+    text_length_index: usize = 2 + key_length
+    if length <= text_length_index: return -1
+    text_length_value: i64 = input[text_length_index]
+    if text_length_value < 1 or text_length_value > i64(MAX_TEXT): return -1
+    text_length: usize = text_length_value.usize()
+    if length != text_length_index + 1 + text_length: return -1
+
+    key: mutable u8[MAX_KEY] = zeroed
+    sorted: mutable u8[MAX_KEY] = zeroed
+    for index in 0..<key_length:
+        value: i64 = input[2 + index]
+        if not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122)): return -1
+        ch: mutable u8 = value.u8()
+        if ch >= 65 and ch <= 90: ch <- ch + 32
+        key[index] <- ch
+        sorted[index] <- ch
+    for index in 1..<key_length:
+        value: u8 = sorted[index]
+        cursor: mutable usize = index
+        while cursor > 0 and sorted[cursor - 1] > value |sorted|:
+            sorted[cursor] <- sorted[cursor - 1]
+            cursor <- cursor - 1
+        sorted[cursor] <- value
+    ranks: mutable usize[MAX_KEY] = zeroed
+    for index in 0..<key_length:
+        first: mutable usize = 0
+        while first < key_length and sorted[first] != key[index]: first <- first + 1
+        duplicate: mutable usize = 0
+        for prior in 0..<index:
+            if key[prior] == key[index]: duplicate <- duplicate + 1
+        ranks[index] <- first + duplicate + 1
+
+    text: mutable u8[MAX_PADDED] = zeroed
+    for index in 0..<text_length:
+        value: i64 = input[text_length_index + 1 + index]
+        if value < 32 or value > 126: return -1
+        text[index] <- value.u8()
+    if mode == 0 and text[text_length - 1] == 32: return -1
+    padding: usize = key_length - (text_length % key_length)
+    padded_length: usize = text_length + padding
+    for index in text_length..<padded_length: text[index] <- 32
+
+    result: mutable u8[MAX_PADDED] = zeroed
+    result_length: mutable usize = 0
+    if mode == 0:
+        start: mutable usize = 0
+        while start < padded_length |text, ranks, result, result_length|:
+            block: mutable u8[MAX_KEY] = zeroed
+            for offset in 0..<key_length: block[ranks[offset] - 1] <- text[start + offset]
+            for offset in 0..<key_length:
+                result[result_length] <- block[offset]
+                result_length <- result_length + 1
+            start <- start + key_length
+    else:
+        start: mutable usize = 0
+        while start < text_length |text, ranks, result, result_length|:
+            for offset in 0..<key_length:
+                result[result_length] <- text[start + ranks[offset] - 1]
+                result_length <- result_length + 1
+            start <- start + key_length
+        while result_length > 0 and result[result_length - 1] == 32:
+            result_length <- result_length - 1
+    transposition_hash(result, result_length)
+
+export fn transposition(input: i64&, length: usize) -> i64 = transposition_impl

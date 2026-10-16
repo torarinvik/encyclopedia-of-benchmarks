@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "id": "mersenne-primes-scalar-call-v1",
+  "algorithm": "mersenne_primes",
+  "function_symbol": "mersenne_primes",
+  "input": {
+    "kind": "signed_i64_scalar",
+    "exponent_range": [
+      2,
+      31
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar_boolean",
+    "encoding": "1 iff 2^n-1 is prime, otherwise 0",
+    "maximum_encoded_result": 1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 32
+  },
+  "cases": [
+    {
+      "id": "exponent_2",
+      "input_value": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "exponent_3",
+      "input_value": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "exponent_4",
+      "input_value": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "exponent_5",
+      "input_value": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "exponent_7",
+      "input_value": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "exponent_8",
+      "input_value": 8,
+      "expected_result": 0
+    },
+    {
+      "id": "exponent_11",
+      "input_value": 11,
+      "expected_result": 0
+    },
+    {
+      "id": "exponent_13",
+      "input_value": 13,
+      "expected_result": 1
+    },
+    {
+      "id": "exponent_17",
+      "input_value": 17,
+      "expected_result": 1
+    },
+    {
+      "id": "exponent_19",
+      "input_value": 19,
+      "expected_result": 1
+    },
+    {
+      "id": "exponent_23",
+      "input_value": 23,
+      "expected_result": 0
+    },
+    {
+      "id": "exponent_29",
+      "input_value": 29,
+      "expected_result": 0
+    },
+    {
+      "id": "exponent_31",
+      "input_value": 31,
+      "expected_result": 1
+    },
+    {
+      "id": "below_minimum",
+      "input_value": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "zero",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_maximum",
+      "input_value": 32,
+      "expected_result": -1
+    },
+    {
+      "id": "i64_min",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "i64_max",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ]
+}

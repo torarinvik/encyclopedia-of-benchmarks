@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "trial-division-factorizer-i32-domain-v1",
+  "algorithm": "trial_division_factorizer",
+  "function_symbol": "trial_division_factorizer",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Sharp",
+      "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+      "path": "Algorithms/Numeric/Factorization/TrialDivisionFactorizer.cs"
+    }
+  ],
+  "input": {
+    "kind": "signed_i64_scalar",
+    "domain": "signed int32 values except 0 and INT32_MIN",
+    "minimum": -2147483647,
+    "maximum": 2147483647,
+    "invalid_result": -1,
+    "prime_or_no_nontrivial_factor_result": 0,
+    "factor_result": "smallest positive nontrivial factor"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  },
+  "cases": [
+    {
+      "id": "unit_positive",
+      "input_value": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "unit_negative",
+      "input_value": -1,
+      "expected_result": 0
+    },
+    {
+      "id": "small_prime",
+      "input_value": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "small_composite",
+      "input_value": 4,
+      "expected_result": 2
+    },
+    {
+      "id": "odd_composite",
+      "input_value": 45,
+      "expected_result": 3
+    },
+    {
+      "id": "perfect_square",
+      "input_value": 49,
+      "expected_result": 7
+    },
+    {
+      "id": "two_prime_factors",
+      "input_value": 221,
+      "expected_result": 13
+    },
+    {
+      "id": "negative_composite",
+      "input_value": -899,
+      "expected_result": 29
+    },
+    {
+      "id": "large_even_composite",
+      "input_value": 2147483646,
+      "expected_result": 2
+    },
+    {
+      "id": "largest_int32_prime",
+      "input_value": 2147483647,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_large_prime",
+      "input_value": -2147483647,
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_zero",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_int32_min",
+      "input_value": -2147483648,
+      "expected_result": -1
+    },
+    {
+      "id": "out_of_range_high",
+      "input_value": 2147483648,
+      "expected_result": -1
+    },
+    {
+      "id": "out_of_range_low",
+      "input_value": -2147483649,
+      "expected_result": -1
+    }
+  ]
+}

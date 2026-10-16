@@ -49,6 +49,9 @@ from sum_multiples_inclusion_exclusion_oracle import expected_result as sum_mult
 from partitions_oracle import expected_result as partitions_expected
 from pascal_triangle_ii_oracle import expected_result as pascal_triangle_ii_expected
 from pi_generator_oracle import expected_result as pi_generator_expected
+from mersenne_primes_oracle import expected_result as mersenne_primes_expected
+from magic_square_oracle import expected_result as magic_square_expected
+from trial_division_factorizer_oracle import expected_result as trial_division_factorizer_expected
 
 ROOT = Path(__file__).resolve().parents[1]
 I64_MIN = -(2**63)
@@ -1730,6 +1733,20 @@ def problem117_source_result(length: int) -> int:
 
 
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
+    if algorithm == "magic_square":
+        if expected_result != magic_square_expected(input_value):
+            raise ValueError("magic_square expected_result must match the bounded Siamese-square hash")
+        return
+    if algorithm == "trial_division_factorizer":
+        expected_from_source = trial_division_factorizer_expected(input_value)
+        if expected_result != expected_from_source:
+            raise ValueError("trial_division_factorizer expected_result must match the bounded smallest-factor search")
+        return
+    if algorithm == "mersenne_primes":
+        expected_from_source = mersenne_primes_expected(input_value)
+        if expected_result != expected_from_source:
+            raise ValueError("mersenne_primes expected_result must match the bounded Mersenne-prime predicate")
+        return
     if algorithm == "binary_palindrome_check":
         if not -(2**31) <= input_value <= 2**31 - 1:
             expected_from_source = -1

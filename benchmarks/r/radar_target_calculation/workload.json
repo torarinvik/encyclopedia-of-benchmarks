@@ -1,0 +1,504 @@
+{
+  "schema_version": 1,
+  "id": "radar-target-calculation-f64-slice-io-v1",
+  "algorithm": "radar_target_calculation",
+  "function_symbol": "radar_target_calculation",
+  "workspace": {
+    "elements": 3
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[radar_latitude_degrees, radar_longitude_degrees, radar_altitude_meters, azimuth_degrees, range_meters, elevation_degrees]",
+    "latitude_degrees_range": [
+      -80.0,
+      80.0
+    ],
+    "longitude_degrees_range": [
+      -180.0,
+      180.0
+    ],
+    "radar_altitude_meters_range": [
+      -1000.0,
+      10000.0
+    ],
+    "azimuth_degrees_range": [
+      -360.0,
+      360.0
+    ],
+    "range_meters_range": [
+      0.0,
+      200000.0
+    ],
+    "elevation_degrees_range": [
+      -30.0,
+      30.0
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "definition": "[target_latitude_degrees, target_longitude_degrees, target_altitude_meters]",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "absolute_tolerance": 1e-06,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 500,
+    "absolute_tolerance": 1e-06,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "zero_range_at_equator",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "east_one_degree_reference",
+      "input_values": [
+        0,
+        0,
+        0,
+        90,
+        111319.5,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        6.163557002738381e-17,
+        0.9998985620946335,
+        971.372010092251
+      ]
+    },
+    {
+      "id": "north_from_equator",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        1000,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        0.009043694694644758,
+        0.0,
+        0.07892112527042627
+      ]
+    },
+    {
+      "id": "south_from_equator",
+      "input_values": [
+        0,
+        0,
+        0,
+        180,
+        1000,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -0.009043694694644758,
+        1.1001189373221172e-18,
+        0.07892112527042627
+      ]
+    },
+    {
+      "id": "west_from_equator",
+      "input_values": [
+        0,
+        0,
+        0,
+        -90,
+        1000,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        5.537665858060505e-19,
+        -0.008983152767588093,
+        0.07839279621839523
+      ]
+    },
+    {
+      "id": "oblique_elevation_and_bearing",
+      "input_values": [
+        45,
+        90,
+        1250,
+        45,
+        25000,
+        10
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        45.15629862355096,
+        90.22120459122804,
+        5638.680649354123
+      ]
+    },
+    {
+      "id": "southern_hemisphere_target",
+      "input_values": [
+        -33.8568,
+        151.2153,
+        58,
+        270,
+        50000,
+        -2
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -33.85561674888408,
+        150.6751927437522,
+        -1491.3863195758313
+      ]
+    },
+    {
+      "id": "high_latitude_southbound",
+      "input_values": [
+        72,
+        -40,
+        500,
+        180,
+        150000,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        70.65600433901047,
+        -40.0,
+        2259.324742214754
+      ]
+    },
+    {
+      "id": "upper_bounds_range_elevation",
+      "input_values": [
+        79,
+        179.9,
+        1000,
+        200,
+        200000,
+        30
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        77.55437520437,
+        177.47701538316588,
+        103307.9170268029
+      ]
+    },
+    {
+      "id": "lower_bounds_range_elevation",
+      "input_values": [
+        -80,
+        -179.9,
+        -1000,
+        360,
+        200000,
+        -30
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -78.42425230609392,
+        -179.9,
+        -98618.1492513325
+      ]
+    },
+    {
+      "id": "cross_eastern_antimeridian",
+      "input_values": [
+        12.5,
+        179.99,
+        2000,
+        90,
+        50000,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        12.499607579842127,
+        -179.55016321856928,
+        2195.8868384473026
+      ]
+    },
+    {
+      "id": "cross_western_antimeridian",
+      "input_values": [
+        -12.5,
+        -179.99,
+        10000,
+        -90,
+        50000,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -12.499608565047183,
+        179.55073896712264,
+        10195.641571122222
+      ]
+    },
+    {
+      "id": "azimuth_upper_bound",
+      "input_values": [
+        40,
+        20,
+        2500,
+        360,
+        12345,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        40.11113664513857,
+        20.0,
+        2511.9728427585214
+      ]
+    },
+    {
+      "id": "zero_distance_with_elevation",
+      "input_values": [
+        -40,
+        60,
+        10000,
+        240,
+        0,
+        -30
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -40.000000000007624,
+        59.99999999999999,
+        10000.000000712462
+      ]
+    },
+    {
+      "id": "latitude_below_minimum",
+      "input_values": [
+        -80.000001,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "latitude_above_maximum",
+      "input_values": [
+        80.000001,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "longitude_below_minimum",
+      "input_values": [
+        0,
+        -180.000001,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "longitude_above_maximum",
+      "input_values": [
+        0,
+        180.000001,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "altitude_below_minimum",
+      "input_values": [
+        0,
+        0,
+        -1000.000001,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "altitude_above_maximum",
+      "input_values": [
+        0,
+        0,
+        10000.000001,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "azimuth_below_minimum",
+      "input_values": [
+        0,
+        0,
+        0,
+        -360.000001,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "azimuth_above_maximum",
+      "input_values": [
+        0,
+        0,
+        0,
+        360.000001,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_range",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        -1e-06,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "range_above_maximum",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        200000.000001,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "elevation_below_minimum",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        -30.000001
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "elevation_above_maximum",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        30.000001
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "long_input",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

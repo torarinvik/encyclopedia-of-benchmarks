@@ -1,0 +1,15 @@
+def rgbhex_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 4: return -1
+    op: i64 = input[0]
+    x: i64 = input[1]
+    y: i64 = input[2]
+    z: i64 = input[3]
+    if op == 0:
+        if x < 0 or x > 4294967295 or y != 0 or z != 0: return -1
+        return x & 16777215
+    if op == 1:
+        if x < 0 or x > 255 or y < 0 or y > 255 or z < 0 or z > 255: return -1
+        return (x << 16) | (y << 8) | z
+    -1
+
+export fn rgbhex(input: i64&, length: usize) -> i64 = rgbhex_impl

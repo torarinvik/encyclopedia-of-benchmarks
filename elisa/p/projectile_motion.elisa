@@ -1,0 +1,40 @@
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+def projectile_motion_impl(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if values == null or length != 4: return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] != values[index]: return -1
+        index <- index + 1
+
+    velocity: f64 = values[0]
+    angle_degrees: f64 = values[1]
+    height: f64 = values[2]
+    gravity: f64 = values[3]
+    if velocity < 0.0 or velocity > 1000.0: return -1
+    if angle_degrees < -180.0 or angle_degrees > 180.0: return -1
+    if height < 0.0 or height > 1000.0: return -1
+    if gravity < 0.1 or gravity > 20.0: return -1
+
+    pi: f64 = 3.14159265358979323846
+    angle_radians: f64 = angle_degrees / 180.0 * pi
+    initial_vertical_velocity: f64 = velocity * sin(angle_radians)
+    initial_horizontal_velocity: f64 = velocity * cos(angle_radians)
+    total_time_of_flight: f64 = (initial_vertical_velocity + sqrt(
+        initial_vertical_velocity * initial_vertical_velocity + 2.0 * gravity * height
+    )) / gravity
+    maximum_height: mutable f64 = height
+    if initial_vertical_velocity > 0.0:
+        height_gained: f64 = initial_vertical_velocity * initial_vertical_velocity / (2.0 * gravity)
+        maximum_height <- height + height_gained
+    horizontal_range: f64 = initial_horizontal_velocity * total_time_of_flight
+
+    if output == null or capacity < 3: return -2
+    output[0] <- total_time_of_flight
+    output[1] <- horizontal_range
+    output[2] <- maximum_height
+    3
+
+export fn projectile_motion(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = projectile_motion_impl

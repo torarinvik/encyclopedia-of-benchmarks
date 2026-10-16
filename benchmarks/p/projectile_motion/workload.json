@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": "projectile-motion-f64-slice-io-v1",
+  "algorithm": "projectile_motion",
+  "function_symbol": "projectile_motion",
+  "workspace": {
+    "elements": 3
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[initial_velocity, launch_angle_degrees, initial_height, gravity]",
+    "velocity_range": [0.0, 1000.0],
+    "angle_degrees_range": [-180.0, 180.0],
+    "initial_height_range": [0.0, 1000.0],
+    "gravity_range": [0.1, 20.0],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "definition": "[time_of_flight, horizontal_range, maximum_height]",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 500,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "zero_speed_zero_height", "input_values": [0.0, 0.0, 0.0, 9.80665], "input_length": 4, "expected_result": 3, "expected_output": [0.0, 0.0, 0.0]},
+    {"id": "horizontal_launch_at_ground", "input_values": [10.0, 0.0, 0.0, 10.0], "input_length": 4, "expected_result": 3, "expected_output": [0.0, 0.0, 0.0]},
+    {"id": "horizontal_launch_from_height", "input_values": [10.0, 0.0, 5.0, 10.0], "input_length": 4, "expected_result": 3, "expected_output": [1.0, 10.0, 5.0]},
+    {"id": "forty_five_degree_launch", "input_values": [2.0, 45.0, 0.0, 1.0], "input_length": 4, "expected_result": 3, "expected_output": [2.8284271247461903, 4.0, 1.0]},
+    {"id": "custom_gravity", "input_values": [2.0, 45.0, 0.0, 4.0], "input_length": 4, "expected_result": 3, "expected_output": [0.7071067811865476, 1.0, 0.25]},
+    {"id": "vertical_upward_launch", "input_values": [2.0, 90.0, 0.0, 2.0], "input_length": 4, "expected_result": 3, "expected_output": [2.0, 0.0, 1.0]},
+    {"id": "vertical_downward_at_ground", "input_values": [2.0, -90.0, 0.0, 2.0], "input_length": 4, "expected_result": 3, "expected_output": [0.0, 0.0, 0.0]},
+    {"id": "reverse_horizontal_launch_from_height", "input_values": [10.0, 180.0, 5.0, 10.0], "input_length": 4, "expected_result": 3, "expected_output": [1.0, -10.0, 5.0]},
+    {"id": "maximum_velocity_and_vertical_angle", "input_values": [1000.0, 90.0, 0.0, 20.0], "input_length": 4, "expected_result": 3, "expected_output": [100.0, 0.0, 25000.0]},
+    {"id": "maximum_height_and_minimum_gravity", "input_values": [0.0, 0.0, 1000.0, 0.1], "input_length": 4, "expected_result": 3, "expected_output": [141.4213562373095, 0.0, 1000.0]},
+    {"id": "angle_and_gravity_lower_bounds", "input_values": [0.0, -180.0, 0.0, 0.1], "input_length": 4, "expected_result": 3, "expected_output": [0.0, 0.0, 0.0]},
+    {"id": "negative_velocity", "input_values": [-0.000001, 0.0, 0.0, 9.80665], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "velocity_above_limit", "input_values": [1000.000001, 0.0, 0.0, 9.80665], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "angle_below_limit", "input_values": [1.0, -180.000001, 0.0, 9.80665], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "angle_above_limit", "input_values": [1.0, 180.000001, 0.0, 9.80665], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "negative_initial_height", "input_values": [1.0, 0.0, -0.000001, 9.80665], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "height_above_limit", "input_values": [1.0, 0.0, 1000.000001, 9.80665], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "gravity_below_limit", "input_values": [1.0, 0.0, 0.0, 0.099999], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "gravity_above_limit", "input_values": [1.0, 0.0, 0.0, 20.000001], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "short_input", "input_values": [10.0, 45.0, 1.0], "input_length": 3, "expected_result": -1, "expected_output": []},
+    {"id": "long_input", "input_values": [10.0, 45.0, 1.0, 9.80665, 0.0], "input_length": 5, "expected_result": -1, "expected_output": []}
+  ]
+}

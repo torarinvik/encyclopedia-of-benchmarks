@@ -1,0 +1,61 @@
+const MAX_LENGTH: usize = 512
+const FNV_OFFSET_BASIS: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+def kasai_algorithm_fnv_word(hash: u64, value: i64) -> u64:
+    bits: u64 = value.u64()
+    result: mutable u64 = hash
+    for byte in 0..<8:
+        octet: u64 = (bits >> (byte * 8)) & 255.u64()
+        result <- (result ^ octet) * FNV_PRIME
+    result
+
+def kasai_algorithm_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or input[0] < 0 or input[0] > MAX_LENGTH.i64(): return -1
+    n: usize = input[0].usize()
+    if length != 1 + 2 * n: return -1
+    for index in 0..<n:
+        if input[1 + index] < 0 or input[1 + index] > 127: return -1
+
+    suffixes: mutable usize[512] = zeroed
+    rank: mutable usize[512] = zeroed
+    seen: mutable bool[512] = zeroed
+    lcp: mutable i64[512] = zeroed
+    for position in 0..<n:
+        suffix_value: i64 = input[1 + n + position]
+        if suffix_value < 0 or suffix_value >= n.i64(): return -1
+        suffix: usize = suffix_value.usize()
+        if seen[suffix]: return -1
+        seen[suffix] <- true
+        suffixes[position] <- suffix
+        rank[suffix] <- position
+
+    if n > 1:
+        for position in 1..<n:
+            left: usize = suffixes[position - 1]
+            right: usize = suffixes[position]
+            left_tail_rank: mutable i64 = -1
+            right_tail_rank: mutable i64 = -1
+            if left + 1 < n: left_tail_rank <- rank[left + 1].i64()
+            if right + 1 < n: right_tail_rank <- rank[right + 1].i64()
+            left_byte: i64 = input[1 + left]
+            right_byte: i64 = input[1 + right]
+            if left_byte > right_byte or (left_byte == right_byte and left_tail_rank >= right_tail_rank): return -1
+
+    common: mutable usize = 0
+    for start in 0..<n:
+        current_rank: usize = rank[start]
+        if current_rank == n - 1:
+            common <- 0
+            continue
+        next_start: usize = suffixes[current_rank + 1]
+        while start + common < n and next_start + common < n and input[1 + start + common] == input[1 + next_start + common]:
+            common <- common + 1
+        lcp[current_rank] <- common.i64()
+        if common > 0: common <- common - 1
+
+    hash: mutable u64 = kasai_algorithm_fnv_word(FNV_OFFSET_BASIS, n.i64())
+    for index in 0..<n: hash <- kasai_algorithm_fnv_word(hash, lcp[index])
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn kasai_algorithm(input: i64&, length: usize) -> i64 = kasai_algorithm_impl

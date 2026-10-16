@@ -8,11 +8,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import math
 from pathlib import Path
+import random
 import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
-from run_float64_slice_io import ORACLES, _format_output, encode_case, tolerances
+from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
+                                  _format_output, encode_case, tolerances)
 
 ALGORITHMS = tuple(ORACLES)
 
@@ -47,7 +49,48 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     records.extend(((values, -1, [], workspace, 1, 0),
                     ([], -1, [], workspace, 0, 0)))
 
-    if algorithm == "fresnel_diffract":
+    if algorithm == "rayleigh_quotient":
+        oracle = ORACLES[algorithm]
+
+        def add_rayleigh_case(inputs: list[float]) -> None:
+            expected_output = oracle(inputs)
+            expected_result = -1 if expected_output is None else len(expected_output)
+            records.append((inputs, expected_result,
+                            [] if expected_output is None else expected_output,
+                            workspace, 0, 0))
+
+        rng = random.Random(20261016)
+        for _ in range(128):
+            dimension = rng.randint(1, 16)
+            matrix = [0.0] * (dimension * dimension)
+            for row in range(dimension):
+                for col in range(row, dimension):
+                    value = rng.uniform(-1000.0, 1000.0)
+                    matrix[row * dimension + col] = value
+                    matrix[col * dimension + row] = value
+            vector = [rng.uniform(-100.0, 100.0) for _ in range(dimension)]
+            if all(value == 0.0 for value in vector):
+                vector[0] = 1.0
+            inputs = [float(dimension), *matrix, *vector]
+            if len(inputs) > MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH:
+                raise ValueError("rayleigh_quotient generated input exceeds its reviewed bound")
+            add_rayleigh_case(inputs)
+
+        boundary_matrix = [1000.0, -1000.0, -1000.0, -1000.0]
+        add_rayleigh_case([2.0, *boundary_matrix, -100.0, 100.0])
+        invalid_cases = (
+            [0.0], [17.0], [1.5], [1.0, 1.0], [1.0, 1.0, 1.0, 0.0],
+            [2.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0],
+            [1.0, -1000.000001, 1.0], [1.0, 1000.000001, 1.0],
+            [1.0, 1.0, -100.000001], [1.0, 1.0, 100.000001],
+            [1.0, 1.0, 0.0], [1.0, math.nan, 1.0],
+            [1.0, math.inf, 1.0], [1.0, 1.0, math.inf],
+        )
+        for inputs in invalid_cases:
+            if oracle(inputs) is not None:
+                raise ValueError("rayleigh_quotient oracle accepted a malformed probe")
+            add_rayleigh_case(inputs)
+    elif algorithm == "fresnel_diffract":
         oracle = ORACLES[algorithm]
 
         def add_fresnel_case(inputs: list[float]) -> None:
@@ -141,6 +184,106 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             [2.0, 0.0, 0.0],
         ):
             add_verlet_case(invalid_input)
+    elif algorithm == "vector2":
+        oracle = ORACLES[algorithm]
+
+        def add_vector2_case(inputs: list[float]) -> None:
+            expected_output = oracle(inputs)
+            expected_result = -1 if expected_output is None else len(expected_output)
+            records.append((inputs, expected_result,
+                            [] if expected_output is None else expected_output,
+                            workspace, 0, 0))
+
+        # Every ABI slot is numeric and finite, including operation selectors and
+        # fields that are otherwise unused by a selected operation.
+        valid_add = [4.0, 1.25, -2.5, 3.5, 4.25, 0.0]
+        for index in range(6):
+            for special in (math.nan, math.inf, -math.inf):
+                nonfinite = list(valid_add)
+                nonfinite[index] = special
+                add_vector2_case(nonfinite)
+
+        for invalid_selector in (-1.0, 11.0, 2.5, math.nan, math.inf):
+            add_vector2_case([invalid_selector, 0.0, 0.0, 0.0, 0.0, 0.0])
+
+        # Coordinates have a closed [-1000, 1000] domain. Probe each field
+        # outside it and include the accepted endpoints on an active operation.
+        for index in range(1, 5):
+            for invalid_coordinate in (-1000.000001, 1000.000001):
+                invalid = list(valid_add)
+                invalid[index] = invalid_coordinate
+                add_vector2_case(invalid)
+        add_vector2_case([4.0, -1000.0, 1000.0, 1000.0, -1000.0, 0.0])
+
+        # Approximate equality uses epsilon in [0, 2000], including both ends.
+        for epsilon in (0.0, 2000.0):
+            add_vector2_case([1.0, 0.0, 0.0, 1.0, -1.0, epsilon])
+        for invalid_epsilon in (-0.000001, 2000.000001):
+            add_vector2_case([1.0, 0.0, 0.0, 1.0, -1.0, invalid_epsilon])
+
+        # Multiplication and rotation are the only operations that consume the
+        # final field. Their endpoints are valid; just-outside values are not.
+        for factor in (-1000.0, 1000.0):
+            add_vector2_case([6.0, 1.0, -1.0, 0.0, 0.0, factor])
+        for invalid_factor in (-1000.000001, 1000.000001):
+            add_vector2_case([6.0, 1.0, -1.0, 0.0, 0.0, invalid_factor])
+        angle_limit = 2.0 * math.pi
+        for angle in (-angle_limit, angle_limit):
+            add_vector2_case([9.0, 1.0, 0.0, 0.0, 0.0, angle])
+        for invalid_angle in (-angle_limit - 0.000001, angle_limit + 0.000001):
+            add_vector2_case([9.0, 1.0, 0.0, 0.0, 0.0, invalid_angle])
+
+        # Each operation has an unambiguous encoding: unused coordinates and
+        # scalar slots must be zero. Cover each distinct validation rule.
+        for malformed_unused in (
+            [0.0, 1.0, 2.0, 1.0, 2.0, 1.0],
+            [2.0, 3.0, 4.0, 1.0, 0.0, 0.0],
+            [2.0, 3.0, 4.0, 0.0, 1.0, 0.0],
+            [2.0, 3.0, 4.0, 0.0, 0.0, 1.0],
+            [3.0, 3.0, 4.0, 1.0, 0.0, 0.0],
+            [3.0, 3.0, 4.0, 0.0, 1.0, 0.0],
+            [3.0, 3.0, 4.0, 0.0, 0.0, 1.0],
+            [4.0, 1.0, 2.0, 3.0, 4.0, 1.0],
+            [5.0, 1.0, 2.0, 3.0, 4.0, 1.0],
+            [6.0, 1.0, 2.0, 1.0, 0.0, 2.0],
+            [6.0, 1.0, 2.0, 0.0, 1.0, 2.0],
+            [7.0, 1.0, 2.0, 3.0, 4.0, 1.0],
+            [8.0, 1.0, 2.0, 3.0, 4.0, 1.0],
+            [9.0, 1.0, 2.0, 1.0, 0.0, 0.5],
+            [9.0, 1.0, 2.0, 0.0, 1.0, 0.5],
+            [10.0, 1.0, 2.0, 3.0, 4.0, 1.0],
+        ):
+            add_vector2_case(malformed_unused)
+
+        # The source rejects normalization when computed length is zero,
+        # including a nonzero vector whose squared components underflow.
+        add_vector2_case([3.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        add_vector2_case([3.0, 1e-200, 0.0, 0.0, 0.0, 0.0])
+
+        # The operation tuple must contain exactly six values.
+        add_vector2_case([4.0, 1.0, 2.0, 3.0, 4.0])
+        add_vector2_case([4.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+
+        # The shared capacity probe uses a scalar-returning first workload
+        # case, so separately reject capacity one for a valid vector result.
+        records.append((valid_add, -2, [], 1, 0, 0))
+    elif algorithm == "projectile_motion":
+        oracle = ORACLES[algorithm]
+
+        def add_projectile_case(inputs: list[float]) -> None:
+            expected_output = oracle(inputs)
+            expected_result = -1 if expected_output is None else len(expected_output)
+            records.append((inputs, expected_result,
+                            [] if expected_output is None else expected_output,
+                            workspace, 0, 0))
+
+        valid_input = [250.0, 37.0, 12.5, 9.80665]
+        # Every parameter must be finite before the trajectory formulas run.
+        for index in range(4):
+            for special in (math.nan, math.inf, -math.inf):
+                nonfinite = list(valid_input)
+                nonfinite[index] = special
+                add_projectile_case(nonfinite)
 
     lines = [f"{len(records)} {absolute_tolerance:.17g} {relative_tolerance:.17g} {workspace}\n"]
     for inputs, expected_result, expected_output, capacity, input_null, output_null in records:

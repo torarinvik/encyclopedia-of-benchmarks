@@ -1,0 +1,94 @@
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern atan2(y: f64, x: f64) -> f64
+extern fabs(value: f64) -> f64
+
+const PI_VALUE: f64 = 3.14159265358979323846
+const WGS84_A: f64 = 6378137.0
+const WGS84_B: f64 = 6356752.314245
+
+def radar_target_calculation_impl(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if values == null or length != 6: return -1
+    index: mutable usize = 0
+    while index < length:
+        value: f64 = values[index]
+        if value != value: return -1
+        index <- index + 1
+
+    radar_lat: f64 = values[0]
+    radar_lon: f64 = values[1]
+    radar_alt: f64 = values[2]
+    azimuth_deg: f64 = values[3]
+    range_m: f64 = values[4]
+    elevation_deg: f64 = values[5]
+    if radar_lat < -80.0 or radar_lat > 80.0: return -1
+    if radar_lon < -180.0 or radar_lon > 180.0: return -1
+    if radar_alt < -1000.0 or radar_alt > 10000.0: return -1
+    if azimuth_deg < -360.0 or azimuth_deg > 360.0: return -1
+    if range_m < 0.0 or range_m > 200000.0: return -1
+    if elevation_deg < -30.0 or elevation_deg > 30.0: return -1
+
+    a_squared: f64 = WGS84_A * WGS84_A
+    b_squared: f64 = WGS84_B * WGS84_B
+    e_squared: f64 = 1.0 - (b_squared / a_squared)
+    ep_squared: f64 = (a_squared - b_squared) / b_squared
+    az_rad: f64 = azimuth_deg * PI_VALUE / 180.0
+    el_rad: f64 = elevation_deg * PI_VALUE / 180.0
+    east: f64 = range_m * cos(el_rad) * sin(az_rad)
+    north: f64 = range_m * cos(el_rad) * cos(az_rad)
+    up: f64 = range_m * sin(el_rad)
+
+    lat_rad: f64 = radar_lat * PI_VALUE / 180.0
+    lon_rad: f64 = radar_lon * PI_VALUE / 180.0
+    sin_lat: f64 = sin(lat_rad)
+    cos_lat: f64 = cos(lat_rad)
+    n_radius: f64 = WGS84_A / sqrt(1.0 - e_squared * sin_lat * sin_lat)
+    radar_x: f64 = (n_radius + radar_alt) * cos_lat * cos(lon_rad)
+    radar_y: f64 = (n_radius + radar_alt) * cos_lat * sin(lon_rad)
+    radar_z: f64 = (n_radius * (1.0 - e_squared) + radar_alt) * sin_lat
+
+    sin_lon: f64 = sin(lon_rad)
+    cos_lon: f64 = cos(lon_rad)
+    dx: f64 = -sin_lon * east - sin_lat * cos_lon * north + cos_lat * cos_lon * up
+    dy: f64 = cos_lon * east - sin_lat * sin_lon * north + cos_lat * sin_lon * up
+    dz: f64 = cos_lat * north + sin_lat * up
+    target_x: f64 = radar_x + dx
+    target_y: f64 = radar_y + dy
+    target_z: f64 = radar_z + dz
+
+    p: f64 = sqrt(target_x * target_x + target_y * target_y)
+    target_lat: mutable f64 = 0.0
+    target_lon: mutable f64 = 0.0
+    target_alt: mutable f64 = 0.0
+    if p == 0.0:
+        target_lon <- 0.0
+        if target_z > 0.0:
+            target_lat <- 90.0
+        else:
+            target_lat <- -90.0
+        target_alt <- fabs(target_z) - WGS84_B
+    else:
+        theta: f64 = atan2(target_z * WGS84_A, p * WGS84_B)
+        sin_theta: f64 = sin(theta)
+        cos_theta: f64 = cos(theta)
+        target_lon_rad: f64 = atan2(target_y, target_x)
+        sin_theta_cubed: f64 = sin_theta * sin_theta * sin_theta
+        cos_theta_cubed: f64 = cos_theta * cos_theta * cos_theta
+        target_lat_rad: f64 = atan2(
+            target_z + ep_squared * WGS84_B * sin_theta_cubed,
+            p - e_squared * WGS84_A * cos_theta_cubed
+        )
+        target_sin_lat: f64 = sin(target_lat_rad)
+        target_n_radius: f64 = WGS84_A / sqrt(1.0 - e_squared * target_sin_lat * target_sin_lat)
+        target_alt <- (p / cos(target_lat_rad)) - target_n_radius
+        target_lat <- target_lat_rad * 180.0 / PI_VALUE
+        target_lon <- target_lon_rad * 180.0 / PI_VALUE
+
+    if output == null or capacity < 3: return -2
+    output[0] <- target_lat
+    output[1] <- target_lon
+    output[2] <- target_alt
+    3
+
+export fn radar_target_calculation(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = radar_target_calculation_impl

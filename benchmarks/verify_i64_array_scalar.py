@@ -515,8 +515,40 @@ from hash_map_separate_chaining_oracle import MAX_KEY as HASH_MAP_SEPARATE_CHAIN
 from hash_map_separate_chaining_oracle import MAX_OPERATIONS as HASH_MAP_SEPARATE_CHAINING_MAX_OPERATIONS
 from hash_map_separate_chaining_oracle import MAX_VALUE as HASH_MAP_SEPARATE_CHAINING_MAX_VALUE
 from hash_map_separate_chaining_oracle import expected_result as hash_map_separate_chaining_oracle
+from undirected_graph_oracle import MAX_EDGES as UNDIRECTED_GRAPH_MAX_EDGES
+from undirected_graph_oracle import MAX_INPUT_LENGTH as MAX_UNDIRECTED_GRAPH_INPUT_LENGTH
+from undirected_graph_oracle import MAX_OPERATIONS as UNDIRECTED_GRAPH_MAX_OPERATIONS
+from undirected_graph_oracle import MAX_VERTICES as UNDIRECTED_GRAPH_MAX_VERTICES
+from undirected_graph_oracle import MAX_WEIGHT as UNDIRECTED_GRAPH_MAX_WEIGHT
+from undirected_graph_oracle import MIN_WEIGHT as UNDIRECTED_GRAPH_MIN_WEIGHT
+from undirected_graph_oracle import expected_result as undirected_graph_oracle
 from two_pointer_technique_oracle import MAX_NODES as TWO_POINTER_TECHNIQUE_MAX_NODES
 from two_pointer_technique_oracle import expected_result as two_pointer_technique_oracle
+from two_pointers_pair_exists_oracle import MAX_INPUT_LENGTH as MAX_TWO_POINTERS_PAIR_EXISTS_INPUT_LENGTH
+from two_pointers_pair_exists_oracle import expected_result as two_pointers_pair_exists_oracle
+from two_pointers_pair_count_oracle import MAX_INPUT_LENGTH as MAX_TWO_POINTERS_PAIR_COUNT_INPUT_LENGTH
+from two_pointers_pair_count_oracle import MAX_VALUES as TWO_POINTERS_PAIR_COUNT_MAX_VALUES
+from two_pointers_pair_count_oracle import expected_result as two_pointers_pair_count_oracle
+from monotonic_queue_oracle import I32_MAX as MONOTONIC_QUEUE_I32_MAX
+from monotonic_queue_oracle import I32_MIN as MONOTONIC_QUEUE_I32_MIN
+from monotonic_queue_oracle import MAX_COUNT as MONOTONIC_QUEUE_MAX_COUNT
+from monotonic_queue_oracle import MAX_INPUT_LENGTH as MAX_MONOTONIC_QUEUE_INPUT_LENGTH
+from monotonic_queue_oracle import expected_result as monotonic_queue_oracle
+from job_scheduling_with_deadline_oracle import MAX_ID as JOB_SCHEDULING_MAX_ID
+from job_scheduling_with_deadline_oracle import MAX_INPUT_LENGTH as MAX_JOB_SCHEDULING_INPUT_LENGTH
+from job_scheduling_with_deadline_oracle import MAX_JOBS as JOB_SCHEDULING_MAX_JOBS
+from job_scheduling_with_deadline_oracle import MAX_PROFIT as JOB_SCHEDULING_MAX_PROFIT
+from job_scheduling_with_deadline_oracle import expected_result as job_scheduling_with_deadline_oracle
+from pareto_optimization_oracle import MAX_COLS as PARETO_OPTIMIZATION_MAX_COLS
+from pareto_optimization_oracle import MAX_INPUT_LENGTH as MAX_PARETO_OPTIMIZATION_INPUT_LENGTH
+from pareto_optimization_oracle import MAX_ROWS as PARETO_OPTIMIZATION_MAX_ROWS
+from pareto_optimization_oracle import expected_result as pareto_optimization_oracle
+from rgbhex_oracle import MAX_INPUT_LENGTH as MAX_RGBHEX_INPUT_LENGTH
+from rgbhex_oracle import MAX_RGB as RGBHEX_MAX_RGB
+from rgbhex_oracle import expected_result as rgbhex_oracle
+from kasai_algorithm_oracle import MAX_INPUT_LENGTH as MAX_KASAI_ALGORITHM_INPUT_LENGTH
+from kasai_algorithm_oracle import MAX_LENGTH as KASAI_ALGORITHM_MAX_LENGTH
+from kasai_algorithm_oracle import expected_result as kasai_algorithm_oracle
 from two_pset_oracle import ELEMENT_LIMIT as TWO_PSET_ELEMENT_LIMIT
 from two_pset_oracle import MAX_INPUT_LENGTH as MAX_TWO_PSET_INPUT_LENGTH
 from two_pset_oracle import MAX_OPERATIONS as TWO_PSET_MAX_OPERATIONS
@@ -617,7 +649,15 @@ ALGORITHMS += ("two_phase_commit",)
 ALGORITHMS += ("ring_buffer",)
 ALGORITHMS += ("hash_map_open_addressing",)
 ALGORITHMS += ("hash_map_separate_chaining",)
+ALGORITHMS += ("undirected_graph",)
 ALGORITHMS += ("two_pointer_technique",)
+ALGORITHMS += ("two_pointers_pair_exists",)
+ALGORITHMS += ("two_pointers_pair_count",)
+ALGORITHMS += ("monotonic_queue",)
+ALGORITHMS += ("job_scheduling_with_deadline",)
+ALGORITHMS += ("pareto_optimization",)
+ALGORITHMS += ("rgbhex",)
+ALGORITHMS += ("kasai_algorithm",)
 ALGORITHMS += ("two_pset",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
@@ -1158,8 +1198,24 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return hash_map_open_addressing_oracle(values)
     if algorithm == "hash_map_separate_chaining":
         return hash_map_separate_chaining_oracle(values)
+    if algorithm == "undirected_graph":
+        return undirected_graph_oracle(values)
     if algorithm == "two_pointer_technique":
         return two_pointer_technique_oracle(values)
+    if algorithm == "two_pointers_pair_exists":
+        return two_pointers_pair_exists_oracle(values)
+    if algorithm == "two_pointers_pair_count":
+        return two_pointers_pair_count_oracle(values)
+    if algorithm == "monotonic_queue":
+        return monotonic_queue_oracle(values)
+    if algorithm == "job_scheduling_with_deadline":
+        return job_scheduling_with_deadline_oracle(values)
+    if algorithm == "pareto_optimization":
+        return pareto_optimization_oracle(values)
+    if algorithm == "rgbhex":
+        return rgbhex_oracle(values)
+    if algorithm == "kasai_algorithm":
+        return kasai_algorithm_oracle(values)
     if algorithm == "two_pset":
         return two_pset_oracle(values)
     if algorithm == "gomory_hu_tree":
@@ -2475,6 +2531,231 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             cases[tuple(values)] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
+    elif algorithm == "undirected_graph":
+        # Include the empty graph, an isolated vertex, and a weighted disconnected forest.
+        valid_inputs = (
+            (0, 0, 0),
+            (2, 0, 0),
+            (2, 1, 0, 1, 5, 0),
+            (1, 0, 4, 3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6, 0, 0, 0),
+            (5, 4, 0, 1, -4, 1, 2, 3, 0, 2, 8, 3, 4, 0, 4,
+             3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6, 0, 0, 0),
+            (3, 0, 3, 0, 0, 1, 5, 0, 1, 2, -2, 1, 0, 1, 0),
+            (3, 2, 0, 1, 4, 1, 2, 8, 3, 1, 0, 1, 0, 0, 0, 2, 4, 2, 0, 2, 0),
+            (2, 1, 0, 1, 5, 1, 1, 0, 1, 0),
+        )
+        for values in valid_inputs:
+            cases[values] = oracle(algorithm, list(values))
+
+        # Deterministic valid mutation traces exercise both edge orientations, summaries,
+        # weight replacement, missing-edge deletion, and weight reuse after deletion.
+        rng_undirected_graph = random.Random(20261016)
+        for _ in range(256):
+            vertex_count = rng_undirected_graph.randint(0, UNDIRECTED_GRAPH_MAX_VERTICES)
+            all_pairs = [(u, v) for u in range(vertex_count) for v in range(u + 1, vertex_count)]
+            rng_undirected_graph.shuffle(all_pairs)
+            initial_count = rng_undirected_graph.randint(0, len(all_pairs))
+            initial_pairs = all_pairs[:initial_count]
+            initial_weights = rng_undirected_graph.sample(
+                range(UNDIRECTED_GRAPH_MIN_WEIGHT, UNDIRECTED_GRAPH_MAX_WEIGHT + 1),
+                initial_count,
+            )
+            active = dict(zip(initial_pairs, initial_weights))
+            values_list = [vertex_count, initial_count]
+            for (u, v), weight in active.items():
+                values_list.extend((u, v, weight))
+
+            operations: list[int] = []
+            pair_choices = [(u, v) for u in range(vertex_count) for v in range(u + 1, vertex_count)]
+            operation_count = rng_undirected_graph.randint(0, UNDIRECTED_GRAPH_MAX_OPERATIONS)
+            for _operation in range(operation_count):
+                opcode = (rng_undirected_graph.choice((3, 4, 5, 6)) if not pair_choices
+                          else rng_undirected_graph.choice((0, 0, 1, 2, 3, 4, 5, 6)))
+                if opcode == 0:
+                    pair = rng_undirected_graph.choice(pair_choices)
+                    endpoints = pair if rng_undirected_graph.randrange(2) == 0 else pair[::-1]
+                    other_weights = {weight for other_pair, weight in active.items() if other_pair != pair}
+                    weight = rng_undirected_graph.randint(UNDIRECTED_GRAPH_MIN_WEIGHT,
+                                                         UNDIRECTED_GRAPH_MAX_WEIGHT)
+                    while weight in other_weights:
+                        weight = rng_undirected_graph.randint(UNDIRECTED_GRAPH_MIN_WEIGHT,
+                                                             UNDIRECTED_GRAPH_MAX_WEIGHT)
+                    operations.extend((0, endpoints[0], endpoints[1], weight))
+                    active[pair] = weight
+                elif opcode == 1:
+                    pair = rng_undirected_graph.choice(pair_choices)
+                    endpoints = pair if rng_undirected_graph.randrange(2) == 0 else pair[::-1]
+                    operations.extend((1, endpoints[0], endpoints[1], 0))
+                    active.pop(pair, None)
+                elif opcode == 2:
+                    pair = rng_undirected_graph.choice(pair_choices)
+                    endpoints = pair if rng_undirected_graph.randrange(2) == 0 else pair[::-1]
+                    operations.extend((2, endpoints[0], endpoints[1], 0))
+                else:
+                    operations.extend((opcode, 0, 0, 0))
+            values_list.extend((operation_count, *operations))
+            values = tuple(values_list)
+            cases[values] = oracle(algorithm, list(values))
+
+        # Reach the 599-word cap with the complete 8-vertex graph and 128 summaries.
+        maximum_values_list = [UNDIRECTED_GRAPH_MAX_VERTICES, UNDIRECTED_GRAPH_MAX_EDGES]
+        edge_weight = 1
+        for u in range(UNDIRECTED_GRAPH_MAX_VERTICES):
+            for v in range(u + 1, UNDIRECTED_GRAPH_MAX_VERTICES):
+                maximum_values_list.extend((u, v, edge_weight))
+                edge_weight += 1
+        maximum_values_list.append(UNDIRECTED_GRAPH_MAX_OPERATIONS)
+        maximum_values_list.extend((3, 0, 0, 0) * UNDIRECTED_GRAPH_MAX_OPERATIONS)
+        maximum_values = tuple(maximum_values_list)
+        if len(maximum_values) != MAX_UNDIRECTED_GRAPH_INPUT_LENGTH:
+            raise RuntimeError("undirected_graph maximum input length mismatch")
+        cases[maximum_values] = oracle(algorithm, list(maximum_values))
+
+        malformed = (
+            (), (0, 0), (9, 0, 0), (8, UNDIRECTED_GRAPH_MAX_EDGES + 1, 0),
+            (1, 0, UNDIRECTED_GRAPH_MAX_OPERATIONS + 1),
+            (1, 0, 1), (1, 0, 0, 0),
+            (2, 2, 0, 1, 1, 0, 1, 2, 0),
+            (3, 2, 0, 1, 4, 1, 2, 4, 0),
+            (2, 1, 0, 0, 1, 0),
+            (2, 1, 1, 0, 1, 0),
+            (2, 1, 0, 1, UNDIRECTED_GRAPH_MAX_WEIGHT + 1, 0),
+            (3, 2, 0, 1, 5, 1, 2, 6, 1, 0, 0, 2, 5),
+            (2, 0, 1, 0, 0, 2, 1),
+            (2, 0, 1, 0, 1, 1, 0),
+            (2, 0, 1, 0, 0, 1, UNDIRECTED_GRAPH_MIN_WEIGHT - 1),
+            (2, 0, 1, 1, 0, 1, 1),
+            (2, 0, 1, 2, 0, 1, 1),
+            (1, 0, 1, 3, 1, 0, 0),
+            (1, 0, 1, 4, 0, 1, 0),
+            (1, 0, 1, 9, 0, 0, 0),
+            (I64_MIN,), (I64_MAX,),
+            tuple([0] * (MAX_UNDIRECTED_GRAPH_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "two_pointers_pair_exists":
+        rng_pair_exists = random.Random(20261016)
+        for _ in range(256):
+            value_count = rng_pair_exists.randint(0, 256)
+            sorted_values = sorted(rng_pair_exists.randint(-1_000_000, 1_000_000)
+                                  for _ in range(value_count))
+            if value_count >= 2 and rng_pair_exists.randrange(2):
+                left, right = rng_pair_exists.sample(range(value_count), 2)
+                target = sorted_values[left] + sorted_values[right]
+            else:
+                target = rng_pair_exists.randint(-2_000_000, 2_000_000)
+            values = tuple((target, value_count, *sorted_values))
+            cases[values] = oracle(algorithm, list(values))
+
+        # Exercise all 256 values at the exact packed-input limit with a
+        # sorted domain-spanning array that contains distinct matching indices.
+        maximum_values = tuple((0, 256, *range(-128, 128)))
+        if len(maximum_values) != MAX_TWO_POINTERS_PAIR_EXISTS_INPUT_LENGTH:
+            raise RuntimeError("two_pointers_pair_exists maximum input length mismatch")
+        cases[maximum_values] = oracle(algorithm, list(maximum_values))
+
+        malformed = (
+            (), (0,), (0, -1), (0, 257), (0, 1), (0, 2, 1), (0, 0, 5),
+            (2_000_001, 0), (-2_000_001, 0), (0, 1, 1_000_001),
+            (0, 1, -1_000_001), (4, 3, 1, 0, 3), (0, 3, 1, 2),
+            (I64_MIN, 0), (I64_MAX, 0), (0, 1, I64_MIN), (0, 1, I64_MAX),
+            tuple([0] * (MAX_TWO_POINTERS_PAIR_EXISTS_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "two_pointers_pair_count":
+        if not any(len(case["input_values"]) == MAX_TWO_POINTERS_PAIR_COUNT_INPUT_LENGTH
+                   and case["input_values"][1] == TWO_POINTERS_PAIR_COUNT_MAX_VALUES
+                   for case in workload["cases"]):
+            raise RuntimeError("two_pointers_pair_count maximum input fixture is missing")
+        rng_pair_count = random.Random(20261016)
+        for _ in range(256):
+            value_count = rng_pair_count.randint(0, TWO_POINTERS_PAIR_COUNT_MAX_VALUES)
+            items = rng_pair_count.sample(range(-1_000_000, 1_000_001), value_count)
+            if value_count >= 2 and rng_pair_count.randrange(2):
+                left, right = rng_pair_count.sample(range(value_count), 2)
+                target = items[left] + items[right]
+            else:
+                target = rng_pair_count.randint(-2_000_000, 2_000_000)
+            values = tuple((target, value_count, *items))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (0, -1), (0, 257), (2_000_001, 0), (-2_000_001, 0),
+            (0, 1, 1_000_001), (0, 1, -1_000_001), (0, 2, 3, 3),
+            (0, 3, 1, 2), (0, 0, 1), (0, 1, I64_MIN), (I64_MAX, 0),
+            (I64_MIN, 0), tuple([0] * (MAX_TWO_POINTERS_PAIR_COUNT_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "monotonic_queue":
+        if not any(len(case["input_values"]) == MAX_MONOTONIC_QUEUE_INPUT_LENGTH
+                   and case["input_values"][0] == MONOTONIC_QUEUE_MAX_COUNT
+                   for case in workload["cases"]):
+            raise RuntimeError("monotonic_queue maximum input fixture is missing")
+        rng_monotonic_queue = random.Random(20261016)
+        for length in range(1, 17):
+            for window in sorted({1, (length + 1) // 2, length}):
+                items = tuple((index * 37 % 19) - 9 for index in range(length))
+                values = (length, window, *items)
+                cases[values] = oracle(algorithm, list(values))
+        for _ in range(256):
+            count = rng_monotonic_queue.randint(1, 128)
+            window = rng_monotonic_queue.randint(1, count)
+            items = tuple(rng_monotonic_queue.randint(
+                MONOTONIC_QUEUE_I32_MIN, MONOTONIC_QUEUE_I32_MAX
+            ) for _ in range(count))
+            values = (count, window, *items)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (1,), (0, 1), (1, 0, 0), (1, 2, 0), (1, 1), (1, 1, 0, 0),
+            (1, 1, MONOTONIC_QUEUE_I32_MIN - 1),
+            (1, 1, MONOTONIC_QUEUE_I32_MAX + 1),
+            (I64_MIN, 1), (I64_MAX, 1), (MONOTONIC_QUEUE_MAX_COUNT + 1, 1),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "job_scheduling_with_deadline":
+        if not any(len(case["input_values"]) == MAX_JOB_SCHEDULING_INPUT_LENGTH
+                   and case["input_values"][0] == JOB_SCHEDULING_MAX_JOBS
+                   for case in workload["cases"]):
+            raise RuntimeError("job_scheduling_with_deadline maximum input fixture is missing")
+
+        rng_job_scheduling = random.Random(20261016)
+        for _ in range(256):
+            job_count = rng_job_scheduling.randint(0, JOB_SCHEDULING_MAX_JOBS)
+            job_ids = rng_job_scheduling.sample(range(JOB_SCHEDULING_MAX_ID + 1), job_count)
+            values_list = [job_count]
+            for job_id in job_ids:
+                values_list.extend((job_id, rng_job_scheduling.randint(1, 32),
+                                    rng_job_scheduling.randint(1, 32),
+                                    rng_job_scheduling.randint(-JOB_SCHEDULING_MAX_PROFIT,
+                                                               JOB_SCHEDULING_MAX_PROFIT)))
+            values = tuple(values_list)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0, 0), (-1,), (JOB_SCHEDULING_MAX_JOBS + 1,),
+            (I64_MIN,), (I64_MAX,), (1, 1, 1, 1), (0, 1),
+            (2, 7, 1, 1, 5, 7, 2, 2, 4),
+            (1, -1, 1, 1, 0), (1, JOB_SCHEDULING_MAX_ID + 1, 1, 1, 0),
+            (1, I64_MIN, 1, 1, 0), (1, I64_MAX, 1, 1, 0),
+            (1, 0, 0, 1, 0), (1, 0, 33, 1, 0),
+            (1, 0, 1, 0, 0), (1, 0, 1, 33, 0),
+            (1, 0, 1, 1, -JOB_SCHEDULING_MAX_PROFIT - 1),
+            (1, 0, 1, 1, JOB_SCHEDULING_MAX_PROFIT + 1),
+            (1, 0, 1, 1, I64_MIN), (1, 0, 1, 1, I64_MAX),
+            tuple([0] * (MAX_JOB_SCHEDULING_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
     elif algorithm == "two_pointer_technique":
         rng_two_pointer = random.Random(20261016)
         for _ in range(256):
@@ -2533,6 +2814,92 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             (2, 1, -1, I64_MIN, 7), (2, 1, -1, I64_MAX, 7),
             (1, I64_MIN, -1, 0), (1, I64_MAX, -1, 0),
             tuple([0] * (4 + TWO_POINTER_TECHNIQUE_MAX_NODES + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "pareto_optimization":
+        if not any(len(case["input_values"]) == MAX_PARETO_OPTIMIZATION_INPUT_LENGTH
+                   and case["input_values"][:2] == [PARETO_OPTIMIZATION_MAX_ROWS,
+                                                   PARETO_OPTIMIZATION_MAX_COLS]
+                   for case in workload["cases"]):
+            raise RuntimeError("pareto_optimization maximum input fixture is missing")
+
+        # Exhaust compact duplicate, dominance, and tradeoff patterns independently of
+        # the package fixtures, then add seeded matrices across the complete bounded shape.
+        for rows in range(1, 4):
+            for cols in range(1, 3):
+                for cells in product((-1, 0, 1), repeat=rows * cols):
+                    values = (rows, cols, *cells)
+                    cases[values] = oracle(algorithm, list(values))
+
+        rng_pareto = random.Random(20261016)
+        for _ in range(256):
+            rows = rng_pareto.randint(1, PARETO_OPTIMIZATION_MAX_ROWS)
+            cols = rng_pareto.randint(1, PARETO_OPTIMIZATION_MAX_COLS)
+            cells = tuple(rng_pareto.randint(-1000, 1000) for _ in range(rows * cols))
+            values = (rows, cols, *cells)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (1,), (0, 1), (PARETO_OPTIMIZATION_MAX_ROWS + 1, 1),
+            (1, PARETO_OPTIMIZATION_MAX_COLS + 1), (1, 1),
+            (1, 1, -1001), (1, 1, 1001), (1, 1, I64_MIN), (1, 1, I64_MAX),
+            (I64_MIN, 1), (I64_MAX, 1),
+            tuple([0] * (MAX_PARETO_OPTIMIZATION_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "rgbhex":
+        if not any(len(case["input_values"]) == MAX_RGBHEX_INPUT_LENGTH
+                   for case in workload["cases"]):
+            raise RuntimeError("rgbhex maximum malformed-input fixture is missing")
+
+        rng_rgbhex = random.Random(20261016)
+        for _ in range(256):
+            if rng_rgbhex.randrange(2) == 0:
+                values = (0, rng_rgbhex.randint(0, RGBHEX_MAX_RGB), 0, 0)
+            else:
+                values = (1, rng_rgbhex.randint(0, 255), rng_rgbhex.randint(0, 255),
+                          rng_rgbhex.randint(0, 255))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (2, 0, 0, 0), (0, -1, 0, 0),
+            (0, RGBHEX_MAX_RGB + 1, 0, 0), (0, 1, 1, 0), (0, 1, 0, 1),
+            (1, -1, 0, 0), (1, 256, 0, 0), (1, 0, -1, 0), (1, 0, 0, 256),
+            (I64_MIN, 0, 0, 0), (I64_MAX, 0, 0, 0),
+            (0, I64_MIN, 0, 0), (0, I64_MAX, 0, 0),
+            (1, 0, 0, I64_MIN), (1, 0, 0, I64_MAX),
+            tuple([0] * (MAX_RGBHEX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "kasai_algorithm":
+        if not any(len(case["input_values"]) == MAX_KASAI_ALGORITHM_INPUT_LENGTH
+                   and case["input_values"][0] == KASAI_ALGORITHM_MAX_LENGTH
+                   for case in workload["cases"]):
+            raise RuntimeError("kasai_algorithm maximum input fixture is missing")
+
+        rng_kasai = random.Random(20261016)
+        for _ in range(256):
+            count = rng_kasai.randint(0, KASAI_ALGORITHM_MAX_LENGTH)
+            text = tuple(rng_kasai.randint(0, 127) for _ in range(count))
+            suffix_array = tuple(sorted(range(count), key=lambda start: bytes(text[start:])))
+            values = (count, *text, *suffix_array)
+            if len(values) > MAX_KASAI_ALGORITHM_INPUT_LENGTH:
+                raise RuntimeError("kasai_algorithm generated input exceeds its reviewed bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (-1,), (0, 0), (KASAI_ALGORITHM_MAX_LENGTH + 1,),
+            (1, 65), (1, 65, 0, 0),
+            (1, -1, 0), (1, 128, 0),
+            (2, 65, 66, 0, 0), (2, 66, 65, 0, 1),
+            (2, 65, 66, -1, 1), (2, 65, 66, 0, 2),
+            tuple([0] * (MAX_KASAI_ALGORITHM_INPUT_LENGTH + 1)),
         )
         for values in malformed:
             cases[tuple(values)] = oracle(algorithm, list(values))

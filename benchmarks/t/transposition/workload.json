@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "transposition-go-bounded-i64-array-scalar-v1",
+  "algorithm": "transposition",
+  "function_symbol": "transposition",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_length": 547,
+    "layout": "[mode, key_length, key ASCII bytes..., text_length, printable ASCII text bytes...]",
+    "mode": {"encrypt": 0, "decrypt": 1},
+    "key_length_range": [1, 32],
+    "key_domain": "ASCII letters A-Z or a-z",
+    "text_length_range": [1, 512],
+    "text_domain": "printable ASCII bytes 32..126",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "low 63 bits of FNV-1a-64 over output rune count as u64 little-endian followed by output ASCII code points as u32 little-endian",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"encrypt_duplicate_key","input_values":[0,5,66,97,66,97,97,11,72,69,76,76,79,32,87,79,82,76,68],"input_length":19,"expected_result":4368863934955275498},
+    {"id":"decrypt_partial_block","input_values":[1,5,66,97,66,97,97,15,69,76,79,72,32,87,76,68,82,32,76,79,32,72,69],"input_length":23,"expected_result":8358440889788587302},
+    {"id":"reject_plaintext_trailing_space","input_values":[0,3,107,101,121,4,65,66,32,32],"input_length":10,"expected_result":-1},
+    {"id":"reject_non_letter_key","input_values":[0,3,107,49,121,3,65,66,67],"input_length":9,"expected_result":-1},
+    {"id":"reject_mismatched_length","input_values":[0,3,107,101,121,4,65,66,67],"input_length":9,"expected_result":-1}
+  ]
+}

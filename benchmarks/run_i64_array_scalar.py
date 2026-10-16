@@ -166,8 +166,24 @@ from hash_map_open_addressing_oracle import MAX_INPUT_LENGTH as MAX_HASH_MAP_OPE
 from hash_map_open_addressing_oracle import oracle as hash_map_open_addressing_expected
 from hash_map_separate_chaining_oracle import MAX_INPUT_LENGTH as MAX_HASH_MAP_SEPARATE_CHAINING_INPUT_LENGTH
 from hash_map_separate_chaining_oracle import expected_result as hash_map_separate_chaining_expected
+from undirected_graph_oracle import MAX_INPUT_LENGTH as MAX_UNDIRECTED_GRAPH_INPUT_LENGTH
+from undirected_graph_oracle import expected_result as undirected_graph_expected
 from two_pointer_technique_oracle import MAX_NODES as TWO_POINTER_TECHNIQUE_MAX_NODES
 from two_pointer_technique_oracle import expected_result as two_pointer_technique_expected
+from two_pointers_pair_exists_oracle import MAX_INPUT_LENGTH as MAX_TWO_POINTERS_PAIR_EXISTS_INPUT_LENGTH
+from two_pointers_pair_exists_oracle import expected_result as two_pointers_pair_exists_expected
+from two_pointers_pair_count_oracle import MAX_INPUT_LENGTH as MAX_TWO_POINTERS_PAIR_COUNT_INPUT_LENGTH
+from two_pointers_pair_count_oracle import expected_result as two_pointers_pair_count_expected
+from monotonic_queue_oracle import MAX_INPUT_LENGTH as MAX_MONOTONIC_QUEUE_INPUT_LENGTH
+from monotonic_queue_oracle import expected_result as monotonic_queue_expected
+from job_scheduling_with_deadline_oracle import MAX_INPUT_LENGTH as MAX_JOB_SCHEDULING_INPUT_LENGTH
+from job_scheduling_with_deadline_oracle import expected_result as job_scheduling_with_deadline_expected
+from pareto_optimization_oracle import MAX_INPUT_LENGTH as MAX_PARETO_OPTIMIZATION_INPUT_LENGTH
+from pareto_optimization_oracle import expected_result as pareto_optimization_expected
+from rgbhex_oracle import MAX_INPUT_LENGTH as MAX_RGBHEX_INPUT_LENGTH
+from rgbhex_oracle import expected_result as rgbhex_expected
+from kasai_algorithm_oracle import MAX_INPUT_LENGTH as MAX_KASAI_ALGORITHM_INPUT_LENGTH
+from kasai_algorithm_oracle import expected_result as kasai_algorithm_expected
 from two_pset_oracle import MAX_INPUT_LENGTH as MAX_TWO_PSET_INPUT_LENGTH
 from two_pset_oracle import oracle as two_pset_expected
 from gcounter_oracle import MAX_INPUT_LENGTH as MAX_GCOUNTER_INPUT_LENGTH
@@ -1025,7 +1041,15 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_GENERIC_HASH_MAP_INPUT_LENGTH if algorithm == "generic_hash_map"
                         else MAX_HASH_MAP_OPEN_ADDRESSING_INPUT_LENGTH if algorithm == "hash_map_open_addressing"
                         else MAX_HASH_MAP_SEPARATE_CHAINING_INPUT_LENGTH if algorithm == "hash_map_separate_chaining"
+                        else MAX_UNDIRECTED_GRAPH_INPUT_LENGTH if algorithm == "undirected_graph"
                         else 4 + TWO_POINTER_TECHNIQUE_MAX_NODES if algorithm == "two_pointer_technique"
+                        else MAX_TWO_POINTERS_PAIR_EXISTS_INPUT_LENGTH if algorithm == "two_pointers_pair_exists"
+                        else MAX_TWO_POINTERS_PAIR_COUNT_INPUT_LENGTH if algorithm == "two_pointers_pair_count"
+                        else MAX_MONOTONIC_QUEUE_INPUT_LENGTH if algorithm == "monotonic_queue"
+                        else MAX_JOB_SCHEDULING_INPUT_LENGTH if algorithm == "job_scheduling_with_deadline"
+                        else MAX_PARETO_OPTIMIZATION_INPUT_LENGTH if algorithm == "pareto_optimization"
+                        else MAX_RGBHEX_INPUT_LENGTH if algorithm == "rgbhex"
+                        else MAX_KASAI_ALGORITHM_INPUT_LENGTH if algorithm == "kasai_algorithm"
                         else MAX_TWO_PSET_INPUT_LENGTH if algorithm == "two_pset"
                         else MAX_GCOUNTER_INPUT_LENGTH if algorithm == "gcounter"
                         else MAX_GENERIC_HEAP_INPUT_LENGTH if algorithm == "generic_heap"
@@ -5769,10 +5793,42 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = hash_map_separate_chaining_expected(values)
         if expected != expected_from_source:
             raise ValueError("hash_map_separate_chaining expected_result must match the bounded separate-chaining map trace")
+    elif algorithm == "undirected_graph":
+        expected_from_source = undirected_graph_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("undirected_graph expected_result must match the bounded undirected weighted graph trace")
     elif algorithm == "two_pointer_technique":
         expected_from_source = two_pointer_technique_expected(values)
         if expected != expected_from_source:
             raise ValueError("two_pointer_technique expected_result must match the bounded linked-list traversal contract")
+    elif algorithm == "two_pointers_pair_exists":
+        expected_from_source = two_pointers_pair_exists_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("two_pointers_pair_exists expected_result must match sorted-array pair existence")
+    elif algorithm == "two_pointers_pair_count":
+        expected_from_source = two_pointers_pair_count_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("two_pointers_pair_count expected_result must match distinct complementary-pair counting")
+    elif algorithm == "monotonic_queue":
+        expected_from_source = monotonic_queue_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("monotonic_queue expected_result must hash the direct sliding-window maxima")
+    elif algorithm == "job_scheduling_with_deadline":
+        expected_from_source = job_scheduling_with_deadline_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("job_scheduling_with_deadline expected_result must match stable arrival-deadline scheduling")
+    elif algorithm == "pareto_optimization":
+        expected_from_source = pareto_optimization_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pareto_optimization expected_result must hash the source-ordered nondominated rows")
+    elif algorithm == "rgbhex":
+        expected_from_source = rgbhex_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rgbhex expected_result must match the bounded packed-color conversion pair")
+    elif algorithm == "kasai_algorithm":
+        expected_from_source = kasai_algorithm_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kasai_algorithm expected_result must match the bounded suffix-array LCP checksum")
     elif algorithm == "two_pset":
         expected_from_source = two_pset_expected(values)
         if expected != expected_from_source:

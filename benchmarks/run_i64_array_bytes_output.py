@@ -423,6 +423,8 @@ from range_in_sorted_array_oracle import expected_output as range_in_sorted_arra
 from cusum_detector_oracle import MAX_INPUT_LENGTH as MAX_CUSUM_DETECTOR_INPUT_LENGTH
 from cusum_detector_oracle import expected_output as cusum_detector_expected_output
 from serialize_deserialize_binary_tree_oracle import MAX_INPUT_LENGTH as MAX_SERIALIZE_DESERIALIZE_BINARY_TREE_INPUT_LENGTH
+from threaded_binary_tree_oracle import MAX_INPUT_LENGTH as MAX_THREADED_BINARY_TREE_INPUT_LENGTH
+from threaded_binary_tree_oracle import expected_output as threaded_binary_tree_expected_output
 
 MAX_INPUT_LENGTH = 4096
 MAX_CORRELATION_MATRIX_ANALYSIS_INPUT_LENGTH = (
@@ -1469,6 +1471,8 @@ RECORDER_WORKSPACE_ALGORITHMS.add('longest_consecutive_characters')
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
+    if algorithm == "threaded_binary_tree":
+        return threaded_binary_tree_expected_output(values)
     if algorithm == "graph_adjacency_list":
         return graph_adjacency_list_expected_output(values)
     if algorithm == "graph_adjacency_matrix":
@@ -12269,6 +12273,7 @@ def main() -> int:
                             18 if algorithm == "ipv6_converter" else
                             34 if algorithm == "hamming_code" else
                             MAX_FIFOCACHE_INPUT_LENGTH if algorithm == "fifocache" else
+                            MAX_THREADED_BINARY_TREE_INPUT_LENGTH if algorithm == "threaded_binary_tree" else
                             MAX_INPUT_LENGTH)
         if (not isinstance(values, list) or len(values) > max_input_length
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):

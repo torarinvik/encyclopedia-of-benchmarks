@@ -1,0 +1,80 @@
+# Stable greedy job scheduling with arrival times and deadlines.
+const MAX_JOBS: usize = 128
+const MAX_INPUT: usize = 513
+const MAX_PROFIT: i64 = 1_000_000
+const PACK_BASE: i64 = 4_294_967_296
+
+def job_scheduling_with_deadline_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > MAX_JOBS.i64(): return -1
+    count: usize = count_value.usize()
+    if length != 1 + 4 * count: return -1
+
+    ids: mutable i64[128] = zeroed
+    arrivals: mutable i64[128] = zeroed
+    deadlines: mutable i64[128] = zeroed
+    profits: mutable i64[128] = zeroed
+    max_deadline: mutable i64 = 0
+    i: mutable usize = 0
+    while i < count:
+        base: usize = 1 + i * 4
+        ids[i] <- input[base]
+        arrivals[i] <- input[base + 1]
+        deadlines[i] <- input[base + 2]
+        profits[i] <- input[base + 3]
+        if ids[i] < 0 or ids[i] > 2_147_483_647 or
+           arrivals[i] < 1 or arrivals[i] > 32 or
+           deadlines[i] < 1 or deadlines[i] > 32 or
+           profits[i] < -MAX_PROFIT or profits[i] > MAX_PROFIT: return -1
+        previous: mutable usize = 0
+        while previous < i:
+            if ids[previous] == ids[i]: return -1
+            previous <- previous + 1
+        if deadlines[i] > max_deadline: max_deadline <- deadlines[i]
+        i <- i + 1
+
+    # Stable insertion sort retains input order when profits are equal.
+    i <- 1
+    while i < count:
+        key_id: i64 = ids[i]
+        key_arrival: i64 = arrivals[i]
+        key_deadline: i64 = deadlines[i]
+        key_profit: i64 = profits[i]
+        position: mutable usize = i
+        while position > 0 and profits[position - 1] < key_profit:
+            ids[position] <- ids[position - 1]
+            arrivals[position] <- arrivals[position - 1]
+            deadlines[position] <- deadlines[position - 1]
+            profits[position] <- profits[position - 1]
+            position <- position - 1
+        ids[position] <- key_id
+        arrivals[position] <- key_arrival
+        deadlines[position] <- key_deadline
+        profits[position] <- key_profit
+        i <- i + 1
+
+    occupied: mutable bool[32] = zeroed
+    scheduled: mutable i64 = 0
+    total_profit: mutable i64 = 0
+    i <- 0
+    while i < count:
+        if arrivals[i] <= deadlines[i]:
+            last_slot: i64 = deadlines[i] - 1
+            if last_slot > max_deadline - 1: last_slot <- max_deadline - 1
+            slot: mutable i64 = last_slot
+            while slot >= arrivals[i] - 1:
+                index: usize = slot.usize()
+                if not occupied[index]:
+                    occupied[index] <- true
+                    scheduled <- scheduled + 1
+                    total_profit <- total_profit + profits[i]
+                    break
+                slot <- slot - 1
+        i <- i + 1
+
+    low_word: i64 = total_profit
+    if low_word < 0: low_word <- low_word + PACK_BASE
+    scheduled * PACK_BASE + low_word
+
+export fn job_scheduling_with_deadline(input: i64&, length: usize) -> i64 = job_scheduling_with_deadline_impl

@@ -1,0 +1,51 @@
+extern floor(value: f64) -> f64
+
+def rayleigh_quotient_impl(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if values == null or length < 1 or length > 273: return -1
+    index: mutable usize = 0
+    while index < length:
+        if values[index] != values[index]: return -1
+        index <- index + 1
+
+    n_value: f64 = values[0]
+    if n_value < 1.0 or n_value > 16.0 or floor(n_value) != n_value: return -1
+    n: usize = n_value.i64().usize()
+    if length != 1 + n * n + n: return -1
+    matrix_start: usize = 1
+    vector_start: usize = 1 + n * n
+
+    row: mutable usize = 0
+    while row < n:
+        col: mutable usize = 0
+        while col < n:
+            value: f64 = values[matrix_start + row * n + col]
+            if value < -1000.0 or value > 1000.0: return -1
+            if col > row and value != values[matrix_start + col * n + row]: return -1
+            col <- col + 1
+        row <- row + 1
+
+    denominator: mutable f64 = 0.0
+    index <- 0
+    while index < n:
+        value: f64 = values[vector_start + index]
+        if value < -100.0 or value > 100.0: return -1
+        denominator <- denominator + value * value
+        index <- index + 1
+    if denominator <= 0.0: return -1
+
+    numerator: mutable f64 = 0.0
+    col: mutable usize = 0
+    while col < n:
+        v_star_dot: mutable f64 = 0.0
+        row <- 0
+        while row < n:
+            v_star_dot <- v_star_dot + values[vector_start + row] * values[matrix_start + row * n + col]
+            row <- row + 1
+        numerator <- numerator + v_star_dot * values[vector_start + col]
+        col <- col + 1
+    quotient: f64 = numerator / denominator
+    if output == null or capacity < 1: return -2
+    output[0] <- quotient
+    1
+
+export fn rayleigh_quotient(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = rayleigh_quotient_impl

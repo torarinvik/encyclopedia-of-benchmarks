@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "magic-square-v1",
+  "algorithm": "magic_square",
+  "input": {
+    "minimum_order": 1,
+    "maximum_order": 31,
+    "valid_orders": "odd integers only",
+    "out_of_range_result": -1
+  },
+  "result": {
+    "kind": "signed_i64_scalar_fnv1a64",
+    "encoding": "low 63 bits of FNV-1a-64 over the order as u8 followed by row-major signed-i32 little-endian square entries",
+    "fnv1a_offset_basis": 14695981039346656037,
+    "fnv1a_prime": 1099511628211
+  },
+  "cases": [
+    {"id": "minimum_order", "input_value": 1, "expected_result": 8649190258590759805},
+    {"id": "small_odd_order", "input_value": 3, "expected_result": 7021094202865728515},
+    {"id": "order_five", "input_value": 5, "expected_result": 8478336704208083121},
+    {"id": "order_seven", "input_value": 7, "expected_result": 6561155359507612727},
+    {"id": "order_nine", "input_value": 9, "expected_result": 8324073360975805813},
+    {"id": "order_eleven", "input_value": 11, "expected_result": 6994864037872034747},
+    {"id": "order_fifteen", "input_value": 15, "expected_result": 9177207727180643375},
+    {"id": "maximum_order", "input_value": 31, "expected_result": 8226090363532084951},
+    {"id": "negative_order", "input_value": -1, "expected_result": -1},
+    {"id": "zero_order", "input_value": 0, "expected_result": -1},
+    {"id": "even_order", "input_value": 2, "expected_result": -1},
+    {"id": "above_maximum", "input_value": 33, "expected_result": -1},
+    {"id": "i64_minimum", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "i64_maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 32,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

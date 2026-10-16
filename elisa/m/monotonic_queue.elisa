@@ -1,0 +1,36 @@
+const MAX_N: usize = 4096
+const MAX_INPUT: usize = 4098
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+def monotonic_queue_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT:
+        return -1
+    n64: i64 = input[0]
+    window64: i64 = input[1]
+    if n64 < 1 or n64 > MAX_N.i64() or window64 < 1 or window64 > n64 or length != (n64 + 2).usize():
+        return -1
+    n: usize = n64.usize()
+    window: usize = window64.usize()
+    for index in 0..<n:
+        if input[2 + index] < -2147483648 or input[2 + index] > 2147483647:
+            return -1
+    deque: mutable usize[4096] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    hash: mutable u64 = FNV_OFFSET
+    for index in 0..<n:
+        while head < tail and deque[head] + window <= index:
+            head <- head + 1
+        while head < tail and input[2 + deque[tail - 1]] <= input[2 + index]:
+            tail <- tail - 1
+        deque[tail] <- index
+        tail <- tail + 1
+        if index + 1 >= window:
+            bits: u32 = input[2 + deque[head]].i32().u32()
+            for byte_index in 0..<4:
+                byte: u32 = (bits >> (byte_index * 8)) & 255.u32()
+                hash <- (hash ^ byte.u64()) * FNV_PRIME
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn monotonic_queue(input: i64&, length: usize) -> i64 = monotonic_queue_impl

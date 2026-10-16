@@ -60,6 +60,7 @@
     {"id": "rotation_quarter_turn", "input_values": [9.0, 1.0, 0.0, 0.0, 0.0, 1.5707963267948966], "input_length": 6, "expected_result": 2, "expected_output": [0.0, 1.0]},
     {"id": "angle_between_is_unwrapped", "input_values": [10.0, -1.0, 0.01, -1.0, -0.01, 0.0], "input_length": 6, "expected_result": 1, "expected_output": [-6.263185973806256]},
     {"id": "zero_vector_normalization_is_invalid", "input_values": [3.0, 0.0, 0.0, 0.0, 0.0, 0.0], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "normalization_underflow_to_zero_is_invalid", "input_values": [3.0, 1.0e-200, 0.0, 0.0, 0.0, 0.0], "input_length": 6, "expected_result": -1, "expected_output": []},
     {"id": "nonzero_unused_vector_field", "input_values": [2.0, 3.0, 4.0, 1.0, 0.0, 0.0], "input_length": 6, "expected_result": -1, "expected_output": []},
     {"id": "fractional_operation", "input_values": [2.5, 0.0, 0.0, 0.0, 0.0, 0.0], "input_length": 6, "expected_result": -1, "expected_output": []},
     {"id": "invalid_input_length", "input_values": [2.0, 3.0, 4.0, 0.0, 0.0], "input_length": 5, "expected_result": -1, "expected_output": []}
