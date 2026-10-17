@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-mcoloring-forest-i64-array-scalar-v1",
+  "algorithm": "mcoloring",
+  "function_symbol": "mcoloring",
+  "description": "Pinned BFS greedy-coloring feasibility on simple undirected forests.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/backtracking/MColoring.java",
+    "symbol": "MColoring.isColoringPossible",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/backtracking/MColoring.java"
+  },
+  "contract": {
+    "operation": "Return the pinned BFS coloring routine's boolean result on a bounded simple undirected forest.",
+    "input_layout": "[vertex_count, color_limit, adjacency_mask_0, ..., adjacency_mask_(vertex_count-1)]",
+    "vertex_count_range": [0, 14],
+    "color_limit_range": [1, 14],
+    "vertex_labels": "The packed contract uses zero-based vertices; adapters map vertex i to pinned Java node i+1.",
+    "adjacency_mask": "Bit j in mask_i represents the undirected edge {i,j}; masks must be symmetric and loopless.",
+    "graph_requirement": "The represented graph must be a simple undirected forest; disconnected components and isolated vertices are allowed.",
+    "source_behavior": "Initialize every node color to 1; scan start vertices in ascending order using BFS; if an edge joins equal colors, increment the neighbor color by one; track the maximum color and return false as soon as it exceeds color_limit.",
+    "scope_note": "This is the pinned routine's boolean result restricted to forests, not a general exact m-colorability solver.",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[vertex_count, color_limit, adjacency_mask_0, ..., adjacency_mask_(vertex_count-1)]",
+    "vertex_count_range": [0, 14],
+    "color_limit_range": [1, 14],
+    "adjacency_mask_range": "0 through (1<<vertex_count)-1",
+    "adjacency_masks_must_be_symmetric": true,
+    "self_loops_allowed": false,
+    "simple_undirected_forest_required": true,
+    "maximum_valid_input_length": 16,
+    "maximum_parseable_input_length": 17,
+    "exact_length": "2+vertex_count",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "boolean_as_i64",
+    "true": 1,
+    "false": 0,
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_graph_minimum_color_limit",
+      "input_values": [0, 1],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "empty_graph_maximum_color_limit",
+      "input_values": [0, 14],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "single_isolated_vertex",
+      "input_values": [1, 1, 0],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "disconnected_isolated_vertices",
+      "input_values": [4, 1, 0, 0, 0, 0],
+      "input_length": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "single_edge_one_color",
+      "input_values": [2, 1, 2, 1],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "single_edge_two_colors",
+      "input_values": [2, 2, 2, 1],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "path_four_two_colors",
+      "input_values": [4, 2, 2, 5, 10, 4],
+      "input_length": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "path_four_one_color",
+      "input_values": [4, 1, 2, 5, 10, 4],
+      "input_length": 6,
+      "expected_result": 0
+    },
+    {
+      "id": "star_two_colors",
+      "input_values": [5, 2, 30, 1, 1, 1, 1],
+      "input_length": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "disconnected_forest_and_isolate",
+      "input_values": [5, 2, 2, 1, 0, 16, 8],
+      "input_length": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "more_colors_than_vertices",
+      "input_values": [2, 14, 2, 1],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_vertex_path",
+      "input_values": [14, 2, 2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 4096],
+      "input_length": 16,
+      "expected_result": 1
+    },
+    {
+      "id": "negative_vertex_count_invalid",
+      "input_values": [-1, 1],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "vertex_count_above_limit_invalid",
+      "input_values": [15, 2],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "zero_color_limit_invalid",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "color_limit_above_bound_invalid",
+      "input_values": [1, 15, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "missing_color_limit_invalid",
+      "input_values": [1],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "missing_adjacency_mask_invalid",
+      "input_values": [2, 2, 2],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_input_value_invalid",
+      "input_values": [1, 1, 0, 0],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_adjacency_mask_invalid",
+      "input_values": [1, 1, -1],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "out_of_range_mask_bit_invalid",
+      "input_values": [2, 2, 4, 0],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "self_loop_invalid",
+      "input_values": [1, 1, 1],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "asymmetric_adjacency_invalid",
+      "input_values": [2, 2, 2, 0],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "triangle_cycle_invalid",
+      "input_values": [3, 3, 6, 5, 3],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "four_cycle_invalid",
+      "input_values": [4, 2, 10, 5, 10, 5],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "disconnected_triangle_invalid",
+      "input_values": [4, 3, 6, 5, 3, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_parseable_trailing_mask_invalid",
+      "input_values": [14, 2, 2, 5, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 4096, 0],
+      "input_length": 17,
+      "expected_result": -1
+    }
+  ]
+}

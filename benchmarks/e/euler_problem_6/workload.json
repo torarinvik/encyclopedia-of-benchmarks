@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-euler-problem-6-i64-array-scalar-v1",
+  "algorithm": "euler_problem_6",
+  "function_symbol": "euler_problem_6",
+  "description": "Compute square-of-sum minus sum-of-squares for integers 1 through n, with n=100 reproducing the pinned source.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C",
+      "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+      "path": "project_euler/problem_6/sol.c",
+      "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/project_euler/problem_6/sol.c",
+      "role": "algorithm"
+    }
+  ],
+  "contract": {
+    "operation": "Return the square of the sum of integers 1 through n minus the sum of their squares.",
+    "input_layout": "[n]",
+    "n_range": [
+      1,
+      100
+    ],
+    "source_exact_case": "n=100 runs the source loop from 1 through 100 inclusive.",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n]",
+    "n_range": [
+      1,
+      100
+    ],
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "(1 + ... + n)^2 - (1^2 + ... + n^2)",
+    "source_exact_result": 25164150,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 8
+  },
+  "cases": [
+    {
+      "id": "one_term",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "two_terms",
+      "input_values": [
+        2
+      ],
+      "input_length": 1,
+      "expected_result": 4
+    },
+    {
+      "id": "small_range",
+      "input_values": [
+        10
+      ],
+      "input_length": 1,
+      "expected_result": 2640
+    },
+    {
+      "id": "middle_range",
+      "input_values": [
+        50
+      ],
+      "input_length": 1,
+      "expected_result": 1582700
+    },
+    {
+      "id": "near_source_bound",
+      "input_values": [
+        99
+      ],
+      "input_length": 1,
+      "expected_result": 24174150
+    },
+    {
+      "id": "source_exact_bound",
+      "input_values": [
+        100
+      ],
+      "input_length": 1,
+      "expected_result": 25164150
+    },
+    {
+      "id": "zero_invalid",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_invalid",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_bound_invalid",
+      "input_values": [
+        101
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "missing_input_invalid",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_word_invalid",
+      "input_values": [
+        100,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

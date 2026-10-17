@@ -115,7 +115,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     if language in {"c", "cpp"}:
         standard = "-std=c11" if language == "c" else "-std=c++17"
         flags = [standard, "-O3", "-DNDEBUG", "-c"]
-        if algorithm == "pid":
+        if algorithm in {"pid", "pi_monte_carlo_estimation"}:
             flags.append("-ffp-contract=off")
         run([compiler, *flags, str(source), "-o", str(artifact)])
     elif language == "c3":
@@ -127,6 +127,8 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         run([compiler, *flags, "-o", str(artifact), str(source)])
     elif language == "nim":
         flags = ["--app:staticlib", "--noMain", "--mm:none", "-d:release"]
+        if algorithm == "pi_monte_carlo_estimation":
+            flags.append("--passC:-ffp-contract=off")
         compile_source = source
         if not algorithm[0].isalpha():
             compile_source = directory / f"module_{algorithm}.nim"
@@ -188,8 +190,10 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
             if type(workspace_bytes) is not int or not 1 <= workspace_bytes <= 400004:
                 raise ValueError("workspace bytes must be an integer from 1 through 400004")
             workspace_flag = [f"-DBENCHMARK_WORKSPACE_BYTES={workspace_bytes}"]
+        harness_fp_flags = (["-ffp-contract=off"]
+                            if algorithm == "pi_monte_carlo_estimation" else [])
         run([c_compiler, "-std=c11", "-O3", "-DNDEBUG", f"-DBENCHMARK_FUNCTION={function_symbol}",
-             *workspace_flag, "-c", str(harness), "-o", str(harness_object)])
+             *harness_fp_flags, *workspace_flag, "-c", str(harness), "-o", str(harness_object)])
         linker = compiler if language == "cpp" else c_compiler
         command = [linker, str(harness_object), str(artifact),
                    *(str(path) for path in extra_link_objects), "-o", str(executable), *native_link_flags]

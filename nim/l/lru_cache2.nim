@@ -15,7 +15,7 @@ type MapEntry = object
   state: uint8
 
 proc hashKey(key: int32): int =
-  int((cast[uint32](key) * 2654435761'u32) and uint32(MapSize - 1))
+  int((cast[uint32](key) *% 2654435761'u32) and uint32(MapSize - 1))
 
 proc mapFind(map: var array[MapSize, MapEntry], key: int32): int =
   let start = hashKey(key)
@@ -128,6 +128,6 @@ proc lru_cache2*(input: ptr UncheckedArray[int64], length: csize_t,
       else: results[operation] = if nodeCount == 0: 1 else: 0
 
   let outputBytes = operationCount * 8
-  if output.isNil or int(outputCapacity) < outputBytes: return -2
+  if output.isNil or outputCapacity < csize_t(outputBytes): return -2
   for operation in 0 ..< operationCount: storeI64(output, operation * 8, results[operation])
   int64(outputBytes)

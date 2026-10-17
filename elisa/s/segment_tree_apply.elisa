@@ -1,0 +1,74 @@
+const SEGMENT_TREE_APPLY_MAX_LENGTH: usize = 64
+const SEGMENT_TREE_APPLY_MAX_OPERATIONS: usize = 20
+const SEGMENT_TREE_APPLY_MAX_TREE_NODES: usize = 128
+const SEGMENT_TREE_APPLY_MAX_VALID_INPUT_LENGTH: usize = 146
+const SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_LENGTH: usize = 147
+const SEGMENT_TREE_APPLY_CHECKSUM_OFFSET: i64 = 67108865
+
+def segment_tree_apply_update(tree: mutable i64&, operand: mutable i64&,
+                              query_left: usize, query_right: usize, node: usize,
+                              left: usize, right: usize, factor: i64) -> void:
+    if query_left <= left and right <= query_right:
+        operand[node] <- operand[node] * factor
+        tree[node] <- tree[node] * factor
+        return
+    if query_right <= left or right <= query_left: return
+    middle: usize = left + (right - left) / 2
+    segment_tree_apply_update(&tree[0], &operand[0], query_left, query_right, node * 2, left, middle, factor)
+    segment_tree_apply_update(&tree[0], &operand[0], query_left, query_right, node * 2 + 1, middle, right, factor)
+    tree[node] <- operand[node] * (tree[node * 2] + tree[node * 2 + 1])
+
+def segment_tree_apply_query(tree: i64&, operand: i64&, query_left: usize,
+                             query_right: usize, node: usize, left: usize, right: usize) -> i64:
+    if query_left <= left and right <= query_right: return tree[node]
+    if query_right <= left or right <= query_left: return 0
+    middle: usize = left + (right - left) / 2
+    operand[node] * (segment_tree_apply_query(&tree[0], &operand[0], query_left, query_right, node * 2, left, middle) +
+                     segment_tree_apply_query(&tree[0], &operand[0], query_left, query_right, node * 2 + 1, middle, right))
+
+def segment_tree_apply_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input[0] < 1 or input[0] > SEGMENT_TREE_APPLY_MAX_LENGTH.i64(): return -1
+    n: usize = input[0].usize()
+    if length < n + 2: return -1
+    operation_count_value: i64 = input[n + 1]
+    if operation_count_value < 0 or operation_count_value > SEGMENT_TREE_APPLY_MAX_OPERATIONS.i64(): return -1
+    operation_count: usize = operation_count_value.usize()
+    if length != n + 2 + 4 * operation_count or length > SEGMENT_TREE_APPLY_MAX_VALID_INPUT_LENGTH: return -1
+
+    base: mutable usize = 1
+    while base < n: base <- base << 1
+    tree: mutable i64[SEGMENT_TREE_APPLY_MAX_TREE_NODES] = zeroed
+    operand: mutable i64[SEGMENT_TREE_APPLY_MAX_TREE_NODES] = zeroed
+    for node in 0..<SEGMENT_TREE_APPLY_MAX_TREE_NODES: operand[node] <- 1
+    for index in 0..<n:
+        value: i64 = input[index + 1]
+        if value < -1 or value > 1: return -1
+        tree[base + index] <- value
+    node: mutable usize = base
+    while node > 1:
+        node <- node - 1
+        tree[node] <- tree[node * 2] + tree[node * 2 + 1]
+
+    checksum: mutable i64 = 0
+    for operation in 0..<operation_count:
+        offset: usize = n + 2 + 4 * operation
+        opcode: i64 = input[offset]
+        left: i64 = input[offset + 1]
+        right: i64 = input[offset + 2]
+        argument: i64 = input[offset + 3]
+        if left < 0 or left > right or right >= n.i64(): return -1
+        query_left: usize = left.usize()
+        query_right: usize = right.usize() + 1
+        if opcode == 0:
+            if argument < -2 or argument > 2: return -1
+            segment_tree_apply_update(&tree[0], &operand[0], query_left, query_right, 1, 0, base, argument)
+        else if opcode == 1:
+            if argument != 0: return -1
+            result: i64 = segment_tree_apply_query(&tree[0], &operand[0], query_left, query_right, 1, 0, base)
+            checksum <- checksum + (operation.i64() + 1) * (result + SEGMENT_TREE_APPLY_CHECKSUM_OFFSET)
+        else:
+            return -1
+    checksum
+
+export fn segment_tree_apply_benchmark(input: i64&, length: usize) -> i64 = segment_tree_apply_impl

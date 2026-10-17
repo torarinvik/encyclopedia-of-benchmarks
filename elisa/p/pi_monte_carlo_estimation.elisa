@@ -1,0 +1,116 @@
+const MT_N: usize = 624
+const MT_M: usize = 397
+const MT_MASK: u64 = 4294967295u64
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 3
+
+def mt_add(left: u32, right: u32) -> u32:
+    ((left.u64() + right.u64()) & MT_MASK).u32()
+
+def mt_sub(left: u32, right: u32) -> u32:
+    ((left.u64() + 4294967296u64 - right.u64()) & MT_MASK).u32()
+
+def mt_mul(left: u32, right: u32) -> u32:
+    ((left.u64() * right.u64()) & MT_MASK).u32()
+
+def mt_seed(state: mutable u32&, seed: u32) -> void:
+    state[0] <- 19650218u32
+    index: mutable usize = 1
+    while index < MT_N:
+        previous: u32 = state[index - 1]
+        state[index] <- mt_add(mt_mul(1812433253u32, previous ^ (previous >> 30)), index.u32())
+        index <- index + 1
+    index <- 1
+    key_index: mutable usize = 0
+    repeat: mutable usize = 0
+    while repeat < MT_N:
+        previous: u32 = state[index - 1]
+        mixed: u32 = mt_mul(previous ^ (previous >> 30), 1664525u32)
+        state[index] <- mt_add(mt_add(state[index] ^ mixed, seed), key_index.u32())
+        index <- index + 1
+        key_index <- key_index + 1
+        if index >= MT_N:
+            state[0] <- state[MT_N - 1]
+            index <- 1
+        if key_index >= 1:
+            key_index <- 0
+        repeat <- repeat + 1
+    repeat <- 0
+    while repeat < MT_N - 1:
+        previous: u32 = state[index - 1]
+        mixed <- mt_mul(previous ^ (previous >> 30), 1566083941u32)
+        state[index] <- mt_sub(state[index] ^ mixed, index.u32())
+        index <- index + 1
+        if index >= MT_N:
+            state[0] <- state[MT_N - 1]
+            index <- 1
+        repeat <- repeat + 1
+    state[0] <- 0x80000000u32
+
+def mt_next_u32(state: mutable u32&, index: mutable usize&) -> u32:
+    if index >= MT_N:
+        twist_index: mutable usize = 0
+        while twist_index < MT_N - MT_M:
+            joined: u32 = (state[twist_index] & 0x80000000u32) | (state[twist_index + 1] & 0x7fffffffu32)
+            magic: u32 = 0u32
+            if joined & 1u32 != 0u32: magic <- 0x9908b0dfu32
+            state[twist_index] <- state[twist_index + MT_M] ^ (joined >> 1) ^ magic
+            twist_index <- twist_index + 1
+        while twist_index < MT_N - 1:
+            joined <- (state[twist_index] & 0x80000000u32) | (state[twist_index + 1] & 0x7fffffffu32)
+            magic <- 0u32
+            if joined & 1u32 != 0u32: magic <- 0x9908b0dfu32
+            state[twist_index] <- state[twist_index - (MT_N - MT_M)] ^ (joined >> 1) ^ magic
+            twist_index <- twist_index + 1
+        joined <- (state[MT_N - 1] & 0x80000000u32) | (state[0] & 0x7fffffffu32)
+        magic <- 0u32
+        if joined & 1u32 != 0u32: magic <- 0x9908b0dfu32
+        state[MT_N - 1] <- state[MT_M - 1] ^ (joined >> 1) ^ magic
+        index <- 0
+    value: mutable u32 = state[index]
+    index <- index + 1
+    value <- value ^ (value >> 11)
+    value <- value ^ ((value << 7) & 0x9d2c5680u32)
+    value <- value ^ ((value << 15) & 0xefc60000u32)
+    value <- value ^ (value >> 18)
+    value
+
+def mt_random(state: mutable u32&, index: mutable usize&) -> f64:
+    high: u32 = mt_next_u32(&state[0], index&) >> 5
+    low: u32 = mt_next_u32(&state[0], index&) >> 6
+    (high.f64() * 67108864.0 + low.f64()) * (1.0 / 9007199254740992.0)
+
+def pi_monte_carlo_estimation_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    if input_length != 2: return -1
+    simulations_value: f64 = input[0]
+    seed_value: f64 = input[1]
+    if simulations_value != simulations_value or seed_value != seed_value:
+        return -1
+    if simulations_value < 1.0 or simulations_value > 100000.0 or seed_value < 0.0 or seed_value > 4294967295.0:
+        return -1
+    simulations: usize = simulations_value.usize()
+    seed: u32 = seed_value.u32()
+    if simulations_value != simulations.f64() or seed_value != seed.f64():
+        return -1
+    if output.is_null() or output_capacity < 1: return -2
+
+    state: mutable u32[MT_N] = zeroed
+    mt_seed(&state[0], seed)
+    rng_index: mutable usize = MT_N
+    hits: mutable usize = 0
+    trial: mutable usize = 0
+    while trial < simulations:
+        x: f64 = mt_random(&state[0], rng_index&)
+        y: f64 = mt_random(&state[0], rng_index&)
+        x_squared: f64 = x * x
+        y_squared: f64 = y * y
+        if x_squared + y_squared <= 1.0:
+            hits <- hits + 1
+        trial <- trial + 1
+    output[0] <- (4 * hits).f64() / simulations.f64()
+    1
+
+export fn pi_monte_carlo_estimation(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = pi_monte_carlo_estimation_impl

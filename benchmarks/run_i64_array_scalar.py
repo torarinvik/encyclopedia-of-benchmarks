@@ -393,6 +393,148 @@ from mrucache_oracle import MAX_INPUT_LENGTH as MRUCACHE_MAX_INPUT_LENGTH
 from mrucache_oracle import MAX_OPERATIONS as MRUCACHE_MAX_OPERATIONS
 from mrucache_oracle import MAX_VALUE as MRUCACHE_MAX_VALUE
 from mrucache_oracle import expected_result as mrucache_expected
+from kruskal_mst_oracle import MAX_PARSEABLE_INPUT_LENGTH as KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH
+from kruskal_mst_oracle import MAX_VALID_INPUT_LENGTH as KRUSKAL_MST_MAX_VALID_INPUT_LENGTH
+from kruskal_mst_oracle import MAX_VERTICES as KRUSKAL_MST_MAX_VERTICES
+from kruskal_mst_oracle import MAX_EDGES as KRUSKAL_MST_MAX_EDGES
+from kruskal_mst_oracle import WEIGHT_MIN as KRUSKAL_MST_WEIGHT_MIN
+from kruskal_mst_oracle import WEIGHT_MAX as KRUSKAL_MST_WEIGHT_MAX
+from kruskal_mst_oracle import expected_result as kruskal_mst_expected
+from mos_algorithm_oracle import MAX_INPUT_LENGTH as MOS_ALGORITHM_MAX_INPUT_LENGTH
+from mos_algorithm_oracle import MAX_N as MOS_ALGORITHM_MAX_N
+from mos_algorithm_oracle import MAX_Q as MOS_ALGORITHM_MAX_Q
+from mos_algorithm_oracle import VALUE_MIN as MOS_ALGORITHM_VALUE_MIN
+from mos_algorithm_oracle import VALUE_MAX as MOS_ALGORITHM_VALUE_MAX
+from mos_algorithm_oracle import FNV_OFFSET as MOS_ALGORITHM_FNV_OFFSET
+from mos_algorithm_oracle import FNV_PRIME as MOS_ALGORITHM_FNV_PRIME
+from mos_algorithm_oracle import expected_result as mos_algorithm_expected
+from persistent_seg_tree_lazy_prop_oracle import MAX_INPUT_LENGTH as PERSISTENT_SEG_TREE_LAZY_PROP_MAX_INPUT_LENGTH
+from persistent_seg_tree_lazy_prop_oracle import MAX_N as PERSISTENT_SEG_TREE_LAZY_PROP_MAX_N
+from persistent_seg_tree_lazy_prop_oracle import MAX_Q as PERSISTENT_SEG_TREE_LAZY_PROP_MAX_Q
+from persistent_seg_tree_lazy_prop_oracle import VALUE_MIN as PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MIN
+from persistent_seg_tree_lazy_prop_oracle import VALUE_MAX as PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MAX
+from persistent_seg_tree_lazy_prop_oracle import FNV_OFFSET as PERSISTENT_SEG_TREE_LAZY_PROP_FNV_OFFSET
+from persistent_seg_tree_lazy_prop_oracle import FNV_PRIME as PERSISTENT_SEG_TREE_LAZY_PROP_FNV_PRIME
+from persistent_seg_tree_lazy_prop_oracle import expected_result as persistent_seg_tree_lazy_prop_expected
+from euler_problem_4_oracle import MAX_DIGITS as EULER_PROBLEM_4_MAX_DIGITS
+from euler_problem_4_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH
+from euler_problem_4_oracle import expected_result as euler_problem_4_expected
+from euler_problem_6_oracle import MAX_N as EULER_PROBLEM_6_MAX_N
+from euler_problem_6_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH
+from euler_problem_6_oracle import expected_result as euler_problem_6_expected
+from euler_problem_7_oracle import MAX_ORDINAL as EULER_PROBLEM_7_MAX_ORDINAL
+from euler_problem_7_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH
+from euler_problem_7_oracle import expected_result as euler_problem_7_expected
+from sparse_table_oracle import MAX_N as SPARSE_TABLE_MAX_N
+from sparse_table_oracle import MAX_PARSEABLE_INPUT_LENGTH as SPARSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH
+from sparse_table_oracle import expected_result as sparse_table_expected
+from merge_find_set_oracle import MAX_MERGES as MERGE_FIND_SET_MAX_MERGES
+from merge_find_set_oracle import MAX_N as MERGE_FIND_SET_MAX_N
+from merge_find_set_oracle import MAX_PARSEABLE_INPUT_LENGTH as MERGE_FIND_SET_MAX_PARSEABLE_INPUT_LENGTH
+from merge_find_set_oracle import expected_result as merge_find_set_expected
+from trie_multiple_search_oracle import FNV_OFFSET_BASIS as TRIE_MULTIPLE_SEARCH_FNV_OFFSET
+from trie_multiple_search_oracle import FNV_PRIME as TRIE_MULTIPLE_SEARCH_FNV_PRIME
+from trie_multiple_search_oracle import MAX_OPERATIONS as TRIE_MULTIPLE_SEARCH_MAX_OPERATIONS
+from trie_multiple_search_oracle import MAX_PARSEABLE_INPUT_LENGTH as TRIE_MULTIPLE_SEARCH_MAX_PARSEABLE_INPUT_LENGTH
+from trie_multiple_search_oracle import MAX_UNIQUE_WORDS as TRIE_MULTIPLE_SEARCH_MAX_UNIQUE_WORDS
+from trie_multiple_search_oracle import MAX_VALID_INPUT_LENGTH as TRIE_MULTIPLE_SEARCH_MAX_VALID_INPUT_LENGTH
+from trie_multiple_search_oracle import MAX_WORD_LENGTH as TRIE_MULTIPLE_SEARCH_MAX_WORD_LENGTH
+from trie_multiple_search_oracle import expected_result as trie_multiple_search_expected
+from sliding_window_aggregator_oracle import INVALID_RESULT as SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT
+from sliding_window_aggregator_oracle import MAX_CAPACITY as SLIDING_WINDOW_AGGREGATOR_MAX_CAPACITY
+from sliding_window_aggregator_oracle import MAX_COUNT as SLIDING_WINDOW_AGGREGATOR_MAX_COUNT
+from sliding_window_aggregator_oracle import MAX_PARSEABLE_INPUT_LENGTH as SLIDING_WINDOW_AGGREGATOR_MAX_PARSEABLE_INPUT_LENGTH
+from sliding_window_aggregator_oracle import MAX_VALUE as SLIDING_WINDOW_AGGREGATOR_MAX_VALUE
+from sliding_window_aggregator_oracle import expected_result as sliding_window_aggregator_expected
+from sorted_list_oracle import INVALID_RESULT as SORTED_LIST_INVALID_RESULT
+from sorted_list_oracle import MAX_OPERATIONS as SORTED_LIST_MAX_OPERATIONS
+from sorted_list_oracle import MAX_PARSEABLE_INPUT_LENGTH as SORTED_LIST_MAX_PARSEABLE_INPUT_LENGTH
+from sorted_list_oracle import MAX_SIZE as SORTED_LIST_MAX_SIZE
+from sorted_list_oracle import MAX_VALUE as SORTED_LIST_MAX_VALUE
+from sorted_list_oracle import OFFSET as SORTED_LIST_OFFSET
+from sorted_list_oracle import expected_result as sorted_list_expected
+from sorted_table_oracle import HASH_MODULUS as SORTED_TABLE_HASH_MODULUS
+from sorted_table_oracle import INVALID_RESULT as SORTED_TABLE_INVALID_RESULT
+from sorted_table_oracle import MAX_INITIAL_KEYS as SORTED_TABLE_MAX_INITIAL_KEYS
+from sorted_table_oracle import MAX_KEY as SORTED_TABLE_MAX_KEY
+from sorted_table_oracle import MAX_OPERATIONS as SORTED_TABLE_MAX_OPERATIONS
+from sorted_table_oracle import MAX_PARSEABLE_INPUT_LENGTH as SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH
+from sorted_table_oracle import MAX_SIZE as SORTED_TABLE_MAX_SIZE
+from sorted_table_oracle import MIN_KEY as SORTED_TABLE_MIN_KEY
+from sorted_table_oracle import expected_result as sorted_table_expected
+from radix_tree_oracle import INVALID_RESULT as RADIX_TREE_INVALID_RESULT
+from radix_tree_oracle import MAX_LETTER as RADIX_TREE_MAX_LETTER
+from radix_tree_oracle import MAX_OPERATIONS as RADIX_TREE_MAX_OPERATIONS
+from radix_tree_oracle import MAX_PARSEABLE_INPUT_LENGTH as RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH
+from radix_tree_oracle import MAX_VALID_INPUT_LENGTH as RADIX_TREE_MAX_VALID_INPUT_LENGTH
+from radix_tree_oracle import MAX_WORD_LENGTH as RADIX_TREE_MAX_WORD_LENGTH
+from radix_tree_oracle import MIN_LETTER as RADIX_TREE_MIN_LETTER
+from radix_tree_oracle import expected_result as radix_tree_expected
+from kdtree_oracle import CHECKSUM_OFFSET as KDTREE_CHECKSUM_OFFSET
+from kdtree_oracle import INVALID_RESULT as KDTREE_INVALID_RESULT
+from kdtree_oracle import MAX_COORDINATE as KDTREE_MAX_COORDINATE
+from kdtree_oracle import MAX_INITIAL_POINTS as KDTREE_MAX_INITIAL_POINTS
+from kdtree_oracle import MAX_OPERATIONS as KDTREE_MAX_OPERATIONS
+from kdtree_oracle import MAX_PARSEABLE_INPUT_VALUES as KDTREE_MAX_PARSEABLE_INPUT_VALUES
+from kdtree_oracle import MAX_POINTS as KDTREE_MAX_POINTS
+from kdtree_oracle import MAX_VALID_INPUT_VALUES as KDTREE_MAX_VALID_INPUT_VALUES
+from kdtree_oracle import MIN_COORDINATE as KDTREE_MIN_COORDINATE
+from kdtree_oracle import expected_result as kdtree_expected
+from lcabinary_lifting_oracle import INVALID_RESULT as LCABINARY_LIFTING_INVALID_RESULT
+from lcabinary_lifting_oracle import MAX_NODES as LCABINARY_LIFTING_MAX_NODES
+from lcabinary_lifting_oracle import MAX_PARSEABLE_INPUT_VALUES as LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES
+from lcabinary_lifting_oracle import MAX_QUERIES as LCABINARY_LIFTING_MAX_QUERIES
+from lcabinary_lifting_oracle import MAX_VALID_INPUT_VALUES as LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES
+from lcabinary_lifting_oracle import expected_result as lcabinary_lifting_expected
+from segment_tree2_d_oracle import CHECKSUM_OFFSET as SEGMENT_TREE2_D_CHECKSUM_OFFSET
+from segment_tree2_d_oracle import INVALID_RESULT as SEGMENT_TREE2_D_INVALID_RESULT
+from segment_tree2_d_oracle import MAX_CELL_VALUE as SEGMENT_TREE2_D_MAX_CELL_VALUE
+from segment_tree2_d_oracle import MAX_COLUMNS as SEGMENT_TREE2_D_MAX_COLUMNS
+from segment_tree2_d_oracle import MAX_OPERATIONS as SEGMENT_TREE2_D_MAX_OPERATIONS
+from segment_tree2_d_oracle import MAX_PARSEABLE_INPUT_VALUES as SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES
+from segment_tree2_d_oracle import MAX_RECTANGLE_SUM as SEGMENT_TREE2_D_MAX_RECTANGLE_SUM
+from segment_tree2_d_oracle import MAX_ROWS as SEGMENT_TREE2_D_MAX_ROWS
+from segment_tree2_d_oracle import MAX_VALID_INPUT_VALUES as SEGMENT_TREE2_D_MAX_VALID_INPUT_VALUES
+from segment_tree2_d_oracle import MIN_CELL_VALUE as SEGMENT_TREE2_D_MIN_CELL_VALUE
+from segment_tree2_d_oracle import expected_result as segment_tree2_d_expected
+from segment_tree_apply_oracle import CHECKSUM_OFFSET as SEGMENT_TREE_APPLY_CHECKSUM_OFFSET
+from segment_tree_apply_oracle import INVALID_RESULT as SEGMENT_TREE_APPLY_INVALID_RESULT
+from segment_tree_apply_oracle import MAX_ABS_ELEMENT as SEGMENT_TREE_APPLY_MAX_ABS_ELEMENT
+from segment_tree_apply_oracle import MAX_ABS_SUM as SEGMENT_TREE_APPLY_MAX_ABS_SUM
+from segment_tree_apply_oracle import MAX_INITIAL_VALUE as SEGMENT_TREE_APPLY_MAX_INITIAL_VALUE
+from segment_tree_apply_oracle import MAX_LENGTH as SEGMENT_TREE_APPLY_MAX_LENGTH
+from segment_tree_apply_oracle import MAX_MULTIPLIER as SEGMENT_TREE_APPLY_MAX_MULTIPLIER
+from segment_tree_apply_oracle import MAX_OPERATIONS as SEGMENT_TREE_APPLY_MAX_OPERATIONS
+from segment_tree_apply_oracle import MAX_PARSEABLE_INPUT_VALUES as SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES
+from segment_tree_apply_oracle import MAX_VALID_INPUT_VALUES as SEGMENT_TREE_APPLY_MAX_VALID_INPUT_VALUES
+from segment_tree_apply_oracle import MIN_INITIAL_VALUE as SEGMENT_TREE_APPLY_MIN_INITIAL_VALUE
+from segment_tree_apply_oracle import MIN_MULTIPLIER as SEGMENT_TREE_APPLY_MIN_MULTIPLIER
+from segment_tree_apply_oracle import expected_result as segment_tree_apply_expected
+from tim_sorter_oracle import INVALID_RESULT as TIM_SORTER_INVALID_RESULT
+from tim_sorter_oracle import MAX_ITEMS as TIM_SORTER_MAX_ITEMS
+from tim_sorter_oracle import MAX_KEY as TIM_SORTER_MAX_KEY
+from tim_sorter_oracle import MAX_PARSEABLE_INPUT_VALUES as TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES
+from tim_sorter_oracle import MAX_VALID_INPUT_VALUES as TIM_SORTER_MAX_VALID_INPUT_VALUES
+from tim_sorter_oracle import MIN_KEY as TIM_SORTER_MIN_KEY
+from tim_sorter_oracle import expected_result as tim_sorter_expected
+from smooth_sort_oracle import INVALID_RESULT as SMOOTH_SORT_INVALID_RESULT
+from smooth_sort_oracle import MAX_N as SMOOTH_SORT_MAX_N
+from smooth_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH
+from smooth_sort_oracle import MAX_VALUE as SMOOTH_SORT_MAX_VALUE
+from smooth_sort_oracle import MIN_VALUE as SMOOTH_SORT_MIN_VALUE
+from smooth_sort_oracle import OFFSET as SMOOTH_SORT_OFFSET
+from smooth_sort_oracle import expected_result as smooth_sort_expected
+from clojure_persistent_list_queue_oracle import FNV_OFFSET_BASIS as CLOJURE_QUEUE_FNV_OFFSET
+from clojure_persistent_list_queue_oracle import FNV_PRIME as CLOJURE_QUEUE_FNV_PRIME
+from clojure_persistent_list_queue_oracle import I32_MAX as CLOJURE_QUEUE_I32_MAX
+from clojure_persistent_list_queue_oracle import I32_MIN as CLOJURE_QUEUE_I32_MIN
+from clojure_persistent_list_queue_oracle import I64_MAX as CLOJURE_QUEUE_I64_MAX
+from clojure_persistent_list_queue_oracle import I64_MIN as CLOJURE_QUEUE_I64_MIN
+from clojure_persistent_list_queue_oracle import MAX_OPERATIONS as CLOJURE_QUEUE_MAX_OPERATIONS
+from clojure_persistent_list_queue_oracle import MAX_QUEUE_LENGTH as CLOJURE_QUEUE_MAX_LENGTH
+from clojure_persistent_list_queue_oracle import MAX_PARSEABLE_INPUT_LENGTH as CLOJURE_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+from clojure_persistent_list_queue_oracle import MAX_VALID_INPUT_LENGTH as CLOJURE_QUEUE_MAX_VALID_INPUT_LENGTH
+from clojure_persistent_list_queue_oracle import expected_result as clojure_persistent_list_queue_expected
 from submatrix_oracle import MAX_INPUT_LENGTH as MAX_SUBMATRIX_INPUT_LENGTH
 from submatrix_oracle import expected_result as submatrix_expected
 from first_fundamental_form_oracle import MAX_INPUT_LENGTH as MAX_FIRST_FUNDAMENTAL_FORM_INPUT_LENGTH
@@ -3038,6 +3180,2252 @@ def validate_mrucache_workload(workload: dict) -> None:
             raise ValueError(f"mrucache workload mismatch: {case.get('id')}")
 
 
+KRUSKAL_MST_CASE_IDS = frozenset({
+    "single_vertex", "two_vertex_negative_edge", "four_vertex_reference_graph", "negative_weights",
+    "tree_input", "input_edge_order_and_orientation_invariant", "weight_boundaries",
+    "same_vertex_count_other_mst", "maximum_vertex_sparse_path", "dense_unique_weight_graph",
+    "invalid_empty_packet", "invalid_vertex_count_zero", "invalid_vertex_count_above_limit",
+    "invalid_negative_edge_count", "invalid_length_short", "invalid_trailing_word",
+    "invalid_too_few_edges", "invalid_too_many_edges_for_three_vertices",
+    "invalid_disconnected_with_enough_edges", "invalid_self_loop", "invalid_endpoint",
+    "invalid_repeated_pair_reversed", "invalid_repeated_weight", "invalid_weight_below_bound",
+    "invalid_weight_above_bound", "invalid_one_vertex_with_edge",
+    "maximum_dense_graph_and_input_length", "maximum_parseable_packet_with_trailing_word_invalid",
+})
+
+
+def validate_kruskal_mst_workload(workload: dict) -> None:
+    sources = [
+        {
+            "repository": "TheAlgorithms/JavaScript",
+            "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+            "path": "Graphs/KruskalMST.js",
+            "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Graphs/KruskalMST.js",
+            "role": "algorithm",
+        },
+        {
+            "repository": "TheAlgorithms/R",
+            "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+            "path": "Desktop/open-source/R/graph_algorithms/kruskal_mst.r",
+            "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/Desktop/open-source/R/graph_algorithms/kruskal_mst.r",
+            "role": "algorithm",
+        },
+    ]
+    contract = {
+        "operation": "Return a deterministic hash encoding the normalized MST edges and their total weight.",
+        "input_layout": "[vertex_count,edge_count,(u,v,weight)*]",
+        "vertex_count_range": [1, 64],
+        "edge_count": "0 for a one-vertex graph; otherwise vertex_count-1 through vertex_count*(vertex_count-1)/2",
+        "vertex_ids": "zero-based contiguous integers in [0,vertex_count)",
+        "graph": "connected, undirected, and simple; no self-loops or repeated unordered endpoint pair",
+        "weight_range": [-1_000_000, 1_000_000],
+        "weight_uniqueness": "all edge weights are distinct",
+        "edge_orientation_and_input_order": "do not affect the normalized MST result",
+        "output": "low 63 bits of FNV-1a-64 over vertex_count:u16, mst_edge_count:u16, normalized (u:u16,v:u16,weight:i32) records in ascending weight order, then total_weight:i64; all fields little-endian",
+        "fnv1a_offset_basis": 14695981039346656037,
+        "fnv1a_prime": 1099511628211,
+        "invalid_input_result": -1,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[vertex_count, edge_count, (u, v, weight)*edge_count]",
+        "vertex_count_range": [1, KRUSKAL_MST_MAX_VERTICES],
+        "edge_count_range": "0 when vertex_count=1; otherwise vertex_count-1 through vertex_count*(vertex_count-1)/2",
+        "vertex_id_range": "0..vertex_count-1",
+        "self_loops_allowed": False,
+        "parallel_edges_allowed": False,
+        "connected_graph_required": True,
+        "unique_weights_required": True,
+        "weight_range": [KRUSKAL_MST_WEIGHT_MIN, KRUSKAL_MST_WEIGHT_MAX],
+        "maximum_edge_records": KRUSKAL_MST_MAX_EDGES,
+        "exact_length": "2+3*edge_count",
+        "maximum_valid_input_length": KRUSKAL_MST_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar_fnv1a64",
+        "encoding": "vertex_count:u16le, mst_edge_count:u16le, each normalized (u:u16le,v:u16le,weight:i32le) sorted by weight, total_weight:i64le",
+        "fnv1a_offset_basis": 14695981039346656037,
+        "fnv1a_prime": 1099511628211,
+        "returned_bits": "low 63 bits of FNV-1a-64",
+        "invalid_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-cross-source-kruskal-mst-i64-array-scalar-v1"
+            or workload.get("algorithm") != "kruskal_mst"
+            or workload.get("function_symbol") != "kruskal_mst"
+            or workload.get("description") != "Compute the normalized unique-weight MST of a connected undirected simple graph."
+            or workload.get("pinned_sources") != sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or KRUSKAL_MST_MAX_VERTICES != 64
+            or KRUSKAL_MST_MAX_EDGES != 2016
+            or KRUSKAL_MST_MAX_VALID_INPUT_LENGTH != 6050
+            or KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH != 6051
+            or len(case_ids) != len(KRUSKAL_MST_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != KRUSKAL_MST_CASE_IDS):
+        raise ValueError("kruskal_mst metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "k" / "kruskal_mst" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (any(source["url"] not in readme for source in sources)
+            or "unique-weight restriction" not in normalized_readme
+            or "connected graphs" not in normalized_readme
+            or "low 63 bits of FNV-1a-64" not in normalized_readme
+            or "independent oracle uses Prim's algorithm" not in normalized_readme):
+        raise ValueError("kruskal_mst README is missing its pinned sources or reviewed contract")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"kruskal_mst input framing is invalid: {case.get('id')}")
+        expected = kruskal_mst_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"kruskal_mst workload mismatch: {case.get('id')}")
+
+
+MOS_ALGORITHM_CASE_IDS = frozenset({
+    "sum-empty-query-set", "frequency-empty-query-set", "sum-restores-query-index-order",
+    "frequency-repeated-target", "sum-singleton-ranges", "frequency-zero-target",
+    "queries-cross-even-and-odd-blocks", "same-range-different-indices", "signed-boundary-range-sums",
+    "frequency-absent-target", "maximum-n-and-q", "invalid-operation", "invalid-empty-array",
+    "invalid-negative-array-length", "invalid-array-length-over-bound", "invalid-query-count",
+    "invalid-negative-query-count", "invalid-missing-query-record", "invalid-extra-value",
+    "invalid-array-value-bound", "invalid-target-bound", "invalid-negative-left", "invalid-inverted-range",
+    "invalid-right-out-of-range", "invalid-duplicate-query-index", "invalid-query-index-out-of-range",
+    "invalid-input-integer-out-of-signed-i32-domain",
+})
+
+
+def validate_mos_algorithm_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/others/MosAlgorithm.java",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[op, n, q, target, values[n], (left, right, index)*q]",
+        "maximum_n": MOS_ALGORITHM_MAX_N,
+        "maximum_q": MOS_ALGORITHM_MAX_Q,
+        "maximum_input_values_for_malformed_cases": MOS_ALGORITHM_MAX_INPUT_LENGTH,
+        "exact_length": "4+n+3*q",
+        "operations": {"0": "range sum", "1": "fixed-target range frequency"},
+        "range_semantics": "inclusive; 0 <= left <= right < n",
+        "query_indices": "permutation of 0..q-1",
+        "value_range": [MOS_ALGORITHM_VALUE_MIN, MOS_ALGORITHM_VALUE_MAX],
+        "target_range": [MOS_ALGORITHM_VALUE_MIN, MOS_ALGORITHM_VALUE_MAX],
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar_fnv1a64",
+        "record_encoding": "op:u8, q:u16 little-endian, then q signed-i32 results in original query-index order, each little-endian two-complement",
+        "meaning": "low 63 bits of FNV-1a-64 over the operation header and result sequence",
+        "offset_basis": MOS_ALGORITHM_FNV_OFFSET,
+        "prime": MOS_ALGORITHM_FNV_PRIME,
+        "invalid_input_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "java-mos-algorithm-range-query-i64-array-scalar-v1"
+            or workload.get("algorithm") != "mos_algorithm"
+            or workload.get("function_symbol") != "mos_algorithm"
+            or workload.get("pinned_sources") != [source]
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or MOS_ALGORITHM_MAX_N != 256
+            or MOS_ALGORITHM_MAX_Q != 256
+            or MOS_ALGORITHM_MAX_INPUT_LENGTH != 1029
+            or MOS_ALGORITHM_VALUE_MIN != -1_000_000
+            or MOS_ALGORITHM_VALUE_MAX != 1_000_000
+            or MOS_ALGORITHM_FNV_OFFSET != 14_695_981_039_346_656_037
+            or MOS_ALGORITHM_FNV_PRIME != 1_099_511_628_211
+            or len(case_ids) != len(MOS_ALGORITHM_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MOS_ALGORITHM_CASE_IDS):
+        raise ValueError("mos_algorithm metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "mos_algorithm" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    source_url = "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/MosAlgorithm.java"
+    if (source_url not in readme
+            or "block size of `floor(sqrt(n))`" not in normalized_readme
+            or "alternate the right endpoint direction" not in normalized_readme
+            or "original query-index order" not in normalized_readme
+            or "low 63 bits of FNV-1a-64" not in normalized_readme):
+        raise ValueError("mos_algorithm README is missing its pinned source or reviewed contract")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or len(values) > MOS_ALGORITHM_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"mos_algorithm input framing is invalid: {case.get('id')}")
+        expected = mos_algorithm_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"mos_algorithm workload mismatch: {case.get('id')}")
+
+
+PERSISTENT_SEG_TREE_LAZY_PROP_CASE_IDS = frozenset({
+    "initial-version-queries", "full-range-update", "historical-version-order",
+    "overlapping-partial-updates", "negative-delta-and-singleton-range", "single-element-array",
+    "updates-from-latest-version", "same-version-multiple-ranges",
+    "zero-delta-update-still-appends-version", "empty-operation-trace",
+    "signed-value-and-delta-boundaries", "maximum-n-and-q", "invalid-zero-array-length",
+    "invalid-array-length-over-bound", "invalid-negative-operation-count",
+    "invalid-operation-count-over-bound", "invalid-missing-record-value", "invalid-extra-record-value",
+    "invalid-initial-value-bound", "invalid-operation-code", "invalid-update-negative-left",
+    "invalid-update-right-over-bound", "invalid-update-inverted-range", "invalid-update-delta-bound",
+    "invalid-query-future-version", "invalid-query-negative-version", "invalid-query-left-bound",
+    "invalid-query-right-bound", "invalid-query-inverted-range",
+})
+
+
+def validate_persistent_seg_tree_lazy_prop_workload(workload: dict) -> None:
+    sources = [
+        {
+            "repository": "TheAlgorithms/C-Plus-Plus",
+            "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+            "path": "range_queries/persistent_seg_tree_lazy_prop.cpp",
+        },
+        {
+            "repository": "TheAlgorithms/C-Plus-Plus-1",
+            "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+            "path": "range_queries/persistent_seg_tree_lazy_prop.cpp",
+        },
+    ]
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[n, q, initial_values[n], (op, a, b, c)*q]",
+        "maximum_n": PERSISTENT_SEG_TREE_LAZY_PROP_MAX_N,
+        "maximum_q": PERSISTENT_SEG_TREE_LAZY_PROP_MAX_Q,
+        "maximum_input_values_for_malformed_cases": PERSISTENT_SEG_TREE_LAZY_PROP_MAX_INPUT_LENGTH,
+        "exact_length": "2+n+4*q",
+        "operations": {
+            "0": "range add to the latest version",
+            "1": "inclusive range sum on a prior version",
+        },
+        "initial_value_and_delta_range": [
+            PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MIN,
+            PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MAX,
+        ],
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar_fnv1a64",
+        "record_encoding": "[version_count, query_count, query_sums...] as signed-i64 little-endian words",
+        "meaning": "low 63 bits of FNV-1a-64 over final version count, query count, and query sums in call order",
+        "offset_basis": PERSISTENT_SEG_TREE_LAZY_PROP_FNV_OFFSET,
+        "prime": PERSISTENT_SEG_TREE_LAZY_PROP_FNV_PRIME,
+        "invalid_input_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "cpp-persistent-lazy-range-add-sum-i64-array-scalar-v1"
+            or workload.get("algorithm") != "persistent_seg_tree_lazy_prop"
+            or workload.get("function_symbol") != "persistent_seg_tree_lazy_prop"
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or PERSISTENT_SEG_TREE_LAZY_PROP_MAX_N != 64
+            or PERSISTENT_SEG_TREE_LAZY_PROP_MAX_Q != 64
+            or PERSISTENT_SEG_TREE_LAZY_PROP_MAX_INPUT_LENGTH != 323
+            or PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MIN != -1_000
+            or PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MAX != 1_000
+            or PERSISTENT_SEG_TREE_LAZY_PROP_FNV_OFFSET != 14_695_981_039_346_656_037
+            or PERSISTENT_SEG_TREE_LAZY_PROP_FNV_PRIME != 1_099_511_628_211
+            or len(case_ids) != len(PERSISTENT_SEG_TREE_LAZY_PROP_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != PERSISTENT_SEG_TREE_LAZY_PROP_CASE_IDS):
+        raise ValueError("persistent_seg_tree_lazy_prop metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "persistent_seg_tree_lazy_prop" / "README.md").read_text(
+        encoding="utf-8")
+    source_urls = (
+        "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/range_queries/persistent_seg_tree_lazy_prop.cpp",
+        "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/range_queries/persistent_seg_tree_lazy_prop.cpp",
+    )
+    normalized_readme = " ".join(readme.split())
+    if (any(source_url not in readme for source_url in source_urls)
+            or "inclusive range-add updates" not in normalized_readme
+            or "Each update applies to the latest version" not in normalized_readme
+            or "A query selects any version created so far" not in normalized_readme
+            or "zero-delta updates" not in normalized_readme
+            or "low 63 bits of FNV-1a-64" not in normalized_readme):
+        raise ValueError("persistent_seg_tree_lazy_prop README is missing its pinned sources or reviewed semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > PERSISTENT_SEG_TREE_LAZY_PROP_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"persistent_seg_tree_lazy_prop input framing is invalid: {case.get('id')}")
+        expected = persistent_seg_tree_lazy_prop_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"persistent_seg_tree_lazy_prop workload mismatch: {case.get('id')}")
+
+
+EULER_PROBLEM_4_CASE_IDS = frozenset({
+    "one_digit_factors", "two_digit_factors", "three_digit_source_exact",
+    "zero_digits_invalid", "negative_digit_count_invalid", "digit_count_above_limit_invalid",
+    "missing_digit_count_invalid", "trailing_word_invalid",
+})
+
+
+def validate_euler_problem_4_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/C",
+        "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+        "path": "project_euler/problem_4/sol.c",
+        "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/project_euler/problem_4/sol.c",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Return the largest decimal palindrome formed by multiplying two factors with the requested digit count.",
+        "input_layout": "[digit_count]",
+        "digit_count_range": [1, EULER_PROBLEM_4_MAX_DIGITS],
+        "factor_range": "10^(digit_count-1) through 10^digit_count-1, inclusive, for both factors",
+        "palindrome_test": "The product decimal digits are equal to their reverse.",
+        "source_exact_case": "digit_count=3 searches both factors from 100 through 999 inclusive.",
+        "invalid_input_result": -1,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[digit_count]",
+        "digit_count_range": [1, EULER_PROBLEM_4_MAX_DIGITS],
+        "maximum_valid_input_length": 1,
+        "maximum_parseable_input_length": EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "largest palindromic product of two digit_count-digit factors",
+        "three_digit_result": 906609,
+        "invalid_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-c-euler-problem-4-i64-array-scalar-v1"
+            or workload.get("algorithm") != "euler_problem_4"
+            or workload.get("function_symbol") != "euler_problem_4"
+            or workload.get("description") != "Find the largest palindrome product of two d-digit factors, with d=3 reproducing the pinned source."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or EULER_PROBLEM_4_MAX_DIGITS != 3
+            or EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH != 2
+            or len(case_ids) != len(EULER_PROBLEM_4_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != EULER_PROBLEM_4_CASE_IDS):
+        raise ValueError("euler_problem_4 metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "e" / "euler_problem_4" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "three digits reproduce the source search exactly" not in normalized_readme
+            or "906609" not in normalized_readme
+            or "largest palindromic product" not in normalized_readme):
+        raise ValueError("euler_problem_4 README is missing its pinned source or reviewed semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"euler_problem_4 input framing is invalid: {case.get('id')}")
+        expected = euler_problem_4_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"euler_problem_4 workload mismatch: {case.get('id')}")
+
+
+EULER_PROBLEM_6_CASE_IDS = frozenset({
+    "one_term", "two_terms", "small_range", "middle_range", "near_source_bound",
+    "source_exact_bound", "zero_invalid", "negative_invalid", "above_bound_invalid",
+    "missing_input_invalid", "trailing_word_invalid",
+})
+
+
+def validate_euler_problem_6_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/C",
+        "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+        "path": "project_euler/problem_6/sol.c",
+        "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/project_euler/problem_6/sol.c",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Return the square of the sum of integers 1 through n minus the sum of their squares.",
+        "input_layout": "[n]",
+        "n_range": [1, EULER_PROBLEM_6_MAX_N],
+        "source_exact_case": "n=100 runs the source loop from 1 through 100 inclusive.",
+        "invalid_input_result": -1,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[n]",
+        "n_range": [1, EULER_PROBLEM_6_MAX_N],
+        "maximum_valid_input_length": 1,
+        "maximum_parseable_input_length": EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "(1 + ... + n)^2 - (1^2 + ... + n^2)",
+        "source_exact_result": 25164150,
+        "invalid_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-c-euler-problem-6-i64-array-scalar-v1"
+            or workload.get("algorithm") != "euler_problem_6"
+            or workload.get("function_symbol") != "euler_problem_6"
+            or workload.get("description") != "Compute square-of-sum minus sum-of-squares for integers 1 through n, with n=100 reproducing the pinned source."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or EULER_PROBLEM_6_MAX_N != 100
+            or EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH != 2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(EULER_PROBLEM_6_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != EULER_PROBLEM_6_CASE_IDS):
+        raise ValueError("euler_problem_6 metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "e" / "euler_problem_6" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "n=100 reproduces the source loop exactly" not in normalized_readme
+            or "25164150" not in normalized_readme
+            or "closed-form identity" not in normalized_readme):
+        raise ValueError("euler_problem_6 README is missing its pinned source or reviewed semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"euler_problem_6 input framing is invalid: {case.get('id')}")
+        expected = euler_problem_6_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"euler_problem_6 workload mismatch: {case.get('id')}")
+
+
+EULER_PROBLEM_7_CASE_IDS = frozenset({
+    "first_prime", "second_prime", "sixth_prime", "hundredth_prime", "thousandth_prime",
+    "ten_thousandth_prime", "source_10001st_prime", "zero_ordinal_invalid",
+    "negative_ordinal_invalid", "ordinal_above_limit_invalid", "missing_ordinal_invalid",
+    "trailing_word_invalid",
+})
+
+
+def validate_euler_problem_7_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/C",
+        "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+        "path": "project_euler/problem_7/sol.c",
+        "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/project_euler/problem_7/sol.c",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Return the requested prime using an Eratosthenes sieve with fixed exclusive bound 1000000.",
+        "input_layout": "[prime_ordinal]",
+        "prime_ordinal_range": [1, EULER_PROBLEM_7_MAX_ORDINAL],
+        "sieve_exclusive_upper_bound": 1000000,
+        "source_exact_case": "prime_ordinal=10001 returns 104743",
+        "invalid_input_result": -1,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[prime_ordinal]",
+        "prime_ordinal_range": [1, EULER_PROBLEM_7_MAX_ORDINAL],
+        "maximum_valid_input_length": 1,
+        "maximum_parseable_input_length": EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "the prime at the requested 1-based ordinal",
+        "source_result": 104743,
+        "invalid_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-c-euler-problem-7-i64-array-scalar-v1"
+            or workload.get("algorithm") != "euler_problem_7"
+            or workload.get("function_symbol") != "euler_problem_7"
+            or workload.get("description") != "Find the requested prime ordinal with the pinned fixed-bound sieve; ordinal 10001 reproduces the source."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or EULER_PROBLEM_7_MAX_ORDINAL != 10_001
+            or EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH != 2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(EULER_PROBLEM_7_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != EULER_PROBLEM_7_CASE_IDS):
+        raise ValueError("euler_problem_7 metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "e" / "euler_problem_7" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "source case at ordinal 10,001 returns 104743" not in normalized_readme
+            or "fixed exclusive upper bound of 1,000,000" not in normalized_readme
+            or "trial division" not in normalized_readme):
+        raise ValueError("euler_problem_7 README is missing its pinned source or reviewed semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"euler_problem_7 input framing is invalid: {case.get('id')}")
+        expected = euler_problem_7_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"euler_problem_7 workload mismatch: {case.get('id')}")
+
+
+SPARSE_TABLE_CASE_IDS = frozenset({
+    "source_range_1_to_9", "source_range_2_to_6", "source_range_3_to_8", "singleton_range",
+    "duplicate_minimum_leftmost", "minimum_at_right_edge", "all_negative_values", "extreme_values_tie",
+    "zero_length_invalid", "length_above_source_safe_bound_invalid", "missing_values_and_query_invalid",
+    "trailing_word_invalid", "negative_left_index_invalid", "reversed_range_invalid",
+    "right_index_out_of_bounds_invalid",
+})
+
+
+def validate_sparse_table_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/C-Plus-Plus",
+        "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+        "path": "data_structures/sparse_table.cpp",
+        "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/data_structures/sparse_table.cpp",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Return the leftmost zero-based minimum index in a valid inclusive range, using a static sparse table.",
+        "input_layout": "[n, values[n], left, right]",
+        "array_length_range": [1, SPARSE_TABLE_MAX_N],
+        "value_range": "signed 64-bit integers",
+        "query_range": "0 <= left <= right < n, inclusive",
+        "tie_breaking": "leftmost index",
+        "source_array_capacity": 12345,
+        "safe_source_array_length_maximum": 12344,
+        "invalid_input_result": -1,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[n, values..., left, right]",
+        "array_length_range": [1, SPARSE_TABLE_MAX_N],
+        "maximum_valid_input_length": SPARSE_TABLE_MAX_N + 3,
+        "maximum_parseable_input_length": SPARSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "zero-based index of the leftmost minimum element in [left,right]",
+        "invalid_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-cpp-sparse-table-i64-array-scalar-v1"
+            or workload.get("algorithm") != "sparse_table"
+            or workload.get("function_symbol") != "sparse_table"
+            or workload.get("description") != "Build a static sparse table and return the leftmost minimum index for one inclusive range query."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or SPARSE_TABLE_MAX_N != 12_344
+            or SPARSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH != SPARSE_TABLE_MAX_N + 4
+            or len(case_ids) != len(SPARSE_TABLE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SPARSE_TABLE_CASE_IDS
+            or not isinstance(cases, list)):
+        raise ValueError("sparse_table metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "sparse_table" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "leftmost minimum element" not in normalized_readme
+            or "safe source-compatible input bound is therefore n <= N-1" not in normalized_readme
+            or "Python file with the same name returns minimum values instead of indices" not in normalized_readme
+            or "C-Plus-Plus-1/range_queries/sparse_table.cpp` source is broken and is excluded" not in normalized_readme):
+        raise ValueError("sparse_table README is missing its pinned source, variant, or reviewed semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > SPARSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"sparse_table input framing is invalid: {case.get('id')}")
+        expected = sparse_table_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"sparse_table workload mismatch: {case.get('id')}")
+
+
+MERGE_FIND_SET_CASE_IDS = frozenset({
+    "singleton_without_merges", "maximum_set_size_and_last_element",
+    "equal_rank_merge_attaches_first_to_second", "equal_rank_merges_build_ranked_tree",
+    "lower_rank_attaches_under_higher_rank", "higher_rank_first_root_wins",
+    "reversed_equal_rank_tie_preserves_argument_order", "repeated_merge_is_idempotent",
+    "isolated_element_keeps_itself", "zero_set_size_invalid", "set_size_above_bound_invalid",
+    "merge_count_above_bound_invalid", "merge_endpoint_out_of_range_invalid",
+    "query_element_out_of_range_invalid", "missing_merge_operands_invalid", "trailing_word_invalid",
+})
+
+
+def validate_merge_find_set_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Haskell",
+        "commit": "9dcabef99fb8995a760ff25a9e0d659114c0b9d3",
+        "path": "src/SpecializedStructure/MergeFindSet.hs",
+        "url": "https://github.com/TheAlgorithms/Haskell/blob/9dcabef99fb8995a760ff25a9e0d659114c0b9d3/src/SpecializedStructure/MergeFindSet.hs",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Apply the listed ordered merges and return the representative of the final query element.",
+        "input_layout": "[n, merge_count, x0, y0, ..., x(m-1), y(m-1), query]",
+        "initial_elements": "0 through n-1 inclusive",
+        "n_range": [1, MERGE_FIND_SET_MAX_N],
+        "merge_count_range": [0, MERGE_FIND_SET_MAX_MERGES],
+        "element_range": "0 through n-1 inclusive",
+        "input_word_count": "2*merge_count+3",
+        "find_behavior": "Follow parent links recursively in the source without path compression.",
+        "rank_behavior": "Attach the lower-rank root under the higher-rank root.",
+        "equal_rank_tie_behavior": "Attach the first root under the second and increment the second root's rank.",
+        "invalid_input_result": -1,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[n, merge_count, endpoint pairs..., query]",
+        "n_range": [1, MERGE_FIND_SET_MAX_N],
+        "merge_count_range": [0, MERGE_FIND_SET_MAX_MERGES],
+        "maximum_valid_input_length": 2 * MERGE_FIND_SET_MAX_MERGES + 3,
+        "maximum_parseable_input_length": MERGE_FIND_SET_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "representative returned by find(query) after the listed merges",
+        "invalid_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-haskell-merge-find-set-i64-array-scalar-v1"
+            or workload.get("algorithm") != "merge_find_set"
+            or workload.get("function_symbol") != "merge_find_set"
+            or workload.get("description") != "Apply ordered union-by-rank merges to an initialized integer set and return one element's representative."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or MERGE_FIND_SET_MAX_N != 256
+            or MERGE_FIND_SET_MAX_MERGES != 512
+            or MERGE_FIND_SET_MAX_PARSEABLE_INPUT_LENGTH != 1028
+            or len(case_ids) != len(MERGE_FIND_SET_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MERGE_FIND_SET_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("merge_find_set metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "merge_find_set" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "without path compression" not in normalized_readme
+            or "attaching the first root under the second" not in normalized_readme
+            or "both unequal-rank orientations as well as equal-rank ties" not in normalized_readme):
+        raise ValueError("merge_find_set README is missing its pinned source or reviewed rank semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > MERGE_FIND_SET_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"merge_find_set input framing is invalid: {case.get('id')}")
+        expected = merge_find_set_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"merge_find_set workload mismatch: {case.get('id')}")
+
+
+TRIE_MULTIPLE_SEARCH_CASE_IDS = frozenset({
+    "empty_operation_trace", "missing_operation_count", "presence_casefold_and_duplicate_insert",
+    "autocomplete_exact_and_lexicographic", "autocomplete_mismatch_omits_terminal_prefix",
+    "frequency_ranking_and_ties", "frequency_exact_key_then_descendants", "empty_key_lists_dictionary",
+    "longest_prefix_fallback", "original_case_exact_output", "maximum_word_length", "maximum_input_length",
+    "invalid_operation_count_over_limit", "invalid_delete_opcode", "invalid_empty_word_insert",
+    "invalid_nonletter_character", "invalid_word_length_over_limit", "invalid_truncated_record",
+    "invalid_trailing_word", "invalid_more_than_maximum_distinct_words",
+})
+
+
+def validate_trie_multiple_search_workload(workload: dict) -> None:
+    sources = [
+        {
+            "repository": "TheAlgorithms/C-Plus-Plus",
+            "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+            "path": "operations_on_datastructures/trie_multiple_search.cpp",
+            "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/operations_on_datastructures/trie_multiple_search.cpp",
+            "role": "algorithm",
+        },
+        {
+            "repository": "TheAlgorithms/C-Plus-Plus-1",
+            "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+            "path": "operations_on_datastructures/trie_multiple_search.cpp",
+            "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/operations_on_datastructures/trie_multiple_search.cpp",
+            "role": "algorithm_copy",
+        },
+    ]
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[operation_count, (opcode, word_length, ascii_code...)*]",
+        "maximum_operations": TRIE_MULTIPLE_SEARCH_MAX_OPERATIONS,
+        "maximum_word_length": TRIE_MULTIPLE_SEARCH_MAX_WORD_LENGTH,
+        "maximum_distinct_words": TRIE_MULTIPLE_SEARCH_MAX_UNIQUE_WORDS,
+        "maximum_valid_input_values": TRIE_MULTIPLE_SEARCH_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_values": TRIE_MULTIPLE_SEARCH_MAX_PARSEABLE_INPUT_LENGTH,
+        "alphabet": "ASCII A-Z and a-z; comparisons use lowercase folding",
+        "empty_search_key": "allowed",
+        "empty_inserted_word": "invalid",
+        "opcodes": {
+            "0": "insert; void source operation, duplicate insertion does not reset frequency",
+            "1": "exact presence; returns 1/0 and increments frequency on a hit",
+            "2": "autocomplete; exact query first if terminal, then strict descendants in ascending lexicographic order",
+            "3": "frequency suggestions; exact query first if terminal, then up to 3 strict descendants ranked by (frequency, word) descending",
+        },
+        "missing_path_behavior": "Searches start at the deepest matched node and omit that node itself, even when terminal.",
+        "delete": "excluded; opcode 4 is invalid",
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar_fnv1a64_low63",
+        "record_encoding": "operation count u16; per-op opcode u8 and operation-specific result; final sorted words with u32 search frequencies",
+        "offset_basis": TRIE_MULTIPLE_SEARCH_FNV_OFFSET,
+        "prime": TRIE_MULTIPLE_SEARCH_FNV_PRIME,
+        "mask": "low 63 bits",
+        "invalid_input_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-cpp-trie-multiple-search-i64-array-scalar-v1"
+            or workload.get("algorithm") != "trie_multiple_search"
+            or workload.get("function_symbol") != "trie_multiple_search"
+            or workload.get("description") != "Exact word search, autocomplete, and frequency-ranked trie suggestions; delete is excluded."
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "contract" in workload
+            or "workspace" in workload
+            or TRIE_MULTIPLE_SEARCH_MAX_OPERATIONS != 64
+            or TRIE_MULTIPLE_SEARCH_MAX_WORD_LENGTH != 32
+            or TRIE_MULTIPLE_SEARCH_MAX_UNIQUE_WORDS != 32
+            or TRIE_MULTIPLE_SEARCH_MAX_VALID_INPUT_LENGTH != 2177
+            or TRIE_MULTIPLE_SEARCH_MAX_PARSEABLE_INPUT_LENGTH != 2178
+            or TRIE_MULTIPLE_SEARCH_FNV_OFFSET != 14_695_981_039_346_656_037
+            or TRIE_MULTIPLE_SEARCH_FNV_PRIME != 1_099_511_628_211
+            or len(case_ids) != len(TRIE_MULTIPLE_SEARCH_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != TRIE_MULTIPLE_SEARCH_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("trie_multiple_search metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "t" / "trie_multiple_search" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (any(source["url"] not in readme for source in sources)
+            or "defective delete path is excluded" not in normalized_readme
+            or "empty search keys are supported" not in normalized_readme
+            or "deepest node reached and exclude that node's own word" not in normalized_readme
+            or "reverse lexicographic word order" not in normalized_readme
+            or "low 63 bits of FNV-1a-64" not in normalized_readme):
+        raise ValueError("trie_multiple_search README is missing its pinned sources or reviewed semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > TRIE_MULTIPLE_SEARCH_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"trie_multiple_search input framing is invalid: {case.get('id')}")
+        expected = trie_multiple_search_expected(values, input_length, False)
+        if case["expected_result"] != expected:
+            raise ValueError(f"trie_multiple_search workload mismatch: {case.get('id')}")
+
+
+SLIDING_WINDOW_AGGREGATOR_CASE_IDS = frozenset({
+    "source_sum_of_longs_example", "single_item_capacity_one", "stream_shorter_than_capacity",
+    "window_fills_exactly", "first_automatic_eviction", "repeated_evictions_and_transfers",
+    "capacity_one_repeated_evictions", "negative_window", "window_sum_crosses_zero",
+    "duplicate_values_after_eviction", "maximum_capacity_and_value_magnitude", "maximum_stream_length",
+    "empty_stream_aggregate_undefined", "capacity_zero", "negative_capacity", "capacity_above_limit",
+    "count_above_limit", "negative_count", "missing_stream_value", "extra_stream_value",
+    "value_above_limit", "value_below_limit", "signed_i64_max_out_of_domain", "missing_header",
+    "empty_input", "above_parseable_length",
+})
+
+
+def validate_sliding_window_aggregator_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/datastructures/buffers/SlidingWindowAggregator.java",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/buffers/SlidingWindowAggregator.java",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Append values oldest-first to a fixed-capacity window; adding to a full window evicts its oldest value; return the final nonempty window sum.",
+        "input_layout": "[capacity, count, values[count]]",
+        "capacity_range": [1, SLIDING_WINDOW_AGGREGATOR_MAX_CAPACITY],
+        "count_range": [1, SLIDING_WINDOW_AGGREGATOR_MAX_COUNT],
+        "value_range": [-SLIDING_WINDOW_AGGREGATOR_MAX_VALUE, SLIDING_WINDOW_AGGREGATOR_MAX_VALUE],
+        "window_order": "oldest to newest",
+        "aggregation": "identity mapping and signed 64-bit sum, matching sumOfLongs",
+        "empty_window": "invalid; the source aggregate() throws when the window is empty",
+        "invalid_input_result": SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[capacity, count, values...]",
+        "maximum_valid_input_length": SLIDING_WINDOW_AGGREGATOR_MAX_COUNT + 2,
+        "maximum_parseable_input_length": SLIDING_WINDOW_AGGREGATOR_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "sum of the last min(capacity, count) values in input order",
+        "invalid_result": SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-sliding-window-aggregator-i64-array-scalar-v1"
+            or workload.get("algorithm") != "sliding_window_aggregator"
+            or workload.get("function_symbol") != "sliding_window_aggregator"
+            or workload.get("description") != "Append signed values to a fixed-capacity FIFO window and return the sum of the retained values."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or SLIDING_WINDOW_AGGREGATOR_MAX_CAPACITY != 64
+            or SLIDING_WINDOW_AGGREGATOR_MAX_COUNT != 256
+            or SLIDING_WINDOW_AGGREGATOR_MAX_VALUE != 1_000_000
+            or SLIDING_WINDOW_AGGREGATOR_MAX_PARSEABLE_INPUT_LENGTH != 259
+            or SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT != -(1 << 63)
+            or len(case_ids) != len(SLIDING_WINDOW_AGGREGATOR_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SLIDING_WINDOW_AGGREGATOR_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("sliding_window_aggregator metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "sliding_window_aggregator" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "sumOfLongs" not in readme
+            or "the Java `aggregate()` API throws when the window is empty" not in normalized_readme
+            or str(SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT) not in normalized_readme
+            or "The maximum valid input length is 258 integers" not in normalized_readme
+            or "The maximum parseable input length is 259" not in normalized_readme):
+        raise ValueError("sliding_window_aggregator README is missing its pinned source or reviewed semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > SLIDING_WINDOW_AGGREGATOR_MAX_PARSEABLE_INPUT_LENGTH + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"sliding_window_aggregator input framing is invalid: {case.get('id')}")
+        expected = sliding_window_aggregator_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"sliding_window_aggregator workload mismatch: {case.get('id')}")
+
+
+SORTED_LIST_CASE_IDS = frozenset({
+    "empty_trace", "sorted_insert_and_index_queries", "duplicate_contains_and_remove",
+    "missing_contains_and_remove", "remove_one_of_three_equal_items", "sorted_index_after_middle_insert",
+    "clear_then_rebuild", "remove_to_empty", "queries_on_empty_collection", "clear_empty_collection",
+    "duplicate_keys_remain_sorted", "maximum_size_boundary", "maximum_operation_count", "odd_input_length",
+    "unknown_opcode", "nonzero_count_payload", "nonzero_clear_payload", "negative_add_value",
+    "add_value_above_domain", "signed_i64_max_outside_key_domain", "negative_index",
+    "index_zero_valid_after_single_add", "collection_above_size_bound", "above_parseable_input_length",
+    "odd_input_at_parse_limit", "index_equal_to_count_invalid",
+})
+
+
+def validate_sorted_list_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/C-Sharp",
+        "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+        "path": "DataStructures/SortedList.cs",
+        "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/SortedList.cs",
+        "role": "algorithm",
+    }
+    input_spec = {
+        "kind": "packed_i64_array",
+        "encoding": "[opcode, payload] repeated for each operation",
+        "opcodes": {
+            "0": "add payload",
+            "1": "contains payload",
+            "2": "try_remove payload",
+            "3": "report count; payload must be zero",
+            "4": "return item at sorted zero-based payload index",
+            "5": "clear; payload must be zero",
+        },
+        "value_range_for_add_contains_remove": [0, SORTED_LIST_MAX_VALUE],
+        "maximum_operations": SORTED_LIST_MAX_OPERATIONS,
+        "maximum_collection_size": SORTED_LIST_MAX_SIZE,
+        "maximum_valid_input_values": 2 * SORTED_LIST_MAX_OPERATIONS,
+        "maximum_parseable_input_values": SORTED_LIST_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": SORTED_LIST_INVALID_RESULT,
+        "checksum": "weighted query observations plus the remaining sorted contents; valid results are nonnegative",
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "weighted checksum of Contains/TryRemove/Count/index results and final sorted values",
+        "invalid_result": SORTED_LIST_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-csharp-sorted-list-i64-operation-trace-v1"
+            or workload.get("algorithm") != "sorted_list"
+            or workload.get("function_symbol") != "sorted_list_benchmark"
+            or workload.get("description") != "Apply a bounded operation trace to an array-backed sorted integer collection and return a checksum of query results and final contents."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "contract" in workload
+            or "workspace" in workload
+            or SORTED_LIST_MAX_OPERATIONS != 512
+            or SORTED_LIST_MAX_SIZE != 256
+            or SORTED_LIST_MAX_VALUE != 1_000_000
+            or SORTED_LIST_MAX_PARSEABLE_INPUT_LENGTH != 1_025
+            or SORTED_LIST_INVALID_RESULT != -1
+            or SORTED_LIST_OFFSET != 1_000_000
+            or len(case_ids) != len(SORTED_LIST_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SORTED_LIST_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("sorted_list metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "sorted_list" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "The collection starts empty" not in normalized_readme
+            or "An index query must refer to an existing item" not in normalized_readme
+            or "The maximum valid input length is 1,024 integers" not in normalized_readme
+            or "up to 1,025 integers may be parsed" not in normalized_readme
+            or "The source indexer throws for an invalid index" not in normalized_readme):
+        raise ValueError("sorted_list README is missing its pinned source or reviewed semantics")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > SORTED_LIST_MAX_PARSEABLE_INPUT_LENGTH + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"sorted_list input framing is invalid: {case.get('id')}")
+        expected = sorted_list_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"sorted_list workload mismatch: {case.get('id')}")
+
+    if (len(indexed_cases["odd_input_at_parse_limit"].get("input_values", []))
+            != SORTED_LIST_MAX_PARSEABLE_INPUT_LENGTH
+            or indexed_cases["odd_input_at_parse_limit"].get("expected_result") != SORTED_LIST_INVALID_RESULT
+            or len(indexed_cases["above_parseable_input_length"].get("input_values", []))
+            != SORTED_LIST_MAX_PARSEABLE_INPUT_LENGTH + 1
+            or indexed_cases["above_parseable_input_length"].get("expected_result") != SORTED_LIST_INVALID_RESULT
+            or indexed_cases["index_equal_to_count_invalid"].get("input_values") != [0, 9, 4, 1]
+            or indexed_cases["index_equal_to_count_invalid"].get("expected_result") != SORTED_LIST_INVALID_RESULT):
+        raise ValueError("sorted_list workload is missing the parse boundary or index-equals-count rejection cases")
+
+
+SORTED_TABLE_CASE_IDS = frozenset({
+    "empty_table_no_operations", "empty_table_query_results", "exact_find_has_and_neighbors",
+    "strict_neighbor_edges", "minimum_maximum_and_empty", "inclusive_ranges_both_directions",
+    "exact_and_singleton_range_endpoints", "reversed_ranges_are_empty", "range_bounds_outside_set",
+    "zero_is_a_truthy_numeric_range_key", "insert_existing_upsert_and_remove", "remove_missing_key",
+    "clear_empty_and_rebuild", "empty_constructor_with_mutations", "maximum_initial_keys_and_operations",
+    "maximum_final_set_size_and_full_range", "initial_keys_not_sorted", "initial_keys_not_unique",
+    "initial_key_out_of_domain", "initial_count_over_limit", "missing_operation_count",
+    "truncated_operation_triple", "trailing_input_after_zero_operations", "unknown_opcode",
+    "nonzero_minimum_arguments", "invalid_upsert_flag", "operation_key_out_of_domain",
+    "range_endpoint_out_of_domain", "operation_count_over_limit", "final_size_over_limit",
+    "above_parseable_input_length", "at_parseable_length_extra_frame_values",
+})
+
+
+def validate_sorted_table_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Lua",
+        "commit": "cedc141018ad48884318fe08a6db278664b17128",
+        "path": "src/data_structures/sorted_set/sorted_table.lua",
+        "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/data_structures/sorted_set/sorted_table.lua",
+        "role": "algorithm",
+    }
+    input_spec = {
+        "kind": "packed_i64_array",
+        "encoding": "[initial_count, strictly_increasing_keys..., operation_count, (opcode,a,b)...]",
+        "operation_width": 3,
+        "opcodes": {
+            "0": "find(a); b=0",
+            "1": "has(a); b=0",
+            "2": "min(); a=b=0",
+            "3": "max(); a=b=0",
+            "4": "strict successor of a; b=0",
+            "5": "strict predecessor of a; b=0",
+            "6": "insert(a, upsert); b=0 or 1, explicitly mapped to false/true",
+            "7": "remove(a); b=0",
+            "8": "inclusive ascending range [a,b]",
+            "9": "inclusive descending range [a,b]",
+            "10": "iterate all ascending; a=b=0",
+            "11": "iterate all descending; a=b=0",
+            "12": "empty(); a=b=0",
+            "13": "clear(); a=b=0",
+        },
+        "initial_key_count_range": [0, SORTED_TABLE_MAX_INITIAL_KEYS],
+        "operation_count_range": [0, SORTED_TABLE_MAX_OPERATIONS],
+        "key_range": [SORTED_TABLE_MIN_KEY, SORTED_TABLE_MAX_KEY],
+        "maximum_collection_size": SORTED_TABLE_MAX_SIZE,
+        "maximum_valid_input_values": 2 + SORTED_TABLE_MAX_INITIAL_KEYS + 3 * SORTED_TABLE_MAX_OPERATIONS,
+        "maximum_parseable_input_values": SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": SORTED_TABLE_INVALID_RESULT,
+        "checksum": "weighted operation observations plus position-weighted final sorted keys; iterator observations use an order-sensitive polynomial hash",
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "weighted checksum of operation results and final sorted keys",
+        "invalid_result": SORTED_TABLE_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-lua-sorted-table-i64-operation-trace-v1"
+            or workload.get("algorithm") != "sorted_table"
+            or workload.get("function_symbol") != "sorted_table_benchmark"
+            or workload.get("description") != "Apply lookup, neighbor, mutation, and range operations to a bounded sorted integer set and return a checksum of observations and final keys."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "contract" in workload
+            or "workspace" in workload
+            or SORTED_TABLE_MAX_INITIAL_KEYS != 128
+            or SORTED_TABLE_MAX_OPERATIONS != 256
+            or SORTED_TABLE_MAX_SIZE != 256
+            or SORTED_TABLE_MIN_KEY != -1_000_000
+            or SORTED_TABLE_MAX_KEY != 1_000_000
+            or SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH != 899
+            or SORTED_TABLE_INVALID_RESULT != -1
+            or SORTED_TABLE_HASH_MODULUS != 1_000_000_007
+            or len(case_ids) != len(SORTED_TABLE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SORTED_TABLE_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("sorted_table metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "sorted_table" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    source_urls = (
+        source["url"],
+        "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/data_structures/sorted_set/sorted_set.lua",
+        "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/searches/binary_search.lua",
+    )
+    if (any(url not in readme for url in source_urls)
+            or "strict comparator `a < b`" not in normalized_readme
+            or "maps the integer flag explicitly to false/true" not in normalized_readme
+            or "Range endpoints are inclusive" not in normalized_readme
+            or "The maximum valid input has 898 integers" not in normalized_readme
+            or "up to 899 are parsed" not in normalized_readme):
+        raise ValueError("sorted_table README is missing its pinned sources or reviewed semantics")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"sorted_table input framing is invalid: {case.get('id')}")
+        expected = sorted_table_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"sorted_table workload mismatch: {case.get('id')}")
+
+    if (len(indexed_cases["at_parseable_length_extra_frame_values"].get("input_values", []))
+            != SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH
+            or indexed_cases["at_parseable_length_extra_frame_values"].get("expected_result")
+            != SORTED_TABLE_INVALID_RESULT
+            or len(indexed_cases["above_parseable_input_length"].get("input_values", []))
+            != SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH + 1
+            or indexed_cases["above_parseable_input_length"].get("expected_result")
+            != SORTED_TABLE_INVALID_RESULT):
+        raise ValueError("sorted_table workload is missing its parseable and over-parseable boundary cases")
+
+
+RADIX_TREE_CASE_IDS = frozenset({
+    "empty_trace", "exact_find_delete_and_prefix_miss", "duplicate_insert_is_idempotent",
+    "word_and_its_prefix_are_distinct", "split_edges_and_delete_prefix_word",
+    "delete_compresses_single_child_path", "missing_and_partial_word_deletes",
+    "delete_one_root_branch_keeps_two_others", "pinned_root_collapse_lookup_quirk",
+    "root_collapse_then_new_insert", "max_word_length", "max_operation_count_and_input_length",
+    "missing_operation_count", "operation_count_over_limit", "empty_word_rejected",
+    "word_length_over_limit", "non_lowercase_ascii_byte", "non_ascii_byte", "unknown_opcode",
+    "truncated_word", "truncated_operation", "trailing_values_after_trace",
+    "at_parseable_length_trailing_values", "above_parseable_input_length",
+    "root_prefix_grows_past_word_bound", "root_prefix_grows_past_word_limit",
+    "root_prefix_reaches_35_after_collapse",
+})
+
+
+def validate_radix_tree_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "data_structures/trie/radix_tree.py",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/trie/radix_tree.py",
+        "role": "algorithm",
+    }
+    input_spec = {
+        "kind": "packed_i64_array",
+        "encoding": "[operation_count, (opcode, word_length, ascii_bytes...) repeated]",
+        "opcodes": {
+            "0": "insert word; no result",
+            "1": "find exact word; observe Boolean",
+            "2": "delete exact word; observe Boolean",
+        },
+        "word_byte_range": [RADIX_TREE_MIN_LETTER, RADIX_TREE_MAX_LETTER],
+        "word_length_range": [1, RADIX_TREE_MAX_WORD_LENGTH],
+        "maximum_operations": RADIX_TREE_MAX_OPERATIONS,
+        "maximum_valid_input_values": RADIX_TREE_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_values": RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": RADIX_TREE_INVALID_RESULT,
+        "checksum": "for each find/delete result, add (one-based operation index) * (1 + observed_boolean); insert contributes nothing",
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "weighted checksum of find and delete Boolean results",
+        "invalid_result": RADIX_TREE_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-radix-tree-i64-operation-trace-v1"
+            or workload.get("algorithm") != "radix_tree"
+            or workload.get("function_symbol") != "radix_tree_benchmark"
+            or workload.get("description") != "Apply bounded insert, exact find, and delete operations to a compressed radix tree and checksum Boolean query results."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "contract" in workload
+            or "workspace" in workload
+            or RADIX_TREE_MAX_OPERATIONS != 256
+            or RADIX_TREE_MAX_WORD_LENGTH != 32
+            or RADIX_TREE_MAX_VALID_INPUT_LENGTH != 8_705
+            or RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH != 8_706
+            or RADIX_TREE_MIN_LETTER != 97
+            or RADIX_TREE_MAX_LETTER != 122
+            or RADIX_TREE_INVALID_RESULT != -1
+            or len(case_ids) != len(RADIX_TREE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != RADIX_TREE_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("radix_tree metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "radix_tree" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "case-sensitive lowercase ASCII words" not in normalized_readme
+            or "root-collapse lookup quirk" not in normalized_readme
+            or "maximum valid input length is 8,705 integers" not in normalized_readme
+            or "maximum parseable input length is 8,706" not in normalized_readme
+            or "The workload preserves this observable behavior" not in normalized_readme
+            or "Ports must preserve the full accumulated prefix" not in normalized_readme
+            or "a 34-byte internal prefix" not in normalized_readme
+            or "a 35-byte collapsed prefix" not in normalized_readme):
+        raise ValueError("radix_tree README is missing its pinned source or reviewed source-specific semantics")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"radix_tree input framing is invalid: {case.get('id')}")
+        expected = radix_tree_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"radix_tree workload mismatch: {case.get('id')}")
+
+    if (len(indexed_cases["max_operation_count_and_input_length"].get("input_values", []))
+            != RADIX_TREE_MAX_VALID_INPUT_LENGTH
+            or len(indexed_cases["at_parseable_length_trailing_values"].get("input_values", []))
+            != RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH
+            or indexed_cases["at_parseable_length_trailing_values"].get("expected_result")
+            != RADIX_TREE_INVALID_RESULT
+            or len(indexed_cases["above_parseable_input_length"].get("input_values", []))
+            != RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH + 1
+            or indexed_cases["above_parseable_input_length"].get("expected_result")
+            != RADIX_TREE_INVALID_RESULT
+            or len(indexed_cases["root_prefix_grows_past_word_bound"].get("input_values", [])) != 79
+            or indexed_cases["root_prefix_grows_past_word_bound"].get("expected_result") != 34
+            or len(indexed_cases["root_prefix_grows_past_word_limit"].get("input_values", [])) != 181
+            or indexed_cases["root_prefix_grows_past_word_limit"].get("expected_result") != 58
+            or len(indexed_cases["root_prefix_reaches_35_after_collapse"].get("input_values", [])) != 127
+            or indexed_cases["root_prefix_reaches_35_after_collapse"].get("expected_result") != 73):
+        raise ValueError("radix_tree workload is missing its valid and malformed length-boundary cases")
+
+
+SMOOTH_SORT_CASE_IDS = frozenset({
+    "empty_array", "single_value", "two_values_reverse", "already_sorted", "reverse_sorted",
+    "mixed_values", "all_equal", "duplicate_runs", "alternating_extremes",
+    "minimum_and_maximum_values", "sorted_with_duplicates_and_negatives", "short_nearly_sorted",
+    "descending_with_repeated_values", "maximum_length_boundary", "maximum_length_reverse",
+    "empty_input_missing_length", "negative_length", "length_above_limit", "missing_array_value",
+    "extra_array_value", "value_above_contract_bound", "value_below_contract_bound",
+    "signed_i64_max_outside_value_bound", "at_parseable_length_extra_values",
+    "above_parseable_input_length",
+})
+
+
+def validate_smooth_sort_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/sorts/SmoothSort.java",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/sorts/SmoothSort.java",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Sort all input values in ascending order in place, then return the weighted checksum of the sorted array.",
+        "input_layout": "[n, values[n]]",
+        "array_length_range": [0, SMOOTH_SORT_MAX_N],
+        "value_range": [SMOOTH_SORT_MIN_VALUE, SMOOTH_SORT_MAX_VALUE],
+        "comparison": "signed integer ordering; duplicates are allowed and stability is unobservable",
+        "checksum": "sum((zero_based_index + 1) * (sorted_value + 1_000_001))",
+        "invalid_input_result": SMOOTH_SORT_INVALID_RESULT,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[n, values...]",
+        "array_length_range": [0, SMOOTH_SORT_MAX_N],
+        "value_range": [SMOOTH_SORT_MIN_VALUE, SMOOTH_SORT_MAX_VALUE],
+        "maximum_valid_input_length": SMOOTH_SORT_MAX_N + 1,
+        "maximum_parseable_input_length": SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": SMOOTH_SORT_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "weighted checksum of ascending sorted values",
+        "invalid_result": SMOOTH_SORT_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-smoothsort-i64-array-scalar-v1"
+            or workload.get("algorithm") != "smooth_sort"
+            or workload.get("function_symbol") != "smooth_sort_benchmark"
+            or workload.get("description") != "Sort a bounded signed integer array in ascending order with in-place Smoothsort and return a weighted checksum."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or SMOOTH_SORT_MAX_N != 512
+            or SMOOTH_SORT_MIN_VALUE != -1_000_000
+            or SMOOTH_SORT_MAX_VALUE != 1_000_000
+            or SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH != 514
+            or SMOOTH_SORT_INVALID_RESULT != -1
+            or SMOOTH_SORT_OFFSET != 1_000_001
+            or len(case_ids) != len(SMOOTH_SORT_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SMOOTH_SORT_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("smooth_sort metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "smooth_sort" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    source_urls = (
+        source["url"],
+        "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/sorts/SortUtils.java",
+    )
+    if (any(url not in readme for url in source_urls)
+            or "in-place Smoothsort implementation" not in normalized_readme
+            or "The maximum valid input length is 513 integers" not in normalized_readme
+            or "the maximum parseable length is 514" not in normalized_readme
+            or "strict less-than predicate" not in normalized_readme
+            or "stability is not observable" not in normalized_readme):
+        raise ValueError("smooth_sort README is missing its pinned sources or reviewed semantics")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"smooth_sort input framing is invalid: {case.get('id')}")
+        expected = smooth_sort_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"smooth_sort workload mismatch: {case.get('id')}")
+
+    if (len(indexed_cases["maximum_length_boundary"].get("input_values", []))
+            != SMOOTH_SORT_MAX_N + 1
+            or len(indexed_cases["at_parseable_length_extra_values"].get("input_values", []))
+            != SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH
+            or indexed_cases["at_parseable_length_extra_values"].get("expected_result")
+            != SMOOTH_SORT_INVALID_RESULT
+            or len(indexed_cases["above_parseable_input_length"].get("input_values", []))
+            != SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH + 1
+            or indexed_cases["above_parseable_input_length"].get("expected_result")
+            != SMOOTH_SORT_INVALID_RESULT):
+        raise ValueError("smooth_sort workload is missing its valid and malformed length-boundary cases")
+
+
+TIM_SORTER_CASE_IDS = frozenset({
+    "empty_input", "single_item", "ascending_with_equal_keys", "descending_with_equal_keys",
+    "equal_keys_preserve_permuted_item_order", "minimum_key_and_maximum_key", "min_merge_boundary_31",
+    "min_merge_boundary_32", "min_merge_boundary_33", "natural_ascending_and_descending_runs",
+    "repeated_keys_crossing_run_boundaries", "maximum_item_count_and_input_length",
+    "at_parseable_length_trailing_value", "above_parseable_input_length", "missing_item_count",
+    "negative_item_count", "item_count_over_limit", "truncated_item_record", "key_below_range",
+    "key_above_range", "item_id_negative", "item_id_equal_to_count", "duplicate_item_id",
+    "trailing_value_after_items",
+})
+
+
+def validate_tim_sorter_workload(workload: dict) -> None:
+    sources = [
+        {
+            "repository": "TheAlgorithms/C-Sharp",
+            "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+            "path": "Algorithms/Sorters/Comparison/TimSorter.cs",
+            "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/Comparison/TimSorter.cs",
+            "role": "algorithm",
+        },
+        {
+            "repository": "TheAlgorithms/C-Sharp",
+            "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+            "path": "Algorithms/Sorters/Comparison/TimSorterSettings.cs",
+            "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/Comparison/TimSorterSettings.cs",
+            "role": "support",
+        },
+    ]
+    input_spec = {
+        "kind": "packed_i64_array",
+        "encoding": "[item_count, (key,item_id)*item_count]",
+        "item_count_range": [0, TIM_SORTER_MAX_ITEMS],
+        "key_range": [TIM_SORTER_MIN_KEY, TIM_SORTER_MAX_KEY],
+        "item_id_rule": "unique values in 0 through item_count-1",
+        "comparator": "ascending by key only; equal keys preserve input order",
+        "tim_sorter_settings": {"min_merge": 32, "min_gallop": 7},
+        "method_comparer_behavior": "Sort ignores its comparer parameter and uses the constructor comparer",
+        "initial_min_gallop_snapshot": 0,
+        "initial_min_gallop_behavior": "The constructor snapshots the default zero minGallop field before assigning settings.MinGallop=7; minGallop starts at 7 while this continuation threshold remains 0",
+        "maximum_valid_input_values": TIM_SORTER_MAX_VALID_INPUT_VALUES,
+        "maximum_parseable_input_values": TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_result": TIM_SORTER_INVALID_RESULT,
+        "checksum": "for sorted (key,item_id) pairs, token=(key+1000)*513+item_id+1; update checksum=(checksum*1000003+token) mod 1000000007",
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "order-sensitive checksum of the stable ascending-by-key record sequence",
+        "invalid_result": TIM_SORTER_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-csharp-tim-sorter-stable-records-i64-v1"
+            or workload.get("algorithm") != "tim_sorter"
+            or workload.get("function_symbol") != "tim_sorter_benchmark"
+            or workload.get("description") != "Stably sort bounded key-tag records with fixed TimSorter settings and checksum the full sorted order."
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or TIM_SORTER_MAX_ITEMS != 512
+            or TIM_SORTER_MIN_KEY != -1_000
+            or TIM_SORTER_MAX_KEY != 1_000
+            or TIM_SORTER_MAX_VALID_INPUT_VALUES != 1_025
+            or TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES != 1_026
+            or TIM_SORTER_INVALID_RESULT != -1
+            or len(case_ids) != len(TIM_SORTER_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != TIM_SORTER_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("tim_sorter metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "t" / "tim_sorter" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (any(source["url"] not in readme for source in sources)
+            or "equal-key stability is observable" not in normalized_readme
+            or "Sort ignores that argument" not in normalized_readme
+            or "initMinGallop` remains zero" not in normalized_readme
+            or "Portable language ports may omit galloping as a performance optimization" not in normalized_readme
+            or "maximum valid frame contains 1,025 integers" not in normalized_readme
+            or "maximum parseable frame contains 1,026" not in normalized_readme):
+        raise ValueError("tim_sorter README is missing its pinned sources or reviewed semantics")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"tim_sorter input framing is invalid: {case.get('id')}")
+        if case["expected_result"] != tim_sorter_expected(values):
+            raise ValueError(f"tim_sorter workload mismatch: {case.get('id')}")
+
+    maximum_values = indexed_cases["maximum_item_count_and_input_length"].get("input_values", [])
+    if (len(maximum_values) != TIM_SORTER_MAX_VALID_INPUT_VALUES
+            or not maximum_values or maximum_values[0] != TIM_SORTER_MAX_ITEMS
+            or len(indexed_cases["at_parseable_length_trailing_value"].get("input_values", []))
+            != TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES
+            or indexed_cases["at_parseable_length_trailing_value"].get("expected_result")
+            != TIM_SORTER_INVALID_RESULT
+            or len(indexed_cases["above_parseable_input_length"].get("input_values", []))
+            != TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES + 1
+            or indexed_cases["above_parseable_input_length"].get("expected_result")
+            != TIM_SORTER_INVALID_RESULT):
+        raise ValueError("tim_sorter workload is missing its valid and malformed frame-boundary cases")
+
+
+KDTREE_CASE_IDS = frozenset({
+    "empty_tree_no_operations", "empty_tree_search_miss", "single_point_all_queries",
+    "median_build_search_extrema_and_nearest", "nearest_equidistant_points",
+    "insert_into_empty_tree", "insert_and_query_both_sides_of_median",
+    "maximum_points_operations_and_input_length", "at_parseable_length_trailing_value",
+    "missing_operation_count", "initial_point_count_over_limit", "truncated_initial_point",
+    "initial_points_duplicate_x", "initial_points_duplicate_y",
+    "initial_coordinate_below_range", "initial_coordinate_above_range",
+    "operation_count_over_limit", "truncated_operation_record", "unknown_opcode",
+    "axis_out_of_range", "nonzero_reserved_field", "search_on_empty_tree_is_false",
+    "minimum_on_empty_tree_invalid", "maximum_on_empty_tree_invalid",
+    "nearest_on_empty_tree_invalid", "insert_reuses_x_coordinate",
+    "insert_reuses_y_coordinate", "insert_exceeds_point_limit", "trailing_value_after_trace",
+    "above_parseable_input_length", "nearest_pinned_pruning_skips_closer_far_leaf",
+    "nearest_pinned_pruning_skips_closer_far_leaf_on_equal_split",
+})
+
+
+def validate_kdtree_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/datastructures/trees/KDTree.java",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/KDTree.java",
+        "role": "algorithm",
+    }
+    input_spec = {
+        "kind": "packed_i64_array",
+        "encoding": "[initial_count, (x,y)*initial_count, operation_count, (opcode,a,b)*operation_count]",
+        "dimension": 2,
+        "coordinate_range": [KDTREE_MIN_COORDINATE, KDTREE_MAX_COORDINATE],
+        "maximum_initial_points": KDTREE_MAX_INITIAL_POINTS,
+        "maximum_points_after_inserts": KDTREE_MAX_POINTS,
+        "maximum_operations": KDTREE_MAX_OPERATIONS,
+        "stored_coordinate_uniqueness": "all stored x coordinates and all stored y coordinates must each be distinct",
+        "opcodes": {
+            "0": "insert (x,y); no query result",
+            "1": "exact search (x,y); observe 1 if the point is found, else 0",
+            "2": "minimum coordinate on axis a; b must be 0",
+            "3": "maximum coordinate on axis a; b must be 0",
+            "4": "squared Euclidean distance from (x,y) to the point returned by the pinned findNearest traversal",
+        },
+        "maximum_valid_input_values": KDTREE_MAX_VALID_INPUT_VALUES,
+        "maximum_parseable_input_values": KDTREE_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_result": KDTREE_INVALID_RESULT,
+        "checksum": "for each query result r at zero-based operation position i, add (i+1)*(r+1001); insert contributes nothing",
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "weighted checksum of exact-search, coordinate-extrema, and pinned-source findNearest traversal distance query results",
+        "invalid_result": KDTREE_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-kdtree-2d-i64-operation-trace-v1"
+            or workload.get("algorithm") != "kdtree"
+            or workload.get("function_symbol") != "kdtree_benchmark"
+            or workload.get("description") != "Build and update a bounded two-dimensional KD-tree, answer exact search, coordinate extrema, and pinned-source nearest traversal queries, and checksum scalar results."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or KDTREE_MAX_INITIAL_POINTS != 64
+            or KDTREE_MAX_POINTS != 128
+            or KDTREE_MAX_OPERATIONS != 256
+            or KDTREE_MIN_COORDINATE != -1_000
+            or KDTREE_MAX_COORDINATE != 1_000
+            or KDTREE_MAX_VALID_INPUT_VALUES != 898
+            or KDTREE_MAX_PARSEABLE_INPUT_VALUES != 899
+            or KDTREE_CHECKSUM_OFFSET != 1_001
+            or KDTREE_INVALID_RESULT != -1
+            or len(case_ids) != len(KDTREE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != KDTREE_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("kdtree metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "k" / "kdtree" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "exactly two dimensions" not in normalized_readme
+            or "all stored points must have distinct x coordinates and distinct y coordinates" not in normalized_readme
+            or "maximum valid frame contains 898 integers" not in normalized_readme
+            or "maximum parseable frame contains 899 integers" not in normalized_readme
+            or "pruning quirk" not in normalized_readme
+            or "distance that excludes the splitting axis" not in normalized_readme
+            or "squared distance 2,501" not in normalized_readme
+            or "preserve this source behavior rather than replace it with a global nearest-point scan" not in normalized_readme):
+        raise ValueError("kdtree README is missing its pinned source or reviewed source-specific semantics")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > KDTREE_MAX_PARSEABLE_INPUT_VALUES + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"kdtree input framing is invalid: {case.get('id')}")
+        expected = kdtree_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"kdtree workload mismatch: {case.get('id')}")
+
+    if (len(indexed_cases["maximum_points_operations_and_input_length"].get("input_values", []))
+            != KDTREE_MAX_VALID_INPUT_VALUES
+            or len(indexed_cases["at_parseable_length_trailing_value"].get("input_values", []))
+            != KDTREE_MAX_PARSEABLE_INPUT_VALUES
+            or indexed_cases["at_parseable_length_trailing_value"].get("expected_result")
+            != KDTREE_INVALID_RESULT
+            or len(indexed_cases["above_parseable_input_length"].get("input_values", []))
+            != KDTREE_MAX_PARSEABLE_INPUT_VALUES + 1
+            or indexed_cases["above_parseable_input_length"].get("expected_result")
+            != KDTREE_INVALID_RESULT
+            or len(indexed_cases["nearest_pinned_pruning_skips_closer_far_leaf"].get("input_values", [])) != 11
+            or indexed_cases["nearest_pinned_pruning_skips_closer_far_leaf"].get("expected_result") != 3_502
+            or len(indexed_cases["nearest_pinned_pruning_skips_closer_far_leaf_on_equal_split"].get("input_values", [])) != 11
+            or indexed_cases["nearest_pinned_pruning_skips_closer_far_leaf_on_equal_split"].get("expected_result") != 11_001):
+        raise ValueError("kdtree workload is missing its framing boundaries or pinned-pruning regressions")
+
+
+LCABINARY_LIFTING_CASE_IDS = frozenset({
+    "two_node_tree_root_leaf_and_identity", "balanced_tree_sibling_and_ancestor_queries",
+    "chain_deep_ancestor_queries", "nonzero_root_with_two_subtrees", "query_order_and_repeated_pairs",
+    "maximum_tree_and_query_count", "at_parseable_length_trailing_value",
+    "above_parseable_input_length", "missing_query_count", "node_count_below_limit",
+    "node_count_above_limit", "root_out_of_range", "edge_count_not_tree_size", "self_loop_edge",
+    "duplicate_edge", "cyclic_and_disconnected_graph", "truncated_edge_pair",
+    "query_count_over_limit", "truncated_query_pair", "query_node_out_of_range",
+    "trailing_value_after_queries", "negative_node_id_in_edge", "query_on_two_branches_has_root_lca",
+})
+
+
+def validate_lcabinary_lifting_workload(workload: dict) -> None:
+    sources = [
+        {
+            "repository": "TheAlgorithms/JavaScript",
+            "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+            "path": "Graphs/LCABinaryLifting.js",
+            "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Graphs/LCABinaryLifting.js",
+            "role": "algorithm",
+        },
+        {
+            "repository": "TheAlgorithms/JavaScript",
+            "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+            "path": "Graphs/BinaryLifting.js",
+            "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Graphs/BinaryLifting.js",
+            "role": "support",
+        },
+    ]
+    input_spec = {
+        "kind": "packed_i64_array",
+        "encoding": "[node_count, root, edge_count, (u,v)*edge_count, query_count, (u,v)*query_count]",
+        "node_id_range": "0 through node_count-1",
+        "node_count_range": [2, LCABINARY_LIFTING_MAX_NODES],
+        "edge_count_rule": "node_count-1 unique undirected edges that form one connected tree",
+        "maximum_queries": LCABINARY_LIFTING_MAX_QUERIES,
+        "maximum_valid_input_values": LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES,
+        "maximum_parseable_input_values": LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_result": LCABINARY_LIFTING_INVALID_RESULT,
+        "checksum": "for each LCA a at zero-based query position i, add (i+1)*(a+1)",
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "weighted checksum of lowest common ancestor node IDs",
+        "invalid_result": LCABINARY_LIFTING_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-javascript-lca-binary-lifting-i64-query-trace-v1"
+            or workload.get("algorithm") != "lcabinary_lifting"
+            or workload.get("function_symbol") != "lca_binary_lifting_benchmark"
+            or workload.get("description") != "Preprocess a bounded rooted tree by binary lifting, answer lowest-common-ancestor queries, and checksum node IDs."
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or LCABINARY_LIFTING_MAX_NODES != 128
+            or LCABINARY_LIFTING_MAX_QUERIES != 256
+            or LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES != 770
+            or LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES != 771
+            or LCABINARY_LIFTING_INVALID_RESULT != -1
+            or len(case_ids) != len(LCABINARY_LIFTING_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != LCABINARY_LIFTING_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("lcabinary_lifting metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "lcabinary_lifting" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (any(source["url"] not in readme for source in sources)
+            or "maximum valid frame contains 770 integers" not in normalized_readme
+            or "maximum parseable frame contains 771" not in normalized_readme
+            or "sets the root's immediate parent to itself" not in normalized_readme
+            or "ceil(log2(node_count))" not in normalized_readme
+            or "must form one connected tree" not in normalized_readme
+            or "disconnected or cyclic edge sets" not in normalized_readme):
+        raise ValueError("lcabinary_lifting README is missing its pinned sources or reviewed semantics")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"lcabinary_lifting input framing is invalid: {case.get('id')}")
+        expected = lcabinary_lifting_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"lcabinary_lifting workload mismatch: {case.get('id')}")
+
+    if (len(indexed_cases["maximum_tree_and_query_count"].get("input_values", []))
+            != LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES
+            or len(indexed_cases["at_parseable_length_trailing_value"].get("input_values", []))
+            != LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES
+            or indexed_cases["at_parseable_length_trailing_value"].get("expected_result")
+            != LCABINARY_LIFTING_INVALID_RESULT
+            or len(indexed_cases["above_parseable_input_length"].get("input_values", []))
+            != LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES + 1
+            or indexed_cases["above_parseable_input_length"].get("expected_result")
+            != LCABINARY_LIFTING_INVALID_RESULT):
+        raise ValueError("lcabinary_lifting workload is missing its frame-boundary cases")
+
+
+SEGMENT_TREE2_D_CASE_IDS = frozenset({
+    "zero_grid_no_operations", "single_cell_assignment_and_queries", "assignment_overwrites_previous_value",
+    "mixed_signed_submatrix_sums", "non_power_dimensions_and_last_cell", "single_row_and_single_column",
+    "rectangle_edges_are_half_open", "overwrite_to_zero_clears_leaf",
+    "maximum_dimensions_operations_and_input_length", "at_parseable_length_trailing_value",
+    "above_parseable_input_length", "missing_header_field", "zero_row_count", "row_count_over_limit",
+    "zero_column_count", "column_count_over_limit", "operation_count_over_limit",
+    "truncated_operation_record", "unknown_opcode", "update_row_out_of_range",
+    "update_column_out_of_range", "update_value_below_range", "update_value_above_range",
+    "update_reserved_field_nonzero", "query_top_below_range", "query_bottom_above_range",
+    "query_left_below_range", "query_right_above_range", "query_row_bounds_reversed",
+    "query_column_bounds_reversed", "trailing_value_after_trace",
+})
+
+
+def validate_segment_tree2_d_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/datastructures/trees/SegmentTree2D.java",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/SegmentTree2D.java",
+        "role": "algorithm",
+    }
+    input_spec = {
+        "kind": "packed_i64_array",
+        "encoding": "[rows, columns, operation_count, (opcode, a, b, c, d)*operation_count]",
+        "row_range": [1, SEGMENT_TREE2_D_MAX_ROWS],
+        "column_range": [1, SEGMENT_TREE2_D_MAX_COLUMNS],
+        "cell_value_range": [SEGMENT_TREE2_D_MIN_CELL_VALUE, SEGMENT_TREE2_D_MAX_CELL_VALUE],
+        "maximum_operations": SEGMENT_TREE2_D_MAX_OPERATIONS,
+        "opcodes": {
+            "0": "assign value c to cell (a,b); d must be zero",
+            "1": "sum the half-open submatrix [a,b) x [c,d)",
+        },
+        "query_bounds": "0 <= a <= b <= rows and 0 <= c <= d <= columns",
+        "maximum_valid_input_values": SEGMENT_TREE2_D_MAX_VALID_INPUT_VALUES,
+        "maximum_parseable_input_values": SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_result": SEGMENT_TREE2_D_INVALID_RESULT,
+        "checksum": "for each query result r at zero-based operation position i, add (i+1)*(r+256001); assignment contributes nothing",
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "weighted checksum of half-open submatrix sum query results",
+        "invalid_result": SEGMENT_TREE2_D_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-segment-tree-2d-i64-operation-trace-v1"
+            or workload.get("algorithm") != "segment_tree2_d"
+            or workload.get("function_symbol") != "segment_tree2_d_benchmark"
+            or workload.get("description") != "Apply point assignments and half-open submatrix-sum queries to a bounded two-dimensional segment tree and checksum query results."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or SEGMENT_TREE2_D_MAX_ROWS != 16
+            or SEGMENT_TREE2_D_MAX_COLUMNS != 16
+            or SEGMENT_TREE2_D_MAX_OPERATIONS != 256
+            or SEGMENT_TREE2_D_MIN_CELL_VALUE != -1_000
+            or SEGMENT_TREE2_D_MAX_CELL_VALUE != 1_000
+            or SEGMENT_TREE2_D_MAX_RECTANGLE_SUM != 256_000
+            or SEGMENT_TREE2_D_CHECKSUM_OFFSET != 256_001
+            or SEGMENT_TREE2_D_MAX_VALID_INPUT_VALUES != 1_283
+            or SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES != 1_284
+            or SEGMENT_TREE2_D_INVALID_RESULT != -1
+            or len(case_ids) != len(SEGMENT_TREE2_D_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SEGMENT_TREE2_D_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("segment_tree2_d metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "segment_tree2_d" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "zero-filled grid" not in normalized_readme
+            or "half-open submatrix-sum queries" not in normalized_readme
+            or "the final zero is reserved and required" not in normalized_readme
+            or "maximum valid frame contains 1,283 integers" not in normalized_readme
+            or "maximum parseable frame contains 1,284" not in normalized_readme
+            or "pads each dimension to a power of two internally" not in normalized_readme):
+        raise ValueError("segment_tree2_d README is missing its pinned source or reviewed semantics")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"segment_tree2_d input framing is invalid: {case.get('id')}")
+        expected = segment_tree2_d_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"segment_tree2_d workload mismatch: {case.get('id')}")
+
+    if (len(indexed_cases["maximum_dimensions_operations_and_input_length"].get("input_values", []))
+            != SEGMENT_TREE2_D_MAX_VALID_INPUT_VALUES
+            or len(indexed_cases["at_parseable_length_trailing_value"].get("input_values", []))
+            != SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES
+            or indexed_cases["at_parseable_length_trailing_value"].get("expected_result")
+            != SEGMENT_TREE2_D_INVALID_RESULT
+            or len(indexed_cases["above_parseable_input_length"].get("input_values", []))
+            != SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES + 1
+            or indexed_cases["above_parseable_input_length"].get("expected_result")
+            != SEGMENT_TREE2_D_INVALID_RESULT):
+        raise ValueError("segment_tree2_d workload is missing its frame-boundary cases")
+
+
+SEGMENT_TREE_APPLY_CASE_IDS = frozenset({
+    "single_element_no_operations", "single_element_sign_change_and_query",
+    "overlapping_updates_and_queries", "non_power_of_two_length_and_padding",
+    "zero_multiplier_clears_range", "identity_and_repeated_negation",
+    "negative_factor_and_single_index", "maximum_array_length_and_operation_count",
+    "maximum_lazy_multiplier_product", "at_parseable_length_trailing_value",
+    "above_parseable_input_length", "missing_operation_count", "zero_array_length",
+    "array_length_over_limit", "initial_value_below_range", "initial_value_above_range",
+    "operation_count_over_limit", "truncated_operation_record", "unknown_opcode",
+    "apply_left_out_of_range", "apply_right_out_of_range", "apply_reversed_range",
+    "apply_multiplier_below_range", "apply_multiplier_above_range", "query_left_out_of_range",
+    "query_right_out_of_range", "query_reversed_range", "query_reserved_field_nonzero",
+    "trailing_value_after_trace",
+})
+
+
+def validate_segment_tree_apply_workload(workload: dict) -> None:
+    sources = [
+        {
+            "repository": "TheAlgorithms/C-Sharp",
+            "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+            "path": "DataStructures/SegmentTrees/SegmentTreeApply.cs",
+            "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/SegmentTrees/SegmentTreeApply.cs",
+            "role": "algorithm",
+        },
+        {
+            "repository": "TheAlgorithms/C-Sharp",
+            "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+            "path": "DataStructures/SegmentTrees/SegmentTree.cs",
+            "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/SegmentTrees/SegmentTree.cs",
+            "role": "support",
+        },
+    ]
+    input_spec = {
+        "kind": "packed_i64_array",
+        "encoding": "[array_length, initial_values..., operation_count, (opcode,left,right,argument)*operation_count]",
+        "array_length_range": [1, SEGMENT_TREE_APPLY_MAX_LENGTH],
+        "initial_value_range": [SEGMENT_TREE_APPLY_MIN_INITIAL_VALUE, SEGMENT_TREE_APPLY_MAX_INITIAL_VALUE],
+        "maximum_operations": SEGMENT_TREE_APPLY_MAX_OPERATIONS,
+        "multiplier_range": [SEGMENT_TREE_APPLY_MIN_MULTIPLIER, SEGMENT_TREE_APPLY_MAX_MULTIPLIER],
+        "ranges": "inclusive, with 0 <= left <= right < array_length",
+        "opcodes": {
+            "0": "multiply all elements in [left,right] by argument",
+            "1": "query sum in [left,right]; argument must be zero",
+        },
+        "maximum_valid_input_values": SEGMENT_TREE_APPLY_MAX_VALID_INPUT_VALUES,
+        "maximum_parseable_input_values": SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_result": SEGMENT_TREE_APPLY_INVALID_RESULT,
+        "checksum": "for each query result r at zero-based operation position i, add (i+1)*(r+67108865); apply contributes nothing",
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "weighted checksum of inclusive range-sum query results",
+        "invalid_result": SEGMENT_TREE_APPLY_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-csharp-segment-tree-apply-i64-operation-trace-v1"
+            or workload.get("algorithm") != "segment_tree_apply"
+            or workload.get("function_symbol") != "segment_tree_apply_benchmark"
+            or workload.get("description") != "Build a bounded sum segment tree, apply inclusive range multipliers, query inclusive range sums, and checksum results."
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or SEGMENT_TREE_APPLY_MAX_LENGTH != 64
+            or SEGMENT_TREE_APPLY_MAX_OPERATIONS != 20
+            or SEGMENT_TREE_APPLY_MIN_INITIAL_VALUE != -1
+            or SEGMENT_TREE_APPLY_MAX_INITIAL_VALUE != 1
+            or SEGMENT_TREE_APPLY_MIN_MULTIPLIER != -2
+            or SEGMENT_TREE_APPLY_MAX_MULTIPLIER != 2
+            or SEGMENT_TREE_APPLY_MAX_ABS_ELEMENT != 1 << SEGMENT_TREE_APPLY_MAX_OPERATIONS
+            or SEGMENT_TREE_APPLY_MAX_ABS_SUM != 67_108_864
+            or SEGMENT_TREE_APPLY_CHECKSUM_OFFSET != 67_108_865
+            or SEGMENT_TREE_APPLY_MAX_VALID_INPUT_VALUES != 146
+            or SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES != 147
+            or SEGMENT_TREE_APPLY_INVALID_RESULT != -1
+            or len(case_ids) != len(SEGMENT_TREE_APPLY_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SEGMENT_TREE_APPLY_CASE_IDS
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)):
+        raise ValueError("segment_tree_apply metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "segment_tree_apply" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (any(source["url"] not in readme for source in sources)
+            or "inclusive range multiplications" not in normalized_readme
+            or "inclusive range-sum queries" not in normalized_readme
+            or "the final zero is reserved and required" not in normalized_readme
+            or "maximum valid frame contains 146 integers" not in normalized_readme
+            or "maximum parseable frame contains 147" not in normalized_readme
+            or "pads its internal tree to the next power of two" not in normalized_readme
+            or "all source `int` arithmetic remains in range" not in normalized_readme):
+        raise ValueError("segment_tree_apply README is missing its pinned sources or reviewed semantics")
+
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES + 1
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"segment_tree_apply input framing is invalid: {case.get('id')}")
+        expected = segment_tree_apply_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"segment_tree_apply workload mismatch: {case.get('id')}")
+
+    if (len(indexed_cases["maximum_array_length_and_operation_count"].get("input_values", []))
+            != SEGMENT_TREE_APPLY_MAX_VALID_INPUT_VALUES
+            or len(indexed_cases["at_parseable_length_trailing_value"].get("input_values", []))
+            != SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES
+            or indexed_cases["at_parseable_length_trailing_value"].get("expected_result")
+            != SEGMENT_TREE_APPLY_INVALID_RESULT
+            or len(indexed_cases["above_parseable_input_length"].get("input_values", []))
+            != SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES + 1
+            or indexed_cases["above_parseable_input_length"].get("expected_result")
+            != SEGMENT_TREE_APPLY_INVALID_RESULT):
+        raise ValueError("segment_tree_apply workload is missing its frame-boundary cases")
+
+
+CLOJURE_PERSISTENT_LIST_QUEUE_CASE_IDS = frozenset({
+    "empty_operation_trace", "basic_enqueue_peek_dequeue", "fifo_order_after_multiple_conj_calls",
+    "empty_dequeue_preserves_empty_queue", "duplicate_values_and_drained_queue", "signed_i32_endpoints",
+    "maximum_live_queue_length_and_drain", "maximum_operation_count", "negative_operation_count",
+    "operation_count_above_limit", "truncated_operation_pair", "trailing_word_after_empty_trace",
+    "maximum_parseable_length_with_trailing_data", "unknown_opcode", "nonzero_argument_for_dequeue",
+    "nonzero_argument_for_peek", "nonzero_argument_for_empty_query", "enqueue_value_below_i32",
+    "enqueue_value_above_i32", "enqueue_past_queue_bound", "null_input_pointer",
+})
+
+
+def validate_clojure_persistent_list_queue_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Clojure",
+        "commit": "a9c5bec14928cb22fd4d69e951edf5bd15e16a18",
+        "path": "src/data_structures/queue/list.clj",
+        "symbol": "enqueue / dequeue / peek-queue / empty-queue?",
+        "url": "https://github.com/TheAlgorithms/Clojure/blob/a9c5bec14928cb22fd4d69e951edf5bd15e16a18/src/data_structures/queue/list.clj",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Replay persistent FIFO queue operations and hash their observable trace plus final queue state.",
+        "input_layout": "[operation_count,(opcode,argument)*]",
+        "operations": {
+            "0": "enqueue(i32 value), argument is value",
+            "1": "dequeue(), argument must be zero; empty dequeue preserves the queue",
+            "2": "peek-queue(), argument must be zero; returns oldest value or INT64_MIN for nil",
+            "3": "empty-queue?(), argument must be zero; result 1 when empty, otherwise 0",
+        },
+        "enqueue_dequeue_trace_result": "queue size after each operation",
+        "output": "low 63 bits of FNV-1a-64 over operation_count:u16le; each opcode:u8 and recorded result:i64le; final queue_size:u16le and final FIFO values:i32le",
+        "fnv1a_offset_basis": CLOJURE_QUEUE_FNV_OFFSET,
+        "fnv1a_prime": CLOJURE_QUEUE_FNV_PRIME,
+        "invalid_input_result": -1,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[operation_count,(opcode,argument)*]",
+        "operation_count_range": [0, CLOJURE_QUEUE_MAX_OPERATIONS],
+        "operation_pair_count": 2,
+        "opcode_range": [0, 3],
+        "enqueue_value_range": [CLOJURE_QUEUE_I32_MIN, CLOJURE_QUEUE_I32_MAX],
+        "query_argument": 0,
+        "maximum_queue_length": CLOJURE_QUEUE_MAX_LENGTH,
+        "maximum_valid_input_length": CLOJURE_QUEUE_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": CLOJURE_QUEUE_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": -1,
+        "null_input_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar_fnv1a64",
+        "encoding": "operation_count:u16le, repeated opcode:u8/result:i64le, final queue size:u16le and FIFO values:i32le",
+        "fnv1a_offset_basis": CLOJURE_QUEUE_FNV_OFFSET,
+        "fnv1a_prime": CLOJURE_QUEUE_FNV_PRIME,
+        "returned_bits": "low 63 bits of FNV-1a-64",
+        "invalid_input_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    null_cases = ([case for case in cases if isinstance(case, dict) and case.get("input_is_null", False)]
+                  if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-clojure-persistent-list-queue-i64-array-scalar-v1"
+            or workload.get("algorithm") != "clojure_persistent_list_queue"
+            or workload.get("function_symbol") != "clojure_persistent_list_queue"
+            or workload.get("description") != "Replay bounded FIFO operations using the pinned Clojure persistent-list queue semantics."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or not isinstance(cases, list)
+            or CLOJURE_QUEUE_MAX_OPERATIONS != 256
+            or CLOJURE_QUEUE_MAX_LENGTH != 64
+            or CLOJURE_QUEUE_MAX_VALID_INPUT_LENGTH != 513
+            or CLOJURE_QUEUE_MAX_PARSEABLE_INPUT_LENGTH != 514
+            or CLOJURE_QUEUE_I32_MIN != -(1 << 31)
+            or CLOJURE_QUEUE_I32_MAX != (1 << 31) - 1
+            or CLOJURE_QUEUE_I64_MIN != -(1 << 63)
+            or CLOJURE_QUEUE_I64_MAX != (1 << 63) - 1
+            or CLOJURE_QUEUE_FNV_OFFSET != 14_695_981_039_346_656_037
+            or CLOJURE_QUEUE_FNV_PRIME != 1_099_511_628_211
+            or len(case_ids) != len(CLOJURE_PERSISTENT_LIST_QUEUE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != CLOJURE_PERSISTENT_LIST_QUEUE_CASE_IDS
+            or len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_pointer"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 1
+            or null_cases[0].get("expected_result") != -1):
+        raise ValueError("clojure_persistent_list_queue metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "clojure_persistent_list_queue" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "newest value first" not in normalized_readme
+            or "removes the oldest value with `drop-last`" not in normalized_readme
+            or "INT64_MIN" not in normalized_readme
+            or "low 63 bits of FNV-1a-64" not in normalized_readme):
+        raise ValueError("clojure_persistent_list_queue README is missing its pinned source or reviewed semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or len(values) > CLOJURE_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not CLOJURE_QUEUE_I64_MIN <= value <= CLOJURE_QUEUE_I64_MAX
+                       for value in values)
+                or type(input_length) is not int
+                or type(input_is_null) is not bool
+                or (input_is_null and (case.get("id") != "null_input_pointer"
+                                       or values or input_length != 1))
+                or (not input_is_null and input_length != len(values))
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"clojure_persistent_list_queue input framing is invalid: {case.get('id')}")
+        expected = clojure_persistent_list_queue_expected(
+            None if input_is_null else values, input_length, input_is_null)
+        if case["expected_result"] != expected:
+            raise ValueError(f"clojure_persistent_list_queue workload mismatch: {case.get('id')}")
+
+
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH if algorithm == "kth_element_finder" else
@@ -3480,6 +5868,36 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else KCENTERS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kcenters"
                         else MINIMAX_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "minimax"
                         else MRUCACHE_MAX_INPUT_LENGTH if algorithm == "mrucache"
+                        else KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kruskal_mst"
+                        else MOS_ALGORITHM_MAX_INPUT_LENGTH if algorithm == "mos_algorithm"
+                        else PERSISTENT_SEG_TREE_LAZY_PROP_MAX_INPUT_LENGTH
+                        if algorithm == "persistent_seg_tree_lazy_prop"
+                        else EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "euler_problem_4"
+                        else EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "euler_problem_6"
+                        else EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "euler_problem_7"
+                        else SPARSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "sparse_table"
+                        else MERGE_FIND_SET_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "merge_find_set"
+                        else TRIE_MULTIPLE_SEARCH_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "trie_multiple_search"
+                        else SLIDING_WINDOW_AGGREGATOR_MAX_PARSEABLE_INPUT_LENGTH + 1
+                        if algorithm == "sliding_window_aggregator"
+                        else SORTED_LIST_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sorted_list"
+                        else SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sorted_table"
+                        else RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "radix_tree"
+                        else KDTREE_MAX_PARSEABLE_INPUT_VALUES + 1 if algorithm == "kdtree"
+                        else LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES + 1
+                        if algorithm == "lcabinary_lifting"
+                        else SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES + 1
+                        if algorithm == "segment_tree2_d"
+                        else SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES + 1
+                        if algorithm == "segment_tree_apply"
+                        else SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "smooth_sort"
+                        else TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES + 1 if algorithm == "tim_sorter"
+                        else CLOJURE_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "clojure_persistent_list_queue"
                         else SPARSE_MATRIX_MAX_INPUT_LENGTH if algorithm == "sparse_matrix"
                         else MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH if algorithm == "mono_alphabetic"
                         else MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
@@ -8348,6 +10766,55 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = mrucache_expected(values)
         if expected != expected_from_source:
             raise ValueError("mrucache expected_result must match the bounded MRU-tail eviction and GET-response hash contract")
+    elif algorithm == "kruskal_mst":
+        expected_from_source = kruskal_mst_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kruskal_mst expected_result must match the connected unique-weight MST fingerprint")
+    elif algorithm == "mos_algorithm":
+        expected_from_source = mos_algorithm_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mos_algorithm expected_result must match the bounded offline range-query fingerprint")
+    elif algorithm == "persistent_seg_tree_lazy_prop":
+        expected_from_source = persistent_seg_tree_lazy_prop_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("persistent_seg_tree_lazy_prop expected_result must match the persistent range-update trace")
+    elif algorithm == "euler_problem_4":
+        expected_from_source = euler_problem_4_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("euler_problem_4 expected_result must match the bounded largest-palindrome search")
+    elif algorithm == "euler_problem_6":
+        expected_from_source = euler_problem_6_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("euler_problem_6 expected_result must match the independent closed-form sum-square difference")
+    elif algorithm == "euler_problem_7":
+        expected_from_source = euler_problem_7_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("euler_problem_7 expected_result must match the requested prime ordinal")
+    elif algorithm == "sparse_table":
+        expected_from_source = sparse_table_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("sparse_table expected_result must match the leftmost inclusive range minimum index")
+    elif algorithm == "merge_find_set":
+        expected_from_source = merge_find_set_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("merge_find_set expected_result must match the ordered union-by-rank representative")
+    elif algorithm == "trie_multiple_search":
+        input_length = case.get("input_length", len(values))
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = trie_multiple_search_expected(values, input_length, input_is_null)
+        if expected != expected_from_source:
+            raise ValueError("trie_multiple_search expected_result must match the bounded frequency and suggestion trace")
+    elif algorithm == "sliding_window_aggregator":
+        expected_from_source = sliding_window_aggregator_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("sliding_window_aggregator expected_result must match the retained FIFO window sum")
+    elif algorithm == "clojure_persistent_list_queue":
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values))
+        expected_from_source = clojure_persistent_list_queue_expected(
+            None if input_is_null else values, input_length, input_is_null)
+        if expected != expected_from_source:
+            raise ValueError("clojure_persistent_list_queue expected_result must match the bounded FIFO trace")
     elif algorithm == "sparse_matrix":
         input_is_null = case.get("input_is_null", False)
         input_length = case.get("input_length", len(values))
@@ -8413,6 +10880,46 @@ def main() -> int:
         validate_sparse_matrix_workload(workload)
     elif algorithm == "mrucache":
         validate_mrucache_workload(workload)
+    elif algorithm == "kruskal_mst":
+        validate_kruskal_mst_workload(workload)
+    elif algorithm == "mos_algorithm":
+        validate_mos_algorithm_workload(workload)
+    elif algorithm == "persistent_seg_tree_lazy_prop":
+        validate_persistent_seg_tree_lazy_prop_workload(workload)
+    elif algorithm == "euler_problem_4":
+        validate_euler_problem_4_workload(workload)
+    elif algorithm == "euler_problem_6":
+        validate_euler_problem_6_workload(workload)
+    elif algorithm == "euler_problem_7":
+        validate_euler_problem_7_workload(workload)
+    elif algorithm == "sparse_table":
+        validate_sparse_table_workload(workload)
+    elif algorithm == "merge_find_set":
+        validate_merge_find_set_workload(workload)
+    elif algorithm == "trie_multiple_search":
+        validate_trie_multiple_search_workload(workload)
+    elif algorithm == "sliding_window_aggregator":
+        validate_sliding_window_aggregator_workload(workload)
+    elif algorithm == "sorted_list":
+        validate_sorted_list_workload(workload)
+    elif algorithm == "sorted_table":
+        validate_sorted_table_workload(workload)
+    elif algorithm == "radix_tree":
+        validate_radix_tree_workload(workload)
+    elif algorithm == "kdtree":
+        validate_kdtree_workload(workload)
+    elif algorithm == "lcabinary_lifting":
+        validate_lcabinary_lifting_workload(workload)
+    elif algorithm == "segment_tree2_d":
+        validate_segment_tree2_d_workload(workload)
+    elif algorithm == "segment_tree_apply":
+        validate_segment_tree_apply_workload(workload)
+    elif algorithm == "smooth_sort":
+        validate_smooth_sort_workload(workload)
+    elif algorithm == "tim_sorter":
+        validate_tim_sorter_workload(workload)
+    elif algorithm == "clojure_persistent_list_queue":
+        validate_clojure_persistent_list_queue_workload(workload)
     elif algorithm == "graph_enumeration":
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":

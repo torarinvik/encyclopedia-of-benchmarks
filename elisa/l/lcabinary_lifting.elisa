@@ -1,0 +1,100 @@
+const LCA_MAX_NODES: usize = 128
+const LCA_MAX_QUERIES: usize = 256
+const LCA_MAX_LEVELS: usize = 7
+const LCA_MAX_VALID_INPUT_LENGTH: usize = 770
+const LCA_MAX_PARSEABLE_INPUT_LENGTH: usize = 771
+
+def lca_binary_lifting_find(left_arg: usize, right_arg: usize,
+                            depth: usize&, up: usize&, levels: usize) -> usize:
+    left: mutable usize = left_arg
+    right: mutable usize = right_arg
+    if depth[left] < depth[right]:
+        temporary: usize = left
+        left <- right
+        right <- temporary
+    difference: mutable usize = depth[left] - depth[right]
+    bit: mutable usize = 0
+    while difference > 0:
+        if (difference & 1) != 0: left <- up[left * LCA_MAX_LEVELS + bit]
+        difference <- difference >> 1
+        bit <- bit + 1
+    if left == right: return left
+    level: mutable usize = levels
+    while level > 0:
+        level <- level - 1
+        if up[left * LCA_MAX_LEVELS + level] != up[right * LCA_MAX_LEVELS + level]:
+            left <- up[left * LCA_MAX_LEVELS + level]
+            right <- up[right * LCA_MAX_LEVELS + level]
+    up[left * LCA_MAX_LEVELS]
+
+def lca_binary_lifting_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > LCA_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input[0] < 2 or input[0] > LCA_MAX_NODES.i64(): return -1
+    node_count: usize = input[0].usize()
+    if input[1] < 0 or input[1] >= node_count.i64() or input[2] != (node_count - 1).i64(): return -1
+    root: usize = input[1].usize()
+    edge_count: usize = node_count - 1
+    query_count_index: usize = 3 + 2 * edge_count
+    if query_count_index >= length: return -1
+    query_count_value: i64 = input[query_count_index]
+    if query_count_value < 0 or query_count_value > LCA_MAX_QUERIES.i64(): return -1
+    query_count: usize = query_count_value.usize()
+    if length != query_count_index + 1 + 2 * query_count or length > LCA_MAX_VALID_INPUT_LENGTH: return -1
+
+    adjacency: mutable bool[LCA_MAX_NODES * LCA_MAX_NODES] = zeroed
+    for edge in 0..<edge_count:
+        left_value: i64 = input[3 + 2 * edge]
+        right_value: i64 = input[4 + 2 * edge]
+        if left_value < 0 or left_value >= node_count.i64() or right_value < 0 or right_value >= node_count.i64() or left_value == right_value: return -1
+        left: usize = left_value.usize()
+        right: usize = right_value.usize()
+        if adjacency[left * LCA_MAX_NODES + right]: return -1
+        adjacency[left * LCA_MAX_NODES + right] <- true
+        adjacency[right * LCA_MAX_NODES + left] <- true
+
+    parent: mutable usize[LCA_MAX_NODES] = zeroed
+    depth: mutable usize[LCA_MAX_NODES] = zeroed
+    visited: mutable bool[LCA_MAX_NODES] = zeroed
+    queue: mutable usize[LCA_MAX_NODES] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    queue[0] <- root
+    visited[root] <- true
+    parent[root] <- root
+    while head < tail:
+        node: usize = queue[head]
+        head <- head + 1
+        for child in 0..<node_count:
+            if not adjacency[node * LCA_MAX_NODES + child]: continue
+            if not visited[child]:
+                visited[child] <- true
+                parent[child] <- node
+                depth[child] <- depth[node] + 1
+                queue[tail] <- child
+                tail <- tail + 1
+            else if child != parent[node]:
+                return -1
+    if tail != node_count: return -1
+
+    levels: mutable usize = 0
+    power: mutable usize = 1
+    while power < node_count:
+        power <- power * 2
+        levels <- levels + 1
+    up: mutable usize[LCA_MAX_NODES * LCA_MAX_LEVELS] = zeroed
+    for node in 0..<node_count: up[node * LCA_MAX_LEVELS] <- parent[node]
+    for level in 1..<levels:
+        for node in 0..<node_count:
+            up[node * LCA_MAX_LEVELS + level] <- up[up[node * LCA_MAX_LEVELS + level - 1] * LCA_MAX_LEVELS + level - 1]
+
+    checksum: mutable i64 = 0
+    queries_start: usize = query_count_index + 1
+    for query in 0..<query_count:
+        left_value: i64 = input[queries_start + 2 * query]
+        right_value: i64 = input[queries_start + 2 * query + 1]
+        if left_value < 0 or left_value >= node_count.i64() or right_value < 0 or right_value >= node_count.i64(): return -1
+        ancestor: usize = lca_binary_lifting_find(left_value.usize(), right_value.usize(), &depth[0], &up[0], levels)
+        checksum <- checksum + (query.i64() + 1) * (ancestor.i64() + 1)
+    checksum
+
+export fn lca_binary_lifting_benchmark(input: i64&, length: usize) -> i64 = lca_binary_lifting_impl

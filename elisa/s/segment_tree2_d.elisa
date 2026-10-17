@@ -1,0 +1,94 @@
+const SEGMENT_TREE_MAX_ROWS: usize = 16
+const SEGMENT_TREE_MAX_COLUMNS: usize = 16
+const SEGMENT_TREE_MAX_OPERATIONS: usize = 256
+const SEGMENT_TREE_SIDE: usize = 64
+const SEGMENT_TREE_MAX_VALID_INPUT_LENGTH: usize = 1283
+const SEGMENT_TREE_MAX_PARSEABLE_INPUT_LENGTH: usize = 1284
+const SEGMENT_TREE_CHECKSUM_OFFSET: i64 = 256001
+
+def segment_tree_set_column(tree: mutable i64&, row_node: usize, column_base: usize,
+                            column: usize, value: i64) -> void:
+    node: mutable usize = column_base + column
+    tree[row_node * SEGMENT_TREE_SIDE + node] <- value
+    node <- node >> 1
+    while node > 0:
+        tree[row_node * SEGMENT_TREE_SIDE + node] <- tree[row_node * SEGMENT_TREE_SIDE + node * 2] + tree[row_node * SEGMENT_TREE_SIDE + node * 2 + 1]
+        node <- node >> 1
+
+def segment_tree_query_columns(tree: i64&, row_node: usize, column_base: usize,
+                               left: usize, right: usize) -> i64:
+    first: mutable usize = left + column_base
+    last: mutable usize = right + column_base
+    sum: mutable i64 = 0
+    while first < last:
+        if (first & 1) != 0:
+            sum <- sum + tree[row_node * SEGMENT_TREE_SIDE + first]
+            first <- first + 1
+        if (last & 1) != 0:
+            last <- last - 1
+            sum <- sum + tree[row_node * SEGMENT_TREE_SIDE + last]
+        first <- first >> 1
+        last <- last >> 1
+    sum
+
+def segment_tree_assign_point(tree: mutable i64&, row_base: usize, column_base: usize,
+                              row: usize, column: usize, value: i64) -> void:
+    row_leaf: usize = row_base + row
+    segment_tree_set_column(&tree[0], row_leaf, column_base, column, value)
+    row_node: mutable usize = row_leaf >> 1
+    while row_node > 0:
+        left_value: i64 = tree[(row_node * 2) * SEGMENT_TREE_SIDE + column_base + column]
+        right_value: i64 = tree[(row_node * 2 + 1) * SEGMENT_TREE_SIDE + column_base + column]
+        segment_tree_set_column(&tree[0], row_node, column_base, column, left_value + right_value)
+        row_node <- row_node >> 1
+
+def segment_tree_query_rectangle(tree: i64&, row_base: usize, column_base: usize,
+                                 top: usize, bottom: usize, left: usize, right: usize) -> i64:
+    first: mutable usize = top + row_base
+    last: mutable usize = bottom + row_base
+    sum: mutable i64 = 0
+    while first < last:
+        if (first & 1) != 0:
+            sum <- sum + segment_tree_query_columns(&tree[0], first, column_base, left, right)
+            first <- first + 1
+        if (last & 1) != 0:
+            last <- last - 1
+            sum <- sum + segment_tree_query_columns(&tree[0], last, column_base, left, right)
+        first <- first >> 1
+        last <- last >> 1
+    sum
+
+def segment_tree2_d_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > SEGMENT_TREE_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input[0] < 1 or input[0] > SEGMENT_TREE_MAX_ROWS.i64() or input[1] < 1 or input[1] > SEGMENT_TREE_MAX_COLUMNS.i64(): return -1
+    if input[2] < 0 or input[2] > SEGMENT_TREE_MAX_OPERATIONS.i64(): return -1
+    rows: usize = input[0].usize()
+    columns: usize = input[1].usize()
+    operation_count: usize = input[2].usize()
+    if length != 3 + 5 * operation_count or length > SEGMENT_TREE_MAX_VALID_INPUT_LENGTH: return -1
+
+    row_base: mutable usize = 1
+    while row_base < rows: row_base <- row_base << 1
+    column_base: mutable usize = 1
+    while column_base < columns: column_base <- column_base << 1
+    tree: mutable i64[SEGMENT_TREE_SIDE * SEGMENT_TREE_SIDE] = zeroed
+    checksum: mutable i64 = 0
+    for operation in 0..<operation_count:
+        offset: usize = 3 + 5 * operation
+        opcode: i64 = input[offset]
+        first: i64 = input[offset + 1]
+        second: i64 = input[offset + 2]
+        third: i64 = input[offset + 3]
+        fourth: i64 = input[offset + 4]
+        if opcode == 0:
+            if first < 0 or first >= rows.i64() or second < 0 or second >= columns.i64() or third < -1000 or third > 1000 or fourth != 0: return -1
+            segment_tree_assign_point(&tree[0], row_base, column_base, first.usize(), second.usize(), third)
+        else if opcode == 1:
+            if first < 0 or first > second or second > rows.i64() or third < 0 or third > fourth or fourth > columns.i64(): return -1
+            result: i64 = segment_tree_query_rectangle(&tree[0], row_base, column_base, first.usize(), second.usize(), third.usize(), fourth.usize())
+            checksum <- checksum + (operation.i64() + 1) * (result + SEGMENT_TREE_CHECKSUM_OFFSET)
+        else:
+            return -1
+    checksum
+
+export fn segment_tree2_d_benchmark(input: i64&, length: usize) -> i64 = segment_tree2_d_impl

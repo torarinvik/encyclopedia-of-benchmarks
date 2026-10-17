@@ -600,6 +600,26 @@ from run_i64_array_scalar import MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGT
 from run_i64_array_scalar import validate_power_using_recursion_workload
 from run_i64_array_scalar import validate_sparse_matrix_workload
 from run_i64_array_scalar import validate_mrucache_workload
+from run_i64_array_scalar import validate_kruskal_mst_workload
+from run_i64_array_scalar import validate_mos_algorithm_workload
+from run_i64_array_scalar import validate_persistent_seg_tree_lazy_prop_workload
+from run_i64_array_scalar import validate_euler_problem_4_workload
+from run_i64_array_scalar import validate_euler_problem_6_workload
+from run_i64_array_scalar import validate_euler_problem_7_workload
+from run_i64_array_scalar import validate_sparse_table_workload
+from run_i64_array_scalar import validate_merge_find_set_workload
+from run_i64_array_scalar import validate_trie_multiple_search_workload
+from run_i64_array_scalar import validate_sliding_window_aggregator_workload
+from run_i64_array_scalar import validate_sorted_list_workload
+from run_i64_array_scalar import validate_sorted_table_workload
+from run_i64_array_scalar import validate_radix_tree_workload
+from run_i64_array_scalar import validate_kdtree_workload
+from run_i64_array_scalar import validate_lcabinary_lifting_workload
+from run_i64_array_scalar import validate_segment_tree2_d_workload
+from run_i64_array_scalar import validate_segment_tree_apply_workload
+from run_i64_array_scalar import validate_smooth_sort_workload
+from run_i64_array_scalar import validate_tim_sorter_workload
+from run_i64_array_scalar import validate_clojure_persistent_list_queue_workload
 from run_i64_array_scalar import validate_graph_enumeration_workload
 from run_i64_array_scalar import validate_lca_workload
 from run_i64_array_scalar import validate_johnsons_algorithm_workload
@@ -961,6 +981,137 @@ from mrucache_oracle import MAX_INPUT_LENGTH as MRUCACHE_MAX_INPUT_LENGTH
 from mrucache_oracle import MAX_OPERATIONS as MRUCACHE_MAX_OPERATIONS
 from mrucache_oracle import MAX_VALUE as MRUCACHE_MAX_VALUE
 from mrucache_oracle import expected_result as mrucache_oracle
+from kruskal_mst_oracle import MAX_EDGES as KRUSKAL_MST_MAX_EDGES
+from kruskal_mst_oracle import MAX_PARSEABLE_INPUT_LENGTH as KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH
+from kruskal_mst_oracle import MAX_VALID_INPUT_LENGTH as KRUSKAL_MST_MAX_VALID_INPUT_LENGTH
+from kruskal_mst_oracle import MAX_VERTICES as KRUSKAL_MST_MAX_VERTICES
+from kruskal_mst_oracle import WEIGHT_MAX as KRUSKAL_MST_WEIGHT_MAX
+from kruskal_mst_oracle import WEIGHT_MIN as KRUSKAL_MST_WEIGHT_MIN
+from kruskal_mst_oracle import expected_result as kruskal_mst_oracle
+from mos_algorithm_oracle import FNV_OFFSET as MOS_ALGORITHM_FNV_OFFSET
+from mos_algorithm_oracle import FNV_PRIME as MOS_ALGORITHM_FNV_PRIME
+from mos_algorithm_oracle import MAX_INPUT_LENGTH as MOS_ALGORITHM_MAX_INPUT_LENGTH
+from mos_algorithm_oracle import MAX_N as MOS_ALGORITHM_MAX_N
+from mos_algorithm_oracle import MAX_Q as MOS_ALGORITHM_MAX_Q
+from mos_algorithm_oracle import VALUE_MAX as MOS_ALGORITHM_VALUE_MAX
+from mos_algorithm_oracle import VALUE_MIN as MOS_ALGORITHM_VALUE_MIN
+from mos_algorithm_oracle import expected_result as mos_algorithm_oracle
+from persistent_seg_tree_lazy_prop_oracle import MAX_INPUT_LENGTH as PERSISTENT_SEG_TREE_LAZY_PROP_MAX_INPUT_LENGTH
+from persistent_seg_tree_lazy_prop_oracle import MAX_N as PERSISTENT_SEG_TREE_LAZY_PROP_MAX_N
+from persistent_seg_tree_lazy_prop_oracle import MAX_Q as PERSISTENT_SEG_TREE_LAZY_PROP_MAX_Q
+from persistent_seg_tree_lazy_prop_oracle import VALUE_MAX as PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MAX
+from persistent_seg_tree_lazy_prop_oracle import VALUE_MIN as PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MIN
+from persistent_seg_tree_lazy_prop_oracle import expected_result as persistent_seg_tree_lazy_prop_oracle
+from euler_problem_4_oracle import MAX_DIGITS as EULER_PROBLEM_4_MAX_DIGITS
+from euler_problem_4_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH
+from euler_problem_4_oracle import expected_result as euler_problem_4_oracle
+from euler_problem_6_oracle import MAX_N as EULER_PROBLEM_6_MAX_N
+from euler_problem_6_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH
+from euler_problem_6_oracle import expected_result as euler_problem_6_oracle
+from euler_problem_7_oracle import MAX_ORDINAL as EULER_PROBLEM_7_MAX_ORDINAL
+from euler_problem_7_oracle import MAX_PARSEABLE_INPUT_LENGTH as EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH
+from euler_problem_7_oracle import expected_result as euler_problem_7_oracle
+from sparse_table_oracle import MAX_N as SPARSE_TABLE_MAX_N
+from sparse_table_oracle import MAX_PARSEABLE_INPUT_LENGTH as SPARSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH
+from sparse_table_oracle import expected_result as sparse_table_oracle
+from merge_find_set_oracle import MAX_MERGES as MERGE_FIND_SET_MAX_MERGES
+from merge_find_set_oracle import MAX_N as MERGE_FIND_SET_MAX_N
+from merge_find_set_oracle import MAX_PARSEABLE_INPUT_LENGTH as MERGE_FIND_SET_MAX_PARSEABLE_INPUT_LENGTH
+from merge_find_set_oracle import expected_result as merge_find_set_oracle
+from trie_multiple_search_oracle import FNV_OFFSET_BASIS as TRIE_MULTIPLE_SEARCH_FNV_OFFSET
+from trie_multiple_search_oracle import FNV_PRIME as TRIE_MULTIPLE_SEARCH_FNV_PRIME
+from trie_multiple_search_oracle import MAX_OPERATIONS as TRIE_MULTIPLE_SEARCH_MAX_OPERATIONS
+from trie_multiple_search_oracle import MAX_PARSEABLE_INPUT_LENGTH as TRIE_MULTIPLE_SEARCH_MAX_PARSEABLE_INPUT_LENGTH
+from trie_multiple_search_oracle import MAX_UNIQUE_WORDS as TRIE_MULTIPLE_SEARCH_MAX_UNIQUE_WORDS
+from trie_multiple_search_oracle import MAX_VALID_INPUT_LENGTH as TRIE_MULTIPLE_SEARCH_MAX_VALID_INPUT_LENGTH
+from trie_multiple_search_oracle import MAX_WORD_LENGTH as TRIE_MULTIPLE_SEARCH_MAX_WORD_LENGTH
+from trie_multiple_search_oracle import expected_result as trie_multiple_search_oracle
+from sliding_window_aggregator_oracle import INVALID_RESULT as SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT
+from sliding_window_aggregator_oracle import MAX_CAPACITY as SLIDING_WINDOW_AGGREGATOR_MAX_CAPACITY
+from sliding_window_aggregator_oracle import MAX_COUNT as SLIDING_WINDOW_AGGREGATOR_MAX_COUNT
+from sliding_window_aggregator_oracle import MAX_PARSEABLE_INPUT_LENGTH as SLIDING_WINDOW_AGGREGATOR_MAX_PARSEABLE_INPUT_LENGTH
+from sliding_window_aggregator_oracle import MAX_VALUE as SLIDING_WINDOW_AGGREGATOR_MAX_VALUE
+from sliding_window_aggregator_oracle import expected_result as sliding_window_aggregator_oracle
+from sorted_list_oracle import INVALID_RESULT as SORTED_LIST_INVALID_RESULT
+from sorted_list_oracle import MAX_OPERATIONS as SORTED_LIST_MAX_OPERATIONS
+from sorted_list_oracle import MAX_PARSEABLE_INPUT_LENGTH as SORTED_LIST_MAX_PARSEABLE_INPUT_LENGTH
+from sorted_list_oracle import MAX_SIZE as SORTED_LIST_MAX_SIZE
+from sorted_list_oracle import MAX_VALUE as SORTED_LIST_MAX_VALUE
+from sorted_list_oracle import expected_result as sorted_list_oracle
+from sorted_table_oracle import INVALID_RESULT as SORTED_TABLE_INVALID_RESULT
+from sorted_table_oracle import MAX_INITIAL_KEYS as SORTED_TABLE_MAX_INITIAL_KEYS
+from sorted_table_oracle import MAX_KEY as SORTED_TABLE_MAX_KEY
+from sorted_table_oracle import MAX_OPERATIONS as SORTED_TABLE_MAX_OPERATIONS
+from sorted_table_oracle import MAX_PARSEABLE_INPUT_LENGTH as SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH
+from sorted_table_oracle import MAX_SIZE as SORTED_TABLE_MAX_SIZE
+from sorted_table_oracle import MIN_KEY as SORTED_TABLE_MIN_KEY
+from sorted_table_oracle import expected_result as sorted_table_oracle
+from radix_tree_oracle import INVALID_RESULT as RADIX_TREE_INVALID_RESULT
+from radix_tree_oracle import MAX_LETTER as RADIX_TREE_MAX_LETTER
+from radix_tree_oracle import MAX_OPERATIONS as RADIX_TREE_MAX_OPERATIONS
+from radix_tree_oracle import MAX_PARSEABLE_INPUT_LENGTH as RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH
+from radix_tree_oracle import MAX_VALID_INPUT_LENGTH as RADIX_TREE_MAX_VALID_INPUT_LENGTH
+from radix_tree_oracle import MAX_WORD_LENGTH as RADIX_TREE_MAX_WORD_LENGTH
+from radix_tree_oracle import MIN_LETTER as RADIX_TREE_MIN_LETTER
+from radix_tree_oracle import expected_result as radix_tree_oracle
+from kdtree_oracle import INVALID_RESULT as KDTREE_INVALID_RESULT
+from kdtree_oracle import MAX_COORDINATE as KDTREE_MAX_COORDINATE
+from kdtree_oracle import MAX_INITIAL_POINTS as KDTREE_MAX_INITIAL_POINTS
+from kdtree_oracle import MAX_OPERATIONS as KDTREE_MAX_OPERATIONS
+from kdtree_oracle import MAX_PARSEABLE_INPUT_VALUES as KDTREE_MAX_PARSEABLE_INPUT_VALUES
+from kdtree_oracle import MAX_POINTS as KDTREE_MAX_POINTS
+from kdtree_oracle import MIN_COORDINATE as KDTREE_MIN_COORDINATE
+from kdtree_oracle import expected_result as kdtree_oracle
+from lcabinary_lifting_oracle import INVALID_RESULT as LCABINARY_LIFTING_INVALID_RESULT
+from lcabinary_lifting_oracle import MAX_NODES as LCABINARY_LIFTING_MAX_NODES
+from lcabinary_lifting_oracle import MAX_PARSEABLE_INPUT_VALUES as LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES
+from lcabinary_lifting_oracle import MAX_QUERIES as LCABINARY_LIFTING_MAX_QUERIES
+from lcabinary_lifting_oracle import MAX_VALID_INPUT_VALUES as LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES
+from lcabinary_lifting_oracle import expected_result as lcabinary_lifting_oracle
+from segment_tree2_d_oracle import CHECKSUM_OFFSET as SEGMENT_TREE2_D_CHECKSUM_OFFSET
+from segment_tree2_d_oracle import INVALID_RESULT as SEGMENT_TREE2_D_INVALID_RESULT
+from segment_tree2_d_oracle import MAX_CELL_VALUE as SEGMENT_TREE2_D_MAX_CELL_VALUE
+from segment_tree2_d_oracle import MAX_COLUMNS as SEGMENT_TREE2_D_MAX_COLUMNS
+from segment_tree2_d_oracle import MAX_OPERATIONS as SEGMENT_TREE2_D_MAX_OPERATIONS
+from segment_tree2_d_oracle import MAX_PARSEABLE_INPUT_VALUES as SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES
+from segment_tree2_d_oracle import MAX_RECTANGLE_SUM as SEGMENT_TREE2_D_MAX_RECTANGLE_SUM
+from segment_tree2_d_oracle import MAX_ROWS as SEGMENT_TREE2_D_MAX_ROWS
+from segment_tree2_d_oracle import MAX_VALID_INPUT_VALUES as SEGMENT_TREE2_D_MAX_VALID_INPUT_VALUES
+from segment_tree2_d_oracle import MIN_CELL_VALUE as SEGMENT_TREE2_D_MIN_CELL_VALUE
+from segment_tree2_d_oracle import expected_result as segment_tree2_d_oracle
+from segment_tree_apply_oracle import CHECKSUM_OFFSET as SEGMENT_TREE_APPLY_CHECKSUM_OFFSET
+from segment_tree_apply_oracle import INVALID_RESULT as SEGMENT_TREE_APPLY_INVALID_RESULT
+from segment_tree_apply_oracle import MAX_ABS_ELEMENT as SEGMENT_TREE_APPLY_MAX_ABS_ELEMENT
+from segment_tree_apply_oracle import MAX_ABS_SUM as SEGMENT_TREE_APPLY_MAX_ABS_SUM
+from segment_tree_apply_oracle import MAX_INITIAL_VALUE as SEGMENT_TREE_APPLY_MAX_INITIAL_VALUE
+from segment_tree_apply_oracle import MAX_LENGTH as SEGMENT_TREE_APPLY_MAX_LENGTH
+from segment_tree_apply_oracle import MAX_MULTIPLIER as SEGMENT_TREE_APPLY_MAX_MULTIPLIER
+from segment_tree_apply_oracle import MAX_OPERATIONS as SEGMENT_TREE_APPLY_MAX_OPERATIONS
+from segment_tree_apply_oracle import MAX_PARSEABLE_INPUT_VALUES as SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES
+from segment_tree_apply_oracle import MAX_VALID_INPUT_VALUES as SEGMENT_TREE_APPLY_MAX_VALID_INPUT_VALUES
+from segment_tree_apply_oracle import MIN_INITIAL_VALUE as SEGMENT_TREE_APPLY_MIN_INITIAL_VALUE
+from segment_tree_apply_oracle import MIN_MULTIPLIER as SEGMENT_TREE_APPLY_MIN_MULTIPLIER
+from segment_tree_apply_oracle import expected_result as segment_tree_apply_oracle
+from smooth_sort_oracle import INVALID_RESULT as SMOOTH_SORT_INVALID_RESULT
+from smooth_sort_oracle import MAX_N as SMOOTH_SORT_MAX_N
+from smooth_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH
+from smooth_sort_oracle import MAX_VALUE as SMOOTH_SORT_MAX_VALUE
+from smooth_sort_oracle import MIN_VALUE as SMOOTH_SORT_MIN_VALUE
+from smooth_sort_oracle import expected_result as smooth_sort_oracle
+from tim_sorter_oracle import HASH_MODULUS as TIM_SORTER_HASH_MODULUS
+from tim_sorter_oracle import INVALID_RESULT as TIM_SORTER_INVALID_RESULT
+from tim_sorter_oracle import MAX_ITEMS as TIM_SORTER_MAX_ITEMS
+from tim_sorter_oracle import MAX_KEY as TIM_SORTER_MAX_KEY
+from tim_sorter_oracle import MAX_PARSEABLE_INPUT_VALUES as TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES
+from tim_sorter_oracle import MAX_VALID_INPUT_VALUES as TIM_SORTER_MAX_VALID_INPUT_VALUES
+from tim_sorter_oracle import MIN_KEY as TIM_SORTER_MIN_KEY
+from tim_sorter_oracle import expected_result as tim_sorter_oracle
+from clojure_persistent_list_queue_oracle import I32_MAX as CLOJURE_QUEUE_I32_MAX
+from clojure_persistent_list_queue_oracle import I32_MIN as CLOJURE_QUEUE_I32_MIN
+from clojure_persistent_list_queue_oracle import MAX_OPERATIONS as CLOJURE_QUEUE_MAX_OPERATIONS
+from clojure_persistent_list_queue_oracle import MAX_PARSEABLE_INPUT_LENGTH as CLOJURE_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+from clojure_persistent_list_queue_oracle import MAX_QUEUE_LENGTH as CLOJURE_QUEUE_MAX_LENGTH
+from clojure_persistent_list_queue_oracle import expected_result as clojure_persistent_list_queue_oracle
 from lca_oracle import INVALID_RESULT as LCA_INVALID_RESULT
 from lca_oracle import MAX_INPUT_LENGTH as LCA_MAX_INPUT_LENGTH
 from lca_oracle import MAX_NODES as LCA_MAX_NODES
@@ -1107,6 +1258,25 @@ ALGORITHMS += ("logistic_regression_predict",)
 ALGORITHMS += ("time_simulation",)
 ALGORITHMS += ("rotting_oranges",)
 ALGORITHMS += ("mrucache",)
+ALGORITHMS += ("kruskal_mst", "mos_algorithm")
+ALGORITHMS += ("persistent_seg_tree_lazy_prop",)
+ALGORITHMS += ("euler_problem_4",)
+ALGORITHMS += ("euler_problem_6",)
+ALGORITHMS += ("euler_problem_7",)
+ALGORITHMS += ("sparse_table",)
+ALGORITHMS += ("merge_find_set",)
+ALGORITHMS += ("trie_multiple_search",)
+ALGORITHMS += ("sliding_window_aggregator",)
+ALGORITHMS += ("sorted_list",)
+ALGORITHMS += ("sorted_table",)
+ALGORITHMS += ("radix_tree",)
+ALGORITHMS += ("kdtree",)
+ALGORITHMS += ("lcabinary_lifting",)
+ALGORITHMS += ("segment_tree2_d",)
+ALGORITHMS += ("segment_tree_apply",)
+ALGORITHMS += ("smooth_sort",)
+ALGORITHMS += ("clojure_persistent_list_queue",)
+ALGORITHMS += ("tim_sorter",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -1619,6 +1789,46 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return sparse_matrix_oracle(values)
     if algorithm == "mrucache":
         return mrucache_oracle(values)
+    if algorithm == "kruskal_mst":
+        return kruskal_mst_oracle(values)
+    if algorithm == "mos_algorithm":
+        return mos_algorithm_oracle(values)
+    if algorithm == "persistent_seg_tree_lazy_prop":
+        return persistent_seg_tree_lazy_prop_oracle(values)
+    if algorithm == "euler_problem_4":
+        return euler_problem_4_oracle(values)
+    if algorithm == "euler_problem_6":
+        return euler_problem_6_oracle(values)
+    if algorithm == "euler_problem_7":
+        return euler_problem_7_oracle(values)
+    if algorithm == "sparse_table":
+        return sparse_table_oracle(values)
+    if algorithm == "merge_find_set":
+        return merge_find_set_oracle(values)
+    if algorithm == "trie_multiple_search":
+        return trie_multiple_search_oracle(values)
+    if algorithm == "sliding_window_aggregator":
+        return sliding_window_aggregator_oracle(values)
+    if algorithm == "sorted_list":
+        return sorted_list_oracle(values)
+    if algorithm == "sorted_table":
+        return sorted_table_oracle(values)
+    if algorithm == "radix_tree":
+        return radix_tree_oracle(values)
+    if algorithm == "kdtree":
+        return kdtree_oracle(values)
+    if algorithm == "lcabinary_lifting":
+        return lcabinary_lifting_oracle(values)
+    if algorithm == "segment_tree2_d":
+        return segment_tree2_d_oracle(values)
+    if algorithm == "segment_tree_apply":
+        return segment_tree_apply_oracle(values)
+    if algorithm == "smooth_sort":
+        return smooth_sort_oracle(values)
+    if algorithm == "tim_sorter":
+        return tim_sorter_oracle(values)
+    if algorithm == "clojure_persistent_list_queue":
+        return clojure_persistent_list_queue_oracle(values)
     if algorithm == "minimax":
         return minimax_oracle(values)
     if algorithm == "kcenters":
@@ -2427,6 +2637,46 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_rotting_oranges_workload(workload)
     elif algorithm == "mrucache":
         validate_mrucache_workload(workload)
+    elif algorithm == "kruskal_mst":
+        validate_kruskal_mst_workload(workload)
+    elif algorithm == "mos_algorithm":
+        validate_mos_algorithm_workload(workload)
+    elif algorithm == "persistent_seg_tree_lazy_prop":
+        validate_persistent_seg_tree_lazy_prop_workload(workload)
+    elif algorithm == "euler_problem_4":
+        validate_euler_problem_4_workload(workload)
+    elif algorithm == "euler_problem_6":
+        validate_euler_problem_6_workload(workload)
+    elif algorithm == "euler_problem_7":
+        validate_euler_problem_7_workload(workload)
+    elif algorithm == "sparse_table":
+        validate_sparse_table_workload(workload)
+    elif algorithm == "merge_find_set":
+        validate_merge_find_set_workload(workload)
+    elif algorithm == "trie_multiple_search":
+        validate_trie_multiple_search_workload(workload)
+    elif algorithm == "sliding_window_aggregator":
+        validate_sliding_window_aggregator_workload(workload)
+    elif algorithm == "sorted_list":
+        validate_sorted_list_workload(workload)
+    elif algorithm == "sorted_table":
+        validate_sorted_table_workload(workload)
+    elif algorithm == "radix_tree":
+        validate_radix_tree_workload(workload)
+    elif algorithm == "kdtree":
+        validate_kdtree_workload(workload)
+    elif algorithm == "lcabinary_lifting":
+        validate_lcabinary_lifting_workload(workload)
+    elif algorithm == "segment_tree2_d":
+        validate_segment_tree2_d_workload(workload)
+    elif algorithm == "segment_tree_apply":
+        validate_segment_tree_apply_workload(workload)
+    elif algorithm == "smooth_sort":
+        validate_smooth_sort_workload(workload)
+    elif algorithm == "tim_sorter":
+        validate_tim_sorter_workload(workload)
+    elif algorithm == "clojure_persistent_list_queue":
+        validate_clojure_persistent_list_queue_workload(workload)
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
     special_records: list[str] = []
@@ -12311,6 +12561,953 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             add_mrucache_case(tuple(values))
         special_records.append("NULL 1 -1\n")
+    if algorithm == "kruskal_mst":
+        def add_kruskal_mst_case(values: tuple[int, ...]) -> None:
+            if (len(values) > KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("kruskal_mst generated input exceeds its signed-i64 framing bounds")
+            result = kruskal_mst_oracle(values)
+            if result != -1 and not 0 <= result <= (1 << 63) - 1:
+                raise ValueError("kruskal_mst oracle returned a result outside its signed-63-bit contract")
+            cases[values] = result
+
+        rng_kruskal_mst = random.Random(20261017)
+        for _ in range(96):
+            vertex_count = rng_kruskal_mst.randint(1, KRUSKAL_MST_MAX_VERTICES)
+            if vertex_count == 1:
+                add_kruskal_mst_case((1, 0))
+                continue
+            pairs = [(left, right) for left in range(vertex_count)
+                     for right in range(left + 1, vertex_count)]
+            tree = [(rng_kruskal_mst.randrange(vertex), vertex)
+                    for vertex in range(1, vertex_count)]
+            tree_pairs = {(min(left, right), max(left, right)) for left, right in tree}
+            edge_count = rng_kruskal_mst.randint(vertex_count - 1, len(pairs))
+            extra = rng_kruskal_mst.sample([pair for pair in pairs if pair not in tree_pairs],
+                                           edge_count - (vertex_count - 1))
+            chosen = tree + extra
+            weights = rng_kruskal_mst.sample(
+                range(KRUSKAL_MST_WEIGHT_MIN, KRUSKAL_MST_WEIGHT_MAX + 1), edge_count)
+            edges = []
+            for (left, right), weight in zip(chosen, weights):
+                if rng_kruskal_mst.randrange(2):
+                    left, right = right, left
+                edges.append((left, right, weight))
+            rng_kruskal_mst.shuffle(edges)
+            values = (vertex_count, edge_count,
+                      *(field for edge in edges for field in edge))
+            add_kruskal_mst_case(values)
+
+        malformed_kruskal = (
+            (), (0, 0), (KRUSKAL_MST_MAX_VERTICES + 1, 0), (2, -1),
+            (2, 1, 0, 1), (1, 0, 0), (3, 2, 0, 1, 1, 1, 2, 2),
+            (4, 3, 0, 1, 1, 0, 2, 2, 1, 2, 3),
+            (2, 1, 0, 2, 1), (2, 1, 0, 0, 1),
+            (2, 2, 0, 1, 1, 1, 0, 2),
+            (3, 2, 0, 1, 1, 1, 2, 1),
+            (2, 1, 0, 1, KRUSKAL_MST_WEIGHT_MIN - 1),
+            (2, 1, 0, 1, KRUSKAL_MST_WEIGHT_MAX + 1),
+            (1, 1, 0, 0, 0),
+            (KRUSKAL_MST_MAX_VERTICES, KRUSKAL_MST_MAX_EDGES,
+             *([0] * (KRUSKAL_MST_MAX_VALID_INPUT_LENGTH - 1))),
+        )
+        for malformed in malformed_kruskal:
+            add_kruskal_mst_case(tuple(malformed))
+
+    if algorithm == "mos_algorithm":
+        def add_mos_algorithm_case(values: tuple[int, ...]) -> None:
+            if (len(values) > MOS_ALGORITHM_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("mos_algorithm generated input exceeds its signed-i64 framing bounds")
+            result = mos_algorithm_oracle(values)
+            if result != -1 and not 0 <= result <= (1 << 63) - 1:
+                raise ValueError("mos_algorithm oracle returned a result outside its signed-63-bit contract")
+            cases[values] = result
+
+        rng_mos_algorithm = random.Random(20261017)
+        for case_index in range(128):
+            operation = case_index % 2
+            array_length = rng_mos_algorithm.randint(1, MOS_ALGORITHM_MAX_N)
+            query_count = rng_mos_algorithm.randint(0, MOS_ALGORITHM_MAX_Q)
+            array = [rng_mos_algorithm.randint(MOS_ALGORITHM_VALUE_MIN,
+                                               MOS_ALGORITHM_VALUE_MAX)
+                     for _ in range(array_length)]
+            target = rng_mos_algorithm.randint(MOS_ALGORITHM_VALUE_MIN,
+                                               MOS_ALGORITHM_VALUE_MAX)
+            query_indices = list(range(query_count))
+            rng_mos_algorithm.shuffle(query_indices)
+            queries = []
+            for query_index in query_indices:
+                left = rng_mos_algorithm.randrange(array_length)
+                right = rng_mos_algorithm.randint(left, array_length - 1)
+                queries.append((left, right, query_index))
+            values = (operation, array_length, query_count, target, *array,
+                      *(field for query in queries for field in query))
+            add_mos_algorithm_case(values)
+
+        malformed_mos = (
+            (), (2, 1, 0, 0, 0), (0, 0, 0, 0),
+            (0, MOS_ALGORITHM_MAX_N + 1, 0, 0), (0, 1, -1, 0, 0),
+            (0, 1, MOS_ALGORITHM_MAX_Q + 1, 0, 0),
+            (0, 1, 0, MOS_ALGORITHM_VALUE_MAX + 1, 0),
+            (0, 1, 0, 0, MOS_ALGORITHM_VALUE_MIN - 1),
+            (0, 1, 1, 0, 0), (0, 2, 1, 0, 0, 0, -1, 0),
+            (0, 2, 1, 0, 0, 0, 1, 0), (0, 2, 1, 0, 0, 0, 2, 0),
+            (0, 2, 2, 0, 0, 0, 1, 0, 0, 1, 0),
+            (0, 2, 1, 0, 0, 0, 0, 1),
+            tuple([0] * MOS_ALGORITHM_MAX_INPUT_LENGTH),
+        )
+        for malformed in malformed_mos:
+            add_mos_algorithm_case(tuple(malformed))
+    if algorithm == "persistent_seg_tree_lazy_prop":
+        def add_persistent_seg_tree_lazy_prop_case(values: tuple[int, ...]) -> None:
+            if (len(values) > PERSISTENT_SEG_TREE_LAZY_PROP_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("persistent_seg_tree_lazy_prop input exceeds its signed-i64 framing bounds")
+            result = persistent_seg_tree_lazy_prop_oracle(values)
+            if result != -1 and not 0 <= result <= (1 << 63) - 1:
+                raise ValueError("persistent_seg_tree_lazy_prop oracle returned a result outside its signed-63-bit contract")
+            cases[values] = result
+
+        rng_persistent_seg_tree_lazy_prop = random.Random(20261017)
+        for _ in range(128):
+            array_length = rng_persistent_seg_tree_lazy_prop.randint(
+                1, PERSISTENT_SEG_TREE_LAZY_PROP_MAX_N)
+            operation_count = rng_persistent_seg_tree_lazy_prop.randint(
+                0, PERSISTENT_SEG_TREE_LAZY_PROP_MAX_Q)
+            initial = [rng_persistent_seg_tree_lazy_prop.randint(
+                PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MIN,
+                PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MAX)
+                for _ in range(array_length)]
+            version_count = 1
+            operations: list[int] = []
+            for _ in range(operation_count):
+                operation = rng_persistent_seg_tree_lazy_prop.randrange(2)
+                left = rng_persistent_seg_tree_lazy_prop.randrange(array_length)
+                right = rng_persistent_seg_tree_lazy_prop.randint(left, array_length - 1)
+                if operation == 0:
+                    delta = rng_persistent_seg_tree_lazy_prop.randint(
+                        PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MIN,
+                        PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MAX)
+                    operations.extend((0, left, right, delta))
+                    version_count += 1
+                else:
+                    version = rng_persistent_seg_tree_lazy_prop.randrange(version_count)
+                    operations.extend((1, version, left, right))
+            values = (array_length, operation_count, *initial, *operations)
+            add_persistent_seg_tree_lazy_prop_case(values)
+
+        maximum_trace = (
+            PERSISTENT_SEG_TREE_LAZY_PROP_MAX_N,
+            PERSISTENT_SEG_TREE_LAZY_PROP_MAX_Q,
+            *([0] * PERSISTENT_SEG_TREE_LAZY_PROP_MAX_N),
+            *([0, 0, PERSISTENT_SEG_TREE_LAZY_PROP_MAX_N - 1, 1]
+              * PERSISTENT_SEG_TREE_LAZY_PROP_MAX_Q),
+        )
+        add_persistent_seg_tree_lazy_prop_case(maximum_trace)
+        add_persistent_seg_tree_lazy_prop_case((*maximum_trace, 0))
+
+        malformed_persistent = (
+            (), (0, 0), (PERSISTENT_SEG_TREE_LAZY_PROP_MAX_N + 1, 0),
+            (1, PERSISTENT_SEG_TREE_LAZY_PROP_MAX_Q + 1, 0), (1, 0),
+            (1, 0, 0, 0),
+            (1, 1, PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MAX + 1, 0, 0, 0, 0),
+            (1, 1, 0, 0, -1, 0, 1),
+            (1, 1, 0, 0, 0, 0, PERSISTENT_SEG_TREE_LAZY_PROP_VALUE_MAX + 1),
+            (1, 1, 0, 0, 1, 1, 0),
+            (1, 1, 0, 1, 1, 0, 0),
+            (1, 1, 0, 1, 0, 0, 1),
+            (1, 1, 0, 1, 0, 2, 1),
+            (1, 1, 0, 0, 0, 0, 0, 0),
+        )
+        for malformed in malformed_persistent:
+            add_persistent_seg_tree_lazy_prop_case(tuple(malformed))
+    if algorithm == "euler_problem_4":
+        def add_euler_problem_4_case(values: tuple[int, ...]) -> None:
+            if (len(values) > EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("euler_problem_4 input exceeds its signed-i64 framing bounds")
+            result = euler_problem_4_oracle(values)
+            if result != -1 and not 0 <= result <= (1 << 63) - 1:
+                raise ValueError("euler_problem_4 oracle returned a result outside its signed-63-bit contract")
+            cases[values] = result
+
+        malformed_euler_problem_4 = (
+            (), (-1,), (0,), (EULER_PROBLEM_4_MAX_DIGITS + 1,), (3, 0),
+            (I64_MIN,), (I64_MAX,), tuple([0] * EULER_PROBLEM_4_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for malformed in malformed_euler_problem_4:
+            add_euler_problem_4_case(tuple(malformed))
+    if algorithm == "euler_problem_6":
+        def add_euler_problem_6_case(values: tuple[int, ...]) -> None:
+            if (len(values) > EULER_PROBLEM_6_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("euler_problem_6 input exceeds its signed-i64 framing bounds")
+            result = euler_problem_6_oracle(values)
+            if result != -1 and not 0 <= result <= (1 << 63) - 1:
+                raise ValueError("euler_problem_6 oracle returned a result outside its signed-63-bit contract")
+            cases[values] = result
+
+        for n in range(1, EULER_PROBLEM_6_MAX_N + 1):
+            add_euler_problem_6_case((n,))
+
+        malformed_euler_problem_6 = (
+            (), (0,), (-1,), (EULER_PROBLEM_6_MAX_N + 1,),
+            (I64_MIN,), (I64_MAX,), (100, 0),
+        )
+        for malformed in malformed_euler_problem_6:
+            add_euler_problem_6_case(tuple(malformed))
+    if algorithm == "euler_problem_7":
+        def add_euler_problem_7_case(values: tuple[int, ...]) -> None:
+            if (len(values) > EULER_PROBLEM_7_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("euler_problem_7 input exceeds its signed-i64 framing bounds")
+            result = euler_problem_7_oracle(values)
+            if result != -1 and not 0 <= result <= (1 << 63) - 1:
+                raise ValueError("euler_problem_7 oracle returned a result outside its signed-63-bit contract")
+            cases[values] = result
+
+        for ordinal in range(1, 65):
+            add_euler_problem_7_case((ordinal,))
+
+        malformed_euler_problem_7 = (
+            (), (0,), (-1,), (EULER_PROBLEM_7_MAX_ORDINAL + 1,),
+            (I64_MIN,), (I64_MAX,), (10_001, 12),
+        )
+        for malformed in malformed_euler_problem_7:
+            add_euler_problem_7_case(tuple(malformed))
+    if algorithm == "sparse_table":
+        def add_sparse_table_case(values: tuple[int, ...]) -> None:
+            if (len(values) > SPARSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("sparse_table input exceeds its signed-i64 framing bounds")
+            result = sparse_table_oracle(values)
+            if result != -1 and not 0 <= result < SPARSE_TABLE_MAX_N:
+                raise ValueError("sparse_table oracle returned an index outside its signed scalar contract")
+            cases[values] = result
+
+        rng_sparse_table = random.Random(20261017)
+        for _ in range(96):
+            array_length = rng_sparse_table.randint(1, 128)
+            array = [rng_sparse_table.choice((
+                I64_MIN, I64_MAX, rng_sparse_table.randint(-16, 16)))
+                     for _ in range(array_length)]
+            left = rng_sparse_table.randrange(array_length)
+            right = rng_sparse_table.randint(left, array_length - 1)
+            add_sparse_table_case((array_length, *array, left, right))
+
+        maximum_array = (*range(1, SPARSE_TABLE_MAX_N), -1)
+        maximum_case = (SPARSE_TABLE_MAX_N, *maximum_array, 0, SPARSE_TABLE_MAX_N - 1)
+        add_sparse_table_case(maximum_case)
+        add_sparse_table_case((*maximum_case, 0))
+
+        malformed_sparse_table = (
+            (), (0,), (SPARSE_TABLE_MAX_N + 1,), (1,), (1, 42, 0),
+            (1, 42, 0, 0, 99), (2, 9, 4, -1, 1),
+            (3, 3, 2, 1, 2, 1), (3, 10, 20, 30, 0, 3),
+            (I64_MIN,), (I64_MAX,), tuple([0] * SPARSE_TABLE_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for malformed in malformed_sparse_table:
+            add_sparse_table_case(tuple(malformed))
+    if algorithm == "merge_find_set":
+        def add_merge_find_set_case(values: tuple[int, ...]) -> None:
+            if (len(values) > MERGE_FIND_SET_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("merge_find_set input exceeds its signed-i64 framing bounds")
+            result = merge_find_set_oracle(values)
+            if result != -1 and not 0 <= result < MERGE_FIND_SET_MAX_N:
+                raise ValueError("merge_find_set oracle returned a representative outside its scalar contract")
+            cases[values] = result
+
+        rng_merge_find_set = random.Random(20261017)
+        for _ in range(96):
+            set_size = rng_merge_find_set.randint(1, MERGE_FIND_SET_MAX_N)
+            merge_count = rng_merge_find_set.randint(0, 128)
+            values = [set_size, merge_count]
+            for _ in range(merge_count):
+                values.extend((rng_merge_find_set.randrange(set_size),
+                               rng_merge_find_set.randrange(set_size)))
+            values.append(rng_merge_find_set.randrange(set_size))
+            add_merge_find_set_case(tuple(values))
+
+        maximum_trace = [MERGE_FIND_SET_MAX_N, MERGE_FIND_SET_MAX_MERGES]
+        for merge_index in range(MERGE_FIND_SET_MAX_MERGES):
+            maximum_trace.extend((merge_index % MERGE_FIND_SET_MAX_N,
+                                  (merge_index + 1) % MERGE_FIND_SET_MAX_N))
+        maximum_trace.append(MERGE_FIND_SET_MAX_N - 1)
+        add_merge_find_set_case(tuple(maximum_trace))
+        add_merge_find_set_case((*maximum_trace, 0))
+
+        malformed_merge_find_set = (
+            (), (1,), (1, 0), (0, 0, 0), (MERGE_FIND_SET_MAX_N + 1, 0, 0),
+            (1, MERGE_FIND_SET_MAX_MERGES + 1, 0), (1, -1, 0),
+            (2, 1, 2, 0, 0), (2, 0, 2), (3, 2, 0, 1, 1),
+            (2, 0, 0, 99), (I64_MIN,), (I64_MAX,),
+            tuple([0] * MERGE_FIND_SET_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for malformed in malformed_merge_find_set:
+            add_merge_find_set_case(tuple(malformed))
+    if algorithm == "clojure_persistent_list_queue":
+        def add_clojure_persistent_list_queue_case(values: tuple[int, ...]) -> None:
+            if (len(values) > CLOJURE_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("clojure_persistent_list_queue input exceeds its signed-i64 framing bounds")
+            result = clojure_persistent_list_queue_oracle(values)
+            if result != -1 and not 0 <= result <= (1 << 63) - 1:
+                raise ValueError("clojure_persistent_list_queue oracle returned a result outside its signed-63-bit contract")
+            cases[values] = result
+
+        rng_clojure_persistent_list_queue = random.Random(20261017)
+        for _ in range(128):
+            operation_count = rng_clojure_persistent_list_queue.randint(0, CLOJURE_QUEUE_MAX_OPERATIONS)
+            queue_length = 0
+            values = [operation_count]
+            for _ in range(operation_count):
+                choices = [1, 2, 3] if queue_length >= CLOJURE_QUEUE_MAX_LENGTH else [0, 1, 2, 3]
+                opcode = rng_clojure_persistent_list_queue.choice(choices)
+                if opcode == 0:
+                    argument = rng_clojure_persistent_list_queue.choice((
+                        CLOJURE_QUEUE_I32_MIN, CLOJURE_QUEUE_I32_MAX,
+                        rng_clojure_persistent_list_queue.randint(-64, 64)))
+                    queue_length += 1
+                else:
+                    argument = 0
+                    if opcode == 1 and queue_length:
+                        queue_length -= 1
+                values.extend((opcode, argument))
+            add_clojure_persistent_list_queue_case(tuple(values))
+
+        maximum_trace = [CLOJURE_QUEUE_MAX_OPERATIONS]
+        maximum_trace.extend(field for value in range(CLOJURE_QUEUE_MAX_LENGTH) for field in (0, value))
+        for _ in range((CLOJURE_QUEUE_MAX_OPERATIONS - CLOJURE_QUEUE_MAX_LENGTH) // 3):
+            maximum_trace.extend((1, 0, 2, 0, 3, 0))
+        add_clojure_persistent_list_queue_case(tuple(maximum_trace))
+
+        overfull_queue = (65, *(field for value in range(65) for field in (0, value)))
+        malformed_clojure_persistent_list_queue = (
+            (), (-1,), (CLOJURE_QUEUE_MAX_OPERATIONS + 1,), (1,), (0, 0),
+            (1, 9, 0), (1, 0, CLOJURE_QUEUE_I32_MIN - 1),
+            (1, 0, CLOJURE_QUEUE_I32_MAX + 1), (1, 1, 1), (1, 2, -1),
+            (1, 3, 1), (1, 0, 0, 0), overfull_queue,
+            (I64_MIN,), (I64_MAX,), tuple([0] * CLOJURE_QUEUE_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for malformed in malformed_clojure_persistent_list_queue:
+            add_clojure_persistent_list_queue_case(tuple(malformed))
+    if algorithm == "trie_multiple_search":
+        def add_trie_multiple_search_case(values: tuple[int, ...]) -> None:
+            if (len(values) > TRIE_MULTIPLE_SEARCH_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("trie_multiple_search input exceeds its signed-i64 framing bounds")
+            result = trie_multiple_search_oracle(values)
+            if result != -1 and not 0 <= result <= (1 << 63) - 1:
+                raise ValueError("trie_multiple_search oracle returned a result outside its signed-63-bit contract")
+            cases[values] = result
+
+        rng_trie_multiple_search = random.Random(20261017)
+        alphabet_codes = (*range(65, 91), *range(97, 123))
+
+        def random_trie_word(allow_empty: bool) -> str:
+            minimum_length = 0 if allow_empty else 1
+            length = rng_trie_multiple_search.randint(minimum_length, TRIE_MULTIPLE_SEARCH_MAX_WORD_LENGTH)
+            return "".join(chr(rng_trie_multiple_search.choice(alphabet_codes)) for _ in range(length))
+
+        for _ in range(96):
+            operation_count = rng_trie_multiple_search.randint(0, TRIE_MULTIPLE_SEARCH_MAX_OPERATIONS)
+            active_words: set[str] = set()
+            values = [operation_count]
+            for _ in range(operation_count):
+                opcode = rng_trie_multiple_search.randrange(4)
+                if opcode == 0:
+                    if active_words and (len(active_words) >= TRIE_MULTIPLE_SEARCH_MAX_UNIQUE_WORDS
+                                         or rng_trie_multiple_search.randrange(2) == 0):
+                        word = rng_trie_multiple_search.choice(tuple(active_words))
+                    else:
+                        word = random_trie_word(allow_empty=False)
+                        while word.lower() in active_words:
+                            word = random_trie_word(allow_empty=False)
+                    active_words.add(word.lower())
+                else:
+                    word = random_trie_word(allow_empty=True)
+                values.extend((opcode, len(word), *(ord(character) for character in word)))
+            add_trie_multiple_search_case(tuple(values))
+
+        maximum_words = ["a" * 30 + chr(97 + index // 26) + chr(97 + index % 26)
+                         for index in range(TRIE_MULTIPLE_SEARCH_MAX_UNIQUE_WORDS)]
+        maximum_trace = [TRIE_MULTIPLE_SEARCH_MAX_OPERATIONS]
+        for operation_index in range(TRIE_MULTIPLE_SEARCH_MAX_OPERATIONS):
+            opcode = 0 if operation_index < TRIE_MULTIPLE_SEARCH_MAX_UNIQUE_WORDS else 1
+            word = maximum_words[operation_index % TRIE_MULTIPLE_SEARCH_MAX_UNIQUE_WORDS]
+            maximum_trace.extend((opcode, len(word), *(ord(character) for character in word)))
+        if len(maximum_trace) != TRIE_MULTIPLE_SEARCH_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("trie_multiple_search maximum trace does not match its reviewed input bound")
+        add_trie_multiple_search_case(tuple(maximum_trace))
+        add_trie_multiple_search_case((*maximum_trace, 0))
+
+        too_many_words = [chr(97 + index // 26) + chr(97 + index % 26)
+                          for index in range(TRIE_MULTIPLE_SEARCH_MAX_UNIQUE_WORDS + 1)]
+        too_many_words_trace = [len(too_many_words)]
+        for word in too_many_words:
+            too_many_words_trace.extend((0, len(word), *(ord(character) for character in word)))
+        malformed_trie_multiple_search = (
+            (), (-1,), (TRIE_MULTIPLE_SEARCH_MAX_OPERATIONS + 1,), (1,),
+            (1, 4, 0), (1, 0, 0), (1, 1, 48), (1, 33, *([97] * 33)),
+            (1, 2, 2, 97), (0, 0), (I64_MIN,), (I64_MAX,), tuple(too_many_words_trace),
+        )
+        for malformed in malformed_trie_multiple_search:
+            add_trie_multiple_search_case(tuple(malformed))
+    if algorithm == "sliding_window_aggregator":
+        def add_sliding_window_aggregator_case(values: tuple[int, ...]) -> None:
+            if (len(values) > SLIDING_WINDOW_AGGREGATOR_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("sliding_window_aggregator input exceeds its signed-i64 framing bounds")
+            result = sliding_window_aggregator_oracle(values)
+            if (result != SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT
+                    and not -SLIDING_WINDOW_AGGREGATOR_MAX_CAPACITY * SLIDING_WINDOW_AGGREGATOR_MAX_VALUE
+                    <= result <= SLIDING_WINDOW_AGGREGATOR_MAX_CAPACITY * SLIDING_WINDOW_AGGREGATOR_MAX_VALUE):
+                raise ValueError("sliding_window_aggregator oracle result exceeds its bounded sum contract")
+            cases[values] = result
+
+        rng_sliding_window_aggregator = random.Random(20261017)
+        for _ in range(96):
+            capacity = rng_sliding_window_aggregator.randint(1, SLIDING_WINDOW_AGGREGATOR_MAX_CAPACITY)
+            count = rng_sliding_window_aggregator.randint(1, SLIDING_WINDOW_AGGREGATOR_MAX_COUNT)
+            values = [capacity, count]
+            values.extend(rng_sliding_window_aggregator.randint(
+                -SLIDING_WINDOW_AGGREGATOR_MAX_VALUE, SLIDING_WINDOW_AGGREGATOR_MAX_VALUE)
+                for _ in range(count))
+            add_sliding_window_aggregator_case(tuple(values))
+
+        maximum_trace = [SLIDING_WINDOW_AGGREGATOR_MAX_CAPACITY, SLIDING_WINDOW_AGGREGATOR_MAX_COUNT]
+        maximum_trace.extend(
+            SLIDING_WINDOW_AGGREGATOR_MAX_VALUE if index % 2 else -SLIDING_WINDOW_AGGREGATOR_MAX_VALUE
+            for index in range(SLIDING_WINDOW_AGGREGATOR_MAX_COUNT))
+        add_sliding_window_aggregator_case(tuple(maximum_trace))
+        add_sliding_window_aggregator_case((*maximum_trace, 0))
+
+        malformed_sliding_window_aggregator = (
+            (), (1,), (1, 0), (0, 1, 0), (-1, 1, 0),
+            (SLIDING_WINDOW_AGGREGATOR_MAX_CAPACITY + 1, 1, 0),
+            (1, SLIDING_WINDOW_AGGREGATOR_MAX_COUNT + 1,
+             *([0] * (SLIDING_WINDOW_AGGREGATOR_MAX_COUNT + 1))),
+            (1, -1, 0), (3, 3, 1, 2), (3, 2, 1, 2, 3),
+            (1, 1, SLIDING_WINDOW_AGGREGATOR_MAX_VALUE + 1),
+            (1, 1, -SLIDING_WINDOW_AGGREGATOR_MAX_VALUE - 1),
+            (1, 1, I64_MAX), (1, 1, I64_MIN),
+            tuple([0] * SLIDING_WINDOW_AGGREGATOR_MAX_PARSEABLE_INPUT_LENGTH),
+            (SLIDING_WINDOW_AGGREGATOR_MAX_CAPACITY, SLIDING_WINDOW_AGGREGATOR_MAX_COUNT,
+             *([0] * (SLIDING_WINDOW_AGGREGATOR_MAX_COUNT + 2))),
+        )
+        for malformed in malformed_sliding_window_aggregator:
+            add_sliding_window_aggregator_case(tuple(malformed))
+    if algorithm == "sorted_list":
+        def add_sorted_list_case(values: tuple[int, ...]) -> None:
+            if (len(values) > SORTED_LIST_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("sorted_list input exceeds its signed-i64 framing bounds")
+            result = sorted_list_oracle(values)
+            if result != SORTED_LIST_INVALID_RESULT and not 0 <= result <= I64_MAX:
+                raise ValueError("sorted_list oracle returned a checksum outside its signed scalar contract")
+            cases[values] = result
+
+        rng_sorted_list = random.Random(20261017)
+        for _ in range(96):
+            operation_count = rng_sorted_list.randint(0, SORTED_LIST_MAX_OPERATIONS)
+            items: list[int] = []
+            trace: list[int] = []
+            for _ in range(operation_count):
+                opcode = rng_sorted_list.randrange(6)
+                if opcode == 0 and len(items) >= SORTED_LIST_MAX_SIZE:
+                    opcode = 1
+                if opcode == 0:
+                    payload = rng_sorted_list.randint(0, SORTED_LIST_MAX_VALUE)
+                    items.append(payload)
+                    items.sort()
+                elif opcode == 1:
+                    payload = rng_sorted_list.randint(0, SORTED_LIST_MAX_VALUE)
+                elif opcode == 2:
+                    if items and rng_sorted_list.randrange(2) == 0:
+                        payload = rng_sorted_list.choice(items)
+                        items.remove(payload)
+                    else:
+                        payload = rng_sorted_list.randint(0, SORTED_LIST_MAX_VALUE)
+                elif opcode == 3:
+                    payload = 0
+                elif opcode == 4:
+                    if items:
+                        payload = rng_sorted_list.randrange(len(items))
+                    else:
+                        opcode = 1
+                        payload = rng_sorted_list.randint(0, SORTED_LIST_MAX_VALUE)
+                else:
+                    payload = 0
+                    items.clear()
+                trace.extend((opcode, payload))
+            add_sorted_list_case(tuple(trace))
+
+        maximum_size_trace = tuple(
+            field for value in range(SORTED_LIST_MAX_SIZE) for field in (0, value))
+        add_sorted_list_case(maximum_size_trace)
+
+        maximum_operation_trace = [
+            field for value in range(SORTED_LIST_MAX_SIZE) for field in (0, value)]
+        maximum_operation_trace.extend(
+            field for index in range(SORTED_LIST_MAX_SIZE) for field in (4, index))
+        add_sorted_list_case(tuple(maximum_operation_trace))
+
+        overfull_collection = tuple(
+            field for value in range(SORTED_LIST_MAX_SIZE + 1) for field in (0, value))
+        malformed_sorted_list = (
+            (), (1,), (6, 0), (3, 1), (5, 1), (0, -1), (0, SORTED_LIST_MAX_VALUE + 1),
+            (1, -1), (2, SORTED_LIST_MAX_VALUE + 1), (4, -1), (4, 0),
+            (0, 9, 4, 1), (I64_MIN, 0), (I64_MAX, 0), overfull_collection,
+            tuple([3, 0] * SORTED_LIST_MAX_OPERATIONS + [3]),
+            tuple([3, 0] * (SORTED_LIST_MAX_OPERATIONS + 1)),
+        )
+        for malformed in malformed_sorted_list:
+            add_sorted_list_case(tuple(malformed))
+    if algorithm == "sorted_table":
+        def add_sorted_table_case(values: tuple[int, ...]) -> None:
+            if (len(values) > SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("sorted_table input exceeds its signed-i64 framing bounds")
+            result = sorted_table_oracle(values)
+            if result != SORTED_TABLE_INVALID_RESULT and not 0 <= result <= I64_MAX:
+                raise ValueError("sorted_table oracle returned a checksum outside its signed scalar contract")
+            cases[values] = result
+
+        rng_sorted_table = random.Random(20261017)
+        for _ in range(96):
+            initial_count = rng_sorted_table.randint(0, SORTED_TABLE_MAX_INITIAL_KEYS)
+            items = sorted(rng_sorted_table.sample(
+                range(SORTED_TABLE_MIN_KEY, SORTED_TABLE_MAX_KEY + 1), initial_count))
+            operation_count = rng_sorted_table.randint(0, SORTED_TABLE_MAX_OPERATIONS)
+            trace = [initial_count, *items, operation_count]
+            for _ in range(operation_count):
+                opcode = rng_sorted_table.randrange(14)
+                first = 0
+                second = 0
+                if opcode in (0, 1, 4, 5, 7):
+                    if opcode == 7 and items and rng_sorted_table.randrange(2) == 0:
+                        first = rng_sorted_table.choice(items)
+                        items.remove(first)
+                    else:
+                        first = rng_sorted_table.randint(SORTED_TABLE_MIN_KEY, SORTED_TABLE_MAX_KEY)
+                elif opcode == 6:
+                    first = rng_sorted_table.randint(SORTED_TABLE_MIN_KEY, SORTED_TABLE_MAX_KEY)
+                    second = rng_sorted_table.randrange(2)
+                    if first in items:
+                        if second == 1:
+                            items[items.index(first)] = first
+                    elif len(items) >= SORTED_TABLE_MAX_SIZE:
+                        opcode = 1
+                        second = 0
+                    else:
+                        items.append(first)
+                        items.sort()
+                elif opcode in (8, 9):
+                    first = rng_sorted_table.randint(SORTED_TABLE_MIN_KEY, SORTED_TABLE_MAX_KEY)
+                    second = rng_sorted_table.randint(SORTED_TABLE_MIN_KEY, SORTED_TABLE_MAX_KEY)
+                elif opcode == 13:
+                    items.clear()
+                trace.extend((opcode, first, second))
+            add_sorted_table_case(tuple(trace))
+
+        maximum_trace = [SORTED_TABLE_MAX_INITIAL_KEYS, *range(SORTED_TABLE_MAX_INITIAL_KEYS),
+                         SORTED_TABLE_MAX_OPERATIONS]
+        maximum_trace.extend((6, value, 0) for value in range(
+            SORTED_TABLE_MAX_INITIAL_KEYS, SORTED_TABLE_MAX_SIZE))
+        maximum_trace.extend((8, SORTED_TABLE_MIN_KEY, SORTED_TABLE_MAX_KEY)
+                             for _ in range(SORTED_TABLE_MAX_OPERATIONS // 2))
+        add_sorted_table_case(tuple(maximum_trace))
+
+        overfull_set = (1, 0, SORTED_TABLE_MAX_OPERATIONS,
+                        *(field for value in range(1, SORTED_TABLE_MAX_SIZE + 1)
+                          for field in (6, value, 0)))
+        malformed_sorted_table = (
+            (), (0,), (-1, 0), (SORTED_TABLE_MAX_INITIAL_KEYS + 1, 0),
+            (2, 1, 0, 0), (2, 0, 0, 0), (1, SORTED_TABLE_MIN_KEY - 1, 0),
+            (1, 5), (0, 0, SORTED_TABLE_MAX_OPERATIONS + 1), (0, 1, 0),
+            (0, 0, 0, 0), (0, 1, 14, 0, 0), (0, 1, 2, 1, 0),
+            (0, 1, 6, 0, 2), (0, 1, 0, SORTED_TABLE_MAX_KEY + 1, 0),
+            (0, 1, 8, 0, SORTED_TABLE_MAX_KEY + 1), overfull_set,
+            tuple([0] * SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH),
+            tuple([0] * (SORTED_TABLE_MAX_PARSEABLE_INPUT_LENGTH + 1)),
+        )
+        for malformed in malformed_sorted_table:
+            add_sorted_table_case(tuple(malformed))
+    if algorithm == "radix_tree":
+        def add_radix_tree_case(values: tuple[int, ...]) -> None:
+            if (len(values) > RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("radix_tree input exceeds its signed-i64 framing bounds")
+            result = radix_tree_oracle(values)
+            if result != RADIX_TREE_INVALID_RESULT and not 0 <= result <= I64_MAX:
+                raise ValueError("radix_tree oracle returned a checksum outside its signed scalar contract")
+            cases[values] = result
+
+        rng_radix_tree = random.Random(20261017)
+
+        def random_radix_word() -> str:
+            length = rng_radix_tree.randint(1, RADIX_TREE_MAX_WORD_LENGTH)
+            return "".join(chr(rng_radix_tree.randint(
+                RADIX_TREE_MIN_LETTER, RADIX_TREE_MAX_LETTER)) for _ in range(length))
+
+        for _ in range(96):
+            operation_count = rng_radix_tree.randint(0, RADIX_TREE_MAX_OPERATIONS)
+            inserted_words: list[str] = []
+            trace = [operation_count]
+            for _ in range(operation_count):
+                opcode = rng_radix_tree.randrange(3)
+                if opcode == 0 or not inserted_words or rng_radix_tree.randrange(2) == 0:
+                    word = random_radix_word()
+                    if opcode == 0:
+                        inserted_words.append(word)
+                else:
+                    word = rng_radix_tree.choice(inserted_words)
+                trace.extend((opcode, len(word), *(ord(character) for character in word)))
+            add_radix_tree_case(tuple(trace))
+
+        maximum_words = ["a" * (RADIX_TREE_MAX_WORD_LENGTH - 2)
+                         + chr(RADIX_TREE_MIN_LETTER + index // 26)
+                         + chr(RADIX_TREE_MIN_LETTER + index % 26)
+                         for index in range(128)]
+        maximum_trace = [RADIX_TREE_MAX_OPERATIONS]
+        for operation_index in range(RADIX_TREE_MAX_OPERATIONS):
+            opcode = 0 if operation_index < len(maximum_words) else 1
+            word = maximum_words[operation_index % len(maximum_words)]
+            maximum_trace.extend((opcode, len(word), *(ord(character) for character in word)))
+        if len(maximum_trace) != RADIX_TREE_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("radix_tree maximum trace does not match its reviewed input bound")
+        add_radix_tree_case(tuple(maximum_trace))
+        add_radix_tree_case((*maximum_trace, 0))
+
+        malformed_radix_tree = (
+            (), (RADIX_TREE_MAX_OPERATIONS + 1,), (1,), (1, 0), (1, 1, 0),
+            (1, 1, RADIX_TREE_MAX_WORD_LENGTH + 1, *([RADIX_TREE_MIN_LETTER] *
+                                                       (RADIX_TREE_MAX_WORD_LENGTH + 1))),
+            (1, 1, 1, RADIX_TREE_MIN_LETTER - 1),
+            (1, 1, 1, RADIX_TREE_MAX_LETTER + 1), (1, 3, 1, RADIX_TREE_MIN_LETTER),
+            (1, 1, 2, RADIX_TREE_MIN_LETTER), (1, 1), (0, 0),
+            tuple([0] * RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH),
+            tuple([0] * (RADIX_TREE_MAX_PARSEABLE_INPUT_LENGTH + 1)),
+        )
+        for malformed in malformed_radix_tree:
+            add_radix_tree_case(tuple(malformed))
+    if algorithm == "smooth_sort":
+        def add_smooth_sort_case(values: tuple[int, ...]) -> None:
+            if (len(values) > SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("smooth_sort input exceeds its signed-i64 framing bounds")
+            result = smooth_sort_oracle(values)
+            if result != SMOOTH_SORT_INVALID_RESULT and not 0 <= result <= I64_MAX:
+                raise ValueError("smooth_sort oracle returned a checksum outside its signed scalar contract")
+            cases[values] = result
+
+        rng_smooth_sort = random.Random(20261017)
+        for _ in range(96):
+            length = rng_smooth_sort.randint(0, SMOOTH_SORT_MAX_N)
+            values = [length]
+            values.extend(rng_smooth_sort.choice((
+                SMOOTH_SORT_MIN_VALUE, SMOOTH_SORT_MAX_VALUE,
+                rng_smooth_sort.randint(SMOOTH_SORT_MIN_VALUE, SMOOTH_SORT_MAX_VALUE)))
+                for _ in range(length))
+            add_smooth_sort_case(tuple(values))
+
+        maximum_array = tuple(
+            SMOOTH_SORT_MAX_VALUE if index % 2 else SMOOTH_SORT_MIN_VALUE
+            for index in range(SMOOTH_SORT_MAX_N))
+        add_smooth_sort_case((SMOOTH_SORT_MAX_N, *maximum_array))
+
+        malformed_smooth_sort = (
+            (), (-1,), (SMOOTH_SORT_MAX_N + 1, *([0] * (SMOOTH_SORT_MAX_N + 1))),
+            (1,), (0, 0), (1, SMOOTH_SORT_MIN_VALUE - 1),
+            (1, SMOOTH_SORT_MAX_VALUE + 1), (1, I64_MIN), (1, I64_MAX),
+            tuple([0] * SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH),
+            tuple([0] * (SMOOTH_SORT_MAX_PARSEABLE_INPUT_LENGTH + 1)),
+        )
+        for malformed in malformed_smooth_sort:
+            add_smooth_sort_case(tuple(malformed))
+    if algorithm == "kdtree":
+        def add_kdtree_case(values: tuple[int, ...]) -> None:
+            if (len(values) > KDTREE_MAX_PARSEABLE_INPUT_VALUES + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("kdtree input exceeds its signed-i64 framing bounds")
+            result = kdtree_oracle(values)
+            if result != KDTREE_INVALID_RESULT and not 0 <= result <= I64_MAX:
+                raise ValueError("kdtree oracle returned a checksum outside its signed scalar contract")
+            cases[values] = result
+
+        rng_kdtree = random.Random(20261017)
+        for _ in range(96):
+            initial_count = rng_kdtree.randint(0, KDTREE_MAX_INITIAL_POINTS)
+            xs = rng_kdtree.sample(
+                range(KDTREE_MIN_COORDINATE, KDTREE_MAX_COORDINATE + 1), initial_count)
+            ys = rng_kdtree.sample(
+                range(KDTREE_MIN_COORDINATE, KDTREE_MAX_COORDINATE + 1), initial_count)
+            points = list(zip(xs, ys))
+            trace = [initial_count]
+            for x, y in points:
+                trace.extend((x, y))
+            operation_count = rng_kdtree.randint(0, 48)
+            trace.append(operation_count)
+            for _ in range(operation_count):
+                opcode = rng_kdtree.randrange(5)
+                if opcode == 0 and len(points) < KDTREE_MAX_POINTS:
+                    used_x = {point[0] for point in points}
+                    used_y = {point[1] for point in points}
+                    available_x = [value for value in range(KDTREE_MIN_COORDINATE,
+                                                              KDTREE_MAX_COORDINATE + 1)
+                                   if value not in used_x]
+                    available_y = [value for value in range(KDTREE_MIN_COORDINATE,
+                                                              KDTREE_MAX_COORDINATE + 1)
+                                   if value not in used_y]
+                    point = (rng_kdtree.choice(available_x), rng_kdtree.choice(available_y))
+                    points.append(point)
+                    trace.extend((0, *point))
+                elif opcode in (2, 3) and points:
+                    trace.extend((opcode, rng_kdtree.randrange(2), 0))
+                elif opcode == 4 and points:
+                    trace.extend((4, rng_kdtree.randint(KDTREE_MIN_COORDINATE, KDTREE_MAX_COORDINATE),
+                                  rng_kdtree.randint(KDTREE_MIN_COORDINATE, KDTREE_MAX_COORDINATE)))
+                else:
+                    trace.extend((1, rng_kdtree.randint(KDTREE_MIN_COORDINATE, KDTREE_MAX_COORDINATE),
+                                  rng_kdtree.randint(KDTREE_MIN_COORDINATE, KDTREE_MAX_COORDINATE)))
+            add_kdtree_case(tuple(trace))
+
+        malformed_kdtree = (
+            (), (0,), (KDTREE_MAX_INITIAL_POINTS + 1, 0), (0, KDTREE_MAX_OPERATIONS + 1),
+            (1, 0, 0, 1, 2, 0, 1), (1, 0, 0, 1, 3, 0, 1),
+            (1, 0, 0, 1, 9, 0, 0), (1, 0, 0, 1, 2, 2, 0),
+            (1, 0, 0, 1, 0, 0, 0), (2, 0, 0, 1, 0, 0),
+            (1, KDTREE_MIN_COORDINATE - 1, 0, 0),
+            (1, 0, 0, 0, 7), tuple([0] * KDTREE_MAX_PARSEABLE_INPUT_VALUES),
+            tuple([0] * (KDTREE_MAX_PARSEABLE_INPUT_VALUES + 1)),
+        )
+        for malformed in malformed_kdtree:
+            add_kdtree_case(tuple(malformed))
+    if algorithm == "lcabinary_lifting":
+        def add_lcabinary_lifting_case(values: tuple[int, ...]) -> None:
+            if (len(values) > LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("lcabinary_lifting input exceeds its signed-i64 framing bounds")
+            result = lcabinary_lifting_oracle(values)
+            if result != LCABINARY_LIFTING_INVALID_RESULT and not 0 <= result <= I64_MAX:
+                raise ValueError("lcabinary_lifting oracle returned a checksum outside its signed scalar contract")
+            cases[values] = result
+
+        rng_lcabinary_lifting = random.Random(20261017)
+        for _ in range(96):
+            node_count = rng_lcabinary_lifting.randint(2, LCABINARY_LIFTING_MAX_NODES)
+            root = rng_lcabinary_lifting.randrange(node_count)
+            edges = []
+            for node in range(1, node_count):
+                edges.extend((node, rng_lcabinary_lifting.randrange(node)))
+            query_count = rng_lcabinary_lifting.randint(0, 64)
+            trace = [node_count, root, node_count - 1, *edges, query_count]
+            for _ in range(query_count):
+                trace.extend((rng_lcabinary_lifting.randrange(node_count),
+                              rng_lcabinary_lifting.randrange(node_count)))
+            add_lcabinary_lifting_case(tuple(trace))
+
+        maximum_node_count = LCABINARY_LIFTING_MAX_NODES
+        maximum_trace = [maximum_node_count, 0, maximum_node_count - 1]
+        for node in range(1, maximum_node_count):
+            maximum_trace.extend((node - 1, node))
+        maximum_trace.append(LCABINARY_LIFTING_MAX_QUERIES)
+        for query_index in range(LCABINARY_LIFTING_MAX_QUERIES):
+            maximum_trace.extend((query_index % maximum_node_count,
+                                  (query_index * 37 + 7) % maximum_node_count))
+        if len(maximum_trace) != LCABINARY_LIFTING_MAX_VALID_INPUT_VALUES:
+            raise ValueError("lcabinary_lifting maximum trace does not match its reviewed input bound")
+        add_lcabinary_lifting_case(tuple(maximum_trace))
+
+        malformed_lcabinary_lifting = (
+            (), (2, 0, 1), (1, 0, 0, 0),
+            (LCABINARY_LIFTING_MAX_NODES + 1, 0, LCABINARY_LIFTING_MAX_NODES, 0),
+            (2, 2, 1, 0, 1, 0), (3, 0, 1, 0, 1, 0),
+            (2, 0, 1, 0, 0, 0), (3, 0, 2, 0, 1, 1, 0, 0),
+            (4, 0, 3, 0, 1, 1, 2, 2, 0, 0), (2, 0, 1, 0),
+            (2, 0, 1, 0, 1, LCABINARY_LIFTING_MAX_QUERIES + 1),
+            (2, 0, 1, 0, 1, 0, 1), (2, 0, 1, 0, 1, 1, 0, 2),
+            (2, 0, 1, 0, 1, 0, 7), (2, 0, 1, -1, 1, 0),
+            tuple([0] * LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES),
+            tuple([0] * (LCABINARY_LIFTING_MAX_PARSEABLE_INPUT_VALUES + 1)),
+        )
+        for malformed in malformed_lcabinary_lifting:
+            add_lcabinary_lifting_case(tuple(malformed))
+    if algorithm == "segment_tree2_d":
+        def add_segment_tree2_d_case(values: tuple[int, ...]) -> None:
+            if (len(values) > SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("segment_tree2_d input exceeds its signed-i64 framing bounds")
+            result = segment_tree2_d_oracle(values)
+            checksum_bound = (SEGMENT_TREE2_D_MAX_OPERATIONS
+                              * (SEGMENT_TREE2_D_MAX_OPERATIONS + 1) // 2
+                              * (SEGMENT_TREE2_D_MAX_RECTANGLE_SUM + SEGMENT_TREE2_D_CHECKSUM_OFFSET))
+            if result != SEGMENT_TREE2_D_INVALID_RESULT and not 0 <= result <= checksum_bound:
+                raise ValueError("segment_tree2_d oracle returned a checksum outside its signed scalar contract")
+            cases[values] = result
+
+        rng_segment_tree2_d = random.Random(20261017)
+        for _ in range(96):
+            rows = rng_segment_tree2_d.randint(1, SEGMENT_TREE2_D_MAX_ROWS)
+            columns = rng_segment_tree2_d.randint(1, SEGMENT_TREE2_D_MAX_COLUMNS)
+            operation_count = rng_segment_tree2_d.randint(0, 64)
+            trace = [rows, columns, operation_count]
+            for _ in range(operation_count):
+                if rng_segment_tree2_d.randrange(2) == 0:
+                    trace.extend((0, rng_segment_tree2_d.randrange(rows),
+                                  rng_segment_tree2_d.randrange(columns),
+                                  rng_segment_tree2_d.randint(SEGMENT_TREE2_D_MIN_CELL_VALUE,
+                                                              SEGMENT_TREE2_D_MAX_CELL_VALUE), 0))
+                else:
+                    top = rng_segment_tree2_d.randint(0, rows)
+                    bottom = rng_segment_tree2_d.randint(top, rows)
+                    left = rng_segment_tree2_d.randint(0, columns)
+                    right = rng_segment_tree2_d.randint(left, columns)
+                    trace.extend((1, top, bottom, left, right))
+            add_segment_tree2_d_case(tuple(trace))
+
+        maximum_trace = [SEGMENT_TREE2_D_MAX_ROWS, SEGMENT_TREE2_D_MAX_COLUMNS,
+                         SEGMENT_TREE2_D_MAX_OPERATIONS]
+        for operation_index in range(SEGMENT_TREE2_D_MAX_OPERATIONS):
+            if operation_index % 2 == 0:
+                cell_index = operation_index // 2
+                value = (SEGMENT_TREE2_D_MIN_CELL_VALUE if cell_index % 2 == 0
+                         else SEGMENT_TREE2_D_MAX_CELL_VALUE)
+                maximum_trace.extend((0, cell_index // SEGMENT_TREE2_D_MAX_COLUMNS,
+                                      cell_index % SEGMENT_TREE2_D_MAX_COLUMNS, value, 0))
+            else:
+                maximum_trace.extend((1, 0, SEGMENT_TREE2_D_MAX_ROWS,
+                                      0, SEGMENT_TREE2_D_MAX_COLUMNS))
+        if len(maximum_trace) != SEGMENT_TREE2_D_MAX_VALID_INPUT_VALUES:
+            raise ValueError("segment_tree2_d maximum trace does not match its reviewed input bound")
+        add_segment_tree2_d_case(tuple(maximum_trace))
+
+        malformed_segment_tree2_d = (
+            (), (1, 1), (0, 1, 0), (SEGMENT_TREE2_D_MAX_ROWS + 1, 1, 0),
+            (1, 0, 0), (1, SEGMENT_TREE2_D_MAX_COLUMNS + 1, 0),
+            (1, 1, SEGMENT_TREE2_D_MAX_OPERATIONS + 1), (1, 1, 1, 0, 0),
+            (1, 1, 1, 2, 0, 0, 0, 0), (1, 1, 1, 0, 1, 0, 0, 0),
+            (1, 1, 1, 0, 0, 1, 0, 0),
+            (1, 1, 1, 0, 0, 0, SEGMENT_TREE2_D_MAX_CELL_VALUE + 1, 0),
+            (1, 1, 1, 0, 0, 0, 0, 1),
+            (2, 2, 1, 1, -1, 1, 0, 1), (2, 2, 1, 1, 0, 3, 0, 1),
+            (2, 2, 1, 1, 0, 1, -1, 1), (2, 2, 1, 1, 0, 1, 0, 3),
+            (2, 2, 1, 1, 1, 0, 0, 1), (2, 2, 1, 1, 0, 1, 1, 0),
+            (1, 1, 0, 7), tuple([0] * SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES),
+            tuple([0] * (SEGMENT_TREE2_D_MAX_PARSEABLE_INPUT_VALUES + 1)),
+        )
+        for malformed in malformed_segment_tree2_d:
+            add_segment_tree2_d_case(tuple(malformed))
+    if algorithm == "segment_tree_apply":
+        def add_segment_tree_apply_case(values: tuple[int, ...]) -> None:
+            if (len(values) > SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("segment_tree_apply input exceeds its signed-i64 framing bounds")
+            result = segment_tree_apply_oracle(values)
+            checksum_bound = (SEGMENT_TREE_APPLY_MAX_OPERATIONS
+                              * (SEGMENT_TREE_APPLY_MAX_OPERATIONS + 1) // 2
+                              * (SEGMENT_TREE_APPLY_MAX_ABS_SUM + SEGMENT_TREE_APPLY_CHECKSUM_OFFSET))
+            if result != SEGMENT_TREE_APPLY_INVALID_RESULT and not 0 <= result <= checksum_bound:
+                raise ValueError("segment_tree_apply oracle returned a checksum outside its signed scalar contract")
+            cases[values] = result
+
+        rng_segment_tree_apply = random.Random(20261017)
+        for _ in range(96):
+            length = rng_segment_tree_apply.randint(1, SEGMENT_TREE_APPLY_MAX_LENGTH)
+            trace = [length]
+            trace.extend(rng_segment_tree_apply.randint(SEGMENT_TREE_APPLY_MIN_INITIAL_VALUE,
+                                                        SEGMENT_TREE_APPLY_MAX_INITIAL_VALUE)
+                         for _ in range(length))
+            operation_count = rng_segment_tree_apply.randint(0, SEGMENT_TREE_APPLY_MAX_OPERATIONS)
+            trace.append(operation_count)
+            for _ in range(operation_count):
+                left = rng_segment_tree_apply.randrange(length)
+                right = rng_segment_tree_apply.randint(left, length - 1)
+                if rng_segment_tree_apply.randrange(2) == 0:
+                    trace.extend((0, left, right,
+                                  rng_segment_tree_apply.randint(SEGMENT_TREE_APPLY_MIN_MULTIPLIER,
+                                                                 SEGMENT_TREE_APPLY_MAX_MULTIPLIER)))
+                else:
+                    trace.extend((1, left, right, 0))
+            add_segment_tree_apply_case(tuple(trace))
+
+        maximum_trace = [SEGMENT_TREE_APPLY_MAX_LENGTH]
+        maximum_trace.extend(SEGMENT_TREE_APPLY_MIN_INITIAL_VALUE if index % 2 == 0
+                             else SEGMENT_TREE_APPLY_MAX_INITIAL_VALUE
+                             for index in range(SEGMENT_TREE_APPLY_MAX_LENGTH))
+        maximum_trace.append(SEGMENT_TREE_APPLY_MAX_OPERATIONS)
+        for operation_index in range(SEGMENT_TREE_APPLY_MAX_OPERATIONS):
+            if operation_index + 1 == SEGMENT_TREE_APPLY_MAX_OPERATIONS:
+                maximum_trace.extend((1, 0, SEGMENT_TREE_APPLY_MAX_LENGTH - 1, 0))
+            else:
+                maximum_trace.extend((0, 0, SEGMENT_TREE_APPLY_MAX_LENGTH - 1,
+                                      SEGMENT_TREE_APPLY_MAX_MULTIPLIER))
+        if (len(maximum_trace) != SEGMENT_TREE_APPLY_MAX_VALID_INPUT_VALUES
+                or SEGMENT_TREE_APPLY_MAX_ABS_SUM
+                    != SEGMENT_TREE_APPLY_MAX_LENGTH * SEGMENT_TREE_APPLY_MAX_ABS_ELEMENT):
+            raise ValueError("segment_tree_apply maximum trace does not match its reviewed arithmetic or frame bound")
+        add_segment_tree_apply_case(tuple(maximum_trace))
+
+        malformed_segment_tree_apply = (
+            (), (0, 0), (SEGMENT_TREE_APPLY_MAX_LENGTH + 1, 0),
+            (1, SEGMENT_TREE_APPLY_MAX_INITIAL_VALUE + 1, 0),
+            (1, SEGMENT_TREE_APPLY_MIN_INITIAL_VALUE - 1, 0),
+            (1, 0, SEGMENT_TREE_APPLY_MAX_OPERATIONS + 1), (1, 0, 1, 0),
+            (1, 0, 1, 7, 0, 0, 0), (1, 0, 1, 0, -1, 0, 1),
+            (1, 0, 1, 0, 0, 1, 1), (1, 0, 1, 0, 1, 0, 2),
+            (1, 0, 1, 0, 0, 0, SEGMENT_TREE_APPLY_MIN_MULTIPLIER - 1),
+            (1, 0, 1, 0, 0, 0, SEGMENT_TREE_APPLY_MAX_MULTIPLIER + 1),
+            (1, 0, 1, 1, -1, 0, 0), (1, 0, 1, 1, 0, 1, 0),
+            (1, 0, 1, 1, 1, 0, 0), (1, 0, 1, 1, 0, 0, 1),
+            (1, 0, 0, 7), tuple([0] * SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES),
+            tuple([0] * (SEGMENT_TREE_APPLY_MAX_PARSEABLE_INPUT_VALUES + 1)),
+        )
+        for malformed in malformed_segment_tree_apply:
+            add_segment_tree_apply_case(tuple(malformed))
+    if algorithm == "tim_sorter":
+        def add_tim_sorter_case(values: tuple[int, ...]) -> None:
+            if (len(values) > TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+                raise ValueError("tim_sorter input exceeds its signed-i64 framing bounds")
+            result = tim_sorter_oracle(values)
+            if result != TIM_SORTER_INVALID_RESULT and not 0 <= result < TIM_SORTER_HASH_MODULUS:
+                raise ValueError("tim_sorter oracle returned a checksum outside its signed scalar contract")
+            cases[values] = result
+
+        rng_tim_sorter = random.Random(20261017)
+        for _ in range(96):
+            item_count = rng_tim_sorter.randint(0, TIM_SORTER_MAX_ITEMS)
+            item_ids = list(range(item_count))
+            rng_tim_sorter.shuffle(item_ids)
+            trace = [item_count]
+            for item_id in item_ids:
+                trace.extend((rng_tim_sorter.randint(TIM_SORTER_MIN_KEY, TIM_SORTER_MAX_KEY), item_id))
+            add_tim_sorter_case(tuple(trace))
+
+        for item_count in (31, 32, 33):
+            boundary_trace = [item_count]
+            for item_id in range(item_count - 1, -1, -1):
+                boundary_trace.extend(((item_id * 3) % 5 - 2, item_id))
+            add_tim_sorter_case(tuple(boundary_trace))
+
+        maximum_trace = [TIM_SORTER_MAX_ITEMS]
+        for item_index, item_id in enumerate(range(TIM_SORTER_MAX_ITEMS - 1, -1, -1)):
+            maximum_trace.extend(((item_index * 17) % 23 - 11, item_id))
+        if len(maximum_trace) != TIM_SORTER_MAX_VALID_INPUT_VALUES:
+            raise ValueError("tim_sorter maximum trace does not match its reviewed input bound")
+        add_tim_sorter_case(tuple(maximum_trace))
+
+        malformed_tim_sorter = (
+            (), (-1,), (TIM_SORTER_MAX_ITEMS + 1,), (0, 0), (1,),
+            (1, TIM_SORTER_MIN_KEY - 1, 0), (1, TIM_SORTER_MAX_KEY + 1, 0),
+            (2, 0, -1, 1, 0), (2, 0, 2, 1, 1), (2, 0, 0, 1, 0),
+            (1, 0, 0, 9), tuple([0] * TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES),
+            tuple([0] * (TIM_SORTER_MAX_PARSEABLE_INPUT_VALUES + 1)),
+        )
+        for malformed in malformed_tim_sorter:
+            add_tim_sorter_case(tuple(malformed))
     case_count = len(cases) + len(special_records)
     lines = [str(case_count) + "\n"]
     for values, expected in sorted(cases.items()):

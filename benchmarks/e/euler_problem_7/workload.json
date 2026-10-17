@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-euler-problem-7-i64-array-scalar-v1",
+  "algorithm": "euler_problem_7",
+  "function_symbol": "euler_problem_7",
+  "description": "Find the requested prime ordinal with the pinned fixed-bound sieve; ordinal 10001 reproduces the source.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C",
+      "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+      "path": "project_euler/problem_7/sol.c",
+      "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/project_euler/problem_7/sol.c",
+      "role": "algorithm"
+    }
+  ],
+  "contract": {
+    "operation": "Return the requested prime using an Eratosthenes sieve with fixed exclusive bound 1000000.",
+    "input_layout": "[prime_ordinal]",
+    "prime_ordinal_range": [
+      1,
+      10001
+    ],
+    "sieve_exclusive_upper_bound": 1000000,
+    "source_exact_case": "prime_ordinal=10001 returns 104743",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[prime_ordinal]",
+    "prime_ordinal_range": [
+      1,
+      10001
+    ],
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "the prime at the requested 1-based ordinal",
+    "source_result": 104743,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 8
+  },
+  "cases": [
+    {
+      "id": "first_prime",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": 2
+    },
+    {
+      "id": "second_prime",
+      "input_values": [
+        2
+      ],
+      "input_length": 1,
+      "expected_result": 3
+    },
+    {
+      "id": "sixth_prime",
+      "input_values": [
+        6
+      ],
+      "input_length": 1,
+      "expected_result": 13
+    },
+    {
+      "id": "hundredth_prime",
+      "input_values": [
+        100
+      ],
+      "input_length": 1,
+      "expected_result": 541
+    },
+    {
+      "id": "thousandth_prime",
+      "input_values": [
+        1000
+      ],
+      "input_length": 1,
+      "expected_result": 7919
+    },
+    {
+      "id": "ten_thousandth_prime",
+      "input_values": [
+        10000
+      ],
+      "input_length": 1,
+      "expected_result": 104729
+    },
+    {
+      "id": "source_10001st_prime",
+      "input_values": [
+        10001
+      ],
+      "input_length": 1,
+      "expected_result": 104743
+    },
+    {
+      "id": "zero_ordinal_invalid",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_ordinal_invalid",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "ordinal_above_limit_invalid",
+      "input_values": [
+        10002
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "missing_ordinal_invalid",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_word_invalid",
+      "input_values": [
+        10001,
+        12
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

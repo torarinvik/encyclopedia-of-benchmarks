@@ -14,11 +14,7 @@ struct LruMapEntry:
     state: u8
 
 def lru_hash_key(key: i32) -> usize:
-    value: mutable u64 = key.i64().u64()
-    value <- value ^ (value >> 16)
-    value <- value * 2135587861.u64()
-    value <- value ^ (value >> 15)
-    ((value & 1023.u64()).usize())
+    ((key.i64() + 2147483648) % 1024).usize()
 
 def lru_map_find(map: mutable LruMapEntry&, key: i32) -> i32:
     start: usize = lru_hash_key(key)

@@ -1,0 +1,28 @@
+const SIEVE_LIMIT: usize = 1_000_000
+const MAX_VALID_INPUT_LENGTH: usize = 1
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 2
+const MAX_ORDINAL: i64 = 10_001
+
+def euler_problem_7_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < MAX_VALID_INPUT_LENGTH or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    ordinal: i64 = input[0]
+    if length != MAX_VALID_INPUT_LENGTH or ordinal < 1 or ordinal > MAX_ORDINAL:
+        return -1
+
+    composite: mutable bool[SIEVE_LIMIT] = zeroed
+    count: mutable i64 = 0
+    candidate: mutable usize = 2
+    while candidate < SIEVE_LIMIT:
+        if not composite[candidate]:
+            count <- count + 1
+            if count == ordinal:
+                return candidate.i64()
+            multiple: mutable usize = candidate * 2
+            while multiple < SIEVE_LIMIT:
+                composite[multiple] <- true
+                multiple <- multiple + candidate
+        candidate <- candidate + 1
+    -1
+
+export fn euler_problem_7(input: i64&, length: usize) -> i64 = euler_problem_7_impl

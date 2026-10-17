@@ -1,0 +1,43 @@
+const SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT: i64 = -9223372036854775807 - 1
+const SLIDING_WINDOW_AGGREGATOR_MAX_PARSEABLE_LENGTH: usize = 259
+const SLIDING_WINDOW_AGGREGATOR_MAX_VALUE: i64 = 1000000
+
+def sliding_window_aggregator_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > SLIDING_WINDOW_AGGREGATOR_MAX_PARSEABLE_LENGTH:
+        return SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT
+    capacity_value: i64 = input[0]
+    count_value: i64 = input[1]
+    if capacity_value < 1 or capacity_value > 64 or count_value < 1 or count_value > 256:
+        return SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT
+    capacity: usize = capacity_value.usize()
+    count: usize = count_value.usize()
+    if length != count + 2: return SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT
+
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 2]
+        if value < -SLIDING_WINDOW_AGGREGATOR_MAX_VALUE or value > SLIDING_WINDOW_AGGREGATOR_MAX_VALUE:
+            return SLIDING_WINDOW_AGGREGATOR_INVALID_RESULT
+        index <- index + 1
+
+    window: mutable i64[64] = zeroed
+    head: mutable usize = 0
+    size: mutable usize = 0
+    sum: mutable i64 = 0
+    index <- 0
+    while index < count:
+        value: i64 = input[index + 2]
+        if size < capacity:
+            tail: usize = (head + size) % capacity
+            window[tail] <- value
+            sum <- sum + value
+            size <- size + 1
+        else:
+            sum <- sum - window[head]
+            window[head] <- value
+            sum <- sum + value
+            head <- (head + 1) % capacity
+        index <- index + 1
+    sum
+
+export fn sliding_window_aggregator(input: i64&, length: usize) -> i64 = sliding_window_aggregator_impl

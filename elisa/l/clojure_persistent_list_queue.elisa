@@ -1,0 +1,80 @@
+const PERSISTENT_QUEUE_MAX_OPERATIONS: usize = 256
+const PERSISTENT_QUEUE_MAX_LENGTH: usize = 64
+const PERSISTENT_QUEUE_MAX_VALID_INPUT_LENGTH: usize = 513
+const PERSISTENT_QUEUE_MAX_PARSEABLE_INPUT_LENGTH: usize = 514
+const PERSISTENT_QUEUE_FNV_OFFSET: u64 = 14695981039346656037
+const PERSISTENT_QUEUE_FNV_PRIME: u64 = 1099511628211
+
+def persistent_queue_hash_byte(hash_input: u64, byte: u64) -> u64:
+    ((hash_input ^ (byte & 255.u64())) * PERSISTENT_QUEUE_FNV_PRIME)
+
+def persistent_queue_hash_u16(hash_input: u64, value: usize) -> u64:
+    hash: mutable u64 = hash_input
+    for byte in 0..<2:
+        hash <- persistent_queue_hash_byte(hash, (value.u64() >> (byte * 8)) & 255.u64())
+    hash
+
+def persistent_queue_hash_i32(hash_input: u64, value: i32) -> u64:
+    hash: mutable u64 = hash_input
+    bits: u32 = value.u32()
+    for byte in 0..<4:
+        hash <- persistent_queue_hash_byte(hash, ((bits >> (byte * 8)) & 255.u32()).u64())
+    hash
+
+def persistent_queue_hash_i64(hash_input: u64, value: i64) -> u64:
+    hash: mutable u64 = hash_input
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        hash <- persistent_queue_hash_byte(hash, (bits >> (byte * 8)) & 255.u64())
+    hash
+
+def clojure_persistent_list_queue_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > PERSISTENT_QUEUE_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input[0] < 0 or input[0] > PERSISTENT_QUEUE_MAX_OPERATIONS.i64(): return -1
+    operation_count: usize = input[0].usize()
+    if length != 1 + operation_count * 2 or length > PERSISTENT_QUEUE_MAX_VALID_INPUT_LENGTH: return -1
+
+    newest_first: mutable i32[PERSISTENT_QUEUE_MAX_LENGTH] = zeroed
+    queue_size: mutable usize = 0
+    results: mutable i64[PERSISTENT_QUEUE_MAX_OPERATIONS] = zeroed
+    opcodes: mutable u8[PERSISTENT_QUEUE_MAX_OPERATIONS] = zeroed
+    for operation in 0..<operation_count:
+        offset: usize = 1 + operation * 2
+        opcode_value: i64 = input[offset]
+        argument: i64 = input[offset + 1]
+        if opcode_value < 0 or opcode_value > 3: return -1
+        opcode: usize = opcode_value.usize()
+        opcodes[operation] <- opcode.u8()
+        if opcode == 0:
+            if argument < -2147483648 or argument > 2147483647 or queue_size >= PERSISTENT_QUEUE_MAX_LENGTH: return -1
+            index: mutable usize = queue_size
+            while index > 0:
+                newest_first[index] <- newest_first[index - 1]
+                index <- index - 1
+            newest_first[0] <- argument.i32()
+            queue_size <- queue_size + 1
+            results[operation] <- queue_size.i64()
+        else if opcode == 1:
+            if argument != 0: return -1
+            if queue_size > 0: queue_size <- queue_size - 1
+            results[operation] <- queue_size.i64()
+        else if opcode == 2:
+            if argument != 0: return -1
+            results[operation] <- if queue_size == 0: -9223372036854775807 - 1 else: newest_first[queue_size - 1].i64()
+        else:
+            if argument != 0: return -1
+            results[operation] <- if queue_size == 0: 1 else: 0
+
+    hash: mutable u64 = PERSISTENT_QUEUE_FNV_OFFSET
+    hash <- persistent_queue_hash_u16(hash, operation_count)
+    for operation in 0..<operation_count:
+        hash <- persistent_queue_hash_byte(hash, opcodes[operation].u64())
+        hash <- persistent_queue_hash_i64(hash, results[operation])
+    hash <- persistent_queue_hash_u16(hash, queue_size)
+    index: mutable usize = queue_size
+    while index > 0:
+        index <- index - 1
+        hash <- persistent_queue_hash_i32(hash, newest_first[index])
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn clojure_persistent_list_queue(input: i64&, length: usize) -> i64 = clojure_persistent_list_queue_impl

@@ -50549,7 +50549,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements LCA using binary lifting, a distinct preprocessing/query strategy from other LCA implementations."
+      "benchmark_name": "lcabinary_lifting",
+      "benchmark_contract": "benchmarks/l/lcabinary_lifting/README.md",
+      "review_notes": "The pinned source implements LCA using binary lifting, a distinct preprocessing/query strategy from other LCA implementations. The bounded scalar trace uses a connected rooted tree and batched queries, preserving the source's binary-lifting LCA results."
     },
     {
       "candidate_id": "lcm",
@@ -69467,7 +69469,7 @@
       ],
       "review_status": "reviewed_algorithm_semantics",
       "benchmark_name": "pi_monte_carlo_estimation",
-      "review_notes": "Cleared float64_slice_io ABI [n,seed], both exact binary64 integers; n=1..100000, seed=0..4294967295. Require explicit seed and preserve CPython MT19937 seeding, random() 53-bit construction, x-then-y draws, squared-radius <=1, and 4*hits/n. Invalid arguments use the ABI sentinel.",
+      "review_notes": "Cleared float64_slice_io ABI [n,seed], both exact binary64 integers; n=1..100000, seed=0..4294967295. Require explicit seed and preserve CPython MT19937 seeding, random() 53-bit construction, x-then-y draws, and 4*hits/n. The canonical binary64 x*x+y*y projection can rarely diverge from pinned Python x**2+y**2 at rounding boundaries; C, C++, and Nim builds disable FP contraction to preserve the projection. Invalid arguments use the ABI sentinel.",
       "benchmark_contract": "benchmarks/p/pi_monte_carlo_estimation/README.md"
     },
     {
@@ -87018,7 +87020,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements a two-dimensional segment tree and is distinct from one-dimensional segment-tree candidates."
+      "benchmark_name": "segment_tree2_d",
+      "benchmark_contract": "benchmarks/s/segment_tree2_d/README.md",
+      "review_notes": "The pinned source implements a two-dimensional segment tree and is distinct from one-dimensional segment-tree candidates. Its bounded nine-language trace covers point assignment and half-open submatrix sums while preserving the source's power-of-two padding and sum semantics."
     },
     {
       "candidate_id": "segment_tree_apply",
@@ -87037,7 +87041,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements segment-tree operations with its own update/query semantics."
+      "benchmark_name": "segment_tree_apply",
+      "benchmark_contract": "benchmarks/s/segment_tree_apply/README.md",
+      "review_notes": "The pinned C# source applies inclusive range multipliers to a sum segment tree and queries inclusive range sums. The bounded trace preserves pending multiplier propagation while keeping all source int arithmetic in range."
     },
     {
       "candidate_id": "segment_tree_node",
@@ -87645,7 +87651,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements self-organizing linked-list behavior and remains distinct from ordinary linked-list search."
+      "benchmark_name": "self_organizing_linked_list",
+      "benchmark_contract": "benchmarks/s/self_organizing_linked_list/README.md",
+      "review_notes": "The pinned Java SelfOrganizingLinkedList appends values at the tail and moves the first matching node to the head after a successful search. The bounded byte-output contract preserves duplicate ordering and emits per-operation insert/search records followed by the final list snapshot, encoding each field as little-endian signed i64 with i32 values sign-extended. Invalid input returns -1 before output checks; null or short output returns -2 without writes. The maximum trace has 64 operations, a 64-item list and 194 output fields (1,552 bytes)."
     },
     {
       "candidate_id": "self_organizing_map",
@@ -97606,7 +97614,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned C# TimSorter implements stable adaptive TimSort. Its comparer argument to Sort is ignored, so the cleared contract uses a bounded total order and fixed algorithm settings."
+      "benchmark_name": "tim_sorter",
+      "benchmark_contract": "benchmarks/t/tim_sorter/README.md",
+      "review_notes": "The pinned C# TimSorter is an adaptive stable sort. Sort uses the constructor comparer and ignores the comparer passed to Sort. The contract fixes a stable ascending key-only comparer and TimSorterSettings(minMerge=32, minGallop=7); the constructor snapshots initMinGallop=0 before setting minGallop=7. Nine portable language ports preserve the stable sorted record order and checksum, while galloping remains an optional performance optimization."
     },
     {
       "candidate_id": "tim_sorter_settings",

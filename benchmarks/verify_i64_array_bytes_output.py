@@ -986,6 +986,7 @@ from run_i64_array_bytes_output import validate_table_heap_workload
 from run_i64_array_bytes_output import validate_skew_heap_workload
 from run_i64_array_bytes_output import validate_smoothsort_workload
 from run_i64_array_bytes_output import validate_suffix_automaton_workload
+from run_i64_array_bytes_output import validate_lru_cache2_workload
 from fixed_priority_queue_using_list_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as FIXED_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH,
     expected_output as fixed_priority_queue_using_list_oracle,
@@ -1055,6 +1056,18 @@ from suffix_automaton_oracle import (
     OUTPUT_BYTES_PER_QUERY as SUFFIX_AUTOMATON_OUTPUT_BYTES_PER_QUERY,
     MAX_OUTPUT_BYTES as SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES,
     expected_output as suffix_automaton_oracle,
+)
+from lru_cache2_oracle import (
+    I32_MAX as LRU_CACHE2_I32_MAX,
+    I32_MIN as LRU_CACHE2_I32_MIN,
+    MAX_CAPACITY as LRU_CACHE2_MAX_CAPACITY,
+    MAX_INPUT_LENGTH as LRU_CACHE2_MAX_INPUT_LENGTH,
+    MAX_OPERATIONS as LRU_CACHE2_MAX_OPERATIONS,
+    MAX_OUTPUT_BYTES as LRU_CACHE2_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LRU_CACHE2_MAX_VALID_INPUT_LENGTH,
+    MIN_CAPACITY as LRU_CACHE2_MIN_CAPACITY,
+    expected_output as lru_cache2_oracle,
 )
 from run_i64_array_bytes_output import validate_translator_workload
 from run_i64_array_bytes_output import validate_spiral_print_workload
@@ -2277,7 +2290,8 @@ WORKSPACE_ALGORITHMS.update({
 })
 ALGORITHMS = (*ALGORITHMS, "fixed_priority_queue_using_list", "element_priority_queue_using_list",
               "median_of_running_array_long", "median_heap", "table_heap", "skew_heap", "smoothsort",
-              "suffix_automaton")
+              "suffix_automaton", "lru_cache2")
+WORKSPACE_ALGORITHMS.add("lru_cache2")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 
@@ -33306,6 +33320,102 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add_suffix_automaton_case((1, 97, 0), capacity=0)
         add_suffix_automaton_case((1, 97, 0), capacity=0, output_is_null=True)
         add_suffix_automaton_case((), input_is_null=True, input_length=1)
+    elif algorithm == "lru_cache2":
+        validate_lru_cache2_workload(workload)
+        capacity_limit = LRU_CACHE2_MAX_OUTPUT_BYTES
+
+        def add_lru_cache2_case(values: tuple[int, ...], capacity: int = capacity_limit,
+                                *, output_is_null: bool = False,
+                                input_is_null: bool = False,
+                                input_length: int | None = None) -> None:
+            effective_input_length = len(values) if input_length is None else input_length
+            if (len(values) > LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not -(1 << 63) <= value <= (1 << 63) - 1 for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= LRU_CACHE2_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_input_length) is not int
+                    or not 0 <= effective_input_length <= LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or effective_input_length <= 0 or output_is_null))
+                    or (not input_is_null and effective_input_length != len(values))):
+                raise ValueError("lru_cache2 generated framing is invalid")
+            result, output = lru_cache2_oracle(
+                values, capacity, output_is_null, input_is_null, effective_input_length)
+            if (result >= 0 and (result != len(output) or len(output) > LRU_CACHE2_MAX_OUTPUT_BYTES)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("lru_cache2 oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_input_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            input_length = fixture.get("input_length", len(values))
+            if fixture.get("id") == "input_length_mismatch":
+                values = values[:input_length]
+            capacity = fixture.get("output_capacity", capacity_limit)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            result, output = lru_cache2_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"lru_cache2 fixture mismatch: {fixture['id']}")
+            add_lru_cache2_case(values, capacity, output_is_null=output_is_null,
+                                input_is_null=input_is_null, input_length=input_length)
+
+        rng_lru_cache2 = random.Random(20261017)
+        for _ in range(128):
+            cache_capacity = rng_lru_cache2.randint(LRU_CACHE2_MIN_CAPACITY,
+                                                     LRU_CACHE2_MAX_CAPACITY)
+            operation_count = rng_lru_cache2.randint(0, LRU_CACHE2_MAX_OPERATIONS)
+            operations: list[int] = []
+            recency: list[int] = []  # most recent key first
+            next_key = LRU_CACHE2_I32_MIN
+            for _ in range(operation_count):
+                available = [0, 2, 3, 4]
+                if recency:
+                    available.append(1)
+                opcode = rng_lru_cache2.choice(available)
+                if opcode == 0:
+                    key = next_key
+                    next_key += 1
+                    value = rng_lru_cache2.randint(LRU_CACHE2_I32_MIN, LRU_CACHE2_I32_MAX)
+                    operations.extend((0, key, value))
+                    if len(recency) == cache_capacity:
+                        recency.pop()
+                    recency.insert(0, key)
+                elif opcode == 1:
+                    key = rng_lru_cache2.choice(recency)
+                    operations.extend((1, key, 0))
+                    recency.remove(key)
+                    recency.insert(0, key)
+                else:
+                    operations.extend((opcode, 0, 0))
+            values = (cache_capacity, operation_count, *operations)
+            add_lru_cache2_case(values)
+
+        maximum_trace = (LRU_CACHE2_MIN_CAPACITY, LRU_CACHE2_MAX_OPERATIONS,
+                         *([4, 0, 0] * LRU_CACHE2_MAX_OPERATIONS))
+        for capacity in (0, LRU_CACHE2_MAX_OUTPUT_BYTES - 1, LRU_CACHE2_MAX_OUTPUT_BYTES):
+            add_lru_cache2_case(maximum_trace, capacity)
+        add_lru_cache2_case(maximum_trace, output_is_null=True)
+
+        malformed = (
+            (), (LRU_CACHE2_MIN_CAPACITY,), (1, 0),
+            (LRU_CACHE2_MIN_CAPACITY - 1, 0), (LRU_CACHE2_MAX_CAPACITY + 1, 0),
+            (2, -1), (2, LRU_CACHE2_MAX_OPERATIONS + 1),
+            (2, 1, 0, 1), (2, 0, 99), (2, 1, 9, 0, 0),
+            (2, 1, 0, LRU_CACHE2_I32_MAX + 1, 0),
+            (2, 1, 0, 1, LRU_CACHE2_I32_MIN - 1),
+            (2, 2, 0, 1, 1, 0, 1, 2),
+            (2, 1, 1, 99, 0), (2, 1, 1, 1, 1),
+            (2, 1, 2, 1, 0),
+            (2, 0, *([0] * (LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH - 2))),
+        )
+        for values in malformed:
+            add_lru_cache2_case(tuple(values))
+        add_lru_cache2_case((), input_is_null=True, input_length=1)
     elif algorithm in {"fixed_priority_queue_using_list", "element_priority_queue_using_list"}:
         fixed = algorithm == "fixed_priority_queue_using_list"
         validate = (validate_fixed_priority_queue_using_list_workload if fixed

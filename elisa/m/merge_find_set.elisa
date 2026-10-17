@@ -1,0 +1,53 @@
+const MAX_N: i64 = 256
+const MAX_MERGES: i64 = 512
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 1028
+
+def merge_find_set_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    raw_n: i64 = input[0]
+    raw_merge_count: i64 = input[1]
+    if raw_n < 1 or raw_n > MAX_N or raw_merge_count < 0 or raw_merge_count > MAX_MERGES:
+        return -1
+    n: usize = raw_n.usize()
+    merge_count: usize = raw_merge_count.usize()
+    if length != 2 * merge_count + 3:
+        return -1
+
+    parents: mutable i64[256] = zeroed
+    ranks: mutable i64[256] = zeroed
+    element: mutable usize = 0
+    while element < n:
+        parents[element] <- element.i64()
+        element <- element + 1
+    operation: mutable usize = 0
+    while operation < merge_count:
+        position: usize = 2 + 2 * operation
+        first: i64 = input[position]
+        second: i64 = input[position + 1]
+        if first < 0 or second < 0 or first >= raw_n or second >= raw_n:
+            return -1
+        first_root: mutable i64 = first
+        second_root: mutable i64 = second
+        while parents[first_root.usize()] != first_root:
+            first_root <- parents[first_root.usize()]
+        while parents[second_root.usize()] != second_root:
+            second_root <- parents[second_root.usize()]
+        if first_root != second_root:
+            if ranks[first_root.usize()] < ranks[second_root.usize()]:
+                parents[first_root.usize()] <- second_root
+            else if ranks[first_root.usize()] > ranks[second_root.usize()]:
+                parents[second_root.usize()] <- first_root
+            else:
+                parents[first_root.usize()] <- second_root
+                ranks[second_root.usize()] <- ranks[second_root.usize()] + 1
+        operation <- operation + 1
+    query: i64 = input[length - 1]
+    if query < 0 or query >= raw_n:
+        return -1
+    root: mutable i64 = query
+    while parents[root.usize()] != root:
+        root <- parents[root.usize()]
+    root
+
+export fn merge_find_set(input: i64&, length: usize) -> i64 = merge_find_set_impl

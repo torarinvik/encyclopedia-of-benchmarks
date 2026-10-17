@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-pi-monte-carlo-estimation-f64-slice-io-v1",
+  "algorithm": "pi_monte_carlo_estimation",
+  "function_symbol": "pi_monte_carlo_estimation",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "maths/pi_monte_carlo_estimation.py",
+    "symbol": "estimate_pi",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/pi_monte_carlo_estimation.py"
+  },
+  "contract": {
+    "operation": "estimate pi from seeded uniform points in the unit square",
+    "input_encoding": "[number_of_simulations, seed]",
+    "random_implementation_reference": "CPython 3.12.0 Modules/_randommodule.c",
+    "random_generator": "Fresh CPython-compatible MT19937 per call; seed is one little-endian 32-bit word, including [0] for seed zero, passed to init_by_array.",
+    "random_float": "For each draw, consume two tempered uint32 words a and b and return (a*2^26+b)/2^53, where a is the first word shifted right 5 and b is the second shifted right 6.",
+    "draw_order": "Draw x then y for every trial.",
+    "hit_predicate": "Use the benchmark's canonical binary64 multiplication projection x*x + y*y <= 1.0, evaluated left to right and including the circle boundary; it may differ from CPython pow at rare rounding-boundary inputs.",
+    "result": "4 * hits / number_of_simulations as one binary64 value.",
+    "state": "No generator state is shared between calls."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[number_of_simulations, seed]",
+    "number_of_simulations_range": [1, 100000],
+    "seed_range": [0, 4294967295],
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "exact_packed_shape": "Exactly two finite binary64 values, each an exact integer in its declared range.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[4 * hits / number_of_simulations]",
+    "maximum_elements": 1,
+    "success_result": "number of output float64 elements (1)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks.",
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "workspace": {
+    "elements": 1,
+    "meaning": "The single binary64 estimate."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "one_trial_seed_zero",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [0.0]
+    },
+    {
+      "id": "eight_trials_seed_one",
+      "input_values": [8, 1],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [3.5]
+    },
+    {
+      "id": "source_example_one_hundred_seed_one",
+      "input_values": [100, 1],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [3.2]
+    },
+    {
+      "id": "source_example_one_thousand_seed_eleven",
+      "input_values": [1000, 11],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [3.156]
+    },
+    {
+      "id": "maximum_trials_seed_zero",
+      "input_values": [100000, 0],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [3.14844]
+    },
+    {
+      "id": "maximum_trials_maximum_seed",
+      "input_values": [100000, 4294967295],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [3.15432]
+    },
+    {
+      "id": "zero_trials_invalid",
+      "input_values": [0, 1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_trial_count_invalid",
+      "input_values": [1.5, 1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trial_count_above_limit_invalid",
+      "input_values": [100001, 1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_seed_invalid",
+      "input_values": [1, -1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "seed_above_u32_invalid",
+      "input_values": [1, 4294967296],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_seed_invalid",
+      "input_values": [1, 0.5],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "missing_seed_invalid",
+      "input_values": [100],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_input_value_invalid",
+      "input_values": [1, 1, 7],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

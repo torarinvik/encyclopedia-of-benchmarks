@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-cpp-sparse-table-i64-array-scalar-v1",
+  "algorithm": "sparse_table",
+  "function_symbol": "sparse_table",
+  "description": "Build a static sparse table and return the leftmost minimum index for one inclusive range query.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "data_structures/sparse_table.cpp",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/data_structures/sparse_table.cpp",
+      "role": "algorithm"
+    }
+  ],
+  "contract": {
+    "operation": "Return the leftmost zero-based minimum index in a valid inclusive range, using a static sparse table.",
+    "input_layout": "[n, values[n], left, right]",
+    "array_length_range": [
+      1,
+      12344
+    ],
+    "value_range": "signed 64-bit integers",
+    "query_range": "0 <= left <= right < n, inclusive",
+    "tie_breaking": "leftmost index",
+    "source_array_capacity": 12345,
+    "safe_source_array_length_maximum": 12344,
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n, values..., left, right]",
+    "array_length_range": [
+      1,
+      12344
+    ],
+    "maximum_valid_input_length": 12347,
+    "maximum_parseable_input_length": 12348,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "zero-based index of the leftmost minimum element in [left,right]",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 8
+  },
+  "cases": [
+    {
+      "id": "source_range_1_to_9",
+      "input_values": [
+        10,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        1,
+        9
+      ],
+      "input_length": 13,
+      "expected_result": 1
+    },
+    {
+      "id": "source_range_2_to_6",
+      "input_values": [
+        10,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        2,
+        6
+      ],
+      "input_length": 13,
+      "expected_result": 2
+    },
+    {
+      "id": "source_range_3_to_8",
+      "input_values": [
+        10,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        3,
+        8
+      ],
+      "input_length": 13,
+      "expected_result": 3
+    },
+    {
+      "id": "singleton_range",
+      "input_values": [
+        1,
+        42,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "duplicate_minimum_leftmost",
+      "input_values": [
+        5,
+        7,
+        -5,
+        4,
+        -5,
+        9,
+        0,
+        4
+      ],
+      "input_length": 8,
+      "expected_result": 1
+    },
+    {
+      "id": "minimum_at_right_edge",
+      "input_values": [
+        5,
+        11,
+        8,
+        7,
+        3,
+        -4,
+        1,
+        4
+      ],
+      "input_length": 8,
+      "expected_result": 4
+    },
+    {
+      "id": "all_negative_values",
+      "input_values": [
+        4,
+        -9,
+        -5,
+        -7,
+        -11,
+        0,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": 3
+    },
+    {
+      "id": "extreme_values_tie",
+      "input_values": [
+        4,
+        9223372036854775807,
+        -9223372036854775808,
+        9223372036854775807,
+        -9223372036854775808,
+        0,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_length_invalid",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "length_above_source_safe_bound_invalid",
+      "input_values": [
+        12345
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "missing_values_and_query_invalid",
+      "input_values": [
+        3,
+        1,
+        2
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_word_invalid",
+      "input_values": [
+        1,
+        42,
+        0,
+        0,
+        99
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_left_index_invalid",
+      "input_values": [
+        2,
+        9,
+        4,
+        -1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "reversed_range_invalid",
+      "input_values": [
+        3,
+        3,
+        2,
+        1,
+        2,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "right_index_out_of_bounds_invalid",
+      "input_values": [
+        3,
+        10,
+        20,
+        30,
+        0,
+        3
+      ],
+      "input_length": 6,
+      "expected_result": -1
+    }
+  ]
+}

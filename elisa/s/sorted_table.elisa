@@ -1,0 +1,151 @@
+const SORTED_TABLE_MAX_PARSEABLE_LENGTH: usize = 899
+const SORTED_TABLE_MAX_KEY: i64 = 1000000
+const SORTED_TABLE_MIN_KEY: i64 = -1000000
+const SORTED_TABLE_KEY_OFFSET: i64 = 1000001
+const SORTED_TABLE_HASH_MODULUS: i64 = 1000000007
+
+def sorted_table_lower_bound(values: i64&, size: usize, target: i64) -> usize:
+    left: mutable usize = 0
+    right: mutable usize = size
+    while left < right:
+        middle: usize = left + (right - left) / 2
+        if values[middle] < target:
+            left <- middle + 1
+        else:
+            right <- middle
+    left
+
+def sorted_table_upper_bound(values: i64&, size: usize, target: i64) -> usize:
+    left: mutable usize = 0
+    right: mutable usize = size
+    while left < right:
+        middle: usize = left + (right - left) / 2
+        if values[middle] <= target:
+            left <- middle + 1
+        else:
+            right <- middle
+    left
+
+def sorted_table_key_code(key: i64) -> i64:
+    key + SORTED_TABLE_KEY_OFFSET
+
+def sorted_table_sequence_code(values: i64&, first: usize, last: usize, descending: bool) -> i64:
+    count: usize = last - first
+    hash: mutable i64 = 0
+    if descending:
+        index: mutable usize = last
+        while index > first:
+            index <- index - 1
+            hash <- (31 * hash + sorted_table_key_code(values[index])) % SORTED_TABLE_HASH_MODULUS
+    else:
+        index: mutable usize = first
+        while index < last:
+            hash <- (31 * hash + sorted_table_key_code(values[index])) % SORTED_TABLE_HASH_MODULUS
+            index <- index + 1
+    count.i64() * SORTED_TABLE_HASH_MODULUS + hash
+
+def sorted_table_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > SORTED_TABLE_MAX_PARSEABLE_LENGTH: return -1
+    initial_count_value: i64 = input[0]
+    if initial_count_value < 0 or initial_count_value > 128: return -1
+    initial_count: usize = initial_count_value.usize()
+    operation_count_index: usize = initial_count + 1
+    if operation_count_index >= length: return -1
+    operation_count_value: i64 = input[operation_count_index]
+    if operation_count_value < 0 or operation_count_value > 256: return -1
+    operation_count: usize = operation_count_value.usize()
+    operations_start: usize = operation_count_index + 1
+    if length != operations_start + 3 * operation_count: return -1
+
+    items: mutable i64[256] = zeroed
+    index: mutable usize = 0
+    while index < initial_count:
+        key: i64 = input[index + 1]
+        if key < SORTED_TABLE_MIN_KEY or key > SORTED_TABLE_MAX_KEY or
+           (index > 0 and items[index - 1] >= key): return -1
+        items[index] <- key
+        index <- index + 1
+    size: mutable usize = initial_count
+    checksum: mutable i64 = 0
+
+    operation: mutable usize = 0
+    while operation < operation_count:
+        offset: usize = operations_start + 3 * operation
+        opcode: i64 = input[offset]
+        a: i64 = input[offset + 1]
+        b: i64 = input[offset + 2]
+        has_observation: mutable bool = true
+        observed: mutable i64 = 0
+        position: mutable usize = 0
+
+        if opcode == 0 or opcode == 1 or opcode == 4 or opcode == 5 or opcode == 7:
+            if b != 0 or a < SORTED_TABLE_MIN_KEY or a > SORTED_TABLE_MAX_KEY: return -1
+            position <- sorted_table_lower_bound(items, size, a)
+            found: bool = position < size and items[position] == a
+            if opcode == 0:
+                if found: observed <- sorted_table_key_code(a)
+            elif opcode == 1:
+                if found: observed <- 1
+            elif opcode == 4:
+                if found: position <- position + 1
+                if position < size: observed <- sorted_table_key_code(items[position])
+            elif opcode == 5:
+                if position > 0: observed <- sorted_table_key_code(items[position - 1])
+            elif found:
+                observed <- sorted_table_key_code(a)
+                index <- position
+                while index + 1 < size:
+                    items[index] <- items[index + 1]
+                    index <- index + 1
+                size <- size - 1
+        elif opcode == 2 or opcode == 3:
+            if a != 0 or b != 0: return -1
+            if size > 0:
+                if opcode == 2: observed <- sorted_table_key_code(items[0])
+                else: observed <- sorted_table_key_code(items[size - 1])
+        elif opcode == 6:
+            if a < SORTED_TABLE_MIN_KEY or a > SORTED_TABLE_MAX_KEY or (b != 0 and b != 1): return -1
+            position <- sorted_table_lower_bound(items, size, a)
+            found: bool = position < size and items[position] == a
+            if found:
+                observed <- sorted_table_key_code(a)
+            else:
+                if size >= 256: return -1
+                index <- size
+                while index > position:
+                    items[index] <- items[index - 1]
+                    index <- index - 1
+                items[position] <- a
+                size <- size + 1
+        elif opcode == 8 or opcode == 9:
+            if a < SORTED_TABLE_MIN_KEY or a > SORTED_TABLE_MAX_KEY or
+               b < SORTED_TABLE_MIN_KEY or b > SORTED_TABLE_MAX_KEY: return -1
+            if a <= b:
+                first: usize = sorted_table_lower_bound(items, size, a)
+                last: usize = sorted_table_upper_bound(items, size, b)
+                observed <- sorted_table_sequence_code(items, first, last, opcode == 9)
+        elif opcode == 10 or opcode == 11:
+            if a != 0 or b != 0: return -1
+            observed <- sorted_table_sequence_code(items, 0, size, opcode == 11)
+        elif opcode == 12:
+            if a != 0 or b != 0: return -1
+            if size == 0: observed <- 1
+        elif opcode == 13:
+            if a != 0 or b != 0: return -1
+            size <- 0
+            has_observation <- false
+        else:
+            return -1
+
+        if has_observation:
+            checksum <- checksum + (operation.i64() + 1) * (observed + 1)
+        operation <- operation + 1
+
+    index <- 0
+    while index < size:
+        checksum <- checksum + (operation_count.i64() + index.i64() + 1) *
+                    sorted_table_key_code(items[index])
+        index <- index + 1
+    checksum
+
+export fn sorted_table_benchmark(input: i64&, length: usize) -> i64 = sorted_table_impl

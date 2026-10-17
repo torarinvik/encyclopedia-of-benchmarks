@@ -1,0 +1,137 @@
+const KRUSKAL_MAX_VERTICES: usize = 64
+const KRUSKAL_MAX_EDGES: usize = 2016
+const KRUSKAL_MAX_VALID_INPUT_LENGTH: usize = 6050
+const KRUSKAL_MAX_PARSEABLE_INPUT_LENGTH: usize = 6051
+const KRUSKAL_FNV_OFFSET: u64 = 14695981039346656037
+const KRUSKAL_FNV_PRIME: u64 = 1099511628211
+
+struct KruskalEdge:
+    u: i32
+    v: i32
+    weight: i32
+
+def kruskal_sift_edges(edges: mutable KruskalEdge&, root_input: usize, end: usize) -> void:
+    root: mutable usize = root_input
+    while root < end / 2:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < end and edges[child].weight < edges[child + 1].weight:
+            child <- child + 1
+        if edges[root].weight >= edges[child].weight: return
+        temporary: KruskalEdge = edges[root]
+        edges[root] <- edges[child]
+        edges[child] <- temporary
+        root <- child
+
+def kruskal_sort_edges(edges: mutable KruskalEdge&, count: usize) -> void:
+    start: mutable usize = count / 2
+    while start > 0:
+        start <- start - 1
+        kruskal_sift_edges(&edges[0], start, count)
+    end: mutable usize = count
+    while end > 1:
+        temporary: KruskalEdge = edges[0]
+        edges[0] <- edges[end - 1]
+        edges[end - 1] <- temporary
+        end <- end - 1
+        kruskal_sift_edges(&edges[0], 0, end)
+
+def kruskal_find_root(parent: mutable i32&, node_input: usize) -> usize:
+    root: mutable usize = node_input
+    while parent[root].usize() != root:
+        root <- parent[root].usize()
+    node: mutable usize = node_input
+    while parent[node].usize() != node:
+        next: usize = parent[node].usize()
+        parent[node] <- root.i32()
+        node <- next
+    root
+
+def kruskal_hash_byte(hash_input: u64, byte: u64) -> u64:
+    ((hash_input ^ (byte & 255.u64())) * KRUSKAL_FNV_PRIME)
+
+def kruskal_hash_u16(hash_input: u64, value: usize) -> u64:
+    hash: mutable u64 = hash_input
+    for byte in 0..<2:
+        hash <- kruskal_hash_byte(hash, (value.u64() >> (byte * 8)) & 255.u64())
+    hash
+
+def kruskal_hash_i32(hash_input: u64, value: i32) -> u64:
+    hash: mutable u64 = hash_input
+    bits: u32 = value.u32()
+    for byte in 0..<4:
+        hash <- kruskal_hash_byte(hash, ((bits >> (byte * 8)) & 255.u32()).u64())
+    hash
+
+def kruskal_hash_i64(hash_input: u64, value: i64) -> u64:
+    hash: mutable u64 = hash_input
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        hash <- kruskal_hash_byte(hash, (bits >> (byte * 8)) & 255.u64())
+    hash
+
+def kruskal_mst_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > KRUSKAL_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input[0] < 1 or input[0] > KRUSKAL_MAX_VERTICES.i64() or input[1] < 0 or input[1] > KRUSKAL_MAX_EDGES.i64(): return -1
+    vertex_count: usize = input[0].usize()
+    edge_count: usize = input[1].usize()
+    if length != 2 + edge_count * 3 or length > KRUSKAL_MAX_VALID_INPUT_LENGTH: return -1
+    maximum_for_graph: usize = vertex_count * (vertex_count - 1) / 2
+    if edge_count > maximum_for_graph or (vertex_count == 1 and edge_count != 0) or (vertex_count > 1 and edge_count < vertex_count - 1): return -1
+
+    edges: mutable KruskalEdge[KRUSKAL_MAX_EDGES] = zeroed
+    seen_pairs: mutable bool[KRUSKAL_MAX_VERTICES][KRUSKAL_MAX_VERTICES] = zeroed
+    for index in 0..<edge_count:
+        base: usize = 2 + index * 3
+        raw_u: i64 = input[base]
+        raw_v: i64 = input[base + 1]
+        raw_weight: i64 = input[base + 2]
+        if raw_u < 0 or raw_u >= vertex_count.i64() or raw_v < 0 or raw_v >= vertex_count.i64(): return -1
+        if raw_u == raw_v or raw_weight < -1000000 or raw_weight > 1000000: return -1
+        u: usize = raw_u.usize()
+        v: usize = raw_v.usize()
+        if u > v:
+            temporary: usize = u
+            u <- v
+            v <- temporary
+        if seen_pairs[u][v]: return -1
+        seen_pairs[u][v] <- true
+        edges[index] <- KruskalEdge(u.i32(), v.i32(), raw_weight.i32())
+
+    kruskal_sort_edges(&edges[0], edge_count)
+    index: mutable usize = 1
+    while index < edge_count:
+        if edges[index - 1].weight == edges[index].weight: return -1
+        index <- index + 1
+
+    parent: mutable i32[KRUSKAL_MAX_VERTICES] = zeroed
+    rank: mutable usize[KRUSKAL_MAX_VERTICES] = zeroed
+    for vertex in 0..<vertex_count: parent[vertex] <- vertex.i32()
+    selected: mutable KruskalEdge[KRUSKAL_MAX_VERTICES - 1] = zeroed
+    selected_count: mutable usize = 0
+    total_weight: mutable i64 = 0
+    for index in 0..<edge_count:
+        if selected_count == vertex_count - 1: break
+        left: usize = kruskal_find_root(&parent[0], edges[index].u.usize())
+        right: usize = kruskal_find_root(&parent[0], edges[index].v.usize())
+        if left == right: continue
+        if rank[left] < rank[right]: parent[left] <- right.i32()
+        else if rank[left] > rank[right]: parent[right] <- left.i32()
+        else:
+            parent[right] <- left.i32()
+            rank[left] <- rank[left] + 1
+        selected[selected_count] <- edges[index]
+        selected_count <- selected_count + 1
+        total_weight <- total_weight + edges[index].weight.i64()
+    if selected_count != vertex_count - 1: return -1
+
+    hash: mutable u64 = KRUSKAL_FNV_OFFSET
+    hash <- kruskal_hash_u16(hash, vertex_count)
+    hash <- kruskal_hash_u16(hash, selected_count)
+    for index in 0..<selected_count:
+        hash <- kruskal_hash_u16(hash, selected[index].u.usize())
+        hash <- kruskal_hash_u16(hash, selected[index].v.usize())
+        hash <- kruskal_hash_i32(hash, selected[index].weight)
+    hash <- kruskal_hash_i64(hash, total_weight)
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn kruskal_mst(input: i64&, length: usize) -> i64 = kruskal_mst_impl

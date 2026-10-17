@@ -33,6 +33,7 @@ from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   validate_median_of_running_array_double_workload,
                                   validate_median_of_running_array_float_workload,
                                   validate_mean_shift_workload,
+                                  validate_pi_monte_carlo_estimation_workload,
                                   _same_float64_sequence,
                                   _decode_k_d_tree_abi_values,
                                   _decode_single_point_crossover_abi_values)
@@ -84,6 +85,8 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_median_of_running_array_float_workload(workload)
     elif algorithm == "mean_shift":
         validate_mean_shift_workload(workload)
+    elif algorithm == "pi_monte_carlo_estimation":
+        validate_pi_monte_carlo_estimation_workload(workload)
     absolute_tolerance, relative_tolerance = tolerances(workload)
     workspace = workload.get("workspace", {}).get("elements")
     if type(workspace) is not int or not 1 <= workspace <= 64:
@@ -1080,6 +1083,19 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                 if result != -1 or output:
                     raise ValueError("mean_shift oracle accepted a nonfinite ABI probe")
                 records.append((inputs, -1, [], workspace, 0, 0))
+
+    if algorithm == "pi_monte_carlo_estimation":
+        oracle = ORACLES[algorithm]
+        rng_pi = random.Random(20261017)
+        for _ in range(96):
+            simulations = rng_pi.randint(1, 4096)
+            seed = rng_pi.getrandbits(32)
+            inputs = [float(simulations), float(seed)]
+            output = oracle(inputs)
+            if output is None or len(output) != 1:
+                raise ValueError("pi_monte_carlo_estimation oracle rejected a generated valid trace")
+            records.append((inputs, 1, [_output_token(value) for value in output],
+                            workspace, 0, 0))
 
     lines = [f"{len(records)} {absolute_tolerance:.17g} {relative_tolerance:.17g} {workspace}\n"]
     for inputs, expected_result, expected_output, capacity, input_null, output_null in records:

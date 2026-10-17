@@ -1,0 +1,36 @@
+const MAX_DIGITS: i64 = 3
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 2
+
+def euler_problem_4_is_palindromic(value: u32) -> bool:
+    remaining: mutable u32 = value
+    reversed: mutable u32 = 0
+    while remaining > 0:
+        reversed <- reversed * 10 + remaining % 10
+        remaining <- remaining / 10
+    reversed == value
+
+def euler_problem_4_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    digits: i64 = input[0]
+    if digits < 1 or digits > MAX_DIGITS or length != 1:
+        return -1
+    lower: mutable u32 = 1
+    digit: mutable i64 = 1
+    while digit < digits:
+        lower <- lower * 10
+        digit <- digit + 1
+    upper: u32 = lower * 10 - 1
+    maximum: mutable u32 = 0
+    left: mutable u32 = lower
+    while left <= upper:
+        right: mutable u32 = lower
+        while right <= upper:
+            product: u32 = left * right
+            if product > maximum and euler_problem_4_is_palindromic(product):
+                maximum <- product
+            right <- right + 1
+        left <- left + 1
+    maximum.i64()
+
+export fn euler_problem_4(input: i64&, length: usize) -> i64 = euler_problem_4_impl

@@ -214,6 +214,20 @@ from mean_shift_oracle import (
     WORKSPACE_ELEMENTS as MEAN_SHIFT_WORKSPACE_ELEMENTS,
     expected_output as mean_shift_oracle,
 )
+from pi_monte_carlo_estimation_oracle import (
+    ABSOLUTE_TOLERANCE as PI_MONTE_CARLO_ABSOLUTE_TOLERANCE,
+    INVALID_RESULT as PI_MONTE_CARLO_INVALID_RESULT,
+    MAX_INPUT_LENGTH as PI_MONTE_CARLO_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as PI_MONTE_CARLO_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as PI_MONTE_CARLO_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_SEED as PI_MONTE_CARLO_MAX_SEED,
+    MAX_SIMULATIONS as PI_MONTE_CARLO_MAX_SIMULATIONS,
+    MIN_SEED as PI_MONTE_CARLO_MIN_SEED,
+    MIN_SIMULATIONS as PI_MONTE_CARLO_MIN_SIMULATIONS,
+    OUTPUT_ERROR as PI_MONTE_CARLO_OUTPUT_ERROR,
+    RELATIVE_TOLERANCE as PI_MONTE_CARLO_RELATIVE_TOLERANCE,
+    expected_result as pi_monte_carlo_estimation_oracle,
+)
 
 ORACLES = {
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
@@ -256,6 +270,7 @@ ORACLES = {
     "median_of_running_array_double": median_of_running_array_double_oracle,
     "median_of_running_array_float": median_of_running_array_float_oracle,
     "mean_shift": mean_shift_oracle,
+    "pi_monte_carlo_estimation": pi_monte_carlo_estimation_oracle,
 }
 MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH = 1 + 16 * 16 + 16
 
@@ -1106,6 +1121,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         if algorithm == "median_of_running_array_double" else
                         MEDIAN_RUNNING_FLOAT_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "median_of_running_array_float" else 64)
+    if algorithm == "pi_monte_carlo_estimation":
+        max_input_length = PI_MONTE_CARLO_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "mean_shift":
         max_input_length = MEAN_SHIFT_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "perlin_noise":
@@ -2536,6 +2553,137 @@ def validate_mean_shift_workload(workload: dict) -> None:
             raise ValueError(f"mean_shift ABI workload mismatch: {case.get('id')}")
 
 
+PI_MONTE_CARLO_ESTIMATION_CASE_IDS = frozenset({
+    "one_trial_seed_zero", "eight_trials_seed_one", "source_example_one_hundred_seed_one",
+    "source_example_one_thousand_seed_eleven", "maximum_trials_seed_zero",
+    "maximum_trials_maximum_seed", "zero_trials_invalid", "fractional_trial_count_invalid",
+    "trial_count_above_limit_invalid", "negative_seed_invalid", "seed_above_u32_invalid",
+    "fractional_seed_invalid", "missing_seed_invalid", "trailing_input_value_invalid",
+})
+
+
+def validate_pi_monte_carlo_estimation_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "maths/pi_monte_carlo_estimation.py",
+        "symbol": "estimate_pi",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/pi_monte_carlo_estimation.py",
+    }
+    contract = {
+        "operation": "estimate pi from seeded uniform points in the unit square",
+        "input_encoding": "[number_of_simulations, seed]",
+        "random_implementation_reference": "CPython 3.12.0 Modules/_randommodule.c",
+        "random_generator": "Fresh CPython-compatible MT19937 per call; seed is one little-endian 32-bit word, including [0] for seed zero, passed to init_by_array.",
+        "random_float": "For each draw, consume two tempered uint32 words a and b and return (a*2^26+b)/2^53, where a is the first word shifted right 5 and b is the second shifted right 6.",
+        "draw_order": "Draw x then y for every trial.",
+        "hit_predicate": "Use the benchmark's canonical binary64 multiplication projection x*x + y*y <= 1.0, evaluated left to right and including the circle boundary; it may differ from CPython pow at rare rounding-boundary inputs.",
+        "result": "4 * hits / number_of_simulations as one binary64 value.",
+        "state": "No generator state is shared between calls.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[number_of_simulations, seed]",
+        "number_of_simulations_range": [PI_MONTE_CARLO_MIN_SIMULATIONS,
+                                        PI_MONTE_CARLO_MAX_SIMULATIONS],
+        "seed_range": [PI_MONTE_CARLO_MIN_SEED, PI_MONTE_CARLO_MAX_SEED],
+        "maximum_valid_input_length": PI_MONTE_CARLO_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_length": PI_MONTE_CARLO_MAX_PARSEABLE_INPUT_LENGTH,
+        "exact_packed_shape": "Exactly two finite binary64 values, each an exact integer in its declared range.",
+        "invalid_input_result": PI_MONTE_CARLO_INVALID_RESULT,
+        "null_input_result": PI_MONTE_CARLO_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "[4 * hits / number_of_simulations]",
+        "maximum_elements": PI_MONTE_CARLO_MAX_OUTPUT_ELEMENTS,
+        "success_result": "number of output float64 elements (1)",
+        "invalid_input_result": PI_MONTE_CARLO_INVALID_RESULT,
+        "invalid_output_buffer_result": PI_MONTE_CARLO_OUTPUT_ERROR,
+        "null_output_result": PI_MONTE_CARLO_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks.",
+        "absolute_tolerance": PI_MONTE_CARLO_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": PI_MONTE_CARLO_RELATIVE_TOLERANCE,
+    }
+    workspace = {
+        "elements": PI_MONTE_CARLO_MAX_OUTPUT_ELEMENTS,
+        "meaning": "The single binary64 estimate.",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1,
+        "absolute_tolerance": PI_MONTE_CARLO_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": PI_MONTE_CARLO_RELATIVE_TOLERANCE,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-pi-monte-carlo-estimation-f64-slice-io-v1"
+            or workload.get("algorithm") != "pi_monte_carlo_estimation"
+            or workload.get("function_symbol") != "pi_monte_carlo_estimation"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or PI_MONTE_CARLO_MIN_SIMULATIONS != 1
+            or PI_MONTE_CARLO_MAX_SIMULATIONS != 100_000
+            or PI_MONTE_CARLO_MIN_SEED != 0
+            or PI_MONTE_CARLO_MAX_SEED != (1 << 32) - 1
+            or PI_MONTE_CARLO_MAX_INPUT_LENGTH != 2
+            or PI_MONTE_CARLO_MAX_PARSEABLE_INPUT_LENGTH != 3
+            or PI_MONTE_CARLO_MAX_OUTPUT_ELEMENTS != 1
+            or PI_MONTE_CARLO_INVALID_RESULT != -1
+            or PI_MONTE_CARLO_OUTPUT_ERROR != -2
+            or PI_MONTE_CARLO_ABSOLUTE_TOLERANCE != 0.0
+            or PI_MONTE_CARLO_RELATIVE_TOLERANCE != 0.0
+            or not isinstance(cases, list)
+            or len(case_ids) != len(PI_MONTE_CARLO_ESTIMATION_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != PI_MONTE_CARLO_ESTIMATION_CASE_IDS):
+        raise ValueError("pi_monte_carlo_estimation metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "pi_monte_carlo_estimation" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    cpython_url = "https://github.com/python/cpython/blob/v3.12.0/Modules/_randommodule.c"
+    if (source["url"] not in readme or cpython_url not in readme
+            or "canonical binary64 multiplication projection" not in normalized_readme
+            or "may differ from CPython's platform `pow` result" not in normalized_readme
+            or "upper 27 bits" not in normalized_readme
+            or "upper 26 bits" not in normalized_readme
+            or "Each trial draws x first and y second" not in normalized_readme):
+        raise ValueError("pi_monte_carlo_estimation README is missing its pinned source or RNG semantics")
+
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if (absolute_tolerance != PI_MONTE_CARLO_ABSOLUTE_TOLERANCE
+            or relative_tolerance != PI_MONTE_CARLO_RELATIVE_TOLERANCE):
+        raise ValueError("pi_monte_carlo_estimation requires exact binary64 output comparison")
+    indexed_cases = {case.get("id"): case for case in cases}
+    for case in cases:
+        values, result, output = encode_case(
+            case, "pi_monte_carlo_estimation", absolute_tolerance, relative_tolerance)
+        if (len(values) > PI_MONTE_CARLO_MAX_PARSEABLE_INPUT_LENGTH
+                or result != case.get("expected_result")
+                or not _same_float64_sequence(output, case.get("expected_output"))):
+            raise ValueError(f"pi_monte_carlo_estimation fixture mismatch: {case.get('id')}")
+
+    maximum_zero_seed = indexed_cases["maximum_trials_seed_zero"]
+    maximum_seed = indexed_cases["maximum_trials_maximum_seed"]
+    trailing_case = indexed_cases["trailing_input_value_invalid"]
+    if (maximum_zero_seed.get("input_values") != [PI_MONTE_CARLO_MAX_SIMULATIONS, 0]
+            or maximum_seed.get("input_values")
+            != [PI_MONTE_CARLO_MAX_SIMULATIONS, PI_MONTE_CARLO_MAX_SEED]
+            or len(trailing_case.get("input_values", [])) != PI_MONTE_CARLO_MAX_PARSEABLE_INPUT_LENGTH
+            or trailing_case.get("expected_result") != PI_MONTE_CARLO_INVALID_RESULT):
+        raise ValueError("pi_monte_carlo_estimation workload is missing its endpoint cases")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -2603,6 +2751,8 @@ def main() -> int:
         validate_median_of_running_array_float_workload(workload)
     elif algorithm == "mean_shift":
         validate_mean_shift_workload(workload)
+    elif algorithm == "pi_monte_carlo_estimation":
+        validate_pi_monte_carlo_estimation_workload(workload)
     absolute_tolerance, relative_tolerance = tolerances(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]

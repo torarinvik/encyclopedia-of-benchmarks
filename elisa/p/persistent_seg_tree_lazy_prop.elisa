@@ -1,0 +1,140 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 64
+const MAX_INPUT: usize = 323
+const NODE_CAP: usize = 16384
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+struct PersistentLazyNode:
+    sum: i64
+    prop: i64
+    left: i64
+    right: i64
+
+def persistent_lazy_make(nodes: mutable PersistentLazyNode&, used: mutable usize&, sum: i64, prop: i64, left: i64, right: i64) -> i64:
+    if used >= NODE_CAP: return -1
+    index: i64 = used.i64()
+    nodes[used].sum <- sum
+    nodes[used].prop <- prop
+    nodes[used].left <- left
+    nodes[used].right <- right
+    used <- used + 1
+    index
+
+def persistent_lazy_clone(nodes: mutable PersistentLazyNode&, used: mutable usize&, source: i64) -> i64:
+    if source < 0 or used >= NODE_CAP: return -1
+    index: i64 = used.i64()
+    nodes[used].sum <- nodes[source.usize()].sum
+    nodes[used].prop <- nodes[source.usize()].prop
+    nodes[used].left <- nodes[source.usize()].left
+    nodes[used].right <- nodes[source.usize()].right
+    used <- used + 1
+    index
+
+def persistent_lazy_push(nodes: mutable PersistentLazyNode&, used: mutable usize&, node: i64, left: usize, right: usize) -> bool:
+    prop: i64 = nodes[node.usize()].prop
+    if prop == 0: return true
+    nodes[node.usize()].sum <- nodes[node.usize()].sum + (right - left + 1).i64() * prop
+    if left != right:
+        new_left: i64 = persistent_lazy_clone(nodes, used, nodes[node.usize()].left)
+        new_right: i64 = persistent_lazy_clone(nodes, used, nodes[node.usize()].right)
+        if new_left < 0 or new_right < 0: return false
+        nodes[node.usize()].left <- new_left
+        nodes[node.usize()].right <- new_right
+        nodes[new_left.usize()].prop <- nodes[new_left.usize()].prop + prop
+        nodes[new_right.usize()].prop <- nodes[new_right.usize()].prop + prop
+    nodes[node.usize()].prop <- 0
+    true
+
+def persistent_lazy_build(nodes: mutable PersistentLazyNode&, used: mutable usize&, values: i64&, left: usize, right: usize) -> i64:
+    if left == right: return persistent_lazy_make(nodes, used, values[2 + left], 0, -1, -1)
+    mid: usize = left + (right - left) / 2
+    a: i64 = persistent_lazy_build(nodes, used, values, left, mid)
+    b: i64 = persistent_lazy_build(nodes, used, values, mid + 1, right)
+    if a < 0 or b < 0: return -1
+    persistent_lazy_make(nodes, used, nodes[a.usize()].sum + nodes[b.usize()].sum, 0, a, b)
+
+def persistent_lazy_add(nodes: mutable PersistentLazyNode&, used: mutable usize&, current: i64, left: usize, right: usize, ql: usize, qr: usize, delta: i64) -> i64:
+    if not persistent_lazy_push(nodes, used, current, left, right): return -1
+    if left >= ql and right <= qr:
+        copy: i64 = persistent_lazy_clone(nodes, used, current)
+        if copy < 0: return -1
+        nodes[copy.usize()].prop <- nodes[copy.usize()].prop + delta
+        if not persistent_lazy_push(nodes, used, copy, left, right): return -1
+        return copy
+    if left > qr or right < ql: return current
+    copy: i64 = persistent_lazy_make(nodes, used, 0, 0, -1, -1)
+    if copy < 0: return -1
+    mid: usize = left + (right - left) / 2
+    a: i64 = persistent_lazy_add(nodes, used, nodes[current.usize()].left, left, mid, ql, qr, delta)
+    b: i64 = persistent_lazy_add(nodes, used, nodes[current.usize()].right, mid + 1, right, ql, qr, delta)
+    if a < 0 or b < 0: return -1
+    nodes[copy.usize()].left <- a
+    nodes[copy.usize()].right <- b
+    nodes[copy.usize()].sum <- nodes[a.usize()].sum + nodes[b.usize()].sum
+    copy
+
+def persistent_lazy_sum(nodes: mutable PersistentLazyNode&, used: mutable usize&, node: i64, left: usize, right: usize, ql: usize, qr: usize) -> i64?:
+    if not persistent_lazy_push(nodes, used, node, left, right): return null
+    if right < ql or qr < left: return 0
+    if ql <= left and right <= qr: return nodes[node.usize()].sum
+    mid: usize = left + (right - left) / 2
+    a: i64 = persistent_lazy_sum(nodes, used, nodes[node.usize()].left, left, mid, ql, qr) ?? return null
+    b: i64 = persistent_lazy_sum(nodes, used, nodes[node.usize()].right, mid + 1, right, ql, qr) ?? return null
+    a + b
+
+def persistent_lazy_hash_word(hash: u64, value: i64) -> u64:
+    bits: u64 = value.u64()
+    result: mutable u64 = hash
+    for byte_index in 0..<8:
+        octet: u64 = (bits >> (byte_index * 8)).u8().u64()
+        result <- (result ^ octet) * FNV_PRIME
+    result
+
+def persistent_seg_tree_lazy_prop_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if n64 < 1 or n64 > 64 or q64 < 0 or q64 > 64: return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    if length != 2 + n + 4 * q: return -1
+    for i in 0..<n:
+        if input[2 + i] < -1000 or input[2 + i] > 1000: return -1
+
+    nodes: mutable PersistentLazyNode[NODE_CAP] = zeroed
+    used: mutable usize = 0
+    roots: mutable i64[MAX_Q + 1] = zeroed
+    roots[0] <- persistent_lazy_build(&nodes[0], used, input, 0, n - 1)
+    if roots[0] < 0: return -1
+    versions: mutable usize = 1
+    query_count: mutable usize = 0
+    query_sums: mutable i64[MAX_Q] = zeroed
+    offset: mutable usize = 2 + n
+    for _ in 0..<q:
+        op: i64 = input[offset]
+        a: i64 = input[offset + 1]
+        b: i64 = input[offset + 2]
+        c: i64 = input[offset + 3]
+        offset <- offset + 4
+        if op == 0:
+            if a < 0 or a > b or b >= n64 or c < -1000 or c > 1000: return -1
+            next: i64 = persistent_lazy_add(&nodes[0], used, roots[versions - 1], 0, n - 1, a.usize(), b.usize(), c)
+            if next < 0: return -1
+            roots[versions] <- next
+            versions <- versions + 1
+        elif op == 1:
+            if a < 0 or a >= versions.i64() or b < 0 or c < b or c >= n64: return -1
+            sum: i64 = persistent_lazy_sum(&nodes[0], used, roots[a.usize()], 0, n - 1, b.usize(), c.usize()) ?? return -1
+            query_sums[query_count] <- sum
+            query_count <- query_count + 1
+        else:
+            return -1
+
+    hash: mutable u64 = FNV_OFFSET
+    hash <- persistent_lazy_hash_word(hash, versions.i64())
+    hash <- persistent_lazy_hash_word(hash, query_count.i64())
+    for i in 0..<query_count: hash <- persistent_lazy_hash_word(hash, query_sums[i])
+    (hash & 0x7fffffffffffffff).i64()
+
+export fn persistent_seg_tree_lazy_prop(input: i64&, length: usize) -> i64 = persistent_seg_tree_lazy_prop_impl

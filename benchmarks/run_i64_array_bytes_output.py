@@ -153,6 +153,23 @@ from suffix_automaton_oracle import (
     MAX_OUTPUT_BYTES as SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES,
     expected_output as suffix_automaton_oracle,
 )
+from lru_cache2_oracle import (
+    I32_MAX as LRU_CACHE2_I32_MAX,
+    I32_MIN as LRU_CACHE2_I32_MIN,
+    I64_MAX as LRU_CACHE2_I64_MAX,
+    I64_MIN as LRU_CACHE2_I64_MIN,
+    INVALID_RESULT as LRU_CACHE2_INVALID_RESULT,
+    MAX_CAPACITY as LRU_CACHE2_MAX_CAPACITY,
+    MAX_INPUT_LENGTH as LRU_CACHE2_MAX_INPUT_LENGTH,
+    MAX_OPERATIONS as LRU_CACHE2_MAX_OPERATIONS,
+    MAX_OUTPUT_BYTES as LRU_CACHE2_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LRU_CACHE2_MAX_VALID_INPUT_LENGTH,
+    MIN_CAPACITY as LRU_CACHE2_MIN_CAPACITY,
+    OUTPUT_ERROR as LRU_CACHE2_OUTPUT_ERROR,
+    PUT_SENTINEL as LRU_CACHE2_PUT_SENTINEL,
+    expected_output as lru_cache2_oracle,
+)
 from graph_peripherality_oracle import expected_output as graph_peripherality_expected_output
 from graph_centrality_oracle import expected_output as graph_centrality_expected_output
 from depth_first_search_iterative_order_oracle import expected_output as depth_first_search_iterative_order_expected_output
@@ -2411,6 +2428,7 @@ RECORDER_WORKSPACE_ALGORITHMS.update({
     'skew_heap',
     'smoothsort',
     'suffix_automaton',
+    'lru_cache2',
 })
 
 
@@ -2433,6 +2451,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return smoothsort_oracle(values)
     if algorithm == "suffix_automaton":
         return suffix_automaton_oracle(values)
+    if algorithm == "lru_cache2":
+        return lru_cache2_oracle(values)
     if algorithm == "tokenize_string":
         return tokenize_string_oracle(values)
     if algorithm == "translator":
@@ -18052,7 +18072,7 @@ def validate_self_organizing_linked_list_workload(workload: dict) -> None:
         "repository": "TheAlgorithms/Java",
         "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
         "path": "src/main/java/com/thealgorithms/datastructures/lists/SelfOrganizingLinkedList.java",
-        "symbol": "SelfOrganizingLinkedList.insert, search, getHeadValue, getSize, isEmpty",
+        "symbol": "SelfOrganizingLinkedList.insert, search",
         "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/lists/SelfOrganizingLinkedList.java",
     }
     contract = {
@@ -23565,6 +23585,161 @@ def validate_suffix_automaton_workload(workload: dict) -> None:
                 raise ValueError(f"suffix_automaton fixture mismatch: {case_id}")
 
 
+LRU_CACHE2_CASE_IDS = frozenset({
+    "empty_trace", "basic_api", "get_refreshes_recency_before_eviction",
+    "signed_i32_key_and_value_endpoints", "maximum_operations_256",
+    "capacity_below_minimum", "capacity_above_limit", "duplicate_put_key",
+    "get_missing_key", "get_evicted_key", "get_with_nonzero_padding",
+    "query_with_nonzero_padding", "key_out_of_i32_range", "value_out_of_i32_range",
+    "unknown_opcode", "truncated_operation", "trailing_word", "operation_count_over_limit",
+})
+LRU_CACHE2_ABI_CASE_IDS = frozenset({
+    "valid_input_null_output", "valid_input_short_output_capacity", "exact_output_capacity",
+    "zero_output_zero_capacity", "zero_output_null_output", "invalid_input_precedes_null_output",
+    "null_input_positive_length", "input_length_mismatch",
+})
+
+
+def validate_lru_cache2_workload(workload: dict) -> None:
+    source_url = "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/lru_cache2.cpp"
+    source = {
+        "repository": "TheAlgorithms/C-Plus-Plus",
+        "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+        "path": "others/lru_cache2.cpp",
+        "symbol": "others::Cache::LRUCache<int,int>::put/get/size/capacity/empty",
+        "url": source_url,
+    }
+    contract = {
+        "capacity_range": [LRU_CACHE2_MIN_CAPACITY, LRU_CACHE2_MAX_CAPACITY],
+        "max_operations": LRU_CACHE2_MAX_OPERATIONS,
+        "input_encoding": "[capacity, operation_count, (opcode,arg1,arg2)*]",
+        "exact_input_length": "2 + 3 * operation_count",
+        "safe_domain": "Distinct keys across put operations; get only when the key is resident; signed-i32 keys and values.",
+        "recency": "Most recently used node is at the list head; successful get moves it to the head; a new put inserts at the head and evicts the tail when full.",
+        "operation_codes": {
+            "0": "put(key, value): arg1=key, arg2=value",
+            "1": "get(key): arg1=key, arg2=0; key must be resident",
+            "2": "size(): both args zero",
+            "3": "capacity(): both args zero",
+            "4": "empty(): both args zero",
+        },
+        "put_result": "INT64_MIN (the source method returns void)",
+        "output_encoding": "One little-endian signed-i64 result per operation.",
+        "invalid_result": LRU_CACHE2_INVALID_RESULT,
+        "output_error": LRU_CACHE2_OUTPUT_ERROR,
+        "error_precedence": "Invalid traces are rejected before output pointer/capacity checks.",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "minimum_length": 2,
+        "maximum_operations": LRU_CACHE2_MAX_OPERATIONS,
+        "maximum_valid_length": LRU_CACHE2_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_length": LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH,
+        "key_range": [LRU_CACHE2_I32_MIN, LRU_CACHE2_I32_MAX],
+        "value_range": [LRU_CACHE2_I32_MIN, LRU_CACHE2_I32_MAX],
+        "invalid_result": LRU_CACHE2_INVALID_RESULT,
+        "null_input_result": LRU_CACHE2_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "little_endian_signed_64_bit_integer_sequence",
+        "success_result": "8 * operation_count",
+        "maximum_output_bytes": LRU_CACHE2_MAX_OUTPUT_BYTES,
+        "put_sentinel": LRU_CACHE2_PUT_SENTINEL,
+        "invalid_input_result": LRU_CACHE2_INVALID_RESULT,
+        "null_output_result": LRU_CACHE2_OUTPUT_ERROR,
+        "insufficient_capacity_result": LRU_CACHE2_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-cpp-lru-cache2-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "lru_cache2"
+            or workload.get("function_symbol") != "lru_cache2"
+            or workload.get("description") != "Replay bounded put/get/size/capacity/empty traces against the pinned C++ LRUCache<int,int> API."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or workload.get("workspace") != {"bytes": LRU_CACHE2_MAX_OUTPUT_BYTES}
+            or LRU_CACHE2_MIN_CAPACITY != 2
+            or LRU_CACHE2_MAX_CAPACITY != 64
+            or LRU_CACHE2_MAX_OPERATIONS != 256
+            or LRU_CACHE2_MAX_VALID_INPUT_LENGTH != 770
+            or LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH != 771
+            or LRU_CACHE2_MAX_INPUT_LENGTH != 771
+            or LRU_CACHE2_MAX_OUTPUT_BYTES != 2048
+            or LRU_CACHE2_I32_MIN != -(1 << 31)
+            or LRU_CACHE2_I32_MAX != (1 << 31) - 1
+            or LRU_CACHE2_I64_MIN != -(1 << 63)
+            or LRU_CACHE2_I64_MAX != (1 << 63) - 1
+            or LRU_CACHE2_PUT_SENTINEL != LRU_CACHE2_I64_MIN
+            or LRU_CACHE2_INVALID_RESULT != -1
+            or LRU_CACHE2_OUTPUT_ERROR != -2
+            or len(case_ids) != len(LRU_CACHE2_CASE_IDS)
+            or len(set(case_ids)) != len(case_ids)
+            or set(case_ids) != LRU_CACHE2_CASE_IDS
+            or len(abi_case_ids) != len(LRU_CACHE2_ABI_CASE_IDS)
+            or len(set(abi_case_ids)) != len(abi_case_ids)
+            or set(abi_case_ids) != LRU_CACHE2_ABI_CASE_IDS):
+        raise ValueError("lru_cache2 metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "lru_cache2" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source_url not in readme or "most-recently-used head" not in normalized_readme
+            or "least-recently-used tail" not in normalized_readme
+            or "distinct keys across all `put` operations" not in normalized_readme
+            or "2,048" not in normalized_readme
+            or "a nonnull output pointer with zero capacity succeeds" not in normalized_readme
+            or "null output pointer returns `-2`" not in normalized_readme):
+        raise ValueError("lru_cache2 README is missing its pinned source or reviewed API semantics")
+
+    for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case.get("id")
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", LRU_CACHE2_MAX_OUTPUT_BYTES)
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not LRU_CACHE2_I64_MIN <= value <= LRU_CACHE2_I64_MAX for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= LRU_CACHE2_MAX_OUTPUT_BYTES
+                    or (input_is_null and (values or input_length == 0))
+                    or (not input_is_null and input_length > len(values))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"lru_cache2 fixture framing is invalid: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null
+                                   or capacity != LRU_CACHE2_MAX_OUTPUT_BYTES):
+                raise ValueError(f"lru_cache2 semantic fixture has ABI-only framing: {case_id}")
+            oracle_values = values[:input_length] if not input_is_null else values
+            result, output = lru_cache2_oracle(oracle_values, capacity, output_is_null,
+                                               input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"lru_cache2 fixture mismatch: {case_id}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -23753,6 +23928,8 @@ def main() -> int:
         validate_smoothsort_workload(workload)
     elif algorithm == "suffix_automaton":
         validate_suffix_automaton_workload(workload)
+    elif algorithm == "lru_cache2":
+        validate_lru_cache2_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
         parser.error("workload does not match the built byte-output algorithm")
@@ -23783,7 +23960,13 @@ def main() -> int:
                 and isinstance(values, list) and type(input_length) is int
                 and 0 <= input_length < len(values)):
             values = values[:input_length]
-        max_input_length = (SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH
+        if (algorithm == "lru_cache2" and case.get("id") == "input_length_mismatch"
+                and isinstance(values, list) and type(input_length) is int
+                and 0 <= input_length < len(values)):
+            values = values[:input_length]
+        max_input_length = (LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "lru_cache2" else
+                            SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "suffix_automaton" else
                             SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "smoothsort" else
@@ -24267,6 +24450,9 @@ def main() -> int:
                 values, output_capacity, output_is_null, input_is_null, input_length)
         elif algorithm == "smoothsort":
             expected_count, expected = smoothsort_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "lru_cache2":
+            expected_count, expected = lru_cache2_oracle(
                 values, output_capacity, output_is_null, input_is_null, input_length)
         elif algorithm == "suffix_automaton":
             expected_count, expected = suffix_automaton_oracle(

@@ -1,0 +1,136 @@
+const MAX_N: usize = 256
+const MAX_Q: usize = 256
+const MAX_INPUT_LENGTH: usize = 1029
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+def mos_hash_byte(hash: u64, byte: u64) -> u64:
+    (hash ^ byte) * FNV_PRIME
+
+def mos_query_before(a: usize, b: usize, lefts: i32&, rights: i32&, block_size: usize) -> bool:
+    block_a: i64 = lefts[a].i64() / block_size.i64()
+    block_b: i64 = lefts[b].i64() / block_size.i64()
+    if block_a != block_b:
+        return block_a < block_b
+    if (block_a & 1) != 0:
+        return rights[a] < rights[b]
+    rights[a] > rights[b]
+
+def mos_algorithm_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT_LENGTH:
+        return -1
+    operation: i64 = input[0]
+    n64: i64 = input[1]
+    q64: i64 = input[2]
+    target64: i64 = input[3]
+    if (operation != 0 and operation != 1) or n64 < 1 or n64 > MAX_N.i64() or q64 < 0 or q64 > MAX_Q.i64():
+        return -1
+    if target64 < -1000000 or target64 > 1000000 or length != (4 + n64 + 3 * q64).usize():
+        return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    target: i32 = target64.i32()
+
+    values: mutable i32[MAX_N] = zeroed
+    index: usize = 0
+    while index < n:
+        value: i64 = input[4 + index]
+        if value < -1000000 or value > 1000000:
+            return -1
+        values[index] <- value.i32()
+        index <- index + 1
+
+    lefts: mutable i32[MAX_Q] = zeroed
+    rights: mutable i32[MAX_Q] = zeroed
+    indices: mutable i32[MAX_Q] = zeroed
+    order: mutable usize[MAX_Q] = zeroed
+    seen: mutable bool[MAX_Q] = zeroed
+    offset: usize = 4 + n
+    query: mutable usize = 0
+    while query < q:
+        left: i64 = input[offset + 3 * query]
+        right: i64 = input[offset + 3 * query + 1]
+        result_index: i64 = input[offset + 3 * query + 2]
+        if left < 0 or right < left or right >= n64 or result_index < 0 or result_index >= q64:
+            return -1
+        if seen[result_index.usize()]:
+            return -1
+        lefts[query] <- left.i32()
+        rights[query] <- right.i32()
+        indices[query] <- result_index.i32()
+        seen[result_index.usize()] <- true
+        order[query] <- query
+        query <- query + 1
+
+    block_size: mutable usize = 1
+    while (block_size + 1) * (block_size + 1) <= n:
+        block_size <- block_size + 1
+    query <- 1
+    while query < q:
+        current: usize = order[query]
+        position: mutable usize = query
+        while position > 0:
+            if not mos_query_before(current, order[position - 1], &lefts[0], &rights[0], block_size):
+                break
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- current
+        query <- query + 1
+
+    results: mutable i32[MAX_Q] = zeroed
+    current_left: mutable i32 = 0
+    current_right: mutable i32 = -1
+    aggregate: mutable i32 = 0
+    sorted: usize = 0
+    while sorted < q:
+        query = order[sorted]
+        left: i32 = lefts[query]
+        right: i32 = rights[query]
+        if operation == 0:
+            while current_right < right:
+                current_right <- current_right + 1
+                aggregate <- aggregate + values[current_right.usize()]
+            while current_right > right:
+                aggregate <- aggregate - values[current_right.usize()]
+                current_right <- current_right - 1
+            while current_left < left:
+                aggregate <- aggregate - values[current_left.usize()]
+                current_left <- current_left + 1
+            while current_left > left:
+                current_left <- current_left - 1
+                aggregate <- aggregate + values[current_left.usize()]
+        else:
+            while current_right < right:
+                current_right <- current_right + 1
+                if values[current_right.usize()] == target:
+                    aggregate <- aggregate + 1
+            while current_right > right:
+                if values[current_right.usize()] == target:
+                    aggregate <- aggregate - 1
+                current_right <- current_right - 1
+            while current_left < left:
+                if values[current_left.usize()] == target:
+                    aggregate <- aggregate - 1
+                current_left <- current_left + 1
+            while current_left > left:
+                current_left <- current_left - 1
+                if values[current_left.usize()] == target:
+                    aggregate <- aggregate + 1
+        results[indices[query].usize()] <- aggregate
+        sorted <- sorted + 1
+
+    hash: mutable u64 = FNV_OFFSET
+    hash <- mos_hash_byte(hash, operation.u64())
+    hash <- mos_hash_byte(hash, (q & 255).u64())
+    hash <- mos_hash_byte(hash, ((q >> 8) & 255).u64())
+    index <- 0
+    while index < q:
+        bits: u32 = results[index].u32()
+        shift: mutable usize = 0
+        while shift < 32:
+            hash <- mos_hash_byte(hash, ((bits >> shift) & 255).u64())
+            shift <- shift + 8
+        index <- index + 1
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn mos_algorithm(input: i64&, length: usize) -> i64 = mos_algorithm_impl

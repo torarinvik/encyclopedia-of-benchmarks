@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-euler-problem-4-i64-array-scalar-v1",
+  "algorithm": "euler_problem_4",
+  "function_symbol": "euler_problem_4",
+  "description": "Find the largest palindrome product of two d-digit factors, with d=3 reproducing the pinned source.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C",
+      "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+      "path": "project_euler/problem_4/sol.c",
+      "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/project_euler/problem_4/sol.c",
+      "role": "algorithm"
+    }
+  ],
+  "contract": {
+    "operation": "Return the largest decimal palindrome formed by multiplying two factors with the requested digit count.",
+    "input_layout": "[digit_count]",
+    "digit_count_range": [
+      1,
+      3
+    ],
+    "factor_range": "10^(digit_count-1) through 10^digit_count-1, inclusive, for both factors",
+    "palindrome_test": "The product decimal digits are equal to their reverse.",
+    "source_exact_case": "digit_count=3 searches both factors from 100 through 999 inclusive.",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[digit_count]",
+    "digit_count_range": [
+      1,
+      3
+    ],
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "largest palindromic product of two digit_count-digit factors",
+    "three_digit_result": 906609,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 8
+  },
+  "cases": [
+    {
+      "id": "one_digit_factors",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": 9
+    },
+    {
+      "id": "two_digit_factors",
+      "input_values": [
+        2
+      ],
+      "input_length": 1,
+      "expected_result": 9009
+    },
+    {
+      "id": "three_digit_source_exact",
+      "input_values": [
+        3
+      ],
+      "input_length": 1,
+      "expected_result": 906609
+    },
+    {
+      "id": "zero_digits_invalid",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_digit_count_invalid",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "digit_count_above_limit_invalid",
+      "input_values": [
+        4
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "missing_digit_count_invalid",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_word_invalid",
+      "input_values": [
+        3,
+        99
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

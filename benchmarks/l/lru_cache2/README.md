@@ -59,4 +59,14 @@ The benchmark pins `others/lru_cache2.cpp` at C-Plus-Plus commit
 `fdcc29b0ac2848e9d1a8d926e171cc5b39f97759`, symbol
 `others::Cache::LRUCache<int, int>`.
 
-Ports will be listed here after the contract review.
+## Ports
+
+- C: [`c/l/lru_cache2.c`](../../../c/l/lru_cache2.c)
+- C3: [`c3/l/lru_cache2.c3`](../../../c3/l/lru_cache2.c3)
+- C++: [`cpp/l/lru_cache2.cpp`](../../../cpp/l/lru_cache2.cpp)
+- Elisa: [`elisa/l/lru_cache2.elisa`](../../../elisa/l/lru_cache2.elisa)
+- Nim: [`nim/l/lru_cache2.nim`](../../../nim/l/lru_cache2.nim)
+- Odin: [`odin/l/lru_cache2.odin`](../../../odin/l/lru_cache2.odin)
+- Rust: [`rust/l/lru_cache2.rs`](../../../rust/l/lru_cache2.rs)
+- V: [`v/l/lru_cache2.v`](../../../v/l/lru_cache2.v)
+- Zig: [`zig/l/lru_cache2.zig`](../../../zig/l/lru_cache2.zig)

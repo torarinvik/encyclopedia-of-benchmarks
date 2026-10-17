@@ -68,8 +68,7 @@
     "repetitions_per_sample": 100
   },
   "workspace": {
-    "bytes": 2048,
-    "meaning": "Maximum serialized result vector for 256 operations."
+    "bytes": 2048
   },
   "cases": [
     {

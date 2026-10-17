@@ -1,0 +1,218 @@
+const TRIE_MULTIPLE_SEARCH_MAX_OPERATIONS: usize = 64
+const TRIE_MULTIPLE_SEARCH_MAX_WORD_LENGTH: usize = 32
+const TRIE_MULTIPLE_SEARCH_MAX_WORDS: usize = 32
+const TRIE_MULTIPLE_SEARCH_MAX_VALID_LENGTH: usize = 1 + 64 * (2 + 32)
+const TRIE_MULTIPLE_SEARCH_MAX_PARSEABLE_LENGTH: usize = TRIE_MULTIPLE_SEARCH_MAX_VALID_LENGTH + 1
+const TRIE_MULTIPLE_SEARCH_NODE_CAPACITY: usize = 2 + 32 * 32
+const TRIE_MULTIPLE_SEARCH_FNV_OFFSET: u64 = 14695981039346656037
+const TRIE_MULTIPLE_SEARCH_FNV_PRIME: u64 = 1099511628211
+
+struct TrieMultipleSearchNode:
+    children: usize[26]
+    word_index_plus_one: usize
+
+struct TrieMultipleSearchWord:
+    bytes: u8[32]
+    length: usize
+    frequency: u32
+
+def trie_multiple_search_hash_byte(hash: mutable u64&, byte: u8) -> void:
+    hash <- (hash ^ byte.u64()) * TRIE_MULTIPLE_SEARCH_FNV_PRIME
+
+def trie_multiple_search_hash_u16(hash: mutable u64&, value: usize) -> void:
+    trie_multiple_search_hash_byte(hash, (value & 255).u8())
+    trie_multiple_search_hash_byte(hash, ((value >> 8) & 255).u8())
+
+def trie_multiple_search_hash_string(hash: mutable u64&, word: u8&, length: usize) -> void:
+    trie_multiple_search_hash_byte(hash, length.u8())
+    index: mutable usize = 0
+    while index < length:
+        trie_multiple_search_hash_byte(hash, word[index])
+        index <- index + 1
+
+def trie_multiple_search_hash_word_text(hash: mutable u64&, words: TrieMultipleSearchWord&,
+                                        word_index: usize) -> void:
+    word_length: usize = words[word_index].length
+    trie_multiple_search_hash_string(hash, &words[word_index].bytes[0], word_length)
+
+def trie_multiple_search_hash_word(hash: mutable u64&, words: TrieMultipleSearchWord&,
+                                   word_index: usize) -> void:
+    trie_multiple_search_hash_word_text(hash, words, word_index)
+    frequency: u32 = words[word_index].frequency
+    byte: mutable usize = 0
+    while byte < 4:
+        trie_multiple_search_hash_byte(hash, ((frequency >> (byte * 8)) & 255).u8())
+        byte <- byte + 1
+
+def trie_multiple_search_word_less(words: TrieMultipleSearchWord&,
+                                   left: usize, right: usize) -> bool:
+    left_length: usize = words[left].length
+    right_length: usize = words[right].length
+    common: usize = left_length
+    if right_length < common: common <- right_length
+    index: mutable usize = 0
+    while index < common:
+        left_byte: u8 = words[left].bytes[index]
+        right_byte: u8 = words[right].bytes[index]
+        if left_byte != right_byte: return left_byte < right_byte
+        index <- index + 1
+    left_length < right_length
+
+def trie_multiple_search_word_begins_with(words: TrieMultipleSearchWord&,
+                                          word_index: usize, prefix: u8&,
+                                          prefix_length: usize) -> bool:
+    if words[word_index].length < prefix_length: return false
+    index: mutable usize = 0
+    while index < prefix_length:
+        if words[word_index].bytes[index] != prefix[index]: return false
+        index <- index + 1
+    true
+
+def trie_multiple_search_rank_before(words: TrieMultipleSearchWord&,
+                                     left: usize, right: usize) -> bool:
+    if words[left].frequency != words[right].frequency:
+        return words[left].frequency > words[right].frequency
+    trie_multiple_search_word_less(words, right, left)
+
+def trie_multiple_search_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > TRIE_MULTIPLE_SEARCH_MAX_PARSEABLE_LENGTH:
+        return -1
+    if length > TRIE_MULTIPLE_SEARCH_MAX_VALID_LENGTH or
+       input[0] < 0 or input[0] > TRIE_MULTIPLE_SEARCH_MAX_OPERATIONS.i64():
+        return -1
+    operation_count: usize = input[0].usize()
+
+    nodes: mutable TrieMultipleSearchNode[TRIE_MULTIPLE_SEARCH_NODE_CAPACITY] = zeroed
+    words: mutable TrieMultipleSearchWord[32] = zeroed
+    order: mutable usize[32] = zeroed
+    next_node: mutable usize = 2
+    word_count: mutable usize = 0
+    offset: mutable usize = 1
+    hash: mutable u64 = TRIE_MULTIPLE_SEARCH_FNV_OFFSET
+    trie_multiple_search_hash_u16(hash, operation_count)
+
+    operation: mutable usize = 0
+    while operation < operation_count:
+        if offset + 2 > length: return -1
+        opcode_value: i64 = input[offset]
+        word_length_value: i64 = input[offset + 1]
+        offset <- offset + 2
+        if opcode_value < 0 or opcode_value > 3 or word_length_value < 0 or
+           word_length_value > TRIE_MULTIPLE_SEARCH_MAX_WORD_LENGTH.i64():
+            return -1
+        opcode: usize = opcode_value.usize()
+        word_length: usize = word_length_value.usize()
+        if opcode == 0 and word_length == 0: return -1
+        if word_length > length - offset: return -1
+
+        raw_word: mutable u8[32] = zeroed
+        folded_word: mutable u8[32] = zeroed
+        index: mutable usize = 0
+        while index < word_length:
+            code: i64 = input[offset + index]
+            if code >= 65 and code <= 90:
+                raw_word[index] <- code.u8()
+                folded_word[index] <- (code + 32).u8()
+            elif code >= 97 and code <= 122:
+                raw_word[index] <- code.u8()
+                folded_word[index] <- code.u8()
+            else:
+                return -1
+            index <- index + 1
+        offset <- offset + word_length
+        trie_multiple_search_hash_byte(hash, opcode.u8())
+
+        node: mutable usize = 1
+        matched_length: mutable usize = 0
+        while matched_length < word_length:
+            letter: usize = (folded_word[matched_length] - 97.u8()).usize()
+            child: usize = nodes[node].children[letter]
+            if child == 0: break
+            node <- child
+            matched_length <- matched_length + 1
+        full_path: bool = matched_length == word_length
+        exact_match: bool = full_path and nodes[node].word_index_plus_one != 0
+        exact_word_index: mutable usize = 0
+        if exact_match:
+            exact_word_index <- nodes[node].word_index_plus_one - 1
+
+        if opcode == 0:
+            if not exact_match:
+                if word_count >= TRIE_MULTIPLE_SEARCH_MAX_WORDS: return -1
+                while matched_length < word_length:
+                    letter: usize = (folded_word[matched_length] - 97.u8()).usize()
+                    if next_node >= TRIE_MULTIPLE_SEARCH_NODE_CAPACITY: return -1
+                    child: usize = next_node
+                    next_node <- next_node + 1
+                    nodes[node].children[letter] <- child
+                    node <- child
+                    matched_length <- matched_length + 1
+                nodes[node].word_index_plus_one <- word_count + 1
+                index <- 0
+                while index < word_length:
+                    words[word_count].bytes[index] <- folded_word[index]
+                    index <- index + 1
+                words[word_count].length <- word_length
+                words[word_count].frequency <- 0.u32()
+                position: mutable usize = word_count
+                while position > 0 and
+                      trie_multiple_search_word_less(words, word_count, order[position - 1]):
+                    order[position] <- order[position - 1]
+                    position <- position - 1
+                order[position] <- word_count
+                word_count <- word_count + 1
+        elif opcode == 1:
+            present: u8 = 0.u8()
+            if exact_match:
+                words[exact_word_index].frequency <- words[exact_word_index].frequency + 1.u32()
+                present <- 1.u8()
+            trie_multiple_search_hash_byte(hash, present)
+        else:
+            if exact_match:
+                words[exact_word_index].frequency <- words[exact_word_index].frequency + 1.u32()
+            candidates: mutable usize[32] = zeroed
+            candidate_count: mutable usize = 0
+            index <- 0
+            while index < word_count:
+                word_index: usize = order[index]
+                if words[word_index].length > matched_length and
+                   trie_multiple_search_word_begins_with(words, word_index,
+                       &folded_word[0], matched_length):
+                    candidates[candidate_count] <- word_index
+                    candidate_count <- candidate_count + 1
+                index <- index + 1
+
+            if opcode == 3:
+                position: mutable usize = 1
+                while position < candidate_count:
+                    current: usize = candidates[position]
+                    insertion: mutable usize = position
+                    while insertion > 0 and
+                          trie_multiple_search_rank_before(words, current, candidates[insertion - 1]):
+                        candidates[insertion] <- candidates[insertion - 1]
+                        insertion <- insertion - 1
+                    candidates[insertion] <- current
+                    position <- position + 1
+
+            result_count: usize = candidate_count
+            if opcode == 3 and result_count > 3: result_count <- 3
+            total_count: usize = result_count
+            if exact_match: total_count <- total_count + 1
+            trie_multiple_search_hash_u16(hash, total_count)
+            if exact_match:
+                trie_multiple_search_hash_string(hash, &raw_word[0], word_length)
+            index <- 0
+            while index < result_count:
+                trie_multiple_search_hash_word_text(hash, words, candidates[index])
+                index <- index + 1
+        operation <- operation + 1
+
+    if offset != length: return -1
+    trie_multiple_search_hash_u16(hash, word_count)
+    index: mutable usize = 0
+    while index < word_count:
+        trie_multiple_search_hash_word(hash, words, order[index])
+        index <- index + 1
+    (hash & 9223372036854775807.u64()).i64()
+
+export fn trie_multiple_search(input: i64&, length: usize) -> i64 = trie_multiple_search_impl
