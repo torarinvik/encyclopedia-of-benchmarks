@@ -1,0 +1,71 @@
+const MAX_DIMENSION: i64 = 8
+const MAX_INPUT_LENGTH: usize = 67
+const MAX_CELLS: usize = 64
+const MIN_CELL: i64 = -1000000
+const MAX_CELL: i64 = 1000000
+
+def write_i64_le(output: mutable u8&, position: usize, value: i64):
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def set_matrix_zeroes_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    rows_value: i64 = input[0]
+    columns_value: i64 = input[1]
+    if rows_value < 1 or rows_value > MAX_DIMENSION or columns_value < 1 or columns_value > MAX_DIMENSION: return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    cells: usize = rows * columns
+    if length != 2 + cells: return -1
+
+    matrix: mutable i64[MAX_CELLS] = zeroed
+    index: mutable usize = 0
+    while index < cells:
+        value: i64 = input[2 + index]
+        if value < MIN_CELL or value > MAX_CELL: return -1
+        matrix[index] <- value
+        index <- index + 1
+
+    bytes: usize = cells * 8
+    if output.is_null() or capacity < bytes: return -2
+
+    first_column_zero: mutable bool = false
+    row: mutable usize = 0
+    while row < rows:
+        if matrix[row * columns] == 0: first_column_zero <- true
+        column: mutable usize = 1
+        while column < columns:
+            if matrix[row * columns + column] == 0:
+                matrix[row * columns] <- 0
+                matrix[column] <- 0
+            column <- column + 1
+        row <- row + 1
+    row <- 1
+    while row < rows:
+        column: mutable usize = 1
+        while column < columns:
+            if matrix[row * columns] == 0 or matrix[column] == 0:
+                matrix[row * columns + column] <- 0
+            column <- column + 1
+        row <- row + 1
+    if matrix[0] == 0:
+        column: mutable usize = 0
+        while column < columns:
+            matrix[column] <- 0
+            column <- column + 1
+    if first_column_zero:
+        row <- 0
+        while row < rows:
+            matrix[row * columns] <- 0
+            row <- row + 1
+
+    index <- 0
+    while index < cells:
+        write_i64_le(output, index * 8, matrix[index])
+        index <- index + 1
+    bytes.i64()
+
+export fn set_matrix_zeroes(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = set_matrix_zeroes_impl

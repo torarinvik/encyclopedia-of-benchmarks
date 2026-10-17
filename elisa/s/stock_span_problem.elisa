@@ -1,0 +1,35 @@
+def stock_span_problem_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 66: return -1
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > 64: return -1
+    count: usize = count_value.usize()
+    if length != count + 1: return -1
+    day: usize = 0
+    while day < count:
+        price: i64 = input[day + 1]
+        if price < -2147483648 or price > 2147483647: return -1
+        day <- day + 1
+
+    output_bytes: usize = count * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    decreasing: mutable [64]usize = [0; 64]
+    top: mutable usize = 0
+    day <- 0
+    while day < count:
+        price: i64 = input[day + 1]
+        while top > 0 and input[decreasing[top - 1] + 1] <= price:
+            top <- top - 1
+        span: usize = if top == 0: day + 1 else: day - decreasing[top - 1]
+        encoded: mutable u64 = span.u64()
+        byte: usize = 0
+        while byte < 8:
+            output[day * 8 + byte] <- (encoded & 255).u8()
+            encoded <- encoded >> 8
+            byte <- byte + 1
+        decreasing[top] <- day
+        top <- top + 1
+        day <- day + 1
+    count_value
+
+export fn stock_span_problem(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = stock_span_problem_impl

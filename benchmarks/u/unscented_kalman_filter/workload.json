@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-unscented-kalman-filter-2d-nonlinear-trace-v1",
+  "algorithm": "unscented_kalman_filter",
+  "function_symbol": "unscented_kalman_filter",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[steps,x0_milli,y0_milli,p00_milli,p01_milli,p11_milli,q0_milli,q1_milli,r_milli,z0_milli,...]",
+    "scale": 1000,
+    "state_size": 2,
+    "maximum_steps": 8,
+    "transition": "f(x,y)=(x+0.1*y,y+0.05*x^2)",
+    "measurement": "h(x,y)=0.05*x^2+y",
+    "alpha": 1,
+    "beta": 2,
+    "kappa": 0,
+    "lambda": 0,
+    "mean_weights": [0, 0.25, 0.25, 0.25, 0.25],
+    "covariance_weights": [2, 0.25, 0.25, 0.25, 0.25],
+    "covariance_update": "symmetrize(P-K*S*K^T)",
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "meaning": "first component of final corrected state after one unscented predict/update cycle per observation",
+    "invalid_result": -1e+300,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"one_update","input_values":[1,0,1000,1000,0,1000,10,10,100,1200],"expected_result":0.10962803961309381},
+    {"id":"negative_observation","input_values":[1,-400,300,800,-20,600,10,12,80,-200],"expected_result":-0.35145279453837114},
+    {"id":"three_steps","input_values":[3,500,200,500,50,700,20,30,80,800,1000,900],"expected_result":0.8172211914860816},
+    {"id":"four_step_noisy_trace","input_values":[4,100,50,600,-30,800,50,10,100,-1200,0,650,1500],"expected_result":-0.22771815182579702},
+    {"id":"boundary_inputs","input_values":[2,1000,-1000,1000,100,1000,50,50,100,-2000,2000],"expected_result":0.9180584269608401},
+    {"id":"bad_step_count","input_values":[0,0,1000,750,0,750,10,10,100],"expected_result":-1e+300},
+    {"id":"bad_covariance_range","input_values":[1,0,0,1000,101,1000,10,10,100,0],"expected_result":-1e+300},
+    {"id":"bad_process_noise","input_values":[1,0,0,750,0,750,0,10,100,0],"expected_result":-1e+300},
+    {"id":"bad_observation","input_values":[1,0,0,750,0,750,10,10,100,2001],"expected_result":-1e+300},
+    {"id":"bad_length","input_values":[2,0,0,750,0,750,10,10,100,0],"expected_result":-1e+300}
+  ]
+}

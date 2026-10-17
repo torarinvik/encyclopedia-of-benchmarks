@@ -17,11 +17,14 @@ import subprocess
 
 from build_abi import ROOT, sha256_file
 from prime_factorial_oracle import expected_output as prime_factorial_expected_output
+from stream_sieve_oracle import expected_output as stream_sieve_expected_output
 
 MAX_OUTPUT_BYTES = 8192
 
 
 def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "stream_sieve_primes_i32le":
+        return stream_sieve_expected_output(value)
     if encoding == "prime_factorial_unique_u32le":
         return prime_factorial_expected_output(value)
     if encoding == "magicdiamondpattern":
@@ -515,7 +518,29 @@ def main() -> int:
                                                                   len(required_output) or MAX_OUTPUT_BYTES))
         if type(output_capacity) is not int or not 0 <= output_capacity <= MAX_OUTPUT_BYTES:
             raise ValueError(f"invalid output capacity in {case['id']}")
-        if output_capacity < len(required_output):
+        output_is_null = case.get("output_is_null", False)
+        if type(output_is_null) is not bool:
+            raise ValueError(f"output_is_null must be a boolean in {case['id']}")
+        if required_result < 0:
+            expected_result, expected = required_result, b""
+        elif output_is_null:
+            zero_byte_result = workload.get("output", {}).get("zero_byte_output_result")
+            stream_sieve_empty_exception = (
+                encoding == "stream_sieve_primes_i32le"
+                and not required_output
+                and required_result == 0
+                and workload.get("output", {}).get("null_output_exception")
+                    == "n<=0 succeeds with zero bytes even when the output pointer is null."
+            )
+            if (not required_output and type(zero_byte_result) is int
+                    and required_result == zero_byte_result) or stream_sieve_empty_exception:
+                expected_result, expected = required_result, required_output
+            else:
+                null_result = workload.get("output", {}).get("null_output_result", -2)
+                if type(null_result) is not int:
+                    raise ValueError("null_output_result must be an integer for null-output fixtures")
+                expected_result, expected = null_result, b""
+        elif output_capacity < len(required_output):
             expected_result = case.get("capacity_error_result", -2)
             expected = b""
         else:
@@ -527,6 +552,7 @@ def main() -> int:
             raise ValueError(f"workload oracle mismatch for {case['id']}")
         encoded = expected.hex() if expected else "-"
         command = [str(executable), str(value), str(expected_result), encoded, str(output_capacity),
+                   str(int(output_is_null)),
                    str(samples), str(warmups), str(repetitions)]
         completed = subprocess.run(command, capture_output=True, text=True, check=False)
         if completed.returncode:
@@ -541,6 +567,7 @@ def main() -> int:
                         "workload": {"id": workload["id"], "spec_sha256": sha256_file(workload_path),
                                      "input_length": None, "input_value": value,
                                      "case": case["id"], "target": None, "output_capacity": output_capacity,
+                                     "output_is_null": output_is_null,
                                      "expected_result": expected_result},
                         "measurement": {"timer": "C clock() process CPU time",
                                         "timer_resolution_ns": raw["timer_resolution_ns"],

@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "piecewise-without-inbuilt-matlab-octave-float64-slice-io-v1",
+  "algorithm": "piecewise_without_inbuilt",
+  "function_symbol": "piecewise_without_inbuilt",
+  "pinned_source": {
+    "repository": "TheAlgorithms/MATLAB-Octave",
+    "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+    "path": "algorithms/machine_learning/Activation Functions/Piecewise(without inbuilt).m",
+    "symbol": "y",
+    "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/Activation%20Functions/Piecewise%28without%20inbuilt%29.m",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "evaluate the pinned scalar anonymous piecewise function y",
+    "branches": [
+      "0 when x <= -0.5",
+      "x when -0.5 < x < 0.5",
+      "1 when x >= 0.5"
+    ],
+    "threshold_equality": "The lower equality selects 0; the upper equality selects 1.",
+    "plotting": "fplot, axis labels, and grid setup are excluded."
+  },
+  "workspace": {
+    "elements": 1,
+    "meaning": "The single piecewise function result."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[x] in the source physical units",
+    "valid_length_range": [
+      1,
+      1
+    ],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 64,
+    "x_range": [
+      -10.0,
+      10.0
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[y]",
+    "maximum_elements": 1,
+    "success_result": "number of output float64 elements (1)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "lower_domain_boundary",
+      "input_values": [
+        -10.0
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "below_lower_threshold",
+      "input_values": [
+        -0.500001
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "at_lower_threshold",
+      "input_values": [
+        -0.5
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "above_lower_threshold",
+      "input_values": [
+        -0.499999
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        -0.499999
+      ]
+    },
+    {
+      "id": "negative_middle",
+      "input_values": [
+        -0.125
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        -0.125
+      ]
+    },
+    {
+      "id": "zero",
+      "input_values": [
+        0.0
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "positive_middle",
+      "input_values": [
+        0.125
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        0.125
+      ]
+    },
+    {
+      "id": "below_upper_threshold",
+      "input_values": [
+        0.499999
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        0.499999
+      ]
+    },
+    {
+      "id": "at_upper_threshold",
+      "input_values": [
+        0.5
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "above_upper_threshold",
+      "input_values": [
+        0.500001
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "upper_domain_boundary",
+      "input_values": [
+        10.0
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "below_domain",
+      "input_values": [
+        -10.000001
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "above_domain",
+      "input_values": [
+        10.000001
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_input",
+      "input_values": [
+        0.123456789
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        0.123456789
+      ]
+    },
+    {
+      "id": "negative_fractional_input",
+      "input_values": [
+        -0.234567891
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output": [
+        -0.234567891
+      ]
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        0.0,
+        0.0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

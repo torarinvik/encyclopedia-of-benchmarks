@@ -1,0 +1,54 @@
+const MIN_TARGET: i64 = -4096
+const MAX_TARGET: i64 = 4096
+const MAX_DENOMINATIONS: usize = 32
+const MAX_INPUT_VALUES: usize = 34
+const MAX_OUTPUT_BYTES: usize = 16388
+
+def minimum_coin_change_greedy_write_i32(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u32 = value.u32()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+export fn minimum_coin_change_greedy(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    target: i64 = input[0]
+    count_value: i64 = input[1]
+    if target < MIN_TARGET or target > MAX_TARGET or count_value < 0 or count_value > 32: return -1
+    denomination_count: usize = count_value.usize()
+    if length != 2 + denomination_count: return -1
+
+    denominations: mutable i64[32] = zeroed
+    previous: mutable i64 = 0
+    index: mutable usize = 0
+    while index < denomination_count:
+        denomination: i64 = input[2 + index]
+        if denomination < 1 or denomination > 4096 or denomination <= previous: return -1
+        denominations[index] <- denomination
+        previous <- denomination
+        index <- index + 1
+
+    chosen: mutable i64[4096] = zeroed
+    chosen_count: mutable usize = 0
+    if target > 0:
+        remaining: mutable i64 = target
+        index <- denomination_count
+        while index > 0:
+            index <- index - 1
+            denomination: i64 = denominations[index]
+            while remaining >= denomination:
+                remaining <- remaining - denomination
+                chosen[chosen_count] <- denomination
+                chosen_count <- chosen_count + 1
+
+    needed: usize = (1 + chosen_count) * 4
+    if output.is_null() or capacity < needed: return -2
+    minimum_coin_change_greedy_write_i32(output[0], 0, chosen_count.i64())
+    index <- 0
+    while index < chosen_count:
+        minimum_coin_change_greedy_write_i32(output[0], 4 + 4 * index, chosen[index])
+        index <- index + 1
+    needed.i64()

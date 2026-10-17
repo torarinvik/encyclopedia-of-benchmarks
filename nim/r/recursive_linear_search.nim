@@ -1,16 +1,21 @@
-## Backward recursive linear search over a bounded integer array.
-proc searchFromEnd(values: ptr UncheckedArray[int64], offset, count: csize_t,
-                   target: int64): int64 =
-  if count == 0: return -1
-  if values[offset + count - 1] == target: return int64(count - 1)
-  searchFromEnd(values, offset, count - 1, target)
+const MaxN = 64
 
-proc recursive_linear_search*(values: ptr UncheckedArray[int64], length: csize_t): int64
+proc searchRecursive(items: array[MaxN, int32], left, right: int, target: int32): int =
+  if left > right: return -1
+  if items[left] == target: return left
+  if items[right] == target: return right
+  searchRecursive(items, left + 1, right - 1, target)
+
+proc recursive_linear_search*(input: ptr UncheckedArray[int64], length: csize_t): int64
     {.cdecl, exportc: "recursive_linear_search".} =
-  if values == nil or length < 2 or length > 67: return -1
-  let countValue = values[0]
-  let target = values[1]
-  if countValue < 1 or countValue > 64: return -1
-  let count = csize_t(countValue)
-  if length != count + 2: return -1
-  searchFromEnd(values, 2, count, target)
+  if input == nil or length < 4 or length > csize_t(MaxN + 2): return -1
+  if input[0] < 2 or input[0] > MaxN or length != csize_t(input[0] + 2): return -1
+  if input[1] < int64(low(int32)) or input[1] > int64(high(int32)): return -1
+  let n = int(input[0])
+  var items: array[MaxN, int32]
+  for i in 0 ..< n:
+    if input[i + 2] < int64(low(int32)) or input[i + 2] > int64(high(int32)): return -1
+    items[i] = int32(input[i + 2])
+    for j in 0 ..< i:
+      if items[j] == items[i]: return -1
+  int64(searchRecursive(items, 0, n - 1, int32(input[1])))

@@ -1,0 +1,119 @@
+const MAX_INITIAL_ITEMS: usize = 32
+const MAX_OPERATIONS: usize = 64
+const MAX_INPUT_LENGTH: usize = 162
+const MAX_STACK_SIZE: usize = 96
+const MAX_OUTPUT_BYTES: usize = 1024
+
+def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def list_based_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_initial_count: i64 = input[0]
+    if raw_initial_count < 0 or raw_initial_count > 32:
+        return -1
+    initial_count: usize = raw_initial_count.usize()
+    operation_count_index: usize = 1 + initial_count
+    if operation_count_index >= length:
+        return -1
+
+    initial_items: mutable i64[MAX_INITIAL_ITEMS] = zeroed
+    index: mutable usize = 0
+    while index < initial_count:
+        value: i64 = input[1 + index]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        initial_items[index] <- value
+        index <- index + 1
+
+    raw_operation_count: i64 = input[operation_count_index]
+    if raw_operation_count < 0 or raw_operation_count > 64:
+        return -1
+    operation_count: usize = raw_operation_count.usize()
+    opcodes: mutable i64[MAX_OPERATIONS] = zeroed
+    arguments: mutable i64[MAX_OPERATIONS] = zeroed
+    cursor: mutable usize = operation_count_index + 1
+    validated_size: mutable usize = initial_count
+    index <- 0
+    while index < operation_count:
+        if cursor >= length:
+            return -1
+        opcode: i64 = input[cursor]
+        cursor <- cursor + 1
+        opcodes[index] <- opcode
+        if opcode == 1 or opcode == 5:
+            if cursor >= length:
+                return -1
+            value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if value < -2147483648 or value > 2147483647:
+                return -1
+            arguments[index] <- value
+            if opcode == 1:
+                validated_size <- validated_size + 1
+        elif opcode == 2 or opcode == 3:
+            if validated_size == 0:
+                return -1
+            if opcode == 2:
+                validated_size <- validated_size - 1
+        elif opcode == 4:
+            pass
+        elif opcode == 6:
+            validated_size <- 0
+        else:
+            return -1
+        index <- index + 1
+    if cursor != length:
+        return -1
+
+    stack: mutable i64[MAX_STACK_SIZE] = zeroed
+    stack_size: mutable usize = initial_count
+    index <- 0
+    while index < initial_count:
+        stack[index] <- initial_items[index]
+        index <- index + 1
+    buffer: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    written: mutable usize = 0
+    index <- 0
+    while index < operation_count:
+        opcode: i64 = opcodes[index]
+        result: mutable i64 = 0
+        if opcode == 1:
+            stack[stack_size] <- arguments[index]
+            stack_size <- stack_size + 1
+        elif opcode == 2:
+            stack_size <- stack_size - 1
+            result <- stack[stack_size]
+        elif opcode == 3:
+            result <- stack[stack_size - 1]
+        elif opcode == 4:
+            result <- stack_size.i64()
+        elif opcode == 5:
+            item: mutable usize = 0
+            while item < stack_size:
+                if stack[item] == arguments[index]:
+                    result <- 1
+                    break
+                item <- item + 1
+        else:
+            stack_size <- 0
+        put_i64_le(opcode, buffer, written)
+        put_i64_le(result, buffer, written + 8)
+        written <- written + 16
+        index <- index + 1
+
+    if output.is_null() or capacity < written:
+        return -2
+    index <- 0
+    while index < written:
+        output[index] <- buffer[index]
+        index <- index + 1
+    written.i64()
+
+export fn list_based_stack(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = list_based_stack_impl

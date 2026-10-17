@@ -26,12 +26,107 @@ from gauss_optimization_oracle import expected_result as gauss_optimization_orac
 from geo_location_oracle import expected_result as geo_location_oracle
 from gravitational_force_oracle import expected_result as gravitational_force_oracle
 from circular_orbit_velocity_oracle import expected_result as circular_orbit_velocity_oracle
+from momentum_oracle import expected_result as momentum_oracle
+from joint_probability_distribution_oracle import (
+    INVALID_RESULT as JOINT_PROBABILITY_DISTRIBUTION_INVALID_RESULT,
+    MAX_INPUT_LENGTH as MAX_JOINT_PROBABILITY_DISTRIBUTION_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as MAX_JOINT_PROBABILITY_DISTRIBUTION_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as MAX_JOINT_PROBABILITY_DISTRIBUTION_PARSEABLE_INPUT_LENGTH,
+    MAX_SUPPORT_LENGTH as MAX_JOINT_PROBABILITY_DISTRIBUTION_SUPPORT_LENGTH,
+    OUTPUT_ERROR as JOINT_PROBABILITY_DISTRIBUTION_OUTPUT_ERROR,
+    expected_output as joint_probability_distribution_oracle,
+)
+from shreedharacharya_oracle import INVALID_RESULT as SHREEDHARACHARYA_INVALID_RESULT
+from shreedharacharya_oracle import MAX_COEFFICIENT as SHREEDHARACHARYA_MAX_COEFFICIENT
+from shreedharacharya_oracle import MAX_INPUT_LENGTH as MAX_SHREEDHARACHARYA_INPUT_LENGTH
+from shreedharacharya_oracle import MAX_OUTPUT_ELEMENTS as MAX_SHREEDHARACHARYA_OUTPUT_ELEMENTS
+from shreedharacharya_oracle import MIN_ABS_LEADING_COEFFICIENT as SHREEDHARACHARYA_MIN_ABS_A
+from shreedharacharya_oracle import OUTPUT_ERROR as SHREEDHARACHARYA_OUTPUT_ERROR
+from shreedharacharya_oracle import expected_output as shreedharacharya_oracle
+from rotation_matrix_oracle import INVALID_RESULT as ROTATION_MATRIX_INVALID_RESULT
+from rotation_matrix_oracle import MAX_ANGLE as ROTATION_MATRIX_MAX_ANGLE
+from rotation_matrix_oracle import MAX_INPUT_LENGTH as ROTATION_MATRIX_MAX_INPUT_LENGTH
+from rotation_matrix_oracle import MAX_OUTPUT_ELEMENTS as ROTATION_MATRIX_MAX_OUTPUT_ELEMENTS
+from rotation_matrix_oracle import MAX_PARSEABLE_INPUT_LENGTH as ROTATION_MATRIX_MAX_PARSEABLE_INPUT_LENGTH
+from rotation_matrix_oracle import OUTPUT_ERROR as ROTATION_MATRIX_OUTPUT_ERROR
+from rotation_matrix_oracle import expected_output as rotation_matrix_oracle
+from simple_pendulum_rk4_oracle import INVALID_RESULT as SIMPLE_PENDULUM_RK4_INVALID_RESULT
+from simple_pendulum_rk4_oracle import INPUT_LENGTH as SIMPLE_PENDULUM_RK4_INPUT_LENGTH
+from simple_pendulum_rk4_oracle import MAX_PARSEABLE_INPUT_LENGTH as SIMPLE_PENDULUM_RK4_MAX_PARSEABLE_INPUT_LENGTH
+from simple_pendulum_rk4_oracle import OUTPUT_ERROR as SIMPLE_PENDULUM_RK4_OUTPUT_ERROR
+from simple_pendulum_rk4_oracle import MAX_OUTPUT_ELEMENTS as SIMPLE_PENDULUM_RK4_MAX_OUTPUT_ELEMENTS
+from simple_pendulum_rk4_oracle import SCALE as SIMPLE_PENDULUM_RK4_SCALE
+from simple_pendulum_rk4_oracle import expected_result as simple_pendulum_rk4_oracle
+from piecewise_without_inbuilt_oracle import INPUT_LENGTH as PIECEWISE_WITHOUT_INBUILT_INPUT_LENGTH
+from piecewise_without_inbuilt_oracle import INVALID_RESULT as PIECEWISE_WITHOUT_INBUILT_INVALID_RESULT
+from piecewise_without_inbuilt_oracle import MAX_PARSEABLE_INPUT_LENGTH as PIECEWISE_WITHOUT_INBUILT_MAX_PARSEABLE_INPUT_LENGTH
+from piecewise_without_inbuilt_oracle import MAX_X as PIECEWISE_WITHOUT_INBUILT_MAX_X
+from piecewise_without_inbuilt_oracle import MIN_X as PIECEWISE_WITHOUT_INBUILT_MIN_X
+from piecewise_without_inbuilt_oracle import OUTPUT_ERROR as PIECEWISE_WITHOUT_INBUILT_OUTPUT_ERROR
+from piecewise_without_inbuilt_oracle import MAX_OUTPUT_ELEMENTS as PIECEWISE_WITHOUT_INBUILT_MAX_OUTPUT_ELEMENTS
+from piecewise_without_inbuilt_oracle import expected_result as piecewise_without_inbuilt_oracle
+from pid_oracle import MAX_ERROR_COUNT as PID_MAX_ERROR_COUNT
+from pid_oracle import MAX_INPUT_LENGTH as MAX_PID_INPUT_LENGTH
+from pid_oracle import MIN_ERROR_COUNT as PID_MIN_ERROR_COUNT
+from pid_oracle import expected_output as pid_oracle
 from projectile_motion_oracle import expected_result as projectile_motion_oracle
 from radar_target_calculation_oracle import expected_result as radar_target_calculation_oracle
 from rayleigh_quotient_oracle import expected_result as rayleigh_quotient_oracle
 from softmax_oracle import expected_result as softmax_oracle
 from trig_functions_oracle import expected_result as trig_functions_oracle
 from verlet_oracle import expected_result as verlet_oracle
+from koch_snowflake_oracle import MAX_COORDINATE as KOCH_SNOWFLAKE_MAX_COORDINATE
+from koch_snowflake_oracle import MAX_OUTPUT_ELEMENTS as KOCH_SNOWFLAKE_MAX_OUTPUT_ELEMENTS
+from koch_snowflake_oracle import MAX_PARSEABLE_INPUT_LENGTH as KOCH_SNOWFLAKE_MAX_PARSEABLE_INPUT_LENGTH
+from koch_snowflake_oracle import MAX_POINT_COUNT as KOCH_SNOWFLAKE_MAX_POINT_COUNT
+from koch_snowflake_oracle import MAX_STEPS as KOCH_SNOWFLAKE_MAX_STEPS
+from koch_snowflake_oracle import MAX_VALID_INPUT_LENGTH as KOCH_SNOWFLAKE_MAX_VALID_INPUT_LENGTH
+from koch_snowflake_oracle import MIN_POINT_COUNT as KOCH_SNOWFLAKE_MIN_POINT_COUNT
+from koch_snowflake_oracle import MIN_STEPS as KOCH_SNOWFLAKE_MIN_STEPS
+from koch_snowflake_oracle import expected_result as koch_snowflake_oracle
+from k_d_tree_oracle import INVALID_RESULT as K_D_TREE_INVALID_RESULT
+from k_d_tree_oracle import MAX_COORDINATE as K_D_TREE_MAX_COORDINATE
+from k_d_tree_oracle import MAX_DIMENSION as K_D_TREE_MAX_DIMENSION
+from k_d_tree_oracle import MAX_INPUT_LENGTH as K_D_TREE_MAX_INPUT_LENGTH
+from k_d_tree_oracle import MAX_OUTPUT_ELEMENTS as K_D_TREE_MAX_OUTPUT_ELEMENTS
+from k_d_tree_oracle import MAX_POINT_COUNT as K_D_TREE_MAX_POINT_COUNT
+from k_d_tree_oracle import MAX_VALID_INPUT_LENGTH as K_D_TREE_MAX_VALID_INPUT_LENGTH
+from k_d_tree_oracle import MIN_COORDINATE as K_D_TREE_MIN_COORDINATE
+from k_d_tree_oracle import MIN_DIMENSION as K_D_TREE_MIN_DIMENSION
+from k_d_tree_oracle import MIN_POINT_COUNT as K_D_TREE_MIN_POINT_COUNT
+from k_d_tree_oracle import OUTPUT_ERROR as K_D_TREE_OUTPUT_ERROR
+from k_d_tree_oracle import expected_output as k_d_tree_oracle
+from linear_regression_vectorized_oracle import ABSOLUTE_TOLERANCE as LINEAR_REGRESSION_ABSOLUTE_TOLERANCE
+from linear_regression_vectorized_oracle import MAX_ALPHA as LINEAR_REGRESSION_MAX_ALPHA
+from linear_regression_vectorized_oracle import MAX_FEATURE_COUNT as LINEAR_REGRESSION_MAX_FEATURE_COUNT
+from linear_regression_vectorized_oracle import MAX_FEATURE_OR_LABEL as LINEAR_REGRESSION_MAX_FEATURE_OR_LABEL
+from linear_regression_vectorized_oracle import MAX_INPUT_LENGTH as LINEAR_REGRESSION_MAX_INPUT_LENGTH
+from linear_regression_vectorized_oracle import MAX_ITERATIONS as LINEAR_REGRESSION_MAX_ITERATIONS
+from linear_regression_vectorized_oracle import MAX_OUTPUT_ELEMENTS as LINEAR_REGRESSION_MAX_OUTPUT_ELEMENTS
+from linear_regression_vectorized_oracle import MAX_SAMPLE_COUNT as LINEAR_REGRESSION_MAX_SAMPLE_COUNT
+from linear_regression_vectorized_oracle import MIN_ALPHA as LINEAR_REGRESSION_MIN_ALPHA
+from linear_regression_vectorized_oracle import MIN_FEATURE_COUNT as LINEAR_REGRESSION_MIN_FEATURE_COUNT
+from linear_regression_vectorized_oracle import MIN_FEATURE_OR_LABEL as LINEAR_REGRESSION_MIN_FEATURE_OR_LABEL
+from linear_regression_vectorized_oracle import MIN_ITERATIONS as LINEAR_REGRESSION_MIN_ITERATIONS
+from linear_regression_vectorized_oracle import MIN_SAMPLE_COUNT as LINEAR_REGRESSION_MIN_SAMPLE_COUNT
+from linear_regression_vectorized_oracle import MAX_PARSEABLE_INPUT_LENGTH as LINEAR_REGRESSION_MAX_PARSEABLE_INPUT_LENGTH
+from linear_regression_vectorized_oracle import RELATIVE_TOLERANCE as LINEAR_REGRESSION_RELATIVE_TOLERANCE
+from linear_regression_vectorized_oracle import expected_result as linear_regression_vectorized_oracle
+from perlin_noise_oracle import (
+    INVALID_RESULT as PERLIN_NOISE_INVALID_RESULT,
+    MAX_DIMENSION as PERLIN_NOISE_MAX_DIMENSION,
+    MAX_INPUT_ELEMENTS as PERLIN_NOISE_MAX_INPUT_ELEMENTS,
+    MAX_OCTAVES as PERLIN_NOISE_MAX_OCTAVES,
+    MAX_OUTPUT_ELEMENTS as PERLIN_NOISE_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_ELEMENTS as PERLIN_NOISE_MAX_PARSEABLE_INPUT_ELEMENTS,
+    MAX_SEED as PERLIN_NOISE_MAX_SEED,
+    MIN_DIMENSION as PERLIN_NOISE_MIN_DIMENSION,
+    MIN_OCTAVES as PERLIN_NOISE_MIN_OCTAVES,
+    MIN_SEED as PERLIN_NOISE_MIN_SEED,
+    OUTPUT_ERROR as PERLIN_NOISE_OUTPUT_ERROR,
+    PERSISTENCE_VALUES as PERLIN_NOISE_PERSISTENCE_VALUES,
+    expected_result as perlin_noise_oracle,
+)
 
 ORACLES = {
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
@@ -46,14 +141,786 @@ ORACLES = {
     "geo_location": geo_location_oracle,
     "gravitational_force": gravitational_force_oracle,
     "circular_orbit_velocity": circular_orbit_velocity_oracle,
+    "momentum": momentum_oracle,
+    "joint_probability_distribution": joint_probability_distribution_oracle,
+    "shreedharacharya": shreedharacharya_oracle,
+    "rotation_matrix": rotation_matrix_oracle,
+    "simple_pendulum_rk4": simple_pendulum_rk4_oracle,
+    "piecewise_without_inbuilt": piecewise_without_inbuilt_oracle,
+    "pid": pid_oracle,
     "projectile_motion": projectile_motion_oracle,
     "radar_target_calculation": radar_target_calculation_oracle,
     "rayleigh_quotient": rayleigh_quotient_oracle,
     "softmax": softmax_oracle,
     "trig_functions": trig_functions_oracle,
     "verlet": verlet_oracle,
+    "koch_snowflake": koch_snowflake_oracle,
+    "k_d_tree": k_d_tree_oracle,
+    "linear_regression_vectorized": linear_regression_vectorized_oracle,
+    "perlin_noise": perlin_noise_oracle,
 }
 MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH = 1 + 16 * 16 + 16
+
+LINEAR_REGRESSION_CASE_IDS = frozenset({
+    "two_samples_exact_linear_relation", "minimum_learning_rate_and_iterations",
+    "maximum_learning_rate_and_iterations", "three_features_with_mixed_signs",
+    "four_features_two_samples", "eight_samples_four_features", "zero_targets_keep_zero_theta",
+    "zero_nonintercept_feature_column", "intercept_only_signal_with_feature_noise",
+    "boundary_feature_and_label_values", "collinear_feature_columns",
+    "small_step_for_many_iterations", "large_step_for_minimum_iteration_count",
+    "maximum_sample_count_two_features", "maximum_feature_count_and_sample_count",
+    "fractional_sample_count", "sample_count_below_bound", "sample_count_above_bound",
+    "fractional_feature_count", "feature_count_below_bound", "feature_count_above_bound",
+    "fractional_iteration_count", "iteration_count_below_bound", "iteration_count_above_bound",
+    "learning_rate_below_bound", "learning_rate_above_bound", "intercept_column_not_one",
+    "feature_value_above_bound", "feature_value_below_bound", "label_above_bound",
+    "label_below_bound", "truncated_feature_matrix", "truncated_label_vector",
+    "trailing_input_value", "maximum_parseable_length_invalid",
+})
+
+
+ROTATION_MATRIX_CASE_IDS = {
+    "zero_angle_identity", "positive_quarter_turn", "negative_quarter_turn", "half_turn",
+    "full_turn", "positive_eighth_turn", "negative_eighth_turn", "positive_one_third_turn",
+    "negative_one_third_turn", "fractional_radian", "negative_fractional_radian",
+    "large_positive_angle", "large_negative_angle", "upper_angle_boundary",
+    "lower_angle_boundary", "angle_above_boundary", "angle_below_boundary", "extra_input_value",
+}
+
+
+def validate_rotation_matrix_workload(workload: dict) -> None:
+    """Pin the Julia rotation matrix package and its bounded float64 slice ABI."""
+    source = {
+        "repository": "TheAlgorithms/Julia",
+        "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+        "path": "src/matrix/rotation_matrix.jl",
+        "symbol": "rotation_matrix",
+        "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/matrix/rotation_matrix.jl",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "construct the 2D counterclockwise rotation matrix from an angle in radians",
+        "formula": "[cos(theta), -sin(theta), sin(theta), cos(theta)]",
+        "output_order": "row-major",
+        "angle_normalization": "none",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[theta] in radians",
+        "valid_length_range": [1, 1],
+        "maximum_valid_length": ROTATION_MATRIX_MAX_INPUT_LENGTH,
+        "maximum_parseable_length": ROTATION_MATRIX_MAX_PARSEABLE_INPUT_LENGTH,
+        "angle_range": [-ROTATION_MATRIX_MAX_ANGLE, ROTATION_MATRIX_MAX_ANGLE],
+        "invalid_input_result": ROTATION_MATRIX_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "row-major [cos(theta),-sin(theta),sin(theta),cos(theta)]",
+        "maximum_elements": ROTATION_MATRIX_MAX_OUTPUT_ELEMENTS,
+        "success_result": "number of output float64 elements (4)",
+        "invalid_input_result": ROTATION_MATRIX_INVALID_RESULT,
+        "invalid_output_buffer_result": ROTATION_MATRIX_OUTPUT_ERROR,
+        "null_output_result": ROTATION_MATRIX_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    workspace = {
+        "elements": ROTATION_MATRIX_MAX_OUTPUT_ELEMENTS,
+        "meaning": "Four row-major elements of the 2x2 matrix.",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    cases = workload.get("cases")
+    cases = cases if isinstance(cases, list) else []
+    ids = [case.get("id") for case in cases if isinstance(case, dict)]
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "rotation-matrix-julia-f64-slice-io-v1"
+            or workload.get("algorithm") != "rotation_matrix"
+            or workload.get("function_symbol") != "rotation_matrix"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or ROTATION_MATRIX_MAX_INPUT_LENGTH != 1
+            or ROTATION_MATRIX_MAX_PARSEABLE_INPUT_LENGTH != 64
+            or ROTATION_MATRIX_MAX_ANGLE != 1000.0
+            or ROTATION_MATRIX_MAX_OUTPUT_ELEMENTS != 4
+            or len(ids) != len(ROTATION_MATRIX_CASE_IDS)
+            or len(ids) != len(set(ids))
+            or set(ids) != ROTATION_MATRIX_CASE_IDS):
+        raise ValueError("rotation_matrix workload metadata does not match its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "rotation_matrix" / "README.md").read_text(
+        encoding="utf-8")
+    if source["url"] not in readme:
+        raise ValueError("rotation_matrix README is missing its pinned source link")
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or case.get("input_length") != len(values)
+                or not values
+                or len(values) > ROTATION_MATRIX_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in values)):
+            raise ValueError(f"rotation_matrix input framing is invalid for {case.get('id')}")
+        expected_result, expected_output = rotation_matrix_oracle(values)
+        raw_output = case.get("expected_output")
+        if (case.get("expected_result") != expected_result
+                or not isinstance(raw_output, list)
+                or len(raw_output) != len(expected_output)
+                or any(type(actual) not in (int, float)
+                       or not math.isfinite(float(actual))
+                       or abs(float(actual) - expected)
+                       > 1e-12 + 1e-12 * abs(expected)
+                       for actual, expected in zip(raw_output, expected_output))):
+            raise ValueError(f"rotation_matrix workload mismatch: {case.get('id')}")
+
+
+KOCH_SNOWFLAKE_CASE_IDS = {
+    "zero_steps_preserves_order", "pinned_single_segment_one_step", "two_segments_one_step",
+    "negative_diagonal_segment", "reversed_segment_orientation", "repeated_adjacent_point",
+    "translated_fractional_points", "maximum_point_count", "maximum_output_length",
+    "count_below_minimum", "count_above_maximum", "negative_steps", "steps_above_maximum",
+    "short_input", "extra_coordinate", "coordinate_out_of_range",
+}
+
+
+def validate_koch_snowflake_workload(workload: dict) -> None:
+    """Pin the bounded, binary32-faithful Koch point iteration workload."""
+    sources = [
+        {
+            "repository": "TheAlgorithms/C-Sharp",
+            "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+            "path": "Algorithms/Other/KochSnowflake.cs",
+            "symbol": "KochSnowflake.Iterate",
+            "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/KochSnowflake.cs",
+        },
+        {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/others/KochSnowflake.java",
+            "symbol": "KochSnowflake.iterate",
+            "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/KochSnowflake.java",
+        },
+        {
+            "repository": "TheAlgorithms/JavaScript",
+            "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+            "path": "Recursive/KochSnowflake.js",
+            "symbol": "iterate",
+            "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Recursive/KochSnowflake.js",
+        },
+        {
+            "repository": "TheAlgorithms/Python",
+            "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+            "path": "fractals/koch_snowflake.py",
+            "symbol": "iterate",
+            "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/fractals/koch_snowflake.py",
+        },
+    ]
+    input_spec = {
+        "kind": "finite_float64_array",
+        "layout": "[steps, point_count, x0, y0, ..., x(n-1), y(n-1)]",
+        "length_formula": "2+2*point_count",
+        "point_count_range": [KOCH_SNOWFLAKE_MIN_POINT_COUNT, KOCH_SNOWFLAKE_MAX_POINT_COUNT],
+        "steps_range": [KOCH_SNOWFLAKE_MIN_STEPS, KOCH_SNOWFLAKE_MAX_STEPS],
+        "coordinate_range": [-KOCH_SNOWFLAKE_MAX_COORDINATE, KOCH_SNOWFLAKE_MAX_COORDINATE],
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "float64_array_of_widened_binary32_coordinates",
+        "layout": "[x0, y0, x1, y1, ...] in preserved source order",
+        "coordinate_count_formula": "2*((point_count-1)*4^steps+1)",
+        "null_output_result": -2,
+        "insufficient_output_capacity_result": -2,
+        "no_write_on_error": True,
+        "success_result": "number of returned binary64 coordinates",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-6,
+        "relative_tolerance": 1e-7,
+    }
+    cases = workload.get("cases")
+    case_list = cases if isinstance(cases, list) else []
+    ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "koch-snowflake-f32-point-array-v1"
+            or workload.get("algorithm") != "koch_snowflake"
+            or workload.get("function_symbol") != "koch_snowflake"
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "elements": KOCH_SNOWFLAKE_MAX_OUTPUT_ELEMENTS,
+                "meaning": "Maximum 29 output points, each with two widened binary32 coordinates.",
+            }
+            or workload.get("measurement") != measurement
+            or KOCH_SNOWFLAKE_MIN_POINT_COUNT != 2
+            or KOCH_SNOWFLAKE_MAX_POINT_COUNT != 8
+            or KOCH_SNOWFLAKE_MIN_STEPS != 0
+            or KOCH_SNOWFLAKE_MAX_STEPS != 1
+            or KOCH_SNOWFLAKE_MAX_VALID_INPUT_LENGTH != 18
+            or KOCH_SNOWFLAKE_MAX_PARSEABLE_INPUT_LENGTH != 20
+            or KOCH_SNOWFLAKE_MAX_OUTPUT_ELEMENTS != 58
+            or len(ids) != len(KOCH_SNOWFLAKE_CASE_IDS)
+            or len(ids) != len(set(ids))
+            or set(ids) != KOCH_SNOWFLAKE_CASE_IDS):
+        raise ValueError("koch_snowflake workload metadata does not match its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "k" / "koch_snowflake" / "README.md").read_text(
+        encoding="utf-8")
+    if any(source["url"] not in readme for source in sources):
+        raise ValueError("koch_snowflake README is missing a pinned source link")
+    for case in case_list:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or case.get("input_length") != len(values)
+                or not 2 <= len(values) <= KOCH_SNOWFLAKE_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in values)):
+            raise ValueError(f"koch_snowflake input framing is invalid for {case.get('id')}")
+        expected_output = koch_snowflake_oracle(values)
+        expected_result = -1 if expected_output is None else len(expected_output)
+        actual_output = case.get("expected_output")
+        if (type(case.get("expected_result")) is not int
+                or case.get("expected_result") != expected_result
+                or not isinstance(actual_output, list)
+                or len(actual_output) != (0 if expected_output is None else len(expected_output))
+                or any(type(actual) not in (int, float)
+                       or not math.isfinite(float(actual))
+                       or abs(float(actual) - expected)
+                       > measurement["absolute_tolerance"]
+                           + measurement["relative_tolerance"] * abs(expected)
+                       for actual, expected in zip(actual_output, expected_output or []))):
+            raise ValueError(f"koch_snowflake workload mismatch: {case.get('id')}")
+
+
+SIMPLE_PENDULUM_RK4_CASE_IDS = {
+    "equilibrium", "small_angle_from_rest", "moderate_angle_and_velocity",
+    "negative_angle_and_velocity", "all_lower_physical_bounds", "all_upper_physical_bounds",
+    "length_minimum", "length_maximum", "gravity_minimum", "gravity_maximum",
+    "theta_minimum", "theta_maximum", "omega_minimum", "omega_maximum",
+    "dt_minimum", "dt_maximum", "length_below_minimum", "length_above_maximum",
+    "gravity_below_minimum", "gravity_above_maximum", "theta_below_minimum",
+    "theta_above_maximum", "omega_below_minimum", "omega_above_maximum",
+    "dt_below_minimum", "dt_above_maximum", "fractional_micro_unit",
+    "short_input", "extra_input",
+}
+
+
+def validate_simple_pendulum_rk4_workload(workload: dict) -> None:
+    """Pin the one-step Java RK4 package and its finite float64 slice ABI."""
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/physics/SimplePendulumRK4.java",
+        "symbol": "SimplePendulumRK4.stepRK4",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/physics/SimplePendulumRK4.java",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "advance the simple-pendulum state [theta, omega] by exactly one classical RK4 step",
+        "equations": [
+            "theta' = omega",
+            "omega' = -(gravity / length) * sin(theta)",
+        ],
+        "stage_order": "k1 at state; k2 and k3 at half steps; k4 at the full step; weighted sum k1+2*k2+2*k3+k4",
+        "output_order": "[theta_next, omega_next] in physical radians and radians per second",
+        "excluded_source_helpers": ["simulate", "energy"],
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[length_micro_units, gravity_micro_units, theta_micro_units, omega_micro_units, dt_micro_units]",
+        "valid_length_range": [SIMPLE_PENDULUM_RK4_INPUT_LENGTH, SIMPLE_PENDULUM_RK4_INPUT_LENGTH],
+        "maximum_valid_length": SIMPLE_PENDULUM_RK4_INPUT_LENGTH,
+        "maximum_parseable_length": SIMPLE_PENDULUM_RK4_MAX_PARSEABLE_INPUT_LENGTH,
+        "scale": 1_000_000,
+        "scaled_values_must_be_integer_valued": True,
+        "physical_ranges": {
+            "length_m": [0.01, 100.0],
+            "gravity_m_per_s2": [0.1, 20.0],
+            "theta_rad": [-3.141593, 3.141593],
+            "omega_rad_per_s": [-100.0, 100.0],
+            "dt_s": [1e-6, 0.1],
+        },
+        "invalid_input_result": SIMPLE_PENDULUM_RK4_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "[theta_next_rad, omega_next_rad_per_s]",
+        "maximum_elements": SIMPLE_PENDULUM_RK4_MAX_OUTPUT_ELEMENTS,
+        "success_result": "number of output float64 elements (2)",
+        "invalid_input_result": SIMPLE_PENDULUM_RK4_INVALID_RESULT,
+        "invalid_output_buffer_result": SIMPLE_PENDULUM_RK4_OUTPUT_ERROR,
+        "null_output_result": SIMPLE_PENDULUM_RK4_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    workspace = {
+        "elements": SIMPLE_PENDULUM_RK4_MAX_OUTPUT_ELEMENTS,
+        "meaning": "The updated [theta, omega] state.",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 2000,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    cases = workload.get("cases")
+    cases = cases if isinstance(cases, list) else []
+    ids = [case.get("id") for case in cases if isinstance(case, dict)]
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "simple-pendulum-rk4-java-float64-slice-io-v1"
+            or workload.get("algorithm") != "simple_pendulum_rk4"
+            or workload.get("function_symbol") != "simple_pendulum_rk4"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or SIMPLE_PENDULUM_RK4_INPUT_LENGTH != 5
+            or SIMPLE_PENDULUM_RK4_MAX_PARSEABLE_INPUT_LENGTH != 64
+            or SIMPLE_PENDULUM_RK4_SCALE != 1_000_000.0
+            or SIMPLE_PENDULUM_RK4_MAX_OUTPUT_ELEMENTS != 2
+            or len(ids) != len(SIMPLE_PENDULUM_RK4_CASE_IDS)
+            or len(ids) != len(set(ids))
+            or set(ids) != SIMPLE_PENDULUM_RK4_CASE_IDS):
+        raise ValueError("simple_pendulum_rk4 workload metadata does not match its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "simple_pendulum_rk4" / "README.md").read_text(
+        encoding="utf-8")
+    if source["url"] not in readme:
+        raise ValueError("simple_pendulum_rk4 README is missing its pinned source link")
+    absolute_tolerance = output_spec["absolute_tolerance"]
+    relative_tolerance = output_spec["relative_tolerance"]
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or case.get("input_length") != len(values)
+                or not values
+                or len(values) > SIMPLE_PENDULUM_RK4_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       or not float(value).is_integer() for value in values)):
+            raise ValueError(f"simple_pendulum_rk4 input framing is invalid for {case.get('id')}")
+        expected_output = simple_pendulum_rk4_oracle(values)
+        expected_result = -1 if expected_output is None else len(expected_output)
+        raw_output = case.get("expected_output")
+        if (case.get("expected_result") != expected_result
+                or not isinstance(raw_output, list)
+                or len(raw_output) != (0 if expected_output is None else len(expected_output))):
+            raise ValueError(f"simple_pendulum_rk4 workload shape mismatch: {case.get('id')}")
+        if expected_output is not None and any(
+                type(actual) not in (int, float)
+                or not math.isfinite(float(actual))
+                or abs(float(actual) - expected)
+                > absolute_tolerance + relative_tolerance * abs(expected)
+                for actual, expected in zip(raw_output, expected_output)):
+            raise ValueError(f"simple_pendulum_rk4 workload mismatch: {case.get('id')}")
+        if expected_output is None and raw_output:
+            raise ValueError(f"simple_pendulum_rk4 invalid case has output: {case.get('id')}")
+
+
+PIECEWISE_WITHOUT_INBUILT_CASE_IDS = {
+    "lower_domain_boundary", "below_lower_threshold", "at_lower_threshold",
+    "above_lower_threshold", "negative_middle", "zero", "positive_middle",
+    "below_upper_threshold", "at_upper_threshold", "above_upper_threshold",
+    "upper_domain_boundary", "below_domain", "above_domain", "fractional_input",
+    "negative_fractional_input", "extra_input_value",
+}
+
+
+def validate_piecewise_without_inbuilt_workload(workload: dict) -> None:
+    """Pin the MATLAB/Octave scalar piecewise function and finite slice contract."""
+    source = {
+        "repository": "TheAlgorithms/MATLAB-Octave",
+        "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+        "path": "algorithms/machine_learning/Activation Functions/Piecewise(without inbuilt).m",
+        "symbol": "y",
+        "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/Activation%20Functions/Piecewise%28without%20inbuilt%29.m",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "evaluate the pinned scalar anonymous piecewise function y",
+        "branches": [
+            "0 when x <= -0.5",
+            "x when -0.5 < x < 0.5",
+            "1 when x >= 0.5",
+        ],
+        "threshold_equality": "The lower equality selects 0; the upper equality selects 1.",
+        "plotting": "fplot, axis labels, and grid setup are excluded.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[x] in the source physical units",
+        "valid_length_range": [PIECEWISE_WITHOUT_INBUILT_INPUT_LENGTH,
+                               PIECEWISE_WITHOUT_INBUILT_INPUT_LENGTH],
+        "maximum_valid_length": PIECEWISE_WITHOUT_INBUILT_INPUT_LENGTH,
+        "maximum_parseable_length": PIECEWISE_WITHOUT_INBUILT_MAX_PARSEABLE_INPUT_LENGTH,
+        "x_range": [PIECEWISE_WITHOUT_INBUILT_MIN_X, PIECEWISE_WITHOUT_INBUILT_MAX_X],
+        "invalid_input_result": PIECEWISE_WITHOUT_INBUILT_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "[y]",
+        "maximum_elements": PIECEWISE_WITHOUT_INBUILT_MAX_OUTPUT_ELEMENTS,
+        "success_result": "number of output float64 elements (1)",
+        "invalid_input_result": PIECEWISE_WITHOUT_INBUILT_INVALID_RESULT,
+        "invalid_output_buffer_result": PIECEWISE_WITHOUT_INBUILT_OUTPUT_ERROR,
+        "null_output_result": PIECEWISE_WITHOUT_INBUILT_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    workspace = {
+        "elements": PIECEWISE_WITHOUT_INBUILT_MAX_OUTPUT_ELEMENTS,
+        "meaning": "The single piecewise function result.",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    cases = workload.get("cases")
+    case_list = cases if isinstance(cases, list) else []
+    ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "piecewise-without-inbuilt-matlab-octave-float64-slice-io-v1"
+            or workload.get("algorithm") != "piecewise_without_inbuilt"
+            or workload.get("function_symbol") != "piecewise_without_inbuilt"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or PIECEWISE_WITHOUT_INBUILT_INPUT_LENGTH != 1
+            or PIECEWISE_WITHOUT_INBUILT_MAX_PARSEABLE_INPUT_LENGTH != 64
+            or PIECEWISE_WITHOUT_INBUILT_MIN_X != -10.0
+            or PIECEWISE_WITHOUT_INBUILT_MAX_X != 10.0
+            or PIECEWISE_WITHOUT_INBUILT_MAX_OUTPUT_ELEMENTS != 1
+            or len(ids) != len(PIECEWISE_WITHOUT_INBUILT_CASE_IDS)
+            or len(ids) != len(set(ids))
+            or set(ids) != PIECEWISE_WITHOUT_INBUILT_CASE_IDS):
+        raise ValueError("piecewise_without_inbuilt workload metadata does not match its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "piecewise_without_inbuilt" / "README.md").read_text(
+        encoding="utf-8")
+    if source["url"] not in readme:
+        raise ValueError("piecewise_without_inbuilt README is missing its pinned source link")
+    for case in case_list:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or case.get("input_length") != len(values)
+                or not 1 <= len(values) <= PIECEWISE_WITHOUT_INBUILT_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in values)):
+            raise ValueError(f"piecewise_without_inbuilt input framing is invalid for {case.get('id')}")
+        expected = piecewise_without_inbuilt_oracle(values)
+        expected_result = PIECEWISE_WITHOUT_INBUILT_INVALID_RESULT if expected is None else len(expected)
+        raw_output = case.get("expected_output")
+        if (type(case.get("expected_result")) is not int
+                or case.get("expected_result") != expected_result
+                or not isinstance(raw_output, list)
+                or len(raw_output) != (0 if expected is None else len(expected))):
+            raise ValueError(f"piecewise_without_inbuilt workload shape mismatch: {case.get('id')}")
+        if expected is not None and any(
+                type(actual) not in (int, float) or not math.isfinite(float(actual))
+                or float(actual) != wanted
+                for actual, wanted in zip(raw_output, expected)):
+            raise ValueError(f"piecewise_without_inbuilt workload mismatch: {case.get('id')}")
+        if expected is None and raw_output:
+            raise ValueError(f"piecewise_without_inbuilt invalid case has output: {case.get('id')}")
+
+
+JOINT_PROBABILITY_DISTRIBUTION_CASE_IDS = {
+    "pinned_cartesian_example", "single_pair_with_zero_support", "unnormalized_marginals",
+    "negative_probability_is_multiplied", "different_support_sizes", "support_boundaries",
+    "maximum_support_sizes", "probability_magnitude_boundaries", "short_input",
+    "zero_x_support_count", "zero_y_support_count", "count_above_limit", "fractional_count",
+    "missing_probability_value", "extra_packed_value", "noninteger_support",
+    "support_below_limit", "support_above_limit", "duplicate_x_support",
+    "duplicate_y_support", "probability_below_limit", "probability_above_limit",
+}
+
+
+def validate_joint_probability_distribution_workload(workload: dict) -> None:
+    """Pin the Python Cartesian-product package and its bounded float64 ABI."""
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "maths/joint_probability_distribution.py",
+        "symbol": "joint_probability_distribution",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/joint_probability_distribution.py",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "form the independent Cartesian product and multiply px*py",
+        "iteration_order": "x support outer loop, y support inner loop",
+        "normalization": "none; use probabilities as supplied",
+        "source_zip_and_dictionary_semantics": "The pinned Python uses zip and a dict comprehension; the bounded workload requires aligned arrays and unique supports, excluding truncation and duplicate tuple-key overwrites.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[nx, ny, x_values[nx], y_values[ny], x_probabilities[nx], y_probabilities[ny]]",
+        "support_count_range": [1, MAX_JOINT_PROBABILITY_DISTRIBUTION_SUPPORT_LENGTH],
+        "valid_length_range": [6, MAX_JOINT_PROBABILITY_DISTRIBUTION_INPUT_LENGTH],
+        "maximum_valid_length": MAX_JOINT_PROBABILITY_DISTRIBUTION_INPUT_LENGTH,
+        "maximum_parseable_length": MAX_JOINT_PROBABILITY_DISTRIBUTION_PARSEABLE_INPUT_LENGTH,
+        "support_range": [-1000, 1000],
+        "supports_must_be_unique": True,
+        "probability_range": [-1000000.0, 1000000.0],
+        "support_probability_arrays_aligned": True,
+        "invalid_input_result": JOINT_PROBABILITY_DISTRIBUTION_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "ordered triples [x, y, px*py] for each Cartesian-product entry",
+        "maximum_elements": MAX_JOINT_PROBABILITY_DISTRIBUTION_OUTPUT_ELEMENTS,
+        "success_result": "number of output float64 elements (3 per pair)",
+        "invalid_input_result": JOINT_PROBABILITY_DISTRIBUTION_INVALID_RESULT,
+        "invalid_output_buffer_result": JOINT_PROBABILITY_DISTRIBUTION_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    workspace = {
+        "elements": MAX_JOINT_PROBABILITY_DISTRIBUTION_OUTPUT_ELEMENTS,
+        "meaning": "Maximum output size for the 4-by-4 Cartesian product.",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 500,
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    cases = workload.get("cases")
+    case_list = cases if isinstance(cases, list) else []
+    case_ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    maximum_case = next((case for case in case_list if isinstance(case, dict)
+                         and case.get("id") == "maximum_support_sizes"), None)
+    readme = (ROOT / "benchmarks" / "j" / "joint_probability_distribution" / "README.md").read_text(
+        encoding="utf-8")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "joint-probability-distribution-python-float64-slice-io-v1"
+            or workload.get("algorithm") != "joint_probability_distribution"
+            or workload.get("function_symbol") != "joint_probability_distribution"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or len(case_ids) != len(JOINT_PROBABILITY_DISTRIBUTION_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != JOINT_PROBABILITY_DISTRIBUTION_CASE_IDS
+            or maximum_case is None
+            or maximum_case.get("input_length") != MAX_JOINT_PROBABILITY_DISTRIBUTION_INPUT_LENGTH
+            or maximum_case.get("expected_result") != MAX_JOINT_PROBABILITY_DISTRIBUTION_OUTPUT_ELEMENTS
+            or len(maximum_case.get("input_values", [])) != MAX_JOINT_PROBABILITY_DISTRIBUTION_INPUT_LENGTH
+            or source["url"] not in readme
+            or MAX_JOINT_PROBABILITY_DISTRIBUTION_SUPPORT_LENGTH != 4
+            or MAX_JOINT_PROBABILITY_DISTRIBUTION_INPUT_LENGTH != 18
+            or MAX_JOINT_PROBABILITY_DISTRIBUTION_PARSEABLE_INPUT_LENGTH != 20
+            or MAX_JOINT_PROBABILITY_DISTRIBUTION_OUTPUT_ELEMENTS != 48):
+        raise ValueError("joint_probability_distribution workload metadata does not match its reviewed contract")
+
+
+SHREEDHARACHARYA_CASE_IDS = {
+    "pinned_repeated_root", "two_roots_source_order", "negative_discriminant_empty_result",
+    "irrational_roots", "fractional_roots", "negative_leading_coefficient",
+    "fractional_repeated_root", "negative_a_no_real_roots", "minimum_leading_coefficient",
+    "negative_minimum_leading_coefficient", "maximum_coefficient_root_pair",
+    "maximum_coefficients_negative_discriminant", "direct_formula_cancellation",
+    "slightly_negative_discriminant", "positive_b_boundary", "negative_a_boundary",
+    "zero_leading_coefficient", "leading_coefficient_below_minimum",
+    "leading_coefficient_above_maximum", "b_below_minimum", "c_above_maximum",
+    "short_input", "one_value_input", "extra_input_value",
+}
+
+
+def validate_shreedharacharya_workload(workload: dict) -> None:
+    """Pin the Dart quadratic formula and its variable-length root result."""
+    source = {
+        "repository": "TheAlgorithms/Dart",
+        "commit": "73da8ab4ea413eee9bf29aa2263157d86060f871",
+        "path": "maths/shreedharacharya.dart",
+        "symbol": "shreedharacharya",
+        "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/shreedharacharya.dart",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "solve a*x^2+b*x+c=0 using the pinned direct discriminant formula",
+        "discriminant": "d=b*b-4*a*c; negative returns zero roots, zero returns one root, positive returns two roots",
+        "root_order": "(-b+sqrt(d))/(2*a) before (-b-sqrt(d))/(2*a)",
+        "negative_discriminant_source_behavior": "The Dart source prints Imaginary roots and returns an empty List; the benchmark ignores console output and returns result count 0.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[a,b,c]",
+        "valid_length_range": [3, 3],
+        "maximum_valid_length": MAX_SHREEDHARACHARYA_INPUT_LENGTH,
+        "maximum_parseable_length": 64,
+        "leading_coefficient_abs_range": [SHREEDHARACHARYA_MIN_ABS_A, SHREEDHARACHARYA_MAX_COEFFICIENT],
+        "other_coefficient_abs_range": [0.0, SHREEDHARACHARYA_MAX_COEFFICIENT],
+        "invalid_input_result": SHREEDHARACHARYA_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "zero, one, or two roots in the pinned source order",
+        "maximum_elements": MAX_SHREEDHARACHARYA_OUTPUT_ELEMENTS,
+        "success_result": "number of real roots",
+        "empty_result": 0,
+        "invalid_input_result": SHREEDHARACHARYA_INVALID_RESULT,
+        "invalid_output_buffer_result": SHREEDHARACHARYA_OUTPUT_ERROR,
+        "null_output_result": SHREEDHARACHARYA_OUTPUT_ERROR,
+        "empty_result_requires_nonnull_output_pointer": True,
+        "no_write_on_error": True,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    workspace = {"elements": MAX_SHREEDHARACHARYA_OUTPUT_ELEMENTS,
+                 "meaning": "Maximum of two real roots."}
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    cases = workload.get("cases")
+    case_list = cases if isinstance(cases, list) else []
+    ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    zero_root_case = next((case for case in case_list if isinstance(case, dict)
+                           and case.get("id") == "negative_discriminant_empty_result"), None)
+    readme = (ROOT / "benchmarks" / "s" / "shreedharacharya" / "README.md").read_text(
+        encoding="utf-8")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "shreedharacharya-dart-f64-slice-io-v1"
+            or workload.get("algorithm") != "shreedharacharya"
+            or workload.get("function_symbol") != "shreedharacharya"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or len(ids) != len(SHREEDHARACHARYA_CASE_IDS)
+            or len(ids) != len(set(ids))
+            or set(ids) != SHREEDHARACHARYA_CASE_IDS
+            or zero_root_case is None
+            or zero_root_case.get("expected_result") != 0
+            or zero_root_case.get("expected_output") != []
+            or source["url"] not in readme
+            or MAX_SHREEDHARACHARYA_INPUT_LENGTH != 3
+            or SHREEDHARACHARYA_MAX_COEFFICIENT != 1_000_000.0
+            or MAX_SHREEDHARACHARYA_OUTPUT_ELEMENTS != 2):
+        raise ValueError("shreedharacharya workload metadata does not match its reviewed contract")
+
+
+def validate_pid_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/C",
+        "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+        "path": "misc/pid.c",
+        "symbol": "pid_step",
+        "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/misc/pid.c",
+    }
+    contract = {
+        "state_initialization": "integral=0 and lastError=0 at the beginning of every call",
+        "operation_order": "float32 p=error*kP; float32 integral += error*dt*kI left to right; float32 d=(dt==0?0:((error-lastError)/dt)*kD); lastError=error; output=p+integral+d left to right",
+        "dt_zero_rule": "Suppress derivative only; still update integral and lastError.",
+        "input_validation": "Check finite float64 parameters and their bounds before casting to float32.",
+        "output_conversion": "Widen each float32 step result exactly to float64.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "layout": "[kP, kI, kD, dt, error_0, ...]",
+        "length_range": [4 + PID_MIN_ERROR_COUNT, MAX_PID_INPUT_LENGTH],
+        "error_count_range": [PID_MIN_ERROR_COUNT, PID_MAX_ERROR_COUNT],
+        "gain_range": [-1.0, 1.0],
+        "dt_rule": "Exactly 0 or in [0.01, 1.0], checked before float32 conversion.",
+        "error_range": [-1.0, 1.0],
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "meaning": "One widened float32 PID step result per error sample.",
+        "success_result": "error count",
+        "invalid_input_result": -1,
+        "invalid_output_buffer_result": -2,
+        "no_write_on_error": True,
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    workspace = {
+        "elements": PID_MAX_ERROR_COUNT,
+        "meaning": "Maximum number of error samples and output values.",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    required_case_ids = {
+        "proportional_only", "integral_accumulates", "derivative_uses_previous_error",
+        "combined_terms", "fractional_float32_rounding_and_accumulation",
+        "zero_dt_suppresses_derivative", "minimum_positive_dt",
+        "maximum_dt", "gain_and_error_endpoints", "maximum_60_error_samples",
+        "missing_error_sample", "gain_above_range_before_float32_cast",
+        "gain_below_range", "negative_dt", "dt_below_minimum_before_float32_cast",
+        "dt_above_maximum", "error_above_range_before_float32_cast", "error_below_range",
+    }
+    cases = workload.get("cases")
+    case_list = cases if isinstance(cases, list) else []
+    case_ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    maximum_case = next((case for case in case_list if isinstance(case, dict)
+                         and case.get("id") == "maximum_60_error_samples"), None)
+    readme = (ROOT / "benchmarks" / "p" / "pid" / "README.md").read_text(encoding="utf-8")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-c-pid-float32-sequence-v1"
+            or workload.get("algorithm") != "pid"
+            or workload.get("function_symbol") != "pid"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or not required_case_ids.issubset(set(case_ids))
+            or len(case_ids) != len(set(case_ids))
+            or maximum_case is None
+            or maximum_case.get("input_length") != MAX_PID_INPUT_LENGTH
+            or maximum_case.get("expected_result") != PID_MAX_ERROR_COUNT
+            or len(maximum_case.get("input_values", [])) != MAX_PID_INPUT_LENGTH
+            or source["url"] not in readme
+            or "float32" not in readme
+            or "When `dt` is zero" not in readme):
+        raise ValueError("pid workload metadata does not match its reviewed contract")
 
 
 def _output_value(value: object) -> float:
@@ -101,15 +968,31 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         raise ValueError(f"no float64-slice oracle registered for {algorithm}")
     raw_values = case.get("input_values")
     max_input_length = (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH
-                        if algorithm == "rayleigh_quotient" else 64)
+                        if algorithm == "rayleigh_quotient" else
+                        MAX_PID_INPUT_LENGTH if algorithm == "pid" else
+                        K_D_TREE_MAX_INPUT_LENGTH if algorithm == "k_d_tree" else
+                        KOCH_SNOWFLAKE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "koch_snowflake" else
+                        MAX_JOINT_PROBABILITY_DISTRIBUTION_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "joint_probability_distribution" else
+                        ROTATION_MATRIX_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "rotation_matrix" else
+                        LINEAR_REGRESSION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "linear_regression_vectorized" else 64)
+    if algorithm == "perlin_noise":
+        max_input_length = PERLIN_NOISE_MAX_PARSEABLE_INPUT_ELEMENTS
     if (not isinstance(raw_values, list) or case.get("input_length") != len(raw_values)
             or not raw_values or len(raw_values) > max_input_length
             or any(type(value) not in (int, float) or not math.isfinite(float(value))
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    oracle_output = oracle(values)
-    expected_result = len(oracle_output) if oracle_output is not None else -1
+    if algorithm in {"joint_probability_distribution", "shreedharacharya", "rotation_matrix"}:
+        expected_result, oracle_values = oracle(values)
+        oracle_output = None if expected_result < 0 else oracle_values
+    else:
+        oracle_output = oracle(values)
+        expected_result = len(oracle_output) if oracle_output is not None else -1
     expected_output = [] if oracle_output is None else [_output_token(value) for value in oracle_output]
     if case.get("expected_result") != expected_result:
         raise ValueError(f"{case.get('id')}: expected_result disagrees with the independent oracle")
@@ -128,6 +1011,314 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         if abs(actual_number - expected_number) > allowed:
             raise ValueError(f"{case.get('id')}: expected_output disagrees with the independent oracle")
     return values, expected_result, actual_output
+
+
+def _decode_k_d_tree_abi_values(raw_values: object) -> list[float]:
+    """Translate the workload's JSON spellings for nonfinite ABI probe values."""
+    if not isinstance(raw_values, list):
+        raise ValueError("k_d_tree ABI probe input_values must be an array")
+    nonfinite_tokens = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
+    values: list[float] = []
+    for value in raw_values:
+        if isinstance(value, str):
+            if value not in nonfinite_tokens:
+                raise ValueError(f"unsupported k_d_tree nonfinite input token: {value}")
+            values.append(nonfinite_tokens[value])
+        elif type(value) in (int, float):
+            values.append(float(value))
+        else:
+            raise ValueError("k_d_tree ABI probe values must be numbers or nonfinite tokens")
+    return values
+
+
+K_D_TREE_CASE_IDS = {
+    "two-dimensional-near-branch", "two-dimensional-nearest-in-far-branch",
+    "three-dimensional-single-point", "maximum-point-count-and-input-length",
+    "invalid-tied-nearest-points", "invalid-axis-coordinate-tie", "invalid-dimension",
+    "invalid-one-value-input", "invalid-empty-point-set", "invalid-fractional-coordinate",
+    "invalid-coordinate-out-of-range", "invalid-truncated-point-record", "invalid-extra-value",
+}
+K_D_TREE_ABI_CASE_IDS = {
+    "invalid-input-before-null-output", "valid-input-null-output",
+    "valid-input-short-output-capacity", "nonfinite-nan-query-coordinate",
+    "nonfinite-positive-infinity-point-coordinate", "nonfinite-negative-infinity-query-coordinate",
+}
+
+
+def validate_k_d_tree_workload(workload: dict) -> None:
+    """Validate k_d_tree metadata, fixtures, and nonfinite ABI-only probes."""
+    source = {
+        "repository": "TheAlgorithms/Lua",
+        "commit": "cedc141018ad48884318fe08a6db278664b17128",
+        "path": "src/data_structures/k_d_tree.lua",
+        "symbol": "new (default median-of-medians constructor) and nearest_neighbor",
+        "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/data_structures/k_d_tree.lua",
+        "supporting_paths": [
+            "src/sorting/quickselect_median_of_medians.lua",
+            "src/sorting/quickselect.lua",
+            "src/sorting/three_way_partition.lua",
+        ],
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[dimension, point_count, query[dimension], point_0[dimension], ...]",
+        "dimension_values": [K_D_TREE_MIN_DIMENSION, K_D_TREE_MAX_DIMENSION],
+        "point_count_range": [K_D_TREE_MIN_POINT_COUNT, K_D_TREE_MAX_POINT_COUNT],
+        "exact_length": "2 + dimension * (point_count + 1)",
+        "coordinate_range": [K_D_TREE_MIN_COORDINATE, K_D_TREE_MAX_COORDINATE],
+        "coordinate_requirement": "every input is finite and integral; point coordinates are distinct on each axis",
+        "maximum_valid_input_length": K_D_TREE_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": K_D_TREE_MAX_INPUT_LENGTH,
+        "invalid_input_result": K_D_TREE_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "definition": "[Euclidean distance, nearest point coordinates in source axis order]",
+        "success_result": "dimension + 1 output values",
+        "invalid_input_result": K_D_TREE_INVALID_RESULT,
+        "invalid_output_buffer_result": K_D_TREE_OUTPUT_ERROR,
+        "unique_nearest_point_required": True,
+        "validation_order": "validate complete input and unique nearest point before checking output pointer or capacity",
+        "error_output_behavior": "do not modify output on either error",
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    abi_ids = [case.get("id") for case in abi_cases if isinstance(case, dict)] if isinstance(abi_cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lua-k-d-tree-nearest-neighbor-f64-slice-v1"
+            or workload.get("algorithm") != "k_d_tree"
+            or workload.get("function_symbol") != "k_d_tree"
+            or workload.get("workspace") != {"elements": K_D_TREE_MAX_OUTPUT_ELEMENTS}
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or workload.get("pinned_source") != source
+            or K_D_TREE_MAX_INPUT_LENGTH != 51
+            or K_D_TREE_MAX_VALID_INPUT_LENGTH != 50
+            or K_D_TREE_MAX_OUTPUT_ELEMENTS != 4
+            or K_D_TREE_INVALID_RESULT != -1
+            or K_D_TREE_OUTPUT_ERROR != -2
+            or len(case_ids) != len(K_D_TREE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != K_D_TREE_CASE_IDS
+            or len(abi_ids) != len(K_D_TREE_ABI_CASE_IDS)
+            or len(abi_ids) != len(set(abi_ids))
+            or set(abi_ids) != K_D_TREE_ABI_CASE_IDS):
+        raise ValueError("k_d_tree workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "k" / "k_d_tree" / "README.md").read_text(encoding="utf-8")
+    if source["url"] not in readme:
+        raise ValueError("k_d_tree README is missing its pinned source link")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "k_d_tree", absolute_tolerance, relative_tolerance)
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    for case in abi_cases:
+        values = _decode_k_d_tree_abi_values(case.get("input_values"))
+        capacity = case.get("output_capacity")
+        output_is_null = case.get("output_is_null", False)
+        if (not values or len(values) > K_D_TREE_MAX_INPUT_LENGTH
+                or type(capacity) is not int or not 0 <= capacity <= K_D_TREE_MAX_OUTPUT_ELEMENTS
+                or type(output_is_null) is not bool):
+            raise ValueError(f"k_d_tree ABI input/output framing is invalid for {case.get('id')}")
+        output = k_d_tree_oracle(values)
+        expected_result = (K_D_TREE_INVALID_RESULT if output is None else
+                           K_D_TREE_OUTPUT_ERROR if output_is_null or len(output) > capacity else
+                           len(output))
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected_result:
+            raise ValueError(f"k_d_tree ABI probe mismatch: {case.get('id')}")
+    if (abi_by_id["invalid-input-before-null-output"].get("output_is_null") is not True
+            or abi_by_id["valid-input-null-output"].get("output_is_null") is not True
+            or abi_by_id["valid-input-short-output-capacity"].get("output_capacity") != 2
+            or any(abi_by_id[name]["expected_result"] != K_D_TREE_INVALID_RESULT for name in (
+                "nonfinite-nan-query-coordinate", "nonfinite-positive-infinity-point-coordinate",
+                "nonfinite-negative-infinity-query-coordinate"))):
+        raise ValueError("k_d_tree ABI workload is missing reviewed null, capacity, or nonfinite cases")
+
+
+def validate_linear_regression_vectorized_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "machine_learning/linear_regression_vectorized.py",
+        "symbol": "gradient_descent",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/linear_regression_vectorized.py",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[m, d, iterations, alpha, X row-major (m*d values), y (m labels)]",
+        "sample_count_range": [LINEAR_REGRESSION_MIN_SAMPLE_COUNT, LINEAR_REGRESSION_MAX_SAMPLE_COUNT],
+        "feature_count_range": [LINEAR_REGRESSION_MIN_FEATURE_COUNT, LINEAR_REGRESSION_MAX_FEATURE_COUNT],
+        "iteration_count_range": [LINEAR_REGRESSION_MIN_ITERATIONS, LINEAR_REGRESSION_MAX_ITERATIONS],
+        "learning_rate_range": [LINEAR_REGRESSION_MIN_ALPHA, LINEAR_REGRESSION_MAX_ALPHA],
+        "integer_valued_fields": ["m", "d", "iterations"],
+        "intercept_rule": "The first feature in every row of X is exactly 1.0.",
+        "feature_and_label_range": [LINEAR_REGRESSION_MIN_FEATURE_OR_LABEL,
+                                    LINEAR_REGRESSION_MAX_FEATURE_OR_LABEL],
+        "all_values_finite": True,
+        "maximum_valid_input_length": LINEAR_REGRESSION_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_length": LINEAR_REGRESSION_MAX_PARSEABLE_INPUT_LENGTH,
+        "exact_packed_shape": "Exactly 4 + m*d + m finite f64 values.",
+        "invalid_input_result": -1,
+        "null_input_result": -1,
+    }
+    output_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "The d learned theta coefficients in feature order.",
+        "maximum_output_elements": LINEAR_REGRESSION_MAX_OUTPUT_ELEMENTS,
+        "success_result": "output element count",
+        "absolute_tolerance": LINEAR_REGRESSION_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": LINEAR_REGRESSION_RELATIVE_TOLERANCE,
+        "invalid_input_result": -1,
+        "null_output_result": -2,
+        "insufficient_output_capacity_result": -2,
+        "no_write_on_error": True,
+        "error_precedence": "Invalid or null input is rejected before output pointer or capacity checks.",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 3,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": LINEAR_REGRESSION_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": LINEAR_REGRESSION_RELATIVE_TOLERANCE,
+    }
+    cases = workload.get("cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-linear-regression-vectorized-float64-slice-v1"
+            or workload.get("algorithm") != "linear_regression_vectorized"
+            or workload.get("function_symbol") != "linear_regression_vectorized"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {"elements": LINEAR_REGRESSION_MAX_OUTPUT_ELEMENTS}
+            or workload.get("measurement") != measurement
+            or LINEAR_REGRESSION_MAX_SAMPLE_COUNT != 8
+            or LINEAR_REGRESSION_MAX_FEATURE_COUNT != 4
+            or LINEAR_REGRESSION_MAX_ITERATIONS != 128
+            or LINEAR_REGRESSION_MAX_INPUT_LENGTH != 44
+            or LINEAR_REGRESSION_MAX_PARSEABLE_INPUT_LENGTH != 45
+            or LINEAR_REGRESSION_MAX_OUTPUT_ELEMENTS != 4
+            or LINEAR_REGRESSION_ABSOLUTE_TOLERANCE != 1e-10
+            or LINEAR_REGRESSION_RELATIVE_TOLERANCE != 1e-10
+            or not isinstance(cases, list)
+            or len(case_ids) != len(LINEAR_REGRESSION_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != LINEAR_REGRESSION_CASE_IDS):
+        raise ValueError("linear_regression_vectorized workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "linear_regression_vectorized" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or "gradient_descent" not in readme
+            or "without rounding" not in readme):
+        raise ValueError("linear_regression_vectorized README is missing its pinned source or update order")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "linear_regression_vectorized", absolute_tolerance, relative_tolerance)
+
+
+PERLIN_NOISE_CASE_IDS = frozenset({
+    "one_cell_seed_zero", "seeded_two_by_three_x_major",
+    "one_by_eight_wraps_octave_periods", "eight_by_one_wraps_octave_periods",
+    "single_octave", "persistence_half", "persistence_three_quarters", "persistence_one",
+    "largest_seed", "maximum_grid_and_octaves", "zero_width_invalid",
+    "fractional_width_invalid", "height_above_bound_invalid", "zero_octaves_invalid",
+    "fractional_octaves_invalid", "unsupported_persistence_invalid", "zero_persistence_invalid",
+    "negative_seed_invalid", "seed_above_i32_range_invalid", "fractional_seed_invalid",
+    "trailing_element_invalid", "missing_seed_invalid",
+})
+
+
+def validate_perlin_noise_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/others/PerlinNoise.java",
+        "symbol": "generatePerlinNoise",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/PerlinNoise.java",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[width, height, octave_count, persistence, seed]",
+        "width_range": [PERLIN_NOISE_MIN_DIMENSION, PERLIN_NOISE_MAX_DIMENSION],
+        "height_range": [PERLIN_NOISE_MIN_DIMENSION, PERLIN_NOISE_MAX_DIMENSION],
+        "octave_count_range": [PERLIN_NOISE_MIN_OCTAVES, PERLIN_NOISE_MAX_OCTAVES],
+        "persistence_values": list(PERLIN_NOISE_PERSISTENCE_VALUES),
+        "seed_range": [PERLIN_NOISE_MIN_SEED, PERLIN_NOISE_MAX_SEED],
+        "maximum_valid_input_length": PERLIN_NOISE_MAX_INPUT_ELEMENTS,
+        "maximum_parseable_input_length": PERLIN_NOISE_MAX_PARSEABLE_INPUT_ELEMENTS,
+        "exact_packed_shape": "Exactly five finite f64 elements; dimensions, octave count, and seed must be exact integers.",
+        "invalid_input_result": PERLIN_NOISE_INVALID_RESULT,
+        "null_input_result": PERLIN_NOISE_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "definition": "width*height values widened from the source float[width][height], in x-major then y-minor order.",
+        "element_count": "width*height",
+        "valid_output_elements_range": [1, PERLIN_NOISE_MAX_OUTPUT_ELEMENTS],
+        "maximum_output_elements": PERLIN_NOISE_MAX_OUTPUT_ELEMENTS,
+        "invalid_input_result": PERLIN_NOISE_INVALID_RESULT,
+        "invalid_output_buffer_result": PERLIN_NOISE_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks.",
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+        "success_result": "output element count",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    cases = workload.get("cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-perlin-noise-f64-slice-io-v1"
+            or workload.get("algorithm") != "perlin_noise"
+            or workload.get("function_symbol") != "perlin_noise"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {"elements": PERLIN_NOISE_MAX_OUTPUT_ELEMENTS}
+            or workload.get("measurement") != measurement
+            or PERLIN_NOISE_MIN_DIMENSION != 1 or PERLIN_NOISE_MAX_DIMENSION != 8
+            or PERLIN_NOISE_MIN_OCTAVES != 1 or PERLIN_NOISE_MAX_OCTAVES != 4
+            or PERLIN_NOISE_MIN_SEED != 0 or PERLIN_NOISE_MAX_SEED != (1 << 31) - 1
+            or PERLIN_NOISE_MAX_INPUT_ELEMENTS != 5
+            or PERLIN_NOISE_MAX_PARSEABLE_INPUT_ELEMENTS != 6
+            or PERLIN_NOISE_MAX_OUTPUT_ELEMENTS != 64
+            or PERLIN_NOISE_INVALID_RESULT != -1 or PERLIN_NOISE_OUTPUT_ERROR != -2
+            or tuple(PERLIN_NOISE_PERSISTENCE_VALUES) != (0.5, 0.75, 1.0)
+            or not isinstance(cases, list)
+            or len(case_ids) != len(PERLIN_NOISE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != PERLIN_NOISE_CASE_IDS):
+        raise ValueError("perlin_noise workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "perlin_noise" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or "Java Random" not in readme
+            or "binary32 rounding" not in readme or "x-major" not in readme):
+        raise ValueError("perlin_noise README is missing its pinned source or Java output semantics")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "perlin_noise", absolute_tolerance, relative_tolerance)
 
 
 def main() -> int:
@@ -161,6 +1352,26 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"):
         parser.error("workload does not match the float64_slice_io algorithm")
+    if algorithm == "pid":
+        validate_pid_workload(workload)
+    elif algorithm == "joint_probability_distribution":
+        validate_joint_probability_distribution_workload(workload)
+    elif algorithm == "shreedharacharya":
+        validate_shreedharacharya_workload(workload)
+    elif algorithm == "rotation_matrix":
+        validate_rotation_matrix_workload(workload)
+    elif algorithm == "simple_pendulum_rk4":
+        validate_simple_pendulum_rk4_workload(workload)
+    elif algorithm == "piecewise_without_inbuilt":
+        validate_piecewise_without_inbuilt_workload(workload)
+    elif algorithm == "koch_snowflake":
+        validate_koch_snowflake_workload(workload)
+    elif algorithm == "k_d_tree":
+        validate_k_d_tree_workload(workload)
+    elif algorithm == "linear_regression_vectorized":
+        validate_linear_regression_vectorized_workload(workload)
+    elif algorithm == "perlin_noise":
+        validate_perlin_noise_workload(workload)
     absolute_tolerance, relative_tolerance = tolerances(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]

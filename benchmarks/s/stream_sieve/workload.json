@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "stream-sieve-prime-prefix-i32le-v1",
+  "algorithm": "stream_sieve",
+  "function_symbol": "stream_sieve",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Scala",
+    "commit": "de555349d5effb87962d3116eb08c9f374065112",
+    "path": "src/main/scala/Mathematics/StreamSieve.scala",
+    "symbol": "StreamSieve.allPrimes/getPrimeNumbers",
+    "url": "https://github.com/TheAlgorithms/Scala/blob/de555349d5effb87962d3116eb08c9f374065112/src/main/scala/Mathematics/StreamSieve.scala"
+  },
+  "input": {
+    "minimum": -2147483648,
+    "maximum": 100,
+    "encoding": "stream_sieve_primes_i32le",
+    "meaning": "Return the first n primes from a shared lazily extended prime prefix; n<=0 is empty.",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_32_bit_prime_array",
+    "definition": "The first max(n,0) primes in ascending order, encoded as one signed i32 each.",
+    "success_result": "4*n bytes for positive n, otherwise 0",
+    "maximum_bytes": 400,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "null_output_exception": "n<=0 succeeds with zero bytes even when the output pointer is null."
+  },
+  "cases": [
+    {
+      "id": "int32_min_empty",
+      "input_value": -2147483648,
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "negative_empty",
+      "input_value": -1,
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "zero_empty",
+      "input_value": 0,
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "null_output_empty",
+      "input_value": 0,
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "output_capacity": 0,
+      "output_is_null": true
+    },
+    {
+      "id": "null_output_nonempty",
+      "input_value": 1,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 4,
+      "output_is_null": true
+    },
+    {
+      "id": "one_prime",
+      "input_value": 1,
+      "expected_result": 4,
+      "expected_output_hex": "02000000"
+    },
+    {
+      "id": "two_primes",
+      "input_value": 2,
+      "expected_result": 8,
+      "expected_output_hex": "0200000003000000"
+    },
+    {
+      "id": "ten_primes",
+      "input_value": 10,
+      "expected_result": 40,
+      "expected_output_hex": "020000000300000005000000070000000b0000000d0000001100000013000000170000001d000000"
+    },
+    {
+      "id": "sixty_four_prime_prefix",
+      "input_value": 64,
+      "expected_result": 256,
+      "expected_output_hex": "020000000300000005000000070000000b0000000d0000001100000013000000170000001d0000001f00000025000000290000002b0000002f000000350000003b0000003d0000004300000047000000490000004f00000053000000590000006100000065000000670000006b0000006d000000710000007f00000083000000890000008b00000095000000970000009d000000a3000000a7000000ad000000b3000000b5000000bf000000c1000000c5000000c7000000d3000000df000000e3000000e5000000e9000000ef000000f1000000fb00000001010000070100000d0100000f01000015010000190100001b010000250100003301000037010000"
+    },
+    {
+      "id": "maximum_100_primes",
+      "input_value": 100,
+      "expected_result": 400,
+      "expected_output_hex": "020000000300000005000000070000000b0000000d0000001100000013000000170000001d0000001f00000025000000290000002b0000002f000000350000003b0000003d0000004300000047000000490000004f00000053000000590000006100000065000000670000006b0000006d000000710000007f00000083000000890000008b00000095000000970000009d000000a3000000a7000000ad000000b3000000b5000000bf000000c1000000c5000000c7000000d3000000df000000e3000000e5000000e9000000ef000000f1000000fb00000001010000070100000d0100000f01000015010000190100001b010000250100003301000037010000390100003d0100004b010000510100005b0100005d01000061010000670100006f010000750100007b0100007f010000850100008d0100009101000099010000a3010000a5010000af010000b1010000b7010000bb010000c1010000c9010000cd010000cf010000d3010000df010000e7010000eb010000f3010000f7010000fd010000090200000b0200001d020000",
+      "output_capacity": 400
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_value": 10,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 39,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "below_int32_range",
+      "input_value": -2147483649,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "above_int32_range",
+      "input_value": 2147483648,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "above_count_limit",
+      "input_value": 101,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  }
+}

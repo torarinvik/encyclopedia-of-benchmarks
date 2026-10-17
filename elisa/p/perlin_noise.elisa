@@ -1,0 +1,103 @@
+const MAX_DIMENSION: usize = 8
+const MAX_INPUT_ELEMENTS: usize = 5
+const MAX_PARSEABLE_INPUT_ELEMENTS: usize = 6
+const MAX_OUTPUT_ELEMENTS: usize = 64
+const JAVA_MULTIPLIER: u64 = 0x5DEECE66D
+const JAVA_ADDEND: u64 = 0xB
+const JAVA_MASK: u64 = (1 << 48) - 1
+
+def rounded_add(a: f32, b: f32) -> f32:
+    return a + b
+
+def rounded_sub(a: f32, b: f32) -> f32:
+    return a - b
+
+def rounded_mul(a: f32, b: f32) -> f32:
+    return a * b
+
+def rounded_div(a: f32, b: f32) -> f32:
+    return a / b
+
+def java_next(state: mutable u64&, bits: usize) -> u32:
+    state <- (state *% JAVA_MULTIPLIER +% JAVA_ADDEND) & JAVA_MASK
+    return (state >> (48 - bits)).u32()
+
+def interpolate(a: f32, b: f32, alpha: f32) -> f32:
+    one_minus_alpha: f32 = rounded_sub(1.0.f32(), alpha)
+    left: f32 = rounded_mul(a, one_minus_alpha)
+    right: f32 = rounded_mul(alpha, b)
+    return rounded_add(left, right)
+
+def exact_integer(value: f64, minimum: f64, maximum: f64) -> bool:
+    if value != value or value < minimum or value > maximum: return false
+    return value.i64().f64() == value
+
+def perlin_noise_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_PARSEABLE_INPUT_ELEMENTS: return -1
+    if length != MAX_INPUT_ELEMENTS: return -1
+    if not exact_integer(input[0], 1.0, 8.0) or not exact_integer(input[1], 1.0, 8.0) or
+       not exact_integer(input[2], 1.0, 4.0) or not exact_integer(input[4], 0.0, 2147483647.0) or
+       (input[3] != 0.5 and input[3] != 0.75 and input[3] != 1.0): return -1
+    width: usize = input[0].usize()
+    height: usize = input[1].usize()
+    octave_count: usize = input[2].usize()
+    seed: u64 = input[4].u64()
+    count: usize = width * height
+    base: mutable f32[64] = zeroed
+    layers: mutable f32[256] = zeroed
+    result: mutable f32[64] = zeroed
+    state: mutable u64 = (seed ^ JAVA_MULTIPLIER) & JAVA_MASK
+    x: mutable usize = 0
+    while x < width:
+        y: mutable usize = 0
+        while y < height:
+            base[x * height + y] <- rounded_div(java_next(state, 24).f32(), 16777216.0.f32())
+            y <- y + 1
+        x <- x + 1
+    octave: mutable usize = 0
+    while octave < octave_count:
+        period: usize = 1 << octave
+        frequency: f32 = rounded_div(1.0.f32(), period.f32())
+        offset: usize = octave * MAX_OUTPUT_ELEMENTS
+        x <- 0
+        while x < width:
+            x0: usize = (x / period) * period
+            x1: usize = (x0 + period) % width
+            horizontal: f32 = rounded_mul((x - x0).f32(), frequency)
+            y <- 0
+            while y < height:
+                y0: usize = (y / period) * period
+                y1: usize = (y0 + period) % height
+                vertical: f32 = rounded_mul((y - y0).f32(), frequency)
+                top: f32 = interpolate(base[x0 * height + y0], base[x1 * height + y0], horizontal)
+                bottom: f32 = interpolate(base[x0 * height + y1], base[x1 * height + y1], horizontal)
+                layers[offset + x * height + y] <- interpolate(top, bottom, vertical)
+                y <- y + 1
+            x <- x + 1
+        octave <- octave + 1
+    persistence: f32 = input[3].f32()
+    amplitude: mutable f32 = 1.0.f32()
+    total_amplitude: mutable f32 = 0.0.f32()
+    octave <- octave_count
+    while octave > 0:
+        octave <- octave - 1
+        amplitude <- rounded_mul(amplitude, persistence)
+        total_amplitude <- rounded_add(total_amplitude, amplitude)
+        offset: usize = octave * MAX_OUTPUT_ELEMENTS
+        index: mutable usize = 0
+        while index < count:
+            result[index] <- rounded_add(result[index], rounded_mul(layers[offset + index], amplitude))
+            index <- index + 1
+    inverse_total: f32 = rounded_div(1.0.f32(), total_amplitude)
+    index <- 0
+    while index < count:
+        result[index] <- rounded_mul(result[index], inverse_total)
+        index <- index + 1
+    if output.is_null() or capacity < count: return -2
+    index <- 0
+    while index < count:
+        output[index] <- result[index].f64()
+        index <- index + 1
+    count.i64()
+
+export fn perlin_noise(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = perlin_noise_impl

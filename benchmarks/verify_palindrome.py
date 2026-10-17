@@ -63,7 +63,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
-        values = encode_case(case)
+        values = encode_case(case, algorithm=ALGORITHM)
         expected = oracle(values)
         if (expected != case["expected_result"]
                 or record["algorithm"] != ALGORITHM
@@ -117,7 +117,7 @@ def main() -> int:
             values = values[:length // 2] + values[:(length + 1) // 2][::-1]
         cases[values] = oracle(list(values))
     for case in workload["cases"]:
-        values = tuple(encode_case(case))
+        values = tuple(encode_case(case, algorithm=ALGORITHM))
         expected = oracle(list(values))
         if expected != case["expected_result"]:
             parser.error(f"workload oracle mismatch: {case['id']}")

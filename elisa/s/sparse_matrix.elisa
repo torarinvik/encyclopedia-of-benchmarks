@@ -1,0 +1,19 @@
+def sparse_matrix_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 2 or length > 4099: return -1
+    rows_value: i64 = values[0]
+    columns_value: i64 = values[1]
+    if rows_value < 1 or rows_value > 64 or columns_value < 1 or columns_value > 64: return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    cells: usize = rows * columns
+    if length != 2 + cells: return -1
+    zero_count: mutable usize = 0
+    index: usize = 0
+    while index < cells:
+        value: i64 = values[2 + index]
+        if value < -2147483648 or value > 2147483647: return -1
+        if value == 0: zero_count <- zero_count + 1
+        index <- index + 1
+    if zero_count > cells / 2: 1 else: 0
+
+export fn sparse_matrix(values: i64&, length: usize) -> i64 = sparse_matrix_impl

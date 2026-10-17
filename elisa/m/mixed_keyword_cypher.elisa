@@ -1,0 +1,98 @@
+const MAX_KEYWORD_LENGTH: usize = 64
+const MAX_PLAINTEXT_LENGTH: usize = 512
+const MAX_INPUT_LENGTH: usize = 578
+
+def mixed_keyword_cypher_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_keyword_length: i64 = input[0]
+    if raw_keyword_length < 1 or raw_keyword_length > 64:
+        return -1
+    keyword_length: usize = raw_keyword_length.usize()
+    plaintext_length_index: usize = 1 + keyword_length
+    if plaintext_length_index >= length:
+        return -1
+
+    raw_plaintext_length: i64 = input[plaintext_length_index]
+    if raw_plaintext_length < 0 or raw_plaintext_length > 512:
+        return -1
+    plaintext_length: usize = raw_plaintext_length.usize()
+    if length != plaintext_length_index + 1 + plaintext_length:
+        return -1
+
+    unique_letters: mutable u8[26] = zeroed
+    seen: mutable bool[26] = zeroed
+    unique_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < keyword_length:
+        raw: i64 = input[1 + index]
+        if raw < 0 or raw > 127:
+            return -1
+        letter: mutable i64 = raw
+        if letter >= 97 and letter <= 122:
+            letter <- letter - 32
+        if letter >= 65 and letter <= 90:
+            alphabet_index: usize = (letter - 65).usize()
+            if not seen[alphabet_index]:
+                seen[alphabet_index] <- true
+                unique_letters[unique_count] <- letter.u8()
+                unique_count <- unique_count + 1
+        index <- index + 1
+    if unique_count == 0:
+        return -1
+
+    index <- 0
+    while index < plaintext_length:
+        raw: i64 = input[plaintext_length_index + 1 + index]
+        if raw < 0 or raw > 127:
+            return -1
+        index <- index + 1
+
+    shifted: mutable u8[26] = zeroed
+    index <- 0
+    while index < unique_count:
+        shifted[index] <- unique_letters[index]
+        index <- index + 1
+    shifted_count: mutable usize = unique_count
+    index <- 0
+    while index < 26:
+        if not seen[index]:
+            shifted[shifted_count] <- (65 + index).u8()
+            shifted_count <- shifted_count + 1
+        index <- index + 1
+
+    mapping: mutable u8[26] = zeroed
+    alphabet_index: mutable usize = 0
+    column: mutable usize = 0
+    while column < unique_count:
+        row_start: mutable usize = 0
+        while row_start < 26:
+            shifted_index: usize = row_start + column
+            if shifted_index >= 26:
+                break
+            mapping[alphabet_index] <- shifted[shifted_index]
+            alphabet_index <- alphabet_index + 1
+            row_start <- row_start + unique_count
+        column <- column + 1
+
+    buffer: mutable u8[MAX_PLAINTEXT_LENGTH] = zeroed
+    index <- 0
+    while index < plaintext_length:
+        letter: mutable i64 = input[plaintext_length_index + 1 + index]
+        if letter >= 97 and letter <= 122:
+            letter <- letter - 32
+        if letter >= 65 and letter <= 90:
+            buffer[index] <- mapping[(letter - 65).usize()]
+        else:
+            buffer[index] <- letter.u8()
+        index <- index + 1
+
+    if output.is_null() or capacity < plaintext_length:
+        return -2
+    index <- 0
+    while index < plaintext_length:
+        output[index] <- buffer[index]
+        index <- index + 1
+    plaintext_length.i64()
+
+export fn mixed_keyword_cypher(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = mixed_keyword_cypher_impl

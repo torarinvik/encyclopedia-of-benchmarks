@@ -1,0 +1,113 @@
+def find_slot(table: i32[128]&, capacity: usize, key: i32) -> usize:
+    index: mutable usize = key.usize() % capacity
+    probes: mutable usize = 0
+    while probes < capacity:
+        if table[index] == 0: return capacity
+        if table[index] == key: return index
+        index <- (index + 1) % capacity
+        probes <- probes + 1
+    capacity
+
+def insertion_slot(table: i32[128]&, capacity: usize, key: i32) -> usize:
+    index: mutable usize = key.usize() % capacity
+    probes: mutable usize = 0
+    while probes < capacity:
+        if table[index] == 0 or table[index] == -1: return index
+        index <- (index + 1) % capacity
+        probes <- probes + 1
+    capacity
+
+def rehash(table: mutable i32[128]&, capacity: mutable usize&):
+    old_table: mutable i32[128] = zeroed
+    old_capacity: usize = capacity
+    index: mutable usize = 0
+    while index < old_capacity:
+        old_table[index] <- table[index]
+        index <- index + 1
+    capacity <- capacity * 2
+    index <- 0
+    while index < capacity:
+        table[index] <- 0
+        index <- index + 1
+    index <- 0
+    while index < old_capacity:
+        key: i32 = old_table[index]
+        if key > 0:
+            slot: usize = insertion_slot(table, capacity, key)
+            if slot < capacity: table[slot] <- key
+        index <- index + 1
+
+def linear_probing_hash_table_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 66: return -1
+    if input[0] < 2 or input[0] > 16 or input[1] < 0 or input[1] > 32: return -1
+    table_capacity: mutable usize = input[0].usize()
+    operation_count: usize = input[1].usize()
+    table: mutable i32[128] = zeroed
+    size: mutable usize = 0
+    words: mutable i64[1088] = zeroed
+    word_count: mutable usize = 0
+    position: mutable usize = 2
+    operation: mutable usize = 0
+    while operation < operation_count:
+        if position >= length: return -1
+        opcode: i64 = input[position]
+        position <- position + 1
+        if opcode >= 0 and opcode <= 3:
+            if position >= length: return -1
+            key_arg: i64 = input[position]
+            position <- position + 1
+            if key_arg < 1 or key_arg > 2147483520: return -1
+            key: i32 = key_arg.i32()
+            if opcode == 0:
+                slot: usize = insertion_slot(table, table_capacity, key)
+                if slot >= table_capacity: return -1
+                table[slot] <- key
+                size <- size + 1
+                words[word_count] <- 0
+                words[word_count + 1] <- 1
+                word_count <- word_count + 2
+                if size * 2 >= table_capacity: rehash(table, table_capacity)
+            elif opcode == 1:
+                slot: usize = find_slot(table, table_capacity, key)
+                if slot >= table_capacity: return -1
+                table[slot] <- -1
+                size <- size - 1
+                words[word_count] <- 1
+                words[word_count + 1] <- 1
+                word_count <- word_count + 2
+            elif opcode == 2:
+                words[word_count] <- 2
+                if find_slot(table, table_capacity, key) < table_capacity: words[word_count + 1] <- 1
+                else: words[word_count + 1] <- 0
+                word_count <- word_count + 2
+            else:
+                words[word_count] <- 3
+                words[word_count + 1] <- key_arg
+                word_count <- word_count + 2
+        elif opcode == 4:
+            words[word_count] <- 4
+            words[word_count + 1] <- table_capacity.i64()
+            word_count <- word_count + 2
+            index: mutable usize = 0
+            while index < table_capacity:
+                if table[index] == 0: words[word_count] <- -2
+                else: words[word_count] <- table[index].i64()
+                word_count <- word_count + 1
+                index <- index + 1
+        else:
+            return -1
+        operation <- operation + 1
+    if position != length or word_count > 1088: return -1
+    bytes: usize = word_count * 8
+    if output.is_null() or output_capacity < bytes: return -2
+    index: mutable usize = 0
+    while index < word_count:
+        bits: u64 = words[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[8 * index + byte] <- ((bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    bytes.i64()
+
+export fn linear_probing_hash_table(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = linear_probing_hash_table_impl

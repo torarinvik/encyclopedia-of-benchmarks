@@ -1,0 +1,401 @@
+{
+  "schema_version": 1,
+  "id": "php-python-ruby-temperature-conversions-common-lattice-v1",
+  "algorithm": "temperature_conversions",
+  "function_symbol": "temperature_conversions",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/PHP",
+      "commit": "b8a54469cc36332ef2934101b58d71075ef1d78e",
+      "path": "Conversions/TemperatureConversions.php",
+      "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Conversions/TemperatureConversions.php"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "conversions/temperature_conversions.py",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/conversions/temperature_conversions.py"
+    },
+    {
+      "repository": "TheAlgorithms/Ruby",
+      "commit": "bda11bdfd83b7958e1ca98247e5e43100ca88865",
+      "path": "conversions/temperature_conversions.rb",
+      "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/conversions/temperature_conversions.rb"
+    }
+  ],
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[operation, temperature_micro]",
+    "scale": 1000000,
+    "temperature_value_range": [
+      -1000000,
+      1000000
+    ],
+    "operation_codes": {
+      "celsius_to_fahrenheit": 0,
+      "fahrenheit_to_celsius": 1,
+      "celsius_to_kelvin": 2,
+      "kelvin_to_celsius": 3,
+      "kelvin_to_fahrenheit": 4
+    },
+    "operation_lattices": {
+      "0": "temperature_micro is a multiple of 5,000,000 (Celsius in multiples of 5 degrees)",
+      "1": "temperature_micro = 32,000,000 + 9,000,000*k (Fahrenheit = 32 + 9k)",
+      "2": "temperature_micro is a multiple of 1,000,000 (integer Celsius)",
+      "3": "temperature_micro = 273,150,000 + 1,000,000*k (Kelvin = 273.15 + integer)",
+      "4": "temperature_micro = 273,150,000 + 5,000,000*k (Kelvin = 273.15 + 5k)"
+    },
+    "maximum_valid_input_values": 2,
+    "maximum_parseable_input_values": 3,
+    "invalid_result": -1e+300,
+    "null_input_result": -1e+300
+  },
+  "output": {
+    "kind": "float64",
+    "meaning": "Source-rounded conversion result on the shared mode-specific lattice.",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "pinned_celsius_to_fahrenheit",
+      "input_values": [
+        0,
+        20000000
+      ],
+      "input_length": 2,
+      "expected_result": 68.0
+    },
+    {
+      "id": "celsius_zero_to_fahrenheit",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 32.0
+    },
+    {
+      "id": "celsius_negative_forty_to_fahrenheit",
+      "input_values": [
+        0,
+        -40000000
+      ],
+      "input_length": 2,
+      "expected_result": -40.0
+    },
+    {
+      "id": "celsius_to_fahrenheit_lower_bound",
+      "input_values": [
+        0,
+        -1000000000000
+      ],
+      "input_length": 2,
+      "expected_result": -1799968.0
+    },
+    {
+      "id": "celsius_to_fahrenheit_upper_bound",
+      "input_values": [
+        0,
+        1000000000000
+      ],
+      "input_length": 2,
+      "expected_result": 1800032.0
+    },
+    {
+      "id": "pinned_fahrenheit_to_celsius",
+      "input_values": [
+        1,
+        68000000
+      ],
+      "input_length": 2,
+      "expected_result": 20.0
+    },
+    {
+      "id": "fahrenheit_freezing_to_celsius",
+      "input_values": [
+        1,
+        32000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "fahrenheit_negative_forty_to_celsius",
+      "input_values": [
+        1,
+        -40000000
+      ],
+      "input_length": 2,
+      "expected_result": -40.0
+    },
+    {
+      "id": "fahrenheit_to_celsius_lower_bound_lattice",
+      "input_values": [
+        1,
+        -999994000000
+      ],
+      "input_length": 2,
+      "expected_result": -555570.0
+    },
+    {
+      "id": "fahrenheit_to_celsius_upper_bound_lattice",
+      "input_values": [
+        1,
+        999995000000
+      ],
+      "input_length": 2,
+      "expected_result": 555535.0
+    },
+    {
+      "id": "pinned_celsius_to_kelvin",
+      "input_values": [
+        2,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 273.15
+    },
+    {
+      "id": "celsius_twenty_to_kelvin",
+      "input_values": [
+        2,
+        20000000
+      ],
+      "input_length": 2,
+      "expected_result": 293.15
+    },
+    {
+      "id": "celsius_minus_273_to_kelvin",
+      "input_values": [
+        2,
+        -273000000
+      ],
+      "input_length": 2,
+      "expected_result": 0.15
+    },
+    {
+      "id": "celsius_to_kelvin_lower_bound",
+      "input_values": [
+        2,
+        -1000000000000
+      ],
+      "input_length": 2,
+      "expected_result": -999726.85
+    },
+    {
+      "id": "celsius_to_kelvin_upper_bound",
+      "input_values": [
+        2,
+        1000000000000
+      ],
+      "input_length": 2,
+      "expected_result": 1000273.15
+    },
+    {
+      "id": "pinned_kelvin_to_celsius",
+      "input_values": [
+        3,
+        293150000
+      ],
+      "input_length": 2,
+      "expected_result": 20.0
+    },
+    {
+      "id": "kelvin_273_15_to_celsius",
+      "input_values": [
+        3,
+        273150000
+      ],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "kelvin_one_degree_below_reference",
+      "input_values": [
+        3,
+        272150000
+      ],
+      "input_length": 2,
+      "expected_result": -1.0
+    },
+    {
+      "id": "kelvin_to_celsius_lower_bound_lattice",
+      "input_values": [
+        3,
+        -999999850000
+      ],
+      "input_length": 2,
+      "expected_result": -1000273.0
+    },
+    {
+      "id": "kelvin_to_celsius_upper_bound_lattice",
+      "input_values": [
+        3,
+        999999150000
+      ],
+      "input_length": 2,
+      "expected_result": 999726.0
+    },
+    {
+      "id": "pinned_kelvin_to_fahrenheit",
+      "input_values": [
+        4,
+        373150000
+      ],
+      "input_length": 2,
+      "expected_result": 212.0
+    },
+    {
+      "id": "kelvin_reference_to_fahrenheit",
+      "input_values": [
+        4,
+        273150000
+      ],
+      "input_length": 2,
+      "expected_result": 32.0
+    },
+    {
+      "id": "room_temperature_kelvin_to_fahrenheit",
+      "input_values": [
+        4,
+        298150000
+      ],
+      "input_length": 2,
+      "expected_result": 77.0
+    },
+    {
+      "id": "kelvin_to_fahrenheit_lower_bound_lattice",
+      "input_values": [
+        4,
+        -999996850000
+      ],
+      "input_length": 2,
+      "expected_result": -1800454.0
+    },
+    {
+      "id": "kelvin_to_fahrenheit_upper_bound_lattice",
+      "input_values": [
+        4,
+        999998150000
+      ],
+      "input_length": 2,
+      "expected_result": 1799537.0
+    },
+    {
+      "id": "invalid_operation_negative",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_operation_above_range",
+      "input_values": [
+        5,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "celsius_fahrenheit_wrong_lattice",
+      "input_values": [
+        0,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "fahrenheit_celsius_wrong_lattice",
+      "input_values": [
+        1,
+        33000000
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "celsius_kelvin_wrong_lattice",
+      "input_values": [
+        2,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "kelvin_celsius_wrong_lattice",
+      "input_values": [
+        3,
+        273150001
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "kelvin_fahrenheit_wrong_lattice",
+      "input_values": [
+        4,
+        273150001
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "temperature_above_bound",
+      "input_values": [
+        0,
+        1000000000001
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "temperature_below_bound",
+      "input_values": [
+        2,
+        -1000000000001
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "missing_temperature",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_packed_value",
+      "input_values": [
+        2,
+        0,
+        123
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "expected_result": -1e+300
+    }
+  ]
+}

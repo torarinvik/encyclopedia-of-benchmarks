@@ -1,0 +1,173 @@
+const MAX_KEYS: usize = 4
+const MAX_KEY_LENGTH: usize = 32
+const MAX_MESSAGE_LENGTH: usize = 256
+const MAX_INPUT_LENGTH: usize = 391
+const MAX_OUTPUT_LENGTH: usize = 511
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+const LOW63_MASK: u64 = 9223372036854775807
+
+def transposition_rust_is_ascii_letter(value: i64) -> bool:
+    (value >= 65 && value <= 90) || (value >= 97 && value <= 122)
+
+def transposition_rust_normalize(input: i64&, length: usize, output: i64&) -> usize:
+    count: mutable usize = 0
+    for index in 0..<length:
+        value: i64 = input[index]
+        if value >= 97 && value <= 122:
+            value <- value - 32
+        if value >= 65 && value <= 90:
+            output[count] <- value
+            count <- count + 1
+    count
+
+def transposition_rust_column_order(key: i64&, key_length: usize, order: usize&) -> void:
+    for index in 0..<key_length:
+        order[index] <- index
+    for index in 1..<key_length:
+        column: usize = order[index]
+        position: mutable usize = index
+        while position > 0 && key[order[position - 1]] > key[column]:
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- column
+
+def transposition_rust_encrypt_round(text: i64&, text_length: usize, key: i64&, key_length: usize, output: i64&) -> usize:
+    order: mutable usize[32] = zeroed
+    columns: mutable i64[256] = zeroed
+    transposition_rust_column_order(key, key_length, order)
+    ordered_length: mutable usize = 0
+    for rank in 0..<key_length:
+        position: mutable usize = order[rank]
+        while position < text_length:
+            columns[ordered_length] <- text[position]
+            ordered_length <- ordered_length + 1
+            position <- position + key_length
+    group_size: usize = (text_length + key_length - 1) / key_length
+    output_length: mutable usize = 0
+    for index in 0..<ordered_length:
+        output[output_length] <- columns[index]
+        output_length <- output_length + 1
+        if (index + 1) % group_size == 0 && index + 1 < ordered_length:
+            output[output_length] <- 32
+            output_length <- output_length + 1
+    output_length
+
+def transposition_rust_decrypt_round(text: i64&, text_length: usize, key: i64&, key_length: usize, output: i64&) -> usize:
+    order: mutable usize[32] = zeroed
+    columns: mutable i64[8192] = zeroed
+    column_lengths: mutable usize[32] = zeroed
+    transposition_rust_column_order(key, key_length, order)
+    short_length: usize = text_length / key_length
+    longer_columns: usize = text_length % key_length
+    cursor: mutable usize = 0
+    for rank in 0..<key_length:
+        column: usize = order[rank]
+        column_length: usize = short_length
+        if column < longer_columns:
+            column_length <- column_length + 1
+        column_lengths[column] <- column_length
+        for row in 0..<column_length:
+            columns[column * MAX_MESSAGE_LENGTH + row] <- text[cursor]
+            cursor <- cursor + 1
+    row_count: usize = short_length
+    if longer_columns > 0:
+        row_count <- row_count + 1
+    output_length: mutable usize = 0
+    for row in 0..<row_count:
+        for column in 0..<key_length:
+            if row < column_lengths[column]:
+                output[output_length] <- columns[column * MAX_MESSAGE_LENGTH + row]
+                output_length <- output_length + 1
+    output_length
+
+def transposition_rust_feed(hash_input: u64, value_input: u64, width: usize) -> u64:
+    hash: mutable u64 = hash_input
+    value: mutable u64 = value_input
+    for _ in 0..<width:
+        hash <- (hash ^ (value & 255.u64())) * FNV_PRIME
+        value <- value >> 8
+    hash
+
+def transposition_rust_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() || length < 2 || length > MAX_INPUT_LENGTH:
+        return -1
+    mode: i64 = input[0]
+    key_count_value: i64 = input[1]
+    if (mode != 0 && mode != 1) || key_count_value < 1 || key_count_value > MAX_KEYS.i64():
+        return -1
+    key_count: usize = key_count_value.usize()
+
+    keys: mutable i64[128] = zeroed
+    key_offsets: mutable usize[4] = zeroed
+    key_lengths: mutable usize[4] = zeroed
+    longest_key: mutable usize = 0
+    key_storage_length: mutable usize = 0
+    cursor: mutable usize = 2
+    for key_index in 0..<key_count:
+        if cursor >= length:
+            return -1
+        key_length_value: i64 = input[cursor]
+        cursor <- cursor + 1
+        if key_length_value < 1 || key_length_value > MAX_KEY_LENGTH.i64():
+            return -1
+        key_length: usize = key_length_value.usize()
+        if key_length > length - cursor:
+            return -1
+        key_offsets[key_index] <- key_storage_length
+        for index in 0..<key_length:
+            value: i64 = input[cursor + index]
+            if !transposition_rust_is_ascii_letter(value):
+                return -1
+            if value >= 97 && value <= 122:
+                value <- value - 32
+            keys[key_storage_length + index] <- value
+        key_storage_length <- key_storage_length + key_length
+        cursor <- cursor + key_length
+        key_lengths[key_index] <- key_length
+        if key_length > longest_key:
+            longest_key <- key_length
+    if cursor >= length:
+        return -1
+    message_length_value: i64 = input[cursor]
+    cursor <- cursor + 1
+    if message_length_value < 1 || message_length_value > MAX_MESSAGE_LENGTH.i64():
+        return -1
+    message_length: usize = message_length_value.usize()
+    if message_length != length - cursor:
+        return -1
+    message: mutable i64[256] = zeroed
+    for index in 0..<message_length:
+        value: i64 = input[cursor + index]
+        if value < 0 || value > 127:
+            return -1
+        message[index] <- value
+
+    current: mutable i64[511] = zeroed
+    filtered: mutable i64[256] = zeroed
+    next: mutable i64[511] = zeroed
+    current_length: mutable usize = transposition_rust_normalize(message, message_length, current)
+    if current_length < longest_key:
+        return -1
+    for pass in 0..<key_count:
+        key_index: usize = pass
+        if mode == 1:
+            key_index <- key_count - 1 - pass
+        filtered_length: usize = transposition_rust_normalize(current, current_length, filtered)
+        key_offset: usize = key_offsets[key_index]
+        key_length: usize = key_lengths[key_index]
+        next_length: mutable usize = 0
+        if mode == 0:
+            next_length <- transposition_rust_encrypt_round(filtered, filtered_length, keys[key_offset], key_length, next)
+        else:
+            next_length <- transposition_rust_decrypt_round(filtered, filtered_length, keys[key_offset], key_length, next)
+        for index in 0..<next_length:
+            current[index] <- next[index]
+        current_length <- next_length
+
+    hash: mutable u64 = transposition_rust_feed(FNV_OFFSET, current_length.u64(), 8)
+    for index in 0..<current_length:
+        hash <- transposition_rust_feed(hash, current[index].u64(), 4)
+    (hash & LOW63_MASK).i64()
+
+export fn transposition_rust(input: i64&, length: usize) -> i64 = transposition_rust_impl

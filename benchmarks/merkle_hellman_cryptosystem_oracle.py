@@ -8,9 +8,16 @@ import struct
 WORD_MAX = (1 << 32) - 1
 BASE_WEIGHT = 1 << 32
 WEIGHT_COUNT = 8
+MIN_DRAWS = 1
 MAX_DRAWS = 32
 MAX_INPUT_LENGTH = 11 + MAX_DRAWS
 OUTPUT_BYTES = 17
+MAX_OUTPUT_BYTES = OUTPUT_BYTES
+MIN_MESSAGE_BYTE = 0
+MAX_MESSAGE_BYTE = 127
+MIN_RANDOM_DRAW = 0
+MAX_RANDOM_DRAW = WORD_MAX
+MAX_INPUT_BYTES = MAX_INPUT_LENGTH * 8
 INVALID_RESULT = -1
 INSUFFICIENT_CAPACITY_RESULT = -2
 I64_MIN, I64_MAX = -(1 << 63), (1 << 63) - 1
@@ -31,16 +38,16 @@ def expected_output(
         return INVALID_RESULT, b""
 
     message_byte = values[0]
-    if not 0 <= message_byte <= 127:
+    if not MIN_MESSAGE_BYTE <= message_byte <= MAX_MESSAGE_BYTE:
         return INVALID_RESULT, b""
     weight_draws = values[1:9]
     modulus_draw = values[9]
     draw_count = values[10]
-    if any(not 0 <= draw <= WORD_MAX for draw in weight_draws):
+    if any(not MIN_RANDOM_DRAW <= draw <= MAX_RANDOM_DRAW for draw in weight_draws):
         return INVALID_RESULT, b""
-    if not 0 <= modulus_draw <= WORD_MAX:
+    if not MIN_RANDOM_DRAW <= modulus_draw <= MAX_RANDOM_DRAW:
         return INVALID_RESULT, b""
-    if not 1 <= draw_count <= MAX_DRAWS or len(values) != 11 + draw_count:
+    if not MIN_DRAWS <= draw_count <= MAX_DRAWS or len(values) != 11 + draw_count:
         return INVALID_RESULT, b""
 
     easy_knapsack: list[int] = []

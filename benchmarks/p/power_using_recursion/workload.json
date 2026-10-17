@@ -1,33 +1,222 @@
 {
   "schema_version": 1,
-  "id": "power-using-recursion-v1",
+  "id": "power-using-recursion-i64-v1",
   "algorithm": "power_using_recursion",
-  "input": {
-    "kind": "base_exponent_signed_i64_pair",
-    "base_range": [-10, 10],
-    "exponent_range": [0, 15],
-    "invalid_result": -9223372036854775808
-  },
-  "cases": [
-    {"id":"zero_exponent","input_values":[7,0],"expected_result":1},
-    {"id":"unit_exponent","input_values":[7,1],"expected_result":7},
-    {"id":"zero_base","input_values":[0,15],"expected_result":0},
-    {"id":"zero_to_zero","input_values":[0,0],"expected_result":1},
-    {"id":"positive_power","input_values":[3,4],"expected_result":81},
-    {"id":"negative_base_odd","input_values":[-2,5],"expected_result":-32},
-    {"id":"negative_base_even","input_values":[-2,6],"expected_result":64},
-    {"id":"valid_negative_one","input_values":[-1,1],"expected_result":-1},
-    {"id":"minimum_base_max_exponent","input_values":[-10,15],"expected_result":-1000000000000000},
-    {"id":"maximum_base_max_exponent","input_values":[10,15],"expected_result":1000000000000000},
-    {"id":"base_too_small","input_values":[-11,2],"expected_result":-9223372036854775808},
-    {"id":"base_too_large","input_values":[11,2],"expected_result":-9223372036854775808},
-    {"id":"negative_exponent","input_values":[2,-1],"expected_result":-9223372036854775808},
-    {"id":"exponent_too_large","input_values":[2,16],"expected_result":-9223372036854775808}
+  "function_symbol": "power_using_recursion",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/maths/PowerUsingRecursion.java",
+      "symbol": "PowerUsingRecursion.power",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/PowerUsingRecursion.java"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "maths/power_using_recursion.py",
+      "symbol": "power",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/power_using_recursion.py"
+    }
   ],
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[base, exponent]",
+    "length": 2,
+    "base_range": [
+      -10,
+      10
+    ],
+    "exponent_range": [
+      0,
+      15
+    ],
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "base raised to exponent by linear recursion",
+    "invalid_result": -1
+  },
   "measurement": {
-    "comparison_model": "binary_scalar_call",
+    "comparison_model": "i64_array_scalar_call",
     "sample_count": 9,
     "warmup_rounds": 1,
-    "repetitions_per_sample": 1000
-  }
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {
+      "id": "zero_to_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "zero_to_positive",
+      "input_values": [
+        0,
+        15
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "one_to_maximum_exponent",
+      "input_values": [
+        1,
+        15
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "negative_one_odd_exponent",
+      "input_values": [
+        -1,
+        15
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_one_even_exponent",
+      "input_values": [
+        -1,
+        14
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "source_positive_example",
+      "input_values": [
+        3,
+        4
+      ],
+      "expected_result": 81
+    },
+    {
+      "id": "source_zero_exponent_example",
+      "input_values": [
+        2,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "negative_base_odd_exponent",
+      "input_values": [
+        -3,
+        5
+      ],
+      "expected_result": -243
+    },
+    {
+      "id": "negative_base_even_exponent",
+      "input_values": [
+        -3,
+        6
+      ],
+      "expected_result": 729
+    },
+    {
+      "id": "maximum_positive_magnitude",
+      "input_values": [
+        10,
+        15
+      ],
+      "expected_result": 1000000000000000
+    },
+    {
+      "id": "maximum_negative_magnitude",
+      "input_values": [
+        -10,
+        15
+      ],
+      "expected_result": -1000000000000000
+    },
+    {
+      "id": "base_lower_boundary",
+      "input_values": [
+        -10,
+        1
+      ],
+      "expected_result": -10
+    },
+    {
+      "id": "base_upper_boundary",
+      "input_values": [
+        10,
+        1
+      ],
+      "expected_result": 10
+    },
+    {
+      "id": "exponent_lower_boundary",
+      "input_values": [
+        7,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "expected_result": -1,
+      "input_is_null": true,
+      "input_length": 2
+    },
+    {
+      "id": "wrong_packed_length_empty",
+      "input_values": [],
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_packed_length_one",
+      "input_values": [
+        4
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_packed_length_trailing",
+      "input_values": [
+        2,
+        3,
+        9
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "base_below_domain",
+      "input_values": [
+        -11,
+        2
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "base_above_domain",
+      "input_values": [
+        11,
+        2
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_exponent",
+      "input_values": [
+        2,
+        -1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "exponent_above_domain",
+      "input_values": [
+        2,
+        16
+      ],
+      "expected_result": -1
+    }
+  ]
 }

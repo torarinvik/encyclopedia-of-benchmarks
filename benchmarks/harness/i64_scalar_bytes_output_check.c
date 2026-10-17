@@ -30,10 +30,13 @@ int main(void)
 
     for (uint64_t checked = 0; checked < case_count; ++checked) {
         int64_t input, expected_result;
+        int output_is_null;
         uint64_t capacity, output_length;
         char encoded[MAX_OUTPUT_BYTES * 2 + 2];
-        if (scanf("%" SCNd64 " %" SCNd64 " %" SCNu64 " %" SCNu64 " %16384s",
-                  &input, &expected_result, &capacity, &output_length, encoded) != 5 ||
+        if (scanf("%" SCNd64 " %" SCNd64 " %" SCNu64 " %d %" SCNu64 " %16384s",
+                  &input, &expected_result, &capacity, &output_is_null, &output_length, encoded) != 6 ||
+            (output_is_null != 0 && output_is_null != 1) ||
+            (output_is_null && output_length != 0) ||
             capacity > MAX_OUTPUT_BYTES || output_length > MAX_OUTPUT_BYTES ||
             expected_result < -2 || expected_result > MAX_OUTPUT_BYTES) {
             fprintf(stderr, "invalid scalar byte-output case header\n");
@@ -63,7 +66,8 @@ int main(void)
             }
         }
 
-        const int64_t result = BENCHMARK_FUNCTION(input, observed, (size_t)capacity);
+        const int64_t result = BENCHMARK_FUNCTION(input, output_is_null ? NULL : observed,
+                                                  (size_t)capacity);
         if (result != expected_result ||
             (output_length > 0 && memcmp(observed, expected, (size_t)output_length) != 0)) {
             fprintf(stderr, "case=%" PRIu64 ": expected result=%" PRId64

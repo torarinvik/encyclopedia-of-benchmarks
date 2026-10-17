@@ -1,0 +1,415 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-minimax-full-tree-i64-array-scalar-v1",
+  "algorithm": "minimax",
+  "function_symbol": "minimax",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Plus-Plus",
+    "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+    "path": "backtracking/minimax.cpp",
+    "symbol": "backtracking::minimax",
+    "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/backtracking/minimax.cpp"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[leaf_count, first_turn_is_max, leaf_score_0, ..., leaf_score_(leaf_count-1)]",
+    "leaf_count_range": [
+      1,
+      32
+    ],
+    "leaf_count_constraint": "Power of two",
+    "first_turn_is_max_values": {
+      "0": "minimizing player",
+      "1": "maximizing player"
+    },
+    "score_range": [
+      -2147483648,
+      2147483647
+    ],
+    "exact_length": "2 + leaf_count",
+    "maximum_input_length": 34,
+    "maximum_parseable_input_length": 35,
+    "invalid_input_result": -2147483649,
+    "null_input_result": -2147483649
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Root score after alternating max/min reductions through the full binary tree.",
+    "valid_result_range": [
+      -2147483648,
+      2147483647
+    ],
+    "invalid_input_result": -2147483649
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "one_leaf_max_turn",
+      "input_values": [
+        1,
+        1,
+        42
+      ],
+      "input_length": 3,
+      "expected_result": 42
+    },
+    {
+      "id": "one_leaf_min_turn",
+      "input_values": [
+        1,
+        0,
+        -7
+      ],
+      "input_length": 3,
+      "expected_result": -7
+    },
+    {
+      "id": "valid_score_minus_one",
+      "input_values": [
+        1,
+        1,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "two_leaf_maximizer",
+      "input_values": [
+        2,
+        1,
+        -3,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": 5
+    },
+    {
+      "id": "two_leaf_minimizer",
+      "input_values": [
+        2,
+        0,
+        -3,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": -3
+    },
+    {
+      "id": "four_leaves_max_root_alternates_to_min",
+      "input_values": [
+        4,
+        1,
+        3,
+        5,
+        2,
+        9
+      ],
+      "input_length": 6,
+      "expected_result": 3
+    },
+    {
+      "id": "four_leaves_min_root_alternates_to_max",
+      "input_values": [
+        4,
+        0,
+        3,
+        5,
+        2,
+        9
+      ],
+      "input_length": 6,
+      "expected_result": 5
+    },
+    {
+      "id": "all_negative_max_root",
+      "input_values": [
+        4,
+        1,
+        -9,
+        4,
+        7,
+        -3
+      ],
+      "input_length": 6,
+      "expected_result": -3
+    },
+    {
+      "id": "all_negative_min_root",
+      "input_values": [
+        4,
+        0,
+        -9,
+        4,
+        7,
+        -3
+      ],
+      "input_length": 6,
+      "expected_result": 4
+    },
+    {
+      "id": "eight_leaves_max_root",
+      "input_values": [
+        8,
+        1,
+        5,
+        2,
+        7,
+        4,
+        1,
+        9,
+        3,
+        8
+      ],
+      "input_length": 10,
+      "expected_result": 8
+    },
+    {
+      "id": "eight_leaves_min_root",
+      "input_values": [
+        8,
+        0,
+        5,
+        2,
+        7,
+        4,
+        1,
+        9,
+        3,
+        8
+      ],
+      "input_length": 10,
+      "expected_result": 3
+    },
+    {
+      "id": "signed_i32_extrema_max",
+      "input_values": [
+        2,
+        1,
+        -2147483648,
+        2147483647
+      ],
+      "input_length": 4,
+      "expected_result": 2147483647
+    },
+    {
+      "id": "signed_i32_extrema_min",
+      "input_values": [
+        2,
+        0,
+        -2147483648,
+        2147483647
+      ],
+      "input_length": 4,
+      "expected_result": -2147483648
+    },
+    {
+      "id": "maximum_leaf_count",
+      "input_values": [
+        32,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 34,
+      "expected_result": 0
+    },
+    {
+      "id": "zero_leaf_count_invalid",
+      "input_values": [
+        0,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "non_power_of_two_leaf_count_invalid",
+      "input_values": [
+        3,
+        1,
+        1,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "too_many_leaves_invalid",
+      "input_values": [
+        33,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "turn_flag_below_range_invalid",
+      "input_values": [
+        1,
+        -1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "turn_flag_above_range_invalid",
+      "input_values": [
+        1,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "short_score_array_invalid",
+      "input_values": [
+        4,
+        1,
+        1,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "extra_score_invalid",
+      "input_values": [
+        1,
+        1,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "score_below_i32_invalid",
+      "input_values": [
+        1,
+        1,
+        -2147483649
+      ],
+      "input_length": 3,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "score_above_i32_invalid",
+      "input_values": [
+        1,
+        1,
+        2147483648
+      ],
+      "input_length": 3,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "minimum_i64_score_invalid",
+      "input_values": [
+        1,
+        1,
+        -9223372036854775808
+      ],
+      "input_length": 3,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "maximum_i64_score_invalid",
+      "input_values": [
+        1,
+        1,
+        9223372036854775807
+      ],
+      "input_length": 3,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "parseable_length_one_above_maximum",
+      "input_values": [
+        32,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 35,
+      "expected_result": -2147483649
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "expected_result": -2147483649
+    }
+  ]
+}

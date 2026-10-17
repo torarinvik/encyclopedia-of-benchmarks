@@ -1,0 +1,16 @@
+def so1_impl(threshold: i64) -> i64:
+    if threshold < -2147483648 or threshold > 1000000000:
+        return -1
+
+    first: mutable i64 = 1
+    second: mutable i64 = 2
+    total: mutable i64 = 0
+    while second <= threshold:
+        if second % 2 == 0:
+            total <- total + second
+        temporary: i64 = first
+        first <- second
+        second <- temporary + first
+    total
+
+export fn so1(threshold: i64) -> i64 = so1_impl(threshold)

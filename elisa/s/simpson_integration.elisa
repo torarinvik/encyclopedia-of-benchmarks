@@ -1,0 +1,36 @@
+extern exp(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+const MAX_ENDPOINT_MICRO: i64 = 10000000
+
+def integrand(x: f64) -> f64:
+    exp(-x) * (4.0 - pow(x, 2.0))
+
+def simpson_integration_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 3:
+        return INVALID_RESULT
+    intervals: i64 = values[0]
+    a_micro: i64 = values[1]
+    b_micro: i64 = values[2]
+    if intervals < 2 or intervals > 128 or intervals % 2 != 0 or a_micro < -MAX_ENDPOINT_MICRO or a_micro > MAX_ENDPOINT_MICRO or b_micro < -MAX_ENDPOINT_MICRO or b_micro > MAX_ENDPOINT_MICRO or a_micro > b_micro:
+        return INVALID_RESULT
+    a: f64 = a_micro.f64() / 1000000.0
+    b: f64 = b_micro.f64() / 1000000.0
+    if a == b:
+        return 0.0
+    h: f64 = (b - a) / intervals.f64()
+    xi: mutable f64 = a
+    total: mutable f64 = 0.0
+    for i in 0..<=intervals:
+        sample: f64 = integrand(xi)
+        if i == 0 or i == intervals:
+            total <- total + sample
+        else if i % 2 == 1:
+            total <- total + 4.0 * sample
+        else:
+            total <- total + 2.0 * sample
+        xi <- xi + h
+    (h / 3.0) * total
+
+export fn simpson_integration(values: i64&, length: usize) -> f64 = simpson_integration_impl

@@ -1,0 +1,497 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-link-list-sort-array-bytes-v1",
+  "algorithm": "link_list_sort",
+  "function_symbol": "link_list_sort",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/sorts/LinkListSort.java",
+    "method": "isSorted",
+    "signature": "isSorted(int[] p, int option)",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/sorts/LinkListSort.java",
+    "role": "algorithm"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[sort_selector, item_count, value_0, ...]",
+    "sort_selector_range": [
+      1,
+      3
+    ],
+    "sort_selectors": {
+      "1": "linked-list merge sort",
+      "2": "linked-list insertion sort",
+      "3": "linked-list heap sort"
+    },
+    "item_count_range": [
+      0,
+      128
+    ],
+    "item_value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "maximum_valid_input_length": 130,
+    "maximum_parseable_input_length": 130,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_32_bit_array",
+    "encoding": "sorted item values in ascending order",
+    "maximum_output_elements": 128,
+    "maximum_output_bytes": 512,
+    "success_result": "output byte count",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {
+      "id": "merge_empty_input",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insertion_empty_input",
+      "input_values": [
+        2,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "heap_empty_input",
+      "input_values": [
+        3,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "merge_singleton",
+      "input_values": [
+        1,
+        1,
+        7
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "07000000"
+    },
+    {
+      "id": "insertion_singleton_int32_min",
+      "input_values": [
+        2,
+        1,
+        -2147483648
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "00000080"
+    },
+    {
+      "id": "heap_singleton_int32_max",
+      "input_values": [
+        3,
+        1,
+        2147483647
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "ffffff7f"
+    },
+    {
+      "id": "merge_mixed_and_duplicates",
+      "input_values": [
+        1,
+        8,
+        5,
+        -1,
+        3,
+        3,
+        0,
+        9,
+        -4,
+        5
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "fcffffffffffffff000000000300000003000000050000000500000009000000"
+    },
+    {
+      "id": "insertion_negative_duplicates",
+      "input_values": [
+        2,
+        7,
+        0,
+        -2,
+        3,
+        -2,
+        1,
+        1,
+        -9
+      ],
+      "expected_result": 28,
+      "expected_output_hex": "f7fffffffefffffffeffffff00000000010000000100000003000000"
+    },
+    {
+      "id": "heap_boundary_and_duplicates",
+      "input_values": [
+        3,
+        6,
+        2147483647,
+        0,
+        -2147483648,
+        0,
+        1,
+        -1
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "00000080ffffffff000000000000000001000000ffffff7f"
+    },
+    {
+      "id": "merge_already_sorted",
+      "input_values": [
+        1,
+        7,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1
+      ],
+      "expected_result": 28,
+      "expected_output_hex": "fbfffffffcfffffffdfffffffeffffffffffffff0000000001000000"
+    },
+    {
+      "id": "insertion_reverse",
+      "input_values": [
+        2,
+        6,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "expected_result": 24,
+      "expected_output_hex": "010000000200000003000000040000000500000006000000"
+    },
+    {
+      "id": "heap_duplicate_only",
+      "input_values": [
+        3,
+        5,
+        -3,
+        -3,
+        -3,
+        -3,
+        -3
+      ],
+      "expected_result": 20,
+      "expected_output_hex": "fdfffffffdfffffffdfffffffdfffffffdffffff"
+    },
+    {
+      "id": "merge_int32_extremes",
+      "input_values": [
+        1,
+        4,
+        2147483647,
+        -2147483648,
+        0,
+        -1
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "00000080ffffffff00000000ffffff7f"
+    },
+    {
+      "id": "maximum_items_and_output",
+      "input_values": [
+        1,
+        128,
+        -2147483648,
+        2147483647,
+        -100000,
+        -92081,
+        -84162,
+        -76243,
+        -68324,
+        -60405,
+        -52486,
+        -44567,
+        -36648,
+        -28729,
+        -20810,
+        -12891,
+        -4972,
+        2947,
+        10866,
+        18785,
+        26704,
+        34623,
+        42542,
+        50461,
+        58380,
+        66299,
+        74218,
+        82137,
+        90056,
+        97975,
+        -94107,
+        -86188,
+        -78269,
+        -70350,
+        -62431,
+        -54512,
+        -46593,
+        -38674,
+        -30755,
+        -22836,
+        -14917,
+        -6998,
+        921,
+        8840,
+        16759,
+        24678,
+        32597,
+        40516,
+        48435,
+        56354,
+        64273,
+        72192,
+        80111,
+        88030,
+        95949,
+        -96133,
+        -88214,
+        -80295,
+        -72376,
+        -64457,
+        -56538,
+        -48619,
+        -40700,
+        -32781,
+        -24862,
+        -16943,
+        -9024,
+        -1105,
+        6814,
+        14733,
+        22652,
+        30571,
+        38490,
+        46409,
+        54328,
+        62247,
+        70166,
+        78085,
+        86004,
+        93923,
+        -98159,
+        -90240,
+        -82321,
+        -74402,
+        -66483,
+        -58564,
+        -50645,
+        -42726,
+        -34807,
+        -26888,
+        -18969,
+        -11050,
+        -3131,
+        4788,
+        12707,
+        20626,
+        28545,
+        36464,
+        44383,
+        52302,
+        60221,
+        68140,
+        76059,
+        83978,
+        91897,
+        99816,
+        -92266,
+        -84347,
+        -76428,
+        -68509,
+        -60590,
+        -52671,
+        -44752,
+        -36833,
+        -28914,
+        -20995,
+        -13076,
+        -5157,
+        2762,
+        10681,
+        18600,
+        26519,
+        34438,
+        42357,
+        50276,
+        58195,
+        66114,
+        74033,
+        81952,
+        89871
+      ],
+      "expected_result": 512,
+      "expected_output_hex": "000000806079feff9180feff7b88feff6590feff9697feff4f98feff809ffeff6aa7feff54affeff85b6feff3eb7feff6fbefeff59c6feff43cefeff74d5feff2dd6feff5eddfeff48e5feff32edfeff63f4feff1cf5feff4dfcfeff3704ffff210cffff5213ffff0b14ffff3c1bffff2623ffff102bffff4132fffffa32ffff2b3affff1542ffffff49ffff3051ffffe951ffff1a59ffff0461ffffee68ffff1f70ffffd870ffff0978fffff37fffffdd87ffff0e8fffffc78ffffff896ffffe29effffcca6fffffdadffffb6aeffffe7b5ffffd1bdffffbbc5ffffecccffffa5cdffffd6d4ffffc0dcffffaae4ffffdbebffff94ecffffc5f3ffffaffbffff99030000ca0a0000830b0000b41200009e1a000088220000b9290000722a0000a33100008d39000077410000a848000061490000925000007c580000666000009767000050680000816f00006b770000557f0000868600003f870000708e00005a960000449e000075a500002ea600005fad000049b5000033bd000064c400001dc500004ecc000038d4000022dc000053e300000ce400003deb000027f3000011fb000042020100fb0201002c0a010016120100001a010031210100ea2101001b29010005310100ef38010020400100d94001000a480100f44f0100de5701000f5f0100c85f0100f9660100e36e0100cd760100b77e0100e8850100ffffff7f"
+    },
+    {
+      "id": "empty_output_capacity_zero",
+      "input_values": [
+        3,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "null_output_empty",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "output_capacity": 0
+    },
+    {
+      "id": "null_output_nonempty",
+      "input_values": [
+        2,
+        3,
+        3,
+        1,
+        2
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        3,
+        3,
+        4,
+        4,
+        2
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 8
+    },
+    {
+      "id": "exact_nonempty_output_capacity",
+      "input_values": [
+        3,
+        3,
+        4,
+        4,
+        2
+      ],
+      "expected_result": 12,
+      "expected_output_hex": "020000000400000004000000",
+      "output_capacity": 12
+    },
+    {
+      "id": "invalid_selector_precedes_null_output",
+      "input_values": [
+        0,
+        1,
+        8
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "output_capacity": 0
+    },
+    {
+      "id": "trailing_input_word",
+      "input_values": [
+        1,
+        1,
+        8,
+        9
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "item_out_of_i32_range",
+      "input_values": [
+        2,
+        1,
+        2147483648
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "selector_above_domain",
+      "input_values": [
+        4,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_item_count",
+      "input_values": [
+        1,
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count_above_bound",
+      "input_values": [
+        1,
+        129
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_items",
+      "input_values": [
+        1,
+        2,
+        4
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 2,
+      "input_is_null": true
+    }
+  ]
+}

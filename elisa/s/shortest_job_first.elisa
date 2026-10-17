@@ -1,0 +1,56 @@
+const MAX_JOBS: usize = 32
+const MAX_OUTPUT_BYTES: usize = 520
+const SENTINEL: i64 = 999999999
+
+def shortest_job_first_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def shortest_job_first_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 1: return -1
+    raw_count: i64 = input[0]
+    if raw_count < 0 || raw_count > 32 || length != 1 + 2 * raw_count.usize(): return -1
+    count: usize = raw_count.usize()
+    remaining: mutable i64[32] = zeroed
+    waiting: mutable i64[32] = zeroed
+    for i in 0..<count:
+        arrival: i64 = input[1 + i]
+        burst: i64 = input[1 + count + i]
+        if arrival < 0 || arrival > 64 || burst < 1 || burst > 128 || burst >= SENTINEL: return -1
+        remaining[i] <- burst
+    bytes: usize = (1 + 2 * count) * 8
+    if output == null || capacity < bytes: return -2
+    complete: mutable usize = 0
+    time: mutable i64 = 0
+    minimum: mutable i64 = SENTINEL
+    short_index: mutable usize = 0
+    check: mutable bool = false
+    while complete != count:
+        for j in 0..<count:
+            if input[1 + j] <= time && remaining[j] > 0 && remaining[j] < minimum:
+                minimum <- remaining[j]
+                short_index <- j
+                check <- true
+        if !check:
+            time <- time + 1
+            continue
+        remaining[short_index] <- remaining[short_index] - 1
+        minimum <- remaining[short_index]
+        if minimum == 0: minimum <- SENTINEL
+        if remaining[short_index] == 0:
+            complete <- complete + 1
+            check <- false
+            finish_time: i64 = time + 1
+            wait: i64 = finish_time - input[1 + short_index] - input[1 + count + short_index]
+            waiting[short_index] <- if wait > 0: wait else: 0
+        time <- time + 1
+    shortest_job_first_put_i64(output, 0, raw_count)
+    for i in 0..<count: shortest_job_first_put_i64(output, 8 * (1 + i), waiting[i])
+    for i in 0..<count: shortest_job_first_put_i64(output, 8 * (1 + count + i), input[1 + count + i] + waiting[i])
+    bytes.i64()
+
+export fn shortest_job_first(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = shortest_job_first_impl

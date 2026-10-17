@@ -1,0 +1,87 @@
+const MAX_OPERATIONS: usize = 64
+const MAX_INPUT_LENGTH: usize = 129
+const MAX_DEPTH: usize = 64
+const MAX_OUTPUT_BYTES: usize = 516
+
+def linked_list_stack_put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def linked_list_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 0 or input[0] > 64:
+        return -1
+
+    operation_count: usize = input[0].usize()
+    node_values: mutable i32[MAX_DEPTH] = zeroed
+    node_next: mutable i32[MAX_DEPTH] = zeroed
+    records: mutable i32[2 * MAX_OPERATIONS] = zeroed
+    node_count: mutable usize = 0
+    query_count: mutable usize = 0
+    cursor: mutable usize = 1
+    top: mutable i32 = -1
+    stack_size: mutable usize = 0
+
+    operation: mutable usize = 0
+    while operation < operation_count:
+        if cursor >= length:
+            return -1
+        opcode: i64 = input[cursor]
+        cursor <- cursor + 1
+        if opcode == 0:
+            if cursor >= length:
+                return -1
+            value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if value < -2147483648 or value > 2147483647 or
+               stack_size >= MAX_DEPTH or node_count >= MAX_DEPTH:
+                return -1
+            node_values[node_count] <- value.i32()
+            node_next[node_count] <- top
+            top <- node_count.i32()
+            node_count <- node_count + 1
+            stack_size <- stack_size + 1
+        elif opcode == 1:
+            if stack_size == 0 or top < 0:
+                return -1
+            top_index: usize = top.usize()
+            records[2 * query_count] <- 1
+            records[2 * query_count + 1] <- node_values[top_index]
+            query_count <- query_count + 1
+            top <- node_next[top_index]
+            stack_size <- stack_size - 1
+        elif opcode == 2:
+            records[2 * query_count] <- 2
+            records[2 * query_count + 1] <- stack_size.i32()
+            query_count <- query_count + 1
+        elif opcode == 3:
+            records[2 * query_count] <- 3
+            records[2 * query_count + 1] <- if stack_size == 0 then 1 else 0
+            query_count <- query_count + 1
+        else:
+            return -1
+        operation <- operation + 1
+    if cursor != length:
+        return -1
+
+    output_bytes: usize = 4 + 8 * query_count
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    buffer: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    linked_list_stack_put_i32_le(query_count.i32(), buffer, 0)
+    index: mutable usize = 0
+    while index < 2 * query_count:
+        linked_list_stack_put_i32_le(records[index], buffer, 4 + 4 * index)
+        index <- index + 1
+    byte: mutable usize = 0
+    while byte < output_bytes:
+        output[byte] <- buffer[byte]
+        byte <- byte + 1
+    output_bytes.i64()
+
+export fn linked_list_stack(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = linked_list_stack_impl

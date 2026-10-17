@@ -1,0 +1,63 @@
+const MAX_VERTICES = 32
+const MAX_EDGES = 128
+const EDGE_TABLE_SIZE = MAX_VERTICES * MAX_VERTICES
+const MAX_INPUT_LENGTH = 2 + 2 * MAX_EDGES
+
+def kahns_algorithm_long_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    vertex_count = values[0]
+    edge_count = values[1]
+    if vertex_count < 1 or vertex_count > MAX_VERTICES or edge_count < 0 or edge_count > MAX_EDGES:
+        return -1
+    if length != 2 + 2 * edge_count:
+        return -1
+
+    multiplicity: mutable [EDGE_TABLE_SIZE]i64 = [0; EDGE_TABLE_SIZE]
+    indegree: mutable [MAX_VERTICES]i64 = [0; MAX_VERTICES]
+    distance: mutable [MAX_VERTICES]i64 = [0; MAX_VERTICES]
+    queue: mutable [MAX_VERTICES]i64 = [0; MAX_VERTICES]
+    for vertex in 0..<vertex_count:
+        distance[vertex] <- 1
+    for edge in 0..<edge_count:
+        source = values[2 + 2 * edge]
+        destination = values[3 + 2 * edge]
+        if source < 0 or source >= vertex_count or destination < 0 or destination >= vertex_count:
+            return -1
+        multiplicity[source * MAX_VERTICES + destination] <- multiplicity[source * MAX_VERTICES + destination] + 1
+        indegree[destination] <- indegree[destination] + 1
+
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    for vertex in 0..<vertex_count:
+        if indegree[vertex] == 0:
+            queue[tail] <- vertex
+            tail <- tail + 1
+    processed: mutable i64 = 0
+    maximum: mutable i64 = 1
+    while head < tail:
+        source = queue[head]
+        head <- head + 1
+        processed <- processed + 1
+        if distance[source] > maximum:
+            maximum <- distance[source]
+        for destination in 0..<vertex_count:
+            copies = multiplicity[source * MAX_VERTICES + destination]
+            if copies == 0:
+                continue
+            candidate = distance[source] + 1
+            if candidate > distance[destination]:
+                distance[destination] <- candidate
+            for copy in 0..<copies:
+                indegree[destination] <- indegree[destination] - 1
+                if indegree[destination] == 0:
+                    queue[tail] <- destination
+                    tail <- tail + 1
+    if processed != vertex_count:
+        return -1
+    for vertex in 0..<vertex_count:
+        if distance[vertex] > maximum:
+            maximum <- distance[vertex]
+    maximum
+
+export fn kahns_algorithm_long(values: i64&, length: usize) -> i64 = kahns_algorithm_long_impl

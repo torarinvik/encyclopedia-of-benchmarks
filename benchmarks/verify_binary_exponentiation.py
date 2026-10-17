@@ -43,7 +43,7 @@ def corpus(workload: dict) -> tuple[str, int]:
                    [2, I32_MAX + 1], [0, I32_MAX], [1, I32_MAX], [2, 63], [3, 40]]:
         include(values)
     for case in workload["cases"]:
-        values = encode_case(case)
+        values = encode_case(case, algorithm=ALGORITHM)
         if oracle(values) != case["expected_result"]: raise ValueError(f"workload oracle mismatch: {case['id']}")
         include(values)
     records=sorted(cases.items());lines=[f"{len(records)}\n"]
@@ -67,7 +67,7 @@ def verify(language: str,directory: Path,elisa_compiler: str|None,data: str,case
     records=[json.loads(line) for line in output.read_text(encoding="utf-8").splitlines()]
     if len(records)!=len(workload["cases"]):raise RuntimeError("unexpected workload record count")
     for case,record in zip(workload["cases"],records):
-        values=encode_case(case);expected=oracle(values)
+        values=encode_case(case, algorithm=ALGORITHM);expected=oracle(values)
         if (record["algorithm"]!=ALGORITHM or record["implementation"]["language"]!=language
             or record["implementation"]["source_sha256"]!=manifest["source_sha256"]
             or record["workload"]["input_length"]!=len(values) or record["workload"]["input_values"]!=values

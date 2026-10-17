@@ -1,0 +1,92 @@
+const MAX_ITEMS: usize = 128
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 130
+const FNV_OFFSET_BASIS: u64 = 14695981039346656037.u64()
+const FNV_PRIME: u64 = 1099511628211.u64()
+
+def pairing_heap_meld(first_root: i64, second_root: i64, keys: i64&, first_child: i64&, next_sibling: i64&) -> i64:
+    if first_root < 0: return second_root
+    if second_root < 0: return first_root
+    first: mutable i64 = first_root
+    second: mutable i64 = second_root
+    if keys[second.usize()] < keys[first.usize()]:
+        temporary: i64 = first
+        first <- second
+        second <- temporary
+    next_sibling[second.usize()] <- first_child[first.usize()]
+    first_child[first.usize()] <- second
+    next_sibling[first.usize()] <- -1
+    first
+
+def pairing_heap_hash_key(hash: u64, key: i64) -> u64:
+    bits: u32 = key.u32()
+    result: mutable u64 = hash
+    byte: usize = 0
+    while byte < 4:
+        octet: u64 = ((bits >> (byte * 8)) & 255.u32()).u64()
+        result <- (result ^ octet) * FNV_PRIME
+        byte <- byte + 1
+    result
+
+def pairing_heap_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    raw_count: i64 = values[0]
+    if raw_count < 2 or raw_count > MAX_ITEMS.i64() or length != 1 + raw_count.usize():
+        return -1
+    count: usize = raw_count.usize()
+
+    keys: mutable i64[MAX_ITEMS] = zeroed
+    first_child: mutable i64[MAX_ITEMS] = zeroed
+    next_sibling: mutable i64[MAX_ITEMS] = zeroed
+    index: usize = 0
+    while index < count:
+        value: i64 = values[1 + index]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        previous: usize = 0
+        while previous < index:
+            if values[1 + previous] == value: return -1
+            previous <- previous + 1
+        keys[index] <- value
+        first_child[index] <- -1
+        next_sibling[index] <- -1
+        index <- index + 1
+
+    root: mutable i64 = -1
+    index <- 0
+    while index < count:
+        root <- pairing_heap_meld(root, index.i64(), &keys[0], &first_child[0], &next_sibling[0])
+        index <- index + 1
+
+    hash: mutable u64 = FNV_OFFSET_BASIS
+    extraction: usize = 0
+    while extraction + 1 < count:
+        removed: i64 = root
+        hash <- pairing_heap_hash_key(hash, keys[removed.usize()])
+        forest: mutable i64[MAX_ITEMS] = zeroed
+        paired: mutable i64[MAX_ITEMS] = zeroed
+        forest_count: mutable usize = 0
+        child: mutable i64 = first_child[removed.usize()]
+        first_child[removed.usize()] <- -1
+        while child >= 0:
+            next: i64 = next_sibling[child.usize()]
+            next_sibling[child.usize()] <- -1
+            forest[forest_count] <- child
+            forest_count <- forest_count + 1
+            child <- next
+        paired_count: mutable usize = 0
+        index <- 0
+        while index < forest_count:
+            right: i64 = if index + 1 < forest_count: forest[index + 1] else: -1
+            paired[paired_count] <- pairing_heap_meld(forest[index], right, &keys[0], &first_child[0], &next_sibling[0])
+            paired_count <- paired_count + 1
+            index <- index + 2
+        rebuilt: mutable i64 = -1
+        while paired_count > 0:
+            paired_count <- paired_count - 1
+            rebuilt <- pairing_heap_meld(rebuilt, paired[paired_count], &keys[0], &first_child[0], &next_sibling[0])
+        root <- rebuilt
+        extraction <- extraction + 1
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn pairing_heap(values: i64&, length: usize) -> i64 = pairing_heap_impl

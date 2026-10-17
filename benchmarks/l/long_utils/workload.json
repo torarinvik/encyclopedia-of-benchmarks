@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "long-utils-64bit-rotations-v1",
+  "algorithm": "long_utils",
+  "function_symbol": "long_utils",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/Crypto/Utils/LongUtils.cs",
+    "symbol": "LongUtils.RotateLeft/RotateRight",
+    "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Crypto/Utils/LongUtils.cs"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[operation, signed_64_bit_value_bits, distance]",
+    "valid_length": 3,
+    "operation_values": {
+      "0": "signed rotate left",
+      "1": "unsigned rotate left",
+      "2": "signed rotate right",
+      "3": "unsigned rotate right"
+    },
+    "distance_range": [
+      0,
+      63
+    ],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_64_bit_bit_pattern",
+    "success_result": "8 bytes",
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 8,
+    "meaning": "One 64-bit rotated result bit pattern."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed_left_zero_distance",
+      "input_values": [
+        0,
+        -81985529216486896,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "1032547698badcfe"
+    },
+    {
+      "id": "signed_left_one",
+      "input_values": [
+        0,
+        -9223372036854775807,
+        1
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0300000000000000"
+    },
+    {
+      "id": "unsigned_left_sixty_three",
+      "input_values": [
+        1,
+        1,
+        63
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000080"
+    },
+    {
+      "id": "signed_right_one",
+      "input_values": [
+        2,
+        -9223372036854775808,
+        1
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000040"
+    },
+    {
+      "id": "unsigned_right_sixty_three",
+      "input_values": [
+        3,
+        1,
+        63
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0200000000000000"
+    },
+    {
+      "id": "unsigned_left_high_bit",
+      "input_values": [
+        1,
+        -9223372036854775808,
+        1
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "signed_right_all_ones",
+      "input_values": [
+        2,
+        -1,
+        17
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "ffffffffffffffff"
+    },
+    {
+      "id": "unsigned_right_zero_distance",
+      "input_values": [
+        3,
+        -9223372036854775808,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000080"
+    },
+    {
+      "id": "invalid_operation",
+      "input_values": [
+        4,
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_distance",
+      "input_values": [
+        0,
+        1,
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "distance_sixty_four",
+      "input_values": [
+        3,
+        1,
+        64
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        0,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        1,
+        1,
+        1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        0,
+        1,
+        64
+      ],
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        0,
+        1,
+        1
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 0,
+      "output_is_null": true
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        1,
+        -1,
+        1
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 7
+    },
+    {
+      "id": "exact_output_capacity",
+      "input_values": [
+        3,
+        -1,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "ffffffffffffffff",
+      "output_capacity": 8
+    }
+  ]
+}

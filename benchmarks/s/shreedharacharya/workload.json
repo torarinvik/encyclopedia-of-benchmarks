@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "id": "shreedharacharya-dart-f64-slice-io-v1",
+  "algorithm": "shreedharacharya",
+  "function_symbol": "shreedharacharya",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Dart",
+    "commit": "73da8ab4ea413eee9bf29aa2263157d86060f871",
+    "path": "maths/shreedharacharya.dart",
+    "symbol": "shreedharacharya",
+    "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/shreedharacharya.dart",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "solve a*x^2+b*x+c=0 using the pinned direct discriminant formula",
+    "discriminant": "d=b*b-4*a*c; negative returns zero roots, zero returns one root, positive returns two roots",
+    "root_order": "(-b+sqrt(d))/(2*a) before (-b-sqrt(d))/(2*a)",
+    "negative_discriminant_source_behavior": "The Dart source prints Imaginary roots and returns an empty List; the benchmark ignores console output and returns result count 0."
+  },
+  "workspace": {
+    "elements": 2,
+    "meaning": "Maximum of two real roots."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[a,b,c]",
+    "valid_length_range": [
+      3,
+      3
+    ],
+    "maximum_valid_length": 3,
+    "maximum_parseable_length": 64,
+    "leading_coefficient_abs_range": [
+      1e-06,
+      1000000.0
+    ],
+    "other_coefficient_abs_range": [
+      0.0,
+      1000000.0
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "zero, one, or two roots in the pinned source order",
+    "maximum_elements": 2,
+    "success_result": "number of real roots",
+    "empty_result": 0,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "empty_result_requires_nonnull_output_pointer": true,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "pinned_repeated_root",
+      "input_values": [
+        1.0,
+        -4.0,
+        4.0
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        2.0
+      ]
+    },
+    {
+      "id": "two_roots_source_order",
+      "input_values": [
+        1.0,
+        -3.0,
+        2.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        2.0,
+        1.0
+      ]
+    },
+    {
+      "id": "negative_discriminant_empty_result",
+      "input_values": [
+        1.0,
+        0.0,
+        1.0
+      ],
+      "input_length": 3,
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "irrational_roots",
+      "input_values": [
+        1.0,
+        0.0,
+        -2.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        1.4142135623730951,
+        -1.4142135623730951
+      ]
+    },
+    {
+      "id": "fractional_roots",
+      "input_values": [
+        1.0,
+        0.5,
+        -0.5
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        0.5,
+        -1.0
+      ]
+    },
+    {
+      "id": "negative_leading_coefficient",
+      "input_values": [
+        -1.0,
+        3.0,
+        -2.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        1.0,
+        2.0
+      ]
+    },
+    {
+      "id": "fractional_repeated_root",
+      "input_values": [
+        0.5,
+        -1.5,
+        1.125
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        1.5
+      ]
+    },
+    {
+      "id": "negative_a_no_real_roots",
+      "input_values": [
+        -1.0,
+        0.0,
+        -1.0
+      ],
+      "input_length": 3,
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "minimum_leading_coefficient",
+      "input_values": [
+        1e-06,
+        0.0,
+        -1.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        1000.0000000000001,
+        -1000.0000000000001
+      ]
+    },
+    {
+      "id": "negative_minimum_leading_coefficient",
+      "input_values": [
+        -1e-06,
+        0.0,
+        -1.0
+      ],
+      "input_length": 3,
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "maximum_coefficient_root_pair",
+      "input_values": [
+        1000000.0,
+        -1000000.0,
+        0.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "maximum_coefficients_negative_discriminant",
+      "input_values": [
+        1000000.0,
+        1000000.0,
+        1000000.0
+      ],
+      "input_length": 3,
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "direct_formula_cancellation",
+      "input_values": [
+        1.0,
+        1000000.0,
+        1.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        -1.00000761449337e-06,
+        -999999.999999
+      ]
+    },
+    {
+      "id": "slightly_negative_discriminant",
+      "input_values": [
+        1.0,
+        2.0,
+        1.000001
+      ],
+      "input_length": 3,
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "positive_b_boundary",
+      "input_values": [
+        1.0,
+        -1000000.0,
+        0.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        1000000.0,
+        0.0
+      ]
+    },
+    {
+      "id": "negative_a_boundary",
+      "input_values": [
+        -1000000.0,
+        -1000000.0,
+        0.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        -1.0,
+        -0.0
+      ]
+    },
+    {
+      "id": "zero_leading_coefficient",
+      "input_values": [
+        0.0,
+        2.0,
+        1.0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "leading_coefficient_below_minimum",
+      "input_values": [
+        9.99e-07,
+        1.0,
+        1.0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "leading_coefficient_above_maximum",
+      "input_values": [
+        1000000.000001,
+        0.0,
+        -1.0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "b_below_minimum",
+      "input_values": [
+        1.0,
+        -1000000.000001,
+        1.0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "c_above_maximum",
+      "input_values": [
+        1.0,
+        0.0,
+        1000000.000001
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        1.0,
+        2.0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "one_value_input",
+      "input_values": [
+        1.0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        1.0,
+        -3.0,
+        2.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

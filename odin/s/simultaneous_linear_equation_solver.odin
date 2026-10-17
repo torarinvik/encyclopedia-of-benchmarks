@@ -6,7 +6,8 @@ import "core:math"
 MAX_EQUATIONS :: 5
 MAX_INPUT_LENGTH :: 31
 MAX_OUTPUT_BYTES :: 48
-I64_LIMIT :: 9.223372036854775808e18
+HALF_STEP_LIMIT :: 4.503599627370496e15
+MAX_TICK_MAGNITUDE :: i64(2251799813685248)
 
 write_i64_le :: proc "contextless" (output: [^]u8, offset: int, value: i64) {
     bits := u64(value)
@@ -102,14 +103,23 @@ simultaneous_linear_equation_solver :: proc "c" (input: [^]i64, length: c.size_t
     write_i64_le(buffer[:], 0, n_value)
     for row := 0; row < n; row += 1 {
         scaled := solutions[row] * 100000.0
-        if scaled != scaled || scaled < -I64_LIMIT || scaled >= I64_LIMIT do return -1
+        if scaled != scaled || scaled <= -HALF_STEP_LIMIT || scaled >= HALF_STEP_LIMIT do return -1
         lower := math.floor(scaled)
         midpoint := lower + 0.5
         exact_side := math.fused_mul_add(solutions[row], 100000.0, -midpoint)
         if exact_side != exact_side || exact_side >= 1.7976931348623157e308 || exact_side <= -1.7976931348623157e308 do return -1
         rounded := i64(lower)
         if exact_side > 0 || (exact_side == 0 && rounded % 2 != 0) do rounded += 1
-        write_i64_le(buffer[:], 8 + row * 8, rounded)
+        if rounded < -MAX_TICK_MAGNITUDE || rounded > MAX_TICK_MAGNITUDE do return -1
+        rounded_value := f64(rounded) / 100000.0
+        projected := rounded_value * 100000.0
+        if projected != projected || projected >= 1.7976931348623157e308 || projected <= -1.7976931348623157e308 do return -1
+        projected_lower := math.floor(projected)
+        projected_midpoint := projected_lower + 0.5
+        ticks := i64(projected_lower)
+        if projected > projected_midpoint || (projected == projected_midpoint && ticks % 2 != 0) do ticks += 1
+        if ticks < -MAX_TICK_MAGNITUDE || ticks > MAX_TICK_MAGNITUDE do return -1
+        write_i64_le(buffer[:], 8 + row * 8, ticks)
     }
 
     needed := 8 + 8 * n

@@ -1,0 +1,43 @@
+global mutable STREAM_SIEVE_PRIME_CACHE: mutable i32[100] = zeroed
+global mutable STREAM_SIEVE_PRIME_COUNT: usize = 0
+global mutable STREAM_SIEVE_NEXT_CANDIDATE: i32 = 3
+
+def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if number_of_primes < -2147483648 or number_of_primes > 100: return -1
+    if number_of_primes <= 0: return 0
+    count: usize = number_of_primes.usize()
+    required: usize = count * 4
+    if output == null or output_capacity < required: return -2
+
+    can Global.Read, Global.Write:
+        if STREAM_SIEVE_PRIME_COUNT == 0:
+            STREAM_SIEVE_PRIME_CACHE[0] <- 2
+            STREAM_SIEVE_PRIME_COUNT <- 1
+        while STREAM_SIEVE_PRIME_COUNT < count:
+            candidate: i32 = STREAM_SIEVE_NEXT_CANDIDATE
+            STREAM_SIEVE_NEXT_CANDIDATE <- STREAM_SIEVE_NEXT_CANDIDATE + 1
+            is_prime: mutable bool = true
+            prime_index: mutable usize = 0
+            while prime_index < STREAM_SIEVE_PRIME_COUNT:
+                divisor: i32 = STREAM_SIEVE_PRIME_CACHE[prime_index]
+                if divisor > candidate / divisor: break
+                if candidate % divisor == 0:
+                    is_prime <- false
+                    break
+                prime_index <- prime_index + 1
+            if is_prime:
+                STREAM_SIEVE_PRIME_CACHE[STREAM_SIEVE_PRIME_COUNT] <- candidate
+                STREAM_SIEVE_PRIME_COUNT <- STREAM_SIEVE_PRIME_COUNT + 1
+
+        index: mutable usize = 0
+        while index < count:
+            bits: mutable u32 = STREAM_SIEVE_PRIME_CACHE[index].u32()
+            byte: mutable usize = 0
+            while byte < 4:
+                output[index * 4 + byte] <- (bits & 255).u8()
+                bits <- bits >> 8
+                byte <- byte + 1
+            index <- index + 1
+    required.i64()
+
+export fn stream_sieve(number_of_primes: i64, output: mutable u8&, output_capacity: usize) -> i64 = stream_sieve_impl

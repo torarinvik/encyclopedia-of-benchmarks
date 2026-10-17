@@ -51,15 +51,26 @@ bool simplify(Matrix &matrix, std::size_t n) {
 }
 
 bool round_ticks(double value, std::int64_t &ticks) {
-    constexpr double limit = 9.223372036854775808e18;
+    constexpr double halfway_limit = 4.503599627370496e15;
+    constexpr std::int64_t tick_limit = 2251799813685248;
     const double scaled = value * 100000.0;
-    if (!std::isfinite(scaled) || scaled < -limit || scaled >= limit) return false;
+    if (!std::isfinite(scaled) || scaled <= -halfway_limit || scaled >= halfway_limit) return false;
     const double lower = std::floor(scaled);
     const double midpoint = lower + 0.5;
     const double exact_side = std::fma(value, 100000.0, -midpoint);
     if (!std::isfinite(exact_side)) return false;
-    ticks = static_cast<std::int64_t>(lower);
-    if (exact_side > 0.0 || (exact_side == 0.0 && ticks % 2 != 0)) ++ticks;
+    std::int64_t rounded = static_cast<std::int64_t>(lower);
+    if (exact_side > 0.0 || (exact_side == 0.0 && rounded % 2 != 0)) ++rounded;
+    if (rounded < -tick_limit || rounded > tick_limit) return false;
+    const double rounded_value = static_cast<double>(rounded) / 100000.0;
+    const double projected = rounded_value * 100000.0;
+    if (!std::isfinite(projected)) return false;
+    const double projected_lower = std::floor(projected);
+    const double projected_midpoint = projected_lower + 0.5;
+    ticks = static_cast<std::int64_t>(projected_lower);
+    if (projected > projected_midpoint ||
+        (projected == projected_midpoint && ticks % 2 != 0)) ++ticks;
+    if (ticks < -tick_limit || ticks > tick_limit) return false;
     return true;
 }
 

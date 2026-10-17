@@ -1,0 +1,72 @@
+def previous_bucket(index: i64) -> i64:
+    (index & (index + 1)) - 1
+
+def maximum_fenwick_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 194: return -1
+    if input[0] < 1 or input[0] > 64 or input[1] < 0 or input[1] > 64: return -1
+    size: usize = input[0].usize()
+    operation_count: usize = input[1].usize()
+    if length != 2 + 3 * operation_count: return -1
+    values: mutable i32[64] = zeroed
+    tree: mutable i32[64] = zeroed
+    results: mutable i64[64] = zeroed
+    result_count: mutable usize = 0
+    operation_index: mutable usize = 0
+    while operation_index < operation_count:
+        position: usize = 2 + 3 * operation_index
+        opcode: i64 = input[position]
+        first: i64 = input[position + 1]
+        second: i64 = input[position + 2]
+        if opcode == 0:
+            if first < 0 or first >= size.i64() or second < 0 or second > 2147483647: return -1
+            index: mutable usize = first.usize()
+            old_value: i32 = values[index]
+            value: i32 = second.i32()
+            values[index] <- value
+            while index < size:
+                old_max: i32 = tree[index]
+                if value > old_max:
+                    tree[index] <- value
+                elif old_value == old_max:
+                    left: usize = (previous_bucket(index.i64()) + 1).usize()
+                    maximum: mutable i32 = value
+                    child: mutable i64 = index.i64() - 1
+                    while child >= left.i64():
+                        if tree[child.usize()] > maximum: maximum <- tree[child.usize()]
+                        if maximum == old_max: break
+                        child <- previous_bucket(child)
+                    tree[index] <- maximum
+                    if maximum == old_max: break
+                else:
+                    break
+                index <- index | (index + 1)
+        elif opcode == 1:
+            if first < 0 or first > second or second > size.i64(): return -1
+            maximum: mutable i32 = 0
+            right: mutable i64 = second - 1
+            while first <= right:
+                current_left: i64 = right & (right + 1)
+                if first <= current_left:
+                    if tree[right.usize()] > maximum: maximum <- tree[right.usize()]
+                    right <- current_left - 1
+                else:
+                    if values[right.usize()] > maximum: maximum <- values[right.usize()]
+                    right <- right - 1
+            results[result_count] <- maximum.i64()
+            result_count <- result_count + 1
+        else:
+            return -1
+        operation_index <- operation_index + 1
+    bytes: usize = result_count * 8
+    if output.is_null() or capacity < bytes: return -2
+    index: mutable usize = 0
+    while index < result_count:
+        bits: u64 = results[index].u64()
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            output[8 * index + byte_index] <- ((bits >> (8 * byte_index)) & 255).u8()
+            byte_index <- byte_index + 1
+        index <- index + 1
+    bytes.i64()
+
+export fn maximum_fenwick_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = maximum_fenwick_tree_impl

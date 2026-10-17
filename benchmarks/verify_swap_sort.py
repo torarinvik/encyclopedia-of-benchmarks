@@ -45,7 +45,7 @@ def oracle(values: tuple[int, ...] | list[int]) -> int:
 def corpus(workload: dict) -> tuple[str, int]:
     cases: dict[tuple[int, ...], int] = {}
     for case in workload["cases"]:
-        values = tuple(encode_case(case))
+        values = tuple(encode_case(case, algorithm=ALGORITHM))
         expected = case["expected_result"]
         if oracle(values) != expected:
             raise ValueError(f"published workload disagrees with the oracle: {case['id']}")

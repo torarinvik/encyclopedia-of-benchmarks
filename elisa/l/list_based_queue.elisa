@@ -1,0 +1,82 @@
+def list_based_queue_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 66: return -1
+    if input[0] < 0 or input[0] > 32: return -1
+    operation_count: usize = input[0].usize()
+    node_values: mutable i32[32] = zeroed
+    next_node: mutable i32[32] = zeroed
+    words: mutable i64[64] = zeroed
+    allocated: mutable usize = 0
+    word_count: mutable usize = 0
+    position: mutable usize = 1
+    size: mutable usize = 0
+    head: mutable i64 = -1
+    tail: mutable i64 = -1
+    operation_index: mutable usize = 0
+    while operation_index < operation_count:
+        if position >= length: return -1
+        opcode: i64 = input[position]
+        position <- position + 1
+        if opcode == 0:
+            if position >= length: return -1
+            value: i64 = input[position]
+            position <- position + 1
+            if value < -2147483648 or value > 2147483647 or allocated >= 32: return -1
+            node_values[allocated] <- value.i32()
+            next_node[allocated] <- -1
+            if tail < 0:
+                head <- allocated.i64()
+            else:
+                next_node[tail.usize()] <- allocated.i32()
+            tail <- allocated.i64()
+            allocated <- allocated + 1
+            size <- size + 1
+            words[word_count] <- 0
+            words[word_count + 1] <- 1
+            word_count <- word_count + 2
+        elif opcode == 1:
+            if head < 0: return -1
+            node: usize = head.usize()
+            head <- next_node[node].i64()
+            if head < 0: tail <- -1
+            size <- size - 1
+            words[word_count] <- 1
+            words[word_count + 1] <- node_values[node].i64()
+            word_count <- word_count + 2
+        elif opcode == 2:
+            if head < 0: return -1
+            words[word_count] <- 2
+            words[word_count + 1] <- node_values[head.usize()].i64()
+            word_count <- word_count + 2
+        elif opcode == 3:
+            head <- -1
+            tail <- -1
+            size <- 0
+            words[word_count] <- 3
+            words[word_count + 1] <- 1
+            word_count <- word_count + 2
+        elif opcode == 4:
+            words[word_count] <- 4
+            if size == 0: words[word_count + 1] <- 1
+            else: words[word_count + 1] <- 0
+            word_count <- word_count + 2
+        elif opcode == 5:
+            words[word_count] <- 5
+            words[word_count + 1] <- 0
+            word_count <- word_count + 2
+        else:
+            return -1
+        operation_index <- operation_index + 1
+    if position != length or length > 1 + 2 * operation_count or word_count > 64: return -1
+    bytes: usize = word_count * 8
+    if output.is_null() or capacity < bytes: return -2
+    index: mutable usize = 0
+    while index < word_count:
+        bits: u64 = words[index].u64()
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            output[8 * index + byte_index] <- ((bits >> (8 * byte_index)) & 255).u8()
+            byte_index <- byte_index + 1
+        index <- index + 1
+    bytes.i64()
+
+export fn list_based_queue(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = list_based_queue_impl

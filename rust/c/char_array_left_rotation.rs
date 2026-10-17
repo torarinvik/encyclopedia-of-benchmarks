@@ -1,0 +1,4 @@
+const MAX_LEN:usize=256;
+fn reverse_bytes(a:&mut[u8],mut left:usize,mut right:usize){while left<right{a.swap(left,right);left+=1;right-=1;}}
+#[no_mangle]
+pub unsafe extern "C" fn char_array_left_rotation(input:*const i64,length:usize,output:*mut u8,capacity:usize)->i64{if input.is_null()||length<2||length>MAX_LEN+3{return -1;}let v=core::slice::from_raw_parts(input,length);if !(0..=MAX_LEN as i64).contains(&v[0]){return -1;}let n=v[0]as usize;if v[1]<0||v[1]>n as i64||length!=n+2||v[2..].iter().any(|&x|!(0..=127).contains(&x)){return -1;}if output.is_null()||capacity<n{return -2;}let mut a=[0u8;MAX_LEN];for i in 0..n{a[i]=v[i+2]as u8;}let k=v[1]as usize;if k>0{reverse_bytes(&mut a[..n],0,k-1);}if k<n{reverse_bytes(&mut a[..n],k,n-1);}if n>0{reverse_bytes(&mut a[..n],0,n-1);}let out=core::slice::from_raw_parts_mut(output,capacity);out[..n].copy_from_slice(&a[..n]);n as i64}

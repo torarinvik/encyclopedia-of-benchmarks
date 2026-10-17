@@ -1,0 +1,118 @@
+const TIME_SIMULATION_MASK32: u64 = 0xFFFF_FFFF
+const TIME_SIMULATION_FNV_PRIME: u64 = 1099511628211
+const TIME_SIMULATION_MASK63: u64 = 0x7FFF_FFFF_FFFF_FFFF
+const TIME_SIMULATION_MAX_EVENTS: usize = 1024
+const TIME_SIMULATION_MAX_ACTIONS: usize = 4096
+const TIME_SIMULATION_MAX_EVENT_ID: u64 = 4_294_967_295
+
+def time_simulation_add64(left: u64, right: u64) -> u64:
+    low: u64 = (left & TIME_SIMULATION_MASK32) + (right & TIME_SIMULATION_MASK32)
+    high: u64 = (left >> 32) + (right >> 32) + (low >> 32)
+    ((high & TIME_SIMULATION_MASK32) << 32) | (low & TIME_SIMULATION_MASK32)
+
+def time_simulation_mul64(left: u64, right: u64) -> u64:
+    left_low: u64 = left & TIME_SIMULATION_MASK32
+    left_high: u64 = left >> 32
+    right_low: u64 = right & TIME_SIMULATION_MASK32
+    right_high: u64 = right >> 32
+    low_product: u64 = left_low * right_low
+    high_product: u64 = (low_product >> 32) + ((left_low * right_high) & TIME_SIMULATION_MASK32) + ((left_high * right_low) & TIME_SIMULATION_MASK32)
+    ((high_product & TIME_SIMULATION_MASK32) << 32) | (low_product & TIME_SIMULATION_MASK32)
+
+def time_simulation_hash_word(hash_input: u64, word: u64) -> u64:
+    hash: mutable u64 = hash_input
+    byte: mutable usize = 0
+    while byte < 8:
+        hash <- time_simulation_mul64(hash ^ ((word >> (byte * 8)) & 255.u64()), TIME_SIMULATION_FNV_PRIME)
+        byte <- byte + 1
+    hash
+
+def time_simulation_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 1 or length > 8194: return -1
+    count: i64 = values[0]
+    if count < 0 or count > 4096 or length != 1 + 2 * count.usize(): return -1
+    hash: mutable u64 = time_simulation_hash_word(14_695_981_039_346_656_037.u64(), count.u64())
+    now: mutable i64 = 0
+    next_id: mutable u64 = 1
+    active_count: mutable usize = 0
+    total_processed: mutable usize = 0
+    fired_count: mutable usize = 0
+    active: mutable bool[TIME_SIMULATION_MAX_EVENTS] = zeroed
+    timestamps: mutable i64[TIME_SIMULATION_MAX_EVENTS] = zeroed
+    event_ids: mutable u64[TIME_SIMULATION_MAX_EVENTS] = zeroed
+    # Reused queue slots can fire repeatedly, so trace storage spans all actions.
+    fired_ids: mutable u64[TIME_SIMULATION_MAX_ACTIONS] = zeroed
+    fired_times: mutable i64[TIME_SIMULATION_MAX_ACTIONS] = zeroed
+    action: mutable usize = 0
+    while action < count.usize():
+        opcode: i64 = values[1 + 2 * action]
+        operand: i64 = values[2 + 2 * action]
+        result: mutable u64 = 0
+        if opcode == 0:
+            if operand < 0 or operand < now: return -1
+            if active_count < TIME_SIMULATION_MAX_EVENTS:
+                slot: mutable usize = 0
+                while active[slot]: slot <- slot + 1
+                event_ids[slot] <- next_id
+                timestamps[slot] <- operand
+                active[slot] <- true
+                active_count <- active_count + 1
+                result <- next_id
+                next_id <- next_id + 1
+                if next_id > TIME_SIMULATION_MAX_EVENT_ID: next_id <- 1
+        elif opcode == 1:
+            if operand < 1 or operand.u64() > TIME_SIMULATION_MAX_EVENT_ID: return -1
+            slot: mutable usize = 0
+            while slot < TIME_SIMULATION_MAX_EVENTS:
+                if active[slot] and event_ids[slot] == operand.u64():
+                    active[slot] <- false
+                    active_count <- active_count - 1
+                    result <- 1
+                    break
+                slot <- slot + 1
+        elif opcode == 2:
+            if operand < 0 or operand < now: return -1
+            processed: mutable usize = 0
+            while true:
+                chosen: mutable usize = TIME_SIMULATION_MAX_EVENTS
+                earliest: mutable i64 = 0
+                slot: mutable usize = 0
+                while slot < TIME_SIMULATION_MAX_EVENTS:
+                    if active[slot] and timestamps[slot] <= operand and
+                        (chosen == TIME_SIMULATION_MAX_EVENTS or timestamps[slot] < earliest):
+                        chosen <- slot
+                        earliest <- timestamps[slot]
+                    slot <- slot + 1
+                if chosen == TIME_SIMULATION_MAX_EVENTS: break
+                now <- timestamps[chosen]
+                active[chosen] <- false
+                active_count <- active_count - 1
+                fired_ids[fired_count] <- event_ids[chosen]
+                fired_times[fired_count] <- timestamps[chosen]
+                fired_count <- fired_count + 1
+                processed <- processed + 1
+                total_processed <- total_processed + 1
+            now <- operand
+            result <- processed.u64()
+        elif opcode == 3:
+            if operand != 0: return -1
+            result <- now.u64()
+        elif opcode == 4:
+            if operand != 0: return -1
+            result <- if active_count == 0: 1.u64() else: 0.u64()
+        else:
+            return -1
+        hash <- time_simulation_hash_word(hash, result)
+        action <- action + 1
+    hash <- time_simulation_hash_word(hash, fired_count.u64())
+    index: mutable usize = 0
+    while index < fired_count:
+        hash <- time_simulation_hash_word(hash, fired_ids[index])
+        hash <- time_simulation_hash_word(hash, fired_times[index].u64())
+        index <- index + 1
+    hash <- time_simulation_hash_word(hash, now.u64())
+    hash <- time_simulation_hash_word(hash, active_count.u64())
+    hash <- time_simulation_hash_word(hash, total_processed.u64())
+    (hash & TIME_SIMULATION_MASK63).i64()
+
+export fn time_simulation(values: i64&, length: usize) -> i64 = time_simulation_impl

@@ -1,0 +1,513 @@
+{
+  "schema_version": 1,
+  "id": "simple-pendulum-rk4-java-float64-slice-io-v1",
+  "algorithm": "simple_pendulum_rk4",
+  "function_symbol": "simple_pendulum_rk4",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/physics/SimplePendulumRK4.java",
+    "symbol": "SimplePendulumRK4.stepRK4",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/physics/SimplePendulumRK4.java",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "advance the simple-pendulum state [theta, omega] by exactly one classical RK4 step",
+    "equations": [
+      "theta' = omega",
+      "omega' = -(gravity / length) * sin(theta)"
+    ],
+    "stage_order": "k1 at state; k2 and k3 at half steps; k4 at the full step; weighted sum k1+2*k2+2*k3+k4",
+    "output_order": "[theta_next, omega_next] in physical radians and radians per second",
+    "excluded_source_helpers": [
+      "simulate",
+      "energy"
+    ]
+  },
+  "workspace": {
+    "elements": 2,
+    "meaning": "The updated [theta, omega] state."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[length_micro_units, gravity_micro_units, theta_micro_units, omega_micro_units, dt_micro_units]",
+    "valid_length_range": [
+      5,
+      5
+    ],
+    "maximum_valid_length": 5,
+    "maximum_parseable_length": 64,
+    "scale": 1000000,
+    "scaled_values_must_be_integer_valued": true,
+    "physical_ranges": {
+      "length_m": [
+        0.01,
+        100.0
+      ],
+      "gravity_m_per_s2": [
+        0.1,
+        20.0
+      ],
+      "theta_rad": [
+        -3.141593,
+        3.141593
+      ],
+      "omega_rad_per_s": [
+        -100.0,
+        100.0
+      ],
+      "dt_s": [
+        1e-06,
+        0.1
+      ]
+    },
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[theta_next_rad, omega_next_rad_per_s]",
+    "maximum_elements": 2,
+    "success_result": "number of output float64 elements (2)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 2000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "equilibrium",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        0.0,
+        0.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "small_angle_from_rest",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        100000.0,
+        0.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        0.0999510356922983,
+        -0.00979206490665328
+      ]
+    },
+    {
+      "id": "moderate_angle_and_velocity",
+      "input_values": [
+        2500000.0,
+        9810000.0,
+        785398.0,
+        1250000.0,
+        25000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        0.8157720725573658,
+        1.1795800821876505
+      ]
+    },
+    {
+      "id": "negative_angle_and_velocity",
+      "input_values": [
+        1300000.0,
+        1200000.0,
+        -2000000.0,
+        -3000000.0,
+        50000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        -2.1489766655096516,
+        -2.959619282610239
+      ]
+    },
+    {
+      "id": "all_lower_physical_bounds",
+      "input_values": [
+        10000.0,
+        100000.0,
+        -3141593.0,
+        -100000000.0,
+        1.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        -3.141693,
+        -100.00000000050346
+      ]
+    },
+    {
+      "id": "all_upper_physical_bounds",
+      "input_values": [
+        100000000.0,
+        20000000.0,
+        3141593.0,
+        100000000.0,
+        100000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        13.140953717331222,
+        99.98540362365051
+      ]
+    },
+    {
+      "id": "length_minimum",
+      "input_values": [
+        10000.0,
+        9810000.0,
+        500000.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        0.46482643020641995,
+        -5.783648692252265
+      ]
+    },
+    {
+      "id": "length_maximum",
+      "input_values": [
+        100000000.0,
+        9810000.0,
+        500000.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        0.4879976656657112,
+        -1.2004651391025019
+      ]
+    },
+    {
+      "id": "gravity_minimum",
+      "input_values": [
+        1000000.0,
+        100000.0,
+        500000.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        0.4879976204543771,
+        -1.2004741478995316
+      ]
+    },
+    {
+      "id": "gravity_maximum",
+      "input_values": [
+        1000000.0,
+        20000000.0,
+        500000.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        0.4875241608793782,
+        -1.2948016869985846
+      ]
+    },
+    {
+      "id": "theta_minimum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        -3141593.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        -3.153594962158154,
+        -1.2005886750387154
+      ]
+    },
+    {
+      "id": "theta_maximum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        3141593.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        3.129591038181698,
+        -1.2005886070635527
+      ]
+    },
+    {
+      "id": "omega_minimum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        500000.0,
+        -100000000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        -0.5000783668513769,
+        -99.999996155163
+      ]
+    },
+    {
+      "id": "omega_maximum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        500000.0,
+        100000000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        1.4996464633002287,
+        99.92082270331761
+      ]
+    },
+    {
+      "id": "dt_minimum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        500000.0,
+        -1200000.0,
+        1.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        0.4999987999976484,
+        -1.2000047031593681
+      ]
+    },
+    {
+      "id": "dt_maximum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        500000.0,
+        -1200000.0,
+        100000.0
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        0.3584075804456639,
+        -1.6109225860752785
+      ]
+    },
+    {
+      "id": "length_below_minimum",
+      "input_values": [
+        9999.0,
+        9810000.0,
+        500000.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "length_above_maximum",
+      "input_values": [
+        100000001.0,
+        9810000.0,
+        500000.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "gravity_below_minimum",
+      "input_values": [
+        1000000.0,
+        99999.0,
+        500000.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "gravity_above_maximum",
+      "input_values": [
+        1000000.0,
+        20000001.0,
+        500000.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "theta_below_minimum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        -3141594.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "theta_above_maximum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        3141594.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "omega_below_minimum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        500000.0,
+        -100000001.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "omega_above_maximum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        500000.0,
+        100000001.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dt_below_minimum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        500000.0,
+        -1200000.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dt_above_maximum",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        500000.0,
+        -1200000.0,
+        100001.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_micro_unit",
+      "input_values": [
+        1000000.5,
+        9810000.0,
+        500000.0,
+        -1200000.0,
+        10000.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        500000.0,
+        -1200000.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input",
+      "input_values": [
+        1000000.0,
+        9810000.0,
+        500000.0,
+        -1200000.0,
+        10000.0,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

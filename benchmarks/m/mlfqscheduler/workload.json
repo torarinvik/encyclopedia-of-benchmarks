@@ -1,0 +1,851 @@
+{
+  "schema_version": 1,
+  "id": "java-mlfqscheduler-bounded-fifo-trace-v1",
+  "algorithm": "mlfqscheduler",
+  "function_symbol": "mlfqscheduler",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[level_count, process_count, quantum[level_count], (pid, burst, arrival_time)*]",
+    "level_count_range": [
+      1,
+      4
+    ],
+    "process_count_range": [
+      0,
+      16
+    ],
+    "quantum_range": [
+      1,
+      32
+    ],
+    "pid_range": [
+      -2147483648,
+      2147483647
+    ],
+    "burst_range": [
+      0,
+      1000
+    ],
+    "arrival_time_range": [
+      0,
+      1000000
+    ],
+    "arrival_time_behavior": "stored by source but ignored by scheduler",
+    "processes_enter_queue": 0,
+    "maximum_valid_input_length": 54,
+    "maximum_parseable_input_length": 55,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "layout": "[current_time, completion_count, (pid, finish_time)* in source completion order]",
+    "maximum_elements": 34,
+    "maximum_output_bytes": 272,
+    "return_value": "output element count",
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 272,
+    "meaning": "Two header values and up to 16 ordered (pid, finish_time) completion pairs."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/scheduling/MLFQScheduler.java",
+    "symbol": "MLFQScheduler.run",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/scheduling/MLFQScheduler.java"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "no_processes",
+      "input_values": [
+        1,
+        0,
+        2
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "single_process",
+      "input_values": [
+        1,
+        1,
+        2,
+        7,
+        5,
+        0
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "0500000000000000010000000000000007000000000000000500000000000000"
+    },
+    {
+      "id": "demotions_run_again_in_same_pass",
+      "input_values": [
+        3,
+        3,
+        2,
+        4,
+        8,
+        1,
+        9,
+        99,
+        2,
+        6,
+        0,
+        3,
+        0,
+        5
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0f0000000000000003000000000000000100000000000000090000000000000002000000000000000f0000000000000003000000000000000f00000000000000"
+    },
+    {
+      "id": "final_queue_requeues_fifo",
+      "input_values": [
+        1,
+        2,
+        2,
+        1,
+        5,
+        0,
+        2,
+        3,
+        0
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "080000000000000002000000000000000200000000000000070000000000000001000000000000000800000000000000"
+    },
+    {
+      "id": "finish_in_highest_priority_queue",
+      "input_values": [
+        3,
+        2,
+        8,
+        4,
+        16,
+        4,
+        10,
+        0,
+        3,
+        1,
+        0
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "0b00000000000000020000000000000004000000000000000a0000000000000003000000000000000b00000000000000"
+    },
+    {
+      "id": "finish_after_one_demotion",
+      "input_values": [
+        2,
+        2,
+        3,
+        5,
+        1,
+        5,
+        0,
+        2,
+        2,
+        0
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "070000000000000002000000000000000100000000000000050000000000000002000000000000000700000000000000"
+    },
+    {
+      "id": "zero_burst_finishes_without_time",
+      "input_values": [
+        2,
+        3,
+        1,
+        3,
+        10,
+        2,
+        0,
+        20,
+        0,
+        5,
+        30,
+        1,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "030000000000000003000000000000000a000000000000000200000000000000140000000000000002000000000000001e000000000000000300000000000000"
+    },
+    {
+      "id": "arrival_time_is_ignored",
+      "input_values": [
+        2,
+        2,
+        1,
+        4,
+        7,
+        2,
+        1000000,
+        8,
+        1,
+        0
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "030000000000000002000000000000000700000000000000020000000000000008000000000000000300000000000000"
+    },
+    {
+      "id": "duplicate_pids_remain_distinct_processes",
+      "input_values": [
+        2,
+        2,
+        2,
+        3,
+        4,
+        4,
+        0,
+        4,
+        1,
+        0
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "050000000000000002000000000000000400000000000000040000000000000004000000000000000500000000000000"
+    },
+    {
+      "id": "one_level_round_robin",
+      "input_values": [
+        1,
+        3,
+        1,
+        10,
+        4,
+        0,
+        20,
+        2,
+        0,
+        30,
+        3,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "09000000000000000300000000000000140000000000000005000000000000001e0000000000000008000000000000000a000000000000000900000000000000"
+    },
+    {
+      "id": "two_levels_and_different_quanta",
+      "input_values": [
+        2,
+        3,
+        2,
+        5,
+        11,
+        6,
+        0,
+        22,
+        4,
+        0,
+        33,
+        8,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "120000000000000003000000000000000b00000000000000060000000000000016000000000000000a0000000000000021000000000000001200000000000000"
+    },
+    {
+      "id": "zero_process_count",
+      "input_values": [
+        4,
+        0,
+        1,
+        2,
+        4,
+        8
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "zero_bursts_keep_input_completion_order",
+      "input_values": [
+        3,
+        4,
+        1,
+        2,
+        3,
+        8,
+        0,
+        0,
+        7,
+        0,
+        5,
+        1,
+        0,
+        2,
+        0,
+        0,
+        3
+      ],
+      "expected_result": 10,
+      "expected_output_hex": "0000000000000000040000000000000008000000000000000000000000000000070000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "quantum_exactly_matches_burst",
+      "input_values": [
+        1,
+        2,
+        6,
+        5,
+        6,
+        0,
+        -5,
+        6,
+        0
+      ],
+      "expected_result": 6,
+      "expected_output_hex": "0c00000000000000020000000000000005000000000000000600000000000000fbffffffffffffff0c00000000000000"
+    },
+    {
+      "id": "negative_and_boundary_pids",
+      "input_values": [
+        1,
+        3,
+        4,
+        -2147483648,
+        1,
+        0,
+        2147483647,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0300000000000000030000000000000000000080ffffffff0100000000000000ffffff7f00000000030000000000000000000000000000000300000000000000"
+    },
+    {
+      "id": "maximum_burst_total_stays_bounded",
+      "input_values": [
+        1,
+        16,
+        32,
+        0,
+        1000,
+        0,
+        1,
+        1000,
+        0,
+        2,
+        1000,
+        0,
+        3,
+        1000,
+        0,
+        4,
+        1000,
+        0,
+        5,
+        1000,
+        0,
+        6,
+        1000,
+        0,
+        7,
+        1000,
+        0,
+        8,
+        1000,
+        0,
+        9,
+        1000,
+        0,
+        10,
+        1000,
+        0,
+        11,
+        1000,
+        0,
+        12,
+        1000,
+        0,
+        13,
+        1000,
+        0,
+        14,
+        1000,
+        0,
+        15,
+        1000,
+        0
+      ],
+      "expected_result": 34,
+      "expected_output_hex": "803e00000000000010000000000000000000000000000000083e0000000000000100000000000000103e0000000000000200000000000000183e0000000000000300000000000000203e0000000000000400000000000000283e0000000000000500000000000000303e0000000000000600000000000000383e0000000000000700000000000000403e0000000000000800000000000000483e0000000000000900000000000000503e0000000000000a00000000000000583e0000000000000b00000000000000603e0000000000000c00000000000000683e0000000000000d00000000000000703e0000000000000e00000000000000783e0000000000000f00000000000000803e000000000000"
+    },
+    {
+      "id": "maximum_input_length_and_output_elements",
+      "input_values": [
+        4,
+        16,
+        1,
+        2,
+        4,
+        8,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        2,
+        0,
+        0,
+        3,
+        0,
+        0,
+        4,
+        0,
+        0,
+        5,
+        0,
+        0,
+        6,
+        0,
+        0,
+        7,
+        0,
+        0,
+        8,
+        0,
+        0,
+        9,
+        0,
+        0,
+        10,
+        0,
+        0,
+        11,
+        0,
+        0,
+        12,
+        0,
+        0,
+        13,
+        0,
+        0,
+        14,
+        0,
+        0,
+        15,
+        0,
+        0
+      ],
+      "expected_result": 34,
+      "expected_output_hex": "00000000000000001000000000000000000000000000000000000000000000000100000000000000000000000000000002000000000000000000000000000000030000000000000000000000000000000400000000000000000000000000000005000000000000000000000000000000060000000000000000000000000000000700000000000000000000000000000008000000000000000000000000000000090000000000000000000000000000000a0000000000000000000000000000000b0000000000000000000000000000000c0000000000000000000000000000000d0000000000000000000000000000000e0000000000000000000000000000000f000000000000000000000000000000"
+    },
+    {
+      "id": "maximum_output_uses_full_capacity",
+      "input_values": [
+        1,
+        16,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        2,
+        1,
+        0,
+        3,
+        1,
+        0,
+        4,
+        1,
+        0,
+        5,
+        1,
+        0,
+        6,
+        1,
+        0,
+        7,
+        1,
+        0,
+        8,
+        1,
+        0,
+        9,
+        1,
+        0,
+        10,
+        1,
+        0,
+        11,
+        1,
+        0,
+        12,
+        1,
+        0,
+        13,
+        1,
+        0,
+        14,
+        1,
+        0,
+        15,
+        1,
+        0
+      ],
+      "output_capacity": 272,
+      "expected_result": 34,
+      "expected_output_hex": "1000000000000000100000000000000000000000000000000100000000000000010000000000000002000000000000000200000000000000030000000000000003000000000000000400000000000000040000000000000005000000000000000500000000000000060000000000000006000000000000000700000000000000070000000000000008000000000000000800000000000000090000000000000009000000000000000a000000000000000a000000000000000b000000000000000b000000000000000c000000000000000c000000000000000d000000000000000d000000000000000e000000000000000e000000000000000f000000000000000f000000000000001000000000000000"
+    },
+    {
+      "id": "maximum_output_one_byte_short",
+      "input_values": [
+        1,
+        16,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        2,
+        1,
+        0,
+        3,
+        1,
+        0,
+        4,
+        1,
+        0,
+        5,
+        1,
+        0,
+        6,
+        1,
+        0,
+        7,
+        1,
+        0,
+        8,
+        1,
+        0,
+        9,
+        1,
+        0,
+        10,
+        1,
+        0,
+        11,
+        1,
+        0,
+        12,
+        1,
+        0,
+        13,
+        1,
+        0,
+        14,
+        1,
+        0,
+        15,
+        1,
+        0
+      ],
+      "output_capacity": 271,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "levels_below_range",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "levels_above_range",
+      "input_values": [
+        5,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_process_count",
+      "input_values": [
+        2,
+        -1,
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "process_count_above_range",
+      "input_values": [
+        1,
+        17,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_quantum_rejected",
+      "input_values": [
+        1,
+        1,
+        0,
+        1,
+        2,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "quantum_above_range",
+      "input_values": [
+        1,
+        0,
+        33
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_burst_rejected",
+      "input_values": [
+        1,
+        1,
+        2,
+        1,
+        -1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "burst_above_range",
+      "input_values": [
+        1,
+        1,
+        2,
+        1,
+        1001,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "pid_below_i32_range",
+      "input_values": [
+        1,
+        1,
+        2,
+        -2147483649,
+        1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "pid_above_i32_range",
+      "input_values": [
+        1,
+        1,
+        2,
+        2147483648,
+        1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_arrival_rejected",
+      "input_values": [
+        1,
+        1,
+        2,
+        1,
+        1,
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "arrival_above_range",
+      "input_values": [
+        1,
+        1,
+        2,
+        1,
+        1,
+        1000001
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_input_header",
+      "input_values": [
+        2
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_process_record",
+      "input_values": [
+        2,
+        1,
+        1,
+        2,
+        4,
+        3
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_parseable_element",
+      "input_values": [
+        4,
+        16,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        2,
+        0,
+        0,
+        3,
+        0,
+        0,
+        4,
+        0,
+        0,
+        5,
+        0,
+        0,
+        6,
+        0,
+        0,
+        7,
+        0,
+        0,
+        8,
+        0,
+        0,
+        9,
+        0,
+        0,
+        10,
+        0,
+        0,
+        11,
+        0,
+        0,
+        12,
+        0,
+        0,
+        13,
+        0,
+        0,
+        14,
+        0,
+        0,
+        15,
+        0,
+        0,
+        99
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_pointer_positive_length",
+      "input_values": [],
+      "input_is_null": true,
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        1,
+        1,
+        0,
+        1,
+        3,
+        0
+      ],
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_null_output_for_empty_scheduler",
+      "input_values": [
+        1,
+        0,
+        1
+      ],
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_header_output_capacity",
+      "input_values": [
+        1,
+        0,
+        1
+      ],
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_header_output_capacity",
+      "input_values": [
+        1,
+        0,
+        1
+      ],
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "00000000000000000000000000000000"
+    }
+  ]
+}

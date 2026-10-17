@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-salsa-pinned-core-variant-i32-v1",
+  "algorithm": "salsa",
+  "function_symbol": "salsa",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/ciphers/salsa.rs",
+    "symbol": "salsa20",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/salsa.rs"
+  },
+  "variant_caveat": "This pinned core variant matches the source's Wikipedia test vector but differs from Bernstein's original Salsa20 spec PDF; do not claim standards conformance.",
+  "input": {
+    "kind": "signed_i32_array",
+    "layout": "16 signed-i32 slots interpreted as raw u32 words in source array order",
+    "slot_range": [-2147483648, 2147483647],
+    "exact_length": 16,
+    "maximum_valid_array_length": 16,
+    "maximum_parseable_array_length": 17,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "pinned_salsa_core_u32_word_bytes",
+    "encoding": "16 output words serialized as little-endian u32 values",
+    "success_result": 64,
+    "maximum_output_bytes": 64,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "Sixteen little-endian u32 output words."
+  },
+  "measurement": {
+    "comparison_model": "i32_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "pinned_wikipedia_variant_test_vector",
+      "input_values": [1702391905, 16909060, 84281096, 151653132, 219025168, 1852055603, 1701209960, 1768581996, 1835954032, 1903326068, 841835129, -909456436, -842084400, -774712364, -707340328, 1952784491],
+      "input_length": 16,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "8d6f1dde9df6db910cb7b40dd220438b32446936b0986d896db7a75a13ca385770a1e504af79e4c82fed4215a56bf2300302a27dc655e9cfa0c74c6f5943d36d"
+    },
+    {
+      "id": "truncated_state",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 15,
+      "output_capacity": 64,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_state_word",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 17,
+      "output_capacity": 64,
+      "expected_result": -1
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 64,
+      "expected_result": -1
+    },
+    {
+      "id": "null_output",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 16,
+      "output_capacity": 64,
+      "output_is_null": true,
+      "expected_result": -2
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 16,
+      "output_capacity": 63,
+      "expected_result": -2
+    }
+  ]
+}

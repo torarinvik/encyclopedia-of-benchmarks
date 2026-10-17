@@ -50,7 +50,7 @@ def oracle(values: list[int]) -> int:
 def corpus(workload: dict) -> tuple[str, int]:
     cases: dict[tuple[int, ...], int] = {}
     for case in workload["cases"]:
-        values = encode_case(case)
+        values = encode_case(case, algorithm=ALGORITHM)
         if case.get("input_length") != len(values):
             raise ValueError(f"declared input length differs for {case['id']}")
         expected = oracle(values)
@@ -109,7 +109,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
-        values = encode_case(case)
+        values = encode_case(case, algorithm=ALGORITHM)
         if (record["algorithm"] != ALGORITHM
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]

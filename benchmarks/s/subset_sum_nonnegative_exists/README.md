@@ -29,6 +29,10 @@ This package covers the reviewed nonnegative subset-existence dynamic-programmin
 ## Upstream source cluster
 
 - [TheAlgorithms/Java `SubsetSum`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/SubsetSum.java)
+- [TheAlgorithms/Java `SumOfSubset` recursion](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/SumOfSubset.java)
+- [TheAlgorithms/Python `sum_of_subset.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/sum_of_subset.py)
+
+The Java `SumOfSubset` recursive source is equivalent on nonnegative inputs but has exponential search; its practical input size is at most 24 items. It is source-mapped here for algorithm coverage, but the benchmark ports use bounded dynamic programming and do not execute that upstream Java routine.
 - [TheAlgorithms/Java `SubsetSumSpaceOptimized`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/SubsetSumSpaceOptimized.java)
 - [TheAlgorithms/R `subset_sum.r`](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/dynamic_programming/subset_sum.r)
 - [TheAlgorithms/Go `subsetsum.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/dynamic/subsetsum.go)

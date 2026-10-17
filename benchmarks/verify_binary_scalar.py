@@ -26,7 +26,7 @@ from run_binary_scalar import encode_values
 U64_MAX = 2**64 - 1
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 I32_MIN, I32_MAX = -(2**31), 2**31 - 1
-ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and", "first_bad_version", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "uint53_xor", "modular_inverse_fermat_little_theorem", "modular_inverse_simple", "trinomial_triangle", "fermat_prime_checker", "exponentiation")
+ALGORITHMS = ("hamming_distance", "gcd", "lcm", "addition_without_arithmetic", "amicable_number", "ackermann", "range_bitwise_and", "first_bad_version", "problem56", "problem63", "problem74", "problem74_sol2", "problem124", "problem174", "problem800", "uint53_xor", "modular_inverse_fermat_little_theorem", "modular_inverse_simple", "trinomial_triangle", "fermat_prime_checker", "exponentiation")
 ALGORITHMS += ("arithmetic_left_shift", "arithmetic_right_shift", "unique_paths")
 ALGORITHMS += ("circular_left_shift", "bitwise_addition_recursive", "first_different_bit", "count_number_of_one_bits", "highest_common_factor", "binary_pow", "imply_gate", "max_value", "min_value", "xor_swap_two_integers", "recursive_digit_sum", "binary_multiplication")
 
@@ -287,6 +287,50 @@ def problem74_chain_count(num_terms: int, max_start: int) -> int:
 
 
 @lru_cache(maxsize=16)
+def problem74_sol2_chain_count(chain_length: int, number_limit: int) -> int:
+    """Count sol2 chains using complete graph lengths and per-node cycle detection."""
+    if (type(chain_length) is not int or type(number_limit) is not int
+            or not I64_MIN <= chain_length <= I64_MAX
+            or not I64_MIN <= number_limit <= I64_MAX
+            or not 1 <= chain_length <= 60
+            or not 1 <= number_limit <= 1_000_000):
+        return -1
+
+    digit_factorials = (1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880)
+    known_lengths: dict[int, int] = {}
+
+    def successor(number: int) -> int:
+        return sum(digit_factorials[int(digit)] for digit in str(number))
+
+    count = 0
+    for start in range(1, number_limit):
+        path: list[int] = []
+        positions: dict[int, int] = {}
+        current = start
+        while current not in known_lengths and current not in positions:
+            positions[current] = len(path)
+            path.append(current)
+            current = successor(current)
+
+        if current in known_lengths:
+            length = known_lengths[current]
+            for value in reversed(path):
+                length += 1
+                known_lengths[value] = length
+        else:
+            cycle_start = positions[current]
+            cycle_length = len(path) - cycle_start
+            for value in path[cycle_start:]:
+                known_lengths[value] = cycle_length
+            length = cycle_length
+            for value in reversed(path[:cycle_start]):
+                length += 1
+                known_lengths[value] = length
+        count += known_lengths[start] == chain_length
+    return count
+
+
+@lru_cache(maxsize=16)
 def problem124_radical_order(n_max: int, rank: int) -> int:
     """Order by trial-factored radicals, independently of the ports' sieve buckets."""
     if not 1 <= rank <= n_max <= 100_000:
@@ -429,6 +473,8 @@ def result(algorithm: str, left: int, right: int) -> int:
                 or not I64_MIN <= left <= I64_MAX or not I64_MIN <= right <= I64_MAX):
             return -1
         return problem74_chain_count(left, right)
+    if algorithm == "problem74_sol2":
+        return problem74_sol2_chain_count(left, right)
     if algorithm == "trinomial_triangle":
         return trinomial_triangle_oracle(left, right)
     raise ValueError(f"no independent oracle for {algorithm}")
@@ -498,6 +544,51 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                       (I64_MIN, I64_MIN), (I64_MAX, I64_MAX)})
         rng = random.Random(20261015)
         pairs.update((rng.randrange(-2, 100), rng.randrange(-2, 5000)) for _ in range(32))
+    elif algorithm == "problem74_sol2":
+        expected_input = {
+            "kind": "two_signed_64_bit_integers",
+            "arguments": ["chain_length", "number_limit"],
+            "chain_length_range_inclusive": [1, 60],
+            "number_limit_range_inclusive": [1, 1_000_000],
+            "number_limit_semantics": "exclusive; source starts are 1 through number_limit - 1",
+            "invalid_input_result": -1,
+        }
+        expected_output = {
+            "kind": "signed_64_bit_integer",
+            "valid_range_inclusive": [0, 999_999],
+            "invalid_input_result": -1,
+        }
+        expected_source = {
+            "repository": "TheAlgorithms/Python",
+            "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+            "path": "project_euler/problem_074/sol2.py",
+            "function": "solution",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "project-euler-problem-74-sol2-binary-scalar-v1"
+                or workload.get("function_symbol") != "problem74_sol2"
+                or workload.get("input") != expected_input
+                or any(workload.get("output", {}).get(key) != value
+                       for key, value in expected_output.items())
+                or workload.get("pinned_source") != expected_source):
+            raise ValueError("problem74_sol2 workload metadata does not match its pinned binary scalar contract")
+        case_results = {
+            tuple(case["input_values"]): case["expected_result"]
+            for case in workload["cases"]
+        }
+        for pair, expected in (((10, 1000), 26), ((1, 1_000_000), 4)):
+            if case_results.get(pair) != expected:
+                raise ValueError("problem74_sol2 workload must pin the source example and maximum-limit fixture")
+        pairs.update({
+            (1, 1), (1, 2), (1, 3), (2, 3), (10, 1000), (10, 1001),
+            (60, 1), (60, 1_000_000), (1, 1_000_000),
+            (0, 100), (-1, 100), (61, 100), (1, 0), (1, -1),
+            (1, 1_000_001), (I64_MIN, 1), (I64_MAX, 1),
+            (1, I64_MIN), (1, I64_MAX), (1, U64_MAX),
+        })
+        rng = random.Random(20261016)
+        pairs.update((rng.randrange(1, 61), rng.randrange(1, 10_001)) for _ in range(32))
+        pairs.update((rng.randrange(-2, 64), rng.randrange(-2, 10_002)) for _ in range(16))
     elif algorithm == "problem800":
         pairs.update({(2, 1), (2, 5), (2, 20), (3, 4), (800, 1), (800, 800),
                       (1, 800), (800, 0), (1_000_001, 1), (2, 1_000_001),
@@ -628,7 +719,7 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         pairs.update((n_max, rank) for n_max in range(1, 31) for rank in range(1, n_max + 1))
         pairs.update({(0, 0), (0, 1), (1, 0), (10, 11), (100_001, 1),
                       (-1, 1), (1, -1), (I64_MIN, I64_MIN), (I64_MAX, I64_MAX)})
-    if algorithm not in {"ackermann", "problem56", "problem63", "problem74", "problem124", "problem174", "problem800", "modular_inverse_fermat_little_theorem", "modular_inverse_simple", "trinomial_triangle", "fermat_prime_checker", "exponentiation", "arithmetic_left_shift", "arithmetic_right_shift", "unique_paths", "circular_left_shift", "bitwise_addition_recursive", "first_different_bit", "count_number_of_one_bits", "highest_common_factor", "binary_pow", "imply_gate", "max_value", "min_value", "xor_swap_two_integers", "recursive_digit_sum", "binary_multiplication"}:
+    if algorithm not in {"ackermann", "problem56", "problem63", "problem74", "problem74_sol2", "problem124", "problem174", "problem800", "modular_inverse_fermat_little_theorem", "modular_inverse_simple", "trinomial_triangle", "fermat_prime_checker", "exponentiation", "arithmetic_left_shift", "arithmetic_right_shift", "unique_paths", "circular_left_shift", "bitwise_addition_recursive", "first_different_bit", "count_number_of_one_bits", "highest_common_factor", "binary_pow", "imply_gate", "max_value", "min_value", "xor_swap_two_integers", "recursive_digit_sum", "binary_multiplication"}:
         if algorithm == "range_bitwise_and":
             edge_values = [0, 1, 2, 3, 7, 8, 15, 16, 2**30 - 1, 2**30,
                            I32_MAX - 1, I32_MAX, I32_MAX + 1, U64_MAX]

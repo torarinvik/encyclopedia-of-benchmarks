@@ -3,6 +3,13 @@
   "id": "graph-enumeration-sorted-label-adjacency-v1",
   "algorithm": "graph_enumeration",
   "function_symbol": "graph_enumeration",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Rust",
+      "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+      "path": "src/graph/graph_enumeration.rs"
+    }
+  ],
   "input": {
     "kind": "packed_signed_64_bit_integer_array",
     "layout": "[vertex_count, labels..., (degree, neighbor_labels...) per input label row]",
@@ -73,9 +80,10 @@
         3,
         1,
         7,
-        7
+        7,
+        0
       ],
-      "expected_result": -1
+      "expected_result": -2787821738695216700
     },
     {
       "id": "empty_graph",

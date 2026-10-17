@@ -1,0 +1,556 @@
+{
+  "schema_version": 1,
+  "id": "match-word-pattern-python-ascii-i64-array-scalar-v1",
+  "algorithm": "match_word_pattern",
+  "function_symbol": "match_word_pattern",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "backtracking/match_word_pattern.py",
+    "symbol": "match_word_pattern",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/backtracking/match_word_pattern.py"
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[pattern_length, text_length, pattern_bytes..., text_bytes...]",
+    "pattern_length_range": [
+      0,
+      8
+    ],
+    "text_length_range": [
+      0,
+      32
+    ],
+    "pattern_byte_range": [
+      0,
+      127
+    ],
+    "text_byte_range": [
+      0,
+      127
+    ],
+    "length_formula": "2 + pattern_length + text_length",
+    "maximum_valid_input_length": 42,
+    "maximum_parseable_input_length": 43,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "values": {
+      "match": 1,
+      "no_match": 0
+    },
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 500
+  },
+  "cases": [
+    {
+      "id": "empty_pattern_and_text",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "empty_pattern_nonempty_text",
+      "input_values": [
+        0,
+        1,
+        120
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "nonempty_pattern_empty_text",
+      "input_values": [
+        1,
+        0,
+        97
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "one_symbol_maps_to_entire_text",
+      "input_values": [
+        1,
+        13,
+        120,
+        97,
+        110,
+        121,
+        32,
+        115,
+        117,
+        98,
+        115,
+        116,
+        114,
+        105,
+        110,
+        103
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "source_example_graph_trees_graph",
+      "input_values": [
+        3,
+        15,
+        97,
+        98,
+        97,
+        71,
+        114,
+        97,
+        112,
+        104,
+        84,
+        114,
+        101,
+        101,
+        115,
+        71,
+        114,
+        97,
+        112,
+        104
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "source_example_python_ruby_python",
+      "input_values": [
+        3,
+        16,
+        120,
+        121,
+        120,
+        80,
+        121,
+        116,
+        104,
+        111,
+        110,
+        82,
+        117,
+        98,
+        121,
+        80,
+        121,
+        116,
+        104,
+        111,
+        110
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "source_example_inconsistent_repeated_symbol",
+      "input_values": [
+        2,
+        16,
+        71,
+        71,
+        80,
+        121,
+        116,
+        104,
+        111,
+        110,
+        74,
+        97,
+        118,
+        97,
+        80,
+        121,
+        116,
+        104,
+        111,
+        110
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "repeated_symbol_same_substring",
+      "input_values": [
+        3,
+        10,
+        97,
+        98,
+        97,
+        114,
+        101,
+        100,
+        98,
+        108,
+        117,
+        101,
+        114,
+        101,
+        100
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "repeated_symbol_cannot_change_mapping",
+      "input_values": [
+        3,
+        3,
+        97,
+        98,
+        97,
+        97,
+        98,
+        99
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "distinct_symbols_cannot_share_substring",
+      "input_values": [
+        2,
+        2,
+        97,
+        98,
+        120,
+        120
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "distinct_symbols_map_to_different_substrings",
+      "input_values": [
+        2,
+        6,
+        97,
+        98,
+        111,
+        110,
+        101,
+        116,
+        119,
+        111
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "two_repeated_symbols_share_mapping",
+      "input_values": [
+        3,
+        9,
+        97,
+        98,
+        98,
+        114,
+        101,
+        100,
+        120,
+        121,
+        122,
+        120,
+        121,
+        122
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "three_substrings_and_repeated_first",
+      "input_values": [
+        4,
+        15,
+        97,
+        98,
+        99,
+        97,
+        114,
+        101,
+        100,
+        98,
+        108,
+        117,
+        101,
+        103,
+        114,
+        101,
+        101,
+        110,
+        114,
+        101,
+        100
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "pattern_has_more_symbols_than_text",
+      "input_values": [
+        3,
+        2,
+        97,
+        98,
+        99,
+        97,
+        98
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "nul_pattern_symbol_and_text_byte",
+      "input_values": [
+        3,
+        4,
+        0,
+        65,
+        0,
+        0,
+        88,
+        89,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "del_ascii_code_unit",
+      "input_values": [
+        1,
+        2,
+        127,
+        0,
+        127
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_pattern_and_text_lengths",
+      "input_values": [
+        8,
+        32,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104
+      ],
+      "expected_result": 1,
+      "input_length": 42
+    },
+    {
+      "id": "maximum_repeated_pattern_and_text",
+      "input_values": [
+        8,
+        32,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        97,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120
+      ],
+      "expected_result": 1,
+      "input_length": 42
+    },
+    {
+      "id": "empty_packed_array",
+      "input_values": [],
+      "expected_result": -1
+    },
+    {
+      "id": "missing_text_length_header",
+      "input_values": [
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_pattern_length",
+      "input_values": [
+        -1,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "pattern_length_above_bound",
+      "input_values": [
+        9,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "text_length_above_bound",
+      "input_values": [
+        0,
+        33
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "pattern_byte_above_ascii",
+      "input_values": [
+        1,
+        0,
+        128
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "text_byte_below_ascii",
+      "input_values": [
+        0,
+        1,
+        -1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_packed_text",
+      "input_values": [
+        1,
+        1,
+        97
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "extra_packed_value",
+      "input_values": [
+        0,
+        0,
+        65
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "extra_value_at_max_parseable_length",
+      "input_values": [
+        8,
+        32,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        104,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

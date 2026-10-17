@@ -1,0 +1,29 @@
+const MAX_TEXT: usize = 256
+const MAX_INPUT: usize = 258
+def split_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT + 1: return -1
+    if input[0] < 0 or input[0] > 256 or input[1] < 0 or input[1] > 127: return -1
+    n: usize = input[0].usize()
+    if length != n + 2: return -1
+    for i in 0..<n |input|:
+        if input[i + 2] < 0 or input[i + 2] > 127: return -1
+    if n > 0 and input[n + 1] == input[1]: return -1
+    separators: mutable usize = 0
+    for i in 0..<n |input, separators|:
+        if input[i + 2] == input[1]: separators <- separators + 1
+    if n > 0 and separators == 0: return -1
+    count: usize = separators + 1
+    required: usize = 2 + 2 * count + n - separators
+    if output == null or capacity < required: return -2
+    output[0] <- count.u8(); output[1] <- (count >> 8).u8()
+    pos: mutable usize = 2
+    start: mutable usize = 0
+    for i in 0..=n |input, output, pos, start|:
+        if i == n or input[i + 2] == input[1]:
+            field: usize = i - start
+            output[pos] <- field.u8(); output[pos + 1] <- (field >> 8).u8(); pos <- pos + 2
+            for j in start..<i |input, output, pos|:
+                output[pos] <- input[j + 2].u8(); pos <- pos + 1
+            start <- i + 1
+    required.i64()
+export fn split(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = split_impl

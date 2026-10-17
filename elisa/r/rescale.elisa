@@ -1,0 +1,54 @@
+def rescale_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 260:
+        return -1
+    max_value: i64 = input[0]
+    new_max: i64 = input[1]
+    draw_count: i64 = input[2]
+    if max_value < 2 or max_value > 64 or new_max < 1 or new_max > 256:
+        return -1
+    if draw_count < 1 or draw_count > 256 or length != 3 + draw_count.usize():
+        return -1
+
+    index: usize = 0
+    while index < draw_count.usize():
+        if input[3 + index] < 0 or input[3 + index] >= max_value:
+            return -1
+        index <- index + 1
+
+    cursor: mutable usize = 0
+    if new_max == max_value:
+        return input[3]
+
+    if new_max < max_value:
+        downscale_threshold: i64 = max_value - max_value % new_max
+        while cursor < draw_count.usize():
+            draw: i64 = input[3 + cursor]
+            cursor <- cursor + 1
+            if draw < downscale_threshold:
+                return draw % new_max
+        return -1
+
+    result: mutable i64 = 0
+    power: mutable i64 = 1
+    while power < new_max:
+        if cursor >= draw_count.usize():
+            return -1
+        result <- result + power * input[3 + cursor]
+        cursor <- cursor + 1
+        power <- power * max_value
+    if power == new_max:
+        return result
+
+    upscale_threshold: i64 = power - power % new_max
+    while result >= upscale_threshold:
+        result <- 0
+        power <- 1
+        while power < new_max:
+            if cursor >= draw_count.usize():
+                return -1
+            result <- result + power * input[3 + cursor]
+            cursor <- cursor + 1
+            power <- power * max_value
+    result % new_max
+
+export fn rescale(input: i64&, length: usize) -> i64 = rescale_impl

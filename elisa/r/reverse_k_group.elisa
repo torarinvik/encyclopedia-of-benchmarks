@@ -1,0 +1,68 @@
+const MAX_N: usize = 256
+const MAX_INPUT_LENGTH: usize = 258
+
+def reverse_k_group_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 2 || length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    k_value: i64 = input[1]
+    if n_value < 0 || n_value > MAX_N.i64() || k_value < 1 || k_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    k: usize = k_value.usize()
+    if length != n + 2: return -1
+    output_bytes: usize = 8 * n
+    if output == null || capacity < output_bytes: return -2
+
+    nodes: mutable i64[256] = zeroed
+    next: mutable i64[257] = zeroed
+    head: mutable i64 = -1
+    i: mutable usize = 0
+    while i < n:
+        nodes[i] <- input[i + 2]
+        next[i] <- -1
+        if head < 0: head <- i.i64()
+        else:
+            tail: mutable i64 = head
+            while next[tail.usize()] >= 0: tail <- next[tail.usize()]
+            next[tail.usize()] <- i.i64()
+        i <- i + 1
+
+    remaining: mutable usize = 0
+    node: mutable i64 = head
+    while node >= 0:
+        remaining <- remaining + 1
+        node <- next[node.usize()]
+    dummy: usize = MAX_N
+    next[dummy] <- head
+    previous: mutable i64 = dummy.i64()
+    while remaining >= k:
+        current: i64 = next[previous.usize()]
+        moved: mutable i64 = next[current.usize()]
+        step: mutable usize = 1
+        while step < k:
+            next[current.usize()] <- next[moved.usize()]
+            next[moved.usize()] <- next[previous.usize()]
+            next[previous.usize()] <- moved
+            moved <- next[current.usize()]
+            step <- step + 1
+        previous <- current
+        remaining <- remaining - k
+
+    result: mutable i64[256] = zeroed
+    index: mutable usize = 0
+    node <- next[dummy]
+    while node >= 0:
+        result[index] <- nodes[node.usize()]
+        index <- index + 1
+        node <- next[node.usize()]
+    i <- 0
+    while i < n:
+        bits: mutable u64 = result[i].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[i * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        i <- i + 1
+    output_bytes.i64()
+
+export fn reverse_k_group(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = reverse_k_group_impl

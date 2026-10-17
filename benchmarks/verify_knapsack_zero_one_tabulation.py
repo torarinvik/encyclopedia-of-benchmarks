@@ -22,6 +22,96 @@ MAX_CAPACITY = 512
 MAX_ITEMS = 128
 MAX_WEIGHT = 4096
 MAX_VALUE = 1_000_000_000
+MAX_INPUT_LENGTH = 2 + 2 * MAX_ITEMS
+INVALID_RESULT = -1
+PINNED_SOURCE = {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/dynamicprogramming/KnapsackZeroOneTabulation.java",
+    "method": "compute",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/KnapsackZeroOneTabulation.java",
+    "role": "algorithm",
+}
+CASE_IDS = {
+    "classic_example", "no_items_zero_capacity", "no_items_positive_capacity",
+    "zero_capacity_skips_positive_weights", "exact_capacity_fit", "all_items_too_heavy",
+    "combination_beats_best_single", "item_is_not_reused", "input_order_permutation",
+    "zero_value_item", "maximum_capacity", "maximum_value_and_out_of_capacity_item",
+    "maximum_item_count", "null_input_pointer_with_positive_length",
+}
+
+
+def validate_workload(workload: dict) -> None:
+    """Require the reviewed source pin, packed-array bounds, and null probe."""
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    expected_input = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[capacity, item_count, weight_0, value_0, ...]",
+        "maximum_capacity": MAX_CAPACITY,
+        "maximum_item_count": MAX_ITEMS,
+        "item_weight_range": [1, MAX_WEIGHT],
+        "item_value_range": [0, MAX_VALUE],
+        "maximum_valid_input_length": MAX_INPUT_LENGTH,
+        "maximum_parseable_input_length": MAX_INPUT_LENGTH,
+        "null_input_result": INVALID_RESULT,
+        "invalid_result": INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "Maximum achievable value without exceeding capacity, using each item at most once.",
+        "invalid_result": INVALID_RESULT,
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "knapsack-zero-one-tabulation-v1"
+            or workload.get("algorithm") != ALGORITHM
+            or workload.get("function_symbol") != ALGORITHM
+            or workload.get("pinned_source") != PINNED_SOURCE
+            or input_spec != expected_input
+            or output_spec != expected_output
+            or measurement != {
+                "comparison_model": "i64_array_scalar_call",
+                "sample_count": 9,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 20,
+            }
+            or not isinstance(cases, list)):
+        raise ValueError("knapsack workload metadata does not match its pinned contract")
+
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)]
+    if len(case_ids) != len(cases) or len(case_ids) != len(set(case_ids)) or set(case_ids) != CASE_IDS:
+        raise ValueError("knapsack workload fixture IDs do not match the reviewed fixture set")
+    null_cases = [case for case in cases if case.get("input_is_null") is True]
+    if (len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_pointer_with_positive_length"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 1
+            or null_cases[0].get("expected_result") != INVALID_RESULT):
+        raise ValueError("knapsack workload must cover a positive-length null input pointer")
+    maximum_item_case = next(case for case in cases if case.get("id") == "maximum_item_count")
+    maximum_item_values = [MAX_CAPACITY, MAX_ITEMS, *([1, 1] * MAX_ITEMS)]
+    if (maximum_item_case.get("input_values") != maximum_item_values
+            or maximum_item_case.get("expected_result") != MAX_ITEMS):
+        raise ValueError("knapsack workload is missing the exact maximum-item-count fixture")
+    for case in cases:
+        values = case.get("input_values")
+        is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or any(type(value) is not int for value in values)
+                or type(is_null) is not bool
+                or type(input_length) is not int
+                or type(case.get("expected_result")) is not int
+                or (is_null and (values or not 1 <= input_length <= MAX_INPUT_LENGTH))
+                or (not is_null and (input_length != len(values)
+                                     or len(values) > MAX_INPUT_LENGTH))):
+            raise ValueError(f"knapsack workload input framing is invalid for {case.get('id')}")
+
+    readme = (ROOT / "benchmarks/k/knapsack_zero_one_tabulation/README.md").read_text(encoding="utf-8")
+    if PINNED_SOURCE["url"] not in readme or "null input pointer" not in readme:
+        raise ValueError("knapsack README is missing the pinned source or null-input contract")
 
 
 def oracle(packed: list[int]) -> int:
@@ -47,12 +137,17 @@ def oracle(packed: list[int]) -> int:
 
 
 def corpus(workload: dict) -> tuple[str, int]:
+    validate_workload(workload)
     cases: dict[tuple[int, ...], int] = {}
+    special_records: list[str] = []
     for case in workload["cases"]:
-        values = encode_case(case)
+        values = encode_case(case, ALGORITHM)
         expected = oracle(values)
         if expected != case["expected_result"]:
             raise ValueError(f"published workload disagrees with Python oracle: {case['id']}")
+        if case.get("input_is_null", False):
+            special_records.append(f"NULL {case['input_length']} {expected}\n")
+            continue
         cases[tuple(values)] = expected
 
     # Exhaust every short sequence over a small set of distinct item choices.
@@ -83,11 +178,12 @@ def corpus(workload: dict) -> tuple[str, int]:
     for packed in invalid:
         cases[tuple(packed)] = -1
 
-    lines = [f"{len(cases)}\n"]
+    lines = [f"{len(cases) + len(special_records)}\n"]
     for packed, expected in sorted(cases.items()):
         suffix = "" if not packed else " " + " ".join(map(str, packed))
         lines.append(f"{len(packed)} {expected}{suffix}\n")
-    return "".join(lines), len(cases)
+    lines.extend(special_records)
+    return "".join(lines), len(cases) + len(special_records)
 
 
 def verify(language: str, directory: Path, elisa_compiler: str | None,
@@ -116,12 +212,15 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
-        values = encode_case(case)
+        values = encode_case(case, ALGORITHM)
+        input_length = case.get("input_length", len(values))
+        input_is_null = case.get("input_is_null", False)
         if (record["algorithm"] != ALGORITHM
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]
-                or record["workload"]["input_length"] != len(values)
+                or record["workload"]["input_length"] != input_length
                 or record["workload"]["input_values"] != values
+                or record["workload"].get("input_is_null", False) != input_is_null
                 or record["workload"]["expected_result"] != case["expected_result"]
                 or record["measurement"]["observed_result"] != case["expected_result"]
                 or len(record["measurement"]["samples_ns"]) != 1):

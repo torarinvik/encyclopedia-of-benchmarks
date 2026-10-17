@@ -1,0 +1,32 @@
+const MIN_N: i64 = 2
+const MAX_N: i64 = 111155
+
+def next_value(n: i64, x: i64) -> i64:
+    (x * x + 1) % n
+
+def gcd_nonnegative(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def pollard_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    n: i64 = input[0]
+    if n < MIN_N or n > MAX_N: return -1
+
+    x: mutable i64 = 2
+    y: mutable i64 = 2
+    divisor: mutable i64 = 1
+    while divisor == 1:
+        x <- next_value(n, x)
+        y <- next_value(n, next_value(n, y))
+        difference: mutable i64 = x - y
+        if difference < 0: difference <- -difference
+        divisor <- gcd_nonnegative(difference, n)
+    if divisor == n: 0 else: divisor
+
+export fn pollard(input: i64&, length: usize) -> i64 = pollard_impl

@@ -1,0 +1,110 @@
+const MAX_VERTICES: usize = 64
+const MAX_EDGES: usize = 4096
+const MAX_INPUT_LENGTH: usize = 2 + 3 * MAX_EDGES
+
+def edge_less(input: i64&, left: usize, right: usize) -> bool:
+    left_weight: i64 = input[2 + 3 * left + 2]
+    right_weight: i64 = input[2 + 3 * right + 2]
+    return left_weight < right_weight or (left_weight == right_weight and left < right)
+
+def sift_down(input: i64&, order: mutable usize&, root_start: usize, end: usize) -> void:
+    root: mutable usize = root_start
+    while root * 2 + 1 < end:
+        child: mutable usize = root * 2 + 1
+        if child + 1 < end and edge_less(input, order[child], order[child + 1]):
+            child <- child + 1
+        if not edge_less(input, order[root], order[child]):
+            break
+        temporary: usize = order[root]
+        order[root] <- order[child]
+        order[child] <- temporary
+        root <- child
+
+def heap_sort(input: i64&, order: mutable usize&, count: usize) -> void:
+    start: mutable usize = count / 2
+    while start > 0:
+        start <- start - 1
+        sift_down(input, order, start, count)
+    ending: mutable usize = count
+    while ending > 1:
+        ending <- ending - 1
+        temporary: usize = order[0]
+        order[0] <- order[ending]
+        order[ending] <- temporary
+        sift_down(input, order, 0, ending)
+
+def find_root(parent: mutable usize&, node_input: usize) -> usize:
+    node: mutable usize = node_input
+    while parent[node] != node:
+        parent[node] <- parent[parent[node]]
+        node <- parent[node]
+    return node
+
+def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def minimum_spanning_tree_kruskal_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_vertices: i64 = input[0]
+    raw_edges: i64 = input[1]
+    if raw_vertices < 0 or raw_vertices > 64 or raw_edges < 0 or raw_edges > 4096:
+        return -1
+    vertex_count: usize = raw_vertices.usize()
+    edge_count: usize = raw_edges.usize()
+    if length != 2 + 3 * edge_count:
+        return -1
+
+    order: mutable usize[MAX_EDGES] = zeroed
+    index: mutable usize = 0
+    while index < edge_count:
+        offset: usize = 2 + 3 * index
+        u: i64 = input[offset]
+        v: i64 = input[offset + 1]
+        if u < 0 or u >= raw_vertices or v < 0 or v >= raw_vertices:
+            return -1
+        order[index] <- index
+        index <- index + 1
+    heap_sort(input, &order[0], edge_count)
+
+    parent: mutable usize[MAX_VERTICES] = zeroed
+    index <- 0
+    while index < vertex_count:
+        parent[index] <- index
+        index <- index + 1
+    accepted: mutable usize[MAX_VERTICES] = zeroed
+    accepted_count: mutable usize = 0
+    index <- 0
+    while index < edge_count:
+        edge_index: usize = order[index]
+        offset: usize = 2 + 3 * edge_index
+        left_root: usize = find_root(&parent[0], input[offset].usize())
+        right_root: usize = find_root(&parent[0], input[offset + 1].usize())
+        if left_root != right_root:
+            accepted[accepted_count] <- edge_index
+            accepted_count <- accepted_count + 1
+            parent[left_root] <- right_root
+        index <- index + 1
+
+    byte_count: usize = accepted_count * 24
+    if output.is_null() or capacity < byte_count:
+        return -2
+    index <- 0
+    while index < accepted_count:
+        input_offset: usize = 2 + 3 * accepted[index]
+        output_offset: usize = index * 24
+        put_i64_le(input[input_offset], output, output_offset)
+        put_i64_le(input[input_offset + 1], output, output_offset + 8)
+        put_i64_le(input[input_offset + 2], output, output_offset + 16)
+        index <- index + 1
+    byte_count.i64()
+
+export fn minimum_spanning_tree_kruskal(
+    input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 =
+    minimum_spanning_tree_kruskal_impl

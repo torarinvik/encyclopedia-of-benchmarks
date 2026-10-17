@@ -1,0 +1,796 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-linear-probing-hash-table-i64-array-bytes-output-v1",
+  "algorithm": "linear_probing_hash_table",
+  "function_symbol": "linear_probing_hash_table",
+  "description": "Bounded integer-key traces for the two pinned linear probing table snapshots.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Plus-Plus",
+    "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+    "path": "hashing/linear_probing_hash_table.cpp",
+    "symbol": "linear_probing::add/remove/linearProbe/hashFxn/display",
+    "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/hashing/linear_probing_hash_table.cpp"
+  },
+  "supporting_pinned_source": {
+    "repository": "TheAlgorithms/C-Plus-Plus-1",
+    "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+    "path": "hashing/linear_probing_hash_table.cpp",
+    "symbol": "linear_probing::add/remove/linearProbe/hashFxn/display",
+    "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/hashing/linear_probing_hash_table.cpp"
+  },
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "hashing/linear_probing_hash_table.cpp",
+      "symbol": "linear_probing::add/remove/linearProbe/hashFxn/display",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/hashing/linear_probing_hash_table.cpp"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "hashing/linear_probing_hash_table.cpp",
+      "symbol": "linear_probing::add/remove/linearProbe/hashFxn/display",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/hashing/linear_probing_hash_table.cpp"
+    }
+  ],
+  "source_environment": {
+    "cxx_standard": "C++17",
+    "compiler": "Apple Clang 21.0.0",
+    "target": "arm64-apple-darwin27.0.0",
+    "standard_library": "Apple libc++ (default for the pinned target)",
+    "int_hash": "std::hash<int> returns identity for keys in this contract on the pinned target",
+    "source_equivalence_scope": "Cross-library or cross-toolchain executions are outside this source-equivalence claim."
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[initial_capacity, operation_count, variable operation records...]",
+    "initial_capacity_range": [
+      2,
+      16
+    ],
+    "operation_count_range": [
+      0,
+      32
+    ],
+    "maximum_valid_input_length": 66,
+    "maximum_parseable_input_length": 66,
+    "key_range": [
+      1,
+      2147483520
+    ],
+    "maximum_reachable_table_capacity": 128,
+    "operation_codes": {
+      "0": "add(key)",
+      "1": "remove(key; key must be present)",
+      "2": "find(key)",
+      "3": "hash(key)",
+      "4": "display()"
+    },
+    "record_shape": "Opcodes 0\u20133 consume an opcode and one key; opcode 4 consumes only its opcode. The packed array must end exactly after the declared operation count.",
+    "add_duplicates": "Allowed; each duplicate occupies another probe slot.",
+    "remove_missing": "Invalid input; the source writes to the notPresent sentinel index and corrupts state when a key is absent.",
+    "null_input_result": -1,
+    "invalid_input_result": -1,
+    "find_semantics": "Opcode 2 reports whether searchingProber matched the requested key during linear probing; it does not reproduce the CLI wrapper\u2019s follow-up table[notPresent] rendering check, which can misreport a miss when slot 0 is occupied."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_sequence",
+    "records": "Add [0,1]; remove [1,1]; find [2,0|1]; hash [3,key]; display [4,capacity,slot0,...,slotN-1].",
+    "display_slot_encoding": {
+      "-2": "empty slot (source notPresent sentinel 0)",
+      "-1": "tombstone",
+      "positive": "stored key"
+    },
+    "hash_record": "The raw positive key, matching std::hash<int> identity behavior in the pinned target environment.",
+    "result": "number of returned bytes",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "maximum_output_bytes": 8704
+  },
+  "workspace": {
+    "bytes": 8704,
+    "reason": "Sixteen adds from initial capacity 2 grow to capacity 64; sixteen displays each emit 66 words, plus 32 words from adds, for 1,088 output words."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 40
+  },
+  "abi_cases": [
+    {
+      "id": "positive_length_null_input",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "output_capacity": 8704,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_precedes_null_output",
+      "input_values": [
+        2,
+        1,
+        1,
+        7
+      ],
+      "input_length": 4,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_null_output_zero_bytes",
+      "input_values": [
+        2,
+        0
+      ],
+      "input_length": 2,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonnull_zero_capacity_zero_bytes",
+      "input_values": [
+        2,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        2,
+        1,
+        3,
+        8
+      ],
+      "input_length": 4,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_output_capacity",
+      "input_values": [
+        2,
+        1,
+        3,
+        8
+      ],
+      "input_length": 4,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000000800000000000000"
+    },
+    {
+      "id": "maximum_output_exact_capacity",
+      "input_values": [
+        2,
+        32,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8,
+        0,
+        9,
+        0,
+        10,
+        0,
+        11,
+        0,
+        12,
+        0,
+        13,
+        0,
+        14,
+        0,
+        15,
+        0,
+        16,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "input_length": 50,
+      "output_capacity": 8704,
+      "expected_result": 8704,
+      "expected_output_hex": "0000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000004000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff"
+    },
+    {
+      "id": "maximum_output_short_capacity",
+      "input_values": [
+        2,
+        32,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8,
+        0,
+        9,
+        0,
+        10,
+        0,
+        11,
+        0,
+        12,
+        0,
+        13,
+        0,
+        14,
+        0,
+        15,
+        0,
+        16,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "input_length": 50,
+      "output_capacity": 8703,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "empty_trace",
+      "input_values": [
+        2,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "initial_display_empty_slots",
+      "input_values": [
+        2,
+        1,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": 32,
+      "expected_output_hex": "04000000000000000200000000000000fefffffffffffffffeffffffffffffff"
+    },
+    {
+      "id": "collision_resize_find_and_display",
+      "input_values": [
+        4,
+        5,
+        0,
+        1,
+        0,
+        5,
+        2,
+        1,
+        2,
+        5,
+        4
+      ],
+      "input_length": 11,
+      "expected_result": 144,
+      "expected_output_hex": "0000000000000000010000000000000000000000000000000100000000000000020000000000000001000000000000000200000000000000010000000000000004000000000000000800000000000000feffffffffffffff0100000000000000fefffffffffffffffefffffffffffffffeffffffffffffff0500000000000000fefffffffffffffffeffffffffffffff"
+    },
+    {
+      "id": "duplicate_add_is_a_separate_slot",
+      "input_values": [
+        4,
+        4,
+        0,
+        3,
+        0,
+        3,
+        2,
+        3,
+        4
+      ],
+      "input_length": 9,
+      "expected_result": 128,
+      "expected_output_hex": "00000000000000000100000000000000000000000000000001000000000000000200000000000000010000000000000004000000000000000800000000000000fefffffffffffffffefffffffffffffffeffffffffffffff03000000000000000300000000000000fefffffffffffffffefffffffffffffffeffffffffffffff"
+    },
+    {
+      "id": "tombstone_reuse_after_remove",
+      "input_values": [
+        4,
+        5,
+        0,
+        1,
+        0,
+        5,
+        1,
+        1,
+        0,
+        9,
+        4
+      ],
+      "input_length": 11,
+      "expected_result": 144,
+      "expected_output_hex": "0000000000000000010000000000000000000000000000000100000000000000010000000000000001000000000000000000000000000000010000000000000004000000000000000800000000000000feffffffffffffff0900000000000000fefffffffffffffffefffffffffffffffeffffffffffffff0500000000000000fefffffffffffffffeffffffffffffff"
+    },
+    {
+      "id": "find_missing_key",
+      "input_values": [
+        8,
+        1,
+        2,
+        77
+      ],
+      "input_length": 4,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000000000000000000"
+    },
+    {
+      "id": "hash_output_identity_on_pinned_target",
+      "input_values": [
+        8,
+        1,
+        3,
+        12345
+      ],
+      "input_length": 4,
+      "expected_result": 16,
+      "expected_output_hex": "03000000000000003930000000000000"
+    },
+    {
+      "id": "display_tombstone_and_collision_cluster",
+      "input_values": [
+        8,
+        5,
+        0,
+        1,
+        0,
+        9,
+        1,
+        1,
+        2,
+        9,
+        4
+      ],
+      "input_length": 11,
+      "expected_result": 144,
+      "expected_output_hex": "0000000000000000010000000000000000000000000000000100000000000000010000000000000001000000000000000200000000000000010000000000000004000000000000000800000000000000feffffffffffffffffffffffffffffff0900000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff"
+    },
+    {
+      "id": "threshold_growth_from_capacity_two",
+      "input_values": [
+        2,
+        2,
+        0,
+        7,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": 64,
+      "expected_output_hex": "0000000000000000010000000000000004000000000000000400000000000000fefffffffffffffffefffffffffffffffeffffffffffffff0700000000000000"
+    },
+    {
+      "id": "maximum_input_and_capacity_growth",
+      "input_values": [
+        2,
+        32,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8,
+        0,
+        9,
+        0,
+        10,
+        0,
+        11,
+        0,
+        12,
+        0,
+        13,
+        0,
+        14,
+        0,
+        15,
+        0,
+        16,
+        0,
+        17,
+        0,
+        18,
+        0,
+        19,
+        0,
+        20,
+        0,
+        21,
+        0,
+        22,
+        0,
+        23,
+        0,
+        24,
+        0,
+        25,
+        0,
+        26,
+        0,
+        27,
+        0,
+        28,
+        0,
+        29,
+        0,
+        30,
+        0,
+        31,
+        0,
+        32
+      ],
+      "input_length": 66,
+      "expected_result": 512,
+      "expected_output_hex": "0000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "maximum_output_exact",
+      "input_values": [
+        2,
+        32,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8,
+        0,
+        9,
+        0,
+        10,
+        0,
+        11,
+        0,
+        12,
+        0,
+        13,
+        0,
+        14,
+        0,
+        15,
+        0,
+        16,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "input_length": 50,
+      "output_capacity": 8704,
+      "expected_result": 8704,
+      "expected_output_hex": "0000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000000000000000000000000000010000000000000004000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff04000000000000004000000000000000feffffffffffffff0100000000000000020000000000000003000000000000000400000000000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000000000000c000000000000000d000000000000000e000000000000000f000000000000001000000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff"
+    },
+    {
+      "id": "maximum_output_one_byte_short",
+      "input_values": [
+        2,
+        32,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8,
+        0,
+        9,
+        0,
+        10,
+        0,
+        11,
+        0,
+        12,
+        0,
+        13,
+        0,
+        14,
+        0,
+        15,
+        0,
+        16,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "input_length": 50,
+      "output_capacity": 8703,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "positive_length_null_input",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_zero_output_null_output",
+      "input_values": [
+        2,
+        0
+      ],
+      "input_length": 2,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_precedes_null_output",
+      "input_values": [
+        2,
+        1,
+        1,
+        77
+      ],
+      "input_length": 4,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_initial_capacity",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_operation_count",
+      "input_values": [
+        2,
+        33
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_key_operation",
+      "input_values": [
+        2,
+        1,
+        3
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_word_after_empty_trace",
+      "input_values": [
+        2,
+        0,
+        77
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_opcode",
+      "input_values": [
+        4,
+        1,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_key_is_reserved_sentinel",
+      "input_values": [
+        4,
+        1,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_key_is_outside_safe_domain",
+      "input_values": [
+        4,
+        1,
+        0,
+        -2
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "tombstone_key_is_reserved",
+      "input_values": [
+        4,
+        1,
+        2,
+        -1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key_exceeds_overflow_bound",
+      "input_values": [
+        4,
+        1,
+        3,
+        2147483521
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "remove_missing_key_invalid",
+      "input_values": [
+        4,
+        1,
+        1,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "collision_chain_without_growth",
+      "input_values": [
+        8,
+        3,
+        0,
+        1,
+        0,
+        9,
+        4
+      ],
+      "input_length": 7,
+      "expected_result": 112,
+      "expected_output_hex": "000000000000000001000000000000000000000000000000010000000000000004000000000000000800000000000000feffffffffffffff01000000000000000900000000000000fefffffffffffffffefffffffffffffffefffffffffffffffefffffffffffffffeffffffffffffff"
+    },
+    {
+      "id": "slot_zero_occupied_missing_find",
+      "input_values": [
+        8,
+        2,
+        0,
+        8,
+        2,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000010000000000000002000000000000000000000000000000"
+    }
+  ]
+}

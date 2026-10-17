@@ -1,0 +1,79 @@
+const MAX_LENGTH: usize = 128
+const INSERTION_THRESHOLD: usize = 16
+const MAX_BUCKETS: usize = 8
+const BUCKET_STRIDE: usize = 128
+
+def spread_sort_segment(values: mutable i32&, start: usize, length: usize) -> void:
+    if length < 2: return
+    if length <= INSERTION_THRESHOLD:
+        index: mutable usize = 1
+        while index < length:
+            key: i32 = values[start + index]
+            position: mutable usize = index
+            while position > 0 and values[start + position - 1] > key:
+                values[start + position] <- values[start + position - 1]
+                position <- position - 1
+            values[start + position] <- key
+            index <- index + 1
+        return
+
+    minimum: mutable i32 = values[start]
+    maximum: mutable i32 = values[start]
+    index: mutable usize = 1
+    while index < length:
+        if values[start + index] < minimum: minimum <- values[start + index]
+        if values[start + index] > maximum: maximum <- values[start + index]
+        index <- index + 1
+    if minimum == maximum: return
+
+    bucket_count: mutable usize = length / INSERTION_THRESHOLD
+    if bucket_count < 2: bucket_count <- 2
+    middle_bucket: usize = bucket_count / 2
+    bucket_values: mutable i32[1024] = zeroed
+    bucket_sizes: mutable usize[MAX_BUCKETS] = zeroed
+    index <- 0
+    while index < length:
+        bucket: usize = 0
+        if values[start + index] != minimum: bucket <- middle_bucket
+        position: usize = bucket * BUCKET_STRIDE + bucket_sizes[bucket]
+        bucket_values[position] <- values[start + index]
+        bucket_sizes[bucket] <- bucket_sizes[bucket] + 1
+        index <- index + 1
+
+    written: mutable usize = 0
+    bucket: mutable usize = 0
+    while bucket < bucket_count:
+        if bucket_sizes[bucket] > 0:
+            spread_sort_segment(bucket_values, bucket * BUCKET_STRIDE, bucket_sizes[bucket])
+            index <- 0
+            while index < bucket_sizes[bucket]:
+                values[start + written] <- bucket_values[bucket * BUCKET_STRIDE + index]
+                written <- written + 1
+                index <- index + 1
+        bucket <- bucket + 1
+
+def spread_sort_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length > MAX_LENGTH: return -1
+    values: mutable i32[MAX_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = input[index]
+        if value < -2147483648 or value > 2147483647: return -1
+        values[index] <- value.i32()
+        index <- index + 1
+    if length == 0: return 0
+
+    output_bytes: usize = length * 4
+    if output == null or capacity < output_bytes: return -2
+    spread_sort_segment(values, 0, length)
+    index <- 0
+    while index < length:
+        bits: u32 = values[index].u32()
+        output[index * 4] <- (bits & 255).u8()
+        output[index * 4 + 1] <- ((bits >> 8) & 255).u8()
+        output[index * 4 + 2] <- ((bits >> 16) & 255).u8()
+        output[index * 4 + 3] <- ((bits >> 24) & 255).u8()
+        index <- index + 1
+    output_bytes.i64()
+
+export fn spread_sort(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = spread_sort_impl

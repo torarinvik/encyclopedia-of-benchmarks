@@ -1,0 +1,459 @@
+{
+  "schema_version": 1,
+  "id": "sprague-grundy-single-heap-subtraction-v1",
+  "algorithm": "sprague_grundy_theorem",
+  "function_symbol": "sprague_grundy_theorem",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": [
+      "position",
+      "move_count",
+      "move_sizes..."
+    ],
+    "position_range": [
+      0,
+      64
+    ],
+    "move_count_range": [
+      0,
+      32
+    ],
+    "move_size_range": [
+      1,
+      32
+    ],
+    "duplicates_allowed": true,
+    "move_order": "arbitrary",
+    "exact_length": "2 + move_count",
+    "maximum_input_length": 34,
+    "memo_initial_value": -1,
+    "ignored_move_rule": "Move sizes larger than the current position are skipped.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "mex of the Grundy values reachable by one legal subtraction; position zero is terminal",
+    "terminal_position_result": 0,
+    "empty_move_list_result": 0,
+    "invalid_result": -1
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/math/sprague_grundy_theorem.rs",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/sprague_grundy_theorem.rs",
+    "function": "calculate_grundy_number"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "source_example_position_6_moves_1_4",
+      "input_values": [
+        6,
+        2,
+        1,
+        4
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "terminal_position_empty_moves",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "terminal_position_with_legal_moves",
+      "input_values": [
+        0,
+        2,
+        1,
+        4
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "terminal_position_all_moves_oversized",
+      "input_values": [
+        0,
+        3,
+        1,
+        4,
+        32
+      ],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "positive_position_empty_move_list",
+      "input_values": [
+        6,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "single_subtraction_by_one_odd_position",
+      "input_values": [
+        5,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "moves_one_two_three_position_five",
+      "input_values": [
+        5,
+        3,
+        1,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "all_moves_exceed_position",
+      "input_values": [
+        3,
+        2,
+        4,
+        32
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "legal_and_oversized_moves",
+      "input_values": [
+        4,
+        3,
+        1,
+        4,
+        32
+      ],
+      "input_length": 5,
+      "expected_result": 2
+    },
+    {
+      "id": "duplicate_moves_do_not_change_mex",
+      "input_values": [
+        6,
+        3,
+        1,
+        1,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "unsorted_moves_are_valid",
+      "input_values": [
+        6,
+        2,
+        4,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "repeated_only_legal_move",
+      "input_values": [
+        4,
+        3,
+        2,
+        2,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "duplicate_and_oversized_moves",
+      "input_values": [
+        3,
+        4,
+        1,
+        1,
+        32,
+        32
+      ],
+      "input_length": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_move_exceeds_small_position",
+      "input_values": [
+        1,
+        1,
+        32
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_position_single_move_one",
+      "input_values": [
+        64,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_position_single_move_32",
+      "input_values": [
+        64,
+        1,
+        32
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_position_and_move_count",
+      "input_values": [
+        64,
+        32,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32
+      ],
+      "input_length": 34,
+      "expected_result": 31
+    },
+    {
+      "id": "maximum_count_zero_position",
+      "input_values": [
+        0,
+        32,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32
+      ],
+      "input_length": 34,
+      "expected_result": 0
+    },
+    {
+      "id": "empty_array",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "short_header",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_position",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "position_above_maximum",
+      "input_values": [
+        65,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "minimum_i64_position",
+      "input_values": [
+        -9223372036854775808,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_i64_position",
+      "input_values": [
+        9223372036854775807,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_move_count",
+      "input_values": [
+        1,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "move_count_above_maximum",
+      "input_values": [
+        1,
+        33
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "declared_move_count_too_large_for_frame",
+      "input_values": [
+        0,
+        32
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "missing_move_value",
+      "input_values": [
+        6,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_move_value",
+      "input_values": [
+        6,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "zero_move_is_invalid",
+      "input_values": [
+        2,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_move_is_invalid",
+      "input_values": [
+        2,
+        1,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "move_above_maximum",
+      "input_values": [
+        2,
+        1,
+        33
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "minimum_i64_move",
+      "input_values": [
+        2,
+        1,
+        -9223372036854775808
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_i64_move",
+      "input_values": [
+        2,
+        1,
+        9223372036854775807
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    }
+  ]
+}

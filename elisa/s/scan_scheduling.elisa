@@ -1,0 +1,95 @@
+const MAX_REQUESTS: usize = 64
+const MAX_OUTPUT_VALUES: usize = 65
+
+def put_i32_le(output: mutable u8&, offset: usize, value: i32) -> void:
+    bits: mutable u32 = value.u32()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def scan_scheduling_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > 68: return -1
+    disk_size: i32 = input[0]
+    head: i32 = input[1]
+    direction: i32 = input[2]
+    request_count: i32 = input[3]
+    if disk_size < 1 or disk_size > 256 or head < 0 or head >= disk_size: return -1
+    if (direction != 0 and direction != 1) or request_count < 0 or request_count > MAX_REQUESTS.i32(): return -1
+    if length != 4 + request_count.usize(): return -1
+
+    left: mutable i32[MAX_REQUESTS] = zeroed
+    right: mutable i32[MAX_REQUESTS] = zeroed
+    left_count: mutable usize = 0
+    right_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < request_count.usize():
+        request: i32 = input[4 + index]
+        if request < 0 or request >= disk_size: return -1
+        if request < head:
+            left[left_count] <- request
+            left_count <- left_count + 1
+        else:
+            right[right_count] <- request
+            right_count <- right_count + 1
+        index <- index + 1
+
+    index <- 1
+    while index < left_count:
+        value: i32 = left[index]
+        position: mutable usize = index
+        while position > 0 and left[position - 1] > value:
+            left[position] <- left[position - 1]
+            position <- position - 1
+        left[position] <- value
+        index <- index + 1
+    index <- 1
+    while index < right_count:
+        value: i32 = right[index]
+        position: mutable usize = index
+        while position > 0 and right[position - 1] > value:
+            right[position] <- right[position - 1]
+            position <- position - 1
+        right[position] <- value
+        index <- index + 1
+
+    ordered: mutable i32[MAX_OUTPUT_VALUES] = zeroed
+    count: mutable usize = 0
+    if request_count > 0:
+        if direction == 1:
+            index <- 0
+            while index < right_count:
+                ordered[count] <- right[index]
+                count <- count + 1
+                index <- index + 1
+            ordered[count] <- disk_size - 1
+            count <- count + 1
+            index <- left_count
+            while index > 0:
+                index <- index - 1
+                ordered[count] <- left[index]
+                count <- count + 1
+        else:
+            index <- left_count
+            while index > 0:
+                index <- index - 1
+                ordered[count] <- left[index]
+                count <- count + 1
+            ordered[count] <- 0
+            count <- count + 1
+            index <- 0
+            while index < right_count:
+                ordered[count] <- right[index]
+                count <- count + 1
+                index <- index + 1
+
+    bytes: usize = count * 4
+    if output.is_null() or capacity < bytes: return -2
+    index <- 0
+    while index < count:
+        put_i32_le(output, index * 4, ordered[index])
+        index <- index + 1
+    bytes.i64()
+
+export fn scan_scheduling(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64 = scan_scheduling_impl

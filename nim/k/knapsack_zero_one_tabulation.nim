@@ -1,7 +1,7 @@
 ## Bottom-up 0/1 knapsack using one row and descending capacities.
 proc knapsack_zero_one_tabulation*(packed: ptr UncheckedArray[int64], length: csize_t): int64
     {.cdecl, exportc: "knapsack_zero_one_tabulation".} =
-  if length < 2 or length > 258:
+  if packed == nil or length < 2 or length > 258:
     return -1
   if packed[0] < 0 or packed[0] > 512 or packed[1] < 0 or packed[1] > 128:
     return -1

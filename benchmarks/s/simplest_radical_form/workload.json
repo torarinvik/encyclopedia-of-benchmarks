@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-lua-simplist-radical-form-bounded-i64-pair-v1",
+  "algorithm": "simplest_radical_form",
+  "function_symbol": "simplest_radical_form",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": ["n"],
+    "exact_length": 1,
+    "value_range": [0, 100000000],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_pairs",
+    "meaning": "[coefficient,root_term] such that sqrt(n)=coefficient*sqrt(root_term)",
+    "zero_result": [1, 0],
+    "maximum_output_bytes": 16,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Lua",
+    "commit": "cedc141018ad48884318fe08a6db278664b17128",
+    "path": "src/math/simplist_radical_form.lua",
+    "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/math/simplist_radical_form.lua"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"zero_special_case","input_values":[0],"expected_result":16,"expected_output_hex":"01000000000000000000000000000000"},
+    {"id":"unit","input_values":[1],"expected_result":16,"expected_output_hex":"01000000000000000100000000000000"},
+    {"id":"prime_two","input_values":[2],"expected_result":16,"expected_output_hex":"01000000000000000200000000000000"},
+    {"id":"perfect_square","input_values":[81],"expected_result":16,"expected_output_hex":"09000000000000000100000000000000"},
+    {"id":"mixed_factor_multiplicities","input_values":[72],"expected_result":16,"expected_output_hex":"06000000000000000200000000000000"},
+    {"id":"square_with_multiple_factors","input_values":[3600],"expected_result":16,"expected_output_hex":"3c000000000000000100000000000000"},
+    {"id":"larger_prime","input_values":[99991],"expected_result":16,"expected_output_hex":"01000000000000009786010000000000"},
+    {"id":"maximum_input","input_values":[100000000],"expected_result":16,"expected_output_hex":"10270000000000000100000000000000"},
+    {"id":"empty_input","input_values":[],"expected_result":-1,"expected_output_hex":""},
+    {"id":"extra_input_value","input_values":[4,1],"expected_result":-1,"expected_output_hex":""},
+    {"id":"negative_input","input_values":[-1],"expected_result":-1,"expected_output_hex":""},
+    {"id":"above_maximum","input_values":[100000001],"expected_result":-1,"expected_output_hex":""}
+  ]
+}

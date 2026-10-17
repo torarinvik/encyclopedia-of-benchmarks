@@ -1,0 +1,44 @@
+const MAX_TEXT_LENGTH: usize = 256
+const MAX_COLUMNS: usize = 64
+const MAX_INPUT_VALUES: usize = 259
+const MAX_OUTPUT_BYTES: usize = 315
+
+def product_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    columns_value: i64 = input[0]
+    text_length_value: i64 = input[1]
+    if columns_value < 1 or columns_value > 64 or text_length_value < 0 or text_length_value > 256:
+        return -1
+
+    columns: usize = columns_value.usize()
+    text_length: usize = text_length_value.usize()
+    if length != 2 + text_length:
+        return -1
+    for index in 0..<text_length:
+        byte: i64 = input[2 + index]
+        if byte < 0 or byte > 127 or byte == 10 or byte == 13:
+            return -1
+
+    padded_length: usize = if text_length == 0 then 0 else ((text_length + columns - 1) / columns) * columns
+    if padded_length > MAX_OUTPUT_BYTES:
+        return -1
+    if padded_length == 0:
+        return 0
+    if output == null or output_capacity < padded_length:
+        return -2
+
+    padded: mutable u8[315] = zeroed
+    for index in 0..<text_length:
+        padded[index] <- (input[2 + index] + 5).u8()
+    for index in text_length..<padded_length:
+        padded[index] <- 47
+    rows: usize = padded_length / columns
+    written: mutable usize = 0
+    for column in 0..<columns:
+        for row in 0..<rows:
+            output[written] <- padded[column + row * columns]
+            written <- written + 1
+    written.i64()
+
+export fn product_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = product_cipher_impl

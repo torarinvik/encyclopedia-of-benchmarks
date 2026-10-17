@@ -6,7 +6,8 @@ extern fn double fma(double first, double second, double third);
 const long INVALID_RESULT = -1;
 const long CAPACITY_ERROR = -2;
 const double INVALID_SCALE = 100000.0;
-const double MAX_TICK_BOUND = 9.223372036854775808e18;
+const double HALF_STEP_LIMIT = 4503599627370496.0;
+const long MAX_TICK_MAGNITUDE = 2251799813685248;
 
 fn bool finite_value(double value) {
     return value == value && value < 1.7976931348623157e308 && value > -1.7976931348623157e308;
@@ -89,7 +90,7 @@ fn long simultaneous_linear_equation_solver(long* input, usz length, char* outpu
     write_i64_le(buffer, 0, n_value);
     for (usz index = 0; index < n; index++) {
         double scaled = solutions[index] * INVALID_SCALE;
-        if (!finite_value(scaled) || scaled < -MAX_TICK_BOUND || scaled >= MAX_TICK_BOUND)
+        if (!finite_value(scaled) || scaled <= -HALF_STEP_LIMIT || scaled >= HALF_STEP_LIMIT)
             return INVALID_RESULT;
         double lower = floor(scaled);
         double midpoint = lower + 0.5;
@@ -97,7 +98,19 @@ fn long simultaneous_linear_equation_solver(long* input, usz length, char* outpu
         if (!finite_value(exact_side)) return INVALID_RESULT;
         long rounded = (long)lower;
         if (exact_side > 0.0 || (exact_side == 0.0 && rounded % 2 != 0)) rounded++;
-        write_i64_le(buffer, 8 + 8 * index, rounded);
+        if (rounded < -MAX_TICK_MAGNITUDE || rounded > MAX_TICK_MAGNITUDE)
+            return INVALID_RESULT;
+        double rounded_value = (double)rounded / INVALID_SCALE;
+        double projected = rounded_value * INVALID_SCALE;
+        if (!finite_value(projected)) return INVALID_RESULT;
+        double projected_lower = floor(projected);
+        double projected_midpoint = projected_lower + 0.5;
+        long ticks = (long)projected_lower;
+        if (projected > projected_midpoint ||
+            (projected == projected_midpoint && ticks % 2 != 0)) ticks++;
+        if (ticks < -MAX_TICK_MAGNITUDE || ticks > MAX_TICK_MAGNITUDE)
+            return INVALID_RESULT;
+        write_i64_le(buffer, 8 + 8 * index, ticks);
     }
     if (output == null || capacity < needed) return CAPACITY_ERROR;
     for (usz index = 0; index < needed; index++) output[index] = buffer[index];

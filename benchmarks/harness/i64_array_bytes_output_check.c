@@ -96,7 +96,7 @@ int main(void)
         have_first_length = 1;
     }
     while (checked < case_count) {
-        uint64_t length, expected_bytes, output_capacity, null_input_flag;
+        uint64_t length, expected_bytes, output_capacity, null_input_flag, null_output_flag;
         int64_t expected_count;
         int header_result;
         if (checked == 0 && have_first_length) {
@@ -123,8 +123,9 @@ int main(void)
         output_capacity = expected_bytes;
 #endif
         if (scanf("%" SCNu64, &null_input_flag) != 1 || null_input_flag > 1 ||
-            (null_input_flag != 0 && length == 0)) {
-            fprintf(stderr, "invalid null-input flag\n"); return 2;
+            scanf("%" SCNu64, &null_output_flag) != 1 || null_output_flag > 1 ||
+            (null_input_flag != 0 && null_output_flag != 0)) {
+            fprintf(stderr, "invalid null-pointer flags\n"); return 2;
         }
         int64_t *values = length == 0 ? NULL : malloc((size_t)length * sizeof(*values));
         uint8_t *expected = malloc(expected_bytes == 0 ? 1 : (size_t)expected_bytes);
@@ -182,10 +183,14 @@ int main(void)
         const size_t canary_length = output_capacity == 0 ? 1 : (size_t)output_capacity;
         memset(observed, 0xA5, canary_length);
         const int64_t result = BENCHMARK_FUNCTION(null_input_flag ? NULL : values,
-                                                   (size_t)length, observed,
+                                                   (size_t)length,
+                                                   null_output_flag ? NULL : observed,
                                                    (size_t)output_capacity);
         int canary_changed = 0;
-        if (null_input_flag || expected_count == -2 || output_capacity == 0) {
+        const int check_canary = null_input_flag ||
+                                 (expected_count < 0 && !null_output_flag) ||
+                                 output_capacity == 0;
+        if (check_canary) {
             for (size_t index = 0; index < canary_length; ++index) {
                 if (observed[index] != UINT8_C(0xA5)) {
                     canary_changed = 1;
@@ -196,7 +201,7 @@ int main(void)
         if (result != expected_count ||
             !output_matches(observed, expected, (size_t)expected_bytes, float64_vector,
                             absolute_tolerance, relative_tolerance) ||
-            ((null_input_flag || expected_count == -2 || output_capacity == 0) && canary_changed)) {
+            (check_canary && canary_changed)) {
             fprintf(stderr, "case=%" PRIu64 ": expected count=%" PRId64
                     " output-bytes=%" PRIu64 ", capacity=%" PRIu64
                     ", observed count=%" PRId64 "\n",

@@ -1,0 +1,46 @@
+extern exp(value: f64) -> f64
+
+const MAX_SAMPLE_COUNT: i64 = 64
+const MAX_INPUT_LENGTH: usize = 68
+const MIN_SAMPLE_MICRO: i64 = -1000000
+const MAX_SAMPLE_MICRO: i64 = 1000000
+const INVALID_RESULT: f64 = -1.0e300
+
+def laplace_transformation_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
+    sample_count_value: i64 = input[0]
+    s_milli: i64 = input[1]
+    dt_micro: i64 = input[2]
+    if sample_count_value < 1 or sample_count_value > MAX_SAMPLE_COUNT: return INVALID_RESULT
+    sample_count: usize = sample_count_value.usize()
+    if length != sample_count + 3 or s_milli < 0 or s_milli > 1000 or
+        dt_micro < 1 or dt_micro > 1000000: return INVALID_RESULT
+
+    samples: mutable f64[64] = zeroed
+    index: mutable usize = 0
+    while index < sample_count:
+        sample: i64 = input[3 + index]
+        if sample < MIN_SAMPLE_MICRO or sample > MAX_SAMPLE_MICRO: return INVALID_RESULT
+        samples[index] <- sample.f64() / 1000000.0
+        index <- index + 1
+    if sample_count == 1: return 0.0
+
+    s_value: f64 = s_milli.f64() / 1000.0
+    delta_t: f64 = dt_micro.f64() / 1000000.0
+    stop: f64 = (sample_count - 1).f64() * delta_t
+    step: f64 = stop / (sample_count - 1).f64()
+    integrand: mutable f64[64] = zeroed
+    index <- 0
+    while index < sample_count:
+        time: f64 = if index == sample_count - 1: stop else: index.f64() * step
+        integrand[index] <- samples[index] * exp(-s_value * time)
+        index <- index + 1
+
+    result: mutable f64 = 0.0
+    index <- 0
+    while index + 1 < sample_count:
+        result <- result + (delta_t * (integrand[index] + integrand[index + 1])) / 2.0
+        index <- index + 1
+    result
+
+export fn laplace_transformation(input: i64&, length: usize) -> f64 = laplace_transformation_impl

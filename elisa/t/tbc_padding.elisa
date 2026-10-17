@@ -1,0 +1,65 @@
+const MAX_BYTES: usize = 256
+const MAX_INPUT_VALUES: usize = 259
+
+def write_i64_le(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    index: mutable usize = 0
+    while index < 8:
+        output[position + index] <- (bits & 255).u8()
+        bits <- bits >> 8
+        index <- index + 1
+
+def tbc_padding_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_VALUES: return -1
+    operation: i64 = input[0]
+    offset_value: i64 = input[1]
+    count_value: i64 = input[2]
+    if operation < 0 or operation > 2 or count_value < 0 or count_value > MAX_BYTES.i64() or
+        length != count_value.usize() + 3: return -1
+    count: usize = count_value.usize()
+    if (operation == 0 and (count == 0 or offset_value < 0 or offset_value > count_value)) or
+        (operation != 0 and offset_value != 0) or (operation == 2 and count == 0): return -1
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 3]
+        if value < 0 or value > 255: return -1
+        index <- index + 1
+
+    if operation == 0:
+        offset: usize = offset_value.usize()
+        previous: mutable i64 = input[count + 2]
+        if offset > 0: previous <- input[offset + 2]
+        code: u8 = if (previous & 1) == 0: 255.u8() else: 0.u8()
+        needed: usize = 8 + count
+        if output.is_null() or capacity < needed: return -2
+        write_i64_le(output, 0, (count - offset).i64())
+        index <- 0
+        while index < count:
+            output[8 + index] <- if index >= offset: code else: input[3 + index].u8()
+            index <- index + 1
+        return needed.i64()
+
+    if operation == 1:
+        survivors: mutable usize = count
+        code: i64 = 0
+        if count > 0:
+            code <- if (input[2 + count] & 1) == 0: 0 else: 255
+            while survivors > 0 and input[2 + survivors] == code:
+                survivors <- survivors - 1
+        if output.is_null() or capacity < survivors: return -2
+        index <- 0
+        while index < survivors:
+            output[index] <- input[3 + index].u8()
+            index <- index + 1
+        return survivors.i64()
+
+    terminal: i64 = input[2 + count]
+    if terminal != 0 and terminal != 255: return -1
+    padding_count: mutable usize = 0
+    while padding_count < count and input[2 + count - padding_count] == terminal:
+        padding_count <- padding_count + 1
+    if output.is_null() or capacity < 8: return -2
+    write_i64_le(output, 0, padding_count.i64())
+    8
+
+export fn tbc_padding(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = tbc_padding_impl

@@ -1,0 +1,47 @@
+const MAX_CITIES: usize = 10
+const MAX_MASKS: usize = 1024
+const MAX_STATES: usize = 10240
+const MAX_INPUT_VALUES: usize = 102
+
+def traveling_salesman_bitmask_solve(position: usize, mask: usize, city_count: usize,
+                                     distances: i64&, memo: mutable i64&,
+                                     seen: mutable i64&) -> i64:
+    all_visited: usize = (1 << city_count) - 1
+    if mask == all_visited: return distances[position * city_count]
+    state: usize = position * MAX_MASKS + mask
+    if seen[state] != 0: return memo[state]
+
+    best: mutable i64 = 10001
+    seen[state] <- 1
+    city: mutable usize = 0
+    while city < city_count:
+        bit: usize = 1 << city
+        if (mask & bit) == 0:
+            cost: i64 = distances[position * city_count + city] +
+                traveling_salesman_bitmask_solve(city, mask | bit, city_count, distances, memo, seen)
+            if cost < best: best <- cost
+        city <- city + 1
+    memo[state] <- best
+    best
+
+def traveling_salesman_bitmask_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    city_count_value: i64 = input[0]
+    if city_count_value < 2 or city_count_value > 10: return -1
+    city_count: usize = city_count_value.usize()
+    if length != 1 + city_count * city_count: return -1
+
+    distances: mutable i64[100] = zeroed
+    index: mutable usize = 0
+    while index < city_count * city_count:
+        distance: i64 = input[1 + index]
+        if distance < 0 or distance > 1000: return -1
+        if index / city_count == index % city_count and distance != 0: return -1
+        distances[index] <- distance
+        index <- index + 1
+
+    memo: mutable i64[MAX_STATES] = zeroed
+    seen: mutable i64[MAX_STATES] = zeroed
+    traveling_salesman_bitmask_solve(0, 1, city_count, &distances[0], &memo[0], &seen[0])
+
+export fn traveling_salesman_bitmask(input: i64&, length: usize) -> i64 = traveling_salesman_bitmask_impl

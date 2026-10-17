@@ -1,0 +1,103 @@
+const MAX_NODES: usize = 16
+const MAX_INPUT_VALUES: usize = 2 + MAX_NODES * MAX_NODES
+const MAX_EVENTS: usize = MAX_NODES + MAX_NODES * (MAX_NODES - 1) / 2
+
+def predecessor_constrained_visit(node: usize, count: usize, adjacent: i64&, predecessors: i64&,
+        visited: mutable i64&, events: mutable i64&, event_count: mutable usize&,
+        next_order: mutable i64&) -> bool:
+    if event_count >= MAX_EVENTS:
+        return false
+    visited[node] <- 1
+    index: usize = 3 * event_count
+    events[index] <- 1
+    events[index + 1] <- node.i64()
+    events[index + 2] <- next_order
+    event_count <- event_count + 1
+    next_order <- next_order + 1
+    for child in 0..<count |adjacent, predecessors, visited, events, event_count, next_order|:
+        if adjacent[node * MAX_NODES + child] != 1 or visited[child] == 1:
+            continue
+        all_visited: mutable bool = true
+        for parent in 0..<count |predecessors, visited, all_visited|:
+            if predecessors[child * MAX_NODES + parent] == 1 and visited[parent] == 0:
+                all_visited <- false
+                break
+        if all_visited:
+            if not predecessor_constrained_visit(child, count, adjacent, predecessors, visited,
+                    events, event_count, next_order):
+                return false
+        else:
+            if event_count >= MAX_EVENTS:
+                return false
+            index <- 3 * event_count
+            events[index] <- 0
+            events[index + 1] <- child.i64()
+            events[index + 2] <- -1
+            event_count <- event_count + 1
+    true
+
+def predecessor_constrained_write_i32(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<4 |output, bits|:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def predecessor_constrained_dfs_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    raw_count: i64 = input[0]
+    raw_start: i64 = input[1]
+    if raw_count < 1 or raw_count > MAX_NODES.i64() or raw_start < 0 or raw_start >= raw_count:
+        return -1
+    count: usize = raw_count.usize()
+    if length != 2 + count * count:
+        return -1
+    adjacent: mutable i64[MAX_NODES * MAX_NODES] = zeroed
+    predecessors: mutable i64[MAX_NODES * MAX_NODES] = zeroed
+    indegree: mutable usize[MAX_NODES] = zeroed
+    for from in 0..<count |input, adjacent, predecessors, indegree|:
+        for to in 0..<count |input, adjacent, predecessors, indegree|:
+            bit: i64 = input[2 + from * count + to]
+            if (bit != 0 and bit != 1) or (from == to and bit != 0):
+                return -1
+            if bit == 1:
+                adjacent[from * MAX_NODES + to] <- 1
+                predecessors[to * MAX_NODES + from] <- 1
+                indegree[to] <- indegree[to] + 1
+    queue: mutable usize[MAX_NODES] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    for node in 0..<count |indegree, queue, tail|:
+        if indegree[node] == 0:
+            queue[tail] <- node
+            tail <- tail + 1
+    while head < tail |adjacent, indegree, queue, head, tail|:
+        node: usize = queue[head]
+        head <- head + 1
+        for child in 0..<count |adjacent, indegree, queue, tail|:
+            if adjacent[node * MAX_NODES + child] == 1:
+                indegree[child] <- indegree[child] - 1
+                if indegree[child] == 0:
+                    queue[tail] <- child
+                    tail <- tail + 1
+    if tail != count:
+        return -1
+    visited: mutable i64[MAX_NODES] = zeroed
+    events: mutable i64[MAX_EVENTS * 3] = zeroed
+    event_count: mutable usize = 0
+    next_order: mutable i64 = 0
+    if not predecessor_constrained_visit(raw_start.usize(), count, adjacent, predecessors, visited,
+            events, event_count, next_order):
+        return -1
+    byte_count: usize = 12 * event_count
+    if output.is_null() or output_capacity < byte_count:
+        return -2
+    for event in 0..<event_count |events, output|:
+        index: usize = 3 * event
+        predecessor_constrained_write_i32(output, 12 * event, events[index])
+        predecessor_constrained_write_i32(output, 12 * event + 4, events[index + 1])
+        predecessor_constrained_write_i32(output, 12 * event + 8, events[index + 2])
+    byte_count.i64()
+
+export fn predecessor_constrained_dfs(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = predecessor_constrained_dfs_impl

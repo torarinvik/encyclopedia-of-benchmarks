@@ -1,0 +1,91 @@
+const MAX_PATTERN_LENGTH: usize = 8
+const MAX_TEXT_LENGTH: usize = 32
+const MAX_INPUT_LENGTH: usize = 43
+
+def match_word_pattern_search(
+    input: i64&, pattern_length: usize, text_start: usize, text_length: usize,
+    pattern_index: usize, text_index: usize,
+    mapped_start: mutable usize&, mapped_length: mutable usize&,
+) -> bool:
+    if pattern_index == pattern_length:
+        return text_index == text_length
+    if text_index == text_length:
+        return false
+
+    symbol: usize = input[2 + pattern_index].usize()
+    known_length: usize = mapped_length[symbol]
+    if known_length > 0:
+        if known_length > text_length - text_index:
+            return false
+        offset: mutable usize = 0
+        while offset < known_length:
+            if input[text_start + mapped_start[symbol] + offset] != input[text_start + text_index + offset]:
+                return false
+            offset <- offset + 1
+        return match_word_pattern_search(
+            input, pattern_length, text_start, text_length,
+            pattern_index + 1, text_index + known_length, mapped_start, mapped_length,
+        )
+
+    end: mutable usize = text_index + 1
+    while end <= text_length:
+        candidate_length: usize = end - text_index
+        already_used: mutable bool = false
+        other_index: mutable usize = 0
+        while other_index < pattern_index:
+            other: usize = input[2 + other_index].usize()
+            if other != symbol and mapped_length[other] == candidate_length:
+                equal: mutable bool = true
+                offset: mutable usize = 0
+                while offset < candidate_length:
+                    if input[text_start + mapped_start[other] + offset] != input[text_start + text_index + offset]:
+                        equal <- false
+                        break
+                    offset <- offset + 1
+                if equal:
+                    already_used <- true
+                    break
+            other_index <- other_index + 1
+        if not already_used:
+            mapped_start[symbol] <- text_index
+            mapped_length[symbol] <- candidate_length
+            if match_word_pattern_search(
+                input, pattern_length, text_start, text_length,
+                pattern_index + 1, end, mapped_start, mapped_length,
+            ):
+                return true
+            mapped_length[symbol] <- 0
+        end <- end + 1
+    false
+
+def match_word_pattern_impl(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH:
+        return -1
+    pattern_length_arg: i64 = input[0]
+    text_length_arg: i64 = input[1]
+    if pattern_length_arg < 0 or pattern_length_arg > MAX_PATTERN_LENGTH.i64():
+        return -1
+    if text_length_arg < 0 or text_length_arg > MAX_TEXT_LENGTH.i64():
+        return -1
+    pattern_length: usize = pattern_length_arg.usize()
+    text_length: usize = text_length_arg.usize()
+    if input_length != 2 + pattern_length + text_length:
+        return -1
+    index: mutable usize = 0
+    while index < pattern_length + text_length:
+        value: i64 = input[2 + index]
+        if value < 0 or value > 127:
+            return -1
+        index <- index + 1
+
+    mapped_start: mutable usize[128] = zeroed
+    mapped_length: mutable usize[128] = zeroed
+    result: bool = match_word_pattern_search(
+        input, pattern_length, 2 + pattern_length, text_length, 0, 0,
+        &mapped_start[0], &mapped_length[0],
+    )
+    if result:
+        return 1
+    0
+
+export fn match_word_pattern(input: i64&, input_length: usize) -> i64 = match_word_pattern_impl

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "magic-sequence-backtracking-fnv64-v1",
+  "algorithm": "magic_sequence",
+  "function_symbol": "magic_sequence",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Plus-Plus",
+    "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+    "path": "backtracking/magic_sequence.cpp",
+    "symbol": "backtracking::magic_sequence::solve",
+    "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/backtracking/magic_sequence.cpp"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "Exactly [n], with n from 0 through 11.",
+    "exact_length": 1,
+    "maximum_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "n_range": [0, 11],
+    "invalid_result": -1,
+    "null_input_result": -1,
+    "result": "Hash all retained magic sequences in lexicographic order using the output framing."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "invalid_result": -1,
+    "hash": {
+      "algorithm": "FNV-1a-64",
+      "offset_basis": 14695981039346656037,
+      "prime": 1099511628211,
+      "byte_stream": "n as u8; solution count as u32 little-endian; then each retained solution row, in lexicographic order, with each entry as u8",
+      "result": "low 63 bits of the final 64-bit hash"
+    }
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "n_zero_empty_solution", "input_values": [0], "input_length": 1, "expected_solution_count": 1, "expected_result": 4954421182305021118},
+    {"id": "n_one_no_solution", "input_values": [1], "input_length": 1, "expected_solution_count": 0, "expected_result": 6344846947431251692},
+    {"id": "n_two_no_solution", "input_values": [2], "input_length": 1, "expected_solution_count": 0, "expected_result": 9086599585531084309},
+    {"id": "n_three_no_solution", "input_values": [3], "input_length": 1, "expected_solution_count": 0, "expected_result": 8172682039497806770},
+    {"id": "n_four_two_solutions", "input_values": [4], "input_length": 1, "expected_solution_count": 2, "expected_result": 6529004101346890687},
+    {"id": "n_five_one_solution", "input_values": [5], "input_length": 1, "expected_solution_count": 1, "expected_result": 916984334512705470},
+    {"id": "n_six_no_solution", "input_values": [6], "input_length": 1, "expected_solution_count": 0, "expected_result": 5430929401397974153},
+    {"id": "n_seven_one_solution", "input_values": [7], "input_length": 1, "expected_solution_count": 1, "expected_result": 8881121392705257024},
+    {"id": "n_eight_one_solution", "input_values": [8], "input_length": 1, "expected_solution_count": 1, "expected_result": 4389053344375017988},
+    {"id": "n_nine_one_solution", "input_values": [9], "input_length": 1, "expected_solution_count": 1, "expected_result": 3042434154065862460},
+    {"id": "n_ten_one_solution", "input_values": [10], "input_length": 1, "expected_solution_count": 1, "expected_result": 2816034096772822356},
+    {"id": "n_eleven_maximum", "input_values": [11], "input_length": 1, "expected_solution_count": 1, "expected_result": 5073141443491756808},
+    {"id": "empty_input_invalid", "input_values": [], "input_length": 0, "expected_result": -1},
+    {"id": "extra_input_value_invalid", "input_values": [4, 0], "input_length": 2, "expected_result": -1},
+    {"id": "null_input_invalid", "input_values": [], "input_is_null": true, "input_length": 1, "expected_result": -1},
+    {"id": "negative_n_invalid", "input_values": [-1], "input_length": 1, "expected_result": -1},
+    {"id": "n_above_bound_invalid", "input_values": [12], "input_length": 1, "expected_result": -1},
+    {"id": "minimum_i64_invalid", "input_values": [-9223372036854775808], "input_length": 1, "expected_result": -1},
+    {"id": "maximum_i64_invalid", "input_values": [9223372036854775807], "input_length": 1, "expected_result": -1}
+  ]
+}

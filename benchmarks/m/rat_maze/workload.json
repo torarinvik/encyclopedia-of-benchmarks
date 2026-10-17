@@ -1,0 +1,480 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-cpp-rat-maze-i32-array-bytes-output-v1",
+  "algorithm": "rat_maze",
+  "function_symbol": "rat_maze",
+  "description": "Bounded right-first rat-maze backtracking with printed solution matrix encoded as i32 bytes.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Plus-Plus",
+    "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+    "path": "backtracking/rat_maze.cpp",
+    "symbol": "backtracking::rat_maze::solveMaze",
+    "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/backtracking/rat_maze.cpp"
+  },
+  "input": {
+    "kind": "signed_i32_array",
+    "encoding": "[n, n*n row-major cells]",
+    "size_range": [
+      1,
+      8
+    ],
+    "cell_values": [
+      0,
+      1
+    ],
+    "source_cell": "The top-left cell must be open (1).",
+    "maximum_valid_input_words": 65,
+    "maximum_parseable_input_words": 66,
+    "exact_packed_shape": "Exactly 1 + n*n signed-i32 words.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i32_array",
+    "encoding": "[0] when no path exists; [1, row-major path bits...] for the first path found by right-before-down DFS.",
+    "single_cell_output": [
+      1,
+      1
+    ],
+    "valid_output_bytes_range": [
+      4,
+      260
+    ],
+    "maximum_output_bytes": 260,
+    "success_result": "output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks."
+  },
+  "workspace": {
+    "bytes": 260,
+    "meaning": "A found flag and up to 64 row-major path-cell words."
+  },
+  "measurement": {
+    "comparison_model": "i32_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single_open_cell",
+      "input_values": [
+        1,
+        1
+      ],
+      "output_capacity": 8,
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 8,
+      "expected_output_hex": "0100000001000000"
+    },
+    {
+      "id": "two_by_two_chooses_right_before_down",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "output_capacity": 260,
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 20,
+      "expected_output_hex": "0100000001000000010000000000000001000000"
+    },
+    {
+      "id": "right_branch_dead_end_backtracks_down",
+      "input_values": [
+        3,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1
+      ],
+      "output_capacity": 260,
+      "input_length": 10,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 40,
+      "expected_output_hex": "01000000010000000000000000000000010000000000000000000000010000000100000001000000"
+    },
+    {
+      "id": "pinned_four_by_four_sample",
+      "input_values": [
+        4,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "output_capacity": 260,
+      "input_length": 17,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 68,
+      "expected_output_hex": "0100000001000000000000000000000000000000010000000000000000000000000000000100000000000000000000000000000001000000010000000100000001000000"
+    },
+    {
+      "id": "blocked_destination_has_no_path",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        0
+      ],
+      "output_capacity": 4,
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "open_start_without_open_neighbor",
+      "input_values": [
+        3,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "output_capacity": 4,
+      "input_length": 10,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "maximum_eight_by_eight_open_maze",
+      "input_values": [
+        8,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "output_capacity": 260,
+      "input_length": 65,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 260,
+      "expected_output_hex": "0100000001000000010000000100000001000000010000000100000001000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000"
+    },
+    {
+      "id": "exact_capacity_for_single_cell",
+      "input_values": [
+        1,
+        1
+      ],
+      "output_capacity": 8,
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 8,
+      "expected_output_hex": "0100000001000000"
+    },
+    {
+      "id": "short_capacity_success_no_write",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "output_capacity": 16,
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_success_no_write",
+      "input_values": [
+        1,
+        1
+      ],
+      "output_capacity": 8,
+      "output_is_null": true,
+      "input_length": 2,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_capacity_no_path_no_write",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        0
+      ],
+      "output_capacity": 0,
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "blocked_source_precedes_output_errors",
+      "input_values": [
+        1,
+        0
+      ],
+      "output_capacity": 0,
+      "output_is_null": true,
+      "input_length": 2,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_precedes_output_errors",
+      "input_values": [],
+      "input_length": 1,
+      "output_capacity": 0,
+      "input_is_null": true,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_size_invalid",
+      "input_values": [
+        0
+      ],
+      "output_capacity": 260,
+      "input_length": 1,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonbinary_cell_invalid",
+      "input_values": [
+        2,
+        1,
+        2,
+        1,
+        1
+      ],
+      "output_capacity": 260,
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_cell_invalid",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "output_capacity": 260,
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "declared_length_mismatch_invalid",
+      "input_values": [
+        1,
+        1
+      ],
+      "input_length": 1,
+      "output_capacity": 260,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed_i32_min_cell_invalid",
+      "input_values": [
+        1,
+        -2147483648
+      ],
+      "output_capacity": 260,
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_parseable_trailing_word_invalid",
+      "input_values": [
+        8,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "output_capacity": 260,
+      "input_length": 66,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

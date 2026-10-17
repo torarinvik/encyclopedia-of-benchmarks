@@ -1,23 +1,25 @@
-/* Backward recursive linear search over a bounded integer array. */
 #include <stddef.h>
 #include <stdint.h>
+#define MAX_N 64
+#define MAX_INPUT_LENGTH 66
 
-#define MAX_COUNT 64
-#define MAX_INPUT_LENGTH (MAX_COUNT + 3)
-
-static int64_t search_from_end(const int64_t *items, size_t count, int64_t target)
-{
-    if (count == 0) return -1;
-    if (items[count - 1] == target) return (int64_t)(count - 1);
-    return search_from_end(items, count - 1, target);
+static int search_recursive(const int32_t *items, int left, int right, int32_t target) {
+    if (left > right) return -1;
+    if (items[left] == target) return left;
+    if (items[right] == target) return right;
+    return search_recursive(items, left + 1, right - 1, target);
 }
 
-int64_t recursive_linear_search(const int64_t *values, size_t length)
-{
-    if (values == NULL || length < 2 || length > MAX_INPUT_LENGTH) return -1;
-    const int64_t count_value = values[0], target = values[1];
-    if (count_value < 1 || count_value > MAX_COUNT) return -1;
-    const size_t count = (size_t)count_value;
-    if (length != count + 2) return -1;
-    return search_from_end(values + 2, count, target);
+int64_t recursive_linear_search(const int64_t *input, size_t length) {
+    if (input == NULL || length < 4 || length > MAX_INPUT_LENGTH) return -1;
+    if (input[0] < 2 || input[0] > MAX_N || length != (size_t)input[0] + 2) return -1;
+    if (input[1] < INT32_MIN || input[1] > INT32_MAX) return -1;
+    const size_t n = (size_t)input[0];
+    int32_t items[MAX_N];
+    for (size_t i = 0; i < n; ++i) {
+        if (input[i + 2] < INT32_MIN || input[i + 2] > INT32_MAX) return -1;
+        items[i] = (int32_t)input[i + 2];
+        for (size_t j = 0; j < i; ++j) if (items[j] == items[i]) return -1;
+    }
+    return search_recursive(items, 0, (int)n - 1, (int32_t)input[1]);
 }

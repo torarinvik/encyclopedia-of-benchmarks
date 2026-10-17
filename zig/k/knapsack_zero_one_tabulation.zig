@@ -1,5 +1,6 @@
 /// Bottom-up 0/1 knapsack using one row and descending capacities.
-export fn knapsack_zero_one_tabulation(input_values: [*]const i64, length: usize) i64 {
+export fn knapsack_zero_one_tabulation(input_values: [*c]const i64, length: usize) i64 {
+    if (input_values == null) return -1;
     if (length < 2 or length > 258) return -1;
     if (input_values[0] < 0 or input_values[0] > 512 or input_values[1] < 0 or input_values[1] > 128) return -1;
     const capacity: usize = @intCast(input_values[0]);

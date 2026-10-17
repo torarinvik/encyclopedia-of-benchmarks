@@ -1,0 +1,44 @@
+const MAX_DIMENSION: usize = 16
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 259
+
+def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u32 = value.u32()
+    output[offset] <- (bits & 255).u8()
+    output[offset + 1] <- ((bits >> 8) & 255).u8()
+    output[offset + 2] <- ((bits >> 16) & 255).u8()
+    output[offset + 3] <- ((bits >> 24) & 255).u8()
+
+def mirror_of_matrix_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    raw_rows: i64 = values[0]
+    raw_columns: i64 = values[1]
+    if raw_rows < 1 or raw_rows > MAX_DIMENSION.i64() or
+        raw_columns < 1 or raw_columns > MAX_DIMENSION.i64():
+        return -1
+    rows: usize = raw_rows.usize()
+    columns: usize = raw_columns.usize()
+    cell_count: usize = rows * columns
+    if length != 2 + cell_count:
+        return -1
+    index: usize = 0
+    while index < cell_count:
+        cell: i64 = values[2 + index]
+        if cell < -2147483648 or cell > 2147483647:
+            return -1
+        index <- index + 1
+
+    byte_count: usize = 4 * cell_count
+    if output.is_null() or output_capacity < byte_count:
+        return -2
+    row: usize = 0
+    while row < rows:
+        column: usize = 0
+        while column < columns:
+            source_index: usize = 2 + row * columns + (columns - 1 - column)
+            store_i32_le(values[source_index], output, 4 * (row * columns + column))
+            column <- column + 1
+        row <- row + 1
+    byte_count.i64()
+
+export fn mirror_of_matrix(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = mirror_of_matrix_impl

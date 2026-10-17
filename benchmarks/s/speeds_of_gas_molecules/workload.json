@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-speeds-of-gas-molecules-v1",
+  "algorithm": "speeds_of_gas_molecules",
+  "function_symbol": "speeds_of_gas_molecules",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[operation, temperature_mK, molar_mass_micro]",
+    "exact_length": 3,
+    "maximum_valid_input_length": 3,
+    "maximum_parseable_input_length": 4,
+    "operation_range": [
+      0,
+      1
+    ],
+    "operation_meanings": {
+      "0": "average molecular speed",
+      "1": "most probable molecular speed"
+    },
+    "temperature_mK_range": [
+      0,
+      1000000
+    ],
+    "molar_mass_micro_range": [
+      1,
+      1000000000
+    ],
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "sqrt((8*R*T)/(pi*M)) for operation 0, or sqrt((2*R*T)/M) for operation 1; T is temperature_mK/1000 K and M is molar_mass_micro/1000000 kg/mol",
+    "gas_constant": 8.31446261815324,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e+300
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "physics/speeds_of_gas_molecules.py"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "average_speed_source_example",
+      "input_values": [0, 273000, 28000],
+      "input_length": 3,
+      "expected_result": 454.3488755062257
+    },
+    {
+      "id": "most_probable_speed_source_example",
+      "input_values": [1, 273000, 28000],
+      "input_length": 3,
+      "expected_result": 402.65620702280023
+    },
+    {
+      "id": "average_speed_second_source_example",
+      "input_values": [0, 300000, 32000],
+      "input_length": 3,
+      "expected_result": 445.5257273433045
+    },
+    {
+      "id": "most_probable_speed_second_source_example",
+      "input_values": [1, 300000, 32000],
+      "input_length": 3,
+      "expected_result": 394.8368955535605
+    },
+    {
+      "id": "zero_temperature_average",
+      "input_values": [0, 0, 1],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero_temperature_most_probable",
+      "input_values": [1, 0, 1],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "maximum_temperature_and_mass_average",
+      "input_values": [0, 1000000, 1000000000],
+      "input_length": 3,
+      "expected_result": 4.601369926153506
+    },
+    {
+      "id": "maximum_temperature_and_mass_most_probable",
+      "input_values": [1, 1000000, 1000000000],
+      "input_length": 3,
+      "expected_result": 4.077857922525806
+    },
+    {
+      "id": "minimum_mass_average",
+      "input_values": [0, 1000000, 1],
+      "input_length": 3,
+      "expected_result": 145508.09323645858
+    },
+    {
+      "id": "minimum_temperature_and_mass_most_probable",
+      "input_values": [1, 1, 1],
+      "input_length": 3,
+      "expected_result": 128.95319009743994
+    },
+    {
+      "id": "zero_operation_is_invalid",
+      "input_values": [2, 273000, 28000],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "temperature_above_bound",
+      "input_values": [0, 1000001, 28000],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_molar_mass",
+      "input_values": [1, 273000, 0],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "short_input",
+      "input_values": [0, 273000],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [0, 273000, 28000, 1],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

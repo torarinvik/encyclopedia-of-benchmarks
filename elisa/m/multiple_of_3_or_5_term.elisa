@@ -1,0 +1,8 @@
+def multiple_of_3_or_5_term_impl(n: i64) -> i64:
+    if n < 0 or n > 1_000_000_000:
+        return -1
+    if n % 3 == 0 or n % 5 == 0:
+        return n
+    0
+
+export fn multiple_of_3_or_5_term(n: i64) -> i64 = multiple_of_3_or_5_term_impl

@@ -75,7 +75,7 @@ int main(void)
             (expected_result >= 0 && expected_result != (int64_t)expected_length_arg) ||
             (expected_result < 0 && expected_length_arg != 0) ||
             (input_null_arg != 0 && input_length_arg == 0) ||
-            (output_null_arg != 0 && expected_result != -2)) {
+            (output_null_arg != 0 && expected_result >= 0)) {
             fprintf(stderr, "invalid float64-slice case header\n");
             return 2;
         }

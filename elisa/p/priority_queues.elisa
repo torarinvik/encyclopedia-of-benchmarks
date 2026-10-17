@@ -1,0 +1,96 @@
+const MAX_CAPACITY: usize = 128
+const MAX_OPERATIONS: usize = 256
+const MAX_INPUT_VALUES: usize = 515
+const MAX_OUTPUT_BYTES: usize = 4096
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def priority_queues_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    capacity_value: i64 = input[0]
+    operation_count_value: i64 = input[1]
+    if capacity_value < 1 or capacity_value > 128 or operation_count_value < 0 or operation_count_value > 256:
+        return -1
+
+    capacity: usize = capacity_value.usize()
+    operation_count: usize = operation_count_value.usize()
+    if length != 2 + 2 * operation_count:
+        return -1
+    for operation in 0..<operation_count:
+        opcode: i64 = input[2 + 2 * operation]
+        argument: i64 = input[3 + 2 * operation]
+        if opcode < 0 or opcode > 5:
+            return -1
+        if opcode == 0:
+            if argument < -2147483648 or argument > 2147483647:
+                return -1
+        elif argument != 0:
+            return -1
+
+    if operation_count == 0:
+        return 0
+    needed: usize = operation_count * 16
+    if needed > MAX_OUTPUT_BYTES or output == null or output_capacity < needed:
+        return -2
+
+    heap: mutable i64[129] = zeroed
+    size: mutable usize = 0
+    for operation in 0..<operation_count:
+        opcode: i64 = input[2 + 2 * operation]
+        argument: i64 = input[3 + 2 * operation]
+        status: mutable i64 = 0
+        value: mutable i64 = 0
+
+        if opcode == 0:
+            if size == capacity:
+                status <- 1
+            else:
+                size <- size + 1
+                heap[size] <- argument
+                index: mutable usize = size
+                while index > 1 and heap[index / 2] < heap[index]:
+                    temporary: i64 = heap[index / 2]
+                    heap[index / 2] <- heap[index]
+                    heap[index] <- temporary
+                    index <- index / 2
+        elif opcode == 1:
+            if size == 0:
+                status <- 2
+            else:
+                value <- heap[1]
+                heap[1] <- heap[size]
+                heap[size] <- 0
+                size <- size - 1
+                index: mutable usize = 1
+                while index * 2 <= size:
+                    child: mutable usize = index * 2
+                    if child < size and heap[child + 1] > heap[child]:
+                        child <- child + 1
+                    if heap[index] >= heap[child]:
+                        break
+                    temporary: i64 = heap[index]
+                    heap[index] <- heap[child]
+                    heap[child] <- temporary
+                    index <- child
+        elif opcode == 2:
+            if size > 0:
+                value <- heap[1]
+        elif opcode == 3:
+            if size == 0:
+                value <- 1
+        elif opcode == 4:
+            if size == capacity:
+                value <- 1
+        else:
+            value <- size.i64()
+
+        store_i64_le(status, output, operation * 16)
+        store_i64_le(value, output, operation * 16 + 8)
+    needed.i64()
+
+export fn priority_queues(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = priority_queues_impl

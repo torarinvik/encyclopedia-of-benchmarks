@@ -1,0 +1,66 @@
+const MAX_INTERVALS: usize = 256
+const MAX_INPUT_LENGTH: usize = 513
+
+def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u32 = value.u32()
+    output[offset] <- (bits & 255).u8()
+    output[offset + 1] <- ((bits >> 8) & 255).u8()
+    output[offset + 2] <- ((bits >> 16) & 255).u8()
+    output[offset + 3] <- ((bits >> 24) & 255).u8()
+
+def merge_intervals_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_count: i64 = values[0]
+    if raw_count < 0 or raw_count > MAX_INTERVALS.i64() or length != 1 + 2 * raw_count.usize():
+        return -1
+
+    count: usize = raw_count.usize()
+    starts: mutable i64[MAX_INTERVALS] = zeroed
+    ends: mutable i64[MAX_INTERVALS] = zeroed
+    index: usize = 0
+    while index < count:
+        start: i64 = values[1 + 2 * index]
+        end: i64 = values[2 + 2 * index]
+        if start < -2147483648 or start > 2147483647 or end < -2147483648 or end > 2147483647 or start > end:
+            return -1
+        starts[index] <- start
+        ends[index] <- end
+        index <- index + 1
+
+    index <- 1
+    while index < count:
+        start: i64 = starts[index]
+        end: i64 = ends[index]
+        position: mutable usize = index
+        while position > 0 and starts[position - 1] > start:
+            starts[position] <- starts[position - 1]
+            ends[position] <- ends[position - 1]
+            position <- position - 1
+        starts[position] <- start
+        ends[position] <- end
+        index <- index + 1
+
+    merged: mutable usize = 0
+    index <- 0
+    while index < count:
+        if merged > 0 and starts[index] <= ends[merged - 1]:
+            if ends[index] > ends[merged - 1]:
+                ends[merged - 1] <- ends[index]
+        else:
+            starts[merged] <- starts[index]
+            ends[merged] <- ends[index]
+            merged <- merged + 1
+        index <- index + 1
+
+    byte_count: usize = 8 * merged
+    if output.is_null() or output_capacity < byte_count:
+        return -2
+    index <- 0
+    while index < merged:
+        store_i32_le(starts[index], output, 8 * index)
+        store_i32_le(ends[index], output, 8 * index + 4)
+        index <- index + 1
+    byte_count.i64()
+
+export fn merge_intervals(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = merge_intervals_impl

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "lua-unbiased-discrete-rescale-v1",
+  "algorithm": "rescale",
+  "function_symbol": "rescale",
+  "input": {
+    "kind": "packed-deterministic-random-draw-stream",
+    "encoding": "[max, new_max, draw_count, draws...]",
+    "max_range": [2, 64],
+    "new_range": [1, 256],
+    "draw_count": [1, 256],
+    "draw_range": "0 <= draw < max",
+    "maximum_packed_values": 259,
+    "maximum_parseable_values": 260,
+    "invalid_or_exhausted_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "one unbiased draw in [0, new_max)",
+    "invalid_result": -1
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Lua",
+    "commit": "cedc141018ad48884318fe08a6db278664b17128",
+    "path": "src/random/rescale.lua",
+    "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/random/rescale.lua"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id":"equal_range_returns_first_draw","input_values":[10,10,4,7,0,3,2],"input_length":7,"expected_result":7},
+    {"id":"equal_range_zero","input_values":[5,5,1,0],"input_length":4,"expected_result":0},
+    {"id":"downscale_accepts_draw","input_values":[10,3,1,8],"input_length":4,"expected_result":2},
+    {"id":"downscale_rejects_then_accepts","input_values":[10,3,2,9,8],"input_length":5,"expected_result":2},
+    {"id":"downscale_rejects_threshold_then_zero","input_values":[10,3,2,9,0],"input_length":5,"expected_result":0},
+    {"id":"downscale_to_one","input_values":[64,1,2,63,0],"input_length":5,"expected_result":0},
+    {"id":"upscale_exact_power","input_values":[2,8,3,1,0,1],"input_length":6,"expected_result":5},
+    {"id":"upscale_larger_exact_power","input_values":[3,27,3,2,0,2],"input_length":6,"expected_result":20},
+    {"id":"upscale_overshoot_accepts","input_values":[2,3,2,1,0],"input_length":5,"expected_result":1},
+    {"id":"upscale_overshoot_rejects_then_accepts","input_values":[2,3,4,1,1,0,1],"input_length":7,"expected_result":2},
+    {"id":"upscale_overshoot_rejects_twice","input_values":[2,3,6,1,1,1,1,0,0],"input_length":9,"expected_result":0},
+    {"id":"upscale_large_range","input_values":[64,256,2,63,3],"input_length":5,"expected_result":255},
+    {"id":"downscale_stream_exhausts_after_rejection","input_values":[10,3,1,9],"input_length":4,"expected_result":-1},
+    {"id":"exact_power_stream_exhausts","input_values":[2,8,2,1,0],"input_length":5,"expected_result":-1},
+    {"id":"zero_draw_count","input_values":[10,3,0],"input_length":3,"expected_result":-1},
+    {"id":"missing_draw_value","input_values":[2,3,2,1],"input_length":4,"expected_result":-1},
+    {"id":"extra_packed_value","input_values":[2,3,1,0,1],"input_length":5,"expected_result":-1},
+    {"id":"draw_at_exclusive_max","input_values":[5,3,1,5],"input_length":4,"expected_result":-1},
+    {"id":"max_range_too_small","input_values":[1,1,1,0],"input_length":4,"expected_result":-1},
+    {"id":"new_range_zero","input_values":[4,0,1,0],"input_length":4,"expected_result":-1},
+    {"id":"negative_draw","input_values":[4,3,1,-1],"input_length":4,"expected_result":-1},
+    {"id":"maximum_valid_draw_count","input_values":[2,2,256,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],"input_length":259,"expected_result":0},
+    {"id":"one_over_bound_draw_count_at_parser_limit","input_values":[2,2,257,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":260,"expected_result":-1}
+  ]
+}

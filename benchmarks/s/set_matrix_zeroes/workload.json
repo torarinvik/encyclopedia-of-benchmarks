@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-set-matrix-zeroes-marker-mutation-v1",
+  "algorithm": "set_matrix_zeroes",
+  "function_symbol": "set_matrix_zeroes",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[rows, columns, row-major cell values...]",
+    "rows_range": [
+      1,
+      8
+    ],
+    "columns_range": [
+      1,
+      8
+    ],
+    "cell_range": [
+      -1000000,
+      1000000
+    ],
+    "exact_length": "2+rows*columns",
+    "maximum_valid_input_length": 66,
+    "maximum_parseable_input_length": 67,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_values",
+    "layout": "transformed matrix cells in row-major order, without a dimension prefix",
+    "scalar_return": "bytes_written",
+    "maximum_output_bytes": 512,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "data_structures/arrays/set_matrix_zeroes.py"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Maximum output capacity for an 8 by 8 matrix."
+  },
+  "cases": [
+    {
+      "id": "source_interior_zero_3x3",
+      "input_values": [
+        3,
+        3,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 11,
+      "expected_result": 72,
+      "expected_output_hex": "010000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "source_first_row_and_last_column_zeroes",
+      "input_values": [
+        3,
+        4,
+        0,
+        1,
+        2,
+        0,
+        3,
+        4,
+        5,
+        2,
+        1,
+        3,
+        1,
+        5
+      ],
+      "input_length": 14,
+      "expected_result": 96,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000050000000000000000000000000000000000000000000000030000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "zero_in_first_column",
+      "input_values": [
+        3,
+        2,
+        0,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "input_length": 8,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000040000000000000000000000000000000600000000000000"
+    },
+    {
+      "id": "single_row_zeroes_entire_row",
+      "input_values": [
+        1,
+        3,
+        8,
+        0,
+        9
+      ],
+      "input_length": 5,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "single_column_zeroes_entire_column",
+      "input_values": [
+        3,
+        1,
+        5,
+        0,
+        8
+      ],
+      "input_length": 5,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "singleton_zero",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "singleton_nonzero",
+      "input_values": [
+        1,
+        1,
+        -7
+      ],
+      "input_length": 3,
+      "expected_result": 8,
+      "expected_output_hex": "f9ffffffffffffff"
+    },
+    {
+      "id": "zero_free_cell_boundaries",
+      "input_values": [
+        2,
+        2,
+        -1000000,
+        -1,
+        1000000,
+        7
+      ],
+      "input_length": 6,
+      "expected_result": 32,
+      "expected_output_hex": "c0bdf0ffffffffffffffffffffffffff40420f00000000000700000000000000"
+    },
+    {
+      "id": "maximum_8_by_8_short_output_capacity",
+      "input_values": [
+        8,
+        8,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 66,
+      "workspace_bytes": 511,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "row_count_above_bound",
+      "input_values": [
+        9,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "shape_length_mismatch",
+      "input_values": [
+        2,
+        2,
+        1,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "cell_above_bound",
+      "input_values": [
+        1,
+        1,
+        1000001
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        2,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        1,
+        1,
+        0,
+        99
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

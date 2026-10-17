@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "matlab-secant-bounded-residual-v1",
+  "algorithm": "secant",
+  "function_symbol": "secant",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[function_selector, a_microunits, b_microunits, tolerance_nanounits, max_updates]",
+    "exact_length": 5,
+    "first_rejected_length": 6,
+    "maximum_validation_array_length": 6,
+    "domain": "selector=0; a in [1000000,1500000] / 1e6; b in [1600000,2000000] / 1e6; a < b; tolerance in [1,100000] / 1e9; max_updates in [0,32]",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "current second secant point when abs(x*x-3) <= tolerance, otherwise finite sentinel",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 0.0,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 0.0,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "source-secants-converge-to-residual-tolerance", "input_values": [0,1000000,2000000,1,8], "expected_result": 1.732050807565499},
+    {"id": "zero-updates-return-current-point-when-within-tolerance", "input_values": [0,1000000,1732050,100000,0], "expected_result": 1.73205},
+    {"id": "iteration-cap-before-convergence", "input_values": [0,1000000,2000000,1,4], "expected_result": -1e300},
+    {"id": "invalid-function-selector", "input_values": [1,1000000,2000000,100000,8], "expected_result": -1e300},
+    {"id": "a-below-range", "input_values": [0,999999,1600000,100000,8], "expected_result": -1e300},
+    {"id": "a-above-range", "input_values": [0,1500001,1600000,100000,8], "expected_result": -1e300},
+    {"id": "b-below-range", "input_values": [0,1000000,1599999,100000,8], "expected_result": -1e300},
+    {"id": "b-above-range", "input_values": [0,1000000,2000001,100000,8], "expected_result": -1e300},
+    {"id": "zero-tolerance", "input_values": [0,1000000,2000000,0,8], "expected_result": -1e300},
+    {"id": "tolerance-above-range", "input_values": [0,1000000,2000000,100001,8], "expected_result": -1e300},
+    {"id": "negative-update-limit", "input_values": [0,1000000,2000000,100000,-1], "expected_result": -1e300},
+    {"id": "update-limit-above-range", "input_values": [0,1000000,2000000,100000,33], "expected_result": -1e300},
+    {"id": "invalid-empty", "input_values": [], "expected_result": -1e300},
+    {"id": "invalid-short", "input_values": [0,1000000,2000000,1], "expected_result": -1e300},
+    {"id": "invalid-extra-value", "input_values": [0,1000000,2000000,1,8,0], "expected_result": -1e300}
+  ],
+  "pinned_source": {
+    "repository": "TheAlgorithms/MATLAB-Octave",
+    "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+    "path": "algorithms/arithmetic_analysis/secant.m",
+    "symbol": "secant",
+    "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/arithmetic_analysis/secant.m"
+  }
+}

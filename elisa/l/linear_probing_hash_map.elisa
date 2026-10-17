@@ -1,0 +1,165 @@
+def hash_index(key: i64, capacity: usize) -> usize:
+    masked: u32 = key.u32() & 0x7fffffff
+    (masked as usize) % capacity
+
+def resize_map(keys: mutable i32[128]&, values: mutable i32[128]&, occupied: mutable bool[128]&,
+               capacity: mutable usize&, new_capacity: usize):
+    old_keys: i32[128] = keys
+    old_values: i32[128] = values
+    old_occupied: bool[128] = occupied
+    old_capacity: usize = capacity
+    capacity <- new_capacity
+    index: usize = 0
+    while index < new_capacity:
+        occupied[index] <- false
+        index <- index + 1
+    index <- 0
+    while index < old_capacity:
+        if old_occupied[index]:
+            slot: mutable usize = hash_index(old_keys[index].i64(), new_capacity)
+            while occupied[slot]: slot <- (slot + 1) % new_capacity
+            keys[slot] <- old_keys[index]
+            values[slot] <- old_values[index]
+            occupied[slot] <- true
+        index <- index + 1
+
+def find_slot(keys: i32[128]&, occupied: bool[128]&, capacity: usize, key: i32) -> usize:
+    index: mutable usize = hash_index(key.i64(), capacity)
+    probes: mutable usize = 0
+    while probes < capacity:
+        if not occupied[index]: return capacity
+        if keys[index] == key: return index
+        index <- (index + 1) % capacity
+        probes <- probes + 1
+    capacity
+
+def put(keys: mutable i32[128]&, values: mutable i32[128]&, occupied: mutable bool[128]&,
+        capacity: mutable usize&, size: mutable usize&, key: i32, value: i32):
+    if size > capacity / 2: resize_map(keys, values, occupied, capacity, capacity * 2)
+    index: mutable usize = hash_index(key.i64(), capacity)
+    while occupied[index]:
+        if keys[index] == key:
+            values[index] <- value
+            return
+        index <- (index + 1) % capacity
+    keys[index] <- key
+    values[index] <- value
+    occupied[index] <- true
+    size <- size + 1
+
+def delete_key(keys: mutable i32[128]&, values: mutable i32[128]&, occupied: mutable bool[128]&,
+               capacity: mutable usize&, size: mutable usize&, key: i32) -> bool:
+    index: mutable usize = find_slot(keys, occupied, capacity, key)
+    if index == capacity: return false
+    occupied[index] <- false
+    values[index] <- 0
+    index <- (index + 1) % capacity
+    while occupied[index]:
+        rehash_key: i32 = keys[index]
+        rehash_value: i32 = values[index]
+        occupied[index] <- false
+        values[index] <- 0
+        size <- size - 1
+        put(keys, values, occupied, capacity, size, rehash_key, rehash_value)
+        index <- (index + 1) % capacity
+    size <- size - 1
+    if size > 0 and size <= capacity / 8:
+        resize_map(keys, values, occupied, capacity, capacity / 2)
+    true
+
+def append(words: mutable i64[320]&, count: mutable usize&, value: i64):
+    words[count] <- value
+    count <- count + 1
+
+def linear_probing_hash_map_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 98: return -1
+    if input[0] < 4 or input[0] > 16 or input[1] < 0 or input[1] > 32: return -1
+    operation_count: usize = input[1].usize()
+    if length > 2 + 3 * operation_count: return -1
+    keys: mutable i32[128] = zeroed
+    values: mutable i32[128] = zeroed
+    occupied: mutable bool[128] = zeroed
+    capacity: mutable usize = input[0].usize()
+    size: mutable usize = 0
+    words: mutable i64[320] = zeroed
+    word_count: mutable usize = 0
+    position: mutable usize = 2
+    operation_index: mutable usize = 0
+    while operation_index < operation_count:
+        if position >= length: return -1
+        opcode: i64 = input[position]
+        position <- position + 1
+        if opcode == 0:
+            if position + 1 >= length: return -1
+            key_arg: i64 = input[position]
+            value_arg: i64 = input[position + 1]
+            position <- position + 2
+            if key_arg < -2147483648 or key_arg > 2147483647 or value_arg < -2147483648 or value_arg > 2147483647: return -1
+            put(keys, values, occupied, capacity, size, key_arg.i32(), value_arg.i32())
+            append(words, word_count, 0)
+            append(words, word_count, 1)
+        elif opcode >= 1 and opcode <= 3:
+            if position >= length: return -1
+            key_arg: i64 = input[position]
+            position <- position + 1
+            if key_arg < -2147483648 or key_arg > 2147483647: return -1
+            key: i32 = key_arg.i32()
+            slot: usize = find_slot(keys, occupied, capacity, key)
+            if opcode == 1:
+                append(words, word_count, 1)
+                if slot == capacity:
+                    append(words, word_count, 1)
+                    append(words, word_count, 0)
+                else:
+                    append(words, word_count, 0)
+                    append(words, word_count, values[slot].i64())
+            elif opcode == 2:
+                append(words, word_count, 2)
+                append(words, word_count, if delete_key(keys, values, occupied, capacity, size, key) then 1 else 0)
+            else:
+                append(words, word_count, 3)
+                append(words, word_count, if slot != capacity then 1 else 0)
+        elif opcode == 4:
+            append(words, word_count, 4)
+            append(words, word_count, size.i64())
+        elif opcode == 5:
+            sorted: mutable i32[32] = zeroed
+            count: mutable usize = 0
+            index: mutable usize = 0
+            while index < capacity:
+                if occupied[index]:
+                    sorted[count] <- keys[index]
+                    count <- count + 1
+                index <- index + 1
+            index <- 1
+            while index < count:
+                value: i32 = sorted[index]
+                j: mutable usize = index
+                while j > 0 and sorted[j - 1] > value:
+                    sorted[j] <- sorted[j - 1]
+                    j <- j - 1
+                sorted[j] <- value
+                index <- index + 1
+            append(words, word_count, 5)
+            append(words, word_count, count.i64())
+            index <- 0
+            while index < count:
+                append(words, word_count, sorted[index].i64())
+                index <- index + 1
+        else:
+            return -1
+        operation_index <- operation_index + 1
+    if position != length or word_count > 320: return -1
+    output_length: usize = word_count * 8
+    if output.is_null() or output_capacity < output_length: return -2
+    index: usize = 0
+    while index < word_count:
+        bits: u64 = words[index].u64()
+        byte: usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    output_length.i64()
+
+export fn linear_probing_hash_map(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = linear_probing_hash_map_impl(input, length, output, capacity)

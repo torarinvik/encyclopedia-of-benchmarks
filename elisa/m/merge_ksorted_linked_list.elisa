@@ -1,0 +1,117 @@
+const MAX_LISTS: usize = 16
+const MAX_TOTAL_NODES: usize = 128
+const MAX_INPUT_LENGTH: usize = 145
+const MAX_OUTPUT_BYTES: usize = 512
+
+struct MergeKLinkedHeapNode:
+    value: i64
+    list_index: usize
+    node_index: usize
+
+def merge_k_linked_node_less(left: MergeKLinkedHeapNode, right: MergeKLinkedHeapNode) -> bool:
+    if left.value != right.value: return left.value < right.value
+    if left.list_index != right.list_index: return left.list_index < right.list_index
+    left.node_index < right.node_index
+
+def merge_k_linked_heap_push(heap: mutable MergeKLinkedHeapNode[MAX_LISTS], size: mutable usize&, node: MergeKLinkedHeapNode) -> void:
+    index: mutable usize = size
+    size <- size + 1
+    while index > 0:
+        parent: usize = (index - 1) / 2
+        if not merge_k_linked_node_less(node, heap[parent]): break
+        heap[index] <- heap[parent]
+        index <- parent
+    heap[index] <- node
+
+def merge_k_linked_heap_pop(heap: mutable MergeKLinkedHeapNode[MAX_LISTS], size: mutable usize&) -> MergeKLinkedHeapNode:
+    result: MergeKLinkedHeapNode = heap[0]
+    size <- size - 1
+    last: MergeKLinkedHeapNode = heap[size]
+    if size > 0:
+        index: mutable usize = 0
+        while index < size / 2:
+            child: mutable usize = 2 * index + 1
+            if child + 1 < size and merge_k_linked_node_less(heap[child + 1], heap[child]):
+                child <- child + 1
+            if not merge_k_linked_node_less(heap[child], last): break
+            heap[index] <- heap[child]
+            index <- child
+        heap[index] <- last
+    result
+
+def put_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def merge_ksorted_linked_list_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_list_count: i64 = input[0]
+    if raw_list_count < 0 or raw_list_count > 16:
+        return -1
+    list_count: usize = raw_list_count.usize()
+    starts: mutable usize[MAX_LISTS] = zeroed
+    lengths: mutable usize[MAX_LISTS] = zeroed
+    position: mutable usize = 1
+    total_nodes: mutable usize = 0
+    list: mutable usize = 0
+    while list < list_count:
+        if position >= length: return -1
+        declared: i64 = input[position]
+        position <- position + 1
+        if declared < 0 or declared > (MAX_TOTAL_NODES - total_nodes).i64(): return -1
+        list_length: usize = declared.usize()
+        if list_length > length - position: return -1
+        starts[list] <- position
+        lengths[list] <- list_length
+        node: mutable usize = 0
+        while node < list_length:
+            value: i64 = input[position + node]
+            if value < -2147483648 or value > 2147483647 or
+               (node > 0 and input[position + node - 1] > value): return -1
+            node <- node + 1
+        position <- position + list_length
+        total_nodes <- total_nodes + list_length
+        list <- list + 1
+    if position != length: return -1
+
+    output_bytes: usize = 4 * total_nodes
+    if output.is_null() or capacity < output_bytes: return -2
+
+    heap: mutable MergeKLinkedHeapNode[MAX_LISTS]
+    heap_size: mutable usize = 0
+    list <- 0
+    while list < list_count:
+        if lengths[list] > 0:
+            node: MergeKLinkedHeapNode
+            node.value <- input[starts[list]]
+            node.list_index <- list
+            node.node_index <- 0
+            merge_k_linked_heap_push(heap, heap_size, node)
+        list <- list + 1
+
+    buffer: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    written: mutable usize = 0
+    while heap_size > 0:
+        node: MergeKLinkedHeapNode = merge_k_linked_heap_pop(heap, heap_size)
+        put_i32_le(node.value, buffer, written)
+        written <- written + 4
+        next_index: usize = node.node_index + 1
+        if next_index < lengths[node.list_index]:
+            next_node: MergeKLinkedHeapNode
+            next_node.value <- input[starts[node.list_index] + next_index]
+            next_node.list_index <- node.list_index
+            next_node.node_index <- next_index
+            merge_k_linked_heap_push(heap, heap_size, next_node)
+
+    index: mutable usize = 0
+    while index < output_bytes:
+        output[index] <- buffer[index]
+        index <- index + 1
+    output_bytes.i64()
+
+export fn merge_ksorted_linked_list(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = merge_ksorted_linked_list_impl

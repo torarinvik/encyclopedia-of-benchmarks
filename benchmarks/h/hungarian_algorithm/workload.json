@@ -1,0 +1,470 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-hungarian-algorithm-i32-array-bytes-output-v1",
+  "algorithm": "hungarian_algorithm",
+  "function_symbol": "hungarian_algorithm",
+  "description": "Minimum-cost row-to-column assignment for bounded rectangular nonnegative integer matrices.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/graph/HungarianAlgorithm.java",
+      "symbol": "solve",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/HungarianAlgorithm.java"
+    }
+  ],
+  "input": {
+    "kind": "signed_i32_array",
+    "encoding": "[rows, cols, costs...] with costs flattened row-major and no count prefix.",
+    "row_count_range": [
+      1,
+      8
+    ],
+    "column_count_range": [
+      1,
+      8
+    ],
+    "cost_range": [
+      0,
+      1000
+    ],
+    "maximum_valid_input_length": 66,
+    "maximum_parseable_input_length": 67,
+    "exact_packed_shape": "Exactly 2 + rows*cols signed-i32 words.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i32_array",
+    "encoding": "Exactly rows zero-based column assignments (or -1 for a padded column), followed by total cost; no count prefix.",
+    "valid_output_bytes_range": [
+      8,
+      36
+    ],
+    "maximum_output_bytes": 36,
+    "success_result": "output byte length (4*(rows+1))",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks."
+  },
+  "workspace": {
+    "bytes": 36,
+    "meaning": "Up to eight signed-i32 row assignments followed by total cost."
+  },
+  "measurement": {
+    "comparison_model": "i32_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "one_by_one_zero_cost",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "output_capacity": 36,
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "one_by_one_maximum_cost",
+      "input_values": [
+        1,
+        1,
+        1000
+      ],
+      "output_capacity": 8,
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 8,
+      "expected_output_hex": "00000000e8030000"
+    },
+    {
+      "id": "square_all_zero_tie",
+      "input_values": [
+        2,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "output_capacity": 12,
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 12,
+      "expected_output_hex": "000000000100000000000000"
+    },
+    {
+      "id": "tall_all_zero_tie",
+      "input_values": [
+        3,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "output_capacity": 16,
+      "input_length": 8,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 16,
+      "expected_output_hex": "0000000001000000ffffffff00000000"
+    },
+    {
+      "id": "wide_all_zero_tie",
+      "input_values": [
+        2,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "output_capacity": 12,
+      "input_length": 8,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 12,
+      "expected_output_hex": "000000000100000000000000"
+    },
+    {
+      "id": "rectangular_unique_minimum",
+      "input_values": [
+        2,
+        3,
+        5,
+        1,
+        4,
+        2,
+        3,
+        6
+      ],
+      "output_capacity": 12,
+      "input_length": 8,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 12,
+      "expected_output_hex": "010000000000000003000000"
+    },
+    {
+      "id": "maximum_dimensions_and_costs",
+      "input_values": [
+        8,
+        8,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "output_capacity": 36,
+      "input_length": 66,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 36,
+      "expected_output_hex": "0000000001000000020000000300000004000000050000000600000007000000401f0000"
+    },
+    {
+      "id": "exact_capacity_one_by_one",
+      "input_values": [
+        1,
+        1,
+        7
+      ],
+      "output_capacity": 8,
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 8,
+      "expected_output_hex": "0000000007000000"
+    },
+    {
+      "id": "short_capacity_no_write",
+      "input_values": [
+        1,
+        1,
+        7
+      ],
+      "output_capacity": 7,
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_no_write",
+      "input_values": [
+        1,
+        1,
+        7
+      ],
+      "output_capacity": 8,
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "output_capacity": 36,
+      "input_length": 1,
+      "input_is_null": true,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        1,
+        1,
+        -1
+      ],
+      "output_capacity": 0,
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_rows",
+      "input_values": [
+        0,
+        1
+      ],
+      "output_capacity": 36,
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_columns",
+      "input_values": [
+        1,
+        0
+      ],
+      "output_capacity": 36,
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_cost",
+      "input_values": [
+        1,
+        1,
+        -1
+      ],
+      "output_capacity": 36,
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "cost_above_limit",
+      "input_values": [
+        1,
+        1,
+        1001
+      ],
+      "output_capacity": 36,
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_word",
+      "input_values": [
+        1,
+        1,
+        7,
+        0
+      ],
+      "output_capacity": 36,
+      "input_length": 4,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_parseable_trailing_word",
+      "input_values": [
+        8,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "output_capacity": 36,
+      "input_length": 67,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input_length_mismatch",
+      "input_values": [
+        1,
+        1,
+        7
+      ],
+      "output_capacity": 36,
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

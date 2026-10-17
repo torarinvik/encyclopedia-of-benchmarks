@@ -1,0 +1,57 @@
+def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def is_removed(value: i64, input: i64&, n: usize, by: usize) -> bool:
+    if by == 0:
+        return true
+    suffix_start: usize = n - by
+    key: mutable usize = suffix_start
+    while key < n:
+        if value == input[2 + key]:
+            return true
+        key <- key + 1
+    false
+
+def shorten_vector_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 67:
+        return -1
+    raw_n: i64 = input[0]
+    raw_by: i64 = input[1]
+    if raw_n < 0 or raw_n > 64 or raw_by < 0 or raw_by > raw_n:
+        return -1
+    n: usize = raw_n.usize()
+    by: usize = raw_by.usize()
+    if length != 2 + n:
+        return -1
+    i: usize = 0
+    while i < n:
+        if input[2 + i] < -1000000 or input[2 + i] > 1000000:
+            return -1
+        i <- i + 1
+
+    survivor_count: mutable usize = 0
+    i <- 0
+    while i < n:
+        if not is_removed(input[2 + i], input, n, by):
+            survivor_count <- survivor_count + 1
+        i <- i + 1
+    bytes: usize = survivor_count * 8
+    if output.is_null() or capacity < bytes:
+        return -2
+
+    written: mutable usize = 0
+    i <- 0
+    while i < n:
+        value: i64 = input[2 + i]
+        if not is_removed(value, input, n, by):
+            put_i64_le(value, output, written * 8)
+            written <- written + 1
+        i <- i + 1
+    bytes.i64()
+
+export fn shorten_vector(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = shorten_vector_impl

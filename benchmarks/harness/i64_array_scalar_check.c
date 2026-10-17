@@ -30,7 +30,7 @@ int main(void)
         const int null_input = strcmp(length_token, "NULL") == 0;
         if (null_input) {
             if (scanf("%" SCNu64 " %" SCNd64, &length, &expected) != 2
-                    || length == 0 || length > 100002) {
+                    || length > 100002) {
                 fprintf(stderr, "invalid null array case header\n");
                 return 2;
             }

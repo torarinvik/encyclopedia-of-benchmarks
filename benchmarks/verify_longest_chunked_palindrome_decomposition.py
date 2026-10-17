@@ -45,7 +45,7 @@ def oracle(values: list[int]) -> int:
 
 def corpus(workload: dict) -> tuple[str, int]:
     cases = {
-        tuple(encode_case(case)): case["expected_result"]
+        tuple(encode_case(case, algorithm=ALGORITHM)): case["expected_result"]
         for case in workload["cases"]
     }
     for case in workload["cases"]:
@@ -124,7 +124,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
-        values = encode_case(case)
+        values = encode_case(case, algorithm=ALGORITHM)
         if (record["algorithm"] != ALGORITHM
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]

@@ -1,0 +1,151 @@
+const MAX_OPERATIONS: usize = 128
+const MAX_ENTRIES: usize = 128
+const MAX_INITIAL_CAPACITY: usize = 64
+const MAX_CAPACITY: usize = 256
+const MAX_INPUT_LENGTH: usize = 386
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+
+def hashmap_hash_byte(hash_value: u64, byte: u64) -> u64:
+    ((hash_value ^ (byte & 255)) * FNV_PRIME)
+
+def hashmap_hash_key(key: i64) -> u64:
+    hash_value: mutable u64 = FNV_OFFSET
+    magnitude: mutable u64 = if key < 0: (-key).u64() else: key.u64()
+    digits: mutable u64[10] = zeroed
+    digit_count: mutable usize = 0
+    while true:
+        digits[digit_count] <- magnitude % 10
+        digit_count <- digit_count + 1
+        magnitude <- magnitude / 10
+        if magnitude == 0: break
+    if key < 0: hash_value <- hashmap_hash_byte(hash_value, 45)
+    while digit_count > 0:
+        digit_count <- digit_count - 1
+        hash_value <- hashmap_hash_byte(hash_value, 48 + digits[digit_count])
+    hash_value ^ (hash_value >> 16)
+
+def hashmap_bucket_for(key: i64, capacity: usize) -> usize:
+    (hashmap_hash_key(key) & (capacity - 1).u64()).usize()
+
+def hashmap_put_i64_le(output: mutable u8&, word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[word * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def hashmap(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 @export("hashmap"):
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    initial_capacity: i64 = input[0]
+    operation_count: i64 = input[1]
+    if initial_capacity < 1 or initial_capacity > MAX_INITIAL_CAPACITY.i64() or
+        (initial_capacity & (initial_capacity - 1)) != 0 or operation_count < 0 or
+        operation_count > MAX_OPERATIONS.i64() or length != 2 + 3 * operation_count.usize(): return -1
+    operation: mutable usize = 0
+    while operation < operation_count.usize():
+        op: i64 = input[2 + 3 * operation]
+        key: i64 = input[3 + 3 * operation]
+        value: i64 = input[4 + 3 * operation]
+        if op < 0 or op > 2 or key < -2147483648 or key > 2147483647: return -1
+        if op == 0:
+            if value < -2147483648 or value > 2147483647: return -1
+        elif value != 0: return -1
+        operation <- operation + 1
+
+    keys: mutable i64[128] = zeroed
+    values: mutable i64[128] = zeroed
+    results: mutable i64[387] = zeroed
+    next: mutable i64[128] = zeroed
+    heads: mutable i64[256] = zeroed
+    tails: mutable i64[256] = zeroed
+    index: mutable usize = 0
+    while index < MAX_ENTRIES:
+        next[index] <- -1
+        index <- index + 1
+    index <- 0
+    while index < MAX_CAPACITY:
+        heads[index] <- -1
+        tails[index] <- -1
+        index <- index + 1
+    size: mutable usize = 0
+    map_capacity: mutable usize = initial_capacity.usize()
+    result_words: mutable usize = 1
+    query_count: mutable usize = 0
+
+    operation <- 0
+    while operation < operation_count.usize():
+        op: i64 = input[2 + 3 * operation]
+        key: i64 = input[3 + 3 * operation]
+        value: i64 = input[4 + 3 * operation]
+        bucket: usize = hashmap_bucket_for(key, map_capacity)
+        entry: mutable i64 = heads[bucket]
+        while entry >= 0 and keys[entry.usize()] != key:
+            entry <- next[entry.usize()]
+        if op == 0:
+            if entry >= 0:
+                values[entry.usize()] <- value
+            else:
+                if size >= MAX_ENTRIES: return -1
+                entry <- size.i64()
+                size <- size + 1
+                keys[entry.usize()] <- key
+                values[entry.usize()] <- value
+                if heads[bucket] < 0: heads[bucket] <- entry
+                else: next[tails[bucket].usize()] <- entry
+                tails[bucket] <- entry
+                if size * 4 > map_capacity * 3:
+                    order: mutable i64[128] = zeroed
+                    order_count: mutable usize = 0
+                    old_bucket: mutable usize = 0
+                    while old_bucket < map_capacity:
+                        node: mutable i64 = heads[old_bucket]
+                        while node >= 0:
+                            order[order_count] <- node
+                            order_count <- order_count + 1
+                            node <- next[node.usize()]
+                        old_bucket <- old_bucket + 1
+                    map_capacity <- map_capacity * 2
+                    index <- 0
+                    while index < MAX_CAPACITY:
+                        heads[index] <- -1
+                        tails[index] <- -1
+                        index <- index + 1
+                    index <- 0
+                    while index < size:
+                        next[index] <- -1
+                        index <- index + 1
+                    index <- 0
+                    while index < order_count:
+                        node: i64 = order[index]
+                        new_bucket: usize = hashmap_bucket_for(keys[node.usize()], map_capacity)
+                        if heads[new_bucket] < 0: heads[new_bucket] <- node
+                        else: next[tails[new_bucket].usize()] <- node
+                        tails[new_bucket] <- node
+                        index <- index + 1
+        else:
+            results[result_words] <- op
+            result_words <- result_words + 1
+            if op == 1:
+                results[result_words] <- if entry >= 0: 1 else: 0
+                result_words <- result_words + 1
+                results[result_words] <- if entry >= 0: values[entry.usize()] else: 0
+                result_words <- result_words + 1
+            else:
+                results[result_words] <- if entry >= 0: 1 else: 0
+                result_words <- result_words + 1
+            query_count <- query_count + 1
+        operation <- operation + 1
+
+    results[0] <- query_count.i64()
+    results[result_words] <- size.i64()
+    result_words <- result_words + 1
+    results[result_words] <- map_capacity.i64()
+    result_words <- result_words + 1
+    output_bytes: usize = result_words * 8
+    if output.is_null() or output_capacity < output_bytes: return -2
+    index <- 0
+    while index < result_words:
+        hashmap_put_i64_le(output, index, results[index])
+        index <- index + 1
+    output_bytes.i64()

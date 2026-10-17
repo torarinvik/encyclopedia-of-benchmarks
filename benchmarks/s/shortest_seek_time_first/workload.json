@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "id": "shortest-seek-time-first-java-bounded-requests-v1",
+  "algorithm": "shortest_seek_time_first",
+  "function_symbol": "shortest_seek_time_first",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[initial_track, request_count, requests...]",
+    "initial_track_range": [
+      0,
+      255
+    ],
+    "request_count_range": [
+      0,
+      64
+    ],
+    "request_track_range": [
+      0,
+      255
+    ],
+    "duplicates": "allowed and preserved as separate pending requests",
+    "tie_behavior": "when distances tie, service the earliest still-pending request",
+    "exact_length": "2 + request_count",
+    "parser_maximum_values": 66,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one unsigned track byte per serviced request, in service order",
+    "maximum_output_bytes": 64,
+    "success_result": "number of request bytes written",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_result": -2,
+    "null_output_for_empty_request_list": "returns -2"
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "Maximum capacity for the 64 serviced track bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 9,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/scheduling/diskscheduling/SSFScheduling.java"
+  },
+  "cases": [
+    {
+      "id": "nearest_request_sequence",
+      "input_values": [
+        50,
+        6,
+        5,
+        4,
+        1,
+        40,
+        35,
+        45
+      ],
+      "input_length": 8,
+      "expected_result": 6,
+      "expected_output_hex": "2d2823050401"
+    },
+    {
+      "id": "equal_distance_keeps_first_request",
+      "input_values": [
+        8,
+        2,
+        11,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output_hex": "0b05"
+    },
+    {
+      "id": "reversed_tie_order_changes_first_service",
+      "input_values": [
+        8,
+        2,
+        5,
+        11
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output_hex": "050b"
+    },
+    {
+      "id": "duplicate_requests_are_serviced_separately",
+      "input_values": [
+        8,
+        3,
+        5,
+        5,
+        6
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output_hex": "060505"
+    },
+    {
+      "id": "track_byte_boundaries",
+      "input_values": [
+        0,
+        2,
+        255,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output_hex": "01ff"
+    },
+    {
+      "id": "single_request",
+      "input_values": [
+        10,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "empty_request_list",
+      "input_values": [
+        8,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_request_count",
+      "input_values": [
+        128,
+        64,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+      ],
+      "input_length": 66,
+      "expected_result": 64,
+      "expected_output_hex": "3f3e3d3c3b3a393837363534333231302f2e2d2c2b2a292827262524232221201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100"
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        8,
+        3,
+        5,
+        5,
+        6
+      ],
+      "input_length": 5,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 2
+    },
+    {
+      "id": "zero_capacity_empty_output",
+      "input_values": [
+        8,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "null_output_for_empty_list",
+      "input_values": [
+        8,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true
+    },
+    {
+      "id": "null_output_for_nonempty_list",
+      "input_values": [
+        8,
+        1,
+        6
+      ],
+      "input_length": 3,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true
+    },
+    {
+      "id": "invalid_input_precedes_capacity_error",
+      "input_values": [
+        8,
+        1,
+        256
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "missing_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_initial_track",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "initial_track_above_range",
+      "input_values": [
+        256,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_request_count",
+      "input_values": [
+        8,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "request_count_above_range",
+      "input_values": [
+        8,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_request_list",
+      "input_values": [
+        8,
+        2,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        8,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "request_below_range",
+      "input_values": [
+        8,
+        1,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "request_above_range",
+      "input_values": [
+        8,
+        1,
+        256
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

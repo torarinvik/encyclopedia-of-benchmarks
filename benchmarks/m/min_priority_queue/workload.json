@@ -1,0 +1,746 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-min-priority-queue-i64-array-bytes-output-v1",
+  "algorithm": "min_priority_queue",
+  "function_symbol": "min_priority_queue",
+  "description": "Bounded fixed-capacity min-heap operation trace with query records.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/datastructures/heaps/MinPriorityQueue.java",
+      "symbol": "MinPriorityQueue",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/heaps/MinPriorityQueue.java"
+    },
+    {
+      "repository": "TheAlgorithms/JavaScript",
+      "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+      "path": "Data-Structures/Heap/MinPriorityQueue.js",
+      "symbol": "MinPriorityQueue",
+      "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Data-Structures/Heap/MinPriorityQueue.js"
+    }
+  ],
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[capacity, operation_count, opcode, insert_key_when_opcode_is_0, ...]",
+    "capacity_range": [
+      0,
+      64
+    ],
+    "operation_count_range": [
+      0,
+      64
+    ],
+    "maximum_input_length": 130,
+    "insert_key_range": [
+      -2147483648,
+      2147483647
+    ],
+    "opcodes": {
+      "0": "insert(key)",
+      "1": "peek()",
+      "2": "delete()",
+      "3": "isEmpty()",
+      "4": "isFull()"
+    },
+    "exact_packed_shape": "Exactly operation_count operations follow; only opcode 0 consumes a signed-i32 key.",
+    "invalid_preconditions": [
+      "insert when full",
+      "peek when empty",
+      "delete when empty"
+    ],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_32_bit_integer_array",
+    "encoding": "[query_count, kind, value, ...], one pair for each non-insert operation.",
+    "query_kinds": {
+      "1": "peek minimum key",
+      "2": "deleted minimum key",
+      "3": "isEmpty (1=true, 0=false)",
+      "4": "isFull (1=true, 0=false)"
+    },
+    "empty_trace_output": [
+      0
+    ],
+    "valid_output_bytes_range": [
+      4,
+      516
+    ],
+    "maximum_output_bytes": 516,
+    "success_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "short_capacity_writes_nothing": true,
+    "error_precedence": "Invalid input is rejected before output pointer or capacity checks."
+  },
+  "workspace": {
+    "bytes": 516,
+    "meaning": "Maximum output for 64 query operations."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_trace_capacity_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 4,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "empty_status_queries_at_capacity_zero",
+      "input_values": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "input_length": 4,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 20,
+      "expected_output_hex": "0200000003000000010000000400000001000000"
+    },
+    {
+      "id": "single_insert_peek_delete",
+      "input_values": [
+        1,
+        3,
+        0,
+        7,
+        1,
+        2
+      ],
+      "input_length": 6,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 20,
+      "expected_output_hex": "0200000001000000070000000200000007000000"
+    },
+    {
+      "id": "min_order",
+      "input_values": [
+        5,
+        8,
+        0,
+        9,
+        0,
+        3,
+        0,
+        -2,
+        1,
+        2,
+        1,
+        2,
+        2
+      ],
+      "input_length": 13,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 44,
+      "expected_output_hex": "0500000001000000feffffff02000000feffffff010000000300000002000000030000000200000009000000"
+    },
+    {
+      "id": "duplicate_keys",
+      "input_values": [
+        4,
+        6,
+        0,
+        2,
+        0,
+        2,
+        0,
+        1,
+        2,
+        1,
+        2
+      ],
+      "input_length": 11,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 28,
+      "expected_output_hex": "03000000020000000100000001000000020000000200000002000000"
+    },
+    {
+      "id": "peek_is_read_only",
+      "input_values": [
+        3,
+        4,
+        0,
+        -5,
+        1,
+        1,
+        3
+      ],
+      "input_length": 7,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 28,
+      "expected_output_hex": "0300000001000000fbffffff01000000fbffffff0300000000000000"
+    },
+    {
+      "id": "full_empty_transitions",
+      "input_values": [
+        2,
+        11,
+        3,
+        4,
+        0,
+        4,
+        3,
+        4,
+        0,
+        -1,
+        4,
+        2,
+        4,
+        2,
+        3
+      ],
+      "input_length": 15,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 76,
+      "expected_output_hex": "090000000300000001000000040000000000000003000000000000000400000000000000040000000100000002000000ffffffff040000000000000002000000040000000300000001000000"
+    },
+    {
+      "id": "signed_i32_edges",
+      "input_values": [
+        2,
+        6,
+        0,
+        -2147483648,
+        0,
+        2147483647,
+        1,
+        2,
+        2,
+        3
+      ],
+      "input_length": 10,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 36,
+      "expected_output_hex": "040000000100000000000080020000000000008002000000ffffff7f0300000001000000"
+    },
+    {
+      "id": "fill_capacity_64",
+      "input_values": [
+        64,
+        64,
+        0,
+        -32,
+        0,
+        -31,
+        0,
+        -30,
+        0,
+        -29,
+        0,
+        -28,
+        0,
+        -27,
+        0,
+        -26,
+        0,
+        -25,
+        0,
+        -24,
+        0,
+        -23,
+        0,
+        -22,
+        0,
+        -21,
+        0,
+        -20,
+        0,
+        -19,
+        0,
+        -18,
+        0,
+        -17,
+        0,
+        -16,
+        0,
+        -15,
+        0,
+        -14,
+        0,
+        -13,
+        0,
+        -12,
+        0,
+        -11,
+        0,
+        -10,
+        0,
+        -9,
+        0,
+        -8,
+        0,
+        -7,
+        0,
+        -6,
+        0,
+        -5,
+        0,
+        -4,
+        0,
+        -3,
+        0,
+        -2,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8,
+        0,
+        9,
+        0,
+        10,
+        0,
+        11,
+        0,
+        12,
+        0,
+        13,
+        0,
+        14,
+        0,
+        15,
+        0,
+        16,
+        0,
+        17,
+        0,
+        18,
+        0,
+        19,
+        0,
+        20,
+        0,
+        21,
+        0,
+        22,
+        0,
+        23,
+        0,
+        24,
+        0,
+        25,
+        0,
+        26,
+        0,
+        27,
+        0,
+        28,
+        0,
+        29,
+        0,
+        30,
+        0,
+        31
+      ],
+      "input_length": 130,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "full_status_at_capacity",
+      "input_values": [
+        2,
+        3,
+        0,
+        2,
+        0,
+        1,
+        4
+      ],
+      "input_length": 7,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 12,
+      "expected_output_hex": "010000000400000001000000"
+    },
+    {
+      "id": "maximum_output_64_empty_queries",
+      "input_values": [
+        0,
+        64,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "input_length": 66,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 516,
+      "expected_output_hex": "400000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000030000000100000003000000010000000300000001000000"
+    },
+    {
+      "id": "negative_capacity",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "capacity_above_bound",
+      "input_values": [
+        65,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_operation_count",
+      "input_values": [
+        1,
+        -1
+      ],
+      "input_length": 2,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "operation_count_above_bound",
+      "input_values": [
+        1,
+        65
+      ],
+      "input_length": 2,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_opcode",
+      "input_values": [
+        1,
+        1,
+        9
+      ],
+      "input_length": 3,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_insert_key",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input_word",
+      "input_values": [
+        1,
+        0,
+        9
+      ],
+      "input_length": 3,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insert_when_full",
+      "input_values": [
+        1,
+        2,
+        0,
+        5,
+        0,
+        6
+      ],
+      "input_length": 6,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "peek_empty",
+      "input_values": [
+        1,
+        1,
+        1
+      ],
+      "input_length": 3,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "delete_empty",
+      "input_values": [
+        1,
+        1,
+        2
+      ],
+      "input_length": 3,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key_below_i32",
+      "input_values": [
+        1,
+        1,
+        0,
+        -2147483649
+      ],
+      "input_length": 4,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "key_above_i32",
+      "input_values": [
+        1,
+        1,
+        0,
+        2147483648
+      ],
+      "input_length": 4,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input_length_mismatch",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 516,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 516,
+      "input_is_null": true,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_empty_trace",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 4,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_empty_trace",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_output_empty_trace",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 4,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "null_output_nonempty",
+      "input_values": [
+        1,
+        1,
+        3
+      ],
+      "input_length": 3,
+      "output_capacity": 12,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_precedes_null_output",
+      "input_values": [
+        0,
+        1,
+        0,
+        5
+      ],
+      "input_length": 4,
+      "output_capacity": 0,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -2,7 +2,7 @@ module number_container_system
 
 @[export: 'number_container_system']
 pub fn number_container_system(values &i64, length usize, output &u8, capacity usize) i64 {
-	if length < 1 { return -1 }
+	if isnil(values) || length < 1 { return -1 }
 	count := unsafe { values[0] }
 	if count < 0 || count > 32 || length != usize(1+3*count) { return -1 }
 	mut slots := [64]i64{}; mut present := [64]bool{}; mut result := ''
@@ -15,7 +15,7 @@ pub fn number_container_system(values &i64, length usize, output &u8, capacity u
 			if result.len > 0 { result += ',' }; result += found.str()
 		} else { return -1 }
 	}
-	if usize(result.len) > capacity || (result.len > 0 && isnil(output)) { return -2 }
+	if isnil(output) || usize(result.len) > capacity { return -2 }
 	for i in 0 .. result.len { unsafe { output[i] = result[i] } }
 	return i64(result.len)
 }

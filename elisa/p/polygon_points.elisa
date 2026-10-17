@@ -1,0 +1,56 @@
+const INVALID_RESULT: i64 = -1
+
+def abs_i64(value: i64) -> i64:
+    if value < 0:
+        return -value
+    value
+
+def gcd_i64(a: i64, b: i64) -> i64:
+    x: mutable i64 = a
+    y: mutable i64 = b
+    while y != 0:
+        temp: i64 = y
+        y <- x % y
+        x <- temp
+    x
+
+def cross(x1: i64, y1: i64, x2: i64, y2: i64) -> i64:
+    x1 * y2 - x2 * y1
+
+def polygon_points_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 1 or length > 66:
+        return INVALID_RESULT
+    n: i64 = values[0]
+    if n < 3 or n > 32 or length != 1 + 2 * n.usize():
+        return INVALID_RESULT
+    count: usize = 2 * n.usize()
+    i: usize = 0
+    while i < count:
+        if values[1 + i] < -1000 or values[1 + i] > 1000:
+            return INVALID_RESULT
+        i <- i + 1
+
+    origin_x: i64 = values[1]
+    origin_y: i64 = values[2]
+    doubled_area: mutable i64 = 0
+    i <- 2
+    while i < n.usize():
+        x1: i64 = values[1 + 2 * i] - origin_x
+        y1: i64 = values[2 + 2 * i] - origin_y
+        x2: i64 = values[1 + 2 * (i - 1)] - origin_x
+        y2: i64 = values[2 + 2 * (i - 1)] - origin_y
+        doubled_area <- doubled_area + cross(x1, y1, x2, y2)
+        i <- i + 1
+    area: i64 = abs_i64(doubled_area / 2)
+
+    boundary: mutable i64 = n
+    i <- 0
+    while i < n.usize():
+        next: usize = (i + 1) % n.usize()
+        dx: i64 = values[1 + 2 * i] - values[1 + 2 * next]
+        dy: i64 = values[2 + 2 * i] - values[2 + 2 * next]
+        boundary <- boundary + abs_i64(gcd_i64(dx, dy)) - 1
+        i <- i + 1
+    area + 1 - boundary / 2
+
+export fn polygon_points(values: i64&, length: usize) -> i64 = polygon_points_impl

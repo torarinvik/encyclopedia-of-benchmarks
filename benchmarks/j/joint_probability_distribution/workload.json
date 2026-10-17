@@ -1,0 +1,527 @@
+{
+  "schema_version": 1,
+  "id": "joint-probability-distribution-python-float64-slice-io-v1",
+  "algorithm": "joint_probability_distribution",
+  "function_symbol": "joint_probability_distribution",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "maths/joint_probability_distribution.py",
+    "symbol": "joint_probability_distribution",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/joint_probability_distribution.py",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "form the independent Cartesian product and multiply px*py",
+    "iteration_order": "x support outer loop, y support inner loop",
+    "normalization": "none; use probabilities as supplied",
+    "source_zip_and_dictionary_semantics": "The pinned Python uses zip and a dict comprehension; the bounded workload requires aligned arrays and unique supports, excluding truncation and duplicate tuple-key overwrites."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[nx, ny, x_values[nx], y_values[ny], x_probabilities[nx], y_probabilities[ny]]",
+    "support_count_range": [
+      1,
+      4
+    ],
+    "valid_length_range": [
+      6,
+      18
+    ],
+    "maximum_valid_length": 18,
+    "maximum_parseable_length": 20,
+    "support_range": [
+      -1000,
+      1000
+    ],
+    "supports_must_be_unique": true,
+    "probability_range": [
+      -1000000.0,
+      1000000.0
+    ],
+    "support_probability_arrays_aligned": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "ordered triples [x, y, px*py] for each Cartesian-product entry",
+    "maximum_elements": 48,
+    "success_result": "number of output float64 elements (3 per pair)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "workspace": {
+    "elements": 48,
+    "meaning": "Maximum output size for the 4-by-4 Cartesian product."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 500,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "pinned_cartesian_example",
+      "input_values": [
+        2.0,
+        3.0,
+        1.0,
+        2.0,
+        -2.0,
+        5.0,
+        8.0,
+        0.7,
+        0.3,
+        0.3,
+        0.5,
+        0.2
+      ],
+      "input_length": 12,
+      "expected_result": 18,
+      "expected_output": [
+        1.0,
+        -2.0,
+        0.21,
+        1.0,
+        5.0,
+        0.35,
+        1.0,
+        8.0,
+        0.13999999999999999,
+        2.0,
+        -2.0,
+        0.09,
+        2.0,
+        5.0,
+        0.15,
+        2.0,
+        8.0,
+        0.06
+      ]
+    },
+    {
+      "id": "single_pair_with_zero_support",
+      "input_values": [
+        1.0,
+        1.0,
+        0.0,
+        9.0,
+        0.5,
+        0.25
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        9.0,
+        0.125
+      ]
+    },
+    {
+      "id": "unnormalized_marginals",
+      "input_values": [
+        2.0,
+        2.0,
+        2.0,
+        4.0,
+        -1.0,
+        3.0,
+        0.4,
+        0.4,
+        0.6,
+        0.6
+      ],
+      "input_length": 10,
+      "expected_result": 12,
+      "expected_output": [
+        2.0,
+        -1.0,
+        0.24,
+        2.0,
+        3.0,
+        0.24,
+        4.0,
+        -1.0,
+        0.24,
+        4.0,
+        3.0,
+        0.24
+      ]
+    },
+    {
+      "id": "negative_probability_is_multiplied",
+      "input_values": [
+        1.0,
+        2.0,
+        1.0,
+        2.0,
+        3.0,
+        -2.0,
+        0.5,
+        1.5
+      ],
+      "input_length": 8,
+      "expected_result": 6,
+      "expected_output": [
+        1.0,
+        2.0,
+        -1.0,
+        1.0,
+        3.0,
+        -3.0
+      ]
+    },
+    {
+      "id": "different_support_sizes",
+      "input_values": [
+        3.0,
+        2.0,
+        -7.0,
+        0.0,
+        7.0,
+        100.0,
+        -100.0,
+        0.1,
+        0.2,
+        0.3,
+        0.25,
+        0.75
+      ],
+      "input_length": 12,
+      "expected_result": 18,
+      "expected_output": [
+        -7.0,
+        100.0,
+        0.025,
+        -7.0,
+        -100.0,
+        0.07500000000000001,
+        0.0,
+        100.0,
+        0.05,
+        0.0,
+        -100.0,
+        0.15000000000000002,
+        7.0,
+        100.0,
+        0.075,
+        7.0,
+        -100.0,
+        0.22499999999999998
+      ]
+    },
+    {
+      "id": "support_boundaries",
+      "input_values": [
+        2.0,
+        2.0,
+        -1000.0,
+        1000.0,
+        1000.0,
+        -1000.0,
+        1.0,
+        -1.0,
+        0.5,
+        0.25
+      ],
+      "input_length": 10,
+      "expected_result": 12,
+      "expected_output": [
+        -1000.0,
+        1000.0,
+        0.5,
+        -1000.0,
+        -1000.0,
+        0.25,
+        1000.0,
+        1000.0,
+        -0.5,
+        1000.0,
+        -1000.0,
+        -0.25
+      ]
+    },
+    {
+      "id": "maximum_support_sizes",
+      "input_values": [
+        4.0,
+        4.0,
+        -1000.0,
+        -1.0,
+        1.0,
+        1000.0,
+        -500.0,
+        -2.0,
+        2.0,
+        500.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.4,
+        0.3,
+        0.2,
+        0.1
+      ],
+      "input_length": 18,
+      "expected_result": 48,
+      "expected_output": [
+        -1000.0,
+        -500.0,
+        0.04000000000000001,
+        -1000.0,
+        -2.0,
+        0.03,
+        -1000.0,
+        2.0,
+        0.020000000000000004,
+        -1000.0,
+        500.0,
+        0.010000000000000002,
+        -1.0,
+        -500.0,
+        0.08000000000000002,
+        -1.0,
+        -2.0,
+        0.06,
+        -1.0,
+        2.0,
+        0.04000000000000001,
+        -1.0,
+        500.0,
+        0.020000000000000004,
+        1.0,
+        -500.0,
+        0.12,
+        1.0,
+        -2.0,
+        0.09,
+        1.0,
+        2.0,
+        0.06,
+        1.0,
+        500.0,
+        0.03,
+        1000.0,
+        -500.0,
+        0.16000000000000003,
+        1000.0,
+        -2.0,
+        0.12,
+        1000.0,
+        2.0,
+        0.08000000000000002,
+        1000.0,
+        500.0,
+        0.04000000000000001
+      ]
+    },
+    {
+      "id": "probability_magnitude_boundaries",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        1000000.0,
+        -1000000.0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        1.0,
+        2.0,
+        -1000000000000.0
+      ]
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        1.0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_x_support_count",
+      "input_values": [
+        0.0,
+        1.0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_y_support_count",
+      "input_values": [
+        1.0,
+        0.0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "count_above_limit",
+      "input_values": [
+        5.0,
+        1.0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_count",
+      "input_values": [
+        1.5,
+        1.0,
+        1.0,
+        2.0,
+        0.5,
+        0.5
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "missing_probability_value",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        0.5
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_packed_value",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        0.5,
+        0.5,
+        99.0
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "noninteger_support",
+      "input_values": [
+        1.0,
+        1.0,
+        1.5,
+        2.0,
+        0.5,
+        0.5
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "support_below_limit",
+      "input_values": [
+        1.0,
+        1.0,
+        -1001.0,
+        2.0,
+        0.5,
+        0.5
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "support_above_limit",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        1001.0,
+        0.5,
+        0.5
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "duplicate_x_support",
+      "input_values": [
+        2.0,
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        0.25,
+        0.75,
+        0.5
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "duplicate_y_support",
+      "input_values": [
+        1.0,
+        2.0,
+        1.0,
+        2.0,
+        2.0,
+        0.5,
+        0.25,
+        0.75
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "probability_below_limit",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        -1000000.1,
+        0.5
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "probability_above_limit",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        0.5,
+        1000000.1
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -13,7 +13,7 @@ This benchmark makes the pinned MATLAB genetic-algorithm operator deterministic 
 
 ## Pinned source
 
-[MATLAB-Octave `DoublePointCrossover.m`](https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/Genetic-Algorithm/Minimization%20of%20polynomial%20function/DoublePointCrossover.m) draws a random permutation of the gene positions, sorts its first two positions, and exchanges the inclusive middle segment between parents.
+[MATLAB-Octave `DoublePointCrossover.m`](https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/Genetic-Algorithm/Minimization%20of%20polynomial%20function/DoublePointCrossover.m) draws a random permutation of gene positions and sorts its first two positions as cuts `j1 < j2`. Child 1 copies parent 2 from 1-based position `j1 + 1` through `j2` inclusive, while keeping parent 1 through `j1` and after `j2`; child 2 does the reciprocal splice.
 
 ## Build and verify
 

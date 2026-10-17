@@ -24,7 +24,7 @@ MAX_INPUT_LENGTH = 2 + 2 * MAX_BAGS
 
 def encode_bag_case(case: dict) -> list[int]:
     if "input_values" in case:
-        return encode_case(case)
+        return encode_case(case, algorithm=ALGORITHM)
     capacities = case["capacities"]
     rocks = case["rocks"]
     if len(capacities) != len(rocks):

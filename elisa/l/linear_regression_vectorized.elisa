@@ -1,0 +1,79 @@
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 45
+const MAX_SAMPLES: usize = 8
+const MAX_FEATURES: usize = 4
+const MAX_FEATURE_VALUES: usize = 32
+
+def linear_regression_vectorized_impl(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    sample_value: f64 = input[0]
+    feature_value: f64 = input[1]
+    iteration_value: f64 = input[2]
+    if sample_value != sample_value or sample_value < 2.0 or sample_value > MAX_SAMPLES.f64() or
+       feature_value != feature_value or feature_value < 2.0 or feature_value > MAX_FEATURES.f64() or
+       iteration_value != iteration_value or iteration_value < 10.0 or iteration_value > 128.0: return -1
+    sample_count: usize = sample_value.usize()
+    feature_count: usize = feature_value.usize()
+    iterations: usize = iteration_value.usize()
+    if sample_count.f64() != sample_value or feature_count.f64() != feature_value or
+       iterations.f64() != iteration_value: return -1
+    if length != 4 + sample_count * feature_count + sample_count: return -1
+
+    alpha: f64 = input[3]
+    if alpha != alpha or alpha < 0.0001 or alpha > 0.01: return -1
+
+    features: mutable f64[MAX_FEATURE_VALUES] = zeroed
+    labels: mutable f64[MAX_SAMPLES] = zeroed
+    feature_values: usize = sample_count * feature_count
+    index: mutable usize = 0
+    while index < feature_values:
+        value: f64 = input[4 + index]
+        if value != value or value < -1.0 or value > 1.0: return -1
+        features[index] <- value
+        index <- index + 1
+    row: mutable usize = 0
+    while row < sample_count:
+        if features[row * feature_count] != 1.0: return -1
+        row <- row + 1
+    row <- 0
+    while row < sample_count:
+        value: f64 = input[4 + feature_values + row]
+        if value != value or value < -1.0 or value > 1.0: return -1
+        labels[row] <- value
+        row <- row + 1
+    if output.is_null() or output_capacity < feature_count: return -2
+
+    theta: mutable f64[MAX_FEATURES] = zeroed
+    errors: mutable f64[MAX_SAMPLES] = zeroed
+    gradients: mutable f64[MAX_FEATURES] = zeroed
+    iteration: mutable usize = 0
+    while iteration < iterations:
+        row <- 0
+        while row < sample_count:
+            prediction: mutable f64 = 0.0
+            column: mutable usize = 0
+            while column < feature_count:
+                prediction <- prediction + features[row * feature_count + column] * theta[column]
+                column <- column + 1
+            errors[row] <- prediction - labels[row]
+            row <- row + 1
+        column: mutable usize = 0
+        while column < feature_count:
+            gradient: mutable f64 = 0.0
+            row <- 0
+            while row < sample_count:
+                gradient <- gradient + features[row * feature_count + column] * errors[row]
+                row <- row + 1
+            gradients[column] <- gradient / sample_count.f64()
+            column <- column + 1
+        column <- 0
+        while column < feature_count:
+            theta[column] <- theta[column] - alpha * gradients[column]
+            column <- column + 1
+        iteration <- iteration + 1
+    column: mutable usize = 0
+    while column < feature_count:
+        output[column] <- theta[column]
+        column <- column + 1
+    feature_count.i64()
+
+export fn linear_regression_vectorized(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64 = linear_regression_vectorized_impl

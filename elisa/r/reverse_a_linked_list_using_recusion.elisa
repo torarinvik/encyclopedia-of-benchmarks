@@ -1,0 +1,49 @@
+const MAX_N: usize = 64
+const MAX_INPUT_LENGTH: usize = 65
+
+def reverse_links(next: mutable i64&, previous: i64, current: i64) -> i64:
+    if next[current.usize()] >= 0:
+        head: i64 = reverse_links(next, current, next[current.usize()])
+        next[current.usize()] <- previous
+        next[previous.usize()] <- -1
+        return head
+    next[current.usize()] <- previous
+    next[previous.usize()] <- -1
+    current
+
+def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u32 = value.u32()
+    output[offset] <- (bits & 255).u8()
+    output[offset + 1] <- ((bits >> 8) & 255).u8()
+    output[offset + 2] <- ((bits >> 16) & 255).u8()
+    output[offset + 3] <- ((bits >> 24) & 255).u8()
+
+def reverse_a_linked_list_using_recusion_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 2 or input[0] > MAX_N.i64(): return -1
+    n: usize = input[0].usize()
+    if length != n + 1: return -1
+    index: usize = 0
+    while index < n:
+        if input[index + 1] < -2147483648 or input[index + 1] > 2147483647: return -1
+        index <- index + 1
+    bytes: usize = 4 * n
+    if output == null or capacity < bytes: return -2
+
+    nodes: mutable i64[MAX_N] = zeroed
+    next: mutable i64[MAX_N] = zeroed
+    index <- 0
+    while index < n:
+        nodes[index] <- input[index + 1]
+        if index + 1 < n: next[index] <- (index + 1).i64()
+        else: next[index] <- -1
+        index <- index + 1
+    node: i64 = reverse_links(next, 0, next[0])
+    index <- 0
+    while index < n:
+        store_i32_le(nodes[node.usize()], output, index * 4)
+        if index + 1 < n: node <- next[node.usize()]
+        index <- index + 1
+    bytes.i64()
+
+export fn reverse_a_linked_list_using_recusion(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = reverse_a_linked_list_using_recusion_impl

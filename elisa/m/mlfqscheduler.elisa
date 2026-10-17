@@ -1,0 +1,96 @@
+def mlfqscheduler_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 55: return -1
+    levels_value: i64 = input[0]
+    process_count_value: i64 = input[1]
+    if levels_value < 1 or levels_value > 4 or process_count_value < 0 or process_count_value > 16: return -1
+    levels: usize = levels_value.usize()
+    process_count: usize = process_count_value.usize()
+    if length != 2 + levels + 3 * process_count: return -1
+    quanta: mutable i64[4] = zeroed
+    pids: mutable i64[16] = zeroed
+    remaining: mutable i64[16] = zeroed
+    level: usize = 0
+    while level < levels:
+        quanta[level] <- input[2 + level]
+        if quanta[level] < 1 or quanta[level] > 32: return -1
+        level <- level + 1
+    process_offset: usize = 2 + levels
+    i: usize = 0
+    while i < process_count:
+        pid: i64 = input[process_offset + 3 * i]
+        burst: i64 = input[process_offset + 3 * i + 1]
+        arrival: i64 = input[process_offset + 3 * i + 2]
+        if pid < -2147483648 or pid > 2147483647 or burst < 0 or burst > 1000 or arrival < 0 or arrival > 1000000: return -1
+        pids[i] <- pid
+        remaining[i] <- burst
+        i <- i + 1
+
+    queues: mutable usize[64] = zeroed
+    queue_counts: mutable usize[4] = zeroed
+    i <- 0
+    while i < process_count:
+        queues[i] <- i
+        i <- i + 1
+    queue_counts[0] <- process_count
+    completion_pids: mutable i64[16] = zeroed
+    completion_times: mutable i64[16] = zeroed
+    completions: mutable usize = 0
+    current_time: mutable i64 = 0
+    loop:
+        active: mutable usize = 0
+        level <- 0
+        while level < levels:
+            active <- active + queue_counts[level]
+            level <- level + 1
+        if active == 0: break
+        level <- 0
+        while level < levels:
+            base: usize = level * 16
+            queued: usize = queue_counts[level]
+            if queued > 0:
+                process: usize = queues[base]
+                j: usize = 1
+                while j < queued:
+                    queues[base + j - 1] <- queues[base + j]
+                    j <- j + 1
+                queue_counts[level] <- queue_counts[level] - 1
+                slice: i64 = if quanta[level] < remaining[process]: quanta[level] else: remaining[process]
+                current_time <- current_time + slice
+                remaining[process] <- remaining[process] - slice
+                if remaining[process] == 0:
+                    completion_pids[completions] <- pids[process]
+                    completion_times[completions] <- current_time
+                    completions <- completions + 1
+                else:
+                    destination: usize = if level + 1 < levels: level + 1 else: level
+                    queues[destination * 16 + queue_counts[destination]] <- process
+                    queue_counts[destination] <- queue_counts[destination] + 1
+            level <- level + 1
+
+    elements: usize = 2 + 2 * completions
+    required: usize = elements * 8
+    if output.is_null() or output_capacity < required: return -2
+    header_bits: mutable u64 = current_time.u64()
+    count_bits: mutable u64 = completions.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[byte] <- (header_bits & 255).u8()
+        output[8 + byte] <- (count_bits & 255).u8()
+        header_bits <- header_bits >> 8
+        count_bits <- count_bits >> 8
+        byte <- byte + 1
+    i <- 0
+    while i < completions:
+        pid_bits: mutable u64 = completion_pids[i].u64()
+        time_bits: mutable u64 = completion_times[i].u64()
+        byte <- 0
+        while byte < 8:
+            output[16 + 16 * i + byte] <- (pid_bits & 255).u8()
+            output[24 + 16 * i + byte] <- (time_bits & 255).u8()
+            pid_bits <- pid_bits >> 8
+            time_bits <- time_bits >> 8
+            byte <- byte + 1
+        i <- i + 1
+    return elements.i64()
+
+export fn mlfqscheduler(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = mlfqscheduler_impl

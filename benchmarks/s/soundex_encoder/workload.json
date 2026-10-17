@@ -1,0 +1,644 @@
+{
+  "schema_version": 1,
+  "id": "soundex-encoder-i64-array-bytes-output-v1",
+  "algorithm": "soundex_encoder",
+  "function_symbol": "soundex_encoder",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Sharp",
+      "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+      "path": "Algorithms/Encoders/SoundexEncoder.cs",
+      "symbol": "SoundexEncoder.Encode",
+      "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Encoders/SoundexEncoder.cs",
+      "role": "algorithm"
+    }
+  ],
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[text_length, ASCII letter codes...]",
+    "text_length_range": [
+      1,
+      64
+    ],
+    "array_length": "1 + text_length",
+    "maximum_length": 65,
+    "maximum_parseable_length": 67,
+    "ascii_letter_ranges": [
+      [
+        65,
+        90
+      ],
+      [
+        97,
+        122
+      ]
+    ],
+    "source_exception_edges": "The bounded domain excludes inputs whose post-collapse/post-vowel code stream is empty or whose matching leading-code removal has no next code.",
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ASCII bytes",
+    "encoding": "uppercase initial followed by exactly three Soundex digits",
+    "maximum_bytes": 4,
+    "success_result": "output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 4,
+    "meaning": "Staging buffer for the four-byte Soundex code."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_robert",
+      "input_values": [
+        6,
+        82,
+        111,
+        98,
+        101,
+        114,
+        116
+      ],
+      "input_length": 7,
+      "expected_result": 4,
+      "expected_output_hex": "52313633"
+    },
+    {
+      "id": "source_rupert",
+      "input_values": [
+        6,
+        82,
+        117,
+        112,
+        101,
+        114,
+        116
+      ],
+      "input_length": 7,
+      "expected_result": 4,
+      "expected_output_hex": "52313633"
+    },
+    {
+      "id": "source_rubin",
+      "input_values": [
+        5,
+        82,
+        117,
+        98,
+        105,
+        110
+      ],
+      "input_length": 6,
+      "expected_result": 4,
+      "expected_output_hex": "52313530"
+    },
+    {
+      "id": "source_ashcraft",
+      "input_values": [
+        8,
+        65,
+        115,
+        104,
+        99,
+        114,
+        97,
+        102,
+        116
+      ],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output_hex": "41323631"
+    },
+    {
+      "id": "source_pfister",
+      "input_values": [
+        7,
+        80,
+        102,
+        105,
+        115,
+        116,
+        101,
+        114
+      ],
+      "input_length": 8,
+      "expected_result": 4,
+      "expected_output_hex": "50323336"
+    },
+    {
+      "id": "mixed_case",
+      "input_values": [
+        6,
+        114,
+        79,
+        98,
+        69,
+        114,
+        84
+      ],
+      "input_length": 7,
+      "expected_result": 4,
+      "expected_output_hex": "52313633"
+    },
+    {
+      "id": "vowel_separated_duplicate_codes",
+      "input_values": [
+        3,
+        66,
+        65,
+        66
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output_hex": "42313030"
+    },
+    {
+      "id": "h_removed_before_code_collapse",
+      "input_values": [
+        4,
+        66,
+        72,
+        66,
+        88
+      ],
+      "input_length": 5,
+      "expected_result": 4,
+      "expected_output_hex": "42323030"
+    },
+    {
+      "id": "w_removed_before_code_collapse",
+      "input_values": [
+        4,
+        66,
+        87,
+        66,
+        88
+      ],
+      "input_length": 5,
+      "expected_result": 4,
+      "expected_output_hex": "42323030"
+    },
+    {
+      "id": "leading_code_and_zero_padding",
+      "input_values": [
+        2,
+        82,
+        66
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "52313030"
+    },
+    {
+      "id": "vowel_initial_keeps_first_consonant_code",
+      "input_values": [
+        2,
+        65,
+        66
+      ],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "41313030"
+    },
+    {
+      "id": "h_initial_is_preserved",
+      "input_values": [
+        4,
+        72,
+        111,
+        110,
+        101
+      ],
+      "input_length": 5,
+      "expected_result": 4,
+      "expected_output_hex": "48353030"
+    },
+    {
+      "id": "truncate_to_three_digits",
+      "input_values": [
+        6,
+        66,
+        68,
+        70,
+        71,
+        77,
+        82
+      ],
+      "input_length": 7,
+      "expected_result": 4,
+      "expected_output_hex": "42333132"
+    },
+    {
+      "id": "maximum_length",
+      "input_values": [
+        64,
+        82,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66
+      ],
+      "input_length": 65,
+      "expected_result": 4,
+      "expected_output_hex": "52313030"
+    },
+    {
+      "id": "invalid_empty_text",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_vowels_only_iterator_empty",
+      "input_values": [
+        6,
+        65,
+        69,
+        73,
+        79,
+        85,
+        89
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_h_w_only_iterator_empty",
+      "input_values": [
+        4,
+        72,
+        87,
+        72,
+        87
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_leading_digit_without_next",
+      "input_values": [
+        1,
+        66
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_leading_digit_after_h_removal_without_next",
+      "input_values": [
+        3,
+        66,
+        72,
+        66
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_nonletter_digit",
+      "input_values": [
+        2,
+        65,
+        49
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_nonletter_punctuation",
+      "input_values": [
+        3,
+        65,
+        45,
+        66
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_text_length_prefix_mismatch",
+      "input_values": [
+        5,
+        82,
+        111,
+        98,
+        101,
+        114,
+        116
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_over_max_text_length",
+      "input_values": [
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+      ],
+      "input_length": 66,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_prefix_over_max_at_parseable_limit",
+      "input_values": [
+        66,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+      ],
+      "input_length": 67,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_i64_max_nonletter",
+      "input_values": [
+        1,
+        9223372036854775807
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_null_output",
+      "input_values": [
+        6,
+        82,
+        111,
+        98,
+        101,
+        114,
+        116
+      ],
+      "input_length": 7,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "output_capacity": 0
+    },
+    {
+      "id": "valid_short_output_capacity",
+      "input_values": [
+        6,
+        82,
+        111,
+        98,
+        101,
+        114,
+        116
+      ],
+      "input_length": 7,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 3
+    },
+    {
+      "id": "valid_exact_output_capacity",
+      "input_values": [
+        6,
+        82,
+        111,
+        98,
+        101,
+        114,
+        116
+      ],
+      "input_length": 7,
+      "expected_result": 4,
+      "expected_output_hex": "52313633",
+      "output_capacity": 4
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        5,
+        65,
+        69,
+        73,
+        79,
+        85
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "output_capacity": 0
+    },
+    {
+      "id": "invalid_null_pointer_positive_length",
+      "input_values": [],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_is_null": true
+    }
+  ]
+}

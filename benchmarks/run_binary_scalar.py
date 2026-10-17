@@ -20,6 +20,7 @@ from modular_inverse_simple_oracle import expected_result as modular_inverse_sim
 from fermat_prime_checker_oracle import expected_result as fermat_prime_checker_expected
 from exponentiation_oracle import expected_result as exponentiation_expected
 from uint53_xor_oracle import expected_result as uint53_xor_expected
+from problem74_sol2_oracle import expected_result as problem74_sol2_expected
 
 U64_MAX = 2**64 - 1
 I64_MIN = -(2**63)
@@ -201,6 +202,10 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
             expected_from_source = problem74_count(num_terms, max_start)
         if expected != expected_from_source:
             raise ValueError("problem74 expected_result must match the seeded digit-factorial chain scan")
+    elif algorithm == "problem74_sol2":
+        expected_from_source = problem74_sol2_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("problem74_sol2 expected_result must match the pinned sol2 digit-factorial chain scan")
     elif algorithm == "problem174":
         t_limit, n_limit = values
         expected_from_source = problem174_source_result(t_limit, n_limit)

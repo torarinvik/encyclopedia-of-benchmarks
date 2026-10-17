@@ -55,8 +55,14 @@ static int64_t run_batch(const int64_t *values, size_t length, size_t repetition
 int main(int argc, char **argv)
 {
     uint64_t length_arg, samples_arg, warmups_arg, repetitions_arg;
+    const int null_input_mode = argc > 1 && strcmp(argv[1], "--null-input") == 0;
     const int stdin_mode = argc > 1 && strcmp(argv[1], "--stdin") == 0;
-    if (stdin_mode) {
+    if (null_input_mode) {
+        if (argc != 7 || !parse_u64(argv[2], &length_arg) || length_arg > 100002) {
+            fprintf(stderr, "usage: i64_array_scalar_runner --null-input LENGTH EXPECTED SAMPLES WARMUPS REPETITIONS\n");
+            return 2;
+        }
+    } else if (stdin_mode) {
         if (argc != 7 || !parse_u64(argv[2], &length_arg) || length_arg > 100002) {
             fprintf(stderr, "usage: i64_array_scalar_runner --stdin LENGTH EXPECTED SAMPLES WARMUPS REPETITIONS\n");
             return 2;
@@ -67,12 +73,12 @@ int main(int argc, char **argv)
         return 2;
     }
     const size_t length = (size_t)length_arg;
-    int64_t *values = length == 0 ? NULL : malloc(length * sizeof(*values));
-    if (length != 0 && values == NULL) {
+    int64_t *values = null_input_mode || length == 0 ? NULL : malloc(length * sizeof(*values));
+    if (!null_input_mode && length != 0 && values == NULL) {
         fprintf(stderr, "unable to allocate input values\n");
         return 2;
     }
-    for (size_t index = 0; index < length; ++index) {
+    for (size_t index = 0; !null_input_mode && index < length; ++index) {
         const int parsed = stdin_mode
             ? scanf("%" SCNd64, &values[index]) == 1
             : parse_i64(argv[index + 2], &values[index]);
@@ -90,7 +96,7 @@ int main(int argc, char **argv)
             return 2;
         }
     }
-    const size_t expected_index = stdin_mode ? 3 : length + 2;
+    const size_t expected_index = stdin_mode || null_input_mode ? 3 : length + 2;
     int64_t expected;
     if (!parse_i64(argv[expected_index], &expected) || !parse_u64(argv[expected_index + 1], &samples_arg) ||
         !parse_u64(argv[expected_index + 2], &warmups_arg) || !parse_u64(argv[expected_index + 3], &repetitions_arg) ||

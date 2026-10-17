@@ -1,0 +1,38 @@
+const MAX_LIST_LENGTH: usize = 64
+const MAX_INPUT_LENGTH: usize = 130
+const MAX_VALUE: i64 = 2147483647
+
+def sublist_search_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    main_count_value: i64 = input[0]
+    pattern_count_value: i64 = input[1]
+    if main_count_value < 0 or main_count_value > MAX_LIST_LENGTH.i64() or
+       pattern_count_value < 0 or pattern_count_value > MAX_LIST_LENGTH.i64():
+        return -1
+    main_count: usize = main_count_value.usize()
+    pattern_count: usize = pattern_count_value.usize()
+    if length != 2 + main_count + pattern_count:
+        return -1
+
+    index: usize = 0
+    while index < main_count + pattern_count:
+        value: i64 = input[2 + index]
+        if value < 0 or value > MAX_VALUE:
+            return -1
+        index <- index + 1
+
+    if main_count == 0 or pattern_count == 0 or pattern_count > main_count:
+        return 0
+    pattern_offset: usize = 2 + main_count
+    start: usize = 0
+    while start + pattern_count <= main_count:
+        matched: mutable usize = 0
+        while matched < pattern_count and input[2 + start + matched] == input[pattern_offset + matched]:
+            matched <- matched + 1
+        if matched == pattern_count:
+            return 1
+        start <- start + 1
+    return 0
+
+export fn sublist_search(input: i64&, length: usize) -> i64 = sublist_search_impl

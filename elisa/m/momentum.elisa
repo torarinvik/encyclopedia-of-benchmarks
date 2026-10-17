@@ -1,0 +1,42 @@
+const MAX_LENGTH: usize = 64
+const ITERATIONS: usize = 100
+const LEARNING_RATE: f64 = 0.01
+const BETA: f64 = 0.9
+
+def momentum_impl(input: f64&, length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or length == 0 or length > MAX_LENGTH:
+        return -1
+    values: mutable f64[MAX_LENGTH] = zeroed
+    velocity: mutable f64[MAX_LENGTH] = zeroed
+    gradient: mutable f64[MAX_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < length |input, values, index|:
+        value: f64 = input[index]
+        if value != value or value < -1000000.0 or value > 1000000.0:
+            return -1
+        values[index] <- value
+        index <- index + 1
+    if output.is_null() or output_capacity < length:
+        return -2
+
+    iteration: mutable usize = 0
+    while iteration < ITERATIONS |values, velocity, gradient, iteration|:
+        index <- 0
+        while index < length |values, gradient, index|:
+            gradient[index] <- 2.0 * values[index]
+            index <- index + 1
+        index <- 0
+        while index < length |values, velocity, gradient, index|:
+            velocity[index] <- BETA * velocity[index] + gradient[index]
+            values[index] <- values[index] - LEARNING_RATE * velocity[index]
+            index <- index + 1
+        iteration <- iteration + 1
+    index <- 0
+    while index < length |values, output, index|:
+        output[index] <- values[index]
+        index <- index + 1
+    length.i64()
+
+export fn momentum(input: f64&, length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = momentum_impl

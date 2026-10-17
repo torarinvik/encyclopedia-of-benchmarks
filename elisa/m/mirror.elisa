@@ -1,0 +1,42 @@
+const MAX_LENGTH: usize = 256
+const MAX_INPUT_LENGTH: usize = MAX_LENGTH + 1
+
+def mirror_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_length: i64 = input[0]
+    if raw_length < 0 or raw_length > 256:
+        return -1
+    n: usize = raw_length.usize()
+    if length != n + 1:
+        return -1
+    for index in 0..<n |input|:
+        value: i64 = input[index + 1]
+        if value < 1 or value > 127:
+            return -1
+    if output == null or capacity < n + 1:
+        return -2
+    buffer: mutable u8[257] = zeroed
+    for index in 0..<n |input, buffer|:
+        buffer[index] <- input[index + 1].u8()
+    buffer[n] <- 0.u8()
+    logical_length: mutable usize = 0
+    while buffer[logical_length] != 0.u8():
+        logical_length <- logical_length + 1
+    if logical_length > 0:
+        left: mutable usize = 0
+        right: mutable usize = logical_length - 1
+        while left <= right |buffer, left, right|:
+            temporary: u8 = buffer[left]
+            buffer[left] <- buffer[right]
+            buffer[right] <- temporary
+            left <- left + 1
+            if right == 0:
+                break
+            right <- right - 1
+    for index in 0..<n |buffer, output|:
+        output[index] <- buffer[index]
+    output[n] <- 0.u8()
+    n.i64()
+
+export fn mirror(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = mirror_impl

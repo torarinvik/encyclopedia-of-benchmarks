@@ -52,6 +52,17 @@ from pi_generator_oracle import expected_result as pi_generator_expected
 from mersenne_primes_oracle import expected_result as mersenne_primes_expected
 from magic_square_oracle import expected_result as magic_square_expected
 from trial_division_factorizer_oracle import expected_result as trial_division_factorizer_expected
+from pollards_rho_factorizing_oracle import MAX_INPUT as POLLARDS_RHO_MAX_INPUT
+from pollards_rho_factorizing_oracle import MIN_INPUT as POLLARDS_RHO_MIN_INPUT
+from pollards_rho_factorizing_oracle import expected_result as pollards_rho_factorizing_expected
+from problem014_oracle import MAX_LIMIT as PROBLEM014_MAX_LIMIT
+from problem014_oracle import expected_output as problem014_expected
+from problem44_start_cursor_oracle import expected_result as problem44_start_cursor_expected
+from problem21_pair_sum_oracle import expected_output as problem21_pair_sum_expected
+from so1_oracle import expected_result as so1_expected
+from multiple_of_3_or_5_term_oracle import INVALID_RESULT as MULTIPLE_OF_3_OR_5_TERM_INVALID_RESULT
+from multiple_of_3_or_5_term_oracle import MAX_INPUT as MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT
+from multiple_of_3_or_5_term_oracle import expected_result as multiple_of_3_or_5_term_expected
 
 ROOT = Path(__file__).resolve().parents[1]
 I64_MIN = -(2**63)
@@ -1732,7 +1743,139 @@ def problem117_source_result(length: int) -> int:
     return ways[length]
 
 
+POLLARDS_RHO_CASE_IDS = frozenset({
+    "two", "small_prime_3", "composite_4_returns_n", "small_prime_5",
+    "small_composite_6", "prime_7_returns_n", "power_of_two_8_returns_n", "composite_9",
+    "even_composite_10", "composite_12", "composite_15", "composite_21_returns_n",
+    "square_25_returns_n", "square_49", "composite_91", "semiprime_8051",
+    "semiprime_10403", "near_bound_46339", "maximum_safe_input", "zero_rejected_before_source",
+    "one_rejected_before_source", "negative_rejected", "first_overflow_bound_rejected",
+    "signed_i64_minimum_rejected", "signed_i64_maximum_rejected",
+})
+
+
+def validate_pollards_rho_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/C-Sharp",
+        "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+        "path": "Algorithms/Other/PollardsRhoFactorizing.cs",
+        "symbol": "PollardsRhoFactorizing.Calculate",
+        "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/PollardsRhoFactorizing.cs",
+    }
+    input_spec = {
+        "kind": "signed_i64_scalar",
+        "minimum": POLLARDS_RHO_MIN_INPUT,
+        "maximum": POLLARDS_RHO_MAX_INPUT,
+        "domain_reason": "Positive inputs avoid the source modulo-by-zero and nonterminating n=1 cases; the upper bound prevents overflow in signed 32-bit x*x+1.",
+        "invalid_result": -1,
+        "out_of_domain_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "The first gcd(|x-y|, n) not equal to 1 from the pinned deterministic recurrence; this value may equal n.",
+        "not_a_primality_claim": True,
+        "invalid_result": -1,
+    }
+    case_ids = [case.get("id") for case in workload.get("cases", [])]
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-csharp-pollards-rho-factorizing-scalar-v1"
+            or workload.get("algorithm") != "pollards_rho_factorizing"
+            or workload.get("function_symbol") != "pollards_rho_factorizing"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != {
+                "comparison_model": "scalar_call",
+                "sample_count": 5,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 10,
+            }
+            or POLLARDS_RHO_MIN_INPUT != 2 or POLLARDS_RHO_MAX_INPUT != 46_340
+            or len(case_ids) != len(POLLARDS_RHO_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != POLLARDS_RHO_CASE_IDS):
+        raise ValueError("pollards_rho_factorizing workload metadata does not match its reviewed scalar contract")
+    readme = (ROOT / "benchmarks" / "p" / "pollards_rho_factorizing" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or "2..46340" not in readme
+            or "may equal" not in readme):
+        raise ValueError("pollards_rho_factorizing README is missing its pinned source or result-domain note")
+    for case in workload["cases"]:
+        input_value = case.get("input_value")
+        expected = case.get("expected_result")
+        if (type(input_value) is not int or not -(1 << 63) <= input_value < (1 << 63)
+                or type(expected) is not int
+                or expected != pollards_rho_factorizing_expected(input_value)):
+            raise ValueError(f"pollards_rho_factorizing workload mismatch: {case.get('id')}")
+
+
+MULTIPLE_OF_3_OR_5_TERM_CASE_IDS = frozenset({
+    "zero_term", "divisible_by_3_term", "divisible_by_5_term", "divisible_by_15_once",
+    "nonmultiple_term", "negative_input_invalid", "above_limit_invalid",
+})
+
+
+def validate_multiple_of_3_or_5_term_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/MATLAB-Octave",
+        "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+        "path": "project-euler/Problem1/multiple.m",
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer",
+        "value_range": [0, MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT],
+        "result": "return n when n is divisible by 3 or 5; otherwise return 0",
+        "out_of_range_result": MULTIPLE_OF_3_OR_5_TERM_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "out_of_range_result": MULTIPLE_OF_3_OR_5_TERM_INVALID_RESULT,
+    }
+    cases = workload.get("cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "matlab-multiple-of-3-or-5-term-i64-scalar-v1"
+            or workload.get("algorithm") != "multiple_of_3_or_5_term"
+            or workload.get("function_symbol") != "multiple_of_3_or_5_term"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != {
+                "comparison_model": "scalar_call",
+                "sample_count": 7,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 1000,
+            }
+            or MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT != 1_000_000_000
+            or MULTIPLE_OF_3_OR_5_TERM_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(MULTIPLE_OF_3_OR_5_TERM_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MULTIPLE_OF_3_OR_5_TERM_CASE_IDS):
+        raise ValueError("multiple_of_3_or_5_term workload metadata or case IDs do not match the reviewed contract")
+    readme = (ROOT / "benchmarks" / "m" / "multiple_of_3_or_5_term" / "README.md").read_text(
+        encoding="utf-8")
+    source_url = "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/project-euler/Problem1/multiple.m"
+    if source_url not in readme or "does not sum a range" not in readme:
+        raise ValueError("multiple_of_3_or_5_term README is missing its pinned source or one-term semantics")
+    for case in cases:
+        input_value = case.get("input_value")
+        expected = case.get("expected_result")
+        if (type(input_value) is not int or not -(1 << 63) <= input_value < (1 << 63)
+                or type(expected) is not int
+                or expected != multiple_of_3_or_5_term_expected(input_value)):
+            raise ValueError(f"multiple_of_3_or_5_term workload mismatch: {case.get('id')}")
+
+
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
+    if algorithm == "multiple_of_3_or_5_term":
+        if expected_result != multiple_of_3_or_5_term_expected(input_value):
+            raise ValueError("multiple_of_3_or_5_term expected_result must match the one-term divisibility filter")
+        return
+    if algorithm == "so1":
+        if expected_result != so1_expected(input_value):
+            raise ValueError("so1 expected_result must match the bounded even-Fibonacci sum")
+        return
     if algorithm == "magic_square":
         if expected_result != magic_square_expected(input_value):
             raise ValueError("magic_square expected_result must match the bounded Siamese-square hash")
@@ -1741,6 +1884,10 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
         expected_from_source = trial_division_factorizer_expected(input_value)
         if expected_result != expected_from_source:
             raise ValueError("trial_division_factorizer expected_result must match the bounded smallest-factor search")
+        return
+    if algorithm == "pollards_rho_factorizing":
+        if expected_result != pollards_rho_factorizing_expected(input_value):
+            raise ValueError("pollards_rho_factorizing expected_result must preserve the first non-one gcd")
         return
     if algorithm == "mersenne_primes":
         expected_from_source = mersenne_primes_expected(input_value)
@@ -1766,6 +1913,12 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
         expected_from_source = 76_576_500 if input_value == 500 else -1
         if expected_result != expected_from_source:
             raise ValueError("problem12_sol1 expected_result must match the fixed 500-divisor threshold search")
+        return
+    if algorithm == "problem014":
+        expected_from_source = (problem014_expected(input_value)
+                                if 1 <= input_value <= PROBLEM014_MAX_LIMIT else -1)
+        if expected_result != expected_from_source:
+            raise ValueError("problem014 expected_result must match the source-pinned exclusive Collatz limit oracle")
         return
     if algorithm == "twos_complement_of_binary":
         expected_from_source = twos_complement_of_binary_expected(input_value)
@@ -2994,6 +3147,11 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
         if expected_result != expected_from_source:
             raise ValueError("problem44 expected_result must match the bounded ordered pentagonal search")
         return
+    if algorithm == "problem44_start_cursor":
+        expected_from_source = problem44_start_cursor_expected(input_value)
+        if expected_result != expected_from_source:
+            raise ValueError("problem44_start_cursor expected_result must match the bounded source-order cursor search")
+        return
     if algorithm == "problem46":
         expected_from_source = problem46_goldbach_other_counterexample() if input_value == 0 else -1
         if expected_result != expected_from_source:
@@ -3083,6 +3241,11 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
                     expected_from_source += value
         if expected_result != expected_from_source:
             raise ValueError("problem21 expected_result must match the bounded amicable-number sum")
+        return
+    if algorithm == "problem21_pair_sum":
+        expected_from_source = problem21_pair_sum_expected(input_value)
+        if expected_result != expected_from_source:
+            raise ValueError("problem21_pair_sum expected_result must include both values of each qualifying pair")
         return
     if algorithm == "problem27":
         if not 1 <= input_value <= 1_000:
@@ -3299,6 +3462,10 @@ def main() -> int:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if workload["algorithm"] != algorithm:
         parser.error(f"workload algorithm is {workload['algorithm']!r}, not {algorithm!r}")
+    if algorithm == "pollards_rho_factorizing":
+        validate_pollards_rho_workload(workload)
+    elif algorithm == "multiple_of_3_or_5_term":
+        validate_multiple_of_3_or_5_term_workload(workload)
     timing = workload["measurement"]
     sample_count = args.samples if args.samples is not None else int(timing["sample_count"])
     warmup_rounds = args.warmups if args.warmups is not None else int(timing["warmup_rounds"])

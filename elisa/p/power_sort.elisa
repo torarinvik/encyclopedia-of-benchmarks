@@ -1,0 +1,150 @@
+const MAX_VALUES: usize = 64
+const MAX_INPUT_VALUES: usize = 67
+const MIN_VALUE: i64 = -1000000
+const MAX_VALUE: i64 = 1000000
+
+def power_sort_key_less(left: i64, right: i64, reverse: bool) -> bool:
+    if reverse: left > right else: left < right
+
+def power_sort_find_run(values: mutable i64&, start: usize, end: usize, reverse: bool) -> usize:
+    if start >= end - 1: return start + 1
+    run_end: mutable usize = start + 1
+    if power_sort_key_less(values[run_end], values[start], reverse):
+        while run_end < end and power_sort_key_less(values[run_end], values[run_end - 1], reverse):
+            run_end <- run_end + 1
+        left: mutable usize = start
+        right: mutable usize = run_end - 1
+        while left < right:
+            temporary: i64 = values[left]
+            values[left] <- values[right]
+            values[right] <- temporary
+            left <- left + 1
+            right <- right - 1
+    else:
+        while run_end < end and not power_sort_key_less(values[run_end], values[run_end - 1], reverse):
+            run_end <- run_end + 1
+    run_end
+
+def power_sort_node_power(total_length: usize, b1: usize, n1: usize, b2: usize, n2: usize) -> i64:
+    a: i64 = (2 * b1 + n1).i64()
+    b: i64 = (2 * b2 + n2).i64()
+    denominator: i64 = (2 * total_length).i64()
+    power: mutable i64 = 0
+    scale: mutable i64 = 1
+    while (a * scale) / denominator == (b * scale) / denominator:
+        power <- power + 1
+        scale <- scale * 2
+    power
+
+def power_sort_merge(values: mutable i64&, start1: usize, end1: usize, end2: usize, reverse: bool) -> void:
+    left: mutable i64[MAX_VALUES] = zeroed
+    right: mutable i64[MAX_VALUES] = zeroed
+    left_length: usize = end1 - start1
+    right_length: usize = end2 - end1
+    index: mutable usize = 0
+    while index < left_length:
+        left[index] <- values[start1 + index]
+        index <- index + 1
+    index <- 0
+    while index < right_length:
+        right[index] <- values[end1 + index]
+        index <- index + 1
+    i: mutable usize = 0
+    j: mutable usize = 0
+    output_index: mutable usize = start1
+    while i < left_length and j < right_length:
+        take_left: bool = if reverse: left[i] >= right[j] else: left[i] <= right[j]
+        if take_left:
+            values[output_index] <- left[i]
+            i <- i + 1
+        else:
+            values[output_index] <- right[j]
+            j <- j + 1
+        output_index <- output_index + 1
+    while i < left_length:
+        values[output_index] <- left[i]
+        i <- i + 1
+        output_index <- output_index + 1
+    while j < right_length:
+        values[output_index] <- right[j]
+        j <- j + 1
+        output_index <- output_index + 1
+
+def power_sort_impl(values: mutable i64&, length: usize, reverse: bool) -> void:
+    if length <= 1: return
+    stack_starts: mutable usize[MAX_VALUES] = zeroed
+    stack_lengths: mutable usize[MAX_VALUES] = zeroed
+    stack_powers: mutable i64[MAX_VALUES] = zeroed
+    stack_size: mutable usize = 0
+    start: mutable usize = 0
+    while start < length:
+        run_end: usize = power_sort_find_run(values, start, length, reverse)
+        run_length: mutable usize = run_end - start
+        power: mutable i64 = 0
+        if stack_size > 0:
+            power <- power_sort_node_power(length, stack_starts[stack_size - 1], stack_lengths[stack_size - 1], start, run_length)
+        while stack_size > 0 and stack_powers[stack_size - 1] >= power:
+            stack_size <- stack_size - 1
+            previous_start: usize = stack_starts[stack_size]
+            previous_length: usize = stack_lengths[stack_size]
+            power_sort_merge(values, previous_start, previous_start + previous_length, run_end, reverse)
+            start <- previous_start
+            run_length <- run_end - start
+            power <- 0
+            if stack_size > 0:
+                power <- power_sort_node_power(length, stack_starts[stack_size - 1], stack_lengths[stack_size - 1], start, run_length)
+        stack_starts[stack_size] <- start
+        stack_lengths[stack_size] <- run_length
+        stack_powers[stack_size] <- power
+        stack_size <- stack_size + 1
+        start <- run_end
+    while stack_size > 1:
+        stack_size <- stack_size - 1
+        right_start: usize = stack_starts[stack_size]
+        right_length: usize = stack_lengths[stack_size]
+        stack_size <- stack_size - 1
+        left_start: usize = stack_starts[stack_size]
+        left_length: usize = stack_lengths[stack_size]
+        merged_end: usize = right_start + right_length
+        power_sort_merge(values, left_start, left_start + left_length, merged_end, reverse)
+        merged_length: usize = merged_end - left_start
+        power: mutable i64 = 0
+        if stack_size > 0:
+            power <- power_sort_node_power(length, stack_starts[stack_size - 1], stack_lengths[stack_size - 1], left_start, merged_length)
+        stack_starts[stack_size] <- left_start
+        stack_lengths[stack_size] <- merged_length
+        stack_powers[stack_size] <- power
+        stack_size <- stack_size + 1
+
+def power_sort_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def power_sort_impl_call(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    reverse_value: i64 = input[0]
+    count_value: i64 = input[1]
+    if (reverse_value != 0 and reverse_value != 1) or count_value < 0 or count_value > MAX_VALUES.i64(): return -1
+    count: usize = count_value.usize()
+    if length != 2 + count: return -1
+    values: mutable i64[MAX_VALUES] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[2 + index]
+        if value < MIN_VALUE or value > MAX_VALUE: return -1
+        values[index] <- value
+        index <- index + 1
+    if count == 0: return 0
+    output_bytes: usize = 8 * count
+    if output.is_null() or capacity < output_bytes: return -2
+    power_sort_impl(values[0], count, reverse_value == 1)
+    index <- 0
+    while index < count:
+        power_sort_write_i64_le(output, 8 * index, values[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn power_sort(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = power_sort_impl_call

@@ -1,0 +1,40 @@
+const MAX_N: usize = 64
+const MAX_PARSEABLE_INPUT_LENGTH: usize = MAX_N + 4
+const MAX_OUTPUT_BYTES: usize = 8 * MAX_N
+const MAX_PLACES: i64 = 1000000
+
+def rotate_to_the_right_impl(input: i64&, length: usize,
+                             output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    places: i64 = input[1]
+    if n_value < 1 or n_value > 64 or places < -MAX_PLACES or places > MAX_PLACES:
+        return -1
+    n: usize = n_value.usize()
+    if length != n + 2:
+        return -1
+    for index in 0..<n |input|:
+        value: i64 = input[2 + index]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+
+    remainder: i64 = places % n_value
+    shift: usize = (if remainder < 0: remainder + n_value else: remainder).usize()
+    output_bytes: usize = n * 8
+    if output == null or output_capacity < output_bytes:
+        return -2
+
+    encoded: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    for index in 0..<n |input, encoded|:
+        source: usize = (index + n - shift) % n
+        bits: mutable u64 = input[2 + source].u64()
+        for byte in 0..<8 |encoded, bits|:
+            encoded[index * 8 + byte] <- (bits & 255.u64()).u8()
+            bits <- bits >> 8
+    for index in 0..<output_bytes |encoded, output|:
+        output[index] <- encoded[index]
+    output_bytes.i64()
+
+export fn rotate_to_the_right(input: i64&, length: usize,
+                              output: mutable u8&, output_capacity: usize) -> i64 = rotate_to_the_right_impl

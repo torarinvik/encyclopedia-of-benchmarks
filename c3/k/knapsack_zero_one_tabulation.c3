@@ -3,7 +3,7 @@ module knapsack_zero_one_tabulation;
 // Tabulated 0/1 knapsack with one reusable row and portable integer operations.
 fn long knapsack_zero_one_tabulation(long* packed, usz length) @export("knapsack_zero_one_tabulation")
 {
-    if (length < 2 || length > 258) return -1;
+    if (packed == null || length < 2 || length > 258) return -1;
     if (packed[0] < 0 || packed[0] > 512 || packed[1] < 0 || packed[1] > 128) return -1;
     usz capacity = (usz)packed[0];
     usz item_count = (usz)packed[1];

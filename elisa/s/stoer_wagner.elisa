@@ -1,0 +1,82 @@
+const MAX_N: usize = 16
+const MAX_INPUT_VALUES: usize = 257
+const MAX_WEIGHT: i64 = 1000000
+
+def stoer_wagner_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 2 or n_value > 16:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + n * n:
+        return -1
+
+    graph: mutable i64[256] = zeroed
+    row: mutable usize = 0
+    while row < n:
+        column: mutable usize = 0
+        while column < n:
+            weight: i64 = input[1 + row * n + column]
+            if weight < 0 or weight > MAX_WEIGHT:
+                return -1
+            graph[row * MAX_N + column] <- weight
+            column <- column + 1
+        row <- row + 1
+    row <- 0
+    while row < n:
+        if graph[row * MAX_N + row] != 0:
+            return -1
+        column: mutable usize = row + 1
+        while column < n:
+            if graph[row * MAX_N + column] != graph[column * MAX_N + row]:
+                return -1
+            column <- column + 1
+        row <- row + 1
+
+    merged: mutable bool[16] = zeroed
+    min_cut: mutable i64 = 120000001
+    phase: mutable usize = 0
+    while phase + 1 < n:
+        in_set: mutable bool[16] = zeroed
+        weights: mutable i64[16] = zeroed
+        previous: mutable i64 = -1
+        last: mutable i64 = -1
+        step: mutable usize = 0
+        while step < n - phase:
+            current: mutable i64 = -1
+            max_weight: mutable i64 = -1
+            vertex: mutable usize = 0
+            while vertex < n:
+                if not merged[vertex] and not in_set[vertex] and weights[vertex] > max_weight:
+                    current <- vertex.i64()
+                    max_weight <- weights[vertex]
+                vertex <- vertex + 1
+            if current < 0:
+                break
+            current_index: usize = current.usize()
+            in_set[current_index] <- true
+            previous <- last
+            last <- current
+            vertex <- 0
+            while vertex < n:
+                if not merged[vertex] and not in_set[vertex]:
+                    weights[vertex] <- weights[vertex] + graph[current_index * MAX_N + vertex]
+                vertex <- vertex + 1
+            step <- step + 1
+        if last < 0 or previous < 0:
+            return -1
+        last_index: usize = last.usize()
+        previous_index: usize = previous.usize()
+        if weights[last_index] < min_cut:
+            min_cut <- weights[last_index]
+        vertex <- 0
+        while vertex < n:
+            graph[previous_index * MAX_N + vertex] <- graph[previous_index * MAX_N + vertex] + graph[last_index * MAX_N + vertex]
+            graph[vertex * MAX_N + previous_index] <- graph[previous_index * MAX_N + vertex]
+            vertex <- vertex + 1
+        merged[last_index] <- true
+        phase <- phase + 1
+    min_cut
+
+export fn stoer_wagner(input: i64&, length: usize) -> i64 = stoer_wagner_impl

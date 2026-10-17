@@ -44,6 +44,41 @@ from decisions_convolutions_oracle import MAX_INPUT_LENGTH as MAX_DECISIONS_CONV
 from decisions_convolutions_oracle import expected_result as decisions_convolutions_expected
 from detecting_english_programmatically_oracle import MAX_INPUT_LENGTH as MAX_DETECTING_ENGLISH_INPUT_LENGTH
 from detecting_english_programmatically_oracle import expected_result as detecting_english_expected
+from largest_product_in_a_grid_oracle import MAX_INPUT_LENGTH as MAX_LARGEST_PRODUCT_IN_A_GRID_INPUT_LENGTH
+from largest_product_in_a_grid_oracle import expected_result as largest_product_in_a_grid_expected
+from stochastic_matrix_oracle import MAX_INPUT_VALUES as MAX_STOCHASTIC_MATRIX_INPUT_VALUES
+from stochastic_matrix_oracle import expected_result as stochastic_matrix_expected
+from key_finder_oracle import INVALID_RESULT as KEY_FINDER_INVALID_RESULT
+from key_finder_oracle import MAX_PARSEABLE_INPUT_VALUES as MAX_KEY_FINDER_PARSEABLE_INPUT_VALUES
+from key_finder_oracle import expected_result as key_finder_expected
+from subset_count_oracle import INVALID_RESULT as SUBSET_COUNT_INVALID_RESULT
+from subset_count_oracle import MAX_INPUT_VALUES as MAX_SUBSET_COUNT_INPUT_VALUES
+from subset_count_oracle import expected_result as subset_count_expected
+from pollard_oracle import INVALID_RESULT as POLLARD_INVALID_RESULT
+from pollard_oracle import MAX_INPUT_LENGTH as MAX_POLLARD_INPUT_LENGTH
+from pollard_oracle import expected_result as pollard_expected
+from polygon_points_oracle import INVALID_RESULT as POLYGON_POINTS_INVALID_RESULT
+from polygon_points_oracle import MAX_INPUT_LENGTH as MAX_POLYGON_POINTS_INPUT_LENGTH
+from polygon_points_oracle import expected_result as polygon_points_expected
+from traveling_salesman_bitmask_oracle import MAX_INPUT_LENGTH as MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH
+from traveling_salesman_bitmask_oracle import expected_result as traveling_salesman_bitmask_expected
+from roulette_wheel_selection_oracle import MAX_INPUT_LENGTH as MAX_ROULETTE_WHEEL_SELECTION_INPUT_LENGTH
+from roulette_wheel_selection_oracle import expected_result as roulette_wheel_selection_expected
+from stoer_wagner_oracle import MAX_INPUT_VALUES as MAX_STOER_WAGNER_INPUT_LENGTH
+from stoer_wagner_oracle import expected_result as stoer_wagner_expected
+from pushdown_automaton_oracle import INVALID_RESULT as PUSHDOWN_AUTOMATON_INVALID_RESULT
+from pushdown_automaton_oracle import MAX_INPUT_LENGTH as MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH
+from pushdown_automaton_oracle import expected_result as pushdown_automaton_expected
+from sprague_grundy_theorem_oracle import MAX_INPUT_LENGTH as MAX_SPRAGUE_GRUNDY_INPUT_LENGTH
+from sprague_grundy_theorem_oracle import expected_result as sprague_grundy_theorem_expected
+from minimum_coin_change_combinations_oracle import expected_result as minimum_coin_change_combinations_expected
+from problem016_power_digit_sum_oracle import expected_result as problem016_power_digit_sum_expected
+from is_strong_password_oracle import INVALID_RESULT as IS_STRONG_PASSWORD_INVALID_RESULT
+from is_strong_password_oracle import MAX_INPUT_LENGTH as MAX_IS_STRONG_PASSWORD_INPUT_LENGTH
+from is_strong_password_oracle import expected_result as is_strong_password_expected
+from rescale_oracle import INVALID_RESULT as RESCALE_INVALID_RESULT
+from rescale_oracle import MAX_INPUT_LENGTH as MAX_RESCALE_PARSEABLE_INPUT_LENGTH
+from rescale_oracle import expected_result as rescale_expected
 from nimply_gate_oracle import expected_result as nimply_gate_expected
 from naive_knapsack_solver_oracle import expected_result as naive_knapsack_solver_expected
 from ones_and_zeros_oracle import MAX_INPUT_LENGTH as MAX_ONES_AND_ZEROS_INPUT_LENGTH
@@ -55,6 +90,44 @@ from needleman_wunsch_oracle import MAX_INPUT_LENGTH as MAX_NEEDLEMAN_WUNSCH_INP
 from needleman_wunsch_oracle import expected_result as needleman_wunsch_expected
 from linear_recurrence_matrix_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH
 from linear_recurrence_matrix_oracle import expected_result as linear_recurrence_matrix_expected
+from matrix_exponentiation_oracle import I64_MAX as MATRIX_EXPONENTIATION_I64_MAX
+from matrix_exponentiation_oracle import I64_MIN as MATRIX_EXPONENTIATION_I64_MIN
+from matrix_exponentiation_oracle import INVALID_RESULT as MATRIX_EXPONENTIATION_INVALID_RESULT
+from matrix_exponentiation_oracle import MAX_INDEX as MATRIX_EXPONENTIATION_MAX_INDEX
+from matrix_exponentiation_oracle import MAX_INPUT_LENGTH as MATRIX_EXPONENTIATION_MAX_INPUT_LENGTH
+from matrix_exponentiation_oracle import MAX_ORDER as MATRIX_EXPONENTIATION_MAX_ORDER
+from matrix_exponentiation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MATRIX_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
+from matrix_exponentiation_oracle import MODULUS as MATRIX_EXPONENTIATION_MODULUS
+from matrix_exponentiation_oracle import expected_result as matrix_exponentiation_expected
+from miller_rabin_primality_checker_oracle import INVALID_RESULT as MILLER_RABIN_PRIMALITY_CHECKER_INVALID_RESULT
+from miller_rabin_primality_checker_oracle import MAX_INPUT_LENGTH as MILLER_RABIN_PRIMALITY_CHECKER_MAX_INPUT_LENGTH
+from miller_rabin_primality_checker_oracle import MAX_N as MILLER_RABIN_PRIMALITY_CHECKER_MAX_N
+from miller_rabin_primality_checker_oracle import MAX_ROUNDS as MILLER_RABIN_PRIMALITY_CHECKER_MAX_ROUNDS
+from miller_rabin_primality_checker_oracle import MAX_SEED as MILLER_RABIN_PRIMALITY_CHECKER_MAX_SEED
+from miller_rabin_primality_checker_oracle import MAX_VALID_INPUT_VALUES as MILLER_RABIN_PRIMALITY_CHECKER_MAX_VALID_INPUT_VALUES
+from miller_rabin_primality_checker_oracle import expected_result as miller_rabin_primality_checker_expected
+from logistic_regression_predict_oracle import I64_MAX as LOGISTIC_REGRESSION_PREDICT_I64_MAX
+from logistic_regression_predict_oracle import I64_MIN as LOGISTIC_REGRESSION_PREDICT_I64_MIN
+from logistic_regression_predict_oracle import INVALID_RESULT as LOGISTIC_REGRESSION_PREDICT_INVALID_RESULT
+from logistic_regression_predict_oracle import MAX_FEATURES as LOGISTIC_REGRESSION_PREDICT_MAX_FEATURES
+from logistic_regression_predict_oracle import MAX_INPUT_LENGTH as LOGISTIC_REGRESSION_PREDICT_MAX_INPUT_LENGTH
+from logistic_regression_predict_oracle import MAX_ROWS as LOGISTIC_REGRESSION_PREDICT_MAX_ROWS
+from logistic_regression_predict_oracle import MAX_VALID_INPUT_VALUES as LOGISTIC_REGRESSION_PREDICT_MAX_VALID_INPUT_VALUES
+from logistic_regression_predict_oracle import MAX_FEATURE_VALUE as LOGISTIC_REGRESSION_PREDICT_MAX_FEATURE_VALUE
+from logistic_regression_predict_oracle import MIN_FEATURE_VALUE as LOGISTIC_REGRESSION_PREDICT_MIN_FEATURE_VALUE
+from logistic_regression_predict_oracle import expected_result as logistic_regression_predict_expected
+from time_simulation_oracle import FNV_OFFSET_BASIS as TIME_SIMULATION_FNV_OFFSET_BASIS
+from time_simulation_oracle import FNV_PRIME as TIME_SIMULATION_FNV_PRIME
+from time_simulation_oracle import INVALID_RESULT as TIME_SIMULATION_INVALID_RESULT
+from time_simulation_oracle import MAX_ACTIONS as TIME_SIMULATION_MAX_ACTIONS
+from time_simulation_oracle import MAX_CALLBACK_LOG_CAPACITY as TIME_SIMULATION_MAX_CALLBACK_LOG_CAPACITY
+from time_simulation_oracle import MAX_CUMULATIVE_FIRES as TIME_SIMULATION_MAX_CUMULATIVE_FIRES
+from time_simulation_oracle import MAX_EVENTS as TIME_SIMULATION_MAX_EVENTS
+from time_simulation_oracle import MAX_INPUT_LENGTH as TIME_SIMULATION_MAX_INPUT_LENGTH
+from time_simulation_oracle import MAX_TIMESTAMP as TIME_SIMULATION_MAX_TIMESTAMP
+from time_simulation_oracle import MAX_VALID_INPUT_VALUES as TIME_SIMULATION_MAX_VALID_INPUT_VALUES
+from time_simulation_oracle import MASK63 as TIME_SIMULATION_MASK63
+from time_simulation_oracle import expected_result as time_simulation_expected
 from edmonds_blossom_algorithm_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_BLOSSOM_INPUT_LENGTH
 from edmonds_blossom_algorithm_oracle import expected_result as edmonds_blossom_expected
 from edmonds_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_INPUT_LENGTH
@@ -74,6 +147,9 @@ from edmonds_karp_oracle import expected_result as edmonds_karp_expected
 from gomory_hu_tree_oracle import MAX_INPUT_LENGTH as MAX_GOMORY_HU_TREE_INPUT_LENGTH
 from gomory_hu_tree_oracle import expected_result as gomory_hu_tree_expected
 from graph_enumeration_oracle import MAX_INPUT_LENGTH as MAX_GRAPH_ENUMERATION_INPUT_LENGTH
+from graph_enumeration_oracle import MAX_VERTICES as GRAPH_ENUMERATION_MAX_VERTICES
+from graph_enumeration_oracle import MAX_DEGREE as GRAPH_ENUMERATION_MAX_DEGREE
+from graph_enumeration_oracle import MAX_LABEL as GRAPH_ENUMERATION_MAX_LABEL
 from graph_enumeration_oracle import expected_result as graph_enumeration_expected
 from jaro_winkler_distance_oracle import MAX_INPUT_LENGTH as MAX_JARO_WINKLER_DISTANCE_INPUT_LENGTH
 from jaro_winkler_distance_oracle import expected_result as jaro_winkler_distance_expected
@@ -112,6 +188,26 @@ from push_relabel_oracle import MAX_INPUT_LENGTH as MAX_PUSH_RELABEL_INPUT_LENGT
 from push_relabel_oracle import expected_result as push_relabel_expected
 from recursive_linear_search_oracle import MAX_INPUT_LENGTH as MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH
 from recursive_linear_search_oracle import expected_result as recursive_linear_search_expected
+from scramble_strings_oracle import INVALID_RESULT as SCRAMBLE_STRINGS_INVALID_RESULT
+from scramble_strings_oracle import MAX_INPUT_LENGTH as MAX_SCRAMBLE_STRINGS_INPUT_LENGTH
+from scramble_strings_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SCRAMBLE_STRINGS_PARSEABLE_INPUT_LENGTH
+from scramble_strings_oracle import MAX_LENGTH as SCRAMBLE_STRINGS_MAX_LENGTH
+from scramble_strings_oracle import expected_result as scramble_strings_expected
+from richest_customer_wealth_oracle import INVALID_RESULT as RICHEST_CUSTOMER_WEALTH_INVALID_RESULT
+from richest_customer_wealth_oracle import MAX_ROWS as RICHEST_CUSTOMER_WEALTH_MAX_ROWS
+from richest_customer_wealth_oracle import MAX_COLUMNS as RICHEST_CUSTOMER_WEALTH_MAX_COLUMNS
+from richest_customer_wealth_oracle import MAX_AMOUNT as RICHEST_CUSTOMER_WEALTH_MAX_AMOUNT
+from richest_customer_wealth_oracle import MAX_VALID_INPUT_LENGTH as RICHEST_CUSTOMER_WEALTH_MAX_VALID_INPUT_LENGTH
+from richest_customer_wealth_oracle import MAX_PARSEABLE_INPUT_LENGTH as RICHEST_CUSTOMER_WEALTH_MAX_PARSEABLE_INPUT_LENGTH
+from richest_customer_wealth_oracle import expected_result as richest_customer_wealth_expected
+from segment_tree_update_oracle import INVALID_RESULT as SEGMENT_TREE_UPDATE_INVALID_RESULT
+from segment_tree_update_oracle import MAX_COUNT as SEGMENT_TREE_UPDATE_MAX_COUNT
+from segment_tree_update_oracle import MAX_INPUT_LENGTH as SEGMENT_TREE_UPDATE_MAX_PARSEABLE_INPUT_LENGTH
+from segment_tree_update_oracle import MAX_OPERATIONS as SEGMENT_TREE_UPDATE_MAX_OPERATIONS
+from segment_tree_update_oracle import MAX_VALUE as SEGMENT_TREE_UPDATE_MAX_VALUE
+from segment_tree_update_oracle import MAX_VALID_INPUT_LENGTH as SEGMENT_TREE_UPDATE_MAX_VALID_INPUT_LENGTH
+from segment_tree_update_oracle import MIN_VALUE as SEGMENT_TREE_UPDATE_MIN_VALUE
+from segment_tree_update_oracle import expected_result as segment_tree_update_expected
 from wildcard_matching_oracle import MAX_INPUT_LENGTH as MAX_WILDCARD_MATCHING_INPUT_LENGTH
 from wildcard_matching_oracle import expected_result as wildcard_matching_expected
 from primitive_root_oracle import MAX_INPUT_LENGTH as MAX_PRIMITIVE_ROOT_INPUT_LENGTH
@@ -228,6 +324,45 @@ from matrix_based_game_oracle import MAX_INPUT_LENGTH as MAX_MATRIX_BASED_GAME_I
 from matrix_based_game_oracle import expected_result as matrix_based_game_expected
 from kth_element_finder_oracle import MAX_INPUT_LENGTH as MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH
 from kth_element_finder_oracle import expected_result as kth_element_finder_expected
+from pairing_heap_oracle import MAX_PARSEABLE_INPUT_LENGTH as PAIRING_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+from pairing_heap_oracle import expected_result as pairing_heap_expected
+from string_hash_equality_oracle import MAX_PARSEABLE_INPUT_LENGTH as STRING_HASH_EQUALITY_MAX_PARSEABLE_INPUT_LENGTH
+from string_hash_equality_oracle import expected_result as string_hash_equality_expected
+from support_vector_classifier_oracle import MAX_PARSEABLE_INPUT_VALUES as SUPPORT_VECTOR_CLASSIFIER_MAX_PARSEABLE_INPUT_VALUES
+from support_vector_classifier_oracle import expected_output as support_vector_classifier_expected
+from multiplexer_oracle import MAX_PARSEABLE_INPUT_LENGTH as MULTIPLEXER_MAX_PARSEABLE_INPUT_LENGTH
+from multiplexer_oracle import expected_result as multiplexer_expected
+from binary_genetic_algorithm_oracle import MAX_INPUT_LENGTH as BINARY_GENETIC_ALGORITHM_MAX_INPUT_LENGTH
+from binary_genetic_algorithm_oracle import expected_result as binary_genetic_algorithm_expected
+from modulo_oracle import MAX_PARSEABLE_INPUT_VALUES as MODULO_MAX_PARSEABLE_INPUT_VALUES
+from modulo_oracle import expected_result as modulo_expected
+from tree_matching_oracle import MAX_PARSEABLE_INPUT_LENGTH as TREE_MATCHING_MAX_PARSEABLE_INPUT_LENGTH
+from tree_matching_oracle import expected_result as tree_matching_expected
+from my_atoi_oracle import MAX_INPUT_LENGTH as MY_ATOI_MAX_INPUT_LENGTH
+from my_atoi_oracle import expected_result as my_atoi_expected
+from transposition_rust_oracle import MAX_INPUT_LENGTH as TRANSPOSITION_RUST_MAX_INPUT_LENGTH
+from transposition_rust_oracle import expected_result as transposition_rust_expected
+from minone_oracle import MAX_LENGTH as MINONE_MAX_LENGTH
+from minone_oracle import expected_result as minone_expected
+from mul_array_oracle import MAX_INPUT_LENGTH as MUL_ARRAY_MAX_INPUT_LENGTH
+from mul_array_oracle import expected_result as mul_array_expected
+from matchdimensions_oracle import MAX_INPUT_LENGTH as MATCHDIMENSIONS_MAX_INPUT_LENGTH
+from matchdimensions_oracle import expected_result as matchdimensions_expected
+from magic_sequence_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAGIC_SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH
+from magic_sequence_oracle import expected_result as magic_sequence_expected
+from pipeline_oracle import MAX_PARSEABLE_INPUT_LENGTH as PIPELINE_MAX_PARSEABLE_INPUT_LENGTH
+from pipeline_oracle import expected_result as pipeline_expected
+from kahns_algorithm_long_oracle import MAX_PARSEABLE_INPUT_LENGTH as KAHNS_ALGORITHM_LONG_MAX_PARSEABLE_INPUT_LENGTH
+from kahns_algorithm_long_oracle import expected_result as kahns_algorithm_long_expected
+from kcenters_oracle import MAX_PARSEABLE_INPUT_LENGTH as KCENTERS_MAX_PARSEABLE_INPUT_LENGTH
+from kcenters_oracle import expected_result as kcenters_expected
+from minimax_oracle import MAX_PARSEABLE_INPUT_LENGTH as MINIMAX_MAX_PARSEABLE_INPUT_LENGTH
+from minimax_oracle import expected_result as minimax_expected
+from sparse_matrix_oracle import INVALID_RESULT as SPARSE_MATRIX_INVALID_RESULT
+from sparse_matrix_oracle import MAX_DIMENSION as SPARSE_MATRIX_MAX_DIMENSION
+from sparse_matrix_oracle import MAX_INPUT_LENGTH as SPARSE_MATRIX_MAX_INPUT_LENGTH
+from sparse_matrix_oracle import MAX_VALID_INPUT_LENGTH as SPARSE_MATRIX_MAX_VALID_INPUT_LENGTH
+from sparse_matrix_oracle import expected_result as sparse_matrix_expected
 from submatrix_oracle import MAX_INPUT_LENGTH as MAX_SUBMATRIX_INPUT_LENGTH
 from submatrix_oracle import expected_result as submatrix_expected
 from first_fundamental_form_oracle import MAX_INPUT_LENGTH as MAX_FIRST_FUNDAMENTAL_FORM_INPUT_LENGTH
@@ -248,6 +383,8 @@ from count_homogenous_oracle import MAX_INPUT_LENGTH as MAX_COUNT_HOMOGENOUS_INP
 from count_homogenous_oracle import expected_result as count_homogenous_expected
 from count_singly_linked_list_recursion_oracle import MAX_INPUT_LENGTH as MAX_COUNT_SINGLY_LINKED_LIST_INPUT_LENGTH
 from count_singly_linked_list_recursion_oracle import expected_result as count_singly_linked_list_expected
+from search_singly_linked_list_recursion_oracle import MAX_INPUT_LENGTH as MAX_SEARCH_SINGLY_LINKED_LIST_RECURSION_INPUT_LENGTH
+from search_singly_linked_list_recursion_oracle import expected_result as search_singly_linked_list_recursion_expected
 from unrolled_linked_list_oracle import MAX_ITEMS as MAX_UNROLLED_LINKED_LIST_ITEMS
 from unrolled_linked_list_oracle import expected_result as unrolled_linked_list_expected
 from dice_throw_oracle import expected_result as dice_throw_expected
@@ -359,6 +496,8 @@ from permutation_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_PERMUTATIO
 from permutation_sort_oracle import expected_result as permutation_sort_expected
 from substring_search_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_SEARCH_PARSEABLE_INPUT_LENGTH
 from substring_search_oracle import expected_result as substring_search_expected
+from sublist_search_oracle import MAX_INPUT_LENGTH as MAX_SUBLIST_SEARCH_INPUT_LENGTH
+from sublist_search_oracle import expected_result as sublist_search_expected
 from substring_end_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_END_PARSEABLE_INPUT_LENGTH
 from substring_end_oracle import expected_result as substring_end_expected
 from substring_minus_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SUBSTRING_MINUS_PARSEABLE_INPUT_LENGTH
@@ -547,8 +686,38 @@ from depth_first_search_tic_tac_toe_oracle import expected_result as depth_first
 from dynamic_coin_change_solver_oracle import expected_result as dynamic_coin_change_solver_expected
 from string_prefix_suffix_oracle import MAX_INPUT_LENGTH as MAX_STRING_PREFIX_SUFFIX_INPUT_LENGTH
 from string_prefix_suffix_oracle import expected_result as string_prefix_suffix_expected
+from shortest_word_distance_oracle import MAX_INPUT_LENGTH as MAX_SHORTEST_WORD_DISTANCE_INPUT_LENGTH
+from shortest_word_distance_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SHORTEST_WORD_DISTANCE_PARSEABLE_INPUT_LENGTH
+from shortest_word_distance_oracle import MAX_WORDS as SHORTEST_WORD_DISTANCE_MAX_WORDS
+from shortest_word_distance_oracle import MAX_WORD_LENGTH as SHORTEST_WORD_DISTANCE_MAX_WORD_LENGTH
+from shortest_word_distance_oracle import expected_output as shortest_word_distance_expected
+from match_word_pattern_oracle import INVALID_RESULT as MATCH_WORD_PATTERN_INVALID_RESULT
+from match_word_pattern_oracle import MAX_INPUT_LENGTH as MAX_MATCH_WORD_PATTERN_PARSEABLE_INPUT_LENGTH
+from match_word_pattern_oracle import MAX_VALID_INPUT_LENGTH as MAX_MATCH_WORD_PATTERN_INPUT_LENGTH
+from match_word_pattern_oracle import MAX_PATTERN_LENGTH as MATCH_WORD_PATTERN_MAX_PATTERN_LENGTH
+from match_word_pattern_oracle import MAX_TEXT_LENGTH as MATCH_WORD_PATTERN_MAX_TEXT_LENGTH
+from match_word_pattern_oracle import expected_result as match_word_pattern_expected
+from power_using_recursion_oracle import expected_output as power_using_recursion_expected
+from lca_oracle import INVALID_RESULT as LCA_INVALID_RESULT
+from lca_oracle import MAX_INPUT_LENGTH as LCA_MAX_INPUT_LENGTH
+from lca_oracle import MAX_NODES as LCA_MAX_NODES
+from lca_oracle import expected_result as lca_expected_result
+from johnsons_algorithm_oracle import MAX_INPUT_LENGTH as JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH
+from johnsons_algorithm_oracle import MAX_VERTICES as JOHNSONS_ALGORITHM_MAX_VERTICES
+from johnsons_algorithm_oracle import MAX_WEIGHT as JOHNSONS_ALGORITHM_MAX_WEIGHT
+from johnsons_algorithm_oracle import expected_result as johnsons_algorithm_expected_result
+from knapsack_zero_one_tabulation_oracle import CASE_IDS as KNAPSACK_ZERO_ONE_TABULATION_CASE_IDS
+from knapsack_zero_one_tabulation_oracle import INVALID_RESULT as KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT
+from knapsack_zero_one_tabulation_oracle import MAX_CAPACITY as KNAPSACK_ZERO_ONE_TABULATION_MAX_CAPACITY
+from knapsack_zero_one_tabulation_oracle import MAX_INPUT_LENGTH as KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
+from knapsack_zero_one_tabulation_oracle import MAX_ITEMS as KNAPSACK_ZERO_ONE_TABULATION_MAX_ITEMS
+from knapsack_zero_one_tabulation_oracle import MAX_VALUE as KNAPSACK_ZERO_ONE_TABULATION_MAX_VALUE
+from knapsack_zero_one_tabulation_oracle import MAX_WEIGHT as KNAPSACK_ZERO_ONE_TABULATION_MAX_WEIGHT
+from knapsack_zero_one_tabulation_oracle import PINNED_SOURCE as KNAPSACK_ZERO_ONE_TABULATION_PINNED_SOURCE
+from knapsack_zero_one_tabulation_oracle import expected_result as knapsack_zero_one_tabulation_expected
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
+MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGTH = 3
 MAX_SLIDING_WINDOW_INPUT_LENGTH = 100002
 MAX_DOUBLE_LINEAR_SEARCH_INPUT_LENGTH = 100002
 MAX_WORD_LENGTH_SUM_INPUT_LENGTH = 4096
@@ -577,6 +746,8 @@ MAX_COINCHANGE_INPUT_LENGTH = MAX_COINCHANGE_COINS + 2
 MAX_DICE_THROW_INPUT_LENGTH = 4  # one extra element keeps the malformed-length workload case
 # Include two trailing values for the 257-edge malformed DFS workload case.
 MAX_DEPTH_FIRST_SEARCH_ITERATIVE_INPUT_LENGTH = MAX_DEPTH_FIRST_SEARCH_ITERATIVE_VALID_INPUT_LENGTH + 2
+MAX_PROBLEM016_POWER_DIGIT_SUM_INPUT_LENGTH = 3  # one extra value covers the malformed-length fixture
+MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_INPUT_LENGTH = 34
 
 
 def unpack_ascii_string_pair(values: list[int], maximum_length: int,
@@ -993,6 +1164,1346 @@ def problem54_player_one_wins(values: list[int]) -> int:
     return wins
 
 
+SCRAMBLE_STRINGS_CASE_IDS = {
+    "null_input_pointer", "empty_equal_strings", "single_equal", "single_unequal",
+    "identical_source", "canonical_true_scramble", "canonical_false_scramble",
+    "two_character_swap", "nested_swap", "repeated_letter_scramble",
+    "repeated_letter_mismatch", "same_multiset_alternate", "maximum_length_identity",
+    "maximum_length_reversed", "invalid_missing_length", "invalid_negative_length",
+    "invalid_length_above_bound", "invalid_short_payload", "invalid_extra_payload",
+    "invalid_prefix_payload_mismatch", "invalid_uppercase_character",
+    "invalid_punctuation_character", "invalid_non_ascii_character",
+    "invalid_i64_max_length", "invalid_i64_min_character",
+}
+
+
+def validate_scramble_strings_workload(workload: dict) -> None:
+    """Pin the JavaScript scramble-string source and bounded packed-pair contract."""
+    expected_source = {
+        "repository": "TheAlgorithms/JavaScript",
+        "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+        "path": "String/ScrambleStrings.js",
+        "symbol": "isScramble and helper",
+        "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/String/ScrambleStrings.js",
+        "role": "algorithm",
+    }
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    ids = [case.get("id") for case in cases] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "scramble-strings-js-memoized-recursion-i64-array-scalar-v1"
+            or workload.get("algorithm") != "scramble_strings"
+            or workload.get("function_symbol") != "scramble_strings"
+            or workload.get("pinned_sources") != [expected_source]
+            or input_spec.get("kind") != "packed_i64_array"
+            or input_spec.get("encoding") != "[n, first_ascii_codes..., second_ascii_codes...]"
+            or input_spec.get("length_range") != [0, SCRAMBLE_STRINGS_MAX_LENGTH]
+            or input_spec.get("alphabet_range") != [97, 122]
+            or input_spec.get("exact_length") != "2*n + 1"
+            or input_spec.get("maximum_length") != MAX_SCRAMBLE_STRINGS_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != MAX_SCRAMBLE_STRINGS_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("invalid_result") != SCRAMBLE_STRINGS_INVALID_RESULT
+            or input_spec.get("null_input_result") != SCRAMBLE_STRINGS_INVALID_RESULT
+            or output_spec.get("kind") != "signed_64_bit_integer"
+            or output_spec.get("values") != {"scramble": 1, "not_scramble": 0}
+            or output_spec.get("invalid_result") != SCRAMBLE_STRINGS_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_scalar_call"
+            or measurement.get("sample_count") != 5
+            or measurement.get("warmup_rounds") != 1
+            or measurement.get("repetitions_per_sample") != 1000
+            or len(ids) != len(SCRAMBLE_STRINGS_CASE_IDS)
+            or set(ids) != SCRAMBLE_STRINGS_CASE_IDS):
+        raise ValueError("scramble_strings workload metadata does not match its reviewed contract")
+    null_cases = [case for case in cases if case.get("input_is_null") is True]
+    if (len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_pointer"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 1
+            or null_cases[0].get("expected_result") != SCRAMBLE_STRINGS_INVALID_RESULT):
+        raise ValueError("scramble_strings workload must cover its positive-length null-input contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (not isinstance(values, list)
+                or type(case.get("input_is_null", False)) is not bool
+                or type(input_length) is not int
+                or (case.get("input_is_null") is True
+                    and (values or not 1 <= input_length <= MAX_SCRAMBLE_STRINGS_PARSEABLE_INPUT_LENGTH))
+                or (case.get("input_is_null") is not True
+                    and (input_length != len(values)
+                         or len(values) > MAX_SCRAMBLE_STRINGS_PARSEABLE_INPUT_LENGTH))
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"scramble_strings input framing is invalid for {case.get('id')}")
+
+
+RICHEST_CUSTOMER_WEALTH_CASE_IDS = {
+    "ruby_example_equal_wealth", "ruby_example_middle_customer_richest",
+    "ruby_example_third_customer_richest", "single_zero_account",
+    "single_customer_many_accounts", "single_bank_many_customers", "all_zero_rows",
+    "first_customer_richest", "last_customer_richest", "tie_at_maximum",
+    "maximum_columns", "maximum_rows", "maximum_dimensions_and_amount",
+    "empty_input_array", "missing_columns_header", "zero_rows", "rows_above_bound",
+    "zero_columns", "columns_above_bound", "missing_matrix_cell", "extra_matrix_cell",
+    "negative_account_amount", "account_amount_above_bound", "first_invalid_packed_length",
+    "null_input_pointer_with_positive_length",
+}
+
+
+def validate_richest_customer_wealth_workload(workload: dict) -> None:
+    """Pin the two Ruby sources and bounded matrix input/null-pointer fixtures."""
+    expected_sources = [
+        {"repository": "TheAlgorithms/Ruby", "commit": "bda11bdfd83b7958e1ca98247e5e43100ca88865",
+         "path": "data_structures/arrays/richest_customer_wealth.rb",
+         "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/arrays/richest_customer_wealth.rb"},
+        {"repository": "TheAlgorithms/Ruby", "commit": "bda11bdfd83b7958e1ca98247e5e43100ca88865",
+         "path": "data_structures/hash_table/richest_customer_wealth.rb",
+         "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/hash_table/richest_customer_wealth.rb"},
+    ]
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    ids = [case.get("id") for case in cases] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "ruby-richest-customer-wealth-bounded-matrix-v1"
+            or workload.get("algorithm") != "richest_customer_wealth"
+            or workload.get("function_symbol") != "richest_customer_wealth"
+            or workload.get("pinned_sources") != expected_sources
+            or input_spec.get("kind") != "signed_64_bit_integer_array"
+            or input_spec.get("encoding") != "[rows, columns, row-major account amounts...]"
+            or input_spec.get("rows_range") != [1, RICHEST_CUSTOMER_WEALTH_MAX_ROWS]
+            or input_spec.get("columns_range") != [1, RICHEST_CUSTOMER_WEALTH_MAX_COLUMNS]
+            or input_spec.get("amount_range") != [0, RICHEST_CUSTOMER_WEALTH_MAX_AMOUNT]
+            or input_spec.get("exact_packed_length") != "2 + rows * columns"
+            or input_spec.get("maximum_valid_input_values") != RICHEST_CUSTOMER_WEALTH_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_values") != RICHEST_CUSTOMER_WEALTH_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("invalid_result") != RICHEST_CUSTOMER_WEALTH_INVALID_RESULT
+            or input_spec.get("null_input_result") != RICHEST_CUSTOMER_WEALTH_INVALID_RESULT
+            or output_spec.get("kind") != "signed_64_bit_integer"
+            or output_spec.get("meaning") != "Maximum row sum across customers."
+            or output_spec.get("maximum_result") != RICHEST_CUSTOMER_WEALTH_MAX_COLUMNS * RICHEST_CUSTOMER_WEALTH_MAX_AMOUNT
+            or output_spec.get("invalid_result") != RICHEST_CUSTOMER_WEALTH_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_scalar_call"
+            or measurement.get("sample_count") != 5
+            or measurement.get("warmup_rounds") != 1
+            or measurement.get("repetitions_per_sample") != 100
+            or len(ids) != len(RICHEST_CUSTOMER_WEALTH_CASE_IDS)
+            or set(ids) != RICHEST_CUSTOMER_WEALTH_CASE_IDS):
+        raise ValueError("richest_customer_wealth workload metadata does not match its reviewed contract")
+    null_cases = [case for case in cases if case.get("input_is_null") is True]
+    if (len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_pointer_with_positive_length"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 2
+            or null_cases[0].get("expected_result") != RICHEST_CUSTOMER_WEALTH_INVALID_RESULT):
+        raise ValueError("richest_customer_wealth workload must cover its null-pointer contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (not isinstance(values, list)
+                or type(case.get("input_is_null", False)) is not bool
+                or type(input_length) is not int
+                or (case.get("input_is_null") is True
+                    and (values or not 1 <= input_length <= RICHEST_CUSTOMER_WEALTH_MAX_PARSEABLE_INPUT_LENGTH))
+                or (case.get("input_is_null") is not True
+                    and (input_length != len(values)
+                         or len(values) > RICHEST_CUSTOMER_WEALTH_MAX_PARSEABLE_INPUT_LENGTH))
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"richest_customer_wealth input framing is invalid for {case.get('id')}")
+
+
+SEGMENT_TREE_UPDATE_CASE_IDS = {
+    "null_input", "single_element_inclusive_query", "inclusive_middle_and_endpoints",
+    "updates_change_later_queries", "zero_and_negative_query_sums", "non_power_of_two_padding",
+    "repeated_updates_to_one_leaf", "maximum_values_and_operations", "invalid_zero_count",
+    "invalid_count_over_limit", "invalid_operation_count_over_limit", "invalid_zero_operations",
+    "invalid_truncated_operations", "invalid_extra_word", "invalid_parseable_maximum_length",
+    "invalid_only_updates", "invalid_operation_type", "invalid_reversed_query",
+    "invalid_negative_query_endpoint", "invalid_query_endpoint_at_count", "invalid_update_index",
+    "invalid_initial_value", "invalid_replacement_value",
+}
+
+
+def validate_segment_tree_update_workload(workload: dict) -> None:
+    """Pin the bounded C# segment-tree trace and null-input fixture."""
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    ids = [case.get("id") for case in cases] if isinstance(cases, list) else []
+    readme = (ROOT / "benchmarks" / "s" / "segment_tree_update" / "README.md").read_text(
+        encoding="utf-8")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "segment-tree-update-i64-trace-v1"
+            or workload.get("algorithm") != "segment_tree_update"
+            or workload.get("function_symbol") != "segment_tree_update_benchmark"
+            or input_spec.get("kind") != "packed_i64_array"
+            or input_spec.get("encoding") != "[n, initial_values[n], operation_count, (type,arg1,arg2)*operation_count]"
+            or input_spec.get("n_range") != [1, SEGMENT_TREE_UPDATE_MAX_COUNT]
+            or input_spec.get("operation_count_range") != [1, SEGMENT_TREE_UPDATE_MAX_OPERATIONS]
+            or input_spec.get("initial_and_replacement_value_range") != [
+                SEGMENT_TREE_UPDATE_MIN_VALUE, SEGMENT_TREE_UPDATE_MAX_VALUE]
+            or input_spec.get("operations") != {
+                "0": "Query inclusive range [arg1,arg2], requiring 0 <= arg1 <= arg2 < n",
+                "1": "Replace element arg1 with arg2, requiring 0 <= arg1 < n",
+            }
+            or input_spec.get("length_formula") != "n+2+3*operation_count"
+            or input_spec.get("maximum_valid_input_values") != SEGMENT_TREE_UPDATE_MAX_VALID_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_values") != SEGMENT_TREE_UPDATE_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("invalid_result") != SEGMENT_TREE_UPDATE_INVALID_RESULT
+            or input_spec.get("null_input_result") != SEGMENT_TREE_UPDATE_INVALID_RESULT
+            or output_spec.get("kind") != "signed_64_bit_integer"
+            or output_spec.get("definition") != (
+                "Low 63 bits of standard FNV-1a-64 over little-endian signed-i64 words "
+                "[query_count, query_sum_0, ...] in query order")
+            or output_spec.get("invalid_input_result") != SEGMENT_TREE_UPDATE_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_scalar_call"
+            or measurement.get("sample_count") != 6
+            or measurement.get("warmup_rounds") != 2
+            or measurement.get("repetitions_per_sample") != 1000
+            or len(ids) != len(SEGMENT_TREE_UPDATE_CASE_IDS)
+            or set(ids) != SEGMENT_TREE_UPDATE_CASE_IDS
+            or "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/SegmentTrees/SegmentTreeUpdate.cs" not in readme
+            or "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/DataStructures/SegmentTrees/SegmentTree.cs" not in readme):
+        raise ValueError("segment_tree_update workload metadata does not match its reviewed contract")
+    null_cases = [case for case in cases if case.get("input_is_null") is True]
+    if (len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 1
+            or null_cases[0].get("expected_result") != SEGMENT_TREE_UPDATE_INVALID_RESULT):
+        raise ValueError("segment_tree_update workload must cover its positive-length null-input contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (not isinstance(values, list)
+                or type(case.get("input_is_null", False)) is not bool
+                or type(input_length) is not int
+                or (case.get("input_is_null") is True
+                    and (values or not 1 <= input_length <= SEGMENT_TREE_UPDATE_MAX_PARSEABLE_INPUT_LENGTH))
+                or (case.get("input_is_null") is not True
+                    and (input_length != len(values)
+                         or len(values) > SEGMENT_TREE_UPDATE_MAX_PARSEABLE_INPUT_LENGTH))
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"segment_tree_update input framing is invalid for {case.get('id')}")
+
+
+SHORTEST_WORD_DISTANCE_CASE_IDS = {
+    "pinned_example_coding_practice", "pinned_example_makes_coding", "adjacent_at_start",
+    "adjacent_at_end", "targets_at_both_ends", "reverse_target_order",
+    "repeated_targets_choose_nearest", "alternating_targets", "multiple_non_target_words",
+    "duplicate_target_words", "target_occurs_once_each", "case_sensitive_words",
+    "single_character_targets", "maximum_word_length", "maximum_word_count",
+    "same_target_outside_domain", "missing_first_target_outside_domain",
+    "missing_second_target_outside_domain", "empty_word_list", "one_word_only",
+    "invalid_word_punctuation", "invalid_target_byte", "word_length_zero",
+    "word_length_above_bound", "truncated_word_record", "truncated_target_record",
+    "extra_packed_value", "too_many_words", "null_input_pointer", "maximum_packed_input",
+}
+
+
+def validate_shortest_word_distance_workload(workload: dict) -> None:
+    """Pin the Ruby all-pairs word scan and bounded packed-string contract."""
+    source = {
+        "repository": "TheAlgorithms/Ruby",
+        "commit": "bda11bdfd83b7958e1ca98247e5e43100ca88865",
+        "path": "data_structures/arrays/shortest_word_distance.rb",
+        "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/data_structures/arrays/shortest_word_distance.rb",
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[word_count, (word_length, ASCII_letter_bytes...)*, target1_length, target1_bytes..., target2_length, target2_bytes...]",
+        "word_count_range": [2, SHORTEST_WORD_DISTANCE_MAX_WORDS],
+        "word_length_range": [1, SHORTEST_WORD_DISTANCE_MAX_WORD_LENGTH],
+        "word_byte_range": "ASCII A-Z or a-z; comparisons are case-sensitive",
+        "target_length_range": [1, SHORTEST_WORD_DISTANCE_MAX_WORD_LENGTH],
+        "target_byte_range": "ASCII A-Z or a-z",
+        "target_words": "Distinct and each occurs at least once in the word list.",
+        "exact_packed_length": "1 + sum(1 + word_length) + (1 + target1_length) + (1 + target2_length)",
+        "maximum_valid_input_values": MAX_SHORTEST_WORD_DISTANCE_INPUT_LENGTH,
+        "maximum_parseable_input_values": MAX_SHORTEST_WORD_DISTANCE_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": -1,
+        "null_input_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "valid_result_range": [1, SHORTEST_WORD_DISTANCE_MAX_WORDS - 1],
+        "result": "Minimum absolute difference between indices containing target1 and target2.",
+        "invalid_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    case_list = cases if isinstance(cases, list) else []
+    ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    null_cases = [case for case in case_list if isinstance(case, dict)
+                  and case.get("input_is_null") is True]
+    maximum_case = next((case for case in case_list if isinstance(case, dict)
+                         and case.get("id") == "maximum_packed_input"), None)
+    readme = (ROOT / "benchmarks" / "s" / "shortest_word_distance" / "README.md").read_text(
+        encoding="utf-8")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "ruby-shortest-word-distance-bounded-ascii-v1"
+            or workload.get("algorithm") != "shortest_word_distance"
+            or workload.get("function_symbol") != "shortest_word_distance"
+            or workload.get("pinned_sources") != [source]
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or len(ids) != len(SHORTEST_WORD_DISTANCE_CASE_IDS)
+            or len(ids) != len(set(ids))
+            or set(ids) != SHORTEST_WORD_DISTANCE_CASE_IDS
+            or len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_pointer"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 1
+            or null_cases[0].get("expected_result") != -1
+            or maximum_case is None
+            or len(maximum_case.get("input_values", [])) != MAX_SHORTEST_WORD_DISTANCE_INPUT_LENGTH
+            or maximum_case.get("input_length") != MAX_SHORTEST_WORD_DISTANCE_INPUT_LENGTH
+            or maximum_case.get("expected_result") != 1
+            or source["url"] not in readme
+            or MAX_SHORTEST_WORD_DISTANCE_INPUT_LENGTH != 307
+            or MAX_SHORTEST_WORD_DISTANCE_PARSEABLE_INPUT_LENGTH != 308):
+        raise ValueError("shortest_word_distance workload metadata does not match its reviewed contract")
+    for case in case_list:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or type(input_length) is not int
+                or type(input_is_null) is not bool
+                or (input_is_null and (values or not 1 <= input_length <= MAX_SHORTEST_WORD_DISTANCE_PARSEABLE_INPUT_LENGTH))
+                or (not input_is_null and (input_length != len(values)
+                                           or input_length > MAX_SHORTEST_WORD_DISTANCE_PARSEABLE_INPUT_LENGTH))
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"shortest_word_distance input framing is invalid for {case.get('id')}")
+
+
+MATCH_WORD_PATTERN_CASE_IDS = {
+    "empty_pattern_and_text", "empty_pattern_nonempty_text", "nonempty_pattern_empty_text",
+    "one_symbol_maps_to_entire_text", "source_example_graph_trees_graph",
+    "source_example_python_ruby_python", "source_example_inconsistent_repeated_symbol",
+    "repeated_symbol_same_substring", "repeated_symbol_cannot_change_mapping",
+    "distinct_symbols_cannot_share_substring", "distinct_symbols_map_to_different_substrings",
+    "two_repeated_symbols_share_mapping", "three_substrings_and_repeated_first",
+    "pattern_has_more_symbols_than_text", "nul_pattern_symbol_and_text_byte",
+    "del_ascii_code_unit", "maximum_pattern_and_text_lengths",
+    "maximum_repeated_pattern_and_text", "empty_packed_array", "missing_text_length_header",
+    "negative_pattern_length", "pattern_length_above_bound", "text_length_above_bound",
+    "pattern_byte_above_ascii", "text_byte_below_ascii", "truncated_packed_text",
+    "extra_packed_value", "extra_value_at_max_parseable_length", "null_input_pointer",
+}
+
+
+def validate_match_word_pattern_workload(workload: dict) -> None:
+    """Pin the Python bijective substring matcher and bounded ASCII input contract."""
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "backtracking/match_word_pattern.py",
+        "symbol": "match_word_pattern",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/backtracking/match_word_pattern.py",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[pattern_length, text_length, pattern_bytes..., text_bytes...]",
+        "pattern_length_range": [0, MATCH_WORD_PATTERN_MAX_PATTERN_LENGTH],
+        "text_length_range": [0, MATCH_WORD_PATTERN_MAX_TEXT_LENGTH],
+        "pattern_byte_range": [0, 127],
+        "text_byte_range": [0, 127],
+        "length_formula": "2 + pattern_length + text_length",
+        "maximum_valid_input_length": MAX_MATCH_WORD_PATTERN_INPUT_LENGTH,
+        "maximum_parseable_input_length": MAX_MATCH_WORD_PATTERN_PARSEABLE_INPUT_LENGTH,
+        "null_input_result": MATCH_WORD_PATTERN_INVALID_RESULT,
+        "invalid_input_result": MATCH_WORD_PATTERN_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "values": {"match": 1, "no_match": 0},
+        "invalid_input_result": MATCH_WORD_PATTERN_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 6,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 500,
+    }
+    cases = workload.get("cases")
+    case_list = cases if isinstance(cases, list) else []
+    ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    null_cases = [case for case in case_list if isinstance(case, dict)
+                  and case.get("input_is_null") is True]
+    maximum_cases = [case for case in case_list if isinstance(case, dict)
+                     and case.get("id") in {"maximum_pattern_and_text_lengths",
+                                             "maximum_repeated_pattern_and_text"}]
+    readme = (ROOT / "benchmarks" / "m" / "match_word_pattern" / "README.md").read_text(
+        encoding="utf-8")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "match-word-pattern-python-ascii-i64-array-scalar-v1"
+            or workload.get("algorithm") != "match_word_pattern"
+            or workload.get("function_symbol") != "match_word_pattern"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or len(ids) != len(MATCH_WORD_PATTERN_CASE_IDS)
+            or len(ids) != len(set(ids))
+            or set(ids) != MATCH_WORD_PATTERN_CASE_IDS
+            or len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_pointer"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 1
+            or null_cases[0].get("expected_result") != MATCH_WORD_PATTERN_INVALID_RESULT
+            or {case.get("id") for case in maximum_cases}
+                != {"maximum_pattern_and_text_lengths", "maximum_repeated_pattern_and_text"}
+            or any(case.get("input_length") != MAX_MATCH_WORD_PATTERN_INPUT_LENGTH
+                   or len(case.get("input_values", [])) != MAX_MATCH_WORD_PATTERN_INPUT_LENGTH
+                   for case in maximum_cases)
+            or source["url"] not in readme
+            or MAX_MATCH_WORD_PATTERN_INPUT_LENGTH != 42
+            or MAX_MATCH_WORD_PATTERN_PARSEABLE_INPUT_LENGTH != 43):
+        raise ValueError("match_word_pattern workload metadata does not match its reviewed contract")
+    for case in case_list:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or type(input_length) is not int
+                or type(input_is_null) is not bool
+                or (input_is_null and (values or not 1 <= input_length <= MAX_MATCH_WORD_PATTERN_PARSEABLE_INPUT_LENGTH))
+                or (not input_is_null and (input_length != len(values)
+                                           or input_length > MAX_MATCH_WORD_PATTERN_PARSEABLE_INPUT_LENGTH))
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"match_word_pattern input framing is invalid for {case.get('id')}")
+
+
+POWER_USING_RECURSION_CASE_IDS = {
+    "zero_to_zero", "zero_to_positive", "one_to_maximum_exponent",
+    "negative_one_odd_exponent", "negative_one_even_exponent",
+    "source_positive_example", "source_zero_exponent_example",
+    "negative_base_odd_exponent", "negative_base_even_exponent",
+    "maximum_positive_magnitude", "maximum_negative_magnitude",
+    "base_lower_boundary", "base_upper_boundary", "exponent_lower_boundary",
+    "null_input_pointer", "wrong_packed_length_empty", "wrong_packed_length_one",
+    "wrong_packed_length_trailing", "base_below_domain", "base_above_domain",
+    "negative_exponent", "exponent_above_domain",
+}
+
+
+def validate_power_using_recursion_workload(workload: dict) -> None:
+    """Pin the recursive integer-power contract and its exact workload corpus."""
+    sources = [
+        {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/maths/PowerUsingRecursion.java",
+            "symbol": "PowerUsingRecursion.power",
+            "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/PowerUsingRecursion.java",
+        },
+        {
+            "repository": "TheAlgorithms/Python",
+            "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+            "path": "maths/power_using_recursion.py",
+            "symbol": "power",
+            "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/power_using_recursion.py",
+        },
+    ]
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[base, exponent]",
+        "length": 2,
+        "base_range": [-10, 10],
+        "exponent_range": [0, 15],
+        "null_input_result": -1,
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "definition": "base raised to exponent by linear recursion",
+        "invalid_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 9,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 20,
+    }
+    cases = workload.get("cases")
+    case_list = cases if isinstance(cases, list) else []
+    ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    null_cases = [case for case in case_list if isinstance(case, dict)
+                  and case.get("input_is_null") is True]
+    readme = (ROOT / "benchmarks" / "p" / "power_using_recursion" / "README.md").read_text(
+        encoding="utf-8")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "power-using-recursion-i64-v1"
+            or workload.get("algorithm") != "power_using_recursion"
+            or workload.get("function_symbol") != "power_using_recursion"
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or len(ids) != len(POWER_USING_RECURSION_CASE_IDS)
+            or len(ids) != len(set(ids))
+            or set(ids) != POWER_USING_RECURSION_CASE_IDS
+            or len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_pointer"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 2
+            or null_cases[0].get("expected_result") != -1
+            or any(source["url"] not in readme for source in sources)
+            or MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGTH != 3):
+        raise ValueError("power_using_recursion workload metadata does not match its reviewed contract")
+    for case in case_list:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_length) is not int
+                or type(input_is_null) is not bool
+                or (input_is_null and (values or not 0 <= input_length <= MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGTH))
+                or (not input_is_null and (input_length != len(values)
+                                           or len(values) > MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGTH))
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != power_using_recursion_expected(
+                    values, input_is_null, input_length)):
+            raise ValueError(f"power_using_recursion input framing/result is invalid for {case.get('id')}")
+
+
+SPARSE_MATRIX_CASE_IDS = {
+    "single_zero_cell", "single_nonzero_cell", "all_zero_two_by_two",
+    "exact_half_even_cells_is_not_sparse", "strict_majority_even_cells_is_sparse",
+    "one_zero_of_three_is_not_sparse", "two_zeros_of_three_is_sparse",
+    "negative_and_i32_boundary_entries", "six_of_twelve_zeros_is_not_sparse",
+    "maximum_matrix_exact_half_zero", "maximum_matrix_strict_majority_zero",
+    "zero_rows", "negative_rows", "rows_above_domain", "zero_columns",
+    "columns_above_domain", "short_input", "extra_input_value",
+    "cell_below_i32_domain", "cell_above_i32_domain", "empty_input",
+    "null_input_pointer_with_positive_length", "one_value_input",
+}
+
+
+def validate_sparse_matrix_workload(workload: dict) -> None:
+    """Pin sparse_matrix's strict-majority contract, bounds, and exact fixtures."""
+    sources = [
+        {
+            "repository": "TheAlgorithms/C-Plus-Plus",
+            "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+            "path": "others/sparse_matrix.cpp",
+            "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/sparse_matrix.cpp",
+        },
+        {
+            "repository": "TheAlgorithms/C-Plus-Plus-1",
+            "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+            "path": "others/sparse_matrix.cpp",
+            "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/others/sparse_matrix.cpp",
+        },
+    ]
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "layout": "[rows, columns, row-major signed_int32_entries...]",
+        "rows_range": [1, SPARSE_MATRIX_MAX_DIMENSION],
+        "columns_range": [1, SPARSE_MATRIX_MAX_DIMENSION],
+        "cell_range": [-(1 << 31), (1 << 31) - 1],
+        "exact_length": "2 + rows * columns",
+        "maximum_valid_input_length": SPARSE_MATRIX_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": SPARSE_MATRIX_MAX_INPUT_LENGTH,
+        "invalid_result": SPARSE_MATRIX_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "1 when zeros are a strict majority; otherwise 0",
+        "invalid_result": SPARSE_MATRIX_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    case_list = cases if isinstance(cases, list) else []
+    ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    null_cases = [case for case in case_list if isinstance(case, dict)
+                  and case.get("input_is_null") is True]
+    readme = (ROOT / "benchmarks" / "s" / "sparse_matrix" / "README.md").read_text(
+        encoding="utf-8")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "cpp-sparse-matrix-strict-zero-majority-v1"
+            or workload.get("algorithm") != "sparse_matrix"
+            or workload.get("function_symbol") != "sparse_matrix"
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or len(ids) != len(SPARSE_MATRIX_CASE_IDS)
+            or len(ids) != len(set(ids))
+            or set(ids) != SPARSE_MATRIX_CASE_IDS
+            or len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_pointer_with_positive_length"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 2
+            or null_cases[0].get("expected_result") != SPARSE_MATRIX_INVALID_RESULT
+            or any(source["url"] not in readme for source in sources)
+            or SPARSE_MATRIX_MAX_DIMENSION != 64
+            or SPARSE_MATRIX_MAX_VALID_INPUT_LENGTH != 4098
+            or SPARSE_MATRIX_MAX_INPUT_LENGTH != 4099
+            or SPARSE_MATRIX_INVALID_RESULT != -1):
+        raise ValueError("sparse_matrix workload metadata does not match its reviewed contract")
+    for case in case_list:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_length) is not int
+                or type(input_is_null) is not bool
+                or (input_is_null and (values or not 0 <= input_length <= SPARSE_MATRIX_MAX_INPUT_LENGTH))
+                or (not input_is_null and (input_length != len(values)
+                                           or len(values) > SPARSE_MATRIX_MAX_INPUT_LENGTH))
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != sparse_matrix_expected(
+                    None if input_is_null else values, input_is_null, input_length)):
+            raise ValueError(f"sparse_matrix input framing/result is invalid for {case.get('id')}")
+    indexed_cases = {case["id"]: case for case in case_list}
+    for case_id, expected_length, expected_result in (
+            ("maximum_matrix_exact_half_zero", SPARSE_MATRIX_MAX_VALID_INPUT_LENGTH, 0),
+            ("maximum_matrix_strict_majority_zero", SPARSE_MATRIX_MAX_VALID_INPUT_LENGTH, 1)):
+        case = indexed_cases[case_id]
+        if (len(case.get("input_values", ())) != expected_length
+                or case.get("expected_result") != expected_result):
+            raise ValueError("sparse_matrix workload is missing its maximum-dimension threshold cases")
+
+
+GRAPH_ENUMERATION_CASE_IDS = {
+    "sorted_keys_and_reordered_input_rows", "isolated_vertices", "duplicate_neighbor_preserved",
+    "empty_graph", "unknown_neighbor_invalid", "duplicate_key_invalid",
+}
+
+
+def validate_graph_enumeration_workload(workload: dict) -> None:
+    """Pin graph_enumeration's sorted-label adjacency signature and fixtures."""
+    sources = [{
+        "repository": "TheAlgorithms/Rust",
+        "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+        "path": "src/graph/graph_enumeration.rs",
+    }]
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "layout": "[vertex_count, labels..., (degree, neighbor_labels...) per input label row]",
+        "vertex_count_range": [0, GRAPH_ENUMERATION_MAX_VERTICES],
+        "label_range": [-GRAPH_ENUMERATION_MAX_LABEL, GRAPH_ENUMERATION_MAX_LABEL],
+        "degree_range": [0, GRAPH_ENUMERATION_MAX_DEGREE],
+        "row_order": "Each adjacency row is associated with the label at the same input position; output rows are ordered by ascending label.",
+    }
+    output_spec = {
+        "kind": "signed_64_bit_scalar",
+        "meaning": "FNV-1a 64-bit signature of [n+1, row0_degree=0, then each sorted-label row degree and mapped neighbors]. IDs are 1-based ranks in ascending label order; neighbor order and duplicates are preserved; hash is interpreted as signed i64.",
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 500,
+    }
+    case_list = workload.get("cases")
+    if not isinstance(case_list, list):
+        case_list = []
+    ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    readme = (ROOT / "benchmarks" / "g" / "graph_enumeration" / "README.md").read_text(
+        encoding="utf-8")
+    source_url = "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/graph/graph_enumeration.rs"
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "graph-enumeration-sorted-label-adjacency-v1"
+            or workload.get("algorithm") != "graph_enumeration"
+            or workload.get("function_symbol") != "graph_enumeration"
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or MAX_GRAPH_ENUMERATION_INPUT_LENGTH != 545
+            or GRAPH_ENUMERATION_MAX_VERTICES != 16
+            or GRAPH_ENUMERATION_MAX_DEGREE != 32
+            or GRAPH_ENUMERATION_MAX_LABEL != 1_000_000
+            or len(ids) != len(GRAPH_ENUMERATION_CASE_IDS)
+            or len(ids) != len(set(ids))
+            or set(ids) != GRAPH_ENUMERATION_CASE_IDS
+            or source_url not in readme):
+        raise ValueError("graph_enumeration workload metadata does not match its reviewed contract")
+
+    indexed_cases = {case["id"]: case for case in case_list}
+    if (indexed_cases["empty_graph"].get("input_values") != [0]
+            or indexed_cases["duplicate_neighbor_preserved"].get("expected_result") == -1
+            or indexed_cases["unknown_neighbor_invalid"].get("expected_result") != -1
+            or indexed_cases["duplicate_key_invalid"].get("expected_result") != -1):
+        raise ValueError("graph_enumeration workload is missing empty, duplicate, or invalid graph coverage")
+    for case in case_list:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or len(values) > MAX_GRAPH_ENUMERATION_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != graph_enumeration_expected(values)):
+            raise ValueError(f"graph_enumeration input/result is invalid for {case.get('id')}")
+
+
+LCA_CASE_IDS = frozenset({
+    "positive_length_null_input", "single_node_root_is_its_own_lca", "pinned_java_example",
+    "sibling_leaves", "root_with_descendant", "ancestor_and_deep_descendant",
+    "equal_query_node", "unbalanced_branches", "maximum_node_count_chain",
+    "invalid_zero_nodes", "invalid_node_count_too_large", "invalid_truncated_edges",
+    "invalid_extra_value", "invalid_edge_endpoint", "invalid_query_endpoint",
+    "invalid_self_edge", "invalid_duplicate_or_cycle_edges", "invalid_cycle_with_disconnected_vertex",
+})
+
+
+def validate_lca_workload(workload: dict) -> None:
+    """Pin the Java root-at-zero LCA tree/query contract and scalar fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/datastructures/trees/LCA.java",
+        "symbol": "LCA.main/getLCA",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/trees/LCA.java",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[node_count, (edge_u,edge_v) repeated node_count-1 times, query_u,query_v]",
+        "node_count_range": [1, LCA_MAX_NODES],
+        "vertex_id_range": [0, LCA_MAX_NODES - 1],
+        "maximum_input_values": LCA_MAX_INPUT_LENGTH,
+        "exact_packed_shape": "exactly 2*node_count+1 signed 64-bit values",
+        "tree_constraints": [
+            "Edges are undirected.",
+            "No self edges, duplicate edges, or cycles.",
+            "The n-1 edges must connect all nodes; root is node 0.",
+        ],
+        "invalid_result": LCA_INVALID_RESULT,
+        "null_input_result": LCA_INVALID_RESULT,
+        "per_tree_vertex_id_range": "0 through node_count-1",
+        "maximum_parseable_input_length": LCA_MAX_INPUT_LENGTH,
+        "minimum_input_values": 3,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_scalar",
+        "meaning": "Lowest common ancestor vertex ID in the tree rooted at node 0.",
+        "invalid_result": LCA_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    case_list = workload.get("cases")
+    if not isinstance(case_list, list):
+        case_list = []
+    case_ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    null_cases = [case for case in case_list
+                  if isinstance(case, dict) and case.get("input_is_null", False)]
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-lca-rooted-tree-scalar-v1"
+            or workload.get("algorithm") != "lca"
+            or workload.get("function_symbol") != "lca"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or LCA_MAX_NODES != 64
+            or LCA_MAX_INPUT_LENGTH != 129
+            or LCA_INVALID_RESULT != -1
+            or len(case_ids) != len(LCA_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != LCA_CASE_IDS
+            or len(null_cases) != 1
+            or null_cases[0].get("id") != "positive_length_null_input"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 3
+            or null_cases[0].get("expected_result") != LCA_INVALID_RESULT):
+        raise ValueError("lca workload metadata does not match its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "lca" / "README.md").read_text(encoding="utf-8")
+    if source["url"] not in readme:
+        raise ValueError("lca README is missing its pinned source link")
+    indexed_cases = {case["id"]: case for case in case_list}
+    maximum_case = indexed_cases["maximum_node_count_chain"]
+    if (len(maximum_case.get("input_values", [])) != LCA_MAX_INPUT_LENGTH
+            or maximum_case.get("input_length") != LCA_MAX_INPUT_LENGTH
+            or maximum_case.get("input_values", [None])[0] != LCA_MAX_NODES
+            or maximum_case.get("expected_result") != 32
+            or any(indexed_cases[case_id].get("expected_result") != LCA_INVALID_RESULT
+                   for case_id in LCA_CASE_IDS if case_id.startswith("invalid_"))):
+        raise ValueError("lca workload is missing maximum-tree or malformed-tree coverage")
+
+    for case in case_list:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else -1)
+        if (not isinstance(values, list)
+                or len(values) > LCA_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or (input_is_null and (values or not 1 <= input_length <= LCA_MAX_INPUT_LENGTH))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"lca input framing is invalid for {case.get('id')}")
+        result = lca_expected_result(values, input_length, input_is_null)
+        if type(case.get("expected_result")) is not int or result != case.get("expected_result"):
+            raise ValueError(f"lca workload mismatch: {case.get('id')}")
+
+
+JOHNSONS_ALGORITHM_CASE_IDS = frozenset({
+    "positive_length_null_input", "single_vertex_ignored_negative_self_loop", "two_vertex_positive_cycle",
+    "directed_shortcut_changes_distance", "nonzero_diagonal_self_loops_are_ignored",
+    "zero_cells_mean_absent_edges", "maximum_dense_positive_matrix",
+    "disconnected_graph_invalid", "negative_cycle_invalid",
+    "negative_edge_zero_reweighted_invalid", "empty_input_invalid",
+    "zero_vertices_invalid", "vertex_count_above_bound_invalid",
+    "truncated_matrix_invalid", "trailing_matrix_cell_invalid", "cell_out_of_range_invalid",
+})
+
+
+def validate_johnsons_algorithm_workload(workload: dict) -> None:
+    """Pin the Java matrix Johnson contract and all-pairs distance fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/datastructures/graphs/JohnsonsAlgorithm.java",
+        "symbol": "johnsonAlgorithm",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/graphs/JohnsonsAlgorithm.java",
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[V, row-major VxV matrix]",
+        "minimum_vertices": 1,
+        "maximum_vertices": JOHNSONS_ALGORITHM_MAX_VERTICES,
+        "maximum_input_length": JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH,
+        "cell_range": [-JOHNSONS_ALGORITHM_MAX_WEIGHT, JOHNSONS_ALGORITHM_MAX_WEIGHT],
+        "zero_cell": "absent_edge_normalized_to_positive_infinity_before_edge_list_and_shortest_path_processing",
+        "diagonal": "ignored; the pinned source excludes self-loops from edge ingestion",
+        "graph_domain": ["strongly_connected", "no_negative_cycle", "strictly_positive_reweighted_edges"],
+        "reweighted_edge_condition": "w + h[u] - h[v] > 0 for every ingested edge, using pinned Bellman-Ford potentials",
+        "invalid_input_result": -1,
+        "null_input_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_scalar",
+        "encoding": "low 63 bits of FNV-1a-64 over row-major VxV shortest distances, each distance serialized as one little-endian signed-i64 word",
+        "fnv1a_offset_basis": 14695981039346656037,
+        "fnv1a_prime": 1099511628211,
+        "unreachable_sentinel": 4611686018427387904,
+        "infinity_encoding": "Java Double.POSITIVE_INFINITY maps to 2^62; unreachable pairs do not occur in valid strongly connected cases",
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    case_list = workload.get("cases")
+    if not isinstance(case_list, list):
+        case_list = []
+    case_ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    null_cases = [case for case in case_list
+                  if isinstance(case, dict) and case.get("input_is_null", False)]
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-johnsons-algorithm-i64-matrix-scalar-v1"
+            or workload.get("algorithm") != "johnsons_algorithm"
+            or workload.get("function_symbol") != "johnsons_algorithm"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or JOHNSONS_ALGORITHM_MAX_VERTICES != 16
+            or JOHNSONS_ALGORITHM_MAX_WEIGHT != 32
+            or JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH != 257
+            or len(case_ids) != len(JOHNSONS_ALGORITHM_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != JOHNSONS_ALGORITHM_CASE_IDS
+            or len(null_cases) != 1
+            or null_cases[0].get("id") != "positive_length_null_input"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 1
+            or null_cases[0].get("expected_result") != -1):
+        raise ValueError("johnsons_algorithm workload metadata does not match its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "j" / "johnsons_algorithm" / "README.md").read_text(
+        encoding="utf-8")
+    if source["url"] not in readme:
+        raise ValueError("johnsons_algorithm README is missing its pinned source link")
+    indexed_cases = {case["id"]: case for case in case_list}
+    maximum_case = indexed_cases["maximum_dense_positive_matrix"]
+    if (len(maximum_case.get("input_values", [])) != JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH
+            or maximum_case.get("input_values", [None])[0] != JOHNSONS_ALGORITHM_MAX_VERTICES
+            or maximum_case.get("expected_result") == -1
+            or any(indexed_cases[case_id].get("expected_result") != -1
+                   for case_id in JOHNSONS_ALGORITHM_CASE_IDS if case_id.endswith("_invalid"))):
+        raise ValueError("johnsons_algorithm workload is missing maximum or invalid-graph coverage")
+
+    for case in case_list:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else -1)
+        if (not isinstance(values, list)
+                or len(values) > JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or (input_is_null and (values or not 1 <= input_length <= JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"johnsons_algorithm input framing is invalid for {case.get('id')}")
+        result = johnsons_algorithm_expected_result(values)
+        if type(case.get("expected_result")) is not int or result != case.get("expected_result"):
+            raise ValueError(f"johnsons_algorithm workload mismatch: {case.get('id')}")
+
+
+def validate_knapsack_zero_one_tabulation_workload(workload: dict) -> None:
+    """Pin the Java 0/1 knapsack source, packed input bounds, and fixtures."""
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[capacity, item_count, weight_0, value_0, ...]",
+        "maximum_capacity": KNAPSACK_ZERO_ONE_TABULATION_MAX_CAPACITY,
+        "maximum_item_count": KNAPSACK_ZERO_ONE_TABULATION_MAX_ITEMS,
+        "item_weight_range": [1, KNAPSACK_ZERO_ONE_TABULATION_MAX_WEIGHT],
+        "item_value_range": [0, KNAPSACK_ZERO_ONE_TABULATION_MAX_VALUE],
+        "maximum_valid_input_length": KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_length": KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH,
+        "null_input_result": KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT,
+        "invalid_result": KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "Maximum achievable value without exceeding capacity, using each item at most once.",
+        "invalid_result": KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 9,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 20,
+    }
+    case_list = workload.get("cases")
+    if not isinstance(case_list, list):
+        case_list = []
+    case_ids = [case.get("id") for case in case_list if isinstance(case, dict)]
+    null_cases = [case for case in case_list
+                  if isinstance(case, dict) and case.get("input_is_null", False)]
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "knapsack-zero-one-tabulation-v1"
+            or workload.get("algorithm") != "knapsack_zero_one_tabulation"
+            or workload.get("function_symbol") != "knapsack_zero_one_tabulation"
+            or workload.get("pinned_source") != KNAPSACK_ZERO_ONE_TABULATION_PINNED_SOURCE
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or len(case_ids) != len(KNAPSACK_ZERO_ONE_TABULATION_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != KNAPSACK_ZERO_ONE_TABULATION_CASE_IDS
+            or len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_pointer_with_positive_length"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 1
+            or null_cases[0].get("expected_result") != KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT):
+        raise ValueError("knapsack_zero_one_tabulation workload metadata does not match its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "k" / "knapsack_zero_one_tabulation" / "README.md").read_text(
+        encoding="utf-8")
+    if (KNAPSACK_ZERO_ONE_TABULATION_PINNED_SOURCE["url"] not in readme
+            or "null input pointer" not in readme
+            or "all 128 items" not in readme):
+        raise ValueError("knapsack_zero_one_tabulation README is missing its source, null, or maximum fixture note")
+
+    indexed_cases = {case["id"]: case for case in case_list}
+    maximum_values = [KNAPSACK_ZERO_ONE_TABULATION_MAX_CAPACITY,
+                      KNAPSACK_ZERO_ONE_TABULATION_MAX_ITEMS,
+                      *([1, 1] * KNAPSACK_ZERO_ONE_TABULATION_MAX_ITEMS)]
+    maximum_case = indexed_cases["maximum_item_count"]
+    if (maximum_case.get("input_values") != maximum_values
+            or maximum_case.get("expected_result") != KNAPSACK_ZERO_ONE_TABULATION_MAX_ITEMS):
+        raise ValueError("knapsack_zero_one_tabulation workload is missing its exact maximum-item fixture")
+
+    for case in case_list:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else -1)
+        if (not isinstance(values, list)
+                or len(values) > KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or (input_is_null and (values or not 1 <= input_length <= KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"knapsack_zero_one_tabulation input framing is invalid for {case.get('id')}")
+        expected = knapsack_zero_one_tabulation_expected(values)
+        if type(case.get("expected_result")) is not int or expected != case.get("expected_result"):
+            raise ValueError(f"knapsack_zero_one_tabulation workload mismatch: {case.get('id')}")
+
+
+MATRIX_EXPONENTIATION_CASE_IDS = frozenset({
+    "order_one_n_zero_returns_zero", "order_one_initial_value",
+    "order_one_first_recursive_term", "order_one_recursive_power", "order_one_zero_coefficient",
+    "fibonacci_base_boundary", "fibonacci_first_recursive_term", "fibonacci_recursive_odd_power",
+    "fibonacci_recursive_even_power", "fibonacci_large_index", "tribonacci_order_three",
+    "tribonacci_large_index", "pell_recurrence", "order_three_distinct_coefficients",
+    "order_four_nonuniform_recurrence", "order_eight_direct_initial_value",
+    "order_eight_first_recursive_term", "order_eight_maximum_index",
+    "all_zero_coefficients_after_base", "zero_initial_values", "modulus_boundary_values",
+    "zero_initial_index_with_boundary_values", "index_at_global_upper_bound",
+    "order_zero", "order_above_bound", "negative_order", "short_order_one_record",
+    "missing_recurrence_coefficient", "extra_input_element", "maximum_parseable_length_trailing_word",
+    "negative_initial_value", "initial_value_equal_modulus", "negative_recurrence_coefficient",
+    "coefficient_equal_modulus", "negative_index", "index_above_bound",
+    "signed_i64_minimum_index", "signed_i64_maximum_index",
+})
+
+
+def validate_matrix_exponentiation_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/C-Plus-Plus",
+        "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+        "path": "others/matrix_exponentiation.cpp",
+        "symbol": "ans / multiply / power",
+        "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/matrix_exponentiation.cpp",
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "layout": "[k, B[0..k), C[0..k), n]",
+        "order_range": [1, MATRIX_EXPONENTIATION_MAX_ORDER],
+        "initial_value_range": [0, MATRIX_EXPONENTIATION_MODULUS - 1],
+        "coefficient_range": [0, MATRIX_EXPONENTIATION_MODULUS - 1],
+        "index_range": [0, MATRIX_EXPONENTIATION_MAX_INDEX],
+        "modulus": MATRIX_EXPONENTIATION_MODULUS,
+        "maximum_valid_input_length": MATRIX_EXPONENTIATION_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_length": MATRIX_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH,
+        "exact_packed_shape": "Exactly 2*k + 2 signed-i64 values.",
+        "invalid_input_result": MATRIX_EXPONENTIATION_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "The source recurrence result modulo 1,000,000,007.",
+        "valid_value_range": [0, MATRIX_EXPONENTIATION_MODULUS - 1],
+        "invalid_input_result": MATRIX_EXPONENTIATION_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-cpp-matrix-exponentiation-i64-array-scalar-v1"
+            or workload.get("algorithm") != "matrix_exponentiation"
+            or workload.get("function_symbol") != "matrix_exponentiation"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or "workspace" in workload
+            or workload.get("measurement") != measurement
+            or MATRIX_EXPONENTIATION_MAX_ORDER != 8
+            or MATRIX_EXPONENTIATION_MAX_INDEX != 1_000_000_000_000
+            or MATRIX_EXPONENTIATION_MAX_INPUT_LENGTH != 18
+            or MATRIX_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH != 19
+            or MATRIX_EXPONENTIATION_MODULUS != 1_000_000_007
+            or MATRIX_EXPONENTIATION_I64_MIN != -(1 << 63)
+            or MATRIX_EXPONENTIATION_I64_MAX != (1 << 63) - 1
+            or MATRIX_EXPONENTIATION_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(MATRIX_EXPONENTIATION_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MATRIX_EXPONENTIATION_CASE_IDS):
+        raise ValueError("matrix_exponentiation workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "matrix_exponentiation" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or "companion matrix" not in readme
+            or "recursively computed" not in readme):
+        raise ValueError("matrix_exponentiation README is missing its pinned source or recurrence semantics")
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or len(values) > MATRIX_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int
+                       or not MATRIX_EXPONENTIATION_I64_MIN <= value <= MATRIX_EXPONENTIATION_I64_MAX
+                       for value in values)):
+            raise ValueError(f"matrix_exponentiation input framing is invalid: {case.get('id')}")
+        expected = matrix_exponentiation_expected(values)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(f"matrix_exponentiation workload mismatch: {case.get('id')}")
+
+
+MILLER_RABIN_PRIMALITY_CHECKER_CASE_IDS = frozenset({
+    "minimum_odd_prime", "reused_witness_liar_one_round", "reused_witness_liar_64_rounds",
+    "reused_witness_rejector", "largest_signed_32_bit_prime", "even_n_out_of_domain",
+    "zero_rounds_out_of_domain", "negative_seed_out_of_domain", "wrong_input_arity",
+    "trailing_input_word",
+})
+
+
+def validate_miller_rabin_primality_checker_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/C-Sharp",
+        "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+        "path": "Algorithms/Numeric/MillerRabinPrimalityChecker.cs",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[n, rounds, seed] with array length supplied separately and no count prefix",
+        "valid_length": MILLER_RABIN_PRIMALITY_CHECKER_MAX_VALID_INPUT_VALUES,
+        "maximum_length": MILLER_RABIN_PRIMALITY_CHECKER_MAX_INPUT_LENGTH,
+        "n_range": [5, MILLER_RABIN_PRIMALITY_CHECKER_MAX_N],
+        "n_must_be_odd": True,
+        "rounds_range": [1, MILLER_RABIN_PRIMALITY_CHECKER_MAX_ROUNDS],
+        "seed_range": [0, MILLER_RABIN_PRIMALITY_CHECKER_MAX_SEED],
+        "prng": "SplitMix64",
+        "witness_range_inclusive": [2, "n-3"],
+        "accepted_witnesses_per_call": 1,
+        "witness_reused_for_all_rounds": True,
+        "invalid_result": MILLER_RABIN_PRIMALITY_CHECKER_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "result": "1 if the selected witness passes all rounds; 0 if it proves n composite",
+        "invalid_result": MILLER_RABIN_PRIMALITY_CHECKER_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "csharp-miller-rabin-primality-checker-splitmix64-v1"
+            or workload.get("algorithm") != "miller_rabin_primality_checker"
+            or workload.get("function_symbol") != "miller_rabin_primality_checker"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or "workspace" in workload
+            or workload.get("measurement") != measurement
+            or MILLER_RABIN_PRIMALITY_CHECKER_MAX_VALID_INPUT_VALUES != 3
+            or MILLER_RABIN_PRIMALITY_CHECKER_MAX_INPUT_LENGTH != 4
+            or MILLER_RABIN_PRIMALITY_CHECKER_MAX_N != 2_147_483_647
+            or MILLER_RABIN_PRIMALITY_CHECKER_MAX_ROUNDS != 64
+            or MILLER_RABIN_PRIMALITY_CHECKER_MAX_SEED != 2_147_483_647
+            or MILLER_RABIN_PRIMALITY_CHECKER_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(MILLER_RABIN_PRIMALITY_CHECKER_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MILLER_RABIN_PRIMALITY_CHECKER_CASE_IDS):
+        raise ValueError("miller_rabin_primality_checker workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "miller_rabin_primality_checker" / "README.md").read_text(
+        encoding="utf-8")
+    source_url = "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/MillerRabinPrimalityChecker.cs"
+    if (source_url not in readme or "SplitMix64" not in readme or "reuse that witness" not in readme):
+        raise ValueError("miller_rabin_primality_checker README is missing its pinned source or witness semantics")
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or len(values) > MILLER_RABIN_PRIMALITY_CHECKER_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63) for value in values)):
+            raise ValueError(f"miller_rabin_primality_checker input framing is invalid: {case.get('id')}")
+        expected = miller_rabin_primality_checker_expected(values)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(f"miller_rabin_primality_checker workload mismatch: {case.get('id')}")
+
+
+LOGISTIC_REGRESSION_PREDICT_CASE_IDS = frozenset({
+    "single_zero_score_predicts_one", "all_negative_scores", "mixed_scores_with_zero_boundary",
+    "multiple_positive_rows_and_zero", "negative_features_and_weights", "one_row_many_features",
+    "invalid_empty", "invalid_zero_rows", "invalid_zero_features", "invalid_truncated_layout",
+    "invalid_trailing_value", "invalid_row_bound", "invalid_feature_bound",
+    "invalid_feature_value", "invalid_parameter_value", "maximum_shape_sets_bit_62",
+    "maximum_parseable_length_rejects_trailing",
+})
+
+
+def validate_logistic_regression_predict_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/MATLAB-Octave",
+        "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+        "symbols": ["Predict", "Sigmoid"],
+        "paths": [
+            "algorithms/machine_learning/Logistic-Regression/Predict.m",
+            "algorithms/machine_learning/Logistic-Regression/Sigmoid.m",
+        ],
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "layout": "[row_count, feature_count, row_major_features..., theta...]",
+        "row_count_range": [1, LOGISTIC_REGRESSION_PREDICT_MAX_ROWS],
+        "feature_count_range": [1, LOGISTIC_REGRESSION_PREDICT_MAX_FEATURES],
+        "feature_and_theta_range": [
+            LOGISTIC_REGRESSION_PREDICT_MIN_FEATURE_VALUE,
+            LOGISTIC_REGRESSION_PREDICT_MAX_FEATURE_VALUE,
+        ],
+        "length_formula": "2 + row_count * feature_count + feature_count",
+        "maximum_valid_input_length": LOGISTIC_REGRESSION_PREDICT_MAX_VALID_INPUT_VALUES,
+        "maximum_parseable_input_length": LOGISTIC_REGRESSION_PREDICT_MAX_INPUT_LENGTH,
+        "invalid_input_result": LOGISTIC_REGRESSION_PREDICT_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "bit j is 1 when row j has a nonnegative dot product with theta; row 0 uses bit 0",
+        "result_range": [0, LOGISTIC_REGRESSION_PREDICT_I64_MAX],
+        "invalid_input_result": LOGISTIC_REGRESSION_PREDICT_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "matlab-logistic-regression-predict-packed-mask-v1"
+            or workload.get("algorithm") != "logistic_regression_predict"
+            or workload.get("function_symbol") != "logistic_regression_predict"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or LOGISTIC_REGRESSION_PREDICT_MAX_ROWS != 63
+            or LOGISTIC_REGRESSION_PREDICT_MAX_FEATURES != 32
+            or LOGISTIC_REGRESSION_PREDICT_MAX_VALID_INPUT_VALUES != 2050
+            or LOGISTIC_REGRESSION_PREDICT_MAX_INPUT_LENGTH != 2051
+            or LOGISTIC_REGRESSION_PREDICT_MIN_FEATURE_VALUE != -1000
+            or LOGISTIC_REGRESSION_PREDICT_MAX_FEATURE_VALUE != 1000
+            or LOGISTIC_REGRESSION_PREDICT_INVALID_RESULT != -1
+            or LOGISTIC_REGRESSION_PREDICT_I64_MIN != -(1 << 63)
+            or LOGISTIC_REGRESSION_PREDICT_I64_MAX != (1 << 63) - 1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(LOGISTIC_REGRESSION_PREDICT_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != LOGISTIC_REGRESSION_PREDICT_CASE_IDS):
+        raise ValueError("logistic_regression_predict workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "logistic_regression_predict" / "README.md").read_text(
+        encoding="utf-8")
+    source_urls = (
+        "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/Logistic-Regression/Predict.m",
+        "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/Logistic-Regression/Sigmoid.m",
+    )
+    if (any(url not in readme for url in source_urls)
+            or "nonnegative" not in readme or "bit 0" not in readme):
+        raise ValueError("logistic_regression_predict README is missing its pinned sources or bit-mask semantics")
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (not isinstance(values, list)
+                or len(values) > LOGISTIC_REGRESSION_PREDICT_MAX_INPUT_LENGTH
+                or any(type(value) is not int
+                       or not LOGISTIC_REGRESSION_PREDICT_I64_MIN <= value <= LOGISTIC_REGRESSION_PREDICT_I64_MAX
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)):
+            raise ValueError(f"logistic_regression_predict input framing is invalid: {case.get('id')}")
+        expected = logistic_regression_predict_expected(values)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(f"logistic_regression_predict workload mismatch: {case.get('id')}")
+
+TIME_SIMULATION_CASE_IDS = frozenset({
+    "empty_trace", "schedule_then_inclusive_tick", "cancel_before_tick",
+    "slot_reuse_controls_equal_time_order", "time_empty_and_event_queries",
+    "unknown_cancel_then_queries", "maximum_signed_timestamp", "queue_full_returns_zero",
+    "backward_tick_invalid", "schedule_in_past_invalid", "cancel_zero_invalid",
+    "negative_timestamp_invalid", "invalid_opcode", "query_with_nonzero_operand_invalid",
+    "wrong_length_invalid", "trailing_word_invalid", "maximum_cumulative_fires",
+})
+
+
+def validate_time_simulation_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Zig",
+        "commit": "86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3",
+        "path": "tiger_style/time_simulation.zig",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[action_count, (opcode, operand)*] with length supplied separately and no count prefix",
+        "maximum_action_count": TIME_SIMULATION_MAX_ACTIONS,
+        "maximum_valid_length": TIME_SIMULATION_MAX_VALID_INPUT_VALUES,
+        "maximum_parseable_length": TIME_SIMULATION_MAX_INPUT_LENGTH,
+        "opcodes": {
+            "0": "schedule at absolute timestamp",
+            "1": "cancel event ID",
+            "2": "tick to inclusive target timestamp",
+            "3": "query current time; operand must be 0",
+            "4": "query whether the queue is empty; operand must be 0",
+        },
+        "timestamp_range": [0, TIME_SIMULATION_MAX_TIMESTAMP],
+        "maximum_active_events": TIME_SIMULATION_MAX_EVENTS,
+        "invalid_result": TIME_SIMULATION_INVALID_RESULT,
+        "maximum_cumulative_fires": TIME_SIMULATION_MAX_CUMULATIVE_FIRES,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar_fnv1a64_low63",
+        "word_sequence": "[action_count, action_results..., fired_count, (fired_id, fired_timestamp)*, final_now, final_active_count, total_events_processed]",
+        "word_encoding": "each unsigned 64-bit word as eight little-endian bytes",
+        "offset_basis": TIME_SIMULATION_FNV_OFFSET_BASIS,
+        "prime": TIME_SIMULATION_FNV_PRIME,
+        "result_mask": TIME_SIMULATION_MASK63,
+        "invalid_result": TIME_SIMULATION_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1,
+    }
+    cases = workload.get("cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "zig-time-simulation-i64-array-scalar-v1"
+            or workload.get("algorithm") != "time_simulation"
+            or workload.get("function_symbol") != "time_simulation"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or TIME_SIMULATION_MAX_ACTIONS != 4096
+            or TIME_SIMULATION_MAX_VALID_INPUT_VALUES != 8193
+            or TIME_SIMULATION_MAX_INPUT_LENGTH != 8194
+            or TIME_SIMULATION_MAX_EVENTS != 1024
+            or TIME_SIMULATION_MAX_CUMULATIVE_FIRES != 4092
+            or TIME_SIMULATION_MAX_CALLBACK_LOG_CAPACITY < TIME_SIMULATION_MAX_CUMULATIVE_FIRES
+            or TIME_SIMULATION_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(TIME_SIMULATION_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != TIME_SIMULATION_CASE_IDS):
+        raise ValueError("time_simulation workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "t" / "time_simulation" / "README.md").read_text(encoding="utf-8")
+    source_url = "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/tiger_style/time_simulation.zig"
+    if (source_url not in readme or "4092" not in readme or "FNV-1a-64" not in readme):
+        raise ValueError("time_simulation README is missing its pinned source or trace-hash semantics")
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (not isinstance(values, list)
+                or len(values) > TIME_SIMULATION_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63) for value in values)
+                or type(input_length) is not int or input_length != len(values)):
+            raise ValueError(f"time_simulation input framing is invalid: {case.get('id')}")
+        expected = time_simulation_expected(values)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(f"time_simulation workload mismatch: {case.get('id')}")
+
+
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH if algorithm == "kth_element_finder" else
@@ -1006,6 +2517,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         MAX_FEISTEL_CIPHER_INPUT_LENGTH if algorithm == "feistel_cipher_normalized" else
                         MAX_EDMONDS_KARP_INPUT_LENGTH if algorithm == "edmonds_karp" else
                         MAX_GRAPH_ENUMERATION_INPUT_LENGTH if algorithm == "graph_enumeration" else
+                        JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH if algorithm == "johnsons_algorithm" else
+                        KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
+                        if algorithm == "knapsack_zero_one_tabulation" else
+                        LCA_MAX_INPUT_LENGTH if algorithm == "lca" else
                         MAX_GREEDY_GRAPH_COLORING_INPUT_LENGTH if algorithm == "greedy_graph_coloring" else
                         MAX_GREEDY_BEST_FIRST_INPUT_LENGTH if algorithm == "greedy_best_first" else
                         MAX_GROW_ONLY_SET_INPUT_LENGTH if algorithm == "grow_only_set" else
@@ -1029,6 +2544,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         MAX_IQR_OUTLIER_INDICES_LENGTH + 1 if algorithm == "iqr_outlier_indices" else
                         MAX_COUNT_SINGLY_LINKED_LIST_INPUT_LENGTH
                         if algorithm == "count_singly_linked_list_recursion"
+                        else MAX_SEARCH_SINGLY_LINKED_LIST_RECURSION_INPUT_LENGTH
+                        if algorithm == "search_singly_linked_list_recursion"
                         else MAX_CHECK_CYCLE_INPUT_LENGTH if algorithm == "check_cycle"
                         else MAX_UNDIRECTED_CYCLE_CHECK_INPUT_LENGTH if algorithm == "undirected_cycle_check"
                         else MAX_COUNT_HOMOGENOUS_INPUT_LENGTH if algorithm == "count_homogenous"
@@ -1040,8 +2557,26 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_NEEDLEMAN_WUNSCH_INPUT_LENGTH if algorithm == "needleman_wunsch"
                         else MAX_ONES_AND_ZEROS_INPUT_LENGTH if algorithm == "ones_and_zeros"
                         else MAX_OPTIMAL_BINARY_SEARCH_TREE_INPUT_LENGTH if algorithm == "optimal_binary_search_tree"
+                        else MATRIX_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "matrix_exponentiation"
+                        else MILLER_RABIN_PRIMALITY_CHECKER_MAX_INPUT_LENGTH
+                        if algorithm == "miller_rabin_primality_checker"
+                        else LOGISTIC_REGRESSION_PREDICT_MAX_INPUT_LENGTH
+                        if algorithm == "logistic_regression_predict"
+                        else TIME_SIMULATION_MAX_INPUT_LENGTH if algorithm == "time_simulation"
                         else MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH if algorithm == "linear_recurrence_matrix"
                         else MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH if algorithm == "recursive_linear_search"
+                        else MAX_SHORTEST_WORD_DISTANCE_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "shortest_word_distance"
+                        else MAX_MATCH_WORD_PATTERN_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "match_word_pattern"
+                        else MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "power_using_recursion"
+                        else MAX_SCRAMBLE_STRINGS_PARSEABLE_INPUT_LENGTH if algorithm == "scramble_strings"
+                        else RICHEST_CUSTOMER_WEALTH_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "richest_customer_wealth"
+                        else SEGMENT_TREE_UPDATE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "segment_tree_update"
                         else MAX_WILDCARD_MATCHING_INPUT_LENGTH if algorithm == "wildcard_matching"
                         else MAX_PRIMITIVE_ROOT_INPUT_LENGTH if algorithm == "primitive_root"
                         else MAX_QUADRATIC_RESIDUE_INPUT_LENGTH if algorithm == "quadratic_residue"
@@ -1193,6 +2728,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "permutation_sort"
                         else MAX_SUBSTRING_SEARCH_PARSEABLE_INPUT_LENGTH
                         if algorithm == "substring_search"
+                        else MAX_SUBLIST_SEARCH_INPUT_LENGTH
+                        if algorithm == "sublist_search"
                         else MAX_SUBSTRING_END_PARSEABLE_INPUT_LENGTH
                         if algorithm == "substring_end"
                         else MAX_SUBSTRING_MINUS_PARSEABLE_INPUT_LENGTH
@@ -1368,14 +2905,127 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_DECISIONS_CONVOLUTIONS_INPUT_LENGTH + 1
                         if algorithm == "decisions_convolutions"
                         else MAX_WA_TOR_PARSEABLE_INPUT_LENGTH if algorithm == "wa_tor"
+                        else MAX_LARGEST_PRODUCT_IN_A_GRID_INPUT_LENGTH if algorithm == "largest_product_in_a_grid"
+                        else MAX_STOER_WAGNER_INPUT_LENGTH if algorithm == "stoer_wagner"
+                        else MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH if algorithm == "pushdown_automaton"
+                        else MAX_SPRAGUE_GRUNDY_INPUT_LENGTH if algorithm == "sprague_grundy_theorem"
+                        else MAX_STOCHASTIC_MATRIX_INPUT_VALUES if algorithm == "stochastic_matrix"
+                        else MAX_KEY_FINDER_PARSEABLE_INPUT_VALUES if algorithm == "key_finder"
+                        else MAX_SUBSET_COUNT_INPUT_VALUES if algorithm == "subset_count"
+                        else MAX_POLLARD_INPUT_LENGTH if algorithm == "pollard"
+                        else MAX_POLYGON_POINTS_INPUT_LENGTH if algorithm == "polygon_points"
+                        else MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH
+                        if algorithm == "traveling_salesman_bitmask"
+                        else MAX_ROULETTE_WHEEL_SELECTION_INPUT_LENGTH
+                        if algorithm == "roulette_wheel_selection"
+                        else MAX_PROBLEM016_POWER_DIGIT_SUM_INPUT_LENGTH if algorithm == "problem016_power_digit_sum"
+                        else MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_INPUT_LENGTH if algorithm == "minimum_coin_change_combinations"
+                        else MAX_IS_STRONG_PASSWORD_INPUT_LENGTH if algorithm == "is_strong_password"
+                        else MAX_RESCALE_PARSEABLE_INPUT_LENGTH if algorithm == "rescale"
                         else MAX_DETECTING_ENGLISH_INPUT_LENGTH
                         if algorithm == "detecting_english_programmatically"
+                        else PAIRING_HEAP_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "pairing_heap"
+                        else STRING_HASH_EQUALITY_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "string_hash_equality"
+                        else SUPPORT_VECTOR_CLASSIFIER_MAX_PARSEABLE_INPUT_VALUES
+                        if algorithm == "support_vector_classifier"
+                        else MULTIPLEXER_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "multiplexer"
+                        else BINARY_GENETIC_ALGORITHM_MAX_INPUT_LENGTH
+                        if algorithm == "binary_genetic_algorithm"
+                        else MODULO_MAX_PARSEABLE_INPUT_VALUES if algorithm == "modulo"
+                        else TREE_MATCHING_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "tree_matching"
+                        else MY_ATOI_MAX_INPUT_LENGTH + 1 if algorithm == "my_atoi"
+                        else TRANSPOSITION_RUST_MAX_INPUT_LENGTH + 1
+                        if algorithm == "transposition_rust"
+                        else MINONE_MAX_LENGTH + 1 if algorithm == "minone"
+                        else MUL_ARRAY_MAX_INPUT_LENGTH + 1 if algorithm == "mul_array"
+                        else MATCHDIMENSIONS_MAX_INPUT_LENGTH if algorithm == "matchdimensions"
+                        else MAGIC_SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "magic_sequence"
+                        else PIPELINE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "pipeline"
+                        else KAHNS_ALGORITHM_LONG_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kahns_algorithm_long"
+                        else KCENTERS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kcenters"
+                        else MINIMAX_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "minimax"
+                        else SPARSE_MATRIX_MAX_INPUT_LENGTH if algorithm == "sparse_matrix"
                         else 516 if algorithm == "euler" else 100001)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "detecting_english_programmatically":
+    if algorithm == "largest_product_in_a_grid":
+        expected_from_source = largest_product_in_a_grid_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("largest_product_in_a_grid expected_result must match the bounded four-direction grid product")
+    elif algorithm == "stochastic_matrix":
+        expected_from_source = stochastic_matrix_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("stochastic_matrix expected_result must match the selected row/column stochastic predicate")
+    elif algorithm == "key_finder":
+        expected_from_source = key_finder_expected(values)
+        if expected_from_source == KEY_FINDER_INVALID_RESULT:
+            if expected != KEY_FINDER_INVALID_RESULT:
+                raise ValueError("invalid key_finder inputs must use the -1 result sentinel")
+        elif expected != expected_from_source:
+            raise ValueError("key_finder expected_result must match the first source-ordered phrase shift")
+    elif algorithm == "subset_count":
+        expected_from_source = subset_count_expected(values)
+        if expected_from_source == SUBSET_COUNT_INVALID_RESULT:
+            if expected != SUBSET_COUNT_INVALID_RESULT:
+                raise ValueError("invalid subset_count inputs must use the -1 result sentinel")
+        elif expected != expected_from_source:
+            raise ValueError("subset_count expected_result must match the pinned getCountSO recurrence")
+    elif algorithm == "pollard":
+        expected_from_source = pollard_expected(values)
+        if expected_from_source == POLLARD_INVALID_RESULT:
+            if expected != POLLARD_INVALID_RESULT:
+                raise ValueError("invalid pollard inputs must use the -1 result sentinel")
+        elif expected != expected_from_source:
+            raise ValueError("pollard expected_result must match the pinned fixed-seed Floyd recurrence")
+    elif algorithm == "polygon_points":
+        expected_from_source = polygon_points_expected(values)
+        if expected_from_source == POLYGON_POINTS_INVALID_RESULT:
+            if expected != POLYGON_POINTS_INVALID_RESULT:
+                raise ValueError("invalid polygon_points inputs must use the -1 result sentinel")
+        elif expected != expected_from_source:
+            raise ValueError("polygon_points expected_result must match the source area and boundary formula")
+    elif algorithm == "traveling_salesman_bitmask":
+        expected_from_source = traveling_salesman_bitmask_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("traveling_salesman_bitmask expected_result must match the bounded closed-tour minimum")
+    elif algorithm == "roulette_wheel_selection":
+        expected_from_source = roulette_wheel_selection_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("roulette_wheel_selection expected_result must match deterministic weighted ticket selection")
+    elif algorithm == "stoer_wagner":
+        expected_from_source = stoer_wagner_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("stoer_wagner expected_result must match the bounded global minimum cut")
+    elif algorithm == "pushdown_automaton":
+        expected_from_source = pushdown_automaton_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pushdown_automaton expected_result must match the bounded framed-language recognizer")
+    elif algorithm == "sprague_grundy_theorem":
+        expected_from_source = sprague_grundy_theorem_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("sprague_grundy_theorem expected_result must match the bounded subtraction-game mex")
+    elif algorithm == "problem016_power_digit_sum":
+        expected_from_source = problem016_power_digit_sum_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("problem016_power_digit_sum expected_result must match the bounded base/exponent digit sum")
+    elif algorithm == "minimum_coin_change_combinations":
+        expected_from_source = minimum_coin_change_combinations_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("minimum_coin_change_combinations expected_result must match unlimited unordered combinations")
+    elif algorithm == "is_strong_password":
+        expected_from_source = is_strong_password_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("is_strong_password expected_result must match the bounded ASCII predicate")
+    elif algorithm == "rescale":
+        expected_from_source = rescale_expected(values)
+        if expected_from_source == RESCALE_INVALID_RESULT:
+            if expected != RESCALE_INVALID_RESULT:
+                raise ValueError("invalid or exhausted rescale inputs must use the -1 result sentinel")
+        elif expected != expected_from_source:
+            raise ValueError("rescale expected_result must match the pinned rejection-sampling transform")
+    elif algorithm == "detecting_english_programmatically":
         expected_from_source = detecting_english_expected(values)
         if expected != expected_from_source:
             raise ValueError("detecting_english_programmatically expected_result must match the bounded dictionary contract")
@@ -1444,6 +3094,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = graph_enumeration_expected(values)
         if expected != expected_from_source:
             raise ValueError("graph_enumeration expected_result must match sorted-label adjacency enumeration")
+    elif algorithm == "johnsons_algorithm":
+        expected_from_source = johnsons_algorithm_expected_result(values)
+        if expected != expected_from_source:
+            raise ValueError("johnsons_algorithm expected_result must match bounded Java matrix all-pairs distances")
+    elif algorithm == "knapsack_zero_one_tabulation":
+        expected_from_source = knapsack_zero_one_tabulation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("knapsack_zero_one_tabulation expected_result must match bounded 0/1 dynamic programming")
     elif algorithm == "greedy_graph_coloring":
         expected_from_source = greedy_graph_coloring_expected(values)
         if expected != expected_from_source:
@@ -1532,6 +3190,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = count_singly_linked_list_expected(values)
         if expected != expected_from_source:
             raise ValueError("count_singly_linked_list_recursion expected_result must match the packed node count")
+    elif algorithm == "search_singly_linked_list_recursion":
+        expected_from_source = search_singly_linked_list_recursion_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("search_singly_linked_list_recursion expected_result must match recursive key membership")
     elif algorithm == "unrolled_linked_list":
         expected_from_source = unrolled_linked_list_expected(values)
         if expected != expected_from_source:
@@ -1576,10 +3238,60 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = linear_recurrence_matrix_expected(values)
         if expected != expected_from_source:
             raise ValueError("linear_recurrence_matrix expected_result must match bounded modular matrix exponentiation")
+    elif algorithm == "matrix_exponentiation":
+        expected_from_source = matrix_exponentiation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("matrix_exponentiation expected_result must match the pinned recurrence matrix power")
+    elif algorithm == "miller_rabin_primality_checker":
+        expected_from_source = miller_rabin_primality_checker_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("miller_rabin_primality_checker expected_result must match the seeded reused-witness contract")
+    elif algorithm == "logistic_regression_predict":
+        expected_from_source = logistic_regression_predict_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("logistic_regression_predict expected_result must match the inclusive sigmoid threshold mask")
+    elif algorithm == "time_simulation":
+        expected_from_source = time_simulation_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("time_simulation expected_result must match the virtual-clock trace hash")
     elif algorithm == "recursive_linear_search":
         expected_from_source = recursive_linear_search_expected(values)
         if expected != expected_from_source:
             raise ValueError("recursive_linear_search expected_result must match bounded distinct-value search")
+    elif algorithm == "shortest_word_distance":
+        expected_from_source = shortest_word_distance_expected(
+            values, case.get("input_is_null", False), case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("shortest_word_distance expected_result must match the bounded Ruby scan")
+    elif algorithm == "match_word_pattern":
+        expected_from_source = match_word_pattern_expected(
+            values, case.get("input_length", len(values)), case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("match_word_pattern expected_result must match the bounded Python matcher")
+    elif algorithm == "power_using_recursion":
+        expected_from_source = power_using_recursion_expected(
+            values, case.get("input_is_null", False), case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("power_using_recursion expected_result must match bounded recursive integer power")
+    elif algorithm == "scramble_strings":
+        expected_from_source = scramble_strings_expected(
+            values, case.get("input_is_null", False), case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("scramble_strings expected_result must match the bounded memoized recursion")
+    elif algorithm == "richest_customer_wealth":
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values))
+        expected_from_source = richest_customer_wealth_expected(
+            None if input_is_null else values, input_length)
+        if expected != expected_from_source:
+            raise ValueError("richest_customer_wealth expected_result must match the bounded matrix row sum")
+    elif algorithm == "segment_tree_update":
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values))
+        expected_from_source = segment_tree_update_expected(
+            None if input_is_null else values, input_length, input_is_null)
+        if expected != expected_from_source:
+            raise ValueError("segment_tree_update expected_result must match the bounded update/query trace")
     elif algorithm == "interleavingstrings":
         if (len(values) < 3 or not 0 <= values[0] <= 32 or not 0 <= values[1] <= 32
                 or values[2] != values[0] + values[1]
@@ -1719,6 +3431,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = substring_search_expected(values)
         if expected != expected_from_source:
             raise ValueError("substring_search expected_result must match the pinned byte-search helper")
+    elif algorithm == "sublist_search":
+        expected_from_source = sublist_search_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("sublist_search expected_result must match the bounded contiguous-list scan")
     elif algorithm == "substring_end":
         expected_from_source = substring_end_expected(values)
         if expected != expected_from_source:
@@ -5997,6 +7713,89 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = kth_element_finder_expected(values)
         if expected != expected_from_source:
             raise ValueError("kth_element_finder expected_result must match the bounded heap selection contract")
+    elif algorithm == "pairing_heap":
+        expected_from_source = pairing_heap_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pairing_heap expected_result must match the bounded ascending extraction hash")
+    elif algorithm == "string_hash_equality":
+        expected_from_source = string_hash_equality_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("string_hash_equality expected_result must match Keccak-256 digest equality")
+    elif algorithm == "support_vector_classifier":
+        expected_from_source = support_vector_classifier_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("support_vector_classifier expected_result must match the bounded binary prediction mask")
+    elif algorithm == "multiplexer":
+        expected_from_source = multiplexer_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("multiplexer expected_result must match the selected Boolean input bit")
+    elif algorithm == "binary_genetic_algorithm":
+        expected_from_source = binary_genetic_algorithm_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("binary_genetic_algorithm expected_result must match the seeded best objective cost")
+    elif algorithm == "modulo":
+        expected_from_source = modulo_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("modulo expected_result must match bounded unsigned remainder")
+    elif algorithm == "tree_matching":
+        expected_from_source = tree_matching_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("tree_matching expected_result must match the bounded tree matching DP")
+    elif algorithm == "my_atoi":
+        expected_from_source = my_atoi_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("my_atoi expected_result must match Java trim, prefix parsing, and i32 saturation")
+    elif algorithm == "transposition_rust":
+        expected_from_source = transposition_rust_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("transposition_rust expected_result must match the bounded multi-key Rust cipher")
+    elif algorithm == "minone":
+        expected_from_source = minone_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("minone expected_result must match the bounded exact sum-of-squares objective")
+    elif algorithm == "mul_array":
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values))
+        oracle_values = None if input_is_null else values
+        expected_from_source = mul_array_expected(oracle_values, input_length)
+        if expected != expected_from_source:
+            raise ValueError("mul_array expected_result must match the bounded exact array product and null-pointer contract")
+    elif algorithm == "matchdimensions":
+        expected_from_source = matchdimensions_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("matchdimensions expected_result must match the bounded row/column dimension comparison")
+    elif algorithm == "magic_sequence":
+        expected_from_source = magic_sequence_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("magic_sequence expected_result must match the bounded count-framed FNV-1a result")
+    elif algorithm == "pipeline":
+        expected_from_source = pipeline_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pipeline expected_result must match the bounded left-to-right stage composition")
+    elif algorithm == "kahns_algorithm_long":
+        expected_from_source = kahns_algorithm_long_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kahns_algorithm_long expected_result must match the bounded longest-DAG-path contract")
+    elif algorithm == "kcenters":
+        expected_from_source = kcenters_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kcenters expected_result must match the bounded deterministic center selection")
+    elif algorithm == "minimax":
+        expected_from_source = minimax_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("minimax expected_result must match the bounded full-tree max/min reduction")
+    elif algorithm == "sparse_matrix":
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values))
+        expected_from_source = sparse_matrix_expected(
+            None if input_is_null else values, input_is_null, input_length)
+        if expected != expected_from_source:
+            raise ValueError("sparse_matrix expected_result must match the bounded strict zero-majority predicate")
+    elif algorithm == "lca":
+        expected_from_source = lca_expected_result(
+            values, case.get("input_length", len(values)), case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("lca expected_result must match the bounded root-at-zero tree query")
     return values
 
 
@@ -6028,6 +7827,36 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
         parser.error("workload does not match the built array scalar algorithm")
+    if algorithm == "scramble_strings":
+        validate_scramble_strings_workload(workload)
+    elif algorithm == "richest_customer_wealth":
+        validate_richest_customer_wealth_workload(workload)
+    elif algorithm == "segment_tree_update":
+        validate_segment_tree_update_workload(workload)
+    elif algorithm == "shortest_word_distance":
+        validate_shortest_word_distance_workload(workload)
+    elif algorithm == "match_word_pattern":
+        validate_match_word_pattern_workload(workload)
+    elif algorithm == "power_using_recursion":
+        validate_power_using_recursion_workload(workload)
+    elif algorithm == "sparse_matrix":
+        validate_sparse_matrix_workload(workload)
+    elif algorithm == "graph_enumeration":
+        validate_graph_enumeration_workload(workload)
+    elif algorithm == "lca":
+        validate_lca_workload(workload)
+    elif algorithm == "johnsons_algorithm":
+        validate_johnsons_algorithm_workload(workload)
+    elif algorithm == "knapsack_zero_one_tabulation":
+        validate_knapsack_zero_one_tabulation_workload(workload)
+    elif algorithm == "matrix_exponentiation":
+        validate_matrix_exponentiation_workload(workload)
+    elif algorithm == "miller_rabin_primality_checker":
+        validate_miller_rabin_primality_checker_workload(workload)
+    elif algorithm == "logistic_regression_predict":
+        validate_logistic_regression_predict_workload(workload)
+    elif algorithm == "time_simulation":
+        validate_time_simulation_workload(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
@@ -6048,9 +7877,21 @@ def main() -> int:
     records = []
     for case in workload["cases"]:
         values = encode_case(case, algorithm)
-        if case.get("input_length") not in (None, len(values)):
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values))
+        if type(input_is_null) is not bool:
+            raise ValueError(f"input_is_null must be boolean for {case['id']}")
+        if input_is_null:
+            minimum_null_length = 0 if algorithm == "mul_array" else 1
+            if values or type(input_length) is not int or not minimum_null_length <= input_length <= 100002:
+                raise ValueError(f"null input length is outside the supported range for {case['id']}")
+        elif input_length != len(values):
             raise ValueError(f"declared input length differs for {case['id']}")
-        if len(values) > 1024:
+        if input_is_null:
+            command = [str(executable), "--null-input", str(input_length), str(case["expected_result"]),
+                       str(samples), str(warmups), str(repetitions)]
+            streamed_values = None
+        elif len(values) > 1024:
             command = [str(executable), "--stdin", str(len(values)), str(case["expected_result"]),
                        str(samples), str(warmups), str(repetitions)]
             streamed_values = " ".join(map(str, values)) + "\n"
@@ -6064,12 +7905,15 @@ def main() -> int:
         raw = json.loads(completed.stdout)
         if raw["observed_result"] != case["expected_result"] or len(raw["samples_ns"]) != samples:
             raise ValueError(f"array scalar runner returned an invalid result for {case['id']}")
+        workload_record = {"id": workload["id"], "spec_sha256": sha256_file(workload_path),
+                           "input_length": input_length, "input_values": values,
+                           "case": case["id"], "target": None,
+                           "expected_result": case["expected_result"]}
+        if input_is_null:
+            workload_record["input_is_null"] = True
         records.append({"schema_version": "1.0.0", "run_id": run_id, "algorithm": algorithm,
                         "implementation": implementation, "environment": environment,
-                        "workload": {"id": workload["id"], "spec_sha256": sha256_file(workload_path),
-                                     "input_length": len(values), "input_values": values,
-                                     "case": case["id"], "target": None,
-                                     "expected_result": case["expected_result"]},
+                        "workload": workload_record,
                         "measurement": {"timer": "C clock() process CPU time",
                                         "timer_resolution_ns": raw["timer_resolution_ns"],
                                         "comparison_model": "i64_array_scalar_call",

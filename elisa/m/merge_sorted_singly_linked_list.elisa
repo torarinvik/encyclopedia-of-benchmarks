@@ -1,0 +1,87 @@
+struct MergeSinglyNode:
+    value: i32
+    next: i32
+    origin: i32
+    position: i32
+
+def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def merge_sorted_singly_linked_list_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 130: return -1
+    if input[0] < 0 or input[0] > 128: return -1
+    len_a: usize = input[0].usize()
+    if len_a > length - 2: return -1
+    len_b_pos: usize = 1 + len_a
+    raw_len_b: i64 = input[len_b_pos]
+    if raw_len_b < 0 or raw_len_b > (128 - len_a).i64(): return -1
+    len_b: usize = raw_len_b.usize()
+    total: usize = len_a + len_b
+    if length != 2 + total: return -1
+
+    nodes: mutable MergeSinglyNode[128] = zeroed
+    i: mutable usize = 0
+    while i < len_a:
+        raw: i64 = input[1 + i]
+        if raw < -2147483648 or raw > 2147483647 or (i > 0 and input[i] > raw): return -1
+        nodes[i].value <- raw.i32()
+        if i + 1 < len_a: nodes[i].next <- (i + 1).i32()
+        else: nodes[i].next <- -1
+        nodes[i].origin <- 0
+        nodes[i].position <- i.i32()
+        i <- i + 1
+    b_start: usize = len_b_pos + 1
+    i <- 0
+    while i < len_b:
+        raw: i64 = input[b_start + i]
+        if raw < -2147483648 or raw > 2147483647 or (i > 0 and input[b_start + i - 1] > raw): return -1
+        node: usize = len_a + i
+        nodes[node].value <- raw.i32()
+        if i + 1 < len_b: nodes[node].next <- (node + 1).i32()
+        else: nodes[node].next <- -1
+        nodes[node].origin <- 1
+        nodes[node].position <- i.i32()
+        i <- i + 1
+
+    head_a: mutable i32 = if len_a == 0: -1 else: 0
+    head_b: mutable i32 = if len_b == 0: -1 else: len_a.i32()
+    merged_head: mutable i32 = -1
+    tail: mutable i32 = -1
+    while head_a >= 0 and head_b >= 0:
+        node: mutable i32
+        if nodes[head_a.usize()].value <= nodes[head_b.usize()].value:
+            node <- head_a
+            head_a <- nodes[node.usize()].next
+        else:
+            node <- head_b
+            head_b <- nodes[node.usize()].next
+        if tail < 0: merged_head <- node
+        else: nodes[tail.usize()].next <- node
+        tail <- node
+    remainder: i32 = if head_a >= 0: head_a else: head_b
+    if tail < 0: merged_head <- remainder
+    else: nodes[tail.usize()].next <- remainder
+
+    bytes: usize = 12 * total
+    if output.is_null() or capacity < bytes: return -2
+    buffer: mutable u8[1536] = zeroed
+    written: mutable usize = 0
+    node: mutable i32 = merged_head
+    while node >= 0:
+        put_i32_le(nodes[node.usize()].value, buffer[0], written)
+        put_i32_le(nodes[node.usize()].origin, buffer[0], written + 4)
+        put_i32_le(nodes[node.usize()].position, buffer[0], written + 8)
+        written <- written + 12
+        node <- nodes[node.usize()].next
+    index: mutable usize = 0
+    while index < bytes:
+        output[index] <- buffer[index]
+        index <- index + 1
+    bytes.i64()
+
+export fn merge_sorted_singly_linked_list(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = merge_sorted_singly_linked_list_impl

@@ -1,0 +1,46 @@
+const MAX_N: usize = 64
+const MAX_INPUT_LENGTH: usize = 129
+const MAX_TIME: i64 = 1000000
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def slack_time_scheduling_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    count: i64 = input[0]
+    if count < 0 or count > MAX_N.i64(): return -1
+    n: usize = count.usize()
+    if length != 1 + 2 * n: return -1
+    slack: mutable i64[MAX_N] = zeroed
+    order: mutable usize[MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        execution: i64 = input[1 + 2 * i]
+        deadline: i64 = input[2 + 2 * i]
+        if execution < 0 or execution > MAX_TIME or deadline < 0 or deadline > MAX_TIME: return -1
+        slack[i] <- deadline - execution
+        order[i] <- i
+        i <- i + 1
+    bytes: usize = 8 * n
+    if output == null or capacity < bytes: return -2
+    i <- 1
+    while i < n:
+        key: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and slack[key] < slack[order[j - 1]]:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- key
+        i <- i + 1
+    i <- 0
+    while i < n:
+        store_i64_le(order[i].i64(), output, i * 8)
+        i <- i + 1
+    bytes.i64()
+
+export fn slack_time_scheduling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = slack_time_scheduling_impl

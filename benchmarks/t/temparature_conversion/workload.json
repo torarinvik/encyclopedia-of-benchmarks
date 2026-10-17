@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-julia-temparature-conversion-i64-array-float64-v1",
+  "algorithm": "temparature_conversion",
+  "function_symbol": "temparature_conversion",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Julia",
+    "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+    "path": "src/conversions/temparature_conversion.jl"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[operation,temperature_micro,ndigits]",
+    "operation_range": [0, 5],
+    "temperature_micro_range": [-1000000000000, 1000000000000],
+    "temperature_scale": 1000000,
+    "ndigits_range": [-6, 6],
+    "maximum_valid_input_values": 3,
+    "maximum_parseable_input_values": 4,
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "selected source-order conversion rounded to ndigits decimal places with Julia RoundNearest ties-to-even",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"celsius_to_fahrenheit_default","input_values":[0,0,2],"input_length":3,"expected_result":32.0},
+    {"id":"celsius_to_kelvin_default","input_values":[1,20000000,2],"input_length":3,"expected_result":293.15},
+    {"id":"fahrenheit_to_celsius_default","input_values":[2,0,2],"input_length":3,"expected_result":-17.78},
+    {"id":"fahrenheit_to_kelvin_default","input_values":[3,0,2],"input_length":3,"expected_result":255.37},
+    {"id":"kelvin_to_celsius_default","input_values":[4,300000000,2],"input_length":3,"expected_result":26.85},
+    {"id":"kelvin_to_fahrenheit_default","input_values":[5,300000000,2],"input_length":3,"expected_result":80.33},
+    {"id":"celsius_to_fahrenheit_ties_to_even","input_values":[0,-17500000,0],"input_length":3,"expected_result":0.0},
+    {"id":"celsius_to_fahrenheit_negative_digits","input_values":[0,20000000,-1],"input_length":3,"expected_result":70.0},
+    {"id":"celsius_to_fahrenheit_minimum_digits","input_values":[0,0,-6],"input_length":3,"expected_result":0.0},
+    {"id":"fahrenheit_to_celsius_three_digits","input_values":[2,273354000,3],"input_length":3,"expected_result":134.086},
+    {"id":"kelvin_to_celsius_six_digits","input_values":[4,273150000,6],"input_length":3,"expected_result":0.0},
+    {"id":"maximum_temperature_micro","input_values":[0,1000000000000,2],"input_length":3,"expected_result":1800032.0},
+    {"id":"minimum_temperature_micro","input_values":[0,-1000000000000,2],"input_length":3,"expected_result":-1799968.0},
+    {"id":"invalid_operation_below_range","input_values":[-1,0,2],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_operation_above_range","input_values":[6,0,2],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_temperature_above_range","input_values":[0,1000000000001,2],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_digits_below_range","input_values":[0,0,-7],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_digits_above_range","input_values":[0,0,7],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_truncated_input","input_values":[0,0],"input_length":2,"expected_result":-1e300},
+    {"id":"invalid_trailing_input","input_values":[0,0,2,99],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid_i64_min_temperature","input_values":[0,-9223372036854775808,2],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid_i64_max_temperature","input_values":[0,9223372036854775807,2],"input_length":3,"expected_result":-1e300}
+  ]
+}

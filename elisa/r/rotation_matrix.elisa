@@ -1,0 +1,27 @@
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+const MAX_ANGLE: f64 = 1000.0
+
+def rotation_matrix_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_length != 1:
+        return -1
+    theta: f64 = input[0]
+    if theta != theta or theta < -MAX_ANGLE or theta > MAX_ANGLE:
+        return -1
+    cosine: f64 = cos(theta)
+    sine: f64 = sin(theta)
+    matrix: mutable f64[4] = zeroed
+    matrix[0] <- cosine
+    matrix[1] <- -sine
+    matrix[2] <- sine
+    matrix[3] <- cosine
+    if output == null or output_capacity < 4:
+        return -2
+    for index in 0..<4 |matrix, output|:
+        output[index] <- matrix[index]
+    return 4
+
+export fn rotation_matrix(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = rotation_matrix_impl

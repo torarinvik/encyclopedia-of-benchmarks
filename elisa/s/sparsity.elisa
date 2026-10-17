@@ -1,0 +1,24 @@
+const MAX_DIMENSION: i64 = 63
+const MAX_INPUT_VALUES: usize = 3971
+const MAX_ABS_CELL: i64 = 1000000
+
+def sparsity_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1.0e300
+    rows_value: i64 = input[0]
+    columns_value: i64 = input[1]
+    if rows_value < 1 or rows_value > MAX_DIMENSION or columns_value < 1 or columns_value > MAX_DIMENSION: return -1.0e300
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    total: usize = rows * columns
+    if length != 2 + total: return -1.0e300
+
+    zero_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < total:
+        value: i64 = input[2 + index]
+        if value < -MAX_ABS_CELL or value > MAX_ABS_CELL: return -1.0e300
+        if value == 0: zero_count <- zero_count + 1
+        index <- index + 1
+    zero_count.f64() / total.f64()
+
+export fn sparsity(input: i64&, length: usize) -> f64 = sparsity_impl

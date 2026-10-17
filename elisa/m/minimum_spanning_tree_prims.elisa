@@ -1,0 +1,180 @@
+const MAX_VERTICES: usize = 16
+const MAX_EDGES: usize = 64
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 195
+const MAX_OUTPUT_WORDS: usize = 31
+const MAX_OUTPUT_BYTES: usize = 124
+const SOURCE_HEAP_SENTINEL: i64 = 9223372036854775807
+
+def top_to_bottom(heap: mutable i64&, positions: mutable i32&, node_position: mutable i32&,
+    size: usize, start: usize) -> void:
+    root: mutable usize = start
+    while root * 2 + 1 < size:
+        left: usize = root * 2 + 1
+        right: usize = left + 1
+        child: usize = left
+        if right < size and heap[right] <= heap[left]: child <- right
+        if heap[child] >= heap[root]: break
+        heap_value: i64 = heap[root]
+        heap[root] <- heap[child]
+        heap[child] <- heap_value
+        vertex: i32 = positions[root]
+        positions[root] <- positions[child]
+        positions[child] <- vertex
+        node_position[positions[root].usize()] <- root.i32()
+        node_position[positions[child].usize()] <- child.i32()
+        root <- child
+
+def decrease_key(value: i64, index_start: usize, heap: mutable i64&,
+    positions: mutable i32&, node_position: mutable i32&) -> void:
+    index: mutable usize = index_start
+    vertex: i32 = positions[index]
+    while index != 0:
+        parent: usize = (index - 1) / 2
+        if value < heap[parent]:
+            heap[index] <- heap[parent]
+            positions[index] <- positions[parent]
+            node_position[positions[parent].usize()] <- index.i32()
+        else:
+            heap[index] <- value
+            positions[index] <- vertex
+            node_position[vertex.usize()] <- index.i32()
+            return
+        index <- parent
+    heap[0] <- value
+    positions[0] <- vertex
+    node_position[vertex.usize()] <- 0
+
+def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def minimum_spanning_tree_prims_impl(input: i32&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    raw_vertices: i32 = input[0]
+    raw_edges: i32 = input[1]
+    if raw_vertices < 1 or raw_vertices > 16 or raw_edges < 0 or raw_edges > 64: return -1
+    vertex_count: usize = raw_vertices.usize()
+    edge_count: usize = raw_edges.usize()
+    if length != 2 + 3 * edge_count: return -1
+
+    neighbors: mutable i32[256] = zeroed
+    weights: mutable i32[256] = zeroed
+    degree: mutable usize[16] = zeroed
+    seen: mutable bool[256] = zeroed
+    position: mutable usize = 2
+    edge_index: mutable usize = 0
+    while edge_index < edge_count:
+        u: i32 = input[position]
+        v: i32 = input[position + 1]
+        weight: i32 = input[position + 2]
+        position <- position + 3
+        if u < 0 or v <= u or v >= raw_vertices: return -1
+        seen_index: usize = u.usize() * MAX_VERTICES + v.usize()
+        if seen[seen_index]: return -1
+        seen[seen_index] <- true
+        u_degree: usize = degree[u.usize()]
+        neighbors[u.usize() * MAX_VERTICES + u_degree] <- v
+        weights[u.usize() * MAX_VERTICES + u_degree] <- weight
+        degree[u.usize()] <- u_degree + 1
+        v_degree: usize = degree[v.usize()]
+        neighbors[v.usize() * MAX_VERTICES + v_degree] <- u
+        weights[v.usize() * MAX_VERTICES + v_degree] <- weight
+        degree[v.usize()] <- v_degree + 1
+        edge_index <- edge_index + 1
+
+    if vertex_count > 1:
+        reached_vertex: mutable bool[16] = zeroed
+        stack: mutable usize[16] = zeroed
+        stack_size: mutable usize = 1
+        reached: mutable usize = 0
+        stack[0] <- 0
+        reached_vertex[0] <- true
+        while stack_size > 0:
+            stack_size <- stack_size - 1
+            vertex: usize = stack[stack_size]
+            reached <- reached + 1
+            neighbor_index: mutable usize = 0
+            while neighbor_index < degree[vertex]:
+                neighbor: usize = neighbors[vertex * MAX_VERTICES + neighbor_index].usize()
+                if not reached_vertex[neighbor]:
+                    reached_vertex[neighbor] <- true
+                    stack[stack_size] <- neighbor
+                    stack_size <- stack_size + 1
+                neighbor_index <- neighbor_index + 1
+        if reached != vertex_count: return -1
+
+    visited: mutable bool[16] = zeroed
+    parent: mutable i32[16] = zeroed
+    heap: mutable i64[16] = zeroed
+    positions: mutable i32[16] = zeroed
+    node_position: mutable i32[16] = zeroed
+    vertex: mutable usize = 0
+    while vertex < vertex_count:
+        parent[vertex] <- -1
+        heap[vertex] <- SOURCE_HEAP_SENTINEL
+        positions[vertex] <- vertex.i32()
+        node_position[vertex] <- vertex.i32()
+        vertex <- vertex + 1
+    visited[0] <- true
+    neighbor_index: mutable usize = 0
+    while neighbor_index < degree[0]:
+        neighbor: usize = neighbors[neighbor_index].usize()
+        parent[neighbor] <- 0
+        heap[neighbor] <- weights[neighbor_index].i64()
+        neighbor_index <- neighbor_index + 1
+    start: mutable usize = vertex_count / 2
+    while start > 0:
+        start <- start - 1
+        top_to_bottom(&heap[0], &positions[0], &node_position[0], vertex_count, start)
+
+    words: mutable i32[31] = zeroed
+    word_count: mutable usize = 1
+    tree_edge_count: mutable usize = 0
+    step: mutable usize = 1
+    while step < vertex_count:
+        vertex_id: i32 = positions[0]
+        vertex <- vertex_id.usize()
+        heap[0] <- SOURCE_HEAP_SENTINEL
+        top_to_bottom(&heap[0], &positions[0], &node_position[0], vertex_count, 0)
+        if not visited[vertex]:
+            words[word_count] <- parent[vertex]
+            words[word_count + 1] <- vertex_id
+            word_count <- word_count + 2
+            tree_edge_count <- tree_edge_count + 1
+            visited[vertex] <- true
+            neighbor_index <- 0
+            neighbor: mutable usize = 0
+            weight: mutable i32 = 0
+            while neighbor_index < degree[vertex]:
+                neighbor <- neighbors[vertex * MAX_VERTICES + neighbor_index].usize()
+                weight <- weights[vertex * MAX_VERTICES + neighbor_index]
+                if not visited[neighbor]:
+                    heap_index: usize = node_position[neighbor].usize()
+                    if weight.i64() < heap[heap_index]:
+                        heap[heap_index] <- weight.i64()
+                        decrease_key(weight.i64(), heap_index, &heap[0], &positions[0], &node_position[0])
+                        parent[neighbor] <- vertex_id
+                neighbor_index <- neighbor_index + 1
+        step <- step + 1
+    if tree_edge_count != vertex_count - 1: return -1
+    words[0] <- tree_edge_count.i32()
+    bytes: usize = word_count * 4
+    if bytes > MAX_OUTPUT_BYTES or output.is_null() or capacity < bytes: return -2
+    buffer: mutable u8[124] = zeroed
+    word_index: mutable usize = 0
+    while word_index < word_count:
+        put_i32_le(words[word_index], buffer[0], word_index * 4)
+        word_index <- word_index + 1
+    byte_index: mutable usize = 0
+    while byte_index < bytes:
+        output[byte_index] <- buffer[byte_index]
+        byte_index <- byte_index + 1
+    bytes.i64()
+
+export fn minimum_spanning_tree_prims(input: i32&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = minimum_spanning_tree_prims_impl

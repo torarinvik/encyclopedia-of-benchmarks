@@ -1,0 +1,48 @@
+const MAX_INPUT_LENGTH: usize = 260
+const MAX_TEXT_LENGTH: usize = 256
+const MAX_KEY: usize = 256
+
+def skytale_cipher_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    mode: i64 = input[0]
+    raw_key: i64 = input[1]
+    raw_length: i64 = input[2]
+    if mode < 0 or mode > 1 or raw_key < 1 or raw_key > MAX_KEY or raw_length < 0 or raw_length > MAX_TEXT_LENGTH:
+        return -1
+    key: usize = raw_key.usize()
+    n: usize = raw_length.usize()
+    if length != 3 + n:
+        return -1
+    for i in 0..<n |input|:
+        value: i64 = input[3 + i]
+        if value < 0 or value > 127:
+            return -1
+    if output == null or capacity < n:
+        return -2
+
+    if mode == 0:
+        out: mutable usize = 0
+        for row in 0..<key |input, output, out|:
+            position: mutable usize = row
+            while position < n |input, output, out, position|:
+                output[out] <- input[3 + position].u8()
+                out <- out + 1
+                position <- position + key
+    else:
+        starts: mutable [MAX_KEY]usize = zeroed
+        used: mutable [MAX_KEY]usize = zeroed
+        base: usize = n / key
+        extra: usize = n % key
+        for row in 1..<key |starts|:
+            increment: usize = 0
+            if row - 1 < extra:
+                increment <- 1
+            starts[row] <- starts[row - 1] + base + increment
+        for position in 0..<n |input, output, starts, used|:
+            row: usize = position % key
+            output[position] <- input[3 + starts[row] + used[row]].u8()
+            used[row] <- used[row] + 1
+    n.i64()
+
+export fn skytale_cipher(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = skytale_cipher_impl

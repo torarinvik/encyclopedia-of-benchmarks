@@ -1,0 +1,76 @@
+const MAX_N: usize = 11
+const FNV_OFFSET_BASIS: u64 = 14695981039346656037.u64()
+const FNV_PRIME: u64 = 1099511628211.u64()
+const I64_RESULT_MASK: u64 = 9223372036854775807.u64()
+
+def magic_sequence_fnv_byte(hash: mutable u64&, value: u8) -> void:
+    hash <- (hash ^ value.u64()) * FNV_PRIME
+
+def magic_sequence_enumerate(n: usize, hash: mutable u64&, hash_rows: bool) -> u32:
+    if n == 0:
+        return 1
+
+    vector: mutable u8[MAX_N] = zeroed
+    frequencies: mutable u8[MAX_N] = zeroed
+    next_candidate: mutable u8[MAX_N] = zeroed
+    prefix_sum: mutable u8[MAX_N + 1] = zeroed
+    depth: mutable usize = 0
+    solution_count: mutable u32 = 0
+
+    while true:
+        if depth == n:
+            is_magic: mutable bool = true
+            symbol: usize = 0
+            while symbol < n:
+                if frequencies[symbol] != vector[symbol]:
+                    is_magic <- false
+                    break
+                symbol <- symbol + 1
+            if is_magic:
+                solution_count <- solution_count + 1
+                if hash_rows:
+                    index: mutable usize = 0
+                    while index < n:
+                        magic_sequence_fnv_byte(hash, vector[index])
+                        index <- index + 1
+            depth <- depth - 1
+            previous_symbol: usize = vector[depth].usize()
+            frequencies[previous_symbol] <- frequencies[previous_symbol] - 1.u8()
+            continue
+
+        candidate: u8 = next_candidate[depth]
+        if candidate.usize() >= n:
+            next_candidate[depth] <- 0.u8()
+            if depth == 0:
+                break
+            depth <- depth - 1
+            previous_symbol: usize = vector[depth].usize()
+            frequencies[previous_symbol] <- frequencies[previous_symbol] - 1.u8()
+            continue
+
+        next_candidate[depth] <- candidate + 1.u8()
+        sum: usize = prefix_sum[depth].usize() + candidate.usize()
+        if sum > n:
+            continue
+        vector[depth] <- candidate
+        symbol_index: usize = candidate.usize()
+        frequencies[symbol_index] <- frequencies[symbol_index] + 1.u8()
+        prefix_sum[depth + 1] <- sum.u8()
+        depth <- depth + 1
+        next_candidate[depth] <- 0.u8()
+    solution_count
+
+def magic_sequence_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 1 or input[0] < 0 or input[0] > MAX_N.i64():
+        return -1
+    n: usize = input[0].usize()
+
+    hash: mutable u64 = FNV_OFFSET_BASIS
+    magic_sequence_fnv_byte(hash, n.u8())
+    solution_count: u32 = magic_sequence_enumerate(n, hash, false)
+    for byte in 0..<4:
+        magic_sequence_fnv_byte(hash, ((solution_count >> (byte * 8)) & 255.u32()).u8())
+    magic_sequence_enumerate(n, hash, true)
+    (hash & I64_RESULT_MASK).i64()
+
+export fn magic_sequence(input: i64&, length: usize) -> i64 = magic_sequence_impl

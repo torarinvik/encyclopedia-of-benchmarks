@@ -1,0 +1,53 @@
+# Allocate a fixed resource total using the pinned Java double calculation.
+def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[position + byte] <- ((bits >> (byte * 8)) & 255.u64()).u8()
+        byte <- byte + 1
+
+def proportional_fair_scheduling_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 2 or length > 131 or values.is_null():
+        return -1
+    process_count_value: i64 = values[0]
+    total_resources: i64 = values[1]
+    if process_count_value < 0 or process_count_value > 64:
+        return -1
+    if total_resources < 1 or total_resources > 1000000:
+        return -1
+    process_count: usize = process_count_value.usize()
+    if length != 2 + 2 * process_count:
+        return -1
+
+    name_ids: mutable i64[64] = zeroed
+    weights: mutable i64[64] = zeroed
+    total_weight: mutable i64 = 0
+    process: mutable usize = 0
+    while process < process_count:
+        name_id: i64 = values[2 + 2 * process]
+        weight: i64 = values[3 + 2 * process]
+        if name_id < -2147483648 or name_id > 2147483647 or weight < 1 or weight > 1000000:
+            return -1
+        name_ids[process] <- name_id
+        weights[process] <- weight
+        total_weight <- total_weight + weight
+        process <- process + 1
+
+    if process_count == 0:
+        return 0
+    required: usize = process_count * 16
+    if output.is_null() or output_capacity < required:
+        return -2
+    process <- 0
+    while process < process_count:
+        quotient: f64 = weights[process].f64() / total_weight.f64()
+        share: f64 = quotient * total_resources.f64()
+        allocation: i64 = share.i64()
+        store_i64_le(name_ids[process], output, process * 16)
+        store_i64_le(allocation, output, process * 16 + 8)
+        process <- process + 1
+    required.i64()
+
+export fn proportional_fair_scheduling(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = proportional_fair_scheduling_impl

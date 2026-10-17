@@ -1,0 +1,58 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const MAX_N: usize = 16
+const MAX_INPUT_WORDS: usize = 3 + MAX_N * MAX_N
+const MAX_PARSEABLE_INPUT_WORDS: usize = MAX_INPUT_WORDS + 1
+const MAX_OUTPUT_BYTES: usize = 8 * MAX_N * MAX_N
+
+def put_f64_le(value: f64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def max_pooling_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_PARSEABLE_INPUT_WORDS: return -1
+    n: i32 = input[0]
+    size: i32 = input[1]
+    stride: i32 = input[2]
+    if n < 1 or n > 16 or size < 1 or size > n or stride < 1 or stride > 16: return -1
+    if length != (3 + n.usize() * n.usize()): return -1
+    index: mutable usize = 0
+    while index < n.usize() * n.usize():
+        if input[3 + index] < -1000000 or input[3 + index] > 1000000: return -1
+        index <- index + 1
+    out_side: usize = ((n - size) / stride + 1).usize()
+    output_count: usize = out_side * out_side
+    bytes: usize = output_count * 8
+    if output.is_null() or capacity < bytes: return -2
+    buffer: mutable u8[2048] = zeroed
+    position: mutable usize = 0
+    row: mutable usize = 0
+    while row < out_side:
+        col: mutable usize = 0
+        while col < out_side:
+            start_row: usize = row * stride.usize()
+            start_col: usize = col * stride.usize()
+            maximum: mutable i32 = input[3 + start_row * n.usize() + start_col]
+            r: mutable usize = 0
+            while r < size.usize():
+                c: mutable usize = 0
+                while c < size.usize():
+                    value: i32 = input[3 + (start_row + r) * n.usize() + start_col + c]
+                    if value > maximum: maximum <- value
+                    c <- c + 1
+                r <- r + 1
+            put_f64_le(maximum.f64(), buffer[0], position)
+            position <- position + 8
+            col <- col + 1
+        row <- row + 1
+    index <- 0
+    while index < bytes:
+        output[index] <- buffer[index]
+        index <- index + 1
+    bytes.i64()
+
+export fn max_pooling(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64 = max_pooling_impl

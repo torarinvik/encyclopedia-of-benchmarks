@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "lua-k-d-tree-nearest-neighbor-f64-slice-v1",
+  "algorithm": "k_d_tree",
+  "function_symbol": "k_d_tree",
+  "workspace": {"elements": 4},
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[dimension, point_count, query[dimension], point_0[dimension], ...]",
+    "dimension_values": [2, 3],
+    "point_count_range": [1, 15],
+    "exact_length": "2 + dimension * (point_count + 1)",
+    "coordinate_range": [-1000, 1000],
+    "coordinate_requirement": "every input is finite and integral; point coordinates are distinct on each axis",
+    "maximum_valid_input_length": 50,
+    "maximum_parseable_input_length": 51,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "definition": "[Euclidean distance, nearest point coordinates in source axis order]",
+    "success_result": "dimension + 1 output values",
+    "unique_nearest_point_required": true,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "validation_order": "validate complete input and unique nearest point before checking output pointer or capacity",
+    "error_output_behavior": "do not modify output on either error",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id": "two-dimensional-near-branch", "input_values": [2,3,4,1,0,-1,2,4,5,0], "input_length": 10, "expected_result": 3, "expected_output": [1.4142135623730951,5,0]},
+    {"id": "two-dimensional-nearest-in-far-branch", "input_values": [2,5,1,2,0,5,1,1,2,4,3,0,4,3], "input_length": 14, "expected_result": 3, "expected_output": [1,1,1]},
+    {"id": "three-dimensional-single-point", "input_values": [3,1,4,6,3,1,2,3], "input_length": 8, "expected_result": 4, "expected_output": [5,1,2,3]},
+    {"id": "maximum-point-count-and-input-length", "input_values": [3,15,0,1,2,0,0,0,1,2,3,2,4,6,3,6,9,4,8,12,5,10,15,6,12,18,7,14,21,8,16,24,9,18,27,10,20,30,11,22,33,12,24,36,13,26,39,14,28,42], "input_length": 50, "expected_result": 4, "expected_output": [1.7320508075688772,1,2,3]},
+    {"id": "invalid-tied-nearest-points", "input_values": [2,2,0,0,1,2,-1,-2], "input_length": 8, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-axis-coordinate-tie", "input_values": [2,2,0,0,1,1,1,2], "input_length": 8, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-dimension", "input_values": [4,1,0,0,0,0], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-one-value-input", "input_values": [2], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-empty-point-set", "input_values": [2,0,0,0], "input_length": 4, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-fractional-coordinate", "input_values": [2,1,0,0,0.5,1], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-coordinate-out-of-range", "input_values": [2,1,0,0,1001,1], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-truncated-point-record", "input_values": [2,2,0,0,1,1], "input_length": 6, "expected_result": -1, "expected_output": []},
+    {"id": "invalid-extra-value", "input_values": [2,1,0,0,1,1,7], "input_length": 7, "expected_result": -1, "expected_output": []}
+  ],
+  "abi_cases": [
+    {"id": "invalid-input-before-null-output", "input_values": [2,2,0,0,1,1,1,2], "output_capacity": 4, "output_is_null": true, "expected_result": -1},
+    {"id": "valid-input-null-output", "input_values": [2,3,4,1,0,-1,2,4,5,0], "output_capacity": 4, "output_is_null": true, "expected_result": -2},
+    {"id": "valid-input-short-output-capacity", "input_values": [2,3,4,1,0,-1,2,4,5,0], "output_capacity": 2, "output_is_null": false, "expected_result": -2},
+    {"id": "nonfinite-nan-query-coordinate", "input_values": [2,1,"NaN",0,1,1], "output_capacity": 4, "output_is_null": false, "expected_result": -1},
+    {"id": "nonfinite-positive-infinity-point-coordinate", "input_values": [2,1,0,0,1,"Infinity"], "output_capacity": 4, "output_is_null": false, "expected_result": -1},
+    {"id": "nonfinite-negative-infinity-query-coordinate", "input_values": [2,1,0,"-Infinity",1,1], "output_capacity": 4, "output_is_null": false, "expected_result": -1}
+  ],
+  "pinned_source": {
+    "repository": "TheAlgorithms/Lua",
+    "commit": "cedc141018ad48884318fe08a6db278664b17128",
+    "path": "src/data_structures/k_d_tree.lua",
+    "symbol": "new (default median-of-medians constructor) and nearest_neighbor",
+    "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/data_structures/k_d_tree.lua",
+    "supporting_paths": [
+      "src/sorting/quickselect_median_of_medians.lua",
+      "src/sorting/quickselect.lua",
+      "src/sorting/three_way_partition.lua"
+    ]
+  }
+}

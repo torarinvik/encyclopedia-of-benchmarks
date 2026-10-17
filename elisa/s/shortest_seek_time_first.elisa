@@ -1,0 +1,43 @@
+const MAX_REQUESTS: usize = 64
+
+def shortest_seek_time_first_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > 2 + MAX_REQUESTS:
+        return -1
+    initial_track: i64 = input[0]
+    request_count: i64 = input[1]
+    if initial_track < 0 or initial_track > 255 or request_count < 0 or request_count > MAX_REQUESTS.i64():
+        return -1
+    if length != 2 + request_count.usize():
+        return -1
+    index: usize = 0
+    while index < request_count.usize():
+        request: i64 = input[2 + index]
+        if request < 0 or request > 255:
+            return -1
+        index <- index + 1
+    if output == null or output_capacity < request_count.usize():
+        return -2
+
+    serviced: mutable bool[MAX_REQUESTS] = zeroed
+    current: mutable i64 = initial_track
+    step: usize = 0
+    while step < request_count.usize():
+        best: mutable usize = MAX_REQUESTS
+        best_distance: mutable i64 = 256
+        index <- 0
+        while index < request_count.usize():
+            if not serviced[index]:
+                distance: i64 = current - input[2 + index]
+                if distance < 0:
+                    distance <- -distance
+                if distance < best_distance:
+                    best <- index
+                    best_distance <- distance
+            index <- index + 1
+        selected: i64 = input[2 + best]
+        output[step] <- selected.u8()
+        serviced[best] <- true
+        current <- selected
+        step <- step + 1
+    request_count
+export fn shortest_seek_time_first(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = shortest_seek_time_first_impl

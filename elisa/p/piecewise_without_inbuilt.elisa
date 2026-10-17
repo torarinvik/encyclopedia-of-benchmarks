@@ -1,0 +1,16 @@
+def piecewise_without_inbuilt_impl(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_length != 1: return -1
+    x: f64 = input[0]
+    if x != x or x < -10.0 or x > 10.0: return -1
+
+    y: f64 = 1.0
+    if x <= -0.5:
+        y <- 0.0
+    else if x < 0.5:
+        y <- x
+
+    if output == null or output_capacity < 1: return -2
+    output[0] <- y
+    1
+
+export fn piecewise_without_inbuilt(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = piecewise_without_inbuilt_impl

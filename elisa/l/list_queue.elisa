@@ -1,0 +1,76 @@
+def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def list_queue_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 129: return -1
+    if input[0] < 0 or input[0] > 64: return -1
+    operation_count: usize = input[0].usize()
+    queue: mutable i32[10] = zeroed
+    words: mutable i32[130] = zeroed
+    word_count: mutable usize = 1
+    query_count: mutable usize = 0
+    position: mutable usize = 1
+    queue_size: mutable usize = 0
+    operation_index: mutable usize = 0
+    while operation_index < operation_count:
+        if position >= length: return -1
+        opcode: i64 = input[position]
+        position <- position + 1
+        if opcode == 0:
+            if position >= length: return -1
+            raw: i64 = input[position]
+            position <- position + 1
+            if raw < -2147483648 or raw > 2147483647 or queue_size >= 10: return -1
+            queue[queue_size] <- raw.i32()
+            queue_size <- queue_size + 1
+        elif opcode == 1:
+            if queue_size == 0:
+                words[word_count] <- 3
+                words[word_count + 1] <- 0
+            else:
+                value: i32 = queue[0]
+                i: mutable usize = 0
+                while i + 1 < 10:
+                    queue[i] <- queue[i + 1]
+                    i <- i + 1
+                queue_size <- queue_size - 1
+                words[word_count] <- 1
+                words[word_count + 1] <- value
+            word_count <- word_count + 2
+            query_count <- query_count + 1
+        elif opcode == 2:
+            words[word_count] <- 2
+            words[word_count + 1] <- queue_size.i32()
+            word_count <- word_count + 2
+            query_count <- query_count + 1
+        else:
+            return -1
+        operation_index <- operation_index + 1
+    if position != length or word_count + 1 + queue_size > 130: return -1
+    words[0] <- query_count.i32()
+    words[word_count] <- queue_size.i32()
+    word_count <- word_count + 1
+    i: mutable usize = 0
+    while i < queue_size:
+        words[word_count] <- queue[i]
+        word_count <- word_count + 1
+        i <- i + 1
+    bytes: usize = word_count * 4
+    if output.is_null() or capacity < bytes: return -2
+    buffer: mutable u8[520] = zeroed
+    i <- 0
+    while i < word_count:
+        put_i32_le(words[i], buffer[0], i * 4)
+        i <- i + 1
+    i <- 0
+    while i < bytes:
+        output[i] <- buffer[i]
+        i <- i + 1
+    bytes.i64()
+
+export fn list_queue(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = list_queue_impl

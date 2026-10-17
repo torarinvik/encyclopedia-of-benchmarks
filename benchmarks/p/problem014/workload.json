@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-014-scalar-v1",
+  "algorithm": "problem014",
+  "function_symbol": "problem014",
+  "pinned_source": {
+    "repository": "TheAlgorithms/JavaScript",
+    "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+    "path": "Project-Euler/Problem014.js",
+    "symbol": "findLongestCollatzSequence"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [1, 1000000],
+    "meaning": "exclusive upper bound for Collatz starting values",
+    "chain_length": "number of terms from the start through terminal 1, inclusive",
+    "tie_rule": "smallest starting value",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "starting value with maximum Collatz chain length among starts below limit",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "limit_one_empty_candidate_range", "input_value": 1, "expected_result": 1},
+    {"id": "limit_two_empty_candidate_range", "input_value": 2, "expected_result": 1},
+    {"id": "limit_three", "input_value": 3, "expected_result": 2},
+    {"id": "trajectory_exceeds_limit", "input_value": 8, "expected_result": 7},
+    {"id": "longer_start_below_exclusive_limit", "input_value": 16, "expected_result": 9},
+    {"id": "representative_limit", "input_value": 100, "expected_result": 97},
+    {"id": "canonical_one_million_limit", "input_value": 1000000, "expected_result": 837799},
+    {"id": "zero_limit", "input_value": 0, "expected_result": -1},
+    {"id": "negative_limit", "input_value": -1, "expected_result": -1},
+    {"id": "signed_i64_minimum_outside_limit_domain", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "above_limit", "input_value": 1000001, "expected_result": -1},
+    {"id": "signed_i64_maximum_outside_limit_domain", "input_value": 9223372036854775807, "expected_result": -1}
+  ]
+}

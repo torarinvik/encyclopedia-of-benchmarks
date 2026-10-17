@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "jupyter-rectangular-method-i64-array-float64-v1",
+  "algorithm": "rectangular_method",
+  "function_symbol": "rectangular_method",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "exact_length": 4,
+    "encoding": "[a_quarters, b_quarters, n, rule]",
+    "endpoint_scale": "endpoint = quarter_units / 4",
+    "endpoint_quarter_range": [
+      -64,
+      64
+    ],
+    "endpoint_order": "a_quarters < b_quarters",
+    "interval_count_range": [
+      1,
+      64
+    ],
+    "interval_count_requirement": "(b_quarters - a_quarters) is divisible by n",
+    "rule_ids": {
+      "0": "left_endpoint_rectangles",
+      "1": "right_endpoint_rectangles"
+    },
+    "maximum_parseable_values": 5,
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "selected sequential left or right rectangle sum for f(x)=(exp(x)/2)*(cos(x)-sin(x))",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e+300
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Jupyter",
+    "commit": "ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9",
+    "path": "numerical_methods/the_rectangular_method.ipynb",
+    "url": "https://github.com/TheAlgorithms/Jupyter/blob/ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9/numerical_methods/the_rectangular_method.ipynb"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "one_panel_left_rule",
+      "input_values": [
+        0,
+        4,
+        1,
+        0
+      ],
+      "expected_result": 0.5
+    },
+    {
+      "id": "notebook_example_left_rule",
+      "input_values": [
+        8,
+        12,
+        4,
+        0
+      ],
+      "expected_result": -7.576924395545134
+    },
+    {
+      "id": "notebook_example_right_rule",
+      "input_values": [
+        8,
+        12,
+        4,
+        1
+      ],
+      "expected_result": -9.192576890365931
+    },
+    {
+      "id": "equal_endpoints",
+      "input_values": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_intervals",
+      "input_values": [
+        0,
+        4,
+        0,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "non_dividing_interval_count",
+      "input_values": [
+        0,
+        4,
+        3,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_rule",
+      "input_values": [
+        0,
+        4,
+        1,
+        2
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "endpoint_below_bound",
+      "input_values": [
+        -65,
+        4,
+        1,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        0,
+        4,
+        1,
+        0,
+        0
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

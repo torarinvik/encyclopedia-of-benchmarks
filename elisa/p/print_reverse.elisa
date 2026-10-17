@@ -1,0 +1,58 @@
+const MAX_VALUES: usize = 256
+const MAX_PARSEABLE_INPUT_LENGTH: usize = MAX_VALUES + 2
+const MAX_OUTPUT_BYTES: usize = 3836
+const I32_MIN_VALUE: i64 = -2147483648
+const I32_MAX_VALUE: i64 = 2147483647
+
+def print_reverse_append_decimal(buffer: mutable u8&, position: mutable usize&, value_value: i64) -> void:
+    value: mutable i64 = value_value
+    digits: mutable u8[10] = zeroed
+    count: mutable usize = 0
+    magnitude: mutable i64 = 0
+    if value < 0:
+        buffer[position] <- 45.u8()
+        position <- position + 1
+        magnitude <- -value
+    else:
+        magnitude <- value
+    while true |buffer, position, digits, count, magnitude|:
+        digits[count] <- (48 + magnitude % 10).u8()
+        count <- count + 1
+        magnitude <- magnitude / 10
+        if magnitude == 0:
+            break
+    while count > 0 |buffer, position, digits, count|:
+        count <- count - 1
+        buffer[position] <- digits[count]
+        position <- position + 1
+
+def print_reverse_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if length > MAX_PARSEABLE_INPUT_LENGTH or length > MAX_VALUES:
+        return -1
+    if length > 0 and input == null:
+        return -1
+    for index in 0..<length |input|:
+        value: i64 = input[index]
+        if value < I32_MIN_VALUE or value > I32_MAX_VALUE:
+            return -1
+
+    encoded: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    written: mutable usize = 0
+    remaining: mutable usize = length
+    while remaining > 0 |input, encoded, written, remaining|:
+        remaining <- remaining - 1
+        if written > 0:
+            encoded[written] <- 32.u8()
+            encoded[written + 1] <- 60.u8()
+            encoded[written + 2] <- 45.u8()
+            encoded[written + 3] <- 32.u8()
+            written <- written + 4
+        print_reverse_append_decimal(encoded, written, input[remaining])
+
+    if output == null or output_capacity < written:
+        return -2
+    for index in 0..<written |encoded, output|:
+        output[index] <- encoded[index]
+    written.i64()
+
+export fn print_reverse(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = print_reverse_impl

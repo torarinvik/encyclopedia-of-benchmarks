@@ -1,10 +1,21 @@
 """Source-ordered bounded oracle for MinMaxStack operation traces."""
 import struct
-MAX_OUTPUT_BYTES=1536
+MIN_CAPACITY = 0
+MAX_CAPACITY = 64
+MIN_OPERATION_COUNT = 0
+MAX_OPERATION_COUNT = 64
+MIN_PUSH_VALUE = -(1 << 31)
+MAX_PUSH_VALUE = (1 << 31) - 1
+MAX_INPUT_VALUES = 2 + 2 * MAX_OPERATION_COUNT
+MAX_OUTPUT_BYTES = 24 * MAX_OPERATION_COUNT
+I64_MIN = -(1 << 63)
+I64_MAX = (1 << 63) - 1
+
+
 def expected_result(values,output_capacity=MAX_OUTPUT_BYTES):
-    if not isinstance(values,(list,tuple)) or len(values)<2 or len(values)>130 or any(type(x)is not int or not -(1<<63)<=x<(1<<63) for x in values):return -1,b""
+    if not isinstance(values,(list,tuple)) or len(values)<2 or len(values)>MAX_INPUT_VALUES or any(type(x)is not int or not I64_MIN<=x<=I64_MAX for x in values):return -1,b""
     size,count=values[:2]
-    if not 0<=size<=64 or not 0<=count<=64:return -1,b""
+    if not MIN_CAPACITY<=size<=MAX_CAPACITY or not MIN_OPERATION_COUNT<=count<=MAX_OPERATION_COUNT:return -1,b""
     pos=2;ops=[]
     for _ in range(count):
         if pos>=len(values):return -1,b""
@@ -12,7 +23,7 @@ def expected_result(values,output_capacity=MAX_OUTPUT_BYTES):
         if op==1:
             if pos>=len(values):return -1,b""
             value=values[pos];pos+=1
-            if not -(1<<31)<=value<(1<<31):return -1,b""
+            if not MIN_PUSH_VALUE<=value<=MAX_PUSH_VALUE:return -1,b""
         elif op not in (2,3,4,5):return -1,b""
         ops.append((op,value if op==1 else 0))
     if pos!=len(values):return -1,b""

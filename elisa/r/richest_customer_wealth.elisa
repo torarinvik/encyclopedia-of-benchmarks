@@ -1,0 +1,29 @@
+const MAX_ROWS: usize = 32
+const MAX_COLUMNS: usize = 32
+const MAX_INPUT_LENGTH: usize = 1027
+const MAX_AMOUNT: i64 = 1000000
+
+def richest_customer_wealth_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_rows: i64 = input[0]
+    raw_columns: i64 = input[1]
+    if raw_rows < 1 or raw_rows > 32 or raw_columns < 1 or raw_columns > 32:
+        return -1
+    rows: usize = raw_rows.usize()
+    columns: usize = raw_columns.usize()
+    if length != 2 + rows * columns:
+        return -1
+    richest: mutable i64 = 0
+    for row in 0..<rows |input, richest|:
+        wealth: mutable i64 = 0
+        for column in 0..<columns |input, wealth|:
+            amount: i64 = input[2 + row * columns + column]
+            if amount < 0 or amount > MAX_AMOUNT:
+                return -1
+            wealth <- wealth + amount
+        if wealth > richest:
+            richest <- wealth
+    richest
+
+export fn richest_customer_wealth(input: i64&, length: usize) -> i64 = richest_customer_wealth_impl

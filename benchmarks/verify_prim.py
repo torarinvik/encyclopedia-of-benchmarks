@@ -81,7 +81,7 @@ def corpus(workload: dict) -> tuple[str, int]:
     for values in malformed:
         include(values)
     for case in workload["cases"]:
-        values = encode_case(case)
+        values = encode_case(case, algorithm=ALGORITHM)
         if oracle(values) != case["expected_result"]:
             raise ValueError(f"workload oracle mismatch: {case['id']}")
         include(values)
@@ -115,7 +115,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected record count")
     for case, record in zip(workload["cases"], records):
-        values = encode_case(case)
+        values = encode_case(case, algorithm=ALGORITHM)
         expected = oracle(values)
         if (record["algorithm"] != ALGORITHM
                 or record["implementation"]["language"] != language

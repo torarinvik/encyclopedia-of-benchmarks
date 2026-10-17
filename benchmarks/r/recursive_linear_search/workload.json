@@ -1,45 +1,532 @@
 {
   "schema_version": 1,
-  "id": "recursive-linear-search-distinct-i64-array-scalar-v1",
+  "id": "recursive-linear-search-distinct-i32-v1",
   "algorithm": "recursive_linear_search",
   "function_symbol": "recursive_linear_search",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Fortran",
+      "commit": "c91199703b78bd2181051b01bd5269740e41e121",
+      "path": "modules/searches/recursive_linear_search.f90",
+      "symbol": "recursive_linear_search",
+      "url": "https://github.com/TheAlgorithms/Fortran/blob/c91199703b78bd2181051b01bd5269740e41e121/modules/searches/recursive_linear_search.f90"
+    },
+    {
+      "repository": "TheAlgorithms/Ruby",
+      "commit": "bda11bdfd83b7958e1ca98247e5e43100ca88865",
+      "path": "searches/recursive_linear_search.rb",
+      "symbol": "rec_linear_search",
+      "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/searches/recursive_linear_search.rb"
+    }
+  ],
   "input": {
-    "kind": "packed_signed_64_bit_integer_array",
-    "layout": "[n, target, values...]",
-    "count_range": [1, 64],
-    "value_range": [-1000000, 1000000],
-    "distinct_values": true,
-    "result": "zero-based matching index or -1 when absent",
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[n, target, values[n]]",
+    "length_formula": "n+2",
+    "n_range": [
+      2,
+      64
+    ],
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "target_range": [
+      -2147483648,
+      2147483647
+    ],
+    "values_must_be_distinct": true,
     "invalid_input_result": -1,
-    "maximum_valid_input_length": 66,
-    "maximum_parseable_input_length": 67
+    "null_input_result": -1
   },
   "output": {
-    "kind": "signed_64_bit_integer",
-    "invalid_input_result": -1
+    "kind": "signed_64_bit_scalar",
+    "definition": "Unique zero-based index of target, or -1 when absent or input is invalid."
   },
   "measurement": {
     "comparison_model": "i64_array_scalar_call",
-    "sample_count": 7,
-    "warmup_rounds": 2,
-    "repetitions_per_sample": 1000
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
   },
   "cases": [
-    {"id":"fortran_ruby_first_hit", "input_values":[5,0,0,30,500,100,700], "expected_result":0},
-    {"id":"fortran_ruby_last_hit", "input_values":[5,700,0,30,500,100,700], "expected_result":4},
-    {"id":"source_middle_hit", "input_values":[5,30,0,30,500,100,700], "expected_result":1},
-    {"id":"source_absent_target", "input_values":[5,-6,0,30,500,100,700], "expected_result":-1},
-    {"id":"single_value_hit", "input_values":[1,7,7], "expected_result":0},
-    {"id":"single_value_miss", "input_values":[1,-7,7], "expected_result":-1},
-    {"id":"negative_values", "input_values":[6,0,-10,7,-3,11,0,20], "expected_result":4},
-    {"id":"maximum_count_first_hit", "input_values":[64,-90,-90,-87,-84,-81,-78,-75,-72,-69,-66,-63,-60,-57,-54,-51,-48,-45,-42,-39,-36,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3,0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90,93,96,99], "expected_result":0},
-    {"id":"maximum_count_middle_hit", "input_values":[64,6,-90,-87,-84,-81,-78,-75,-72,-69,-66,-63,-60,-57,-54,-51,-48,-45,-42,-39,-36,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3,0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90,93,96,99], "expected_result":32},
-    {"id":"maximum_count_last_hit", "input_values":[64,99,-90,-87,-84,-81,-78,-75,-72,-69,-66,-63,-60,-57,-54,-51,-48,-45,-42,-39,-36,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3,0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90,93,96,99], "expected_result":63},
-    {"id":"maximum_count_miss", "input_values":[64,1000,-90,-87,-84,-81,-78,-75,-72,-69,-66,-63,-60,-57,-54,-51,-48,-45,-42,-39,-36,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3,0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90,93,96,99], "expected_result":-1},
-    {"id":"empty_input", "input_values":[], "expected_result":-1},
-    {"id":"zero_count", "input_values":[0,0], "expected_result":-1},
-    {"id":"missing_value", "input_values":[3,5,1,2], "expected_result":-1},
-    {"id":"extra_value", "input_values":[1,7,7,8], "expected_result":-1},
-    {"id":"count_over_bound_at_parse_limit", "input_values":[65,0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64], "expected_result":-1}
+    {
+      "id": "target_at_first",
+      "input_values": [
+        4,
+        9,
+        9,
+        -2,
+        14,
+        6
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "target_at_last",
+      "input_values": [
+        5,
+        6,
+        4,
+        9,
+        -2,
+        14,
+        6
+      ],
+      "expected_result": 4
+    },
+    {
+      "id": "target_at_middle",
+      "input_values": [
+        6,
+        14,
+        5,
+        9,
+        -2,
+        14,
+        6,
+        3
+      ],
+      "expected_result": 3
+    },
+    {
+      "id": "target_before_middle",
+      "input_values": [
+        6,
+        -2,
+        5,
+        9,
+        -2,
+        14,
+        6,
+        3
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "absent_target",
+      "input_values": [
+        6,
+        7,
+        5,
+        9,
+        -2,
+        14,
+        6,
+        3
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_count_below_minimum",
+      "input_values": [
+        1,
+        8,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_values",
+      "input_values": [
+        4,
+        -3,
+        -10,
+        -3,
+        -7,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "signed_i32_boundaries",
+      "input_values": [
+        3,
+        0,
+        -2147483648,
+        0,
+        2147483647
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_count_first",
+      "input_values": [
+        64,
+        -32,
+        -32,
+        -31,
+        -30,
+        -29,
+        -28,
+        -27,
+        -26,
+        -25,
+        -24,
+        -23,
+        -22,
+        -21,
+        -20,
+        -19,
+        -18,
+        -17,
+        -16,
+        -15,
+        -14,
+        -13,
+        -12,
+        -11,
+        -10,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_count_last",
+      "input_values": [
+        64,
+        31,
+        -32,
+        -31,
+        -30,
+        -29,
+        -28,
+        -27,
+        -26,
+        -25,
+        -24,
+        -23,
+        -22,
+        -21,
+        -20,
+        -19,
+        -18,
+        -17,
+        -16,
+        -15,
+        -14,
+        -13,
+        -12,
+        -11,
+        -10,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "expected_result": 63
+    },
+    {
+      "id": "maximum_count_middle",
+      "input_values": [
+        64,
+        0,
+        -32,
+        -31,
+        -30,
+        -29,
+        -28,
+        -27,
+        -26,
+        -25,
+        -24,
+        -23,
+        -22,
+        -21,
+        -20,
+        -19,
+        -18,
+        -17,
+        -16,
+        -15,
+        -14,
+        -13,
+        -12,
+        -11,
+        -10,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "expected_result": 32
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "expected_result": -1,
+      "input_is_null": true,
+      "input_length": 3
+    },
+    {
+      "id": "empty_frame",
+      "input_values": [],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_count_zero",
+      "input_values": [
+        0,
+        5
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_count_negative",
+      "input_values": [
+        -1,
+        5
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_count_above_limit",
+      "input_values": [
+        65,
+        4,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_truncated_frame",
+      "input_values": [
+        3,
+        2,
+        1,
+        4
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_trailing_frame",
+      "input_values": [
+        2,
+        4,
+        1,
+        5,
+        9
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_duplicate_values",
+      "input_values": [
+        3,
+        4,
+        8,
+        2,
+        8
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_value_above_i32",
+      "input_values": [
+        2,
+        7,
+        1,
+        2147483648
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_value_below_i32",
+      "input_values": [
+        2,
+        7,
+        -2147483649,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_target_above_i32",
+      "input_values": [
+        2,
+        2147483648,
+        0,
+        1
+      ],
+      "expected_result": -1
+    }
   ]
 }

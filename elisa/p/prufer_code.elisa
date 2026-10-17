@@ -1,0 +1,184 @@
+const MAX_VERTICES: usize = 64
+const MAX_OUTPUT_BYTES: usize = 1016
+
+def prufer_code_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def prufer_code_make_code(input: i64&, n: usize, code: mutable i64&) -> i64:
+    adjacency: mutable bool[4096] = zeroed
+    degree: mutable usize[64] = zeroed
+    edge: mutable usize = 0
+    while edge + 1 < n:
+        raw_u: i64 = input[2 + edge * 2]
+        raw_v: i64 = input[3 + edge * 2]
+        if raw_u < 0 or raw_v < 0 or raw_u >= n.i64() or raw_v >= n.i64() or raw_u == raw_v: return -1
+        u: usize = raw_u.usize()
+        v: usize = raw_v.usize()
+        if adjacency[u * 64 + v]: return -1
+        adjacency[u * 64 + v] <- true
+        adjacency[v * 64 + u] <- true
+        degree[u] <- degree[u] + 1
+        degree[v] <- degree[v] + 1
+        edge <- edge + 1
+
+    visited: mutable bool[64] = zeroed
+    queue: mutable usize[64] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 1
+    visited[0] <- true
+    queue[0] <- 0
+    while head < tail:
+        u: usize = queue[head]
+        head <- head + 1
+        v: mutable usize = 0
+        while v < n:
+            if adjacency[u * 64 + v] and not visited[v]:
+                visited[v] <- true
+                queue[tail] <- v
+                tail <- tail + 1
+            v <- v + 1
+    if tail != n: return -1
+
+    active: mutable bool[64] = zeroed
+    v: mutable usize = 0
+    while v < n:
+        active[v] <- true
+        v <- v + 1
+    code_length: mutable usize = 0
+    while code_length + 2 < n:
+        leaf: mutable usize = n
+        v <- n
+        while v > 0:
+            v <- v - 1
+            if active[v] and degree[v] == 1:
+                leaf <- v
+                break
+        if leaf == n: return -1
+        neighbor: mutable usize = n
+        v <- 0
+        while v < n:
+            if active[v] and adjacency[leaf * 64 + v]:
+                neighbor <- v
+                break
+            v <- v + 1
+        if neighbor == n: return -1
+        code[code_length] <- neighbor.i64()
+        code_length <- code_length + 1
+        active[leaf] <- false
+        adjacency[leaf * 64 + neighbor] <- false
+        adjacency[neighbor * 64 + leaf] <- false
+        degree[neighbor] <- degree[neighbor] - 1
+    code_length.i64()
+
+def prufer_code_add_edge(edges: mutable i64&, index: usize, u: usize, v: usize) -> void:
+    if u < v:
+        edges[index * 2] <- u.i64()
+        edges[index * 2 + 1] <- v.i64()
+    else:
+        edges[index * 2] <- v.i64()
+        edges[index * 2 + 1] <- u.i64()
+
+def prufer_code_make_decoded_edges(input: i64&, n: usize, edges: mutable i64&) -> i64:
+    remaining: mutable usize[64] = zeroed
+    i: mutable usize = 0
+    while i + 2 < n:
+        raw: i64 = input[2 + i]
+        if raw < 0 or raw >= n.i64(): return -1
+        remaining[raw.usize()] <- remaining[raw.usize()] + 1
+        i <- i + 1
+    active: mutable bool[64] = zeroed
+    v: mutable usize = 0
+    while v < n:
+        active[v] <- true
+        v <- v + 1
+    edge_count: mutable usize = 0
+    i <- 0
+    while i + 2 < n:
+        leaf: mutable usize = n
+        v <- n
+        while v > 0:
+            v <- v - 1
+            if active[v] and remaining[v] == 0:
+                leaf <- v
+                break
+        if leaf == n: return -1
+        vertex: usize = input[2 + i].usize()
+        prufer_code_add_edge(edges, edge_count, leaf, vertex)
+        edge_count <- edge_count + 1
+        active[leaf] <- false
+        remaining[vertex] <- remaining[vertex] - 1
+        i <- i + 1
+    first: mutable usize = n
+    v <- n
+    while v > 0:
+        v <- v - 1
+        if active[v]:
+            first <- v
+            break
+    if first == n: return -1
+    active[first] <- false
+    second: mutable usize = n
+    v <- n
+    while v > 0:
+        v <- v - 1
+        if active[v]:
+            second <- v
+            break
+    if second == n: return -1
+    prufer_code_add_edge(edges, edge_count, first, second)
+    edge_count <- edge_count + 1
+    i <- 1
+    while i < edge_count:
+        u: i64 = edges[i * 2]
+        w: i64 = edges[i * 2 + 1]
+        j: mutable usize = i
+        while j > 0 and (edges[(j - 1) * 2] > u or
+            (edges[(j - 1) * 2] == u and edges[(j - 1) * 2 + 1] > w)):
+            edges[j * 2] <- edges[(j - 1) * 2]
+            edges[j * 2 + 1] <- edges[(j - 1) * 2 + 1]
+            j <- j - 1
+        edges[j * 2] <- u
+        edges[j * 2 + 1] <- w
+        i <- i + 1
+    edge_count.i64()
+
+def prufer_code_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 129: return -1
+    mode: i64 = input[0]
+    raw_n: i64 = input[1]
+    if raw_n < 1 or raw_n > 64 or (mode != 0 and mode != 1): return -1
+    n: usize = raw_n.usize()
+    if mode == 0:
+        if length != 2 * n: return -1
+        code: mutable i64[64] = zeroed
+        code_length: i64 = prufer_code_make_code(input, n, &code[0])
+        if code_length < 0: return -1
+        needed: usize = code_length.usize() * 8
+        if needed == 0: return 0
+        if output == null or capacity < needed: return -2
+        i: mutable usize = 0
+        while i < code_length.usize():
+            prufer_code_write_i64(output, i * 8, code[i])
+            i <- i + 1
+        return needed.i64()
+    if n < 2 or length != n: return -1
+    edges: mutable i64[126] = zeroed
+    edge_count: i64 = prufer_code_make_decoded_edges(input, n, &edges[0])
+    if edge_count < 0: return -1
+    needed: usize = 8 + edge_count.usize() * 16
+    if needed > MAX_OUTPUT_BYTES: return -1
+    if output == null or capacity < needed: return -2
+    prufer_code_write_i64(output, 0, edge_count)
+    i: mutable usize = 0
+    while i < edge_count.usize():
+        prufer_code_write_i64(output, 8 + i * 16, edges[i * 2])
+        prufer_code_write_i64(output, 16 + i * 16, edges[i * 2 + 1])
+        i <- i + 1
+    needed.i64()
+
+export fn prufer_code(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = prufer_code_impl

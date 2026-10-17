@@ -1,0 +1,45 @@
+extern floor(value: f64) -> f64
+
+const MAX_ABS_TEMPERATURE_MICRO: i64 = 1000000000000
+const MAX_INPUT_LENGTH: usize = 4
+const INVALID_RESULT: f64 = -1.0e300
+
+def round_nearest_ties_even(value: f64) -> f64:
+    lower: f64 = floor(value)
+    fraction: f64 = value - lower
+    if fraction < 0.5: return lower
+    if fraction > 0.5: return lower + 1.0
+    integer: i64 = lower.i64()
+    if integer % 2 == 0: lower else: lower + 1.0
+
+def round_digits(value: f64, digits: i64) -> f64:
+    scale: mutable f64 = 1.0
+    magnitude: i64 = if digits < 0: -digits else: digits
+    index: mutable i64 = 0
+    while index < magnitude:
+        scale <- scale * 10.0
+        index <- index + 1
+    scaled: f64 = if digits >= 0: value * scale else: value / scale
+    rounded: f64 = round_nearest_ties_even(scaled)
+    if digits >= 0: rounded / scale else: rounded * scale
+
+def temparature_conversion_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
+    operation: i64 = input[0]
+    temperature_micro: i64 = input[1]
+    digits: i64 = input[2]
+    if length != 3 or operation < 0 or operation > 5 or
+        temperature_micro < -MAX_ABS_TEMPERATURE_MICRO or temperature_micro > MAX_ABS_TEMPERATURE_MICRO or
+        digits < -6 or digits > 6: return INVALID_RESULT
+
+    temperature: f64 = temperature_micro.f64() / 1000000.0
+    result: f64 = 0.0
+    if operation == 0: result <- temperature * 1.8 + 32.0
+    else if operation == 1: result <- temperature + 273.15
+    else if operation == 2: result <- (temperature - 32.0) * 5.0 / 9.0
+    else if operation == 3: result <- (temperature - 32.0) * 5.0 / 9.0 + 273.15
+    else if operation == 4: result <- temperature - 273.15
+    else: result <- (temperature - 273.15) * 1.8 + 32.0
+    round_digits(result, digits)
+
+export fn temparature_conversion(input: i64&, length: usize) -> f64 = temparature_conversion_impl

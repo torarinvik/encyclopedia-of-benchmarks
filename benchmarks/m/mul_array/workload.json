@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "mul-array-scalar-v1",
+  "algorithm": "mul_array",
+  "function_symbol": "mul_array",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Solidity",
+    "commit": "08cba51fb38e276062b0c9791d7e0ee494ffa903",
+    "path": "src/Maths/MulArray.sol",
+    "symbol": "MulArray.mulArr",
+    "url": "https://github.com/TheAlgorithms/Solidity/blob/08cba51fb38e276062b0c9791d7e0ee494ffa903/src/Maths/MulArray.sol"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "The input values are the factors in order; there is no count prefix.",
+    "valid_length_range": [0, 9],
+    "factor_range": [0, 99],
+    "maximum_valid_product": 913517247483640899,
+    "null_input_policy": "NULL with length 0 represents the valid empty array and returns 1; NULL with positive length returns -1.",
+    "invalid_result": -1,
+    "result": "Exact product of all factors, starting from the multiplicative identity 1."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 50
+  },
+  "cases": [
+    {"id": "empty_array_identity", "input_values": [], "input_length": 0, "expected_result": 1},
+    {"id": "null_empty_array_identity", "input_values": [], "input_is_null": true, "input_length": 0, "expected_result": 1},
+    {"id": "null_pointer_with_positive_length", "input_values": [], "input_is_null": true, "input_length": 1, "expected_result": -1},
+    {"id": "single_zero", "input_values": [0], "input_length": 1, "expected_result": 0},
+    {"id": "single_maximum_factor", "input_values": [99], "input_length": 1, "expected_result": 99},
+    {"id": "mixed_factors", "input_values": [2, 3, 5, 7, 11], "input_length": 5, "expected_result": 2310},
+    {"id": "zero_factor_in_middle", "input_values": [99, 0, 99], "input_length": 3, "expected_result": 0},
+    {"id": "maximum_valid_product_nine_factors", "input_values": [99, 99, 99, 99, 99, 99, 99, 99, 99], "input_length": 9, "expected_result": 913517247483640899},
+    {"id": "maximum_valid_length_with_zero", "input_values": [99, 99, 99, 0, 99, 99, 99, 99, 99], "input_length": 9, "expected_result": 0},
+    {"id": "ten_factors_exceed_valid_length_and_overflow_domain", "input_values": [99, 99, 99, 99, 99, 99, 99, 99, 99, 99], "input_length": 10, "expected_result": -1},
+    {"id": "negative_factor_below_range", "input_values": [-1], "input_length": 1, "expected_result": -1},
+    {"id": "factor_above_range", "input_values": [100], "input_length": 1, "expected_result": -1},
+    {"id": "minimum_i64_factor", "input_values": [-9223372036854775808], "input_length": 1, "expected_result": -1},
+    {"id": "maximum_i64_factor", "input_values": [9223372036854775807], "input_length": 1, "expected_result": -1}
+  ]
+}

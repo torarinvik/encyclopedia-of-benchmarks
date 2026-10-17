@@ -1,0 +1,440 @@
+{
+  "schema_version": 1,
+  "id": "shortest-common-supersequence-sequence-v1",
+  "algorithm": "shortest_common_supersequence",
+  "function_symbol": "shortest_common_supersequence",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Plus-Plus",
+    "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+    "path": "dynamic_programming/shortest_common_supersequence.cpp",
+    "symbol": "dynamic_programming::shortest_common_supersequence::scs",
+    "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/dynamic_programming/shortest_common_supersequence.cpp"
+  },
+  "cross_checked_source": {
+    "repository": "TheAlgorithms/R",
+    "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+    "path": "string_manipulation/shortest.common.supersequence.r",
+    "symbol": "shortest_common_supersequence",
+    "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/string_manipulation/shortest.common.supersequence.r"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[left_length, right_length, left_ascii_values..., right_ascii_values...]",
+    "minimum_sequence_length": 0,
+    "maximum_sequence_length": 64,
+    "ascii_range": [
+      32,
+      126
+    ],
+    "maximum_input_length": 130,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "raw_printable_ascii_bytes",
+    "success_result": "number of output bytes",
+    "maximum_output_bytes": 128,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Maximum shortest common supersequence byte output."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "both_empty",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "both_empty_zero_capacity",
+      "input_values": [
+        0,
+        0
+      ],
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_left",
+      "input_values": [
+        0,
+        3,
+        97,
+        98,
+        99
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "616263"
+    },
+    {
+      "id": "empty_right",
+      "input_values": [
+        3,
+        0,
+        120,
+        121,
+        122
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "78797a"
+    },
+    {
+      "id": "identical_sequences",
+      "input_values": [
+        4,
+        4,
+        65,
+        66,
+        67,
+        68,
+        65,
+        66,
+        67,
+        68
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "41424344"
+    },
+    {
+      "id": "single_character_tie_y",
+      "input_values": [
+        1,
+        1,
+        88,
+        89
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "5859"
+    },
+    {
+      "id": "tie_prefers_y",
+      "input_values": [
+        2,
+        2,
+        97,
+        98,
+        98,
+        97
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "616261"
+    },
+    {
+      "id": "classic_aggtab_gxtxayb",
+      "input_values": [
+        6,
+        7,
+        65,
+        71,
+        71,
+        84,
+        65,
+        66,
+        71,
+        88,
+        84,
+        88,
+        65,
+        89,
+        66
+      ],
+      "expected_result": 9,
+      "expected_output_hex": "414747585458415942"
+    },
+    {
+      "id": "repeated_characters",
+      "input_values": [
+        3,
+        3,
+        65,
+        65,
+        84,
+        65,
+        84,
+        65
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "41415441"
+    },
+    {
+      "id": "printable_ascii_boundaries",
+      "input_values": [
+        2,
+        2,
+        32,
+        126,
+        126,
+        32
+      ],
+      "expected_result": 3,
+      "expected_output_hex": "207e20"
+    },
+    {
+      "id": "maximum_disjoint_output",
+      "input_values": [
+        64,
+        64,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66,
+        66
+      ],
+      "expected_result": 128,
+      "expected_output_hex": "4141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414142424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242"
+    },
+    {
+      "id": "ascii_below_domain",
+      "input_values": [
+        1,
+        0,
+        31
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "ascii_above_domain",
+      "input_values": [
+        0,
+        1,
+        127
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length_above_domain",
+      "input_values": [
+        65,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_sequence_length",
+      "input_values": [
+        -1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        1,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        0,
+        0,
+        32
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_is_null": true,
+      "input_length": 2,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_before_null_output",
+      "input_values": [
+        1,
+        0,
+        31
+      ],
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_null_output",
+      "input_values": [
+        1,
+        0,
+        65
+      ],
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        2,
+        1,
+        65,
+        66,
+        66
+      ],
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_output_capacity",
+      "input_values": [
+        2,
+        1,
+        65,
+        66,
+        66
+      ],
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "4142"
+    }
+  ]
+}

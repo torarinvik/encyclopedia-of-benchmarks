@@ -3,7 +3,8 @@ import std/math
 const MaxEquations = 5
 const MaxInputLength = 31
 const MaxOutputBytes = 48
-const I64Limit = 9_223_372_036_854_775_808.0
+const HalfStepLimit = 4_503_599_627_370_496.0
+const MaxTickMagnitude = 2_251_799_813_685_248'i64
 
 proc fma(first, second, third: float64): float64 {.importc: "fma", header: "<math.h>".}
 
@@ -87,14 +88,24 @@ proc simultaneous_linear_equation_solver*(input: ptr UncheckedArray[int64], leng
   writeI64Le(buffer, 0, nValue)
   for row in 0 ..< n:
     let scaled = solutions[row] * 100_000.0
-    if not finiteValue(scaled) or scaled < -I64Limit or scaled >= I64Limit: return -1
+    if not finiteValue(scaled) or scaled <= -HalfStepLimit or scaled >= HalfStepLimit: return -1
     let lower = floor(scaled)
     let midpoint = lower + 0.5
     let exactSide = fma(solutions[row], 100_000.0, -midpoint)
     if not finiteValue(exactSide): return -1
     var rounded = int64(lower)
     if exactSide > 0.0 or (exactSide == 0.0 and rounded mod 2 != 0): inc rounded
-    writeI64Le(buffer, 8 + row * 8, rounded)
+    if rounded < -MaxTickMagnitude or rounded > MaxTickMagnitude: return -1
+    let roundedValue = float64(rounded) / 100_000.0
+    let projected = roundedValue * 100_000.0
+    if not finiteValue(projected): return -1
+    let projectedLower = floor(projected)
+    let projectedMidpoint = projectedLower + 0.5
+    var ticks = int64(projectedLower)
+    if projected > projectedMidpoint or
+        (projected == projectedMidpoint and ticks mod 2 != 0): inc ticks
+    if ticks < -MaxTickMagnitude or ticks > MaxTickMagnitude: return -1
+    writeI64Le(buffer, 8 + row * 8, ticks)
 
   let needed = 8 + 8 * n
   if output == nil or int(capacity) < needed: return -2

@@ -1,0 +1,95 @@
+def kahns_algorithm_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 1 || length > 257: return -1
+    edge_count_value: i64 = input[0]
+    if edge_count_value < 0 || edge_count_value > 128: return -1
+    edge_count: usize = edge_count_value.usize()
+    if length != 1 + 2 * edge_count: return -1
+
+    labels: mutable i32[32] = zeroed
+    first_edge: mutable i64[32] = zeroed
+    last_edge: mutable i64[32] = zeroed
+    next_edge: mutable i64[128] = zeroed
+    to_by_edge: mutable usize[128] = zeroed
+    indegree: mutable usize[32] = zeroed
+    vertex_count: mutable usize = 0
+    vertex: mutable usize = 0
+    while vertex < 32:
+        first_edge[vertex] <- -1
+        last_edge[vertex] <- -1
+        vertex <- vertex + 1
+    edge: mutable usize = 0
+    while edge < edge_count:
+        from_value: i64 = input[1 + 2 * edge]
+        to_value: i64 = input[2 + 2 * edge]
+        if from_value < -2147483648 || from_value > 2147483647 || to_value < -2147483648 || to_value > 2147483647: return -1
+        from_label: i32 = from_value.i32()
+        to_label: i32 = to_value.i32()
+        if from_label == to_label: return -1
+        from_index: mutable i64 = -1
+        to_index: mutable i64 = -1
+        i: mutable usize = 0
+        while i < vertex_count:
+            if labels[i] == from_label: from_index <- i.i64()
+            if labels[i] == to_label: to_index <- i.i64()
+            i <- i + 1
+        if from_index < 0:
+            if vertex_count >= 32: return -1
+            from_index <- vertex_count.i64()
+            labels[vertex_count] <- from_label
+            vertex_count <- vertex_count + 1
+        if to_index < 0:
+            if vertex_count >= 32: return -1
+            to_index <- vertex_count.i64()
+            labels[vertex_count] <- to_label
+            vertex_count <- vertex_count + 1
+        to_by_edge[edge] <- to_index.usize()
+        next_edge[edge] <- -1
+        if first_edge[from_index.usize()] < 0: first_edge[from_index.usize()] <- edge.i64()
+        else: next_edge[last_edge[from_index.usize()].usize()] <- edge.i64()
+        last_edge[from_index.usize()] <- edge.i64()
+        indegree[to_index.usize()] <- indegree[to_index.usize()] + 1
+        edge <- edge + 1
+
+    queue: mutable usize[32] = zeroed
+    order: mutable usize[32] = zeroed
+    queue_head: mutable usize = 0
+    queue_tail: mutable usize = 0
+    order_count: mutable usize = 0
+    vertex <- 0
+    while vertex < vertex_count:
+        if indegree[vertex] == 0:
+            queue[queue_tail] <- vertex
+            queue_tail <- queue_tail + 1
+        vertex <- vertex + 1
+    if vertex_count > 0 && queue_tail != 1: return -1
+    while queue_head < queue_tail:
+        if queue_tail - queue_head != 1: return -1
+        current: usize = queue[queue_head]
+        queue_head <- queue_head + 1
+        order[order_count] <- current
+        order_count <- order_count + 1
+        outgoing: mutable i64 = first_edge[current]
+        while outgoing >= 0:
+            adjacent: usize = to_by_edge[outgoing.usize()]
+            if indegree[adjacent] == 0: return -1
+            indegree[adjacent] <- indegree[adjacent] - 1
+            if indegree[adjacent] == 0:
+                queue[queue_tail] <- adjacent
+                queue_tail <- queue_tail + 1
+            outgoing <- next_edge[outgoing.usize()]
+    if order_count != vertex_count: return -1
+
+    output_bytes: usize = 4 * order_count
+    if output == null || capacity < output_bytes: return -2
+    i: mutable usize = 0
+    while i < order_count:
+        bits: mutable u32 = labels[order[i]].u32()
+        byte: mutable usize = 0
+        while byte < 4:
+            output[4 * i + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        i <- i + 1
+    output_bytes.i64()
+
+export fn kahns_algorithm(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = kahns_algorithm_impl

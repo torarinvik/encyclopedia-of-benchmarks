@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,14 +51,37 @@ def audit() -> dict:
     missing_implementations = 0
     complete_algorithms = set()
 
-    def has_implementation(language: str, letter: str, algorithm: str, extension: str) -> bool:
+    def has_implementation(language: str, letter: str, algorithm: str, extension: str,
+                           guide: Path) -> bool:
         language_root = ROOT / language / letter
-        return any(path.is_file() for path in (
+        if any(path.is_file() for path in (
             language_root / f"{algorithm}.{extension}",
             language_root / algorithm / f"{algorithm}.{extension}",
             ROOT / language / f"{algorithm}.{extension}",
             ROOT / language / algorithm / f"{algorithm}.{extension}",
-        ))
+        )):
+            return True
+
+        # Some source-backed packages keep ports in the original category
+        # directory rather than the benchmark slug's initial-letter directory.
+        # In that case, trust only an explicit README link to an existing file
+        # inside the matching language tree.
+        if not guide.is_file():
+            return False
+        language_root = (ROOT / language).resolve()
+        for target in re.findall(r"\]\(([^)]+)\)", guide.read_text(encoding="utf-8")):
+            target = target.split("#", 1)[0]
+            if "://" in target:
+                continue
+            path = (guide.parent / target).resolve()
+            if path.suffix != f".{extension}" or not path.is_file():
+                continue
+            try:
+                path.relative_to(language_root)
+            except ValueError:
+                continue
+            return True
+        return False
 
     for candidate in candidates:
         name = candidate["candidate_id"]
@@ -94,7 +118,7 @@ def audit() -> dict:
                 guide = package_dir / "README.md"
             workload = guide.with_name("workload.json")
             missing = [language for language, extension in LANGUAGES.items()
-                       if not has_implementation(language, letter, algorithm, extension)]
+                       if not has_implementation(language, letter, algorithm, extension, guide)]
             workload_matches = False
             if workload.is_file():
                 spec = json.loads(workload.read_text(encoding="utf-8"))

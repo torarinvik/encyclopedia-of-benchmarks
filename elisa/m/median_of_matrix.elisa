@@ -1,0 +1,68 @@
+const MAX_ROWS: usize = 16
+const MAX_CELLS: usize = 128
+const MAX_INPUT_WORDS: usize = 145
+
+def median_of_matrix_put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def median_of_matrix_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_WORDS:
+        return -1
+    if input[0] < 0 or input[0] > 16:
+        return -1
+
+    row_count: usize = input[0].usize()
+    cursor: mutable usize = 1
+    value_count: mutable usize = 0
+    values: mutable i32[MAX_CELLS] = zeroed
+    row: mutable usize = 0
+    while row < row_count:
+        if cursor >= length:
+            return -1
+        row_length: i64 = input[cursor]
+        cursor <- cursor + 1
+        if row_length != -1:
+            if row_length < 0 or row_length > 128:
+                return -1
+            cells: usize = row_length.usize()
+            if cells > MAX_CELLS - value_count or cells > length - cursor:
+                return -1
+            column: mutable usize = 0
+            while column < cells:
+                value: i64 = input[cursor]
+                cursor <- cursor + 1
+                if value < -2147483648 or value > 2147483647:
+                    return -1
+                values[value_count] <- value.i32()
+                value_count <- value_count + 1
+                column <- column + 1
+        row <- row + 1
+    if cursor != length or value_count == 0:
+        return -1
+
+    index: mutable usize = 1
+    while index < value_count:
+        value: i32 = values[index]
+        position: mutable usize = index
+        while position > 0 and values[position - 1] > value:
+            values[position] <- values[position - 1]
+            position <- position - 1
+        values[position] <- value
+        index <- index + 1
+
+    if output.is_null() or capacity < 4:
+        return -2
+    buffer: mutable u8[4] = zeroed
+    median_of_matrix_put_i32_le(values[(value_count - 1) / 2], buffer, 0)
+    byte: mutable usize = 0
+    while byte < 4:
+        output[byte] <- buffer[byte]
+        byte <- byte + 1
+    4
+
+export fn median_of_matrix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = median_of_matrix_impl

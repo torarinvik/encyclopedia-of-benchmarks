@@ -4,15 +4,15 @@ This benchmark ports the pinned JavaScript `generateSubSets` function. It enumer
 
 ## Contract
 
-- Input is `[n, values...]`, where `n` is 0 through 12 and must equal the number of following values.
+- Input is `[n, values...]`, where `n` is 0 through 12 and must equal the number of following values. The maximum valid input has 13 i64 words. The verifier's parseable-input bound is 14 words so it can frame malformed overlength probes; each port rejects a length above 13 before reading elements.
 - Each value is a signed safe JavaScript integer in `[-9007199254740991, 9007199254740991]`.
 - For each mask from 0 through `2^n - 1`, the subset includes values whose corresponding bit is set, scanning input positions from lowest to highest. The empty subset is first.
-- Output is binary: a little-endian u32 subset count, then for every subset a little-endian u32 element count followed by that subset's signed i64 values in little-endian order. The function returns the byte length, `-1` for malformed input, and `-2` when output capacity is too small.
-- The workspace is 212,996 bytes, sufficient for the maximum 12-element output.
+- Output is binary: a little-endian u32 subset count, then for every subset a little-endian u32 element count followed by that subset's signed i64 values in little-endian order. The maximum output is 212,996 bytes, sufficient for the maximum 12-element input.
+- The function returns the byte length, `-1` for malformed or null input, and `-2` for a null or undersized output buffer after validating the input. Errors write no output bytes; the empty subset case still needs 8 output bytes.
 
 The pinned source permits lengths up to 32 but uses JavaScript's signed 32-bit bitwise shifts to compute the loop bound. The benchmark uses `n<=12`, where the source enumerates exactly `2^n` masks and the full output is practical to serialize. Its mask and element order, including the empty subset, are preserved.
 
-[`workload.json`](workload.json) includes empty and singleton arrays, duplicates, negative and large safe integers, maximum length, malformed inputs, and insufficient output capacity. The independent oracle is [`benchmarks/generate_sub_sets_oracle.py`](../../generate_sub_sets_oracle.py).
+[`workload.json`](workload.json) includes empty and singleton arrays, duplicates, negative and large safe integers, maximum length, malformed inputs, null-pointer precedence, and output-capacity boundaries. The independent oracle is [`benchmarks/generate_sub_sets_oracle.py`](../../generate_sub_sets_oracle.py).
 
 ## Pinned source
 

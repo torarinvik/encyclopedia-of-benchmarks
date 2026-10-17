@@ -5,8 +5,11 @@ from __future__ import annotations
 import math
 import struct
 
+MIN_ITERATIONS = 0
 MAX_ITERATIONS = 8
+MIN_POINTS = 0
 MAX_POINTS = 32
+COMPONENT_SCALE = 16
 MAX_COMPONENT = 128
 MAX_INPUT_LENGTH = 4 + 2 * MAX_POINTS
 MAX_OUTPUT_BYTES = 8 * MAX_POINTS
@@ -48,7 +51,8 @@ def expected_output(
         return INVALID_RESULT, b""
 
     iterations, c_real_units, c_imag_units, count = values[:4]
-    if not 0 <= iterations <= MAX_ITERATIONS or not 0 <= count <= MAX_POINTS:
+    if (not MIN_ITERATIONS <= iterations <= MAX_ITERATIONS
+            or not MIN_POINTS <= count <= MAX_POINTS):
         return INVALID_RESULT, b""
     if not -MAX_COMPONENT <= c_real_units <= MAX_COMPONENT:
         return INVALID_RESULT, b""
@@ -66,12 +70,12 @@ def expected_output(
     if output_capacity is not None and output_capacity < needed:
         return INSUFFICIENT_CAPACITY_RESULT, b""
 
-    c_real = _f32(c_real_units / 16.0)
-    c_imag = _f32(c_imag_units / 16.0)
+    c_real = _f32(c_real_units / float(COMPONENT_SCALE))
+    c_imag = _f32(c_imag_units / float(COMPONENT_SCALE))
     output = bytearray()
     for index in range(count):
-        real = _f32(values[4 + 2 * index] / 16.0)
-        imag = _f32(values[5 + 2 * index] / 16.0)
+        real = _f32(values[4 + 2 * index] / float(COMPONENT_SCALE))
+        imag = _f32(values[5 + 2 * index] / float(COMPONENT_SCALE))
         for _ in range(iterations):
             real, imag = _complex64_step(real, imag, c_real, c_imag)
             if not math.isfinite(real) or not math.isfinite(imag):

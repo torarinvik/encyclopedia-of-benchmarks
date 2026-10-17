@@ -1,0 +1,46 @@
+const MAX_POINTS = 8
+const MAX_DISTANCE = 1000000
+const JAVA_INT_MAX = 2147483647
+const MAX_INPUT_LENGTH = 2 + MAX_POINTS * MAX_POINTS
+
+def kcenters_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    point_count = values[0]
+    center_count = values[1]
+    if point_count < 1 or point_count > MAX_POINTS or center_count < 1 or center_count > point_count:
+        return -1
+    if length != 2 + point_count * point_count:
+        return -1
+    for row in 0..<point_count:
+        for column in 0..<point_count:
+            distance = values[2 + row * point_count + column]
+            if distance < 0 or distance > MAX_DISTANCE or (row == column and distance != 0):
+                return -1
+            if distance != values[2 + column * point_count + row]:
+                return -1
+
+    selected: mutable [MAX_POINTS]bool = [false; MAX_POINTS]
+    max_distance: mutable [MAX_POINTS]i64 = [JAVA_INT_MAX; MAX_POINTS]
+    selected[0] <- true
+    for point in 1..<point_count:
+        distance = values[2 + point]
+        if distance < max_distance[point]:
+            max_distance[point] <- distance
+    for center in 1..<center_count:
+        farthest: mutable i64 = -1
+        for point in 0..<point_count:
+            if not selected[point] and (farthest == -1 or max_distance[point] > max_distance[farthest]):
+                farthest <- point
+        selected[farthest] <- true
+        for point in 0..<point_count:
+            distance = values[2 + farthest * point_count + point]
+            if distance < max_distance[point]:
+                max_distance[point] <- distance
+    result: mutable i64 = 0
+    for point in 0..<point_count:
+        if max_distance[point] > result:
+            result <- max_distance[point]
+    result
+
+export fn kcenters(values: i64&, length: usize) -> i64 = kcenters_impl

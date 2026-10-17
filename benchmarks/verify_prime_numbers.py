@@ -68,7 +68,7 @@ def corpus(workload: dict) -> tuple[str, int]:
     lines = [f"{len(records)}\n"]
     for limit, result, capacity, output_length, output in records:
         encoded = output.hex() if output else "-"
-        lines.append(f"{limit} {result} {capacity} {output_length} {encoded}\n")
+        lines.append(f"{limit} {result} {capacity} 0 {output_length} {encoded}\n")
     return "".join(lines), len(records)
 
 

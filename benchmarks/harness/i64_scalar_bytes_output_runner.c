@@ -59,20 +59,21 @@ static uint64_t hash_output(const uint8_t *output, size_t length)
 int main(int argc, char **argv)
 {
     int64_t input, expected_result;
-    uint64_t capacity_arg, samples_arg, warmups_arg, repetitions_arg;
-    if (argc != 8 || !parse_i64(argv[1], &input) || !parse_i64(argv[2], &expected_result) ||
+    uint64_t capacity_arg, output_is_null_arg, samples_arg, warmups_arg, repetitions_arg;
+    if (argc != 9 || !parse_i64(argv[1], &input) || !parse_i64(argv[2], &expected_result) ||
         !parse_u64(argv[4], &capacity_arg) || capacity_arg > MAX_OUTPUT_BYTES ||
-        !parse_u64(argv[5], &samples_arg) || !parse_u64(argv[6], &warmups_arg) ||
-        !parse_u64(argv[7], &repetitions_arg) || samples_arg == 0 || samples_arg > 10000 ||
+        !parse_u64(argv[5], &output_is_null_arg) || output_is_null_arg > 1 ||
+        !parse_u64(argv[6], &samples_arg) || !parse_u64(argv[7], &warmups_arg) ||
+        !parse_u64(argv[8], &repetitions_arg) || samples_arg == 0 || samples_arg > 10000 ||
         warmups_arg > 100000 || repetitions_arg == 0 || repetitions_arg > 1000000000) {
-        fprintf(stderr, "usage: i64_scalar_bytes_output_runner INPUT RESULT OUTPUT_HEX CAPACITY SAMPLES WARMUPS REPETITIONS\n");
+        fprintf(stderr, "usage: i64_scalar_bytes_output_runner INPUT RESULT OUTPUT_HEX CAPACITY OUTPUT_IS_NULL SAMPLES WARMUPS REPETITIONS\n");
         return 2;
     }
 
     const size_t encoded_length = strlen(argv[3]);
     const size_t output_length = encoded_length == 1 && argv[3][0] == '-' ? 0 : encoded_length / 2;
     uint8_t expected[MAX_OUTPUT_BYTES], output[MAX_OUTPUT_BYTES];
-    if (output_length > MAX_OUTPUT_BYTES ||
+    if (output_length > MAX_OUTPUT_BYTES || (output_is_null_arg && output_length > 0) ||
         (output_length == 0 && !(encoded_length == 1 && argv[3][0] == '-')) ||
         (output_length > 0 && encoded_length % 2 != 0)) {
         fprintf(stderr, "invalid expected output encoding\n");
@@ -90,7 +91,8 @@ int main(int argc, char **argv)
 
     memset(output, UINT8_C(0xA5), sizeof(output));
     const size_t capacity = (size_t)capacity_arg;
-    const int64_t initial = run_algorithm(input, output, capacity);
+    uint8_t *output_pointer = output_is_null_arg ? NULL : output;
+    const int64_t initial = run_algorithm(input, output_pointer, capacity);
     if (initial != expected_result ||
         (output_length > 0 && memcmp(output, expected, output_length) != 0)) {
         fprintf(stderr, "correctness mismatch for scalar byte-output input\n");
@@ -109,7 +111,7 @@ int main(int argc, char **argv)
     for (size_t warmup = 0; warmup < warmup_count; ++warmup) {
         int64_t observed = 0;
         for (size_t repetition = 0; repetition < repetitions; ++repetition)
-            observed = run_algorithm(input, output, capacity);
+            observed = run_algorithm(input, output_pointer, capacity);
         if (observed != expected_result ||
             (output_length > 0 && memcmp(output, expected, output_length) != 0)) {
             fprintf(stderr, "output changed during warmup\n");
@@ -129,7 +131,7 @@ int main(int argc, char **argv)
             return 4;
         }
         for (size_t repetition = 0; repetition < repetitions; ++repetition)
-            observed = run_algorithm(input, output, capacity);
+            observed = run_algorithm(input, output_pointer, capacity);
         const clock_t after = clock();
         if (after == (clock_t)-1 || after < before || observed != expected_result ||
             (output_length > 0 && memcmp(output, expected, output_length) != 0)) {

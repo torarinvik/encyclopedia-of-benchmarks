@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-44-start-cursor-v1",
+  "algorithm": "problem44_start_cursor",
+  "function_symbol": "problem44_start_cursor",
+  "input": {
+    "kind": "positive_start_cursor",
+    "minimum": 1,
+    "maximum": 2166,
+    "out_of_range_result": -1,
+    "definition": "Advance the supplied cursor by one, then scan high pentagonal indices upward through 2167 and lower indices downward from high-1."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "The first difference whose difference and sum are pentagonal in source traversal order; -1 for a cursor outside the supported range."
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/JavaScript",
+    "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+    "path": "Project-Euler/Problem044.js",
+    "symbol": "problem44"
+  },
+  "cases": [
+    {
+      "id": "earliest_cursor",
+      "input_value": 1,
+      "expected_result": 5482660
+    },
+    {
+      "id": "middle_cursor",
+      "input_value": 144,
+      "expected_result": 5482660
+    },
+    {
+      "id": "near_end_cursor",
+      "input_value": 2165,
+      "expected_result": 5482660
+    },
+    {
+      "id": "latest_supported_cursor",
+      "input_value": 2166,
+      "expected_result": 5482660
+    },
+    {
+      "id": "zero_cursor_invalid",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "above_supported_cursor",
+      "input_value": 2167,
+      "expected_result": -1
+    }
+  ]
+}

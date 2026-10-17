@@ -1,0 +1,45 @@
+const MAX_JOBS: usize = 32
+const MAX_OUTPUT_BYTES: usize = 520
+const QUANTUM: i64 = 2
+
+def round_robin_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def round_robin_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 1: return -1
+    raw_count: i64 = input[0]
+    if raw_count < 0 || raw_count > 32 || length != (raw_count + 1).usize(): return -1
+    count: usize = raw_count.usize()
+    remaining: mutable i64[32] = zeroed
+    waiting: mutable i64[32] = zeroed
+    for i in 0..<count:
+        burst: i64 = input[i + 1]
+        if burst < 0 || burst > 4096: return -1
+        remaining[i] <- burst
+    bytes: usize = (1 + 2 * count) * 8
+    if output == null || capacity < bytes: return -2
+    elapsed: mutable i64 = 0
+    while true:
+        done: mutable bool = true
+        for i in 0..<count:
+            if remaining[i] > 0:
+                done <- false
+                if remaining[i] > QUANTUM:
+                    elapsed <- elapsed + QUANTUM
+                    remaining[i] <- remaining[i] - QUANTUM
+                else:
+                    elapsed <- elapsed + remaining[i]
+                    waiting[i] <- elapsed - input[i + 1]
+                    remaining[i] <- 0
+        if done: break
+    round_robin_put_i64(output, 0, raw_count)
+    for i in 0..<count: round_robin_put_i64(output, 8 * (1 + i), waiting[i])
+    for i in 0..<count: round_robin_put_i64(output, 8 * (1 + count + i), input[i + 1] + waiting[i])
+    bytes.i64()
+
+export fn round_robin(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = round_robin_impl

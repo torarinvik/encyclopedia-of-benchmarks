@@ -15,7 +15,7 @@ proc put(outp:ptr UncheckedArray[uint8],off:int,x:int32)=
  let bits=cast[uint32](x)
  for k in 0..<4:outp[off+k]=uint8((bits shr (8*k)) and 255)
 proc open_knight_tour*(v:ptr UncheckedArray[int64],n:csize_t,outp:ptr UncheckedArray[uint8],cap:csize_t):int64 {.cdecl,exportc:"open_knight_tour".}=
- if v==nil or n!=1 or v[0]<1 or v[0]>5:return -1
+ if v==nil or n!=1 or (v[0]!=1 and v[0]!=5):return -1
  let d=int(v[0]);let bytes=d*d*4
  if outp==nil or cap<csize_t(bytes):return -2
  var b:array[25,int32]

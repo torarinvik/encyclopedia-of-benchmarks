@@ -1,0 +1,40 @@
+# Decimal digit sum of a bounded single-digit base power.
+const MAX_DIGITS: usize = 1001
+
+def problem016_power_digit_sum_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 2:
+        return -1
+    base: i64 = values[0]
+    exponent: i64 = values[1]
+    if base < 0 or base > 9 or exponent < 0 or exponent > 1000:
+        return -1
+
+    digits: mutable i64[1001] = zeroed
+    digit_count: mutable usize = 1
+    digits[0] <- base
+
+    power: mutable i64 = 1
+    while power < exponent:
+        carry: mutable i64 = 0
+        index: mutable usize = 0
+        while index < digit_count:
+            product: i64 = digits[index] * base + carry
+            digits[index] <- product % 10
+            carry <- product / 10
+            index <- index + 1
+        while carry > 0:
+            if digit_count >= MAX_DIGITS:
+                return -1
+            digits[digit_count] <- carry % 10
+            digit_count <- digit_count + 1
+            carry <- carry / 10
+        power <- power + 1
+
+    sum: mutable i64 = 0
+    index: mutable usize = 0
+    while index < digit_count:
+        sum <- sum + digits[index]
+        index <- index + 1
+    sum
+
+export fn problem016_power_digit_sum(values: i64&, length: usize) -> i64 = problem016_power_digit_sum_impl

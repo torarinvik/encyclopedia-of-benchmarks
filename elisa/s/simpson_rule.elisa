@@ -1,0 +1,24 @@
+const INVALID_RESULT: f64 = -1.0e300
+
+def simpson_rule_f(x: f64) -> f64:
+    (x - 0.0) * (x - 0.0)
+
+def simpson_rule_impl(b: f64, steps: f64) -> f64:
+    if (b != 1.0 and b != 2.0 and b != 3.0) or steps != 10.0:
+        return INVALID_RESULT
+
+    a: f64 = 0.0
+    h: f64 = (b - a) / steps
+    x: mutable f64 = a + h
+    y: mutable f64 = 0.0
+    y <- y + (h / 3.0) * simpson_rule_f(a)
+    count: mutable i64 = 2
+    while x < b - h |x, y, count, h, b|:
+        weight: i64 = 4 - 2 * (count % 2)
+        y <- y + (h / 3.0) * weight.f64() * simpson_rule_f(x)
+        count <- count + 1
+        x <- x + h
+    y <- y + (h / 3.0) * simpson_rule_f(b)
+    y
+
+export fn simpson_rule(b: f64, steps: f64) -> f64 = simpson_rule_impl

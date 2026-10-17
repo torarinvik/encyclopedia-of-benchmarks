@@ -1,0 +1,191 @@
+const MAX_N: usize = 8
+const MAX_D: usize = 4
+const MAX_Q: usize = 16
+const MAX_INPUT_VALUES: usize = 108
+
+extern exp(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern fabs(value: f64) -> f64
+
+fn svc_kernel(left: f64&, left_start: usize, right: f64&, right_start: usize,
+              dimension: usize, kind: i64) -> f64:
+    if kind == 0:
+        total: mutable f64 = 0.0
+        index: mutable usize = 0
+        while index < dimension:
+            total <- total + left[left_start + index] * right[right_start + index]
+            index <- index + 1
+        return total
+    norm_squared: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < dimension:
+        difference: f64 = left[left_start + index] - right[right_start + index]
+        norm_squared <- norm_squared + difference * difference
+        index <- index + 1
+    exp(-norm_squared)
+
+fn svc_fit_predict(labels: f64&, training: f64&, testing: f64&, n: usize,
+                   dimension: usize, query_count: usize, kind: i64) -> i64:
+    kernel_matrix: mutable f64[MAX_N * MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            kernel_matrix[i * MAX_N + j] <- svc_kernel(
+                training, i * MAX_D, training, j * MAX_D, dimension, kind)
+            j <- j + 1
+        i <- i + 1
+
+    optimum: mutable f64[MAX_N] = zeroed
+    i <- 0
+    while i < n:
+        optimum[i] <- 0.5
+        i <- i + 1
+    iteration: mutable usize = 0
+    while iteration < 5000:
+        gradient: mutable f64[MAX_N] = zeroed
+        i <- 0
+        while i < n:
+            total: mutable f64 = 0.0
+            j: mutable usize = 0
+            while j < n:
+                total <- total + optimum[j] * labels[j] * kernel_matrix[i * MAX_N + j]
+                j <- j + 1
+            gradient[i] <- labels[i] * total - 1.0
+            i <- i + 1
+        old_optimum: mutable f64[MAX_N] = zeroed
+        i <- 0
+        while i < n:
+            old_optimum[i] <- optimum[i]
+            i <- i + 1
+        learning_rate: f64 = 0.1 / (1.0 + iteration.f64() / 1000.0)
+        i <- 0
+        while i < n:
+            updated: mutable f64 = optimum[i] - learning_rate * gradient[i]
+            if updated < 0.0: updated <- 0.0
+            if updated > 1.0: updated <- 1.0
+            optimum[i] <- updated
+            i <- i + 1
+
+        sum_label_lambda: mutable f64 = 0.0
+        i <- 0
+        while i < n:
+            sum_label_lambda <- sum_label_lambda + optimum[i] * labels[i]
+            i <- i + 1
+        correction: mutable f64 = sum_label_lambda / n.f64()
+        pass: mutable usize = 0
+        while pass < 10:
+            i <- 0
+            while i < n:
+                updated: mutable f64 = optimum[i] - correction * labels[i]
+                if updated < 0.0: updated <- 0.0
+                if updated > 1.0: updated <- 1.0
+                optimum[i] <- updated
+                i <- i + 1
+            sum_label_lambda <- 0.0
+            i <- 0
+            while i < n:
+                sum_label_lambda <- sum_label_lambda + optimum[i] * labels[i]
+                i <- i + 1
+            correction <- sum_label_lambda / n.f64()
+            if fabs(sum_label_lambda) < 1e-10: break
+            pass <- pass + 1
+        difference_squared: mutable f64 = 0.0
+        i <- 0
+        while i < n:
+            difference: f64 = optimum[i] - old_optimum[i]
+            difference_squared <- difference_squared + difference * difference
+            i <- i + 1
+        if sqrt(difference_squared) < 1e-8: break
+        iteration <- iteration + 1
+
+    offset_total: mutable f64 = 0.0
+    offset_count: mutable usize = 0
+    i <- 0
+    while i < n:
+        if optimum[i] > 1e-5 && optimum[i] < 1.0 - 1e-5:
+            kernel_sum: mutable f64 = 0.0
+            j: mutable usize = 0
+            while j < n:
+                kernel_sum <- kernel_sum + optimum[j] * labels[j] * svc_kernel(
+                    training, j * MAX_D, training, i * MAX_D, dimension, kind)
+                j <- j + 1
+            offset_total <- offset_total + labels[i] - kernel_sum
+            offset_count <- offset_count + 1
+        i <- i + 1
+    if offset_count == 0:
+        i <- 0
+        while i < n:
+            kernel_sum: mutable f64 = 0.0
+            j: mutable usize = 0
+            while j < n:
+                kernel_sum <- kernel_sum + optimum[j] * labels[j] * svc_kernel(
+                    training, j * MAX_D, training, i * MAX_D, dimension, kind)
+                j <- j + 1
+            offset_total <- offset_total + labels[i] - kernel_sum
+            i <- i + 1
+        offset_total <- offset_total / n.f64()
+    else:
+        offset_total <- offset_total / offset_count.f64()
+
+    mask: mutable i64 = 0
+    i <- 0
+    while i < query_count:
+        total: mutable f64 = 0.0
+        j: mutable usize = 0
+        while j < n:
+            total <- total + optimum[j] * labels[j] * svc_kernel(
+                training, j * MAX_D, testing, i * MAX_D, dimension, kind)
+            j <- j + 1
+        if total + offset_total >= 0.0: mask <- mask | (1.i64() << i)
+        i <- i + 1
+    mask
+
+fn support_vector_classifier_impl(input: i64&, length: usize) -> i64:
+    if input == null || length < 4 || length > MAX_INPUT_VALUES + 1: return -1
+    if input[0] < 2 || input[0] > 8 || input[1] < 1 || input[1] > 4 ||
+        input[2] < 0 || input[2] > 1 || input[3] < 1 || input[3] > 16: return -1
+    n: usize = input[0].usize()
+    dimension: usize = input[1].usize()
+    kind: i64 = input[2]
+    query_count: usize = input[3].usize()
+    if length != 4 + n + n * dimension + query_count * dimension: return -1
+
+    labels: mutable f64[MAX_N] = zeroed
+    saw_negative: mutable bool = false
+    saw_positive: mutable bool = false
+    i: mutable usize = 0
+    while i < n:
+        label: i64 = input[4 + i]
+        if label != -1 && label != 1: return -1
+        labels[i] <- label.f64()
+        if label < 0: saw_negative <- true
+        else: saw_positive <- true
+        i <- i + 1
+    if !saw_negative || !saw_positive: return -1
+
+    training: mutable f64[MAX_N * MAX_D] = zeroed
+    testing: mutable f64[MAX_Q * MAX_D] = zeroed
+    training_start: usize = 4 + n
+    i <- 0
+    while i < n:
+        j: mutable usize = 0
+        while j < dimension:
+            value: i64 = input[training_start + i * dimension + j]
+            if value < -4 || value > 4: return -1
+            training[i * MAX_D + j] <- value.f64()
+            j <- j + 1
+        i <- i + 1
+    testing_start: usize = training_start + n * dimension
+    i <- 0
+    while i < query_count:
+        j: mutable usize = 0
+        while j < dimension:
+            value: i64 = input[testing_start + i * dimension + j]
+            if value < -4 || value > 4: return -1
+            testing[i * MAX_D + j] <- value.f64()
+            j <- j + 1
+        i <- i + 1
+    svc_fit_predict(labels, training, testing, n, dimension, query_count, kind)
+
+export fn support_vector_classifier(input: i64&, length: usize) -> i64 = support_vector_classifier_impl

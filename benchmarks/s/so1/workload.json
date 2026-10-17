@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-2-so1-v1",
+  "algorithm": "so1",
+  "function_symbol": "so1",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C",
+    "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+    "path": "project_euler/problem_2/so1.c",
+    "symbol": "main"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "source_input_type": "signed 32-bit int parsed with scanf(\"%d\")",
+    "minimum": -2147483648,
+    "maximum": 1000000000,
+    "out_of_range_result": -1,
+    "result": "sum of even Fibonacci terms not greater than the threshold, beginning with 1,2"
+  },
+  "cases": [
+    {"id":"below_source_int_minimum","input_value":-2147483649,"expected_result":-1},
+    {"id":"signed_i64_minimum","input_value":-9223372036854775808,"expected_result":-1},
+    {"id":"source_int_minimum","input_value":-2147483648,"expected_result":0},
+    {"id":"negative_threshold","input_value":-1,"expected_result":0},
+    {"id":"zero_threshold","input_value":0,"expected_result":0},
+    {"id":"one_threshold","input_value":1,"expected_result":0},
+    {"id":"first_even_term","input_value":2,"expected_result":2},
+    {"id":"before_second_even_term","input_value":7,"expected_result":2},
+    {"id":"second_even_term","input_value":8,"expected_result":10},
+    {"id":"published_example","input_value":10,"expected_result":10},
+    {"id":"before_third_even_term","input_value":33,"expected_result":10},
+    {"id":"third_even_term","input_value":34,"expected_result":44},
+    {"id":"before_fourth_even_term","input_value":143,"expected_result":44},
+    {"id":"fourth_even_term","input_value":144,"expected_result":188},
+    {"id":"euler_example_threshold","input_value":4000000,"expected_result":4613732},
+    {"id":"euler_example_adjacent_threshold","input_value":4000001,"expected_result":4613732},
+    {"id":"largest_even_term_under_limit","input_value":267914296,"expected_result":350704366},
+    {"id":"maximum_threshold","input_value":1000000000,"expected_result":350704366},
+    {"id":"above_maximum_threshold","input_value":1000000001,"expected_result":-1},
+    {"id":"signed_i64_maximum","input_value":9223372036854775807,"expected_result":-1}
+  ],
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "scalar_call",
+    "repetitions_per_sample": 10000,
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

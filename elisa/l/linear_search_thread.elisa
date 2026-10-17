@@ -1,0 +1,28 @@
+const MAX_COUNT: i64 = 64
+const MAX_INPUT_LENGTH: usize = 69
+const I32_MIN: i64 = -2147483648
+const I32_MAX: i64 = 2147483647
+
+def linear_search_thread_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT_LENGTH: return -1
+    count_arg: i64 = input[0]
+    left: i64 = input[1]
+    right: i64 = input[2]
+    target: i64 = input[3]
+    if count_arg < 1 or count_arg > MAX_COUNT or length != count_arg.usize() + 4: return -1
+    if left < 0 or left > right or right > count_arg or target < I32_MIN or target > I32_MAX:
+        return -1
+    count: usize = count_arg.usize()
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 4]
+        if value < I32_MIN or value > I32_MAX: return -1
+        index <- index + 1
+    index <- left.usize()
+    right_index: usize = right.usize()
+    while index < right_index:
+        if input[index + 4] == target: return 1
+        index <- index + 1
+    0
+
+export fn linear_search_thread(input: i64&, length: usize) -> i64 = linear_search_thread_impl

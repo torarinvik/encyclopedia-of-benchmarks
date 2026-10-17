@@ -1,0 +1,32 @@
+def logistic_regression_predict_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > 2051:
+        return -1
+    rows: i64 = values[0]
+    features: i64 = values[1]
+    if rows < 1 or rows > 63 or features < 1 or features > 32:
+        return -1
+    row_count: usize = rows.usize()
+    feature_count: usize = features.usize()
+    if length != 2 + row_count * feature_count + feature_count:
+        return -1
+    theta_offset: usize = 2 + row_count * feature_count
+    index: mutable usize = 0
+    while index < row_count * feature_count + feature_count:
+        value: i64 = values[2 + index]
+        if value < -1000 or value > 1000:
+            return -1
+        index <- index + 1
+    mask: mutable i64 = 0
+    row: mutable usize = 0
+    while row < row_count:
+        score: mutable i64 = 0
+        feature: mutable usize = 0
+        while feature < feature_count:
+            score <- score + values[2 + row * feature_count + feature] * values[theta_offset + feature]
+            feature <- feature + 1
+        if score >= 0:
+            mask <- mask | (1.i64() << row)
+        row <- row + 1
+    mask
+
+export fn logistic_regression_predict(values: i64&, length: usize) -> i64 = logistic_regression_predict_impl

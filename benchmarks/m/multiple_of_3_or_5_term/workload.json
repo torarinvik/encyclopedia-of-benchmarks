@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "matlab-multiple-of-3-or-5-term-i64-scalar-v1",
+  "algorithm": "multiple_of_3_or_5_term",
+  "function_symbol": "multiple_of_3_or_5_term",
+  "pinned_source": {
+    "repository": "TheAlgorithms/MATLAB-Octave",
+    "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+    "path": "project-euler/Problem1/multiple.m"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "value_range": [
+      0,
+      1000000000
+    ],
+    "result": "return n when n is divisible by 3 or 5; otherwise return 0",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "out_of_range_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "zero_term",
+      "input_value": 0,
+      "expected_result": 0
+    },
+    {
+      "id": "divisible_by_3_term",
+      "input_value": 9,
+      "expected_result": 9
+    },
+    {
+      "id": "divisible_by_5_term",
+      "input_value": 10,
+      "expected_result": 10
+    },
+    {
+      "id": "divisible_by_15_once",
+      "input_value": 15,
+      "expected_result": 15
+    },
+    {
+      "id": "nonmultiple_term",
+      "input_value": 7,
+      "expected_result": 0
+    },
+    {
+      "id": "negative_input_invalid",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "above_limit_invalid",
+      "input_value": 1000000001,
+      "expected_result": -1
+    }
+  ]
+}

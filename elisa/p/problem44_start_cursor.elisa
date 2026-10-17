@@ -1,0 +1,41 @@
+# Find the first pentagonal difference from a bounded start cursor.
+const MAX_START: i64 = 2166
+const MAX_HIGH_INDEX: i64 = 2167
+
+def pentagonal(index: i64) -> i64:
+    index * (3 * index - 1) / 2
+
+def integer_sqrt(value: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = 20000
+    while high - low > 1:
+        middle: i64 = (low + high) / 2
+        if middle * middle <= value:
+            low <- middle
+        else:
+            high <- middle
+    low
+
+def is_pentagonal(value: i64) -> bool:
+    discriminant: i64 = 24 * value + 1
+    root: i64 = integer_sqrt(discriminant)
+    root * root == discriminant and (root + 1) % 6 == 0
+
+def problem44_start_cursor_impl(start: i64) -> i64:
+    if start < 1 or start > MAX_START:
+        return -1
+    high: mutable i64 = start + 1
+    while high <= MAX_HIGH_INDEX:
+        high_value: i64 = pentagonal(high)
+        low: mutable i64 = high - 1
+        while low > 0:
+            low_value: i64 = pentagonal(low)
+            difference: i64 = high_value - low_value
+            sum: i64 = high_value + low_value
+            if is_pentagonal(difference) and is_pentagonal(sum):
+                return difference
+            low <- low - 1
+        high <- high + 1
+    -1
+
+export fn problem44_start_cursor(start: i64) -> i64 = problem44_start_cursor_impl

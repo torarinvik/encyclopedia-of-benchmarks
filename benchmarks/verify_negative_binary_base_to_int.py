@@ -47,7 +47,7 @@ def encode_neg2(value: int) -> list[int]:
 def corpus(workload: dict) -> tuple[str, int]:
     cases: dict[tuple[int, ...], int] = {}
     for case in workload["cases"]:
-        bits = encode_case(case)
+        bits = encode_case(case, algorithm=ALGORITHM)
         expected = oracle(bits)
         if expected != case["expected_result"]:
             raise ValueError(f"workload oracle mismatch: {case['id']}")
@@ -106,7 +106,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
-        bits = encode_case(case)
+        bits = encode_case(case, algorithm=ALGORITHM)
         expected = oracle(bits)
         if (record["algorithm"] != ALGORITHM
                 or record["implementation"]["language"] != language

@@ -1,0 +1,385 @@
+{
+  "schema_version": 1,
+  "id": "stable-matching-complete-preferences-i64-pairs-v1",
+  "algorithm": "stable_matching",
+  "function_symbol": "stable_matching",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/greedy/stable_matching.rs",
+    "symbol": "stable_matching",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/greedy/stable_matching.rs"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[n, men_preferences[n*n], women_preferences[n*n]]",
+    "length_formula": "1+2*n*n",
+    "n_range": [
+      0,
+      8
+    ],
+    "preference_row_rule": "Each of the 2*n rows is a permutation of participant IDs 0..n-1.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_pair_array",
+    "definition": "n (man_id,woman_id) pairs ordered by man_id; n=0 produces empty output.",
+    "success_result": "16*n bytes",
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Maximum 16 signed-i64 participant IDs in 8 matching pairs."
+  },
+  "cases": [
+    {
+      "id": "empty_nonnull_zero_capacity",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "empty_null_output",
+      "input_values": [
+        0
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 0,
+      "output_is_null": true
+    },
+    {
+      "id": "one_pair",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "two_men_displacement",
+      "input_values": [
+        2,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000010000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "three_person_profile",
+      "input_values": [
+        3,
+        0,
+        1,
+        2,
+        1,
+        0,
+        2,
+        1,
+        2,
+        0,
+        1,
+        0,
+        2,
+        2,
+        1,
+        0,
+        0,
+        2,
+        1
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000002000000000000000100000000000000000000000000000002000000000000000100000000000000"
+    },
+    {
+      "id": "maximum_8_by_8_profile",
+      "input_values": [
+        8,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        0,
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        0,
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        0,
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        0,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        1,
+        0,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        2,
+        1,
+        0,
+        7,
+        6,
+        5,
+        4,
+        3,
+        3,
+        2,
+        1,
+        0,
+        7,
+        6,
+        5,
+        4,
+        4,
+        3,
+        2,
+        1,
+        0,
+        7,
+        6,
+        5,
+        5,
+        4,
+        3,
+        2,
+        1,
+        0,
+        7,
+        6,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        0,
+        7,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        0
+      ],
+      "expected_result": 128,
+      "expected_output_hex": "0000000000000000000000000000000001000000000000000100000000000000020000000000000002000000000000000300000000000000030000000000000004000000000000000400000000000000050000000000000005000000000000000600000000000000060000000000000007000000000000000700000000000000",
+      "output_capacity": 128
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        2,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 31,
+      "capacity_error_result": -2
+    },
+    {
+      "id": "negative_n",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "n_above_limit",
+      "input_values": [
+        9
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "truncated_preferences",
+      "input_values": [
+        2,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "trailing_input",
+      "input_values": [
+        1,
+        0,
+        0,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "duplicate_man_preference",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "duplicate_woman_preference",
+      "input_values": [
+        2,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "out_of_range_participant",
+      "input_values": [
+        2,
+        0,
+        2,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "invalid_input_before_null_capacity",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0,
+      "output_is_null": true
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

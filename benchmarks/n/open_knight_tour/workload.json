@@ -1,15 +1,286 @@
 {
   "schema_version": 1,
-  "id": "open-knight-tour-row-major-dfs-v1",
+  "id": "thealgorithms-open-knight-tour-csharp-dart-i64-array-bytes-output-v1",
   "algorithm": "open_knight_tour",
   "function_symbol": "open_knight_tour",
-  "input": {"kind": "signed_i64_array", "layout": "[board_dimension]", "board_dimension_range": [1, 5], "maximum_input_values": 1},
-  "output": {"kind": "bytes", "encoding": "row-major little-endian signed i32 board visit numbers", "return_value": "number of output bytes written", "maximum_output_length": 100, "invalid_result": -1, "insufficient_output_capacity_result": -2},
-  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 4, "warmup_rounds": 0, "repetitions_per_sample": 1},
+  "description": "Row-major open knight-tour DFS for dimensions where pinned C# and Dart results agree.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Sharp",
+      "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+      "path": "Algorithms/Problems/KnightTour/OpenKnightTour.cs",
+      "symbol": "OpenKnightTour.Tour",
+      "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Problems/KnightTour/OpenKnightTour.cs"
+    },
+    {
+      "repository": "TheAlgorithms/Dart",
+      "commit": "73da8ab4ea413eee9bf29aa2263157d86060f871",
+      "path": "backtracking/open_knight_tour.dart",
+      "symbol": "openKnightTour",
+      "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/backtracking/open_knight_tour.dart"
+    }
+  ],
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[board_dimension]",
+    "allowed_dimensions": [
+      1,
+      5
+    ],
+    "maximum_input_length": 1,
+    "exact_input_length": 1,
+    "unsupported_dimensions": "2, 3, and 4 have no tour and produce different source outcomes; reject them as invalid.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_32_bit_integer_board",
+    "encoding": "n*n row-major visit numbers beginning at 1",
+    "result": "number of output bytes written",
+    "maximum_output_bytes": 100,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "short_capacity_writes_nothing": true,
+    "error_precedence": "Invalid input is rejected before output pointer or capacity checks."
+  },
+  "workspace": {
+    "bytes": 100,
+    "meaning": "Maximum board payload for the supported 5x5 dimension."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 4,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
   "cases": [
-    {"id": "single_square", "input_values": [1], "expected_result": 4, "expected_output_hex": "01000000"},
-    {"id": "unsolvable_two", "input_values": [2], "expected_result": 16, "expected_output_hex": "00000000000000000000000000000000"},
-    {"id": "first_five_square_tour", "input_values": [5], "expected_result": 100, "expected_output_hex": "010000000e0000001300000008000000190000000600000009000000020000000d000000120000000f000000140000000700000018000000030000000a0000000500000016000000110000000c00000015000000100000000b0000000400000017000000"},
-    {"id": "invalid_dimension", "input_values": [0], "expected_result": -1, "expected_output_hex": ""}
+    {
+      "id": "single_square",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "first_five_square_tour",
+      "input_values": [
+        5
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 100,
+      "expected_output_hex": "010000000e0000001300000008000000190000000600000009000000020000000d000000120000000f000000140000000700000018000000030000000a0000000500000016000000110000000c00000015000000100000000b0000000400000017000000"
+    },
+    {
+      "id": "invalid_dimension_zero",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unsupported_dimension_two",
+      "input_values": [
+        2
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unsupported_dimension_three",
+      "input_values": [
+        3
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unsupported_dimension_four",
+      "input_values": [
+        4
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dimension_above_bound",
+      "input_values": [
+        6
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dimension_negative",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_word",
+      "input_values": [
+        1,
+        5
+      ],
+      "input_length": 2,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input_length_mismatch",
+      "input_values": [
+        1
+      ],
+      "input_length": 2,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": true,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_single_square",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "output_capacity": 4,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_capacity_single_square",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "output_capacity": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_capacity_single_square",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "output_capacity": 4,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "null_output_five_square",
+      "input_values": [
+        5
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_capacity_five_square",
+      "input_values": [
+        5
+      ],
+      "input_length": 1,
+      "output_capacity": 99,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_capacity_five_square",
+      "input_values": [
+        5
+      ],
+      "input_length": 1,
+      "output_capacity": 100,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 100,
+      "expected_output_hex": "010000000e0000001300000008000000190000000600000009000000020000000d000000120000000f000000140000000700000018000000030000000a0000000500000016000000110000000c00000015000000100000000b0000000400000017000000"
+    },
+    {
+      "id": "invalid_precedes_null_output",
+      "input_values": [
+        2
+      ],
+      "input_length": 1,
+      "output_capacity": 0,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
   ]
 }

@@ -1,0 +1,56 @@
+const MAX_N: usize = 64
+const MAX_INPUT_LENGTH: usize = 66
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def rotate_singly_linked_lists_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 0 or input[0] > MAX_N.i64() or input[1] < 0 or input[1] > 2147483647: return -1
+    n: usize = input[0].usize()
+    k: i64 = input[1]
+    if length != n + 2: return -1
+    index: usize = 0
+    while index < n:
+        if input[index + 2] < -2147483648 or input[index + 2] > 2147483647: return -1
+        index <- index + 1
+    bytes: usize = 8 * (n + 1)
+    if output == null or capacity < bytes: return -2
+
+    nodes: mutable i64[MAX_N] = zeroed
+    next: mutable i64[MAX_N] = zeroed
+    index <- 0
+    while index < n:
+        nodes[index] <- input[index + 2]
+        if index + 1 < n: next[index] <- (index + 1).i64()
+        else: next[index] <- -1
+        index <- index + 1
+    head: i64 = -1
+    if n > 0: head <- 0
+    if n > 1 and k > 0:
+        tail: usize = n - 1
+        next[tail] <- head
+        shift: usize = (k % n.i64()).usize()
+        steps: usize = n - shift
+        new_tail: usize = tail
+        index <- 0
+        while index < steps:
+            new_tail <- next[new_tail].usize()
+            index <- index + 1
+        head <- next[new_tail]
+        next[new_tail] <- -1
+    store_i64_le(n.i64(), output, 0)
+    node: i64 = head
+    index <- 0
+    while index < n:
+        store_i64_le(nodes[node.usize()], output, 8 + index * 8)
+        if index + 1 < n: node <- next[node.usize()]
+        index <- index + 1
+    bytes.i64()
+
+export fn rotate_singly_linked_lists(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = rotate_singly_linked_lists_impl

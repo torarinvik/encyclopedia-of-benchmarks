@@ -1,0 +1,35 @@
+const MAX_LEAVES = 32
+const MAX_INPUT_LENGTH = 2 + MAX_LEAVES
+const INVALID_RESULT = -2147483649
+
+def minimax_eval(values: i64&, index: usize, depth: usize, height: usize, maximizing: bool) -> i64:
+    if depth == height:
+        return values[2 + index]
+    left = minimax_eval(values, index * 2, depth + 1, height, not maximizing)
+    right = minimax_eval(values, index * 2 + 1, depth + 1, height, not maximizing)
+    if maximizing:
+        if left > right: return left
+        return right
+    if left < right: return left
+    right
+
+def minimax_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    leaf_count = values[0]
+    first_turn_is_max = values[1]
+    if leaf_count < 1 or leaf_count > MAX_LEAVES or (leaf_count & (leaf_count - 1)) != 0:
+        return INVALID_RESULT
+    if (first_turn_is_max != 0 and first_turn_is_max != 1) or length != 2 + leaf_count:
+        return INVALID_RESULT
+    for leaf in 0..<leaf_count:
+        if values[2 + leaf] < -2147483648 or values[2 + leaf] > 2147483647:
+            return INVALID_RESULT
+    height: mutable usize = 0
+    width = leaf_count
+    while width > 1:
+        width <- width / 2
+        height <- height + 1
+    minimax_eval(values, 0, 0, height, first_turn_is_max == 1)
+
+export fn minimax(values: i64&, length: usize) -> i64 = minimax_impl

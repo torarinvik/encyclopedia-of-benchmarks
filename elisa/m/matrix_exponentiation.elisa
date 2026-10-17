@@ -1,0 +1,57 @@
+const MAX_ORDER: usize = 8
+const MAX_INPUT_WORDS: usize = 18
+const MOD: i64 = 1_000_000_007
+const MAX_N: i64 = 1_000_000_000_000
+
+def matrix_multiply(left: i64[64], right: i64[64], order: usize) -> i64[64]:
+    result: mutable i64[64] = zeroed
+    row: mutable usize = 0
+    while row < order:
+        col: mutable usize = 0
+        while col < order:
+            inner: mutable usize = 0
+            while inner < order:
+                index: usize = row * MAX_ORDER + col
+                result[index] <- (result[index] + (left[row * MAX_ORDER + inner] * right[inner * MAX_ORDER + col]) % MOD) % MOD
+                inner <- inner + 1
+            col <- col + 1
+        row <- row + 1
+    result
+
+def matrix_power(matrix: i64[64], exponent: i64, order: usize) -> i64[64]:
+    if exponent == 1: return matrix
+    if exponent % 2 == 1: return matrix_multiply(matrix, matrix_power(matrix, exponent - 1, order), order)
+    half: i64[64] = matrix_power(matrix, exponent / 2, order)
+    matrix_multiply(half, half, order)
+
+def matrix_exponentiation_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_WORDS: return -1
+    order_value: i64 = input[0]
+    if order_value < 1 or order_value > 8 or length != (2 * order_value + 2).usize(): return -1
+    order: usize = order_value.usize()
+    index: mutable usize = 0
+    while index < 2 * order:
+        if input[1 + index] < 0 or input[1 + index] >= MOD: return -1
+        index <- index + 1
+    n: i64 = input[2 * order + 1]
+    if n < 0 or n > MAX_N: return -1
+    if n == 0: return 0
+    if n <= order_value: return input[n.usize()]
+    transition: mutable i64[64] = zeroed
+    index <- 0
+    while index + 1 < order:
+        transition[index * MAX_ORDER + index + 1] <- 1
+        index <- index + 1
+    index <- 0
+    while index < order:
+        transition[(order - 1) * MAX_ORDER + index] <- input[2 * order - index]
+        index <- index + 1
+    powered: i64[64] = matrix_power(transition, n - 1, order)
+    result: mutable i64 = 0
+    index <- 0
+    while index < order:
+        result <- (result + (powered[index] * input[1 + index]) % MOD) % MOD
+        index <- index + 1
+    result
+
+export fn matrix_exponentiation(input: i64&, length: usize) -> i64 = matrix_exponentiation_impl

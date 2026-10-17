@@ -1,0 +1,44 @@
+extern sqrt(value: f64) -> f64
+
+const MAX_COEFFICIENT: f64 = 1000000.0
+const MIN_ABS_LEADING_COEFFICIENT: f64 = 0.000001
+
+def shreedharacharya_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_length != 3:
+        return -1
+    a: f64 = input[0]
+    b: f64 = input[1]
+    c: f64 = input[2]
+    if a != a or b != b or c != c or
+        a < -MAX_COEFFICIENT or a > MAX_COEFFICIENT or
+        (a > -MIN_ABS_LEADING_COEFFICIENT and a < MIN_ABS_LEADING_COEFFICIENT) or
+        b < -MAX_COEFFICIENT or b > MAX_COEFFICIENT or
+        c < -MAX_COEFFICIENT or c > MAX_COEFFICIENT:
+        return -1
+
+    discriminant: f64 = b * b - 4.0 * a * c
+    roots: mutable f64[2] = zeroed
+    count: mutable usize = 0
+    if discriminant == 0.0:
+        roots[count] <- -b / (2.0 * a)
+        count <- count + 1
+    elif discriminant > 0.0:
+        square_root: f64 = sqrt(discriminant)
+        denominator: f64 = 2.0 * a
+        roots[count] <- (-b + square_root) / denominator
+        count <- count + 1
+        roots[count] <- (-b - square_root) / denominator
+        count <- count + 1
+
+    for index in 0..<count |roots|:
+        if roots[index] != roots[index]:
+            return -1
+    if output == null or output_capacity < count:
+        return -2
+    for index in 0..<count |roots, output|:
+        output[index] <- roots[index]
+    count.i64()
+
+export fn shreedharacharya(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = shreedharacharya_impl

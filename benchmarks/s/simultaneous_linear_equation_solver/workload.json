@@ -24,7 +24,8 @@
   "output": {
     "kind": "i64_little_endian_records",
     "layout": "n as signed i64 LE followed by n solution ticks, where each tick represents 1e-5",
-    "rounding": "Python round(solution, 5) ties-to-even semantics; exact halfway cases use the fused multiply-add residual",
+    "rounding": "Python round(solution, 5), then binary64 scale by 100000 and ties-to-even integer conversion; the first exact halfway decision uses the fused multiply-add residual",
+    "valid_solution_tick_magnitude_max": 2251799813685248,
     "maximum_output_bytes": 48,
     "invalid_result": -1,
     "insufficient_capacity_result": -2
@@ -243,6 +244,21 @@
         1,
         100001,
         1000
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "input_length": 31,
+      "workspace_bytes": 48,
+      "id": "solution_tick_out_of_range",
+      "input_values": [
+        5,
+        2, 801, 1201, 1601, 1996, -4,
+        1, 402, 1201, 1601, 1996, -4,
+        1, 401, 802, 1601, 1996, -4,
+        1, 401, 801, 1202, 1996, -4,
+        1, 401, 801, 1201, 1597, -3
       ],
       "expected_result": -1,
       "expected_output_hex": ""

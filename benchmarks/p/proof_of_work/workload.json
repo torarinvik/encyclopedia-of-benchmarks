@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "id": "proof-of-work-frozen-genesis-bounded-v1",
+  "algorithm": "proof_of_work",
+  "function_symbol": "proof_of_work",
+  "input": {
+    "kind": "signed_i64_array",
+    "length": 2,
+    "layout": [
+      "difficulty",
+      "max_nonce"
+    ],
+    "difficulty_range_inclusive": [
+      0,
+      8
+    ],
+    "max_nonce_range_inclusive": [
+      0,
+      65535
+    ],
+    "invalid_input_result": -1
+  },
+  "block_fields": {
+    "index": 0,
+    "previous_hash": "0",
+    "transactions": "Genesis Block",
+    "timestamp_python_string": "0.0",
+    "nonce_start": 0,
+    "preimage_template_ascii": "00Genesis Block0.0{nonce}"
+  },
+  "output": {
+    "kind": "nonce_i64le_followed_by_raw_sha256",
+    "length_bytes": 40,
+    "result": "40 on found, 0 on bounded exhaustion",
+    "invalid_input_result": -1,
+    "insufficient_or_null_output_result_on_found": -2,
+    "no_write_on_error_or_exhaustion": true
+  },
+  "workspace": {
+    "bytes": 40,
+    "meaning": "Maximum found-result capacity: signed i64 little-endian nonce followed by 32 raw SHA-256 digest bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {
+      "id": "zero_difficulty_nonce_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "0000000000000000cbd506c90cfe8124c187213edb5b96a3ed4cb2ccc4799a16cafa11eab2270b13"
+    },
+    {
+      "id": "difficulty_one_before_first_hit",
+      "input_values": [
+        1,
+        6
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "difficulty_one_inclusive_hit",
+      "input_values": [
+        1,
+        7
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "07000000000000000547a7161dac2034a9b3bfd8982c358410d4b5f4a31a485347104a2fe7413948"
+    },
+    {
+      "id": "difficulty_three_before_first_hit",
+      "input_values": [
+        3,
+        1218
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "difficulty_three_inclusive_hit",
+      "input_values": [
+        3,
+        1219
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "c304000000000000000bdc8362061faf68739c1269f7395c638f3a0ac232a22d72fd05599a2c7546"
+    },
+    {
+      "id": "maximum_nonce_with_zero_difficulty",
+      "input_values": [
+        0,
+        65535
+      ],
+      "expected_result": 40,
+      "expected_output_hex": "0000000000000000cbd506c90cfe8124c187213edb5b96a3ed4cb2ccc4799a16cafa11eab2270b13"
+    },
+    {
+      "id": "maximum_difficulty_with_zero_nonce_cap",
+      "input_values": [
+        8,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_difficulty",
+      "input_values": [
+        9,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_nonce_cap",
+      "input_values": [
+        1,
+        65536
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

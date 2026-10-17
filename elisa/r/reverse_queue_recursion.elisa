@@ -1,0 +1,61 @@
+const MAX_QUEUE_LENGTH: usize = 32
+const MAX_INPUT_LENGTH: usize = 34
+
+def reverse_queue_recursive(
+    queue: mutable u8&, capacity: usize,
+    front: mutable usize&, size: mutable usize&,
+) -> void:
+    if size == 0:
+        return
+    value: u8 = queue[front]
+    front <- (front + 1) % capacity
+    size <- size - 1
+    reverse_queue_recursive(queue, capacity, front, size)
+    rear: usize = (front + size) % capacity
+    queue[rear] <- value
+    size <- size + 1
+
+def reverse_queue_recursion_impl(
+    input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize,
+) -> i64:
+    if input.is_null():
+        if input_length != 1:
+            return -1
+        if output.is_null():
+            return -2
+        return 0
+    if input_length < 1 or input_length > MAX_INPUT_LENGTH:
+        return -1
+    queue_length_arg: i64 = input[0]
+    if queue_length_arg < 0 or queue_length_arg > MAX_QUEUE_LENGTH.i64():
+        return -1
+    queue_length: usize = queue_length_arg.usize()
+    if input_length != queue_length + 1:
+        return -1
+    index: mutable usize = 0
+    while index < queue_length:
+        value: i64 = input[index + 1]
+        if value < 0 or value > 255:
+            return -1
+        index <- index + 1
+    if output.is_null() or output_capacity < queue_length:
+        return -2
+
+    queue: mutable u8[MAX_QUEUE_LENGTH] = zeroed
+    index <- 0
+    while index < queue_length:
+        queue[index] <- input[index + 1].u8()
+        index <- index + 1
+    front: mutable usize = 0
+    size: mutable usize = queue_length
+    reverse_queue_recursive(&queue[0], queue_length, front, size)
+    index <- 0
+    while index < queue_length:
+        output[index] <- queue[(front + index) % queue_length]
+        index <- index + 1
+    queue_length.i64()
+
+export fn reverse_queue_recursion(
+    input: i64&, input_length: usize,
+    output: mutable u8&, output_capacity: usize,
+) -> i64 = reverse_queue_recursion_impl

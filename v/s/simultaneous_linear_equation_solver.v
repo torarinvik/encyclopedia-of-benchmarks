@@ -8,7 +8,8 @@ fn C.fma(first f64, second f64, third f64) f64
 const max_equations = 5
 const max_input_length = usize(31)
 const max_output_bytes = 48
-const i64_limit = 9.223372036854775808e18
+const half_step_limit = 4.503599627370496e15
+const max_tick_magnitude = i64(2251799813685248)
 
 fn write_i64_le(mut output &u8, offset int, value i64) {
 	mut bits := u64(value)
@@ -103,14 +104,23 @@ pub fn simultaneous_linear_equation_solver(input &i64, length usize, mut output 
 		write_i64_le(mut buffer, 0, n_value)
 		for row in 0 .. n {
 			scaled := solutions[row] * 100000.0
-			if scaled != scaled || scaled < -i64_limit || scaled >= i64_limit { return -1 }
+			if scaled != scaled || scaled <= -half_step_limit || scaled >= half_step_limit { return -1 }
 			lower := math.floor(scaled)
 			midpoint := lower + 0.5
 			exact_side := C.fma(solutions[row], 100000.0, -midpoint)
 			if exact_side != exact_side || exact_side >= 1.7976931348623157e308 || exact_side <= -1.7976931348623157e308 { return -1 }
 			mut rounded := i64(lower)
 			if exact_side > 0 || (exact_side == 0 && rounded % 2 != 0) { rounded++ }
-			write_i64_le(mut buffer, 8 + row * 8, rounded)
+			if rounded < -max_tick_magnitude || rounded > max_tick_magnitude { return -1 }
+			rounded_value := f64(rounded) / 100000.0
+			projected := rounded_value * 100000.0
+			if projected != projected || projected >= 1.7976931348623157e308 || projected <= -1.7976931348623157e308 { return -1 }
+			projected_lower := math.floor(projected)
+			projected_midpoint := projected_lower + 0.5
+			mut ticks := i64(projected_lower)
+			if projected > projected_midpoint || (projected == projected_midpoint && ticks % 2 != 0) { ticks++ }
+			if ticks < -max_tick_magnitude || ticks > max_tick_magnitude { return -1 }
+			write_i64_le(mut buffer, 8 + row * 8, ticks)
 		}
 
 		needed := 8 + 8 * n

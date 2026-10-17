@@ -1,0 +1,25 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 4
+const MAX_TEMPERATURE_MK: i64 = 1000000
+const MAX_MOLAR_MASS_MICRO: i64 = 1000000000
+const GAS_CONSTANT: f64 = 8.31446261815324
+const PI_VALUE: f64 = 3.14159265358979323846264338327950288
+const INVALID_RESULT: f64 = -1.0e300
+
+def speeds_of_gas_molecules_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
+    operation: i64 = input[0]
+    temperature_mk: i64 = input[1]
+    molar_mass_micro: i64 = input[2]
+    if length != 3 or operation < 0 or operation > 1 or
+        temperature_mk < 0 or temperature_mk > MAX_TEMPERATURE_MK or
+        molar_mass_micro < 1 or molar_mass_micro > MAX_MOLAR_MASS_MICRO: return INVALID_RESULT
+
+    temperature: f64 = temperature_mk.f64() / 1000.0
+    molar_mass: f64 = molar_mass_micro.f64() / 1000000.0
+    if operation == 0:
+        return pow((8.0 * GAS_CONSTANT * temperature) / (PI_VALUE * molar_mass), 0.5)
+    pow((2.0 * GAS_CONSTANT * temperature) / molar_mass, 0.5)
+
+export fn speeds_of_gas_molecules(input: i64&, length: usize) -> f64 = speeds_of_gas_molecules_impl

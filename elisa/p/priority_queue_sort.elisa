@@ -1,0 +1,71 @@
+const MAX_COUNT: usize = 128
+const MAX_INPUT_LENGTH: usize = 130
+
+fn priority_queue_sort_heap_push(heap: mutable i32&, size: mutable usize&, value: i32) -> void:
+    child: mutable usize = size
+    size <- size + 1
+    heap[child] <- value
+    while child > 0:
+        parent: usize = (child - 1) / 2
+        if heap[parent] <= heap[child]: break
+        temporary: i32 = heap[parent]
+        heap[parent] <- heap[child]
+        heap[child] <- temporary
+        child <- parent
+
+fn priority_queue_sort_heap_pop(heap: mutable i32&, size: mutable usize&) -> i32:
+    minimum: i32 = heap[0]
+    size <- size - 1
+    if size == 0: return minimum
+    heap[0] <- heap[size]
+    parent: mutable usize = 0
+    while true:
+        left: usize = 2 * parent + 1
+        if left >= size: break
+        right: usize = left + 1
+        smaller: mutable usize = left
+        if right < size && heap[right] < heap[left]: smaller <- right
+        if heap[parent] <= heap[smaller]: break
+        temporary: i32 = heap[parent]
+        heap[parent] <- heap[smaller]
+        heap[smaller] <- temporary
+        parent <- smaller
+    minimum
+
+fn priority_queue_sort_write_i32(output: mutable u8&, offset: usize, value: i32) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+fn priority_queue_sort_impl(input: i64&, length: usize,
+                            output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null || length < 1 || length > MAX_INPUT_LENGTH: return -1
+    raw_count: i64 = input[0]
+    if raw_count < 0 || raw_count > MAX_COUNT.i64() || length != 1 + raw_count.usize(): return -1
+    count: usize = raw_count.usize()
+    index: mutable usize = 0
+    while index < count:
+        if input[index + 1] < -2147483648 || input[index + 1] > 2147483647: return -1
+        index <- index + 1
+
+    byte_count: usize = 4 * count
+    if output == null || output_capacity < byte_count: return -2
+
+    heap: mutable i32[MAX_COUNT] = zeroed
+    heap_size: mutable usize = 0
+    index <- 0
+    while index < count:
+        priority_queue_sort_heap_push(heap, heap_size, input[index + 1].i32())
+        index <- index + 1
+    index <- 0
+    while index < count:
+        value: i32 = priority_queue_sort_heap_pop(heap, heap_size)
+        priority_queue_sort_write_i32(output, 4 * index, value)
+        index <- index + 1
+    byte_count.i64()
+
+export fn priority_queue_sort(input: i64&, length: usize, output: mutable u8&,
+                              output_capacity: usize) -> i64 = priority_queue_sort_impl

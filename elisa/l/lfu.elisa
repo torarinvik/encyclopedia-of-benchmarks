@@ -1,0 +1,95 @@
+def move_to_front(keys: mutable i32[16]&, values: mutable i32[16]&, index: usize):
+    key: i32 = keys[index]
+    value: i32 = values[index]
+    current: mutable usize = index
+    while current > 0:
+        keys[current] <- keys[current - 1]
+        values[current] <- values[current - 1]
+        current <- current - 1
+    keys[0] <- key
+    values[0] <- value
+
+def append(words: mutable i64[96]&, count: mutable usize&, value: i64):
+    words[count] <- value
+    count <- count + 1
+
+def put_i64_le(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def lfu_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 98: return -1
+    if input[0] < 2 or input[0] > 16 or input[1] < 0 or input[1] > 32: return -1
+
+    cache_capacity: usize = input[0].usize()
+    operation_count: usize = input[1].usize()
+    keys: mutable i32[16] = zeroed
+    values: mutable i32[16] = zeroed
+    size: mutable usize = 0
+    words: mutable i64[96] = zeroed
+    word_count: mutable usize = 0
+    position: mutable usize = 2
+    operation: mutable usize = 0
+
+    while operation < operation_count:
+        if position >= length: return -1
+        opcode: i64 = input[position]
+        position <- position + 1
+        if opcode == 0:
+            if position + 1 >= length: return -1
+            key_arg: i64 = input[position]
+            value_arg: i64 = input[position + 1]
+            position <- position + 2
+            if key_arg < -2147483648 or key_arg > 2147483647 or
+                value_arg < -2147483648 or value_arg > 2147483647: return -1
+            key: i32 = key_arg.i32()
+            index: mutable usize = 0
+            while index < size and keys[index] != key: index <- index + 1
+            if index < size:
+                # The pinned Put mutates a copied item; the old value remains.
+                move_to_front(keys, values, index)
+            else:
+                if size == cache_capacity: size <- size - 1
+                index <- size
+                while index > 0:
+                    keys[index] <- keys[index - 1]
+                    values[index] <- values[index - 1]
+                    index <- index - 1
+                keys[0] <- key
+                values[0] <- value_arg.i32()
+                size <- size + 1
+            append(words, word_count, 0)
+        elif opcode == 1:
+            if position >= length: return -1
+            key_arg: i64 = input[position]
+            position <- position + 1
+            if key_arg < -2147483648 or key_arg > 2147483647: return -1
+            key: i32 = key_arg.i32()
+            index: mutable usize = 0
+            while index < size and keys[index] != key: index <- index + 1
+            append(words, word_count, 1)
+            if index == size:
+                append(words, word_count, 1)
+                append(words, word_count, 0)
+            else:
+                value: i32 = values[index]
+                move_to_front(keys, values, index)
+                append(words, word_count, 0)
+                append(words, word_count, value.i64())
+        else:
+            return -1
+        operation <- operation + 1
+
+    if position != length or word_count > 96: return -1
+    output_length: usize = word_count * 8
+    if output.is_null() or output_capacity < output_length: return -2
+    index: mutable usize = 0
+    while index < word_count:
+        put_i64_le(output, index * 8, words[index])
+        index <- index + 1
+    output_length.i64()
+
+export fn lfu(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = lfu_impl

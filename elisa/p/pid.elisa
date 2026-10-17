@@ -1,0 +1,54 @@
+const MAX_INPUT_LENGTH: usize = 64
+const MAX_ERRORS: usize = 60
+
+def pid_impl(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null || length < 5 || length > MAX_INPUT_LENGTH:
+        return -1
+    error_count: usize = length - 4
+    kp64: f64 = input[0]
+    ki64: f64 = input[1]
+    kd64: f64 = input[2]
+    dt64: f64 = input[3]
+    if kp64 != kp64 || kp64 < -1.0 || kp64 > 1.0 ||
+       ki64 != ki64 || ki64 < -1.0 || ki64 > 1.0 ||
+       kd64 != kd64 || kd64 < -1.0 || kd64 > 1.0 ||
+       dt64 != dt64 || (dt64 != 0.0 && (dt64 < 0.01 || dt64 > 1.0)) ||
+       error_count < 1 || error_count > MAX_ERRORS:
+        return -1
+    errors: mutable f32[60] = zeroed
+    index: mutable usize = 0
+    while index < error_count:
+        value: f64 = input[index + 4]
+        if value != value || value < -1.0 || value > 1.0:
+            return -1
+        errors[index] <- value.f32()
+        index <- index + 1
+    if output == null || output_capacity < error_count:
+        return -2
+
+    kp: f32 = kp64.f32()
+    ki: f32 = ki64.f32()
+    kd: f32 = kd64.f32()
+    dt: f32 = dt64.f32()
+    integral: mutable f32 = 0.0.f32()
+    last_error: mutable f32 = 0.0.f32()
+    index <- 0
+    while index < error_count:
+        error: f32 = errors[index]
+        proportional: f32 = error * kp
+        integral_step: mutable f32 = error * dt
+        integral_step <- integral_step * ki
+        integral <- integral + integral_step
+        derivative: mutable f32 = 0.0.f32()
+        if dt != 0.0.f32():
+            difference: f32 = error - last_error
+            rate: f32 = difference / dt
+            derivative <- rate * kd
+        last_error <- error
+        partial: f32 = proportional + integral
+        result: f32 = partial + derivative
+        output[index] <- result.f64()
+        index <- index + 1
+    error_count.i64()
+
+export fn pid(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64 = pid_impl

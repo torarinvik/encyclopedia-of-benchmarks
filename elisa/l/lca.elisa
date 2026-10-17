@@ -1,0 +1,80 @@
+def find_root(parent: mutable usize[64]&, vertex: usize) -> usize:
+    current: mutable usize = vertex
+    while parent[current] != current:
+        parent[current] <- parent[parent[current]]
+        current <- parent[current]
+    current
+
+def lca_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 129: return -1
+    if input[0] < 1 or input[0] > 64: return -1
+    node_count: usize = input[0].usize()
+    if length != 2 * node_count + 1: return -1
+    dsu: mutable usize[64] = zeroed
+    degree: mutable usize[64] = zeroed
+    adjacency: mutable i64[64][64] = zeroed
+    index: usize = 0
+    while index < node_count:
+        dsu[index] <- index
+        index <- index + 1
+    position: mutable usize = 1
+    edge: mutable usize = 0
+    while edge + 1 < node_count:
+        u_arg: i64 = input[position]
+        v_arg: i64 = input[position + 1]
+        position <- position + 2
+        if u_arg < 0 or u_arg >= node_count.i64() or v_arg < 0 or v_arg >= node_count.i64() or u_arg == v_arg: return -1
+        u: usize = u_arg.usize()
+        v: usize = v_arg.usize()
+        root_u: usize = find_root(dsu, u)
+        root_v: usize = find_root(dsu, v)
+        if root_u == root_v: return -1
+        dsu[root_u] <- root_v
+        adjacency[u][degree[u]] <- v.i64()
+        degree[u] <- degree[u] + 1
+        adjacency[v][degree[v]] <- u.i64()
+        degree[v] <- degree[v] + 1
+        edge <- edge + 1
+    query_a_arg: i64 = input[position]
+    query_b_arg: i64 = input[position + 1]
+    if query_a_arg < 0 or query_a_arg >= node_count.i64() or query_b_arg < 0 or query_b_arg >= node_count.i64(): return -1
+    component: usize = find_root(dsu, 0)
+    index <- 1
+    while index < node_count:
+        if find_root(dsu, index) != component: return -1
+        index <- index + 1
+
+    parent: mutable usize[64] = zeroed
+    depth: mutable usize[64] = zeroed
+    stack: mutable usize[64] = zeroed
+    seen: mutable bool[64] = zeroed
+    stack_size: mutable usize = 1
+    stack[0] <- 0
+    seen[0] <- true
+    while stack_size > 0:
+        stack_size <- stack_size - 1
+        vertex: usize = stack[stack_size]
+        neighbor: mutable usize = 0
+        while neighbor < degree[vertex]:
+            next: usize = adjacency[vertex][neighbor].usize()
+            if not seen[next]:
+                seen[next] <- true
+                parent[next] <- vertex
+                depth[next] <- depth[vertex] + 1
+                stack[stack_size] <- next
+                stack_size <- stack_size + 1
+            neighbor <- neighbor + 1
+    a: mutable usize = query_a_arg.usize()
+    b: mutable usize = query_b_arg.usize()
+    if depth[a] < depth[b]:
+        temporary: usize = a
+        a <- b
+        b <- temporary
+    while depth[a] != depth[b]: a <- parent[a]
+    if a == b: return a.i64()
+    while a != b:
+        a <- parent[a]
+        b <- parent[b]
+    a.i64()
+
+export fn lca(input: i64&, length: usize) -> i64 = lca_impl(input, length)

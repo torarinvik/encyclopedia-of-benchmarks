@@ -5,7 +5,7 @@ import "core:c"
 // Bottom-up 0/1 knapsack using one row and descending capacities.
 @(export)
 knapsack_zero_one_tabulation :: proc "c" (packed: [^]i64, length: c.size_t) -> i64 {
-	if length < 2 || length > 258 do return -1
+	if packed == nil || length < 2 || length > 258 do return -1
 	if packed[0] < 0 || packed[0] > 512 || packed[1] < 0 || packed[1] > 128 do return -1
 	capacity := int(packed[0])
 	item_count := int(packed[1])

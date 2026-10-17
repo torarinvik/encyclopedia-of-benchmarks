@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-kl-divergence-loss-i64-array-float64-v1",
+  "algorithm": "kl_divergence_loss",
+  "function_symbol": "kl_divergence_loss",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[actual_count,predicted_count,actual_scaled...,predicted_scaled...]",
+    "maximum_input_values": 130,
+    "actual_count_range": [
+      0,
+      64
+    ],
+    "predicted_count_range": [
+      0,
+      64
+    ],
+    "scaled_value_range": [
+      0,
+      1000000
+    ],
+    "scale": 1000000,
+    "exact_length": "2 + actual_count + predicted_count",
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "source-order sum over zipped pairs of (actual + 1e-5) * ln((actual + 1e-5)/(predicted + 1e-5)); values are decoded from scaled integers by dividing by 1,000,000",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e+300
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/machine_learning/loss_function/kl_divergence_loss.rs",
+    "function": "kld_loss"
+  },
+  "cases": [
+    {
+      "id": "both_empty",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "empty_actual_nonempty_prediction",
+      "input_values": [
+        0,
+        2,
+        100000,
+        900000
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "empty_prediction_nonempty_actual",
+      "input_values": [
+        2,
+        0,
+        100000,
+        900000
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero_actual_smoothed_term",
+      "input_values": [
+        1,
+        1,
+        0,
+        1000000
+      ],
+      "input_length": 4,
+      "expected_result": -0.0001151293546492023
+    },
+    {
+      "id": "identical_vectors",
+      "input_values": [
+        3,
+        3,
+        0,
+        250000,
+        1000000,
+        0,
+        250000,
+        1000000
+      ],
+      "input_length": 8,
+      "expected_result": 0.0
+    },
+    {
+      "id": "actual_longer_zip_truncates",
+      "input_values": [
+        2,
+        1,
+        500000,
+        1000000,
+        250000
+      ],
+      "input_length": 5,
+      "expected_result": 0.3465705218517748
+    },
+    {
+      "id": "prediction_longer_zip_truncates",
+      "input_values": [
+        1,
+        2,
+        500000,
+        250000,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": 0.3465705218517748
+    },
+    {
+      "id": "non_normalized_vectors",
+      "input_values": [
+        2,
+        2,
+        200000,
+        800000,
+        400000,
+        600000
+      ],
+      "input_length": 6,
+      "expected_result": 0.09151383393446358
+    },
+    {
+      "id": "epsilon_dominates_tiny_values",
+      "input_values": [
+        2,
+        2,
+        1,
+        2,
+        0,
+        3
+      ],
+      "input_length": 6,
+      "expected_result": 8.789948576513627e-08
+    },
+    {
+      "id": "maximum_equal_vectors",
+      "input_values": [
+        64,
+        64,
+        0,
+        15873,
+        31746,
+        47619,
+        63492,
+        79365,
+        95238,
+        111111,
+        126984,
+        142857,
+        158730,
+        174603,
+        190476,
+        206349,
+        222222,
+        238095,
+        253968,
+        269841,
+        285714,
+        301587,
+        317460,
+        333333,
+        349206,
+        365079,
+        380952,
+        396825,
+        412698,
+        428571,
+        444444,
+        460317,
+        476190,
+        492063,
+        507936,
+        523809,
+        539682,
+        555555,
+        571428,
+        587301,
+        603174,
+        619047,
+        634920,
+        650793,
+        666666,
+        682539,
+        698412,
+        714285,
+        730158,
+        746031,
+        761904,
+        777777,
+        793650,
+        809523,
+        825396,
+        841269,
+        857142,
+        873015,
+        888888,
+        904761,
+        920634,
+        936507,
+        952380,
+        968253,
+        984126,
+        1000000,
+        0,
+        15873,
+        31746,
+        47619,
+        63492,
+        79365,
+        95238,
+        111111,
+        126984,
+        142857,
+        158730,
+        174603,
+        190476,
+        206349,
+        222222,
+        238095,
+        253968,
+        269841,
+        285714,
+        301587,
+        317460,
+        333333,
+        349206,
+        365079,
+        380952,
+        396825,
+        412698,
+        428571,
+        444444,
+        460317,
+        476190,
+        492063,
+        507936,
+        523809,
+        539682,
+        555555,
+        571428,
+        587301,
+        603174,
+        619047,
+        634920,
+        650793,
+        666666,
+        682539,
+        698412,
+        714285,
+        730158,
+        746031,
+        761904,
+        777777,
+        793650,
+        809523,
+        825396,
+        841269,
+        857142,
+        873015,
+        888888,
+        904761,
+        920634,
+        936507,
+        952380,
+        968253,
+        984126,
+        1000000
+      ],
+      "input_length": 130,
+      "expected_result": 0.0
+    },
+    {
+      "id": "invalid_empty_frame",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_missing_counts",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_negative_actual_count",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_predicted_count_above_bound",
+      "input_values": [
+        0,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_short_payload",
+      "input_values": [
+        2,
+        1,
+        500000,
+        1000000
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_extra_payload",
+      "input_values": [
+        1,
+        1,
+        500000,
+        250000,
+        7
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_negative_value",
+      "input_values": [
+        1,
+        1,
+        -1,
+        250000
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_value_above_scale",
+      "input_values": [
+        1,
+        1,
+        250000,
+        1000001
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

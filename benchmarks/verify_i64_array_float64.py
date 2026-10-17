@@ -18,7 +18,11 @@ from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from hubble_parameter_oracle import INVALID_RESULT, expected_result as hubble_parameter_oracle
 from light_aberration_oracle import INVALID_RESULT as LIGHT_ABERRATION_INVALID_RESULT
 from light_aberration_oracle import expected_result as light_aberration_oracle
-from run_i64_array_float64 import encode_case, resolve_tolerances, result_matches
+from run_i64_array_float64 import (
+    encode_case, resolve_tolerances, result_matches,
+    validate_temperature_conversions_workload, validate_simpson_integration_workload,
+    validate_secant_workload,
+)
 from variance_oracle import INVALID_RESULT as VARIANCE_INVALID_RESULT
 from variance_oracle import MAX_INPUT_LENGTH as MAX_VARIANCE_INPUT_LENGTH
 from variance_oracle import MAX_VALUES as MAX_VARIANCE_VALUES
@@ -87,6 +91,19 @@ from temperature_converter_oracle import INVALID_RESULT as TEMPERATURE_CONVERTER
 from temperature_converter_oracle import MAX_INPUT_LENGTH as MAX_TEMPERATURE_CONVERTER_INPUT_LENGTH
 from temperature_converter_oracle import MAX_ABS_TEMPERATURE_MICRO as MAX_TEMPERATURE_CONVERTER_MICRO
 from temperature_converter_oracle import expected_result as temperature_converter_oracle
+from temparature_conversion_oracle import INVALID_RESULT as TEMPERATURE_ROUNDED_CONVERSION_INVALID_RESULT
+from temparature_conversion_oracle import MAX_ABS_TEMPERATURE_MICRO as MAX_TEMPERATURE_ROUNDED_CONVERSION_MICRO
+from temparature_conversion_oracle import MAX_NDIGITS as MAX_TEMPERATURE_ROUNDED_CONVERSION_NDIGITS
+from temparature_conversion_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_TEMPERATURE_ROUNDED_CONVERSION_INPUT_LENGTH
+from temparature_conversion_oracle import MIN_NDIGITS as MIN_TEMPERATURE_ROUNDED_CONVERSION_NDIGITS
+from temparature_conversion_oracle import expected_result as temparature_conversion_oracle
+from temperature_conversions_oracle import INVALID_RESULT as TEMPERATURE_CONVERSIONS_INVALID_RESULT
+from temperature_conversions_oracle import expected_result as temperature_conversions_oracle
+from simpson_integration_oracle import INVALID_RESULT as SIMPSON_INTEGRATION_INVALID_RESULT
+from simpson_integration_oracle import MAX_INPUT_LENGTH as MAX_SIMPSON_INTEGRATION_INPUT_LENGTH
+from simpson_integration_oracle import MAX_INTERVALS as SIMPSON_INTEGRATION_MAX_INTERVALS
+from simpson_integration_oracle import MAX_ENDPOINT_MICRO as SIMPSON_INTEGRATION_MAX_ENDPOINT_MICRO
+from simpson_integration_oracle import expected_result as simpson_integration_oracle
 from value_at_risk_oracle import INVALID_RESULT as VALUE_AT_RISK_INVALID_RESULT
 from value_at_risk_oracle import MAX_INPUT_LENGTH as MAX_VALUE_AT_RISK_INPUT_LENGTH
 from value_at_risk_oracle import MAX_RETURNS as MAX_VALUE_AT_RISK_RETURNS
@@ -103,6 +120,22 @@ from trapezoidal_integration_oracle import MAX_ENDPOINT_MICRO as MAX_TRAPEZOIDAL
 from trapezoidal_integration_oracle import MAX_INPUT_LENGTH as MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH
 from trapezoidal_integration_oracle import MAX_STEPS as MAX_TRAPEZOIDAL_STEPS
 from trapezoidal_integration_oracle import expected_result as trapezoidal_integration_oracle
+from rectangular_method_oracle import INVALID_RESULT as RECTANGULAR_METHOD_INVALID_RESULT
+from rectangular_method_oracle import MAX_ENDPOINT_QUARTERS as RECTANGULAR_METHOD_MAX_ENDPOINT_QUARTERS
+from rectangular_method_oracle import MAX_INPUT_LENGTH as MAX_RECTANGULAR_METHOD_INPUT_LENGTH
+from rectangular_method_oracle import MAX_INTERVALS as RECTANGULAR_METHOD_MAX_INTERVALS
+from rectangular_method_oracle import MIN_ENDPOINT_QUARTERS as RECTANGULAR_METHOD_MIN_ENDPOINT_QUARTERS
+from rectangular_method_oracle import MIN_INTERVALS as RECTANGULAR_METHOD_MIN_INTERVALS
+from rectangular_method_oracle import expected_result as rectangular_method_oracle
+from transformations_2d_oracle import INVALID_RESULT as TRANSFORMATIONS_2D_INVALID_RESULT
+from transformations_2d_oracle import MAX_INPUT_LENGTH as MAX_TRANSFORMATIONS_2D_INPUT_LENGTH
+from transformations_2d_oracle import expected_result as transformations_2d_oracle
+from speeds_of_gas_molecules_oracle import GAS_CONSTANT as SPEEDS_OF_GAS_MOLECULES_GAS_CONSTANT
+from speeds_of_gas_molecules_oracle import INVALID_RESULT as SPEEDS_OF_GAS_MOLECULES_INVALID_RESULT
+from speeds_of_gas_molecules_oracle import MAX_INPUT_LENGTH as MAX_SPEEDS_OF_GAS_MOLECULES_INPUT_LENGTH
+from speeds_of_gas_molecules_oracle import MAX_MOLAR_MASS_MICRO as SPEEDS_OF_GAS_MOLECULES_MAX_MOLAR_MASS_MICRO
+from speeds_of_gas_molecules_oracle import MAX_TEMPERATURE_MK as SPEEDS_OF_GAS_MOLECULES_MAX_TEMPERATURE_MK
+from speeds_of_gas_molecules_oracle import expected_result as speeds_of_gas_molecules_oracle
 from midpoint_integral_method_oracle import INVALID_RESULT as MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT
 from midpoint_integral_method_oracle import MAX_INPUT_LENGTH as MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH
 from midpoint_integral_method_oracle import expected_result as midpoint_integral_method_oracle
@@ -127,6 +160,18 @@ from prefix_evaluation_oracle import expected_result as prefix_evaluation_oracle
 from ternary_search_min_max_recursive_oracle import INVALID_RESULT as TERNARY_SEARCH_MIN_MAX_INVALID_RESULT
 from ternary_search_min_max_recursive_oracle import MAX_INPUT_LENGTH as MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH
 from ternary_search_min_max_recursive_oracle import expected_result as ternary_search_min_max_oracle
+from ternary_oracle import INVALID_RESULT as TERNARY_INVALID_RESULT
+from ternary_oracle import MAX_CALLS as TERNARY_MAX_CALLS
+from ternary_oracle import MAX_INPUT_LENGTH as MAX_TERNARY_INPUT_LENGTH
+from ternary_oracle import expected_result as ternary_oracle
+from laplace_transformation_oracle import INVALID_RESULT as LAPLACE_TRANSFORMATION_INVALID_RESULT
+from laplace_transformation_oracle import MAX_DT_MICRO as LAPLACE_TRANSFORMATION_MAX_DT_MICRO
+from laplace_transformation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_LAPLACE_TRANSFORMATION_INPUT_LENGTH
+from laplace_transformation_oracle import MAX_SAMPLE_COUNT as LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT
+from laplace_transformation_oracle import MAX_SAMPLE_MICRO as LAPLACE_TRANSFORMATION_MAX_SAMPLE_MICRO
+from laplace_transformation_oracle import MAX_S_MILLI as LAPLACE_TRANSFORMATION_MAX_S_MILLI
+from laplace_transformation_oracle import MIN_SAMPLE_MICRO as LAPLACE_TRANSFORMATION_MIN_SAMPLE_MICRO
+from laplace_transformation_oracle import expected_result as laplace_transformation_oracle
 from cosine_similarity_oracle import INVALID_RESULT as COSINE_SIMILARITY_INVALID_RESULT
 from cosine_similarity_oracle import MAX_INPUT_LENGTH as MAX_COSINE_SIMILARITY_INPUT_LENGTH
 from cosine_similarity_oracle import MAX_STRING_LENGTH as MAX_COSINE_SIMILARITY_STRING_LENGTH
@@ -218,6 +263,17 @@ from capacitor_equivalence_oracle import expected_result as capacitor_equivalenc
 from secant_method_oracle import INVALID_RESULT as SECANT_METHOD_INVALID_RESULT
 from secant_method_oracle import MAX_INPUT_LENGTH as MAX_SECANT_METHOD_INPUT_LENGTH
 from secant_method_oracle import expected_result as secant_method_oracle
+from secant_oracle import EXACT_INPUT_LENGTH as SECANT_EXACT_INPUT_LENGTH
+from secant_oracle import INVALID_RESULT as SECANT_INVALID_RESULT
+from secant_oracle import MAX_INPUT_LENGTH as MAX_SECANT_INPUT_LENGTH
+from secant_oracle import MAX_A_MICRO as SECANT_MAX_A_MICRO
+from secant_oracle import MAX_B_MICRO as SECANT_MAX_B_MICRO
+from secant_oracle import MAX_TOLERANCE_NANO as SECANT_MAX_TOLERANCE_NANO
+from secant_oracle import MAX_UPDATES as SECANT_MAX_UPDATES
+from secant_oracle import MIN_A_MICRO as SECANT_MIN_A_MICRO
+from secant_oracle import MIN_B_MICRO as SECANT_MIN_B_MICRO
+from secant_oracle import MIN_TOLERANCE_NANO as SECANT_MIN_TOLERANCE_NANO
+from secant_oracle import expected_result as secant_oracle
 from newton_raphson_method_oracle import INVALID_RESULT as NEWTON_RAPHSON_METHOD_INVALID_RESULT
 from newton_raphson_method_oracle import MAX_INPUT_LENGTH as MAX_NEWTON_RAPHSON_METHOD_INPUT_LENGTH
 from newton_raphson_method_oracle import expected_result as newton_raphson_method_oracle
@@ -281,6 +337,9 @@ from reverse_polish_notation_oracle import expected_result as reverse_polish_not
 from extended_kalman_filter_oracle import INVALID_RESULT as EXTENDED_KALMAN_FILTER_INVALID_RESULT
 from extended_kalman_filter_oracle import MAX_INPUT_LENGTH as MAX_EXTENDED_KALMAN_FILTER_INPUT_LENGTH
 from extended_kalman_filter_oracle import expected_result as extended_kalman_filter_oracle
+from unscented_kalman_filter_oracle import INVALID_RESULT as UNSCENTED_KALMAN_FILTER_INVALID_RESULT
+from unscented_kalman_filter_oracle import MAX_STEPS as UNSCENTED_KALMAN_FILTER_MAX_STEPS
+from unscented_kalman_filter_oracle import expected_result as unscented_kalman_filter_oracle
 from symmetric_derivative_oracle import INVALID_RESULT as SYMMETRIC_DERIVATIVE_INVALID_RESULT
 from symmetric_derivative_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SYMMETRIC_DERIVATIVE_PARSEABLE_INPUT_LENGTH
 from symmetric_derivative_oracle import MAX_X_NANOUNITS as SYMMETRIC_DERIVATIVE_MAX_X_NANOUNITS
@@ -362,6 +421,12 @@ from kullback_leibler_divergence_oracle import MAX_COUNT as KULLBACK_LEIBLER_DIV
 from kullback_leibler_divergence_oracle import MAX_INPUT_LENGTH as MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH
 from kullback_leibler_divergence_oracle import SCALE as KULLBACK_LEIBLER_DIVERGENCE_SCALE
 from kullback_leibler_divergence_oracle import expected_result as kullback_leibler_divergence_oracle
+from kl_divergence_loss_oracle import EPSILON as KL_DIVERGENCE_LOSS_EPSILON
+from kl_divergence_loss_oracle import INVALID_RESULT as KL_DIVERGENCE_LOSS_INVALID_RESULT
+from kl_divergence_loss_oracle import MAX_COUNT as KL_DIVERGENCE_LOSS_MAX_COUNT
+from kl_divergence_loss_oracle import MAX_INPUT_LENGTH as MAX_KL_DIVERGENCE_LOSS_INPUT_LENGTH
+from kl_divergence_loss_oracle import SCALE as KL_DIVERGENCE_LOSS_SCALE
+from kl_divergence_loss_oracle import expected_result as kl_divergence_loss_oracle
 from mean_absolute_error_oracle import INVALID_RESULT as MEAN_ABSOLUTE_ERROR_INVALID_RESULT
 from mean_absolute_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH
 from mean_absolute_error_oracle import MAX_COUNT as MEAN_ABSOLUTE_ERROR_MAX_COUNT
@@ -408,6 +473,36 @@ from categorical_focal_cross_entropy_oracle import expected_result as categorica
 from sparse_categorical_cross_entropy_oracle import INVALID_RESULT as SPARSE_CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT
 from sparse_categorical_cross_entropy_oracle import EPSILON as SPARSE_CATEGORICAL_CROSS_ENTROPY_EPSILON
 from sparse_categorical_cross_entropy_oracle import sparse_categorical_cross_entropy as sparse_categorical_cross_entropy_oracle
+from simplex_oracle import INVALID_RESULT as SIMPLEX_INVALID_RESULT
+from simplex_oracle import MAX_ARTIFICIAL as SIMPLEX_MAX_ARTIFICIAL
+from simplex_oracle import MAX_COLUMNS as SIMPLEX_MAX_COLUMNS
+from simplex_oracle import MAX_INPUT_LENGTH as MAX_SIMPLEX_INPUT_LENGTH
+from simplex_oracle import MAX_ITERATIONS as SIMPLEX_MAX_ITERATIONS
+from simplex_oracle import MAX_ROWS as SIMPLEX_MAX_ROWS
+from simplex_oracle import MAX_VARIABLES as SIMPLEX_MAX_VARIABLES
+from simplex_oracle import SCALE as SIMPLEX_SCALE
+from simplex_oracle import expected_result as simplex_oracle
+from simple_neural_network_oracle import INVALID_RESULT as SIMPLE_NEURAL_NETWORK_INVALID_RESULT
+from simple_neural_network_oracle import MAX_EXPECTED as SIMPLE_NEURAL_NETWORK_MAX_EXPECTED
+from simple_neural_network_oracle import MAX_INITIAL_WEIGHT as SIMPLE_NEURAL_NETWORK_MAX_WEIGHT
+from simple_neural_network_oracle import MAX_INPUT_LENGTH as MAX_SIMPLE_NEURAL_NETWORK_INPUT_LENGTH
+from simple_neural_network_oracle import MAX_PROPAGATIONS as SIMPLE_NEURAL_NETWORK_MAX_PROPAGATIONS
+from simple_neural_network_oracle import MIN_EXPECTED as SIMPLE_NEURAL_NETWORK_MIN_EXPECTED
+from simple_neural_network_oracle import MIN_INITIAL_WEIGHT as SIMPLE_NEURAL_NETWORK_MIN_WEIGHT
+from simple_neural_network_oracle import MIN_PROPAGATIONS as SIMPLE_NEURAL_NETWORK_MIN_PROPAGATIONS
+from simple_neural_network_oracle import expected_result as simple_neural_network_oracle
+from sparsity_oracle import INVALID_RESULT as SPARSITY_INVALID_RESULT
+from sparsity_oracle import MAX_DIMENSION as SPARSITY_MAX_DIMENSION
+from sparsity_oracle import MAX_INPUT_VALUES as MAX_SPARSITY_INPUT_VALUES
+from sparsity_oracle import MAX_CELL as SPARSITY_MAX_CELL
+from sparsity_oracle import MIN_CELL as SPARSITY_MIN_CELL
+from sparsity_oracle import expected_result as sparsity_oracle
+from relativity_oracle import INVALID_RESULT as RELATIVITY_INVALID_RESULT
+from relativity_oracle import MAX_INPUT_LENGTH as MAX_RELATIVITY_INPUT_LENGTH
+from relativity_oracle import MAX_LENGTH_TIME_MILLI as RELATIVITY_MAX_LENGTH_TIME_MILLI
+from relativity_oracle import SPEED_OF_LIGHT as RELATIVITY_SPEED_OF_LIGHT
+from relativity_oracle import SPEED_OF_LIGHT_MILLI as RELATIVITY_SPEED_OF_LIGHT_MILLI
+from relativity_oracle import expected_result as relativity_oracle
 
 ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "weddles_rule", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range", "apparent_power", "archimedes_principle_of_buoyant_force", "automatic_differentiation", "boyles_law", "butterworth_filter", "center_of_mass", "centripetal_force", "cohen_sutherland")
 ALGORITHMS += ("reverse_polish_notation",)
@@ -416,11 +511,14 @@ ALGORITHMS += ("prefix_evaluation",)
 ALGORITHMS += ("peak_signal_to_noise_ratio",)
 ALGORITHMS += ("laplacian_filter",)
 ALGORITHMS += ("line_sweep", "lorentz_transformation_four_vector", "extended_kalman_filter")
+ALGORITHMS += ("unscented_kalman_filter",)
 ALGORITHMS += ("symmetric_derivative",)
 ALGORITHMS += ("return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale")
 ALGORITHMS += ("gaussian_legendre",)
 ALGORITHMS += ("gradient_boosting_regressor",)
 ALGORITHMS += ("fractional_differentiation",)
+ALGORITHMS += ("ternary",)
+ALGORITHMS += ("laplace_transformation",)
 ALGORITHMS += ("mean_squared_error",)
 ALGORITHMS += ("mean_squared_logarithmic_error",)
 ALGORITHMS += ("mean_absolute_percentage_error",)
@@ -429,13 +527,25 @@ ALGORITHMS += ("gaussian_negative_log_likelihood_loss",)
 ALGORITHMS += ("perplexity_loss",)
 ALGORITHMS += ("connectionist_temporal_classification_loss",)
 ALGORITHMS += ("kullback_leibler_divergence",)
+ALGORITHMS += ("kl_divergence_loss",)
 ALGORITHMS += ("mean_absolute_error",)
 ALGORITHMS += ("smooth_l1_loss",)
+ALGORITHMS += ("relativity",)
 ALGORITHMS += ("binary_cross_entropy",)
 ALGORITHMS += ("binary_focal_cross_entropy",)
 ALGORITHMS += ("categorical_cross_entropy",)
 ALGORITHMS += ("categorical_focal_cross_entropy",)
 ALGORITHMS += ("sparse_categorical_cross_entropy",)
+ALGORITHMS += ("simplex",)
+ALGORITHMS += ("simple_neural_network",)
+ALGORITHMS += ("sparsity",)
+ALGORITHMS += ("temparature_conversion",)
+ALGORITHMS += ("temperature_conversions",)
+ALGORITHMS += ("secant",)
+ALGORITHMS += ("simpson_integration",)
+ALGORITHMS += ("rectangular_method",)
+ALGORITHMS += ("transformations_2d",)
+ALGORITHMS += ("speeds_of_gas_molecules",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -447,13 +557,22 @@ MAX_MIDPOINT_INTEGRAL_INTERVALS = 64
 MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI = 10_000
 MAX_TERNARY_ENDPOINT_MILLI = 100_000
 MAX_TERNARY_PRECISION_MILLI = 8
+MAX_UNSCENTED_KALMAN_FILTER_INPUT_LENGTH = 9 + UNSCENTED_KALMAN_FILTER_MAX_STEPS
 
 
 def oracle(algorithm: str, values: list[int]) -> float:
+    if algorithm == "sparsity":
+        return sparsity_oracle(values)
+    if algorithm == "simplex":
+        return simplex_oracle(values)
+    if algorithm == "simple_neural_network":
+        return simple_neural_network_oracle(values)
     if algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"}:
         return finance_ratios_oracle(values, algorithm)
     elif algorithm == "extended_kalman_filter":
         return extended_kalman_filter_oracle(values)
+    elif algorithm == "unscented_kalman_filter":
+        return unscented_kalman_filter_oracle(values)
     if algorithm == "symmetric_derivative":
         return symmetric_derivative_oracle(values)
     if algorithm == "fractional_differentiation":
@@ -476,6 +595,8 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return connectionist_temporal_classification_loss_oracle(values)
     if algorithm == "kullback_leibler_divergence":
         return kullback_leibler_divergence_oracle(values)
+    if algorithm == "kl_divergence_loss":
+        return kl_divergence_loss_oracle(values)
     if algorithm == "mean_absolute_error":
         return mean_absolute_error_oracle(values)
     if algorithm == "smooth_l1_loss":
@@ -526,12 +647,24 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return time_converter_oracle(values)
     if algorithm == "temperature_converter":
         return temperature_converter_oracle(values)
+    if algorithm == "temparature_conversion":
+        return temparature_conversion_oracle(values)
+    if algorithm == "temperature_conversions":
+        return temperature_conversions_oracle(values)
+    if algorithm == "simpson_integration":
+        return simpson_integration_oracle(values)
     if algorithm == "value_at_risk":
         return value_at_risk_oracle(values)
     if algorithm == "energy":
         return energy_oracle(values)
     if algorithm == "trapezoidal_integration":
         return trapezoidal_integration_oracle(values)
+    if algorithm == "rectangular_method":
+        return rectangular_method_oracle(values)
+    if algorithm == "transformations_2d":
+        return transformations_2d_oracle(values)
+    if algorithm == "speeds_of_gas_molecules":
+        return speeds_of_gas_molecules_oracle(values)
     if algorithm == "midpoint_integral_method":
         return midpoint_integral_method_oracle(values)
     if algorithm == "weddles_rule":
@@ -542,6 +675,12 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return prefix_evaluation_oracle(values)
     if algorithm == "ternary_search_min_max_recursive":
         return ternary_search_min_max_oracle(values)
+    if algorithm == "ternary":
+        return ternary_oracle(values)
+    if algorithm == "laplace_transformation":
+        return laplace_transformation_oracle(values)
+    if algorithm == "relativity":
+        return relativity_oracle(values)
     if algorithm == "cosine_similarity":
         return cosine_similarity_oracle(values)
     if algorithm == "linear_regression_cost":
@@ -578,6 +717,8 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return doppler_frequency_oracle(values)
     if algorithm == "secant_method":
         return secant_method_oracle(values)
+    if algorithm == "secant":
+        return secant_oracle(values)
     if algorithm == "newton_raphson_method":
         return newton_raphson_method_oracle(values)
     if algorithm == "newton_raphson":
@@ -616,20 +757,103 @@ def oracle(algorithm: str, values: list[int]) -> float:
 
 
 def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
+    if algorithm == "temperature_conversions":
+        validate_temperature_conversions_workload(workload)
+    elif algorithm == "simpson_integration":
+        validate_simpson_integration_workload(workload)
+    elif algorithm == "secant":
+        validate_secant_workload(workload)
     absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     if (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0
             or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
         raise ValueError("workload tolerances must be finite and nonnegative")
 
     cases: dict[tuple[int, ...], float] = {}
+    explicit_null_cases: list[tuple[int, float]] = []
     for case in workload["cases"]:
         values, expected = encode_case(case, algorithm)
         source_result = oracle(algorithm, values)
         if not result_matches(expected, source_result, absolute_tolerance, relative_tolerance):
             raise ValueError(f"published workload disagrees with the oracle: {case['id']}")
+        if case.get("input_is_null") is True:
+            explicit_null_cases.append((case["input_length"], source_result))
+            continue
         cases[tuple(values)] = source_result
 
-    if algorithm == "categorical_focal_cross_entropy":
+    if algorithm == "sparsity":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/misc/Sparsity.java",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-java-sparsity-v1"
+                or workload.get("algorithm") != "sparsity"
+                or workload.get("function_symbol") != "sparsity"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[rows, columns, row-major integer-valued matrix entries...]"
+                or input_spec.get("rows_range") != [1, SPARSITY_MAX_DIMENSION]
+                or input_spec.get("columns_range") != [1, SPARSITY_MAX_DIMENSION]
+                or input_spec.get("exact_rectangular_length") is not True
+                or input_spec.get("maximum_input_length") != MAX_SPARSITY_INPUT_VALUES
+                or input_spec.get("cell_range") != [SPARSITY_MIN_CELL, SPARSITY_MAX_CELL]
+                or input_spec.get("invalid_result") != SPARSITY_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != "zero_count / (rows * columns)"
+                or output_spec.get("absolute_tolerance") != 1e-15
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_result") != SPARSITY_INVALID_RESULT
+                or workload.get("pinned_source") != expected_source
+                or measurement.get("comparison_model") != "i64_array_float64_call"):
+            raise ValueError("sparsity workload metadata does not match its reviewed contract")
+
+        if not any(
+                len(case.get("input_values", ())) == MAX_SPARSITY_INPUT_VALUES
+                and case.get("input_length") == MAX_SPARSITY_INPUT_VALUES
+                and case["input_values"][:2] == [SPARSITY_MAX_DIMENSION, SPARSITY_MAX_DIMENSION]
+                for case in workload["cases"]):
+            raise ValueError("sparsity workload is missing maximum-dimension coverage")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_SPARSITY_INPUT_VALUES + 1:
+                raise ValueError("sparsity generated input exceeds the parseable ABI bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        for rows, columns in ((1, 1), (1, SPARSITY_MAX_DIMENSION),
+                              (SPARSITY_MAX_DIMENSION, 1),
+                              (SPARSITY_MAX_DIMENSION, SPARSITY_MAX_DIMENSION)):
+            count = rows * columns
+            add((rows, columns, *((0,) * count)))
+            add((rows, columns, *((1,) * count)))
+            add((rows, columns, *((0 if index % 3 == 0 else -1
+                                  for index in range(count)))))
+
+        rng_sparsity = random.Random(20261016)
+        for _ in range(128):
+            rows = rng_sparsity.randint(1, SPARSITY_MAX_DIMENSION)
+            columns = rng_sparsity.randint(1, SPARSITY_MAX_DIMENSION)
+            cells = tuple(rng_sparsity.choice((SPARSITY_MIN_CELL, -1, 0, 1,
+                                               SPARSITY_MAX_CELL))
+                          for _ in range(rows * columns))
+            add((rows, columns, *cells))
+
+        malformed = (
+            (), (1,), (0, 1, 0), (1, 0, 0), (-1, 1, 0), (1, -1, 0),
+            (SPARSITY_MAX_DIMENSION + 1, 1, 0),
+            (1, SPARSITY_MAX_DIMENSION + 1, 0),
+            (1, 1), (1, 1, 0, 0), (2, 2, 0, 0, 0),
+            (1, 1, SPARSITY_MIN_CELL - 1), (1, 1, SPARSITY_MAX_CELL + 1),
+            (1, 1, I64_MIN), (1, 1, I64_MAX),
+            (SPARSITY_MAX_DIMENSION, SPARSITY_MAX_DIMENSION,
+             *([0] * (MAX_SPARSITY_INPUT_VALUES - 1))),
+        )
+        for values in malformed:
+            if len(values) <= MAX_SPARSITY_INPUT_VALUES + 1:
+                add(values)
+    elif algorithm == "categorical_focal_cross_entropy":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
         measurement = workload.get("measurement", {})
@@ -1777,6 +2001,99 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "kl_divergence_loss":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        pinned_source = workload.get("pinned_source", {})
+        expected_definition = (
+            "source-order sum over zipped pairs of (actual + 1e-5) * ln((actual + 1e-5)/(predicted + 1e-5)); values are decoded from scaled integers by dividing by 1,000,000"
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-rust-kl-divergence-loss-i64-array-float64-v1"
+                or workload.get("algorithm") != "kl_divergence_loss"
+                or workload.get("function_symbol") != "kl_divergence_loss"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[actual_count,predicted_count,actual_scaled...,predicted_scaled...]"
+                or input_spec.get("maximum_input_values") != MAX_KL_DIVERGENCE_LOSS_INPUT_LENGTH
+                or input_spec.get("actual_count_range") != [0, KL_DIVERGENCE_LOSS_MAX_COUNT]
+                or input_spec.get("predicted_count_range") != [0, KL_DIVERGENCE_LOSS_MAX_COUNT]
+                or input_spec.get("scaled_value_range") != [0, KL_DIVERGENCE_LOSS_SCALE]
+                or input_spec.get("scale") != KL_DIVERGENCE_LOSS_SCALE
+                or input_spec.get("exact_length") != "2 + actual_count + predicted_count"
+                or input_spec.get("invalid_input_result") != KL_DIVERGENCE_LOSS_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != expected_definition
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_result") != KL_DIVERGENCE_LOSS_INVALID_RESULT
+                or KL_DIVERGENCE_LOSS_EPSILON != 1e-5
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or pinned_source != {"repository": "TheAlgorithms/Rust",
+                                     "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+                                     "path": "src/machine_learning/loss_function/kl_divergence_loss.rs",
+                                     "function": "kld_loss"}):
+            raise ValueError("kl_divergence_loss workload metadata does not match its reviewed contract")
+
+        if not any(case.get("id") == "maximum_equal_vectors"
+                   and len(case.get("input_values", ())) == MAX_KL_DIVERGENCE_LOSS_INPUT_LENGTH
+                   and case.get("input_values", ())[:2]
+                   == [KL_DIVERGENCE_LOSS_MAX_COUNT, KL_DIVERGENCE_LOSS_MAX_COUNT]
+                   for case in workload["cases"]):
+            raise ValueError("kl_divergence_loss workload is missing its maximum equal-vector case")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_KL_DIVERGENCE_LOSS_INPUT_LENGTH:
+                raise ValueError("kl_divergence_loss generated input exceeds its packed-value bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        def add_vectors(actual: tuple[int, ...], predicted: tuple[int, ...]) -> None:
+            if (len(actual) > KL_DIVERGENCE_LOSS_MAX_COUNT
+                    or len(predicted) > KL_DIVERGENCE_LOSS_MAX_COUNT
+                    or any(value < 0 or value > KL_DIVERGENCE_LOSS_SCALE
+                           for value in (*actual, *predicted))):
+                raise ValueError("kl_divergence_loss generated vector exceeds its reviewed bounds")
+            add((len(actual), len(predicted), *actual, *predicted))
+
+        for actual_count, predicted_count in ((0, 0), (0, 64), (64, 0), (1, 2), (2, 1), (1, 1), (64, 64)):
+            actual = tuple((index * 15_485_863) % (KL_DIVERGENCE_LOSS_SCALE + 1)
+                           for index in range(actual_count))
+            predicted = tuple((index * 32_452_843 + 17) % (KL_DIVERGENCE_LOSS_SCALE + 1)
+                              for index in range(predicted_count))
+            add_vectors(actual, predicted)
+
+        for count in (1, 2, 3, 16, KL_DIVERGENCE_LOSS_MAX_COUNT):
+            add_vectors((0,) * count, (KL_DIVERGENCE_LOSS_SCALE,) * count)
+            add_vectors((KL_DIVERGENCE_LOSS_SCALE,) * count, (1,) * count)
+            add_vectors((KL_DIVERGENCE_LOSS_SCALE // 2,) * count,
+                        (KL_DIVERGENCE_LOSS_SCALE,) * count)
+
+        rng_kl_divergence_loss = random.Random(20261016)
+        for _ in range(128):
+            actual_count = rng_kl_divergence_loss.randint(0, KL_DIVERGENCE_LOSS_MAX_COUNT)
+            predicted_count = rng_kl_divergence_loss.randint(0, KL_DIVERGENCE_LOSS_MAX_COUNT)
+            actual = tuple(rng_kl_divergence_loss.randint(0, KL_DIVERGENCE_LOSS_SCALE)
+                           for _ in range(actual_count))
+            predicted = tuple(rng_kl_divergence_loss.randint(0, KL_DIVERGENCE_LOSS_SCALE)
+                              for _ in range(predicted_count))
+            add_vectors(actual, predicted)
+
+        malformed = (
+            (), (0,), (-1, 0), (0, -1),
+            (KL_DIVERGENCE_LOSS_MAX_COUNT + 1, 0),
+            (0, KL_DIVERGENCE_LOSS_MAX_COUNT + 1),
+            (1, 1, 0), (1, 1, 0, 1, 2),
+            (1, 0, -1), (0, 1, -1),
+            (1, 0, KL_DIVERGENCE_LOSS_SCALE + 1),
+            (0, 1, KL_DIVERGENCE_LOSS_SCALE + 1),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, I64_MIN), (0, 1, I64_MAX),
+            (KL_DIVERGENCE_LOSS_MAX_COUNT + 1,
+             0, *([0] * (2 * KL_DIVERGENCE_LOSS_MAX_COUNT - 1))),
+            tuple([0] * MAX_KL_DIVERGENCE_LOSS_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add(tuple(values))
     elif algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"}:
         rng = random.Random(20261016)
         for _ in range(256):
@@ -1809,6 +2126,117 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                           (1, 0, 0, 100, 200, 100, 0, 0, 100, 0),
                           (1, 0, 0, 100, 0, 100, 0, 0, 0, 0)):
             cases[malformed] = EXTENDED_KALMAN_FILTER_INVALID_RESULT
+    elif algorithm == "unscented_kalman_filter":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        required_case_ids = {
+            "one_update", "negative_observation", "three_steps", "four_step_noisy_trace",
+            "boundary_inputs", "bad_step_count", "bad_covariance_range", "bad_process_noise",
+            "bad_observation", "bad_length",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        readme = (ROOT / "benchmarks" / "u" / "unscented_kalman_filter" / "README.md").read_text(
+            encoding="utf-8")
+        source_url = (
+            "https://github.com/TheAlgorithms/Java/blob/"
+            "e43ec3897e48f23843972d02cd05a5bb1b6864a2/"
+            "src/main/java/com/thealgorithms/streaming/UnscentedKalmanFilter.java"
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-java-unscented-kalman-filter-2d-nonlinear-trace-v1"
+                or workload.get("algorithm") != "unscented_kalman_filter"
+                or workload.get("function_symbol") != "unscented_kalman_filter"
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "[steps,x0_milli,y0_milli,p00_milli,p01_milli,p11_milli,q0_milli,q1_milli,r_milli,z0_milli,...]",
+                    "scale": 1000,
+                    "state_size": 2,
+                    "maximum_steps": UNSCENTED_KALMAN_FILTER_MAX_STEPS,
+                    "transition": "f(x,y)=(x+0.1*y,y+0.05*x^2)",
+                    "measurement": "h(x,y)=0.05*x^2+y",
+                    "alpha": 1,
+                    "beta": 2,
+                    "kappa": 0,
+                    "lambda": 0,
+                    "mean_weights": [0, 0.25, 0.25, 0.25, 0.25],
+                    "covariance_weights": [2, 0.25, 0.25, 0.25, 0.25],
+                    "covariance_update": "symmetrize(P-K*S*K^T)",
+                    "invalid_result": UNSCENTED_KALMAN_FILTER_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "float64",
+                    "meaning": "first component of final corrected state after one unscented predict/update cycle per observation",
+                    "invalid_result": UNSCENTED_KALMAN_FILTER_INVALID_RESULT,
+                    "absolute_tolerance": 1e-12,
+                    "relative_tolerance": 1e-12,
+                }
+                or measurement != {
+                    "comparison_model": "i64_array_float64_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 1000,
+                }
+                or UNSCENTED_KALMAN_FILTER_MAX_STEPS != 8
+                or MAX_UNSCENTED_KALMAN_FILTER_INPUT_LENGTH != 17
+                or source_url not in readme
+                or len(case_ids) != len(set(case_ids))
+                or not required_case_ids.issubset(case_ids)):
+            raise ValueError("unscented_kalman_filter workload metadata does not match its reviewed contract")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_UNSCENTED_KALMAN_FILTER_INPUT_LENGTH:
+                raise ValueError("unscented_kalman_filter generated trace exceeds its input bound")
+            result = oracle(algorithm, list(values))
+            if not math.isfinite(result):
+                raise ValueError("unscented_kalman_filter oracle generated a non-finite result")
+            cases[values] = result
+
+        add((8, 0, 0, 1000, 0, 1000, 10, 10, 100,
+             500, -300, 200, 0, 900, -700, 100, 300))
+        for raw_state in (-1000, 1000):
+            for raw_cross_covariance in (-100, 100):
+                for observation in (-2000, 2000):
+                    add((1, raw_state, -raw_state, 500, raw_cross_covariance, 500,
+                         10, 50, 10, observation))
+
+        rng_ukf = random.Random(20261016)
+        for _ in range(128):
+            steps = rng_ukf.randint(1, UNSCENTED_KALMAN_FILTER_MAX_STEPS)
+            values = (
+                steps,
+                rng_ukf.randint(-1000, 1000),
+                rng_ukf.randint(-1000, 1000),
+                rng_ukf.randint(500, 1000),
+                rng_ukf.randint(-100, 100),
+                rng_ukf.randint(500, 1000),
+                rng_ukf.randint(10, 50),
+                rng_ukf.randint(10, 50),
+                rng_ukf.randint(10, 100),
+                *(rng_ukf.randint(-2000, 2000) for _ in range(steps)),
+            )
+            add(values)
+
+        malformed = (
+            (), (1,), (0, 0, 0, 750, 0, 750, 10, 10, 100, 0),
+            (9, 0, 0, 1000, 0, 1000, 10, 10, 100, 0),
+            (1, 1001, 0, 1000, 0, 1000, 10, 10, 100, 0),
+            (1, 0, 0, 499, 0, 500, 10, 10, 100, 0),
+            (1, 0, 0, 750, 101, 750, 10, 10, 100, 0),
+            (1, 0, 0, 750, 0, 750, 9, 10, 100, 0),
+            (1, 0, 0, 750, 0, 750, 10, 51, 100, 0),
+            (1, 0, 0, 750, 0, 750, 10, 10, 9, 0),
+            (1, 0, 0, 750, 0, 750, 10, 10, 101, 0),
+            (1, 0, 0, 750, 0, 750, 10, 10, 100, 2001),
+            (1, 0, 0, 750, 0, 750, 10, 10, 100),
+            (1, 0, 0, 750, 0, 750, 10, 10, 100, 0, 0),
+            (1, I64_MIN, 0, 1000, 0, 1000, 10, 10, 100, 0),
+            (1, I64_MAX, 0, 1000, 0, 1000, 10, 10, 100, 0),
+            (I64_MIN, 0, 0, 1000, 0, 1000, 10, 10, 100, 0),
+            (I64_MAX, 0, 0, 1000, 0, 1000, 10, 10, 100, 0),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
     elif algorithm == "hubble_parameter":
         h0_values = (-2000, -1999, -683, -1, 0, 1, 683, 1999, 2000)
         density_cases = (
@@ -2238,6 +2666,80 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             cases[values] = TEMPERATURE_CONVERTER_INVALID_RESULT
+    elif algorithm == "temparature_conversion":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Julia",
+            "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+            "path": "src/conversions/temparature_conversion.jl",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-julia-temparature-conversion-i64-array-float64-v1"
+                or workload.get("algorithm") != "temparature_conversion"
+                or workload.get("function_symbol") != "temparature_conversion"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[operation,temperature_micro,ndigits]"
+                or input_spec.get("operation_range") != [0, 5]
+                or input_spec.get("temperature_micro_range") != [-MAX_TEMPERATURE_ROUNDED_CONVERSION_MICRO,
+                                                                    MAX_TEMPERATURE_ROUNDED_CONVERSION_MICRO]
+                or input_spec.get("temperature_scale") != 1_000_000
+                or input_spec.get("ndigits_range") != [MIN_TEMPERATURE_ROUNDED_CONVERSION_NDIGITS,
+                                                         MAX_TEMPERATURE_ROUNDED_CONVERSION_NDIGITS]
+                or input_spec.get("maximum_valid_input_values") != 3
+                or input_spec.get("maximum_parseable_input_values") != MAX_TEMPERATURE_ROUNDED_CONVERSION_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != TEMPERATURE_ROUNDED_CONVERSION_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("meaning") != "selected source-order conversion rounded to ndigits decimal places with Julia RoundNearest ties-to-even"
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_input_result") != TEMPERATURE_ROUNDED_CONVERSION_INVALID_RESULT
+                or workload.get("pinned_source") != expected_source
+                or measurement.get("comparison_model") != "i64_array_float64_call"):
+            raise ValueError("temparature_conversion workload metadata does not match its reviewed contract")
+
+        if not any(case.get("id") == "invalid_trailing_input"
+                   and len(case.get("input_values", ())) == MAX_TEMPERATURE_ROUNDED_CONVERSION_INPUT_LENGTH
+                   and case.get("input_length") == MAX_TEMPERATURE_ROUNDED_CONVERSION_INPUT_LENGTH
+                   and case.get("expected_result") == TEMPERATURE_ROUNDED_CONVERSION_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("temparature_conversion workload is missing its maximum parseable trailing-value case")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_TEMPERATURE_ROUNDED_CONVERSION_INPUT_LENGTH:
+                raise ValueError("temparature_conversion generated input exceeds its parseable bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        boundary_temperatures = (-MAX_TEMPERATURE_ROUNDED_CONVERSION_MICRO,
+                                 -273_150_000, -40_000_000, 0, 20_000_000,
+                                 36_600_000, 100_000_000,
+                                 MAX_TEMPERATURE_ROUNDED_CONVERSION_MICRO)
+        for operation in range(6):
+            for temperature_micro in boundary_temperatures:
+                for digits in range(MIN_TEMPERATURE_ROUNDED_CONVERSION_NDIGITS,
+                                    MAX_TEMPERATURE_ROUNDED_CONVERSION_NDIGITS + 1):
+                    add((operation, temperature_micro, digits))
+
+        rng_temparature_conversion = random.Random(20261016)
+        for _ in range(128):
+            add((rng_temparature_conversion.randrange(6),
+                 rng_temparature_conversion.randint(-MAX_TEMPERATURE_ROUNDED_CONVERSION_MICRO,
+                                                    MAX_TEMPERATURE_ROUNDED_CONVERSION_MICRO),
+                 rng_temparature_conversion.randint(MIN_TEMPERATURE_ROUNDED_CONVERSION_NDIGITS,
+                                                    MAX_TEMPERATURE_ROUNDED_CONVERSION_NDIGITS)))
+
+        malformed = (
+            (), (0,), (0, 0), (-1, 0, 2), (6, 0, 2),
+            (0, -MAX_TEMPERATURE_ROUNDED_CONVERSION_MICRO - 1, 2),
+            (0, MAX_TEMPERATURE_ROUNDED_CONVERSION_MICRO + 1, 2),
+            (0, 0, MIN_TEMPERATURE_ROUNDED_CONVERSION_NDIGITS - 1),
+            (0, 0, MAX_TEMPERATURE_ROUNDED_CONVERSION_NDIGITS + 1),
+            (0, I64_MIN, 2), (0, I64_MAX, 2), (I64_MIN, 0, 2), (I64_MAX, 0, 2),
+            (0, 0, I64_MIN), (0, 0, I64_MAX), (0, 0, 2, 99),
+        )
+        for values in malformed:
+            add(tuple(values))
     elif algorithm == "value_at_risk":
         rng = random.Random(20261020)
         for count in range(1, MAX_VALUE_AT_RISK_RETURNS + 1):
@@ -2322,6 +2824,593 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH:
                 cases[values] = TRAPEZOIDAL_INTEGRATION_INVALID_RESULT
+    elif algorithm == "rectangular_method":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        expected_meaning = (
+            "selected sequential left or right rectangle sum for f(x)=(exp(x)/2)*(cos(x)-sin(x))"
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "jupyter-rectangular-method-i64-array-float64-v1"
+                or workload.get("algorithm") != "rectangular_method"
+                or workload.get("function_symbol") != "rectangular_method"
+                or input_spec.get("kind") != "bounded_signed_i64_array"
+                or input_spec.get("exact_length") != 4
+                or input_spec.get("encoding") != "[a_quarters, b_quarters, n, rule]"
+                or input_spec.get("endpoint_scale") != "endpoint = quarter_units / 4"
+                or input_spec.get("endpoint_quarter_range") != [RECTANGULAR_METHOD_MIN_ENDPOINT_QUARTERS,
+                                                                  RECTANGULAR_METHOD_MAX_ENDPOINT_QUARTERS]
+                or input_spec.get("endpoint_order") != "a_quarters < b_quarters"
+                or input_spec.get("interval_count_range") != [RECTANGULAR_METHOD_MIN_INTERVALS,
+                                                               RECTANGULAR_METHOD_MAX_INTERVALS]
+                or input_spec.get("interval_count_requirement") != "(b_quarters - a_quarters) is divisible by n"
+                or input_spec.get("rule_ids") != {"0": "left_endpoint_rectangles",
+                                                   "1": "right_endpoint_rectangles"}
+                or input_spec.get("maximum_parseable_values") != MAX_RECTANGULAR_METHOD_INPUT_LENGTH
+                or input_spec.get("invalid_result") != RECTANGULAR_METHOD_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("meaning") != expected_meaning
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_result") != RECTANGULAR_METHOD_INVALID_RESULT
+                or RECTANGULAR_METHOD_MAX_ENDPOINT_QUARTERS != 64
+                or RECTANGULAR_METHOD_MIN_ENDPOINT_QUARTERS != -64
+                or RECTANGULAR_METHOD_MIN_INTERVALS != 1
+                or RECTANGULAR_METHOD_MAX_INTERVALS != 64
+                or MAX_RECTANGULAR_METHOD_INPUT_LENGTH != 5
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"
+                or pinned_source != {"repository": "TheAlgorithms/Jupyter",
+                                     "commit": "ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9",
+                                     "path": "numerical_methods/the_rectangular_method.ipynb",
+                                     "url": "https://github.com/TheAlgorithms/Jupyter/blob/ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9/numerical_methods/the_rectangular_method.ipynb"}):
+            raise ValueError("rectangular_method workload metadata does not match its reviewed contract")
+        required_case_ids = {"one_panel_left_rule", "notebook_example_left_rule",
+                             "notebook_example_right_rule"}
+        if not required_case_ids.issubset({case.get("id") for case in workload["cases"]}):
+            raise ValueError("rectangular_method workload is missing a required left/right fixture")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_RECTANGULAR_METHOD_INPUT_LENGTH:
+                raise ValueError("rectangular_method generated input exceeds its parseable bound")
+            result = oracle(algorithm, list(values))
+            if result != RECTANGULAR_METHOD_INVALID_RESULT and not math.isfinite(result):
+                raise ValueError("rectangular_method oracle generated a non-finite result")
+            cases[values] = result
+
+        endpoint_pairs = ((-64, -63), (-64, 64), (-1, 1), (0, 64), (63, 64), (8, 12))
+        for a_quarters, b_quarters in endpoint_pairs:
+            delta = b_quarters - a_quarters
+            for intervals in range(RECTANGULAR_METHOD_MIN_INTERVALS,
+                                   RECTANGULAR_METHOD_MAX_INTERVALS + 1):
+                if delta % intervals == 0:
+                    for rule in (0, 1):
+                        add((a_quarters, b_quarters, intervals, rule))
+
+        rng_rectangular_method = random.Random(20261023)
+        for _ in range(128):
+            a_quarters = rng_rectangular_method.randint(RECTANGULAR_METHOD_MIN_ENDPOINT_QUARTERS,
+                                                        RECTANGULAR_METHOD_MAX_ENDPOINT_QUARTERS - 1)
+            b_quarters = rng_rectangular_method.randint(a_quarters + 1,
+                                                        RECTANGULAR_METHOD_MAX_ENDPOINT_QUARTERS)
+            delta = b_quarters - a_quarters
+            divisors = [intervals for intervals in range(RECTANGULAR_METHOD_MIN_INTERVALS,
+                                                          RECTANGULAR_METHOD_MAX_INTERVALS + 1)
+                        if delta % intervals == 0]
+            add((a_quarters, b_quarters, rng_rectangular_method.choice(divisors),
+                 rng_rectangular_method.randrange(2)))
+
+        malformed = (
+            (), (0,), (0, 4, 1), (0, 4, 1, 0, 0),
+            (0, 0, 1, 0), (4, 0, 1, 0),
+            (RECTANGULAR_METHOD_MIN_ENDPOINT_QUARTERS - 1, 0, 1, 0),
+            (0, RECTANGULAR_METHOD_MAX_ENDPOINT_QUARTERS + 1, 1, 0),
+            (0, 4, 0, 0), (0, 4, RECTANGULAR_METHOD_MAX_INTERVALS + 1, 0),
+            (0, 4, 3, 0), (0, 4, 1, -1), (0, 4, 1, 2),
+            (I64_MIN, 0, 1, 0), (0, I64_MAX, 1, 1),
+            tuple([0] * MAX_RECTANGULAR_METHOD_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = RECTANGULAR_METHOD_INVALID_RESULT
+    elif algorithm == "transformations_2d":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        min_scaling_parameter_micro, max_scaling_parameter_micro = -1_000_000, 1_000_000
+        min_angle_parameter_micro, max_angle_parameter_micro = -6_283_185, 6_283_185
+        expected_meaning = "selected row-major component of the source transformation matrix"
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "python-transformations-2d-i64-array-float64-v1"
+                or workload.get("algorithm") != "transformations_2d"
+                or workload.get("function_symbol") != "transformations_2d"
+                or input_spec.get("kind") != "bounded_signed_i64_array"
+                or input_spec.get("exact_length") != 3
+                or input_spec.get("encoding") != "[operation, parameter_micro, component]"
+                or input_spec.get("operation_ids") != {"0": "scaling", "1": "rotation",
+                                                         "2": "projection", "3": "reflection"}
+                or input_spec.get("component_range") != [0, 3]
+                or input_spec.get("component_encoding") != "row-major matrix index"
+                or input_spec.get("scaling_parameter_range") != [min_scaling_parameter_micro,
+                                                                    max_scaling_parameter_micro]
+                or input_spec.get("scaling_parameter_unit") != "parameter_micro / 1,000,000"
+                or input_spec.get("angle_parameter_range") != [min_angle_parameter_micro,
+                                                                  max_angle_parameter_micro]
+                or input_spec.get("angle_parameter_unit") != "radians = parameter_micro / 1,000,000"
+                or input_spec.get("maximum_parseable_values") != MAX_TRANSFORMATIONS_2D_INPUT_LENGTH
+                or input_spec.get("invalid_result") != TRANSFORMATIONS_2D_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("meaning") != expected_meaning
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_result") != TRANSFORMATIONS_2D_INVALID_RESULT
+                or MAX_TRANSFORMATIONS_2D_INPUT_LENGTH != 4
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"
+                or pinned_source != {"repository": "TheAlgorithms/Python",
+                                     "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+                                     "path": "linear_algebra/src/transformations_2d.py",
+                                     "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/linear_algebra/src/transformations_2d.py"}):
+            raise ValueError("transformations_2d workload metadata does not match its reviewed contract")
+        required_case_ids = {"scaling_half_diagonal", "rotation_one_radian_cosine",
+                             "projection_one_radian_cross_term", "reflection_one_radian_first_diagonal"}
+        if not required_case_ids.issubset({case.get("id") for case in workload["cases"]}):
+            raise ValueError("transformations_2d workload is missing a required operation fixture")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_TRANSFORMATIONS_2D_INPUT_LENGTH:
+                raise ValueError("transformations_2d generated input exceeds its parseable bound")
+            result = oracle(algorithm, list(values))
+            if result != TRANSFORMATIONS_2D_INVALID_RESULT and not math.isfinite(result):
+                raise ValueError("transformations_2d oracle generated a non-finite result")
+            cases[values] = result
+
+        for parameter_micro in (min_scaling_parameter_micro, -500_000, -1, 0, 1,
+                                500_000, max_scaling_parameter_micro):
+            for component in range(4):
+                add((0, parameter_micro, component))
+
+        angle_boundaries = (min_angle_parameter_micro, -1_000_000, -1, 0, 1,
+                            1_000_000, max_angle_parameter_micro)
+        for operation in (1, 2, 3):
+            for parameter_micro in angle_boundaries:
+                for component in range(4):
+                    add((operation, parameter_micro, component))
+
+        rng_transformations_2d = random.Random(20261025)
+        for _ in range(128):
+            operation = rng_transformations_2d.randrange(4)
+            if operation == 0:
+                parameter_micro = rng_transformations_2d.randint(min_scaling_parameter_micro,
+                                                                   max_scaling_parameter_micro)
+            else:
+                parameter_micro = rng_transformations_2d.randint(min_angle_parameter_micro,
+                                                                   max_angle_parameter_micro)
+            add((operation, parameter_micro, rng_transformations_2d.randrange(4)))
+
+        malformed = (
+            (), (0,), (0, 0), (0, 0, 0, 0),
+            (-1, 0, 0), (4, 0, 0), (0, 0, -1), (0, 0, 4),
+            (0, min_scaling_parameter_micro - 1, 0),
+            (0, max_scaling_parameter_micro + 1, 0),
+            (1, min_angle_parameter_micro - 1, 0),
+            (2, max_angle_parameter_micro + 1, 0),
+            (3, I64_MIN, 0), (0, I64_MAX, 0),
+            (I64_MIN, 0, 0), (0, 0, I64_MIN),
+        )
+        for values in malformed:
+            cases[values] = TRANSFORMATIONS_2D_INVALID_RESULT
+    elif algorithm == "speeds_of_gas_molecules":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        expected_definition = (
+            "sqrt((8*R*T)/(pi*M)) for operation 0, or sqrt((2*R*T)/M) for operation 1; "
+            "T is temperature_mK/1000 K and M is molar_mass_micro/1000000 kg/mol"
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-python-speeds-of-gas-molecules-v1"
+                or workload.get("algorithm") != "speeds_of_gas_molecules"
+                or workload.get("function_symbol") != "speeds_of_gas_molecules"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[operation, temperature_mK, molar_mass_micro]"
+                or input_spec.get("exact_length") != 3
+                or input_spec.get("maximum_valid_input_length") != 3
+                or input_spec.get("maximum_parseable_input_length") != MAX_SPEEDS_OF_GAS_MOLECULES_INPUT_LENGTH
+                or input_spec.get("operation_range") != [0, 1]
+                or input_spec.get("operation_meanings") != {"0": "average molecular speed",
+                                                               "1": "most probable molecular speed"}
+                or input_spec.get("temperature_mK_range") != [0, SPEEDS_OF_GAS_MOLECULES_MAX_TEMPERATURE_MK]
+                or input_spec.get("molar_mass_micro_range") != [1, SPEEDS_OF_GAS_MOLECULES_MAX_MOLAR_MASS_MICRO]
+                or input_spec.get("invalid_result") != SPEEDS_OF_GAS_MOLECULES_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != expected_definition
+                or output_spec.get("gas_constant") != SPEEDS_OF_GAS_MOLECULES_GAS_CONSTANT
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_result") != SPEEDS_OF_GAS_MOLECULES_INVALID_RESULT
+                or SPEEDS_OF_GAS_MOLECULES_MAX_TEMPERATURE_MK != 1_000_000
+                or SPEEDS_OF_GAS_MOLECULES_MAX_MOLAR_MASS_MICRO != 1_000_000_000
+                or SPEEDS_OF_GAS_MOLECULES_GAS_CONSTANT != 8.31446261815324
+                or MAX_SPEEDS_OF_GAS_MOLECULES_INPUT_LENGTH != 4
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"
+                or pinned_source != {"repository": "TheAlgorithms/Python",
+                                     "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+                                     "path": "physics/speeds_of_gas_molecules.py"}):
+            raise ValueError("speeds_of_gas_molecules workload metadata does not match its reviewed contract")
+        required_case_ids = {"average_speed_source_example", "most_probable_speed_source_example",
+                             "zero_temperature_average", "zero_temperature_most_probable"}
+        if not required_case_ids.issubset({case.get("id") for case in workload["cases"]}):
+            raise ValueError("speeds_of_gas_molecules workload is missing a required operation fixture")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_SPEEDS_OF_GAS_MOLECULES_INPUT_LENGTH:
+                raise ValueError("speeds_of_gas_molecules generated input exceeds its parseable bound")
+            result = oracle(algorithm, list(values))
+            if result != SPEEDS_OF_GAS_MOLECULES_INVALID_RESULT and not math.isfinite(result):
+                raise ValueError("speeds_of_gas_molecules oracle generated a non-finite result")
+            cases[values] = result
+
+        temperatures = (0, 1, 273_000, SPEEDS_OF_GAS_MOLECULES_MAX_TEMPERATURE_MK)
+        molar_masses = (1, 28_000, SPEEDS_OF_GAS_MOLECULES_MAX_MOLAR_MASS_MICRO)
+        for operation in (0, 1):
+            for temperature_mk in temperatures:
+                for molar_mass_micro in molar_masses:
+                    add((operation, temperature_mk, molar_mass_micro))
+
+        rng_speeds_of_gas_molecules = random.Random(20261026)
+        for _ in range(128):
+            add((rng_speeds_of_gas_molecules.randrange(2),
+                 rng_speeds_of_gas_molecules.randint(0, SPEEDS_OF_GAS_MOLECULES_MAX_TEMPERATURE_MK),
+                 rng_speeds_of_gas_molecules.randint(1, SPEEDS_OF_GAS_MOLECULES_MAX_MOLAR_MASS_MICRO)))
+
+        malformed = (
+            (), (0,), (0, 273_000), (0, 273_000, 28_000, 1),
+            (-1, 273_000, 28_000), (2, 273_000, 28_000),
+            (0, -1, 28_000), (1, SPEEDS_OF_GAS_MOLECULES_MAX_TEMPERATURE_MK + 1, 28_000),
+            (0, 273_000, 0), (1, 273_000, SPEEDS_OF_GAS_MOLECULES_MAX_MOLAR_MASS_MICRO + 1),
+            (I64_MIN, 0, 1), (I64_MAX, 0, 1),
+            (0, I64_MIN, 1), (1, I64_MAX, 1),
+            (0, 0, I64_MIN), (1, 0, I64_MAX),
+        )
+        for values in malformed:
+            cases[values] = SPEEDS_OF_GAS_MOLECULES_INVALID_RESULT
+    elif algorithm == "ternary":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        pinned_source = workload.get("pinned_source", {})
+        expected_call_budget = (
+            "The initial recursive invocation is frame 1; a base case in the final allowed frame succeeds, "
+            "otherwise exhaustion returns invalid_result."
+        )
+        expected_output_definition = (
+            "The selected objective evaluated at the midpoint of the first interval satisfying abs(a-b)<=epsilon"
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-go-ternary-max-min-recursive-v1"
+                or workload.get("algorithm") != "ternary"
+                or workload.get("function_symbol") != "ternary"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[operation,a_milli,b_milli,epsilon_micro,max_calls]"
+                or input_spec.get("exact_length") != 5
+                or input_spec.get("maximum_valid_input_length") != 5
+                or input_spec.get("maximum_parseable_input_length") != MAX_TERNARY_INPUT_LENGTH
+                or input_spec.get("operation_range") != [0, 1]
+                or input_spec.get("operation_meanings") != {
+                    "0": "TernaryMax of -(x-1)^2", "1": "TernaryMin of (x+1)^2"}
+                or input_spec.get("endpoint_milli_range") != [-1_000_000, 1_000_000]
+                or input_spec.get("endpoint_unit") != "a=a_milli/1000 and b=b_milli/1000"
+                or input_spec.get("endpoint_order") != "a <= b"
+                or input_spec.get("epsilon_micro_range") != [1, 1_000_000]
+                or input_spec.get("epsilon_unit") != "epsilon=epsilon_micro/1000000"
+                or input_spec.get("max_calls_range") != [1, TERNARY_MAX_CALLS]
+                or input_spec.get("call_budget") != expected_call_budget
+                or input_spec.get("invalid_result") != TERNARY_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != expected_output_definition
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_result") != TERNARY_INVALID_RESULT
+                or output_spec.get("budget_exhaustion_result") != TERNARY_INVALID_RESULT
+                or TERNARY_MAX_CALLS != 64
+                or MAX_TERNARY_INPUT_LENGTH != 6
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or pinned_source != {"repository": "TheAlgorithms/Go",
+                                     "commit": "5ba447ec5ff3d1213de65b92e726ee74c5d5cc19",
+                                     "path": "search/ternary.go"}):
+            raise ValueError("ternary workload metadata does not match its reviewed contract")
+
+        required_case_ids = {
+            "max_base_at_peak", "min_base_at_valley",
+            "max_epsilon_threshold_equality", "min_epsilon_threshold_equality",
+            "recursive_max_search", "recursive_min_search", "minimum_epsilon_boundary",
+            "call_budget_exhausted_before_next_frame",
+        }
+        if not required_case_ids.issubset({case.get("id") for case in workload["cases"]}):
+            raise ValueError("ternary workload is missing a required recursion or operation fixture")
+        if not any(case.get("id") == "trailing_input_value"
+                   and len(case.get("input_values", ())) == MAX_TERNARY_INPUT_LENGTH
+                   and case.get("input_length") == MAX_TERNARY_INPUT_LENGTH
+                   and case.get("expected_result") == TERNARY_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("ternary workload is missing its maximum parseable trailing-value case")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_TERNARY_INPUT_LENGTH:
+                raise ValueError("ternary generated input exceeds its parseable bound")
+            result = oracle(algorithm, list(values))
+            if result != TERNARY_INVALID_RESULT and not math.isfinite(result):
+                raise ValueError("ternary oracle generated a non-finite result")
+            cases[values] = result
+
+        for operation, center in ((0, 1_000), (1, -1_000)):
+            endpoint_pairs = (
+                (-1_000_000, -1_000_000), (-1_000_000, 1_000_000),
+                (center - 1, center + 1), (center, center),
+                (-1_000_000, center), (center, 1_000_000),
+            )
+            for a_milli, b_milli in endpoint_pairs:
+                for epsilon_micro in (1, 1_000, 1_000_000):
+                    for max_calls in (1, 2, TERNARY_MAX_CALLS):
+                        add((operation, a_milli, b_milli, epsilon_micro, max_calls))
+
+        rng_ternary = random.Random(20261016)
+        for _ in range(128):
+            a_milli = rng_ternary.randint(-1_000_000, 1_000_000)
+            b_milli = rng_ternary.randint(-1_000_000, 1_000_000)
+            if a_milli > b_milli:
+                a_milli, b_milli = b_milli, a_milli
+            add((rng_ternary.randrange(2), a_milli, b_milli,
+                 rng_ternary.randint(1, 1_000_000), rng_ternary.randint(1, TERNARY_MAX_CALLS)))
+
+        malformed = (
+            (), (0,), (0, 0), (0, 0, 1_000, 1), (0, 0, 1_000, 1, 64, 99),
+            (-1, 0, 1_000, 1, 64), (2, 0, 1_000, 1, 64),
+            (0, 1_000, 0, 1, 64),
+            (0, -1_000_001, 0, 1, 64), (1, 0, 1_000_001, 1, 64),
+            (0, 0, 1_000, 0, 64), (1, 0, 1_000, 1_000_001, 64),
+            (0, 0, 1_000, 1, 0), (1, 0, 1_000, 1, TERNARY_MAX_CALLS + 1),
+            (I64_MIN, 0, 1_000, 1, 1), (I64_MAX, 0, 1_000, 1, 1),
+            (0, I64_MIN, 1_000, 1, 1), (0, 0, I64_MAX, 1, 1),
+            (0, 0, 1_000, I64_MIN, 1), (1, 0, 1_000, 1, I64_MAX),
+            tuple([0] * MAX_TERNARY_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add(tuple(values))
+    elif algorithm == "laplace_transformation":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        expected_definition = (
+            "Trapezoidal integral of f(t_i)*exp(-s*t_i) with NumPy linspace-compatible times and dx=delta_t"
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-python-laplace-transformation-numerical-trapezoid-v1"
+                or workload.get("algorithm") != "laplace_transformation"
+                or workload.get("function_symbol") != "laplace_transformation"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n,s_milli,dt_micro,f0_micro,...,f(n-1)_micro]"
+                or input_spec.get("sample_count_range") != [1, LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT]
+                or input_spec.get("exact_length") != "n+3"
+                or input_spec.get("maximum_valid_input_length") != LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT + 3
+                or input_spec.get("maximum_parseable_input_length") != MAX_LAPLACE_TRANSFORMATION_INPUT_LENGTH
+                or input_spec.get("s_milli_range") != [0, LAPLACE_TRANSFORMATION_MAX_S_MILLI]
+                or input_spec.get("s_value_unit") != "s=s_milli/1000"
+                or input_spec.get("dt_micro_range") != [1, LAPLACE_TRANSFORMATION_MAX_DT_MICRO]
+                or input_spec.get("delta_t_unit") != "delta_t=dt_micro/1000000"
+                or input_spec.get("sample_micro_range") != [LAPLACE_TRANSFORMATION_MIN_SAMPLE_MICRO,
+                                                              LAPLACE_TRANSFORMATION_MAX_SAMPLE_MICRO]
+                or input_spec.get("function_sample_unit") != "f_i=f_i_micro/1000000"
+                or input_spec.get("invalid_result") != LAPLACE_TRANSFORMATION_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != expected_definition
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("maximum_absolute_result") != 63
+                or output_spec.get("invalid_result") != LAPLACE_TRANSFORMATION_INVALID_RESULT
+                or MAX_LAPLACE_TRANSFORMATION_INPUT_LENGTH != LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT + 4
+                or LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT != 64
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"
+                or pinned_source != {"repository": "TheAlgorithms/Python",
+                                     "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+                                     "path": "maths/laplace_transformation.py"}):
+            raise ValueError("laplace_transformation workload metadata does not match its reviewed contract")
+
+        required_case_ids = {
+            "constant_signal_two_samples", "constant_signal_three_samples",
+            "exponential_weight_s_one", "sampled_decay_curve",
+            "alternating_negative_and_positive_samples", "one_sample_integrates_to_zero",
+            "maximum_sample_count_zero_exponent", "maximum_laplace_parameter_and_time_step",
+            "sample_count_above_bound", "trailing_input_value",
+        }
+        if not required_case_ids.issubset({case.get("id") for case in workload["cases"]}):
+            raise ValueError("laplace_transformation workload is missing source or boundary fixtures")
+        if not any(case.get("id") == "maximum_sample_count_zero_exponent"
+                   and len(case.get("input_values", ())) == LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT + 3
+                   and case.get("input_values", ())[:3] == [LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT, 0,
+                                                              LAPLACE_TRANSFORMATION_MAX_DT_MICRO]
+                   and case.get("expected_result") == 63
+                   for case in workload["cases"]):
+            raise ValueError("laplace_transformation workload is missing maximum-sample coverage")
+        if not any(case.get("id") == "sample_count_above_bound"
+                   and len(case.get("input_values", ())) == MAX_LAPLACE_TRANSFORMATION_INPUT_LENGTH
+                   and case.get("expected_result") == LAPLACE_TRANSFORMATION_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("laplace_transformation workload is missing its parser-cap rejection case")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_LAPLACE_TRANSFORMATION_INPUT_LENGTH:
+                raise ValueError("laplace_transformation generated input exceeds its parseable bound")
+            result = oracle(algorithm, list(values))
+            if result != LAPLACE_TRANSFORMATION_INVALID_RESULT and not math.isfinite(result):
+                raise ValueError("laplace_transformation oracle generated a non-finite result")
+            cases[values] = result
+
+        for count in (1, 2, 3, 16, LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT):
+            sample_patterns = (
+                (LAPLACE_TRANSFORMATION_MIN_SAMPLE_MICRO,) * count,
+                (0,) * count,
+                (LAPLACE_TRANSFORMATION_MAX_SAMPLE_MICRO,) * count,
+                tuple(LAPLACE_TRANSFORMATION_MAX_SAMPLE_MICRO if index % 2 else
+                      LAPLACE_TRANSFORMATION_MIN_SAMPLE_MICRO for index in range(count)),
+            )
+            for s_milli in (0, 1, LAPLACE_TRANSFORMATION_MAX_S_MILLI):
+                for dt_micro in (1, 500_000, LAPLACE_TRANSFORMATION_MAX_DT_MICRO):
+                    for samples in sample_patterns:
+                        add((count, s_milli, dt_micro, *samples))
+
+        rng_laplace_transformation = random.Random(20261016)
+        for _ in range(128):
+            count = rng_laplace_transformation.randint(1, LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT)
+            samples = tuple(rng_laplace_transformation.randint(
+                LAPLACE_TRANSFORMATION_MIN_SAMPLE_MICRO,
+                LAPLACE_TRANSFORMATION_MAX_SAMPLE_MICRO) for _ in range(count))
+            add((count, rng_laplace_transformation.randint(0, LAPLACE_TRANSFORMATION_MAX_S_MILLI),
+                 rng_laplace_transformation.randint(1, LAPLACE_TRANSFORMATION_MAX_DT_MICRO), *samples))
+
+        malformed = (
+            (), (0,), (0, 0, 1), (LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT + 1, 0, 1,
+                                  *([0] * LAPLACE_TRANSFORMATION_MAX_SAMPLE_COUNT)),
+            (1, -1, 1, 0), (1, LAPLACE_TRANSFORMATION_MAX_S_MILLI + 1, 1, 0),
+            (1, 0, 0, 0), (1, 0, LAPLACE_TRANSFORMATION_MAX_DT_MICRO + 1, 0),
+            (1, 0, 1, LAPLACE_TRANSFORMATION_MIN_SAMPLE_MICRO - 1),
+            (1, 0, 1, LAPLACE_TRANSFORMATION_MAX_SAMPLE_MICRO + 1),
+            (2, 0, 1, 100, 100), (1, 0, 1, 100, 0),
+            (I64_MIN, 0, 1, 0), (I64_MAX, 0, 1, 0),
+            (1, I64_MIN, 1, 0), (1, 0, I64_MAX, 0),
+            (1, 0, 1, I64_MIN), (1, 0, 1, I64_MAX),
+            tuple([0] * MAX_LAPLACE_TRANSFORMATION_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add(tuple(values))
+    elif algorithm == "relativity":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/physics/Relativity.java",
+        }
+        expected_operations = {
+            "0": "gamma(arg1_milli/1000), arg2_milli must be zero",
+            "1": "lengthContraction(arg1_milli/1000,arg2_milli/1000)",
+            "2": "timeDilation(arg1_milli/1000,arg2_milli/1000)",
+            "3": "velocityAddition(arg1_milli/1000,arg2_milli/1000)",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-java-relativity-four-formulas-v1"
+                or workload.get("algorithm") != "relativity"
+                or workload.get("function_symbol") != "relativity"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[operation,arg1_milli,arg2_milli]"
+                or input_spec.get("exact_length") != 3
+                or input_spec.get("maximum_valid_input_length") != 3
+                or input_spec.get("maximum_parseable_input_length") != MAX_RELATIVITY_INPUT_LENGTH
+                or input_spec.get("operation_range") != [0, 3]
+                or input_spec.get("operations") != expected_operations
+                or input_spec.get("speed_of_light_m_per_s") != 299792458
+                or input_spec.get("speed_milli_raw_range")
+                    != [-RELATIVITY_SPEED_OF_LIGHT_MILLI, RELATIVITY_SPEED_OF_LIGHT_MILLI]
+                or input_spec.get("length_or_time_milli_raw_range")
+                    != [0, RELATIVITY_MAX_LENGTH_TIME_MILLI]
+                or input_spec.get("strict_frame_velocity_rule")
+                    != "|v| < c for gamma, length contraction, time dilation, and the second velocity of velocity addition"
+                or input_spec.get("velocity_addition_first_speed_rule") != "|v1| <= c"
+                or input_spec.get("invalid_result") != RELATIVITY_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition")
+                    != "Source Java gamma, length contraction, time dilation, or relativistic velocity addition formula"
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_result") != RELATIVITY_INVALID_RESULT
+                or RELATIVITY_SPEED_OF_LIGHT != 299792458.0
+                or RELATIVITY_SPEED_OF_LIGHT_MILLI != 299_792_458_000
+                or RELATIVITY_MAX_LENGTH_TIME_MILLI != 1_000_000
+                or MAX_RELATIVITY_INPUT_LENGTH != 4
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("sample_count") != 7
+                or measurement.get("warmup_rounds") != 2
+                or measurement.get("repetitions_per_sample") != 1000
+                or workload.get("pinned_source") != expected_source):
+            raise ValueError("relativity workload metadata does not match its reviewed contract")
+
+        required_case_ids = {
+            "gamma_at_rest", "gamma_at_sixty_percent_c",
+            "gamma_one_millimeter_per_second_below_c", "length_contraction_at_rest",
+            "length_contraction_at_sixty_percent_c", "time_dilation_at_rest",
+            "time_dilation_at_sixty_percent_c", "velocity_addition_two_half_c_velocities",
+            "velocity_addition_first_speed_at_c", "velocity_addition_first_speed_at_negative_c",
+            "maximum_length_at_rest", "maximum_time_at_rest", "length_above_bound_invalid",
+            "time_above_bound_invalid", "gamma_endpoint_at_c_invalid",
+            "length_frame_endpoint_at_c_invalid", "negative_time_invalid",
+            "negative_length_invalid", "velocity_addition_frame_endpoint_at_c_invalid",
+            "velocity_addition_first_speed_above_c_invalid", "gamma_unused_argument_nonzero",
+            "unsupported_operation", "short_input", "trailing_input_value",
+        }
+        case_ids = [case.get("id") for case in workload["cases"]]
+        if (len(case_ids) != len(set(case_ids))
+                or not required_case_ids.issubset(case_ids)):
+            raise ValueError("relativity workload is missing operation or boundary fixtures")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_RELATIVITY_INPUT_LENGTH:
+                raise ValueError("relativity generated input exceeds its parseable bound")
+            result = oracle(algorithm, list(values))
+            if result != RELATIVITY_INVALID_RESULT and not math.isfinite(result):
+                raise ValueError("relativity oracle generated a non-finite result")
+            cases[values] = result
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            result = oracle(algorithm, list(values))
+            if (case.get("input_length") != len(values)
+                    or not result_matches(case["expected_result"], result,
+                                          output_spec["absolute_tolerance"],
+                                          output_spec["relative_tolerance"])):
+                raise ValueError(f"relativity workload mismatch: {case['id']}")
+            add(values)
+
+        c = RELATIVITY_SPEED_OF_LIGHT_MILLI
+        quantities = (0, 1, RELATIVITY_MAX_LENGTH_TIME_MILLI)
+        physical_speeds = (-c + 1, -c // 2, 0, c // 2, c - 1)
+        for velocity in (-c, -c + 1, -c // 2, 0, c // 2, c - 1, c):
+            add((0, velocity, 0))
+        for operation in (1, 2):
+            for quantity in quantities:
+                for velocity in physical_speeds:
+                    add((operation, quantity, velocity))
+        for first_velocity in (-c, -c + 1, 0, c - 1, c):
+            for frame_velocity in physical_speeds:
+                add((3, first_velocity, frame_velocity))
+
+        rng_relativity = random.Random(20261016)
+        for _ in range(128):
+            operation = rng_relativity.randrange(4)
+            if operation == 0:
+                add((operation, rng_relativity.randint(-c + 1, c - 1), 0))
+            elif operation in (1, 2):
+                add((operation,
+                     rng_relativity.randint(0, RELATIVITY_MAX_LENGTH_TIME_MILLI),
+                     rng_relativity.randint(-c + 1, c - 1)))
+            else:
+                add((operation, rng_relativity.randint(-c, c),
+                     rng_relativity.randint(-c + 1, c - 1)))
+
+        malformed = (
+            (), (0,), (0, 0), (0, 0, 0, 1),
+            (-1, 0, 0), (4, 0, 0), (0, 0, 1),
+            (0, -c, 0), (0, c, 0),
+            (1, -1, 0), (1, RELATIVITY_MAX_LENGTH_TIME_MILLI + 1, 0),
+            (2, -1, 0), (2, RELATIVITY_MAX_LENGTH_TIME_MILLI + 1, 0),
+            (1, 1, -c), (1, 1, c), (2, 1, -c), (2, 1, c),
+            (3, 0, -c), (3, 0, c), (3, -c - 1, 0), (3, c + 1, 0),
+            (I64_MIN, 0, 0), (I64_MAX, 0, 0),
+            (0, I64_MIN, 0), (0, I64_MAX, 0),
+            (0, 0, I64_MIN), (1, 0, I64_MAX),
+            tuple([0] * MAX_RELATIVITY_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add(tuple(values))
     elif algorithm == "midpoint_integral_method":
         rng = random.Random(20261016)
         interval_counts = (2, 4, 16, MAX_MIDPOINT_INTEGRAL_INTERVALS)
@@ -2884,6 +3973,42 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             cases[values] = SECANT_METHOD_INVALID_RESULT
+    elif algorithm == "secant":
+        for a_micro in (SECANT_MIN_A_MICRO, 1_250_000, SECANT_MAX_A_MICRO):
+            for b_micro in (SECANT_MIN_B_MICRO, 1_732_050, SECANT_MAX_B_MICRO):
+                for tolerance_nano in (SECANT_MIN_TOLERANCE_NANO,
+                                       SECANT_MAX_TOLERANCE_NANO):
+                    for max_updates in (0, 1, SECANT_MAX_UPDATES):
+                        values = (0, a_micro, b_micro, tolerance_nano, max_updates)
+                        cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261017)
+        for _ in range(128):
+            values = (
+                0,
+                rng.randint(SECANT_MIN_A_MICRO, SECANT_MAX_A_MICRO),
+                rng.randint(SECANT_MIN_B_MICRO, SECANT_MAX_B_MICRO),
+                rng.randint(SECANT_MIN_TOLERANCE_NANO, SECANT_MAX_TOLERANCE_NANO),
+                rng.randint(0, SECANT_MAX_UPDATES),
+            )
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (1, SECANT_MIN_A_MICRO, SECANT_MIN_B_MICRO, 100, 8),
+            (0, SECANT_MIN_A_MICRO - 1, SECANT_MIN_B_MICRO, 100, 8),
+            (0, SECANT_MAX_A_MICRO + 1, SECANT_MIN_B_MICRO, 100, 8),
+            (0, SECANT_MIN_A_MICRO, SECANT_MIN_B_MICRO - 1, 100, 8),
+            (0, SECANT_MIN_A_MICRO, SECANT_MAX_B_MICRO + 1, 100, 8),
+            (0, SECANT_MIN_B_MICRO, SECANT_MIN_B_MICRO, 100, 8),
+            (0, SECANT_MIN_A_MICRO, SECANT_MIN_B_MICRO, 0, 8),
+            (0, SECANT_MIN_A_MICRO, SECANT_MIN_B_MICRO,
+             SECANT_MAX_TOLERANCE_NANO + 1, 8),
+            (0, SECANT_MIN_A_MICRO, SECANT_MIN_B_MICRO, 100, -1),
+            (0, SECANT_MIN_A_MICRO, SECANT_MIN_B_MICRO, 100, SECANT_MAX_UPDATES + 1),
+            (0, SECANT_MIN_A_MICRO, SECANT_MIN_B_MICRO, 100, 8, 0),
+            (I64_MIN, SECANT_MIN_A_MICRO, SECANT_MIN_B_MICRO, 100, 8),
+            (0, I64_MAX, SECANT_MIN_B_MICRO, 100, 8),
+        )
+        for values in malformed:
+            cases[values] = SECANT_INVALID_RESULT
     elif algorithm == "newton_raphson_method":
         for initial_milli in (2_000, 2_500, 3_000, 3_500, 4_000):
             for limit in (1, 2, 4, 8, 16, 32):
@@ -3600,6 +4725,236 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in malformed:
             if len(values) <= MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "simplex":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        pinned_source = workload.get("pinned_source", {})
+        if (input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[n_vars,n_artificial,n_rows,n_cols,tableau_micro[row_major...]]"
+                or input_spec.get("tableau_scale") != SIMPLEX_SCALE
+                or input_spec.get("n_vars_range") != [2, SIMPLEX_MAX_VARIABLES]
+                or input_spec.get("n_artificial_range") != [0, SIMPLEX_MAX_ARTIFICIAL]
+                or input_spec.get("n_rows_range") != [3, SIMPLEX_MAX_ROWS]
+                or input_spec.get("n_cols_range") != [3, SIMPLEX_MAX_COLUMNS]
+                or input_spec.get("minimum_n_cols") != "n_vars + n_artificial + 1"
+                or input_spec.get("maximum_valid_input_length") != MAX_SIMPLEX_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length") != MAX_SIMPLEX_INPUT_LENGTH
+                or input_spec.get("right_hand_side_must_be_nonnegative") is not True
+                or input_spec.get("invalid_result") != SIMPLEX_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("meaning") != "absolute final-tableau objective RHS"
+                or output_spec.get("invalid_result") != SIMPLEX_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"
+                or measurement.get("absolute_tolerance") != 1e-9
+                or measurement.get("relative_tolerance") != 1e-12
+                or pinned_source.get("repository") != "TheAlgorithms/Python"
+                or pinned_source.get("commit") != "e1a2a8b016001309a73d5fec4818c35cca139795"
+                or pinned_source.get("path") != "linear_programming/simplex.py"
+                or pinned_source.get("maxiter") != SIMPLEX_MAX_ITERATIONS):
+            raise ValueError("simplex workload metadata does not match its reviewed contract")
+        if not any(
+                case.get("input_length") == MAX_SIMPLEX_INPUT_LENGTH
+                and len(case.get("input_values", ())) == MAX_SIMPLEX_INPUT_LENGTH
+                and case.get("expected_result") != SIMPLEX_INVALID_RESULT
+                for case in workload["cases"]):
+            raise ValueError("simplex workload is missing a valid maximum-length tableau")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_SIMPLEX_INPUT_LENGTH:
+                raise ValueError("simplex generated input exceeds its reviewed maximum length")
+            result = oracle(algorithm, list(values))
+            if not math.isfinite(result):
+                raise ValueError("simplex oracle generated a non-finite result")
+            cases[values] = result
+
+        def zero_objective_tableau(n_vars: int, n_artificial: int,
+                                   rows: int, cols: int,
+                                   rng: random.Random) -> tuple[int, ...]:
+            tableau = [0] * (rows * cols)
+            for row in range(rows):
+                tableau[row * cols + cols - 1] = rng.randint(0, 5_000_000)
+                if row >= (2 if n_artificial else 1):
+                    for col in range(cols - 1):
+                        tableau[row * cols + col] = rng.randint(-2_000_000, 2_000_000)
+            return (n_vars, n_artificial, rows, cols, *tableau)
+
+        maximum_shape = zero_objective_tableau(
+            SIMPLEX_MAX_VARIABLES, SIMPLEX_MAX_ARTIFICIAL, SIMPLEX_MAX_ROWS,
+            SIMPLEX_MAX_COLUMNS, random.Random(20261016))
+        add(maximum_shape)
+
+        rng_simplex = random.Random(20261016)
+        for _ in range(96):
+            n_vars = rng_simplex.randint(2, SIMPLEX_MAX_VARIABLES)
+            n_artificial = rng_simplex.randint(0, SIMPLEX_MAX_ARTIFICIAL)
+            n_rows = rng_simplex.randint(3, SIMPLEX_MAX_ROWS)
+            n_cols = rng_simplex.randint(n_vars + n_artificial + 1, SIMPLEX_MAX_COLUMNS)
+            add(zero_objective_tableau(n_vars, n_artificial, n_rows, n_cols, rng_simplex))
+
+        malformed = (
+            (), (1, 0, 3, 3), (SIMPLEX_MAX_VARIABLES + 1, 0, 3, 6, *([0] * 18)),
+            (2, -1, 3, 4, *([0] * 12)),
+            (2, SIMPLEX_MAX_ARTIFICIAL + 1, 3, 6, *([0] * 18)),
+            (2, 0, 2, 3, *([0] * 6)),
+            (2, 0, SIMPLEX_MAX_ROWS + 1, 3,
+             *([0] * (3 * (SIMPLEX_MAX_ROWS + 1)))),
+            (2, 0, 3, 2, *([0] * 6)),
+            (2, 0, 3, SIMPLEX_MAX_COLUMNS + 1,
+             *([0] * (3 * (SIMPLEX_MAX_COLUMNS + 1)))),
+            (4, 2, 3, 6, *([0] * 18)),
+            (2, 0, 3, 3, *([0] * 8)), (2, 0, 3, 3, *([0] * 10)),
+            (2, 0, 3, 3, 0, 0, -1, 0, 0, 0, 0, 0, 0),
+            (SIMPLEX_MAX_VARIABLES, 0, 3, 3, *([I64_MIN] + [0] * 8)),
+            (2, 0, 3, 3, *([I64_MAX] + [0] * 8)),
+            tuple([0] * MAX_SIMPLEX_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_SIMPLEX_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "simple_neural_network":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_notes = (
+            "The caller-supplied odd initial weight replaces the pinned source RNG draw; "
+            "all other forward/update operations preserve source order.")
+        if (input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[expected, initial_weight, propagation_count]"
+                or input_spec.get("expected_range") != [SIMPLE_NEURAL_NETWORK_MIN_EXPECTED,
+                                                          SIMPLE_NEURAL_NETWORK_MAX_EXPECTED]
+                or input_spec.get("initial_weight_range") != "odd integers in [1,199]"
+                or input_spec.get("propagation_count_range") != [SIMPLE_NEURAL_NETWORK_MIN_PROPAGATIONS,
+                                                                   SIMPLE_NEURAL_NETWORK_MAX_PROPAGATIONS]
+                or input_spec.get("notes") != expected_notes
+                or input_spec.get("invalid_input_result") != SIMPLE_NEURAL_NETWORK_INVALID_RESULT
+                or output_spec.get("kind") != "binary64"
+                or output_spec.get("definition") != "100 times the sigmoid layer value computed in the final forward pass, before that pass updates the weight"
+                or output_spec.get("absolute_tolerance") != 1e-12
+                or output_spec.get("relative_tolerance") != 1e-12
+                or output_spec.get("invalid_input_result") != SIMPLE_NEURAL_NETWORK_INVALID_RESULT
+                or measurement.get("comparison_model") != "i64_array_float64_call"):
+            raise ValueError("simple_neural_network workload metadata does not match its reviewed contract")
+        if not any(
+                len(case.get("input_values", ())) == MAX_SIMPLE_NEURAL_NETWORK_INPUT_LENGTH
+                and case.get("input_length") == MAX_SIMPLE_NEURAL_NETWORK_INPUT_LENGTH
+                and case["input_values"][2] == SIMPLE_NEURAL_NETWORK_MAX_PROPAGATIONS
+                for case in workload["cases"]):
+            raise ValueError("simple_neural_network workload is missing maximum propagation-count coverage")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_SIMPLE_NEURAL_NETWORK_INPUT_LENGTH:
+                raise ValueError("simple_neural_network generated input exceeds its reviewed maximum length")
+            result = oracle(algorithm, list(values))
+            if not math.isfinite(result):
+                raise ValueError("simple_neural_network oracle generated a non-finite result")
+            cases[values] = result
+
+        for expected in (SIMPLE_NEURAL_NETWORK_MIN_EXPECTED, 50,
+                         SIMPLE_NEURAL_NETWORK_MAX_EXPECTED):
+            for weight in (SIMPLE_NEURAL_NETWORK_MIN_WEIGHT, 99,
+                           SIMPLE_NEURAL_NETWORK_MAX_WEIGHT):
+                for count in (SIMPLE_NEURAL_NETWORK_MIN_PROPAGATIONS, 2,
+                              SIMPLE_NEURAL_NETWORK_MAX_PROPAGATIONS):
+                    add((expected, weight, count))
+
+        rng_simple_neural_network = random.Random(20261016)
+        odd_weights = tuple(range(SIMPLE_NEURAL_NETWORK_MIN_WEIGHT,
+                                  SIMPLE_NEURAL_NETWORK_MAX_WEIGHT + 1, 2))
+        for _ in range(64):
+            add((rng_simple_neural_network.randint(SIMPLE_NEURAL_NETWORK_MIN_EXPECTED,
+                                                   SIMPLE_NEURAL_NETWORK_MAX_EXPECTED),
+                 rng_simple_neural_network.choice(odd_weights),
+                 rng_simple_neural_network.choice((1, 2, 3, 17, 1_000,
+                                                    SIMPLE_NEURAL_NETWORK_MAX_PROPAGATIONS))))
+
+        malformed = (
+            (), (1, 2), (1, 2, 3, 4),
+            (SIMPLE_NEURAL_NETWORK_MIN_EXPECTED - 1, 1, 1),
+            (SIMPLE_NEURAL_NETWORK_MAX_EXPECTED + 1, 1, 1),
+            (50, SIMPLE_NEURAL_NETWORK_MIN_WEIGHT - 1, 1),
+            (50, SIMPLE_NEURAL_NETWORK_MAX_WEIGHT + 1, 1),
+            (50, 2, 1), (50, 1, SIMPLE_NEURAL_NETWORK_MIN_PROPAGATIONS - 1),
+            (50, 1, SIMPLE_NEURAL_NETWORK_MAX_PROPAGATIONS + 1),
+            (I64_MIN, 1, 1), (I64_MAX, 1, 1),
+            (50, I64_MIN, 1), (50, I64_MAX, 1),
+            (50, 1, I64_MIN), (50, 1, I64_MAX),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "simpson_integration":
+        def add_simpson(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_SIMPSON_INTEGRATION_INPUT_LENGTH:
+                raise ValueError("simpson_integration generated input exceeds its parseable bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        endpoint_values = (-SIMPSON_INTEGRATION_MAX_ENDPOINT_MICRO,
+                           -1_000_000, 0, 1_000_000,
+                           SIMPSON_INTEGRATION_MAX_ENDPOINT_MICRO)
+        for intervals in (2, 4, SIMPSON_INTEGRATION_MAX_INTERVALS):
+            for start in endpoint_values:
+                for end in endpoint_values:
+                    if start <= end:
+                        add_simpson((intervals, start, end))
+
+        rng_simpson_integration = random.Random(20261017)
+        for _ in range(128):
+            intervals = 2 * rng_simpson_integration.randint(
+                1, SIMPSON_INTEGRATION_MAX_INTERVALS // 2)
+            start = rng_simpson_integration.randint(-SIMPSON_INTEGRATION_MAX_ENDPOINT_MICRO,
+                                                    SIMPSON_INTEGRATION_MAX_ENDPOINT_MICRO)
+            end = rng_simpson_integration.randint(-SIMPSON_INTEGRATION_MAX_ENDPOINT_MICRO,
+                                                  SIMPSON_INTEGRATION_MAX_ENDPOINT_MICRO)
+            if start > end:
+                start, end = end, start
+            add_simpson((intervals, start, end))
+
+        malformed = (
+            (), (2,), (2, 0), (2, 0, 1, 7),
+            (1, 0, 1_000_000), (0, 0, 1_000_000),
+            (SIMPSON_INTEGRATION_MAX_INTERVALS + 2, 0, 1_000_000),
+            (-2, 0, 1_000_000),
+            (2, -SIMPSON_INTEGRATION_MAX_ENDPOINT_MICRO - 1, 0),
+            (2, 0, SIMPSON_INTEGRATION_MAX_ENDPOINT_MICRO + 1),
+            (2, 2_000_000, 1_000_000),
+            (I64_MIN, 0, 1_000_000), (I64_MAX, 0, 1_000_000),
+            (16, 0, I64_MIN), (16, 0, I64_MAX),
+        )
+        for values in malformed:
+            add_simpson(values)
+    elif algorithm == "temperature_conversions":
+        rng_temperature_conversions = random.Random(20261016)
+        for operation in range(5):
+            for k in (-100_000, -1, 0, 1, 100_000):
+                temperature_micro = (
+                    5_000_000 * k if operation == 0 else
+                    32_000_000 + 9_000_000 * k if operation == 1 else
+                    1_000_000 * k if operation == 2 else
+                    273_150_000 + 1_000_000 * k if operation == 3 else
+                    273_150_000 + 5_000_000 * k
+                )
+                values = (operation, temperature_micro)
+                cases[values] = oracle(algorithm, list(values))
+        for _ in range(96):
+            operation = rng_temperature_conversions.randrange(5)
+            k = rng_temperature_conversions.randint(-100_000, 100_000)
+            temperature_micro = (
+                5_000_000 * k if operation == 0 else
+                32_000_000 + 9_000_000 * k if operation == 1 else
+                1_000_000 * k if operation == 2 else
+                273_150_000 + 1_000_000 * k if operation == 3 else
+                273_150_000 + 5_000_000 * k
+            )
+            values = (operation, temperature_micro)
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), (0, 0, 0), (-1, 0), (5, 0),
+            (0, 1), (1, 32_000_001), (2, 1), (3, 273_150_001), (4, 273_150_001),
+            (0, -1_000_000_000_001), (2, 1_000_000_000_001),
+            (I64_MIN,), (I64_MAX,), (I64_MIN, I64_MAX), (I64_MAX, I64_MIN),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
     elif algorithm == "gaussian_legendre":
         rng = random.Random(20261016)
         for _ in range(256):
@@ -3626,13 +4981,20 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "ground_to_ground_projectile_motion": 4,
                     "huber_loss": 3, "huber_loss_math": 3,
                     "exponential_dist": 2, "expected_shortfall": 2,
-                    "time_converter": 2, "temperature_converter": 2, "value_at_risk": 2,
+                    "time_converter": 2, "temperature_converter": 2,
+                    "temperature_conversions": 2,
+                    "simpson_integration": 3,
+                    "temparature_conversion": 3, "value_at_risk": 2,
                     "durand_kerner_roots": 0,
                     "trapezoidal_integration": 4,
+                    "rectangular_method": 4,
+                    "transformations_2d": 3,
+                    "speeds_of_gas_molecules": 3,
                     "midpoint_integral_method": 4,
                     "weddles_rule": 9,
                     "units_converter": 6,
                     "ternary_search_min_max_recursive": 4,
+                    "ternary": 5,
                     "cosine_similarity": 2,
                     "present_value": 3,
                     "present_value_rust": 3,
@@ -3647,6 +5009,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "poisson_dist": 0,
                     "doppler_frequency": 0,
                     "secant_method": 2,
+                    "secant": MAX_SECANT_INPUT_LENGTH,
                     "newton_raphson_method": 2,
                     "newton_raphson": 2,
                     "reynolds_number": 4,
@@ -3676,6 +5039,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "perplexity_loss": MAX_PERPLEXITY_LOSS_INPUT_LENGTH,
                     "connectionist_temporal_classification_loss": MAX_CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INPUT_LENGTH,
                     "kullback_leibler_divergence": MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH,
+                    "kl_divergence_loss": 2,
                     "mean_absolute_error": MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH,
                     "smooth_l1_loss": MAX_SMOOTH_L1_LOSS_INPUT_LENGTH,
                     "binary_cross_entropy": MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH,
@@ -3683,13 +5047,20 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "categorical_cross_entropy": MAX_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH,
                     "categorical_focal_cross_entropy": MAX_CATEGORICAL_FOCAL_CROSS_ENTROPY_INPUT_LENGTH,
                     "sparse_categorical_cross_entropy": MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH,
-                    "extended_kalman_filter": 0}
+                    "extended_kalman_filter": 0,
+                    "unscented_kalman_filter": 0,
+                    "simplex": 4,
+                    "simple_neural_network": 3,
+                    "sparsity": 0}
     null_lengths.update({"return_on_investment": 2, "debt_to_equity": 2,
                          "gross_profit_margin": 2, "earnings_per_sale": 3})
     null_lengths["prefix_evaluation"] = 1
     null_lengths["energy"] = 3
+    null_lengths["laplace_transformation"] = 3
+    null_lengths["relativity"] = 3
     null_length = null_lengths[algorithm]
-    null_result = (COLLABORATIVE_PREDICTION_INVALID_RESULT if algorithm == "collaborative_filtering" else
+    null_result = (SPARSITY_INVALID_RESULT if algorithm == "sparsity" else
+                   COLLABORATIVE_PREDICTION_INVALID_RESULT if algorithm == "collaborative_filtering" else
                    COLLABORATIVE_PEARSON_INVALID_RESULT if algorithm == "collaborative_filtering_pearson_similarity" else
                    QUADRATIC_EQUATION_SOLVER_INVALID_RESULT
                    if algorithm == "quadratic_equation_solver_complex_roots" else
@@ -3701,14 +5072,23 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    EXPECTED_SHORTFALL_INVALID_RESULT if algorithm == "expected_shortfall" else
                    TIME_CONVERTER_INVALID_RESULT if algorithm == "time_converter" else
                    TEMPERATURE_CONVERTER_INVALID_RESULT if algorithm == "temperature_converter" else
+                   TEMPERATURE_CONVERSIONS_INVALID_RESULT if algorithm == "temperature_conversions" else
+                   SIMPSON_INTEGRATION_INVALID_RESULT if algorithm == "simpson_integration" else
+                   TEMPERATURE_ROUNDED_CONVERSION_INVALID_RESULT if algorithm == "temparature_conversion" else
                    VALUE_AT_RISK_INVALID_RESULT if algorithm == "value_at_risk" else
                    ENERGY_INVALID_RESULT if algorithm == "energy" else
                    TRAPEZOIDAL_INTEGRATION_INVALID_RESULT if algorithm == "trapezoidal_integration" else
+                   RECTANGULAR_METHOD_INVALID_RESULT if algorithm == "rectangular_method" else
+                   TRANSFORMATIONS_2D_INVALID_RESULT if algorithm == "transformations_2d" else
+                   SPEEDS_OF_GAS_MOLECULES_INVALID_RESULT if algorithm == "speeds_of_gas_molecules" else
                    MIDPOINT_INTEGRAL_METHOD_INVALID_RESULT if algorithm == "midpoint_integral_method" else
                    WEDDLES_RULE_INVALID_RESULT if algorithm == "weddles_rule" else
                    UNITS_CONVERTER_INVALID_RESULT if algorithm == "units_converter" else
                    PREFIX_EVALUATION_INVALID_RESULT if algorithm == "prefix_evaluation" else
                    TERNARY_SEARCH_MIN_MAX_INVALID_RESULT if algorithm == "ternary_search_min_max_recursive" else
+                   TERNARY_INVALID_RESULT if algorithm == "ternary" else
+                   LAPLACE_TRANSFORMATION_INVALID_RESULT if algorithm == "laplace_transformation" else
+                   RELATIVITY_INVALID_RESULT if algorithm == "relativity" else
                    COSINE_SIMILARITY_INVALID_RESULT if algorithm == "cosine_similarity" else
                    MACAULAY_DURATION_INVALID_RESULT if algorithm == "macaulay_duration" else
                    KELLY_CRITERION_INVALID_RESULT if algorithm == "kelly_criterion" else
@@ -3726,6 +5106,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    POISSON_DIST_INVALID_RESULT if algorithm == "poisson_dist" else
                    DOPPLER_FREQUENCY_INVALID_RESULT if algorithm == "doppler_frequency" else
                    SECANT_METHOD_INVALID_RESULT if algorithm == "secant_method" else
+                   SECANT_INVALID_RESULT if algorithm == "secant" else
                    NEWTON_RAPHSON_METHOD_INVALID_RESULT if algorithm == "newton_raphson_method" else
                    NEWTON_RAPHSON_INVALID_RESULT if algorithm == "newton_raphson" else
                    REYNOLDS_NUMBER_INVALID_RESULT if algorithm == "reynolds_number" else
@@ -3752,6 +5133,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    if algorithm == "symmetric_derivative" else
                    GRADIENT_BOOSTING_REGRESSOR_INVALID_RESULT if algorithm == "gradient_boosting_regressor" else
                    EXTENDED_KALMAN_FILTER_INVALID_RESULT if algorithm == "extended_kalman_filter" else
+                   UNSCENTED_KALMAN_FILTER_INVALID_RESULT if algorithm == "unscented_kalman_filter" else
                    MEAN_SQUARED_ERROR_INVALID_RESULT if algorithm == "mean_squared_error" else
                    MEAN_SQUARED_LOGARITHMIC_ERROR_INVALID_RESULT if algorithm == "mean_squared_logarithmic_error" else
                    MEAN_ABSOLUTE_PERCENTAGE_ERROR_INVALID_RESULT if algorithm == "mean_absolute_percentage_error" else
@@ -3760,6 +5142,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    PERPLEXITY_LOSS_INVALID_RESULT if algorithm == "perplexity_loss" else
                    CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INVALID_RESULT if algorithm == "connectionist_temporal_classification_loss" else
                    KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT if algorithm == "kullback_leibler_divergence" else
+                   KL_DIVERGENCE_LOSS_INVALID_RESULT if algorithm == "kl_divergence_loss" else
                    MEAN_ABSOLUTE_ERROR_INVALID_RESULT if algorithm == "mean_absolute_error" else
                    SMOOTH_L1_LOSS_INVALID_RESULT if algorithm == "smooth_l1_loss" else
                    BINARY_CROSS_ENTROPY_INVALID_RESULT if algorithm == "binary_cross_entropy" else
@@ -3767,22 +5150,21 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT if algorithm == "categorical_cross_entropy" else
                    CATEGORICAL_FOCAL_CROSS_ENTROPY_INVALID_RESULT if algorithm == "categorical_focal_cross_entropy" else
                    SPARSE_CATEGORICAL_CROSS_ENTROPY_INVALID_RESULT if algorithm == "sparse_categorical_cross_entropy" else
+                   SIMPLEX_INVALID_RESULT if algorithm == "simplex" else
+                   SIMPLE_NEURAL_NETWORK_INVALID_RESULT if algorithm == "simple_neural_network" else
                    PRICE_PLUS_TAX_INVALID_RESULT if algorithm == "price_plus_tax" else
                    FINANCE_RATIOS_INVALID_RESULT if algorithm in {"return_on_investment", "debt_to_equity", "gross_profit_margin", "earnings_per_sale"} else
                    INVALID_RESULT)
-    null_values = (
-        (0, -1_000_000, -1_000_000, 1_000_000, 1_000_000,
-         -2_000_000, 0, 2_000_000, 0)
-        if algorithm == "cohen_sutherland" else (0,) * null_length
-    )
-    null_cases = [(null_values, null_result)]
+    null_cases = list(explicit_null_cases)
+    if (null_length, null_result) not in null_cases:
+        null_cases.append((null_length, null_result))
     lines = [f"{len(cases) + len(null_cases)}\n"]
     for values, expected in sorted(cases.items()):
         suffix = "" if not values else " " + " ".join(map(str, values))
         lines.append(f"{len(values)} 0 {expected:.17g} {relative_tolerance:.17g} "
                      f"{absolute_tolerance:.17g}{suffix}\n")
-    for values, expected in null_cases:
-        lines.append(f"{len(values)} 1 {expected:.17g} {relative_tolerance:.17g} "
+    for length, expected in null_cases:
+        lines.append(f"{length} 1 {expected:.17g} {relative_tolerance:.17g} "
                      f"{absolute_tolerance:.17g}\n")
     return "".join(lines), len(cases) + len(null_cases)
 
@@ -3817,12 +5199,16 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     for case, record in zip(workload["cases"], records):
         values, expected = encode_case(case, algorithm)
+        input_is_null = case.get("input_is_null") is True
+        input_length = case.get("input_length", len(values))
         observed = float(record["measurement"]["observed_result"])
         if (record["algorithm"] != algorithm
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]
-                or record["workload"]["input_length"] != len(values)
+                or record["workload"]["input_length"] != input_length
                 or record["workload"]["input_values"] != values
+                or (input_is_null and record["workload"].get("input_is_null") is not True)
+                or (not input_is_null and record["workload"].get("input_is_null") is True)
                 or record["workload"]["expected_result"] != expected
                 or record["measurement"]["comparison_model"] != "i64_array_float64_call"
                 or not result_matches(observed, expected, absolute_tolerance, relative_tolerance)

@@ -1,0 +1,4 @@
+#include <cstddef>
+#include <cstdint>
+namespace{constexpr std::size_t max_len=256;void reverse_bytes(std::uint8_t*a,std::size_t from,std::size_t to){while(from<to){auto t=a[from];a[from++]=a[to];a[to--]=t;}}}
+extern "C" std::int64_t char_array_left_rotation(const std::int64_t*input,std::size_t length,std::uint8_t*output,std::size_t capacity){if(input==nullptr||length<2||length>max_len+3||input[0]<0||input[0]>256)return -1;const auto n=static_cast<std::size_t>(input[0]);if(input[1]<0||input[1]>static_cast<std::int64_t>(n)||length!=n+2)return -1;for(std::size_t i=0;i<n;++i)if(input[i+2]<0||input[i+2]>127)return -1;if(output==nullptr||capacity<n)return -2;std::uint8_t a[max_len]{};for(std::size_t i=0;i<n;++i)a[i]=static_cast<std::uint8_t>(input[i+2]);const auto k=static_cast<std::size_t>(input[1]);if(k>0)reverse_bytes(a,0,k-1);if(k<n)reverse_bytes(a,k,n-1);if(n>0)reverse_bytes(a,0,n-1);for(std::size_t i=0;i<n;++i)output[i]=a[i];return static_cast<std::int64_t>(n);}

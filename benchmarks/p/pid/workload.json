@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-pid-float32-sequence-v1",
+  "algorithm": "pid",
+  "function_symbol": "pid",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C",
+    "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+    "path": "misc/pid.c",
+    "symbol": "pid_step",
+    "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/misc/pid.c"
+  },
+  "contract": {
+    "state_initialization": "integral=0 and lastError=0 at the beginning of every call",
+    "operation_order": "float32 p=error*kP; float32 integral += error*dt*kI left to right; float32 d=(dt==0?0:((error-lastError)/dt)*kD); lastError=error; output=p+integral+d left to right",
+    "dt_zero_rule": "Suppress derivative only; still update integral and lastError.",
+    "input_validation": "Check finite float64 parameters and their bounds before casting to float32.",
+    "output_conversion": "Widen each float32 step result exactly to float64."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "layout": "[kP, kI, kD, dt, error_0, ...]",
+    "length_range": [5, 64],
+    "error_count_range": [1, 60],
+    "gain_range": [-1.0, 1.0],
+    "dt_rule": "Exactly 0 or in [0.01, 1.0], checked before float32 conversion.",
+    "error_range": [-1.0, 1.0],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "meaning": "One widened float32 PID step result per error sample.",
+    "success_result": "error count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "workspace": {
+    "elements": 60,
+    "meaning": "Maximum number of error samples and output values."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "proportional_only",
+      "input_values": [0.5, 0.0, 0.0, 0.5, 0.5, -1.0, 1.0],
+      "input_length": 7,
+      "expected_result": 3,
+      "expected_output": [0.25, -0.5, 0.5]
+    },
+    {
+      "id": "integral_accumulates",
+      "input_values": [0.0, 0.5, 0.0, 0.5, 1.0, -1.0, 0.5],
+      "input_length": 7,
+      "expected_result": 3,
+      "expected_output": [0.25, 0.0, 0.125]
+    },
+    {
+      "id": "derivative_uses_previous_error",
+      "input_values": [0.0, 0.0, 0.5, 0.5, 0.5, 1.0, -0.5],
+      "input_length": 7,
+      "expected_result": 3,
+      "expected_output": [0.5, 0.5, -1.5]
+    },
+    {
+      "id": "combined_terms",
+      "input_values": [0.5, 0.25, 0.25, 0.5, 1.0, 0.0, -1.0],
+      "input_length": 7,
+      "expected_result": 3,
+      "expected_output": [1.125, -0.375, -1.0]
+    },
+    {
+      "id": "fractional_float32_rounding_and_accumulation",
+      "input_values": [0.1, 0.3, 0.7, 0.2, 0.1, 0.3, -0.7, 0.1, 0.1, 0.3],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output": [0.3659999966621399, 0.7540000677108765, -3.5880000591278076, 2.797999858856201, 0.00400000112131238, 0.7420000433921814]
+    },
+    {
+      "id": "zero_dt_suppresses_derivative",
+      "input_values": [0.5, 0.5, 1.0, 0.0, 1.0, -1.0, 0.5],
+      "input_length": 7,
+      "expected_result": 3,
+      "expected_output": [0.5, -0.5, 0.25]
+    },
+    {
+      "id": "minimum_positive_dt",
+      "input_values": [0.25, 0.0, 0.0, 0.01, 1.0, -1.0],
+      "input_length": 6,
+      "expected_result": 2,
+      "expected_output": [0.25, -0.25]
+    },
+    {
+      "id": "maximum_dt",
+      "input_values": [0.25, 0.0, 0.0, 1.0, -1.0, 1.0],
+      "input_length": 6,
+      "expected_result": 2,
+      "expected_output": [-0.25, 0.25]
+    },
+    {
+      "id": "gain_and_error_endpoints",
+      "input_values": [1.0, 0.0, 0.0, 1.0, -1.0, 1.0],
+      "input_length": 6,
+      "expected_result": 2,
+      "expected_output": [-1.0, 1.0]
+    },
+    {
+      "id": "maximum_60_error_samples",
+      "input_values": [0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      "input_length": 64,
+      "expected_result": 60,
+      "expected_output": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    },
+    {
+      "id": "missing_error_sample",
+      "input_values": [1.0, 1.0, 1.0, 1.0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "gain_above_range_before_float32_cast",
+      "input_values": [1.00000001, 0.0, 0.0, 0.5, 0.0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "gain_below_range",
+      "input_values": [0.0, -1.0001, 0.0, 0.5, 0.0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_dt",
+      "input_values": [0.0, 0.0, 0.0, -0.5, 0.0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dt_below_minimum_before_float32_cast",
+      "input_values": [0.0, 0.0, 0.0, 0.0099999999, 0.0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dt_above_maximum",
+      "input_values": [0.0, 0.0, 0.0, 1.0001, 0.0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dt_above_maximum_before_float32_cast",
+      "input_values": [0.0, 0.0, 0.0, 1.00000001, 0.0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "error_above_range_before_float32_cast",
+      "input_values": [0.0, 0.0, 0.0, 0.5, 1.00000001],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "error_below_range",
+      "input_values": [0.0, 0.0, 0.0, 0.5, -1.0001],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

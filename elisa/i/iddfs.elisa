@@ -1,0 +1,129 @@
+const MAX_VERTICES: usize = 16
+const MAX_NEIGHBORS: usize = 64
+const MAX_DEPTH: usize = 8
+const MAX_VALID_INPUT_LENGTH: usize = 100
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 101
+const MAX_PATH_LENGTH: usize = 9
+const MAX_OUTPUT_VALUES: usize = 12
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+
+def iddfs_impl(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if values == null or length < 4 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    raw_start: i64 = values[0]
+    raw_target: i64 = values[1]
+    raw_depth: i64 = values[2]
+    raw_entries: i64 = values[3]
+    if raw_start < 1 or raw_start > 16 or raw_target < 1 or raw_target > 16 or
+            raw_depth < 0 or raw_depth > MAX_DEPTH.i64() or raw_entries < 0 or raw_entries > MAX_VERTICES.i64():
+        return -1
+    start: usize = raw_start.usize()
+    target: usize = raw_target.usize()
+    depth_limit: usize = raw_depth.usize()
+    entry_count: usize = raw_entries.usize()
+
+    adjacency: mutable i64[MAX_VERTICES * MAX_NEIGHBORS] = zeroed
+    degree_count: mutable usize[MAX_VERTICES] = zeroed
+    named: mutable bool[MAX_VERTICES] = zeroed
+    max_vertex: mutable usize = 0
+    total_neighbors: mutable usize = 0
+    cursor: mutable usize = 4
+    for entry in 0..<entry_count:
+        if cursor + 2 > length:
+            return -1
+        raw_vertex: i64 = values[cursor]
+        cursor <- cursor + 1
+        raw_degree: i64 = values[cursor]
+        cursor <- cursor + 1
+        if raw_vertex < 1 or raw_vertex > MAX_VERTICES.i64() or raw_degree < 0 or raw_degree > MAX_NEIGHBORS.i64():
+            return -1
+        vertex: usize = raw_vertex.usize()
+        degree: usize = raw_degree.usize()
+        if named[vertex - 1] or degree > length - cursor or total_neighbors + degree > MAX_NEIGHBORS:
+            return -1
+        named[vertex - 1] <- true
+        if vertex > max_vertex:
+            max_vertex <- vertex
+        total_neighbors <- total_neighbors + degree
+        for index in 0..<degree:
+            raw_neighbor: i64 = values[cursor]
+            cursor <- cursor + 1
+            if raw_neighbor < -MAX_VERTICES.i64() or raw_neighbor > MAX_VERTICES.i64():
+                return -1
+            if raw_neighbor > max_vertex.i64():
+                max_vertex <- raw_neighbor.usize()
+            if raw_neighbor >= 1:
+                slot: usize = (vertex - 1) * MAX_NEIGHBORS + degree_count[vertex - 1]
+                adjacency[slot] <- raw_neighbor
+                degree_count[vertex - 1] <- degree_count[vertex - 1] + 1
+    if cursor != length:
+        return -1
+    if max_vertex != 0 and (start > max_vertex or target > max_vertex):
+        return -1
+
+    path: mutable i64[MAX_PATH_LENGTH] = zeroed
+    next_neighbor: mutable usize[MAX_PATH_LENGTH] = zeroed
+    path_length: mutable usize = 0
+    found_depth: mutable usize = 0
+    found: mutable bool = false
+    if max_vertex != 0:
+        limit: mutable usize = 0
+        while limit <= depth_limit and not found:
+            path_length <- 1
+            path[0] <- start.i64()
+            next_neighbor[0] <- 0
+            if start == target:
+                found <- true
+                found_depth <- 0
+                break
+            while path_length > 0 and not found:
+                frame: usize = path_length - 1
+                current: usize = path[frame].usize()
+                if frame >= limit or next_neighbor[frame] >= degree_count[current - 1]:
+                    path_length <- path_length - 1
+                    continue
+                slot: usize = (current - 1) * MAX_NEIGHBORS + next_neighbor[frame]
+                neighbor: usize = adjacency[slot].usize()
+                next_neighbor[frame] <- next_neighbor[frame] + 1
+                prior: mutable usize = 0
+                while prior < path_length and path[prior] != neighbor.i64():
+                    prior <- prior + 1
+                if prior != path_length:
+                    continue
+                path[path_length] <- neighbor.i64()
+                path_length <- path_length + 1
+                if neighbor == target:
+                    found <- true
+                    found_depth <- path_length - 1
+                else:
+                    next_neighbor[path_length - 1] <- 0
+            limit <- limit + 1
+
+    result: mutable i64[MAX_OUTPUT_VALUES] = zeroed
+    result_count: mutable usize = 3
+    if found:
+        result[0] <- 1
+        result[1] <- found_depth.i64()
+        result[2] <- path_length.i64()
+        result_count <- result_count + path_length
+        for index in 0..<path_length:
+            result[3 + index] <- path[index]
+    else:
+        result[0] <- 0
+        result[1] <- -1
+        result[2] <- 0
+    required: usize = result_count * 8
+    if output == null or output_capacity < required:
+        return -2
+    for index in 0..<result_count:
+        store_i64_le(result[index], output, 8 * index)
+    required.i64()
+
+export fn iddfs(values: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = iddfs_impl

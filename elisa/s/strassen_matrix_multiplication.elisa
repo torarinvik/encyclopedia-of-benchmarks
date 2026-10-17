@@ -1,0 +1,126 @@
+const MAX_INPUT_LENGTH: usize = 129
+
+def strassen_multiply(a: i64&, b: i64&, c: mutable i64&, n: usize) -> void:
+    if n == 1:
+        c[0] <- a[0] * b[0]
+        return
+    h: usize = n / 2
+    x: mutable i64[16] = zeroed
+    y: mutable i64[16] = zeroed
+    m1: mutable i64[16] = zeroed
+    m2: mutable i64[16] = zeroed
+    m3: mutable i64[16] = zeroed
+    m4: mutable i64[16] = zeroed
+    m5: mutable i64[16] = zeroed
+    m6: mutable i64[16] = zeroed
+    m7: mutable i64[16] = zeroed
+    r: mutable usize = 0
+    while r < h:
+        col: mutable usize = 0
+        while col < h:
+            i: usize = r * h + col
+            q: usize = r * n + col
+            x[i] <- a[q] + a[(r + h) * n + col + h]
+            y[i] <- b[q] + b[(r + h) * n + col + h]
+            col <- col + 1
+        r <- r + 1
+    strassen_multiply(&x[0], &y[0], &m1[0], h)
+    r <- 0
+    while r < h:
+        col: mutable usize = 0
+        while col < h:
+            i: usize = r * h + col
+            x[i] <- a[(r + h) * n + col] + a[(r + h) * n + col + h]
+            y[i] <- b[r * n + col]
+            col <- col + 1
+        r <- r + 1
+    strassen_multiply(&x[0], &y[0], &m2[0], h)
+    r <- 0
+    while r < h:
+        col: mutable usize = 0
+        while col < h:
+            i: usize = r * h + col
+            x[i] <- a[r * n + col]
+            y[i] <- b[r * n + col + h] - b[(r + h) * n + col + h]
+            col <- col + 1
+        r <- r + 1
+    strassen_multiply(&x[0], &y[0], &m3[0], h)
+    r <- 0
+    while r < h:
+        col: mutable usize = 0
+        while col < h:
+            i: usize = r * h + col
+            x[i] <- a[(r + h) * n + col + h]
+            y[i] <- b[(r + h) * n + col] - b[r * n + col]
+            col <- col + 1
+        r <- r + 1
+    strassen_multiply(&x[0], &y[0], &m4[0], h)
+    r <- 0
+    while r < h:
+        col: mutable usize = 0
+        while col < h:
+            i: usize = r * h + col
+            x[i] <- a[r * n + col] + a[r * n + col + h]
+            y[i] <- b[(r + h) * n + col + h]
+            col <- col + 1
+        r <- r + 1
+    strassen_multiply(&x[0], &y[0], &m5[0], h)
+    r <- 0
+    while r < h:
+        col: mutable usize = 0
+        while col < h:
+            i: usize = r * h + col
+            x[i] <- a[(r + h) * n + col] - a[r * n + col]
+            y[i] <- b[r * n + col] + b[r * n + col + h]
+            col <- col + 1
+        r <- r + 1
+    strassen_multiply(&x[0], &y[0], &m6[0], h)
+    r <- 0
+    while r < h:
+        col: mutable usize = 0
+        while col < h:
+            i: usize = r * h + col
+            x[i] <- a[r * n + col + h] - a[(r + h) * n + col + h]
+            y[i] <- b[(r + h) * n + col] + b[(r + h) * n + col + h]
+            col <- col + 1
+        r <- r + 1
+    strassen_multiply(&x[0], &y[0], &m7[0], h)
+    r <- 0
+    while r < h:
+        col: mutable usize = 0
+        while col < h:
+            i: usize = r * h + col
+            c[r * n + col] <- m1[i] + m4[i] - m5[i] + m7[i]
+            c[r * n + col + h] <- m3[i] + m5[i]
+            c[(r + h) * n + col] <- m2[i] + m4[i]
+            c[(r + h) * n + col + h] <- m1[i] - m2[i] + m3[i] + m6[i]
+            col <- col + 1
+        r <- r + 1
+
+def strassen_matrix_multiplication_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 1 || length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value != 1 && n_value != 2 && n_value != 4 && n_value != 8: return -1
+    n: usize = n_value.usize()
+    cells: usize = n * n
+    if length != 1 + 2 * cells: return -1
+    i: mutable usize = 0
+    while i < 2 * cells:
+        if input[1 + i] < -2 || input[1 + i] > 2: return -1
+        i <- i + 1
+    output_bytes: usize = 8 * cells
+    if output == null || capacity < output_bytes: return -2
+    result: mutable i64[64] = zeroed
+    strassen_multiply(&input[1], &input[1 + cells], &result[0], n)
+    i <- 0
+    while i < cells:
+        bits: mutable u64 = result[i].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[i * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        i <- i + 1
+    output_bytes.i64()
+
+export fn strassen_matrix_multiplication(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = strassen_matrix_multiplication_impl

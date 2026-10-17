@@ -1,0 +1,36 @@
+extern exp(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+
+def integrand(x: f64) -> f64:
+    (exp(x) / 2.0) * (cos(x) - sin(x))
+
+def rectangular_method_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 4:
+        return INVALID_RESULT
+    a_quarters: i64 = values[0]
+    b_quarters: i64 = values[1]
+    intervals: i64 = values[2]
+    rule: i64 = values[3]
+    if a_quarters < -64 or a_quarters >= b_quarters or b_quarters > 64 or intervals < 1 or intervals > 64:
+        return INVALID_RESULT
+    if (b_quarters - a_quarters) % intervals != 0 or (rule != 0 and rule != 1):
+        return INVALID_RESULT
+
+    a: f64 = a_quarters.f64() / 4.0
+    b: f64 = b_quarters.f64() / 4.0
+    step: f64 = (b - a) / intervals.f64()
+    x: mutable f64 = a
+    total: mutable f64 = 0.0
+    for _ in 0..<intervals.usize():
+        if rule == 0:
+            total <- total + integrand(x) * step
+            x <- x + step
+        else:
+            x <- x + step
+            total <- total + integrand(x) * step
+    total
+
+export fn rectangular_method(values: i64&, length: usize) -> f64 = rectangular_method_impl

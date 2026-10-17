@@ -1,5 +1,7 @@
 const INVALID_RESULT: i64 = -1;
 const CAPACITY_ERROR: i64 = -2;
+const HALF_STEP_LIMIT: f64 = 4_503_599_627_370_496.0;
+const MAX_TICK_MAGNITUDE: i64 = 2_251_799_813_685_248;
 
 fn finite_matrix(matrix: &[[f64; 6]; 5], n: usize) -> bool {
     for row in 0..n {
@@ -46,16 +48,25 @@ fn simplify(matrix: &mut [[f64; 6]; 5], n: usize) -> bool {
 }
 
 fn round_ticks(value: f64) -> Option<i64> {
-    const LIMIT: f64 = 9_223_372_036_854_775_808.0;
     let scaled = value * 100_000.0;
-    if !scaled.is_finite() || scaled < -LIMIT || scaled >= LIMIT { return None; }
+    if !scaled.is_finite() || scaled <= -HALF_STEP_LIMIT || scaled >= HALF_STEP_LIMIT { return None; }
     let lower = scaled.floor();
     let midpoint = lower + 0.5;
     let exact_side = value.mul_add(100_000.0, -midpoint);
     if !exact_side.is_finite() { return None; }
     let mut rounded = lower as i64;
     if exact_side > 0.0 || (exact_side == 0.0 && rounded % 2 != 0) { rounded += 1; }
-    Some(rounded)
+    if rounded < -MAX_TICK_MAGNITUDE || rounded > MAX_TICK_MAGNITUDE { return None; }
+    let rounded_value = rounded as f64 / 100_000.0;
+    let projected = rounded_value * 100_000.0;
+    if !projected.is_finite() { return None; }
+    let projected_lower = projected.floor();
+    let projected_midpoint = projected_lower + 0.5;
+    let mut ticks = projected_lower as i64;
+    if projected > projected_midpoint ||
+        (projected == projected_midpoint && ticks % 2 != 0) { ticks += 1; }
+    if ticks < -MAX_TICK_MAGNITUDE || ticks > MAX_TICK_MAGNITUDE { return None; }
+    Some(ticks)
 }
 
 fn write_i64_le(output: &mut [u8], offset: usize, value: i64) {

@@ -48,7 +48,7 @@ def pack(activities: tuple[tuple[int, int], ...] | list[tuple[int, int]]) -> tup
 
 def corpus(workload: dict) -> tuple[str, int]:
     cases: dict[tuple[int, ...], int] = {}
-    for values, expected in ((tuple(encode_case(case)), case["expected_result"])
+    for values, expected in ((tuple(encode_case(case, algorithm=ALGORITHM)), case["expected_result"])
                              for case in workload["cases"]):
         if oracle(list(values)) != expected:
             raise ValueError("published workload disagrees with weighted interval oracle")
@@ -114,7 +114,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
-        values = encode_case(case)
+        values = encode_case(case, algorithm=ALGORITHM)
         if (record["algorithm"] != ALGORITHM
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]

@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-tea-single-block-v1",
+  "algorithm": "tea",
+  "function_symbol": "tea",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/ciphers/tea.rs",
+    "symbol": "TeaContext::encrypt_block",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/tea.rs"
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[block_low, block_high, key0_low, key0_high, key1_low, key1_high]",
+    "slot_semantics": "each signed-i32 slot carries one 32-bit word bit pattern; each low/high pair is combined as low_u32 | (high_u32 << 32)",
+    "slot_range": [-2147483648, 2147483647],
+    "exact_length": 6,
+    "maximum_valid_array_length": 6,
+    "maximum_parseable_array_length": 7,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "tea_ciphertext_and_round_trip_u64_pair_bytes",
+    "encoding": "[ciphertext_u64, recovered_plaintext_u64], each little-endian",
+    "success_result": 16,
+    "maximum_output_bytes": 16,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "Encrypted block and decrypted round-trip block as two little-endian u64 values."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "source_zero_block_zero_key_vector",
+      "input_values": [0, 0, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "0a3aea4140a9ba940000000000000000"
+    },
+    {
+      "id": "truncated_frame",
+      "input_values": [0, 0, 0, 0, 0],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_frame_word",
+      "input_values": [0, 0, 0, 0, 0, 0, 0],
+      "input_length": 7,
+      "output_capacity": 16,
+      "expected_result": -1
+    },
+    {
+      "id": "slot_above_signed_i32_range",
+      "input_values": [2147483648, 0, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": -1
+    },
+    {
+      "id": "slot_below_signed_i32_range",
+      "input_values": [-2147483649, 0, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": -1
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 16,
+      "expected_result": -1
+    },
+    {
+      "id": "null_output",
+      "input_values": [0, 0, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [0, 0, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 15,
+      "expected_result": -2
+    }
+  ]
+}

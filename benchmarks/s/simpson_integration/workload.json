@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "id": "simpson-integration-i64-array-float64-v1",
+  "algorithm": "simpson_integration",
+  "function_symbol": "simpson_integration",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/maths/SimpsonIntegration.java",
+      "symbol": "SimpsonIntegration.simpsonsMethod and SimpsonIntegration.f",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/SimpsonIntegration.java",
+      "role": "algorithm and fixed integrand"
+    },
+    {
+      "repository": "TheAlgorithms/JavaScript",
+      "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+      "path": "Maths/SimpsonIntegration.js",
+      "symbol": "integralEvaluation (fixed callback: exp(-x)*(4-x^2))",
+      "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/SimpsonIntegration.js",
+      "role": "algorithm with equivalent fixed integrand"
+    }
+  ],
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "exact_length": 3,
+    "maximum_parseable_length": 4,
+    "encoding": "[N, a_micro, b_micro]",
+    "endpoint_scale": 1000000,
+    "interval_count_range": [
+      2,
+      128
+    ],
+    "interval_count_requirement": "even",
+    "endpoint_micro_range": [
+      -10000000,
+      10000000
+    ],
+    "endpoint_order": "a_micro <= b_micro",
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "java_example_interval",
+      "input_values": [
+        16,
+        1000000,
+        3000000
+      ],
+      "expected_result": 0.2793534789079481
+    },
+    {
+      "id": "two_intervals_zero_to_one",
+      "input_values": [
+        2,
+        0,
+        1000000
+      ],
+      "expected_result": 2.366933036533971
+    },
+    {
+      "id": "maximum_intervals_full_domain",
+      "input_values": [
+        128,
+        -10000000,
+        10000000
+      ],
+      "expected_result": -1718076.0969157445
+    },
+    {
+      "id": "negative_only_interval",
+      "input_values": [
+        8,
+        -10000000,
+        -2000000
+      ],
+      "expected_result": -1735132.5691480679
+    },
+    {
+      "id": "interval_crossing_zero",
+      "input_values": [
+        64,
+        -1000000,
+        1000000
+      ],
+      "expected_result": 8.522724791127125
+    },
+    {
+      "id": "one_micro_unit_span",
+      "input_values": [
+        16,
+        1000000,
+        1000001
+      ],
+      "expected_result": 1.1036374037252374e-06
+    },
+    {
+      "id": "equal_interior_endpoints",
+      "input_values": [
+        2,
+        1234567,
+        1234567
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "upper_half_domain",
+      "input_values": [
+        32,
+        5000000,
+        10000000
+      ],
+      "expected_result": -0.2169949865977082
+    },
+    {
+      "id": "equal_lower_boundary",
+      "input_values": [
+        128,
+        -10000000,
+        -10000000
+      ],
+      "expected_result": 0.0
+    },
+    {
+      "id": "invalid_odd_intervals",
+      "input_values": [
+        3,
+        0,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_zero_intervals",
+      "input_values": [
+        0,
+        0,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_over_max_intervals",
+      "input_values": [
+        130,
+        -1000000,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_negative_intervals",
+      "input_values": [
+        -2,
+        0,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_start_below_domain",
+      "input_values": [
+        16,
+        -10000001,
+        0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_end_above_domain",
+      "input_values": [
+        16,
+        0,
+        10000001
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_descending_endpoints",
+      "input_values": [
+        16,
+        2000000,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_short_input",
+      "input_values": [
+        16,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_extra_input",
+      "input_values": [
+        16,
+        1000000,
+        3000000,
+        7
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_i64_min_interval",
+      "input_values": [
+        -9223372036854775808,
+        0,
+        1000000
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_i64_extreme_endpoint",
+      "input_values": [
+        16,
+        0,
+        9223372036854775807
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

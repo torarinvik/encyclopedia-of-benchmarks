@@ -1,0 +1,77 @@
+const MAX_COUNT: usize = 64
+const MAX_INPUT_LENGTH: usize = 66
+
+fn selectionsortlinkedlist_links(values: i32&, next: mutable i64&, head: mutable i64&) -> void:
+    minimum: mutable i64 = head
+    current: mutable i64 = next[minimum.usize()]
+    previous: mutable i64 = minimum
+    sorted_tail: mutable i64 = -1
+    while next[minimum.usize()] != -1:
+        while current != -1:
+            if values[current.usize()] < values[minimum.usize()]:
+                if sorted_tail == -1:
+                    if previous == minimum:
+                        head <- current
+                        next[minimum.usize()] <- next[current.usize()]
+                        next[current.usize()] <- previous
+                        minimum <- current
+                        current <- next[previous.usize()]
+                    else:
+                        head <- current
+                        next[previous.usize()] <- next[current.usize()]
+                        next[current.usize()] <- minimum
+                        minimum <- current
+                        current <- next[previous.usize()]
+                else:
+                    next[sorted_tail.usize()] <- current
+                    next[previous.usize()] <- next[current.usize()]
+                    next[current.usize()] <- minimum
+                    minimum <- current
+                    current <- next[previous.usize()]
+            else:
+                previous <- next[previous.usize()]
+                current <- next[current.usize()]
+        sorted_tail <- minimum
+        minimum <- next[minimum.usize()]
+        previous <- minimum
+        current <- next[minimum.usize()]
+
+fn selectionsortlinkedlist_write_i32(output: mutable u8&, offset: usize, value: i32) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+fn selectionsortlinkedlist_impl(input: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null || length < 1 || length > MAX_INPUT_LENGTH: return -1
+    raw_count: i64 = input[0]
+    if raw_count < 1 || raw_count > MAX_COUNT.i64() || length != 1 + raw_count.usize(): return -1
+    count: usize = raw_count.usize()
+    values: mutable i32[MAX_COUNT] = zeroed
+    next: mutable i64[MAX_COUNT] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 1]
+        if value < -2147483648 || value > 2147483647: return -1
+        values[index] <- value.i32()
+        if index + 1 < count: next[index] <- (index + 1).i64()
+        else: next[index] <- -1
+        index <- index + 1
+    byte_count: usize = 4 * count
+    if output == null || output_capacity < byte_count: return -2
+
+    head: mutable i64 = 0
+    selectionsortlinkedlist_links(values, next, head)
+    node: mutable i64 = head
+    index <- 0
+    while index < count:
+        selectionsortlinkedlist_write_i32(output, 4 * index, values[node.usize()])
+        node <- next[node.usize()]
+        index <- index + 1
+    byte_count.i64()
+
+export fn selectionsortlinkedlist(input: i64&, length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = selectionsortlinkedlist_impl

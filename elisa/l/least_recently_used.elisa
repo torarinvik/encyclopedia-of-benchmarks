@@ -1,0 +1,62 @@
+def least_recently_used_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 66: return -1
+    capacity_value: i64 = input[0]
+    reference_count_value: i64 = input[1]
+    if capacity_value < 1 or capacity_value > 16 or reference_count_value < 0 or reference_count_value > 64: return -1
+    cache_capacity: usize = capacity_value.usize()
+    references: usize = reference_count_value.usize()
+    if length != 2 + references: return -1
+    i: usize = 0
+    while i < references:
+        key: i64 = input[2 + i]
+        if key < -2147483648 or key > 2147483647: return -1
+        i <- i + 1
+
+    keys: mutable i64[16] = zeroed
+    count: mutable usize = 0
+    i <- 0
+    while i < references:
+        key: i64 = input[2 + i]
+        found: mutable usize = count
+        j: usize = 0
+        while j < count:
+            if keys[j] == key:
+                found <- j
+                break
+            j <- j + 1
+        if found < count:
+            j <- found
+            while j + 1 < count:
+                keys[j] <- keys[j + 1]
+                j <- j + 1
+            count <- count - 1
+        elif count == cache_capacity: count <- count - 1
+        j <- count
+        while j > 0:
+            keys[j] <- keys[j - 1]
+            j <- j - 1
+        keys[0] <- key
+        count <- count + 1
+        i <- i + 1
+
+    elements: usize = count + 1
+    required: usize = elements * 8
+    if output.is_null() or output_capacity < required: return -2
+    size_bits: mutable u64 = count.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[byte] <- (size_bits & 255).u8()
+        size_bits <- size_bits >> 8
+        byte <- byte + 1
+    i <- 0
+    while i < count:
+        bits: mutable u64 = keys[i].u64()
+        byte <- 0
+        while byte < 8:
+            output[(i + 1) * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        i <- i + 1
+    return elements.i64()
+
+export fn least_recently_used(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = least_recently_used_impl

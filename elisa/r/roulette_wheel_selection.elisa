@@ -1,0 +1,34 @@
+const MAX_INPUT_VALUES: usize = 131
+const MAX_VALIDATORS: i64 = 128
+const MAX_STAKE: i64 = 1000000
+const MAX_TOTAL_STAKE: i64 = 128000000
+
+def roulette_wheel_selection_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_VALUES: return -1
+
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > MAX_VALIDATORS: return -1
+    count: usize = count_value.usize()
+    if length != count + 2: return -1
+
+    total: mutable i64 = 0
+    index: mutable usize = 0
+    while index < count:
+        stake: i64 = input[1 + index]
+        if stake < 1 or stake > MAX_STAKE: return -1
+        if total > MAX_TOTAL_STAKE - stake: return -1
+        total <- total + stake
+        index <- index + 1
+
+    ticket: i64 = input[1 + count]
+    if ticket < 0 or ticket >= total: return -1
+
+    cumulative: mutable i64 = 0
+    index <- 0
+    while index < count:
+        cumulative <- cumulative + input[1 + index]
+        if ticket < cumulative: return (index + 1).i64()
+        index <- index + 1
+    -1
+
+export fn roulette_wheel_selection(input: i64&, length: usize) -> i64 = roulette_wheel_selection_impl

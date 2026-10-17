@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "project-euler-problem-21-pair-sum-scalar-v1",
+  "algorithm": "problem21_pair_sum",
+  "function_symbol": "problem21_pair_sum",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "limit_range": [2, 10000],
+    "meaning": "exclusive upper limit for the smaller member of amicable pairs",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "sum of both members of every amicable pair whose smaller member is below the limit"
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "minimum_valid_limit", "input_value": 2, "expected_result": 0},
+    {"id": "no_amicable_pair", "input_value": 100, "expected_result": 0},
+    {"id": "smaller_member_at_limit_minus_one", "input_value": 221, "expected_result": 504},
+    {"id": "first_pair_fully_below_limit", "input_value": 285, "expected_result": 504},
+    {"id": "partner_equal_to_limit_is_included", "input_value": 1210, "expected_result": 2898},
+    {"id": "later_pairs", "input_value": 5000, "expected_result": 8442},
+    {"id": "canonical_limit", "input_value": 10000, "expected_result": 31626},
+    {"id": "below_minimum", "input_value": 1, "expected_result": -1},
+    {"id": "above_maximum", "input_value": 10001, "expected_result": -1},
+    {"id": "signed_i64_minimum", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "signed_i64_maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ]
+}

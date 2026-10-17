@@ -1,6 +1,6 @@
 # Sum Of Subsets
 
-This package benchmarks the pinned [TheAlgorithms/Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/backtracking/sum_of_subsets.py). Return all source-generated solutions in include-by-index depth-first order. Prune when the path exceeds target or remaining values cannot reach it; return immediately when the current sum equals target. Equal value lists from distinct index selections remain separate. Encode solution count and each length/value record as signed 64-bit little-endian integers.
+This package benchmarks the pinned [TheAlgorithms/Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/backtracking/sum_of_subsets.py) and the bounded JavaScript enumerator [SumOfSubset.js](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Backtracking/SumOfSubset.js). Return all source-generated solutions in include-by-index depth-first order. Prune when the path exceeds target or remaining values cannot reach it; return immediately when the current sum equals target. Equal value lists from distinct index selections remain separate. Encode solution count and each length/value record as signed 64-bit little-endian integers.
 
 The `i64_array_bytes_output` ABI uses the packed input layout `[n,target,values[0..n]]`. The workload records the exact input bounds, output encoding, invalid-input result `-1`, insufficient-capacity result `-2`, and bounded output workspace.
 

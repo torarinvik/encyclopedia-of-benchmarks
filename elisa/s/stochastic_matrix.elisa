@@ -1,0 +1,53 @@
+const MAX_DIMENSION: i64 = 63
+const MAX_INPUT_VALUES: usize = 3972
+const MAX_ABS_CELL: i64 = 1000000000000
+const CELL_SCALE: f64 = 1.0e12
+const TOLERANCE: f64 = 1.0e-9
+
+def stochastic_matrix_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_VALUES: return -1
+    mode: i64 = input[0]
+    rows_value: i64 = input[1]
+    columns_value: i64 = input[2]
+    if (mode != 0 and mode != 1) or rows_value < 1 or rows_value > MAX_DIMENSION or columns_value < 1 or columns_value > MAX_DIMENSION: return -1
+
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    total: usize = rows * columns
+    if length != 3 + total: return -1
+
+    index: mutable usize = 0
+    while index < total:
+        units: i64 = input[3 + index]
+        if units < -MAX_ABS_CELL or units > MAX_ABS_CELL: return -1
+        index <- index + 1
+
+    if mode == 0:
+        row: mutable usize = 0
+        while row < rows:
+            sum: mutable f64 = 0.0
+            column: mutable usize = 0
+            while column < columns:
+                value: f64 = input[3 + row * columns + column].f64() / CELL_SCALE
+                if value < 0.0: return 0
+                sum <- sum + value
+                column <- column + 1
+            difference: f64 = sum - 1.0
+            if difference > TOLERANCE or difference < -TOLERANCE: return 0
+            row <- row + 1
+    else:
+        column: mutable usize = 0
+        while column < columns:
+            sum: mutable f64 = 0.0
+            row: mutable usize = 0
+            while row < rows:
+                value: f64 = input[3 + row * columns + column].f64() / CELL_SCALE
+                if value < 0.0: return 0
+                sum <- sum + value
+                row <- row + 1
+            difference: f64 = sum - 1.0
+            if difference > TOLERANCE or difference < -TOLERANCE: return 0
+            column <- column + 1
+    1
+
+export fn stochastic_matrix(input: i64&, length: usize) -> i64 = stochastic_matrix_impl

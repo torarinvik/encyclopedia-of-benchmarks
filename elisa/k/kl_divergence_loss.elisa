@@ -1,0 +1,37 @@
+extern log(value: f64) -> f64
+const MAX_COUNT: usize = 64
+const SCALE: f64 = 1000000.0
+const EPSILON: f64 = 1e-5
+const INVALID_RESULT: f64 = -1.0e300
+
+def kl_divergence_loss_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 2 or length > 130: return INVALID_RESULT
+    actual_count_value: i64 = input[0]
+    predicted_count_value: i64 = input[1]
+    if actual_count_value < 0 or actual_count_value > MAX_COUNT.i64() or
+        predicted_count_value < 0 or predicted_count_value > MAX_COUNT.i64(): return INVALID_RESULT
+    actual_count: usize = actual_count_value.usize()
+    predicted_count: usize = predicted_count_value.usize()
+    if length != 2 + actual_count + predicted_count: return INVALID_RESULT
+    index: mutable usize = 0
+    while index < actual_count:
+        value: i64 = input[2 + index]
+        if value < 0 or value > 1000000: return INVALID_RESULT
+        index <- index + 1
+    index <- 0
+    while index < predicted_count:
+        value: i64 = input[2 + actual_count + index]
+        if value < 0 or value > 1000000: return INVALID_RESULT
+        index <- index + 1
+
+    paired_count: usize = if actual_count < predicted_count: actual_count else: predicted_count
+    total: mutable f64 = 0.0
+    index <- 0
+    while index < paired_count:
+        actual: f64 = input[2 + index].f64() / SCALE + EPSILON
+        predicted: f64 = input[2 + actual_count + index].f64() / SCALE + EPSILON
+        total <- total + actual * log(actual / predicted)
+        index <- index + 1
+    total
+
+export fn kl_divergence_loss(input: i64&, length: usize) -> f64 = kl_divergence_loss_impl

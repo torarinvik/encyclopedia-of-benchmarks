@@ -34,7 +34,7 @@ def oracle(digits: list[int]) -> int:
 def corpus(workload: dict) -> tuple[str, int]:
     cases: dict[tuple[int, ...], int] = {}
     for case in workload["cases"]:
-        digits = encode_case(case)
+        digits = encode_case(case, algorithm=ALGORITHM)
         expected = oracle(digits)
         if expected != case["expected_result"]:
             raise ValueError(f"published workload disagrees with hexadecimal digit oracle: {case['id']}")
@@ -91,7 +91,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
-        digits = encode_case(case)
+        digits = encode_case(case, algorithm=ALGORITHM)
         if (record["algorithm"] != ALGORITHM
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]

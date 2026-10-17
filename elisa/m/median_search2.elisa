@@ -1,0 +1,46 @@
+def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def median_search2_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 129: return -1
+    if input[0] < 0 or input[0] > 128: return -1
+    count: usize = input[0].usize()
+    if length != count + 1: return -1
+    i: mutable usize = 0
+    while i < count:
+        if input[i + 1] < -2147483648 or input[i + 1] > 2147483647: return -1
+        i <- i + 1
+
+    next: mutable i32[128] = zeroed
+    i <- 0
+    while i < count:
+        if i + 1 < count: next[i] <- (i + 1).i32()
+        else: next[i] <- -1
+        i <- i + 1
+    found: mutable i32 = 0
+    median_index: mutable i32 = -1
+    if count > 0:
+        slow: mutable i32 = 0
+        fast: mutable i32 = 0
+        while next[fast.usize()] >= 0 and next[next[fast.usize()].usize()] >= 0:
+            slow <- next[slow.usize()]
+            fast <- next[next[fast.usize()].usize()]
+        if next[fast.usize()] >= 0: median_index <- next[slow.usize()]
+        else: median_index <- slow
+        found <- 1
+    if output.is_null() or capacity < 8: return -2
+    buffer: mutable u8[8] = zeroed
+    put_i32_le(found, buffer[0], 0)
+    put_i32_le(median_index, buffer[0], 4)
+    i <- 0
+    while i < 8:
+        output[i] <- buffer[i]
+        i <- i + 1
+    8
+
+export fn median_search2(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = median_search2_impl

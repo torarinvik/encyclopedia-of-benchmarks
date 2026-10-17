@@ -1,0 +1,43 @@
+def insert_sorted(stack: mutable i32[64]&, size: mutable usize&, value: i32):
+    if size == 0 or value > stack[size - 1]:
+        stack[size] <- value
+        size <- size + 1
+        return
+    size <- size - 1
+    top: i32 = stack[size]
+    insert_sorted(stack, size, value)
+    stack[size] <- top
+    size <- size + 1
+
+def sort_recursively(stack: mutable i32[64]&, size: mutable usize&):
+    if size == 0: return
+    size <- size - 1
+    top: i32 = stack[size]
+    sort_recursively(stack, size)
+    insert_sorted(stack, size, top)
+
+def sort_stack_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 65: return -1
+    if input[0] < 0 or input[0] > 64 or length != 1 + input[0].usize(): return -1
+    count: usize = input[0].usize()
+    stack: mutable i32[64] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        if input[index + 1] < -2147483648 or input[index + 1] > 2147483647: return -1
+        stack[index] <- input[index + 1].i32()
+        index <- index + 1
+    size: mutable usize = count
+    sort_recursively(stack, size)
+    bytes: usize = size * 4
+    if output.is_null() or output_capacity < bytes: return -2
+    index <- 0
+    while index < size:
+        bits: u32 = stack[index].u32()
+        byte: mutable usize = 0
+        while byte < 4:
+            output[4 * index + byte] <- ((bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    bytes.i64()
+
+export fn sort_stack(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = sort_stack_impl

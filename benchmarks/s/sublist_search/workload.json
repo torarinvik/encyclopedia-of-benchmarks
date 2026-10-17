@@ -1,0 +1,725 @@
+{
+  "schema_version": 1,
+  "id": "sublist-search-bounded-contiguous-i32-values-v1",
+  "algorithm": "sublist_search",
+  "function_symbol": "sublist_search",
+  "input": {
+    "encoding": "signed_i64_array",
+    "layout": [
+      "main_count",
+      "pattern_count",
+      "main_values...",
+      "pattern_values..."
+    ],
+    "main_count_range": [
+      0,
+      64
+    ],
+    "pattern_count_range": [
+      0,
+      64
+    ],
+    "value_range": [
+      0,
+      2147483647
+    ],
+    "exact_length": "2 + main_count + pattern_count",
+    "maximum_input_length": 130,
+    "empty_list_behavior": "returns false if either list is empty",
+    "search_behavior": "naive candidate-start scan; after a mismatch, restart the pattern and advance the main start by one",
+    "maximum_comparisons": 4096,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "1 if the entire pattern occurs contiguously in the main list, otherwise 0",
+    "empty_main_result": 0,
+    "empty_pattern_result": 0,
+    "invalid_result": -1
+  },
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "search/sublist_search.cpp",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/search/sublist_search.cpp"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "search/sublist_search.cpp",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/search/sublist_search.cpp"
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "pinned_example_sublist_in_middle",
+      "input_values": [
+        6,
+        3,
+        10,
+        15,
+        23,
+        30,
+        41,
+        49,
+        23,
+        30,
+        41
+      ],
+      "input_length": 11,
+      "expected_result": 1
+    },
+    {
+      "id": "single_value_found",
+      "input_values": [
+        5,
+        1,
+        2,
+        5,
+        6,
+        7,
+        8,
+        6
+      ],
+      "input_length": 8,
+      "expected_result": 1
+    },
+    {
+      "id": "match_at_head",
+      "input_values": [
+        4,
+        2,
+        4,
+        5,
+        6,
+        7,
+        4,
+        5
+      ],
+      "input_length": 8,
+      "expected_result": 1
+    },
+    {
+      "id": "exact_full_list_match",
+      "input_values": [
+        4,
+        4,
+        1,
+        2,
+        3,
+        4,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "match_at_end",
+      "input_values": [
+        5,
+        2,
+        9,
+        2,
+        7,
+        3,
+        8,
+        3,
+        8
+      ],
+      "input_length": 9,
+      "expected_result": 1
+    },
+    {
+      "id": "overlapping_prefix_retry",
+      "input_values": [
+        4,
+        3,
+        1,
+        1,
+        1,
+        2,
+        1,
+        1,
+        2
+      ],
+      "input_length": 9,
+      "expected_result": 1
+    },
+    {
+      "id": "duplicate_values_preserved",
+      "input_values": [
+        4,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "input_length": 9,
+      "expected_result": 1
+    },
+    {
+      "id": "duplicate_multiplicity_mismatch",
+      "input_values": [
+        3,
+        3,
+        4,
+        4,
+        5,
+        4,
+        5,
+        4
+      ],
+      "input_length": 8,
+      "expected_result": 0
+    },
+    {
+      "id": "contiguous_order_required",
+      "input_values": [
+        3,
+        2,
+        1,
+        2,
+        3,
+        3,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": 0
+    },
+    {
+      "id": "pattern_longer_than_main",
+      "input_values": [
+        2,
+        3,
+        1,
+        2,
+        1,
+        2,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": 0
+    },
+    {
+      "id": "main_list_empty",
+      "input_values": [
+        0,
+        1,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "pattern_list_empty",
+      "input_values": [
+        3,
+        0,
+        1,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "both_lists_empty",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "single_value_not_found",
+      "input_values": [
+        3,
+        1,
+        4,
+        5,
+        6,
+        7
+      ],
+      "input_length": 6,
+      "expected_result": 0
+    },
+    {
+      "id": "int32_value_boundaries",
+      "input_values": [
+        3,
+        2,
+        0,
+        2147483647,
+        1,
+        2147483647,
+        1
+      ],
+      "input_length": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_lists_full_match",
+      "input_values": [
+        64,
+        64,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+      ],
+      "input_length": 130,
+      "expected_result": 1
+    },
+    {
+      "id": "maximum_main_match_at_tail",
+      "input_values": [
+        64,
+        4,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        60,
+        61,
+        62,
+        63
+      ],
+      "input_length": 70,
+      "expected_result": 1
+    },
+    {
+      "id": "long_repeated_prefix_near_miss",
+      "input_values": [
+        64,
+        32,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8
+      ],
+      "input_length": 98,
+      "expected_result": 0
+    },
+    {
+      "id": "missing_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "missing_pattern_count",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_main_count",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "main_count_above_bound",
+      "input_values": [
+        65,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_pattern_count",
+      "input_values": [
+        0,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "pattern_count_above_bound",
+      "input_values": [
+        0,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_main_and_pattern",
+      "input_values": [
+        2,
+        1,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        1,
+        0,
+        7,
+        8
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_main_value",
+      "input_values": [
+        1,
+        0,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "main_value_above_int32",
+      "input_values": [
+        1,
+        0,
+        2147483648
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_pattern_value",
+      "input_values": [
+        0,
+        1,
+        -1
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "pattern_value_above_int32",
+      "input_values": [
+        0,
+        1,
+        2147483648
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "int64_min_value_rejected",
+      "input_values": [
+        1,
+        0,
+        -9223372036854775808
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "int64_max_count_rejected",
+      "input_values": [
+        9223372036854775807,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+const SALSA_WORD_COUNT: usize = 16
+const SALSA_MAX_INPUT_LENGTH: usize = 17
+const SALSA_OUTPUT_BYTES: usize = 64
+
+def salsa_add32(left: u32, right: u32) -> u32:
+    ((left.u64() + right.u64()) & 4294967295u64).u32()
+
+def salsa_rotate_left(value: u32, amount: u32) -> u32:
+    (value << amount) | (value >> (32 - amount))
+
+def salsa_quarter_round(state: mutable u32&, first: usize, second: usize, third: usize, fourth: usize) -> void:
+    state[second] <- state[second] ^ salsa_rotate_left(salsa_add32(state[first], state[fourth]), 7)
+    state[third] <- state[third] ^ salsa_rotate_left(salsa_add32(state[second], state[first]), 9)
+    state[fourth] <- state[fourth] ^ salsa_rotate_left(salsa_add32(state[third], state[second]), 13)
+    state[first] <- state[first] ^ salsa_rotate_left(salsa_add32(state[fourth], state[third]), 18)
+
+def salsa_store_u32_le(value: u32, output: mutable u8&, offset: usize) -> void:
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- ((value >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def salsa_impl(input: i32&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length != SALSA_WORD_COUNT:
+        return -1
+    original: mutable u32[SALSA_WORD_COUNT] = zeroed
+    index: mutable usize = 0
+    while index < SALSA_WORD_COUNT:
+        original[index] <- input[index].u32()
+        index <- index + 1
+    if output.is_null() or output_capacity < SALSA_OUTPUT_BYTES:
+        return -2
+
+    state: mutable u32[SALSA_WORD_COUNT] = zeroed
+    index <- 0
+    while index < SALSA_WORD_COUNT:
+        state[index] <- original[index]
+        index <- index + 1
+    round: mutable usize = 0
+    while round < 10:
+        salsa_quarter_round(&state[0], 0, 4, 8, 12)
+        salsa_quarter_round(&state[0], 5, 9, 13, 1)
+        salsa_quarter_round(&state[0], 10, 14, 2, 6)
+        salsa_quarter_round(&state[0], 15, 3, 7, 11)
+        salsa_quarter_round(&state[0], 0, 1, 2, 3)
+        salsa_quarter_round(&state[0], 5, 6, 7, 4)
+        salsa_quarter_round(&state[0], 10, 11, 8, 9)
+        salsa_quarter_round(&state[0], 15, 12, 13, 14)
+        round <- round + 1
+    index <- 0
+    while index < SALSA_WORD_COUNT:
+        state[index] <- salsa_add32(state[index], original[index])
+        salsa_store_u32_le(state[index], output, index * 4)
+        index <- index + 1
+    SALSA_OUTPUT_BYTES.i64()
+
+export fn salsa(input: i32&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = salsa_impl

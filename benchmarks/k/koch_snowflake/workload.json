@@ -1,0 +1,528 @@
+{
+  "schema_version": 1,
+  "id": "koch-snowflake-f32-point-array-v1",
+  "algorithm": "koch_snowflake",
+  "function_symbol": "koch_snowflake",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Sharp",
+      "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+      "path": "Algorithms/Other/KochSnowflake.cs",
+      "symbol": "KochSnowflake.Iterate",
+      "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/KochSnowflake.cs"
+    },
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/others/KochSnowflake.java",
+      "symbol": "KochSnowflake.iterate",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/KochSnowflake.java"
+    },
+    {
+      "repository": "TheAlgorithms/JavaScript",
+      "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+      "path": "Recursive/KochSnowflake.js",
+      "symbol": "iterate",
+      "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Recursive/KochSnowflake.js"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "fractals/koch_snowflake.py",
+      "symbol": "iterate",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/fractals/koch_snowflake.py"
+    }
+  ],
+  "input": {
+    "kind": "finite_float64_array",
+    "layout": "[steps, point_count, x0, y0, ..., x(n-1), y(n-1)]",
+    "length_formula": "2+2*point_count",
+    "point_count_range": [
+      2,
+      8
+    ],
+    "steps_range": [
+      0,
+      1
+    ],
+    "coordinate_range": [
+      -1000.0,
+      1000.0
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array_of_widened_binary32_coordinates",
+    "layout": "[x0, y0, x1, y1, ...] in preserved source order",
+    "coordinate_count_formula": "2*((point_count-1)*4^steps+1)",
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "success_result": "number of returned binary64 coordinates"
+  },
+  "workspace": {
+    "elements": 58,
+    "meaning": "Maximum 29 output points, each with two widened binary32 coordinates."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-06,
+    "relative_tolerance": 1e-07
+  },
+  "cases": [
+    {
+      "id": "zero_steps_preserves_order",
+      "input_values": [
+        0,
+        3,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": 6,
+      "expected_output": [
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "pinned_single_segment_one_step",
+      "input_values": [
+        1,
+        2,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 10,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.3333333432674408,
+        0.0,
+        0.5,
+        0.2886751592159271,
+        0.6666666865348816,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "two_segments_one_step",
+      "input_values": [
+        1,
+        3,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": 18,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.3333333432674408,
+        0.0,
+        0.5,
+        0.2886751592159271,
+        0.6666666865348816,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        0.3333333432674408,
+        0.7113248109817505,
+        0.5,
+        1.0,
+        0.6666666865348816,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "negative_diagonal_segment",
+      "input_values": [
+        1,
+        2,
+        -3.5,
+        2.25,
+        4.5,
+        -1.5
+      ],
+      "input_length": 6,
+      "expected_result": 10,
+      "expected_output": [
+        -3.5,
+        2.25,
+        -0.8333332538604736,
+        1.0,
+        1.5825316905975342,
+        2.684401273727417,
+        1.8333334922790527,
+        -0.25,
+        4.5,
+        -1.5
+      ]
+    },
+    {
+      "id": "reversed_segment_orientation",
+      "input_values": [
+        1,
+        2,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 10,
+      "expected_output": [
+        1.0,
+        0.0,
+        0.6666666269302368,
+        0.0,
+        0.4999999701976776,
+        -0.2886751592159271,
+        0.3333333134651184,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "repeated_adjacent_point",
+      "input_values": [
+        1,
+        3,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": 18,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3333333432674408,
+        0.0,
+        0.5,
+        0.2886751592159271,
+        0.6666666865348816,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "translated_fractional_points",
+      "input_values": [
+        1,
+        4,
+        -2.125,
+        3.5,
+        0.75,
+        4.25,
+        1.5,
+        -2.0,
+        3.0,
+        0.0
+      ],
+      "input_length": 10,
+      "expected_result": 26,
+      "expected_output": [
+        -2.125,
+        3.5,
+        -1.1666667461395264,
+        3.75,
+        -0.9040064811706543,
+        4.7049407958984375,
+        -0.20833337306976318,
+        4.0,
+        0.75,
+        4.25,
+        1.0,
+        2.1666667461395264,
+        2.9292197227478027,
+        1.3415066003799438,
+        1.25,
+        0.08333349227905273,
+        1.5,
+        -2.0,
+        2.0,
+        -1.3333332538604736,
+        1.672649621963501,
+        -0.5669872164726257,
+        2.5,
+        -0.6666666269302368,
+        3.0,
+        0.0
+      ]
+    },
+    {
+      "id": "maximum_point_count",
+      "input_values": [
+        0,
+        8,
+        -7,
+        -2,
+        -5,
+        1,
+        -3,
+        4,
+        -1,
+        -6,
+        1,
+        7,
+        3,
+        -8,
+        5,
+        2,
+        7,
+        -1
+      ],
+      "input_length": 18,
+      "expected_result": 16,
+      "expected_output": [
+        -7.0,
+        -2.0,
+        -5.0,
+        1.0,
+        -3.0,
+        4.0,
+        -1.0,
+        -6.0,
+        1.0,
+        7.0,
+        3.0,
+        -8.0,
+        5.0,
+        2.0,
+        7.0,
+        -1.0
+      ]
+    },
+    {
+      "id": "maximum_output_length",
+      "input_values": [
+        1,
+        8,
+        -7,
+        -2,
+        -5,
+        1,
+        -3,
+        4,
+        -1,
+        -6,
+        1,
+        7,
+        3,
+        -8,
+        5,
+        2,
+        7,
+        -1
+      ],
+      "input_length": 18,
+      "expected_result": 58,
+      "expected_output": [
+        -7.0,
+        -2.0,
+        -6.333333492279053,
+        -1.0,
+        -6.866025447845459,
+        0.07735025882720947,
+        -5.666666507720947,
+        0.0,
+        -5.0,
+        1.0,
+        -4.333333492279053,
+        2.0,
+        -4.866025447845459,
+        3.07735013961792,
+        -3.6666665077209473,
+        3.0,
+        -3.0,
+        4.0,
+        -2.3333332538604736,
+        0.6666667461395264,
+        0.8867514133453369,
+        -0.4226493835449219,
+        -1.6666666269302368,
+        -2.6666665077209473,
+        -1.0,
+        -6.0,
+        -0.3333333134651184,
+        -1.6666665077209473,
+        -3.752777099609375,
+        1.077350378036499,
+        0.3333333730697632,
+        2.6666669845581055,
+        1.0,
+        7.0,
+        1.6666667461395264,
+        2.0,
+        6.330127716064453,
+        0.07735061645507812,
+        2.3333334922790527,
+        -3.0,
+        3.0,
+        -8.0,
+        3.6666667461395264,
+        -4.6666669845581055,
+        1.113248586654663,
+        -2.422650098800659,
+        4.333333492279053,
+        -1.3333334922790527,
+        5.0,
+        2.0,
+        5.666666507720947,
+        1.0,
+        6.866024971008301,
+        1.077350378036499,
+        6.333333492279053,
+        0.0,
+        7.0,
+        -1.0
+      ]
+    },
+    {
+      "id": "count_below_minimum",
+      "input_values": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "count_above_maximum",
+      "input_values": [
+        0,
+        9,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 20,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_steps",
+      "input_values": [
+        -1,
+        2,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "steps_above_maximum",
+      "input_values": [
+        2,
+        2,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        0,
+        2,
+        0,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_coordinate",
+      "input_values": [
+        0,
+        2,
+        0,
+        0,
+        1,
+        0,
+        8
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "coordinate_out_of_range",
+      "input_values": [
+        0,
+        2,
+        1000.0001,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "id": "string-fibonacci-manual-decimal-add-bounded-v1",
+  "algorithm": "string_fibonacci",
+  "function_symbol": "string_fibonacci",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "math/string_fibonacci.cpp",
+      "symbol": "fib_Accurate(uint64_t)",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/string_fibonacci.cpp",
+      "role": "algorithm"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "math/string_fibonacci.cpp",
+      "symbol": "fib_Accurate(uint64_t)",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/string_fibonacci.cpp",
+      "role": "algorithm"
+    }
+  ],
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_length": 1,
+    "maximum_parseable_length": 2,
+    "layout": "[n]",
+    "n_range": [
+      0,
+      256
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_string",
+    "encoding": "decimal ASCII digits for F(n), without newline or NUL terminator",
+    "maximum_length": 54,
+    "successful_result": "number of output bytes written",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 80,
+    "meaning": "maximum output buffer capacity for bounded decimal-string Fibonacci"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "zero",
+      "input_values": [
+        0
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "30"
+    },
+    {
+      "id": "one",
+      "input_values": [
+        1
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "31"
+    },
+    {
+      "id": "two",
+      "input_values": [
+        2
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "31"
+    },
+    {
+      "id": "three",
+      "input_values": [
+        3
+      ],
+      "expected_result": 1,
+      "expected_output_hex": "32"
+    },
+    {
+      "id": "ten",
+      "input_values": [
+        10
+      ],
+      "expected_result": 2,
+      "expected_output_hex": "3535"
+    },
+    {
+      "id": "fifty",
+      "input_values": [
+        50
+      ],
+      "expected_result": 11,
+      "expected_output_hex": "3132353836323639303235"
+    },
+    {
+      "id": "one_hundred",
+      "input_values": [
+        100
+      ],
+      "expected_result": 21,
+      "expected_output_hex": "333534323234383438313739323631393135303735"
+    },
+    {
+      "id": "maximum_256",
+      "input_values": [
+        256
+      ],
+      "expected_result": 54,
+      "expected_output_hex": "313431363933383137373134303536353133323334373039393635383735343131393139363537373037373934393538313939383637"
+    },
+    {
+      "id": "negative",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "above_maximum",
+      "input_values": [
+        257
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_frame",
+      "input_values": [],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        1,
+        7
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_precedes_null_output",
+      "input_values": [
+        257
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_capacity": 0,
+      "output_is_null": true
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        0
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 0,
+      "output_is_null": true
+    },
+    {
+      "id": "short_capacity_zero",
+      "input_values": [
+        0
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "short_capacity_maximum",
+      "input_values": [
+        256
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 53
+    }
+  ]
+}

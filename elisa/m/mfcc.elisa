@@ -1,0 +1,278 @@
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern log10(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+extern floor(value: f64) -> f64
+
+const MAX_INPUT: usize = 2054
+const MAX_AUDIO: usize = 2048
+const MAX_FFT: usize = 1024
+const MAX_FRAMES: usize = 257
+const MAX_MELS: usize = 16
+const MAX_DCTS: usize = 40
+const PI: f64 = 3.14159265358979323846264338327950288
+const F64_FRACTION_SCALE: f64 = 4503599627370496.0
+const F64_FRACTION_MASK: u64 = 4503599627370495
+const F64_SIGN_MASK: u64 = 9223372036854775808
+
+def mfcc_raw_f64_bits(raw: i64) -> u64:
+    if raw >= 0: return raw.u64()
+    ((raw + 9223372036854775807 + 1).u64()) | F64_SIGN_MASK
+
+def mfcc_decode_f64(raw: i64) -> f64:
+    bits: u64 = mfcc_raw_f64_bits(raw)
+    exponent_bits: i32 = ((bits >> 52) & 2047).i32()
+    fraction_bits: u64 = bits & F64_FRACTION_MASK
+    magnitude: f64
+    if exponent_bits == 0:
+        magnitude <- fraction_bits.f64() * pow(2.0, -1074.0)
+    else:
+        significand: f64 = 1.0 + fraction_bits.f64() / F64_FRACTION_SCALE
+        magnitude <- significand * pow(2.0, (exponent_bits - 1023).f64())
+    if (bits >> 63) != 0: return -magnitude
+    magnitude
+
+def mfcc_encode_f64(value: f64) -> u64:
+    if value == 0.0: return 0
+    negative: bool = value < 0.0
+    normalized: mutable f64 = if negative: -value else: value
+    exponent: mutable i32 = 0
+    while normalized >= 2.0:
+        normalized <- normalized / 2.0
+        exponent <- exponent + 1
+    while normalized < 1.0:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    fraction: u64 = ((normalized - 1.0) * F64_FRACTION_SCALE).u64()
+    bits: u64 = ((exponent + 1023).u64() << 52) | fraction
+    if negative: bits <- bits | F64_SIGN_MASK
+    bits
+
+def mfcc_fft(real: mutable f64&, imag: mutable f64&, n: usize) -> void:
+    reverse: mutable usize = 0
+    position: mutable usize = 1
+    while position < n:
+        bit: mutable usize = n >> 1
+        while (reverse & bit) != 0:
+            reverse <- reverse ^ bit
+            bit <- bit >> 1
+        reverse <- reverse ^ bit
+        if position < reverse:
+            temporary: f64 = real[position]
+            real[position] <- real[reverse]
+            real[reverse] <- temporary
+            temporary <- imag[position]
+            imag[position] <- imag[reverse]
+            imag[reverse] <- temporary
+        position <- position + 1
+    block: mutable usize = 2
+    while block <= n:
+        angle: f64 = -2.0 * PI / block.f64()
+        step_real: f64 = cos(angle)
+        step_imag: f64 = sin(angle)
+        start: mutable usize = 0
+        while start < n:
+            weight_real: mutable f64 = 1.0
+            weight_imag: mutable f64 = 0.0
+            offset: mutable usize = 0
+            while offset < block / 2:
+                even: usize = start + offset
+                odd: usize = even + block / 2
+                product_real: f64 = weight_real * real[odd] - weight_imag * imag[odd]
+                product_imag: f64 = weight_real * imag[odd] + weight_imag * real[odd]
+                even_real: f64 = real[even]
+                even_imag: f64 = imag[even]
+                real[odd] <- even_real - product_real
+                imag[odd] <- even_imag - product_imag
+                real[even] <- even_real + product_real
+                imag[even] <- even_imag + product_imag
+                next_real: f64 = weight_real * step_real - weight_imag * step_imag
+                weight_imag <- weight_real * step_imag + weight_imag * step_real
+                weight_real <- next_real
+                offset <- offset + 1
+            start <- start + block
+        block <- block * 2
+
+def mfcc_hz_to_mel(hz: f64) -> f64:
+    2595.0 * log10(1.0 + hz / 700.0)
+
+def mfcc_mel_to_hz(mel: f64) -> f64:
+    700.0 * (pow(10.0, mel / 2595.0) - 1.0)
+
+def mfcc_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: u64 = mfcc_encode_f64(value)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def mfcc_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > MAX_INPUT: return -1
+    count_value: i64 = input[0]
+    sample_rate_value: i64 = input[1]
+    hop_ms_value: i64 = input[2]
+    fft_value: i64 = input[3]
+    mel_value: i64 = input[4]
+    dct_value: i64 = input[5]
+    if count_value < 33 or count_value > 2048 or length != count_value.usize() + 6: return -1
+    if sample_rate_value < 8000 or sample_rate_value > 48000 or hop_ms_value < 1 or hop_ms_value > 50: return -1
+    if fft_value != 64 and fft_value != 128 and fft_value != 256 and fft_value != 512 and fft_value != 1024: return -1
+    if mel_value < 2 or mel_value > 16 or dct_value < 1 or dct_value > 40: return -1
+
+    count: usize = count_value.usize()
+    sample_rate: usize = sample_rate_value.usize()
+    fft_size: usize = fft_value.usize()
+    mel_count: usize = mel_value.usize()
+    dct_count: usize = dct_value.usize()
+    if count < fft_size / 2 + 1: return -1
+    hop_numerator: usize = sample_rate * hop_ms_value.usize()
+    hop: mutable usize = hop_numerator / 1000
+    hop_remainder: usize = hop_numerator % 1000
+    if hop_remainder > 500 or (hop_remainder == 500 and hop % 2 == 1): hop <- hop + 1
+    if hop < 1: return -1
+
+    audio: mutable f64[MAX_AUDIO] = zeroed
+    peak: mutable f64 = 0.0
+    index: mutable usize = 0
+    while index < count:
+        raw: i64 = input[6 + index]
+        bits: u64 = mfcc_raw_f64_bits(raw)
+        if ((bits >> 52) & 2047) == 2047: return -1
+        sample: f64 = mfcc_decode_f64(raw)
+        if sample > 1000000.0 or sample < -1000000.0: return -1
+        audio[index] <- sample
+        if sample >= 0.0:
+            if sample > peak: peak <- sample
+        else:
+            if -sample > peak: peak <- -sample
+        index <- index + 1
+    if peak == 0.0: return -1
+    index <- 0
+    while index < count:
+        audio[index] <- audio[index] / peak
+        index <- index + 1
+
+    pad: usize = fft_size / 2
+    frames: usize = count / hop + 1
+    bin_count: usize = fft_size / 2 + 1
+    if frames > MAX_FRAMES: return -1
+    padded: mutable f64[MAX_AUDIO + MAX_FFT] = zeroed
+    index <- 0
+    while index < pad:
+        padded[index] <- audio[pad - index]
+        index <- index + 1
+    index <- 0
+    while index < count:
+        padded[pad + index] <- audio[index]
+        index <- index + 1
+    index <- 0
+    while index < pad:
+        padded[pad + count + index] <- audio[count - 2 - index]
+        index <- index + 1
+
+    frequencies: mutable f64[MAX_MELS + 2] = zeroed
+    bins: mutable usize[MAX_MELS + 2] = zeroed
+    mel_low: f64 = mfcc_hz_to_mel(0.0)
+    mel_high: f64 = mfcc_hz_to_mel((sample_rate / 2).f64())
+    index <- 0
+    while index < mel_count + 2:
+        mel: f64 = mel_low + (mel_high - mel_low) * index.f64() / (mel_count + 1).f64()
+        frequencies[index] <- mfcc_mel_to_hz(mel)
+        bin_value: f64 = floor((fft_size + 1).f64() / sample_rate.f64() * frequencies[index])
+        if bin_value < 0.0 or bin_value >= bin_count.f64(): return -1
+        bins[index] <- bin_value.usize()
+        index <- index + 1
+    index <- 0
+    while index < mel_count + 1:
+        if bins[index] >= bins[index + 1]: return -1
+        index <- index + 1
+    norms: mutable f64[MAX_MELS] = zeroed
+    index <- 0
+    while index < mel_count:
+        norms[index] <- 2.0 / (frequencies[index + 2] - frequencies[index])
+        if norms[index] != norms[index]: return -1
+        index <- index + 1
+
+    window: mutable f64[MAX_FFT] = zeroed
+    index <- 0
+    while index < fft_size:
+        window[index] <- 0.5 - 0.5 * cos(2.0 * PI * index.f64() / fft_size.f64())
+        index <- index + 1
+    logged: mutable f64[MAX_MELS][MAX_FRAMES] = zeroed
+    frame: mutable usize = 0
+    while frame < frames:
+        real: mutable f64[MAX_FFT] = zeroed
+        imag: mutable f64[MAX_FFT] = zeroed
+        index <- 0
+        while index < fft_size:
+            real[index] <- padded[frame * hop + index] * window[index]
+            index <- index + 1
+        mfcc_fft(real[0], imag[0], fft_size)
+        power: mutable f32[MAX_FFT / 2 + 1] = zeroed
+        index <- 0
+        while index < bin_count:
+            real32: f32 = real[index].f32()
+            imag32: f32 = imag[index].f32()
+            squared: f32 = real32 * real32 + imag32 * imag32
+            magnitude: f32 = sqrt(squared.f64()).f32()
+            power[index] <- magnitude * magnitude
+            index <- index + 1
+        filter_index: mutable usize = 0
+        while filter_index < mel_count:
+            first: usize = bins[filter_index]
+            middle: usize = bins[filter_index + 1]
+            last: usize = bins[filter_index + 2]
+            rise: usize = middle - first
+            fall: usize = last - middle
+            energy: mutable f64 = 0.0
+            index <- first
+            while index < middle:
+                weight: f64 = 0.0
+                if rise != 1: weight <- (index - first).f64() / (rise - 1).f64()
+                energy <- energy + power[index].f64() * weight
+                index <- index + 1
+            index <- middle
+            while index < last:
+                weight: f64 = 1.0
+                if fall != 1: weight <- 1.0 - (index - middle).f64() / (fall - 1).f64()
+                energy <- energy + power[index].f64() * weight
+                index <- index + 1
+            energy <- energy * norms[filter_index]
+            if energy <= 0.0 or energy != energy: return -1
+            logged[filter_index][frame] <- 10.0 * log10(energy)
+            filter_index <- filter_index + 1
+        frame <- frame + 1
+
+    result: mutable f64[MAX_DCTS][MAX_FRAMES] = zeroed
+    coefficient: mutable usize = 0
+    while coefficient < dct_count:
+        scale: f64 = sqrt(2.0 / mel_count.f64())
+        if coefficient == 0: scale <- 1.0 / sqrt(mel_count.f64())
+        frame <- 0
+        while frame < frames:
+            total: mutable f64 = 0.0
+            index <- 0
+            while index < mel_count:
+                basis: f64 = scale
+                if coefficient != 0:
+                    basis <- scale * cos(coefficient.f64() * (2.0 * index.f64() + 1.0) * PI / (2.0 * mel_count.f64()))
+                total <- total + basis * logged[index][frame]
+                index <- index + 1
+            if total != total: return -1
+            result[coefficient][frame] <- total
+            frame <- frame + 1
+        coefficient <- coefficient + 1
+
+    required: usize = dct_count * frames * 8
+    if output.is_null() or capacity < required: return -2
+    coefficient <- 0
+    while coefficient < dct_count:
+        frame <- 0
+        while frame < frames:
+            mfcc_put_f64(output, (coefficient * frames + frame) * 8, result[coefficient][frame])
+            frame <- frame + 1
+        coefficient <- coefficient + 1
+    required.i64()
+
+export fn mfcc(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = mfcc_impl

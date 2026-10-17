@@ -1,0 +1,536 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-cpp-matrix-exponentiation-i64-array-scalar-v1",
+  "algorithm": "matrix_exponentiation",
+  "function_symbol": "matrix_exponentiation",
+  "description": "Bounded companion-matrix exponentiation for a linear recurrence.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Plus-Plus",
+    "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+    "path": "others/matrix_exponentiation.cpp",
+    "symbol": "ans / multiply / power",
+    "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/others/matrix_exponentiation.cpp"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "layout": "[k, B[0..k), C[0..k), n]",
+    "order_range": [
+      1,
+      8
+    ],
+    "initial_value_range": [
+      0,
+      1000000006
+    ],
+    "coefficient_range": [
+      0,
+      1000000006
+    ],
+    "index_range": [
+      0,
+      1000000000000
+    ],
+    "modulus": 1000000007,
+    "maximum_valid_input_length": 18,
+    "maximum_parseable_input_length": 19,
+    "exact_packed_shape": "Exactly 2*k + 2 signed-i64 values.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "The source recurrence result modulo 1,000,000,007.",
+    "valid_value_range": [
+      0,
+      1000000006
+    ],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "order_one_n_zero_returns_zero",
+      "input_values": [
+        1,
+        7,
+        3,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "order_one_initial_value",
+      "input_values": [
+        1,
+        7,
+        3,
+        1
+      ],
+      "expected_result": 7
+    },
+    {
+      "id": "order_one_first_recursive_term",
+      "input_values": [
+        1,
+        7,
+        3,
+        2
+      ],
+      "expected_result": 21
+    },
+    {
+      "id": "order_one_recursive_power",
+      "input_values": [
+        1,
+        7,
+        3,
+        10
+      ],
+      "expected_result": 137781
+    },
+    {
+      "id": "order_one_zero_coefficient",
+      "input_values": [
+        1,
+        1000000006,
+        0,
+        1000000000000
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "fibonacci_base_boundary",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "fibonacci_first_recursive_term",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        3
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "fibonacci_recursive_odd_power",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        12
+      ],
+      "expected_result": 144
+    },
+    {
+      "id": "fibonacci_recursive_even_power",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        13
+      ],
+      "expected_result": 233
+    },
+    {
+      "id": "fibonacci_large_index",
+      "input_values": [
+        2,
+        0,
+        1,
+        1,
+        1,
+        1000000000000
+      ],
+      "expected_result": 978246218
+    },
+    {
+      "id": "tribonacci_order_three",
+      "input_values": [
+        3,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        11
+      ],
+      "expected_result": 81
+    },
+    {
+      "id": "tribonacci_large_index",
+      "input_values": [
+        3,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        999999999999
+      ],
+      "expected_result": 189231974
+    },
+    {
+      "id": "pell_recurrence",
+      "input_values": [
+        2,
+        0,
+        1,
+        2,
+        2,
+        15
+      ],
+      "expected_result": 372608
+    },
+    {
+      "id": "order_three_distinct_coefficients",
+      "input_values": [
+        3,
+        4,
+        7,
+        9,
+        2,
+        3,
+        5,
+        19
+      ],
+      "expected_result": 886289823
+    },
+    {
+      "id": "order_four_nonuniform_recurrence",
+      "input_values": [
+        4,
+        3,
+        1,
+        4,
+        1,
+        2,
+        7,
+        1,
+        8,
+        37
+      ],
+      "expected_result": 854429322
+    },
+    {
+      "id": "order_eight_direct_initial_value",
+      "input_values": [
+        8,
+        5,
+        8,
+        13,
+        21,
+        34,
+        55,
+        89,
+        144,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        8
+      ],
+      "expected_result": 144
+    },
+    {
+      "id": "order_eight_first_recursive_term",
+      "input_values": [
+        8,
+        5,
+        8,
+        13,
+        21,
+        34,
+        55,
+        89,
+        144,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "expected_result": 902
+    },
+    {
+      "id": "order_eight_maximum_index",
+      "input_values": [
+        8,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        1000000000000
+      ],
+      "expected_result": 491043136
+    },
+    {
+      "id": "all_zero_coefficients_after_base",
+      "input_values": [
+        4,
+        9,
+        8,
+        7,
+        6,
+        0,
+        0,
+        0,
+        0,
+        10
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "zero_initial_values",
+      "input_values": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        7,
+        11,
+        13,
+        17,
+        1000000000000
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "modulus_boundary_values",
+      "input_values": [
+        3,
+        1000000006,
+        1000000005,
+        1000000006,
+        1000000006,
+        1000000005,
+        1000000006,
+        6
+      ],
+      "expected_result": 999999998
+    },
+    {
+      "id": "zero_initial_index_with_boundary_values",
+      "input_values": [
+        2,
+        1000000006,
+        1000000006,
+        1000000006,
+        1000000006,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "index_at_global_upper_bound",
+      "input_values": [
+        1,
+        1000000006,
+        1000000006,
+        1000000000000
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "order_zero",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "order_above_bound",
+      "input_values": [
+        9,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_order",
+      "input_values": [
+        -1,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "short_order_one_record",
+      "input_values": [
+        1,
+        4,
+        3
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "missing_recurrence_coefficient",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        5
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "extra_input_element",
+      "input_values": [
+        1,
+        4,
+        3,
+        5,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "maximum_parseable_length_trailing_word",
+      "input_values": [
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_initial_value",
+      "input_values": [
+        1,
+        -1,
+        1,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "initial_value_equal_modulus",
+      "input_values": [
+        1,
+        1000000007,
+        1,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_recurrence_coefficient",
+      "input_values": [
+        1,
+        1,
+        -1,
+        2
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "coefficient_equal_modulus",
+      "input_values": [
+        1,
+        1,
+        1000000007,
+        2
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_index",
+      "input_values": [
+        1,
+        1,
+        1,
+        -1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "index_above_bound",
+      "input_values": [
+        1,
+        1,
+        1,
+        1000000000001
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "signed_i64_minimum_index",
+      "input_values": [
+        1,
+        1,
+        1,
+        -9223372036854775808
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "signed_i64_maximum_index",
+      "input_values": [
+        1,
+        1,
+        1,
+        9223372036854775807
+      ],
+      "expected_result": -1
+    }
+  ]
+}

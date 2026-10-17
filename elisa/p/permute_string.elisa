@@ -1,0 +1,96 @@
+const MAX_N: usize = 7
+const MAX_INPUT_LENGTH: usize = 9
+const MAX_OUTPUT_BYTES: usize = 35280
+
+def permute_string_factorial(value: usize) -> usize:
+    result: mutable usize = 1
+    factor: mutable usize = 2
+    while factor <= value:
+        result <- result * factor
+        factor <- factor + 1
+    result
+
+def permute_string_unique_count(values: u8&, character_count: usize) -> usize:
+    if character_count == 0:
+        return 0
+    frequencies: mutable usize[128] = zeroed
+    index: mutable usize = 0
+    while index < character_count:
+        code: usize = values[index].usize()
+        frequencies[code] <- frequencies[code] + 1
+        index <- index + 1
+    result: mutable usize = permute_string_factorial(character_count)
+    index <- 0
+    while index < 128:
+        result <- result / permute_string_factorial(frequencies[index])
+        index <- index + 1
+    result
+
+def permute_string_next(values: mutable u8&, character_count: usize) -> void:
+    if character_count < 2:
+        return
+    pivot: mutable usize = character_count - 1
+    while pivot > 0 and values[pivot - 1] >= values[pivot]:
+        pivot <- pivot - 1
+    if pivot == 0:
+        return
+    successor: mutable usize = character_count - 1
+    while values[successor] <= values[pivot - 1]:
+        successor <- successor - 1
+    temporary: u8 = values[pivot - 1]
+    values[pivot - 1] <- values[successor]
+    values[successor] <- temporary
+    left: mutable usize = pivot
+    right: mutable usize = character_count - 1
+    while left < right:
+        temporary <- values[left]
+        values[left] <- values[right]
+        values[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+
+def permute_string_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH:
+        return -1
+    character_count_arg: i64 = input[0]
+    if character_count_arg < 0 or character_count_arg > MAX_N.i64():
+        return -1
+    character_count: usize = character_count_arg.usize()
+    if input_length != character_count + 1:
+        return -1
+
+    values: mutable u8[MAX_N] = zeroed
+    index: mutable usize = 0
+    while index < character_count:
+        value: i64 = input[index + 1]
+        if value < 0 or value > 127:
+            return -1
+        values[index] <- value.u8()
+        index <- index + 1
+    index <- 1
+    while index < character_count:
+        value: u8 = values[index]
+        position: mutable usize = index
+        while position > 0 and values[position - 1] > value:
+            values[position] <- values[position - 1]
+            position <- position - 1
+        values[position] <- value
+        index <- index + 1
+
+    permutation_count: usize = permute_string_unique_count(&values[0], character_count)
+    output_bytes: usize = permutation_count * character_count
+    if output.is_null() or output_capacity < output_bytes:
+        return -2
+    row: mutable usize = 0
+    while row < permutation_count:
+        column: mutable usize = 0
+        while column < character_count:
+            output[row * character_count + column] <- values[column]
+            column <- column + 1
+        if row + 1 < permutation_count:
+            permute_string_next(&values[0], character_count)
+        row <- row + 1
+    output_bytes.i64()
+
+export fn permute_string(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 =
+    permute_string_impl(input, input_length, output, output_capacity)

@@ -1,0 +1,92 @@
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 131
+const RATE_BYTES: usize = 136
+const ROUND_CONSTANTS: u64[24] = [
+    0x0000000000000001.u64(),
+    0x0000000000008082.u64(),
+    0x800000000000808a.u64(),
+    0x8000000080008000.u64(),
+    0x000000000000808b.u64(),
+    0x0000000080000001.u64(),
+    0x8000000080008081.u64(),
+    0x8000000000008009.u64(),
+    0x000000000000008a.u64(),
+    0x0000000000000088.u64(),
+    0x0000000080008009.u64(),
+    0x000000008000000a.u64(),
+    0x000000008000808b.u64(),
+    0x800000000000008b.u64(),
+    0x8000000000008089.u64(),
+    0x8000000000008003.u64(),
+    0x8000000000008002.u64(),
+    0x8000000000000080.u64(),
+    0x000000000000800a.u64(),
+    0x800000008000000a.u64(),
+    0x8000000080008081.u64(),
+    0x8000000000008080.u64(),
+    0x0000000080000001.u64(),
+    0x8000000080008008.u64()
+]
+const ROTATION_OFFSETS: usize[25] = [0, 1, 62, 28, 27, 36, 44, 6, 55, 20, 3, 10, 43, 25, 39, 41, 45, 15, 21, 8, 18, 2, 61, 56, 14]
+
+def keccak_rotate_left(value: u64, amount: usize) -> u64:
+    if amount == 0:
+        return value
+    (value << amount) | (value >> (64 - amount))
+
+def keccak_f1600(state: mutable u64[25]) -> void:
+    round: mutable usize = 0
+    while round < 24:
+        column: mutable u64[5] = zeroed
+        delta: mutable u64[5] = zeroed
+        moved: mutable u64[25] = zeroed
+        for x in 0..<5:
+            column[x] <- state[x] ^ state[x + 5] ^ state[x + 10] ^ state[x + 15] ^ state[x + 20]
+        for x in 0..<5:
+            delta[x] <- column[(x + 4) % 5] ^ keccak_rotate_left(column[(x + 1) % 5], 1)
+        for y in 0..<5:
+            for x in 0..<5:
+                source: usize = x + 5 * y
+                target: usize = y + 5 * ((2 * x + 3 * y) % 5)
+                moved[target] <- keccak_rotate_left(state[source] ^ delta[x], ROTATION_OFFSETS[source])
+        for y in 0..<5:
+            for x in 0..<5:
+                state[x + 5 * y] <- moved[x + 5 * y] ^ ((~moved[(x + 1) % 5 + 5 * y]) & moved[(x + 2) % 5 + 5 * y])
+        state[0] <- state[0] ^ ROUND_CONSTANTS[round]
+        round <- round + 1
+
+def keccak256_bytes(input: i64&, start: usize, byte_length: usize, digest: mutable u64[4]) -> void:
+    block: mutable u8[136] = zeroed
+    for index in 0..<byte_length:
+        block[index] <- input[start + index].u8()
+    block[byte_length] <- block[byte_length] ^ 1.u8()
+    block[135] <- block[135] ^ 128.u8()
+    state: mutable u64[25] = zeroed
+    for lane in 0..<17:
+        for byte in 0..<8:
+            state[lane] <- state[lane] | (block[lane * 8 + byte].u64() << (8 * byte))
+    keccak_f1600(state)
+    for lane in 0..<4:
+        digest[lane] <- state[lane]
+
+def string_hash_equality_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    if input[0] < 0 or input[0] > 64 or input[1] < 0 or input[1] > 64:
+        return -1
+    length_a: usize = input[0].usize()
+    length_b: usize = input[1].usize()
+    if length != 2 + length_a + length_b:
+        return -1
+    for index in 0..<(length_a + length_b):
+        if input[2 + index] < 0 or input[2 + index] > 255:
+            return -1
+    digest_a: mutable u64[4] = zeroed
+    digest_b: mutable u64[4] = zeroed
+    keccak256_bytes(input, 2, length_a, digest_a)
+    keccak256_bytes(input, 2 + length_a, length_b, digest_b)
+    for lane in 0..<4:
+        if digest_a[lane] != digest_b[lane]:
+            return 0
+    1
+
+export fn string_hash_equality(input: i64&, length: usize) -> i64 = string_hash_equality_impl

@@ -1,0 +1,71 @@
+def push_new(main_queue: mutable i64[128]&, temp_queue: mutable i64[128]&,
+             head: mutable usize&, tail: mutable usize&, value: i64):
+    temp_tail: mutable usize = 0
+    temp_queue[temp_tail] <- value
+    temp_tail <- temp_tail + 1
+    while head < tail:
+        temp_queue[temp_tail] <- main_queue[head]
+        temp_tail <- temp_tail + 1
+        head <- head + 1
+    head <- 0
+    tail <- temp_tail
+
+def stack_using_two_queues_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 257: return -1
+    if input[0] < 0 or input[0] > 128 or length != 1 + 2 * input[0].usize(): return -1
+    queue_a: mutable i64[128] = zeroed
+    queue_b: mutable i64[128] = zeroed
+    tags: mutable i64[128] = zeroed
+    results: mutable i64[128] = zeroed
+    main_is_a: mutable bool = true
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    record_count: mutable usize = 0
+    position: mutable usize = 1
+    operation_index: mutable usize = 0
+    while operation_index < input[0].usize():
+        opcode: i64 = input[position]
+        operand: i64 = input[position + 1]
+        position <- position + 2
+        if opcode == 0:
+            if operand < -2147483648 or operand > 2147483647: return -1
+            if main_is_a:
+                push_new(queue_a, queue_b, head, tail, operand)
+            else:
+                push_new(queue_b, queue_a, head, tail, operand)
+            main_is_a <- not main_is_a
+        elif opcode == 1:
+            if operand != 0 or head == tail: return -1
+            tags[record_count] <- 0
+            if main_is_a: results[record_count] <- queue_a[head]
+            else: results[record_count] <- queue_b[head]
+            record_count <- record_count + 1
+            head <- head + 1
+        elif opcode == 2:
+            if operand != 0: return -1
+            if head == tail:
+                tags[record_count] <- 1
+                results[record_count] <- 0
+            else:
+                tags[record_count] <- 0
+                if main_is_a: results[record_count] <- queue_a[head]
+                else: results[record_count] <- queue_b[head]
+            record_count <- record_count + 1
+        else:
+            return -1
+        operation_index <- operation_index + 1
+    output_length: usize = record_count * 16
+    if output.is_null() or capacity < output_length: return -2
+    index: usize = 0
+    while index < record_count:
+        tag_bits: u64 = tags[index].u64()
+        value_bits: u64 = results[index].u64()
+        byte: usize = 0
+        while byte < 8:
+            output[index * 16 + byte] <- ((tag_bits >> (byte * 8)) & 255).u8()
+            output[index * 16 + 8 + byte] <- ((value_bits >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    output_length.i64()
+
+export fn stack_using_two_queues(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = stack_using_two_queues_impl(input, length, output, capacity)

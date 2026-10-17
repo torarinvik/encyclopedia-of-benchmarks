@@ -3,6 +3,7 @@ module knapsack_zero_one_tabulation
 // Bottom-up 0/1 knapsack using one row and descending capacities.
 @[export: 'knapsack_zero_one_tabulation']
 pub fn knapsack_zero_one_tabulation(packed &i64, length usize) i64 {
+	if unsafe { packed == nil } { return -1 }
 	if length < 2 || length > 258 { return -1 }
 	if unsafe { packed[0] } < 0 || unsafe { packed[0] } > 512 || unsafe { packed[1] } < 0 || unsafe { packed[1] } > 128 { return -1 }
 	capacity := int(unsafe { packed[0] })

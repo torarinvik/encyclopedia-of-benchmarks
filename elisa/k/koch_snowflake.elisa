@@ -1,0 +1,86 @@
+const MAX_POINTS: usize = 29
+
+def koch_snowflake_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 20: return -1
+    steps_value: f64 = input[0]
+    count_value: f64 = input[1]
+    if steps_value != 0.0 and steps_value != 1.0: return -1
+    if count_value < 2.0 or count_value > 8.0: return -1
+    if count_value != 2.0 and count_value != 3.0 and count_value != 4.0 and count_value != 5.0 and count_value != 6.0 and count_value != 7.0 and count_value != 8.0: return -1
+    steps: usize = steps_value.usize()
+    point_count: usize = count_value.usize()
+    if length != 2 + 2 * point_count: return -1
+    index: usize = 0
+    while index < 2 * point_count:
+        value: f64 = input[index + 2]
+        if value != value or value < -1000.0 or value > 1000.0: return -1
+        index <- index + 1
+    result_points: usize = if steps == 0 then point_count else 4 * (point_count - 1) + 1
+    result_count: usize = 2 * result_points
+    if output == null or capacity < result_count: return -2
+
+    ax: mutable f32[MAX_POINTS] = zeroed
+    ay: mutable f32[MAX_POINTS] = zeroed
+    bx: mutable f32[MAX_POINTS] = zeroed
+    by: mutable f32[MAX_POINTS] = zeroed
+    index <- 0
+    while index < point_count:
+        ax[index] <- input[2 + 2 * index].f32()
+        ay[index] <- input[3 + 2 * index].f32()
+        index <- index + 1
+    source_x: mutable f32& = ax
+    source_y: mutable f32& = ay
+    destination_x: mutable f32& = bx
+    destination_y: mutable f32& = by
+    source_count: usize = point_count
+    step: usize = 0
+    while step < steps:
+        cursor: usize = 0
+        index <- 0
+        while index + 1 < source_count:
+            sx: f32 = source_x[index]
+            sy: f32 = source_y[index]
+            dx: f32 = source_x[index + 1] - sx
+            dy: f32 = source_y[index + 1] - sy
+            tx: f32 = dx / 3.0.f32()
+            ty: f32 = dy / 3.0.f32()
+            x1: f32 = sx + tx
+            y1: f32 = sy + ty
+            rx: f32 = 0.49999997.f32() * tx - 0.86602545.f32() * ty
+            ry: f32 = 0.86602545.f32() * tx + 0.49999997.f32() * ty
+            x2: f32 = x1 + rx
+            y2: f32 = y1 + ry
+            tx2: f32 = (dx * 2.0.f32()) / 3.0.f32()
+            ty2: f32 = (dy * 2.0.f32()) / 3.0.f32()
+            destination_x[cursor] <- sx
+            destination_y[cursor] <- sy
+            cursor <- cursor + 1
+            destination_x[cursor] <- x1
+            destination_y[cursor] <- y1
+            cursor <- cursor + 1
+            destination_x[cursor] <- x2
+            destination_y[cursor] <- y2
+            cursor <- cursor + 1
+            destination_x[cursor] <- sx + tx2
+            destination_y[cursor] <- sy + ty2
+            cursor <- cursor + 1
+            index <- index + 1
+        destination_x[cursor] <- source_x[source_count - 1]
+        destination_y[cursor] <- source_y[source_count - 1]
+        cursor <- cursor + 1
+        source_count <- cursor
+        temp_x: mutable f32& = source_x
+        source_x <- destination_x
+        destination_x <- temp_x
+        temp_y: mutable f32& = source_y
+        source_y <- destination_y
+        destination_y <- temp_y
+        step <- step + 1
+    index <- 0
+    while index < result_points:
+        output[2 * index] <- source_x[index].f64()
+        output[2 * index + 1] <- source_y[index].f64()
+        index <- index + 1
+    result_count.i64()
+
+export fn koch_snowflake(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = koch_snowflake_impl

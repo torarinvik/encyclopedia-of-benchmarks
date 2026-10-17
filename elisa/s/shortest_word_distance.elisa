@@ -1,0 +1,48 @@
+const MAX_WORDS: usize = 32
+const MAX_WORD_LEN: usize = 8
+const MAX_INPUT: usize = 307
+def equal_word(v: i64&, start: usize, size: usize, target: usize, target_size: usize) -> bool:
+    if size != target_size: return false
+    for i in 0..<size |v|:
+        if v[start + i] != v[target + i]: return false
+    true
+def shortest_word_distance_impl(v: i64&, length: usize) -> i64:
+    if v == null or length < 1 or length > MAX_INPUT + 1: return -1
+    if v[0] < 2 or v[0] > 32: return -1
+    n: usize = v[0].usize()
+    starts: mutable usize[32] = zeroed
+    sizes: mutable usize[32] = zeroed
+    p: mutable usize = 1
+    for i in 0..<n |v, starts, sizes, p|:
+        if p >= length: return -1
+        z: i64 = v[p]; p <- p + 1
+        if z < 1 or z > 8 or p + z.usize() > length: return -1
+        starts[i] <- p; sizes[i] <- z.usize()
+        for j in 0..<z.usize() |v, p|:
+            if not ((v[p + j] >= 65 and v[p + j] <= 90) or (v[p + j] >= 97 and v[p + j] <= 122)): return -1
+        p <- p + z.usize()
+    target_starts: mutable usize[2] = zeroed
+    target_sizes: mutable usize[2] = zeroed
+    for t in 0..<2 |v, p, target_starts, target_sizes|:
+        if p >= length: return -1
+        z: i64 = v[p]; p <- p + 1
+        if z < 1 or z > 8 or p + z.usize() > length: return -1
+        target_starts[t] <- p; target_sizes[t] <- z.usize()
+        for j in 0..<z.usize() |v, p|:
+            if not ((v[p + j] >= 65 and v[p + j] <= 90) or (v[p + j] >= 97 and v[p + j] <= 122)): return -1
+        p <- p + z.usize()
+    if p != length or equal_word(v, target_starts[0], target_sizes[0], target_starts[1], target_sizes[1]): return -1
+    h0: mutable bool = false; h1: mutable bool = false; best: mutable usize = n
+    for i in 0..<n |v, starts, sizes, target_starts, target_sizes, h0, h1, best|:
+        a: bool = equal_word(v, starts[i], sizes[i], target_starts[0], target_sizes[0])
+        b: bool = equal_word(v, starts[i], sizes[i], target_starts[1], target_sizes[1])
+        h0 <- h0 or a; h1 <- h1 or b
+        for j in 0..<n |v, starts, sizes, target_starts, target_sizes, best|:
+            c: bool = equal_word(v, starts[j], sizes[j], target_starts[0], target_sizes[0])
+            d: bool = equal_word(v, starts[j], sizes[j], target_starts[1], target_sizes[1])
+            if (a and d) or (b and c):
+                distance: usize = if i > j then i - j else j - i
+                if distance < best: best <- distance
+    if not h0 or not h1: return -1
+    best.i64()
+export fn shortest_word_distance(v: i64&, length: usize) -> i64 = shortest_word_distance_impl

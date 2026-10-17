@@ -1,0 +1,103 @@
+def hungarian_algorithm_store_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def hungarian_algorithm_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 67: return -1
+    rows: i32 = input[0]
+    cols: i32 = input[1]
+    if rows < 1 or rows > 8 or cols < 1 or cols > 8 or length != 2 + rows.usize() * cols.usize(): return -1
+    index: mutable usize = 0
+    while index < rows.usize() * cols.usize():
+        cost: i32 = input[2 + index]
+        if cost < 0 or cost > 1000: return -1
+        index <- index + 1
+    n: usize = if rows > cols: rows.usize() else: cols.usize()
+    a: mutable i32[81] = zeroed
+    u: mutable i32[9] = zeroed
+    v: mutable i32[9] = zeroed
+    p: mutable i32[9] = zeroed
+    way: mutable i32[9] = zeroed
+    i: mutable usize = 0
+    while i < rows.usize():
+        j: mutable usize = 0
+        while j < cols.usize():
+            a[i * 9 + j] <- input[2 + i * cols.usize() + j]
+            j <- j + 1
+        i <- i + 1
+    i <- 1
+    while i <= n:
+        p[0] <- i.i32()
+        j0: mutable usize = 0
+        minv: mutable i32[9]
+        used: mutable bool[9] = zeroed
+        j: mutable usize = 0
+        while j <= n:
+            minv[j] <- 2_147_483_647
+            j <- j + 1
+        while true:
+            used[j0] <- true
+            i0: usize = p[j0].usize()
+            delta: mutable i32 = 2_147_483_647
+            j1: mutable usize = 0
+            j <- 1
+            while j <= n:
+                if not used[j]:
+                    cur: i32 = a[(i0 - 1) * 9 + j - 1] - u[i0] - v[j]
+                    if cur < minv[j]:
+                        minv[j] <- cur
+                        way[j] <- j0.i32()
+                    if minv[j] < delta:
+                        delta <- minv[j]
+                        j1 <- j
+                j <- j + 1
+            j <- 0
+            while j <= n:
+                if used[j]:
+                    u[p[j].usize()] <- u[p[j].usize()] + delta
+                    v[j] <- v[j] - delta
+                else:
+                    minv[j] <- minv[j] - delta
+                j <- j + 1
+            j0 <- j1
+            if p[j0] == 0: break
+        while true:
+            j1: usize = way[j0].usize()
+            p[j0] <- p[j1]
+            j0 <- j1
+            if j0 == 0: break
+        i <- i + 1
+    matched: mutable i32[9] = zeroed
+    i <- 0
+    while i < 9:
+        matched[i] <- -1
+        i <- i + 1
+    j <- 1
+    while j <= n:
+        if p[j] != 0: matched[(p[j] - 1).usize()] <- (j - 1).i32()
+        j <- j + 1
+    assignments: mutable i32[8] = zeroed
+    total: mutable i32 = 0
+    i <- 0
+    while i < rows.usize():
+        assigned: i32 = matched[i]
+        if assigned >= 0 and assigned < cols:
+            assignments[i] <- assigned
+            total <- total + input[2 + i * cols.usize() + assigned.usize()]
+        else:
+            assignments[i] <- -1
+        i <- i + 1
+    bytes: usize = 4 * (rows.usize() + 1)
+    if output.is_null() or capacity < bytes: return -2
+    i <- 0
+    while i < rows.usize():
+        hungarian_algorithm_store_i32_le(assignments[i], output, 4 * i)
+        i <- i + 1
+    hungarian_algorithm_store_i32_le(total, output, 4 * rows.usize())
+    bytes.i64()
+
+export fn hungarian_algorithm(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64 = hungarian_algorithm_impl

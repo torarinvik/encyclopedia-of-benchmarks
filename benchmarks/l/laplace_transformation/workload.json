@@ -1,0 +1,446 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-laplace-transformation-numerical-trapezoid-v1",
+  "algorithm": "laplace_transformation",
+  "function_symbol": "laplace_transformation",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[n,s_milli,dt_micro,f0_micro,...,f(n-1)_micro]",
+    "sample_count_range": [
+      1,
+      64
+    ],
+    "exact_length": "n+3",
+    "maximum_valid_input_length": 67,
+    "maximum_parseable_input_length": 68,
+    "s_milli_range": [
+      0,
+      1000
+    ],
+    "s_value_unit": "s=s_milli/1000",
+    "dt_micro_range": [
+      1,
+      1000000
+    ],
+    "delta_t_unit": "delta_t=dt_micro/1000000",
+    "sample_micro_range": [
+      -1000000,
+      1000000
+    ],
+    "function_sample_unit": "f_i=f_i_micro/1000000",
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "Trapezoidal integral of f(t_i)*exp(-s*t_i) with NumPy linspace-compatible times and dx=delta_t",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "maximum_absolute_result": 63,
+    "invalid_result": -1e+300
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "maths/laplace_transformation.py"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "constant_signal_two_samples",
+      "input_values": [
+        2,
+        0,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "constant_signal_three_samples",
+      "input_values": [
+        3,
+        0,
+        500000,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "exponential_weight_s_one",
+      "input_values": [
+        2,
+        1000,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": 0.6839397205857212
+    },
+    {
+      "id": "sampled_decay_curve",
+      "input_values": [
+        3,
+        1000,
+        500000,
+        1000000,
+        606531,
+        367879
+      ],
+      "input_length": 6,
+      "expected_result": 0.4677736040177589
+    },
+    {
+      "id": "alternating_negative_and_positive_samples",
+      "input_values": [
+        4,
+        250,
+        250000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000
+      ],
+      "input_length": 7,
+      "expected_result": -0.0071423201702298655
+    },
+    {
+      "id": "one_sample_integrates_to_zero",
+      "input_values": [
+        1,
+        1000,
+        1000000,
+        123456
+      ],
+      "input_length": 4,
+      "expected_result": 0
+    },
+    {
+      "id": "zero_signal",
+      "input_values": [
+        3,
+        500,
+        250000,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 0
+    },
+    {
+      "id": "minimum_time_step",
+      "input_values": [
+        2,
+        0,
+        1,
+        1000000,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": 0.000001
+    },
+    {
+      "id": "maximum_sample_count_zero_exponent",
+      "input_values": [
+        64,
+        0,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 67,
+      "expected_result": 63
+    },
+    {
+      "id": "maximum_laplace_parameter_and_time_step",
+      "input_values": [
+        64,
+        1000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 67,
+      "expected_result": 1.081976706869326
+    },
+    {
+      "id": "empty_signal",
+      "input_values": [
+        0,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "sample_count_above_bound",
+      "input_values": [
+        65,
+        0,
+        1,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 68,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "laplace_parameter_above_bound",
+      "input_values": [
+        2,
+        1001,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_time_step",
+      "input_values": [
+        2,
+        0,
+        0,
+        1000000,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "sample_outside_bound",
+      "input_values": [
+        1,
+        0,
+        1,
+        1000001
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "short_sample_array",
+      "input_values": [
+        3,
+        0,
+        1000000,
+        1000000,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        1,
+        0,
+        1,
+        1000000,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    }
+  ]
+}

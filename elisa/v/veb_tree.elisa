@@ -1,0 +1,178 @@
+const MAX_COUNT: usize = 256
+const MAX_INPUT_VALUES: usize = 771
+const MAX_OUTPUT_BYTES: usize = 1024
+const MAX_TREE_NODES: usize = 358
+const MAX_CLUSTERS: usize = 16
+
+struct VebNode:
+    universe: usize
+    low_bits: usize
+    cluster_count: usize
+    minimum: i64
+    maximum: i64
+    summary: i64
+    clusters: i64[MAX_CLUSTERS]
+
+fn veb_initialize(nodes: mutable VebNode&, next: mutable usize&, universe: usize) -> i64:
+    id: usize = next
+    next <- next + 1
+    nodes[id].universe <- universe
+    nodes[id].low_bits <- 0
+    nodes[id].cluster_count <- 0
+    nodes[id].minimum <- -1
+    nodes[id].maximum <- 0
+    nodes[id].summary <- -1
+    if universe > 2:
+        exponent: mutable usize = 0
+        remaining: mutable usize = universe
+        while remaining > 1:
+            remaining <- remaining / 2
+            exponent <- exponent + 1
+        low_bits: usize = exponent / 2
+        low_size: usize = 1 << low_bits
+        cluster_count: usize = universe / low_size
+        nodes[id].low_bits <- low_bits
+        nodes[id].cluster_count <- cluster_count
+        summary: i64 = veb_initialize(nodes, next, cluster_count)
+        nodes[id].summary <- summary
+        index: mutable usize = 0
+        while index < cluster_count:
+            child: i64 = veb_initialize(nodes, next, low_size)
+            nodes[id].clusters[index] <- child
+            index <- index + 1
+    id.i64()
+
+fn veb_contains(nodes: VebNode&, id: i64, value: usize) -> bool:
+    if nodes[id.usize()].minimum < 0: return false
+    if nodes[id.usize()].minimum == value.i64() || nodes[id.usize()].maximum == value.i64(): return true
+    if nodes[id.usize()].universe == 2: return false
+    low_size: usize = 1 << nodes[id.usize()].low_bits
+    high: usize = value >> nodes[id.usize()].low_bits
+    low: usize = value & (low_size - 1)
+    veb_contains(nodes, nodes[id.usize()].clusters[high], low)
+
+fn veb_insert(nodes: mutable VebNode&, id: i64, initial_value: usize) -> void:
+    if veb_contains(nodes, id, initial_value): return
+    if nodes[id.usize()].minimum < 0:
+        nodes[id.usize()].minimum <- initial_value.i64()
+        nodes[id.usize()].maximum <- initial_value.i64()
+        return
+    value: mutable usize = initial_value
+    if value.i64() < nodes[id.usize()].minimum:
+        old_minimum: usize = nodes[id.usize()].minimum.usize()
+        nodes[id.usize()].minimum <- value.i64()
+        value <- old_minimum
+    if nodes[id.usize()].universe > 2:
+        low_bits: usize = nodes[id.usize()].low_bits
+        low_size: usize = 1 << low_bits
+        high: usize = value >> low_bits
+        low: usize = value & (low_size - 1)
+        cluster: i64 = nodes[id.usize()].clusters[high]
+        if nodes[cluster.usize()].minimum < 0:
+            veb_insert(nodes, nodes[id.usize()].summary, high)
+            nodes[cluster.usize()].minimum <- low.i64()
+            nodes[cluster.usize()].maximum <- low.i64()
+        else:
+            veb_insert(nodes, cluster, low)
+    if value.i64() > nodes[id.usize()].maximum:
+        nodes[id.usize()].maximum <- value.i64()
+
+fn veb_successor(nodes: VebNode&, id: i64, value: usize) -> i64:
+    if nodes[id.usize()].minimum < 0: return -1
+    if value.i64() < nodes[id.usize()].minimum: return nodes[id.usize()].minimum
+    if nodes[id.usize()].universe == 2:
+        return if value == 0 && nodes[id.usize()].maximum == 1: 1 else: -1
+    low_bits: usize = nodes[id.usize()].low_bits
+    low_size: usize = 1 << low_bits
+    high: usize = value >> low_bits
+    low: usize = value & (low_size - 1)
+    cluster: i64 = nodes[id.usize()].clusters[high]
+    if nodes[cluster.usize()].minimum >= 0 && low.i64() < nodes[cluster.usize()].maximum:
+        next_low: i64 = veb_successor(nodes, cluster, low)
+        if next_low < 0: return -1
+        return (high * low_size).i64() + next_low
+    next_cluster: i64 = veb_successor(nodes, nodes[id.usize()].summary, high)
+    if next_cluster < 0: return -1
+    next_minimum: i64 = nodes[nodes[id.usize()].clusters[next_cluster.usize()].usize()].minimum
+    if next_minimum < 0: return -1
+    (next_cluster.usize() * low_size).i64() + next_minimum
+
+fn veb_predecessor(nodes: VebNode&, id: i64, value: usize) -> i64:
+    if nodes[id.usize()].minimum < 0 || value.i64() <= nodes[id.usize()].minimum: return -1
+    if value.i64() > nodes[id.usize()].maximum: return nodes[id.usize()].maximum
+    if nodes[id.usize()].universe == 2:
+        return if value == 1 && nodes[id.usize()].minimum == 0: 0 else: -1
+    low_bits: usize = nodes[id.usize()].low_bits
+    low_size: usize = 1 << low_bits
+    high: usize = value >> low_bits
+    low: usize = value & (low_size - 1)
+    cluster: i64 = nodes[id.usize()].clusters[high]
+    if nodes[cluster.usize()].minimum >= 0 && low.i64() > nodes[cluster.usize()].minimum:
+        previous_low: i64 = veb_predecessor(nodes, cluster, low)
+        if previous_low >= 0: return (high * low_size).i64() + previous_low
+    previous_cluster: i64 = veb_predecessor(nodes, nodes[id.usize()].summary, high)
+    if previous_cluster < 0: return nodes[id.usize()].minimum
+    previous_maximum: i64 = nodes[nodes[id.usize()].clusters[previous_cluster.usize()].usize()].maximum
+    if previous_maximum < 0: return -1
+    (previous_cluster.usize() * low_size).i64() + previous_maximum
+
+fn veb_write_u32(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+fn veb_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 3 || length > MAX_INPUT_VALUES + 1: return -1
+    if input[0] < 2 || input[0] > 256 || input[1] < 0 || input[1] > MAX_COUNT.i64() ||
+        input[2] < 0 || input[2] > MAX_COUNT.i64(): return -1
+    requested: usize = input[0].usize()
+    insert_count: usize = input[1].usize()
+    query_count: usize = input[2].usize()
+    if length != 3 + insert_count + 2 * query_count: return -1
+    index: mutable usize = 0
+    while index < insert_count:
+        if input[3 + index] < 0 || input[3 + index] >= requested.i64(): return -1
+        index <- index + 1
+    index <- 0
+    while index < query_count:
+        opcode: i64 = input[3 + insert_count + 2 * index]
+        key: i64 = input[4 + insert_count + 2 * index]
+        if opcode < 0 || opcode > 4 || key < 0 || key >= requested.i64(): return -1
+        index <- index + 1
+    needed: usize = query_count * 4
+    if needed > MAX_OUTPUT_BYTES: return -1
+    if output == null || capacity < needed: return -2
+
+    rounded: mutable usize = 1
+    while rounded < requested: rounded <- rounded * 2
+    nodes: mutable VebNode[MAX_TREE_NODES] = zeroed
+    next: mutable usize = 0
+    root: i64 = veb_initialize(nodes, next, rounded)
+    index <- 0
+    while index < insert_count:
+        veb_insert(nodes, root, input[3 + index].usize())
+        index <- index + 1
+    result: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    index <- 0
+    while index < query_count:
+        opcode: i64 = input[3 + insert_count + 2 * index]
+        key: usize = input[4 + insert_count + 2 * index].usize()
+        value: i64 = 0
+        if opcode == 0:
+            if veb_contains(nodes, root, key): value <- 1
+        elif opcode == 1: value <- veb_successor(nodes, root, key)
+        elif opcode == 2: value <- veb_predecessor(nodes, root, key)
+        elif opcode == 3: value <- nodes[root.usize()].minimum
+        elif nodes[root.usize()].minimum >= 0: value <- nodes[root.usize()].maximum
+        veb_write_u32(result, index * 4, value)
+        index <- index + 1
+    index <- 0
+    while index < needed:
+        output[index] <- result[index]
+        index <- index + 1
+    needed.i64()
+
+export fn veb_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = veb_tree_impl

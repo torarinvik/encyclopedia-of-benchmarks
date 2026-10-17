@@ -1,0 +1,503 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-perlin-noise-f64-slice-io-v1",
+  "algorithm": "perlin_noise",
+  "function_symbol": "perlin_noise",
+  "description": "Seeded two-dimensional octave value noise with Java binary32 rounding preserved.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/others/PerlinNoise.java",
+    "symbol": "generatePerlinNoise",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/PerlinNoise.java"
+  },
+  "workspace": {
+    "elements": 64
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[width, height, octave_count, persistence, seed]",
+    "width_range": [
+      1,
+      8
+    ],
+    "height_range": [
+      1,
+      8
+    ],
+    "octave_count_range": [
+      1,
+      4
+    ],
+    "persistence_values": [
+      0.5,
+      0.75,
+      1.0
+    ],
+    "seed_range": [
+      0,
+      2147483647
+    ],
+    "maximum_valid_input_length": 5,
+    "maximum_parseable_input_length": 6,
+    "exact_packed_shape": "Exactly five finite f64 elements; dimensions, octave count, and seed must be exact integers.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "definition": "width*height values widened from the source float[width][height], in x-major then y-minor order.",
+    "element_count": "width*height",
+    "valid_output_elements_range": [
+      1,
+      64
+    ],
+    "maximum_output_elements": 64,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks.",
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0,
+    "success_result": "output element count"
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "one_cell_seed_zero",
+      "input_values": [
+        1,
+        1,
+        1,
+        0.5,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 1,
+      "expected_output": [
+        0.7309677600860596
+      ]
+    },
+    {
+      "id": "seeded_two_by_three_x_major",
+      "input_values": [
+        2,
+        3,
+        3,
+        0.75,
+        12345
+      ],
+      "input_length": 5,
+      "expected_result": 6,
+      "expected_output": [
+        0.3618030846118927,
+        0.50762540102005,
+        0.71872878074646,
+        0.49687886238098145,
+        0.5854344964027405,
+        0.5009480714797974
+      ]
+    },
+    {
+      "id": "one_by_eight_wraps_octave_periods",
+      "input_values": [
+        1,
+        8,
+        4,
+        1.0,
+        2024
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output": [
+        0.6184536218643188,
+        0.6135801672935486,
+        0.44244152307510376,
+        0.7030197381973267,
+        0.8528474569320679,
+        0.6592627763748169,
+        0.39537513256073,
+        0.591326892375946
+      ]
+    },
+    {
+      "id": "eight_by_one_wraps_octave_periods",
+      "input_values": [
+        8,
+        1,
+        4,
+        0.5,
+        98765
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output": [
+        0.6938704252243042,
+        0.6351414322853088,
+        0.5811997652053833,
+        0.49388933181762695,
+        0.39349180459976196,
+        0.5170066952705383,
+        0.5969064235687256,
+        0.6060957312583923
+      ]
+    },
+    {
+      "id": "single_octave",
+      "input_values": [
+        3,
+        2,
+        1,
+        1.0,
+        7
+      ],
+      "input_length": 5,
+      "expected_result": 6,
+      "expected_output": [
+        0.7306990027427673,
+        0.6385376453399658,
+        0.7491695880889893,
+        0.00962895154953003,
+        0.3483096957206726,
+        0.4906049966812134
+      ]
+    },
+    {
+      "id": "persistence_half",
+      "input_values": [
+        4,
+        3,
+        4,
+        0.5,
+        42
+      ],
+      "input_length": 5,
+      "expected_result": 12,
+      "expected_output": [
+        0.7275637984275818,
+        0.6319319009780884,
+        0.623063862323761,
+        0.6522231101989746,
+        0.6332634687423706,
+        0.6391422748565674,
+        0.6374667286872864,
+        0.6442574858665466,
+        0.6195290088653564,
+        0.6551154851913452,
+        0.6729069948196411,
+        0.6064211130142212
+      ]
+    },
+    {
+      "id": "persistence_three_quarters",
+      "input_values": [
+        4,
+        3,
+        4,
+        0.75,
+        42
+      ],
+      "input_length": 5,
+      "expected_result": 12,
+      "expected_output": [
+        0.7275636196136475,
+        0.5710157155990601,
+        0.6152639985084534,
+        0.5763717293739319,
+        0.5861359238624573,
+        0.6533828973770142,
+        0.5653889775276184,
+        0.6236177682876587,
+        0.6089012026786804,
+        0.583065390586853,
+        0.6778823733329773,
+        0.5776569247245789
+      ]
+    },
+    {
+      "id": "persistence_one",
+      "input_values": [
+        4,
+        3,
+        4,
+        1.0,
+        42
+      ],
+      "input_length": 5,
+      "expected_result": 12,
+      "expected_output": [
+        0.7275636792182922,
+        0.51035475730896,
+        0.6185100078582764,
+        0.5013469457626343,
+        0.5446082949638367,
+        0.6810131669044495,
+        0.5023210644721985,
+        0.6150960922241211,
+        0.6096727252006531,
+        0.5121932625770569,
+        0.6932715177536011,
+        0.5583090782165527
+      ]
+    },
+    {
+      "id": "largest_seed",
+      "input_values": [
+        2,
+        2,
+        2,
+        0.75,
+        2147483647
+      ],
+      "input_length": 5,
+      "expected_result": 4,
+      "expected_output": [
+        0.620100736618042,
+        0.7431457042694092,
+        0.7180798649787903,
+        0.7051700353622437
+      ]
+    },
+    {
+      "id": "maximum_grid_and_octaves",
+      "input_values": [
+        8,
+        8,
+        4,
+        0.75,
+        2147483647
+      ],
+      "input_length": 5,
+      "expected_result": 64,
+      "expected_output": [
+        0.620100736618042,
+        0.7000962495803833,
+        0.7267718315124512,
+        0.7290700674057007,
+        0.7328054904937744,
+        0.6221765279769897,
+        0.44560736417770386,
+        0.4871474802494049,
+        0.5898438096046448,
+        0.6711296439170837,
+        0.6369969248771667,
+        0.6621930599212646,
+        0.7064497470855713,
+        0.5587237477302551,
+        0.5442320704460144,
+        0.6318524479866028,
+        0.5673752427101135,
+        0.5991622805595398,
+        0.4867323040962219,
+        0.6477292776107788,
+        0.7161460518836975,
+        0.6773182153701782,
+        0.6745440363883972,
+        0.6265965700149536,
+        0.7094759941101074,
+        0.5780171751976013,
+        0.6011661291122437,
+        0.5220419764518738,
+        0.644495964050293,
+        0.6881980299949646,
+        0.7333272099494934,
+        0.6131877303123474,
+        0.840648353099823,
+        0.6076807975769043,
+        0.46114489436149597,
+        0.489214152097702,
+        0.48480817675590515,
+        0.5859169363975525,
+        0.757533073425293,
+        0.6627790927886963,
+        0.739383339881897,
+        0.6088356375694275,
+        0.5601731538772583,
+        0.5835072994232178,
+        0.6391645669937134,
+        0.5818215608596802,
+        0.616838276386261,
+        0.718238353729248,
+        0.7368952035903931,
+        0.7236288189888,
+        0.7309783101081848,
+        0.6031912565231323,
+        0.6959971189498901,
+        0.6115840673446655,
+        0.4614730477333069,
+        0.5554956197738647,
+        0.7025666832923889,
+        0.6283873319625854,
+        0.6882997751235962,
+        0.7355617880821228,
+        0.6430970430374146,
+        0.6460723280906677,
+        0.45647332072257996,
+        0.5513008236885071
+      ]
+    },
+    {
+      "id": "zero_width_invalid",
+      "input_values": [
+        0,
+        1,
+        1,
+        0.5,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_width_invalid",
+      "input_values": [
+        1.5,
+        2,
+        1,
+        0.5,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "height_above_bound_invalid",
+      "input_values": [
+        1,
+        9,
+        1,
+        0.5,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_octaves_invalid",
+      "input_values": [
+        1,
+        1,
+        0,
+        0.5,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_octaves_invalid",
+      "input_values": [
+        1,
+        1,
+        1.5,
+        0.5,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "unsupported_persistence_invalid",
+      "input_values": [
+        1,
+        1,
+        1,
+        0.6,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_persistence_invalid",
+      "input_values": [
+        1,
+        1,
+        1,
+        0.0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_seed_invalid",
+      "input_values": [
+        1,
+        1,
+        1,
+        0.5,
+        -1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "seed_above_i32_range_invalid",
+      "input_values": [
+        1,
+        1,
+        1,
+        0.5,
+        2147483648
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_seed_invalid",
+      "input_values": [
+        1,
+        1,
+        1,
+        0.5,
+        1.25
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_element_invalid",
+      "input_values": [
+        1,
+        1,
+        1,
+        0.5,
+        0,
+        99
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "missing_seed_invalid",
+      "input_values": [
+        1,
+        1,
+        1,
+        0.5
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

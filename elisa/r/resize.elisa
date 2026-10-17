@@ -1,0 +1,45 @@
+const MAX_INPUT_LENGTH: usize = 3077
+const MAX_OUTPUT_BYTES: usize = 3072
+extern floor(value: f64) -> f64
+
+def resize_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT_LENGTH: return -1
+    src_width: i64 = input[0]
+    src_height: i64 = input[1]
+    dst_width: i64 = input[2]
+    dst_height: i64 = input[3]
+    if src_width < 1 or src_width > 32 or src_height < 1 or src_height > 32 or
+        dst_width < 1 or dst_width > 32 or dst_height < 1 or dst_height > 32:
+        return -1
+
+    expected_length: usize = 4 + 3 * src_width.usize() * src_height.usize()
+    if length != expected_length: return -1
+    pixel_index: mutable usize = 4
+    while pixel_index < expected_length:
+        channel: i64 = input[pixel_index]
+        if channel < 0 or channel > 255: return -1
+        pixel_index <- pixel_index + 1
+
+    needed: usize = 3 * dst_width.usize() * dst_height.usize()
+    if needed > MAX_OUTPUT_BYTES: return -1
+    if output == null or capacity < needed: return -2
+
+    ratio_x: f64 = src_width.f64() / dst_width.f64()
+    ratio_y: f64 = src_height.f64() / dst_height.f64()
+    out: mutable usize = 0
+    y: mutable usize = 0
+    while y < dst_height.usize():
+        src_y: usize = floor(ratio_y * y.f64()).usize()
+        x: mutable usize = 0
+        while x < dst_width.usize():
+            src_x: usize = floor(ratio_x * x.f64()).usize()
+            src: usize = 4 + 3 * (src_y * src_width.usize() + src_x)
+            output[out] <- input[src].u8()
+            output[out + 1] <- input[src + 1].u8()
+            output[out + 2] <- input[src + 2].u8()
+            out <- out + 3
+            x <- x + 1
+        y <- y + 1
+    needed.i64()
+
+export fn resize(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = resize_impl

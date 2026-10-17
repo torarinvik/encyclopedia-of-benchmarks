@@ -1,0 +1,104 @@
+def link_list_sort_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 130: return -1
+    selector: i64 = input[0]
+    count_value: i64 = input[1]
+    if selector < 1 or selector > 3 or count_value < 0 or count_value > 128: return -1
+    count: usize = count_value.usize()
+    if length != 2 + count: return -1
+
+    items: mutable i32[128] = zeroed
+    scratch: mutable i32[128] = zeroed
+    i: usize = 0
+    while i < count:
+        value: i64 = input[2 + i]
+        if value < -2147483648 or value > 2147483647: return -1
+        items[i] <- value.i32()
+        i <- i + 1
+
+    if selector == 1:
+        width: mutable usize = 1
+        while width < count:
+            start: mutable usize = 0
+            while start < count:
+                middle: usize = start + width
+                if middle > count: middle <- count
+                finish: usize = middle + width
+                if finish > count: finish <- count
+                left: mutable usize = start
+                right: mutable usize = middle
+                out_index: mutable usize = start
+                while left < middle and right < finish:
+                    if items[left] <= items[right]:
+                        scratch[out_index] <- items[left]
+                        left <- left + 1
+                    else:
+                        scratch[out_index] <- items[right]
+                        right <- right + 1
+                    out_index <- out_index + 1
+                while left < middle:
+                    scratch[out_index] <- items[left]
+                    left <- left + 1
+                    out_index <- out_index + 1
+                while right < finish:
+                    scratch[out_index] <- items[right]
+                    right <- right + 1
+                    out_index <- out_index + 1
+                start <- finish
+            i <- 0
+            while i < count:
+                items[i] <- scratch[i]
+                i <- i + 1
+            width <- width * 2
+    elif selector == 2:
+        i <- 1
+        while i < count:
+            value: i32 = items[i]
+            j: mutable usize = i
+            while j > 0 and items[j - 1] > value:
+                items[j] <- items[j - 1]
+                j <- j - 1
+            items[j] <- value
+            i <- i + 1
+    else:
+        start: mutable usize = count / 2
+        while start > 0:
+            start <- start - 1
+            root: mutable usize = start
+            while root < count / 2:
+                child: mutable usize = 2 * root + 1
+                if child + 1 < count and items[child + 1] > items[child]: child <- child + 1
+                if items[root] >= items[child]: break
+                value: i32 = items[root]
+                items[root] <- items[child]
+                items[child] <- value
+                root <- child
+        end_index: mutable usize = count
+        while end_index > 1:
+            end_index <- end_index - 1
+            value: i32 = items[0]
+            items[0] <- items[end_index]
+            items[end_index] <- value
+            root: mutable usize = 0
+            while root < end_index / 2:
+                child: mutable usize = 2 * root + 1
+                if child + 1 < end_index and items[child + 1] > items[child]: child <- child + 1
+                if items[root] >= items[child]: break
+                value: i32 = items[root]
+                items[root] <- items[child]
+                items[child] <- value
+                root <- child
+
+    required: usize = 4 * count
+    if output.is_null() or output_capacity < required: return -2
+    i <- 0
+    while i < count:
+        bits: mutable u32 = items[i].u32()
+        byte: usize = 0
+        while byte < 4:
+            output[4 * i + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        i <- i + 1
+    return required.i64()
+
+export fn link_list_sort(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = link_list_sort_impl

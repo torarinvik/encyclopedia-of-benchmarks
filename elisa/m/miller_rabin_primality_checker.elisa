@@ -1,0 +1,84 @@
+const MILLER_RABIN_MASK32: u64 = 0xFFFF_FFFF
+const MILLER_RABIN_GOLDEN: u64 = 0x9E3779B97F4A7C15
+const MILLER_RABIN_MIX1: u64 = 0xBF58476D1CE4E5B9
+const MILLER_RABIN_MIX2: u64 = 0x94D049BB133111EB
+
+def miller_rabin_add64(left: u64, right: u64) -> u64:
+    low: u64 = (left & MILLER_RABIN_MASK32) + (right & MILLER_RABIN_MASK32)
+    high: u64 = (left >> 32) + (right >> 32) + (low >> 32)
+    ((high & MILLER_RABIN_MASK32) << 32) | (low & MILLER_RABIN_MASK32)
+
+def miller_rabin_mul64(left: u64, right: u64) -> u64:
+    left_low: u64 = left & MILLER_RABIN_MASK32
+    left_high: u64 = left >> 32
+    right_low: u64 = right & MILLER_RABIN_MASK32
+    right_high: u64 = right >> 32
+    low_product: u64 = left_low * right_low
+    high_product: u64 = (low_product >> 32) +
+        ((left_low * right_high) & MILLER_RABIN_MASK32) +
+        ((left_high * right_low) & MILLER_RABIN_MASK32)
+    ((high_product & MILLER_RABIN_MASK32) << 32) | (low_product & MILLER_RABIN_MASK32)
+
+def miller_rabin_next_word(state: mutable u64&) -> u64:
+    state <- miller_rabin_add64(state, MILLER_RABIN_GOLDEN)
+    value: mutable u64 = state
+    value <- miller_rabin_mul64(value ^ (value >> 30), MILLER_RABIN_MIX1)
+    value <- miller_rabin_mul64(value ^ (value >> 27), MILLER_RABIN_MIX2)
+    value ^ (value >> 31)
+
+def miller_rabin_mod_power(base_input: i64, exponent_input: i64, modulus: i64) -> i64:
+    base: mutable i64 = base_input
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            result <- (result * base) % modulus
+        base <- (base * base) % modulus
+        exponent <- exponent >> 1
+    result
+
+def miller_rabin_passes_witness(n: i64, witness: i64, odd_part: i64,
+        powers_of_two: i64) -> bool:
+    value: mutable i64 = miller_rabin_mod_power(witness, odd_part, n)
+    if value == 1 or value == n - 1:
+        return true
+    round: mutable i64 = 1
+    while round < powers_of_two and value != n - 1:
+        value <- (value * value) % n
+        round <- round + 1
+    value == n - 1
+
+def miller_rabin_primality_checker_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 3 or length > 4:
+        return -1
+    n: i64 = values[0]
+    rounds: i64 = values[1]
+    seed: i64 = values[2]
+    if length != 3 or n < 5 or n > 2_147_483_647 or (n & 1) == 0 or
+        rounds < 1 or rounds > 64 or seed < 0 or seed > 2_147_483_647:
+        return -1
+
+    state: mutable u64 = seed.u64()
+    span: u64 = (n - 4).u64()
+    threshold: u64 = (~(span - 1.u64())) % span
+    word: mutable u64 = 0
+    while true:
+        word <- miller_rabin_next_word(state)
+        if word >= threshold:
+            break
+    witness: i64 = 2 + (word % span).i64()
+
+    odd_part: mutable i64 = n - 1
+    powers_of_two: mutable i64 = 0
+    while (odd_part & 1) == 0:
+        odd_part <- odd_part >> 1
+        powers_of_two <- powers_of_two + 1
+    round: mutable i64 = 0
+    while round < rounds:
+        if not miller_rabin_passes_witness(n, witness, odd_part, powers_of_two):
+            return 0
+        round <- round + 1
+    1
+
+export fn miller_rabin_primality_checker(values: i64&, length: usize) -> i64 =
+    miller_rabin_primality_checker_impl

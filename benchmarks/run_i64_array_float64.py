@@ -21,6 +21,9 @@ from gradient_descent_oracle import expected_result as gradient_descent_expected
 from extended_kalman_filter_oracle import INVALID_RESULT as EXTENDED_KALMAN_FILTER_INVALID_RESULT
 from extended_kalman_filter_oracle import MAX_INPUT_LENGTH as MAX_EXTENDED_KALMAN_FILTER_INPUT_LENGTH
 from extended_kalman_filter_oracle import expected_result as extended_kalman_filter_expected
+from unscented_kalman_filter_oracle import INVALID_RESULT as UNSCENTED_KALMAN_FILTER_INVALID_RESULT
+from unscented_kalman_filter_oracle import MAX_STEPS as UNSCENTED_KALMAN_FILTER_MAX_STEPS
+from unscented_kalman_filter_oracle import expected_result as unscented_kalman_filter_expected
 from complementary_filter_oracle import INVALID_RESULT as COMPLEMENTARY_FILTER_INVALID_RESULT
 from complementary_filter_oracle import expected_result as complementary_filter_expected
 from comp_filt_oracle import INVALID_RESULT as COMP_FILT_INVALID_RESULT
@@ -152,6 +155,9 @@ from connectionist_temporal_classification_loss_oracle import expected_result as
 from kullback_leibler_divergence_oracle import INVALID_RESULT as KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT
 from kullback_leibler_divergence_oracle import MAX_INPUT_LENGTH as MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH
 from kullback_leibler_divergence_oracle import expected_result as kullback_leibler_divergence_expected
+from kl_divergence_loss_oracle import INVALID_RESULT as KL_DIVERGENCE_LOSS_INVALID_RESULT
+from kl_divergence_loss_oracle import MAX_INPUT_LENGTH as MAX_KL_DIVERGENCE_LOSS_INPUT_LENGTH
+from kl_divergence_loss_oracle import expected_result as kl_divergence_loss_expected
 from mean_absolute_error_oracle import INVALID_RESULT as MEAN_ABSOLUTE_ERROR_INVALID_RESULT
 from mean_absolute_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH
 from mean_absolute_error_oracle import expected_result as mean_absolute_error_expected
@@ -217,6 +223,12 @@ from time_converter_oracle import expected_result as time_converter_expected
 from temperature_converter_oracle import INVALID_RESULT as TEMPERATURE_CONVERTER_INVALID_RESULT
 from temperature_converter_oracle import MAX_INPUT_LENGTH as MAX_TEMPERATURE_CONVERTER_INPUT_LENGTH
 from temperature_converter_oracle import expected_result as temperature_converter_expected
+from temparature_conversion_oracle import INVALID_RESULT as TEMPERATURE_ROUNDED_CONVERSION_INVALID_RESULT
+from temparature_conversion_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_TEMPERATURE_ROUNDED_CONVERSION_INPUT_LENGTH
+from temparature_conversion_oracle import expected_result as temparature_conversion_expected
+from temperature_conversions_oracle import INVALID_RESULT as TEMPERATURE_CONVERSIONS_INVALID_RESULT
+from temperature_conversions_oracle import MAX_INPUT_LENGTH as MAX_TEMPERATURE_CONVERSIONS_INPUT_LENGTH
+from temperature_conversions_oracle import expected_result as temperature_conversions_expected
 from value_at_risk_oracle import INVALID_RESULT as VALUE_AT_RISK_INVALID_RESULT
 from value_at_risk_oracle import MAX_INPUT_LENGTH as MAX_VALUE_AT_RISK_INPUT_LENGTH
 from value_at_risk_oracle import expected_result as value_at_risk_expected
@@ -226,6 +238,15 @@ from energy_oracle import expected_result as energy_expected
 from trapezoidal_integration_oracle import INVALID_RESULT as TRAPEZOIDAL_INTEGRATION_INVALID_RESULT
 from trapezoidal_integration_oracle import MAX_INPUT_LENGTH as MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH
 from trapezoidal_integration_oracle import expected_result as trapezoidal_integration_expected
+from rectangular_method_oracle import INVALID_RESULT as RECTANGULAR_METHOD_INVALID_RESULT
+from rectangular_method_oracle import MAX_INPUT_LENGTH as MAX_RECTANGULAR_METHOD_INPUT_LENGTH
+from rectangular_method_oracle import expected_result as rectangular_method_expected
+from transformations_2d_oracle import INVALID_RESULT as TRANSFORMATIONS_2D_INVALID_RESULT
+from transformations_2d_oracle import MAX_INPUT_LENGTH as MAX_TRANSFORMATIONS_2D_INPUT_LENGTH
+from transformations_2d_oracle import expected_result as transformations_2d_expected
+from speeds_of_gas_molecules_oracle import INVALID_RESULT as SPEEDS_OF_GAS_MOLECULES_INVALID_RESULT
+from speeds_of_gas_molecules_oracle import MAX_INPUT_LENGTH as MAX_SPEEDS_OF_GAS_MOLECULES_INPUT_LENGTH
+from speeds_of_gas_molecules_oracle import expected_result as speeds_of_gas_molecules_expected
 from neville_oracle import INVALID_RESULT as NEVILLE_INVALID_RESULT
 from neville_oracle import MAX_INPUT_LENGTH as MAX_NEVILLE_INPUT_LENGTH
 from neville_oracle import expected_result as neville_expected
@@ -238,6 +259,12 @@ from weddles_rule_oracle import expected_result as weddles_rule_expected
 from ternary_search_min_max_recursive_oracle import INVALID_RESULT as TERNARY_SEARCH_MIN_MAX_INVALID_RESULT
 from ternary_search_min_max_recursive_oracle import MAX_INPUT_LENGTH as MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH
 from ternary_search_min_max_recursive_oracle import expected_result as ternary_search_min_max_expected
+from ternary_oracle import INVALID_RESULT as TERNARY_INVALID_RESULT
+from ternary_oracle import MAX_INPUT_LENGTH as MAX_TERNARY_INPUT_LENGTH
+from ternary_oracle import expected_result as ternary_expected
+from laplace_transformation_oracle import INVALID_RESULT as LAPLACE_TRANSFORMATION_INVALID_RESULT
+from laplace_transformation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_LAPLACE_TRANSFORMATION_INPUT_LENGTH
+from laplace_transformation_oracle import expected_result as laplace_transformation_expected
 from cosine_similarity_oracle import INVALID_RESULT as COSINE_SIMILARITY_INVALID_RESULT
 from cosine_similarity_oracle import MAX_INPUT_LENGTH as MAX_COSINE_SIMILARITY_INPUT_LENGTH
 from cosine_similarity_oracle import expected_output as cosine_similarity_expected
@@ -302,6 +329,17 @@ from spearman_average_rank_correlation_oracle import expected_result as spearman
 from secant_method_oracle import INVALID_RESULT as SECANT_METHOD_INVALID_RESULT
 from secant_method_oracle import MAX_INPUT_LENGTH as MAX_SECANT_METHOD_INPUT_LENGTH
 from secant_method_oracle import expected_result as secant_method_expected
+from secant_oracle import EXACT_INPUT_LENGTH as SECANT_EXACT_INPUT_LENGTH
+from secant_oracle import INVALID_RESULT as SECANT_INVALID_RESULT
+from secant_oracle import MAX_INPUT_LENGTH as MAX_SECANT_INPUT_LENGTH
+from secant_oracle import MAX_A_MICRO as SECANT_MAX_A_MICRO
+from secant_oracle import MAX_B_MICRO as SECANT_MAX_B_MICRO
+from secant_oracle import MAX_TOLERANCE_NANO as SECANT_MAX_TOLERANCE_NANO
+from secant_oracle import MAX_UPDATES as SECANT_MAX_UPDATES
+from secant_oracle import MIN_A_MICRO as SECANT_MIN_A_MICRO
+from secant_oracle import MIN_B_MICRO as SECANT_MIN_B_MICRO
+from secant_oracle import MIN_TOLERANCE_NANO as SECANT_MIN_TOLERANCE_NANO
+from secant_oracle import expected_result as secant_expected
 from newton_raphson_method_oracle import INVALID_RESULT as NEWTON_RAPHSON_METHOD_INVALID_RESULT
 from newton_raphson_method_oracle import MAX_INPUT_LENGTH as MAX_NEWTON_RAPHSON_METHOD_INPUT_LENGTH
 from newton_raphson_method_oracle import expected_result as newton_raphson_method_expected
@@ -315,6 +353,9 @@ from integral_approximation_oracle import expected_result as integral_approximat
 from integration_by_simpson_approx_oracle import INVALID_RESULT as SIMPSON_APPROX_INVALID_RESULT
 from integration_by_simpson_approx_oracle import MAX_INPUT_LENGTH as SIMPSON_APPROX_MAX_INPUT_LENGTH
 from integration_by_simpson_approx_oracle import expected_result as simpson_approx_expected
+from simpson_integration_oracle import INVALID_RESULT as SIMPSON_INTEGRATION_INVALID_RESULT
+from simpson_integration_oracle import MAX_INPUT_LENGTH as MAX_SIMPSON_INTEGRATION_INPUT_LENGTH
+from simpson_integration_oracle import expected_result as simpson_integration_expected
 from jaro_similarity_oracle import INVALID_RESULT as JARO_SIMILARITY_INVALID_RESULT
 from jaro_similarity_oracle import MAX_INPUT_LENGTH as JARO_SIMILARITY_MAX_INPUT_LENGTH
 from jaro_similarity_oracle import expected_result as jaro_similarity_expected
@@ -333,9 +374,22 @@ from pow_oracle import expected_result as pow_expected
 from symmetric_derivative_oracle import INVALID_RESULT as SYMMETRIC_DERIVATIVE_INVALID_RESULT
 from symmetric_derivative_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SYMMETRIC_DERIVATIVE_PARSEABLE_INPUT_LENGTH
 from symmetric_derivative_oracle import expected_result as symmetric_derivative_expected
+from simplex_oracle import INVALID_RESULT as SIMPLEX_INVALID_RESULT
+from simplex_oracle import MAX_INPUT_LENGTH as MAX_SIMPLEX_INPUT_LENGTH
+from simplex_oracle import expected_result as simplex_expected
+from simple_neural_network_oracle import INVALID_RESULT as SIMPLE_NEURAL_NETWORK_INVALID_RESULT
+from simple_neural_network_oracle import MAX_INPUT_LENGTH as MAX_SIMPLE_NEURAL_NETWORK_INPUT_LENGTH
+from simple_neural_network_oracle import expected_result as simple_neural_network_expected
+from sparsity_oracle import INVALID_RESULT as SPARSITY_INVALID_RESULT
+from sparsity_oracle import MAX_INPUT_VALUES as MAX_SPARSITY_INPUT_VALUES
+from sparsity_oracle import expected_result as sparsity_expected
+from relativity_oracle import INVALID_RESULT as RELATIVITY_INVALID_RESULT
+from relativity_oracle import MAX_INPUT_LENGTH as MAX_RELATIVITY_INPUT_LENGTH
+from relativity_oracle import expected_result as relativity_expected
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
+MAX_UNSCENTED_KALMAN_FILTER_INPUT_LENGTH = 9 + UNSCENTED_KALMAN_FILTER_MAX_STEPS
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH = 2 + 32 + 32 * 32
 
 
@@ -364,6 +418,239 @@ def finance_ratio_expected(values: list[int], algorithm: str) -> float:
     return (float(values[0]) - float(values[1])) / float(values[2])
 
 
+TEMPERATURE_CONVERSIONS_CASE_IDS = (
+    "pinned_celsius_to_fahrenheit", "celsius_zero_to_fahrenheit",
+    "celsius_negative_forty_to_fahrenheit", "celsius_to_fahrenheit_lower_bound",
+    "celsius_to_fahrenheit_upper_bound", "pinned_fahrenheit_to_celsius",
+    "fahrenheit_freezing_to_celsius", "fahrenheit_negative_forty_to_celsius",
+    "fahrenheit_to_celsius_lower_bound_lattice", "fahrenheit_to_celsius_upper_bound_lattice",
+    "pinned_celsius_to_kelvin", "celsius_twenty_to_kelvin", "celsius_minus_273_to_kelvin",
+    "celsius_to_kelvin_lower_bound", "celsius_to_kelvin_upper_bound",
+    "pinned_kelvin_to_celsius", "kelvin_273_15_to_celsius",
+    "kelvin_one_degree_below_reference", "kelvin_to_celsius_lower_bound_lattice",
+    "kelvin_to_celsius_upper_bound_lattice", "pinned_kelvin_to_fahrenheit",
+    "kelvin_reference_to_fahrenheit", "room_temperature_kelvin_to_fahrenheit",
+    "kelvin_to_fahrenheit_lower_bound_lattice", "kelvin_to_fahrenheit_upper_bound_lattice",
+    "invalid_operation_negative", "invalid_operation_above_range",
+    "celsius_fahrenheit_wrong_lattice", "fahrenheit_celsius_wrong_lattice",
+    "celsius_kelvin_wrong_lattice", "kelvin_celsius_wrong_lattice",
+    "kelvin_fahrenheit_wrong_lattice", "temperature_above_bound", "temperature_below_bound",
+    "missing_temperature", "extra_packed_value", "null_input_pointer",
+)
+
+SIMPSON_INTEGRATION_CASE_IDS = {
+    "java_example_interval", "two_intervals_zero_to_one", "maximum_intervals_full_domain",
+    "negative_only_interval", "interval_crossing_zero", "one_micro_unit_span",
+    "equal_interior_endpoints", "upper_half_domain", "equal_lower_boundary",
+    "invalid_odd_intervals", "invalid_zero_intervals", "invalid_over_max_intervals",
+    "invalid_negative_intervals", "invalid_start_below_domain", "invalid_end_above_domain",
+    "invalid_descending_endpoints", "invalid_short_input", "invalid_extra_input",
+    "invalid_i64_min_interval", "invalid_i64_extreme_endpoint",
+}
+
+
+def validate_simpson_integration_workload(workload: dict) -> None:
+    """Pin the shared Java/JavaScript Simpson integration workload contract."""
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    expected_sources = [
+        {"repository": "TheAlgorithms/Java", "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+         "path": "src/main/java/com/thealgorithms/maths/SimpsonIntegration.java",
+         "symbol": "SimpsonIntegration.simpsonsMethod and SimpsonIntegration.f",
+         "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/SimpsonIntegration.java",
+         "role": "algorithm and fixed integrand"},
+        {"repository": "TheAlgorithms/JavaScript", "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+         "path": "Maths/SimpsonIntegration.js",
+         "symbol": "integralEvaluation (fixed callback: exp(-x)*(4-x^2))",
+         "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/SimpsonIntegration.js",
+         "role": "algorithm with equivalent fixed integrand"},
+    ]
+    cases = workload.get("cases")
+    case_ids = {case.get("id") for case in cases} if isinstance(cases, list) else set()
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "simpson-integration-i64-array-float64-v1"
+            or workload.get("algorithm") != "simpson_integration"
+            or workload.get("function_symbol") != "simpson_integration"
+            or workload.get("pinned_sources") != expected_sources
+            or input_spec.get("kind") != "bounded_signed_i64_array"
+            or input_spec.get("exact_length") != 3
+            or input_spec.get("maximum_parseable_length") != MAX_SIMPSON_INTEGRATION_INPUT_LENGTH
+            or input_spec.get("encoding") != "[N, a_micro, b_micro]"
+            or input_spec.get("endpoint_scale") != 1_000_000
+            or input_spec.get("interval_count_range") != [2, 128]
+            or input_spec.get("interval_count_requirement") != "even"
+            or input_spec.get("endpoint_micro_range") != [-10_000_000, 10_000_000]
+            or input_spec.get("endpoint_order") != "a_micro <= b_micro"
+            or input_spec.get("invalid_input_result") != SIMPSON_INTEGRATION_INVALID_RESULT
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("absolute_tolerance") != 1e-12
+            or output_spec.get("relative_tolerance") != 1e-12
+            or output_spec.get("invalid_input_result") != SIMPSON_INTEGRATION_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("absolute_tolerance") != 1e-12
+            or measurement.get("relative_tolerance") != 1e-12
+            or measurement.get("sample_count") != 7
+            or measurement.get("warmup_rounds") != 2
+            or measurement.get("repetitions_per_sample") != 1000
+            or not isinstance(cases, list)
+            or len(cases) != len(SIMPSON_INTEGRATION_CASE_IDS)
+            or case_ids != SIMPSON_INTEGRATION_CASE_IDS):
+        raise ValueError("simpson_integration workload metadata does not match its reviewed contract")
+    for case in cases:
+        values = case.get("input_values")
+        if not isinstance(values, list) or len(values) > MAX_SIMPSON_INTEGRATION_INPUT_LENGTH:
+            raise ValueError(f"simpson_integration input framing is invalid for {case.get('id')}")
+
+
+def validate_temperature_conversions_workload(workload: dict) -> None:
+    """Pin the temperature_conversions workload identity and null-pointer fixture."""
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    expected_sources = [
+        {"repository": "TheAlgorithms/PHP", "commit": "b8a54469cc36332ef2934101b58d71075ef1d78e",
+         "path": "Conversions/TemperatureConversions.php",
+         "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Conversions/TemperatureConversions.php"},
+        {"repository": "TheAlgorithms/Python", "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+         "path": "conversions/temperature_conversions.py",
+         "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/conversions/temperature_conversions.py"},
+        {"repository": "TheAlgorithms/Ruby", "commit": "bda11bdfd83b7958e1ca98247e5e43100ca88865",
+         "path": "conversions/temperature_conversions.rb",
+         "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/conversions/temperature_conversions.rb"},
+    ]
+    expected_codes = {"celsius_to_fahrenheit": 0, "fahrenheit_to_celsius": 1,
+                      "celsius_to_kelvin": 2, "kelvin_to_celsius": 3,
+                      "kelvin_to_fahrenheit": 4}
+    expected_lattices = {
+        "0": "temperature_micro is a multiple of 5,000,000 (Celsius in multiples of 5 degrees)",
+        "1": "temperature_micro = 32,000,000 + 9,000,000*k (Fahrenheit = 32 + 9k)",
+        "2": "temperature_micro is a multiple of 1,000,000 (integer Celsius)",
+        "3": "temperature_micro = 273,150,000 + 1,000,000*k (Kelvin = 273.15 + integer)",
+        "4": "temperature_micro = 273,150,000 + 5,000,000*k (Kelvin = 273.15 + 5k)",
+    }
+    cases = workload.get("cases")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "php-python-ruby-temperature-conversions-common-lattice-v1"
+            or workload.get("algorithm") != "temperature_conversions"
+            or workload.get("function_symbol") != "temperature_conversions"
+            or workload.get("pinned_sources") != expected_sources
+            or input_spec.get("kind") != "signed_64_bit_integer_array"
+            or input_spec.get("encoding") != "[operation, temperature_micro]"
+            or input_spec.get("scale") != 1_000_000
+            or input_spec.get("temperature_value_range") != [-1_000_000, 1_000_000]
+            or input_spec.get("operation_codes") != expected_codes
+            or input_spec.get("operation_lattices") != expected_lattices
+            or input_spec.get("maximum_valid_input_values") != 2
+            or input_spec.get("maximum_parseable_input_values") != MAX_TEMPERATURE_CONVERSIONS_INPUT_LENGTH
+            or input_spec.get("invalid_result") != TEMPERATURE_CONVERSIONS_INVALID_RESULT
+            or input_spec.get("null_input_result") != TEMPERATURE_CONVERSIONS_INVALID_RESULT
+            or output_spec.get("kind") != "float64"
+            or output_spec.get("meaning") != "Source-rounded conversion result on the shared mode-specific lattice."
+            or output_spec.get("absolute_tolerance") != 1e-12
+            or output_spec.get("relative_tolerance") != 1e-12
+            or output_spec.get("invalid_result") != TEMPERATURE_CONVERSIONS_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("absolute_tolerance") != 1e-12
+            or measurement.get("relative_tolerance") != 1e-12
+            or measurement.get("sample_count") != 6
+            or measurement.get("warmup_rounds") != 1
+            or measurement.get("repetitions_per_sample") != 1000
+            or not isinstance(cases, list)
+            or tuple(case.get("id") for case in cases) != TEMPERATURE_CONVERSIONS_CASE_IDS):
+        raise ValueError("temperature_conversions workload metadata does not match its reviewed contract")
+    null_cases = [case for case in cases if case.get("input_is_null") is True]
+    if (len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_pointer"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 2
+            or null_cases[0].get("expected_result") != TEMPERATURE_CONVERSIONS_INVALID_RESULT
+            or any(case.get("input_is_null") is True and case is not null_cases[0] for case in cases)):
+        raise ValueError("temperature_conversions workload must declare its null pointer with length two")
+    if any("input_is_null" in case and type(case["input_is_null"]) is not bool
+           for case in cases):
+        raise ValueError("temperature_conversions input_is_null values must be boolean")
+    for case in cases:
+        values = case.get("input_values")
+        if case.get("input_is_null") is True:
+            continue
+        if not isinstance(values, list) or case.get("input_length") != len(values):
+            raise ValueError(f"temperature_conversions input length does not match {case.get('id')}")
+
+
+SECANT_CASE_IDS = (
+    "source-secants-converge-to-residual-tolerance",
+    "zero-updates-return-current-point-when-within-tolerance",
+    "iteration-cap-before-convergence", "invalid-function-selector", "a-below-range",
+    "a-above-range", "b-below-range", "b-above-range", "zero-tolerance",
+    "tolerance-above-range", "negative-update-limit", "update-limit-above-range",
+    "invalid-empty", "invalid-short", "invalid-extra-value",
+)
+
+
+def validate_secant_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/MATLAB-Octave",
+        "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+        "path": "algorithms/arithmetic_analysis/secant.m",
+        "symbol": "secant",
+        "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/arithmetic_analysis/secant.m",
+    }
+    input_spec = {
+        "kind": "bounded_signed_i64_array",
+        "encoding": "[function_selector, a_microunits, b_microunits, tolerance_nanounits, max_updates]",
+        "exact_length": SECANT_EXACT_INPUT_LENGTH,
+        "first_rejected_length": MAX_SECANT_INPUT_LENGTH,
+        "maximum_validation_array_length": MAX_SECANT_INPUT_LENGTH,
+        "domain": "selector=0; a in [1000000,1500000] / 1e6; b in [1600000,2000000] / 1e6; a < b; tolerance in [1,100000] / 1e9; max_updates in [0,32]",
+        "invalid_input_result": SECANT_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "binary64",
+        "meaning": "current second secant point when abs(x*x-3) <= tolerance, otherwise finite sentinel",
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 0.0,
+        "invalid_input_result": SECANT_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_float64_call",
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 0.0,
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "matlab-secant-bounded-residual-v1"
+            or workload.get("algorithm") != "secant"
+            or workload.get("function_symbol") != "secant"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or SECANT_EXACT_INPUT_LENGTH != 5
+            or MAX_SECANT_INPUT_LENGTH != 6
+            or SECANT_MIN_A_MICRO != 1_000_000
+            or SECANT_MAX_A_MICRO != 1_500_000
+            or SECANT_MIN_B_MICRO != 1_600_000
+            or SECANT_MAX_B_MICRO != 2_000_000
+            or SECANT_MIN_TOLERANCE_NANO != 1
+            or SECANT_MAX_TOLERANCE_NANO != 100_000
+            or SECANT_MAX_UPDATES != 32
+            or not isinstance(cases, list)
+            or tuple(case.get("id") for case in cases) != SECANT_CASE_IDS):
+        raise ValueError("secant workload metadata does not match its reviewed contract")
+    readme = (ROOT / "benchmarks" / "s" / "secant" / "README.md").read_text(encoding="utf-8")
+    if source["url"] not in readme:
+        raise ValueError("secant README is missing its pinned MATLAB source link")
+    zero_update = next(case for case in cases
+                       if case.get("id") == "zero-updates-return-current-point-when-within-tolerance")
+    if zero_update.get("input_values") != [0, SECANT_MIN_A_MICRO, 1_732_050,
+                                           SECANT_MAX_TOLERANCE_NANO, 0]:
+        raise ValueError("secant zero-update fixture must remain within the reviewed starting-point bounds")
+
+
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH if algorithm == "linear_regression_cost" else
@@ -380,6 +667,7 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_PERPLEXITY_LOSS_INPUT_LENGTH if algorithm == "perplexity_loss" else
                         MAX_CONNECTIONIST_TEMPORAL_CLASSIFICATION_LOSS_INPUT_LENGTH if algorithm == "connectionist_temporal_classification_loss" else
                         MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH if algorithm == "kullback_leibler_divergence" else
+                        MAX_KL_DIVERGENCE_LOSS_INPUT_LENGTH if algorithm == "kl_divergence_loss" else
                         MAX_MEAN_SQUARED_LOGARITHMIC_ERROR_INPUT_LENGTH if algorithm == "mean_squared_logarithmic_error" else
                         MAX_MEAN_SQUARED_ERROR_INPUT_LENGTH if algorithm == "mean_squared_error" else
                         MAX_GAUSSIAN_LEGENDRE_INPUT_LENGTH if algorithm == "gaussian_legendre" else
@@ -427,12 +715,24 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "time_converter" else
                         MAX_TEMPERATURE_CONVERTER_INPUT_LENGTH
                         if algorithm == "temperature_converter" else
+                        MAX_TEMPERATURE_CONVERSIONS_INPUT_LENGTH
+                        if algorithm == "temperature_conversions" else
+                        MAX_TEMPERATURE_ROUNDED_CONVERSION_INPUT_LENGTH
+                        if algorithm == "temparature_conversion" else
+                        MAX_SIMPSON_INTEGRATION_INPUT_LENGTH
+                        if algorithm == "simpson_integration" else
                         MAX_VALUE_AT_RISK_INPUT_LENGTH
                         if algorithm == "value_at_risk" else
                         MAX_ENERGY_INPUT_LENGTH
                         if algorithm == "energy" else
                         MAX_TRAPEZOIDAL_INTEGRATION_INPUT_LENGTH
                         if algorithm == "trapezoidal_integration" else
+                        MAX_RECTANGULAR_METHOD_INPUT_LENGTH
+                        if algorithm == "rectangular_method" else
+                        MAX_TRANSFORMATIONS_2D_INPUT_LENGTH
+                        if algorithm == "transformations_2d" else
+                        MAX_SPEEDS_OF_GAS_MOLECULES_INPUT_LENGTH
+                        if algorithm == "speeds_of_gas_molecules" else
                         MAX_NEVILLE_INPUT_LENGTH
                         if algorithm == "neville" else
                         MAX_MIDPOINT_INTEGRAL_METHOD_INPUT_LENGTH
@@ -442,8 +742,11 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_UNITS_CONVERTER_INPUT_LENGTH if algorithm == "units_converter" else
                         MAX_TERNARY_SEARCH_MIN_MAX_INPUT_LENGTH
                         if algorithm == "ternary_search_min_max_recursive" else
+                        MAX_TERNARY_INPUT_LENGTH if algorithm == "ternary" else
+                        MAX_LAPLACE_TRANSFORMATION_INPUT_LENGTH if algorithm == "laplace_transformation" else
                         MAX_COSINE_SIMILARITY_INPUT_LENGTH
                         if algorithm == "cosine_similarity" else
+                        MAX_SECANT_INPUT_LENGTH if algorithm == "secant" else
                         MAX_SECANT_METHOD_INPUT_LENGTH if algorithm == "secant_method" else
                         MAX_NEWTON_RAPHSON_PARSEABLE_INPUT_LENGTH if algorithm == "newton_raphson" else
                         MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH
@@ -471,13 +774,34 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         PYTHAGORAS_MAX_INPUT_LENGTH if algorithm == "pythagoras" else
                         POW_MAX_INPUT_LENGTH if algorithm == "pow" else
                         MAX_EXTENDED_KALMAN_FILTER_INPUT_LENGTH if algorithm == "extended_kalman_filter" else
+                        MAX_UNSCENTED_KALMAN_FILTER_INPUT_LENGTH if algorithm == "unscented_kalman_filter" else
                         MAX_SYMMETRIC_DERIVATIVE_PARSEABLE_INPUT_LENGTH if algorithm == "symmetric_derivative" else
+                        MAX_SIMPLEX_INPUT_LENGTH if algorithm == "simplex" else
+                        MAX_SIMPLE_NEURAL_NETWORK_INPUT_LENGTH if algorithm == "simple_neural_network" else
+                        MAX_SPARSITY_INPUT_VALUES + 1 if algorithm == "sparsity" else
+                        MAX_RELATIVITY_INPUT_LENGTH if algorithm == "relativity" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) not in (int, float) or not math.isfinite(expected)):
         raise ValueError("array-float64 cases require up to 4096 signed 64-bit values and a finite result")
-    if algorithm == "charging_capacitor":
+    if algorithm == "sparsity":
+        source_result = sparsity_expected(values)
+        if source_result == SPARSITY_INVALID_RESULT:
+            if expected != SPARSITY_INVALID_RESULT:
+                raise ValueError("invalid sparsity inputs must use the -1e300 result sentinel")
+        elif expected == SPARSITY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-15):
+            raise ValueError("sparsity expected_result must match the pinned zero-cell ratio")
+    elif algorithm == "temparature_conversion":
+        source_result = temparature_conversion_expected(values)
+        if source_result == TEMPERATURE_ROUNDED_CONVERSION_INVALID_RESULT:
+            if expected != TEMPERATURE_ROUNDED_CONVERSION_INVALID_RESULT:
+                raise ValueError("invalid temparature_conversion inputs must use the -1e300 result sentinel")
+        elif expected == TEMPERATURE_ROUNDED_CONVERSION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("temparature_conversion expected_result must match the rounded source-order formula")
+    elif algorithm == "charging_capacitor":
         source_result = charging_capacitor_expected(values)
         if source_result == -1e300:
             if expected != -1e300:
@@ -716,6 +1040,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == KULLBACK_LEIBLER_DIVERGENCE_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("kullback_leibler_divergence expected_result must match the unnormalized source-order sum")
+    elif algorithm == "kl_divergence_loss":
+        source_result = kl_divergence_loss_expected(values)
+        if source_result == KL_DIVERGENCE_LOSS_INVALID_RESULT:
+            if expected != KL_DIVERGENCE_LOSS_INVALID_RESULT:
+                raise ValueError("invalid kl_divergence_loss inputs must use the -1e300 result sentinel")
+        elif expected == KL_DIVERGENCE_LOSS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("kl_divergence_loss expected_result must match the epsilon-smoothed zipped source-order sum")
     elif algorithm == "mean_absolute_error":
         source_result = mean_absolute_error_expected(values)
         if source_result == MEAN_ABSOLUTE_ERROR_INVALID_RESULT:
@@ -923,6 +1255,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == EXTENDED_KALMAN_FILTER_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("extended_kalman_filter expected_result must match the bounded nonlinear EKF trace")
+    elif algorithm == "unscented_kalman_filter":
+        source_result = unscented_kalman_filter_expected(values)
+        if source_result == UNSCENTED_KALMAN_FILTER_INVALID_RESULT:
+            if expected != UNSCENTED_KALMAN_FILTER_INVALID_RESULT:
+                raise ValueError("invalid unscented_kalman_filter inputs must use the -1e300 result sentinel")
+        elif expected == UNSCENTED_KALMAN_FILTER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("unscented_kalman_filter expected_result must match the bounded nonlinear UKF trace")
     elif algorithm == "line_sweep":
         source_result = line_sweep_expected(values)
         if source_result == LINE_SWEEP_INVALID_RESULT:
@@ -1157,6 +1497,22 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == TEMPERATURE_CONVERTER_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("temperature_converter expected_result must match the selected direct Java expression")
+    elif algorithm == "temperature_conversions":
+        source_result = temperature_conversions_expected(values)
+        if source_result == TEMPERATURE_CONVERSIONS_INVALID_RESULT:
+            if expected != TEMPERATURE_CONVERSIONS_INVALID_RESULT:
+                raise ValueError("invalid temperature_conversions inputs must use the -1e300 result sentinel")
+        elif expected == TEMPERATURE_CONVERSIONS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("temperature_conversions expected_result must match the shared source-rounded conversions")
+    elif algorithm == "simpson_integration":
+        source_result = simpson_integration_expected(values)
+        if source_result == SIMPSON_INTEGRATION_INVALID_RESULT:
+            if expected != SIMPSON_INTEGRATION_INVALID_RESULT:
+                raise ValueError("invalid simpson_integration inputs must use the -1e300 result sentinel")
+        elif expected == SIMPSON_INTEGRATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("simpson_integration expected_result must match the repeated-addition Simpson sum")
     elif algorithm == "value_at_risk":
         source_result = value_at_risk_expected(values)
         if source_result == VALUE_AT_RISK_INVALID_RESULT:
@@ -1181,6 +1537,46 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == TRAPEZOIDAL_INTEGRATION_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("trapezoidal_integration expected_result must match the oriented source-order trapezoid sum")
+    elif algorithm == "rectangular_method":
+        source_result = rectangular_method_expected(values)
+        if source_result == RECTANGULAR_METHOD_INVALID_RESULT:
+            if expected != RECTANGULAR_METHOD_INVALID_RESULT:
+                raise ValueError("invalid rectangular_method inputs must use the -1e300 result sentinel")
+        elif expected == RECTANGULAR_METHOD_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("rectangular_method expected_result must match the selected sequential rectangle sum")
+    elif algorithm == "transformations_2d":
+        source_result = transformations_2d_expected(values)
+        if source_result == TRANSFORMATIONS_2D_INVALID_RESULT:
+            if expected != TRANSFORMATIONS_2D_INVALID_RESULT:
+                raise ValueError("invalid transformations_2d inputs must use the -1e300 result sentinel")
+        elif expected == TRANSFORMATIONS_2D_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("transformations_2d expected_result must match the selected source matrix component")
+    elif algorithm == "speeds_of_gas_molecules":
+        source_result = speeds_of_gas_molecules_expected(values)
+        if source_result == SPEEDS_OF_GAS_MOLECULES_INVALID_RESULT:
+            if expected != SPEEDS_OF_GAS_MOLECULES_INVALID_RESULT:
+                raise ValueError("invalid speeds_of_gas_molecules inputs must use the -1e300 result sentinel")
+        elif expected == SPEEDS_OF_GAS_MOLECULES_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("speeds_of_gas_molecules expected_result must match the selected source formula")
+    elif algorithm == "ternary":
+        source_result = ternary_expected(values)
+        if source_result == TERNARY_INVALID_RESULT:
+            if expected != TERNARY_INVALID_RESULT:
+                raise ValueError("invalid ternary inputs must use the -1e300 result sentinel")
+        elif expected == TERNARY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("ternary expected_result must match the bounded recursive Go search")
+    elif algorithm == "laplace_transformation":
+        source_result = laplace_transformation_expected(values)
+        if source_result == LAPLACE_TRANSFORMATION_INVALID_RESULT:
+            if expected != LAPLACE_TRANSFORMATION_INVALID_RESULT:
+                raise ValueError("invalid laplace_transformation inputs must use the -1e300 result sentinel")
+        elif expected == LAPLACE_TRANSFORMATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("laplace_transformation expected_result must match the source-order numerical trapezoid")
     elif algorithm == "neville":
         source_result = neville_expected(values)
         if source_result == NEVILLE_INVALID_RESULT:
@@ -2393,6 +2789,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == SECANT_METHOD_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=0.0, abs_tol=1e-12):
             raise ValueError("secant_method expected_result must match the selected pinned variant")
+    elif algorithm == "secant":
+        source_result = secant_expected(values)
+        if source_result == SECANT_INVALID_RESULT:
+            if expected != SECANT_INVALID_RESULT:
+                raise ValueError("invalid secant inputs must use the -1e300 result sentinel")
+        elif expected == SECANT_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=0.0, abs_tol=1e-12):
+            raise ValueError("secant expected_result must match the pinned MATLAB secant iteration")
     elif algorithm == "newton_raphson_method":
         source_result = newton_raphson_method_expected(values)
         if source_result == NEWTON_RAPHSON_METHOD_INVALID_RESULT:
@@ -2448,6 +2852,30 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                 raise ValueError(f"invalid {algorithm} inputs must use the -1e300 result sentinel")
         elif expected == -1e300 or not math.isclose(expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError(f"{algorithm} expected_result must match the pinned scalar formula")
+    elif algorithm == "simplex":
+        source_result = simplex_expected(values)
+        if source_result == SIMPLEX_INVALID_RESULT:
+            if expected != SIMPLEX_INVALID_RESULT:
+                raise ValueError("invalid simplex inputs must use the -1e300 result sentinel")
+        elif expected == SIMPLEX_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("simplex expected_result must match the pinned tableau pivot process")
+    elif algorithm == "simple_neural_network":
+        source_result = simple_neural_network_expected(values)
+        if source_result == SIMPLE_NEURAL_NETWORK_INVALID_RESULT:
+            if expected != SIMPLE_NEURAL_NETWORK_INVALID_RESULT:
+                raise ValueError("invalid simple_neural_network inputs must use the -1e300 result sentinel")
+        elif expected == SIMPLE_NEURAL_NETWORK_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("simple_neural_network expected_result must match the pinned update order")
+    elif algorithm == "relativity":
+        source_result = relativity_expected(values)
+        if source_result == RELATIVITY_INVALID_RESULT:
+            if expected != RELATIVITY_INVALID_RESULT:
+                raise ValueError("invalid relativity inputs must use the -1e300 result sentinel")
+        elif expected == RELATIVITY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("relativity expected_result must match the pinned Java formula")
     return values, float(expected)
 
 
@@ -2517,6 +2945,12 @@ def main() -> int:
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     workload_path = args.workload or ROOT / "benchmarks" / letter / algorithm / "workload.json"
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
+    if algorithm == "temperature_conversions":
+        validate_temperature_conversions_workload(workload)
+    elif algorithm == "simpson_integration":
+        validate_simpson_integration_workload(workload)
+    elif algorithm == "secant":
+        validate_secant_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")
@@ -2543,9 +2977,22 @@ def main() -> int:
 
     for case in workload["cases"]:
         values, expected = encode_case(case, algorithm)
-        if case.get("input_length") not in (None, len(values)):
+        input_is_null = case.get("input_is_null", False)
+        if type(input_is_null) is not bool:
+            raise ValueError(f"input_is_null must be a boolean for {case['id']}")
+        input_length = case.get("input_length", len(values))
+        if input_is_null:
+            if (algorithm != "temperature_conversions" or values
+                    or input_length != 2):
+                raise ValueError(f"unsupported null-pointer input for {case['id']}")
+        elif input_length != len(values):
             raise ValueError(f"declared input length differs for {case['id']}")
-        if len(values) > 1024:
+        if input_is_null:
+            command = [str(executable), "--null", str(input_length), repr(expected),
+                       repr(absolute_tolerance), repr(relative_tolerance),
+                       str(samples), str(warmups), str(repetitions)]
+            streamed_values = None
+        elif len(values) > 1024:
             command = [str(executable), "--stdin", str(len(values)), repr(expected),
                        repr(absolute_tolerance), repr(relative_tolerance),
                        str(samples), str(warmups), str(repetitions)]
@@ -2563,11 +3010,14 @@ def main() -> int:
         if (not result_matches(observed, expected, absolute_tolerance, relative_tolerance)
                 or len(raw["samples_ns"]) != samples):
             raise ValueError(f"array-float64 runner returned an invalid result for {case['id']}")
+        workload_record = {"id": workload["id"], "spec_sha256": sha256_file(workload_path),
+                           "input_length": input_length, "input_values": values,
+                           "case": case["id"], "target": None, "expected_result": expected}
+        if input_is_null:
+            workload_record["input_is_null"] = True
         records.append({"schema_version": "1.0.0", "run_id": run_id, "algorithm": algorithm,
                         "implementation": implementation, "environment": environment,
-                        "workload": {"id": workload["id"], "spec_sha256": sha256_file(workload_path),
-                                     "input_length": len(values), "input_values": values,
-                                     "case": case["id"], "target": None, "expected_result": expected},
+                        "workload": workload_record,
                         "measurement": {"timer": "C clock() process CPU time",
                                         "timer_resolution_ns": raw["timer_resolution_ns"],
                                         "comparison_model": "i64_array_float64_call",

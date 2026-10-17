@@ -1,0 +1,152 @@
+{
+  "schema_version": "1.0.0",
+  "id": "simpson-rule-python-x2-10-steps-f64-pair-v1",
+  "algorithm": "simpson_rule",
+  "function_symbol": "simpson_rule",
+  "description": "Adapt the pinned Python method_2 Simpson loop to f(x)=x^2 on [0,b] with ten steps.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "maths/numerical_analysis/simpson_rule.py",
+    "symbols": [
+      "method_2",
+      "make_points",
+      "f"
+    ],
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/numerical_analysis/simpson_rule.py"
+  },
+  "input": {
+    "kind": "two_finite_binary64_values",
+    "layout": [
+      "b",
+      "steps"
+    ],
+    "fixed_lower_bound": 0.0,
+    "upper_bound_values": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "fixed_step_count": 10.0,
+    "integrand": "(x - 0) * (x - 0)",
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "Pinned Python method_2 accumulation: h=(b-a)/steps; repeated x+=h samples while x<b-h; alternating interior weights 4 and 2; each term scaled by h/3.",
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "float64_pair_call",
+    "input_scaled_tolerance": 1e-12,
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "source_default_b1",
+      "input_values": [
+        1.0,
+        10.0
+      ],
+      "expected_result": 0.33333333333333326
+    },
+    {
+      "id": "upper_bound_b2",
+      "input_values": [
+        2.0,
+        10.0
+      ],
+      "expected_result": 2.666666666666666
+    },
+    {
+      "id": "upper_bound_b3",
+      "input_values": [
+        3.0,
+        10.0
+      ],
+      "expected_result": 9.0
+    },
+    {
+      "id": "lower_bound_outside_slice",
+      "input_values": [
+        0.0,
+        10.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_upper_bound",
+      "input_values": [
+        -1.0,
+        10.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "upper_bound_above_slice",
+      "input_values": [
+        4.0,
+        10.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "fractional_upper_bound",
+      "input_values": [
+        2.5,
+        10.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_steps",
+      "input_values": [
+        1.0,
+        0.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_steps",
+      "input_values": [
+        2.0,
+        -10.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "wrong_positive_step_count",
+      "input_values": [
+        3.0,
+        9.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "fractional_steps",
+      "input_values": [
+        2.0,
+        10.5
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "different_even_step_count",
+      "input_values": [
+        1.0,
+        100.0
+      ],
+      "expected_result": -1e+300
+    },
+    {
+      "id": "steps_just_above_fixed",
+      "input_values": [
+        1.0,
+        10.000000000001
+      ],
+      "expected_result": -1e+300
+    }
+  ]
+}

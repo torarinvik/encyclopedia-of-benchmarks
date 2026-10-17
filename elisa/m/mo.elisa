@@ -1,0 +1,114 @@
+const MAX_N: usize = 64
+const MAX_Q: usize = 64
+const MAX_VALUE: i32 = 255
+const MAX_PARSEABLE_INPUT_WORDS: usize = 195
+const MAX_OUTPUT_BYTES: usize = 256
+
+def ceil_sqrt(n: usize) -> usize:
+    block: mutable usize = 1
+    while block * block < n: block <- block + 1
+    block
+
+def before(left_a: usize, right_a: usize, left_b: usize, right_b: usize, block_size: usize) -> bool:
+    a_block: usize = left_a / block_size
+    b_block: usize = left_b / block_size
+    if a_block != b_block: return a_block < b_block
+    return right_a < right_b
+
+def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def mo_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT_WORDS: return -1
+    n_raw: i32 = input[0]
+    if n_raw < 1 or n_raw > 64: return -1
+    n: usize = n_raw.usize()
+    q_offset: usize = 1 + n
+    if length <= q_offset: return -1
+    q_raw: i32 = input[q_offset]
+    if q_raw < 0 or q_raw > 64: return -1
+    q_count: usize = q_raw.usize()
+    if length != q_offset + 1 + 2 * q_count: return -1
+    index: mutable usize = 0
+    while index < n:
+        if input[1 + index] < 0 or input[1 + index] > MAX_VALUE: return -1
+        index <- index + 1
+    lefts: mutable usize[MAX_Q] = zeroed
+    rights: mutable usize[MAX_Q] = zeroed
+    ids: mutable usize[MAX_Q] = zeroed
+    index <- 0
+    while index < q_count:
+        left_raw: i32 = input[q_offset + 1 + 2 * index]
+        right_raw: i32 = input[q_offset + 2 + 2 * index]
+        if left_raw < 1 or right_raw < left_raw or right_raw > n_raw: return -1
+        lefts[index] <- (left_raw - 1).usize()
+        rights[index] <- (right_raw - 1).usize()
+        ids[index] <- index
+        index <- index + 1
+    bytes: usize = 4 * q_count
+    if output.is_null() or capacity < bytes: return -2
+    block_size: usize = ceil_sqrt(n)
+    index <- 1
+    while index < q_count:
+        value_left: usize = lefts[index]
+        value_right: usize = rights[index]
+        value_id: usize = ids[index]
+        j: mutable usize = index
+        while j > 0 and before(value_left, value_right, lefts[j - 1], rights[j - 1], block_size):
+            lefts[j] <- lefts[j - 1]
+            rights[j] <- rights[j - 1]
+            ids[j] <- ids[j - 1]
+            j <- j - 1
+        lefts[j] <- value_left
+        rights[j] <- value_right
+        ids[j] <- value_id
+        index <- index + 1
+    frequencies: mutable i32[256] = zeroed
+    answers: mutable i32[MAX_Q] = zeroed
+    distinct: mutable i32 = 0
+    left: mutable usize = 0
+    right: mutable usize = 0
+    index <- 0
+    while index < q_count:
+        target_left: usize = lefts[index]
+        target_right: usize = rights[index]
+        while left < target_left:
+            value: usize = input[1 + left].usize()
+            left <- left + 1
+            frequencies[value] <- frequencies[value] - 1
+            if frequencies[value] == 0: distinct <- distinct - 1
+        while left > target_left:
+            left <- left - 1
+            value: usize = input[1 + left].usize()
+            frequencies[value] <- frequencies[value] + 1
+            if frequencies[value] == 1: distinct <- distinct + 1
+        while right <= target_right:
+            value: usize = input[1 + right].usize()
+            frequencies[value] <- frequencies[value] + 1
+            if frequencies[value] == 1: distinct <- distinct + 1
+            right <- right + 1
+        while right > target_right + 1:
+            right <- right - 1
+            value: usize = input[1 + right].usize()
+            frequencies[value] <- frequencies[value] - 1
+            if frequencies[value] == 0: distinct <- distinct - 1
+        answers[ids[index]] <- distinct
+        index <- index + 1
+    if bytes == 0: return 0
+    buffer: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    index <- 0
+    while index < q_count:
+        put_i32_le(answers[index], buffer[0], index * 4)
+        index <- index + 1
+    index <- 0
+    while index < bytes:
+        output[index] <- buffer[index]
+        index <- index + 1
+    bytes.i64()
+
+export fn mo(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64 = mo_impl

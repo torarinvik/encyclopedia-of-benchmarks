@@ -4,11 +4,15 @@ from collections.abc import Sequence
 import math
 import struct
 
+MIN_EQUATIONS = 1
 MAX_EQUATIONS = 5
-MAX_INPUT_LENGTH = 31
-MAX_OUTPUT_BYTES = 48
+MIN_COEFFICIENT = -100_000
+MAX_COEFFICIENT = 100_000
+MAX_INPUT_LENGTH = 1 + MAX_EQUATIONS * (MAX_EQUATIONS + 1)
+MAX_OUTPUT_BYTES = 8 * (1 + MAX_EQUATIONS)
 SCALE = 1_000
 TICK_SCALE = 100_000
+MAX_TICK_MAGNITUDE = 1 << 51
 INVALID_RESULT = -1
 CAPACITY_ERROR = -2
 I64_MIN = -(1 << 63)
@@ -59,10 +63,10 @@ def expected_output(values: Sequence[int], capacity: int | None = None) -> tuple
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
         return INVALID_RESULT, b""
     n = values[0]
-    if not 1 <= n <= MAX_EQUATIONS or len(values) != 1 + n * (n + 1):
+    if not MIN_EQUATIONS <= n <= MAX_EQUATIONS or len(values) != 1 + n * (n + 1):
         return INVALID_RESULT, b""
     coefficients = values[1:]
-    if any(value < -100_000 or value > 100_000 for value in coefficients):
+    if any(value < MIN_COEFFICIENT or value > MAX_COEFFICIENT for value in coefficients):
         return INVALID_RESULT, b""
     equations = [
         [coefficients[row * (n + 1) + col] / SCALE for col in range(n + 1)]
@@ -119,7 +123,7 @@ def expected_output(values: Sequence[int], capacity: int | None = None) -> tuple
         if not math.isfinite(scaled):
             return INVALID_RESULT, b""
         tick = int(round(scaled))
-        if not I64_MIN <= tick <= I64_MAX:
+        if not I64_MIN <= tick <= I64_MAX or abs(tick) > MAX_TICK_MAGNITUDE:
             return INVALID_RESULT, b""
         ticks.append(tick)
 

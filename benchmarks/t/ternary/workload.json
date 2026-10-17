@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-go-ternary-max-min-recursive-v1",
+  "algorithm": "ternary",
+  "function_symbol": "ternary",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[operation,a_milli,b_milli,epsilon_micro,max_calls]",
+    "exact_length": 5,
+    "maximum_valid_input_length": 5,
+    "maximum_parseable_input_length": 6,
+    "operation_range": [
+      0,
+      1
+    ],
+    "operation_meanings": {
+      "0": "TernaryMax of -(x-1)^2",
+      "1": "TernaryMin of (x+1)^2"
+    },
+    "endpoint_milli_range": [
+      -1000000,
+      1000000
+    ],
+    "endpoint_unit": "a=a_milli/1000 and b=b_milli/1000",
+    "endpoint_order": "a <= b",
+    "epsilon_micro_range": [
+      1,
+      1000000
+    ],
+    "epsilon_unit": "epsilon=epsilon_micro/1000000",
+    "max_calls_range": [
+      1,
+      64
+    ],
+    "call_budget": "The initial recursive invocation is frame 1; a base case in the final allowed frame succeeds, otherwise exhaustion returns invalid_result.",
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "The selected objective evaluated at the midpoint of the first interval satisfying abs(a-b)<=epsilon",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e+300,
+    "budget_exhaustion_result": -1e+300
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Go",
+    "commit": "5ba447ec5ff3d1213de65b92e726ee74c5d5cc19",
+    "path": "search/ternary.go"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "max_base_at_peak",
+      "input_values": [
+        0,
+        1000,
+        1000,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "min_base_at_valley",
+      "input_values": [
+        1,
+        -1000,
+        -1000,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "max_epsilon_threshold_equality",
+      "input_values": [
+        0,
+        1000,
+        2000,
+        1000000,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -0.25
+    },
+    {
+      "id": "min_epsilon_threshold_equality",
+      "input_values": [
+        1,
+        -2000,
+        -1000,
+        1000000,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 0.25
+    },
+    {
+      "id": "recursive_max_search",
+      "input_values": [
+        0,
+        0,
+        3000,
+        100000,
+        64
+      ],
+      "input_length": 5,
+      "expected_result": -0.00008086562504958608
+    },
+    {
+      "id": "recursive_min_search",
+      "input_values": [
+        1,
+        -3000,
+        0,
+        100000,
+        64
+      ],
+      "input_length": 5,
+      "expected_result": 0.00008086562504958608
+    },
+    {
+      "id": "minimum_epsilon_boundary",
+      "input_values": [
+        0,
+        0,
+        1,
+        1,
+        64
+      ],
+      "input_length": 5,
+      "expected_result": -0.9980016759629596
+    },
+    {
+      "id": "call_budget_exhausted_before_next_frame",
+      "input_values": [
+        0,
+        -1000000,
+        1000000,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "invalid_operation",
+      "input_values": [
+        2,
+        0,
+        1000,
+        1000,
+        32
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "reversed_endpoints",
+      "input_values": [
+        0,
+        1000,
+        0,
+        1,
+        32
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "endpoint_below_bound",
+      "input_values": [
+        0,
+        -1000001,
+        0,
+        1,
+        32
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_epsilon",
+      "input_values": [
+        1,
+        -1000,
+        1000,
+        0,
+        32
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_call_budget",
+      "input_values": [
+        1,
+        -1000,
+        1000,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        0,
+        0,
+        1000,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        0,
+        0,
+        1000,
+        1,
+        32,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    }
+  ]
+}

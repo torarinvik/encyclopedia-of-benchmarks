@@ -1,0 +1,82 @@
+const MAX_TEXT_LENGTH: usize = 64
+const MAX_INPUT_LENGTH: usize = 65
+
+def suffix_array_pair_less(left: usize, right: usize, rank: i64&, length: usize, step: usize) -> bool:
+    if rank[left] != rank[right]:
+        return rank[left] < rank[right]
+    left_second: i64 = if left + step < length: rank[left + step] else: -1
+    right_second: i64 = if right + step < length: rank[right + step] else: -1
+    return left_second < right_second
+
+def suffix_array_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > MAX_TEXT_LENGTH.i64():
+        return -1
+    count: usize = count_value.usize()
+    if length != 1 + count:
+        return -1
+    index: usize = 0
+    while index < count:
+        if input[1 + index] < 0 or input[1 + index] > 127:
+            return -1
+        index <- index + 1
+
+    output_bytes: usize = count * 8
+    if output == null or output_capacity < output_bytes:
+        return -2
+    if count == 0:
+        return 0
+
+    suffixes: mutable usize[MAX_TEXT_LENGTH] = zeroed
+    rank: mutable i64[MAX_TEXT_LENGTH] = zeroed
+    next_rank: mutable i64[MAX_TEXT_LENGTH] = zeroed
+    index <- 0
+    while index < count:
+        suffixes[index] <- index
+        rank[index] <- input[1 + index]
+        index <- index + 1
+
+    step: mutable usize = 1
+    while step < count:
+        index <- 1
+        while index < count:
+            key: usize = suffixes[index]
+            position: mutable usize = index
+            while position > 0 and suffix_array_pair_less(key, suffixes[position - 1], rank, count, step):
+                suffixes[position] <- suffixes[position - 1]
+                position <- position - 1
+            suffixes[position] <- key
+            index <- index + 1
+        next_rank[suffixes[0]] <- 0
+        index <- 1
+        while index < count:
+            previous: usize = suffixes[index - 1]
+            current: usize = suffixes[index]
+            previous_second: i64 = if previous + step < count: rank[previous + step] else: -1
+            current_second: i64 = if current + step < count: rank[current + step] else: -1
+            if rank[previous] == rank[current] and previous_second == current_second:
+                next_rank[current] <- next_rank[previous]
+            else:
+                next_rank[current] <- next_rank[previous] + 1
+            index <- index + 1
+        index <- 0
+        while index < count:
+            rank[index] <- next_rank[index]
+            index <- index + 1
+        if rank[suffixes[count - 1]] == count.i64() - 1:
+            break
+        step <- step * 2
+
+    index <- 0
+    while index < count:
+        bits: u64 = suffixes[index].u64()
+        byte: usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- ((bits >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    output_bytes.i64()
+
+export fn suffix_array(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = suffix_array_impl

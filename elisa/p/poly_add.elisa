@@ -1,0 +1,87 @@
+const MAX_TERMS: usize = 16
+const MAX_INPUT_VALUES: usize = 67
+const MAX_OUTPUT_TERMS: usize = 32
+
+def poly_add_put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def poly_add_validate_terms(input: i64&, start: usize, count: usize) -> bool:
+    previous_degree: mutable i64 = 64
+    for index in 0..<count:
+        coefficient: i64 = input[start + 2 * index]
+        degree: i64 = input[start + 2 * index + 1]
+        if coefficient < -1000000 or coefficient > 1000000 or degree < 0 or degree > 63 or degree >= previous_degree:
+            return false
+        previous_degree <- degree
+    true
+
+def poly_add_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    count_a_value: i64 = input[0]
+    if count_a_value < 1 or count_a_value > 16:
+        return -1
+    count_a: usize = count_a_value.usize()
+    count_b_index: usize = 1 + 2 * count_a
+    if length <= count_b_index:
+        return -1
+    count_b_value: i64 = input[count_b_index]
+    if count_b_value < 1 or count_b_value > 16:
+        return -1
+    count_b: usize = count_b_value.usize()
+    if length != 2 + 2 * (count_a + count_b):
+        return -1
+
+    start_a: usize = 1
+    start_b: usize = count_b_index + 1
+    if not poly_add_validate_terms(input, start_a, count_a) or not poly_add_validate_terms(input, start_b, count_b):
+        return -1
+
+    coefficients: mutable i64[MAX_OUTPUT_TERMS] = zeroed
+    degrees: mutable i64[MAX_OUTPUT_TERMS] = zeroed
+    i: mutable usize = 0
+    j: mutable usize = 0
+    terms: mutable usize = 0
+    while i < count_a and j < count_b:
+        coefficient_a: i64 = input[start_a + 2 * i]
+        degree_a: i64 = input[start_a + 2 * i + 1]
+        coefficient_b: i64 = input[start_b + 2 * j]
+        degree_b: i64 = input[start_b + 2 * j + 1]
+        if degree_a > degree_b:
+            coefficients[terms] <- coefficient_a
+            degrees[terms] <- degree_a
+            terms <- terms + 1
+            i <- i + 1
+        elif degree_a < degree_b:
+            coefficients[terms] <- coefficient_b
+            degrees[terms] <- degree_b
+            terms <- terms + 1
+            j <- j + 1
+        else:
+            coefficients[terms] <- coefficient_a + coefficient_b
+            degrees[terms] <- degree_a
+            terms <- terms + 1
+            i <- i + 1
+            j <- j + 1
+    while i < count_a:
+        coefficients[terms] <- input[start_a + 2 * i]
+        degrees[terms] <- input[start_a + 2 * i + 1]
+        terms <- terms + 1
+        i <- i + 1
+    while j < count_b:
+        coefficients[terms] <- input[start_b + 2 * j]
+        degrees[terms] <- input[start_b + 2 * j + 1]
+        terms <- terms + 1
+        j <- j + 1
+
+    required: usize = terms * 16
+    if output.is_null() or output_capacity < required:
+        return -2
+    for term in 0..<terms:
+        poly_add_put_i64_le(coefficients[term], output, term * 16)
+        poly_add_put_i64_le(degrees[term], output, term * 16 + 8)
+    required.i64()
+
+export fn poly_add(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = poly_add_impl

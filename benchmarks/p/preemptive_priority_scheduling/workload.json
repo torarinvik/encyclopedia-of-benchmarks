@@ -1,0 +1,638 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-preemptive-priority-scheduling-i32-array-bytes-output-v1",
+  "algorithm": "preemptive_priority_scheduling",
+  "function_symbol": "preemptive_priority_scheduling",
+  "description": "Tick-by-tick preemptive priority scheduling with idle markers.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/scheduling/PreemptivePriorityScheduling.java",
+    "symbol": "PreemptivePriorityScheduling.scheduleProcesses",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/scheduling/PreemptivePriorityScheduling.java"
+  },
+  "additional_pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/devutils/entities/ProcessDetails.java",
+    "symbol": "ProcessDetails",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/devutils/entities/ProcessDetails.java"
+  },
+  "input": {
+    "kind": "signed_i32_array",
+    "encoding": "[process_count, (process_id, arrival_time, burst_time, priority)...]",
+    "process_count_range": [
+      0,
+      8
+    ],
+    "process_id_range": [
+      0,
+      7
+    ],
+    "process_ids_unique": true,
+    "arrival_time_range": [
+      0,
+      16
+    ],
+    "burst_time_range": [
+      1,
+      8
+    ],
+    "priority_range": [
+      -2147483648,
+      2147483647
+    ],
+    "priority_arrival_pairs_unique": true,
+    "process_id_mapping": "The adapter maps each integer ID to its decimal string for ProcessDetails and emits the same integer ID in the schedule.",
+    "maximum_valid_input_length": 33,
+    "maximum_parseable_input_length": 33,
+    "exact_packed_shape": "Exactly 1 + 4 * process_count signed-i32 words.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_i32_array",
+    "encoding": "[tick_count, id_or_-1_for_idle...]",
+    "idle_marker": -1,
+    "empty_process_output": [
+      0
+    ],
+    "valid_output_bytes_range": [
+      4,
+      324
+    ],
+    "maximum_output_bytes": 324,
+    "success_result": "output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Invalid input is rejected before output pointer or capacity checks."
+  },
+  "workspace": {
+    "bytes": 324,
+    "meaning": "One tick-count word and at most 80 schedule ticks."
+  },
+  "measurement": {
+    "comparison_model": "i32_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_process_list",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "single_process_immediate",
+      "input_values": [
+        1,
+        3,
+        0,
+        2,
+        1
+      ],
+      "input_length": 5,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 12,
+      "expected_output_hex": "020000000300000003000000"
+    },
+    {
+      "id": "initial_idle_gap",
+      "input_values": [
+        1,
+        5,
+        3,
+        1,
+        7
+      ],
+      "input_length": 5,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 20,
+      "expected_output_hex": "04000000ffffffffffffffffffffffff05000000"
+    },
+    {
+      "id": "higher_priority_arrival_preempts",
+      "input_values": [
+        2,
+        0,
+        0,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "input_length": 9,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 28,
+      "expected_output_hex": "06000000000000000100000001000000000000000000000000000000"
+    },
+    {
+      "id": "equal_priority_older_arrival_keeps_turn",
+      "input_values": [
+        2,
+        1,
+        0,
+        2,
+        5,
+        2,
+        1,
+        2,
+        5
+      ],
+      "input_length": 9,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 20,
+      "expected_output_hex": "0400000001000000010000000200000002000000"
+    },
+    {
+      "id": "multiple_preemptions",
+      "input_values": [
+        3,
+        0,
+        0,
+        6,
+        0,
+        1,
+        1,
+        1,
+        10,
+        2,
+        3,
+        2,
+        5
+      ],
+      "input_length": 13,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 40,
+      "expected_output_hex": "09000000000000000100000000000000020000000200000000000000000000000000000000000000"
+    },
+    {
+      "id": "same_arrival_priority_order",
+      "input_values": [
+        2,
+        0,
+        0,
+        2,
+        1,
+        1,
+        0,
+        1,
+        3
+      ],
+      "input_length": 9,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 16,
+      "expected_output_hex": "03000000010000000000000000000000"
+    },
+    {
+      "id": "equal_priority_uses_arrival_order",
+      "input_values": [
+        2,
+        3,
+        0,
+        1,
+        5,
+        2,
+        1,
+        1,
+        5
+      ],
+      "input_length": 9,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 12,
+      "expected_output_hex": "020000000300000002000000"
+    },
+    {
+      "id": "input_order_differs_from_priority_order",
+      "input_values": [
+        3,
+        4,
+        0,
+        2,
+        -1,
+        1,
+        1,
+        1,
+        5,
+        7,
+        2,
+        1,
+        2
+      ],
+      "input_length": 13,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 20,
+      "expected_output_hex": "0400000004000000010000000700000004000000"
+    },
+    {
+      "id": "priority_i32_boundaries",
+      "input_values": [
+        2,
+        0,
+        0,
+        1,
+        -2147483648,
+        1,
+        0,
+        1,
+        2147483647
+      ],
+      "input_length": 9,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 12,
+      "expected_output_hex": "020000000100000000000000"
+    },
+    {
+      "id": "late_final_arrival",
+      "input_values": [
+        2,
+        0,
+        0,
+        1,
+        0,
+        1,
+        16,
+        1,
+        1
+      ],
+      "input_length": 9,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 72,
+      "expected_output_hex": "1100000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff01000000"
+    },
+    {
+      "id": "maximum_80_ticks",
+      "input_values": [
+        8,
+        0,
+        16,
+        8,
+        0,
+        1,
+        16,
+        8,
+        1,
+        2,
+        16,
+        8,
+        2,
+        3,
+        16,
+        8,
+        3,
+        4,
+        16,
+        8,
+        4,
+        5,
+        16,
+        8,
+        5,
+        6,
+        16,
+        8,
+        6,
+        7,
+        16,
+        8,
+        7
+      ],
+      "input_length": 33,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 324,
+      "expected_output_hex": "50000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff07000000070000000700000007000000070000000700000007000000070000000600000006000000060000000600000006000000060000000600000006000000050000000500000005000000050000000500000005000000050000000500000004000000040000000400000004000000040000000400000004000000040000000300000003000000030000000300000003000000030000000300000003000000020000000200000002000000020000000200000002000000020000000200000001000000010000000100000001000000010000000100000001000000010000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "negative_process_count",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "process_count_above_bound",
+      "input_values": [
+        9
+      ],
+      "input_length": 1,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_process_record",
+      "input_values": [
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_process_record",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "process_id_below_bound",
+      "input_values": [
+        1,
+        -1,
+        0,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "process_id_above_bound",
+      "input_values": [
+        1,
+        8,
+        0,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_process_id",
+      "input_values": [
+        2,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 9,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "arrival_below_bound",
+      "input_values": [
+        1,
+        0,
+        -1,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "arrival_above_bound",
+      "input_values": [
+        1,
+        0,
+        17,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_burst",
+      "input_values": [
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "burst_above_bound",
+      "input_values": [
+        1,
+        0,
+        0,
+        9,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_priority_arrival_pair",
+      "input_values": [
+        2,
+        0,
+        0,
+        1,
+        5,
+        1,
+        0,
+        2,
+        5
+      ],
+      "input_length": 9,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 1,
+      "output_capacity": 324,
+      "input_is_null": true,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_empty_list",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_empty_list",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_output_empty_list",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "output_capacity": 4,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 4,
+      "expected_output_hex": "00000000"
+    },
+    {
+      "id": "null_output_nonempty",
+      "input_values": [
+        1,
+        2,
+        0,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 324,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_nonempty",
+      "input_values": [
+        1,
+        2,
+        0,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 7,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_output_nonempty",
+      "input_values": [
+        1,
+        2,
+        0,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 8,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 8,
+      "expected_output_hex": "0100000002000000"
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        1,
+        8,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 0,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

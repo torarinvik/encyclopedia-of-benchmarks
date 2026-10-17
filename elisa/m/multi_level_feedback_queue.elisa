@@ -1,0 +1,109 @@
+def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def multi_level_feedback_queue_impl(input: i32&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 13: return -1
+    queue_count: i32 = input[0]
+    process_count: i32 = input[1]
+    if queue_count < 1 or queue_count > 4 or process_count < 0 or process_count > 8: return -1
+    if length != (2 + queue_count - 1 + process_count).usize(): return -1
+
+    slices: mutable i32[3] = zeroed
+    position: mutable usize = 2
+    valid: mutable bool = true
+    while index < (queue_count - 1).usize() |index: mutable usize = 0| -> void:
+        if input[position] < 1 or input[position] > 16: valid <- false
+        if input[position] >= 1 and input[position] <= 16:
+            slices[index] <- input[position]
+        position <- position + 1
+        index <- index + 1
+    ready: mutable i32[40] = zeroed
+    ready_count: mutable usize = process_count.usize()
+    while index < ready_count |index: mutable usize = 0| -> void:
+        burst: i32 = input[position]
+        position <- position + 1
+        if burst < 1 or burst > 16:
+            valid <- false
+        else:
+            ready[index * 5] <- index.i32()
+            ready[index * 5 + 1] <- burst
+        index <- index + 1
+    if not valid: return -1
+    finished: mutable i32[40] = zeroed
+    finished_count: mutable usize = 0
+    current_time: mutable i32 = 0
+    level: mutable usize = 0
+    while level < (queue_count - 1).usize() |level, current_time| -> void:
+        next_ready: mutable i32[40] = zeroed
+        next_count: mutable usize = 0
+        time_slice: i32 = slices[level]
+        while index < ready_count |index: mutable usize = 0, current_time, finished_count, next_count| -> void:
+            base: usize = index * 5
+            id: i32 = ready[base]
+            remaining: mutable i32 = ready[base + 1]
+            waiting: mutable i32 = ready[base + 2] + current_time - ready[base + 4]
+            turnaround: mutable i32 = ready[base + 3]
+            if remaining > time_slice:
+                current_time <- current_time + time_slice
+                remaining <- remaining - time_slice
+                next_ready[next_count * 5] <- id
+                next_ready[next_count * 5 + 1] <- remaining
+                next_ready[next_count * 5 + 2] <- waiting
+                next_ready[next_count * 5 + 3] <- turnaround
+                next_ready[next_count * 5 + 4] <- current_time
+                next_count <- next_count + 1
+            else:
+                current_time <- current_time + remaining
+                remaining <- 0
+                turnaround <- current_time
+                finished[finished_count * 5] <- id
+                finished[finished_count * 5 + 1] <- remaining
+                finished[finished_count * 5 + 2] <- waiting
+                finished[finished_count * 5 + 3] <- turnaround
+                finished[finished_count * 5 + 4] <- current_time
+                finished_count <- finished_count + 1
+            index <- index + 1
+        ready <- next_ready
+        ready_count <- next_count
+        level <- level + 1
+    while index < ready_count |index: mutable usize = 0, current_time, finished_count| -> void:
+        base: usize = index * 5
+        id: i32 = ready[base]
+        waiting: i32 = ready[base + 2] + current_time - ready[base + 4]
+        current_time <- current_time + ready[base + 1]
+        finished[finished_count * 5] <- id
+        finished[finished_count * 5 + 1] <- 0
+        finished[finished_count * 5 + 2] <- waiting
+        finished[finished_count * 5 + 3] <- current_time
+        finished[finished_count * 5 + 4] <- current_time
+        finished_count <- finished_count + 1
+        index <- index + 1
+    words: mutable i32[33] = zeroed
+    words[0] <- process_count.i32()
+    word_count: mutable usize = 1
+    while index < finished_count |index: mutable usize = 0| -> void:
+        base: usize = index * 5
+        words[word_count] <- finished[base]
+        words[word_count + 1] <- finished[base + 2]
+        words[word_count + 2] <- finished[base + 3]
+        words[word_count + 3] <- finished[base + 4]
+        word_count <- word_count + 4
+        index <- index + 1
+    bytes: usize = word_count * 4
+    if output.is_null() or output_capacity < bytes: return -2
+    buffer: mutable u8[132] = zeroed
+    while index < word_count |index: mutable usize = 0| -> void:
+        put_i32_le(words[index], buffer[0], index * 4)
+        index <- index + 1
+    index <- 0
+    while index < bytes:
+        output[index] <- buffer[index]
+        index <- index + 1
+    bytes.i64()
+
+export fn multi_level_feedback_queue(input: i32&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = multi_level_feedback_queue_impl

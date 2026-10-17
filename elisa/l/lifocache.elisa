@@ -1,0 +1,107 @@
+def lifocache_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 194: return -1
+    capacity_value: i64 = input[0]
+    operation_count_value: i64 = input[1]
+    if capacity_value < 1 or capacity_value > 16 or operation_count_value < 1 or operation_count_value > 64: return -1
+    capacity: usize = capacity_value.usize()
+    operations: usize = operation_count_value.usize()
+    if length != 2 + 3 * operations: return -1
+    i: usize = 0
+    while i < operations:
+        op: i64 = input[2 + 3 * i]
+        key: i64 = input[3 + 3 * i]
+        value: i64 = input[4 + 3 * i]
+        if op < 0 or op > 6: return -1
+        if op <= 2:
+            if key < -2147483648 or key > 2147483647: return -1
+            if op == 0:
+                if value < -2147483648 or value > 2147483647: return -1
+            elif value != 0: return -1
+        elif key != 0 or value != 0: return -1
+        i <- i + 1
+
+    required: usize = operations * 16
+    if output.is_null() or output_capacity < required: return -2
+    keys: mutable i64[16] = zeroed
+    values: mutable i64[16] = zeroed
+    count: mutable usize = 0
+    hits: mutable i64 = 0
+    misses: mutable i64 = 0
+    i <- 0
+    while i < operations:
+        op: i64 = input[2 + 3 * i]
+        key: i64 = input[3 + 3 * i]
+        value: i64 = input[4 + 3 * i]
+        first: mutable i64 = 0
+        second: mutable i64 = 0
+        if op == 0:
+            found: mutable usize = count
+            j: usize = 0
+            while j < count:
+                if keys[j] == key:
+                    found <- j
+                    break
+                j <- j + 1
+            if found < count:
+                j <- found
+                while j + 1 < count:
+                    keys[j] <- keys[j + 1]
+                    values[j] <- values[j + 1]
+                    j <- j + 1
+                count <- count - 1
+            if count == capacity: count <- count - 1
+            keys[count] <- key
+            values[count] <- value
+            count <- count + 1
+            first <- 1
+        elif op == 1:
+            found: mutable usize = count
+            j: usize = 0
+            while j < count:
+                if keys[j] == key:
+                    found <- j
+                    break
+                j <- j + 1
+            if found < count:
+                hits <- hits + 1
+                first <- 1
+                second <- values[found]
+            else: misses <- misses + 1
+        elif op == 2:
+            found: mutable usize = count
+            j: usize = 0
+            while j < count:
+                if keys[j] == key:
+                    found <- j
+                    break
+                j <- j + 1
+            if found < count:
+                first <- 1
+                second <- values[found]
+                j <- found
+                while j + 1 < count:
+                    keys[j] <- keys[j + 1]
+                    values[j] <- values[j + 1]
+                    j <- j + 1
+                count <- count - 1
+        elif op == 3: first <- count.i64()
+        elif op == 4: first <- hits
+        elif op == 5: first <- misses
+        else:
+            count <- 0
+            hits <- 0
+            misses <- 0
+            first <- 1
+        first_bits: mutable u64 = first.u64()
+        second_bits: mutable u64 = second.u64()
+        byte: usize = 0
+        while byte < 8:
+            output[i * 16 + byte] <- (first_bits & 255).u8()
+            output[i * 16 + 8 + byte] <- (second_bits & 255).u8()
+            first_bits <- first_bits >> 8
+            second_bits <- second_bits >> 8
+            byte <- byte + 1
+        i <- i + 1
+    return (2 * operations).i64()
+
+export fn lifocache(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = lifocache_impl

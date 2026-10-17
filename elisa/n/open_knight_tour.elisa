@@ -22,11 +22,11 @@ def put_i32(output: mutable u8&, offset: usize, value: i64):
         bits <- bits >> 8
         k <- k+1
 def open_knight_tour_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if length != 1: return -1
+    if values.is_null() or length != 1: return -1
     n: i64 = values[0]
-    if n < 1 or n > 5: return -1
+    if n != 1 and n != 5: return -1
     bytes: usize = (n*n*4).usize()
-    if capacity < bytes: return -2
+    if output.is_null() or capacity < bytes: return -2
     board: mutable [25]i64 = [0; 25]
     row: mutable i64 = 0
     found: mutable bool = false

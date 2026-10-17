@@ -1,0 +1,22 @@
+def mul_array_impl(values: i64&, length: usize) -> i64:
+    if length > 9:
+        return -1
+    if length == 0:
+        return 1
+    if values == null:
+        return -1
+
+    valid_factors: bool =
+        for index in 0..<length |valid: mutable bool = true| -> valid:
+            value: i64 = values[index]
+            if value < 0 or value > 99:
+                break false
+    if not valid_factors:
+        return -1
+
+    product: i64 =
+        for index in 0..<length |product: mutable i64 = 1| -> product:
+            product <- product * values[index]
+    product
+
+export fn mul_array(values: i64&, length: usize) -> i64 = mul_array_impl(values, length)

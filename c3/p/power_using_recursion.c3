@@ -1,21 +1,14 @@
 module power_using_recursion;
 
-// Linear recursive integer power, with a bounded exact contract.
-fn long decode_signed(ulong value)
-{
-    if (value <= 9223372036854775807) return (long)value;
-    return -1 - (long)(~value);
-}
-
-fn long power_recursive(long base, ulong exponent)
-{
+fn long power_recursive(long base, long exponent) {
     if (exponent == 0) return 1;
     return base * power_recursive(base, exponent - 1);
 }
 
-fn long power_using_recursion(ulong base_encoded, ulong exponent) @export("power_using_recursion")
-{
-    long base = decode_signed(base_encoded);
-    if (base < -10 || base > 10 || exponent > 15) return -9223372036854775808;
+fn long power_using_recursion(long* input, usz length) @export("power_using_recursion") {
+    if (input == null || length != 2) return -1;
+    long base = input[0];
+    long exponent = input[1];
+    if (base < -10 || base > 10 || exponent < 0 || exponent > 15) return -1;
     return power_recursive(base, exponent);
 }

@@ -1,0 +1,40 @@
+extern sin(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+def simple_pendulum_rk4_impl(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if values == null or length != 5: return -1
+    index: mutable usize = 0
+    while index < 5:
+        if values[index] != values[index] or floor(values[index]) != values[index]: return -1
+        index <- index + 1
+
+    if values[0] < 10000.0 or values[0] > 100000000.0: return -1
+    if values[1] < 100000.0 or values[1] > 20000000.0: return -1
+    if values[2] < -3141593.0 or values[2] > 3141593.0: return -1
+    if values[3] < -100000000.0 or values[3] > 100000000.0: return -1
+    if values[4] < 1.0 or values[4] > 100000.0: return -1
+
+    length_m: f64 = values[0] / 1000000.0
+    gravity: f64 = values[1] / 1000000.0
+    theta: f64 = values[2] / 1000000.0
+    omega: f64 = values[3] / 1000000.0
+    dt: f64 = values[4] / 1000000.0
+    scale: f64 = gravity / length_m
+
+    k1_theta: f64 = omega
+    k1_omega: f64 = -scale * sin(theta)
+    k2_theta: f64 = omega + 0.5 * dt * k1_omega
+    k2_omega: f64 = -scale * sin(theta + 0.5 * dt * k1_theta)
+    k3_theta: f64 = omega + 0.5 * dt * k2_omega
+    k3_omega: f64 = -scale * sin(theta + 0.5 * dt * k2_theta)
+    k4_theta: f64 = omega + dt * k3_omega
+    k4_omega: f64 = -scale * sin(theta + dt * k3_theta)
+    theta_next: f64 = theta + dt / 6.0 * (k1_theta + 2.0 * k2_theta + 2.0 * k3_theta + k4_theta)
+    omega_next: f64 = omega + dt / 6.0 * (k1_omega + 2.0 * k2_omega + 2.0 * k3_omega + k4_omega)
+
+    if output == null or capacity < 2: return -2
+    output[0] <- theta_next
+    output[1] <- omega_next
+    2
+
+export fn simple_pendulum_rk4(values: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = simple_pendulum_rk4_impl

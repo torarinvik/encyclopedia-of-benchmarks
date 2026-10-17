@@ -1,26 +1,23 @@
-// Backward recursive linear search over a bounded integer array.
 #include <cstddef>
 #include <cstdint>
+namespace { constexpr std::size_t MAX_N = 64;
+int search_recursive(const std::int32_t *items, int left, int right, std::int32_t target) noexcept {
+    if (left > right) return -1;
+    if (items[left] == target) return left;
+    if (items[right] == target) return right;
+    return search_recursive(items, left + 1, right - 1, target);
+} }
 
-namespace {
-constexpr std::size_t max_count = 64;
-constexpr std::size_t max_input_length = max_count + 3;
-
-std::int64_t search_from_end(const std::int64_t *items, std::size_t count,
-                             std::int64_t target) noexcept {
-    if (count == 0) return -1;
-    if (items[count - 1] == target) return static_cast<std::int64_t>(count - 1);
-    return search_from_end(items, count - 1, target);
-}
-}
-
-extern "C" std::int64_t recursive_linear_search(const std::int64_t *values,
-                                                   std::size_t length) noexcept {
-    if (values == nullptr || length < 2 || length > max_input_length) return -1;
-    const auto count_value = values[0];
-    const auto target = values[1];
-    if (count_value < 1 || count_value > static_cast<std::int64_t>(max_count)) return -1;
-    const auto count = static_cast<std::size_t>(count_value);
-    if (length != count + 2) return -1;
-    return search_from_end(values + 2, count, target);
+extern "C" std::int64_t recursive_linear_search(const std::int64_t *input, std::size_t length) noexcept {
+    if (input == nullptr || length < 4 || length > MAX_N + 2) return -1;
+    if (input[0] < 2 || input[0] > static_cast<std::int64_t>(MAX_N) || length != static_cast<std::size_t>(input[0]) + 2) return -1;
+    if (input[1] < INT32_MIN || input[1] > INT32_MAX) return -1;
+    const auto n = static_cast<std::size_t>(input[0]);
+    std::int32_t items[MAX_N]{};
+    for (std::size_t i = 0; i < n; ++i) {
+        if (input[i + 2] < INT32_MIN || input[i + 2] > INT32_MAX) return -1;
+        items[i] = static_cast<std::int32_t>(input[i + 2]);
+        for (std::size_t j = 0; j < i; ++j) if (items[j] == items[i]) return -1;
+    }
+    return search_recursive(items, 0, static_cast<int>(n) - 1, static_cast<std::int32_t>(input[1]));
 }

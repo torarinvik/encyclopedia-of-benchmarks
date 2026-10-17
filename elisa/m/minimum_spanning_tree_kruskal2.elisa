@@ -1,0 +1,117 @@
+def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def minimum_spanning_tree_kruskal2_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 194: return -1
+    vertex_count: i32 = input[0]
+    edge_count: i32 = input[1]
+    if vertex_count < 1 or vertex_count > 16 or edge_count < 0 or edge_count > 64: return -1
+    if length != 2 + 3 * edge_count.usize(): return -1
+
+    edge_u: mutable i32[64] = zeroed
+    edge_v: mutable i32[64] = zeroed
+    edge_weight: mutable i32[64] = zeroed
+    seen: mutable bool[16][16] = zeroed
+    position: mutable usize = 2
+    edge_index: mutable usize = 0
+    while edge_index < edge_count.usize():
+        u: i32 = input[position]
+        v: i32 = input[position + 1]
+        weight: i32 = input[position + 2]
+        position <- position + 3
+        if u < 0 or v <= u or v >= vertex_count or seen[u.usize()][v.usize()]: return -1
+        seen[u.usize()][v.usize()] <- true
+        edge_u[edge_index] <- u
+        edge_v[edge_index] <- v
+        edge_weight[edge_index] <- weight
+        edge_index <- edge_index + 1
+
+    visited: mutable bool[16] = zeroed
+    stack: mutable usize[16] = zeroed
+    stack_size: mutable usize = 1
+    reached: mutable usize = 0
+    stack[0] <- 0
+    visited[0] <- true
+    while stack_size > 0:
+        stack_size <- stack_size - 1
+        node: usize = stack[stack_size]
+        reached <- reached + 1
+        neighbor: mutable usize = 0
+        while neighbor < vertex_count.usize():
+            if (seen[node][neighbor] or seen[neighbor][node]) and not visited[neighbor]:
+                visited[neighbor] <- true
+                stack[stack_size] <- neighbor
+                stack_size <- stack_size + 1
+            neighbor <- neighbor + 1
+    if reached != vertex_count.usize(): return -1
+
+    order: mutable usize[64] = zeroed
+    ordered_count: mutable usize = 0
+    u: mutable usize = 0
+    while u < vertex_count.usize():
+        i: mutable usize = 0
+        while i < edge_count.usize():
+            if edge_u[i] == u.i32():
+                order[ordered_count] <- i
+                ordered_count <- ordered_count + 1
+            i <- i + 1
+        u <- u + 1
+    i: mutable usize = 1
+    while i < ordered_count:
+        key: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and edge_weight[order[j - 1]] > edge_weight[key]:
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- key
+        i <- i + 1
+
+    parent: mutable i32[16] = zeroed
+    rank: mutable i32[16] = zeroed
+    i <- 0
+    while i < vertex_count.usize():
+        parent[i] <- i.i32()
+        i <- i + 1
+    words: mutable i32[46] = zeroed
+    word_count: mutable usize = 1
+    accepted: mutable usize = 0
+    i <- 0
+    while i < ordered_count and accepted < (vertex_count - 1).usize():
+        edge: usize = order[i]
+        root_u: mutable usize = edge_u[edge].usize()
+        while parent[root_u].usize() != root_u: root_u <- parent[root_u].usize()
+        root_v: mutable usize = edge_v[edge].usize()
+        while parent[root_v].usize() != root_v: root_v <- parent[root_v].usize()
+        if root_u != root_v:
+            if rank[root_u] < rank[root_v]: parent[root_u] <- root_v.i32()
+            elif rank[root_u] > rank[root_v]: parent[root_v] <- root_u.i32()
+            else:
+                parent[root_u] <- root_v.i32()
+                rank[root_v] <- rank[root_v] + 1
+            words[word_count] <- edge_u[edge]
+            words[word_count + 1] <- edge_v[edge]
+            words[word_count + 2] <- edge_weight[edge]
+            word_count <- word_count + 3
+            accepted <- accepted + 1
+        i <- i + 1
+    if accepted != (vertex_count - 1).usize(): return -1
+    words[0] <- accepted.i32()
+    bytes: usize = word_count * 4
+    if output.is_null() or capacity < bytes: return -2
+    buffer: mutable u8[184] = zeroed
+    i <- 0
+    while i < word_count:
+        put_i32_le(words[i], buffer[0], i * 4)
+        i <- i + 1
+    i <- 0
+    while i < bytes:
+        output[i] <- buffer[i]
+        i <- i + 1
+    bytes.i64()
+
+export fn minimum_spanning_tree_kruskal2(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64 = minimum_spanning_tree_kruskal2_impl

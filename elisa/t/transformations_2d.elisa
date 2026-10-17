@@ -1,0 +1,59 @@
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+
+def transformations_2d_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 3:
+        return INVALID_RESULT
+    operation: i64 = values[0]
+    parameter_micro: i64 = values[1]
+    component: i64 = values[2]
+    if operation < 0 or operation > 3 or component < 0 or component > 3:
+        return INVALID_RESULT
+
+    m0: mutable f64 = 0.0
+    m1: mutable f64 = 0.0
+    m2: mutable f64 = 0.0
+    m3: mutable f64 = 0.0
+    if operation == 0:
+        if parameter_micro < -1000000 or parameter_micro > 1000000:
+            return INVALID_RESULT
+        factor: f64 = parameter_micro.f64() / 1000000.0
+        m0 <- factor * 1.0
+        m1 <- factor * 0.0
+        m2 <- factor * 0.0
+        m3 <- factor * 1.0
+    else:
+        if parameter_micro < -6283185 or parameter_micro > 6283185:
+            return INVALID_RESULT
+        angle: f64 = parameter_micro.f64() / 1000000.0
+        c: f64 = cos(angle)
+        s: f64 = sin(angle)
+        if operation == 1:
+            m0 <- c
+            m1 <- -s
+            m2 <- s
+            m3 <- c
+        else:
+            cs: f64 = c * s
+            if operation == 2:
+                m0 <- c * c
+                m1 <- cs
+                m2 <- cs
+                m3 <- s * s
+            else:
+                m0 <- 2.0 * c - 1.0
+                m1 <- 2.0 * cs
+                m2 <- 2.0 * cs
+                m3 <- 2.0 * s - 1.0
+
+    if component == 0:
+        return m0
+    if component == 1:
+        return m1
+    if component == 2:
+        return m2
+    m3
+
+export fn transformations_2d(values: i64&, length: usize) -> f64 = transformations_2d_impl

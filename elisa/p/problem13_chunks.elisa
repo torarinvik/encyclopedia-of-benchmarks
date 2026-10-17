@@ -1,0 +1,49 @@
+def problem13_chunks_impl(values: i64&, length: usize,
+                          output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > 5001:
+        return -1
+    if values[0] < 1 or values[0] > 5000:
+        return -1
+
+    byte_length: usize = values[0].usize()
+    if byte_length != length - 1:
+        return -1
+    index: mutable usize = 0
+    while index < byte_length:
+        if values[index + 1] < 48 or values[index + 1] > 57:
+            return -1
+        index <- index + 1
+
+    width: usize = if byte_length < 50: byte_length else: 50
+    reversed_digits: mutable u8[52] = zeroed
+    reversed_length: mutable usize = 0
+    carry: mutable i64 = 0
+    remaining: mutable usize = width
+    while remaining > 0:
+        remaining <- remaining - 1
+        column: mutable i64 = carry
+        start: mutable usize = 0
+        while start < byte_length:
+            chunk_length: usize = if byte_length - start < 50: byte_length - start else: 50
+            if remaining < chunk_length:
+                column <- column + values[1 + start + remaining] - 48
+            start <- start + 50
+        reversed_digits[reversed_length] <- (column % 10).u8()
+        reversed_length <- reversed_length + 1
+        carry <- column / 10
+    while carry > 0:
+        reversed_digits[reversed_length] <- (carry % 10).u8()
+        reversed_length <- reversed_length + 1
+        carry <- carry / 10
+
+    output_length: usize = if reversed_length < 10: reversed_length else: 10
+    if output.is_null() or capacity < output_length:
+        return -2
+    index <- 0
+    while index < output_length:
+        output[index] <- (48 + reversed_digits[reversed_length - 1 - index].i64()).u8()
+        index <- index + 1
+    output_length.i64()
+
+export fn problem13_chunks(values: i64&, length: usize,
+                           output: mutable u8&, capacity: usize) -> i64 = problem13_chunks_impl

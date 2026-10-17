@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "id": "matlab-minone-bounded-integer-vector-v1",
+  "algorithm": "minone",
+  "function_symbol": "minone",
+  "pinned_source": {
+    "repository": "TheAlgorithms/MATLAB-Octave",
+    "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+    "path": "algorithms/Genetic-Algorithm/Minimization of polynomial function/minone.m",
+    "symbol": "minone",
+    "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/Genetic-Algorithm/Minimization%20of%20polynomial%20function/minone.m"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_vector",
+    "length_range": [
+      1,
+      64
+    ],
+    "value_range": [
+      -1000000,
+      1000000
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "definition": "sum(value * value for each input element)",
+    "maximum_value": 64000000000000,
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single_zero",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "single_positive",
+      "input_values": [
+        3
+      ],
+      "input_length": 1,
+      "expected_result": 9
+    },
+    {
+      "id": "single_negative",
+      "input_values": [
+        -3
+      ],
+      "input_length": 1,
+      "expected_result": 9
+    },
+    {
+      "id": "two_squares",
+      "input_values": [
+        3,
+        4
+      ],
+      "input_length": 2,
+      "expected_result": 25
+    },
+    {
+      "id": "mixed_signs",
+      "input_values": [
+        1,
+        -2,
+        3,
+        -4
+      ],
+      "input_length": 4,
+      "expected_result": 30
+    },
+    {
+      "id": "upstream_scale_example",
+      "input_values": [
+        -3,
+        4,
+        12
+      ],
+      "input_length": 3,
+      "expected_result": 169
+    },
+    {
+      "id": "value_endpoints",
+      "input_values": [
+        -1000000,
+        1000000
+      ],
+      "input_length": 2,
+      "expected_result": 2000000000000
+    },
+    {
+      "id": "maximum_length_and_sum",
+      "input_values": [
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000,
+        1000000,
+        -1000000
+      ],
+      "input_length": 64,
+      "expected_result": 64000000000000
+    },
+    {
+      "id": "empty_vector_invalid",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "null_pointer_invalid",
+      "input_values": [],
+      "input_length": 1,
+      "expected_result": -1,
+      "input_is_null": true
+    },
+    {
+      "id": "invalid_length_65",
+      "input_values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 65,
+      "expected_result": -1
+    },
+    {
+      "id": "value_below_range",
+      "input_values": [
+        -1000001
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "value_above_range",
+      "input_values": [
+        1000001
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    }
+  ]
+}

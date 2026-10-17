@@ -1,0 +1,74 @@
+const MAX_NODES: usize = 64
+const MAX_INPUT_VALUES: usize = 2 + 3 * (MAX_NODES - 1)
+const MATRIX_SIZE: usize = MAX_NODES * MAX_NODES
+
+def tree_matching_visit(node: usize, parent: i64, count: usize, adjacent: i64&, weights: i64&,
+        visited: mutable i64&, parent_of: mutable i64&, without_edge: mutable i64&,
+        with_edge: mutable i64&, reached: mutable usize&) -> void:
+    visited[node] <- 1
+    parent_of[node] <- parent
+    reached <- reached + 1
+    base: mutable i64 = 0
+    for child in 0..<count |adjacent, weights, visited, parent_of, without_edge, with_edge, reached|:
+        index: usize = node * MAX_NODES + child
+        if adjacent[index] == 1 and child.i64() != parent and visited[child] == 0:
+            tree_matching_visit(child, node.i64(), count, adjacent, weights, visited, parent_of,
+                without_edge, with_edge, reached)
+            child_best: i64 = without_edge[child]
+            if with_edge[child] > child_best:
+                child_best <- with_edge[child]
+            base <- base + child_best
+    without_edge[node] <- base
+    with_edge[node] <- 0
+    for child in 0..<count |weights, parent_of, without_edge, with_edge|:
+        if parent_of[child] == node.i64():
+            child_best: i64 = without_edge[child]
+            if with_edge[child] > child_best:
+                child_best <- with_edge[child]
+            candidate: i64 = base - child_best + without_edge[child] + weights[node * MAX_NODES + child]
+            if candidate > with_edge[node]:
+                with_edge[node] <- candidate
+
+def tree_matching_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_INPUT_VALUES:
+        return -1
+    if values[0] < 1 or values[0] > i64(MAX_NODES):
+        return -1
+    count: usize = values[0].usize()
+    if length != 2 + 3 * (count - 1) or values[1] < 0 or values[1] >= count.i64():
+        return -1
+    adjacent: mutable i64[MATRIX_SIZE] = zeroed
+    weights: mutable i64[MATRIX_SIZE] = zeroed
+    for edge in 0..<(count - 1) |values, adjacent, weights|:
+        a_value: i64 = values[2 + 3 * edge]
+        b_value: i64 = values[3 + 3 * edge]
+        weight: i64 = values[4 + 3 * edge]
+        if a_value < 0 or b_value < 0 or a_value >= count.i64() or b_value >= count.i64() or a_value == b_value or weight < 0 or weight > 1000:
+            return -1
+        a: usize = a_value.usize()
+        b: usize = b_value.usize()
+        ab: usize = a * MAX_NODES + b
+        ba: usize = b * MAX_NODES + a
+        if adjacent[ab] == 1:
+            return -1
+        adjacent[ab] <- 1
+        adjacent[ba] <- 1
+        weights[ab] <- weight
+        weights[ba] <- weight
+    visited: mutable i64[MAX_NODES] = zeroed
+    parent_of: mutable i64[MAX_NODES] = zeroed
+    without_edge: mutable i64[MAX_NODES] = zeroed
+    with_edge: mutable i64[MAX_NODES] = zeroed
+    for node in 0..<MAX_NODES |parent_of|:
+        parent_of[node] <- -2
+    reached: mutable usize = 0
+    root: usize = values[1].usize()
+    tree_matching_visit(root, -1, count, adjacent, weights, visited, parent_of,
+        without_edge, with_edge, reached)
+    if reached != count:
+        return -1
+    if without_edge[root] > with_edge[root]:
+        return without_edge[root]
+    with_edge[root]
+
+export fn tree_matching(values: i64&, length: usize) -> i64 = tree_matching_impl

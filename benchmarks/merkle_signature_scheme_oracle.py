@@ -5,13 +5,26 @@ from __future__ import annotations
 import hashlib
 import struct
 
-MAX_INPUT_VALUES = 8932
+MIN_HEIGHT = 2
+MAX_HEIGHT = 10
+WOTS_PARAMETERS = {4: (2, 133, 128, 5), 16: (4, 67, 64, 3), 256: (8, 34, 32, 2)}
+W_VALUES = tuple(WOTS_PARAMETERS)
+WOTS_LENGTHS = {w: parameters[1] for w, parameters in WOTS_PARAMETERS.items()}
+MIN_MESSAGE_LENGTH = 0
+MAX_MESSAGE_LENGTH = 64
+MIN_MESSAGE_BYTE = 0
+MAX_MESSAGE_BYTE = 127
+MIN_SIGNATURE_HASH_BYTE = 0
+MAX_SIGNATURE_HASH_BYTE = 255
+MAX_INPUT_VALUES = (4 + MAX_MESSAGE_LENGTH
+                    + 64 * max(WOTS_LENGTHS.values()) + 32 * MAX_HEIGHT + 32)
 MAX_OUTPUT_BYTES = 8
-_WOTS = {4: (2, 133, 128, 5), 16: (4, 67, 64, 3), 256: (8, 34, 32, 2)}
+I64_MIN = -(1 << 63)
+I64_MAX = (1 << 63) - 1
 
 
 def _digits(message: bytes, w: int) -> list[int]:
-    log_w, _, len1, len2 = _WOTS[w]
+    log_w, _, len1, len2 = WOTS_PARAMETERS[w]
     digest = hashlib.sha256(message).digest()
     mask = w - 1
     values: list[int] = []
@@ -56,19 +69,20 @@ def expected_output(values: list[int] | tuple[int, ...] | None,
     if values is None or not isinstance(values, (list, tuple)):
         return -1, b""
     if (not 4 <= len(values) <= MAX_INPUT_VALUES
-            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
                    for value in values)):
         return -1, b""
     height, w, message_len = values[:3]
-    if not 2 <= height <= 10 or w not in _WOTS or not 0 <= message_len <= 64:
+    if (not MIN_HEIGHT <= height <= MAX_HEIGHT or w not in WOTS_PARAMETERS
+            or not MIN_MESSAGE_LENGTH <= message_len <= MAX_MESSAGE_LENGTH):
         return -1, b""
-    _, length, _, _ = _WOTS[w]
+    _, length, _, _ = WOTS_PARAMETERS[w]
     needed = 4 + message_len + 64 * length + 32 * height + 32
     if len(values) != needed:
         return -1, b""
     message_start = 3
     message_values = values[message_start:message_start + message_len]
-    if any(not 0 <= byte <= 127 for byte in message_values):
+    if any(not MIN_MESSAGE_BYTE <= byte <= MAX_MESSAGE_BYTE for byte in message_values):
         return -1, b""
     index_pos = message_start + message_len
     leaf_index = values[index_pos]
@@ -82,13 +96,14 @@ def expected_output(values: list[int] | tuple[int, ...] | None,
     auth_values = values[position:position + 32 * height]
     position += 32 * height
     root_values = values[position:position + 32]
-    if any(not 0 <= byte <= 255 for byte in (*sig_values, *pub_values, *auth_values, *root_values)):
+    if any(not MIN_SIGNATURE_HASH_BYTE <= byte <= MAX_SIGNATURE_HASH_BYTE
+           for byte in (*sig_values, *pub_values, *auth_values, *root_values)):
         return -1, b""
     signature = [bytes(sig_values[i:i + 32]) for i in range(0, len(sig_values), 32)]
     public_key = [bytes(pub_values[i:i + 32]) for i in range(0, len(pub_values), 32)]
     auth = [bytes(auth_values[i:i + 32]) for i in range(0, len(auth_values), 32)]
     result = int(_verify(bytes(message_values), w, signature, public_key, auth,
                          leaf_index, bytes(root_values)))
-    if capacity is not None and capacity < MAX_OUTPUT_BYTES:
+    if capacity is not None and (type(capacity) is not int or capacity < MAX_OUTPUT_BYTES):
         return -2, b""
     return MAX_OUTPUT_BYTES, struct.pack("<q", result)

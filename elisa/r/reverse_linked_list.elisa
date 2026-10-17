@@ -1,0 +1,54 @@
+const MAX_N: usize = 256
+const MAX_INPUT_LENGTH: usize = 257
+
+def reverse_linked_list_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 1 || length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value < 1 || n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    if length != n + 1: return -1
+    output_bytes: usize = 8 * n
+    if output == null || capacity < output_bytes: return -2
+
+    nodes: mutable i64[256] = zeroed
+    next: mutable i64[256] = zeroed
+    previous_link: mutable i64[256] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        nodes[i] <- input[i + 1]
+        if i + 1 < n: next[i] <- (i + 1).i64()
+        else: next[i] <- -1
+        if i > 0: previous_link[i] <- (i - 1).i64()
+        else: previous_link[i] <- -1
+        i <- i + 1
+    previous: mutable i64 = -1
+    current: mutable i64 = 0
+    while current >= 0:
+        next_node: i64 = next[current.usize()]
+        next[current.usize()] <- previous
+        previous_link[current.usize()] <- next_node
+        previous <- current
+        current <- next_node
+    node: mutable i64 = previous
+    expected_previous: mutable i64 = -1
+    result: mutable i64[256] = zeroed
+    i <- 0
+    while i < n:
+        if node < 0 || previous_link[node.usize()] != expected_previous: return -1
+        result[i] <- nodes[node.usize()]
+        expected_previous <- node
+        node <- next[node.usize()]
+        i <- i + 1
+    if node >= 0: return -1
+    i <- 0
+    while i < n:
+        bits: mutable u64 = result[i].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[i * 8 + byte] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        i <- i + 1
+    output_bytes.i64()
+
+export fn reverse_linked_list(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = reverse_linked_list_impl

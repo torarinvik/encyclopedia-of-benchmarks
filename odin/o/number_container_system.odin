@@ -4,7 +4,8 @@ import "core:c"
 
 @(export)
 number_container_system :: proc "c" (v: [^]i64, n: c.size_t, out: [^]u8, cap: c.size_t) -> i64 {
-	if v == nil || n < 1 || v[0] < 0 || v[0] > 32 || int(n) != 1+3*int(v[0]) do return -1
+	if v == nil || n < c.size_t(1) || n > c.size_t(97) do return -1
+	if v[0] < 0 || v[0] > 32 || n != c.size_t(1+3*int(v[0])) do return -1
 	values: [64]i64; present: [64]bool; buf: [128]u8; used := 0
 	for i := 0; i < int(v[0]); i += 1 {
 		op, a, b := v[1+3*i], v[2+3*i], v[3+3*i]
@@ -17,7 +18,7 @@ number_container_system :: proc "c" (v: [^]i64, n: c.size_t, out: [^]u8, cap: c.
 			var digits: [3]u8; k := 0; for { digits[k] = u8('0'+found%10); k += 1; found /= 10; if found == 0 do break }; for k > 0 { k -= 1; buf[used] = digits[k]; used += 1 }
 		} else { return -1 }
 	}
-	if used > int(cap) || (used > 0 && out == nil) do return -2
+	if out == nil || cap < c.size_t(used) do return -2
 	for i := 0; i < used; i += 1 { out[i] = buf[i] }
 	return i64(used)
 }

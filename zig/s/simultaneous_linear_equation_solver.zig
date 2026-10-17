@@ -1,6 +1,7 @@
 const MAX_INPUT_LENGTH: usize = 31;
 const MAX_OUTPUT_BYTES: usize = 48;
-const I64_LIMIT: f64 = 9_223_372_036_854_775_808.0;
+const HALF_STEP_LIMIT: f64 = 4_503_599_627_370_496.0;
+const MAX_TICK_MAGNITUDE: i64 = 2_251_799_813_685_248;
 
 fn writeI64Le(output: []u8, offset: usize, value: i64) void {
     const bits: u64 = @bitCast(value);
@@ -103,14 +104,24 @@ export fn simultaneous_linear_equation_solver(
     writeI64Le(buffer[0..], 0, n_value);
     for (0..n) |index| {
         const scaled = solutions[index] * 100_000.0;
-        if (!finiteValue(scaled) or scaled < -I64_LIMIT or scaled >= I64_LIMIT) return -1;
+        if (!finiteValue(scaled) or scaled <= -HALF_STEP_LIMIT or scaled >= HALF_STEP_LIMIT) return -1;
         const lower = @floor(scaled);
         const midpoint = lower + 0.5;
         const exact_side = @mulAdd(f64, solutions[index], 100_000.0, -midpoint);
         if (!finiteValue(exact_side)) return -1;
         var rounded: i64 = @intFromFloat(lower);
         if (exact_side > 0.0 or (exact_side == 0.0 and @mod(rounded, 2) != 0)) rounded += 1;
-        writeI64Le(buffer[0..], 8 + index * 8, rounded);
+        if (rounded < -MAX_TICK_MAGNITUDE or rounded > MAX_TICK_MAGNITUDE) return -1;
+        const rounded_value = @as(f64, @floatFromInt(rounded)) / 100_000.0;
+        const projected = rounded_value * 100_000.0;
+        if (!finiteValue(projected)) return -1;
+        const projected_lower = @floor(projected);
+        const projected_midpoint = projected_lower + 0.5;
+        var ticks: i64 = @intFromFloat(projected_lower);
+        if (projected > projected_midpoint or
+            (projected == projected_midpoint and @mod(ticks, 2) != 0)) ticks += 1;
+        if (ticks < -MAX_TICK_MAGNITUDE or ticks > MAX_TICK_MAGNITUDE) return -1;
+        writeI64Le(buffer[0..], 8 + index * 8, ticks);
     }
 
     const needed = 8 + 8 * n;

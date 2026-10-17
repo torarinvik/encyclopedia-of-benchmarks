@@ -1,0 +1,197 @@
+extern exp(value: f64) -> f64
+
+const MAX_POPULATION: usize = 16
+const MAX_PAIRS: usize = 8
+const MAX_MERGED: usize = 32
+const MASK32: u64 = 0xFFFF_FFFF
+const GOLDEN: u64 = 0x9E3779B97F4A7C15
+const MIX1: u64 = 0xBF58476D1CE4E5B9
+const MIX2: u64 = 0x94D049BB133111EB
+
+def binary_genetic_algorithm_add64(left: u64, right: u64) -> u64:
+    low: u64 = (left & MASK32) + (right & MASK32)
+    high: u64 = (left >> 32) + (right >> 32) + (low >> 32)
+    ((high & MASK32) << 32) | (low & MASK32)
+
+def binary_genetic_algorithm_mul64(left: u64, right: u64) -> u64:
+    left_low: u64 = left & MASK32
+    left_high: u64 = left >> 32
+    right_low: u64 = right & MASK32
+    right_high: u64 = right >> 32
+    low_product: u64 = left_low * right_low
+    high_product: u64 = (low_product >> 32) +
+        ((left_low * right_high) & MASK32) + ((left_high * right_low) & MASK32)
+    ((high_product & MASK32) << 32) | (low_product & MASK32)
+
+def binary_genetic_algorithm_next_word(state: mutable u64&) -> u64:
+    state <- binary_genetic_algorithm_add64(state, GOLDEN)
+    value: mutable u64 = state
+    value <- binary_genetic_algorithm_mul64(value ^ (value >> 30), MIX1)
+    value <- binary_genetic_algorithm_mul64(value ^ (value >> 27), MIX2)
+    value ^ (value >> 31)
+
+def binary_genetic_algorithm_bounded(state: mutable u64&, bound: u64) -> u64:
+    threshold: u64 = (~(bound - 1.u64())) % bound
+    while true:
+        value: u64 = binary_genetic_algorithm_next_word(state)
+        if value >= threshold:
+            return value % bound
+    0.u64()
+
+def binary_genetic_algorithm_unit(state: mutable u64&) -> f64:
+    (binary_genetic_algorithm_next_word(state) >> 11).f64() /
+        9007199254740992.0
+
+def binary_genetic_algorithm_cost(candidate: u64, n_var: usize) -> i64:
+    cost: mutable i64 = 0
+    for gene in 0..<n_var:
+        cost <- cost + ((candidate >> gene) & 1.u64()).i64()
+    cost
+
+def binary_genetic_algorithm_select_parent(probabilities: f64&, n_pop: usize,
+        total: f64, state: mutable u64&) -> usize:
+    target: f64 = binary_genetic_algorithm_unit(state) * total
+    cumulative: mutable f64 = 0.0
+    for index in 0..<n_pop:
+        cumulative <- cumulative + probabilities[index]
+        if target <= cumulative:
+            return index
+    n_pop - 1
+
+def binary_genetic_algorithm_crossover(first: u64, second: u64, n_var: usize,
+        state: mutable u64&, first_children: mutable u64&,
+        second_children: mutable u64&, pair: usize) -> void:
+    kind: u64 = binary_genetic_algorithm_bounded(state, 3.u64())
+    child1: mutable u64 = 0
+    child2: mutable u64 = 0
+    if kind == 0:
+        cut: usize = binary_genetic_algorithm_bounded(state, (n_var - 1).u64()).usize() + 1
+        for gene in 0..<n_var:
+            bit: u64 = 1.u64() << gene
+            if gene < cut:
+                child1 <- child1 | (first & bit)
+                child2 <- child2 | (second & bit)
+            else:
+                child1 <- child1 | (second & bit)
+                child2 <- child2 | (first & bit)
+    elif kind == 1:
+        low: mutable usize = binary_genetic_algorithm_bounded(state, n_var.u64()).usize() + 1
+        high: mutable usize = binary_genetic_algorithm_bounded(state, (n_var - 1).u64()).usize() + 1
+        if high >= low:
+            high <- high + 1
+        if high < low:
+            temporary: usize = low
+            low <- high
+            high <- temporary
+        for gene in 0..<n_var:
+            bit: u64 = 1.u64() << gene
+            exchange: bool = gene >= low and gene < high
+            if exchange:
+                child1 <- child1 | (second & bit)
+                child2 <- child2 | (first & bit)
+            else:
+                child1 <- child1 | (first & bit)
+                child2 <- child2 | (second & bit)
+    else:
+        for gene in 0..<n_var:
+            bit: u64 = 1.u64() << gene
+            if binary_genetic_algorithm_bounded(state, 2.u64()) == 1:
+                child1 <- child1 | (first & bit)
+                child2 <- child2 | (second & bit)
+            else:
+                child1 <- child1 | (second & bit)
+                child2 <- child2 | (first & bit)
+    first_children[pair] <- child1
+    second_children[pair] <- child2
+
+def binary_genetic_algorithm_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > 5:
+        return -1
+    seed_value: i64 = input[0]
+    n_var_value: i64 = input[1]
+    n_pop_value: i64 = input[2]
+    max_it_value: i64 = input[3]
+    if length != 4 or seed_value < 0 or n_var_value < 2 or n_var_value > 32 or
+        n_pop_value < 2 or n_pop_value > 16 or n_pop_value % 2 != 0 or
+        max_it_value < 1 or max_it_value > 32:
+        return -1
+
+    n_var: usize = n_var_value.usize()
+    n_pop: usize = n_pop_value.usize()
+    max_it: usize = max_it_value.usize()
+    state: mutable u64 = seed_value.u64()
+    population: mutable u64[MAX_POPULATION] = zeroed
+    best_cost: mutable i64 = n_var_value + 1
+
+    for member in 0..<n_pop:
+        candidate: mutable u64 = 0
+        for gene in 0..<n_var:
+            candidate <- candidate | (binary_genetic_algorithm_bounded(state, 2.u64()) << gene)
+        population[member] <- candidate
+        candidate_cost: i64 = binary_genetic_algorithm_cost(candidate, n_var)
+        if candidate_cost < best_cost:
+            best_cost <- candidate_cost
+
+    for _iteration in 0..<max_it:
+        costs: mutable i64[MAX_POPULATION] = zeroed
+        total_cost: mutable i64 = 0
+        for member in 0..<n_pop:
+            costs[member] <- binary_genetic_algorithm_cost(population[member], n_var)
+            total_cost <- total_cost + costs[member]
+        average: f64 = total_cost.f64() / n_pop_value.f64()
+        probabilities: mutable f64[MAX_POPULATION] = zeroed
+        probability_total: mutable f64 = 0.0
+        for member in 0..<n_pop:
+            scaled: mutable f64 = costs[member].f64()
+            if average != 0.0:
+                scaled <- scaled / average
+            probabilities[member] <- exp(-scaled)
+            probability_total <- probability_total + probabilities[member]
+
+        pairs: usize = n_pop / 2
+        first_children: mutable u64[MAX_PAIRS] = zeroed
+        second_children: mutable u64[MAX_PAIRS] = zeroed
+        for pair in 0..<pairs:
+            first_index: usize = binary_genetic_algorithm_select_parent(
+                &probabilities[0], n_pop, probability_total, state)
+            second_index: usize = binary_genetic_algorithm_select_parent(
+                &probabilities[0], n_pop, probability_total, state)
+            binary_genetic_algorithm_crossover(population[first_index], population[second_index],
+                n_var, state, &first_children[0], &second_children[0], pair)
+
+        offspring: mutable u64[MAX_POPULATION] = zeroed
+        for pair in 0..<pairs:
+            offspring[pair] <- first_children[pair]
+            offspring[pairs + pair] <- second_children[pair]
+
+        for member in 0..<n_pop:
+            for gene in 0..<n_var:
+                if binary_genetic_algorithm_unit(state) < 0.02:
+                    offspring[member] <- offspring[member] ^ (1.u64() << gene)
+            candidate_cost: i64 = binary_genetic_algorithm_cost(offspring[member], n_var)
+            if candidate_cost < best_cost:
+                best_cost <- candidate_cost
+
+        merged: mutable u64[MAX_MERGED] = zeroed
+        merged_count: mutable usize = 0
+        for member in 0..<n_pop:
+            merged[merged_count] <- population[member]
+            merged_count <- merged_count + 1
+        for member in 0..<n_pop:
+            merged[merged_count] <- offspring[member]
+            merged_count <- merged_count + 1
+        for index in 1..<merged_count:
+            selected: u64 = merged[index]
+            selected_cost: i64 = binary_genetic_algorithm_cost(selected, n_var)
+            insertion: mutable usize = index
+            while insertion > 0 and
+                binary_genetic_algorithm_cost(merged[insertion - 1], n_var) > selected_cost:
+                merged[insertion] <- merged[insertion - 1]
+                insertion <- insertion - 1
+            merged[insertion] <- selected
+        for member in 0..<n_pop:
+            population[member] <- merged[member]
+    best_cost
+
+export fn binary_genetic_algorithm(input: i64&, length: usize) -> i64 =
+    binary_genetic_algorithm_impl

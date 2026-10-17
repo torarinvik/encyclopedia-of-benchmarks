@@ -1,0 +1,6 @@
+module shortest_word_distance
+const max_words=32
+const max_input=307
+fn eq(v &i64,s int,n int,t int,m int)bool{if n!=m{return false};for i in 0..n{if unsafe{v[s+i]!=v[t+i]}{return false}};return true}
+@[export:'shortest_word_distance']
+pub fn shortest_word_distance(v &i64,length usize)i64{if unsafe{v==nil}||length<1||length>308{return -1};unsafe{if v[0]<2||v[0]>32{return -1};n:=int(v[0]);mut starts:=[32]int{};mut sizes:=[32]int{};mut p:=1;for i in 0..n{if p>=int(length){return -1};z:=v[p];p++;if z<1||z>8||p+int(z)>int(length){return -1};starts[i]=p;sizes[i]=int(z);for j in 0..int(z){if !((v[p+j]>=65&&v[p+j]<=90)||(v[p+j]>=97&&v[p+j]<=122)){return -1}};p+=int(z)};mut ts:=[2]int{};mut tn:=[2]int{};for t in 0..2{if p>=int(length){return -1};z:=v[p];p++;if z<1||z>8||p+int(z)>int(length){return -1};ts[t]=p;tn[t]=int(z);for j in 0..int(z){if !((v[p+j]>=65&&v[p+j]<=90)||(v[p+j]>=97&&v[p+j]<=122)){return -1}};p+=int(z)};if p!=int(length)||eq(v,ts[0],tn[0],ts[1],tn[1]){return -1};mut h0:=false;mut h1:=false;mut best:=n;for i in 0..n{a:=eq(v,starts[i],sizes[i],ts[0],tn[0]);b:=eq(v,starts[i],sizes[i],ts[1],tn[1]);h0=h0||a;h1=h1||b;for j in 0..n{c:=eq(v,starts[j],sizes[j],ts[0],tn[0]);d:=eq(v,starts[j],sizes[j],ts[1],tn[1]);if(a&&d)||(b&&c){delta:=if i>j{i-j}else{j-i};if delta<best{best=delta}}}};if h0&&h1{return i64(best)};return -1}}

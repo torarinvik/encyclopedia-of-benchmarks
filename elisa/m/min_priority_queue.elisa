@@ -1,0 +1,94 @@
+def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def min_priority_queue_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 130: return -1
+    if input[0] < 0 or input[0] > 64 or input[1] < 0 or input[1] > 64: return -1
+
+    capacity: usize = input[0].usize()
+    operation_count: usize = input[1].usize()
+    heap: mutable i32[64] = zeroed
+    words: mutable i32[129] = zeroed
+    heap_size: mutable usize = 0
+    word_count: mutable usize = 1
+    query_count: mutable usize = 0
+    position: mutable usize = 2
+    operation_index: mutable usize = 0
+
+    while operation_index < operation_count:
+        if position >= length: return -1
+        opcode: i64 = input[position]
+        position <- position + 1
+        if opcode == 0:
+            if position >= length: return -1
+            raw: i64 = input[position]
+            position <- position + 1
+            if raw < -2147483648 or raw > 2147483647 or heap_size >= capacity: return -1
+            index: mutable usize = heap_size
+            heap[index] <- raw.i32()
+            while index > 0:
+                parent: usize = (index - 1) / 2
+                if heap[parent] <= heap[index]: break
+                temp: i32 = heap[parent]
+                heap[parent] <- heap[index]
+                heap[index] <- temp
+                index <- parent
+            heap_size <- heap_size + 1
+        elif opcode == 1 or opcode == 2:
+            if heap_size == 0: return -1
+            value: i32 = heap[0]
+            if opcode == 2:
+                heap_size <- heap_size - 1
+                if heap_size > 0:
+                    heap[0] <- heap[heap_size]
+                    index: mutable usize = 0
+                    while true:
+                        left: usize = 2 * index + 1
+                        if left >= heap_size: break
+                        right: usize = left + 1
+                        child: mutable usize = left
+                        if right < heap_size and heap[right] < heap[left]: child <- right
+                        if heap[index] <= heap[child]: break
+                        temp: i32 = heap[index]
+                        heap[index] <- heap[child]
+                        heap[child] <- temp
+                        index <- child
+            words[word_count] <- opcode.i32()
+            words[word_count + 1] <- value
+            word_count <- word_count + 2
+            query_count <- query_count + 1
+        elif opcode == 3 or opcode == 4:
+            words[word_count] <- opcode.i32()
+            if opcode == 3:
+                if heap_size == 0: words[word_count + 1] <- 1
+                else: words[word_count + 1] <- 0
+            else:
+                if heap_size == capacity: words[word_count + 1] <- 1
+                else: words[word_count + 1] <- 0
+            word_count <- word_count + 2
+            query_count <- query_count + 1
+        else:
+            return -1
+        operation_index <- operation_index + 1
+
+    if position != length or word_count > 129: return -1
+    words[0] <- query_count.i32()
+    bytes: usize = word_count * 4
+    if output.is_null() or output_capacity < bytes: return -2
+    buffer: mutable u8[516] = zeroed
+    i: mutable usize = 0
+    while i < word_count:
+        put_i32_le(words[i], buffer[0], i * 4)
+        i <- i + 1
+    i <- 0
+    while i < bytes:
+        output[i] <- buffer[i]
+        i <- i + 1
+    bytes.i64()
+
+export fn min_priority_queue(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = min_priority_queue_impl

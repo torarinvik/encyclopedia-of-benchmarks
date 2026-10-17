@@ -1,6 +1,6 @@
 # Bottom-up 0/1 knapsack using one row and descending capacities.
 def knapsack_zero_one_tabulation_impl(input_values: i64&, length: usize) -> i64:
-    if length < 2 or length > 258:
+    if input_values.is_null() or length < 2 or length > 258:
         return -1
     capacity_value: i64 = input_values[0]
     item_count_value: i64 = input_values[1]

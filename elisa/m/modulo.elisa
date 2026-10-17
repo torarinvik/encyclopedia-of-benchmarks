@@ -1,0 +1,11 @@
+# Bounded unsigned modulo matching TheAlgorithms/Solidity Modulo.GetModulo.
+def modulo_impl(values: i64&, length: usize) -> i64:
+    if values == null or length != 2:
+        return -1
+    a: i64 = values[0]
+    b: i64 = values[1]
+    if a < 0 or a > 4294967295 or b < 1 or b > 4294967295:
+        return -1
+    a % b
+
+export fn modulo(values: i64&, length: usize) -> i64 = modulo_impl

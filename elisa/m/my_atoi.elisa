@@ -1,0 +1,35 @@
+const MAX_INPUT_LENGTH: usize = 256
+const INT32_MAX_VALUE: i64 = 2147483647
+const INT32_MIN_MAGNITUDE: i64 = 2147483648
+const INVALID_RESULT: i64 = -9223372036854775807 - 1
+
+def my_atoi_impl(input: i64&, length: usize) -> i64:
+    if input == null: return 0
+    if length > MAX_INPUT_LENGTH: return INVALID_RESULT
+    for position in 0..<length |input|:
+        if input[position] < 0 or input[position] > 127: return INVALID_RESULT
+
+    start: mutable usize = 0
+    end: mutable usize = length
+    while start < end and input[start] <= 32: start <- start + 1
+    while end > start and input[end - 1] <= 32: end <- end - 1
+    if start == end: return 0
+
+    negative: mutable bool = false
+    if input[start] == 43 or input[start] == 45:
+        negative <- input[start] == 45
+        start <- start + 1
+    limit: i64 = INT32_MAX_VALUE
+    if negative: limit <- INT32_MIN_MAGNITUDE
+    magnitude: mutable i64 = 0
+    while start < end and input[start] >= 48 and input[start] <= 57 |start, magnitude|:
+        digit: i64 = input[start] - 48
+        if magnitude > limit / 10 or (magnitude == limit / 10 and digit > limit % 10):
+            if negative: return -INT32_MIN_MAGNITUDE
+            return INT32_MAX_VALUE
+        magnitude <- magnitude * 10 + digit
+        start <- start + 1
+    if negative: return -magnitude
+    magnitude
+
+export fn my_atoi(input: i64&, length: usize) -> i64 = my_atoi_impl

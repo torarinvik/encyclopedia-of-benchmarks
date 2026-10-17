@@ -1,0 +1,94 @@
+const MAX_OPERATIONS: usize = 256
+const MAX_INPUT_VALUES: usize = 513
+const MAX_OUTPUT_BYTES: usize = 6152
+
+def min_stack_using_two_stacks_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+export fn min_stack_using_two_stacks(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > 256: return -1
+    count: usize = count_value.usize()
+
+    opcodes: mutable i64[256] = zeroed
+    operands: mutable i64[256] = zeroed
+    position: mutable usize = 1
+    event_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < count:
+        if position >= length: return -1
+        opcode: i64 = input[position]
+        position <- position + 1
+        operand: mutable i64 = 0
+        if opcode == 0:
+            if position >= length: return -1
+            operand <- input[position]
+            position <- position + 1
+            if operand < -2147483648 or operand > 2147483647: return -1
+        elif opcode == 1 or opcode == 2 or opcode == 3:
+            event_count <- event_count + 1
+        else:
+            return -1
+        opcodes[index] <- opcode
+        operands[index] <- operand
+        index <- index + 1
+    if position != length: return -1
+
+    needed: usize = (1 + 3 * event_count) * 8
+    if output.is_null() or capacity < needed: return -2
+
+    buffer: mutable u8[6152] = zeroed
+    min_stack_using_two_stacks_write_i64(buffer[0], 0, event_count.i64())
+    stack: mutable i64[256] = zeroed
+    minima: mutable i64[256] = zeroed
+    depth: mutable usize = 0
+    minimum_depth: mutable usize = 0
+    record: mutable usize = 1
+    index <- 0
+    while index < count:
+        opcode: i64 = opcodes[index]
+        if opcode == 0:
+            value: i64 = operands[index]
+            stack[depth] <- value
+            depth <- depth + 1
+            if minimum_depth == 0 or value <= minima[minimum_depth - 1]:
+                minima[minimum_depth] <- value
+                minimum_depth <- minimum_depth + 1
+        elif opcode == 1:
+            exception_flag: mutable i64 = 0
+            if depth == 0:
+                exception_flag <- 1
+            else:
+                depth <- depth - 1
+                if stack[depth] == minima[minimum_depth - 1]:
+                    minimum_depth <- minimum_depth - 1
+            min_stack_using_two_stacks_write_i64(buffer[0], record * 8, 1)
+            min_stack_using_two_stacks_write_i64(buffer[0], (record + 1) * 8, exception_flag)
+            min_stack_using_two_stacks_write_i64(buffer[0], (record + 2) * 8, 0)
+            record <- record + 3
+        else:
+            exception_flag: mutable i64 = 0
+            value: mutable i64 = 0
+            if depth == 0:
+                exception_flag <- 1
+            elif opcode == 2:
+                value <- stack[depth - 1]
+            else:
+                value <- minima[minimum_depth - 1]
+            min_stack_using_two_stacks_write_i64(buffer[0], record * 8, opcode)
+            min_stack_using_two_stacks_write_i64(buffer[0], (record + 1) * 8, exception_flag)
+            min_stack_using_two_stacks_write_i64(buffer[0], (record + 2) * 8, value)
+            record <- record + 3
+        index <- index + 1
+    index <- 0
+    while index < needed:
+        output[index] <- buffer[index]
+        index <- index + 1
+    needed.i64()

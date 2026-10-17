@@ -1,0 +1,51 @@
+const MAX_COUNT: i64 = 30
+const MAX_TARGET: i64 = 64
+const MAX_VALUE: i64 = 64
+const MAX_INPUT_LENGTH: usize = 33
+const INVALID_RESULT: i64 = -1
+
+def subset_count_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+
+    count_value: i64 = values[0]
+    target: i64 = values[1]
+    if count_value < 1 or count_value > MAX_COUNT or target < 0 or target > MAX_TARGET or
+        length != count_value.usize() + 2:
+        return INVALID_RESULT
+
+    count: usize = count_value.usize()
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = values[index + 2]
+        if value < 0 or value > MAX_VALUE: return INVALID_RESULT
+        index <- index + 1
+
+    previous: mutable i64[65] = zeroed
+    previous[0] <- 1
+    first_value: i64 = values[2]
+    if first_value <= target:
+        previous[first_value.usize()] <- 1
+
+    item_index: mutable usize = 1
+    target_size: usize = target.usize()
+    while item_index < count:
+        current: mutable i64[65] = zeroed
+        current[0] <- 1
+        amount: mutable usize = 1
+        while amount <= target_size:
+            not_taken: i64 = previous[amount]
+            value: i64 = values[item_index + 2]
+            taken: i64 = 0
+            if value <= amount.i64():
+                taken <- previous[(amount.i64() - value).usize()]
+            current[amount] <- not_taken + taken
+            amount <- amount + 1
+        amount <- 0
+        while amount <= target_size:
+            previous[amount] <- current[amount]
+            amount <- amount + 1
+        item_index <- item_index + 1
+    previous[target_size]
+
+export fn subset_count(values: i64&, length: usize) -> i64 = subset_count_impl

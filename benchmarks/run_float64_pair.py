@@ -14,11 +14,16 @@ import shlex
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from simpson_rule_oracle import FIXED_STEPS as SIMPSON_RULE_FIXED_STEPS
+from simpson_rule_oracle import INPUT_SCALED_TOLERANCE as SIMPSON_RULE_INPUT_SCALED_TOLERANCE
+from simpson_rule_oracle import INVALID_RESULT as SIMPSON_RULE_INVALID_RESULT
+from simpson_rule_oracle import SUPPORTED_BOUNDS as SIMPSON_RULE_SUPPORTED_BOUNDS
+from simpson_rule_oracle import expected_result as simpson_rule_oracle
 
 SUPPORTED_ALGORITHMS = {"conditional_probability", "arithmetic_geometric_mean", "speed_conversions", "speed_conversion",
                        "leaky_relu", "exponential_linear_unit", "elu", "composite_simpson_rule",
                        "false_position", "to_polar_angle_degrees", "problem144", "circle",
-                       "sigmoid_without_inbuilt"}
+                       "sigmoid_without_inbuilt", "simpson_rule"}
 
 
 def source_agm(a: float, g: float) -> float:
@@ -207,6 +212,17 @@ def encode_case(case: dict, tolerance: float,
             scale = max(1.0, abs(first), abs(second))
             if expected == -1.0 or abs(expected - expected_value) > tolerance * scale:
                 raise ValueError("composite_simpson_rule expected result must match the pinned weighted sum")
+    elif algorithm == "simpson_rule":
+        valid = first in SIMPSON_RULE_SUPPORTED_BOUNDS and second == SIMPSON_RULE_FIXED_STEPS
+        if not valid:
+            if expected != SIMPSON_RULE_INVALID_RESULT:
+                raise ValueError("invalid simpson_rule inputs must use the -1e300 result sentinel")
+        else:
+            expected_value = simpson_rule_oracle((first, second))
+            scale = max(1.0, abs(first), abs(second))
+            if (expected == SIMPSON_RULE_INVALID_RESULT
+                    or abs(expected - expected_value) > tolerance * scale):
+                raise ValueError("simpson_rule expected result must match the pinned repeated-addition loop")
     elif algorithm == "false_position":
         first_value = first * first - first
         second_value = second * second - second
@@ -271,6 +287,84 @@ def matches(observed: float, expected: float, tolerance: float,
     return math.isfinite(observed) and abs(observed - expected) <= max(absolute_tolerance, tolerance * scale)
 
 
+def validate_simpson_rule_workload(workload: dict) -> None:
+    """Pin the bounded Simpson contract and complete case set before recording."""
+    expected_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "maths/numerical_analysis/simpson_rule.py",
+        "symbols": ["method_2", "make_points", "f"],
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/numerical_analysis/simpson_rule.py",
+    }
+    required_case_ids = {
+        "source_default_b1", "upper_bound_b2", "upper_bound_b3", "lower_bound_outside_slice",
+        "negative_upper_bound", "upper_bound_above_slice", "fractional_upper_bound", "zero_steps",
+        "negative_steps", "wrong_positive_step_count", "fractional_steps",
+        "different_even_step_count", "steps_just_above_fixed",
+    }
+    cases = workload.get("cases") if isinstance(workload, dict) else None
+    case_ids = [case.get("id") if isinstance(case, dict) else None
+                for case in cases] if isinstance(cases, list) else []
+
+    def finite_binary64(value: object) -> bool:
+        if type(value) not in (int, float):
+            return False
+        try:
+            return math.isfinite(float(value))
+        except (OverflowError, ValueError):
+            return False
+
+    if (not isinstance(workload, dict)
+            or workload.get("schema_version") != "1.0.0"
+            or workload.get("id") != "simpson-rule-python-x2-10-steps-f64-pair-v1"
+            or workload.get("algorithm") != "simpson_rule"
+            or workload.get("function_symbol") != "simpson_rule"
+            or workload.get("description") != "Adapt the pinned Python method_2 Simpson loop to f(x)=x^2 on [0,b] with ten steps."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("input") != {
+                "kind": "two_finite_binary64_values",
+                "layout": ["b", "steps"],
+                "fixed_lower_bound": 0.0,
+                "upper_bound_values": list(SIMPSON_RULE_SUPPORTED_BOUNDS),
+                "fixed_step_count": SIMPSON_RULE_FIXED_STEPS,
+                "integrand": "(x - 0) * (x - 0)",
+                "invalid_input_result": SIMPSON_RULE_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "binary64",
+                "definition": "Pinned Python method_2 accumulation: h=(b-a)/steps; repeated x+=h samples while x<b-h; alternating interior weights 4 and 2; each term scaled by h/3.",
+                "invalid_input_result": SIMPSON_RULE_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "float64_pair_call",
+                "input_scaled_tolerance": SIMPSON_RULE_INPUT_SCALED_TOLERANCE,
+                "sample_count": 7,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 1000,
+            }
+            or SIMPSON_RULE_SUPPORTED_BOUNDS != (1.0, 2.0, 3.0)
+            or SIMPSON_RULE_FIXED_STEPS != 10.0
+            or SIMPSON_RULE_INPUT_SCALED_TOLERANCE != 1e-12
+            or SIMPSON_RULE_INVALID_RESULT != -1e300
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids
+            or any(not isinstance(case, dict)
+                   or not isinstance(case.get("input_values"), list)
+                   or len(case["input_values"]) != 2
+                   or any(not finite_binary64(value) for value in case["input_values"])
+                   or not finite_binary64(case.get("expected_result"))
+                   for case in cases)):
+        raise ValueError("simpson_rule workload metadata or case set does not match its reviewed contract")
+
+    readme_path = ROOT / "benchmarks" / "s" / "simpson_rule" / "README.md"
+    readme = readme_path.read_text(encoding="utf-8")
+    if (expected_source["url"] not in readme
+            or "repeated-addition sampling" not in readme
+            or "input-scaled tolerance `1e-12`" not in readme):
+        raise ValueError("simpson_rule README is missing its pinned source or numeric contract")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -300,6 +394,8 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "float64_pair_call"):
         parser.error("workload does not match the built float64 pair algorithm")
+    if algorithm == "simpson_rule":
+        validate_simpson_rule_workload(workload)
     timing = workload["measurement"]
     tolerance = float(timing.get("relative_tolerance", timing.get("input_scaled_tolerance", 0.0)))
     absolute_tolerance = float(timing.get("absolute_tolerance", 0.0))

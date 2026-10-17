@@ -28,6 +28,8 @@ FAMILIES = {"scalar": ("scalar_call", ["scalar_runner", "scalar_check"]),
                                     ["float64_point_array_runner", "float64_point_array_check"]),
             "i64_array_bytes_output": ("i64_array_bytes_output_call",
                                        ["i64_array_bytes_output_runner", "i64_array_bytes_output_check"]),
+            "i32_array_bytes_output": ("i32_array_bytes_output_call",
+                                       ["i32_array_bytes_output_runner", "i32_array_bytes_output_check"]),
             "i64_scalar_bytes_output": ("i64_scalar_bytes_output_call",
                                         ["i64_scalar_bytes_output_runner", "i64_scalar_bytes_output_check"]),
             "i64_array_scalar": ("i64_array_scalar_call",
@@ -113,6 +115,8 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     if language in {"c", "cpp"}:
         standard = "-std=c11" if language == "c" else "-std=c++17"
         flags = [standard, "-O3", "-DNDEBUG", "-c"]
+        if algorithm == "pid":
+            flags.append("-ffp-contract=off")
         run([compiler, *flags, str(source), "-o", str(artifact)])
     elif language == "c3":
         flags = ["-O3", "--no-entry"]
@@ -144,6 +148,8 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         native_link_flags = shlex.split(libraries[0])
     elif language == "v":
         flags = ["-prod", "-is_o", "-gc", "none", "-no-skip-unused", "-cc", c_compiler]
+        if algorithm == "stream_sieve":
+            flags.append("-enable-globals")
         run([compiler, *flags,
              "-dump-c-flags", str(directory / "v-c-flags.txt"), "-o", str(artifact), str(source)])
     elif language == "zig":
@@ -171,6 +177,12 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         executable = directory / (name + (".exe" if os.name == "nt" else ""))
         workspace_flag = []
         if (name == "i64_array_bytes_output_check" and family == "i64_array_bytes_output"
+                and "workspace" in spec):
+            workspace_bytes = spec["workspace"].get("bytes")
+            if type(workspace_bytes) is not int or not 1 <= workspace_bytes <= 400004:
+                raise ValueError("workspace bytes must be an integer from 1 through 400004")
+            workspace_flag = [f"-DBENCHMARK_WORKSPACE_BYTES={workspace_bytes}"]
+        if (name == "i32_array_bytes_output_check" and family == "i32_array_bytes_output"
                 and "workspace" in spec):
             workspace_bytes = spec["workspace"].get("bytes")
             if type(workspace_bytes) is not int or not 1 <= workspace_bytes <= 400004:

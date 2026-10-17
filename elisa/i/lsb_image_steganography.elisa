@@ -1,0 +1,42 @@
+def lsb_image_steganography_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 3 or length > 292:
+        return -1
+    if input[0] < 1 or input[0] > 16 or input[1] < 1 or input[1] > 16 or input[2] < 0 or input[2] > 32:
+        return -1
+    rows: usize = input[0].usize()
+    columns: usize = input[1].usize()
+    message_length: usize = input[2].usize()
+    pixel_count: usize = rows * columns
+    if message_length * 8 > pixel_count or length != 3 + pixel_count + message_length:
+        return -1
+    index: usize = 0
+    while index < pixel_count:
+        if input[3 + index] < 0 or input[3 + index] > 254:
+            return -1
+        index <- index + 1
+    index <- 0
+    while index < message_length:
+        if input[3 + pixel_count + index] < 0 or input[3 + pixel_count + index] > 127:
+            return -1
+        index <- index + 1
+    if output == null or output_capacity < pixel_count:
+        return -2
+    index <- 0
+    while index < pixel_count:
+        output[index] <- input[3 + index].u8()
+        index <- index + 1
+    bit_index: usize = 0
+    index <- 0
+    while index < message_length:
+        byte: usize = input[3 + pixel_count + index].usize()
+        shift: i64 = 7
+        while shift >= 0:
+            bit: usize = (byte >> shift.usize()) & 1
+            pixel: usize = input[3 + bit_index].usize()
+            output[bit_index] <- (pixel + ((pixel & 1) ^ bit)).u8()
+            bit_index <- bit_index + 1
+            shift <- shift - 1
+        index <- index + 1
+    pixel_count.i64()
+
+export fn lsb_image_steganography(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = lsb_image_steganography_impl

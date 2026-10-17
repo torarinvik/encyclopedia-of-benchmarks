@@ -24,7 +24,7 @@ INF_COST = 1_000_000_000
 
 def encode_grid_case(case: dict) -> list[int]:
     if "input_values" in case:
-        return encode_case(case)
+        return encode_case(case, algorithm=ALGORITHM)
     grid = case.get("grid")
     move_cost = case.get("move_cost")
     if not isinstance(grid, list) or not isinstance(move_cost, list):

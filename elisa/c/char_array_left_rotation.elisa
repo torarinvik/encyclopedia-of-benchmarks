@@ -1,0 +1,23 @@
+const MAX_LEN: usize = 256
+def reverse_bytes(a: mutable u8&, from: usize, to: usize) -> unit:
+    left: mutable usize = from; right: mutable usize = to
+    while left < right |a, left, right|:
+        t: u8 = a[left]; a[left] <- a[right]; a[right] <- t
+        left <- left + 1; right <- right - 1
+def char_array_left_rotation_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_LEN + 3: return -1
+    if input[0] < 0 or input[0] > MAX_LEN: return -1
+    n: usize = input[0].usize()
+    if input[1] < 0 or input[1] > n.i64() or length != n + 2: return -1
+    for i in 0..<n |input|:
+        if input[i + 2] < 0 or input[i + 2] > 127: return -1
+    if output == null or capacity < n: return -2
+    a: mutable u8[256] = zeroed
+    for i in 0..<n |input, a|: a[i] <- input[i + 2].u8()
+    k: usize = input[1].usize()
+    if k > 0: reverse_bytes(a, 0, k - 1)
+    if k < n: reverse_bytes(a, k, n - 1)
+    if n > 0: reverse_bytes(a, 0, n - 1)
+    for i in 0..<n |a, output|: output[i] <- a[i]
+    n.i64()
+export fn char_array_left_rotation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = char_array_left_rotation_impl

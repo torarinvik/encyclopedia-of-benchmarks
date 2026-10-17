@@ -1,0 +1,127 @@
+const MAX_POINT_COUNT: usize = 64
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 130
+const MAX_COORDINATE: i64 = 1000000
+
+struct Point:
+    x: i64
+    y: i64
+
+def point_less(a: Point, b: Point) -> bool:
+    a.x < b.x or (a.x == b.x and a.y < b.y)
+
+def cross_product(origin: Point, first: Point, second: Point) -> i64:
+    dx1: i64 = first.x - origin.x
+    dy1: i64 = first.y - origin.y
+    dx2: i64 = second.x - origin.x
+    dy2: i64 = second.y - origin.y
+    dx1 * dy2 - dy1 * dx2
+
+def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u32 = value.u32()
+    output[offset] <- (bits & 255).u8()
+    output[offset + 1] <- ((bits >> 8) & 255).u8()
+    output[offset + 2] <- ((bits >> 16) & 255).u8()
+    output[offset + 3] <- ((bits >> 24) & 255).u8()
+
+def monotone_chain_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    raw_count: i64 = values[0]
+    if raw_count < 0 or raw_count > MAX_POINT_COUNT.i64():
+        return -1
+    count: usize = raw_count.usize()
+    if length != 1 + 2 * count:
+        return -1
+
+    points: mutable Point[MAX_POINT_COUNT] = zeroed
+    scratch: mutable Point[MAX_POINT_COUNT] = zeroed
+    hull: mutable Point[2 * MAX_POINT_COUNT] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        x: i64 = values[1 + 2 * index]
+        y: i64 = values[2 + 2 * index]
+        if x < -MAX_COORDINATE or x > MAX_COORDINATE or
+           y < -MAX_COORDINATE or y > MAX_COORDINATE:
+            return -1
+        points[index].x <- x
+        points[index].y <- y
+        index <- index + 1
+
+    width: mutable usize = 1
+    while width < count:
+        start: mutable usize = 0
+        while start < count:
+            middle: mutable usize = start + width
+            if middle > count: middle <- count
+            end_index: mutable usize = middle + width
+            if end_index > count: end_index <- count
+            left: mutable usize = start
+            right: mutable usize = middle
+            destination: mutable usize = start
+            while left < middle and right < end_index:
+                if point_less(points[right], points[left]):
+                    scratch[destination] <- points[right]
+                    right <- right + 1
+                else:
+                    scratch[destination] <- points[left]
+                    left <- left + 1
+                destination <- destination + 1
+            while left < middle:
+                scratch[destination] <- points[left]
+                left <- left + 1
+                destination <- destination + 1
+            while right < end_index:
+                scratch[destination] <- points[right]
+                right <- right + 1
+                destination <- destination + 1
+            start <- start + 2 * width
+        index <- 0
+        while index < count:
+            points[index] <- scratch[index]
+            index <- index + 1
+        width <- width * 2
+
+    unique_count: mutable usize = 0
+    index <- 0
+    while index < count:
+        if unique_count == 0 or points[index].x != points[unique_count - 1].x or
+           points[index].y != points[unique_count - 1].y:
+            points[unique_count] <- points[index]
+            unique_count <- unique_count + 1
+        index <- index + 1
+
+    hull_count: mutable usize = 0
+    if unique_count == 1:
+        hull[hull_count] <- points[0]
+        hull_count <- hull_count + 1
+    else if unique_count > 1:
+        index <- 0
+        while index < unique_count:
+            while hull_count >= 2 and
+                  cross_product(hull[hull_count - 2], hull[hull_count - 1], points[index]) <= 0:
+                hull_count <- hull_count - 1
+            hull[hull_count] <- points[index]
+            hull_count <- hull_count + 1
+            index <- index + 1
+        lower_count: usize = hull_count
+        index <- unique_count - 1
+        while index > 0:
+            index <- index - 1
+            while hull_count > lower_count and
+                  cross_product(hull[hull_count - 2], hull[hull_count - 1], points[index]) <= 0:
+                hull_count <- hull_count - 1
+            hull[hull_count] <- points[index]
+            hull_count <- hull_count + 1
+        hull_count <- hull_count - 1
+
+    byte_count: usize = 8 * hull_count
+    if output.is_null() or output_capacity < byte_count:
+        return -2
+    index <- 0
+    while index < hull_count:
+        store_i32_le(hull[index].x, output, 8 * index)
+        store_i32_le(hull[index].y, output, 8 * index + 4)
+        index <- index + 1
+    byte_count.i64()
+
+export fn monotone_chain(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = monotone_chain_impl

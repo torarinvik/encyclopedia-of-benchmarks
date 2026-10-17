@@ -14,7 +14,41 @@ import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
-                                  _format_output, encode_case, tolerances)
+                                  _format_output, encode_case, tolerances,
+                                  validate_joint_probability_distribution_workload,
+                                  validate_pid_workload,
+                                  validate_shreedharacharya_workload,
+                                  validate_rotation_matrix_workload,
+                                  validate_simple_pendulum_rk4_workload,
+                                  validate_piecewise_without_inbuilt_workload,
+                                  validate_koch_snowflake_workload,
+                                  validate_k_d_tree_workload,
+                                  validate_linear_regression_vectorized_workload,
+                                  validate_perlin_noise_workload,
+                                  _decode_k_d_tree_abi_values)
+from shreedharacharya_oracle import MAX_COEFFICIENT as SHREEDHARACHARYA_MAX_COEFFICIENT
+from shreedharacharya_oracle import MIN_ABS_LEADING_COEFFICIENT as SHREEDHARACHARYA_MIN_ABS_A
+from linear_regression_vectorized_oracle import MAX_ALPHA as LINEAR_REGRESSION_MAX_ALPHA
+from linear_regression_vectorized_oracle import MAX_FEATURE_COUNT as LINEAR_REGRESSION_MAX_FEATURE_COUNT
+from linear_regression_vectorized_oracle import MAX_FEATURE_OR_LABEL as LINEAR_REGRESSION_MAX_FEATURE_OR_LABEL
+from linear_regression_vectorized_oracle import MAX_ITERATIONS as LINEAR_REGRESSION_MAX_ITERATIONS
+from linear_regression_vectorized_oracle import MAX_SAMPLE_COUNT as LINEAR_REGRESSION_MAX_SAMPLE_COUNT
+from linear_regression_vectorized_oracle import MIN_ALPHA as LINEAR_REGRESSION_MIN_ALPHA
+from linear_regression_vectorized_oracle import MIN_FEATURE_COUNT as LINEAR_REGRESSION_MIN_FEATURE_COUNT
+from linear_regression_vectorized_oracle import MIN_FEATURE_OR_LABEL as LINEAR_REGRESSION_MIN_FEATURE_OR_LABEL
+from linear_regression_vectorized_oracle import MIN_ITERATIONS as LINEAR_REGRESSION_MIN_ITERATIONS
+from linear_regression_vectorized_oracle import MIN_SAMPLE_COUNT as LINEAR_REGRESSION_MIN_SAMPLE_COUNT
+from perlin_noise_oracle import INVALID_RESULT as PERLIN_NOISE_INVALID_RESULT
+from perlin_noise_oracle import MAX_DIMENSION as PERLIN_NOISE_MAX_DIMENSION
+from perlin_noise_oracle import MAX_OCTAVES as PERLIN_NOISE_MAX_OCTAVES
+from perlin_noise_oracle import MAX_OUTPUT_ELEMENTS as PERLIN_NOISE_MAX_OUTPUT_ELEMENTS
+from perlin_noise_oracle import MAX_SEED as PERLIN_NOISE_MAX_SEED
+from perlin_noise_oracle import MIN_DIMENSION as PERLIN_NOISE_MIN_DIMENSION
+from perlin_noise_oracle import MIN_OCTAVES as PERLIN_NOISE_MIN_OCTAVES
+from perlin_noise_oracle import MIN_SEED as PERLIN_NOISE_MIN_SEED
+from perlin_noise_oracle import OUTPUT_ERROR as PERLIN_NOISE_OUTPUT_ERROR
+from perlin_noise_oracle import PERSISTENCE_VALUES as PERLIN_NOISE_PERSISTENCE_VALUES
+from perlin_noise_oracle import expected_result as perlin_noise_oracle
 
 ALGORITHMS = tuple(ORACLES)
 
@@ -44,10 +78,38 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     records.append((values, -2, [], workspace, 0, 1))
     for invalid_length in (4, 6):
         invalid_input = [0.0] * invalid_length
-        if ORACLES[algorithm](invalid_input) is None:
+        oracle_result = ORACLES[algorithm](invalid_input)
+        invalid = (oracle_result[0] < 0
+                   if algorithm in {"joint_probability_distribution", "shreedharacharya", "rotation_matrix"}
+                   else oracle_result is None)
+        if invalid:
             records.append((invalid_input, -1, [], workspace, 0, 0))
     records.extend(((values, -1, [], workspace, 1, 0),
                     ([], -1, [], workspace, 0, 0)))
+
+    if algorithm == "k_d_tree":
+        for case in workload.get("abi_cases", []):
+            inputs = _decode_k_d_tree_abi_values(case.get("input_values"))
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null", False)
+            oracle_output = ORACLES[algorithm](inputs)
+            if oracle_output is None:
+                expected_result, expected_output = -1, []
+            elif output_is_null or len(oracle_output) > capacity:
+                expected_result, expected_output = -2, []
+            else:
+                expected_result = len(oracle_output)
+                expected_output = [_output_token(value) for value in oracle_output]
+            if case.get("expected_result") != expected_result:
+                raise ValueError(f"k_d_tree ABI probe mismatch: {case.get('id')}")
+            records.append((inputs, expected_result, expected_output, capacity, 0,
+                            int(output_is_null)))
+
+    if algorithm == "koch_snowflake":
+        invalid_input = [0.0, 1.0]
+        if ORACLES[algorithm](invalid_input) is not None:
+            raise ValueError("koch_snowflake must reject a point count below its minimum")
+        records.append((invalid_input, -1, [], workspace, 0, 1))
 
     if algorithm == "rayleigh_quotient":
         oracle = ORACLES[algorithm]
@@ -284,6 +346,375 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                 nonfinite = list(valid_input)
                 nonfinite[index] = special
                 add_projectile_case(nonfinite)
+    elif algorithm == "momentum":
+        oracle = ORACLES[algorithm]
+
+        def add_momentum_invalid_case(inputs: list[float]) -> None:
+            if oracle(inputs) is not None:
+                raise ValueError("momentum oracle accepted an invalid ABI probe")
+            # Keep malformed values out of the JSON workload/recorder path:
+            # encode_case intentionally accepts only finite inputs. The C ABI
+            # checker can parse these values and verify rejection/no-write.
+            records.append((inputs, -1, [], workspace, 0, 0))
+
+        add_momentum_invalid_case([0.0] * 65)
+        add_momentum_invalid_case([1_000_000.000001])
+        add_momentum_invalid_case([-1_000_000.000001])
+        for special in (math.nan, math.inf, -math.inf):
+            add_momentum_invalid_case([special])
+    elif algorithm == "pid":
+        oracle = ORACLES[algorithm]
+
+        def add_pid_invalid_case(inputs: list[float], output_is_null: bool = False) -> None:
+            if oracle(inputs) is not None:
+                raise ValueError("pid oracle accepted an invalid ABI probe")
+            records.append((inputs, -1, [], workspace, 0, int(output_is_null)))
+
+        # The active float64-slice ABI accepts at most 64 input values.
+        add_pid_invalid_case([0.0, 0.0, 0.0, 0.5, *([0.0] * 61)])
+        # A malformed finite input must be rejected before a null output pointer.
+        add_pid_invalid_case([1.00000001, 0.0, 0.0, 0.5, 0.0], output_is_null=True)
+
+        # Probe every parameter class and an error sample with non-finite values.
+        valid_input = [0.0, 0.0, 0.0, 0.5, 0.0]
+        for index in range(len(valid_input)):
+            for special in (math.nan, math.inf, -math.inf):
+                invalid_input = list(valid_input)
+                invalid_input[index] = special
+                add_pid_invalid_case(invalid_input)
+    elif algorithm == "joint_probability_distribution":
+        oracle = ORACLES[algorithm]
+
+        def add_joint_probability_case(inputs: list[float], output_is_null: bool = False) -> None:
+            expected_result, expected_output = oracle(inputs)
+            if output_is_null and expected_result >= 0:
+                expected_result, expected_output = -2, []
+            records.append((inputs, expected_result, expected_output,
+                            workspace, 0, int(output_is_null)))
+
+        rng = random.Random(20261017)
+        for _ in range(64):
+            nx, ny = rng.randint(1, 4), rng.randint(1, 4)
+            x_values = rng.sample(range(-1000, 1001), nx)
+            y_values = rng.sample(range(-1000, 1001), ny)
+            x_probabilities = [rng.uniform(-1_000_000.0, 1_000_000.0) for _ in range(nx)]
+            y_probabilities = [rng.uniform(-1_000_000.0, 1_000_000.0) for _ in range(ny)]
+            inputs = [float(nx), float(ny), *map(float, x_values), *map(float, y_values),
+                      *x_probabilities, *y_probabilities]
+            add_joint_probability_case(inputs)
+
+        invalid_inputs = (
+            [1.0, 1.0, 1.0, 2.0, 0.5],
+            [1.0, 1.0, 1.0, 2.0, 0.5, 0.5, 99.0],
+            [1.0, 1.0, 1.5, 2.0, 0.5, 0.5],
+            [2.0, 1.0, 1.0, 1.0, 2.0, 0.25, 0.75, 0.5],
+            [1.0, 1.0, 1.0, 2.0, 1_000_000.1, 0.5],
+            [1.0, 1.0, 1.0, 2.0, math.nan, 0.5],
+            [1.0, 1.0, 1.0, 2.0, math.inf, 0.5],
+        )
+        for inputs in invalid_inputs:
+            if oracle(inputs)[0] != -1:
+                raise ValueError("joint_probability_distribution oracle accepted a malformed probe")
+            add_joint_probability_case(inputs)
+
+        maximum_case = next(case for case in workload["cases"]
+                            if case.get("id") == "maximum_support_sizes")
+        maximum_values, _, _ = encode_case(
+            maximum_case, algorithm, absolute_tolerance, relative_tolerance)
+        parseable_limit_input = [*maximum_values, 0.0, 0.0]
+        if len(parseable_limit_input) != 20 or oracle(parseable_limit_input)[0] != -1:
+            raise ValueError("joint_probability_distribution parseable-limit probe is malformed")
+        add_joint_probability_case(parseable_limit_input)
+
+        invalid_before_null_output = [1.0, 1.0, 1.5, 2.0, 0.5, 0.5]
+        if oracle(invalid_before_null_output)[0] != -1:
+            raise ValueError("joint_probability_distribution oracle accepted an invalid null-output probe")
+        add_joint_probability_case(invalid_before_null_output, output_is_null=True)
+    elif algorithm == "shreedharacharya":
+        oracle = ORACLES[algorithm]
+
+        def add_shreedharacharya_case(inputs: list[float], output_is_null: bool = False) -> None:
+            expected_result, expected_output = oracle(inputs)
+            if output_is_null and expected_result >= 0:
+                expected_result, expected_output = -2, []
+            records.append((inputs, expected_result, expected_output,
+                            workspace, 0, int(output_is_null)))
+
+        finite_probes = (
+            [SHREEDHARACHARYA_MIN_ABS_A, -2e-6, 1e-6],
+            [-SHREEDHARACHARYA_MIN_ABS_A, 2e-6, -1e-6],
+            [SHREEDHARACHARYA_MAX_COEFFICIENT, 0.0, 0.0],
+            [-SHREEDHARACHARYA_MAX_COEFFICIENT, 0.0, 0.0],
+            [1.0, 0.0, 1.0],
+            [1.0, 2.0, 1.0],
+            [0.0, 0.0, 1.0],
+            [SHREEDHARACHARYA_MIN_ABS_A * 0.999, 0.0, 0.0],
+            [SHREEDHARACHARYA_MAX_COEFFICIENT + 1.0, 0.0, 0.0],
+            [1.0, SHREEDHARACHARYA_MAX_COEFFICIENT + 1.0, 0.0],
+            [1.0, 0.0, SHREEDHARACHARYA_MAX_COEFFICIENT + 1.0],
+        )
+        for inputs in finite_probes:
+            add_shreedharacharya_case(inputs)
+
+        parseable_limit_input = [1.0, 2.0, 1.0, *([0.0] * 61)]
+        if len(parseable_limit_input) != 64 or oracle(parseable_limit_input)[0] != -1:
+            raise ValueError("shreedharacharya parseable-limit probe is malformed")
+        add_shreedharacharya_case(parseable_limit_input)
+
+        rng = random.Random(20261017)
+        for _ in range(64):
+            magnitude = 10.0 ** rng.uniform(-6.0, 6.0)
+            a = magnitude if rng.randrange(2) else -magnitude
+            b = rng.uniform(-SHREEDHARACHARYA_MAX_COEFFICIENT,
+                            SHREEDHARACHARYA_MAX_COEFFICIENT)
+            c = rng.uniform(-SHREEDHARACHARYA_MAX_COEFFICIENT,
+                            SHREEDHARACHARYA_MAX_COEFFICIENT)
+            add_shreedharacharya_case([a, b, c])
+
+        for index in range(3):
+            for special in (math.nan, math.inf, -math.inf):
+                inputs = [1.0, 2.0, 1.0]
+                inputs[index] = special
+                if oracle(inputs)[0] != -1:
+                    raise ValueError("shreedharacharya oracle accepted a non-finite coefficient")
+                add_shreedharacharya_case(inputs)
+
+        zero_root_input = [1.0, 0.0, 1.0]
+        if oracle(zero_root_input) != (0, []):
+            raise ValueError("shreedharacharya oracle must preserve the empty-root result")
+        records.append((zero_root_input, 0, [], 0, 0, 0))
+        add_shreedharacharya_case(zero_root_input, output_is_null=True)
+
+        invalid_before_null_output = [0.0, 0.0, 1.0]
+        if oracle(invalid_before_null_output)[0] != -1:
+            raise ValueError("shreedharacharya oracle accepted the invalid null-output probe")
+        add_shreedharacharya_case(invalid_before_null_output, output_is_null=True)
+    elif algorithm == "rotation_matrix":
+        oracle = ORACLES[algorithm]
+
+        def add_rotation_matrix_case(inputs: list[float], output_is_null: bool = False) -> None:
+            expected_result, expected_output = oracle(inputs)
+            if output_is_null and expected_result >= 0:
+                expected_result, expected_output = -2, []
+            records.append((inputs, expected_result, expected_output,
+                            workspace, 0, int(output_is_null)))
+
+        rng = random.Random(20261017)
+        for _ in range(128):
+            add_rotation_matrix_case([rng.uniform(-1000.0, 1000.0)])
+
+        for angle in (0.0, -0.0, -1000.0, 1000.0, -999.999999, 999.999999,
+                      -1000.000001, 1000.000001):
+            add_rotation_matrix_case([angle])
+        for special in (math.nan, math.inf, -math.inf):
+            add_rotation_matrix_case([special])
+
+        parseable_limit_input = [0.0] * 64
+        if len(parseable_limit_input) != 64 or oracle(parseable_limit_input)[0] != -1:
+            raise ValueError("rotation_matrix parseable-limit probe is malformed")
+        add_rotation_matrix_case(parseable_limit_input)
+
+        invalid_before_null_output = [1000.000001]
+        if oracle(invalid_before_null_output)[0] != -1:
+            raise ValueError("rotation_matrix oracle accepted invalid input before null output")
+        add_rotation_matrix_case(invalid_before_null_output, output_is_null=True)
+    elif algorithm == "simple_pendulum_rk4":
+        oracle = ORACLES[algorithm]
+
+        def add_simple_pendulum_case(inputs: list[float], output_is_null: bool = False) -> None:
+            expected_output = oracle(inputs)
+            expected_result = -1 if expected_output is None else len(expected_output)
+            if output_is_null and expected_result >= 0:
+                expected_result, expected_output = -2, []
+            records.append((inputs, expected_result,
+                            [] if expected_output is None else expected_output,
+                            workspace, 0, int(output_is_null)))
+
+        rng_pendulum = random.Random(20261017)
+        for _ in range(128):
+            inputs = [
+                float(rng_pendulum.randint(10_000, 100_000_000)),
+                float(rng_pendulum.randint(100_000, 20_000_000)),
+                float(rng_pendulum.randint(-3_141_593, 3_141_593)),
+                float(rng_pendulum.randint(-100_000_000, 100_000_000)),
+                float(rng_pendulum.randint(1, 100_000)),
+            ]
+            add_simple_pendulum_case(inputs)
+
+        valid_input = [1_000_000.0, 9_800_000.0, 523_599.0, -1_250_000.0, 20_000.0]
+        if oracle(valid_input) is None:
+            raise ValueError("simple_pendulum_rk4 oracle rejected a valid capacity probe")
+        for capacity in (0, 1, 2):
+            result = -2 if capacity < 2 else 2
+            output = [] if capacity < 2 else oracle(valid_input)
+            records.append((valid_input, result, output, capacity, 0, 0))
+        add_simple_pendulum_case(valid_input, output_is_null=True)
+
+        for index in range(5):
+            for special in (math.nan, math.inf, -math.inf):
+                inputs = list(valid_input)
+                inputs[index] = special
+                if oracle(inputs) is not None:
+                    raise ValueError("simple_pendulum_rk4 oracle accepted a non-finite input")
+                add_simple_pendulum_case(inputs)
+
+        fractional_micro_input = list(valid_input)
+        fractional_micro_input[2] = 523_599.5
+        if oracle(fractional_micro_input) is not None:
+            raise ValueError("simple_pendulum_rk4 oracle accepted a fractional micro-unit")
+        add_simple_pendulum_case(fractional_micro_input)
+
+        parseable_limit_input = [*valid_input, *([0.0] * 59)]
+        if len(parseable_limit_input) != 64 or oracle(parseable_limit_input) is not None:
+            raise ValueError("simple_pendulum_rk4 parseable-limit probe is malformed")
+        add_simple_pendulum_case(parseable_limit_input)
+
+        invalid_before_null_output = [9_999.0, *valid_input[1:]]
+        if len(invalid_before_null_output) != 5 or oracle(invalid_before_null_output) is not None:
+            raise ValueError("simple_pendulum_rk4 null-output precedence probe is malformed")
+        add_simple_pendulum_case(invalid_before_null_output, output_is_null=True)
+    elif algorithm == "piecewise_without_inbuilt":
+        oracle = ORACLES[algorithm]
+
+        def add_piecewise_case(inputs: list[float], capacity: int = workspace,
+                               output_is_null: bool = False) -> None:
+            expected_output = oracle(inputs)
+            expected_result = -1 if expected_output is None else len(expected_output)
+            output = [] if expected_output is None else expected_output
+            if expected_result >= 0 and output_is_null:
+                expected_result, output = -2, []
+            elif expected_result >= 0 and capacity < expected_result:
+                expected_result, output = -2, []
+            records.append((inputs, expected_result, output, capacity, 0,
+                            int(output_is_null)))
+
+        rng_piecewise = random.Random(20261019)
+        for _ in range(128):
+            add_piecewise_case([rng_piecewise.uniform(-10.0, 10.0)])
+
+        for value in (-10.0, -0.500001, -0.5, -0.499999, 0.0,
+                      0.499999, 0.5, 0.500001, 10.0):
+            add_piecewise_case([value])
+
+        for special in (math.nan, math.inf, -math.inf):
+            if oracle([special]) is not None:
+                raise ValueError("piecewise_without_inbuilt oracle accepted a non-finite input")
+            add_piecewise_case([special])
+
+        parseable_limit_input = [0.0] * 64
+        if len(parseable_limit_input) != 64 or oracle(parseable_limit_input) is not None:
+            raise ValueError("piecewise_without_inbuilt parseable-limit probe is malformed")
+        add_piecewise_case(parseable_limit_input)
+
+        valid_capacity_probe = [0.125]
+        if oracle(valid_capacity_probe) is None:
+            raise ValueError("piecewise_without_inbuilt oracle rejected a valid capacity probe")
+        add_piecewise_case(valid_capacity_probe, capacity=0)
+        add_piecewise_case(valid_capacity_probe, capacity=1)
+        add_piecewise_case(valid_capacity_probe, output_is_null=True)
+
+        invalid_before_null_output = [10.000001]
+        if oracle(invalid_before_null_output) is not None:
+            raise ValueError("piecewise_without_inbuilt oracle accepted invalid input before null output")
+        add_piecewise_case(invalid_before_null_output, capacity=0, output_is_null=True)
+
+        for malformed in ([], [0.0, 0.0]):
+            if oracle(malformed) is not None:
+                raise ValueError("piecewise_without_inbuilt oracle accepted malformed input framing")
+            add_piecewise_case(malformed)
+    elif algorithm == "linear_regression_vectorized":
+        oracle = ORACLES[algorithm]
+
+        def add_linear_regression_case(inputs: list[float], capacity: int = workspace,
+                                       output_is_null: bool = False) -> None:
+            expected = oracle(inputs)
+            if expected is None:
+                result, output = -1, []
+            elif output_is_null or len(expected) > capacity:
+                result, output = -2, []
+            else:
+                result, output = len(expected), expected
+            records.append((inputs, result, output, capacity, 0, int(output_is_null)))
+
+        rng_regression = random.Random(20261017)
+        for _ in range(128):
+            sample_count = rng_regression.randint(
+                LINEAR_REGRESSION_MIN_SAMPLE_COUNT, LINEAR_REGRESSION_MAX_SAMPLE_COUNT)
+            feature_count = rng_regression.randint(
+                LINEAR_REGRESSION_MIN_FEATURE_COUNT, LINEAR_REGRESSION_MAX_FEATURE_COUNT)
+            iterations = rng_regression.randint(
+                LINEAR_REGRESSION_MIN_ITERATIONS, LINEAR_REGRESSION_MAX_ITERATIONS)
+            alpha = rng_regression.uniform(LINEAR_REGRESSION_MIN_ALPHA, LINEAR_REGRESSION_MAX_ALPHA)
+            features: list[float] = []
+            for _row in range(sample_count):
+                features.append(1.0)
+                features.extend(rng_regression.uniform(
+                    LINEAR_REGRESSION_MIN_FEATURE_OR_LABEL,
+                    LINEAR_REGRESSION_MAX_FEATURE_OR_LABEL)
+                    for _column in range(feature_count - 1))
+            labels = [rng_regression.uniform(
+                LINEAR_REGRESSION_MIN_FEATURE_OR_LABEL,
+                LINEAR_REGRESSION_MAX_FEATURE_OR_LABEL)
+                for _row in range(sample_count)]
+            inputs = [float(sample_count), float(feature_count), float(iterations), alpha,
+                      *features, *labels]
+            add_linear_regression_case(inputs)
+
+        valid_probe = [float(value) for value in workload["cases"][0]["input_values"]]
+        add_linear_regression_case(valid_probe, capacity=1)
+        add_linear_regression_case(valid_probe, output_is_null=True)
+        invalid_before_null = [0.0, 2.0, 10.0, 0.001, 1.0, 0.0, 1.0, 0.0]
+        if oracle(invalid_before_null) is not None:
+            raise ValueError("linear_regression_vectorized oracle accepted invalid input before null output")
+        add_linear_regression_case(invalid_before_null, capacity=0, output_is_null=True)
+    elif algorithm == "perlin_noise":
+        oracle = ORACLES[algorithm]
+
+        def add_perlin_case(inputs: list[float], capacity: int = workspace,
+                            output_is_null: bool = False) -> None:
+            expected = oracle(inputs)
+            if expected is None:
+                result, output = -1, []
+            elif output_is_null or len(expected) > capacity:
+                result, output = PERLIN_NOISE_OUTPUT_ERROR, []
+            else:
+                result, output = len(expected), expected
+            records.append((inputs, result, output, capacity, 0, int(output_is_null)))
+
+        rng_perlin = random.Random(20261017)
+        for index in range(128):
+            width = rng_perlin.randint(PERLIN_NOISE_MIN_DIMENSION, PERLIN_NOISE_MAX_DIMENSION)
+            height = rng_perlin.randint(PERLIN_NOISE_MIN_DIMENSION, PERLIN_NOISE_MAX_DIMENSION)
+            octave_count = rng_perlin.randint(PERLIN_NOISE_MIN_OCTAVES, PERLIN_NOISE_MAX_OCTAVES)
+            persistence = rng_perlin.choice(PERLIN_NOISE_PERSISTENCE_VALUES)
+            seed = rng_perlin.choice((PERLIN_NOISE_MIN_SEED, 1, 12345,
+                                      PERLIN_NOISE_MAX_SEED,
+                                      rng_perlin.randint(PERLIN_NOISE_MIN_SEED,
+                                                         PERLIN_NOISE_MAX_SEED)))
+            inputs = [float(width), float(height), float(octave_count), persistence, float(seed)]
+            add_perlin_case(inputs)
+            if index % 16 == 0:
+                add_perlin_case(inputs, output_is_null=True)
+
+        valid_probe = [1.0, 1.0, 1.0, 0.5, 0.0]
+        add_perlin_case(valid_probe, capacity=0)
+        add_perlin_case(valid_probe, capacity=1)
+        add_perlin_case(valid_probe, output_is_null=True)
+
+        invalid_before_null_output = [0.0, 1.0, 1.0, 0.5, 0.0]
+        if oracle(invalid_before_null_output) is not None:
+            raise ValueError("perlin_noise oracle accepted invalid input before null output")
+        add_perlin_case(invalid_before_null_output, capacity=0, output_is_null=True)
+
+        malformed = (
+            [], [1.0, 1.0, 1.0, 0.5], [1.0, 1.0, 1.0, 0.5, 0.0, 0.0],
+            [1.5, 1.0, 1.0, 0.5, 0.0], [1.0, 1.0, 0.0, 0.5, 0.0],
+            [1.0, 1.0, 1.0, 0.25, 0.0], [1.0, 1.0, 1.0, 0.5, -1.0],
+        )
+        for inputs in malformed:
+            add_perlin_case(inputs)
+        # The checker distinguishes a null pointer from a one-element input array.
+        records.append(([0.0], PERLIN_NOISE_INVALID_RESULT, [], workspace, 1, 0))
 
     lines = [f"{len(records)} {absolute_tolerance:.17g} {relative_tolerance:.17g} {workspace}\n"]
     for inputs, expected_result, expected_output, capacity, input_null, output_null in records:
@@ -383,6 +814,24 @@ def main() -> int:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if workload.get("algorithm") != algorithm:
         parser.error("workload algorithm does not match the requested algorithm")
+    if algorithm == "pid":
+        validate_pid_workload(workload)
+    elif algorithm == "joint_probability_distribution":
+        validate_joint_probability_distribution_workload(workload)
+    elif algorithm == "shreedharacharya":
+        validate_shreedharacharya_workload(workload)
+    elif algorithm == "rotation_matrix":
+        validate_rotation_matrix_workload(workload)
+    elif algorithm == "simple_pendulum_rk4":
+        validate_simple_pendulum_rk4_workload(workload)
+    elif algorithm == "koch_snowflake":
+        validate_koch_snowflake_workload(workload)
+    elif algorithm == "k_d_tree":
+        validate_k_d_tree_workload(workload)
+    elif algorithm == "linear_regression_vectorized":
+        validate_linear_regression_vectorized_workload(workload)
+    elif algorithm == "perlin_noise":
+        validate_perlin_noise_workload(workload)
     data, count = checker_records(algorithm, workload)
     build_root = (args.build_dir or ROOT / "build" / "float64_slice_io" / algorithm).resolve()
     build_root.mkdir(parents=True, exist_ok=True)

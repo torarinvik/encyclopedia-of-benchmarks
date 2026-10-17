@@ -1,0 +1,76 @@
+const MAX_PROCESSES: usize = 8
+const MAX_SCHEDULE_TICKS: usize = 80
+const MAX_OUTPUT_WORDS: usize = 81
+
+def put_i32_le(output: mutable u8&, offset: usize, value: i32) -> void:
+    bits: mutable u32 = value.u32()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def preemptive_priority_scheduling_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 33: return -1
+    process_count: i32 = input[0]
+    if process_count < 0 or process_count > MAX_PROCESSES.i32(): return -1
+    if length != 1 + 4 * process_count.usize(): return -1
+
+    ids: mutable i32[MAX_PROCESSES] = zeroed
+    arrivals: mutable i32[MAX_PROCESSES] = zeroed
+    remaining: mutable i32[MAX_PROCESSES] = zeroed
+    priorities: mutable i32[MAX_PROCESSES] = zeroed
+    seen_ids: mutable bool[MAX_PROCESSES] = zeroed
+    index: mutable usize = 0
+    while index < process_count.usize():
+        offset: usize = 1 + 4 * index
+        id: i32 = input[offset]
+        arrival: i32 = input[offset + 1]
+        burst: i32 = input[offset + 2]
+        priority: i32 = input[offset + 3]
+        if id < 0 or id >= MAX_PROCESSES.i32() or seen_ids[id.usize()] or arrival < 0 or arrival > 16 or burst < 1 or burst > 8: return -1
+        previous: mutable usize = 0
+        while previous < index:
+            if priorities[previous] == priority and arrivals[previous] == arrival: return -1
+            previous <- previous + 1
+        seen_ids[id.usize()] <- true
+        ids[index] <- id
+        arrivals[index] <- arrival
+        remaining[index] <- burst
+        priorities[index] <- priority
+        index <- index + 1
+
+    schedule: mutable i32[MAX_SCHEDULE_TICKS] = zeroed
+    tick_count: mutable usize = 0
+    completed: mutable usize = 0
+    while completed < process_count.usize():
+        best: mutable usize = process_count.usize()
+        index <- 0
+        while index < process_count.usize():
+            if remaining[index] > 0 and arrivals[index] <= tick_count.i32():
+                if best == process_count.usize() or priorities[index] > priorities[best] or
+                    (priorities[index] == priorities[best] and arrivals[index] < arrivals[best]):
+                    best <- index
+            index <- index + 1
+        if best == process_count.usize(): schedule[tick_count] <- -1
+        else:
+            schedule[tick_count] <- ids[best]
+            remaining[best] <- remaining[best] - 1
+            if remaining[best] == 0: completed <- completed + 1
+        tick_count <- tick_count + 1
+
+    bytes: usize = (1 + tick_count) * 4
+    if output.is_null() or capacity < bytes: return -2
+    buffer: mutable u8[MAX_OUTPUT_WORDS * 4] = zeroed
+    put_i32_le(buffer, 0, tick_count.i32())
+    index <- 0
+    while index < tick_count:
+        put_i32_le(buffer, 4 * (index + 1), schedule[index])
+        index <- index + 1
+    index <- 0
+    while index < bytes:
+        output[index] <- buffer[index]
+        index <- index + 1
+    bytes.i64()
+
+export fn preemptive_priority_scheduling(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64 = preemptive_priority_scheduling_impl

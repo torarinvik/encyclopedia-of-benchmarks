@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-csharp-pollards-rho-factorizing-scalar-v1",
+  "algorithm": "pollards_rho_factorizing",
+  "function_symbol": "pollards_rho_factorizing",
+  "description": "Deterministic Pollard-rho gcd iteration with the pinned source seed.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/Other/PollardsRhoFactorizing.cs",
+    "symbol": "PollardsRhoFactorizing.Calculate",
+    "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/PollardsRhoFactorizing.cs"
+  },
+  "additional_pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/Numeric/GreatestCommonDivisor/BinaryGreatestCommonDivisorFinder.cs",
+    "symbol": "BinaryGreatestCommonDivisorFinder.FindGcd",
+    "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/GreatestCommonDivisor/BinaryGreatestCommonDivisorFinder.cs"
+  },
+  "input": {
+    "kind": "signed_i64_scalar",
+    "minimum": 2,
+    "maximum": 46340,
+    "domain_reason": "Positive inputs avoid the source modulo-by-zero and nonterminating n=1 cases; the upper bound prevents overflow in signed 32-bit x*x+1.",
+    "invalid_result": -1,
+    "out_of_domain_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "The first gcd(|x-y|, n) not equal to 1 from the pinned deterministic recurrence; this value may equal n.",
+    "not_a_primality_claim": true,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {
+      "id": "two",
+      "input_value": 2,
+      "expected_result": 2
+    },
+    {
+      "id": "small_prime_3",
+      "input_value": 3,
+      "expected_result": 3
+    },
+    {
+      "id": "composite_4_returns_n",
+      "input_value": 4,
+      "expected_result": 4
+    },
+    {
+      "id": "small_prime_5",
+      "input_value": 5,
+      "expected_result": 5
+    },
+    {
+      "id": "small_composite_6",
+      "input_value": 6,
+      "expected_result": 3
+    },
+    {
+      "id": "prime_7_returns_n",
+      "input_value": 7,
+      "expected_result": 7
+    },
+    {
+      "id": "power_of_two_8_returns_n",
+      "input_value": 8,
+      "expected_result": 8
+    },
+    {
+      "id": "composite_9",
+      "input_value": 9,
+      "expected_result": 3
+    },
+    {
+      "id": "even_composite_10",
+      "input_value": 10,
+      "expected_result": 2
+    },
+    {
+      "id": "composite_12",
+      "input_value": 12,
+      "expected_result": 3
+    },
+    {
+      "id": "composite_15",
+      "input_value": 15,
+      "expected_result": 3
+    },
+    {
+      "id": "composite_21_returns_n",
+      "input_value": 21,
+      "expected_result": 21
+    },
+    {
+      "id": "square_25_returns_n",
+      "input_value": 25,
+      "expected_result": 25
+    },
+    {
+      "id": "square_49",
+      "input_value": 49,
+      "expected_result": 7
+    },
+    {
+      "id": "composite_91",
+      "input_value": 91,
+      "expected_result": 7
+    },
+    {
+      "id": "semiprime_8051",
+      "input_value": 8051,
+      "expected_result": 97
+    },
+    {
+      "id": "semiprime_10403",
+      "input_value": 10403,
+      "expected_result": 101
+    },
+    {
+      "id": "near_bound_46339",
+      "input_value": 46339,
+      "expected_result": 149
+    },
+    {
+      "id": "maximum_safe_input",
+      "input_value": 46340,
+      "expected_result": 7
+    },
+    {
+      "id": "zero_rejected_before_source",
+      "input_value": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "one_rejected_before_source",
+      "input_value": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_rejected",
+      "input_value": -1,
+      "expected_result": -1
+    },
+    {
+      "id": "first_overflow_bound_rejected",
+      "input_value": 46341,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_i64_minimum_rejected",
+      "input_value": -9223372036854775808,
+      "expected_result": -1
+    },
+    {
+      "id": "signed_i64_maximum_rejected",
+      "input_value": 9223372036854775807,
+      "expected_result": -1
+    }
+  ]
+}

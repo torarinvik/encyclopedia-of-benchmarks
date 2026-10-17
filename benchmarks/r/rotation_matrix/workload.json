@@ -1,0 +1,299 @@
+{
+  "schema_version": 1,
+  "id": "rotation-matrix-julia-f64-slice-io-v1",
+  "algorithm": "rotation_matrix",
+  "function_symbol": "rotation_matrix",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Julia",
+    "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+    "path": "src/matrix/rotation_matrix.jl",
+    "symbol": "rotation_matrix",
+    "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/matrix/rotation_matrix.jl",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "construct the 2D counterclockwise rotation matrix from an angle in radians",
+    "formula": "[cos(theta), -sin(theta), sin(theta), cos(theta)]",
+    "output_order": "row-major",
+    "angle_normalization": "none"
+  },
+  "workspace": {
+    "elements": 4,
+    "meaning": "Four row-major elements of the 2x2 matrix."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[theta] in radians",
+    "valid_length_range": [
+      1,
+      1
+    ],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 64,
+    "angle_range": [
+      -1000.0,
+      1000.0
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "row-major [cos(theta),-sin(theta),sin(theta),cos(theta)]",
+    "maximum_elements": 4,
+    "success_result": "number of output float64 elements (4)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "zero_angle_identity",
+      "input_values": [
+        0.0
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        1.0,
+        -0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "id": "positive_quarter_turn",
+      "input_values": [
+        1.5707963267948966
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        6.123233995736766e-17,
+        -1.0,
+        1.0,
+        6.123233995736766e-17
+      ]
+    },
+    {
+      "id": "negative_quarter_turn",
+      "input_values": [
+        -1.5707963267948966
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        6.123233995736766e-17,
+        1.0,
+        -1.0,
+        6.123233995736766e-17
+      ]
+    },
+    {
+      "id": "half_turn",
+      "input_values": [
+        3.141592653589793
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        -1.0,
+        -1.2246467991473532e-16,
+        1.2246467991473532e-16,
+        -1.0
+      ]
+    },
+    {
+      "id": "full_turn",
+      "input_values": [
+        6.283185307179586
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        1.0,
+        2.4492935982947064e-16,
+        -2.4492935982947064e-16,
+        1.0
+      ]
+    },
+    {
+      "id": "positive_eighth_turn",
+      "input_values": [
+        0.7853981633974483
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        0.7071067811865476,
+        -0.7071067811865475,
+        0.7071067811865475,
+        0.7071067811865476
+      ]
+    },
+    {
+      "id": "negative_eighth_turn",
+      "input_values": [
+        -0.7853981633974483
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        0.7071067811865476,
+        0.7071067811865475,
+        -0.7071067811865475,
+        0.7071067811865476
+      ]
+    },
+    {
+      "id": "positive_one_third_turn",
+      "input_values": [
+        2.0943951023931953
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        -0.49999999999999983,
+        -0.8660254037844387,
+        0.8660254037844387,
+        -0.49999999999999983
+      ]
+    },
+    {
+      "id": "negative_one_third_turn",
+      "input_values": [
+        -2.0943951023931953
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        -0.49999999999999983,
+        0.8660254037844387,
+        -0.8660254037844387,
+        -0.49999999999999983
+      ]
+    },
+    {
+      "id": "fractional_radian",
+      "input_values": [
+        0.37
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        0.9323273456060345,
+        -0.361615431964962,
+        0.361615431964962,
+        0.9323273456060345
+      ]
+    },
+    {
+      "id": "negative_fractional_radian",
+      "input_values": [
+        -1.234
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        0.33046510807172985,
+        0.9438182093746337,
+        -0.9438182093746337,
+        0.33046510807172985
+      ]
+    },
+    {
+      "id": "large_positive_angle",
+      "input_values": [
+        999.0
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        0.9996498529808264,
+        0.026460752737064126,
+        -0.026460752737064126,
+        0.9996498529808264
+      ]
+    },
+    {
+      "id": "large_negative_angle",
+      "input_values": [
+        -999.0
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        0.9996498529808264,
+        -0.026460752737064126,
+        0.026460752737064126,
+        0.9996498529808264
+      ]
+    },
+    {
+      "id": "upper_angle_boundary",
+      "input_values": [
+        1000.0
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        0.562379076290703,
+        -0.8268795405320025,
+        0.8268795405320025,
+        0.562379076290703
+      ]
+    },
+    {
+      "id": "lower_angle_boundary",
+      "input_values": [
+        -1000.0
+      ],
+      "input_length": 1,
+      "expected_result": 4,
+      "expected_output": [
+        0.562379076290703,
+        0.8268795405320025,
+        -0.8268795405320025,
+        0.562379076290703
+      ]
+    },
+    {
+      "id": "angle_above_boundary",
+      "input_values": [
+        1000.000001
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "angle_below_boundary",
+      "input_values": [
+        -1000.000001
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        0.25,
+        0.5
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

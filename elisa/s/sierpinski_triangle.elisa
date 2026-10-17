@@ -1,0 +1,53 @@
+def sierpinski_triangle_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def sierpinski_triangle_emit(output: mutable u8&, position: mutable usize&,
+                             x0: i64, y0: i64, x1: i64, y1: i64) -> void:
+    sierpinski_triangle_write_i64(output, position, x0)
+    position <- position + 8
+    sierpinski_triangle_write_i64(output, position, y0)
+    position <- position + 8
+    sierpinski_triangle_write_i64(output, position, x1)
+    position <- position + 8
+    sierpinski_triangle_write_i64(output, position, y1)
+    position <- position + 8
+
+def sierpinski_triangle_draw(output: mutable u8&, position: mutable usize&,
+                             x1: i64, y1: i64, x2: i64, y2: i64,
+                             x3: i64, y3: i64, depth: i64) -> void:
+    sierpinski_triangle_emit(output, position, x1, y1, x2, y2)
+    sierpinski_triangle_emit(output, position, x2, y2, x3, y3)
+    sierpinski_triangle_emit(output, position, x3, y3, x1, y1)
+    if depth == 0: return
+    abx: i64 = (x1 + x2) / 2
+    aby: i64 = (y1 + y2) / 2
+    acx: i64 = (x1 + x3) / 2
+    acy: i64 = (y1 + y3) / 2
+    bcx: i64 = (x2 + x3) / 2
+    bcy: i64 = (y2 + y3) / 2
+    sierpinski_triangle_draw(output, position, x1, y1, abx, aby, acx, acy, depth - 1)
+    sierpinski_triangle_draw(output, position, x2, y2, abx, aby, bcx, bcy, depth - 1)
+    sierpinski_triangle_draw(output, position, x3, y3, bcx, bcy, acx, acy, depth - 1)
+
+def sierpinski_triangle_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length != 1: return -1
+    depth: i64 = input[0]
+    if depth < 0 or depth > 4: return -1
+    calls: mutable usize = 1
+    level: mutable i64 = 0
+    while level < depth:
+        calls <- calls * 3 + 1
+        level <- level + 1
+    needed: usize = calls * 96
+    if needed > 11616: return -1
+    if output == null or capacity < needed: return -2
+    position: mutable usize = 0
+    sierpinski_triangle_draw(output, position, -2800, -2000, 0, 2800, 2800, -2000, depth)
+    needed.i64()
+
+export fn sierpinski_triangle(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sierpinski_triangle_impl

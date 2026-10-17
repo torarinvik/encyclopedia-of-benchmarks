@@ -38,7 +38,7 @@ def make_corpus(workloads: dict[str, dict]) -> tuple[str, int]:
     cases: dict[tuple[int, ...], int] = {}
     for algorithm, workload in workloads.items():
         for case in workload["cases"]:
-            values = encode_case(case)
+            values = encode_case(case, algorithm=algorithm)
             expected = oracle(values)
             if expected != case["expected_result"]:
                 raise ValueError(f"published workload disagrees with the brute-force oracle: {algorithm}/{case['id']}")
@@ -92,7 +92,7 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of workload records")
     for case, record in zip(workload["cases"], records):
-        values = encode_case(case)
+        values = encode_case(case, algorithm=algorithm)
         if (record["algorithm"] != algorithm
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]

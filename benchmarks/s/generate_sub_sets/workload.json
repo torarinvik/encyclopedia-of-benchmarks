@@ -15,14 +15,20 @@
       9007199254740991
     ],
     "value_semantics": "values are exact safe JavaScript integers; positions remain distinct even when values repeat",
-    "invalid_input_result": -1
+    "invalid_input_result": -1,
+    "maximum_valid_input_length": 13,
+    "maximum_parseable_input_length": 14,
+    "null_input_result": -1
   },
   "output": {
     "kind": "binary_array_of_integer_arrays",
     "encoding": "u32le subset count, followed in ascending bitmask order by each u32le subset length and its signed i64le elements in input-position order",
     "success_result": "encoded byte length",
     "invalid_input_result": -1,
-    "insufficient_capacity_result": -2
+    "insufficient_capacity_result": -2,
+    "maximum_output_bytes": 212996,
+    "null_output_result": -2,
+    "no_write_on_error": true
   },
   "workspace": {
     "bytes": 212996
@@ -169,7 +175,58 @@
       ],
       "expected_result": -2,
       "expected_output_hex": "",
-      "workspace_bytes": 8
+      "workspace_bytes": 51,
+      "output_capacity": 51
+    },
+    {
+      "id": "positive_length_null_input",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "workspace_bytes": 212996,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_empty_subset_still_needs_eight_bytes",
+      "input_values": [
+        0
+      ],
+      "output_is_null": true,
+      "workspace_bytes": 212996,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_precedes_null_output",
+      "input_values": [
+        1,
+        7,
+        8
+      ],
+      "output_is_null": true,
+      "workspace_bytes": 212996,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_output_capacity",
+      "input_values": [
+        2,
+        1,
+        2
+      ],
+      "output_capacity": 52,
+      "workspace_bytes": 52,
+      "expected_result": 52,
+      "expected_output_hex": "04000000000000000100000001000000000000000100000002000000000000000200000001000000000000000200000000000000"
     }
-  ]
+  ],
+  "pinned_source": {
+    "repository": "TheAlgorithms/JavaScript",
+    "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+    "path": "Bit-Manipulation/GenerateSubSets.js",
+    "symbol": "generateSubSets",
+    "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Bit-Manipulation/GenerateSubSets.js"
+  }
 }

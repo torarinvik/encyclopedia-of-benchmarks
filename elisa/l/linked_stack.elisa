@@ -1,0 +1,84 @@
+const MAX_OPERATIONS: usize = 64
+const MAX_INPUT_LENGTH: usize = 129
+const MAX_OUTPUT_BYTES: usize = 1536
+
+def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def put_record(output: mutable u8&, offset: usize, opcode: i64, tag: i64, value: i64) -> void:
+    put_i64_le(opcode, output, offset)
+    put_i64_le(tag, output, offset + 8)
+    put_i64_le(value, output, offset + 16)
+
+def linked_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    raw_count: i64 = input[0]
+    if raw_count < 0 or raw_count > 64:
+        return -1
+    operation_count: usize = raw_count.usize()
+    opcodes: mutable i64[MAX_OPERATIONS] = zeroed
+    arguments: mutable i64[MAX_OPERATIONS] = zeroed
+    cursor: mutable usize = 1
+    index: mutable usize = 0
+    while index < operation_count:
+        if cursor >= length: return -1
+        opcode: i64 = input[cursor]
+        cursor <- cursor + 1
+        opcodes[index] <- opcode
+        if opcode == 1:
+            if cursor >= length: return -1
+            value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if value < -2147483648 or value > 2147483647: return -1
+            arguments[index] <- value
+        elif opcode < 2 or opcode > 4:
+            return -1
+        index <- index + 1
+    if cursor != length: return -1
+
+    node_values: mutable i64[65] = zeroed
+    below: mutable usize[65] = zeroed
+    node_count: mutable usize = 0
+    head: mutable usize = 0
+    buffer: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    written: mutable usize = 0
+    index <- 0
+    while index < operation_count:
+        opcode: i64 = opcodes[index]
+        tag: mutable i64 = 2
+        value: mutable i64 = 0
+        if opcode == 1:
+            node_count <- node_count + 1
+            node_values[node_count] <- arguments[index]
+            below[node_count] <- head
+            head <- node_count
+        elif opcode == 2:
+            if head != 0:
+                tag <- 0
+                value <- node_values[head]
+        elif opcode == 3:
+            if head != 0:
+                tag <- 0
+                value <- node_values[head]
+                head <- below[head]
+        else:
+            tag <- 1
+            value <- if head == 0 then 1 else 0
+        put_record(buffer, written, opcode, tag, value)
+        written <- written + 24
+        index <- index + 1
+
+    if output.is_null() or capacity < written: return -2
+    index <- 0
+    while index < written:
+        output[index] <- buffer[index]
+        index <- index + 1
+    written.i64()
+
+export fn linked_stack(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = linked_stack_impl

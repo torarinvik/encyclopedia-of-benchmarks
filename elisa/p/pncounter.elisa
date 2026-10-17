@@ -1,0 +1,94 @@
+def put_i64_le(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def append(words: mutable i64[128]&, count: mutable usize&, value: i64):
+    words[count] <- value
+    count <- count + 1
+
+def pncounter_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > 69: return -1
+    node_count: i64 = input[0]
+    if node_count < 1 or node_count > 16 or input[4] < 0 or input[4] > 64: return -1
+    ids: mutable usize[3] = zeroed
+    counter: mutable usize = 0
+    while counter < 3:
+        if input[1 + counter] < 0 or input[1 + counter] >= node_count: return -1
+        ids[counter] <- input[1 + counter].usize()
+        counter <- counter + 1
+    operation_count: usize = input[4].usize()
+    if length != 5 + operation_count: return -1
+
+    positive: mutable i64[3][16] = zeroed
+    negative: mutable i64[3][16] = zeroed
+    words: mutable i64[128] = zeroed
+    word_count: mutable usize = 0
+    position: mutable usize = 5
+    operation: mutable usize = 0
+    while operation < operation_count:
+        opcode: i64 = input[position]
+        position <- position + 1
+        if opcode < 0 or opcode > 20: return -1
+        if opcode < 6:
+            current_counter: usize = (opcode / 2).usize()
+            if opcode % 2 == 0: positive[current_counter][ids[current_counter]] <- positive[current_counter][ids[current_counter]] + 1
+            else: negative[current_counter][ids[current_counter]] <- negative[current_counter][ids[current_counter]] + 1
+            append(words, word_count, opcode)
+        elif opcode < 9:
+            current_counter: usize = (opcode - 6).usize()
+            value: mutable i64 = 0
+            node: mutable usize = 0
+            while node < node_count.usize():
+                value <- value + positive[current_counter][node] - negative[current_counter][node]
+                node <- node + 1
+            append(words, word_count, opcode)
+            append(words, word_count, value)
+        elif opcode < 15:
+            pair: usize = (opcode - 9).usize()
+            target: usize = 0
+            source: usize = 0
+            if pair == 0: target <- 0; source <- 1
+            elif pair == 1: target <- 0; source <- 2
+            elif pair == 2: target <- 1; source <- 0
+            elif pair == 3: target <- 1; source <- 2
+            elif pair == 4: target <- 2; source <- 0
+            else: target <- 2; source <- 1
+            node: mutable usize = 0
+            while node < node_count.usize():
+                if positive[target][node] < positive[source][node]: positive[target][node] <- positive[source][node]
+                if negative[target][node] < negative[source][node]: negative[target][node] <- negative[source][node]
+                node <- node + 1
+            append(words, word_count, opcode)
+        else:
+            pair: usize = (opcode - 15).usize()
+            left: usize = 0
+            right: usize = 0
+            if pair == 0: left <- 0; right <- 1
+            elif pair == 1: left <- 0; right <- 2
+            elif pair == 2: left <- 1; right <- 0
+            elif pair == 3: left <- 1; right <- 2
+            elif pair == 4: left <- 2; right <- 0
+            else: left <- 2; right <- 1
+            result: mutable i64 = 1
+            node: mutable usize = 0
+            while node < node_count.usize():
+                if positive[left][node] > positive[right][node] and negative[left][node] > negative[right][node]:
+                    result <- 0
+                    break
+                node <- node + 1
+            append(words, word_count, opcode)
+            append(words, word_count, result)
+        operation <- operation + 1
+
+    output_length: usize = word_count * 8
+    if output.is_null() or output_capacity < output_length: return -2
+    index: mutable usize = 0
+    while index < word_count:
+        put_i64_le(output, index * 8, words[index])
+        index <- index + 1
+    output_length.i64()
+
+export fn pncounter(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = pncounter_impl

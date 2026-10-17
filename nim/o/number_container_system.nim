@@ -1,5 +1,6 @@
 proc number_container_system*(values: ptr UncheckedArray[int64], length: csize_t, output: ptr UncheckedArray[uint8], capacity: csize_t): int64 {.cdecl, exportc: "number_container_system".} =
-  if values == nil or length < 1 or values[0] < 0 or values[0] > 32 or int(length) != 1 + 3*int(values[0]): return -1
+  if values == nil or length < csize_t(1) or length > csize_t(97): return -1
+  if values[0] < 0 or values[0] > 32 or length != csize_t(1 + 3*int(values[0])): return -1
   var slots: array[64, int64]
   var present: array[64, bool]
   var result = ""
@@ -16,6 +17,6 @@ proc number_container_system*(values: ptr UncheckedArray[int64], length: csize_t
       if result.len > 0: result.add(',')
       result.add($found)
     else: return -1
-  if result.len > int(capacity) or (result.len > 0 and output == nil): return -2
+  if output == nil or csize_t(result.len) > capacity: return -2
   for i in 0 ..< result.len: output[i] = uint8(ord(result[i]))
   int64(result.len)

@@ -1,0 +1,150 @@
+const MAX_STRINGS: usize = 32
+const MAX_STRING_LENGTH: usize = 16
+const MAX_INPUT_WORDS: usize = 1 + MAX_STRINGS * (1 + MAX_STRING_LENGTH)
+const MAX_PARSEABLE_INPUT_WORDS: usize = MAX_INPUT_WORDS + 1
+const MAX_OUTPUT_BYTES: usize = 4 * MAX_INPUT_WORDS
+const RECORD_WORDS: usize = 1 + MAX_STRING_LENGTH
+
+def char_at(values: i32[544]&, index: usize, depth: usize) -> i32:
+    base: usize = index * RECORD_WORDS
+    if depth < values[base].usize(): return values[base + 1 + depth]
+    0
+
+def median3(a: i32, b: i32, c: i32) -> i32:
+    if a < b:
+        if b < c: return b
+        if a < c: return c
+        return a
+    if b > c: return b
+    if a < c: return a
+    c
+
+def compare_from_depth(values: i32[544]&, left: usize, right: usize, depth_start: usize) -> i32:
+    depth: mutable usize = depth_start
+    left_base: usize = left * RECORD_WORDS
+    right_base: usize = right * RECORD_WORDS
+    while depth < values[left_base].usize() and depth < values[right_base].usize() and
+        values[left_base + 1 + depth] == values[right_base + 1 + depth]:
+        depth <- depth + 1
+    a: i32 = char_at(values, left, depth)
+    b: i32 = char_at(values, right, depth)
+    (if a > b: 1 else: 0) - (if a < b: 1 else: 0)
+
+def swap_records(values: mutable i32[544]&, left: usize, right: usize) -> void:
+    if left == right: return
+    left_base: usize = left * RECORD_WORDS
+    right_base: usize = right * RECORD_WORDS
+    offset: mutable usize = 0
+    while offset < RECORD_WORDS:
+        temp: i32 = values[left_base + offset]
+        values[left_base + offset] <- values[right_base + offset]
+        values[right_base + offset] <- temp
+        offset <- offset + 1
+
+def insertion_sort(values: mutable i32[544]&, lo: usize, hi: usize, depth: usize) -> void:
+    i: mutable usize = lo + 1
+    while i < hi |i| -> void:
+        j: mutable usize = i
+        while j > lo and compare_from_depth(values, j - 1, j, depth) > 0:
+            swap_records(values, j - 1, j)
+            j <- j - 1
+        i <- i + 1
+
+def multikey_sort(values: mutable i32[544]&, lo: usize, hi: usize, depth: usize) -> void:
+    count: usize = hi - lo
+    if count < 10:
+        insertion_sort(values, lo, hi, depth)
+        return
+    mid: usize = lo + count / 2
+    pivot: mutable i32 = 0
+    if count > 30:
+        delta: usize = count / 8
+        pivot <- median3(
+            median3(char_at(values, lo, depth), char_at(values, lo + delta, depth), char_at(values, lo + 2 * delta, depth)),
+            median3(char_at(values, mid - delta, depth), char_at(values, mid, depth), char_at(values, mid + delta, depth)),
+            median3(char_at(values, hi - 1 - 2 * delta, depth), char_at(values, hi - 1 - delta, depth), char_at(values, hi - 1, depth)))
+    else:
+        pivot <- median3(char_at(values, lo, depth), char_at(values, mid, depth), char_at(values, hi - 1, depth))
+    less: mutable usize = lo
+    scan: mutable usize = lo
+    greater: mutable usize = hi
+    while scan < greater |less, scan, greater| -> void:
+        key: i32 = char_at(values, scan, depth)
+        if key < pivot:
+            swap_records(values, less, scan)
+            less <- less + 1
+            scan <- scan + 1
+        elif key > pivot:
+            greater <- greater - 1
+            swap_records(values, scan, greater)
+        else:
+            scan <- scan + 1
+    multikey_sort(values, lo, less, depth)
+    if pivot != 0: multikey_sort(values, less, greater, depth + 1)
+    multikey_sort(values, greater, hi, depth)
+
+def put_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.i64().u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def multikey_quick_sort_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT_WORDS: return -1
+    count_raw: i32 = input[0]
+    if count_raw < 0 or count_raw > 32: return -1
+    count: usize = count_raw.usize()
+    values: mutable i32[544] = zeroed
+    position: mutable usize = 1
+    valid: mutable bool = true
+    index: mutable usize = 0
+    while index < count and valid |index, position, valid| -> void:
+        if position >= length or input[position] < 0 or input[position] > 16:
+            valid <- false
+        else:
+            string_length: usize = input[position].usize()
+            position <- position + 1
+            if position + string_length > length:
+                valid <- false
+            else:
+                base: usize = index * RECORD_WORDS
+                values[base] <- string_length.i32()
+                char_index: mutable usize = 0
+                while char_index < string_length and valid |char_index, position, valid| -> void:
+                    byte: i32 = input[position]
+                    if byte < 1 or byte > 127:
+                        valid <- false
+                    else:
+                        values[base + 1 + char_index] <- byte
+                        char_index <- char_index + 1
+                        position <- position + 1
+                if valid: index <- index + 1
+    if not valid or index != count or position != length: return -1
+    bytes: usize = length * 4
+    if output.is_null() or capacity < bytes: return -2
+    multikey_sort(values, 0, count, 0)
+    buffer: mutable u8[2180] = zeroed
+    word: mutable usize = 0
+    put_i32_le(count_raw, buffer[0], word * 4)
+    word <- word + 1
+    index <- 0
+    while index < count |index| -> void:
+        base: usize = index * RECORD_WORDS
+        string_length: usize = values[base].usize()
+        put_i32_le(values[base], buffer[0], word * 4)
+        word <- word + 1
+        char_index: mutable usize = 0
+        while char_index < string_length |char_index| -> void:
+            put_i32_le(values[base + 1 + char_index], buffer[0], word * 4)
+            word <- word + 1
+            char_index <- char_index + 1
+        index <- index + 1
+    index <- 0
+    while index < bytes:
+        output[index] <- buffer[index]
+        index <- index + 1
+    bytes.i64()
+
+export fn multikey_quick_sort(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64 = multikey_quick_sort_impl

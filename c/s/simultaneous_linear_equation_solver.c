@@ -55,9 +55,10 @@ static int simplify(double matrix[MAX_EQUATIONS][MAX_EQUATIONS + 1], size_t n) {
 }
 
 static int64_t round_ticks(double value, int *valid) {
-    const double limit = 9.223372036854775808e18;
+    const double halfway_limit = 4503599627370496.0;
+    const int64_t tick_limit = INT64_C(2251799813685248);
     const double scaled = value * 100000.0;
-    if (!isfinite(scaled) || scaled < -limit || scaled >= limit) {
+    if (!isfinite(scaled) || scaled <= -halfway_limit || scaled >= halfway_limit) {
         *valid = 0;
         return 0;
     }
@@ -70,8 +71,27 @@ static int64_t round_ticks(double value, int *valid) {
     }
     int64_t rounded = (int64_t)lower;
     if (exact_side > 0.0 || (exact_side == 0.0 && rounded % 2 != 0)) ++rounded;
+    if (rounded < -tick_limit || rounded > tick_limit) {
+        *valid = 0;
+        return 0;
+    }
+    const double rounded_value = (double)rounded / 100000.0;
+    const double projected = rounded_value * 100000.0;
+    if (!isfinite(projected)) {
+        *valid = 0;
+        return 0;
+    }
+    const double projected_lower = floor(projected);
+    const double projected_midpoint = projected_lower + 0.5;
+    int64_t ticks = (int64_t)projected_lower;
+    if (projected > projected_midpoint ||
+        (projected == projected_midpoint && ticks % 2 != 0)) ++ticks;
+    if (ticks < -tick_limit || ticks > tick_limit) {
+        *valid = 0;
+        return 0;
+    }
     *valid = 1;
-    return rounded;
+    return ticks;
 }
 
 static void write_i64_le(uint8_t *output, size_t offset, int64_t value) {

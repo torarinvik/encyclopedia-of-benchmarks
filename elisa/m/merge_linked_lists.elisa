@@ -1,0 +1,80 @@
+const MAX_LIST_LENGTH: usize = 32
+const MAX_TOTAL_NODES: usize = 64
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 67
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+
+def merge_linked_lists_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if values == null or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    raw_first: i64 = values[0]
+    raw_second: i64 = values[1]
+    if raw_first < 0 or raw_first > 32 or raw_second < 0 or raw_second > 32:
+        return -1
+    first_length: usize = raw_first.usize()
+    second_length: usize = raw_second.usize()
+    total: usize = first_length + second_length
+    if total > MAX_TOTAL_NODES or length != 2 + total:
+        return -1
+
+    node_values: mutable i64[MAX_TOTAL_NODES] = zeroed
+    next: mutable i64[MAX_TOTAL_NODES] = zeroed
+    for index in 0..<first_length:
+        value: i64 = values[2 + index]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        node_values[index] <- value
+        if index + 1 < first_length:
+            next[index] <- (index + 1).i64()
+        else:
+            next[index] <- -1
+    second_start: usize = first_length
+    for index in 0..<second_length:
+        value: i64 = values[2 + first_length + index]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        node: usize = second_start + index
+        node_values[node] <- value
+        if index + 1 < second_length:
+            next[node] <- (node + 1).i64()
+        else:
+            next[node] <- -1
+
+    head1: mutable i64 = if first_length == 0: -1 else: 0
+    head2: i64 = if second_length == 0: -1 else: second_start.i64()
+    temp1: mutable i64 = head1
+    temp2: mutable i64 = head2
+    holder2: mutable i64 = -1
+    while temp1 != -1 and temp2 != -1:
+        holder1: i64 = next[temp1.usize()]
+        next[temp1.usize()] <- temp2
+        if holder1 != -1:
+            holder2 <- next[temp2.usize()]
+            next[temp2.usize()] <- holder1
+        temp1 <- holder1
+        temp2 <- holder2
+
+    output_count: mutable usize = 0
+    node: mutable i64 = head1
+    while node != -1:
+        if node < 0 or node.usize() >= total or output_count >= total:
+            return -1
+        output_count <- output_count + 1
+        node <- next[node.usize()]
+    required: usize = output_count * 8
+    if output == null or output_capacity < required:
+        return -2
+
+    node <- head1
+    for index in 0..<output_count:
+        store_i64_le(node_values[node.usize()], output, 8 * index)
+        node <- next[node.usize()]
+    required.i64()
+
+export fn merge_linked_lists(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = merge_linked_lists_impl

@@ -22,6 +22,89 @@ from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from deep_clone_graph_oracle import expected_result as deep_clone_graph_oracle
 from frequent_pattern_growth_oracle import expected_result as frequent_pattern_growth_oracle
 from decremental_connectivity_oracle import expected_result as decremental_connectivity_oracle
+from largest_product_in_a_grid_oracle import MAX_CELL_VALUE as LARGEST_PRODUCT_IN_A_GRID_MAX_CELL_VALUE
+from largest_product_in_a_grid_oracle import MAX_DIMENSION as LARGEST_PRODUCT_IN_A_GRID_MAX_DIMENSION
+from largest_product_in_a_grid_oracle import MAX_INPUT_LENGTH as MAX_LARGEST_PRODUCT_IN_A_GRID_INPUT_LENGTH
+from largest_product_in_a_grid_oracle import expected_result as largest_product_in_a_grid_oracle
+from stochastic_matrix_oracle import CELL_SCALE as STOCHASTIC_MATRIX_CELL_SCALE
+from stochastic_matrix_oracle import INVALID_RESULT as STOCHASTIC_MATRIX_INVALID_RESULT
+from stochastic_matrix_oracle import MAX_DIMENSION as STOCHASTIC_MATRIX_MAX_DIMENSION
+from stochastic_matrix_oracle import MAX_INPUT_VALUES as MAX_STOCHASTIC_MATRIX_INPUT_VALUES
+from stochastic_matrix_oracle import MAX_CELL_UNITS as STOCHASTIC_MATRIX_MAX_CELL_UNITS
+from stochastic_matrix_oracle import MIN_CELL_UNITS as STOCHASTIC_MATRIX_MIN_CELL_UNITS
+from stochastic_matrix_oracle import TOLERANCE as STOCHASTIC_MATRIX_TOLERANCE
+from stochastic_matrix_oracle import expected_result as stochastic_matrix_oracle
+from key_finder_oracle import INVALID_RESULT as KEY_FINDER_INVALID_RESULT
+from key_finder_oracle import MAX_PARSEABLE_INPUT_VALUES as MAX_KEY_FINDER_PARSEABLE_INPUT_VALUES
+from key_finder_oracle import MAX_TEXT_LENGTH as KEY_FINDER_MAX_TEXT_LENGTH
+from key_finder_oracle import WORD_BANK as KEY_FINDER_WORD_BANK
+from key_finder_oracle import expected_result as key_finder_oracle
+from subset_count_oracle import INVALID_RESULT as SUBSET_COUNT_INVALID_RESULT
+from subset_count_oracle import MAX_COUNT as SUBSET_COUNT_MAX_COUNT
+from subset_count_oracle import MAX_INPUT_VALUES as MAX_SUBSET_COUNT_INPUT_VALUES
+from subset_count_oracle import MAX_TARGET as SUBSET_COUNT_MAX_TARGET
+from subset_count_oracle import MAX_VALUE as SUBSET_COUNT_MAX_VALUE
+from subset_count_oracle import expected_result as subset_count_oracle
+from pollard_oracle import INVALID_RESULT as POLLARD_INVALID_RESULT
+from pollard_oracle import MAX_INPUT_LENGTH as MAX_POLLARD_INPUT_LENGTH
+from pollard_oracle import MAX_N as POLLARD_MAX_N
+from pollard_oracle import MIN_N as POLLARD_MIN_N
+from pollard_oracle import SOURCE_FAILURE_RESULT as POLLARD_SOURCE_FAILURE_RESULT
+from pollard_oracle import expected_result as pollard_oracle
+from polygon_points_oracle import INVALID_RESULT as POLYGON_POINTS_INVALID_RESULT
+from polygon_points_oracle import MAX_INPUT_LENGTH as MAX_POLYGON_POINTS_INPUT_LENGTH
+from polygon_points_oracle import MAX_VERTICES as POLYGON_POINTS_MAX_VERTICES
+from polygon_points_oracle import MIN_VERTICES as POLYGON_POINTS_MIN_VERTICES
+from polygon_points_oracle import MAX_COORDINATE as POLYGON_POINTS_MAX_COORDINATE
+from polygon_points_oracle import MIN_COORDINATE as POLYGON_POINTS_MIN_COORDINATE
+from polygon_points_oracle import expected_result as polygon_points_oracle
+from traveling_salesman_bitmask_oracle import INVALID_RESULT as TRAVELING_SALESMAN_BITMASK_INVALID_RESULT
+from traveling_salesman_bitmask_oracle import MAX_CITIES as TRAVELING_SALESMAN_BITMASK_MAX_CITIES
+from traveling_salesman_bitmask_oracle import MAX_DISTANCE as TRAVELING_SALESMAN_BITMASK_MAX_DISTANCE
+from traveling_salesman_bitmask_oracle import MAX_INPUT_LENGTH as MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH
+from traveling_salesman_bitmask_oracle import MAX_TOUR_COST as TRAVELING_SALESMAN_BITMASK_MAX_TOUR_COST
+from traveling_salesman_bitmask_oracle import MIN_CITIES as TRAVELING_SALESMAN_BITMASK_MIN_CITIES
+from traveling_salesman_bitmask_oracle import MIN_DISTANCE as TRAVELING_SALESMAN_BITMASK_MIN_DISTANCE
+from traveling_salesman_bitmask_oracle import expected_result as traveling_salesman_bitmask_oracle
+from roulette_wheel_selection_oracle import I64_MAX as ROULETTE_WHEEL_SELECTION_I64_MAX
+from roulette_wheel_selection_oracle import I64_MIN as ROULETTE_WHEEL_SELECTION_I64_MIN
+from roulette_wheel_selection_oracle import INVALID_RESULT as ROULETTE_WHEEL_SELECTION_INVALID_RESULT
+from roulette_wheel_selection_oracle import MAX_INPUT_LENGTH as MAX_ROULETTE_WHEEL_SELECTION_INPUT_LENGTH
+from roulette_wheel_selection_oracle import MAX_STAKE as ROULETTE_WHEEL_SELECTION_MAX_STAKE
+from roulette_wheel_selection_oracle import MAX_TOTAL_STAKE as ROULETTE_WHEEL_SELECTION_MAX_TOTAL_STAKE
+from roulette_wheel_selection_oracle import MAX_VALIDATORS as ROULETTE_WHEEL_SELECTION_MAX_VALIDATORS
+from roulette_wheel_selection_oracle import MAX_VALID_INPUT_LENGTH as ROULETTE_WHEEL_SELECTION_MAX_VALID_INPUT_LENGTH
+from roulette_wheel_selection_oracle import MIN_STAKE as ROULETTE_WHEEL_SELECTION_MIN_STAKE
+from roulette_wheel_selection_oracle import MIN_VALIDATORS as ROULETTE_WHEEL_SELECTION_MIN_VALIDATORS
+from roulette_wheel_selection_oracle import expected_result as roulette_wheel_selection_oracle
+from stoer_wagner_oracle import INVALID_RESULT as STOER_WAGNER_INVALID_RESULT
+from stoer_wagner_oracle import MAX_INPUT_VALUES as MAX_STOER_WAGNER_INPUT_LENGTH
+from stoer_wagner_oracle import MAX_N as STOER_WAGNER_MAX_N
+from stoer_wagner_oracle import MAX_WEIGHT as STOER_WAGNER_MAX_WEIGHT
+from stoer_wagner_oracle import expected_result as stoer_wagner_oracle
+from pushdown_automaton_oracle import INVALID_RESULT as PUSHDOWN_AUTOMATON_INVALID_RESULT
+from pushdown_automaton_oracle import MAX_BYTE_LENGTH as PUSHDOWN_AUTOMATON_MAX_BYTE_LENGTH
+from pushdown_automaton_oracle import MAX_INPUT_LENGTH as MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH
+from pushdown_automaton_oracle import expected_result as pushdown_automaton_oracle
+from sprague_grundy_theorem_oracle import INVALID_RESULT as SPRAGUE_GRUNDY_INVALID_RESULT
+from sprague_grundy_theorem_oracle import MAX_INPUT_LENGTH as MAX_SPRAGUE_GRUNDY_INPUT_LENGTH
+from sprague_grundy_theorem_oracle import MAX_MOVE_COUNT as SPRAGUE_GRUNDY_MAX_MOVE_COUNT
+from sprague_grundy_theorem_oracle import MAX_MOVE_SIZE as SPRAGUE_GRUNDY_MAX_MOVE_SIZE
+from sprague_grundy_theorem_oracle import MAX_POSITION as SPRAGUE_GRUNDY_MAX_POSITION
+from sprague_grundy_theorem_oracle import expected_result as sprague_grundy_theorem_oracle
+from minimum_coin_change_combinations_oracle import expected_result as minimum_coin_change_combinations_oracle
+from problem016_power_digit_sum_oracle import expected_result as problem016_power_digit_sum_oracle
+from is_strong_password_oracle import ASCII_PUNCTUATION as IS_STRONG_PASSWORD_PUNCTUATION
+from is_strong_password_oracle import INVALID_RESULT as IS_STRONG_PASSWORD_INVALID_RESULT
+from is_strong_password_oracle import MAX_INPUT_LENGTH as MAX_IS_STRONG_PASSWORD_INPUT_LENGTH
+from is_strong_password_oracle import MAX_TEXT_LENGTH as IS_STRONG_PASSWORD_MAX_TEXT_LENGTH
+from is_strong_password_oracle import expected_result as is_strong_password_oracle
+from rescale_oracle import INVALID_RESULT as RESCALE_INVALID_RESULT
+from rescale_oracle import MAX_DRAWS as RESCALE_MAX_DRAWS
+from rescale_oracle import MAX_INPUT_LENGTH as MAX_RESCALE_PARSEABLE_INPUT_LENGTH
+from rescale_oracle import MAX_NEW_RANGE as RESCALE_MAX_NEW_RANGE
+from rescale_oracle import MAX_RANDOM_RANGE as RESCALE_MAX_RANDOM_RANGE
+from rescale_oracle import expected_result as rescale_oracle
 from wine_problem_recursive_oracle import MAX_ITEMS as WINE_PROBLEM_RECURSIVE_MAX_ITEMS
 from wine_problem_recursive_oracle import MAX_PRICE as WINE_PROBLEM_RECURSIVE_MAX_PRICE
 from wine_problem_recursive_oracle import expected_result as wine_problem_recursive_oracle
@@ -40,11 +123,64 @@ from inorder_successor_of_bst_oracle import MAX_NODE_COUNT as MAX_INORDER_SUCCES
 from inorder_successor_of_bst_oracle import expected_result as inorder_successor_of_bst_oracle
 from linear_recurrence_matrix_oracle import MAX_INPUT_LENGTH as MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH
 from linear_recurrence_matrix_oracle import expected_result as linear_recurrence_matrix_oracle
+from matrix_exponentiation_oracle import INVALID_RESULT as MATRIX_EXPONENTIATION_INVALID_RESULT
+from matrix_exponentiation_oracle import MAX_INDEX as MATRIX_EXPONENTIATION_MAX_INDEX
+from matrix_exponentiation_oracle import MAX_INPUT_LENGTH as MATRIX_EXPONENTIATION_MAX_INPUT_LENGTH
+from matrix_exponentiation_oracle import MAX_ORDER as MATRIX_EXPONENTIATION_MAX_ORDER
+from matrix_exponentiation_oracle import MAX_PARSEABLE_INPUT_LENGTH as MATRIX_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH
+from matrix_exponentiation_oracle import MODULUS as MATRIX_EXPONENTIATION_MODULUS
+from matrix_exponentiation_oracle import expected_result as matrix_exponentiation_oracle
+from miller_rabin_primality_checker_oracle import MAX_INPUT_LENGTH as MILLER_RABIN_PRIMALITY_CHECKER_MAX_INPUT_LENGTH
+from miller_rabin_primality_checker_oracle import MAX_N as MILLER_RABIN_PRIMALITY_CHECKER_MAX_N
+from miller_rabin_primality_checker_oracle import MAX_ROUNDS as MILLER_RABIN_PRIMALITY_CHECKER_MAX_ROUNDS
+from miller_rabin_primality_checker_oracle import MAX_SEED as MILLER_RABIN_PRIMALITY_CHECKER_MAX_SEED
+from miller_rabin_primality_checker_oracle import expected_result as miller_rabin_primality_checker_oracle
+from logistic_regression_predict_oracle import I64_MAX as LOGISTIC_REGRESSION_PREDICT_I64_MAX
+from logistic_regression_predict_oracle import I64_MIN as LOGISTIC_REGRESSION_PREDICT_I64_MIN
+from logistic_regression_predict_oracle import MAX_FEATURES as LOGISTIC_REGRESSION_PREDICT_MAX_FEATURES
+from logistic_regression_predict_oracle import MAX_FEATURE_VALUE as LOGISTIC_REGRESSION_PREDICT_MAX_FEATURE_VALUE
+from logistic_regression_predict_oracle import MAX_INPUT_LENGTH as LOGISTIC_REGRESSION_PREDICT_MAX_INPUT_LENGTH
+from logistic_regression_predict_oracle import MAX_ROWS as LOGISTIC_REGRESSION_PREDICT_MAX_ROWS
+from logistic_regression_predict_oracle import MAX_VALID_INPUT_VALUES as LOGISTIC_REGRESSION_PREDICT_MAX_VALID_INPUT_VALUES
+from logistic_regression_predict_oracle import MIN_FEATURE_VALUE as LOGISTIC_REGRESSION_PREDICT_MIN_FEATURE_VALUE
+from logistic_regression_predict_oracle import expected_result as logistic_regression_predict_oracle
+from time_simulation_oracle import MAX_ACTIONS as TIME_SIMULATION_MAX_ACTIONS
+from time_simulation_oracle import MAX_INPUT_LENGTH as TIME_SIMULATION_MAX_INPUT_LENGTH
+from time_simulation_oracle import expected_result as time_simulation_oracle
 from recursive_linear_search_oracle import MAX_COUNT as MAX_RECURSIVE_LINEAR_SEARCH_COUNT
 from recursive_linear_search_oracle import MAX_INPUT_LENGTH as MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH
 from recursive_linear_search_oracle import MAX_VALUE as MAX_RECURSIVE_LINEAR_SEARCH_VALUE
 from recursive_linear_search_oracle import MIN_VALUE as MIN_RECURSIVE_LINEAR_SEARCH_VALUE
 from recursive_linear_search_oracle import expected_result as recursive_linear_search_oracle
+from shortest_word_distance_oracle import MAX_WORDS as SHORTEST_WORD_DISTANCE_MAX_WORDS
+from shortest_word_distance_oracle import MAX_WORD_LENGTH as SHORTEST_WORD_DISTANCE_MAX_WORD_LENGTH
+from shortest_word_distance_oracle import expected_output as shortest_word_distance_oracle
+from match_word_pattern_oracle import MAX_PATTERN_LENGTH as MATCH_WORD_PATTERN_MAX_PATTERN_LENGTH
+from match_word_pattern_oracle import MAX_TEXT_LENGTH as MATCH_WORD_PATTERN_MAX_TEXT_LENGTH
+from match_word_pattern_oracle import MAX_VALID_INPUT_LENGTH as MAX_MATCH_WORD_PATTERN_INPUT_LENGTH
+from match_word_pattern_oracle import expected_result as match_word_pattern_oracle
+from power_using_recursion_oracle import expected_output as power_using_recursion_oracle
+from scramble_strings_oracle import INVALID_RESULT as SCRAMBLE_STRINGS_INVALID_RESULT
+from scramble_strings_oracle import I64_MIN as SCRAMBLE_STRINGS_I64_MIN
+from scramble_strings_oracle import I64_MAX as SCRAMBLE_STRINGS_I64_MAX
+from scramble_strings_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SCRAMBLE_STRINGS_PARSEABLE_INPUT_LENGTH
+from scramble_strings_oracle import MAX_LENGTH as SCRAMBLE_STRINGS_MAX_LENGTH
+from scramble_strings_oracle import expected_result as scramble_strings_oracle
+from richest_customer_wealth_oracle import INVALID_RESULT as RICHEST_CUSTOMER_WEALTH_INVALID_RESULT
+from richest_customer_wealth_oracle import I64_MIN as RICHEST_CUSTOMER_WEALTH_I64_MIN
+from richest_customer_wealth_oracle import I64_MAX as RICHEST_CUSTOMER_WEALTH_I64_MAX
+from richest_customer_wealth_oracle import MAX_AMOUNT as RICHEST_CUSTOMER_WEALTH_MAX_AMOUNT
+from richest_customer_wealth_oracle import MAX_COLUMNS as RICHEST_CUSTOMER_WEALTH_MAX_COLUMNS
+from richest_customer_wealth_oracle import MAX_ROWS as RICHEST_CUSTOMER_WEALTH_MAX_ROWS
+from richest_customer_wealth_oracle import MAX_PARSEABLE_INPUT_LENGTH as RICHEST_CUSTOMER_WEALTH_MAX_PARSEABLE_INPUT_LENGTH
+from richest_customer_wealth_oracle import expected_result as richest_customer_wealth_oracle
+from segment_tree_update_oracle import INVALID_RESULT as SEGMENT_TREE_UPDATE_INVALID_RESULT
+from segment_tree_update_oracle import MAX_COUNT as SEGMENT_TREE_UPDATE_MAX_COUNT
+from segment_tree_update_oracle import MAX_INPUT_LENGTH as SEGMENT_TREE_UPDATE_MAX_PARSEABLE_INPUT_LENGTH
+from segment_tree_update_oracle import MAX_OPERATIONS as SEGMENT_TREE_UPDATE_MAX_OPERATIONS
+from segment_tree_update_oracle import MAX_VALUE as SEGMENT_TREE_UPDATE_MAX_VALUE
+from segment_tree_update_oracle import MIN_VALUE as SEGMENT_TREE_UPDATE_MIN_VALUE
+from segment_tree_update_oracle import expected_result as segment_tree_update_oracle
 from wildcard_matching_oracle import MAX_INPUT_LENGTH as MAX_WILDCARD_MATCHING_INPUT_LENGTH
 from wildcard_matching_oracle import MAX_PATTERN_LENGTH as MAX_WILDCARD_MATCHING_PATTERN_LENGTH
 from wildcard_matching_oracle import MAX_TEXT_LENGTH as MAX_WILDCARD_MATCHING_TEXT_LENGTH
@@ -66,6 +202,11 @@ from count_singly_linked_list_recursion_oracle import I32_MAX as COUNT_SINGLY_LI
 from count_singly_linked_list_recursion_oracle import I32_MIN as COUNT_SINGLY_LINKED_LIST_I32_MIN
 from count_singly_linked_list_recursion_oracle import MAX_NODES as MAX_COUNT_SINGLY_LINKED_LIST_NODES
 from count_singly_linked_list_recursion_oracle import expected_result as count_singly_linked_list_oracle
+from search_singly_linked_list_recursion_oracle import I32_MAX as SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MAX
+from search_singly_linked_list_recursion_oracle import I32_MIN as SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MIN
+from search_singly_linked_list_recursion_oracle import MAX_INPUT_LENGTH as MAX_SEARCH_SINGLY_LINKED_LIST_RECURSION_INPUT_LENGTH
+from search_singly_linked_list_recursion_oracle import MAX_NODES as SEARCH_SINGLY_LINKED_LIST_RECURSION_MAX_NODES
+from search_singly_linked_list_recursion_oracle import expected_result as search_singly_linked_list_recursion_oracle
 from count_homogenous_oracle import MAX_INPUT_LENGTH as MAX_COUNT_HOMOGENOUS_INPUT_LENGTH
 from count_homogenous_oracle import MAX_TEXT_BYTES as MAX_COUNT_HOMOGENOUS_BYTES
 from count_homogenous_oracle import expected_result as count_homogenous_oracle
@@ -254,6 +395,13 @@ from substring_search_oracle import MAX_PATTERN_LENGTH as SUBSTRING_SEARCH_MAX_P
 from substring_search_oracle import MAX_TEXT_LENGTH as SUBSTRING_SEARCH_MAX_TEXT_LENGTH
 from substring_search_oracle import NOT_FOUND_RESULT as SUBSTRING_SEARCH_NOT_FOUND_RESULT
 from substring_search_oracle import expected_result as substring_search_oracle
+from sublist_search_oracle import INVALID_RESULT as SUBLIST_SEARCH_INVALID_RESULT
+from sublist_search_oracle import I64_MAX as SUBLIST_SEARCH_I64_MAX
+from sublist_search_oracle import I64_MIN as SUBLIST_SEARCH_I64_MIN
+from sublist_search_oracle import MAX_INPUT_LENGTH as MAX_SUBLIST_SEARCH_INPUT_LENGTH
+from sublist_search_oracle import MAX_LIST_LENGTH as SUBLIST_SEARCH_MAX_LIST_LENGTH
+from sublist_search_oracle import MAX_VALUE as SUBLIST_SEARCH_MAX_VALUE
+from sublist_search_oracle import expected_result as sublist_search_oracle
 from substring_end_oracle import CHECKSUM_BASE as SUBSTRING_END_CHECKSUM_BASE
 from substring_end_oracle import INVALID_RESULT as SUBSTRING_END_INVALID_RESULT
 from substring_end_oracle import MAX_INPUT_LENGTH as MAX_SUBSTRING_END_INPUT_LENGTH
@@ -426,6 +574,22 @@ from n_in_a_row_board_status_oracle import expected_result as n_in_a_row_board_s
 from depth_first_search_tic_tac_toe_oracle import expected_result as depth_first_search_tic_tac_toe_oracle
 from dynamic_coin_change_solver_oracle import expected_result as dynamic_coin_change_solver_oracle
 from run_i64_array_scalar import encode_case
+from run_i64_array_scalar import validate_scramble_strings_workload
+from run_i64_array_scalar import validate_richest_customer_wealth_workload
+from run_i64_array_scalar import validate_segment_tree_update_workload
+from run_i64_array_scalar import validate_shortest_word_distance_workload
+from run_i64_array_scalar import validate_match_word_pattern_workload
+from run_i64_array_scalar import MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGTH
+from run_i64_array_scalar import validate_power_using_recursion_workload
+from run_i64_array_scalar import validate_sparse_matrix_workload
+from run_i64_array_scalar import validate_graph_enumeration_workload
+from run_i64_array_scalar import validate_lca_workload
+from run_i64_array_scalar import validate_johnsons_algorithm_workload
+from run_i64_array_scalar import validate_knapsack_zero_one_tabulation_workload
+from run_i64_array_scalar import validate_matrix_exponentiation_workload
+from run_i64_array_scalar import validate_miller_rabin_primality_checker_workload
+from run_i64_array_scalar import validate_logistic_regression_predict_workload
+from run_i64_array_scalar import validate_time_simulation_workload
 from generalized_esd_oracle import expected_result as generalized_esd_oracle
 from string_prefix_suffix_oracle import expected_result as string_prefix_suffix_oracle
 from one_bit_difference_oracle import expected_result as one_bit_difference_oracle
@@ -462,6 +626,8 @@ from gomory_hu_tree_oracle import MAX_CAPACITY as MAX_GOMORY_HU_TREE_CAPACITY
 from gomory_hu_tree_oracle import expected_result as gomory_hu_tree_oracle
 from graph_enumeration_oracle import MAX_VERTICES as GRAPH_ENUMERATION_MAX_VERTICES
 from graph_enumeration_oracle import MAX_DEGREE as GRAPH_ENUMERATION_MAX_DEGREE
+from graph_enumeration_oracle import MAX_LABEL as GRAPH_ENUMERATION_MAX_LABEL
+from graph_enumeration_oracle import MAX_INPUT_LENGTH as MAX_GRAPH_ENUMERATION_INPUT_LENGTH
 from graph_enumeration_oracle import expected_result as graph_enumeration_oracle
 from jaro_winkler_distance_oracle import MAX_INPUT_LENGTH as MAX_JARO_WINKLER_DISTANCE_INPUT_LENGTH
 from jaro_winkler_distance_oracle import MAX_STRING_LENGTH as JARO_WINKLER_DISTANCE_MAX_STRING_LENGTH
@@ -660,6 +826,129 @@ from kth_element_finder_oracle import MAX_N as KTH_ELEMENT_FINDER_MAX_N
 from kth_element_finder_oracle import MAX_VALUE as KTH_ELEMENT_FINDER_MAX_VALUE
 from kth_element_finder_oracle import MIN_VALUE as KTH_ELEMENT_FINDER_MIN_VALUE
 from kth_element_finder_oracle import expected_result as kth_element_finder_oracle
+from pairing_heap_oracle import FNV_OFFSET_BASIS as PAIRING_HEAP_FNV_OFFSET_BASIS
+from pairing_heap_oracle import FNV_PRIME as PAIRING_HEAP_FNV_PRIME
+from pairing_heap_oracle import MAX_I32 as PAIRING_HEAP_MAX_I32
+from pairing_heap_oracle import MAX_INPUT_LENGTH as PAIRING_HEAP_MAX_INPUT_LENGTH
+from pairing_heap_oracle import MAX_ITEMS as PAIRING_HEAP_MAX_ITEMS
+from pairing_heap_oracle import MAX_PARSEABLE_INPUT_LENGTH as PAIRING_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+from pairing_heap_oracle import MASK_63 as PAIRING_HEAP_MASK_63
+from pairing_heap_oracle import MASK_64 as PAIRING_HEAP_MASK_64
+from pairing_heap_oracle import MIN_I32 as PAIRING_HEAP_MIN_I32
+from pairing_heap_oracle import expected_result as pairing_heap_oracle
+from string_hash_equality_oracle import KECCAK256_KNOWN_VECTORS as STRING_HASH_EQUALITY_KECCAK256_KNOWN_VECTORS
+from string_hash_equality_oracle import MAX_BYTES as STRING_HASH_EQUALITY_MAX_BYTES
+from string_hash_equality_oracle import MAX_INPUT_LENGTH as STRING_HASH_EQUALITY_MAX_INPUT_LENGTH
+from string_hash_equality_oracle import MAX_PARSEABLE_INPUT_LENGTH as STRING_HASH_EQUALITY_MAX_PARSEABLE_INPUT_LENGTH
+from string_hash_equality_oracle import RATE_BYTES as STRING_HASH_EQUALITY_RATE_BYTES
+from string_hash_equality_oracle import expected_result as string_hash_equality_oracle
+from support_vector_classifier_oracle import MAX_FEATURES as SUPPORT_VECTOR_CLASSIFIER_MAX_FEATURES
+from support_vector_classifier_oracle import MAX_INPUT_VALUES as SUPPORT_VECTOR_CLASSIFIER_MAX_INPUT_VALUES
+from support_vector_classifier_oracle import MAX_PARSEABLE_INPUT_VALUES as SUPPORT_VECTOR_CLASSIFIER_MAX_PARSEABLE_INPUT_VALUES
+from support_vector_classifier_oracle import MAX_TEST_ROWS as SUPPORT_VECTOR_CLASSIFIER_MAX_TEST_ROWS
+from support_vector_classifier_oracle import MAX_TRAINING_ROWS as SUPPORT_VECTOR_CLASSIFIER_MAX_TRAINING_ROWS
+from support_vector_classifier_oracle import expected_output as support_vector_classifier_oracle
+from multiplexer_oracle import INVALID_RESULT as MULTIPLEXER_INVALID_RESULT
+from multiplexer_oracle import MAX_INPUT_LENGTH as MULTIPLEXER_MAX_INPUT_LENGTH
+from multiplexer_oracle import MAX_PARSEABLE_INPUT_LENGTH as MULTIPLEXER_MAX_PARSEABLE_INPUT_LENGTH
+from multiplexer_oracle import expected_result as multiplexer_oracle
+from binary_genetic_algorithm_oracle import GOLDEN as BINARY_GENETIC_ALGORITHM_GOLDEN
+from binary_genetic_algorithm_oracle import MASK64 as BINARY_GENETIC_ALGORITHM_MASK64
+from binary_genetic_algorithm_oracle import MAX_INPUT_LENGTH as BINARY_GENETIC_ALGORITHM_MAX_INPUT_LENGTH
+from binary_genetic_algorithm_oracle import MAX_I64 as BINARY_GENETIC_ALGORITHM_MAX_I64
+from binary_genetic_algorithm_oracle import MAX_VALID_INPUT_LENGTH as BINARY_GENETIC_ALGORITHM_MAX_VALID_INPUT_LENGTH
+from binary_genetic_algorithm_oracle import expected_result as binary_genetic_algorithm_oracle
+from modulo_oracle import INVALID_RESULT as MODULO_INVALID_RESULT
+from modulo_oracle import MAX_PARSEABLE_INPUT_VALUES as MODULO_MAX_PARSEABLE_INPUT_VALUES
+from modulo_oracle import MAX_VALID_INPUT_VALUES as MODULO_MAX_VALID_INPUT_VALUES
+from modulo_oracle import UINT32_MAX as MODULO_UINT32_MAX
+from modulo_oracle import expected_result as modulo_oracle
+from tree_matching_oracle import INVALID_RESULT as TREE_MATCHING_INVALID_RESULT
+from tree_matching_oracle import MAX_NODES as TREE_MATCHING_MAX_NODES
+from tree_matching_oracle import MAX_PARSEABLE_INPUT_LENGTH as TREE_MATCHING_MAX_PARSEABLE_INPUT_LENGTH
+from tree_matching_oracle import MAX_VALID_INPUT_LENGTH as TREE_MATCHING_MAX_VALID_INPUT_LENGTH
+from tree_matching_oracle import MAX_WEIGHT as TREE_MATCHING_MAX_WEIGHT
+from tree_matching_oracle import expected_result as tree_matching_oracle
+from my_atoi_oracle import INT32_MAX as MY_ATOI_INT32_MAX
+from my_atoi_oracle import INT32_MIN as MY_ATOI_INT32_MIN
+from my_atoi_oracle import INVALID_RESULT as MY_ATOI_INVALID_RESULT
+from my_atoi_oracle import MAX_INPUT_LENGTH as MY_ATOI_MAX_INPUT_LENGTH
+from my_atoi_oracle import expected_result as my_atoi_oracle
+from transposition_rust_oracle import MASK63 as TRANSPOSITION_RUST_MASK63
+from transposition_rust_oracle import MAX_INPUT_LENGTH as TRANSPOSITION_RUST_MAX_INPUT_LENGTH
+from transposition_rust_oracle import MAX_KEYS as TRANSPOSITION_RUST_MAX_KEYS
+from transposition_rust_oracle import MAX_KEY_LENGTH as TRANSPOSITION_RUST_MAX_KEY_LENGTH
+from transposition_rust_oracle import MAX_MESSAGE_LENGTH as TRANSPOSITION_RUST_MAX_MESSAGE_LENGTH
+from transposition_rust_oracle import expected_result as transposition_rust_oracle
+from minone_oracle import INVALID_RESULT as MINONE_INVALID_RESULT
+from minone_oracle import MAX_LENGTH as MINONE_MAX_LENGTH
+from minone_oracle import MAX_VALUE as MINONE_MAX_VALUE
+from minone_oracle import MIN_VALUE as MINONE_MIN_VALUE
+from minone_oracle import expected_result as minone_oracle
+from mul_array_oracle import INVALID_RESULT as MUL_ARRAY_INVALID_RESULT
+from mul_array_oracle import I64_MAX as MUL_ARRAY_I64_MAX
+from mul_array_oracle import I64_MIN as MUL_ARRAY_I64_MIN
+from mul_array_oracle import MAX_FACTOR as MUL_ARRAY_MAX_FACTOR
+from mul_array_oracle import MAX_INPUT_LENGTH as MUL_ARRAY_MAX_INPUT_LENGTH
+from mul_array_oracle import MAX_PRODUCT as MUL_ARRAY_MAX_PRODUCT
+from mul_array_oracle import MIN_FACTOR as MUL_ARRAY_MIN_FACTOR
+from mul_array_oracle import expected_result as mul_array_oracle
+from matchdimensions_oracle import MAX_DIMENSION as MATCHDIMENSIONS_MAX_DIMENSION
+from matchdimensions_oracle import MAX_INPUT_LENGTH as MATCHDIMENSIONS_MAX_INPUT_LENGTH
+from matchdimensions_oracle import expected_result as matchdimensions_oracle
+from magic_sequence_oracle import MAX_N as MAGIC_SEQUENCE_MAX_N
+from magic_sequence_oracle import MAX_INPUT_LENGTH as MAGIC_SEQUENCE_MAX_INPUT_LENGTH
+from magic_sequence_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAGIC_SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH
+from magic_sequence_oracle import expected_result as magic_sequence_oracle
+from magic_sequence_oracle import solution_count as magic_sequence_solution_count
+from pipeline_oracle import INVALID_RESULT as PIPELINE_INVALID_RESULT
+from pipeline_oracle import MAX_STAGES as PIPELINE_MAX_STAGES
+from pipeline_oracle import MAX_INPUT_LENGTH as PIPELINE_MAX_INPUT_LENGTH
+from pipeline_oracle import MAX_PARSEABLE_INPUT_LENGTH as PIPELINE_MAX_PARSEABLE_INPUT_LENGTH
+from pipeline_oracle import MAX_VALUE as PIPELINE_MAX_VALUE
+from pipeline_oracle import MIN_VALUE as PIPELINE_MIN_VALUE
+from pipeline_oracle import expected_result as pipeline_oracle
+from kahns_algorithm_long_oracle import INVALID_RESULT as KAHNS_ALGORITHM_LONG_INVALID_RESULT
+from kahns_algorithm_long_oracle import MAX_EDGES as KAHNS_ALGORITHM_LONG_MAX_EDGES
+from kahns_algorithm_long_oracle import MAX_INPUT_LENGTH as KAHNS_ALGORITHM_LONG_MAX_INPUT_LENGTH
+from kahns_algorithm_long_oracle import MAX_PARSEABLE_INPUT_LENGTH as KAHNS_ALGORITHM_LONG_MAX_PARSEABLE_INPUT_LENGTH
+from kahns_algorithm_long_oracle import MAX_VERTICES as KAHNS_ALGORITHM_LONG_MAX_VERTICES
+from kahns_algorithm_long_oracle import expected_result as kahns_algorithm_long_oracle
+from kcenters_oracle import INVALID_RESULT as KCENTERS_INVALID_RESULT
+from kcenters_oracle import JAVA_INT_MAX as KCENTERS_JAVA_INT_MAX
+from kcenters_oracle import MAX_DISTANCE as KCENTERS_MAX_DISTANCE
+from kcenters_oracle import MAX_INPUT_LENGTH as KCENTERS_MAX_INPUT_LENGTH
+from kcenters_oracle import MAX_PARSEABLE_INPUT_LENGTH as KCENTERS_MAX_PARSEABLE_INPUT_LENGTH
+from kcenters_oracle import MAX_POINTS as KCENTERS_MAX_POINTS
+from kcenters_oracle import expected_result as kcenters_oracle
+from minimax_oracle import I32_MAX as MINIMAX_I32_MAX
+from minimax_oracle import I32_MIN as MINIMAX_I32_MIN
+from minimax_oracle import INVALID_RESULT as MINIMAX_INVALID_RESULT
+from minimax_oracle import MAX_INPUT_LENGTH as MINIMAX_MAX_INPUT_LENGTH
+from minimax_oracle import MAX_LEAF_COUNT as MINIMAX_MAX_LEAF_COUNT
+from minimax_oracle import MAX_PARSEABLE_INPUT_LENGTH as MINIMAX_MAX_PARSEABLE_INPUT_LENGTH
+from minimax_oracle import expected_result as minimax_oracle
+from sparse_matrix_oracle import INVALID_RESULT as SPARSE_MATRIX_INVALID_RESULT
+from sparse_matrix_oracle import MAX_CELL as SPARSE_MATRIX_MAX_CELL
+from sparse_matrix_oracle import MAX_DIMENSION as SPARSE_MATRIX_MAX_DIMENSION
+from sparse_matrix_oracle import MAX_INPUT_LENGTH as SPARSE_MATRIX_MAX_INPUT_LENGTH
+from sparse_matrix_oracle import MAX_VALID_INPUT_LENGTH as SPARSE_MATRIX_MAX_VALID_INPUT_LENGTH
+from sparse_matrix_oracle import MIN_CELL as SPARSE_MATRIX_MIN_CELL
+from sparse_matrix_oracle import expected_result as sparse_matrix_oracle
+from lca_oracle import INVALID_RESULT as LCA_INVALID_RESULT
+from lca_oracle import MAX_INPUT_LENGTH as LCA_MAX_INPUT_LENGTH
+from lca_oracle import MAX_NODES as LCA_MAX_NODES
+from lca_oracle import expected_result as lca_oracle
+from johnsons_algorithm_oracle import MAX_INPUT_LENGTH as JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH
+from johnsons_algorithm_oracle import MAX_VERTICES as JOHNSONS_ALGORITHM_MAX_VERTICES
+from johnsons_algorithm_oracle import MAX_WEIGHT as JOHNSONS_ALGORITHM_MAX_WEIGHT
+from johnsons_algorithm_oracle import expected_result as johnsons_algorithm_oracle
+from knapsack_zero_one_tabulation_oracle import INVALID_RESULT as KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT
+from knapsack_zero_one_tabulation_oracle import MAX_CAPACITY as KNAPSACK_ZERO_ONE_TABULATION_MAX_CAPACITY
+from knapsack_zero_one_tabulation_oracle import MAX_ITEMS as KNAPSACK_ZERO_ONE_TABULATION_MAX_ITEMS
+from knapsack_zero_one_tabulation_oracle import MAX_VALUE as KNAPSACK_ZERO_ONE_TABULATION_MAX_VALUE
+from knapsack_zero_one_tabulation_oracle import MAX_WEIGHT as KNAPSACK_ZERO_ONE_TABULATION_MAX_WEIGHT
+from knapsack_zero_one_tabulation_oracle import expected_result as knapsack_zero_one_tabulation_oracle
 
 ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
 ALGORITHMS += ("sort_the_odd",)
@@ -743,8 +1032,58 @@ ALGORITHMS += ("matrix_equalization",)
 ALGORITHMS += ("persistent_segment_tree",)
 ALGORITHMS += ("matrix_based_game",)
 ALGORITHMS += ("kth_element_finder",)
+ALGORITHMS += ("largest_product_in_a_grid",)
+ALGORITHMS += ("problem016_power_digit_sum",)
+ALGORITHMS += ("minimum_coin_change_combinations",)
+ALGORITHMS += ("stochastic_matrix",)
+ALGORITHMS += ("key_finder",)
+ALGORITHMS += ("subset_count",)
+ALGORITHMS += ("pollard",)
+ALGORITHMS += ("is_strong_password",)
+ALGORITHMS += ("rescale",)
+ALGORITHMS += ("search_singly_linked_list_recursion",)
+ALGORITHMS += ("polygon_points",)
+ALGORITHMS += ("traveling_salesman_bitmask",)
+ALGORITHMS += ("roulette_wheel_selection",)
+ALGORITHMS += ("stoer_wagner",)
+ALGORITHMS += ("pushdown_automaton",)
+ALGORITHMS += ("sprague_grundy_theorem",)
+ALGORITHMS += ("sublist_search",)
+ALGORITHMS += ("pairing_heap",)
+ALGORITHMS += ("string_hash_equality",)
+ALGORITHMS += ("support_vector_classifier",)
+ALGORITHMS += ("multiplexer",)
+ALGORITHMS += ("binary_genetic_algorithm",)
+ALGORITHMS += ("modulo",)
+ALGORITHMS += ("scramble_strings",)
+ALGORITHMS += ("richest_customer_wealth",)
+ALGORITHMS += ("segment_tree_update",)
+ALGORITHMS += ("tree_matching",)
+ALGORITHMS += ("my_atoi",)
+ALGORITHMS += ("transposition_rust",)
+ALGORITHMS += ("minone",)
+ALGORITHMS += ("mul_array",)
+ALGORITHMS += ("matchdimensions",)
+ALGORITHMS += ("magic_sequence",)
+ALGORITHMS += ("pipeline",)
+ALGORITHMS += ("kahns_algorithm_long",)
+ALGORITHMS += ("kcenters",)
+ALGORITHMS += ("minimax",)
+ALGORITHMS += ("shortest_word_distance",)
+ALGORITHMS += ("match_word_pattern",)
+ALGORITHMS += ("power_using_recursion",)
+ALGORITHMS += ("lca",)
+ALGORITHMS += ("johnsons_algorithm",)
+ALGORITHMS += ("knapsack_zero_one_tabulation",)
+ALGORITHMS += ("matrix_exponentiation",)
+ALGORITHMS += ("miller_rabin_primality_checker",)
+ALGORITHMS += ("logistic_regression_predict",)
+ALGORITHMS += ("time_simulation",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
+MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
+MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_DENOMINATIONS = 32
+MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_INPUT_LENGTH = 34
 MAX_IMMUTABLE_HASH_MAP_INPUT_LENGTH = 1 + 3 * IMMUTABLE_HASH_MAP_MAX_OPERATIONS
 
 
@@ -1239,6 +1578,74 @@ def monotonic_array_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "knapsack_zero_one_tabulation":
+        return knapsack_zero_one_tabulation_oracle(values)
+    if algorithm == "sparse_matrix":
+        return sparse_matrix_oracle(values)
+    if algorithm == "minimax":
+        return minimax_oracle(values)
+    if algorithm == "kcenters":
+        return kcenters_oracle(values)
+    if algorithm == "kahns_algorithm_long":
+        return kahns_algorithm_long_oracle(values)
+    if algorithm == "pipeline":
+        return pipeline_oracle(values)
+    if algorithm == "magic_sequence":
+        return magic_sequence_oracle(values)
+    if algorithm == "matchdimensions":
+        return matchdimensions_oracle(values)
+    if algorithm == "mul_array":
+        return mul_array_oracle(values)
+    if algorithm == "minone":
+        return minone_oracle(values)
+    if algorithm == "transposition_rust":
+        return transposition_rust_oracle(values)
+    if algorithm == "my_atoi":
+        return my_atoi_oracle(values)
+    if algorithm == "tree_matching":
+        return tree_matching_oracle(values)
+    if algorithm == "modulo":
+        return modulo_oracle(values)
+    if algorithm == "binary_genetic_algorithm":
+        return binary_genetic_algorithm_oracle(values)
+    if algorithm == "multiplexer":
+        return multiplexer_oracle(values)
+    if algorithm == "support_vector_classifier":
+        return support_vector_classifier_oracle(values)
+    if algorithm == "string_hash_equality":
+        return string_hash_equality_oracle(values)
+    if algorithm == "pairing_heap":
+        return pairing_heap_oracle(values)
+    if algorithm == "largest_product_in_a_grid":
+        return largest_product_in_a_grid_oracle(values)
+    if algorithm == "stochastic_matrix":
+        return stochastic_matrix_oracle(values)
+    if algorithm == "key_finder":
+        return key_finder_oracle(values)
+    if algorithm == "subset_count":
+        return subset_count_oracle(values)
+    if algorithm == "pollard":
+        return pollard_oracle(values)
+    if algorithm == "polygon_points":
+        return polygon_points_oracle(values)
+    if algorithm == "traveling_salesman_bitmask":
+        return traveling_salesman_bitmask_oracle(values)
+    if algorithm == "roulette_wheel_selection":
+        return roulette_wheel_selection_oracle(values)
+    if algorithm == "pushdown_automaton":
+        return pushdown_automaton_oracle(values)
+    if algorithm == "sprague_grundy_theorem":
+        return sprague_grundy_theorem_oracle(values)
+    if algorithm == "stoer_wagner":
+        return stoer_wagner_oracle(values)
+    if algorithm == "is_strong_password":
+        return is_strong_password_oracle(values)
+    if algorithm == "rescale":
+        return rescale_oracle(values)
+    if algorithm == "problem016_power_digit_sum":
+        return problem016_power_digit_sum_oracle(values)
+    if algorithm == "minimum_coin_change_combinations":
+        return minimum_coin_change_combinations_oracle(values)
     if algorithm == "check_anagram":
         return check_anagram_oracle(values)
     if algorithm == "abbreviation":
@@ -1247,6 +1654,10 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return monotonic_array_oracle(values)
     if algorithm == "graph_enumeration":
         return graph_enumeration_oracle(values)
+    if algorithm == "lca":
+        return lca_oracle(values)
+    if algorithm == "johnsons_algorithm":
+        return johnsons_algorithm_oracle(values)
     if algorithm == "greedy_graph_coloring":
         return greedy_graph_coloring_oracle(values)
     if algorithm == "greedy_best_first":
@@ -1397,8 +1808,28 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return wildcard_matching_oracle(values)
     if algorithm == "linear_recurrence_matrix":
         return linear_recurrence_matrix_oracle(values)
+    if algorithm == "matrix_exponentiation":
+        return matrix_exponentiation_oracle(values)
+    if algorithm == "miller_rabin_primality_checker":
+        return miller_rabin_primality_checker_oracle(values)
+    if algorithm == "logistic_regression_predict":
+        return logistic_regression_predict_oracle(values)
+    if algorithm == "time_simulation":
+        return time_simulation_oracle(values)
     if algorithm == "recursive_linear_search":
         return recursive_linear_search_oracle(values)
+    if algorithm == "shortest_word_distance":
+        return shortest_word_distance_oracle(values)
+    if algorithm == "match_word_pattern":
+        return match_word_pattern_oracle(values)
+    if algorithm == "power_using_recursion":
+        return power_using_recursion_oracle(values)
+    if algorithm == "scramble_strings":
+        return scramble_strings_oracle(values)
+    if algorithm == "richest_customer_wealth":
+        return richest_customer_wealth_oracle(values)
+    if algorithm == "segment_tree_update":
+        return segment_tree_update_oracle(values)
     if algorithm == "dice_throw":
         return dice_throw_oracle(values)
     if algorithm == "depth_first_search_iterative":
@@ -1451,6 +1882,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return saddleback_search_oracle(values)
     if algorithm == "count_singly_linked_list_recursion":
         return count_singly_linked_list_oracle(values)
+    if algorithm == "search_singly_linked_list_recursion":
+        return search_singly_linked_list_recursion_oracle(values)
     if algorithm == "n_in_a_row_board_status":
         return n_in_a_row_board_status_oracle(values)
     if algorithm == "depth_first_search_tic_tac_toe":
@@ -1659,6 +2092,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return permutation_sort_oracle(values)
     if algorithm == "substring_search":
         return substring_search_oracle(values)
+    if algorithm == "sublist_search":
+        return sublist_search_oracle(values)
     if algorithm == "substring_end":
         return substring_end_oracle(values)
     if algorithm == "substring_minus":
@@ -1927,14 +2362,2179 @@ def oracle(algorithm: str, values: list[int]) -> int:
 
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
+    if algorithm == "graph_enumeration":
+        validate_graph_enumeration_workload(workload)
+    elif algorithm == "lca":
+        validate_lca_workload(workload)
+    elif algorithm == "johnsons_algorithm":
+        validate_johnsons_algorithm_workload(workload)
+    elif algorithm == "knapsack_zero_one_tabulation":
+        validate_knapsack_zero_one_tabulation_workload(workload)
+    elif algorithm == "matrix_exponentiation":
+        validate_matrix_exponentiation_workload(workload)
+    elif algorithm == "miller_rabin_primality_checker":
+        validate_miller_rabin_primality_checker_workload(workload)
+    elif algorithm == "logistic_regression_predict":
+        validate_logistic_regression_predict_workload(workload)
+    elif algorithm == "time_simulation":
+        validate_time_simulation_workload(workload)
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
-             for case in workload["cases"]}
+             for case in workload["cases"] if not case.get("input_is_null", False)}
     special_records: list[str] = []
-    for values, expected in zip((case["input_values"] for case in workload["cases"]),
-                                (case["expected_result"] for case in workload["cases"])):
+    for case in workload["cases"]:
+        values = case["input_values"]
+        expected = case["expected_result"]
+        if case.get("input_is_null", False):
+            input_length = case.get("input_length")
+            minimum_null_length = 0 if algorithm == "mul_array" else 1
+            if (values or type(input_length) is not int
+                    or not minimum_null_length <= input_length <= 100002):
+                raise ValueError(f"null input case has an invalid declared length: {case.get('id')}")
+            if algorithm == "mul_array" and expected != (1 if input_length == 0 else -1):
+                raise ValueError("mul_array null input cases must distinguish empty and positive lengths")
+            special_records.append(f"NULL {input_length} {expected}\n")
+            continue
         if oracle(algorithm, values) != expected:
             raise ValueError(f"published workload disagrees with {algorithm} oracle")
-    if algorithm == "kth_element_finder":
+    if algorithm == "knapsack_zero_one_tabulation":
+        choices = ((1, 0), (1, 1), (2, 3), (3, 4), (4, 5))
+        sequences: list[tuple[tuple[int, int], ...]] = [()]
+        for size in range(1, 5):
+            sequences.extend(product(choices, repeat=size))
+        for items in sequences:
+            for capacity in range(7):
+                packed = [capacity, len(items)]
+                for weight, value in items:
+                    packed.extend((weight, value))
+                cases[tuple(packed)] = knapsack_zero_one_tabulation_oracle(packed)
+
+        rng_knapsack = random.Random(20261014)
+        for _ in range(512):
+            item_count = rng_knapsack.randrange(0, 18)
+            packed = [rng_knapsack.randrange(0, KNAPSACK_ZERO_ONE_TABULATION_MAX_CAPACITY + 1),
+                      item_count]
+            for _ in range(item_count):
+                packed.extend((rng_knapsack.choice([1, 2, 3, 8, 64, 513,
+                                                    KNAPSACK_ZERO_ONE_TABULATION_MAX_WEIGHT]),
+                               rng_knapsack.choice([0, 1, 7, 999,
+                                                    KNAPSACK_ZERO_ONE_TABULATION_MAX_VALUE,
+                                                    rng_knapsack.randrange(
+                                                        KNAPSACK_ZERO_ONE_TABULATION_MAX_VALUE + 1)])))
+            cases[tuple(packed)] = knapsack_zero_one_tabulation_oracle(packed)
+
+        malformed = (
+            (), (0,), (-1, 0), (KNAPSACK_ZERO_ONE_TABULATION_MAX_CAPACITY + 1, 0),
+            (0, -1), (0, KNAPSACK_ZERO_ONE_TABULATION_MAX_ITEMS + 1), (4, 1),
+            (0, 1, 0, 1),
+            (0, 1, KNAPSACK_ZERO_ONE_TABULATION_MAX_WEIGHT + 1, 1),
+            (0, 1, 1, -1),
+            (0, 1, 1, KNAPSACK_ZERO_ONE_TABULATION_MAX_VALUE + 1),
+        )
+        for packed in malformed:
+            cases[packed] = KNAPSACK_ZERO_ONE_TABULATION_INVALID_RESULT
+    if algorithm == "lca":
+        def add_lca_case(values: tuple[int, ...]) -> None:
+            if len(values) > LCA_MAX_INPUT_LENGTH:
+                raise ValueError("lca generated input exceeds its 129-value parser bound")
+            result = lca_oracle(list(values))
+            if result != LCA_INVALID_RESULT and not 0 <= result < values[0]:
+                raise ValueError("lca oracle returned a vertex outside the input tree")
+            cases[values] = result
+
+        rng_lca = random.Random(20261017)
+        for _ in range(128):
+            node_count = rng_lca.randint(1, LCA_MAX_NODES)
+            edges = [(rng_lca.randrange(vertex), vertex)
+                     for vertex in range(1, node_count)]
+            rng_lca.shuffle(edges)
+            if rng_lca.randrange(2):
+                edges = [(right, left) for left, right in edges]
+            query_a = rng_lca.randrange(node_count)
+            query_b = rng_lca.randrange(node_count)
+            values = (node_count, *(value for edge in edges for value in edge),
+                      query_a, query_b)
+            add_lca_case(values)
+
+        malformed = (
+            (), (0,), (LCA_MAX_NODES + 1,), (1, 0, 0, 0),
+            (2, 0, 2, 0, 1), (2, 0, 1, 0, 2), (2, 0, 0, 0, 1),
+            (3, 0, 1, 0, 1, 0, 2), (4, 0, 1, 1, 2, 2, 0, 0, 3),
+        )
+        for values in malformed:
+            add_lca_case(tuple(values))
+    if algorithm == "johnsons_algorithm":
+        def add_johnsons_case(values: tuple[int, ...]) -> None:
+            if len(values) > JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH:
+                raise ValueError("johnsons_algorithm generated input exceeds its 257-value parser bound")
+            cases[values] = johnsons_algorithm_oracle(values)
+
+        rng_johnson = random.Random(20261017)
+        for graph_index in range(96):
+            vertices = 1 + (graph_index % JOHNSONS_ALGORITHM_MAX_VERTICES)
+            matrix = [0] * (vertices * vertices)
+            for vertex in range(vertices):
+                matrix[vertex * vertices + vertex] = rng_johnson.randint(
+                    -JOHNSONS_ALGORITHM_MAX_WEIGHT, JOHNSONS_ALGORITHM_MAX_WEIGHT)
+            if vertices > 1:
+                # A directed cycle guarantees strong connectivity; extra positive
+                # edges vary the shortest paths while keeping every reduced edge
+                # strictly positive under the zero Bellman-Ford potentials.
+                for vertex in range(vertices):
+                    matrix[vertex * vertices + (vertex + 1) % vertices] = rng_johnson.randint(
+                        1, JOHNSONS_ALGORITHM_MAX_WEIGHT)
+                for from_vertex in range(vertices):
+                    for to_vertex in range(vertices):
+                        index = from_vertex * vertices + to_vertex
+                        if from_vertex != to_vertex and matrix[index] == 0 and rng_johnson.randrange(3) == 0:
+                            matrix[index] = rng_johnson.randint(1, JOHNSONS_ALGORITHM_MAX_WEIGHT)
+            add_johnsons_case((vertices, *matrix))
+
+        malformed = (
+            (), (0,), (JOHNSONS_ALGORITHM_MAX_VERTICES + 1,),
+            (2, 0, 1), (1, 0, 1),
+            (2, 0, 33, 1, 0),
+            (3, 0, 1, 0, 0, 0, 0, 0, 0),
+            (3, 0, -3, 0, 0, 0, 1, 1, 0, 0),
+            (2, 0, -1, 2, 0),
+        )
+        for values in malformed:
+            add_johnsons_case(tuple(values))
+    if algorithm == "mul_array":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Solidity",
+            "commit": "08cba51fb38e276062b0c9791d7e0ee494ffa903",
+            "path": "src/Maths/MulArray.sol",
+            "symbol": "MulArray.mulArr",
+            "url": "https://github.com/TheAlgorithms/Solidity/blob/08cba51fb38e276062b0c9791d7e0ee494ffa903/src/Maths/MulArray.sol",
+        }
+        required_case_ids = {
+            "empty_array_identity", "null_empty_array_identity",
+            "null_pointer_with_positive_length", "single_zero", "single_maximum_factor",
+            "mixed_factors", "zero_factor_in_middle", "maximum_valid_product_nine_factors",
+            "maximum_valid_length_with_zero", "ten_factors_exceed_valid_length_and_overflow_domain",
+            "negative_factor_below_range", "factor_above_range", "minimum_i64_factor",
+            "maximum_i64_factor",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "mul-array-scalar-v1"
+                or workload.get("algorithm") != "mul_array"
+                or workload.get("function_symbol") != "mul_array"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "The input values are the factors in order; there is no count prefix.",
+                    "valid_length_range": [0, MUL_ARRAY_MAX_INPUT_LENGTH],
+                    "factor_range": [MUL_ARRAY_MIN_FACTOR, MUL_ARRAY_MAX_FACTOR],
+                    "maximum_valid_product": MUL_ARRAY_MAX_PRODUCT,
+                    "null_input_policy": "NULL with length 0 represents the valid empty array and returns 1; NULL with positive length returns -1.",
+                    "invalid_result": MUL_ARRAY_INVALID_RESULT,
+                    "result": "Exact product of all factors, starting from the multiplicative identity 1.",
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "invalid_result": MUL_ARRAY_INVALID_RESULT,
+                }
+                or measurement != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 50,
+                }
+                or MUL_ARRAY_MAX_INPUT_LENGTH != 9
+                or MUL_ARRAY_MAX_FACTOR != 99
+                or MUL_ARRAY_MIN_FACTOR != 0
+                or MUL_ARRAY_MAX_PRODUCT != 99 ** 9
+                or MUL_ARRAY_MAX_PRODUCT > MUL_ARRAY_I64_MAX
+                or MUL_ARRAY_I64_MIN != -(1 << 63)
+                or MUL_ARRAY_I64_MAX != (1 << 63) - 1
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 2
+                or any(case.get("input_values") != [] for case in null_cases)
+                or not any(case.get("id") == "null_empty_array_identity"
+                           and case.get("input_length") == 0
+                           and case.get("expected_result") == 1 for case in null_cases)
+                or not any(case.get("id") == "null_pointer_with_positive_length"
+                           and case.get("input_length") == 1
+                           and case.get("expected_result") == MUL_ARRAY_INVALID_RESULT
+                           for case in null_cases)
+                or any((not isinstance(case.get("input_values"), list)
+                        or type(case.get("input_length")) is not int
+                        or (not case.get("input_is_null", False)
+                            and case.get("input_length") != len(case["input_values"])))
+                       for case in workload.get("cases", []))):
+            raise ValueError("mul_array workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "m" / "mul_array" / "README.md").read_text(
+            encoding="utf-8")
+        if expected_source["url"] not in readme or "99^9" not in readme:
+            raise ValueError("mul_array README is missing its pinned source or bound explanation")
+
+        maximum_case = next(case for case in workload["cases"]
+                            if case.get("id") == "maximum_valid_product_nine_factors")
+        if (maximum_case.get("input_length") != MUL_ARRAY_MAX_INPUT_LENGTH
+                or maximum_case.get("expected_result") != MUL_ARRAY_MAX_PRODUCT
+                or len(next(case["input_values"] for case in workload["cases"]
+                            if case.get("id") == "ten_factors_exceed_valid_length_and_overflow_domain"))
+                    != MUL_ARRAY_MAX_INPUT_LENGTH + 1):
+            raise ValueError("mul_array workload is missing its maximum and first-invalid-length cases")
+
+        rng_mul_array = random.Random(20261017)
+        for _ in range(128):
+            values = tuple(rng_mul_array.randint(MUL_ARRAY_MIN_FACTOR, MUL_ARRAY_MAX_FACTOR)
+                           for _ in range(rng_mul_array.randint(0, MUL_ARRAY_MAX_INPUT_LENGTH)))
+            cases[values] = mul_array_oracle(values)
+        for values in (tuple([MUL_ARRAY_MAX_FACTOR] * (MUL_ARRAY_MAX_INPUT_LENGTH + 1)),
+                       (-1,), (MUL_ARRAY_MAX_FACTOR + 1,), (MUL_ARRAY_I64_MIN,),
+                       (MUL_ARRAY_I64_MAX,)):
+            cases[values] = mul_array_oracle(values)
+
+    if algorithm == "matchdimensions":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Go",
+            "commit": "5ba447ec5ff3d1213de65b92e726ee74c5d5cc19",
+            "path": "math/matrix/matchdimensions.go",
+            "symbol": "MatchDimensions",
+            "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/matrix/matchdimensions.go",
+        }
+        required_case_ids = {
+            "same_dimensions", "row_count_differs", "column_count_differs",
+            "both_counts_differ", "all_zero_dimensions", "equal_zero_row_shapes",
+            "zero_column_mismatch", "maximum_dimensions_equal", "maximum_dimension_mismatch",
+            "negative_first_row_count", "first_column_count_above_limit",
+            "second_row_count_below_zero", "second_column_count_above_limit",
+            "minimum_i64_dimension", "maximum_i64_dimension", "short_input",
+            "null_input_pointer", "long_input",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-go-matchdimensions-i64-array-scalar-v1"
+                or workload.get("algorithm") != "matchdimensions"
+                or workload.get("function_symbol") != "matchdimensions"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "[rows_a, columns_a, rows_b, columns_b]",
+                    "exact_length": 4,
+                    "maximum_parseable_input_length": MATCHDIMENSIONS_MAX_INPUT_LENGTH,
+                    "dimension_range": [0, MATCHDIMENSIONS_MAX_DIMENSION],
+                    "invalid_input_result": -1,
+                    "null_input_result": -1,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "meaning": "1 iff both row counts and both column counts match, otherwise 0",
+                    "valid_results": [0, 1],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1000,
+                }
+                or MATCHDIMENSIONS_MAX_INPUT_LENGTH != 5
+                or MATCHDIMENSIONS_MAX_DIMENSION != 65535
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_input_pointer"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 4
+                or null_cases[0].get("expected_result") != -1
+                or any((not isinstance(case.get("input_values"), list)
+                        or type(case.get("input_length")) is not int
+                        or (not case.get("input_is_null", False)
+                            and case.get("input_length") != len(case["input_values"])))
+                       for case in workload.get("cases", []))):
+            raise ValueError("matchdimensions workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "m" / "matchdimensions" / "README.md").read_text(
+            encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "Zero-sized dimensions are valid" not in readme):
+            raise ValueError("matchdimensions README is missing its source or zero-dimension contract")
+
+        rng_matchdimensions = random.Random(20261017)
+        for _ in range(128):
+            values = tuple(rng_matchdimensions.randint(0, MATCHDIMENSIONS_MAX_DIMENSION)
+                           for _ in range(4))
+            cases[values] = matchdimensions_oracle(values)
+        i64_min = -(1 << 63)
+        i64_max = (1 << 63) - 1
+        for values in ((), (0,), (1, 2, 3), (0, 0, 0, 0, 0), (-1, 0, 0, 0),
+                       (0, MATCHDIMENSIONS_MAX_DIMENSION + 1, 0, 0),
+                       (i64_min, 0, 0, 0), (0, 0, 0, i64_max)):
+            cases[values] = matchdimensions_oracle(values)
+
+    if algorithm == "magic_sequence":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/C-Plus-Plus",
+            "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+            "path": "backtracking/magic_sequence.cpp",
+            "symbol": "backtracking::magic_sequence::solve",
+            "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/backtracking/magic_sequence.cpp",
+        }
+        required_case_ids = {
+            "n_zero_empty_solution", "n_one_no_solution", "n_two_no_solution",
+            "n_three_no_solution", "n_four_two_solutions", "n_five_one_solution",
+            "n_six_no_solution", "n_seven_one_solution", "n_eight_one_solution",
+            "n_nine_one_solution", "n_ten_one_solution", "n_eleven_maximum",
+            "empty_input_invalid", "extra_input_value_invalid", "null_input_invalid",
+            "negative_n_invalid", "n_above_bound_invalid", "minimum_i64_invalid",
+            "maximum_i64_invalid",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "magic-sequence-backtracking-fnv64-v1"
+                or workload.get("algorithm") != "magic_sequence"
+                or workload.get("function_symbol") != "magic_sequence"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "Exactly [n], with n from 0 through 11.",
+                    "exact_length": 1,
+                    "maximum_input_length": MAGIC_SEQUENCE_MAX_INPUT_LENGTH,
+                    "maximum_parseable_input_length": MAGIC_SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH,
+                    "n_range": [0, MAGIC_SEQUENCE_MAX_N],
+                    "invalid_result": -1,
+                    "null_input_result": -1,
+                    "result": "Hash all retained magic sequences in lexicographic order using the output framing.",
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "invalid_result": -1,
+                    "hash": {
+                        "algorithm": "FNV-1a-64",
+                        "offset_basis": 14695981039346656037,
+                        "prime": 1099511628211,
+                        "byte_stream": "n as u8; solution count as u32 little-endian; then each retained solution row, in lexicographic order, with each entry as u8",
+                        "result": "low 63 bits of the final 64-bit hash",
+                    },
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 3,
+                    "warmup_rounds": 0,
+                    "repetitions_per_sample": 1,
+                }
+                or MAGIC_SEQUENCE_MAX_INPUT_LENGTH != 1
+                or MAGIC_SEQUENCE_MAX_PARSEABLE_INPUT_LENGTH != 2
+                or MAGIC_SEQUENCE_MAX_N != 11
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_input_invalid"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 1
+                or null_cases[0].get("expected_result") != -1
+                or any((not isinstance(case.get("input_values"), list)
+                        or type(case.get("input_length")) is not int
+                        or (not case.get("input_is_null", False)
+                            and case.get("input_length") != len(case["input_values"])))
+                       for case in workload.get("cases", []))):
+            raise ValueError("magic_sequence workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "m" / "magic_sequence" / "README.md").read_text(
+            encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "n=0` retains one empty solution" not in readme
+                or "count as a four-byte unsigned little-endian integer" not in readme):
+            raise ValueError("magic_sequence README is missing its pinned source or hash framing")
+
+        for case in workload["cases"]:
+            if case.get("input_is_null", False):
+                continue
+            values = case["input_values"]
+            if len(values) == 1 and 0 <= values[0] <= MAGIC_SEQUENCE_MAX_N:
+                if case.get("expected_solution_count") != magic_sequence_solution_count(values[0]):
+                    raise ValueError("magic_sequence solution count does not match its independent oracle")
+            elif "expected_solution_count" in case:
+                raise ValueError("invalid magic_sequence workload cases must not claim a solution count")
+
+        rng_magic_sequence = random.Random(20261017)
+        for _ in range(128):
+            values = (rng_magic_sequence.randint(0, MAGIC_SEQUENCE_MAX_N),)
+            cases[values] = magic_sequence_oracle(values)
+        i64_min = -(1 << 63)
+        i64_max = (1 << 63) - 1
+        for values in ((), (0, 0), (-1,), (MAGIC_SEQUENCE_MAX_N + 1,),
+                       (i64_min,), (i64_max,)):
+            cases[values] = magic_sequence_oracle(values)
+
+    if algorithm == "pipeline":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Python",
+            "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+            "path": "other/pipeline.py",
+            "symbol": "Pipeline.__or__ / Pipeline.__call__",
+            "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/other/pipeline.py",
+        }
+        required_case_ids = {
+            "single_add", "single_multiply", "add_then_multiply", "multiply_then_add",
+            "zero_initial_remains_zero", "multiply_by_zero_then_add", "add_zero_identity",
+            "multiply_by_one_identity", "maximum_32_stage_result", "empty_pipeline",
+            "null_input_pointer", "stage_count_above_limit", "truncated_stage_pair",
+            "trailing_value", "invalid_operation", "negative_argument", "argument_above_range",
+            "initial_below_range", "initial_above_range",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "pipeline-i64-array-scalar-v1"
+                or workload.get("algorithm") != "pipeline"
+                or workload.get("function_symbol") != "pipeline"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "[initial, stage_count, (operation, argument) pairs in pipeline order]",
+                    "maximum_input_length": PIPELINE_MAX_INPUT_LENGTH,
+                    "maximum_parseable_input_length": PIPELINE_MAX_PARSEABLE_INPUT_LENGTH,
+                    "initial_and_argument_range": [PIPELINE_MIN_VALUE, PIPELINE_MAX_VALUE],
+                    "stage_count_range": [1, PIPELINE_MAX_STAGES],
+                    "operations": {"0": "add argument", "1": "multiply by argument"},
+                    "null_input_policy": "A null input pointer is invalid at every length.",
+                    "invalid_result": PIPELINE_INVALID_RESULT,
+                    "result": "Apply each unary stage in order, starting with initial.",
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "invalid_result": PIPELINE_INVALID_RESULT,
+                    "maximum_valid_result": 8589934592,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 50,
+                }
+                or PIPELINE_MAX_INPUT_LENGTH != 66
+                or PIPELINE_MAX_PARSEABLE_INPUT_LENGTH != 68
+                or PIPELINE_MAX_STAGES != 32
+                or PIPELINE_MIN_VALUE != 0
+                or PIPELINE_MAX_VALUE != 2
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_input_pointer"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 1
+                or null_cases[0].get("expected_result") != PIPELINE_INVALID_RESULT
+                or any((not isinstance(case.get("input_values"), list)
+                        or type(case.get("input_length")) is not int
+                        or (not case.get("input_is_null", False)
+                            and case.get("input_length") != len(case["input_values"])))
+                       for case in workload.get("cases", []))):
+            raise ValueError("pipeline workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "p" / "pipeline" / "README.md").read_text(
+            encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "A null input pointer is invalid at every length" not in readme
+                or "8,589,934,592" not in readme):
+            raise ValueError("pipeline README is missing its pinned source or bounded input/result contract")
+
+        rng_pipeline = random.Random(20261017)
+        for _ in range(128):
+            stage_count = rng_pipeline.randint(1, PIPELINE_MAX_STAGES)
+            values = [rng_pipeline.randint(PIPELINE_MIN_VALUE, PIPELINE_MAX_VALUE), stage_count]
+            for _ in range(stage_count):
+                values.extend((rng_pipeline.randint(0, 1),
+                               rng_pipeline.randint(PIPELINE_MIN_VALUE, PIPELINE_MAX_VALUE)))
+            key = tuple(values)
+            cases[key] = pipeline_oracle(key)
+        i64_min = -(1 << 63)
+        i64_max = (1 << 63) - 1
+        malformed_max_stages = (PIPELINE_MAX_STAGES + 1)
+        too_many_stages = (2, malformed_max_stages) + (1, 0) * malformed_max_stages
+        for values in ((), (PIPELINE_MAX_VALUE, 0), too_many_stages,
+                       (1, 1, 0), (1, 1, 0, 2, 9), (1, 1, 2, 1),
+                       (1, 1, 0, -1), (1, 1, 1, PIPELINE_MAX_VALUE + 1),
+                       (-1, 1, 0, 0), (PIPELINE_MAX_VALUE + 1, 1, 0, 0),
+                       (i64_min, 1, 0, 0), (i64_max, 1, 0, 0)):
+            cases[values] = pipeline_oracle(values)
+
+    if algorithm == "kahns_algorithm_long":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Python",
+            "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+            "path": "graphs/kahns_algorithm_long.py",
+            "symbol": "longest_distance",
+            "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/kahns_algorithm_long.py",
+        }
+        required_case_ids = {
+            "one_vertex_no_edges", "multiple_isolated_vertices", "single_edge",
+            "six_vertex_chain", "two_equal_longest_branches", "disconnected_chains_and_isolate",
+            "parallel_edges_counted_and_decremented", "pinned_source_example_graph",
+            "maximum_vertex_count_chain", "maximum_edge_count_parallel_edges",
+            "parseable_length_one_above_maximum", "directed_three_cycle", "self_loop_cycle",
+            "zero_vertices_invalid", "too_many_vertices_invalid", "too_many_edges_invalid",
+            "negative_edge_endpoint", "endpoint_equal_to_vertex_count", "declared_edges_but_truncated",
+            "unexpected_trailing_value", "missing_header_value", "minimum_i64_endpoint",
+            "maximum_i64_endpoint", "null_input_pointer",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "kahns-algorithm-long-dag-i64-array-scalar-v1"
+                or workload.get("algorithm") != "kahns_algorithm_long"
+                or workload.get("function_symbol") != "kahns_algorithm_long"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "[vertex_count, edge_count, from_0, to_0, ..., from_(m-1), to_(m-1)]",
+                    "vertex_count_range": [1, KAHNS_ALGORITHM_LONG_MAX_VERTICES],
+                    "edge_count_range": [0, KAHNS_ALGORITHM_LONG_MAX_EDGES],
+                    "endpoint_range": "0 through vertex_count-1",
+                    "vertices": "All vertices are declared, including isolated vertices.",
+                    "parallel_edges": "Allowed and counted individually when indegrees are initialized and decremented.",
+                    "graph_domain": "Directed acyclic graphs only; cyclic input is invalid.",
+                    "exact_length": "2 + 2*edge_count",
+                    "maximum_input_length": KAHNS_ALGORITHM_LONG_MAX_INPUT_LENGTH,
+                    "maximum_parseable_input_length": KAHNS_ALGORITHM_LONG_MAX_PARSEABLE_INPUT_LENGTH,
+                    "invalid_input_result": KAHNS_ALGORITHM_LONG_INVALID_RESULT,
+                    "null_input_result": KAHNS_ALGORITHM_LONG_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "meaning": "Length of a longest directed path, counting vertices; a graph with vertices and no edges has result 1.",
+                    "valid_result_range": [1, KAHNS_ALGORITHM_LONG_MAX_VERTICES],
+                    "invalid_input_result": KAHNS_ALGORITHM_LONG_INVALID_RESULT,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or KAHNS_ALGORITHM_LONG_MAX_INPUT_LENGTH != 258
+                or KAHNS_ALGORITHM_LONG_MAX_PARSEABLE_INPUT_LENGTH != 259
+                or KAHNS_ALGORITHM_LONG_MAX_VERTICES != 32
+                or KAHNS_ALGORITHM_LONG_MAX_EDGES != 128
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_input_pointer"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 2
+                or null_cases[0].get("expected_result") != KAHNS_ALGORITHM_LONG_INVALID_RESULT
+                or any((not isinstance(case.get("input_values"), list)
+                        or type(case.get("input_length")) is not int
+                        or (not case.get("input_is_null", False)
+                            and case.get("input_length") != len(case["input_values"])))
+                       for case in workload.get("cases", []))):
+            raise ValueError("kahns_algorithm_long workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "k" / "kahns_algorithm_long" / "README.md").read_text(
+            encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "including isolated vertices" not in readme
+                or "a cyclic graph returns `-1`" not in readme):
+            raise ValueError("kahns_algorithm_long README is missing its pinned source or graph contract")
+
+        rng_kahns_algorithm_long = random.Random(20261017)
+        for _ in range(128):
+            vertex_count = rng_kahns_algorithm_long.randint(1, KAHNS_ALGORITHM_LONG_MAX_VERTICES)
+            order = list(range(vertex_count))
+            rng_kahns_algorithm_long.shuffle(order)
+            edges = []
+            for source_index, source in enumerate(order):
+                for destination in order[source_index + 1:]:
+                    if (len(edges) < KAHNS_ALGORITHM_LONG_MAX_EDGES
+                            and rng_kahns_algorithm_long.random() < 0.08):
+                        edges.append((source, destination))
+            values_list = [vertex_count, len(edges)]
+            for source, destination in edges:
+                values_list.extend((source, destination))
+            values = tuple(values_list)
+            cases[values] = kahns_algorithm_long_oracle(values)
+
+        maximum_edge_input = (KAHNS_ALGORITHM_LONG_MAX_VERTICES, KAHNS_ALGORITHM_LONG_MAX_EDGES) + (0, 1) * KAHNS_ALGORITHM_LONG_MAX_EDGES
+        i64_min = -(1 << 63)
+        i64_max = (1 << 63) - 1
+        malformed_parseable_input = maximum_edge_input + (0,)
+        for values in ((), (1,), (0, 0), (KAHNS_ALGORITHM_LONG_MAX_VERTICES + 1, 0),
+                       (1, KAHNS_ALGORITHM_LONG_MAX_EDGES + 1), (-1, 0),
+                       (2, 1, -1, 1), (2, 1, 0, 2), (3, 2, 0, 1),
+                       (2, 0, 7), (3, 3, 0, 1, 1, 2, 2, 0), (1, 1, 0, 0),
+                       (1, 1, i64_min, 0), (1, 1, 0, i64_max),
+                       malformed_parseable_input):
+            cases[values] = kahns_algorithm_long_oracle(values)
+
+    if algorithm == "kcenters":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/greedyalgorithms/KCenters.java",
+            "symbol": "KCenters.findKCenters",
+            "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/greedyalgorithms/KCenters.java",
+        }
+        required_case_ids = {
+            "one_point_one_center_preserves_java_int_max",
+            "four_points_one_center_preserves_java_int_max", "two_centers_on_three_point_line",
+            "all_three_line_points_selected", "first_index_wins_farthest_tie", "all_zero_distances",
+            "maximum_distance_boundary", "maximum_input_length_all_centers_selected",
+            "maximum_input_length_one_center", "parseable_length_one_above_maximum",
+            "zero_points_invalid", "too_many_points_invalid", "zero_centers_invalid",
+            "center_count_above_points_invalid", "truncated_matrix_invalid",
+            "trailing_matrix_value_invalid", "nonzero_diagonal_invalid", "asymmetric_matrix_invalid",
+            "negative_distance_invalid", "distance_above_bound_invalid", "minimum_i64_distance_invalid",
+            "maximum_i64_distance_invalid", "missing_header_value", "null_input_pointer",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-java-kcenters-i64-array-scalar-v1"
+                or workload.get("algorithm") != "kcenters"
+                or workload.get("function_symbol") != "kcenters"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "[point_count, center_count, row-major n*n distance values]",
+                    "point_count_range": [1, KCENTERS_MAX_POINTS],
+                    "center_count_range": "1 through point_count",
+                    "distance_range": [0, KCENTERS_MAX_DISTANCE],
+                    "distance_matrix": "Symmetric with a zero diagonal; no Euclidean or triangle-inequality condition is required.",
+                    "exact_length": "2 + point_count*point_count",
+                    "maximum_input_length": KCENTERS_MAX_INPUT_LENGTH,
+                    "maximum_parseable_input_length": KCENTERS_MAX_PARSEABLE_INPUT_LENGTH,
+                    "invalid_input_result": KCENTERS_INVALID_RESULT,
+                    "null_input_result": KCENTERS_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "meaning": "Maximum source maxDist after deterministic farthest-first center selection.",
+                    "valid_result_range": [0, KCENTERS_JAVA_INT_MAX],
+                    "one_center_result": KCENTERS_JAVA_INT_MAX,
+                    "invalid_input_result": KCENTERS_INVALID_RESULT,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1000,
+                }
+                or KCENTERS_MAX_POINTS != 8
+                or KCENTERS_MAX_DISTANCE != 1_000_000
+                or KCENTERS_MAX_INPUT_LENGTH != 66
+                or KCENTERS_MAX_PARSEABLE_INPUT_LENGTH != 67
+                or KCENTERS_JAVA_INT_MAX != 2_147_483_647
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_input_pointer"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 2
+                or null_cases[0].get("expected_result") != KCENTERS_INVALID_RESULT
+                or any((not isinstance(case.get("input_values"), list)
+                        or type(case.get("input_length")) is not int
+                        or (not case.get("input_is_null", False)
+                            and case.get("input_length") != len(case["input_values"])))
+                       for case in workload.get("cases", []))):
+            raise ValueError("kcenters workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "k" / "kcenters" / "README.md").read_text(
+            encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "Integer.MAX_VALUE" not in readme
+                or "first unselected point" not in readme):
+            raise ValueError("kcenters README is missing its pinned source or deterministic-selection contract")
+
+        maximum_all_centers = next(case for case in workload["cases"]
+                                   if case.get("id") == "maximum_input_length_all_centers_selected")
+        maximum_one_center = next(case for case in workload["cases"]
+                                  if case.get("id") == "maximum_input_length_one_center")
+        parseable_case = next(case for case in workload["cases"]
+                              if case.get("id") == "parseable_length_one_above_maximum")
+        if (len(maximum_all_centers["input_values"]) != KCENTERS_MAX_INPUT_LENGTH
+                or maximum_all_centers.get("expected_result") != 0
+                or len(maximum_one_center["input_values"]) != KCENTERS_MAX_INPUT_LENGTH
+                or maximum_one_center.get("expected_result") != KCENTERS_JAVA_INT_MAX
+                or len(parseable_case["input_values"]) != KCENTERS_MAX_PARSEABLE_INPUT_LENGTH
+                or parseable_case.get("expected_result") != KCENTERS_INVALID_RESULT):
+            raise ValueError("kcenters workload is missing its maximum-input and parseable-boundary cases")
+
+        rng_kcenters = random.Random(20261017)
+        for _ in range(128):
+            point_count = rng_kcenters.randint(1, KCENTERS_MAX_POINTS)
+            center_count = rng_kcenters.randint(1, point_count)
+            matrix = [[0] * point_count for _ in range(point_count)]
+            for row in range(point_count):
+                for column in range(row + 1, point_count):
+                    distance = rng_kcenters.randint(0, KCENTERS_MAX_DISTANCE)
+                    matrix[row][column] = distance
+                    matrix[column][row] = distance
+            values = (point_count, center_count,
+                      *(distance for row in matrix for distance in row))
+            cases[values] = kcenters_oracle(values)
+
+        i64_min = -(1 << 63)
+        i64_max = (1 << 63) - 1
+        for values in ((), (KCENTERS_MAX_POINTS + 1, 1), (0, 1), (2, 0, 0, 0, 0, 0),
+                       (2, 3, 0, 1, 1, 0), (1, 1, 1), (2, 1, 0, 1, 0, 0),
+                       (1, 1, -1), (1, 1, KCENTERS_MAX_DISTANCE + 1),
+                       (1, 1, i64_min), (1, 1, i64_max), (3,),
+                       (KCENTERS_MAX_POINTS, 1, *([0] * (KCENTERS_MAX_POINTS ** 2)), 0)):
+            cases[values] = kcenters_oracle(values)
+
+    if algorithm == "minimax":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/C-Plus-Plus",
+            "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+            "path": "backtracking/minimax.cpp",
+            "symbol": "backtracking::minimax",
+            "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/backtracking/minimax.cpp",
+        }
+        required_case_ids = {
+            "one_leaf_max_turn", "one_leaf_min_turn", "valid_score_minus_one",
+            "two_leaf_maximizer", "two_leaf_minimizer", "four_leaves_max_root_alternates_to_min",
+            "four_leaves_min_root_alternates_to_max", "all_negative_max_root", "all_negative_min_root",
+            "eight_leaves_max_root", "eight_leaves_min_root", "signed_i32_extrema_max",
+            "signed_i32_extrema_min", "maximum_leaf_count", "zero_leaf_count_invalid",
+            "non_power_of_two_leaf_count_invalid", "too_many_leaves_invalid",
+            "turn_flag_below_range_invalid", "turn_flag_above_range_invalid",
+            "short_score_array_invalid", "extra_score_invalid", "score_below_i32_invalid",
+            "score_above_i32_invalid", "minimum_i64_score_invalid", "maximum_i64_score_invalid",
+            "parseable_length_one_above_maximum", "null_input_pointer",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-minimax-full-tree-i64-array-scalar-v1"
+                or workload.get("algorithm") != "minimax"
+                or workload.get("function_symbol") != "minimax"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "[leaf_count, first_turn_is_max, leaf_score_0, ..., leaf_score_(leaf_count-1)]",
+                    "leaf_count_range": [1, MINIMAX_MAX_LEAF_COUNT],
+                    "leaf_count_constraint": "Power of two",
+                    "first_turn_is_max_values": {
+                        "0": "minimizing player",
+                        "1": "maximizing player",
+                    },
+                    "score_range": [MINIMAX_I32_MIN, MINIMAX_I32_MAX],
+                    "exact_length": "2 + leaf_count",
+                    "maximum_input_length": MINIMAX_MAX_INPUT_LENGTH,
+                    "maximum_parseable_input_length": MINIMAX_MAX_PARSEABLE_INPUT_LENGTH,
+                    "invalid_input_result": MINIMAX_INVALID_RESULT,
+                    "null_input_result": MINIMAX_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "meaning": "Root score after alternating max/min reductions through the full binary tree.",
+                    "valid_result_range": [MINIMAX_I32_MIN, MINIMAX_I32_MAX],
+                    "invalid_input_result": MINIMAX_INVALID_RESULT,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1000,
+                }
+                or MINIMAX_MAX_LEAF_COUNT != 32
+                or MINIMAX_MAX_INPUT_LENGTH != 34
+                or MINIMAX_MAX_PARSEABLE_INPUT_LENGTH != 35
+                or MINIMAX_I32_MIN != -(1 << 31)
+                or MINIMAX_I32_MAX != (1 << 31) - 1
+                or MINIMAX_INVALID_RESULT != -(1 << 31) - 1
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_input_pointer"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 2
+                or null_cases[0].get("expected_result") != MINIMAX_INVALID_RESULT
+                or any((not isinstance(case.get("input_values"), list)
+                        or type(case.get("input_length")) is not int
+                        or (not case.get("input_is_null", False)
+                            and case.get("input_length") != len(case["input_values"])))
+                       for case in workload.get("cases", []))):
+            raise ValueError("minimax workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "m" / "minimax" / "README.md").read_text(
+            encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "-2147483649" not in readme
+                or "first_turn_is_max" not in readme):
+            raise ValueError("minimax README is missing its pinned source or score/sentinel contract")
+
+        maximum_case = next(case for case in workload["cases"]
+                            if case.get("id") == "maximum_leaf_count")
+        parseable_case = next(case for case in workload["cases"]
+                              if case.get("id") == "parseable_length_one_above_maximum")
+        if (len(maximum_case["input_values"]) != MINIMAX_MAX_INPUT_LENGTH
+                or parseable_case.get("input_length") != MINIMAX_MAX_PARSEABLE_INPUT_LENGTH
+                or parseable_case.get("expected_result") != MINIMAX_INVALID_RESULT):
+            raise ValueError("minimax workload is missing its maximum or parseable-boundary case")
+
+        rng_minimax = random.Random(20261017)
+        valid_leaf_counts = (1, 2, 4, 8, 16, 32)
+        for _ in range(128):
+            leaf_count = rng_minimax.choice(valid_leaf_counts)
+            first_turn_is_max = rng_minimax.randint(0, 1)
+            scores = tuple(rng_minimax.randint(MINIMAX_I32_MIN, MINIMAX_I32_MAX)
+                           for _ in range(leaf_count))
+            values = (leaf_count, first_turn_is_max, *scores)
+            cases[values] = minimax_oracle(values)
+
+        i64_min = -(1 << 63)
+        i64_max = (1 << 63) - 1
+        for values in ((), (0, 1), (3, 1, 1, 2, 3), (33, 1, *([0] * 33)),
+                       (2, -1, 0, 1), (2, 2, 0, 1), (2, 1, 0), (1, 1, 0, 7),
+                       (1, 1, MINIMAX_I32_MIN - 1), (1, 1, MINIMAX_I32_MAX + 1),
+                       (1, 1, i64_min), (1, 1, i64_max),
+                       (MINIMAX_MAX_LEAF_COUNT, 1, *([0] * MINIMAX_MAX_LEAF_COUNT), 0)):
+            cases[values] = minimax_oracle(values)
+
+    if algorithm == "roulette_wheel_selection":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_sources = workload.get("pinned_sources", [])
+        expected_pinned_sources = [
+            {
+                "repository": "TheAlgorithms/Python",
+                "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+                "path": "blockchain/proof_of_stake.py",
+                "function": "choose_validator",
+            },
+            {
+                "repository": "TheAlgorithms/MATLAB-Octave",
+                "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+                "path": "algorithms/Genetic-Algorithm/Minimization of polynomial function/RouletteWheelSelection.m",
+                "function": "RouletteWheelSelection",
+            },
+        ]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-python-matlab-roulette-wheel-selection-v1"
+                or workload.get("algorithm") != "roulette_wheel_selection"
+                or workload.get("function_symbol") != "roulette_wheel_selection"
+                or pinned_sources != expected_pinned_sources
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n, stake_1, ..., stake_n, ticket]"
+                or input_spec.get("validator_count_range")
+                    != [ROULETTE_WHEEL_SELECTION_MIN_VALIDATORS,
+                        ROULETTE_WHEEL_SELECTION_MAX_VALIDATORS]
+                or input_spec.get("stake_range")
+                    != [ROULETTE_WHEEL_SELECTION_MIN_STAKE,
+                        ROULETTE_WHEEL_SELECTION_MAX_STAKE]
+                or input_spec.get("total_stake_range")
+                    != [1, ROULETTE_WHEEL_SELECTION_MAX_TOTAL_STAKE]
+                or input_spec.get("ticket")
+                    != "integer in [0, total_stake - 1], interpreted as the midpoint ticket + 1/2"
+                or input_spec.get("exact_length") != "n + 2"
+                or input_spec.get("maximum_valid_input_length")
+                    != ROULETTE_WHEEL_SELECTION_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length")
+                    != MAX_ROULETTE_WHEEL_SELECTION_INPUT_LENGTH
+                or input_spec.get("invalid_result") != ROULETTE_WHEEL_SELECTION_INVALID_RESULT
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("definition")
+                    != "One-based input position of the first validator whose cumulative stake is strictly greater than the ticket"
+                or output_spec.get("valid_range")
+                    != [ROULETTE_WHEEL_SELECTION_MIN_VALIDATORS,
+                        ROULETTE_WHEEL_SELECTION_MAX_VALIDATORS]
+                or output_spec.get("invalid_result") != ROULETTE_WHEEL_SELECTION_INVALID_RESULT
+                or workload.get("randomness", {}).get("interface")
+                    != "Caller supplies the deterministic uniform integer ticket; no language-specific PRNG stream is part of the ABI."
+                or workload.get("randomness", {}).get("distribution")
+                    != "Uniform tickets select validator i with exact probability stake_i / total_stake."
+                or ROULETTE_WHEEL_SELECTION_MIN_VALIDATORS != 1
+                or ROULETTE_WHEEL_SELECTION_MAX_VALIDATORS != 128
+                or ROULETTE_WHEEL_SELECTION_MIN_STAKE != 1
+                or ROULETTE_WHEEL_SELECTION_MAX_STAKE != 1_000_000
+                or ROULETTE_WHEEL_SELECTION_MAX_TOTAL_STAKE
+                    != ROULETTE_WHEEL_SELECTION_MAX_VALIDATORS * ROULETTE_WHEEL_SELECTION_MAX_STAKE
+                or ROULETTE_WHEEL_SELECTION_MAX_VALID_INPUT_LENGTH
+                    != ROULETTE_WHEEL_SELECTION_MAX_VALIDATORS + 2
+                or MAX_ROULETTE_WHEEL_SELECTION_INPUT_LENGTH
+                    != ROULETTE_WHEEL_SELECTION_MAX_VALID_INPUT_LENGTH + 1
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+            raise ValueError("roulette_wheel_selection workload metadata does not match its reviewed contract")
+
+        maximum_case = next((case for case in workload["cases"]
+                             if case.get("id") == "maximum_count_stakes_and_last_ticket"), None)
+        maximum_values = maximum_case.get("input_values", ()) if maximum_case else ()
+        if (maximum_case is None
+                or maximum_case.get("input_length") != ROULETTE_WHEEL_SELECTION_MAX_VALID_INPUT_LENGTH
+                or len(maximum_values) != ROULETTE_WHEEL_SELECTION_MAX_VALID_INPUT_LENGTH
+                or maximum_values[0] != ROULETTE_WHEEL_SELECTION_MAX_VALIDATORS
+                or maximum_values[-1] != ROULETTE_WHEEL_SELECTION_MAX_TOTAL_STAKE - 1
+                or any(stake != ROULETTE_WHEEL_SELECTION_MAX_STAKE
+                       for stake in maximum_values[1:-1])
+                or maximum_case.get("expected_result") != ROULETTE_WHEEL_SELECTION_MAX_VALIDATORS):
+            raise ValueError("roulette_wheel_selection workload is missing maximum-count/stake coverage")
+
+        def add(values: tuple[int, ...]) -> int:
+            if len(values) > MAX_ROULETTE_WHEEL_SELECTION_INPUT_LENGTH:
+                raise ValueError("roulette_wheel_selection generated input exceeds its parser bound")
+            result = oracle(algorithm, list(values))
+            cases[values] = result
+            return result
+
+        add((ROULETTE_WHEEL_SELECTION_MIN_VALIDATORS,
+             ROULETTE_WHEEL_SELECTION_MAX_STAKE, 0))
+        add((3, 1, 3, 5, 0))
+        add((3, 1, 3, 5, 1))
+        add((3, 1, 3, 5, 3))
+        rng_roulette = random.Random(20261016)
+        for _ in range(128):
+            count = rng_roulette.randint(1, 32)
+            stakes = tuple(rng_roulette.randint(1, ROULETTE_WHEEL_SELECTION_MAX_STAKE)
+                           for _ in range(count))
+            total = sum(stakes)
+            ticket = rng_roulette.randrange(total)
+            add((count, *stakes, ticket))
+
+        malformed = (
+            (), (0, 0), (-1, 1, 0), (ROULETTE_WHEEL_SELECTION_MAX_VALIDATORS + 1, 1, 0),
+            (1, 1), (1, 1, 0, 0),
+            (1, ROULETTE_WHEEL_SELECTION_MIN_STAKE - 1, 0),
+            (1, ROULETTE_WHEEL_SELECTION_MAX_STAKE + 1, 0),
+            (1, -1, 0), (1, 1, -1), (1, 1, 1),
+            (ROULETTE_WHEEL_SELECTION_I64_MIN, 1, 0),
+            (ROULETTE_WHEEL_SELECTION_I64_MAX, 1, 0),
+            (1, ROULETTE_WHEEL_SELECTION_I64_MIN, 0),
+            (1, ROULETTE_WHEEL_SELECTION_I64_MAX, 0),
+            (1, 1, ROULETTE_WHEEL_SELECTION_I64_MIN),
+            (1, 1, ROULETTE_WHEEL_SELECTION_I64_MAX),
+            tuple([0] * MAX_ROULETTE_WHEEL_SELECTION_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add(tuple(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "key_finder":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        expected_word_bank = (
+            "I ", "You ", "We ", "They ", "He ", "She ", "It ", " the ",
+            "The ", " of ", " is ", "Is ", " am ", "Am ", " are ", "Are ",
+            " have ", "Have ", " has ", "Has ", " may ", "May ", " be ", "Be ",
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-javascript-key-finder-ascii-i64-array-scalar-v1"
+                or workload.get("algorithm") != "key_finder"
+                or workload.get("function_symbol") != "key_finder"
+                or pinned_source != {"repository": "TheAlgorithms/JavaScript",
+                                     "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+                                     "path": "Ciphers/KeyFinder.js"}
+                or input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[text_length, printable_ascii_bytes...]"
+                or input_spec.get("text_length_range") != [0, KEY_FINDER_MAX_TEXT_LENGTH]
+                or input_spec.get("byte_range") != [32, 126]
+                or input_spec.get("excluded_byte_range") != [48, 57]
+                or input_spec.get("maximum_valid_input_values") != KEY_FINDER_MAX_TEXT_LENGTH + 1
+                or input_spec.get("maximum_parseable_input_values") != MAX_KEY_FINDER_PARSEABLE_INPUT_VALUES
+                or input_spec.get("invalid_input_result") != KEY_FINDER_INVALID_RESULT
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("valid_results") != [0, 25]
+                or output_spec.get("no_match_result") != 0
+                or output_spec.get("note") != "0 is intentionally ambiguous between no match and a shift-zero match"
+                or output_spec.get("invalid_input_result") != KEY_FINDER_INVALID_RESULT
+                or KEY_FINDER_MAX_TEXT_LENGTH != 256
+                or MAX_KEY_FINDER_PARSEABLE_INPUT_VALUES != KEY_FINDER_MAX_TEXT_LENGTH + 2
+                or KEY_FINDER_WORD_BANK != expected_word_bank
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
+            raise ValueError("key_finder workload metadata does not match its reviewed contract")
+        if not any(case.get("id") == "maximum_valid_text_length"
+                   and len(case.get("input_values", ())) == KEY_FINDER_MAX_TEXT_LENGTH + 1
+                   and case.get("input_values", ())[0] == KEY_FINDER_MAX_TEXT_LENGTH
+                   for case in workload["cases"]):
+            raise ValueError("key_finder workload is missing maximum valid text-length coverage")
+
+        def add(values: tuple[int, ...]) -> int:
+            if len(values) > MAX_KEY_FINDER_PARSEABLE_INPUT_VALUES:
+                raise ValueError("key_finder generated input exceeds its parseable-value bound")
+            result = oracle(algorithm, list(values))
+            cases[values] = result
+            return result
+
+        def shift_letter(code: int, shift: int) -> int:
+            if 65 <= code <= 90:
+                return 65 + (code - 65 + shift) % 26
+            if 97 <= code <= 122:
+                return 97 + (code - 97 + shift) % 26
+            return code
+
+        plaintext = tuple(map(ord, "You have "))
+        for key in range(26):
+            ciphertext = tuple(shift_letter(code, -key) for code in plaintext)
+            values = (len(ciphertext), *ciphertext)
+            if add(values) != key:
+                raise ValueError(f"key_finder generated phrase did not select shift {key}")
+
+        add((4, 32, 126, 33, 58))
+        safe_bytes = tuple(code for code in range(32, 127) if not 48 <= code <= 57)
+        rng_key_finder = random.Random(20261016)
+        for _ in range(128):
+            length = rng_key_finder.randint(0, 48)
+            text = tuple(rng_key_finder.choice(safe_bytes) for _ in range(length))
+            add((length, *text))
+
+        malformed = (
+            (), (-1,), (KEY_FINDER_MAX_TEXT_LENGTH + 1,),
+            (1,), (0, 32), (1, 31), (1, 127), (1, 48), (1, 57),
+            (1, I64_MIN), (1, I64_MAX),
+            (KEY_FINDER_MAX_TEXT_LENGTH + 1,
+             *([33] * (KEY_FINDER_MAX_TEXT_LENGTH + 1))),
+            (KEY_FINDER_MAX_TEXT_LENGTH,
+             *([33] * (KEY_FINDER_MAX_TEXT_LENGTH + 1))),
+            tuple([0] * MAX_KEY_FINDER_PARSEABLE_INPUT_VALUES),
+        )
+        for values in malformed:
+            add(tuple(values))
+        special_records.append(f"NULL 1 {KEY_FINDER_INVALID_RESULT}\n")
+    elif algorithm == "stochastic_matrix":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        pinned_source = workload.get("pinned_source", {})
+        expected_definition = (
+            "1 when every row in mode 0 or every column in mode 1 has no negative entries and abs(sum - 1.0) <= 1e-9; otherwise 0"
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-java-stochastic-matrix-v1"
+                or workload.get("algorithm") != "stochastic_matrix"
+                or workload.get("function_symbol") != "stochastic_matrix"
+                or input_spec.get("kind") != "packed_i64_array"
+                or input_spec.get("layout") != "[mode, rows, columns, row-major cell_units...]"
+                or input_spec.get("mode_values") != {"0": "check every row", "1": "check every column"}
+                or input_spec.get("rows_range") != [1, STOCHASTIC_MATRIX_MAX_DIMENSION]
+                or input_spec.get("columns_range") != [1, STOCHASTIC_MATRIX_MAX_DIMENSION]
+                or input_spec.get("exact_length") != "3 + rows * columns"
+                or input_spec.get("maximum_input_values") != MAX_STOCHASTIC_MATRIX_INPUT_VALUES
+                or input_spec.get("cell_units_range") != [STOCHASTIC_MATRIX_MIN_CELL_UNITS,
+                                                            STOCHASTIC_MATRIX_MAX_CELL_UNITS]
+                or input_spec.get("cell_value_conversion") != "binary64(cell_units) / 1e12"
+                or input_spec.get("invalid_result") != STOCHASTIC_MATRIX_INVALID_RESULT
+                or output_spec.get("kind") != "signed 64-bit integer"
+                or output_spec.get("definition") != expected_definition
+                or output_spec.get("invalid_result") != STOCHASTIC_MATRIX_INVALID_RESULT
+                or STOCHASTIC_MATRIX_MAX_DIMENSION != 63
+                or MAX_STOCHASTIC_MATRIX_INPUT_VALUES != 3 + STOCHASTIC_MATRIX_MAX_DIMENSION ** 2
+                or STOCHASTIC_MATRIX_CELL_SCALE != 1_000_000_000_000
+                or STOCHASTIC_MATRIX_TOLERANCE != 1e-9
+                or measurement.get("comparison_model") != "i64_array_scalar_call"
+                or measurement.get("sample_count") != 7
+                or measurement.get("warmup_rounds") != 2
+                or measurement.get("repetitions_per_sample") != 1000
+                or pinned_source != {"repository": "TheAlgorithms/Java",
+                                     "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+                                     "path": "src/main/java/com/thealgorithms/matrix/StochasticMatrix.java"}):
+            raise ValueError("stochastic_matrix workload metadata does not match its reviewed contract")
+
+        required_case_ids = {
+            "row_stochastic_matrix", "row_matrix_fails_column_predicate",
+            "column_stochastic_matrix", "column_matrix_fails_row_predicate",
+            "rectangular_column_stochastic_matrix", "negative_entry_is_not_stochastic",
+            "wrong_sum_is_not_stochastic", "row_sum_inside_positive_tolerance",
+            "row_sum_inside_negative_tolerance", "row_sum_outside_positive_tolerance",
+            "row_sum_outside_negative_tolerance", "column_sum_inside_tolerance",
+            "column_sum_outside_tolerance", "maximum_63_by_63_matrix",
+            "invalid_empty_input", "invalid_mode", "invalid_zero_rows",
+            "invalid_dimension_above_limit", "invalid_truncated_cells",
+            "invalid_trailing_cell", "invalid_cell_below_bound",
+            "invalid_cell_above_bound", "invalid_zero_columns",
+            "invalid_column_dimension_above_limit",
+        }
+        case_ids = [case.get("id") for case in workload["cases"]]
+        if (len(case_ids) != len(set(case_ids))
+                or not required_case_ids.issubset(case_ids)
+                or any(case.get("input_length") != len(case["input_values"])
+                       for case in workload["cases"])):
+            raise ValueError("stochastic_matrix workload is missing or misdeclares reviewed fixtures")
+
+        maximum_case = next((case for case in workload["cases"]
+                             if case.get("id") == "maximum_63_by_63_matrix"), None)
+        if (maximum_case is None
+                or len(maximum_case.get("input_values", ())) != MAX_STOCHASTIC_MATRIX_INPUT_VALUES
+                or maximum_case.get("input_length") != MAX_STOCHASTIC_MATRIX_INPUT_VALUES
+                or maximum_case["input_values"][:3] != [0, STOCHASTIC_MATRIX_MAX_DIMENSION,
+                                                         STOCHASTIC_MATRIX_MAX_DIMENSION]):
+            raise ValueError("stochastic_matrix workload is missing maximum 63-by-63 coverage")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_STOCHASTIC_MATRIX_INPUT_VALUES:
+                raise ValueError("stochastic_matrix generated input exceeds its packed-value bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        add((0, 3, 2, 250_000_000_000, 750_000_000_000,
+             200_000_000_000, 800_000_000_000,
+             400_000_000_000, 600_000_000_000))
+        add((1, 3, 2, 200_000_000_000, 500_000_000_000,
+             300_000_000_000, 250_000_000_000,
+             500_000_000_000, 250_000_000_000))
+        add((0, 1, 2, -STOCHASTIC_MATRIX_CELL_SCALE, STOCHASTIC_MATRIX_CELL_SCALE))
+
+        rng_stochastic_matrix = random.Random(20261016)
+        for _ in range(128):
+            mode = rng_stochastic_matrix.randint(0, 1)
+            rows = rng_stochastic_matrix.randint(1, 12)
+            columns = rng_stochastic_matrix.randint(1, 12)
+            cells = tuple(rng_stochastic_matrix.randint(STOCHASTIC_MATRIX_MIN_CELL_UNITS,
+                                                        STOCHASTIC_MATRIX_MAX_CELL_UNITS)
+                          for _ in range(rows * columns))
+            add((mode, rows, columns, *cells))
+
+        malformed = (
+            (), (0,), (-1, 1, 1), (2, 1, 1, 1), (I64_MIN, 1, 1), (I64_MAX, 1, 1),
+            (0, 0, 1), (0, 1, 0), (0, STOCHASTIC_MATRIX_MAX_DIMENSION + 1, 1),
+            (0, 1, STOCHASTIC_MATRIX_MAX_DIMENSION + 1),
+            (0, 1, 1), (0, 1, 1, 0), (0, 1, 2, 0),
+            (0, 1, 1, STOCHASTIC_MATRIX_MIN_CELL_UNITS - 1),
+            (1, 1, 1, STOCHASTIC_MATRIX_MAX_CELL_UNITS + 1),
+            (0, 1, 1, I64_MIN), (1, 1, 1, I64_MAX),
+            tuple([0] * MAX_STOCHASTIC_MATRIX_INPUT_VALUES),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append(f"NULL 1 {STOCHASTIC_MATRIX_INVALID_RESULT}\n")
+    elif algorithm == "pushdown_automaton":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        source_behavior = workload.get("source_behavior", {})
+        measurement = workload.get("measurement", {})
+        required_case_ids = {
+            "notebook_demo_123456", "one_push_one_pop",
+            "mixed_push_symbols_are_not_compared", "three_pushes_three_pops",
+            "empty_string_is_a_valid_reject", "one_byte_odd_string",
+            "odd_length_source_shaped_string", "nonzero_in_second_phase",
+            "zero_in_first_phase", "starts_with_zero", "no_second_phase_zero",
+            "no_first_phase_push_symbol", "maximum_length_balanced_language",
+            "maximum_length_wrong_second_phase", "maximum_odd_length",
+            "empty_frame_with_extra_byte", "short_payload_frame", "extra_payload_byte",
+            "maximum_count_short_by_one", "missing_count_header", "negative_byte_length",
+            "byte_length_above_maximum", "minimum_i64_byte_length", "maximum_i64_byte_length",
+            "nul_byte_outside_alphabet", "ascii_three_outside_alphabet",
+            "del_byte_outside_alphabet", "non_ascii_byte_outside_alphabet",
+            "minimum_i64_payload", "maximum_i64_payload",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        readme = (ROOT / "benchmarks" / "p" / "pushdown_automaton" / "README.md").read_text(
+            encoding="utf-8")
+        source_url = (
+            "https://github.com/TheAlgorithms/Jupyter/blob/"
+            "ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9/"
+            "Automaton/Pushdown_Automata_Implementation.ipynb"
+        )
+        expected_stack_behavior = (
+            "Push 1 or 2 in the first half and pop for 0 in the second half; "
+            "popped symbols are not compared."
+        )
+        expected_acceptance_rule = (
+            "An even, nonempty string has a first half of 1/2 symbols and a second half of 0 symbols; "
+            "the source pop operation retains the bottom marker and does not compare symbols."
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "pushdown-automaton-prefix-count-v1"
+                or workload.get("algorithm") != "pushdown_automaton"
+                or workload.get("function_symbol") != "pushdown_automaton"
+                or input_spec != {
+                    "encoding": "signed_i64_array",
+                    "layout": ["byte_len", "ASCII byte values"],
+                    "byte_len_range": [0, PUSHDOWN_AUTOMATON_MAX_BYTE_LENGTH],
+                    "exact_array_length": "byte_len + 1",
+                    "maximum_input_length": MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH,
+                    "valid_payload_bytes": [48, 49, 50],
+                    "accepted_language": "(1|2)^n 0^n for n >= 1",
+                    "empty_string_result": 0,
+                    "odd_length_string_result": 0,
+                    "invalid_input_result": PUSHDOWN_AUTOMATON_INVALID_RESULT,
+                    "source_stack_behavior": expected_stack_behavior,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "definition": "1 for accepted, 0 for well-framed rejected, -1 for invalid framing or bytes",
+                    "accepted_result": 1,
+                    "rejected_result": 0,
+                    "invalid_result": PUSHDOWN_AUTOMATON_INVALID_RESULT,
+                }
+                or pinned_source != {
+                    "repository": "TheAlgorithms/Jupyter",
+                    "commit": "ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9",
+                    "path": "Automaton/Pushdown_Automata_Implementation.ipynb",
+                    "url": source_url,
+                    "cell": "code cell 1",
+                }
+                or source_behavior != {
+                    "source_demo_input": "123456",
+                    "source_demo_outcome": (
+                        "rejected; the benchmark classifies it as invalid because its bytes are outside the declared 0/1/2 alphabet"
+                    ),
+                    "acceptance_rule": expected_acceptance_rule,
+                }
+                or measurement != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or PUSHDOWN_AUTOMATON_MAX_BYTE_LENGTH != 256
+                or MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH != 257
+                or source_url not in readme
+                or len(case_ids) != len(set(case_ids))
+                or not required_case_ids.issubset(case_ids)
+                or any(case.get("input_length") != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []))):
+            raise ValueError("pushdown_automaton workload metadata does not match its reviewed contract")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_PUSHDOWN_AUTOMATON_INPUT_LENGTH:
+                raise ValueError("pushdown_automaton generated input exceeds its packed-value bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        for byte_length in range(PUSHDOWN_AUTOMATON_MAX_BYTE_LENGTH + 1):
+            if byte_length == 0:
+                payload: tuple[int, ...] = ()
+            elif byte_length % 2:
+                payload = (49,) * byte_length
+            else:
+                half = byte_length // 2
+                first = tuple(49 if index % 2 == 0 else 50 for index in range(half))
+                payload = (*first, *((48,) * half))
+            add((byte_length, *payload))
+            if byte_length >= 2 and byte_length % 2 == 0:
+                add((byte_length, *payload[:-1], 49))
+
+        rng_pushdown_automaton = random.Random(20261016)
+        for _ in range(128):
+            byte_length = rng_pushdown_automaton.randint(0, PUSHDOWN_AUTOMATON_MAX_BYTE_LENGTH)
+            payload = tuple(rng_pushdown_automaton.choice((48, 49, 50))
+                            for _ in range(byte_length))
+            add((byte_length, *payload))
+
+        malformed = (
+            (), (-1,), (PUSHDOWN_AUTOMATON_MAX_BYTE_LENGTH + 1,), (I64_MIN,), (I64_MAX,),
+            (0, 49), (2, 49), (1, 49, 48),
+            (2, 49, 0), (2, 49, 51), (2, 49, 127), (2, 49, 128),
+            (2, 49, I64_MIN), (2, 49, I64_MAX),
+            (PUSHDOWN_AUTOMATON_MAX_BYTE_LENGTH, 49),
+            tuple([PUSHDOWN_AUTOMATON_MAX_BYTE_LENGTH + 1] + [49] * PUSHDOWN_AUTOMATON_MAX_BYTE_LENGTH),
+        )
+        for values in malformed:
+            add(tuple(values))
+        special_records.append(f"NULL 1 {PUSHDOWN_AUTOMATON_INVALID_RESULT}\n")
+    elif algorithm == "stoer_wagner":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        measurement = workload.get("measurement", {})
+        required_case_ids = {
+            "two_vertex_cut", "weighted_triangle", "four_cycle_equal_edges",
+            "complete_graph_ties", "disconnected_graph", "all_zero_graph",
+            "maximum_dimension_and_weight", "dimension_below_minimum",
+            "dimension_above_maximum", "truncated_matrix", "trailing_matrix_value",
+            "asymmetric_matrix", "nonzero_diagonal", "negative_edge_weight",
+            "edge_weight_above_maximum", "i64_minimum_edge_weight",
+            "i64_maximum_edge_weight",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        readme = (ROOT / "benchmarks" / "s" / "stoer_wagner" / "README.md").read_text(
+            encoding="utf-8")
+        source_url = (
+            "https://github.com/TheAlgorithms/Java/blob/"
+            "e43ec3897e48f23843972d02cd05a5bb1b6864a2/"
+            "src/main/java/com/thealgorithms/graph/StoerWagner.java"
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "stoer-wagner-global-min-cut-i64-array-scalar-v1"
+                or workload.get("algorithm") != "stoer_wagner"
+                or workload.get("function_symbol") != "stoer_wagner"
+                or input_spec != {
+                    "kind": "packed_i64_array",
+                    "layout": "[n, row-major n*n adjacency weights]",
+                    "dimension_range": [2, STOER_WAGNER_MAX_N],
+                    "exact_length": "1 + n*n",
+                    "matrix": "undirected weighted graph; symmetric; zero diagonal",
+                    "edge_weight_range": [0, STOER_WAGNER_MAX_WEIGHT],
+                    "maximum_total_undirected_edge_weight": 120_000_000,
+                    "maximum_input_values": MAX_STOER_WAGNER_INPUT_LENGTH,
+                    "invalid_result": STOER_WAGNER_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed 64-bit integer",
+                    "meaning": "global minimum cut weight",
+                    "disconnected_graph_result": 0,
+                    "invalid_result": STOER_WAGNER_INVALID_RESULT,
+                }
+                or measurement != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or STOER_WAGNER_MAX_N != 16
+                or STOER_WAGNER_MAX_WEIGHT != 1_000_000
+                or MAX_STOER_WAGNER_INPUT_LENGTH != 257
+                or pinned_source != {
+                    "repository": "TheAlgorithms/Java",
+                    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+                    "path": "src/main/java/com/thealgorithms/graph/StoerWagner.java",
+                    "url": source_url,
+                    "function": "findMinCut",
+                }
+                or source_url not in readme
+                or len(case_ids) != len(set(case_ids))
+                or not required_case_ids.issubset(case_ids)
+                or any(case.get("input_length") != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []))):
+            raise ValueError("stoer_wagner workload metadata does not match its reviewed contract")
+
+        maximum_case = next((case for case in workload["cases"]
+                             if case.get("id") == "maximum_dimension_and_weight"), None)
+        minimum_i64_case = next((case for case in workload["cases"]
+                                 if case.get("id") == "i64_minimum_edge_weight"), None)
+        maximum_i64_case = next((case for case in workload["cases"]
+                                 if case.get("id") == "i64_maximum_edge_weight"), None)
+        if (maximum_case is None
+                or maximum_case.get("input_values", [None])[0] != STOER_WAGNER_MAX_N
+                or len(maximum_case.get("input_values", ())) != MAX_STOER_WAGNER_INPUT_LENGTH
+                or maximum_case.get("input_length") != MAX_STOER_WAGNER_INPUT_LENGTH
+                or maximum_case.get("expected_result") != 15_000_000
+                or minimum_i64_case is None
+                or minimum_i64_case.get("input_values") != [2, 0, I64_MIN, I64_MIN, 0]
+                or minimum_i64_case.get("expected_result") != STOER_WAGNER_INVALID_RESULT
+                or maximum_i64_case is None
+                or maximum_i64_case.get("input_values") != [2, 0, I64_MAX, I64_MAX, 0]
+                or maximum_i64_case.get("expected_result") != STOER_WAGNER_INVALID_RESULT):
+            raise ValueError("stoer_wagner workload is missing maximum-bound or exact i64-extrema coverage")
+
+        def add_matrix(matrix: tuple[tuple[int, ...], ...]) -> None:
+            n = len(matrix)
+            values = (n, *(weight for row in matrix for weight in row))
+            if len(values) > MAX_STOER_WAGNER_INPUT_LENGTH:
+                raise ValueError("stoer_wagner generated matrix exceeds its packed-value bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        for n in range(2, STOER_WAGNER_MAX_N + 1):
+            matrix = tuple(tuple(
+                0 if row == column else ((row * 17 + column * 31 + n) % STOER_WAGNER_MAX_WEIGHT) + 1
+                for column in range(n)) for row in range(n))
+            matrix = tuple(tuple(matrix[row][column] if row < column else
+                                 matrix[column][row] if row > column else 0
+                                 for column in range(n)) for row in range(n))
+            add_matrix(matrix)
+
+        rng_stoer_wagner = random.Random(20261016)
+        for _ in range(128):
+            n = rng_stoer_wagner.randint(2, 9)
+            matrix_rows = [[0] * n for _ in range(n)]
+            for row in range(n):
+                for column in range(row + 1, n):
+                    weight = rng_stoer_wagner.choice((0, 1, STOER_WAGNER_MAX_WEIGHT,
+                                                      rng_stoer_wagner.randint(0, STOER_WAGNER_MAX_WEIGHT)))
+                    matrix_rows[row][column] = matrix_rows[column][row] = weight
+            add_matrix(tuple(tuple(row) for row in matrix_rows))
+
+        malformed = (
+            (), (1, 0), (STOER_WAGNER_MAX_N + 1,), (2,), (2, 0, 1, 1),
+            (2, 0, 1, 1, 0, 9), (3, 0, 1, 0, 2, 0, 1, 0, 1, 0),
+            (2, 1, 0, 0, 0), (2, 0, -1, -1, 0),
+            (2, 0, STOER_WAGNER_MAX_WEIGHT + 1, STOER_WAGNER_MAX_WEIGHT + 1, 0),
+            (2, 0, I64_MIN, I64_MIN, 0), (2, 0, I64_MAX, I64_MAX, 0),
+            (I64_MIN,), (I64_MAX,), tuple([0] * MAX_STOER_WAGNER_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append(f"NULL 1 {STOER_WAGNER_INVALID_RESULT}\n")
+    elif algorithm == "minimum_coin_change_combinations":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        measurement = workload.get("measurement", {})
+        required_case_ids = {
+            "empty_array", "short_header", "source_example_target_four",
+            "source_example_target_seven", "source_example_sorted_denominations",
+            "single_denomination_no_solution", "empty_denominations_positive_target",
+            "empty_denominations_zero_target", "zero_target_with_denominations",
+            "negative_target", "minimum_target_boundary",
+            "maximum_target_with_unit_and_exact_coin", "maximum_coin_exact_target",
+            "maximum_denomination_count_zero_target", "impossible_with_even_coins",
+            "malformed_missing_denomination", "malformed_extra_value", "target_below_bound",
+            "target_above_bound", "negative_count", "count_above_bound",
+            "zero_denomination", "negative_denomination", "denomination_above_bound",
+            "duplicate_denominations", "unsorted_denominations",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        readme = (ROOT / "benchmarks" / "m" / "minimum_coin_change_combinations" / "README.md").read_text(
+            encoding="utf-8")
+        source_url = (
+            "https://github.com/TheAlgorithms/Python/blob/"
+            "e1a2a8b016001309a73d5fec4818c35cca139795/"
+            "dynamic_programming/minimum_coin_change.py"
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "minimum-coin-change-combinations-python-i64-array-scalar-v1"
+                or workload.get("algorithm") != "minimum_coin_change_combinations"
+                or workload.get("function_symbol") != "minimum_coin_change_combinations"
+                or input_spec != {
+                    "kind": "packed_signed_64_bit_integer_array",
+                    "layout": "[target, denomination_count, strictly_increasing_denominations...]",
+                    "target_range": [-64, MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET],
+                    "denomination_count_range": [0, MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_DENOMINATIONS],
+                    "denomination_range": [1, MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET],
+                    "exact_packed_length": "2 + denomination_count",
+                    "invalid_input_result": -1,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "meaning": "number of unordered combinations using unlimited copies of each denomination",
+                    "negative_target_result": 0,
+                    "zero_target_result": 1,
+                    "empty_denominations_positive_target_result": 0,
+                    "maximum_result_bound": 1_747_163,
+                    "invalid_input_result": -1,
+                }
+                or measurement != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 1000,
+                }
+                or MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET != 64
+                or MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_DENOMINATIONS != 32
+                or MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_INPUT_LENGTH != 34
+                or pinned_source != {"repository": "TheAlgorithms/Python",
+                                     "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+                                     "path": "dynamic_programming/minimum_coin_change.py",
+                                     "function": "dp_count"}
+                or source_url not in readme
+                or len(case_ids) != len(set(case_ids))
+                or not required_case_ids.issubset(case_ids)
+                or any(case.get("input_length") != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []))):
+            raise ValueError("minimum_coin_change_combinations workload metadata does not match its reviewed contract")
+
+        maximum_target_and_count = (MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET,
+                                    MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_DENOMINATIONS,
+                                    *range(1, MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_DENOMINATIONS + 1))
+        cases[maximum_target_and_count] = oracle(algorithm, list(maximum_target_and_count))
+        rng = random.Random(20261016)
+        for _ in range(256):
+            denomination_count = rng.randint(0, MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_DENOMINATIONS)
+            denominations = tuple(sorted(rng.sample(range(1, MAX_MINIMUM_COIN_CHANGE_TARGET + 1),
+                                                    denomination_count)))
+            target = rng.randint(-64, MAX_MINIMUM_COIN_CHANGE_TARGET)
+            values = (target, denomination_count, *denominations)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (4,), (4, 2, 1), (4, 1, 1, 2),
+            (-65, 0), (65, 0), (1, -1), (1, 33), (5, 1, 0),
+            (5, 1, -1), (5, 1, 65), (4, 2, 1, 1), (4, 2, 2, 1),
+            (I64_MIN, 0), (I64_MAX, 0),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "subset_count":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        maximum_result = 536_870_912
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-java-subset-count-i64-array-scalar-v1"
+                or workload.get("algorithm") != "subset_count"
+                or workload.get("function_symbol") != "subset_count"
+                or input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n,target,values...]"
+                or input_spec.get("exact_length") != "n + 2"
+                or input_spec.get("count_range") != [1, SUBSET_COUNT_MAX_COUNT]
+                or input_spec.get("target_range") != [0, SUBSET_COUNT_MAX_TARGET]
+                or input_spec.get("value_range") != [0, SUBSET_COUNT_MAX_VALUE]
+                or input_spec.get("maximum_valid_input_length") != SUBSET_COUNT_MAX_COUNT + 2
+                or input_spec.get("maximum_parseable_input_values") != MAX_SUBSET_COUNT_INPUT_VALUES
+                or input_spec.get("invalid_input_result") != SUBSET_COUNT_INVALID_RESULT
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("meaning") != "count returned by the pinned getCountSO recurrence"
+                or output_spec.get("valid_result_range") != [0, maximum_result]
+                or output_spec.get("invalid_input_result") != SUBSET_COUNT_INVALID_RESULT
+                or SUBSET_COUNT_MAX_COUNT != 30
+                or SUBSET_COUNT_MAX_TARGET != 64
+                or SUBSET_COUNT_MAX_VALUE != 64
+                or MAX_SUBSET_COUNT_INPUT_VALUES != SUBSET_COUNT_MAX_COUNT + 3
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or pinned_source != {"repository": "TheAlgorithms/Java",
+                                     "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+                                     "path": "src/main/java/com/thealgorithms/dynamicprogramming/SubsetCount.java"}):
+            raise ValueError("subset_count workload metadata does not match its reviewed contract")
+
+        required_case_ids = {"target_zero_with_multiple_zeros",
+                             "leading_zero_does_not_double_positive_target",
+                             "later_zero_doubles_positive_target",
+                             "maximum_length_binomial_count"}
+        if not required_case_ids.issubset({case.get("id") for case in workload["cases"]}):
+            raise ValueError("subset_count workload is missing zero-semantics or maximum-length coverage")
+        maximum_case = next(case for case in workload["cases"]
+                            if case.get("id") == "maximum_length_binomial_count")
+        if (len(maximum_case.get("input_values", ())) != SUBSET_COUNT_MAX_COUNT + 2
+                or maximum_case.get("expected_result") != maximum_result):
+            raise ValueError("subset_count workload maximum-length fixture has incorrect size or result")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_SUBSET_COUNT_INPUT_VALUES:
+                raise ValueError("subset_count generated input exceeds its parseable-value bound")
+            result = oracle(algorithm, list(values))
+            if result != SUBSET_COUNT_INVALID_RESULT and not 0 <= result <= maximum_result:
+                raise ValueError("subset_count oracle generated an out-of-contract valid result")
+            cases[values] = result
+
+        for count in (1, 2, SUBSET_COUNT_MAX_COUNT):
+            patterns = (
+                (0,) * count,
+                (1,) * count,
+                (SUBSET_COUNT_MAX_VALUE,) * count,
+                (0, *((1,) * (count - 1))),
+                (1, *((0,) * (count - 1))),
+            )
+            for target in (0, 1, SUBSET_COUNT_MAX_TARGET):
+                for values in patterns:
+                    add((count, target, *values))
+
+        rng_subset_count = random.Random(20261026)
+        for _ in range(256):
+            count = rng_subset_count.randint(1, SUBSET_COUNT_MAX_COUNT)
+            target = rng_subset_count.randint(0, SUBSET_COUNT_MAX_TARGET)
+            values = tuple(rng_subset_count.randint(0, SUBSET_COUNT_MAX_VALUE)
+                           for _ in range(count))
+            add((count, target, *values))
+
+        malformed = (
+            (), (1,), (0, 0), (SUBSET_COUNT_MAX_COUNT + 1, 0),
+            (1, -1, 0), (1, SUBSET_COUNT_MAX_TARGET + 1, 0),
+            (1, 0, -1), (1, 0, SUBSET_COUNT_MAX_VALUE + 1),
+            (2, 0, 0), (1, 0, 0, 0),
+            (I64_MIN, 0), (I64_MAX, 0),
+            (1, I64_MIN, 0), (1, I64_MAX, 0),
+            (1, 0, I64_MIN), (1, 0, I64_MAX),
+            (SUBSET_COUNT_MAX_COUNT, 0, *((0,) * (SUBSET_COUNT_MAX_COUNT + 1))),
+            tuple([0] * MAX_SUBSET_COUNT_INPUT_VALUES),
+        )
+        for values in malformed:
+            cases[values] = SUBSET_COUNT_INVALID_RESULT
+        special_records.append(f"NULL 1 {SUBSET_COUNT_INVALID_RESULT}\n")
+    elif algorithm == "pollard":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        expected_meaning = (
+            "proper gcd factor d when 1 < d < n; 0 when the pinned source reaches d == n and returns an error"
+        )
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-go-pollard-rho-v1"
+                or workload.get("algorithm") != "pollard"
+                or workload.get("function_symbol") != "pollard"
+                or input_spec.get("kind") != "bounded_signed_i64_array"
+                or input_spec.get("encoding") != "[n]"
+                or input_spec.get("exact_length") != 1
+                or input_spec.get("first_rejected_length") != 2
+                or input_spec.get("maximum_validation_array_length") != MAX_POLLARD_INPUT_LENGTH
+                or input_spec.get("n_range") != [POLLARD_MIN_N, POLLARD_MAX_N]
+                or input_spec.get("polynomial") != "g(x) = (x*x + 1) mod n"
+                or input_spec.get("initial_x") != 2
+                or input_spec.get("initial_y") != 2
+                or input_spec.get("invalid_input_result") != POLLARD_INVALID_RESULT
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("meaning") != expected_meaning
+                or output_spec.get("invalid_input_result") != POLLARD_INVALID_RESULT
+                or POLLARD_MIN_N != 2
+                or POLLARD_MAX_N != 111_155
+                or POLLARD_SOURCE_FAILURE_RESULT != 0
+                or MAX_POLLARD_INPUT_LENGTH != 2
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or pinned_source != {"repository": "TheAlgorithms/Go",
+                                     "commit": "5ba447ec5ff3d1213de65b92e726ee74c5d5cc19",
+                                     "path": "math/pollard.go"}):
+            raise ValueError("pollard workload metadata does not match its reviewed contract")
+        required_case_ids = {"source_factor_11235", "source_factor_upper_bound",
+                             "source_factor_8080", "source_factor_8536", "source_factor_666",
+                             "small_n_source_failure", "cycle_returns_source_error"}
+        if not required_case_ids.issubset({case.get("id") for case in workload["cases"]}):
+            raise ValueError("pollard workload is missing required source factor/failure fixtures")
+        upper_bound_case = next(case for case in workload["cases"]
+                                if case.get("id") == "source_factor_upper_bound")
+        if (upper_bound_case.get("input_values") != [POLLARD_MAX_N]
+                or upper_bound_case.get("expected_result") != 11):
+            raise ValueError("pollard workload is missing its pinned upper-bound factor fixture")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_POLLARD_INPUT_LENGTH:
+                raise ValueError("pollard generated input exceeds its validation-array bound")
+            result = oracle(algorithm, list(values))
+            if result != POLLARD_INVALID_RESULT and result != POLLARD_SOURCE_FAILURE_RESULT:
+                if len(values) != 1 or not 1 < result < values[0]:
+                    raise ValueError("pollard oracle generated a non-proper factor")
+            cases[values] = result
+
+        for n in (POLLARD_MIN_N, 4, 5, 6, 7, 8, 9, 10, 666, 8_080,
+                  8_536, 11_235, POLLARD_MAX_N):
+            add((n,))
+
+        rng_pollard = random.Random(20261026)
+        for _ in range(128):
+            add((rng_pollard.randint(POLLARD_MIN_N, 5_000),))
+
+        malformed = (
+            (), (0,), (1,), (POLLARD_MAX_N + 1,),
+            (I64_MIN,), (I64_MAX,), (666, 0), tuple([0] * MAX_POLLARD_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[values] = POLLARD_INVALID_RESULT
+        special_records.append(f"NULL 1 {POLLARD_INVALID_RESULT}\n")
+    elif algorithm == "polygon_points":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        expected_precondition = "simple nonzero-area integer polygon with no zero-length cyclic edge"
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "rust-polygon-points-i64-array-scalar-v1"
+                or workload.get("algorithm") != "polygon_points"
+                or workload.get("function_symbol") != "polygon_points"
+                or input_spec.get("kind") != "bounded_signed_i64_array"
+                or input_spec.get("encoding") != "[n, x0, y0, ..., x(n-1), y(n-1)]"
+                or input_spec.get("vertex_count_range") != [POLYGON_POINTS_MIN_VERTICES,
+                                                              POLYGON_POINTS_MAX_VERTICES]
+                or input_spec.get("coordinate_range") != [POLYGON_POINTS_MIN_COORDINATE,
+                                                            POLYGON_POINTS_MAX_COORDINATE]
+                or input_spec.get("geometry_precondition") != expected_precondition
+                or input_spec.get("geometry_precondition_is_runtime_validated") is not False
+                or input_spec.get("maximum_valid_values") != 1 + 2 * POLYGON_POINTS_MAX_VERTICES
+                or input_spec.get("maximum_parseable_values") != MAX_POLYGON_POINTS_INPUT_LENGTH
+                or input_spec.get("invalid_result") != POLYGON_POINTS_INVALID_RESULT
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("meaning") != "source polygon area + 1 - boundary/2 with signed integer division semantics"
+                or output_spec.get("invalid_result") != POLYGON_POINTS_INVALID_RESULT
+                or POLYGON_POINTS_MIN_VERTICES != 3
+                or POLYGON_POINTS_MAX_VERTICES != 32
+                or POLYGON_POINTS_MIN_COORDINATE != -1000
+                or POLYGON_POINTS_MAX_COORDINATE != 1000
+                or MAX_POLYGON_POINTS_INPUT_LENGTH != 66
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or pinned_source != {"repository": "TheAlgorithms/Rust",
+                                     "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+                                     "path": "src/geometry/polygon_points.rs",
+                                     "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/geometry/polygon_points.rs"}):
+            raise ValueError("polygon_points workload metadata does not match its reviewed contract")
+
+        required_case_ids = {
+            "pinned_triangle_example", "integer_square", "odd_doubled_area_and_boundary",
+            "collinear_consecutive_vertices", "coordinate_bounds_square", "maximum_vertex_count",
+            "trailing_value_at_parser_cap",
+        }
+        if not required_case_ids.issubset({case.get("id") for case in workload["cases"]}):
+            raise ValueError("polygon_points workload is missing source or boundary fixtures")
+        if not any(case.get("id") == "maximum_vertex_count"
+                   and len(case.get("input_values", ())) == 1 + 2 * POLYGON_POINTS_MAX_VERTICES
+                   and case.get("expected_result") == 49
+                   for case in workload["cases"]):
+            raise ValueError("polygon_points workload is missing maximum-vertex coverage")
+        if not any(case.get("id") == "trailing_value_at_parser_cap"
+                   and len(case.get("input_values", ())) == MAX_POLYGON_POINTS_INPUT_LENGTH
+                   and case.get("expected_result") == POLYGON_POINTS_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("polygon_points workload is missing its maximum parseable malformed case")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_POLYGON_POINTS_INPUT_LENGTH:
+                raise ValueError("polygon_points generated input exceeds its parseable bound")
+            result = oracle(algorithm, list(values))
+            if type(result) is not int:
+                raise ValueError("polygon_points oracle must return a signed integer")
+            cases[values] = result
+
+        def rectangle_values(n: int, width: int, height: int, offset: int) -> tuple[int, ...]:
+            perimeter = 2 * (width + height)
+            points = []
+            for index in range(n):
+                position = (offset + index * perimeter // n) % perimeter
+                if position < width:
+                    x, y = position, 0
+                elif position < width + height:
+                    x, y = width, position - width
+                elif position < 2 * width + height:
+                    x, y = width - (position - width - height), height
+                else:
+                    x, y = 0, height - (position - 2 * width - height)
+                points.append((x - width // 2, y - height // 2))
+            return (n, *(coordinate for point in points for coordinate in point))
+
+        for n in range(POLYGON_POINTS_MIN_VERTICES, POLYGON_POINTS_MAX_VERTICES + 1):
+            add(rectangle_values(n, 200 + 3 * n, 300 + 2 * n, n * 7))
+
+        rng_polygon_points = random.Random(20261016)
+        for _ in range(128):
+            n = rng_polygon_points.randint(POLYGON_POINTS_MIN_VERTICES,
+                                           POLYGON_POINTS_MAX_VERTICES)
+            width = rng_polygon_points.randint(100, 700)
+            height = rng_polygon_points.randint(100, 700)
+            offset = rng_polygon_points.randrange(2 * (width + height))
+            add(rectangle_values(n, width, height, offset))
+
+        malformed = (
+            (), (0,), (2, 0, 0, 1, 0),
+            (POLYGON_POINTS_MAX_VERTICES + 1, *([0] * (2 * POLYGON_POINTS_MAX_VERTICES))),
+            (3, 0, 0, 1, 0, 0), (3, 0, 0, 1, 0, 0, 1),
+            (3, POLYGON_POINTS_MIN_COORDINATE - 1, 0, 1, 0, 0, 1),
+            (3, POLYGON_POINTS_MAX_COORDINATE + 1, 0, 1, 0, 0, 1),
+            (3, I64_MIN, 0, 1, 0, 0, 1), (3, 0, I64_MAX, 1, 0, 0, 1),
+            (I64_MIN, 0, 0, 1, 0, 0, 1), (I64_MAX, 0, 0, 1, 0, 0, 1),
+            tuple([0] * MAX_POLYGON_POINTS_INPUT_LENGTH),
+        )
+        for values in malformed:
+            cases[tuple(values)] = POLYGON_POINTS_INVALID_RESULT
+        special_records.append(f"NULL 1 {POLYGON_POINTS_INVALID_RESULT}\n")
+    elif algorithm == "traveling_salesman_bitmask":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-r-traveling-salesman-bitmask-v1"
+                or workload.get("algorithm") != "traveling_salesman_bitmask"
+                or workload.get("function_symbol") != "traveling_salesman_bitmask"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n, row-major n-by-n distance matrix]"
+                or input_spec.get("city_count_range")
+                != [TRAVELING_SALESMAN_BITMASK_MIN_CITIES, TRAVELING_SALESMAN_BITMASK_MAX_CITIES]
+                or input_spec.get("distance_range")
+                != [TRAVELING_SALESMAN_BITMASK_MIN_DISTANCE, TRAVELING_SALESMAN_BITMASK_MAX_DISTANCE]
+                or input_spec.get("diagonal") != 0
+                or input_spec.get("exact_length") != "1 + n*n"
+                or input_spec.get("maximum_valid_input_length")
+                != 1 + TRAVELING_SALESMAN_BITMASK_MAX_CITIES ** 2
+                or input_spec.get("maximum_parseable_input_length")
+                != MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH
+                or input_spec.get("invalid_result") != TRAVELING_SALESMAN_BITMASK_INVALID_RESULT
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("definition")
+                != "Minimum cost of a closed tour starting at city 0, visiting every other city once, and returning to city 0"
+                or output_spec.get("valid_range")
+                != [0, TRAVELING_SALESMAN_BITMASK_MAX_TOUR_COST]
+                or output_spec.get("invalid_result") != TRAVELING_SALESMAN_BITMASK_INVALID_RESULT
+                or TRAVELING_SALESMAN_BITMASK_MIN_CITIES != 2
+                or TRAVELING_SALESMAN_BITMASK_MAX_CITIES != 10
+                or MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH != 102
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or pinned_source != {
+                    "repository": "TheAlgorithms/R",
+                    "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+                    "path": "dynamic_programming/travelingSalesman_bitmask.r",
+                    "function": "tsp_bitmask_dp",
+                }):
+            raise ValueError("traveling_salesman_bitmask workload metadata does not match its reviewed contract")
+
+        required_case_ids = {
+            "two_city_closed_tour", "three_city_symmetric_tie", "four_city_symmetric_square",
+            "four_city_asymmetric_unique_optimum", "zero_cost_edges", "five_city_directed_chain",
+            "maximum_city_count_and_tour_cost", "trailing_value_at_parser_cap",
+            "nonzero_diagonal_at_maximum_size",
+        }
+        if not required_case_ids.issubset({case.get("id") for case in workload["cases"]}):
+            raise ValueError("traveling_salesman_bitmask workload is missing source or boundary fixtures")
+        maximum_case = next((case for case in workload["cases"]
+                             if case.get("id") == "maximum_city_count_and_tour_cost"), None)
+        if (maximum_case is None
+                or len(maximum_case.get("input_values", ()))
+                != 1 + TRAVELING_SALESMAN_BITMASK_MAX_CITIES ** 2
+                or maximum_case.get("input_values", ())[0] != TRAVELING_SALESMAN_BITMASK_MAX_CITIES
+                or maximum_case.get("expected_result") != TRAVELING_SALESMAN_BITMASK_MAX_TOUR_COST):
+            raise ValueError("traveling_salesman_bitmask workload is missing maximum-tour coverage")
+        if not any(case.get("id") == "trailing_value_at_parser_cap"
+                   and len(case.get("input_values", ())) == MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH
+                   and case.get("expected_result") == TRAVELING_SALESMAN_BITMASK_INVALID_RESULT
+                   for case in workload["cases"]):
+            raise ValueError("traveling_salesman_bitmask workload is missing parser-cap rejection coverage")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH:
+                raise ValueError("traveling_salesman_bitmask generated input exceeds its parseable bound")
+            result = oracle(algorithm, list(values))
+            if type(result) is not int:
+                raise ValueError("traveling_salesman_bitmask oracle must return a signed integer")
+            if result != TRAVELING_SALESMAN_BITMASK_INVALID_RESULT \
+                    and not 0 <= result <= TRAVELING_SALESMAN_BITMASK_MAX_TOUR_COST:
+                raise ValueError("traveling_salesman_bitmask oracle result exceeds the bounded tour cost")
+            cases[values] = result
+
+        for city_count in range(TRAVELING_SALESMAN_BITMASK_MIN_CITIES,
+                                TRAVELING_SALESMAN_BITMASK_MAX_CITIES + 1):
+            add((city_count, *([0] * (city_count * city_count))))
+            all_expensive = [TRAVELING_SALESMAN_BITMASK_MAX_DISTANCE] * (city_count * city_count)
+            for city in range(city_count):
+                all_expensive[city * city_count + city] = 0
+            add((city_count, *all_expensive))
+
+        rng_traveling_salesman_bitmask = random.Random(20261016)
+        for _ in range(64):
+            city_count = rng_traveling_salesman_bitmask.randint(
+                TRAVELING_SALESMAN_BITMASK_MIN_CITIES, 8)
+            distances = [rng_traveling_salesman_bitmask.randint(
+                TRAVELING_SALESMAN_BITMASK_MIN_DISTANCE,
+                TRAVELING_SALESMAN_BITMASK_MAX_DISTANCE)
+                for _ in range(city_count * city_count)]
+            for city in range(city_count):
+                distances[city * city_count + city] = 0
+            add((city_count, *distances))
+
+        malformed = (
+            (), (0,), (TRAVELING_SALESMAN_BITMASK_MIN_CITIES - 1,),
+            (TRAVELING_SALESMAN_BITMASK_MAX_CITIES + 1,),
+            (3, 0, 1, 2), (2, 0, 1, 1, 0, 0),
+            (2, 0, -1, 1, 0),
+            (2, 0, TRAVELING_SALESMAN_BITMASK_MAX_DISTANCE + 1, 1, 0),
+            (2, 0, -(2**63), 1, 0), (2, 0, 2**63 - 1, 1, 0),
+            (2, 0, 1, 1, 0, 0),
+            tuple([0] * MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH:
+                cases[tuple(values)] = TRAVELING_SALESMAN_BITMASK_INVALID_RESULT
+        special_records.append(
+            f"NULL 1 {TRAVELING_SALESMAN_BITMASK_INVALID_RESULT}\n")
+    elif algorithm == "problem016_power_digit_sum":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "problem016-power-digit-sum-i64-array-scalar-v1"
+                or workload.get("function_symbol") != "problem016_power_digit_sum"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[base, exponent]"
+                or input_spec.get("exact_length") != 2
+                or input_spec.get("base_range") != [0, 9]
+                or input_spec.get("exponent_range") != [0, 1000]
+                or input_spec.get("exponent_zero_behavior") != "return base"
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("meaning") != "sum of the decimal digits of base raised to exponent, except exponent zero returns base as in the pinned source"
+                or output_spec.get("result_range") != [0, 8595]
+                or output_spec.get("invalid_input_result") != -1
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or pinned_source != {"repository": "TheAlgorithms/JavaScript",
+                                     "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+                                     "path": "Project-Euler/Problem016.js",
+                                     "symbol": "powerDigitSum"}):
+            raise ValueError("problem016_power_digit_sum workload metadata does not match its reviewed contract")
+
+        for base in range(10):
+            for exponent in (0, 1, 2, 15, 999, 1000):
+                values = (base, exponent)
+                cases[values] = oracle(algorithm, list(values))
+        rng = random.Random(20261016)
+        for _ in range(256):
+            values = (rng.randint(0, 9), rng.randint(0, 1000))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = ((), (2,), (2, 15, 1), (-1, 3), (10, 3), (2, -1), (2, 1001),
+                     (I64_MIN, 0), (2, I64_MAX))
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "is_strong_password":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-python-is-strong-password-i64-array-scalar-v1"
+                or workload.get("algorithm") != "is_strong_password"
+                or workload.get("function_symbol") != "is_strong_password"
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "[min_length,text_length,ASCII bytes...]"
+                or input_spec.get("maximum_input_values") != MAX_IS_STRONG_PASSWORD_INPUT_LENGTH
+                or input_spec.get("min_length_range") != [0, IS_STRONG_PASSWORD_MAX_TEXT_LENGTH]
+                or input_spec.get("text_length_range") != [0, IS_STRONG_PASSWORD_MAX_TEXT_LENGTH]
+                or input_spec.get("byte_range") != [0, 127]
+                or input_spec.get("invalid_input_result") != IS_STRONG_PASSWORD_INVALID_RESULT
+                or output_spec.get("kind") != "boolean_as_signed_i64"
+                or output_spec.get("meaning") != "1 iff minimum length is met and at least one ASCII uppercase, lowercase, digit, and punctuation character is present; otherwise 0"
+                or output_spec.get("valid_range") != [0, 1]
+                or output_spec.get("invalid_input_result") != IS_STRONG_PASSWORD_INVALID_RESULT
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or pinned_source != {"repository": "TheAlgorithms/Python",
+                                     "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+                                     "path": "other/password.py"}):
+            raise ValueError("is_strong_password workload metadata does not match its reviewed contract")
+
+        def add(min_length: int, text: tuple[int, ...]) -> None:
+            values = (min_length, len(text), *text)
+            if len(values) > MAX_IS_STRONG_PASSWORD_INPUT_LENGTH:
+                raise ValueError("is_strong_password generated input exceeds its reviewed maximum length")
+            cases[values] = oracle(algorithm, list(values))
+
+        required_classes = (65, 97, 49)
+        for minimum in (0, 1, 7, 8, IS_STRONG_PASSWORD_MAX_TEXT_LENGTH - 1,
+                        IS_STRONG_PASSWORD_MAX_TEXT_LENGTH):
+            for text in ((), (65, 97, 49, 33),
+                         (65, 97, 49, 33, 0, 1, 127)):
+                add(minimum, text)
+        for punctuation in IS_STRONG_PASSWORD_PUNCTUATION:
+            add(0, (*required_classes, punctuation))
+        for text_length in (0, 1, 7, 8, 255, 256):
+            body = tuple(([65, 97, 49, 33] + [0] * text_length)[:text_length])
+            add(text_length, body)
+
+        rng_is_strong_password = random.Random(20261016)
+        alphabet = (0, 1, 31, 32, 33, 47, 48, 57, 58, 64, 65, 90,
+                    91, 96, 97, 122, 123, 126, 127)
+        for _ in range(128):
+            length = rng_is_strong_password.randint(0, IS_STRONG_PASSWORD_MAX_TEXT_LENGTH)
+            text = tuple(rng_is_strong_password.choice(alphabet) for _ in range(length))
+            minimum = rng_is_strong_password.randint(0, IS_STRONG_PASSWORD_MAX_TEXT_LENGTH)
+            add(minimum, text)
+
+        malformed = (
+            (), (0,), (0, 0, 65), (0, -1), (0, 257), (-1, 0), (257, 0),
+            (0, 1), (0, 0, 65), (0, 2, 65), (0, 1, -1), (0, 1, 128),
+            (I64_MIN, 0), (I64_MAX, 0), (0, I64_MIN), (0, I64_MAX),
+            (0, 1, I64_MIN), (0, 1, I64_MAX),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "search_singly_linked_list_recursion":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-java-search-singly-linked-list-recursion-i64-array-scalar-v1"
+                or workload.get("algorithm") != "search_singly_linked_list_recursion"
+                or workload.get("function_symbol") != "search_singly_linked_list_recursion"
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "[count,key,values...]"
+                or input_spec.get("maximum_input_values") != MAX_SEARCH_SINGLY_LINKED_LIST_RECURSION_INPUT_LENGTH
+                or input_spec.get("count_range") != [0, SEARCH_SINGLY_LINKED_LIST_RECURSION_MAX_NODES]
+                or input_spec.get("key_and_value_range") != [SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MIN,
+                                                               SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MAX]
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "boolean_as_signed_i64"
+                or output_spec.get("meaning") != "1 iff the list contains the key, otherwise 0"
+                or output_spec.get("valid_range") != [0, 1]
+                or output_spec.get("invalid_input_result") != -1
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or pinned_source != {"repository": "TheAlgorithms/Java",
+                                     "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+                                     "path": "src/main/java/com/thealgorithms/datastructures/lists/SearchSinglyLinkedListRecursion.java"}):
+            raise ValueError("search_singly_linked_list_recursion workload metadata does not match its reviewed contract")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_SEARCH_SINGLY_LINKED_LIST_RECURSION_INPUT_LENGTH + 1:
+                raise ValueError("search_singly_linked_list_recursion generated input exceeds its parser margin")
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum_case = max(workload["cases"], key=lambda case: len(case["input_values"]))
+        maximum_values = tuple(maximum_case["input_values"])
+        if (len(maximum_values) != MAX_SEARCH_SINGLY_LINKED_LIST_RECURSION_INPUT_LENGTH
+                or maximum_values[0] != SEARCH_SINGLY_LINKED_LIST_RECURSION_MAX_NODES):
+            raise ValueError("search_singly_linked_list_recursion workload is missing its maximum-list case")
+        add(maximum_values)
+
+        rng_search_list = random.Random(20261016)
+        for _ in range(192):
+            count = rng_search_list.randint(0, SEARCH_SINGLY_LINKED_LIST_RECURSION_MAX_NODES)
+            values = tuple(rng_search_list.randint(SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MIN,
+                                                   SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MAX)
+                           for _ in range(count))
+            key = rng_search_list.randint(SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MIN,
+                                         SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MAX)
+            if count and rng_search_list.randrange(2):
+                values = (*values[:count // 2], key, *values[count // 2 + 1:])
+            add((count, key, *values))
+
+        malformed = (
+            (), (0,), (1, 7), (2, 7, 1), (1, 7, 1, 2),
+            (-1, 7), (SEARCH_SINGLY_LINKED_LIST_RECURSION_MAX_NODES + 1, 7),
+            (0, SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MIN - 1),
+            (0, SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MAX + 1),
+            (1, 7, SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MIN - 1),
+            (1, 7, SEARCH_SINGLY_LINKED_LIST_RECURSION_I32_MAX + 1),
+            (I64_MIN, 0), (I64_MAX, 0),
+            tuple([0] * (MAX_SEARCH_SINGLY_LINKED_LIST_RECURSION_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            add(tuple(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "rescale":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lua-unbiased-discrete-rescale-v1"
+                or workload.get("algorithm") != "rescale"
+                or workload.get("function_symbol") != "rescale"
+                or input_spec.get("kind") != "packed-deterministic-random-draw-stream"
+                or input_spec.get("encoding") != "[max, new_max, draw_count, draws...]"
+                or input_spec.get("max_range") != [2, RESCALE_MAX_RANDOM_RANGE]
+                or input_spec.get("new_range") != [1, RESCALE_MAX_NEW_RANGE]
+                or input_spec.get("draw_count") != [1, RESCALE_MAX_DRAWS]
+                or input_spec.get("draw_range") != "0 <= draw < max"
+                or input_spec.get("maximum_packed_values") != 3 + RESCALE_MAX_DRAWS
+                or input_spec.get("maximum_parseable_values") != MAX_RESCALE_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_or_exhausted_result") != RESCALE_INVALID_RESULT
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("meaning") != "one unbiased draw in [0, new_max)"
+                or output_spec.get("invalid_result") != RESCALE_INVALID_RESULT
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or pinned_source != {"repository": "TheAlgorithms/Lua",
+                                     "commit": "cedc141018ad48884318fe08a6db278664b17128",
+                                     "path": "src/random/rescale.lua",
+                                     "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/random/rescale.lua"}):
+            raise ValueError("rescale workload metadata does not match its reviewed contract")
+
+        if not any(case.get("id") == "maximum_valid_draw_count"
+                   and len(case.get("input_values", ())) == 3 + RESCALE_MAX_DRAWS
+                   and case.get("input_length") == 3 + RESCALE_MAX_DRAWS
+                   and case["input_values"][2] == RESCALE_MAX_DRAWS
+                   for case in workload["cases"]):
+            raise ValueError("rescale workload is missing maximum valid draw-count coverage")
+        if not any(case.get("id") == "one_over_bound_draw_count_at_parser_limit"
+                   and len(case.get("input_values", ())) == MAX_RESCALE_PARSEABLE_INPUT_LENGTH
+                   and case.get("input_length") == MAX_RESCALE_PARSEABLE_INPUT_LENGTH
+                   and case["input_values"][2] == RESCALE_MAX_DRAWS + 1
+                   for case in workload["cases"]):
+            raise ValueError("rescale workload is missing its one-over-bound parser-limit case")
+
+        def add(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_RESCALE_PARSEABLE_INPUT_LENGTH:
+                raise ValueError("rescale generated input exceeds its parser limit")
+            cases[values] = oracle(algorithm, list(values))
+
+        for max_value in range(2, RESCALE_MAX_RANDOM_RANGE + 1):
+            for new_max in sorted({1, max_value, min(RESCALE_MAX_NEW_RANGE, max_value + 1),
+                                   RESCALE_MAX_NEW_RANGE}):
+                draws = tuple((index * 7) % max_value for index in range(RESCALE_MAX_DRAWS))
+                add((max_value, new_max, len(draws), *draws))
+
+        rng_rescale = random.Random(20261016)
+        for _ in range(128):
+            max_value = rng_rescale.randint(2, RESCALE_MAX_RANDOM_RANGE)
+            new_max = rng_rescale.randint(1, RESCALE_MAX_NEW_RANGE)
+            draw_count = rng_rescale.randint(1, RESCALE_MAX_DRAWS)
+            draws = tuple(rng_rescale.randrange(max_value) for _ in range(draw_count))
+            add((max_value, new_max, draw_count, *draws))
+
+        malformed = (
+            (), (2,), (2, 3), (1, 3, 1, 0), (65, 3, 1, 0),
+            (2, 0, 1, 0), (2, 257, 1, 0), (2, 3, 0), (2, 3, 257),
+            (2, 3, 1), (2, 3, 1, 0, 1), (2, 3, 1, 2), (2, 3, 1, -1),
+            (I64_MIN, 1, 1, 0), (I64_MAX, 1, 1, 0),
+            (2, 3, 257, *([0] * 257)),
+        )
+        for values in malformed:
+            if len(values) <= MAX_RESCALE_PARSEABLE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append(f"NULL 1 {RESCALE_INVALID_RESULT}\n")
+    elif algorithm == "largest_product_in_a_grid":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        measurement = workload.get("measurement", {})
+        required_case_ids = {
+            "empty_array", "short_header", "empty_grid", "zero_rows", "zero_columns",
+            "no_four_cell_path_2x3", "horizontal", "vertical", "diagonal_down_right",
+            "diagonal_down_left", "maximum_four_value_product", "maximum_rows_zero_columns",
+            "maximum_columns_zero_rows", "maximum_cell_count_all_zero", "malformed_short_matrix",
+            "malformed_extra_cell", "negative_rows", "dimension_above_bound",
+            "columns_above_bound", "negative_cell", "cell_above_bound",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "largest-product-in-a-grid-i64-array-scalar-v1"
+                or workload.get("algorithm") != "largest_product_in_a_grid"
+                or workload.get("function_symbol") != "largest_product_in_a_grid"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[rows, cols, row_major_cells...]"
+                or input_spec.get("rows_range") != [0, LARGEST_PRODUCT_IN_A_GRID_MAX_DIMENSION]
+                or input_spec.get("cols_range") != [0, LARGEST_PRODUCT_IN_A_GRID_MAX_DIMENSION]
+                or input_spec.get("maximum_cell_count") != LARGEST_PRODUCT_IN_A_GRID_MAX_DIMENSION ** 2
+                or input_spec.get("maximum_input_length") != MAX_LARGEST_PRODUCT_IN_A_GRID_INPUT_LENGTH
+                or input_spec.get("cell_value_range") != [0, LARGEST_PRODUCT_IN_A_GRID_MAX_CELL_VALUE]
+                or input_spec.get("directions") != ["right", "down", "down-right", "down-left"]
+                or input_spec.get("adjacent_cell_count") != 4
+                or input_spec.get("out_of_bounds_value") != 0
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("meaning") != (
+                    "maximum product of exactly four adjacent cells in any supported direction; "
+                    "zero for empty grids or when no four-cell path exists")
+                or output_spec.get("maximum_product") != 1_000_000_000_000
+                or output_spec.get("invalid_input_result") != -1
+                or measurement != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or pinned_source != {"repository": "TheAlgorithms/JavaScript",
+                                     "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+                                     "path": "Project-Euler/Problem011.js",
+                                     "symbol": "largestProductInAGrid"}):
+            raise ValueError("largest_product_in_a_grid workload metadata does not match its reviewed contract")
+        if not required_case_ids.issubset({case.get("id") for case in workload["cases"]}):
+            raise ValueError("largest_product_in_a_grid workload is missing source or boundary fixtures")
+        maximum_grid_case = next((case for case in workload["cases"]
+                                  if case.get("id") == "maximum_cell_count_all_zero"), None)
+        maximum_product_case = next((case for case in workload["cases"]
+                                     if case.get("id") == "maximum_four_value_product"), None)
+        if (maximum_grid_case is None
+                or len(maximum_grid_case.get("input_values", ()))
+                    != MAX_LARGEST_PRODUCT_IN_A_GRID_INPUT_LENGTH
+                or maximum_grid_case.get("expected_result") != 0
+                or maximum_product_case is None
+                or maximum_product_case.get("expected_result") != output_spec["maximum_product"]):
+            raise ValueError("largest_product_in_a_grid workload is missing maximum-boundary coverage")
+
+        rng = random.Random(20261016)
+        for _ in range(256):
+            rows = rng.randint(0, 12)
+            cols = rng.randint(0, 12)
+            values = (rows, cols, *(rng.randint(0, LARGEST_PRODUCT_IN_A_GRID_MAX_CELL_VALUE)
+                                    for _ in range(rows * cols)))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0,), (-1, 0), (0, -1),
+            (LARGEST_PRODUCT_IN_A_GRID_MAX_DIMENSION + 1, 0),
+            (0, LARGEST_PRODUCT_IN_A_GRID_MAX_DIMENSION + 1),
+            (2, 3, 1, 2, 3, 4, 5), (1, 1), (1, 1, -1),
+            (1, 1, LARGEST_PRODUCT_IN_A_GRID_MAX_CELL_VALUE + 1),
+            (1, 1, I64_MIN), (1, 1, I64_MAX),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
+    elif algorithm == "kth_element_finder":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
         if (input_spec.get("kind") != "signed_i64_integer_array"
@@ -3866,14 +6466,32 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                     cases[values] = oracle(algorithm, list(values))
         for _ in range(192):
             n = rng.randint(1, GRAPH_ENUMERATION_MAX_VERTICES)
-            labels = rng.sample(range(-1000, 1001), n)
+            labels = rng.sample(range(-GRAPH_ENUMERATION_MAX_LABEL,
+                                      GRAPH_ENUMERATION_MAX_LABEL + 1), n)
             entries = [n, *labels]
             for _label in labels:
-                neighbors = [x for x in labels if rng.randrange(3) == 0]
+                neighbors = [rng.choice(labels)
+                             for _ in range(rng.randint(0, GRAPH_ENUMERATION_MAX_DEGREE))]
                 entries.extend((len(neighbors), *neighbors))
             values = tuple(entries)
             cases[values] = oracle(algorithm, list(values))
-        malformed = ((), (0, 5), (1, 3, 0), (2, 1, 1, 0, 0), (1, 1, 1, 9),
+
+        boundary_labels = [-GRAPH_ENUMERATION_MAX_LABEL, *range(-7, 7),
+                           GRAPH_ENUMERATION_MAX_LABEL]
+        maximum_entries = [GRAPH_ENUMERATION_MAX_VERTICES, *boundary_labels]
+        for row, _label in enumerate(boundary_labels):
+            neighbors = [boundary_labels[(row + offset) % len(boundary_labels)]
+                         for offset in range(GRAPH_ENUMERATION_MAX_DEGREE)]
+            maximum_entries.extend((len(neighbors), *neighbors))
+        maximum_values = tuple(maximum_entries)
+        if len(maximum_values) != MAX_GRAPH_ENUMERATION_INPUT_LENGTH:
+            raise ValueError("graph_enumeration maximum graph does not reach its input bound")
+        cases[maximum_values] = oracle(algorithm, list(maximum_values))
+
+        malformed = ((), (0, 5), (1, 3, 0),
+                     (1, GRAPH_ENUMERATION_MAX_LABEL + 1, 0),
+                     (1, -GRAPH_ENUMERATION_MAX_LABEL - 1, 0),
+                     (2, 1, 1, 0, 0), (1, 1, 1, 9),
                      (1, 1, -1), (1, 1, GRAPH_ENUMERATION_MAX_DEGREE + 1), (1, 1, 0, 7))
         for values in malformed:
             if len(values) <= 1 + GRAPH_ENUMERATION_MAX_VERTICES + GRAPH_ENUMERATION_MAX_VERTICES * (1 + GRAPH_ENUMERATION_MAX_DEGREE):
@@ -4034,6 +6652,162 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
+    elif algorithm == "matrix_exponentiation":
+        rng_matrix_exponentiation = random.Random(20261017)
+        boundary_residues = (0, 1, 2, MATRIX_EXPONENTIATION_MODULUS - 2,
+                             MATRIX_EXPONENTIATION_MODULUS - 1)
+        for order in range(1, MATRIX_EXPONENTIATION_MAX_ORDER + 1):
+            indices = {0, 1, order, order + 1, MATRIX_EXPONENTIATION_MAX_INDEX}
+            for index in sorted(indices):
+                initial = tuple(boundary_residues[i % len(boundary_residues)]
+                                for i in range(order))
+                coefficients = tuple(boundary_residues[(i + order) % len(boundary_residues)]
+                                     for i in range(order))
+                values = (order, *initial, *coefficients, index)
+                cases[values] = oracle(algorithm, list(values))
+
+        for _ in range(128):
+            order = rng_matrix_exponentiation.randint(1, MATRIX_EXPONENTIATION_MAX_ORDER)
+            initial = tuple(rng_matrix_exponentiation.choice((0, 1, 2,
+                              MATRIX_EXPONENTIATION_MODULUS - 1,
+                              rng_matrix_exponentiation.randrange(MATRIX_EXPONENTIATION_MODULUS)))
+                            for _ in range(order))
+            coefficients = tuple(rng_matrix_exponentiation.choice((0, 1, 2,
+                                  MATRIX_EXPONENTIATION_MODULUS - 1,
+                                  rng_matrix_exponentiation.randrange(MATRIX_EXPONENTIATION_MODULUS)))
+                                 for _ in range(order))
+            index = rng_matrix_exponentiation.choice((0, order, order + 1,
+                MATRIX_EXPONENTIATION_MAX_INDEX,
+                rng_matrix_exponentiation.randint(0, MATRIX_EXPONENTIATION_MAX_INDEX)))
+            values = (order, *initial, *coefficients, index)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0, 0), (MATRIX_EXPONENTIATION_MAX_ORDER + 1, 0, 0,
+                          *([0] * (2 * MATRIX_EXPONENTIATION_MAX_ORDER))),
+            (1, 0, 0), (1, 0, 0, 0, 0), (1, -1, 0, 1),
+            (1, MATRIX_EXPONENTIATION_MODULUS, 0, 1),
+            (1, 0, -1, 1), (1, 0, MATRIX_EXPONENTIATION_MODULUS, 1),
+            (1, 0, 0, -1), (1, 0, 0, MATRIX_EXPONENTIATION_MAX_INDEX + 1),
+            (1, 0, 0, -(1 << 63)), (1, 0, 0, (1 << 63) - 1),
+            tuple([1, 0, 0, 1] + [0] * (MATRIX_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH - 4)),
+        )
+        for values in malformed:
+            if len(values) <= MATRIX_EXPONENTIATION_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "miller_rabin_primality_checker":
+        rng_miller_rabin = random.Random(20261017)
+        for n in (5, 7, 9, 25, 65, 97, 561, 1105,
+                  MILLER_RABIN_PRIMALITY_CHECKER_MAX_N - 2,
+                  MILLER_RABIN_PRIMALITY_CHECKER_MAX_N):
+            for rounds in (1, MILLER_RABIN_PRIMALITY_CHECKER_MAX_ROUNDS):
+                for seed in (0, 14, 75, MILLER_RABIN_PRIMALITY_CHECKER_MAX_SEED):
+                    values = (n, rounds, seed)
+                    cases[values] = oracle(algorithm, list(values))
+
+        for _ in range(128):
+            n = rng_miller_rabin.randrange(5, MILLER_RABIN_PRIMALITY_CHECKER_MAX_N + 1)
+            if n % 2 == 0:
+                n += 1
+            if n > MILLER_RABIN_PRIMALITY_CHECKER_MAX_N:
+                n -= 2
+            rounds = rng_miller_rabin.randint(1, MILLER_RABIN_PRIMALITY_CHECKER_MAX_ROUNDS)
+            seed = rng_miller_rabin.randint(0, MILLER_RABIN_PRIMALITY_CHECKER_MAX_SEED)
+            values = (n, rounds, seed)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (5,), (5, 1), (5, 1, 0, 99),
+            (4, 1, 0), (3, 1, 0),
+            (MILLER_RABIN_PRIMALITY_CHECKER_MAX_N + 2, 1, 0),
+            (5, 0, 0), (5, MILLER_RABIN_PRIMALITY_CHECKER_MAX_ROUNDS + 1, 0),
+            (5, 1, -1), (5, 1, MILLER_RABIN_PRIMALITY_CHECKER_MAX_SEED + 1),
+            (-(1 << 63), 1, 0), ((1 << 63) - 1, 1, 0),
+        )
+        for values in malformed:
+            if len(values) <= MILLER_RABIN_PRIMALITY_CHECKER_MAX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "logistic_regression_predict":
+        rng_logistic = random.Random(20261017)
+        for rows, features in ((1, 1), (2, 1), (1, 32),
+                               (LOGISTIC_REGRESSION_PREDICT_MAX_ROWS, 1),
+                               (LOGISTIC_REGRESSION_PREDICT_MAX_ROWS,
+                                LOGISTIC_REGRESSION_PREDICT_MAX_FEATURES)):
+            values = (rows, features, *([0] * (rows * features + features)))
+            cases[values] = oracle(algorithm, list(values))
+
+        boundary_values = (LOGISTIC_REGRESSION_PREDICT_MIN_FEATURE_VALUE, -1, 0, 1,
+                           LOGISTIC_REGRESSION_PREDICT_MAX_FEATURE_VALUE)
+        for _ in range(128):
+            rows = rng_logistic.randint(1, LOGISTIC_REGRESSION_PREDICT_MAX_ROWS)
+            features = rng_logistic.randint(1, LOGISTIC_REGRESSION_PREDICT_MAX_FEATURES)
+            payload = tuple(rng_logistic.choice(
+                (*boundary_values, rng_logistic.randint(
+                    LOGISTIC_REGRESSION_PREDICT_MIN_FEATURE_VALUE,
+                    LOGISTIC_REGRESSION_PREDICT_MAX_FEATURE_VALUE)))
+                for _ in range(rows * features + features))
+            values = (rows, features, *payload)
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum_parseable_trailing = (
+            LOGISTIC_REGRESSION_PREDICT_MAX_ROWS,
+            LOGISTIC_REGRESSION_PREDICT_MAX_FEATURES,
+            *([0] * (LOGISTIC_REGRESSION_PREDICT_MAX_VALID_INPUT_LENGTH - 2)),
+            0,
+        )
+        malformed = (
+            (), (0, 1), (LOGISTIC_REGRESSION_PREDICT_MAX_ROWS + 1, 1),
+            (1, 0), (1, LOGISTIC_REGRESSION_PREDICT_MAX_FEATURES + 1),
+            (1, 1), (1, 1, 0), (1, 1, 0, 0, 7),
+            (1, 1, LOGISTIC_REGRESSION_PREDICT_MAX_FEATURE_VALUE + 1, 0),
+            (1, 1, 0, LOGISTIC_REGRESSION_PREDICT_MIN_FEATURE_VALUE - 1),
+            (1, 1, LOGISTIC_REGRESSION_PREDICT_I64_MIN, 0),
+            (1, 1, 0, LOGISTIC_REGRESSION_PREDICT_I64_MAX),
+            maximum_parseable_trailing,
+        )
+        for values in malformed:
+            if len(values) <= LOGISTIC_REGRESSION_PREDICT_MAX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "time_simulation":
+        rng_time_simulation = random.Random(20261017)
+        for _ in range(64):
+            actions: list[int] = []
+            now = 0
+            next_event_id = 1
+            active_events: dict[int, int] = {}
+            for _ in range(rng_time_simulation.randint(1, 32)):
+                operation = rng_time_simulation.choice(("schedule", "schedule", "tick", "cancel", "time", "empty"))
+                if operation == "schedule":
+                    timestamp = now + rng_time_simulation.randrange(7)
+                    actions.extend((0, timestamp))
+                    active_events[next_event_id] = timestamp
+                    next_event_id += 1
+                elif operation == "tick":
+                    now += rng_time_simulation.randrange(7)
+                    actions.extend((2, now))
+                    active_events = {event_id: timestamp for event_id, timestamp in active_events.items()
+                                     if timestamp > now}
+                elif operation == "cancel":
+                    event_id = (rng_time_simulation.choice(tuple(active_events))
+                                if active_events and rng_time_simulation.randrange(2)
+                                else next_event_id + 100)
+                    actions.extend((1, event_id))
+                    active_events.pop(event_id, None)
+                else:
+                    actions.extend((3 if operation == "time" else 4, 0))
+            values = (len(actions) // 2, *actions)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (0, 0), (1,), (1, 0), (1, 1, 0), (1, 2, -1),
+            (1, 3, 1), (1, 4, -1), (1, 5, 0),
+            (2, 2, 1, 2, 0), (3, 0, 5, 2, 5, 0, 4),
+            tuple([TIME_SIMULATION_MAX_ACTIONS + 1]
+                  + [0] * (TIME_SIMULATION_MAX_INPUT_LENGTH - 1)),
+        )
+        for values in malformed:
+            if len(values) <= TIME_SIMULATION_MAX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
     elif algorithm == "recursive_linear_search":
         for count in (1, 2, 8, MAX_RECURSIVE_LINEAR_SEARCH_COUNT):
             items = tuple(range(count))
@@ -4069,6 +6843,257 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if len(values) <= MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
+    elif algorithm == "power_using_recursion":
+        validate_power_using_recursion_workload(workload)
+        for base in range(-10, 11):
+            for exponent in range(16):
+                values = (base, exponent)
+                cases[values] = oracle(algorithm, list(values))
+
+        rng_power = random.Random(20261019)
+        for _ in range(128):
+            values = (rng_power.randint(-10, 10), rng_power.randint(0, 15))
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (4,), (2, 3, 4), (-11, 2), (11, 2), (2, -1), (2, 16),
+            (I64_MIN, 1), (I64_MAX, 1), (I64_MIN, 0), (0, I64_MAX),
+        )
+        for values in malformed:
+            if len(values) <= MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
+    elif algorithm == "shortest_word_distance":
+        validate_shortest_word_distance_workload(workload)
+        rng_shortest = random.Random(20261017)
+
+        def pack_shortest_words(words: list[str], first: str, second: str) -> tuple[int, ...]:
+            packed: list[int] = [len(words)]
+            for word in words:
+                raw = [ord(character) for character in word]
+                packed.extend((len(raw), *raw))
+            for target in (first, second):
+                raw = [ord(character) for character in target]
+                packed.extend((len(raw), *raw))
+            return tuple(packed)
+
+        for count in (2, 3, 8, SHORTEST_WORD_DISTANCE_MAX_WORDS):
+            words = [rng_shortest.choice(("a", "A", "b", "Dog")) for _ in range(count)]
+            words[0], words[-1] = "a", "A"
+            packed = pack_shortest_words(words, "a", "A")
+            cases[packed] = oracle(algorithm, list(packed))
+        for _ in range(64):
+            count = rng_shortest.randint(2, SHORTEST_WORD_DISTANCE_MAX_WORDS)
+            words = [rng_shortest.choice(("a", "A", "b", "Dog", "xy"))
+                     for _ in range(count)]
+            first_position = rng_shortest.randrange(count)
+            second_position = rng_shortest.choice([i for i in range(count)
+                                                   if i != first_position])
+            words[first_position], words[second_position] = "a", "A"
+            packed = pack_shortest_words(words, "a", "A")
+            cases[packed] = oracle(algorithm, list(packed))
+        malformed = (
+            (), (2,), (0, 1, 97, 1, 98), (33,),
+            (2, 0, 1, 98, 1, 97), (2, 9, *([97] * 9), 1, 98, 1, 97),
+            (2, 1, 33, 1, 98, 1, 33, 1, 98),
+            (2, 1, 97, 1, 98, 1, 97, 1, 122),
+            tuple([32, *([1, 97] * 32), 1, 97, 1, 98]),
+        )
+        for values in malformed:
+            if len(values) <= 308:
+                cases[values] = oracle(algorithm, list(values))
+        maximum_case = next(case for case in workload["cases"]
+                            if case.get("id") == "maximum_packed_input")
+        maximum_values = tuple(encode_case(maximum_case, algorithm))
+        cases[maximum_values + (0,)] = oracle(algorithm, list(maximum_values + (0,)))
+    elif algorithm == "match_word_pattern":
+        validate_match_word_pattern_workload(workload)
+        rng_pattern = random.Random(20261018)
+
+        def add_pattern_case(pattern: tuple[int, ...], text: tuple[int, ...]) -> None:
+            values = (len(pattern), len(text), *pattern, *text)
+            cases[values] = oracle(algorithm, list(values))
+
+        add_pattern_case((), ())
+        add_pattern_case((97,), (0, 127, 97))
+        add_pattern_case((97, 98, 97), (120, 121, 120))
+        for _ in range(64):
+            pattern_length = rng_pattern.randint(1, min(6, MATCH_WORD_PATTERN_MAX_PATTERN_LENGTH))
+            symbols = tuple(rng_pattern.randint(97, 100) for _ in range(pattern_length))
+            chunks: dict[int, tuple[int, ...]] = {}
+            text_parts: list[int] = []
+            for symbol in symbols:
+                if symbol not in chunks:
+                    chunks[symbol] = tuple(rng_pattern.randint(0, 127)
+                                           for _ in range(rng_pattern.randint(1, 3)))
+                text_parts.extend(chunks[symbol])
+            add_pattern_case(symbols, tuple(text_parts))
+            text_length = rng_pattern.randint(0, min(12, MATCH_WORD_PATTERN_MAX_TEXT_LENGTH))
+            add_pattern_case(symbols, tuple(rng_pattern.randint(0, 127)
+                                            for _ in range(text_length)))
+        malformed = (
+            (), (1,), (-1, 0), (MATCH_WORD_PATTERN_MAX_PATTERN_LENGTH + 1, 0),
+            (0, MATCH_WORD_PATTERN_MAX_TEXT_LENGTH + 1), (1, 2, 97),
+            (0, 0, 99), (1, 0, 128, 1), (1, 1, 97, 128),
+            (MATCH_WORD_PATTERN_MAX_PATTERN_LENGTH,
+             MATCH_WORD_PATTERN_MAX_TEXT_LENGTH,
+             *([97] * (MATCH_WORD_PATTERN_MAX_PATTERN_LENGTH
+                       + MATCH_WORD_PATTERN_MAX_TEXT_LENGTH + 1))),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MATCH_WORD_PATTERN_INPUT_LENGTH + 1:
+                cases[values] = oracle(algorithm, list(values))
+        if "NULL 1 -1\n" not in special_records:
+            special_records.append("NULL 1 -1\n")
+    elif algorithm == "scramble_strings":
+        validate_scramble_strings_workload(workload)
+        for length in range(SCRAMBLE_STRINGS_MAX_LENGTH + 1):
+            first = tuple(97 + index % 26 for index in range(length))
+            candidates = (
+                first,
+                tuple(reversed(first)),
+                first[1:] + first[:1],
+                tuple(97 + (index * 7) % 26 for index in range(length)),
+            )
+            for second in candidates:
+                values = (length, *first, *second)
+                cases[values] = oracle(algorithm, list(values))
+
+        rng_scramble_strings = random.Random(20261017)
+        for _ in range(128):
+            length = rng_scramble_strings.randint(0, SCRAMBLE_STRINGS_MAX_LENGTH)
+            first = tuple(rng_scramble_strings.randint(97, 122) for _ in range(length))
+            second = tuple(rng_scramble_strings.randint(97, 122) for _ in range(length))
+            values = (length, *first, *second)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (-1,), (SCRAMBLE_STRINGS_MAX_LENGTH + 1,
+                        *([97] * (2 * (SCRAMBLE_STRINGS_MAX_LENGTH + 1)))),
+            (3, 97, 98, 99, 97, 98), (1, 97, 98, 99), (2, 97, 98, 97),
+            (1, 65, 97), (1, 97, 45), (1, 97, 128),
+            (SCRAMBLE_STRINGS_I64_MIN,), (SCRAMBLE_STRINGS_I64_MAX,),
+            (1, 97, SCRAMBLE_STRINGS_I64_MIN),
+            tuple([SCRAMBLE_STRINGS_MAX_LENGTH] + [97] * (2 * SCRAMBLE_STRINGS_MAX_LENGTH + 1)),
+        )
+        for values in malformed:
+            if len(values) <= MAX_SCRAMBLE_STRINGS_PARSEABLE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        if "NULL 1 -1\n" not in special_records:
+            special_records.append("NULL 1 -1\n")
+    elif algorithm == "richest_customer_wealth":
+        validate_richest_customer_wealth_workload(workload)
+        for rows, columns in ((1, 1), (1, RICHEST_CUSTOMER_WEALTH_MAX_COLUMNS),
+                              (RICHEST_CUSTOMER_WEALTH_MAX_ROWS, 1),
+                              (RICHEST_CUSTOMER_WEALTH_MAX_ROWS,
+                               RICHEST_CUSTOMER_WEALTH_MAX_COLUMNS), (3, 4), (4, 3)):
+            cell_count = rows * columns
+            cases[(rows, columns, *([0] * cell_count))] = oracle(
+                algorithm, [rows, columns, *([0] * cell_count)])
+            cases[(rows, columns, *([RICHEST_CUSTOMER_WEALTH_MAX_AMOUNT] * cell_count))] = oracle(
+                algorithm, [rows, columns, *([RICHEST_CUSTOMER_WEALTH_MAX_AMOUNT] * cell_count)])
+            pattern = [((index * 7919) % (RICHEST_CUSTOMER_WEALTH_MAX_AMOUNT + 1))
+                       for index in range(cell_count)]
+            cases[(rows, columns, *pattern)] = oracle(algorithm, [rows, columns, *pattern])
+
+        rng_richest_wealth = random.Random(20261017)
+        for _ in range(128):
+            rows = rng_richest_wealth.randint(1, RICHEST_CUSTOMER_WEALTH_MAX_ROWS)
+            columns = rng_richest_wealth.randint(1, RICHEST_CUSTOMER_WEALTH_MAX_COLUMNS)
+            cells = tuple(rng_richest_wealth.randint(0, RICHEST_CUSTOMER_WEALTH_MAX_AMOUNT)
+                          for _ in range(rows * columns))
+            values = (rows, columns, *cells)
+            cases[values] = oracle(algorithm, list(values))
+
+        malformed = (
+            (), (1,), (0, 1), (RICHEST_CUSTOMER_WEALTH_MAX_ROWS + 1, 1),
+            (1, 0), (1, RICHEST_CUSTOMER_WEALTH_MAX_COLUMNS + 1),
+            (1, 1), (2, 2, 0, 0, 0), (1, 1, 0, 0),
+            (1, 1, -1), (1, 1, RICHEST_CUSTOMER_WEALTH_MAX_AMOUNT + 1),
+            (RICHEST_CUSTOMER_WEALTH_I64_MIN, 1),
+            (1, RICHEST_CUSTOMER_WEALTH_I64_MAX),
+            (1, 1, RICHEST_CUSTOMER_WEALTH_I64_MIN),
+            (1, 1, RICHEST_CUSTOMER_WEALTH_I64_MAX),
+            tuple([RICHEST_CUSTOMER_WEALTH_MAX_ROWS,
+                   RICHEST_CUSTOMER_WEALTH_MAX_COLUMNS]
+                  + [0] * (RICHEST_CUSTOMER_WEALTH_MAX_ROWS
+                           * RICHEST_CUSTOMER_WEALTH_MAX_COLUMNS + 1)),
+        )
+        for values in malformed:
+            if len(values) <= RICHEST_CUSTOMER_WEALTH_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        if "NULL 2 -1\n" not in special_records:
+            special_records.append("NULL 2 -1\n")
+    elif algorithm == "segment_tree_update":
+        validate_segment_tree_update_workload(workload)
+
+        def pack_segment_tree_update(n: int, initial: tuple[int, ...],
+                                     operations: list[tuple[int, int, int]]) -> tuple[int, ...]:
+            return (n, *initial, len(operations),
+                    *(value for operation in operations for value in operation))
+
+        for n in (1, 2, 3, 7, 8, 31, SEGMENT_TREE_UPDATE_MAX_COUNT):
+            initial = tuple(SEGMENT_TREE_UPDATE_MIN_VALUE +
+                            (index * 3571) % (SEGMENT_TREE_UPDATE_MAX_VALUE - SEGMENT_TREE_UPDATE_MIN_VALUE + 1)
+                            for index in range(n))
+            traces = (
+                [(0, 0, n - 1)],
+                [(0, n - 1, n - 1)],
+                [(1, 0, SEGMENT_TREE_UPDATE_MAX_VALUE), (0, 0, n - 1)],
+                [(0, 0, n - 1), (1, n - 1, SEGMENT_TREE_UPDATE_MIN_VALUE),
+                 (0, n - 1, n - 1)],
+            )
+            for operations in traces:
+                values = pack_segment_tree_update(n, initial, operations)
+                cases[values] = oracle(algorithm, list(values))
+
+        rng_segment_tree_update = random.Random(20261017)
+        for _ in range(128):
+            n = rng_segment_tree_update.randint(1, SEGMENT_TREE_UPDATE_MAX_COUNT)
+            initial = tuple(rng_segment_tree_update.randint(
+                SEGMENT_TREE_UPDATE_MIN_VALUE, SEGMENT_TREE_UPDATE_MAX_VALUE) for _ in range(n))
+            operation_count = rng_segment_tree_update.randint(1, SEGMENT_TREE_UPDATE_MAX_OPERATIONS)
+            operations = []
+            has_query = False
+            for _ in range(operation_count):
+                if rng_segment_tree_update.randrange(2):
+                    left = rng_segment_tree_update.randrange(n)
+                    right = rng_segment_tree_update.randrange(left, n)
+                    operations.append((0, left, right))
+                    has_query = True
+                else:
+                    operations.append((1, rng_segment_tree_update.randrange(n),
+                                       rng_segment_tree_update.randint(
+                                           SEGMENT_TREE_UPDATE_MIN_VALUE,
+                                           SEGMENT_TREE_UPDATE_MAX_VALUE)))
+            if not has_query:
+                operations[0] = (0, 0, n - 1)
+            values = pack_segment_tree_update(n, initial, operations)
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum_trace = pack_segment_tree_update(
+            SEGMENT_TREE_UPDATE_MAX_COUNT,
+            tuple([SEGMENT_TREE_UPDATE_MAX_VALUE] * SEGMENT_TREE_UPDATE_MAX_COUNT),
+            [(0, 0, SEGMENT_TREE_UPDATE_MAX_COUNT - 1)]
+            + [(1, index, SEGMENT_TREE_UPDATE_MIN_VALUE if index % 2 else SEGMENT_TREE_UPDATE_MAX_VALUE)
+               for index in range(SEGMENT_TREE_UPDATE_MAX_OPERATIONS - 1)],
+        )
+        cases[maximum_trace] = oracle(algorithm, list(maximum_trace))
+
+        malformed = (
+            (), (0, 0, 1, 0, 0), (SEGMENT_TREE_UPDATE_MAX_COUNT + 1, 0, 1, 0, 0),
+            (1, 0, 0), (1, 0, 1, 2), (1, 0, 1, 0, 0, 0, 0, 7),
+            (1, 0, 1, 2, 0, 0), (1, 0, 1, 0, 0, 1),
+            (1, 0, 1, 0, 1, 0), (1, 0, 1, 0, -1, 0),
+            (1, 0, 1, 0, 0, 1), (1, 0, 1, 1, 1, 1),
+            (1, SEGMENT_TREE_UPDATE_MAX_VALUE + 1, 1, 0, 0, 0),
+            (1, 0, 1, 1, 0, SEGMENT_TREE_UPDATE_MAX_VALUE + 1),
+        )
+        for values in malformed:
+            if len(values) <= SEGMENT_TREE_UPDATE_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        if "NULL 1 -1\n" not in special_records:
+            special_records.append("NULL 1 -1\n")
     elif algorithm == "dice_throw":
         for faces in range(1, MAX_DICE_THROW_FACES + 1):
             for dice in range(1, MAX_DICE_THROW_DICE + 1):
@@ -7632,6 +10657,1443 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 2 -1\n")
+    if algorithm == "sprague_grundy_theorem":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source_url = (
+            "https://github.com/TheAlgorithms/Rust/blob/"
+            "fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/sprague_grundy_theorem.rs"
+        )
+        expected_source = {
+            "repository": "TheAlgorithms/Rust",
+            "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+            "path": "src/math/sprague_grundy_theorem.rs",
+            "url": source_url,
+            "function": "calculate_grundy_number",
+        }
+        required_case_ids = {
+            "source_example_position_6_moves_1_4", "terminal_position_empty_moves",
+            "terminal_position_with_legal_moves", "terminal_position_all_moves_oversized",
+            "positive_position_empty_move_list", "single_subtraction_by_one_odd_position",
+            "moves_one_two_three_position_five", "all_moves_exceed_position",
+            "legal_and_oversized_moves", "duplicate_moves_do_not_change_mex",
+            "unsorted_moves_are_valid", "repeated_only_legal_move",
+            "duplicate_and_oversized_moves", "maximum_move_exceeds_small_position",
+            "maximum_position_single_move_one", "maximum_position_single_move_32",
+            "maximum_position_and_move_count", "maximum_count_zero_position", "empty_array",
+            "short_header", "negative_position", "position_above_maximum",
+            "minimum_i64_position", "maximum_i64_position", "negative_move_count",
+            "move_count_above_maximum", "declared_move_count_too_large_for_frame",
+            "missing_move_value", "extra_move_value", "zero_move_is_invalid",
+            "negative_move_is_invalid", "move_above_maximum", "minimum_i64_move",
+            "maximum_i64_move",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "sprague-grundy-single-heap-subtraction-v1"
+                or workload.get("algorithm") != "sprague_grundy_theorem"
+                or workload.get("function_symbol") != "sprague_grundy_theorem"
+                or input_spec != {
+                    "encoding": "signed_i64_array",
+                    "layout": ["position", "move_count", "move_sizes..."],
+                    "position_range": [0, SPRAGUE_GRUNDY_MAX_POSITION],
+                    "move_count_range": [0, SPRAGUE_GRUNDY_MAX_MOVE_COUNT],
+                    "move_size_range": [1, SPRAGUE_GRUNDY_MAX_MOVE_SIZE],
+                    "duplicates_allowed": True,
+                    "move_order": "arbitrary",
+                    "exact_length": "2 + move_count",
+                    "maximum_input_length": MAX_SPRAGUE_GRUNDY_INPUT_LENGTH,
+                    "memo_initial_value": -1,
+                    "ignored_move_rule": "Move sizes larger than the current position are skipped.",
+                    "invalid_result": SPRAGUE_GRUNDY_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "meaning": "mex of the Grundy values reachable by one legal subtraction; position zero is terminal",
+                    "terminal_position_result": 0,
+                    "empty_move_list_result": 0,
+                    "invalid_result": SPRAGUE_GRUNDY_INVALID_RESULT,
+                }
+                or workload.get("pinned_source") != expected_source
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or SPRAGUE_GRUNDY_MAX_POSITION != 64
+                or SPRAGUE_GRUNDY_MAX_MOVE_COUNT != 32
+                or SPRAGUE_GRUNDY_MAX_MOVE_SIZE != 32
+                or MAX_SPRAGUE_GRUNDY_INPUT_LENGTH != 34
+                or any(not isinstance(case_id, str) for case_id in case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or not required_case_ids.issubset(case_ids)
+                or any(case.get("input_length") != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []))):
+            raise ValueError("sprague_grundy_theorem workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "sprague_grundy_theorem" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme:
+            raise ValueError("sprague_grundy_theorem README is missing its pinned source link")
+        maximum_case = next((case for case in workload["cases"]
+                             if case.get("id") == "maximum_position_and_move_count"), None)
+        if (maximum_case is None
+                or maximum_case.get("input_values") != [
+                    SPRAGUE_GRUNDY_MAX_POSITION, SPRAGUE_GRUNDY_MAX_MOVE_COUNT,
+                    *range(1, SPRAGUE_GRUNDY_MAX_MOVE_SIZE + 1)]
+                or maximum_case.get("input_length") != MAX_SPRAGUE_GRUNDY_INPUT_LENGTH):
+            raise ValueError("sprague_grundy_theorem workload is missing maximum-bound coverage")
+
+        def add_sprague_case(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_SPRAGUE_GRUNDY_INPUT_LENGTH:
+                raise ValueError("sprague_grundy_theorem generated input exceeds its packed-value bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        move_sets = (
+            (), (1,), (2,), (1, 4), (1, 2, 3), (3, 1, 3), (32, 1, 17),
+            tuple(range(1, SPRAGUE_GRUNDY_MAX_MOVE_SIZE + 1)),
+        )
+        for position in range(SPRAGUE_GRUNDY_MAX_POSITION + 1):
+            for moves in move_sets:
+                add_sprague_case((position, len(moves), *moves))
+
+        rng_sprague_grundy = random.Random(20261016)
+        for _ in range(256):
+            position = rng_sprague_grundy.randint(0, SPRAGUE_GRUNDY_MAX_POSITION)
+            move_count = rng_sprague_grundy.randint(0, SPRAGUE_GRUNDY_MAX_MOVE_COUNT)
+            moves = tuple(rng_sprague_grundy.randint(1, SPRAGUE_GRUNDY_MAX_MOVE_SIZE)
+                          for _ in range(move_count))
+            add_sprague_case((position, move_count, *moves))
+
+        malformed = (
+            (), (1,), (-1, 0), (SPRAGUE_GRUNDY_MAX_POSITION + 1, 0),
+            (I64_MIN, 0), (I64_MAX, 0), (0, -1), (0, SPRAGUE_GRUNDY_MAX_MOVE_COUNT + 1),
+            (0, SPRAGUE_GRUNDY_MAX_MOVE_COUNT), (6, 2, 1), (6, 0, 1),
+            (2, 1, 0), (2, 1, -1), (2, 1, SPRAGUE_GRUNDY_MAX_MOVE_SIZE + 1),
+            (2, I64_MIN), (2, I64_MAX), (2, 1, I64_MIN), (2, 1, I64_MAX),
+            tuple([0] * MAX_SPRAGUE_GRUNDY_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add_sprague_case(tuple(values))
+        special_records.append(f"NULL 1 {SPRAGUE_GRUNDY_INVALID_RESULT}\n")
+    if algorithm == "sublist_search":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_pinned_sources = [
+            {
+                "repository": "TheAlgorithms/C-Plus-Plus",
+                "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+                "path": "search/sublist_search.cpp",
+                "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/search/sublist_search.cpp",
+            },
+            {
+                "repository": "TheAlgorithms/C-Plus-Plus-1",
+                "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+                "path": "search/sublist_search.cpp",
+                "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/search/sublist_search.cpp",
+            },
+        ]
+        required_case_ids = {
+            "pinned_example_sublist_in_middle", "single_value_found", "match_at_head",
+            "exact_full_list_match", "match_at_end", "overlapping_prefix_retry",
+            "duplicate_values_preserved", "duplicate_multiplicity_mismatch",
+            "contiguous_order_required", "pattern_longer_than_main", "main_list_empty",
+            "pattern_list_empty", "both_lists_empty", "single_value_not_found",
+            "int32_value_boundaries", "maximum_lists_full_match", "maximum_main_match_at_tail",
+            "long_repeated_prefix_near_miss", "missing_input", "missing_pattern_count",
+            "negative_main_count", "main_count_above_bound", "negative_pattern_count",
+            "pattern_count_above_bound", "truncated_main_and_pattern", "trailing_input_value",
+            "negative_main_value", "main_value_above_int32", "negative_pattern_value",
+            "pattern_value_above_int32", "int64_min_value_rejected", "int64_max_count_rejected",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "sublist-search-bounded-contiguous-i32-values-v1"
+                or workload.get("algorithm") != "sublist_search"
+                or workload.get("function_symbol") != "sublist_search"
+                or workload.get("pinned_sources") != expected_pinned_sources
+                or input_spec != {
+                    "encoding": "signed_i64_array",
+                    "layout": ["main_count", "pattern_count", "main_values...", "pattern_values..."],
+                    "main_count_range": [0, SUBLIST_SEARCH_MAX_LIST_LENGTH],
+                    "pattern_count_range": [0, SUBLIST_SEARCH_MAX_LIST_LENGTH],
+                    "value_range": [0, SUBLIST_SEARCH_MAX_VALUE],
+                    "exact_length": "2 + main_count + pattern_count",
+                    "maximum_input_length": MAX_SUBLIST_SEARCH_INPUT_LENGTH,
+                    "empty_list_behavior": "returns false if either list is empty",
+                    "search_behavior": "naive candidate-start scan; after a mismatch, restart the pattern and advance the main start by one",
+                    "maximum_comparisons": 4096,
+                    "invalid_result": SUBLIST_SEARCH_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "meaning": "1 if the entire pattern occurs contiguously in the main list, otherwise 0",
+                    "empty_main_result": 0,
+                    "empty_pattern_result": 0,
+                    "invalid_result": SUBLIST_SEARCH_INVALID_RESULT,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or SUBLIST_SEARCH_MAX_LIST_LENGTH != 64
+                or MAX_SUBLIST_SEARCH_INPUT_LENGTH != 2 + 2 * SUBLIST_SEARCH_MAX_LIST_LENGTH
+                or SUBLIST_SEARCH_MAX_VALUE != 2**31 - 1
+                or SUBLIST_SEARCH_I64_MIN != -(2**63)
+                or SUBLIST_SEARCH_I64_MAX != 2**63 - 1
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or any(case.get("input_length") != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []))):
+            raise ValueError("sublist_search workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "s" / "sublist_search" / "README.md").read_text(
+            encoding="utf-8")
+        if any(source["url"] not in readme for source in expected_pinned_sources):
+            raise ValueError("sublist_search README is missing a pinned source link")
+
+        maximum_case = next((case for case in workload["cases"]
+                             if case.get("id") == "maximum_lists_full_match"), None)
+        maximum_values = tuple(maximum_case.get("input_values", ())) if maximum_case else ()
+        if (maximum_case is None
+                or len(maximum_values) != MAX_SUBLIST_SEARCH_INPUT_LENGTH
+                or maximum_values[:2] != (SUBLIST_SEARCH_MAX_LIST_LENGTH,
+                                          SUBLIST_SEARCH_MAX_LIST_LENGTH)
+                or maximum_case.get("expected_result") != 1):
+            raise ValueError("sublist_search workload is missing maximum-list coverage")
+
+        def add_sublist_search_case(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_SUBLIST_SEARCH_INPUT_LENGTH:
+                raise ValueError("sublist_search generated input exceeds its parseable-length bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        # Exercise empty, single-item, full-length, head, and tail cases at each list size.
+        for main_length in range(SUBLIST_SEARCH_MAX_LIST_LENGTH + 1):
+            main = tuple(index % 7 for index in range(main_length))
+            add_sublist_search_case((main_length, 0, *main))
+            pattern_lengths = {0, 1, min(2, main_length), main_length}
+            for pattern_length in sorted(pattern_lengths):
+                if pattern_length == 0:
+                    pattern = ()
+                else:
+                    pattern = (tuple(index % 7 for index in range(pattern_length))
+                               if pattern_length > main_length else main[:pattern_length])
+                    add_sublist_search_case((main_length, pattern_length, *main, *pattern))
+                    if pattern_length <= main_length:
+                        tail_pattern = main[-pattern_length:]
+                        add_sublist_search_case((main_length, pattern_length, *main, *tail_pattern))
+                    miss_pattern = (SUBLIST_SEARCH_MAX_VALUE,) * pattern_length
+                    add_sublist_search_case((main_length, pattern_length, *main, *miss_pattern))
+                add_sublist_search_case((main_length, pattern_length, *main, *pattern))
+
+        rng_sublist_search = random.Random(20261016)
+        for _ in range(192):
+            main_length = rng_sublist_search.randint(0, SUBLIST_SEARCH_MAX_LIST_LENGTH)
+            main = tuple(rng_sublist_search.randint(0, 15) for _ in range(main_length))
+            pattern_length = rng_sublist_search.randint(0, SUBLIST_SEARCH_MAX_LIST_LENGTH)
+            if pattern_length and pattern_length <= main_length and rng_sublist_search.randrange(2):
+                start = rng_sublist_search.randint(0, main_length - pattern_length)
+                pattern = main[start:start + pattern_length]
+            else:
+                pattern = tuple(rng_sublist_search.randint(0, 15)
+                                for _ in range(pattern_length))
+            add_sublist_search_case((main_length, pattern_length, *main, *pattern))
+
+        malformed = (
+            (), (0,), (-1, 0), (SUBLIST_SEARCH_MAX_LIST_LENGTH + 1, 0),
+            (0, -1), (0, SUBLIST_SEARCH_MAX_LIST_LENGTH + 1),
+            (1, 0), (1, 1), (1, 0, 0, 0), (1, 0, -1),
+            (1, 0, SUBLIST_SEARCH_MAX_VALUE + 1), (0, 1, -1),
+            (0, 1, SUBLIST_SEARCH_MAX_VALUE + 1),
+            (SUBLIST_SEARCH_I64_MIN, 0), (SUBLIST_SEARCH_I64_MAX, 0),
+            tuple([0] * MAX_SUBLIST_SEARCH_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add_sublist_search_case(tuple(values))
+        special_records.append(f"NULL 2 {SUBLIST_SEARCH_INVALID_RESULT}\n")
+    if algorithm == "pairing_heap":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source_bound = workload.get("source_bound", {})
+        expected_source = {
+            "repository": "TheAlgorithms/C-Sharp",
+            "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+            "path": "DataStructures/Heap/PairingHeap/PairingHeap.cs",
+            "symbol": "PairingHeap<int>",
+        }
+        expected_additional_sources = [
+            {
+                "repository": "TheAlgorithms/C-Sharp",
+                "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+                "path": "DataStructures/Heap/PairingHeap/Sorting.cs",
+                "symbol": "Sorting.Ascending",
+            },
+            {
+                "repository": "TheAlgorithms/C-Sharp",
+                "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+                "path": "DataStructures/Heap/PairingHeap/PairingNodeComparer.cs",
+                "symbol": "PairingNodeComparer<int>",
+            },
+        ]
+        required_case_ids = {
+            "two-ascending", "two-descending-input", "three-ascending",
+            "three-descending-input", "mixed-negative-and-zero", "signed-i32-boundaries",
+            "alternating-input-order", "already-ascending", "reverse-ascending",
+            "nonmonotone-keys", "near-equal-large-keys", "maximum-size-ascending",
+            "maximum-size-descending", "duplicate-keys", "empty-input", "one-key",
+            "zero-keys", "negative-count", "count-over-limit", "count-length-mismatch",
+            "extra-value", "key-below-i32", "key-above-i32",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "pairing-heap-csharp-bounded-i32-extract-hash-v1"
+                or workload.get("algorithm") != "pairing_heap"
+                or workload.get("function_symbol") != "pairing_heap"
+                or workload.get("pinned_source") != expected_source
+                or workload.get("additional_pinned_sources") != expected_additional_sources
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "encoding": "[n, value_0, ..., value_(n-1)]",
+                    "item_count_range": [2, PAIRING_HEAP_MAX_ITEMS],
+                    "value_range": [PAIRING_HEAP_MIN_I32, PAIRING_HEAP_MAX_I32],
+                    "values_must_be_distinct": True,
+                    "exact_length": "n + 1",
+                    "maximum_valid_array_length": PAIRING_HEAP_MAX_INPUT_LENGTH,
+                    "maximum_parseable_array_length": PAIRING_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+                    "invalid_input_result": -1,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "low 63 bits of FNV-1a-64 over n-1 ascending extracted keys, each encoded as four little-endian signed-i32 bytes",
+                    "fnv1a_offset_basis": PAIRING_HEAP_FNV_OFFSET_BASIS,
+                    "fnv1a_prime": PAIRING_HEAP_FNV_PRIME,
+                    "wrap_modulus": "2^64",
+                    "invalid_input_result": -1,
+                }
+                or source_bound != {
+                    "description": "The ascending pairing heap returns keys from minimum to maximum. The package inserts all distinct keys and hashes exactly n-1 extractions, never extracting the final root.",
+                    "benchmark_domain": "2 to 128 distinct signed-i32 keys.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 1000,
+                }
+                or PAIRING_HEAP_MAX_ITEMS != 128
+                or PAIRING_HEAP_MAX_INPUT_LENGTH != PAIRING_HEAP_MAX_ITEMS + 1
+                or PAIRING_HEAP_MAX_PARSEABLE_INPUT_LENGTH != PAIRING_HEAP_MAX_INPUT_LENGTH + 1
+                or PAIRING_HEAP_MIN_I32 != -(2**31)
+                or PAIRING_HEAP_MAX_I32 != 2**31 - 1
+                or PAIRING_HEAP_FNV_OFFSET_BASIS != 14695981039346656037
+                or PAIRING_HEAP_FNV_PRIME != 1099511628211
+                or PAIRING_HEAP_MASK_64 != 2**64 - 1
+                or PAIRING_HEAP_MASK_63 != 2**63 - 1
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or any(case.get("input_length") != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []))):
+            raise ValueError("pairing_heap workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "p" / "pairing_heap" / "README.md").read_text(
+            encoding="utf-8")
+        all_sources = [expected_source, *expected_additional_sources]
+        for source in all_sources:
+            url = (
+                f"https://github.com/{source['repository']}/blob/{source['commit']}/{source['path']}"
+            )
+            if url not in readme:
+                raise ValueError("pairing_heap README is missing a pinned source link")
+
+        maximum_cases = [case for case in workload["cases"]
+                         if case.get("id") in {"maximum-size-ascending", "maximum-size-descending"}]
+        if (len(maximum_cases) != 2
+                or any(len(case.get("input_values", ())) != PAIRING_HEAP_MAX_INPUT_LENGTH
+                       or case.get("input_values", ())[0] != PAIRING_HEAP_MAX_ITEMS
+                       or not 0 <= case.get("expected_result", -1) <= PAIRING_HEAP_MASK_63
+                       for case in maximum_cases)):
+            raise ValueError("pairing_heap workload is missing maximum valid input coverage")
+
+        def add_pairing_heap_case(values: tuple[int, ...]) -> None:
+            if len(values) > PAIRING_HEAP_MAX_PARSEABLE_INPUT_LENGTH:
+                raise ValueError("pairing_heap generated input exceeds its parseable-length bound")
+            result = pairing_heap_oracle(list(values))
+            if result != -1 and not 0 <= result <= PAIRING_HEAP_MASK_63:
+                raise ValueError("pairing_heap oracle returned a scalar outside signed-i64 bounds")
+            cases[values] = result
+
+        add_pairing_heap_case((2, PAIRING_HEAP_MIN_I32, PAIRING_HEAP_MAX_I32))
+        add_pairing_heap_case((3, -1, 0, 1))
+        add_pairing_heap_case((PAIRING_HEAP_MAX_ITEMS,
+                               *tuple(range(-PAIRING_HEAP_MAX_ITEMS // 2,
+                                            PAIRING_HEAP_MAX_ITEMS // 2))))
+        add_pairing_heap_case((PAIRING_HEAP_MAX_ITEMS,
+                               *tuple(range(PAIRING_HEAP_MAX_ITEMS // 2 - 1,
+                                            -PAIRING_HEAP_MAX_ITEMS // 2 - 1, -1))))
+
+        rng_pairing_heap = random.Random(20261017)
+        for _ in range(192):
+            count = rng_pairing_heap.randint(2, PAIRING_HEAP_MAX_ITEMS)
+            keys = rng_pairing_heap.sample(range(PAIRING_HEAP_MIN_I32,
+                                                 PAIRING_HEAP_MAX_I32 + 1), count)
+            add_pairing_heap_case((count, *keys))
+
+        malformed = (
+            (), (0,), (1, 7), (PAIRING_HEAP_MAX_ITEMS + 1, *tuple(range(PAIRING_HEAP_MAX_ITEMS + 1))),
+            (-1, 1, 2), (2, 1), (2, 1, 2, 3), (2, 7, 7),
+            (2, PAIRING_HEAP_MIN_I32 - 1, 0),
+            (2, PAIRING_HEAP_MAX_I32 + 1, 0),
+            tuple([0] * PAIRING_HEAP_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add_pairing_heap_case(tuple(values))
+        special_records.append(f"NULL 1 {-1}\n")
+    if algorithm == "string_hash_equality":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Solidity",
+            "commit": "08cba51fb38e276062b0c9791d7e0ee494ffa903",
+            "path": "src/Maths/stringMatch.sol",
+            "symbol": "StringMatch.stringMatch",
+            "url": "https://github.com/TheAlgorithms/Solidity/blob/08cba51fb38e276062b0c9791d7e0ee494ffa903/src/Maths/stringMatch.sol",
+        }
+        expected_keccak = {
+            "variant": "Ethereum Keccak-256 (not SHA3-256)",
+            "state_lanes": 25,
+            "lane_width_bits": 64,
+            "rate_bytes": 136,
+            "digest_bytes": 32,
+            "round_count": 24,
+            "padding_suffix_hex": "01",
+            "final_rate_byte_xor_hex": "80",
+            "one_block_input_max_bytes": 64,
+            "known_vectors": [
+                {
+                    "input_hex": "",
+                    "digest_hex": "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                },
+                {
+                    "input_hex": "616263",
+                    "digest_hex": "4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45",
+                },
+            ],
+        }
+        required_case_ids = {
+            "empty_strings_equal", "empty_and_nul_differ", "identical_ascii",
+            "case_sensitive_difference", "prefix_with_different_length",
+            "identical_with_embedded_nul", "identical_arbitrary_binary",
+            "high_byte_difference", "maximum_length_equal", "maximum_length_different",
+            "truncated_header", "negative_length", "length_above_limit",
+            "framing_too_short", "trailing_value", "byte_below_zero",
+            "byte_above_255", "domain_validation_before_inequality", "null_input_pointer",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != "1.0.0"
+                or workload.get("id") != "solidity-string-hash-equality-bytes-keccak256-v1"
+                or workload.get("algorithm") != "string_hash_equality"
+                or workload.get("function_symbol") != "string_hash_equality"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "packed_i64_array",
+                    "encoding": "signed-i64 slots [len_a, len_b, bytes_a..., bytes_b...]",
+                    "length_range": [0, STRING_HASH_EQUALITY_MAX_BYTES],
+                    "byte_value_range": [0, 255],
+                    "exact_length": "2 + len_a + len_b",
+                    "maximum_valid_array_length": STRING_HASH_EQUALITY_MAX_INPUT_LENGTH,
+                    "maximum_parseable_array_length": STRING_HASH_EQUALITY_MAX_PARSEABLE_INPUT_LENGTH,
+                    "invalid_input_result": -1,
+                }
+                or output_spec != {
+                    "kind": "signed_i64_scalar",
+                    "equal_digest_result": 1,
+                    "different_digest_result": 0,
+                    "invalid_input_result": -1,
+                }
+                or workload.get("keccak") != expected_keccak
+                or workload.get("workspace") != {
+                    "bytes": 136,
+                    "meaning": "One padded Keccak-256 rate block for each input string is processed sequentially.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 10,
+                }
+                or STRING_HASH_EQUALITY_MAX_BYTES != 64
+                or STRING_HASH_EQUALITY_MAX_INPUT_LENGTH != 2 + 2 * STRING_HASH_EQUALITY_MAX_BYTES
+                or STRING_HASH_EQUALITY_MAX_PARSEABLE_INPUT_LENGTH != STRING_HASH_EQUALITY_MAX_INPUT_LENGTH + 1
+                or STRING_HASH_EQUALITY_RATE_BYTES != 136
+                or STRING_HASH_EQUALITY_KECCAK256_KNOWN_VECTORS != {
+                    b"": bytes.fromhex("c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"),
+                    b"abc": bytes.fromhex("4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45"),
+                }
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 2
+                or null_cases[0].get("expected_result") != -1
+                or any(case.get("input_length") != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []) if not case.get("input_is_null", False))):
+            raise ValueError("string_hash_equality workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "s" / "string_hash_equality" / "README.md").read_text(
+            encoding="utf-8")
+        if expected_source["url"] not in readme:
+            raise ValueError("string_hash_equality README is missing its pinned source link")
+
+        maximum_cases = [case for case in workload["cases"]
+                         if case.get("id") in {"maximum_length_equal", "maximum_length_different"}]
+        if (len(maximum_cases) != 2
+                or {len(case.get("input_values", ())) for case in maximum_cases} != {129, 130}):
+            raise ValueError("string_hash_equality workload is missing maximum-length coverage")
+
+        def add_string_hash_equality_case(values: tuple[int, ...]) -> None:
+            if len(values) > STRING_HASH_EQUALITY_MAX_PARSEABLE_INPUT_LENGTH:
+                raise ValueError("string_hash_equality generated input exceeds its parseable-length bound")
+            cases[values] = string_hash_equality_oracle(list(values))
+
+        rng_string_hash_equality = random.Random(20261017)
+        for index in range(128):
+            length_a = rng_string_hash_equality.randint(0, STRING_HASH_EQUALITY_MAX_BYTES)
+            length_b = length_a if index % 2 == 0 else rng_string_hash_equality.randint(
+                0, STRING_HASH_EQUALITY_MAX_BYTES)
+            bytes_a = bytes(rng_string_hash_equality.randrange(256) for _ in range(length_a))
+            if index % 2 == 0:
+                bytes_b = bytes_a
+            else:
+                bytes_b = bytes(rng_string_hash_equality.randrange(256) for _ in range(length_b))
+            add_string_hash_equality_case((length_a, length_b, *bytes_a, *bytes_b))
+
+        malformed = (
+            (), (0,), (-1, 0), (STRING_HASH_EQUALITY_MAX_BYTES + 1, 0),
+            (0, STRING_HASH_EQUALITY_MAX_BYTES + 1), (1, 1),
+            (2, 1, 65), (0, 0, 0), (1, 0, -1), (1, 0, 256),
+            (1, 1, -(1 << 63), 65), ((1 << 63) - 1, 0),
+            tuple([0] * STRING_HASH_EQUALITY_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add_string_hash_equality_case(tuple(values))
+    if algorithm == "support_vector_classifier":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Rust",
+            "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+            "path": "src/machine_learning/support_vector_classifier.rs",
+        }
+        required_case_ids = {
+            "linear_one_dimensional", "single_test_prediction", "rbf_xor_with_clear_margins",
+            "linear_three_dimensional", "maximum_rbf_frame", "invalid_frame_length",
+            "missing_second_class", "invalid_kernel", "feature_outside_bounded_range",
+            "invalid_training_count", "null_input", "zero_test_rows_rejected",
+            "invalid_label_value",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != "1.0.0"
+                or workload.get("id") != "thealgorithms-rust-support-vector-classifier-projected-gradient-v1"
+                or workload.get("algorithm") != "support_vector_classifier"
+                or workload.get("function_symbol") != "support_vector_classifier"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "packed_signed_64_bit_integer_array",
+                    "layout": "[n, d, kernel, q, labels[n], train_X row-major n*d, test_X row-major q*d]",
+                    "training_rows_range": [2, SUPPORT_VECTOR_CLASSIFIER_MAX_TRAINING_ROWS],
+                    "feature_width_range": [1, SUPPORT_VECTOR_CLASSIFIER_MAX_FEATURES],
+                    "kernel_codes": {"linear": 0, "rbf_gamma_1": 1},
+                    "test_rows_range": [1, SUPPORT_VECTOR_CLASSIFIER_MAX_TEST_ROWS],
+                    "label_values": [-1, 1],
+                    "required_labels": "both classes must occur",
+                    "feature_integer_range": [-4, 4],
+                    "regularization_C": 1,
+                    "rbf_gamma": 1,
+                    "maximum_valid_input_values": SUPPORT_VECTOR_CLASSIFIER_MAX_INPUT_VALUES,
+                    "maximum_parseable_input_values": SUPPORT_VECTOR_CLASSIFIER_MAX_PARSEABLE_INPUT_VALUES,
+                    "invalid_input_result": -1,
+                    "null_input_result": -1,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "encoding": "bit i is 1 iff test row i is predicted as +1",
+                    "valid_result_range": [0, 65535],
+                    "zero_margin_prediction": 1,
+                    "invalid_input_result": -1,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 6,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 2,
+                }
+                or SUPPORT_VECTOR_CLASSIFIER_MAX_TRAINING_ROWS != 8
+                or SUPPORT_VECTOR_CLASSIFIER_MAX_FEATURES != 4
+                or SUPPORT_VECTOR_CLASSIFIER_MAX_TEST_ROWS != 16
+                or SUPPORT_VECTOR_CLASSIFIER_MAX_INPUT_VALUES != 108
+                or SUPPORT_VECTOR_CLASSIFIER_MAX_PARSEABLE_INPUT_VALUES != 109
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 4
+                or null_cases[0].get("expected_result") != -1
+                or any(case.get("input_length") != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []) if not case.get("input_is_null", False))):
+            raise ValueError("support_vector_classifier workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "s" / "support_vector_classifier" / "README.md").read_text(
+            encoding="utf-8")
+        if ("support_vector_classifier.rs" not in readme
+                or expected_source["commit"] not in readme):
+            raise ValueError("support_vector_classifier README is missing its pinned source reference")
+
+        maximum_case = next((case for case in workload["cases"]
+                             if case.get("id") == "maximum_rbf_frame"), None)
+        single_query_case = next((case for case in workload["cases"]
+                                  if case.get("id") == "single_test_prediction"), None)
+        if (maximum_case is None
+                or len(maximum_case.get("input_values", ())) != SUPPORT_VECTOR_CLASSIFIER_MAX_INPUT_VALUES
+                or maximum_case.get("expected_result") != 43690
+                or single_query_case is None
+                or single_query_case.get("input_values", ())[3:4] != [1]
+                or len(single_query_case.get("input_values", ())) != 9):
+            raise ValueError("support_vector_classifier workload is missing maximum-frame or q=1 coverage")
+
+        def add_support_vector_classifier_case(values: tuple[int, ...]) -> None:
+            if len(values) > SUPPORT_VECTOR_CLASSIFIER_MAX_PARSEABLE_INPUT_VALUES:
+                raise ValueError("support_vector_classifier generated input exceeds its parseable-length bound")
+            result = support_vector_classifier_oracle(list(values))
+            if not -1 <= result <= 65535:
+                raise ValueError("support_vector_classifier oracle result is outside its signed-i64 mask range")
+            cases[values] = result
+
+        malformed = (
+            (), (0, 1, 0, 1), (9, 1, 0, 1), (2, 0, 0, 1),
+            (2, 5, 0, 1), (2, 1, 2, 1), (2, 1, 0, 0),
+            (2, 1, 0, 1, -1, -1, 0, 0, 0),
+            (2, 1, 0, 1, 1, 1, 0, 0, 0),
+            (2, 1, 0, 1, -1, 1, 5, 0, 0),
+            (2, 1, 0, 1, -1, 0, 0, 0, 0),
+            (2, 1, 0, 1, -1, 1, 0, 0),
+            (2, 1, 0, 1, -1, 1, 0, 0, 0, 99),
+            ((1 << 63) - 1, 0, 0, 0), (-(1 << 63), 0, 0, 0),
+            tuple([0] * SUPPORT_VECTOR_CLASSIFIER_MAX_PARSEABLE_INPUT_VALUES),
+        )
+        for values in malformed:
+            add_support_vector_classifier_case(tuple(values))
+    if algorithm == "multiplexer":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Python",
+            "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+            "path": "boolean_algebra/multiplexer.py",
+            "symbol": "mux",
+            "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/boolean_algebra/multiplexer.py",
+        }
+        required_case_ids = {
+            "zero_zero_select_zero", "zero_zero_select_one", "zero_one_select_zero",
+            "zero_one_select_one", "one_zero_select_zero", "one_zero_select_one",
+            "one_one_select_zero", "one_one_select_one", "input0_below_domain",
+            "input0_above_domain", "input1_below_domain", "input1_above_domain",
+            "select_below_domain", "select_above_domain", "empty_input", "short_input",
+            "extra_input", "null_input_pointer",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-python-multiplexer-i64-array-scalar-v1"
+                or workload.get("algorithm") != "multiplexer"
+                or workload.get("function_symbol") != "multiplexer"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array",
+                    "layout": "[input0, input1, select]",
+                    "exact_length": MULTIPLEXER_MAX_INPUT_LENGTH,
+                    "valid_values": [0, 1],
+                    "invalid_input_result": MULTIPLEXER_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_scalar",
+                    "definition": "input1 when select is 1; otherwise input0",
+                    "valid_values": [0, 1],
+                    "invalid_input_result": MULTIPLEXER_INVALID_RESULT,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 100000,
+                }
+                or MULTIPLEXER_MAX_INPUT_LENGTH != 3
+                or MULTIPLEXER_MAX_PARSEABLE_INPUT_LENGTH != MULTIPLEXER_MAX_INPUT_LENGTH + 1
+                or MULTIPLEXER_INVALID_RESULT != -1
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_input_pointer"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != MULTIPLEXER_MAX_INPUT_LENGTH
+                or null_cases[0].get("expected_result") != MULTIPLEXER_INVALID_RESULT
+                or any(case.get("input_length", len(case.get("input_values", ())))
+                       != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []) if not case.get("input_is_null", False))):
+            raise ValueError("multiplexer workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "m" / "multiplexer" / "README.md").read_text(
+            encoding="utf-8")
+        if expected_source["url"] not in readme:
+            raise ValueError("multiplexer README is missing its pinned source link")
+
+        def add_multiplexer_case(values: tuple[int, ...]) -> None:
+            if len(values) > MULTIPLEXER_MAX_PARSEABLE_INPUT_LENGTH:
+                raise ValueError("multiplexer generated input exceeds its parseable-length bound")
+            result = multiplexer_oracle(list(values))
+            if result != MULTIPLEXER_INVALID_RESULT and result not in (0, 1):
+                raise ValueError("multiplexer oracle returned a value outside its Boolean result domain")
+            cases[values] = result
+
+        malformed = (
+            (), (0,), (0, 0), (0, 0, 0, 0),
+            (-(1 << 63), 0, 0), ((1 << 63) - 1, 0, 0),
+            (0, -(1 << 63), 0), (0, (1 << 63) - 1, 0),
+            (0, 0, -(1 << 63)), (0, 0, (1 << 63) - 1),
+            tuple([0] * MULTIPLEXER_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add_multiplexer_case(tuple(values))
+    if algorithm == "binary_genetic_algorithm":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/MATLAB-Octave",
+            "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+            "path": "algorithms/Genetic-Algorithm/Minimization of polynomial function/Run_GA.m",
+        }
+        required_case_ids = {
+            "minimum_parameters", "small_population_one_generation", "multi_generation_converges",
+            "maximum_population_and_iterations", "maximum_parameters_and_seed",
+            "small_population_long_run", "short_frame", "extra_value", "negative_seed",
+            "variable_count_below_bound", "variable_count_above_bound", "odd_population",
+            "population_above_bound", "zero_iterations", "iterations_above_bound", "null_input",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-matlab-octave-binary-genetic-algorithm-splitmix64-v1"
+                or workload.get("algorithm") != "binary_genetic_algorithm"
+                or workload.get("function_symbol") != "binary_genetic_algorithm"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "packed_signed_64_bit_integer_array",
+                    "layout": "[seed, nVar, nPop, MaxIt]",
+                    "seed_range": [0, BINARY_GENETIC_ALGORITHM_MAX_I64],
+                    "variable_count_range": [2, 32],
+                    "population_size_range": [2, 16],
+                    "population_size_must_be_even": True,
+                    "iteration_range": [1, 32],
+                    "objective": "sum of squared binary genes (number of set bits)",
+                    "beta": 1,
+                    "crossover_probability": 1,
+                    "mutation_probability": 0.02,
+                    "random_generator": "SplitMix64 with high-53-bit unit draws and unbiased rejection-sampled bounded draws",
+                    "maximum_valid_input_values": BINARY_GENETIC_ALGORITHM_MAX_VALID_INPUT_LENGTH,
+                    "maximum_parseable_input_values": BINARY_GENETIC_ALGORITHM_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1,
+                    "null_input_result": -1,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "valid_result_range": [0, 32],
+                    "result": "best objective cost found after initialization and MaxIt generations",
+                    "invalid_input_result": -1,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 1000,
+                }
+                or BINARY_GENETIC_ALGORITHM_MAX_VALID_INPUT_LENGTH != 4
+                or BINARY_GENETIC_ALGORITHM_MAX_INPUT_LENGTH != BINARY_GENETIC_ALGORITHM_MAX_VALID_INPUT_LENGTH + 1
+                or BINARY_GENETIC_ALGORITHM_MAX_I64 != (1 << 63) - 1
+                or BINARY_GENETIC_ALGORITHM_GOLDEN != 0x9E3779B97F4A7C15
+                or BINARY_GENETIC_ALGORITHM_MASK64 != (1 << 64) - 1
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_input"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != BINARY_GENETIC_ALGORITHM_MAX_VALID_INPUT_LENGTH
+                or null_cases[0].get("expected_result") != -1
+                or any(case.get("input_length", len(case.get("input_values", ())))
+                       != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []) if not case.get("input_is_null", False))):
+            raise ValueError("binary_genetic_algorithm workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "b" / "binary_genetic_algorithm" / "README.md").read_text(
+            encoding="utf-8")
+        if (expected_source["commit"] not in readme or "Run_GA.m" not in readme
+                or "DoublePointCrossover.m" not in readme):
+            raise ValueError("binary_genetic_algorithm README is missing its pinned source/operation references")
+
+        maximum_case = next((case for case in workload["cases"]
+                             if case.get("id") == "maximum_parameters_and_seed"), None)
+        max_population_case = next((case for case in workload["cases"]
+                                    if case.get("id") == "maximum_population_and_iterations"), None)
+        if (maximum_case is None
+                or len(maximum_case.get("input_values", ())) != BINARY_GENETIC_ALGORITHM_MAX_VALID_INPUT_LENGTH
+                or maximum_case.get("input_values", ())[0] != BINARY_GENETIC_ALGORITHM_MAX_I64
+                or maximum_case.get("expected_result") != 0
+                or max_population_case is None
+                or max_population_case.get("input_values", ())[2:4] != [16, 32]):
+            raise ValueError("binary_genetic_algorithm workload is missing maximum-bound coverage")
+
+        def add_binary_genetic_algorithm_case(values: tuple[int, ...]) -> None:
+            if len(values) > BINARY_GENETIC_ALGORITHM_MAX_INPUT_LENGTH:
+                raise ValueError("binary_genetic_algorithm generated input exceeds its parseable-length bound")
+            result = binary_genetic_algorithm_oracle(list(values))
+            if result != -1 and not 0 <= result <= 32:
+                raise ValueError("binary_genetic_algorithm oracle result exceeds its best-cost range")
+            cases[values] = result
+
+        malformed = (
+            (), (0,), (0, 2, 2), (0, 2, 2, 1, 0),
+            (-(1 << 63), 2, 2, 1), ((1 << 63) - 1, 2, 2, 33),
+            (0, 0, 2, 1), (0, 33, 2, 1), (0, 2, 0, 1),
+            (0, 2, 17, 1), (0, 2, 3, 1), (0, 2, 2, 0),
+            tuple([0] * BINARY_GENETIC_ALGORITHM_MAX_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add_binary_genetic_algorithm_case(tuple(values))
+    if algorithm == "modulo":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Solidity",
+            "commit": "08cba51fb38e276062b0c9791d7e0ee494ffa903",
+            "path": "src/Maths/modulo.sol",
+            "function": "Modulo.GetModulo",
+        }
+        expected_source_url = (
+            "https://github.com/TheAlgorithms/Solidity/blob/"
+            "08cba51fb38e276062b0c9791d7e0ee494ffa903/src/Maths/modulo.sol"
+        )
+        required_case_ids = {
+            "zero_numerator", "numerator_less_than_divisor", "equal_operands",
+            "exact_multiple", "nonzero_remainder", "maximum_numerator_odd_remainder",
+            "maximum_value_divided_by_itself", "maximum_numerator_below_maximum_divisor",
+            "divisor_one", "zero_divisor_invalid", "negative_numerator_invalid",
+            "negative_divisor_invalid", "numerator_above_unsigned_32_bit_invalid",
+            "divisor_above_unsigned_32_bit_invalid", "signed_64_minimum_numerator_invalid",
+            "signed_64_maximum_divisor_invalid", "empty_frame_invalid",
+            "missing_divisor_invalid", "extra_operands_invalid",
+            "too_many_parseable_values_invalid", "null_input_invalid",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-solidity-modulo-v1"
+                or workload.get("algorithm") != "modulo"
+                or workload.get("function_symbol") != "modulo"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_64_integer_array",
+                    "encoding": "[a, b]",
+                    "a_minimum": 0,
+                    "a_maximum": MODULO_UINT32_MAX,
+                    "b_minimum": 1,
+                    "b_maximum": MODULO_UINT32_MAX,
+                    "maximum_valid_input_values": MODULO_MAX_VALID_INPUT_VALUES,
+                    "maximum_parseable_input_values": MODULO_MAX_PARSEABLE_INPUT_VALUES,
+                    "invalid_result": MODULO_INVALID_RESULT,
+                    "null_input_result": MODULO_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed_64_integer",
+                    "valid_result_range": [0, MODULO_UINT32_MAX - 1],
+                    "result": "a % b",
+                    "invalid_result": MODULO_INVALID_RESULT,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 10000,
+                }
+                or MODULO_MAX_VALID_INPUT_VALUES != 2
+                or MODULO_MAX_PARSEABLE_INPUT_VALUES != 5
+                or MODULO_UINT32_MAX != (1 << 32) - 1
+                or MODULO_INVALID_RESULT != -1
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_input_invalid"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != MODULO_MAX_VALID_INPUT_VALUES
+                or null_cases[0].get("expected_result") != MODULO_INVALID_RESULT
+                or any(case.get("input_length", len(case.get("input_values", ())))
+                       != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []) if not case.get("input_is_null", False))):
+            raise ValueError("modulo workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "m" / "modulo" / "README.md").read_text(
+            encoding="utf-8")
+        if expected_source_url not in readme:
+            raise ValueError("modulo README is missing its pinned source link")
+
+        def add_modulo_case(values: tuple[int, ...]) -> None:
+            if len(values) > MODULO_MAX_PARSEABLE_INPUT_VALUES:
+                raise ValueError("modulo generated input exceeds its parseable-length bound")
+            result = modulo_oracle(list(values))
+            if result != MODULO_INVALID_RESULT and not 0 <= result < MODULO_UINT32_MAX:
+                raise ValueError("modulo oracle result exceeds its unsigned remainder range")
+            cases[values] = result
+
+        malformed = (
+            (), (0,), (0, 0), (0, 1, 0), (7, 3, 1),
+            (-(1 << 63), 1), ((1 << 63) - 1, 1),
+            (0, -(1 << 63)), (0, (1 << 63) - 1),
+            (MODULO_UINT32_MAX + 1, 1), (1, MODULO_UINT32_MAX + 1),
+            (MODULO_UINT32_MAX, 0), (0, 1, 2, 3, 4),
+        )
+        for values in malformed:
+            add_modulo_case(tuple(values))
+    if algorithm == "tree_matching":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/dynamicprogramming/TreeMatching.java",
+            "symbol": "TreeMatching.getMaxMatching",
+        }
+        expected_source_url = (
+            "https://github.com/TheAlgorithms/Java/blob/"
+            "e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/TreeMatching.java"
+        )
+        required_case_ids = {
+            "single_node_root_zero", "weighted_path_root_middle", "star_select_heaviest_edge",
+            "path_pair_nonadjacent_edges", "zero_weight_edges", "equal_weight_tie",
+            "root_leaf_and_unsorted_edges", "maximum_nodes_path", "invalid_zero_nodes",
+            "invalid_root", "invalid_missing_edge", "invalid_self_edge",
+            "invalid_duplicate_edge", "invalid_cycle_and_disconnected",
+            "invalid_weight_below_range", "invalid_weight_above_range", "null_input",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "tree-matching-v1"
+                or workload.get("algorithm") != "tree_matching"
+                or workload.get("function_symbol") != "tree_matching"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "packed_i64_array",
+                    "encoding": "[node_count, root, (edge_u, edge_v, weight)...]; vertices are zero-based and edges are undirected.",
+                    "node_count_range": [1, TREE_MATCHING_MAX_NODES],
+                    "edge_count": "node_count - 1",
+                    "maximum_valid_input_values": TREE_MATCHING_MAX_VALID_INPUT_LENGTH,
+                    "maximum_parseable_input_values": TREE_MATCHING_MAX_PARSEABLE_INPUT_LENGTH,
+                    "root_range": "0..node_count-1",
+                    "weight_range": [0, TREE_MATCHING_MAX_WEIGHT],
+                    "tree_requirement": "Edges form one connected, acyclic, undirected tree with no self-edges or duplicate edges.",
+                    "result": "Maximum sum of weights among sets of edges that share no endpoints.",
+                    "invalid_result": TREE_MATCHING_INVALID_RESULT,
+                    "null_input_result": TREE_MATCHING_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed_i64_scalar",
+                    "range": [0, 32000],
+                    "meaning": "Maximum weight of a matching in the supplied tree.",
+                    "invalid_result": TREE_MATCHING_INVALID_RESULT,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 0,
+                    "repetitions_per_sample": 1,
+                }
+                or TREE_MATCHING_MAX_NODES != 64
+                or TREE_MATCHING_MAX_WEIGHT != 1000
+                or TREE_MATCHING_MAX_VALID_INPUT_LENGTH != 191
+                or TREE_MATCHING_MAX_PARSEABLE_INPUT_LENGTH != 191
+                or TREE_MATCHING_INVALID_RESULT != -1
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_input"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 2
+                or null_cases[0].get("expected_result") != TREE_MATCHING_INVALID_RESULT
+                or any(case.get("input_length", len(case.get("input_values", ())))
+                       != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []) if not case.get("input_is_null", False))):
+            raise ValueError("tree_matching workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "t" / "tree_matching" / "README.md").read_text(
+            encoding="utf-8")
+        if expected_source_url not in readme:
+            raise ValueError("tree_matching README is missing its pinned source link")
+
+        maximum_case = next((case for case in workload["cases"]
+                             if case.get("id") == "maximum_nodes_path"), None)
+        if (maximum_case is None
+                or len(maximum_case.get("input_values", ())) != TREE_MATCHING_MAX_VALID_INPUT_LENGTH
+                or maximum_case.get("expected_result") != 32000):
+            raise ValueError("tree_matching workload is missing maximum-node coverage")
+
+        def add_tree_matching_case(values: tuple[int, ...]) -> None:
+            if len(values) > TREE_MATCHING_MAX_PARSEABLE_INPUT_LENGTH:
+                raise ValueError("tree_matching generated input exceeds its parseable-length bound")
+            result = tree_matching_oracle(list(values))
+            if result != TREE_MATCHING_INVALID_RESULT and not 0 <= result <= 32000:
+                raise ValueError("tree_matching oracle result exceeds its matching-weight bound")
+            cases[values] = result
+
+        rng_tree_matching = random.Random(20261017)
+        for _ in range(128):
+            count = rng_tree_matching.randint(1, TREE_MATCHING_MAX_NODES)
+            root = rng_tree_matching.randrange(count)
+            edges = [
+                (vertex, rng_tree_matching.randrange(vertex),
+                 rng_tree_matching.randint(0, TREE_MATCHING_MAX_WEIGHT))
+                for vertex in range(1, count)
+            ]
+            rng_tree_matching.shuffle(edges)
+            values = (count, root, *(value for edge in edges for value in edge))
+            add_tree_matching_case(values)
+
+        malformed = (
+            (), (1,), (0, 0), (TREE_MATCHING_MAX_NODES + 1, 0),
+            (2, 2, 0, 1, 3), (3, 0, 0, 1, 4), (2, 0, 0, 0, 5),
+            (3, 0, 0, 1, 5, 1, 0, 8), (4, 0, 0, 1, 5, 1, 2, 6, 2, 0, 7),
+            (2, 0, 0, 1, -1), (2, 0, 0, 1, TREE_MATCHING_MAX_WEIGHT + 1),
+            tuple([0] * TREE_MATCHING_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add_tree_matching_case(tuple(values))
+    if algorithm == "my_atoi":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/strings/MyAtoi.java",
+            "symbol": "MyAtoi.myAtoi",
+            "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/MyAtoi.java",
+        }
+        required_case_ids = {
+            "empty", "null_pointer_positive_declared_length", "trimmed_nul_before_digits",
+            "trimmed_ascii_controls_only", "trim_controls_then_signed_prefix",
+            "leading_tab_and_negative_prefix", "trailing_controls_are_trimmed",
+            "embedded_nul_stops_digits", "stops_at_internal_space", "sign_without_digits",
+            "negative_one_is_valid_result", "int32_max_exact", "int32_min_exact",
+            "positive_overflow_saturates", "negative_overflow_saturates",
+            "maximum_valid_length", "invalid_byte_below_ascii", "invalid_byte_above_ascii",
+            "invalid_length_257",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "java-my-atoi-ascii-trim-int32-v1"
+                or workload.get("algorithm") != "my_atoi"
+                or workload.get("function_symbol") != "my_atoi"
+                or workload.get("pinned_source") != expected_source
+                or workload.get("contract") != {
+                    "null_input_result": 0,
+                    "empty_input_result": 0,
+                    "trim": "remove leading and trailing ASCII bytes <= 0x20, matching String.trim()",
+                    "sign": "optional single + or - after trimming",
+                    "digits": "consume the longest initial ASCII decimal run; stop at the first other byte",
+                    "no_digits_result": 0,
+                    "overflow": "saturate to signed 32-bit bounds",
+                }
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_array_of_ascii_bytes",
+                    "valid_length_range": [0, MY_ATOI_MAX_INPUT_LENGTH],
+                    "valid_byte_range": [0, 127],
+                    "invalid_input_result": MY_ATOI_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_scalar",
+                    "valid_value_range": [MY_ATOI_INT32_MIN, MY_ATOI_INT32_MAX],
+                    "invalid_input_result": MY_ATOI_INVALID_RESULT,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or MY_ATOI_MAX_INPUT_LENGTH != 256
+                or MY_ATOI_INVALID_RESULT != -(1 << 63)
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_pointer_positive_declared_length"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 300
+                or null_cases[0].get("expected_result") != 0
+                or any(case.get("input_length", len(case.get("input_values", ())))
+                       != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []) if not case.get("input_is_null", False))):
+            raise ValueError("my_atoi workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "m" / "my_atoi" / "README.md").read_text(
+            encoding="utf-8")
+        if (expected_source["url"] not in readme or "String.trim()" not in readme
+                or "INT64_MIN" not in readme):
+            raise ValueError("my_atoi README is missing its source or bounded-result contract")
+
+        indexed_cases = {case["id"]: case for case in workload["cases"]}
+        if (indexed_cases["empty"].get("input_values") != []
+                or indexed_cases["empty"].get("expected_result") != 0
+                or indexed_cases["negative_one_is_valid_result"].get("expected_result") != -1
+                or indexed_cases["int32_min_exact"].get("expected_result") != MY_ATOI_INT32_MIN
+                or indexed_cases["int32_max_exact"].get("expected_result") != MY_ATOI_INT32_MAX
+                or indexed_cases["positive_overflow_saturates"].get("expected_result") != MY_ATOI_INT32_MAX
+                or indexed_cases["negative_overflow_saturates"].get("expected_result") != MY_ATOI_INT32_MIN
+                or indexed_cases["trimmed_nul_before_digits"].get("expected_result") != 42
+                or indexed_cases["leading_tab_and_negative_prefix"].get("expected_result") != -42
+                or len(indexed_cases["maximum_valid_length"].get("input_values", ()))
+                    != MY_ATOI_MAX_INPUT_LENGTH
+                or indexed_cases["maximum_valid_length"].get("expected_result") != MY_ATOI_INT32_MAX
+                or indexed_cases["invalid_length_257"].get("input_length")
+                    != MY_ATOI_MAX_INPUT_LENGTH + 1
+                or indexed_cases["invalid_length_257"].get("expected_result")
+                    != MY_ATOI_INVALID_RESULT
+                or indexed_cases["invalid_byte_below_ascii"].get("expected_result")
+                    != MY_ATOI_INVALID_RESULT
+                or indexed_cases["invalid_byte_above_ascii"].get("expected_result")
+                    != MY_ATOI_INVALID_RESULT):
+            raise ValueError("my_atoi workload is missing null, parsing, saturation, or bound coverage")
+
+        def add_my_atoi_case(values: tuple[int, ...]) -> None:
+            if len(values) > MY_ATOI_MAX_INPUT_LENGTH + 1:
+                raise ValueError("my_atoi generated input exceeds its parseable-length bound")
+            result = my_atoi_oracle(list(values))
+            if result != MY_ATOI_INVALID_RESULT and not MY_ATOI_INT32_MIN <= result <= MY_ATOI_INT32_MAX:
+                raise ValueError("my_atoi oracle returned a value outside its signed-i32 result range")
+            cases[values] = result
+
+        rng_my_atoi = random.Random(20261017)
+        ascii_values = (0, 1, 9, 10, 13, 31, 32, 43, 45, 46, 47, 48, 49,
+                        57, 58, 65, 90, 97, 122, 127)
+        for _ in range(128):
+            length = rng_my_atoi.randint(0, 64)
+            add_my_atoi_case(tuple(rng_my_atoi.choice(ascii_values) for _ in range(length)))
+        for malformed in (
+            tuple([48] * (MY_ATOI_MAX_INPUT_LENGTH + 1)), (-1,), (128,),
+            (48, -1), (48, 128),
+        ):
+            add_my_atoi_case(tuple(malformed))
+
+        # A null pointer returns zero before the length bound is inspected.
+        special_records.append(f"NULL {MY_ATOI_MAX_INPUT_LENGTH + 1} 0\n")
+    if algorithm == "transposition_rust":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/Rust",
+            "commit": "fed66cb0c74a939ec5163648458a8c2b46fd4c",
+            "path": "src/ciphers/transposition.rs",
+            "symbol": "transposition",
+        }
+        expected_source_url = (
+            "https://github.com/TheAlgorithms/Rust/blob/"
+            "fed66cb0c74a939ec5163648458a8c2b46fd4c/src/ciphers/transposition.rs"
+        )
+        required_case_ids = {
+            "source_single_key_encrypt", "source_single_key_decrypt",
+            "source_two_key_encrypt", "source_two_key_decrypt",
+            "four_key_round_trip_encrypt", "duplicate_case_variant_keys",
+            "ascii_control_filtering", "minimum_message_and_key",
+            "maximum_key_length", "maximum_message_length", "invalid_mode",
+            "invalid_zero_key_count", "invalid_five_key_count",
+            "invalid_empty_key_token", "invalid_33_letter_key", "invalid_key_byte",
+            "invalid_zero_message_length", "invalid_257_message_length",
+            "invalid_non_ascii_message_byte", "invalid_insufficient_normalized_letters",
+            "invalid_trailing_input_value",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "transposition-rust-i64-array-scalar-v1"
+                or workload.get("algorithm") != "transposition_rust"
+                or workload.get("function_symbol") != "transposition_rust"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_i64_integer_array",
+                    "encoding": "[mode,key_count,(key_length,key_ascii_bytes...)*,message_length,message_ascii_bytes...]",
+                    "mode_values": {"encrypt": 0, "decrypt": 1},
+                    "key_count_range": [1, TRANSPOSITION_RUST_MAX_KEYS],
+                    "key_length_range": [1, TRANSPOSITION_RUST_MAX_KEY_LENGTH],
+                    "message_length_range": [1, TRANSPOSITION_RUST_MAX_MESSAGE_LENGTH],
+                    "ascii_message_byte_range": [0, 127],
+                    "normalized_letter_count_minimum": "maximum key token length",
+                    "exact_length": "3 + key_count + sum(key_lengths) + message_length",
+                    "invalid_input_result": -1,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "encoding": "low63 FNV-1a-64 over final output length as u64 little-endian followed by each ASCII codepoint as u32 little-endian",
+                    "encryption_grouping": "After each encryption round, group by ceil(normalized_letter_count/key_length) characters with one space; omit the final separator. Hash the final round's spaces.",
+                    "invalid_input_result": -1,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 1000,
+                }
+                or TRANSPOSITION_RUST_MAX_KEYS != 4
+                or TRANSPOSITION_RUST_MAX_KEY_LENGTH != 32
+                or TRANSPOSITION_RUST_MAX_MESSAGE_LENGTH != 256
+                or TRANSPOSITION_RUST_MAX_INPUT_LENGTH != 391
+                or TRANSPOSITION_RUST_MASK63 != (1 << 63) - 1
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or any(case.get("input_length", len(case.get("input_values", ())))
+                       != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []))):
+            raise ValueError("transposition_rust workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "t" / "transposition_rust" / "README.md").read_text(
+            encoding="utf-8")
+        if (expected_source_url not in readme or "Encryption applies keys in input order" not in readme
+                or "Decryption applies them in reverse order" not in readme
+                or "normalized message must contain at least" not in readme):
+            raise ValueError("transposition_rust README is missing its source or multi-key contract")
+
+        indexed_cases = {case["id"]: case for case in workload["cases"]}
+        if (indexed_cases["source_two_key_encrypt"].get("input_values", ())[1] != 2
+                or indexed_cases["source_two_key_decrypt"].get("input_values", ())[1] != 2
+                or indexed_cases["four_key_round_trip_encrypt"].get("input_values", ())[1] != 4
+                or indexed_cases["maximum_key_length"].get("input_values", ())[2]
+                    != TRANSPOSITION_RUST_MAX_KEY_LENGTH
+                or indexed_cases["maximum_message_length"].get("input_values", ())[5]
+                    != TRANSPOSITION_RUST_MAX_MESSAGE_LENGTH
+                or any(indexed_cases[case_id].get("expected_result") != -1
+                       for case_id in required_case_ids if case_id.startswith("invalid_"))):
+            raise ValueError("transposition_rust workload is missing composition or bound coverage")
+
+        def add_transposition_rust_case(values: tuple[int, ...]) -> None:
+            if len(values) > TRANSPOSITION_RUST_MAX_INPUT_LENGTH + 1:
+                raise ValueError("transposition_rust generated input exceeds its parser bound")
+            result = transposition_rust_oracle(list(values))
+            if result != -1 and not 0 <= result <= TRANSPOSITION_RUST_MASK63:
+                raise ValueError("transposition_rust hash exceeds the low-63-bit result range")
+            cases[values] = result
+
+        # Exercise the full packed-input bound with four maximum-length keys.
+        longest_keys = [tuple([65 + index] * TRANSPOSITION_RUST_MAX_KEY_LENGTH)
+                        for index in range(TRANSPOSITION_RUST_MAX_KEYS)]
+        longest_message = tuple(65 + (index % 26)
+                                for index in range(TRANSPOSITION_RUST_MAX_MESSAGE_LENGTH))
+        maximum_values: list[int] = [0, TRANSPOSITION_RUST_MAX_KEYS]
+        for key in longest_keys:
+            maximum_values.extend((len(key), *key))
+        maximum_values.extend((TRANSPOSITION_RUST_MAX_MESSAGE_LENGTH, *longest_message))
+        if len(maximum_values) != TRANSPOSITION_RUST_MAX_INPUT_LENGTH:
+            raise ValueError("transposition_rust maximum packed input length is inconsistent")
+        add_transposition_rust_case(tuple(maximum_values))
+
+        rng_transposition = random.Random(20261017)
+        key_alphabet = tuple(range(65, 91)) + tuple(range(97, 123))
+        message_alphabet = (0, 9, 32, 33, 45, 48, 49, 63, 65, 66, 67, 90,
+                            97, 98, 99, 120, 121, 122, 127)
+        for _ in range(128):
+            key_count = rng_transposition.randint(1, TRANSPOSITION_RUST_MAX_KEYS)
+            keys = [tuple(rng_transposition.choice(key_alphabet)
+                          for _ in range(rng_transposition.randint(1, 8)))
+                    for _ in range(key_count)]
+            minimum_letters = max(map(len, keys))
+            message_length = rng_transposition.randint(minimum_letters, 64)
+            message = [rng_transposition.choice(key_alphabet)
+                       for _ in range(minimum_letters)]
+            message.extend(rng_transposition.choice(message_alphabet)
+                           for _ in range(message_length - minimum_letters))
+            values = [rng_transposition.randrange(2), key_count]
+            for key in keys:
+                values.extend((len(key), *key))
+            values.extend((message_length, *message))
+            add_transposition_rust_case(tuple(values))
+
+        malformed = (
+            (), (0,), (2, 1, 1, 65, 1, 65), (0, 0), (0, 5),
+            (0, 1, 0), (0, 1, 33, *([65] * 33), 1, 65),
+            (0, 1, 1, 49, 1, 65), (0, 1, 1, 65, 0),
+            (0, 1, 1, 65, 1, -1), (0, 1, 1, 65, 1, 128),
+            (0, 1, 7, 65, 82, 67, 72, 73, 86, 69, 3, 65, 66, 67),
+            tuple([0] * (TRANSPOSITION_RUST_MAX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            add_transposition_rust_case(tuple(values))
+
+        # The scalar-array ABI rejects a null pointer even with a positive length.
+        special_records.append("NULL 1 -1\n")
+    if algorithm == "minone":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/MATLAB-Octave",
+            "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+            "path": "algorithms/Genetic-Algorithm/Minimization of polynomial function/minone.m",
+            "symbol": "minone",
+            "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/Genetic-Algorithm/Minimization%20of%20polynomial%20function/minone.m",
+        }
+        required_case_ids = {
+            "single_zero", "single_positive", "single_negative", "two_squares",
+            "mixed_signs", "upstream_scale_example", "value_endpoints",
+            "maximum_length_and_sum", "empty_vector_invalid", "null_pointer_invalid",
+            "invalid_length_65", "value_below_range", "value_above_range",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        null_cases = [case for case in workload.get("cases", [])
+                      if case.get("input_is_null", False)]
+        max_sum = MINONE_MAX_LENGTH * MINONE_MAX_VALUE * MINONE_MAX_VALUE
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "matlab-minone-bounded-integer-vector-v1"
+                or workload.get("algorithm") != "minone"
+                or workload.get("function_symbol") != "minone"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "signed_64_bit_integer_vector",
+                    "length_range": [1, MINONE_MAX_LENGTH],
+                    "value_range": [MINONE_MIN_VALUE, MINONE_MAX_VALUE],
+                    "invalid_input_result": MINONE_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_scalar",
+                    "definition": "sum(value * value for each input element)",
+                    "maximum_value": 64_000_000_000_000,
+                    "invalid_input_result": MINONE_INVALID_RESULT,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call",
+                    "sample_count": 7,
+                    "warmup_rounds": 2,
+                    "repetitions_per_sample": 100,
+                }
+                or MINONE_MAX_LENGTH != 64
+                or MINONE_MIN_VALUE != -1_000_000
+                or MINONE_MAX_VALUE != 1_000_000
+                or MINONE_INVALID_RESULT != -1
+                or max_sum != 64_000_000_000_000
+                or max_sum >= 1 << 53
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids
+                or len(null_cases) != 1
+                or null_cases[0].get("id") != "null_pointer_invalid"
+                or null_cases[0].get("input_values") != []
+                or null_cases[0].get("input_length") != 1
+                or null_cases[0].get("expected_result") != MINONE_INVALID_RESULT
+                or any(case.get("input_length", len(case.get("input_values", ())))
+                       != len(case.get("input_values", ()))
+                       for case in workload.get("cases", []) if not case.get("input_is_null", False))):
+            raise ValueError("minone workload metadata does not match its reviewed contract")
+
+        readme = (ROOT / "benchmarks" / "m" / "minone" / "README.md").read_text(
+            encoding="utf-8")
+        if (expected_source["url"] not in readme
+                or "objective function, not a minimization routine" not in readme
+                or "64,000,000,000,000" not in readme):
+            raise ValueError("minone README is missing its source or exact integer bound")
+
+        indexed_cases = {case["id"]: case for case in workload["cases"]}
+        if (indexed_cases["empty_vector_invalid"].get("expected_result") != MINONE_INVALID_RESULT
+                or indexed_cases["null_pointer_invalid"].get("expected_result") != MINONE_INVALID_RESULT
+                or indexed_cases["invalid_length_65"].get("input_length") != MINONE_MAX_LENGTH + 1
+                or indexed_cases["invalid_length_65"].get("expected_result") != MINONE_INVALID_RESULT
+                or indexed_cases["value_below_range"].get("expected_result") != MINONE_INVALID_RESULT
+                or indexed_cases["value_above_range"].get("expected_result") != MINONE_INVALID_RESULT
+                or len(indexed_cases["maximum_length_and_sum"].get("input_values", ()))
+                    != MINONE_MAX_LENGTH
+                or indexed_cases["maximum_length_and_sum"].get("expected_result") != max_sum
+                or indexed_cases["value_endpoints"].get("expected_result") != 2_000_000_000_000):
+            raise ValueError("minone workload is missing null, length, value, or result-bound coverage")
+
+        def add_minone_case(values: tuple[int, ...]) -> None:
+            if len(values) > MINONE_MAX_LENGTH + 1:
+                raise ValueError("minone generated input exceeds its parseable-length bound")
+            result = minone_oracle(list(values))
+            if result != MINONE_INVALID_RESULT and not 0 <= result <= max_sum:
+                raise ValueError("minone oracle result exceeds its exact sum-of-squares bound")
+            cases[values] = result
+
+        rng_minone = random.Random(20261017)
+        for _ in range(128):
+            length = rng_minone.randint(1, MINONE_MAX_LENGTH)
+            values = tuple(rng_minone.randint(MINONE_MIN_VALUE, MINONE_MAX_VALUE)
+                           for _ in range(length))
+            add_minone_case(values)
+        for malformed in (
+            (), tuple([0] * (MINONE_MAX_LENGTH + 1)),
+            (MINONE_MIN_VALUE - 1,), (MINONE_MAX_VALUE + 1,),
+            (-(1 << 63),), ((1 << 63) - 1,),
+        ):
+            add_minone_case(tuple(malformed))
+    if algorithm == "mul_array":
+        null_cases = {(case.get("input_length"), case.get("expected_result"))
+                      for case in workload["cases"] if case.get("input_is_null", False)}
+        for input_length, expected in ((0, 1), (1, -1)):
+            if (input_length, expected) not in null_cases:
+                special_records.append(f"NULL {input_length} {expected}\n")
+    if algorithm == "sparse_matrix":
+        validate_sparse_matrix_workload(workload)
+
+        def add_sparse_matrix_case(values: tuple[int, ...]) -> None:
+            if len(values) > SPARSE_MATRIX_MAX_INPUT_LENGTH:
+                raise ValueError("sparse_matrix generated input exceeds its parseable-length bound")
+            result = sparse_matrix_oracle(list(values))
+            if result not in (SPARSE_MATRIX_INVALID_RESULT, 0, 1):
+                raise ValueError("sparse_matrix oracle returned a result outside its scalar contract")
+            cases[values] = result
+
+        rng_sparse_matrix = random.Random(20261017)
+        for _ in range(128):
+            rows = rng_sparse_matrix.randint(1, SPARSE_MATRIX_MAX_DIMENSION)
+            columns = rng_sparse_matrix.randint(1, SPARSE_MATRIX_MAX_DIMENSION)
+            entries = [0 if rng_sparse_matrix.randrange(3) else rng_sparse_matrix.randint(
+                SPARSE_MATRIX_MIN_CELL, SPARSE_MATRIX_MAX_CELL)
+                for _ in range(rows * columns)]
+            add_sparse_matrix_case((rows, columns, *entries))
+
+        first_overlength_matrix = (
+            SPARSE_MATRIX_MAX_DIMENSION,
+            SPARSE_MATRIX_MAX_DIMENSION,
+            *([0] * (SPARSE_MATRIX_MAX_VALID_INPUT_LENGTH - 1)),
+        )
+        for malformed in (
+            (), (0, 1), (-1, 1), (SPARSE_MATRIX_MAX_DIMENSION + 1, 1, 0),
+            (1, 0, 0), (1, 1), (1, 1, 0, 0),
+            (1, 1, SPARSE_MATRIX_MIN_CELL - 1),
+            (1, 1, SPARSE_MATRIX_MAX_CELL + 1),
+            (-(1 << 63), 1), ((1 << 63) - 1, 1), first_overlength_matrix,
+        ):
+            add_sparse_matrix_case(tuple(malformed))
     case_count = len(cases) + len(special_records)
     lines = [str(case_count) + "\n"]
     for values, expected in sorted(cases.items()):
@@ -7665,11 +12127,14 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
         values = encode_case(case, algorithm)
+        input_length = case.get("input_length", len(values))
+        input_is_null = case.get("input_is_null", False)
         if (record["algorithm"] != algorithm
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]
-                or record["workload"]["input_length"] != len(values)
+                or record["workload"]["input_length"] != input_length
                 or record["workload"]["input_values"] != values
+                or record["workload"].get("input_is_null", False) != input_is_null
                 or record["workload"]["expected_result"] != case["expected_result"]
                 or record["measurement"]["observed_result"] != case["expected_result"]
                 or len(record["measurement"]["samples_ns"]) != 1):

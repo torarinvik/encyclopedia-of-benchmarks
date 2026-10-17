@@ -1,19 +1,12 @@
-# Linear recursive integer power, with a bounded exact contract.
-def power_using_recursion_step(base: i64, exponent: u64) -> i64:
-    if exponent == 0:
-        return 1
-    return base * power_using_recursion_step(base, exponent - 1)
+def power_recursive(base: i64, exponent: i64) -> i64:
+    if exponent == 0: return 1
+    base * power_recursive(base, exponent - 1)
 
-def power_using_recursion_impl(base_encoded: u64, exponent: u64) -> i64:
-    base: mutable i64 = 0
-    if base_encoded <= 10:
-        base <- base_encoded.i64()
-    elif base_encoded >= 18446744073709551606:
-        base <- -((18446744073709551615 - base_encoded).i64()) - 1
-    else:
-        return -9223372036854775808
-    if exponent > 15:
-        return -9223372036854775808
-    power_using_recursion_step(base, exponent)
+def power_using_recursion_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 2: return -1
+    base: i64 = input[0]
+    exponent: i64 = input[1]
+    if base < -10 or base > 10 or exponent < 0 or exponent > 15: return -1
+    power_recursive(base, exponent)
 
-export fn power_using_recursion(base_encoded: u64, exponent: u64) -> i64 = power_using_recursion_impl
+export fn power_using_recursion(input: i64&, length: usize) -> i64 = power_using_recursion_impl

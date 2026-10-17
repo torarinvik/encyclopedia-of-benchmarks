@@ -81,9 +81,16 @@ int main(int argc, char **argv)
 {
     uint64_t length_arg, samples_arg, warmups_arg, repetitions_arg;
     const int stdin_mode = argc > 1 && strcmp(argv[1], "--stdin") == 0;
+    const int null_mode = argc > 1 && strcmp(argv[1], "--null") == 0;
     if (stdin_mode) {
         if (argc != 9 || !parse_u64(argv[2], &length_arg) || length_arg > MAX_INPUT_LENGTH) {
             fprintf(stderr, "usage: i64_array_float64_runner --stdin LENGTH EXPECTED ABS_TOL REL_TOL SAMPLES WARMUPS REPETITIONS\n");
+            return 2;
+        }
+    } else if (null_mode) {
+        if (argc != 9 || !parse_u64(argv[2], &length_arg) ||
+            length_arg == 0 || length_arg > MAX_INPUT_LENGTH) {
+            fprintf(stderr, "usage: i64_array_float64_runner --null LENGTH EXPECTED ABS_TOL REL_TOL SAMPLES WARMUPS REPETITIONS\n");
             return 2;
         }
     } else if (argc < 8 || !parse_u64(argv[1], &length_arg) || length_arg > MAX_INPUT_LENGTH ||
@@ -93,12 +100,12 @@ int main(int argc, char **argv)
     }
 
     const size_t length = (size_t)length_arg;
-    int64_t *values = length == 0 ? NULL : malloc(length * sizeof(*values));
-    if (length != 0 && values == NULL) {
+    int64_t *values = length == 0 || null_mode ? NULL : malloc(length * sizeof(*values));
+    if (length != 0 && values == NULL && !null_mode) {
         fprintf(stderr, "unable to allocate input values\n");
         return 2;
     }
-    for (size_t index = 0; index < length; ++index) {
+    for (size_t index = 0; !null_mode && index < length; ++index) {
         const int parsed = stdin_mode
             ? scanf("%" SCNd64, &values[index]) == 1
             : parse_i64(argv[index + 2], &values[index]);
@@ -117,7 +124,7 @@ int main(int argc, char **argv)
         }
     }
 
-    const size_t expected_index = stdin_mode ? 3 : length + 2;
+    const size_t expected_index = stdin_mode || null_mode ? 3 : length + 2;
     double expected, absolute_tolerance, relative_tolerance;
     if (!parse_f64(argv[expected_index], &expected) ||
         !parse_f64(argv[expected_index + 1], &absolute_tolerance) || absolute_tolerance < 0.0 ||

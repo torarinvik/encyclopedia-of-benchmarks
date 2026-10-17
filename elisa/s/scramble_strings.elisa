@@ -1,0 +1,58 @@
+const MAX_LENGTH: usize = 8
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 2 * MAX_LENGTH + 3
+const MEMO_SIZE: usize = 9 * 9 * 9
+
+def scramble_strings_rec(values: i64&, base1: usize, base2: usize, start1: usize, start2: usize, span: usize, memo: mutable i64&[MEMO_SIZE]) -> i64:
+    slot: usize = (start1 * 9 + start2) * 9 + span
+    if memo[slot] >= 0:
+        return memo[slot]
+
+    same: mutable bool = true
+    for offset in 0..<span |values|:
+        if values[base1 + start1 + offset] != values[base2 + start2 + offset]:
+            same <- false
+            break
+    if same:
+        memo[slot] <- 1
+        return 1
+
+    counts: mutable i64[26] = zeroed
+    for offset in 0..<span |values, counts|:
+        first_bucket: usize = (values[base1 + start1 + offset] - 97).usize()
+        second_bucket: usize = (values[base2 + start2 + offset] - 97).usize()
+        counts[first_bucket] <- counts[first_bucket] + 1
+        counts[second_bucket] <- counts[second_bucket] - 1
+    for index in 0..<26 |counts|:
+        if counts[index] != 0:
+            memo[slot] <- 0
+            return 0
+
+    for split in 1..<span |values, memo|:
+        if scramble_strings_rec(values, base1, base2, start1, start2, split, memo) != 0 and scramble_strings_rec(values, base1, base2, start1 + split, start2 + split, span - split, memo) != 0:
+            memo[slot] <- 1
+            return 1
+        if scramble_strings_rec(values, base1, base2, start1, start2 + span - split, split, memo) != 0 and scramble_strings_rec(values, base1, base2, start1 + split, start2, span - split, memo) != 0:
+            memo[slot] <- 1
+            return 1
+    memo[slot] <- 0
+    0
+
+def scramble_strings_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    n_value: i64 = values[0]
+    if n_value < 0 or n_value > MAX_LENGTH.i64():
+        return -1
+    n: usize = n_value.usize()
+    if length != 2 * n + 1:
+        return -1
+    for index in 1..<length |values|:
+        if values[index] < 97 or values[index] > 122:
+            return -1
+
+    memo: mutable i64[MEMO_SIZE] = zeroed
+    for index in 0..<MEMO_SIZE |memo|:
+        memo[index] <- -1
+    scramble_strings_rec(values, 1, 1 + n, 0, 0, n, memo)
+
+export fn scramble_strings(values: i64&, length: usize) -> i64 = scramble_strings_impl

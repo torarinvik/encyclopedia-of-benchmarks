@@ -62,12 +62,35 @@ from twos_complement_of_binary_oracle import expected_result as twos_complement_
 from magic_square_oracle import expected_result as magic_square_oracle
 from mersenne_primes_oracle import expected_result as mersenne_primes_oracle
 from trial_division_factorizer_oracle import expected_result as trial_division_factorizer_oracle
+from pollards_rho_factorizing_oracle import MAX_INPUT as POLLARDS_RHO_MAX_INPUT
+from pollards_rho_factorizing_oracle import MIN_INPUT as POLLARDS_RHO_MIN_INPUT
+from pollards_rho_factorizing_oracle import expected_result as pollards_rho_factorizing_oracle
+from problem014_oracle import MAX_LIMIT as PROBLEM014_MAX_LIMIT
+from problem014_oracle import expected_output as problem014_oracle
+from problem44_start_cursor_oracle import MAX_HIGH_INDEX as PROBLEM44_START_CURSOR_MAX_HIGH_INDEX
+from problem44_start_cursor_oracle import MAX_START as PROBLEM44_START_CURSOR_MAX_START
+from problem44_start_cursor_oracle import expected_result as problem44_start_cursor_oracle
+from problem21_pair_sum_oracle import MAX_LIMIT as PROBLEM21_PAIR_SUM_MAX_LIMIT
+from problem21_pair_sum_oracle import MIN_LIMIT as PROBLEM21_PAIR_SUM_MIN_LIMIT
+from problem21_pair_sum_oracle import expected_output as problem21_pair_sum_oracle
+from so1_oracle import MAX_THRESHOLD as SO1_MAX_THRESHOLD
+from so1_oracle import MIN_THRESHOLD as SO1_MIN_THRESHOLD
+from so1_oracle import expected_result as so1_oracle
+from multiple_of_3_or_5_term_oracle import MAX_INPUT as MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT
+from multiple_of_3_or_5_term_oracle import expected_result as multiple_of_3_or_5_term_oracle
+from run_scalar import validate_multiple_of_3_or_5_term_workload
 
 ALGORITHMS = ("factorial", "check_factorial", "factorial_trailing_zeroes", "binary_count_trailing_zeros", "trailing_zeroes", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "sum_of_divisors", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "bell_numbers", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "isautomorphic", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits", "collatz", "problem1", "problem2", "problem3", "problem4", "problem5", "problem6", "problem7", "problem8", "problem9", "problem10", "problem10_ruby_prefix", "problem11_sol1", "problem12", "problem12_sol1", "problem13", "problem14", "problem15", "problem15_dp", "problem16", "problem17", "problem19", "problem20", "problem21", "problem23", "problem24", "problem25", "problem26", "problem27", "problem28", "problem29", "problem30", "problem31", "problem31_recursive", "problem32", "problem33", "problem34", "problem35", "problem36", "problem37", "problem38", "problem39", "problem40", "problem41", "problem43", "problem44", "problem45", "problem46", "problem47", "problem48", "problem49", "problem50", "problem51", "problem52", "problem53", "problem55", "problem57", "problem60", "problem62", "problem64", "problem65", "problem68", "problem69", "problem70", "problem72", "problem73", "problem75", "problem76", "problem77", "problem78", "problem79", "problem80", "problem85", "problem86", "problem87", "problem89", "problem95", "problem91", "problem92", "problem94", "problem97", "problem100", "problem101", "problem104", "problem109", "problem111", "problem112", "problem113", "problem114", "problem115", "problem116", "problem117", "problem119", "problem120", "problem121", "problem122", "problem123", "problem125", "problem129", "problem131", "problem135", "problem136", "problem137", "problem138", "problem142", "problem145", "problem164", "problem173", "problem180", "problem187", "problem190", "problem191", "problem203", "problem205", "problem206", "problem234", "problem301", "problem401", "problem493", "problem551", "problem686", "endian_converter", "euler_totient", "byte_encoding_utils", "liouville_lambda", "liouville", "twos_complement_of_binary", "gauss_easter", "leap_year", "check_even", "is_odd", "binary_length", "count_set_bits", "count_leading_zeros", "clear_leftmost_set_bit", "clear_lowest_set_bit", "sum_of_odd_numbers", "sum_multiples_inclusion_exclusion", "carmichael_number", "evil_number", "keith_number", "kynea_numbers", "padovan_sequence", "pell_number", "perrin_number", "smith_number", "sphenic_number", "all_ones_sequence", "all_twos_sequence", "all_threes_sequence", "cubes_sequence")
 ALGORITHMS += ("binary_palindrome_check",)
 ALGORITHMS += ("mersenne_primes",)
 ALGORITHMS += ("trial_division_factorizer",)
 ALGORITHMS += ("magic_square",)
+ALGORITHMS += ("problem014",)
+ALGORITHMS += ("problem44_start_cursor",)
+ALGORITHMS += ("problem21_pair_sum",)
+ALGORITHMS += ("so1",)
+ALGORITHMS += ("pollards_rho_factorizing",)
+ALGORITHMS += ("multiple_of_3_or_5_term",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 PROBLEM79_KEYLOG = (319, 680, 180, 690, 129, 620, 762, 689, 762, 318,
@@ -2073,10 +2096,18 @@ def euler_totient_oracle(n: int) -> int:
 
 
 def oracle(algorithm: str, n: int) -> int:
+    if algorithm == "multiple_of_3_or_5_term":
+        return multiple_of_3_or_5_term_oracle(n)
+    if algorithm == "so1":
+        return so1_oracle(n)
+    if algorithm == "problem014":
+        return problem014_oracle(n)
     if algorithm == "magic_square":
         return magic_square_oracle(n)
     if algorithm == "trial_division_factorizer":
         return trial_division_factorizer_oracle(n)
+    if algorithm == "pollards_rho_factorizing":
+        return pollards_rho_factorizing_oracle(n)
     if algorithm == "mersenne_primes":
         return mersenne_primes_oracle(n)
     if algorithm == "binary_palindrome_check":
@@ -2450,6 +2481,8 @@ def oracle(algorithm: str, n: int) -> int:
             if partner != value and proper_divisor_sum_problem21(partner) == value:
                 total += value
         return total
+    if algorithm == "problem21_pair_sum":
+        return problem21_pair_sum_oracle(n)
     if algorithm == "problem19":
         if n != 0:
             return -1
@@ -2503,6 +2536,8 @@ def oracle(algorithm: str, n: int) -> int:
         return problem41_largest_pandigital_prime(n) if 1 <= n <= 9 else -1
     if algorithm == "problem44":
         return problem44_first_pentagonal_difference(n) if 1 <= n <= 5_000 else -1
+    if algorithm == "problem44_start_cursor":
+        return problem44_start_cursor_oracle(n)
     if algorithm == "problem46":
         return problem46_goldbach_other_counterexample() if n == 0 else -1
     if algorithm == "problem48":
@@ -3024,12 +3059,135 @@ def corpus(algorithm: str) -> tuple[str, dict]:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     rng = random.Random(20261014)
     inputs = {case["input_value"] for case in workload["cases"]}
-    if algorithm == "trial_division_factorizer":
+    if algorithm == "multiple_of_3_or_5_term":
+        validate_multiple_of_3_or_5_term_workload(workload)
+        inputs.update(range(-8, 128))
+        inputs.update((MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT - offset
+                       for offset in range(0, 21)))
+        inputs.update((3 * value for value in range(0, 1000, 7)))
+        inputs.update((5 * value for value in range(0, 1000, 11)))
+        inputs.update(rng.randrange(0, MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT + 1)
+                      for _ in range(256))
+        inputs.update([I64_MIN, -1, 0, 1, 2, 3, 4, 5, 15,
+                       MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT,
+                       MULTIPLE_OF_3_OR_5_TERM_MAX_INPUT + 1, I64_MAX])
+    elif algorithm == "problem014":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        workload_cases = {case.get("input_value"): case.get("expected_result")
+                          for case in workload.get("cases", [])}
+        required_case_ids = {
+            "limit_one_empty_candidate_range", "limit_two_empty_candidate_range", "limit_three",
+            "trajectory_exceeds_limit", "longer_start_below_exclusive_limit", "representative_limit",
+            "canonical_one_million_limit", "zero_limit", "negative_limit",
+            "signed_i64_minimum_outside_limit_domain", "above_limit",
+            "signed_i64_maximum_outside_limit_domain",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "project-euler-problem-014-scalar-v1"
+                or workload.get("algorithm") != "problem014"
+                or workload.get("function_symbol") != "problem014"
+                or pinned_source != {
+                    "repository": "TheAlgorithms/JavaScript",
+                    "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+                    "path": "Project-Euler/Problem014.js",
+                    "symbol": "findLongestCollatzSequence",
+                }
+                or input_spec.get("kind") != "signed_64_bit_integer"
+                or input_spec.get("limit_range") != [1, PROBLEM014_MAX_LIMIT]
+                or input_spec.get("meaning") != "exclusive upper bound for Collatz starting values"
+                or input_spec.get("chain_length") != "number of terms from the start through terminal 1, inclusive"
+                or input_spec.get("tie_rule") != "smallest starting value"
+                or input_spec.get("out_of_range_result") != -1
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("meaning") != "starting value with maximum Collatz chain length among starts below limit"
+                or output_spec.get("out_of_range_result") != -1
+                or workload.get("measurement", {}).get("comparison_model") != "scalar_call"
+                or not required_case_ids.issubset(
+                    {case.get("id") for case in workload.get("cases", [])})
+                or any(workload_cases.get(value) != expected for value, expected in
+                       ((1, 1), (2, 1), (3, 2), (8, 7), (16, 9),
+                        (100, 97), (PROBLEM014_MAX_LIMIT, 837799),
+                        (0, -1), (-1, -1), (PROBLEM014_MAX_LIMIT + 1, -1)))):
+            raise ValueError("problem014 workload metadata does not match its reviewed scalar contract")
+        inputs.update(range(-4, 203))
+        inputs.update((I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX,
+                       PROBLEM014_MAX_LIMIT - 1, PROBLEM014_MAX_LIMIT,
+                       PROBLEM014_MAX_LIMIT + 1))
+        inputs.update(rng.randrange(1, min(PROBLEM014_MAX_LIMIT, 10_000) + 1)
+                      for _ in range(64))
+    elif algorithm == "trial_division_factorizer":
         inputs.update(range(-4, 4_097))
         inputs.update([-(2**63), -(2**31) - 1, -(2**31), -(2**31) + 1,
                        -899, -49, -2, -1, 0, 1, 2, 3, 4, 49, 899,
                        2**31 - 2, 2**31 - 1, 2**31, 2**63 - 1])
         inputs.update(rng.randrange(-(2**31) - 1, 2**31 + 2) for _ in range(64))
+    elif algorithm == "pollards_rho_factorizing":
+        source = {
+            "repository": "TheAlgorithms/C-Sharp",
+            "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+            "path": "Algorithms/Other/PollardsRhoFactorizing.cs",
+            "symbol": "PollardsRhoFactorizing.Calculate",
+            "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/PollardsRhoFactorizing.cs",
+        }
+        required_case_ids = {
+            "two", "small_prime_3", "composite_4_returns_n", "small_prime_5",
+            "small_composite_6", "prime_7_returns_n", "power_of_two_8_returns_n",
+            "composite_9", "even_composite_10", "composite_12", "composite_15",
+            "composite_21_returns_n", "square_25_returns_n", "square_49", "composite_91",
+            "semiprime_8051", "semiprime_10403", "near_bound_46339", "maximum_safe_input",
+            "zero_rejected_before_source", "one_rejected_before_source", "negative_rejected",
+            "first_overflow_bound_rejected", "signed_i64_minimum_rejected",
+            "signed_i64_maximum_rejected",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-csharp-pollards-rho-factorizing-scalar-v1"
+                or workload.get("algorithm") != "pollards_rho_factorizing"
+                or workload.get("function_symbol") != "pollards_rho_factorizing"
+                or workload.get("pinned_source") != source
+                or workload.get("input") != {
+                    "kind": "signed_i64_scalar",
+                    "minimum": POLLARDS_RHO_MIN_INPUT,
+                    "maximum": POLLARDS_RHO_MAX_INPUT,
+                    "domain_reason": "Positive inputs avoid the source modulo-by-zero and nonterminating n=1 cases; the upper bound prevents overflow in signed 32-bit x*x+1.",
+                    "invalid_result": -1,
+                    "out_of_domain_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "signed_i64_scalar",
+                    "meaning": "The first gcd(|x-y|, n) not equal to 1 from the pinned deterministic recurrence; this value may equal n.",
+                    "not_a_primality_claim": True,
+                    "invalid_result": -1,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 10,
+                }
+                or POLLARDS_RHO_MIN_INPUT != 2 or POLLARDS_RHO_MAX_INPUT != 46_340
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("pollards_rho_factorizing workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "p" / "pollards_rho_factorizing" / "README.md").read_text(
+            encoding="utf-8")
+        if (source["url"] not in readme or "2..46340" not in readme
+                or "may equal" not in readme):
+            raise ValueError("pollards_rho_factorizing README is missing its pinned source or result-domain note")
+        for case in workload["cases"]:
+            if case["expected_result"] != pollards_rho_factorizing_oracle(case["input_value"]):
+                raise ValueError(f"pollards_rho_factorizing workload oracle mismatch: {case['id']}")
+        inputs.update(range(-3, 10))
+        inputs.update([I64_MIN, I64_MIN + 1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+                       POLLARDS_RHO_MIN_INPUT - 1, POLLARDS_RHO_MIN_INPUT,
+                       POLLARDS_RHO_MIN_INPUT + 1, POLLARDS_RHO_MAX_INPUT - 1,
+                       POLLARDS_RHO_MAX_INPUT, POLLARDS_RHO_MAX_INPUT + 1,
+                       I64_MAX - 1, I64_MAX])
+        inputs.update(rng.randrange(POLLARDS_RHO_MIN_INPUT, POLLARDS_RHO_MAX_INPUT + 1)
+                      for _ in range(128))
     elif algorithm == "mersenne_primes":
         inputs.update(range(0, 34))
         inputs.update([I64_MIN, I64_MIN + 1, I64_MAX - 1, I64_MAX])
@@ -3086,6 +3244,16 @@ def corpus(algorithm: str) -> tuple[str, dict]:
             inputs.update((index - 1, index, index + 1))
         inputs.update(rng.randrange(0, MAX_CUBES_SEQUENCE_INDEX + 1) for _ in range(512))
         inputs.update([I64_MIN, -1, MAX_CUBES_SEQUENCE_INDEX + 1, I64_MAX])
+    elif algorithm == "so1":
+        inputs.update(range(-16, 4097))
+        even_terms = (2, 8, 34, 144, 610, 2584, 10946, 46368,
+                      196418, 832040, 3524578, 14930352, 63245986, 267914296)
+        for term in even_terms:
+            inputs.update((term - 1, term, term + 1))
+        inputs.update(rng.randrange(SO1_MIN_THRESHOLD, SO1_MAX_THRESHOLD + 1)
+                      for _ in range(256))
+        inputs.update([I64_MIN, SO1_MIN_THRESHOLD - 1, SO1_MIN_THRESHOLD,
+                       SO1_MAX_THRESHOLD, SO1_MAX_THRESHOLD + 1, I64_MAX])
     elif algorithm == "count_set_bits":
         inputs.update(range(-4, 4097))
         for exponent in range(27):
@@ -3423,6 +3591,57 @@ def corpus(algorithm: str) -> tuple[str, dict]:
                        285, 286, 1000, 1209, 1210, 1211, 4999, 5000, 5001,
                        9999, 10000, 10001, I64_MAX - 1, I64_MAX])
         inputs.update(rng.randrange(1, 10_001) for _ in range(128))
+    elif algorithm == "problem21_pair_sum":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        readme = (ROOT / "benchmarks" / "p" / "problem21_pair_sum" / "README.md").read_text(
+            encoding="utf-8")
+        source_links = (
+            "https://github.com/TheAlgorithms/JavaScript/blob/"
+            "5c39e87a9a31f279c60f830ad74a845e4788a517/Project-Euler/Problem021.js",
+            "https://github.com/TheAlgorithms/JavaScript/blob/"
+            "5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/AliquotSum.js",
+        )
+        required_case_ids = {
+            "minimum_valid_limit", "no_amicable_pair", "smaller_member_at_limit_minus_one",
+            "first_pair_fully_below_limit", "partner_equal_to_limit_is_included",
+            "later_pairs", "canonical_limit", "below_minimum", "above_maximum",
+            "signed_i64_minimum", "signed_i64_maximum",
+        }
+        case_ids = [case.get("id") for case in workload["cases"]]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "project-euler-problem-21-pair-sum-scalar-v1"
+                or workload.get("algorithm") != "problem21_pair_sum"
+                or workload.get("function_symbol") != "problem21_pair_sum"
+                or input_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "limit_range": [PROBLEM21_PAIR_SUM_MIN_LIMIT, PROBLEM21_PAIR_SUM_MAX_LIMIT],
+                    "meaning": "exclusive upper limit for the smaller member of amicable pairs",
+                    "out_of_range_result": -1,
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "meaning": "sum of both members of every amicable pair whose smaller member is below the limit",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "scalar_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or PROBLEM21_PAIR_SUM_MIN_LIMIT != 2
+                or PROBLEM21_PAIR_SUM_MAX_LIMIT != 10_000
+                or any(link not in readme for link in source_links)
+                or len(case_ids) != len(set(case_ids))
+                or not required_case_ids.issubset(case_ids)):
+            raise ValueError("problem21_pair_sum workload/source metadata or reviewed fixtures mismatch")
+        inputs.update(range(-4, 16))
+        inputs.update((I64_MIN, I64_MIN + 1, -1, 0, 1, 2, 99, 100, 101,
+                       219, 220, 221, 284, 285, 286, 1209, 1210, 1211,
+                       4999, 5000, 5001, 9999, 10_000, 10_001,
+                       I64_MAX - 1, I64_MAX))
+        inputs.update(rng.randrange(PROBLEM21_PAIR_SUM_MIN_LIMIT,
+                                   PROBLEM21_PAIR_SUM_MAX_LIMIT + 1) for _ in range(16))
     elif algorithm in {"problem19", "problem24"}:
         inputs.update([I64_MIN, -1, 0, 1, I64_MAX - 1, I64_MAX])
     elif algorithm == "problem23":
@@ -3488,6 +3707,53 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         inputs.update(range(-4, 24))
         inputs.update([I64_MIN, -1, 0, 1, 2, 100, 1000, 4999, 5000, 5001,
                        I64_MAX - 1, I64_MAX])
+    elif algorithm == "problem44_start_cursor":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_source = {
+            "repository": "TheAlgorithms/JavaScript",
+            "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+            "path": "Project-Euler/Problem044.js",
+            "symbol": "problem44",
+        }
+        required_case_ids = {
+            "earliest_cursor", "middle_cursor", "near_end_cursor",
+            "latest_supported_cursor", "zero_cursor_invalid", "above_supported_cursor",
+        }
+        case_ids = [case.get("id") for case in workload["cases"]]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "project-euler-problem-44-start-cursor-v1"
+                or workload.get("algorithm") != "problem44_start_cursor"
+                or workload.get("function_symbol") != "problem44_start_cursor"
+                or workload.get("pinned_source") != expected_source
+                or input_spec != {
+                    "kind": "positive_start_cursor",
+                    "minimum": 1,
+                    "maximum": PROBLEM44_START_CURSOR_MAX_START,
+                    "out_of_range_result": -1,
+                    "definition": "Advance the supplied cursor by one, then scan high pentagonal indices upward through 2167 and lower indices downward from high-1.",
+                }
+                or output_spec != {
+                    "kind": "signed_64_bit_integer",
+                    "definition": "The first difference whose difference and sum are pentagonal in source traversal order; -1 for a cursor outside the supported range.",
+                }
+                or PROBLEM44_START_CURSOR_MAX_START != 2166
+                or PROBLEM44_START_CURSOR_MAX_HIGH_INDEX != 2167
+                or workload.get("measurement") != {
+                    "comparison_model": "scalar_call",
+                    "sample_count": 1,
+                    "warmup_rounds": 0,
+                    "repetitions_per_sample": 1,
+                }
+                or len(case_ids) != len(set(case_ids))
+                or not required_case_ids.issubset(case_ids)):
+            raise ValueError("problem44_start_cursor workload metadata or reviewed fixtures mismatch")
+        if any(problem44_start_cursor_oracle(value) != expected for value, expected in (
+                (1, 5_482_660), (144, 5_482_660), (2165, 5_482_660),
+                (2166, 5_482_660), (0, -1), (2167, -1))):
+            raise ValueError("problem44_start_cursor canonical or boundary result mismatch")
+        inputs.update((I64_MIN, I64_MIN + 1, -1, 0, 1, 2, 3, 144, 1000,
+                       2000, 2165, 2166, 2167, I64_MAX - 1, I64_MAX))
     elif algorithm in {"problem46", "problem48", "problem53"}:
         inputs.update([I64_MIN, -1, 0, 1, I64_MAX - 1, I64_MAX])
     elif algorithm == "problem49":

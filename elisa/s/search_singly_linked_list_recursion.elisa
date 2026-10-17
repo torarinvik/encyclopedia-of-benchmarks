@@ -1,0 +1,32 @@
+const MAX_NODES: usize = 64
+const I32_MIN: i64 = -2147483648
+const I32_MAX: i64 = 2147483647
+
+struct SearchNode:
+    value: i32
+    next: usize
+
+def search_recursion(nodes: SearchNode&, current: usize, count: usize, key: i32) -> bool:
+    if current >= count: return false
+    if nodes[current].value == key: return true
+    search_recursion(nodes, nodes[current].next, count, key)
+
+def search_singly_linked_list_recursion_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 66: return -1
+    count_value: i64 = input[0]
+    key: i64 = input[1]
+    if count_value < 0 or count_value > MAX_NODES.i64() or length != count_value.usize() + 2 or
+        key < I32_MIN or key > I32_MAX: return -1
+    count: usize = count_value.usize()
+    nodes: mutable SearchNode[MAX_NODES] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 2]
+        if value < I32_MIN or value > I32_MAX: return -1
+        nodes[index].value <- value.i32()
+        nodes[index].next <- index + 1
+        index <- index + 1
+    if search_recursion(nodes, 0, count, key.i32()): return 1
+    0
+
+export fn search_singly_linked_list_recursion(input: i64&, length: usize) -> i64 = search_singly_linked_list_recursion_impl

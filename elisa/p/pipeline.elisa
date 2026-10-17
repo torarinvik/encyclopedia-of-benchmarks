@@ -1,0 +1,29 @@
+const MAX_STAGE_COUNT: usize = 32
+const MAX_INPUT_LENGTH: usize = 66
+
+def pipeline_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+
+    initial: i64 = values[0]
+    stage_count: i64 = values[1]
+    if initial < 0 or initial > 2 or stage_count < 1 or stage_count > 32:
+        return -1
+    if length != 2 + 2 * stage_count.usize():
+        return -1
+
+    result: mutable i64 = initial
+    for index in 0..<stage_count.usize():
+        operation: i64 = values[2 + 2 * index]
+        argument: i64 = values[3 + 2 * index]
+        if argument < 0 or argument > 2:
+            return -1
+        if operation == 0:
+            result <- result + argument
+        else if operation == 1:
+            result <- result * argument
+        else:
+            return -1
+    result
+
+export fn pipeline(values: i64&, length: usize) -> i64 = pipeline_impl

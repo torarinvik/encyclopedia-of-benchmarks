@@ -1,0 +1,180 @@
+extern sqrt(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+def partition_five(ids: mutable i64[15]&, points: f64[15][3]&, from: usize, to: usize, axis: usize) -> usize:
+    middle: usize = (from + to) / 2
+    i: mutable usize = from
+    while i <= middle:
+        minimum: mutable usize = i
+        j: mutable usize = i + 1
+        while j <= to:
+            if points[ids[j].usize()][axis] < points[ids[minimum].usize()][axis]:
+                minimum <- j
+            j <- j + 1
+        temporary: i64 = ids[i]
+        ids[i] <- ids[minimum]
+        ids[minimum] <- temporary
+        i <- i + 1
+    middle
+
+def choose_median_of_medians(ids: mutable i64[15]&, points: f64[15][3]&, from: usize, to: usize, axis: usize) -> usize
+
+def select_kth(ids: mutable i64[15]&, points: f64[15][3]&, from: usize, to: usize, rank: usize, axis: usize) -> usize:
+    first: mutable usize = from
+    last: mutable usize = to
+    target_rank: mutable usize = rank
+    while first < last:
+        pivot_index: usize = choose_median_of_medians(ids, points, first, last, axis)
+        pivot: f64 = points[ids[pivot_index].usize()][axis]
+        i: mutable usize = first
+        j: mutable usize = first
+        k: mutable usize = last
+        while j <= k:
+            value: f64 = points[ids[j].usize()][axis]
+            if value < pivot:
+                temporary: i64 = ids[i]
+                ids[i] <- ids[j]
+                ids[j] <- temporary
+                i <- i + 1
+                j <- j + 1
+            elif pivot < value:
+                temporary: i64 = ids[j]
+                ids[j] <- ids[k]
+                ids[k] <- temporary
+                if k == 0: break
+                k <- k - 1
+            else:
+                j <- j + 1
+        smaller_to: i64 = i.i64() - 1
+        larger_from: usize = k + 1
+        absolute_index: usize = first + target_rank - 1
+        if smaller_to >= 0 and absolute_index.i64() <= smaller_to:
+            last <- smaller_to.usize()
+        elif absolute_index < larger_from:
+            return absolute_index
+        else:
+            target_rank <- target_rank - (larger_from - first)
+            first <- larger_from
+    first
+
+def choose_median_of_medians(ids: mutable i64[15]&, points: f64[15][3]&, from: usize, to: usize, axis: usize) -> usize:
+    if to - from < 5:
+        return partition_five(ids, points, from, to, axis)
+    medians_to: mutable usize = from
+    start: mutable usize = from
+    while start <= to - 4:
+        median: usize = partition_five(ids, points, start, start + 4, axis)
+        temporary: i64 = ids[median]
+        ids[median] <- ids[medians_to]
+        ids[medians_to] <- temporary
+        medians_to <- medians_to + 1
+        start <- start + 5
+    remainder: usize = (to - from + 1) % 5
+    if remainder == 0:
+        medians_to <- medians_to - 1
+    else:
+        median: usize = partition_five(ids, points, to - remainder + 1, to, axis)
+        temporary: i64 = ids[median]
+        ids[median] <- ids[medians_to]
+        ids[medians_to] <- temporary
+    medians_count: usize = medians_to - from + 1
+    select_kth(ids, points, from, medians_to, (medians_count + 1) / 2, axis)
+
+def build_tree(points: f64[15][3]&, ids: i64[15]&, count: usize, dimension: usize,
+               depth: usize, node_point: mutable i64[15]&, left: mutable i64[15]&, 
+               right: mutable i64[15]&, used: mutable usize&) -> i64:
+    if count == 0: return -1
+    axis: usize = depth % dimension
+    ordered: mutable i64[15] = zeroed
+    for i in 0..<count: ordered[i] <- ids[i]
+    middle: usize = select_kth(ordered, points, 0, count - 1, (count + 1) / 2, axis)
+    current: usize = used
+    used <- used + 1
+    node_point[current] <- ordered[middle]
+    left_ids: mutable i64[15] = zeroed
+    for i in 0..<middle: left_ids[i] <- ordered[i]
+    left[current] <- build_tree(points, &left_ids, middle, dimension, depth + 1,
+                                node_point, left, right, used)
+    right_ids: mutable i64[15] = zeroed
+    right_count: usize = count - middle - 1
+    for i in 0..<right_count: right_ids[i] <- ordered[middle + 1 + i]
+    right[current] <- build_tree(points, &right_ids, right_count, dimension, depth + 1,
+                                 node_point, left, right, used)
+    current.i64()
+
+def search_tree(points: f64[15][3]&, node_point: i64[15]&, left: i64[15]&, right: i64[15]&, 
+                current: i64, axis: usize, dimension: usize, query: f64[3]&, 
+                best: mutable f64&, best_point: mutable i64&) -> void:
+    if current < 0: return
+    point_index: usize = node_point[current.usize()].usize()
+    squared: mutable f64 = 0.0
+    for a in 0..<dimension:
+        delta: f64 = query[a] - points[point_index][a]
+        squared <- squared + delta * delta
+    distance: f64 = sqrt(squared)
+    if distance < best:
+        best <- distance
+        best_point <- point_index.i64()
+    go_left: bool = query[axis] <= points[point_index][axis]
+    near: i64 = if go_left then left[current.usize()] else right[current.usize()]
+    far: i64 = if go_left then right[current.usize()] else left[current.usize()]
+    next_axis: usize = (axis + 1) % dimension
+    search_tree(points, node_point, left, right, near, next_axis, dimension, query, best, best_point)
+    if best >= abs(points[point_index][axis] - query[axis]):
+        search_tree(points, node_point, left, right, far, next_axis, dimension, query, best, best_point)
+
+def k_d_tree_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 51: return -1
+    dimension_value: f64 = input[0]
+    if dimension_value != dimension_value or floor(dimension_value) != dimension_value or
+        (dimension_value != 2.0 and dimension_value != 3.0): return -1
+    dimension: usize = dimension_value.usize()
+    count_value: f64 = input[1]
+    if count_value != count_value or floor(count_value) != count_value or count_value < 1.0 or count_value > 15.0: return -1
+    count: usize = count_value.usize()
+    if length != 2 + dimension * (count + 1): return -1
+    query: mutable f64[3] = zeroed
+    for axis in 0..<dimension:
+        value: f64 = input[2 + axis]
+        if value != value or floor(value) != value or value < -1000.0 or value > 1000.0: return -1
+        query[axis] <- value
+    points: mutable f64[15][3] = zeroed
+    for i in 0..<count:
+        for axis in 0..<dimension:
+            value: f64 = input[2 + dimension + i * dimension + axis]
+            if value != value or floor(value) != value or value < -1000.0 or value > 1000.0: return -1
+            points[i][axis] <- value
+    for axis in 0..<dimension:
+        for i in 0..<count:
+            for j in i + 1..<count:
+                if points[i][axis] == points[j][axis]: return -1
+    smallest: mutable f64 = 1.0e300
+    nearest_count: mutable usize = 0
+    for i in 0..<count:
+        squared: mutable f64 = 0.0
+        for axis in 0..<dimension:
+            delta: f64 = query[axis] - points[i][axis]
+            squared <- squared + delta * delta
+        if squared < smallest:
+            smallest <- squared
+            nearest_count <- 1
+        elif squared == smallest:
+            nearest_count <- nearest_count + 1
+    if nearest_count != 1: return -1
+    output_length: usize = dimension + 1
+    if output == null or capacity < output_length: return -2
+    ids: mutable i64[15] = zeroed
+    for i in 0..<count: ids[i] <- i.i64()
+    node_point: mutable i64[15] = zeroed
+    left: mutable i64[15] = zeroed
+    right: mutable i64[15] = zeroed
+    used: mutable usize = 0
+    root: i64 = build_tree(points, &ids, count, dimension, 0, &node_point, &left, &right, &used)
+    best: mutable f64 = 1.0e300
+    best_point: mutable i64 = 0
+    search_tree(points, node_point, left, right, root, 0, dimension, query, &best, &best_point)
+    output[0] <- best
+    for axis in 0..<dimension: output[axis + 1] <- points[best_point.usize()][axis]
+    output_length.i64()
+
+export fn k_d_tree(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = k_d_tree_impl

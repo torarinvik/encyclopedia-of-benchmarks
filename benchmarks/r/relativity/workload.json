@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-relativity-four-formulas-v1",
+  "algorithm": "relativity",
+  "function_symbol": "relativity",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[operation,arg1_milli,arg2_milli]",
+    "exact_length": 3,
+    "maximum_valid_input_length": 3,
+    "maximum_parseable_input_length": 4,
+    "operation_range": [
+      0,
+      3
+    ],
+    "operations": {
+      "0": "gamma(arg1_milli/1000), arg2_milli must be zero",
+      "1": "lengthContraction(arg1_milli/1000,arg2_milli/1000)",
+      "2": "timeDilation(arg1_milli/1000,arg2_milli/1000)",
+      "3": "velocityAddition(arg1_milli/1000,arg2_milli/1000)"
+    },
+    "speed_of_light_m_per_s": 299792458,
+    "speed_milli_raw_range": [
+      -299792458000,
+      299792458000
+    ],
+    "length_or_time_milli_raw_range": [
+      0,
+      1000000
+    ],
+    "strict_frame_velocity_rule": "|v| < c for gamma, length contraction, time dilation, and the second velocity of velocity addition",
+    "velocity_addition_first_speed_rule": "|v1| <= c",
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "Source Java gamma, length contraction, time dilation, or relativistic velocity addition formula",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e+300
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/physics/Relativity.java"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "gamma_at_rest",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1
+    },
+    {
+      "id": "gamma_at_sixty_percent_c",
+      "input_values": [
+        0,
+        179875474800,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.25
+    },
+    {
+      "id": "gamma_one_millimeter_per_second_below_c",
+      "input_values": [
+        0,
+        299792457999,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 387169.38676640985
+    },
+    {
+      "id": "length_contraction_at_rest",
+      "input_values": [
+        1,
+        10000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 10
+    },
+    {
+      "id": "length_contraction_at_sixty_percent_c",
+      "input_values": [
+        1,
+        10000,
+        179875474800
+      ],
+      "input_length": 3,
+      "expected_result": 8
+    },
+    {
+      "id": "time_dilation_at_rest",
+      "input_values": [
+        2,
+        10000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 10
+    },
+    {
+      "id": "time_dilation_at_sixty_percent_c",
+      "input_values": [
+        2,
+        10000,
+        179875474800
+      ],
+      "input_length": 3,
+      "expected_result": 12.5
+    },
+    {
+      "id": "velocity_addition_two_half_c_velocities",
+      "input_values": [
+        3,
+        149896229000,
+        149896229000
+      ],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "velocity_addition_first_speed_at_c",
+      "input_values": [
+        3,
+        299792458000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 299792458
+    },
+    {
+      "id": "velocity_addition_first_speed_at_negative_c",
+      "input_values": [
+        3,
+        -299792458000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -299792458
+    },
+    {
+      "id": "maximum_length_at_rest",
+      "input_values": [
+        1,
+        1000000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1000
+    },
+    {
+      "id": "maximum_time_at_rest",
+      "input_values": [
+        2,
+        1000000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1000
+    },
+    {
+      "id": "length_above_bound_invalid",
+      "input_values": [
+        1,
+        1000001,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "time_above_bound_invalid",
+      "input_values": [
+        2,
+        1000001,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "gamma_endpoint_at_c_invalid",
+      "input_values": [
+        0,
+        299792458000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "length_frame_endpoint_at_c_invalid",
+      "input_values": [
+        1,
+        1000,
+        299792458000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_time_invalid",
+      "input_values": [
+        2,
+        -1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_length_invalid",
+      "input_values": [
+        1,
+        -1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "velocity_addition_frame_endpoint_at_c_invalid",
+      "input_values": [
+        3,
+        0,
+        299792458000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "velocity_addition_first_speed_above_c_invalid",
+      "input_values": [
+        3,
+        299792458001,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "gamma_unused_argument_nonzero",
+      "input_values": [
+        0,
+        0,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "unsupported_operation",
+      "input_values": [
+        4,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ]
+}

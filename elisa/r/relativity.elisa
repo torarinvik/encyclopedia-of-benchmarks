@@ -1,0 +1,40 @@
+extern sqrt(value: f64) -> f64
+
+const SPEED_OF_LIGHT: f64 = 299792458.0
+const SPEED_OF_LIGHT_MILLI: i64 = 299792458000
+const MAX_LENGTH_TIME_MILLI: i64 = 1000000
+const MAX_INPUT_LENGTH: usize = 4
+const INVALID_RESULT: f64 = -1.0e300
+
+def lorentz_gamma(velocity: f64) -> f64:
+    1.0 / sqrt(1.0 - velocity * velocity / (SPEED_OF_LIGHT * SPEED_OF_LIGHT))
+
+def relativity_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
+    operation: i64 = input[0]
+    arg1_milli: i64 = input[1]
+    arg2_milli: i64 = input[2]
+    if length != 3: return INVALID_RESULT
+
+    if operation == 0:
+        if arg2_milli != 0 or arg1_milli <= -SPEED_OF_LIGHT_MILLI or arg1_milli >= SPEED_OF_LIGHT_MILLI:
+            return INVALID_RESULT
+        return lorentz_gamma(arg1_milli.f64() / 1000.0)
+    if operation == 1 or operation == 2:
+        if arg1_milli < 0 or arg1_milli > MAX_LENGTH_TIME_MILLI or
+            arg2_milli <= -SPEED_OF_LIGHT_MILLI or arg2_milli >= SPEED_OF_LIGHT_MILLI: return INVALID_RESULT
+        quantity: f64 = arg1_milli.f64() / 1000.0
+        velocity: f64 = arg2_milli.f64() / 1000.0
+        gamma: f64 = lorentz_gamma(velocity)
+        if operation == 1: return quantity / gamma
+        return quantity * gamma
+    if operation == 3:
+        if arg1_milli < -SPEED_OF_LIGHT_MILLI or arg1_milli > SPEED_OF_LIGHT_MILLI or
+            arg2_milli <= -SPEED_OF_LIGHT_MILLI or arg2_milli >= SPEED_OF_LIGHT_MILLI: return INVALID_RESULT
+        velocity_one: f64 = arg1_milli.f64() / 1000.0
+        frame_velocity: f64 = arg2_milli.f64() / 1000.0
+        return (velocity_one - frame_velocity) /
+            (1.0 - velocity_one * frame_velocity / (SPEED_OF_LIGHT * SPEED_OF_LIGHT))
+    INVALID_RESULT
+
+export fn relativity(input: i64&, length: usize) -> f64 = relativity_impl

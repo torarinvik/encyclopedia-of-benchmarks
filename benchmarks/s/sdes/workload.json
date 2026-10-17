@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-sdes-bounded-byte-v1",
+  "algorithm": "sdes",
+  "function_symbol": "sdes",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "other/sdes.py",
+    "symbol": "interactive script",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/other/sdes.py"
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[key, message]",
+    "key_range": [0, 1023],
+    "message_range": [0, 255],
+    "fixed_width_interpretation": "key is 10 bits and message is 8 bits, preserving leading zero bits",
+    "exact_length": 2,
+    "maximum_valid_array_length": 2,
+    "maximum_parseable_array_length": 3,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "sdes_ciphertext_and_round_trip_bytes",
+    "encoding": "[ciphertext, decrypted_plaintext] as two bytes",
+    "success_result": 2,
+    "maximum_output_bytes": 2,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 2,
+    "meaning": "Ciphertext and recovered plaintext bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "textbook_vector",
+      "input_values": [642, 215],
+      "input_length": 2,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "a8d7"
+    },
+    {
+      "id": "zero_key_zero_message",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "f000"
+    },
+    {
+      "id": "negative_key",
+      "input_values": [-1, 0],
+      "input_length": 2,
+      "output_capacity": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "key_above_ten_bits",
+      "input_values": [1024, 0],
+      "input_length": 2,
+      "output_capacity": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "message_above_one_byte",
+      "input_values": [0, 256],
+      "input_length": 2,
+      "output_capacity": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_frame",
+      "input_values": [642],
+      "input_length": 1,
+      "output_capacity": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_frame_value",
+      "input_values": [642, 215, 0],
+      "input_length": 3,
+      "output_capacity": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "null_output",
+      "input_values": [642, 215],
+      "input_length": 2,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -2
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [642, 215],
+      "input_length": 2,
+      "output_capacity": 1,
+      "expected_result": -2
+    }
+  ]
+}

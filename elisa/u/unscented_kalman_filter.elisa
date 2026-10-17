@@ -1,0 +1,116 @@
+extern sqrt(value: f64) -> f64
+
+def sigma_points(x: f64, y: f64, p00: f64, p01: f64, p11: f64, points: mutable f64&) -> bool:
+    l00: f64 = sqrt(2.0 * p00)
+    if l00 <= 0.0: return false
+    l10: f64 = (2.0 * p01) / l00
+    remainder: f64 = 2.0 * p11 - l10 * l10
+    if remainder <= 0.0: return false
+    l11: f64 = sqrt(remainder)
+    points[0] <- x
+    points[1] <- y
+    points[2] <- x + l00
+    points[3] <- y + l10
+    points[4] <- x
+    points[5] <- y + l11
+    points[6] <- x - l00
+    points[7] <- y - l10
+    points[8] <- x
+    points[9] <- y - l11
+    true
+
+export fn unscented_kalman_filter(values: i64&, length: usize) -> f64:
+    if values == null or length < 10 or length > 17: return -1.0e300
+    steps: i64 = values[0]
+    if steps < 1 or steps > 8 or length != (9 + steps).usize(): return -1.0e300
+    if values[1] < -1000 or values[1] > 1000 or values[2] < -1000 or values[2] > 1000: return -1.0e300
+    if values[3] < 500 or values[3] > 1000 or values[4] < -100 or values[4] > 100 or values[5] < 500 or values[5] > 1000: return -1.0e300
+    if values[6] < 10 or values[6] > 50 or values[7] < 10 or values[7] > 50 or values[8] < 10 or values[8] > 100: return -1.0e300
+    index: mutable usize = 9
+    while index < length:
+        if values[index] < -2000 or values[index] > 2000: return -1.0e300
+        index <- index + 1
+
+    x: mutable f64 = values[1].f64() / 1000.0
+    y: mutable f64 = values[2].f64() / 1000.0
+    p00: mutable f64 = values[3].f64() / 1000.0
+    p01: mutable f64 = values[4].f64() / 1000.0
+    p11: mutable f64 = values[5].f64() / 1000.0
+    q0: f64 = values[6].f64() / 1000.0
+    q1: f64 = values[7].f64() / 1000.0
+    noise: f64 = values[8].f64() / 1000.0
+    sigma: mutable f64[10] = zeroed
+    propagated: mutable f64[10] = zeroed
+    mapped: mutable f64[5] = zeroed
+    t: mutable usize = 0
+    while t < steps.usize():
+        if not sigma_points(x, y, p00, p01, p11, sigma): return -1.0e300
+        index <- 0
+        while index < 5:
+            sx: f64 = sigma[index * 2]
+            sy: f64 = sigma[index * 2 + 1]
+            propagated[index * 2] <- sx + 0.1 * sy
+            propagated[index * 2 + 1] <- sy + 0.05 * sx * sx
+            index <- index + 1
+        mean_x: mutable f64 = 0.0
+        mean_y: mutable f64 = 0.0
+        index <- 1
+        while index < 5:
+            mean_x <- mean_x + 0.25 * propagated[index * 2]
+            mean_y <- mean_y + 0.25 * propagated[index * 2 + 1]
+            index <- index + 1
+        next_p00: mutable f64 = 2.0 * (propagated[0] - mean_x) * (propagated[0] - mean_x)
+        next_p01: mutable f64 = 2.0 * (propagated[0] - mean_x) * (propagated[1] - mean_y)
+        next_p11: mutable f64 = 2.0 * (propagated[1] - mean_y) * (propagated[1] - mean_y)
+        index <- 1
+        while index < 5:
+            dx: f64 = propagated[index * 2] - mean_x
+            dy: f64 = propagated[index * 2 + 1] - mean_y
+            next_p00 <- next_p00 + 0.25 * dx * dx
+            next_p01 <- next_p01 + 0.25 * dx * dy
+            next_p11 <- next_p11 + 0.25 * dy * dy
+            index <- index + 1
+        x <- mean_x
+        y <- mean_y
+        p00 <- next_p00 + q0
+        p01 <- 0.5 * (next_p01 + next_p01)
+        p11 <- next_p11 + q1
+
+        if not sigma_points(x, y, p00, p01, p11, sigma): return -1.0e300
+        index <- 0
+        while index < 5:
+            mapped[index] <- 0.05 * sigma[index * 2] * sigma[index * 2] + sigma[index * 2 + 1]
+            index <- index + 1
+        expected_z: mutable f64 = 0.0
+        index <- 1
+        while index < 5:
+            expected_z <- expected_z + 0.25 * mapped[index]
+            index <- index + 1
+        innovation: mutable f64 = noise
+        cross0: mutable f64 = 0.0
+        cross1: mutable f64 = 0.0
+        index <- 0
+        while index < 5:
+            weight: f64 = 0.25
+            if index == 0: weight <- 2.0
+            dx: f64 = sigma[index * 2] - x
+            dy: f64 = sigma[index * 2 + 1] - y
+            dz: f64 = mapped[index] - expected_z
+            innovation <- innovation + weight * dz * dz
+            cross0 <- cross0 + weight * dx * dz
+            cross1 <- cross1 + weight * dy * dz
+            index <- index + 1
+        if innovation <= 0.0: return -1.0e300
+        k0: f64 = cross0 / innovation
+        k1: f64 = cross1 / innovation
+        residual: f64 = values[9 + t].f64() / 1000.0 - expected_z
+        x <- x + k0 * residual
+        y <- y + k1 * residual
+        u0: f64 = k0 * innovation
+        u1: f64 = k1 * innovation
+        old_p01: f64 = p01
+        p00 <- p00 - u0 * k0
+        p01 <- old_p01 - 0.5 * (u0 * k1 + u1 * k0)
+        p11 <- p11 - u1 * k1
+        t <- t + 1
+    return x
