@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-dart-lu-pivot-decomposition-float64-slice-io-v1",
+  "algorithm": "lu_pivot_decomposition",
+  "function_symbol": "lu_pivot_decomposition",
+  "description": "Compute Dart's partial-pivot LUP decomposition of a small caller-supplied square matrix.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Dart",
+    "commit": "73da8ab4ea413eee9bf29aa2263157d86060f871",
+    "path": "maths/lu_decomposition.dart",
+    "symbol": "Matrix.decompose",
+    "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/lu_decomposition.dart",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Factor a supplied square matrix using the pinned source's partial-pivot LUP decomposition operation.",
+    "input_encoding": "[dimension, matrix_row_major...]",
+    "matrix_shape": "dimension by dimension, row-major",
+    "pivot_selection": "For column i, scan rows i..dimension-1 in increasing order and select the first row with the greatest absolute entry in that column.",
+    "operation_order": "Swap the selected matrix row and pivot entries. For rows j=i+1..dimension-1, divide packed_lu[j][i] by packed_lu[i][i], then for columns k=i+1..dimension-1 subtract packed_lu[j][i]*packed_lu[i][k] from packed_lu[j][k].",
+    "pivot_vector": "Initialize pivot as [0,1,...,dimension]. Swap entries pivot[i] and pivot[max_index] with each matrix row swap, then increment pivot[dimension]. The final element is dimension plus the number of row swaps.",
+    "output_encoding": "The combined LU matrix in row-major order followed by the full pivot vector of length dimension+1.",
+    "errors": "Malformed input, unsupported bounds, nonintegral matrix entries, or a zero/nonfinite selected pivot returns -1 before output checks. A null output or capacity below dimension*dimension+dimension+1 returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[dimension, matrix_row_major...]",
+    "dimension_range": [
+      1,
+      4
+    ],
+    "matrix_value_range": [
+      -8,
+      8
+    ],
+    "matrix_values_must_be_integers": true,
+    "selected_pivots_must_be_nonzero": true,
+    "exact_packed_shape": "Exactly 1+dimension*dimension finite elements; the dimension and all matrix entries must be exactly integral.",
+    "maximum_valid_input_length": 17,
+    "maximum_parseable_input_length": 18,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "dimension*dimension row-major combined LU entries followed by dimension+1 pivot values, including dimension plus the number of swaps.",
+    "element_count": "dimension*dimension+dimension+1",
+    "maximum_elements": 21,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input and pivot validity are checked before output pointer and capacity.",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 21,
+    "meaning": "Maximum combined LU matrix and pivot vector."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Copy the matrix, preserve strict-greater first-maximum partial pivot selection and the pinned in-place elimination order, then return packed LU and the full permutation/swap-count vector. Reject every zero or nonfinite selected pivot.",
+  "cases": [
+    {
+      "id": "single_element",
+      "input_values": [
+        1,
+        5
+      ],
+      "input_length": 2,
+      "expected_result": 3,
+      "expected_output": [
+        5.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "id": "two_by_two_no_swap",
+      "input_values": [
+        2,
+        4,
+        2,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": 7,
+      "expected_output": [
+        4.0,
+        2.0,
+        0.5,
+        2.0,
+        0.0,
+        1.0,
+        2.0
+      ]
+    },
+    {
+      "id": "two_by_two_row_swap",
+      "input_values": [
+        2,
+        0,
+        2,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": 7,
+      "expected_output": [
+        3.0,
+        4.0,
+        0.0,
+        2.0,
+        1.0,
+        0.0,
+        3.0
+      ]
+    },
+    {
+      "id": "equal_magnitude_keeps_first_row",
+      "input_values": [
+        2,
+        2,
+        1,
+        -2,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": 7,
+      "expected_output": [
+        2.0,
+        1.0,
+        -1.0,
+        5.0,
+        0.0,
+        1.0,
+        2.0
+      ]
+    },
+    {
+      "id": "three_by_three_two_swaps",
+      "input_values": [
+        3,
+        0,
+        1,
+        2,
+        0,
+        0,
+        3,
+        4,
+        5,
+        6
+      ],
+      "input_length": 10,
+      "expected_result": 13,
+      "expected_output": [
+        4.0,
+        5.0,
+        6.0,
+        0.0,
+        1.0,
+        2.0,
+        0.0,
+        0.0,
+        3.0,
+        2.0,
+        0.0,
+        1.0,
+        5.0
+      ]
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "output_capacity": 21,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [
+        2,
+        1,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        1,
+        5,
+        7
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_dimension",
+      "input_values": [
+        2.5,
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_matrix_entry",
+      "input_values": [
+        1,
+        2.5
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "matrix_entry_out_of_range",
+      "input_values": [
+        1,
+        9
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dimension_zero",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_selected_pivot",
+      "input_values": [
+        2,
+        0,
+        1,
+        0,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "singular_after_elimination",
+      "input_values": [
+        2,
+        1,
+        2,
+        2,
+        4
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        1,
+        5
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        2,
+        4,
+        2,
+        2,
+        3
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 6,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        2,
+        0,
+        1,
+        0,
+        2
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 7,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

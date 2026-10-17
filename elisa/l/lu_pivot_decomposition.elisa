@@ -1,0 +1,95 @@
+const MAX_INPUT_LENGTH: usize = 18
+const MAX_DIMENSION: usize = 4
+const MAX_MATRIX_ELEMENTS: usize = 16
+
+def lu_pivot_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+        return false
+    if value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def lu_pivot_abs(value: f64) -> f64:
+    if value < 0.0 then -value else value
+
+def lu_pivot_decomposition_impl(input: f64&, input_length: usize,
+                                output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if not lu_pivot_exact_integer(input[0], 1, MAX_DIMENSION.i64()): return -1
+    dimension: usize = input[0].usize()
+    matrix_elements: usize = dimension * dimension
+    if input_length != 1 + matrix_elements: return -1
+
+    packed_lu: mutable f64[MAX_MATRIX_ELEMENTS] = zeroed
+    index: mutable usize = 0
+    while index < matrix_elements:
+        if not lu_pivot_exact_integer(input[index + 1], -8, 8): return -1
+        packed_lu[index] <- input[index + 1]
+        index <- index + 1
+
+    pivot: mutable usize[5] = zeroed
+    index <- 0
+    while index <= dimension:
+        pivot[index] <- index
+        index <- index + 1
+
+    column: mutable usize = 0
+    while column < dimension:
+        max_value: mutable f64 = 0.0
+        max_index: mutable usize = column
+        row: mutable usize = column
+        while row < dimension:
+            magnitude: f64 = lu_pivot_abs(packed_lu[row * dimension + column])
+            if magnitude > max_value:
+                max_value <- magnitude
+                max_index <- row
+            row <- row + 1
+
+        if max_index != column:
+            saved_pivot: usize = pivot[column]
+            pivot[column] <- pivot[max_index]
+            pivot[max_index] <- saved_pivot
+            swap_column: mutable usize = 0
+            while swap_column < dimension:
+                saved_value: f64 = packed_lu[column * dimension + swap_column]
+                packed_lu[column * dimension + swap_column] <- packed_lu[max_index * dimension + swap_column]
+                packed_lu[max_index * dimension + swap_column] <- saved_value
+                swap_column <- swap_column + 1
+            pivot[dimension] <- pivot[dimension] + 1
+
+        pivot_value: f64 = packed_lu[column * dimension + column]
+        if pivot_value == 0.0 or pivot_value != pivot_value or
+            pivot_value >= 1.7976931348623157e308 or pivot_value <= -1.7976931348623157e308:
+            return -1
+
+        row <- column + 1
+        while row < dimension:
+            packed_lu[row * dimension + column] <- packed_lu[row * dimension + column] / pivot_value
+            multiplier: f64 = packed_lu[row * dimension + column]
+            if multiplier != multiplier or multiplier >= 1.7976931348623157e308 or
+                multiplier <= -1.7976931348623157e308: return -1
+            trailing_column: mutable usize = column + 1
+            while trailing_column < dimension:
+                packed_lu[row * dimension + trailing_column] <-
+                    packed_lu[row * dimension + trailing_column] -
+                    multiplier * packed_lu[column * dimension + trailing_column]
+                value: f64 = packed_lu[row * dimension + trailing_column]
+                if value != value or value >= 1.7976931348623157e308 or
+                    value <= -1.7976931348623157e308: return -1
+                trailing_column <- trailing_column + 1
+            row <- row + 1
+        column <- column + 1
+
+    output_length: usize = matrix_elements + dimension + 1
+    if output.is_null() or capacity < output_length: return -2
+    index <- 0
+    while index < matrix_elements:
+        output[index] <- packed_lu[index]
+        index <- index + 1
+    index <- 0
+    while index <= dimension:
+        output[matrix_elements + index] <- pivot[index].f64()
+        index <- index + 1
+    output_length.i64()
+
+export fn lu_pivot_decomposition(input: f64&, input_length: usize,
+                                output: mutable f64&, capacity: usize) -> i64 = lu_pivot_decomposition_impl

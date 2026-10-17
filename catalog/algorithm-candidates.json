@@ -356,7 +356,7 @@
       "commit_url": "https://github.com/TheAlgorithms/Zig/commit/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3"
     }
   ],
-  "candidate_count": 3864,
+  "candidate_count": 3865,
   "source_file_count": 6158,
   "candidates": [
     {
@@ -46897,7 +46897,7 @@
         "TypeScript"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -46915,8 +46915,9 @@
         }
       ],
       "benchmark_name": "johnson",
-      "benchmark_contract": "benchmarks/j/johnson/README.md",
-      "review_notes": "The pinned Python and TypeScript adjacency-list implementations compute all-pairs shortest paths. Use bounded integer node IDs, finite weights, valid endpoints, and graphs without negative cycles; preserve infinity for unreachable pairs. Python heap nodes must be mutually comparable."
+      "benchmark_contract": "benchmarks/j/johnson_shortest_paths/README.md",
+      "review_notes": "The pinned Python and TypeScript adjacency-list Johnson implementations map to johnson_shortest_paths for bounded graphs with integer comparable node labels, valid finite-weight edges, and no negative cycles. Preserve canonical output ordering and represent isolated vertices through the Python-inferred node set; provide fresh TypeScript input per call. API differences for unreachable values are handled by the shared contract.",
+      "alias_of": "johnson_shortest_paths"
     },
     {
       "candidate_id": "johnson_shortest_paths",
@@ -54926,17 +54927,16 @@
     },
     {
       "candidate_id": "lu_decomposition",
-      "source_repository_count": 4,
+      "source_repository_count": 3,
       "source_repositories": [
         "C-Plus-Plus",
         "C-Plus-Plus-1",
-        "Dart",
         "Python"
       ],
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -54953,13 +54953,6 @@
           "local_folder_source": null
         },
         {
-          "repository": "Dart",
-          "language": "Dart",
-          "path": "maths/lu_decomposition.dart",
-          "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/lu_decomposition.dart",
-          "local_folder_source": null
-        },
-        {
           "repository": "Python",
           "language": "Python",
           "path": "linear_algebra/lu_decomposition.py",
@@ -54967,7 +54960,29 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "Pinned implementations are not one identical API. C++ and C++-1 have the same no-pivot Doolittle header: square-size check, unit diagonal L, U-row then L-column, no zero-pivot detection; the routine assumes nonempty input and caller-sized outputs, while determinant_lu multiplies the U diagonal. Python `lower_upper_decomposition` is also no-pivot Doolittle, but validates square shape and raises ArithmeticError when a prior pivot is zero; it returns (L,U) NumPy arrays. Dart is a distinct pivoted LUP implementation: `decompose` row-pivots by maximum absolute column entry and stores permutation/count in an augmented pivot array; the module also exposes determinant, inverse, solve, and OLS helpers, with separate errors for dimensions but no explicit singular-pivot check. Any benchmark contract must select one operation/source family; the pivoting and error semantics differ."
+      "review_notes": "The pinned C++ and C++-1 headers and Python lower_upper_decomposition implement no-pivot Doolittle LU and map to the existing lu_decompose contract on its bounded nonzero-pivot square-matrix domain. Their shape checks and zero-pivot error behavior differ outside that domain; this row excludes the distinct pivoted Dart routine.",
+      "alias_of": "lu_decompose",
+      "benchmark_contract": "benchmarks/l/lu_decompose/README.md"
+    },
+    {
+      "candidate_id": "lu_pivot_decomposition",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Dart"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Dart",
+          "language": "Dart",
+          "path": "maths/lu_decomposition.dart",
+          "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/lu_decomposition.dart",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_contract": "benchmarks/l/lu_pivot_decomposition/README.md",
+      "review_notes": "The pinned Dart Matrix.decompose() is partial-pivoting LUP, distinct from the no-pivot Doolittle candidates. It selects the first row with the largest absolute column entry (strict-greater tie handling), swaps packed rows and permutation entries, and returns combined LU plus a permutation vector of length n+1; the last entry is n plus the number of row swaps. The selected pivots are not explicitly checked for zero, so the benchmark domain must require nonzero selected pivots and call decompose() only. Source review recommends n=1..4, integer matrix entries in [-8,8], and 1e-12 output tolerance."
     },
     {
       "candidate_id": "lucas_kanade",
@@ -55106,7 +55121,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Java",
@@ -55116,7 +55131,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java `LUDecomposition.decompose(double[][])` constructs unit-lower and upper matrices with the no-pivot Doolittle recurrence and returns both in a `LU` object. It performs no square/ragged-array validation and no zero-pivot detection; malformed shapes can index-fail and zero pivots can yield non-finite values. It is distinct from pivoted LUP implementations under other candidates."
+      "review_notes": "The pinned Java LUDecomposition.decompose(double[][]) uses no-pivot Doolittle and returns separate L and U matrices, matching lu_decompose on the bounded square, nonzero-pivot domain. Its missing shape and zero-pivot checks are outside that domain.",
+      "alias_of": "lu_decompose",
+      "benchmark_contract": "benchmarks/l/lu_decompose/README.md"
     },
     {
       "candidate_id": "luhn",
@@ -56988,7 +57005,7 @@
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -57006,8 +57023,9 @@
         }
       ],
       "benchmark_name": "max_flow_with_ford_fulkerson_and_edmond_karp_algo",
-      "benchmark_contract": "benchmarks/max_flow_with_ford_fulkerson_and_edmond_karp_algo/README.md",
-      "review_notes": "The pinned C++ copies implement BFS augmenting-path maximum flow using capacity and residual matrices. Preserve the maximum-flow value; bound node count to 1..505, require valid distinct source/sink indices and nonnegative int-safe capacities, and exclude duplicate or antiparallel arcs because matrix writes/residual updates make those cases ambiguous. Ignore CLI and printing."
+      "benchmark_contract": "benchmarks/e/edmonds_karp/README.md",
+      "review_notes": "Both pinned C++ copies use BFS augmenting paths and map to edmonds_karp only on the shared restricted domain: 2..16 vertices, distinct valid source and sink, capacities in 0..1,000,000, no self-loops, and at most one directed edge per unordered vertex pair (no parallel or antiparallel arcs). The source == sink case is excluded because the pinned implementation can loop there.",
+      "alias_of": "edmonds_karp"
     },
     {
       "candidate_id": "max_heap",

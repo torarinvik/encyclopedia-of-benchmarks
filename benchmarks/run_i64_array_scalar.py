@@ -415,6 +415,34 @@ from suffix_trie_oracle import MAX_TEXT_LENGTH as SUFFIX_TRIE_MAX_TEXT_LENGTH
 from suffix_trie_oracle import MAX_VALID_INPUT_VALUES as SUFFIX_TRIE_MAX_VALID_INPUT_VALUES
 from suffix_trie_oracle import MIN_ASCII_CODE as SUFFIX_TRIE_MIN_ASCII_CODE
 from suffix_trie_oracle import expected_result as suffix_trie_expected
+from mcnaughton_yamada_thompson_oracle import INVALID_RESULT as MCNAUGHTON_YAMADA_THOMPSON_INVALID_RESULT
+from mcnaughton_yamada_thompson_oracle import MAX_NFA_FRAGMENTS as MCNAUGHTON_YAMADA_THOMPSON_MAX_NFA_FRAGMENTS
+from mcnaughton_yamada_thompson_oracle import MAX_NFA_STATES as MCNAUGHTON_YAMADA_THOMPSON_MAX_NFA_STATES
+from mcnaughton_yamada_thompson_oracle import MAX_PARSEABLE_INPUT_LENGTH as MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH
+from mcnaughton_yamada_thompson_oracle import MAX_PATTERN_LENGTH as MCNAUGHTON_YAMADA_THOMPSON_MAX_PATTERN_LENGTH
+from mcnaughton_yamada_thompson_oracle import MAX_TEXT_LENGTH as MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH
+from mcnaughton_yamada_thompson_oracle import MAX_VALID_INPUT_LENGTH as MCNAUGHTON_YAMADA_THOMPSON_MAX_VALID_INPUT_LENGTH
+from mcnaughton_yamada_thompson_oracle import MIN_PATTERN_LENGTH as MCNAUGHTON_YAMADA_THOMPSON_MIN_PATTERN_LENGTH
+from mcnaughton_yamada_thompson_oracle import MIN_TEXT_LENGTH as MCNAUGHTON_YAMADA_THOMPSON_MIN_TEXT_LENGTH
+from mcnaughton_yamada_thompson_oracle import expected_result as mcnaughton_yamada_thompson_expected
+from playfair_cipher_oracle import (
+    DECRYPT as PLAYFAIR_CIPHER_DECRYPT,
+    ENCRYPT as PLAYFAIR_CIPHER_ENCRYPT,
+    FNV_OFFSET_BASIS as PLAYFAIR_CIPHER_FNV_OFFSET_BASIS,
+    FNV_PRIME as PLAYFAIR_CIPHER_FNV_PRIME,
+    INVALID_RESULT as PLAYFAIR_CIPHER_INVALID_RESULT,
+    LOW63_MASK as PLAYFAIR_CIPHER_LOW63_MASK,
+    MAX_KEY_LENGTH as PLAYFAIR_CIPHER_MAX_KEY_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PLAYFAIR_CIPHER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_TEXT_LENGTH as PLAYFAIR_CIPHER_MAX_TEXT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as PLAYFAIR_CIPHER_MAX_VALID_INPUT_LENGTH,
+    MIN_KEY_LENGTH as PLAYFAIR_CIPHER_MIN_KEY_LENGTH,
+    MIN_OPERATION as PLAYFAIR_CIPHER_MIN_OPERATION,
+    MAX_OPERATION as PLAYFAIR_CIPHER_MAX_OPERATION,
+    MIN_TEXT_LENGTH as PLAYFAIR_CIPHER_MIN_TEXT_LENGTH,
+    ALPHABET_BYTES as PLAYFAIR_CIPHER_ALPHABET_BYTES,
+    expected_result as playfair_cipher_expected,
+)
 from minimax_oracle import MAX_PARSEABLE_INPUT_LENGTH as MINIMAX_MAX_PARSEABLE_INPUT_LENGTH
 from minimax_oracle import expected_result as minimax_expected
 from sparse_matrix_oracle import INVALID_RESULT as SPARSE_MATRIX_INVALID_RESULT
@@ -6155,6 +6183,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else K_NN_MAX_PARSEABLE_INPUT_VALUES if algorithm == "k_nn"
                         else RSA_CIPHER_MAX_PARSEABLE_INPUT_VALUES if algorithm == "rsa_cipher"
                         else SUFFIX_TRIE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "suffix_trie"
+                        else MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "mcnaughton_yamada_thompson"
+                        else PLAYFAIR_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "playfair_cipher"
                         else MINIMAX_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "minimax"
                         else MRUCACHE_MAX_INPUT_LENGTH if algorithm == "mrucache"
                         else KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kruskal_mst"
@@ -11147,6 +11179,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             values, case.get("input_length", len(values)), case.get("input_is_null", False))
         if expected != expected_from_source:
             raise ValueError("solution42 expected_result must match the bounded first-line triangle-word count")
+    elif algorithm == "mcnaughton_yamada_thompson":
+        expected_from_source = mcnaughton_yamada_thompson_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mcnaughton_yamada_thompson expected_result must match the bounded source-compatible Thompson NFA matcher")
+    elif algorithm == "playfair_cipher":
+        expected_from_source = playfair_cipher_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("playfair_cipher expected_result must match the bounded shared Java/Python transform and FNV-1a hash")
     return values
 
 
@@ -11620,6 +11660,293 @@ def validate_suffix_trie_workload(workload: dict) -> None:
         raise ValueError("suffix_trie ABI fixtures do not exercise their named malformed inputs")
 
 
+MCNAUGHTON_YAMADA_THOMPSON_VALID_CASE_IDS = {
+    "empty_pattern_empty_text", "empty_pattern_rejects_nonempty_text",
+    "literal_sequence", "literal_mismatch", "implicit_concatenation",
+    "union_right_branch", "grouped_union_then_concatenation",
+    "star_matches_zero_repetitions", "star_matches_repetition",
+    "star_rejects_other_literal", "two_starred_concatenated_fragments",
+    "full_string_match_not_substring", "maximum_pattern_and_text_lengths",
+}
+MCNAUGHTON_YAMADA_THOMPSON_INVALID_CASE_IDS = {
+    "empty_input_invalid", "negative_pattern_length", "pattern_length_above_maximum",
+    "text_length_above_maximum", "truncated_packed_input", "trailing_packed_value",
+    "nul_text_byte_invalid", "text_byte_above_ascii_range", "unsupported_pattern_literal",
+    "leading_star_invalid", "empty_alternative_invalid", "empty_group_invalid",
+    "unclosed_group_invalid", "outer_parentheses_do_not_enclose_whole_union",
+    "outer_parentheses_do_not_enclose_whole_concatenation",
+    "nested_outer_parentheses_do_not_enclose_whole_union",
+    "concat_child_contains_unsafe_nested_groups", "repeated_star_invalid",
+    "nfa_fragment_bound_exceeded",
+}
+
+
+def validate_mcnaughton_yamada_thompson_workload(workload: dict) -> None:
+    """Pin the bounded Thompson matcher, including the source parser's group quirk."""
+    source = {
+        "repository": "TheAlgorithms/C",
+        "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+        "path": "misc/mcnaughton_yamada_thompson.c",
+        "symbol": "buildAST / compileFromAST / transit / isAccepting",
+        "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/misc/mcnaughton_yamada_thompson.c",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Return whether the complete text is accepted by the Thompson epsilon-NFA for the pattern.",
+        "input_encoding": "[pattern_length, text_length, pattern_bytes..., text_bytes...]",
+        "pattern_grammar": "Empty pattern is epsilon. Otherwise: concat := repeat+; repeat := atom '*'?; atom := literal | '(' union ')'; union := concat ('|' concat)*. Literals are a, b, c; no escapes.",
+        "operator_precedence": "Postfix star, then implicit concatenation, then union.",
+        "pattern_byte_alphabet": [97, 98, 99, 40, 41, 42, 124],
+        "text_byte_range": [1, 127],
+        "maximum_nfa_fragments": MCNAUGHTON_YAMADA_THOMPSON_MAX_NFA_FRAGMENTS,
+        "maximum_nfa_states": MCNAUGHTON_YAMADA_THOMPSON_MAX_NFA_STATES,
+        "nfa_fragment_definition": "One literal, union node, or star node; each contributes two NFA states. Concatenation and parentheses add no states.",
+        "source_buffer_bound": "The pinned source's epsilon closure and transition work arrays each have ten entries; this contract limits the NFA to eight distinct states.",
+        "source_outer_group_rule": "After preprocessing and at every recursive buildAST substring, if the substring begins with '(' and ends with ')', the opening parenthesis at byte 0 must match its final byte. The pinned parser strips these boundary bytes without checking their depth.",
+        "matching_scope": "Entire text, including empty text.",
+        "result": "1 for a full match, 0 for a valid nonmatch.",
+        "errors": "Malformed packed lengths, non-ASCII/NUL bytes, unsupported syntax, empty groups or alternatives, repeated postfix stars, source-incompatible parenthesis stripping, or more than four NFA fragments return -1.",
+    }
+    input_spec = {
+        "kind": "int64_array",
+        "encoding": "[pattern_length, text_length, pattern_bytes..., text_bytes...]",
+        "pattern_length_range": [MCNAUGHTON_YAMADA_THOMPSON_MIN_PATTERN_LENGTH,
+                                 MCNAUGHTON_YAMADA_THOMPSON_MAX_PATTERN_LENGTH],
+        "text_length_range": [MCNAUGHTON_YAMADA_THOMPSON_MIN_TEXT_LENGTH,
+                              MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH],
+        "pattern_bytes": [97, 98, 99, 40, 41, 42, 124],
+        "text_byte_range": [1, 127],
+        "exact_input_length": "2+pattern_length+text_length",
+        "maximum_valid_input_length": MCNAUGHTON_YAMADA_THOMPSON_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": MCNAUGHTON_YAMADA_THOMPSON_INVALID_RESULT,
+        "null_input_result": MCNAUGHTON_YAMADA_THOMPSON_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "int64_scalar",
+        "encoding": "1 for full-string acceptance; 0 for valid nonmatch; -1 for invalid input.",
+        "invalid_input_result": MCNAUGHTON_YAMADA_THOMPSON_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 10,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-c-mcnaughton-yamada-thompson-i64-array-scalar-v1"
+            or workload.get("algorithm") != "mcnaughton_yamada_thompson"
+            or workload.get("function_symbol") != "mcnaughton_yamada_thompson"
+            or workload.get("description") != "Compile a bounded regular expression to a Thompson epsilon-NFA and return full-string acceptance."
+            or workload.get("pinned_source") != source
+            or "related_pinned_sources" in workload
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Parse only the bounded grammar, then compute reachable text positions for each syntax-tree node; star uses a visited-position closure to handle empty matches without looping."
+            or (MCNAUGHTON_YAMADA_THOMPSON_MIN_PATTERN_LENGTH,
+                MCNAUGHTON_YAMADA_THOMPSON_MAX_PATTERN_LENGTH,
+                MCNAUGHTON_YAMADA_THOMPSON_MIN_TEXT_LENGTH,
+                MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH,
+                MCNAUGHTON_YAMADA_THOMPSON_MAX_NFA_FRAGMENTS,
+                MCNAUGHTON_YAMADA_THOMPSON_MAX_NFA_STATES,
+                MCNAUGHTON_YAMADA_THOMPSON_MAX_VALID_INPUT_LENGTH,
+                MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH,
+                MCNAUGHTON_YAMADA_THOMPSON_INVALID_RESULT)
+            != (0, 16, 0, 32, 4, 8, 50, 51, -1)
+            or not isinstance(cases, list)
+            or len(case_ids) != len(MCNAUGHTON_YAMADA_THOMPSON_VALID_CASE_IDS
+                                     | MCNAUGHTON_YAMADA_THOMPSON_INVALID_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != (MCNAUGHTON_YAMADA_THOMPSON_VALID_CASE_IDS
+                                 | MCNAUGHTON_YAMADA_THOMPSON_INVALID_CASE_IDS)
+            or "abi_cases" in workload):
+        raise ValueError("mcnaughton_yamada_thompson metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "mcnaughton_yamada_thompson" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "The `i64_array_scalar` input is" not in readme
+            or "To preserve that source behavior safely, this contract rejects a pattern" not in readme
+            or "(a)|(b)" not in readme
+            or "(a)(b)" not in readme
+            or "((a)|(b))*" not in readme):
+        raise ValueError("mcnaughton_yamada_thompson README is missing its pinned source or parser compatibility guard")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"mcnaughton_yamada_thompson fixture framing is invalid: {case.get('id')}")
+        encoded = encode_case(case, "mcnaughton_yamada_thompson")
+        result = mcnaughton_yamada_thompson_expected(encoded)
+        required_result = (MCNAUGHTON_YAMADA_THOMPSON_INVALID_RESULT
+                           if case["id"] in MCNAUGHTON_YAMADA_THOMPSON_INVALID_CASE_IDS
+                           else case["expected_result"])
+        if result != case["expected_result"] or result != required_result:
+            raise ValueError(f"mcnaughton_yamada_thompson fixture differs from its source-bounded oracle: {case['id']}")
+        if (case["id"] in MCNAUGHTON_YAMADA_THOMPSON_VALID_CASE_IDS
+                and result not in (0, 1)):
+            raise ValueError(f"mcnaughton_yamada_thompson semantic case is not valid: {case['id']}")
+
+
+PLAYFAIR_CIPHER_VALID_CASE_IDS = {
+    "empty_key_encrypt_empty_text", "empty_key_decrypt_empty_text",
+    "default_square_row_column_and_rectangle", "default_square_row_wraparound",
+    "default_square_column_wraparound", "ordered_custom_key",
+    "duplicate_key_letters_are_ignored", "decrypt_preserves_plaintext_filler",
+    "maximum_key_and_text_lengths",
+}
+PLAYFAIR_CIPHER_INVALID_CASE_IDS = {
+    "invalid_operation", "empty_input_invalid", "negative_key_length",
+    "key_length_above_maximum", "invalid_key_j", "lowercase_key_invalid",
+    "odd_plaintext_length_invalid", "odd_ciphertext_length_invalid",
+    "negative_text_length", "text_length_above_maximum",
+    "encrypt_adjacent_equal_plaintext_invalid", "invalid_text_j",
+    "lowercase_text_invalid", "truncated_key", "truncated_text",
+    "trailing_packed_value",
+}
+
+
+def validate_playfair_cipher_workload(workload: dict) -> None:
+    """Pin both shared-source cipher implementations and verify every fixture."""
+    sources = [
+        {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/ciphers/PlayfairCipher.java",
+            "symbols": ["PlayfairCipher.encrypt", "PlayfairCipher.decrypt"],
+            "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/PlayfairCipher.java",
+            "role": "algorithm",
+        },
+        {
+            "repository": "TheAlgorithms/Python",
+            "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+            "path": "ciphers/playfair_cipher.py",
+            "symbols": ["encode", "decode"],
+            "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/playfair_cipher.py",
+            "role": "algorithm",
+        },
+    ]
+    contract = {
+        "operation": "Build the Playfair 5x5 key square, encrypt or decrypt text in digraphs, and return the low 63 bits of FNV-1a-64 over the exact returned ASCII bytes.",
+        "input_encoding": "[operation, key_length, key_bytes..., text_length, text_bytes...]",
+        "operation_values": {"0": "encrypt", "1": "decrypt"},
+        "key_length_range": [PLAYFAIR_CIPHER_MIN_KEY_LENGTH, PLAYFAIR_CIPHER_MAX_KEY_LENGTH],
+        "text_length_range": [PLAYFAIR_CIPHER_MIN_TEXT_LENGTH, PLAYFAIR_CIPHER_MAX_TEXT_LENGTH],
+        "text_length_must_be_even": True,
+        "letter_alphabet": "ASCII uppercase A-Z excluding J",
+        "duplicate_key_letters": "Allowed; the first occurrence is retained.",
+        "encryption_plaintext_rule": "Adjacent equal bytes are invalid, so both source preprocessors leave the bounded plaintext unchanged; even length avoids padding.",
+        "decryption_rule": "Decrypt each pair and preserve all returned letters, including X filler; do not strip filler.",
+        "key_square": "Append the unique key letters in first-occurrence order to the standard alphabet ABCDEFGHIKLMNOPQRSTUVWXYZ, then append remaining alphabet letters in order.",
+        "digraph_transform": "Same row shifts one column right for encryption and left for decryption; same column shifts one row down for encryption and up for decryption; otherwise exchange columns.",
+        "hash": "FNV-1a-64: offset basis 14695981039346656037; for each returned ASCII byte XOR then multiply by 1099511628211 modulo 2^64; return hash & 0x7fffffffffffffff.",
+        "maximum_output_length": PLAYFAIR_CIPHER_MAX_TEXT_LENGTH,
+        "errors": "Invalid operation, malformed packed shape, out-of-range lengths, odd text length, non-uppercase alphabet bytes, J, or adjacent equal encryption plaintext bytes return -1.",
+    }
+    input_spec = {
+        "kind": "int64_array",
+        "encoding": "[operation, key_length, key_bytes..., text_length, text_bytes...]",
+        "operation_range": [PLAYFAIR_CIPHER_MIN_OPERATION, PLAYFAIR_CIPHER_MAX_OPERATION],
+        "key_length_range": [PLAYFAIR_CIPHER_MIN_KEY_LENGTH, PLAYFAIR_CIPHER_MAX_KEY_LENGTH],
+        "text_length_range": [PLAYFAIR_CIPHER_MIN_TEXT_LENGTH, PLAYFAIR_CIPHER_MAX_TEXT_LENGTH],
+        "text_length_must_be_even": True,
+        "letter_byte_range": [65, 90],
+        "excluded_letter_byte": 74,
+        "exact_input_length": "3+key_length+text_length",
+        "maximum_valid_input_length": PLAYFAIR_CIPHER_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": PLAYFAIR_CIPHER_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": PLAYFAIR_CIPHER_INVALID_RESULT,
+        "null_input_result": PLAYFAIR_CIPHER_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "int64_scalar",
+        "encoding": "FNV-1a-64 hash of returned ASCII bytes, truncated to the low 63 bits; invalid input returns -1.",
+        "invalid_input_result": PLAYFAIR_CIPHER_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 20,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-python-playfair-cipher-i64-array-scalar-v1"
+            or workload.get("algorithm") != "playfair_cipher"
+            or workload.get("function_symbol") != "playfair_cipher"
+            or workload.get("description") != "Encrypt or decrypt bounded uppercase ASCII digraphs with the shared Java/Python Playfair behavior and return the low 63 bits of an FNV-1a result hash."
+            or workload.get("pinned_sources") != sources
+            or "pinned_source" in workload
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Validate the shared Java/Python input domain, construct the 25-letter square with first-occurrence key deduplication, transform each pair by row/column/rectangle rules, then FNV-1a hash the exact output bytes and retain 63 low bits."
+            or (PLAYFAIR_CIPHER_MIN_OPERATION, PLAYFAIR_CIPHER_MAX_OPERATION,
+                PLAYFAIR_CIPHER_MIN_KEY_LENGTH, PLAYFAIR_CIPHER_MAX_KEY_LENGTH,
+                PLAYFAIR_CIPHER_MIN_TEXT_LENGTH, PLAYFAIR_CIPHER_MAX_TEXT_LENGTH,
+                PLAYFAIR_CIPHER_MAX_VALID_INPUT_LENGTH,
+                PLAYFAIR_CIPHER_MAX_PARSEABLE_INPUT_LENGTH,
+                PLAYFAIR_CIPHER_INVALID_RESULT,
+                PLAYFAIR_CIPHER_FNV_OFFSET_BASIS, PLAYFAIR_CIPHER_FNV_PRIME,
+                PLAYFAIR_CIPHER_LOW63_MASK)
+            != (0, 1, 0, 25, 0, 128, 156, 157, -1,
+                14695981039346656037, 1099511628211, (1 << 63) - 1)
+            or PLAYFAIR_CIPHER_ALPHABET_BYTES != set(range(65, 91)) - {74}
+            or not isinstance(cases, list)
+            or len(case_ids) != len(PLAYFAIR_CIPHER_VALID_CASE_IDS
+                                     | PLAYFAIR_CIPHER_INVALID_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != (PLAYFAIR_CIPHER_VALID_CASE_IDS
+                                 | PLAYFAIR_CIPHER_INVALID_CASE_IDS)
+            or "abi_cases" in workload):
+        raise ValueError("playfair_cipher metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "playfair_cipher" / "README.md").read_text(
+        encoding="utf-8")
+    if (any(source["url"] not in readme for source in sources)
+            or "The `i64_array_scalar` input is" not in readme
+            or "Adjacent equal plaintext letters are rejected." not in readme
+            or "The maximum valid packed input contains 156 integers; 157 are parseable" not in readme):
+        raise ValueError("playfair_cipher README is missing its pinned sources or shared-domain rules")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > PLAYFAIR_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"playfair_cipher fixture framing is invalid: {case.get('id')}")
+        encoded = encode_case(case, "playfair_cipher")
+        result = playfair_cipher_expected(encoded)
+        required_result = (PLAYFAIR_CIPHER_INVALID_RESULT
+                           if case["id"] in PLAYFAIR_CIPHER_INVALID_CASE_IDS
+                           else case["expected_result"])
+        if result != case["expected_result"] or result != required_result:
+            raise ValueError(f"playfair_cipher fixture differs from the shared transform/hash oracle: {case['id']}")
+        if (case["id"] in PLAYFAIR_CIPHER_VALID_CASE_IDS
+                and not 0 <= result <= PLAYFAIR_CIPHER_LOW63_MASK):
+            raise ValueError(f"playfair_cipher semantic case is invalid: {case['id']}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -11643,7 +11970,10 @@ def main() -> int:
             or sha256_file(runner) != binary["harness_sha256"]):
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
-    workload_path = args.workload or ROOT / "benchmarks" / letter / algorithm / "workload.json"
+    workload_path = args.workload or (
+        ROOT / "benchmarks" / algorithm / "workload.json"
+        if algorithm == "mcnaughton_yamada_thompson" else
+        ROOT / "benchmarks" / letter / algorithm / "workload.json")
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
@@ -11738,6 +12068,10 @@ def main() -> int:
         validate_rsa_cipher_workload(workload)
     elif algorithm == "suffix_trie":
         validate_suffix_trie_workload(workload)
+    elif algorithm == "mcnaughton_yamada_thompson":
+        validate_mcnaughton_yamada_thompson_workload(workload)
+    elif algorithm == "playfair_cipher":
+        validate_playfair_cipher_workload(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]

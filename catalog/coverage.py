@@ -125,6 +125,12 @@ def audit() -> dict:
                 guide = ROOT / contract
                 package_dir = guide.parent
                 letter = package_dir.parent.name
+                # A small set of reviewed contracts lives directly under
+                # benchmarks/<slug>/ instead of benchmarks/<letter>/<slug>/.
+                # Their language ports still use the standard initial-letter
+                # directory, so don't mistake "benchmarks" for that letter.
+                if letter == "benchmarks":
+                    letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
             else:
                 letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
                 package_dir = ROOT / "benchmarks" / letter / algorithm

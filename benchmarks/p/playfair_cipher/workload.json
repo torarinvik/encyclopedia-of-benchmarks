@@ -1,0 +1,547 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-python-playfair-cipher-i64-array-scalar-v1",
+  "algorithm": "playfair_cipher",
+  "function_symbol": "playfair_cipher",
+  "description": "Encrypt or decrypt bounded uppercase ASCII digraphs with the shared Java/Python Playfair behavior and return the low 63 bits of an FNV-1a result hash.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/ciphers/PlayfairCipher.java",
+      "symbols": [
+        "PlayfairCipher.encrypt",
+        "PlayfairCipher.decrypt"
+      ],
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/PlayfairCipher.java",
+      "role": "algorithm"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "ciphers/playfair_cipher.py",
+      "symbols": [
+        "encode",
+        "decode"
+      ],
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/playfair_cipher.py",
+      "role": "algorithm"
+    }
+  ],
+  "contract": {
+    "operation": "Build the Playfair 5x5 key square, encrypt or decrypt text in digraphs, and return the low 63 bits of FNV-1a-64 over the exact returned ASCII bytes.",
+    "input_encoding": "[operation, key_length, key_bytes..., text_length, text_bytes...]",
+    "operation_values": {
+      "0": "encrypt",
+      "1": "decrypt"
+    },
+    "key_length_range": [
+      0,
+      25
+    ],
+    "text_length_range": [
+      0,
+      128
+    ],
+    "text_length_must_be_even": true,
+    "letter_alphabet": "ASCII uppercase A-Z excluding J",
+    "duplicate_key_letters": "Allowed; the first occurrence is retained.",
+    "encryption_plaintext_rule": "Adjacent equal bytes are invalid, so both source preprocessors leave the bounded plaintext unchanged; even length avoids padding.",
+    "decryption_rule": "Decrypt each pair and preserve all returned letters, including X filler; do not strip filler.",
+    "key_square": "Append the unique key letters in first-occurrence order to the standard alphabet ABCDEFGHIKLMNOPQRSTUVWXYZ, then append remaining alphabet letters in order.",
+    "digraph_transform": "Same row shifts one column right for encryption and left for decryption; same column shifts one row down for encryption and up for decryption; otherwise exchange columns.",
+    "hash": "FNV-1a-64: offset basis 14695981039346656037; for each returned ASCII byte XOR then multiply by 1099511628211 modulo 2^64; return hash & 0x7fffffffffffffff.",
+    "maximum_output_length": 128,
+    "errors": "Invalid operation, malformed packed shape, out-of-range lengths, odd text length, non-uppercase alphabet bytes, J, or adjacent equal encryption plaintext bytes return -1."
+  },
+  "input": {
+    "kind": "int64_array",
+    "encoding": "[operation, key_length, key_bytes..., text_length, text_bytes...]",
+    "operation_range": [
+      0,
+      1
+    ],
+    "key_length_range": [
+      0,
+      25
+    ],
+    "text_length_range": [
+      0,
+      128
+    ],
+    "text_length_must_be_even": true,
+    "letter_byte_range": [
+      65,
+      90
+    ],
+    "excluded_letter_byte": 74,
+    "exact_input_length": "3+key_length+text_length",
+    "maximum_valid_input_length": 156,
+    "maximum_parseable_input_length": 157,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "int64_scalar",
+    "encoding": "FNV-1a-64 hash of returned ASCII bytes, truncated to the low 63 bits; invalid input returns -1.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "oracle_method": "Validate the shared Java/Python input domain, construct the 25-letter square with first-occurrence key deduplication, transform each pair by row/column/rectangle rules, then FNV-1a hash the exact output bytes and retain 63 low bits.",
+  "cases": [
+    {
+      "id": "empty_key_encrypt_empty_text",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 5472609002491880229
+    },
+    {
+      "id": "empty_key_decrypt_empty_text",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 5472609002491880229
+    },
+    {
+      "id": "default_square_row_column_and_rectangle",
+      "input_values": [
+        0,
+        0,
+        6,
+        65,
+        66,
+        65,
+        70,
+        65,
+        71
+      ],
+      "input_length": 9,
+      "expected_result": 2228393268385168464
+    },
+    {
+      "id": "default_square_row_wraparound",
+      "input_values": [
+        0,
+        0,
+        2,
+        69,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": 650880130429808042
+    },
+    {
+      "id": "default_square_column_wraparound",
+      "input_values": [
+        0,
+        0,
+        2,
+        86,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": 650875732383295198
+    },
+    {
+      "id": "ordered_custom_key",
+      "input_values": [
+        0,
+        8,
+        77,
+        79,
+        78,
+        65,
+        82,
+        67,
+        72,
+        89,
+        2,
+        65,
+        66
+      ],
+      "input_length": 13,
+      "expected_result": 653896090825423140
+    },
+    {
+      "id": "duplicate_key_letters_are_ignored",
+      "input_values": [
+        0,
+        6,
+        76,
+        69,
+        84,
+        84,
+        69,
+        82,
+        4,
+        65,
+        66,
+        67,
+        68
+      ],
+      "input_length": 13,
+      "expected_result": 2963106550232161906
+    },
+    {
+      "id": "decrypt_preserves_plaintext_filler",
+      "input_values": [
+        1,
+        0,
+        6,
+        66,
+        67,
+        70,
+        75,
+        66,
+        70
+      ],
+      "input_length": 9,
+      "expected_result": 38376262087039342
+    },
+    {
+      "id": "maximum_key_and_text_lengths",
+      "input_values": [
+        0,
+        25,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        128,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66
+      ],
+      "input_length": 156,
+      "expected_result": 4692214389425605541
+    },
+    {
+      "id": "invalid_operation",
+      "input_values": [
+        2,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "empty_input_invalid",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_key_length",
+      "input_values": [
+        0,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "key_length_above_maximum",
+      "input_values": [
+        0,
+        26
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_key_j",
+      "input_values": [
+        0,
+        1,
+        74,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "lowercase_key_invalid",
+      "input_values": [
+        0,
+        1,
+        97,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "odd_plaintext_length_invalid",
+      "input_values": [
+        0,
+        0,
+        3,
+        65,
+        66,
+        67
+      ],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "odd_ciphertext_length_invalid",
+      "input_values": [
+        1,
+        0,
+        1,
+        65
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_text_length",
+      "input_values": [
+        0,
+        0,
+        -2
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "text_length_above_maximum",
+      "input_values": [
+        1,
+        0,
+        130
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "encrypt_adjacent_equal_plaintext_invalid",
+      "input_values": [
+        0,
+        0,
+        4,
+        65,
+        65,
+        66,
+        66
+      ],
+      "input_length": 7,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_text_j",
+      "input_values": [
+        1,
+        0,
+        2,
+        74,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "lowercase_text_invalid",
+      "input_values": [
+        0,
+        0,
+        2,
+        97,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_key",
+      "input_values": [
+        0,
+        2,
+        65
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_text",
+      "input_values": [
+        1,
+        0,
+        2,
+        65
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_packed_value",
+      "input_values": [
+        0,
+        0,
+        0,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-mcnaughton-yamada-thompson-i64-array-scalar-v1",
+  "algorithm": "mcnaughton_yamada_thompson",
+  "function_symbol": "mcnaughton_yamada_thompson",
+  "description": "Compile a bounded regular expression to a Thompson epsilon-NFA and return full-string acceptance.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C",
+    "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+    "path": "misc/mcnaughton_yamada_thompson.c",
+    "symbol": "buildAST / compileFromAST / transit / isAccepting",
+    "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/misc/mcnaughton_yamada_thompson.c",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Return whether the complete text is accepted by the Thompson epsilon-NFA for the pattern.",
+    "input_encoding": "[pattern_length, text_length, pattern_bytes..., text_bytes...]",
+    "pattern_grammar": "Empty pattern is epsilon. Otherwise: concat := repeat+; repeat := atom '*'?; atom := literal | '(' union ')'; union := concat ('|' concat)*. Literals are a, b, c; no escapes.",
+    "operator_precedence": "Postfix star, then implicit concatenation, then union.",
+    "pattern_byte_alphabet": [97, 98, 99, 40, 41, 42, 124],
+    "text_byte_range": [1, 127],
+    "maximum_nfa_fragments": 4,
+    "maximum_nfa_states": 8,
+    "nfa_fragment_definition": "One literal, union node, or star node; each contributes two NFA states. Concatenation and parentheses add no states.",
+    "source_buffer_bound": "The pinned source's epsilon closure and transition work arrays each have ten entries; this contract limits the NFA to eight distinct states.",
+    "source_outer_group_rule": "After preprocessing and at every recursive buildAST substring, if the substring begins with '(' and ends with ')', the opening parenthesis at byte 0 must match its final byte. The pinned parser strips these boundary bytes without checking their depth.",
+    "matching_scope": "Entire text, including empty text.",
+    "result": "1 for a full match, 0 for a valid nonmatch.",
+    "errors": "Malformed packed lengths, non-ASCII/NUL bytes, unsupported syntax, empty groups or alternatives, repeated postfix stars, source-incompatible parenthesis stripping, or more than four NFA fragments return -1."
+  },
+  "input": {
+    "kind": "int64_array",
+    "encoding": "[pattern_length, text_length, pattern_bytes..., text_bytes...]",
+    "pattern_length_range": [0, 16],
+    "text_length_range": [0, 32],
+    "pattern_bytes": [97, 98, 99, 40, 41, 42, 124],
+    "text_byte_range": [1, 127],
+    "exact_input_length": "2+pattern_length+text_length",
+    "maximum_valid_input_length": 50,
+    "maximum_parseable_input_length": 51,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "int64_scalar",
+    "encoding": "1 for full-string acceptance; 0 for valid nonmatch; -1 for invalid input.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "oracle_method": "Parse only the bounded grammar, then compute reachable text positions for each syntax-tree node; star uses a visited-position closure to handle empty matches without looping.",
+  "cases": [
+    {
+      "id": "empty_pattern_empty_text",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "empty_pattern_rejects_nonempty_text",
+      "input_values": [0, 1, 97],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "literal_sequence",
+      "input_values": [3, 3, 97, 98, 99, 97, 98, 99],
+      "input_length": 8,
+      "expected_result": 1
+    },
+    {
+      "id": "literal_mismatch",
+      "input_values": [3, 3, 97, 98, 99, 97, 98, 100],
+      "input_length": 8,
+      "expected_result": 0
+    },
+    {
+      "id": "implicit_concatenation",
+      "input_values": [4, 4, 97, 98, 99, 97, 97, 98, 99, 97],
+      "input_length": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "union_right_branch",
+      "input_values": [4, 2, 97, 124, 98, 99, 98, 99],
+      "input_length": 8,
+      "expected_result": 1
+    },
+    {
+      "id": "grouped_union_then_concatenation",
+      "input_values": [6, 2, 40, 97, 124, 98, 41, 99, 97, 99],
+      "input_length": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "star_matches_zero_repetitions",
+      "input_values": [2, 0, 97, 42],
+      "input_length": 4,
+      "expected_result": 1
+    },
+    {
+      "id": "star_matches_repetition",
+      "input_values": [2, 3, 97, 42, 97, 97, 97],
+      "input_length": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "star_rejects_other_literal",
+      "input_values": [2, 1, 97, 42, 98],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "two_starred_concatenated_fragments",
+      "input_values": [4, 6, 97, 42, 98, 42, 97, 97, 97, 98, 98, 98],
+      "input_length": 12,
+      "expected_result": 1
+    },
+    {
+      "id": "full_string_match_not_substring",
+      "input_values": [1, 2, 97, 97, 97],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "maximum_pattern_and_text_lengths",
+      "input_values": [16, 32, 40, 40, 40, 40, 40, 40, 40, 97, 41, 41, 41, 41, 41, 41, 41, 42, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97],
+      "input_length": 50,
+      "expected_result": 1
+    },
+    {
+      "id": "empty_input_invalid",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_pattern_length",
+      "input_values": [-1, 0],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "pattern_length_above_maximum",
+      "input_values": [17, 0],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "text_length_above_maximum",
+      "input_values": [0, 33],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_packed_input",
+      "input_values": [1, 1, 97],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_packed_value",
+      "input_values": [0, 0, 7],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "nul_text_byte_invalid",
+      "input_values": [0, 1, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "text_byte_above_ascii_range",
+      "input_values": [0, 1, 128],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "unsupported_pattern_literal",
+      "input_values": [1, 0, 100],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "leading_star_invalid",
+      "input_values": [1, 0, 42],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "empty_alternative_invalid",
+      "input_values": [2, 0, 97, 124],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "empty_group_invalid",
+      "input_values": [2, 0, 40, 41],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "unclosed_group_invalid",
+      "input_values": [2, 0, 40, 97],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "outer_parentheses_do_not_enclose_whole_union",
+      "input_values": [7, 1, 40, 97, 41, 124, 40, 98, 41, 97],
+      "input_length": 10,
+      "expected_result": -1
+    },
+    {
+      "id": "outer_parentheses_do_not_enclose_whole_concatenation",
+      "input_values": [6, 2, 40, 97, 41, 40, 98, 41, 97, 98],
+      "input_length": 10,
+      "expected_result": -1
+    },
+    {
+      "id": "nested_outer_parentheses_do_not_enclose_whole_union",
+      "input_values": [10, 1, 40, 40, 97, 41, 124, 40, 98, 41, 41, 42, 97],
+      "input_length": 13,
+      "expected_result": -1
+    },
+    {
+      "id": "concat_child_contains_unsafe_nested_groups",
+      "input_values": [10, 0, 99, 40, 40, 97, 41, 124, 40, 98, 41, 41],
+      "input_length": 12,
+      "expected_result": -1
+    },
+    {
+      "id": "nested_parentheses_after_union_outside_fragment_bound",
+      "input_values": [9, 0, 97, 124, 40, 98, 41, 124, 40, 99, 41],
+      "input_length": 11,
+      "expected_result": -1
+    },
+    {
+      "id": "repeated_star_invalid",
+      "input_values": [3, 0, 97, 42, 42],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "nfa_fragment_bound_exceeded",
+      "input_values": [6, 0, 97, 42, 98, 42, 99, 42],
+      "input_length": 8,
+      "expected_result": -1
+    }
+  ]
+}

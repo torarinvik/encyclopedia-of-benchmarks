@@ -35,12 +35,22 @@ from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   validate_mean_shift_workload,
                                   validate_k_means_clust_workload,
                                   validate_lu_decompose_workload,
+                                  validate_lu_pivot_decomposition_workload,
                                   validate_polynomial_regression_workload,
                                   validate_pi_monte_carlo_estimation_workload,
                                   validate_momentum_sgd_workload,
                                   validate_soboleva_modified_hyperbolic_tangent_workload,
                                   validate_rmsprop_workload,
                                   validate_sherman_morrison_workload,
+                                  validate_linearregressionrawr_workload,
+                                  LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS,
+                                  LINEARREGRESSIONRAWR_MAX_PARSEABLE_INPUT_LENGTH,
+                                  LINEARREGRESSIONRAWR_MAX_PREDICTOR,
+                                  LINEARREGRESSIONRAWR_MAX_RESPONSE,
+                                  LINEARREGRESSIONRAWR_MAX_SAMPLE_COUNT,
+                                  LINEARREGRESSIONRAWR_MIN_PREDICTOR,
+                                  LINEARREGRESSIONRAWR_MIN_RESPONSE,
+                                  LINEARREGRESSIONRAWR_MIN_SAMPLE_COUNT,
                                   SHERMAN_MORRISON_MAX_DIMENSION,
                                   SHERMAN_MORRISON_MAX_ENTRY,
                                   SHERMAN_MORRISON_MAX_OUTPUT_ELEMENTS,
@@ -106,6 +116,13 @@ from lu_decompose_oracle import (
     MAX_VALID_INPUT_LENGTH as LU_DECOMPOSE_MAX_VALID_INPUT_LENGTH,
     expected_output as lu_decompose_abi_oracle,
 )
+from lu_pivot_decomposition_oracle import (
+    MAX_DIMENSION as LU_PIVOT_DECOMPOSITION_MAX_DIMENSION,
+    MAX_OUTPUT_ELEMENTS as LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LU_PIVOT_DECOMPOSITION_MAX_VALID_INPUT_LENGTH,
+    expected_output as lu_pivot_decomposition_abi_oracle,
+)
 from polynomial_regression_oracle import (
     MAX_ABSCISSA as POLYNOMIAL_REGRESSION_MAX_ABSCISSA,
     MAX_DEGREE as POLYNOMIAL_REGRESSION_MAX_DEGREE,
@@ -142,6 +159,7 @@ from momentum_sgd_oracle import (
     expected_output as momentum_sgd_abi_oracle,
 )
 from sherman_morrison_oracle import expected_output as sherman_morrison_abi_oracle
+from linearregressionrawr_oracle import expected_output as linearregressionrawr_abi_oracle
 
 ALGORITHMS = tuple(ORACLES)
 
@@ -171,10 +189,14 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_k_means_clust_workload(workload)
     elif algorithm == "lu_decompose":
         validate_lu_decompose_workload(workload)
+    elif algorithm == "lu_pivot_decomposition":
+        validate_lu_pivot_decomposition_workload(workload)
     elif algorithm == "polynomial_regression":
         validate_polynomial_regression_workload(workload)
     elif algorithm == "sherman_morrison":
         validate_sherman_morrison_workload(workload)
+    elif algorithm == "linearregressionrawr":
+        validate_linearregressionrawr_workload(workload)
     absolute_tolerance, relative_tolerance = tolerances(workload)
     workspace = workload.get("workspace", {}).get("elements")
     if type(workspace) is not int or not 1 <= workspace <= 64:
@@ -205,7 +227,8 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                                     "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                                     "median_of_running_array_double", "median_of_running_array_float",
                                     "mean_shift", "k_means_clust", "lu_decompose",
-                                    "polynomial_regression"}
+                                    "lu_pivot_decomposition", "polynomial_regression",
+                                    "linearregressionrawr"}
                    else oracle_result is None)
         if invalid:
             records.append((invalid_input, -1, [], workspace, 0, 0))
@@ -494,6 +517,112 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             add_sherman_morrison_case(inputs)
         add_sherman_morrison_case([1.0, 3.0, 1.0, 1.0],
                                   capacity=0, output_is_null=True)
+
+    if algorithm == "linearregressionrawr":
+        oracle = linearregressionrawr_abi_oracle
+
+        def add_linearregressionrawr_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if input_is_null:
+                result, output = oracle([], capacity, output_is_null, True, input_length)
+                checker_inputs = [0.0] * input_length
+            else:
+                result, output = oracle(inputs, capacity, output_is_null, False, input_length)
+                checker_inputs = inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        markers = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > LINEARREGRESSIONRAWR_MAX_PARSEABLE_INPUT_LENGTH):
+                raise ValueError(f"invalid linearregressionrawr ABI values: {case.get('id')}")
+            inputs: list[float] = []
+            for value in raw_values:
+                if type(value) in (int, float):
+                    try:
+                        inputs.append(float(value))
+                    except OverflowError as error:
+                        raise ValueError(
+                            f"invalid linearregressionrawr ABI number: {case.get('id')}") from error
+                elif isinstance(value, str) and value in markers:
+                    inputs.append(markers[value])
+                else:
+                    raise ValueError(f"invalid linearregressionrawr ABI value: {case.get('id')}")
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(inputs))
+            if (type(capacity) is not int
+                    or not 0 <= capacity <= LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= LINEARREGRESSIONRAWR_MAX_PARSEABLE_INPUT_LENGTH
+                    or input_is_null and inputs
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError(f"invalid linearregressionrawr ABI framing: {case.get('id')}")
+            result, output = add_linearregressionrawr_case(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or result != case["expected_result"]
+                    or not _matches_output(case.get("expected_output"), output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"linearregressionrawr ABI workload mismatch: {case.get('id')}")
+
+        rng_linearregressionrawr = random.Random(20261017)
+        for index in range(128):
+            sample_count = rng_linearregressionrawr.randint(
+                LINEARREGRESSIONRAWR_MIN_SAMPLE_COUNT,
+                LINEARREGRESSIONRAWR_MAX_SAMPLE_COUNT)
+            predictors = [0] * sample_count
+            positions = list(range(sample_count))
+            rng_linearregressionrawr.shuffle(positions)
+            for position in range(0, sample_count - 1, 2):
+                value = rng_linearregressionrawr.randint(
+                    1, LINEARREGRESSIONRAWR_MAX_PREDICTOR)
+                predictors[positions[position]] = value
+                predictors[positions[position + 1]] = -value
+            responses = [rng_linearregressionrawr.randint(
+                LINEARREGRESSIONRAWR_MIN_RESPONSE,
+                LINEARREGRESSIONRAWR_MAX_RESPONSE) for _ in range(sample_count)]
+            inputs = [float(sample_count), *(float(value) for value in predictors),
+                      *(float(value) for value in responses)]
+            result, _ = add_linearregressionrawr_case(inputs)
+            if result == LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS and index % 8 == 0:
+                add_linearregressionrawr_case(inputs, capacity=1)
+            if result == LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS and index % 32 == 0:
+                add_linearregressionrawr_case(inputs, output_is_null=True)
+
+        maximum_case = next(case for case in workload["cases"]
+                            if case["id"] == "maximum_sample_count")
+        maximum_inputs = [float(value) for value in maximum_case["input_values"]]
+        add_linearregressionrawr_case(maximum_inputs, capacity=0)
+        add_linearregressionrawr_case(maximum_inputs, capacity=1)
+        add_linearregressionrawr_case(maximum_inputs, capacity=2)
+        add_linearregressionrawr_case(maximum_inputs, output_is_null=True)
+
+        malformed_inputs = (
+            [], [0.0], [1.0], [33.0], [2.5], [2.0, -1.0, 1.0, 0.0],
+            [2.0, -1.5, 1.5, 0.0, 0.0], [2.0, -5.0, 5.0, 0.0, 0.0],
+            [2.0, -1.0, 1.0, -17.0, 17.0], [2.0, -1.0, 0.0, 0.0, 0.0],
+            [4.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 4.0],
+            [2.0, -1.0, 1.0, 0.0, 0.0, 7.0],
+            [2.0, -1.0, 1.0, math.nan, 0.0],
+            [2.0, -1.0, 1.0, math.inf, 0.0],
+            [2.0, -1.0, 1.0, -math.inf, 0.0],
+        )
+        for inputs in malformed_inputs:
+            add_linearregressionrawr_case(inputs)
+        add_linearregressionrawr_case([2.0, -1.5, 1.5, 0.0, 0.0],
+                                      capacity=0, output_is_null=True)
+        add_linearregressionrawr_case([], input_is_null=True, input_length=0)
+        add_linearregressionrawr_case([], input_is_null=True, input_length=1)
 
     if algorithm in {"median_of_running_array_double", "median_of_running_array_float"}:
         oracle = ORACLES[algorithm]
@@ -1531,6 +1660,109 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         add_lu_case([2.0, 1.0, 2.0, 2.0, 4.0], output_is_null=True)
         add_lu_case([], input_is_null=True, input_length=2)
 
+    if algorithm == "lu_pivot_decomposition":
+        if (workspace != LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS
+                or absolute_tolerance != 1e-12 or relative_tolerance != 1e-12):
+            raise ValueError("lu_pivot_decomposition requires a 21-element workspace and 1e-12 tolerances")
+
+        def add_lu_pivot_case(inputs: list[float], capacity: int = workspace,
+                              output_is_null: bool = False, input_is_null: bool = False,
+                              input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(not math.isfinite(value) for value in inputs)):
+                raise ValueError("lu_pivot_decomposition generated input exceeds its finite parseable bound")
+            result, output = lu_pivot_decomposition_abi_oracle(
+                [] if input_is_null else inputs, capacity,
+                output_is_null, input_is_null, input_length)
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid lu_pivot_decomposition ABI values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            if capacity is None:
+                capacity = workspace
+            input_is_null = case.get("input_is_null")
+            output_is_null = case.get("output_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            output_is_null = False if output_is_null is None else output_is_null
+            input_length = case.get("input_length", len(inputs))
+            result, output = lu_pivot_decomposition_abi_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (case.get("expected_result") != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(actual) not in (int, float) or not math.isfinite(float(actual))
+                           or abs(float(actual) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for actual, reference in zip(expected_output, output))):
+                raise ValueError(f"lu_pivot_decomposition ABI fixture mismatch: {case.get('id')}")
+            add_lu_pivot_case(inputs, capacity, output_is_null,
+                              input_is_null, input_length)
+
+        rng_lu_pivot = random.Random(20261017)
+        maximum_valid: list[float] | None = None
+        for index in range(128):
+            dimension = (LU_PIVOT_DECOMPOSITION_MAX_DIMENSION if index == 0 else
+                         rng_lu_pivot.randint(1, LU_PIVOT_DECOMPOSITION_MAX_DIMENSION))
+            matrix = [[rng_lu_pivot.randint(-1, 1) for _ in range(dimension)]
+                      for _ in range(dimension)]
+            for diagonal in range(dimension):
+                matrix[diagonal][diagonal] = rng_lu_pivot.randint(4, 8)
+            inputs = [float(dimension)]
+            inputs.extend(float(value) for row in matrix for value in row)
+            if index == 0:
+                maximum_valid = inputs
+                if len(inputs) != LU_PIVOT_DECOMPOSITION_MAX_VALID_INPUT_LENGTH:
+                    raise ValueError("lu_pivot_decomposition maximum-shape trace is not 17 values")
+            result, output = add_lu_pivot_case(inputs)
+            if result <= 0 or len(output) != result:
+                raise ValueError("lu_pivot_decomposition oracle rejected a generated valid trace")
+            if index == 0:
+                add_lu_pivot_case(inputs, capacity=result)
+                add_lu_pivot_case(inputs, capacity=result - 1)
+            if index % 16 == 0:
+                add_lu_pivot_case(inputs, output_is_null=True)
+
+        for inputs in (
+            [2.0, 0.0, 2.0, 3.0, 4.0],
+            [2.0, 2.0, 1.0, -2.0, 4.0],
+            [3.0, 0.0, 1.0, 2.0, 0.0, 0.0, 3.0, 4.0, 5.0, 6.0],
+        ):
+            result, output = add_lu_pivot_case(inputs)
+            if result <= 0 or len(output) != result:
+                raise ValueError("lu_pivot_decomposition oracle rejected a pivot trace")
+
+        if (maximum_valid is None
+                or len(maximum_valid) + 1 != LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError("lu_pivot_decomposition maximum parseable shape is not 18 values")
+        malformed = (
+            [], maximum_valid[:-1], maximum_valid + [0.0],
+            [0.0], [2.5, 1.0, 0.0, 0.0, 1.0],
+            [5.0] + [0.0] * 17, [1.0, 0.5], [1.0, 9.0],
+            [2.0, 0.0, 1.0, 0.0, 2.0],
+            [2.0, 1.0, 2.0, 2.0, 4.0],
+        )
+        for inputs in malformed:
+            add_lu_pivot_case(inputs)
+        add_lu_pivot_case([1.0, 5.0], output_is_null=True)
+        add_lu_pivot_case([2.0, 4.0, 2.0, 2.0, 3.0], capacity=6)
+        add_lu_pivot_case([2.0, 0.0, 1.0, 0.0, 2.0],
+                          output_is_null=True, capacity=7)
+        add_lu_pivot_case([], input_is_null=True, input_length=2)
+
     if algorithm == "polynomial_regression":
         if (workspace != 8 or absolute_tolerance != 1e-9 or relative_tolerance != 1e-9):
             raise ValueError("polynomial_regression requires an 8-element workspace and 1e-9 tolerances")
@@ -1938,6 +2170,8 @@ def main() -> int:
         validate_lu_decompose_workload(workload)
     elif algorithm == "sherman_morrison":
         validate_sherman_morrison_workload(workload)
+    elif algorithm == "linearregressionrawr":
+        validate_linearregressionrawr_workload(workload)
     data, count = checker_records(algorithm, workload)
     build_root = (args.build_dir or ROOT / "build" / "float64_slice_io" / algorithm).resolve()
     build_root.mkdir(parents=True, exist_ok=True)

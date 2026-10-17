@@ -634,6 +634,20 @@ from run_i64_array_scalar import validate_solution42_workload
 from run_i64_array_scalar import validate_k_nn_workload
 from run_i64_array_scalar import validate_rsa_cipher_workload
 from run_i64_array_scalar import validate_suffix_trie_workload
+from run_i64_array_scalar import validate_mcnaughton_yamada_thompson_workload
+from run_i64_array_scalar import validate_playfair_cipher_workload
+from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH
+from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_PATTERN_LENGTH
+from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH
+from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_VALID_INPUT_LENGTH
+from mcnaughton_yamada_thompson_oracle import expected_result as mcnaughton_yamada_thompson_oracle
+from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_KEY_LENGTH
+from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_TEXT_LENGTH
+from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_VALID_INPUT_LENGTH
+from run_i64_array_scalar import PLAYFAIR_CIPHER_LOW63_MASK
+from run_i64_array_scalar import PLAYFAIR_CIPHER_INVALID_RESULT
+from playfair_cipher_oracle import expected_result as playfair_cipher_oracle
 from generalized_esd_oracle import expected_result as generalized_esd_oracle
 from string_prefix_suffix_oracle import expected_result as string_prefix_suffix_oracle
 from one_bit_difference_oracle import expected_result as one_bit_difference_oracle
@@ -1320,6 +1334,8 @@ ALGORITHMS += ("solution42",)
 ALGORITHMS += ("k_nn",)
 ALGORITHMS += ("rsa_cipher",)
 ALGORITHMS += ("suffix_trie",)
+ALGORITHMS += ("mcnaughton_yamada_thompson",)
+ALGORITHMS += ("playfair_cipher",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -2106,6 +2122,10 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return dijkstras_two_stack_oracle(values)
     if algorithm == "wildcard_matching":
         return wildcard_matching_oracle(values)
+    if algorithm == "mcnaughton_yamada_thompson":
+        return mcnaughton_yamada_thompson_oracle(values)
+    if algorithm == "playfair_cipher":
+        return playfair_cipher_oracle(values)
     if algorithm == "linear_recurrence_matrix":
         return linear_recurrence_matrix_oracle(values)
     if algorithm == "matrix_exponentiation":
@@ -2740,6 +2760,10 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_rsa_cipher_workload(workload)
     elif algorithm == "suffix_trie":
         validate_suffix_trie_workload(workload)
+    elif algorithm == "mcnaughton_yamada_thompson":
+        validate_mcnaughton_yamada_thompson_workload(workload)
+    elif algorithm == "playfair_cipher":
+        validate_playfair_cipher_workload(workload)
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
     special_records: list[str] = []
@@ -2761,6 +2785,143 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             continue
         if oracle(algorithm, values) != expected:
             raise ValueError(f"published workload disagrees with {algorithm} oracle")
+    if algorithm == "mcnaughton_yamada_thompson":
+        def add_mcnaughton_case(values: tuple[int, ...]) -> None:
+            if (len(values) > MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("mcnaughton_yamada_thompson generated input exceeds its signed-i64 framing bounds")
+            result = mcnaughton_yamada_thompson_oracle(list(values))
+            if (result not in (-1, 0, 1)
+                    or len(values) > MCNAUGHTON_YAMADA_THOMPSON_MAX_VALID_INPUT_LENGTH
+                    and result != -1):
+                raise ValueError("mcnaughton_yamada_thompson oracle returned an invalid bounded result")
+            cases[values] = result
+
+        def add_pattern_case(pattern: str, text: tuple[int, ...]) -> None:
+            pattern_bytes = tuple(ord(value) for value in pattern)
+            if (len(pattern_bytes) > MCNAUGHTON_YAMADA_THOMPSON_MAX_PATTERN_LENGTH
+                    or len(text) > MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH):
+                return
+            add_mcnaughton_case((len(pattern_bytes), len(text), *pattern_bytes, *text))
+
+        for pattern_length in range(4):
+            for pattern in product((97, 98, 99, 42), repeat=pattern_length):
+                for text_length in range(3):
+                    for text in product((97, 98, 99), repeat=text_length):
+                        add_mcnaughton_case((pattern_length, text_length, *pattern, *text))
+
+        generated_patterns = (
+            "", "a", "b", "c", "a*", "b*", "ab", "a|b", "(a|b)",
+            "(b|c)", "(ab|c)", "(a|b)*", "a(b|c)", "a*bc*",
+            "(a)|(b)", "(a)(b)", "((a)|(b))*", "c((a)|(b))",
+            "((a|b)c)*", "(((a|b)))", "(a|b)c", "(ab|bc)*",
+        )
+        for pattern in generated_patterns:
+            for text in ((), (97,), (98,), (99,), (97, 98), (98, 99),
+                         (97, 97, 97), (97, 98, 99), (99, 97, 98, 99)):
+                add_pattern_case(pattern, text)
+
+        rng_mcnaughton = random.Random(20261017)
+        pattern_alphabet = tuple(map(ord, "abc()*|"))
+        for _ in range(256):
+            pattern_length = rng_mcnaughton.randint(0, MCNAUGHTON_YAMADA_THOMPSON_MAX_PATTERN_LENGTH)
+            text_length = rng_mcnaughton.randint(0, MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH)
+            pattern = tuple(rng_mcnaughton.choice(pattern_alphabet)
+                            for _ in range(pattern_length))
+            text = tuple(rng_mcnaughton.randint(1, 127) for _ in range(text_length))
+            add_mcnaughton_case((pattern_length, text_length, *pattern, *text))
+
+        maximum_pattern = "(((((((a)))))))*"
+        maximum_text = (97,) * MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH
+        add_pattern_case(maximum_pattern, maximum_text)
+        maximum_parseable = (len(maximum_pattern), len(maximum_text),
+                             *(ord(value) for value in maximum_pattern), *maximum_text, 7)
+        add_mcnaughton_case(maximum_parseable)
+
+        malformed = (
+            (), (0,), (0, 0, 97), (-1, 0),
+            (MCNAUGHTON_YAMADA_THOMPSON_MAX_PATTERN_LENGTH + 1, 0),
+            (0, MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH + 1),
+            (1, 1, 97), (0, 0, 0), (0, 1, 0), (0, 1, 128),
+            (1, 0, 100), (1, 0, 42), (2, 0, 97, 124),
+            (2, 0, 40, 41), (2, 0, 40, 97), (3, 0, 97, 42, 42),
+            (6, 0, 97, 42, 98, 42, 99, 42),
+        )
+        for values in malformed:
+            add_mcnaughton_case(tuple(values))
+        special_records.append("NULL 1 -1\n")
+    if algorithm == "playfair_cipher":
+        alphabet = tuple(ord(letter) for letter in "ABCDEFGHIKLMNOPQRSTUVWXYZ")
+
+        def add_playfair_case(values: tuple[int, ...], *, require_valid: bool = False) -> None:
+            if (len(values) > PLAYFAIR_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("playfair_cipher generated input exceeds its signed-i64 framing bounds")
+            result = playfair_cipher_oracle(list(values))
+            if (result != PLAYFAIR_CIPHER_INVALID_RESULT
+                    and not 0 <= result <= PLAYFAIR_CIPHER_LOW63_MASK):
+                raise ValueError("playfair_cipher oracle returned a result outside the low-63-bit hash contract")
+            if (len(values) > PLAYFAIR_CIPHER_MAX_VALID_INPUT_LENGTH
+                    and result != PLAYFAIR_CIPHER_INVALID_RESULT):
+                raise ValueError("playfair_cipher accepted an input beyond its maximum valid packed length")
+            if require_valid and result == PLAYFAIR_CIPHER_INVALID_RESULT:
+                raise ValueError("playfair_cipher generated input is invalid under the shared-source contract")
+            cases[values] = result
+
+        fixed_keys = (
+            "", "MONARCHY", "BALLOON", "ABCDEFGHIKLMNOPQRSTUVWXYZ",
+        )
+        fixed_texts = ("", "AB", "EXAM", "ABAFAG", "BALLOONX", "XYZX")
+        for key in fixed_keys:
+            key_bytes = tuple(map(ord, key))
+            for operation in (0, 1):
+                for text in fixed_texts:
+                    if (operation == 0 and any(left == right
+                                               for left, right in zip(text, text[1:]))):
+                        continue
+                    text_bytes = tuple(map(ord, text))
+                    add_playfair_case((operation, len(key_bytes), *key_bytes,
+                                       len(text_bytes), *text_bytes), require_valid=True)
+
+        rng_playfair = random.Random(20261017)
+        for _ in range(512):
+            operation = rng_playfair.randrange(2)
+            key_length = rng_playfair.randint(0, PLAYFAIR_CIPHER_MAX_KEY_LENGTH)
+            key_bytes = tuple(rng_playfair.choice(alphabet) for _ in range(key_length))
+            text_length = 2 * rng_playfair.randint(0, PLAYFAIR_CIPHER_MAX_TEXT_LENGTH // 2)
+            text_bytes: list[int] = []
+            for _ in range(text_length):
+                options = alphabet
+                if operation == 0 and text_bytes:
+                    options = tuple(byte for byte in alphabet if byte != text_bytes[-1])
+                text_bytes.append(rng_playfair.choice(options))
+            add_playfair_case((operation, key_length, *key_bytes,
+                               text_length, *text_bytes), require_valid=True)
+
+        maximum_key = tuple(alphabet)
+        maximum_text = tuple((65, 66)[index % 2]
+                             for index in range(PLAYFAIR_CIPHER_MAX_TEXT_LENGTH))
+        maximum_valid = (0, len(maximum_key), *maximum_key,
+                         len(maximum_text), *maximum_text)
+        add_playfair_case(maximum_valid, require_valid=True)
+        add_playfair_case((*maximum_valid, 7))
+        maximum_decrypt = (1, len(maximum_key), *maximum_key,
+                           len(maximum_text), *maximum_text)
+        add_playfair_case(maximum_decrypt, require_valid=True)
+
+        malformed = (
+            (), (0,), (2, 0, 0), (-1, 0), (0, -1), (0, 26),
+            (0, 1, 74, 0), (0, 1, 97, 0), (0, 0, 3, 65, 66, 67),
+            (1, 0, 1, 65), (0, 0, -2), (1, 0, 130),
+            (0, 0, 4, 65, 65, 66, 66), (1, 0, 2, 74, 65),
+            (0, 0, 2, 97, 65), (0, 2, 65), (1, 0, 2, 65),
+            (0, 0, 0, 7),
+        )
+        for values in malformed:
+            add_playfair_case(tuple(values))
+        special_records.append("NULL 1 -1\n")
     if algorithm == "k_nn":
         def add_k_nn_case(values: tuple[int, ...], *, require_valid: bool = False) -> None:
             if (len(values) > K_NN_MAX_PARSEABLE_INPUT_VALUES
@@ -13858,7 +14019,9 @@ def main() -> int:
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
         jobs = {}
         for algorithm in args.algorithms:
-            workload_path = ROOT / "benchmarks" / algorithm[0] / algorithm / "workload.json"
+            workload_path = (ROOT / "benchmarks" / algorithm / "workload.json"
+                             if algorithm == "mcnaughton_yamada_thompson" else
+                             ROOT / "benchmarks" / algorithm[0] / algorithm / "workload.json")
             workload = json.loads(workload_path.read_text(encoding="utf-8"))
             data, case_count = corpus(algorithm, workload)
             (directory / f"{algorithm}-corpus.txt").write_text(data, encoding="utf-8")

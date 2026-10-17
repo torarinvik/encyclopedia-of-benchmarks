@@ -1,0 +1,272 @@
+const MT_MAX_PATTERN: usize = 16
+const MT_MAX_TEXT: usize = 32
+const MT_MAX_INPUT: usize = 51
+const MT_MAX_AST_NODES: usize = 32
+const MT_MAX_STATES: usize = 8
+const MT_MAX_EDGES: usize = 32
+const MT_EMPTY: i64 = 0
+const MT_LITERAL: i64 = 1
+const MT_CONCAT: i64 = 2
+const MT_UNION: i64 = 3
+const MT_STAR: i64 = 4
+
+struct MtNode:
+    kind: i64
+    value: u8
+    left: usize
+    right: usize
+
+struct MtEdge:
+    from: usize
+    to: usize
+    label: u8
+
+struct MtFragment:
+    start: usize
+    accept: usize
+    valid: bool
+
+def mt_add_node(nodes: mutable MtNode&, node_count: mutable usize&, fragments: mutable usize&,
+        kind: i64, value: u8, left: usize, right: usize) -> i64:
+    if node_count >= MT_MAX_AST_NODES: return -1
+    index: usize = node_count
+    nodes[index].kind <- kind
+    nodes[index].value <- value
+    nodes[index].left <- left
+    nodes[index].right <- right
+    node_count <- node_count + 1
+    if kind == MT_LITERAL or kind == MT_UNION or kind == MT_STAR:
+        fragments <- fragments + 1
+    index.i64()
+
+def mt_parse_union(pattern: u8&, pattern_length: usize, position: mutable usize&,
+        nodes: mutable MtNode&, node_count: mutable usize&, fragments: mutable usize&) -> i64:
+    left: i64 = mt_parse_concat(pattern, pattern_length, position, nodes, node_count, fragments)
+    if left < 0: return -1
+    while position < pattern_length and pattern[position] == 124:
+        position <- position + 1
+        right: i64 = mt_parse_concat(pattern, pattern_length, position, nodes, node_count, fragments)
+        if right < 0: return -1
+        left <- mt_add_node(nodes, node_count, fragments, MT_UNION, 0.u8(), left.usize(), right.usize())
+        if left < 0: return -1
+    left
+
+def mt_parse_concat(pattern: u8&, pattern_length: usize, position: mutable usize&,
+        nodes: mutable MtNode&, node_count: mutable usize&, fragments: mutable usize&) -> i64:
+    if position >= pattern_length or pattern[position] == 41 or pattern[position] == 124:
+        return -1
+    left: i64 = mt_parse_repeat(pattern, pattern_length, position, nodes, node_count, fragments)
+    if left < 0: return -1
+    while position < pattern_length and pattern[position] != 41 and pattern[position] != 124:
+        right: i64 = mt_parse_repeat(pattern, pattern_length, position, nodes, node_count, fragments)
+        if right < 0: return -1
+        left <- mt_add_node(nodes, node_count, fragments, MT_CONCAT, 0.u8(), left.usize(), right.usize())
+        if left < 0: return -1
+    left
+
+def mt_parse_repeat(pattern: u8&, pattern_length: usize, position: mutable usize&,
+        nodes: mutable MtNode&, node_count: mutable usize&, fragments: mutable usize&) -> i64:
+    node: i64 = mt_parse_atom(pattern, pattern_length, position, nodes, node_count, fragments)
+    if node < 0: return -1
+    if position < pattern_length and pattern[position] == 42:
+        position <- position + 1
+        node <- mt_add_node(nodes, node_count, fragments, MT_STAR, 0.u8(), node.usize(), 0)
+    node
+
+def mt_parse_atom(pattern: u8&, pattern_length: usize, position: mutable usize&,
+        nodes: mutable MtNode&, node_count: mutable usize&, fragments: mutable usize&) -> i64:
+    if position >= pattern_length: return -1
+    token: u8 = pattern[position]
+    if token == 97 or token == 98 or token == 99:
+        position <- position + 1
+        return mt_add_node(nodes, node_count, fragments, MT_LITERAL, token, 0, 0)
+    if token == 40:
+        position <- position + 1
+        node: i64 = mt_parse_union(pattern, pattern_length, position, nodes, node_count, fragments)
+        if node < 0 or position >= pattern_length or pattern[position] != 41: return -1
+        position <- position + 1
+        return node
+    -1
+
+def mt_source_compatible(source: u8&, start: usize, length: usize) -> bool:
+    if length <= 1: return true
+    if source[start] == 40 and source[start + length - 1] == 41:
+        depth: mutable i64 = 0
+        index: mutable usize = 0
+        while index < length:
+            token: u8 = source[start + index]
+            if token == 40: depth <- depth + 1
+            else if token == 41: depth <- depth - 1
+            if depth == 0 and index + 1 < length: return false
+            index <- index + 1
+        if depth != 0: return false
+        if length == 2: return true
+        mt_source_compatible(source, start + 1, length - 2)
+    else:
+        operator_number: mutable usize = 0
+        while operator_number < 2:
+            operator: u8 = if operator_number == 0: 124.u8() else: 10.u8()
+            depth: mutable i64 = 0
+            index <- 0
+            while index < length:
+                token: u8 = source[start + index]
+                if depth == 0 and token == operator:
+                    return mt_source_compatible(source, start, index) and
+                        mt_source_compatible(source, start + index + 1, length - index - 1)
+                if token == 40: depth <- depth + 1
+                else if token == 41: depth <- depth - 1
+                index <- index + 1
+            operator_number <- operator_number + 1
+        if source[start + length - 1] == 42 and length > 1:
+            mt_source_compatible(source, start, length - 1)
+        else:
+            true
+
+def mt_new_state(state_count: mutable usize&) -> i64:
+    if state_count >= MT_MAX_STATES: return -1
+    state: usize = state_count
+    state_count <- state_count + 1
+    state.i64()
+
+def mt_add_edge(edges: mutable MtEdge&, edge_count: mutable usize&, from: usize, to: usize, label: u8) -> bool:
+    if edge_count >= MT_MAX_EDGES: return false
+    edges[edge_count].from <- from
+    edges[edge_count].to <- to
+    edges[edge_count].label <- label
+    edge_count <- edge_count + 1
+    true
+
+def mt_compile(node_index: usize, nodes: MtNode&, state_count: mutable usize&,
+        edges: mutable MtEdge&, edge_count: mutable usize&) -> MtFragment:
+    kind: i64 = nodes[node_index].kind
+    if kind == MT_EMPTY or kind == MT_LITERAL:
+        start: i64 = mt_new_state(state_count)
+        accept: i64 = mt_new_state(state_count)
+        if start < 0 or accept < 0: return MtFragment{start: 0, accept: 0, valid: false}
+        label: u8 = if kind == MT_EMPTY: 0.u8() else: nodes[node_index].value
+        if not mt_add_edge(edges, edge_count, start.usize(), accept.usize(), label):
+            return MtFragment{start: 0, accept: 0, valid: false}
+        return MtFragment{start: start.usize(), accept: accept.usize(), valid: true}
+    if kind == MT_CONCAT:
+        left: MtFragment = mt_compile(nodes[node_index].left, nodes, state_count, edges, edge_count)
+        if not left.valid: return left
+        right: MtFragment = mt_compile(nodes[node_index].right, nodes, state_count, edges, edge_count)
+        if not right.valid or not mt_add_edge(edges, edge_count, left.accept, right.start, 0.u8()):
+            return MtFragment{start: 0, accept: 0, valid: false}
+        return MtFragment{start: left.start, accept: right.accept, valid: true}
+    if kind == MT_UNION:
+        left: MtFragment = mt_compile(nodes[node_index].left, nodes, state_count, edges, edge_count)
+        if not left.valid: return left
+        right: MtFragment = mt_compile(nodes[node_index].right, nodes, state_count, edges, edge_count)
+        if not right.valid: return right
+        start: i64 = mt_new_state(state_count)
+        accept: i64 = mt_new_state(state_count)
+        if start < 0 or accept < 0: return MtFragment{start: 0, accept: 0, valid: false}
+        if not mt_add_edge(edges, edge_count, start.usize(), left.start, 0.u8()) or
+                not mt_add_edge(edges, edge_count, start.usize(), right.start, 0.u8()) or
+                not mt_add_edge(edges, edge_count, left.accept, accept.usize(), 0.u8()) or
+                not mt_add_edge(edges, edge_count, right.accept, accept.usize(), 0.u8()):
+            return MtFragment{start: 0, accept: 0, valid: false}
+        return MtFragment{start: start.usize(), accept: accept.usize(), valid: true}
+    child: MtFragment = mt_compile(nodes[node_index].left, nodes, state_count, edges, edge_count)
+    if not child.valid: return child
+    start: i64 = mt_new_state(state_count)
+    accept: i64 = mt_new_state(state_count)
+    if start < 0 or accept < 0: return MtFragment{start: 0, accept: 0, valid: false}
+    if not mt_add_edge(edges, edge_count, start.usize(), child.start, 0.u8()) or
+            not mt_add_edge(edges, edge_count, start.usize(), accept.usize(), 0.u8()) or
+            not mt_add_edge(edges, edge_count, child.accept, child.start, 0.u8()) or
+            not mt_add_edge(edges, edge_count, child.accept, accept.usize(), 0.u8()):
+        return MtFragment{start: 0, accept: 0, valid: false}
+    MtFragment{start: start.usize(), accept: accept.usize(), valid: true}
+
+def mt_epsilon_closure(states: u64, edges: MtEdge&, edge_count: usize) -> u64:
+    active: mutable u64 = states
+    changed: mutable bool = true
+    while changed:
+        changed <- false
+        index: mutable usize = 0
+        while index < edge_count:
+            if edges[index].label == 0 and (active & (1.u64() << edges[index].from)) != 0:
+                target_mask: u64 = 1.u64() << edges[index].to
+                if (active & target_mask) == 0:
+                    active <- active | target_mask
+                    changed <- true
+            index <- index + 1
+    active
+
+def mcnaughton_yamada_thompson_impl(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MT_MAX_INPUT: return -1
+    pattern_length_value: i64 = input[0]
+    text_length_value: i64 = input[1]
+    if pattern_length_value < 0 or pattern_length_value > MT_MAX_PATTERN.i64() or
+            text_length_value < 0 or text_length_value > MT_MAX_TEXT.i64(): return -1
+    pattern_length: usize = pattern_length_value.usize()
+    text_length: usize = text_length_value.usize()
+    if input_length != 2 + pattern_length + text_length: return -1
+
+    pattern: mutable u8[MT_MAX_PATTERN] = zeroed
+    index: mutable usize = 0
+    while index < pattern_length:
+        value: i64 = input[2 + index]
+        if value != 97 and value != 98 and value != 99 and value != 40 and value != 41 and
+                value != 42 and value != 124: return -1
+        pattern[index] <- value.u8()
+        index <- index + 1
+    index <- 0
+    while index < text_length:
+        value: i64 = input[2 + pattern_length + index]
+        if value < 1 or value > 127: return -1
+        index <- index + 1
+
+    preprocessed: mutable u8[MT_MAX_PATTERN * 2] = zeroed
+    processed_length: mutable usize = 0
+    index <- 0
+    while index < pattern_length:
+        token: u8 = pattern[index]
+        preprocessed[processed_length] <- token
+        processed_length <- processed_length + 1
+        if index + 1 < pattern_length:
+            following: u8 = pattern[index + 1]
+            token_literal: bool = token != 40 and token != 41 and token != 42 and token != 124
+            next_literal: bool = following != 40 and following != 41 and following != 42 and following != 124
+            if (token_literal and next_literal) or (token_literal and following == 40) or
+                    (token == 41 and following == 40) or (token == 41 and next_literal) or
+                    (token == 42 and next_literal) or (token == 42 and following == 40):
+                preprocessed[processed_length] <- 10.u8()
+                processed_length <- processed_length + 1
+        index <- index + 1
+    if not mt_source_compatible(preprocessed, 0, processed_length): return -1
+
+    nodes: mutable MtNode[MT_MAX_AST_NODES] = zeroed
+    node_count: mutable usize = 0
+    fragments: mutable usize = 0
+    position: mutable usize = 0
+    root: mutable i64 = -1
+    if pattern_length == 0:
+        root <- mt_add_node(nodes, node_count, fragments, MT_EMPTY, 0.u8(), 0, 0)
+    else:
+        root <- mt_parse_union(pattern, pattern_length, position, nodes, node_count, fragments)
+    if root < 0 or position != pattern_length or fragments > 4: return -1
+
+    state_count: mutable usize = 0
+    edges: mutable MtEdge[MT_MAX_EDGES] = zeroed
+    edge_count: mutable usize = 0
+    fragment: MtFragment = mt_compile(root.usize(), nodes, state_count, edges, edge_count)
+    if not fragment.valid: return -1
+    active: mutable u64 = mt_epsilon_closure(1.u64() << fragment.start, edges, edge_count)
+    index <- 0
+    while index < text_length:
+        symbol: u8 = input[2 + pattern_length + index].u8()
+        next_states: mutable u64 = 0
+        edge: mutable usize = 0
+        while edge < edge_count:
+            if edges[edge].label == symbol and
+                    (active & (1.u64() << edges[edge].from)) != 0:
+                next_states <- next_states | (1.u64() << edges[edge].to)
+            edge <- edge + 1
+        active <- mt_epsilon_closure(next_states, edges, edge_count)
+        index <- index + 1
+    if (active & (1.u64() << fragment.accept)) != 0: 1 else: 0
+
+export fn mcnaughton_yamada_thompson(input: i64&, input_length: usize) -> i64 = mcnaughton_yamada_thompson_impl

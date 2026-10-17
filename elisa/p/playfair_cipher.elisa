@@ -1,0 +1,98 @@
+const MIN_PARSEABLE_INPUT_LENGTH: usize = 3
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 157
+const MAX_KEY_LENGTH: usize = 25
+const MAX_TEXT_LENGTH: usize = 128
+const FNV_OFFSET_BASIS: u64 = 14695981039346656037.u64()
+const FNV_PRIME: u64 = 1099511628211.u64()
+
+def playfair_cipher_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < MIN_PARSEABLE_INPUT_LENGTH or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    operation: i64 = input[0]
+    key_length_value: i64 = input[1]
+    if operation < 0 or operation > 1 or key_length_value < 0 or key_length_value > MAX_KEY_LENGTH.i64():
+        return -1
+    key_length: usize = key_length_value.usize()
+    text_length_index: usize = 2 + key_length
+    if length <= text_length_index: return -1
+    text_length_value: i64 = input[text_length_index]
+    if text_length_value < 0 or text_length_value > MAX_TEXT_LENGTH.i64() or text_length_value % 2 != 0:
+        return -1
+    text_length: usize = text_length_value.usize()
+    text_start: usize = text_length_index + 1
+    if length != text_start + text_length: return -1
+
+    seen: mutable bool[26] = zeroed
+    square: mutable u8[25] = zeroed
+    square_length: mutable usize = 0
+    key_index: mutable usize = 0
+    while key_index < key_length:
+        value: i64 = input[2 + key_index]
+        if value < 65 or value > 90 or value == 74: return -1
+        letter: u8 = value.u8()
+        slot: usize = (letter - 65.u8()).usize()
+        if not seen[slot]:
+            seen[slot] <- true
+            square[square_length] <- letter
+            square_length <- square_length + 1
+        key_index <- key_index + 1
+
+    letter_value: mutable usize = 65
+    while letter_value <= 90:
+        if letter_value != 74:
+            slot: usize = letter_value - 65
+            if not seen[slot]:
+                seen[slot] <- true
+                square[square_length] <- letter_value.u8()
+                square_length <- square_length + 1
+        letter_value <- letter_value + 1
+
+    positions: mutable u8[26] = zeroed
+    square_index: mutable usize = 0
+    while square_index < 25:
+        positions[(square[square_index] - 65.u8()).usize()] <- square_index.u8()
+        square_index <- square_index + 1
+
+    previous: mutable u8 = 0.u8()
+    text_index: mutable usize = 0
+    while text_index < text_length:
+        value: i64 = input[text_start + text_index]
+        if value < 65 or value > 90 or value == 74: return -1
+        letter: u8 = value.u8()
+        if operation == 0 and text_index > 0 and letter == previous: return -1
+        previous <- letter
+        text_index <- text_index + 1
+
+    hash: mutable u64 = FNV_OFFSET_BASIS
+    shift: i64 = if operation == 0: 1 else: -1
+    text_index <- 0
+    while text_index < text_length:
+        first: u8 = input[text_start + text_index].u8()
+        second: u8 = input[text_start + text_index + 1].u8()
+        position1: usize = positions[(first - 65.u8()).usize()].usize()
+        position2: usize = positions[(second - 65.u8()).usize()].usize()
+        row1: usize = position1 / 5
+        column1: usize = position1 % 5
+        row2: usize = position2 / 5
+        column2: usize = position2 % 5
+        result1: mutable u8 = 0.u8()
+        result2: mutable u8 = 0.u8()
+        if row1 == row2:
+            next1: usize = (column1.i64() + shift + 5).usize() % 5
+            next2: usize = (column2.i64() + shift + 5).usize() % 5
+            result1 <- square[row1 * 5 + next1]
+            result2 <- square[row2 * 5 + next2]
+        else if column1 == column2:
+            next1: usize = (row1.i64() + shift + 5).usize() % 5
+            next2: usize = (row2.i64() + shift + 5).usize() % 5
+            result1 <- square[next1 * 5 + column1]
+            result2 <- square[next2 * 5 + column2]
+        else:
+            result1 <- square[row1 * 5 + column2]
+            result2 <- square[row2 * 5 + column1]
+        hash <- (hash ^ result1.u64()) * FNV_PRIME
+        hash <- (hash ^ result2.u64()) * FNV_PRIME
+        text_index <- text_index + 2
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn playfair_cipher(input: i64&, length: usize) -> i64 = playfair_cipher_impl

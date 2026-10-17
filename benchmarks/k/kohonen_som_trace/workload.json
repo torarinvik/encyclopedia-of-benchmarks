@@ -1,0 +1,505 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-kohonen-som-trace-float64-slice-io-v1",
+  "algorithm": "kohonen_som_trace",
+  "function_symbol": "kohonen_som_trace",
+  "description": "Apply one deterministic Kohonen update to a bounded 1-D weight chain.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C",
+    "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+    "path": "machine_learning/kohonen_som_trace.c",
+    "symbol": "kohonen_update_weights",
+    "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/machine_learning/kohonen_som_trace.c",
+    "role": "algorithm"
+  },
+  "related_pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "machine_learning/kohonen_som_trace.cpp",
+      "symbol": "machine_learning::update_weights",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/machine_learning/kohonen_som_trace.cpp"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "machine_learning/kohonen_som_trace.cpp",
+      "symbol": "machine_learning::update_weights",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/machine_learning/kohonen_som_trace.cpp"
+    }
+  ],
+  "contract": {
+    "operation": "Apply one deterministic Kohonen SOM update for a single sample to an ordered 1-D chain of node weight vectors.",
+    "input_encoding": "[node_count, feature_count, radius, alpha_code, sample_features..., weights_row_major...]",
+    "exact_input_length": "4+feature_count+node_count*feature_count",
+    "alpha": "alpha_code/16, where alpha_code is an integer in 1..16.",
+    "distance": "For each node, sum (weight-sample)^2 in increasing feature order.",
+    "best_matching_unit": "Choose the first node with the smallest squared distance.",
+    "neighborhood": "Update nodes in [max(0,BMU-radius), min(node_count,BMU+radius+1)).",
+    "weight_update": "For selected nodes and increasing feature indices, W[j][k] += alpha*(sample[k]-W[j][k]).",
+    "scratch": "The source D array contains per-node squared distances and is used as scratch; it is not returned by this bounded trainer operation.",
+    "output_encoding": "Updated node_count by feature_count weights in row-major order.",
+    "errors": "Malformed framing, unsupported bounds, nonintegral values, or nonfinite output returns -1 before output checks. A null output or capacity below node_count*feature_count returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[node_count, feature_count, radius, alpha_code, sample_features..., weights_row_major...]",
+    "node_count_range": [
+      1,
+      8
+    ],
+    "feature_count_range": [
+      1,
+      4
+    ],
+    "radius_range": [
+      0,
+      8
+    ],
+    "alpha_code_range": [
+      1,
+      16
+    ],
+    "alpha_denominator": 16,
+    "sample_and_weight_value_range": [
+      -8,
+      8
+    ],
+    "sample_and_weight_values_must_be_integers": true,
+    "maximum_valid_input_length": 40,
+    "maximum_parseable_input_length": 41,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "node_count*feature_count updated row-major weights.",
+    "element_count": "node_count*feature_count",
+    "maximum_elements": 32,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input validity is checked before output pointer and capacity.",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 32,
+    "meaning": "Maximum row-major weight matrix; distance scratch is local and unobservable."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Compute squared distances in increasing feature order, choose the first minimum, clip the chain neighborhood, and update selected weights in source loop order using alpha_code/16.",
+  "cases": [
+    {
+      "id": "single_node_one_feature",
+      "input_values": [
+        1,
+        1,
+        0,
+        16,
+        3,
+        -2
+      ],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output": [
+        3.0
+      ]
+    },
+    {
+      "id": "radius_zero_updates_best_match_only",
+      "input_values": [
+        3,
+        1,
+        0,
+        8,
+        4,
+        0,
+        3,
+        7
+      ],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        3.5,
+        7.0
+      ]
+    },
+    {
+      "id": "left_clipped_neighborhood",
+      "input_values": [
+        4,
+        1,
+        1,
+        8,
+        0,
+        2,
+        1,
+        7,
+        8
+      ],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output": [
+        1.0,
+        0.5,
+        3.5,
+        8.0
+      ]
+    },
+    {
+      "id": "right_clipped_neighborhood",
+      "input_values": [
+        4,
+        1,
+        1,
+        8,
+        0,
+        8,
+        7,
+        1,
+        2
+      ],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output": [
+        8.0,
+        3.5,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "id": "equal_distance_keeps_first_node",
+      "input_values": [
+        2,
+        1,
+        0,
+        8,
+        0,
+        -1,
+        1
+      ],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [
+        -0.5,
+        1.0
+      ]
+    },
+    {
+      "id": "multi_feature_squared_distance",
+      "input_values": [
+        3,
+        2,
+        1,
+        4,
+        1,
+        -2,
+        0,
+        0,
+        3,
+        2,
+        5,
+        -1
+      ],
+      "input_length": 12,
+      "expected_result": 6,
+      "expected_output": [
+        0.25,
+        -0.5,
+        2.5,
+        1.0,
+        5.0,
+        -1.0
+      ]
+    },
+    {
+      "id": "radius_larger_than_chain_updates_all",
+      "input_values": [
+        3,
+        1,
+        8,
+        4,
+        5,
+        -4,
+        0,
+        7
+      ],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output": [
+        -1.75,
+        1.25,
+        6.5
+      ]
+    },
+    {
+      "id": "alpha_one_replaces_selected_neighborhood",
+      "input_values": [
+        3,
+        1,
+        1,
+        16,
+        2,
+        -2,
+        4,
+        8
+      ],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output": [
+        2.0,
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "id": "maximum_shape_all_nodes_updated",
+      "input_values": [
+        8,
+        4,
+        8,
+        16,
+        -8,
+        8,
+        -8,
+        8,
+        8,
+        -8,
+        8,
+        -8,
+        8,
+        0,
+        1,
+        -1,
+        2,
+        -2,
+        3,
+        -3,
+        4,
+        -4,
+        5,
+        -5,
+        6,
+        -6,
+        7,
+        -7,
+        -8,
+        8,
+        -8,
+        8,
+        8,
+        -8,
+        8,
+        -8,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 40
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 6,
+      "input_is_null": true,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [
+        1,
+        1,
+        0,
+        16,
+        3
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        1,
+        1,
+        0,
+        16,
+        3,
+        -2,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "node_count_zero",
+      "input_values": [
+        0,
+        1,
+        0,
+        8
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "feature_count_too_large",
+      "input_values": [
+        1,
+        5,
+        0,
+        8,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_radius",
+      "input_values": [
+        1,
+        1,
+        -1,
+        8,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "alpha_code_zero",
+      "input_values": [
+        1,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "alpha_code_above_one",
+      "input_values": [
+        1,
+        1,
+        0,
+        17,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_sample",
+      "input_values": [
+        1,
+        1,
+        0,
+        8,
+        0.5,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "weight_out_of_range",
+      "input_values": [
+        1,
+        1,
+        0,
+        8,
+        1,
+        9
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        1,
+        1,
+        0,
+        8,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        2,
+        1,
+        0,
+        8,
+        0,
+        -1,
+        1
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        1,
+        1,
+        -1,
+        8,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

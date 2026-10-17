@@ -155,6 +155,22 @@ from sherman_morrison_oracle import (
     expected_output as sherman_morrison_abi_oracle,
     expected_result as sherman_morrison_oracle,
 )
+from linearregressionrawr_oracle import (
+    ABSOLUTE_TOLERANCE as LINEARREGRESSIONRAWR_ABSOLUTE_TOLERANCE,
+    INVALID_RESULT as LINEARREGRESSIONRAWR_INVALID_RESULT,
+    MAX_OUTPUT_ELEMENTS as LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as LINEARREGRESSIONRAWR_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_PREDICTOR as LINEARREGRESSIONRAWR_MAX_PREDICTOR,
+    MAX_RESPONSE as LINEARREGRESSIONRAWR_MAX_RESPONSE,
+    MAX_SAMPLE_COUNT as LINEARREGRESSIONRAWR_MAX_SAMPLE_COUNT,
+    MAX_VALID_INPUT_LENGTH as LINEARREGRESSIONRAWR_MAX_VALID_INPUT_LENGTH,
+    MIN_PREDICTOR as LINEARREGRESSIONRAWR_MIN_PREDICTOR,
+    MIN_RESPONSE as LINEARREGRESSIONRAWR_MIN_RESPONSE,
+    MIN_SAMPLE_COUNT as LINEARREGRESSIONRAWR_MIN_SAMPLE_COUNT,
+    OUTPUT_ERROR as LINEARREGRESSIONRAWR_OUTPUT_ERROR,
+    RELATIVE_TOLERANCE as LINEARREGRESSIONRAWR_RELATIVE_TOLERANCE,
+    expected_output as linearregressionrawr_abi_oracle,
+)
 from softmax_oracle import expected_result as softmax_oracle
 from trig_functions_oracle import expected_result as trig_functions_oracle
 from verlet_oracle import expected_result as verlet_oracle
@@ -329,6 +345,20 @@ from lu_decompose_oracle import (
     RELATIVE_TOLERANCE as LU_DECOMPOSE_RELATIVE_TOLERANCE,
     expected_output as lu_decompose_oracle,
 )
+from lu_pivot_decomposition_oracle import (
+    ABSOLUTE_TOLERANCE as LU_PIVOT_DECOMPOSITION_ABSOLUTE_TOLERANCE,
+    INVALID_RESULT as LU_PIVOT_DECOMPOSITION_INVALID_RESULT,
+    MAX_DIMENSION as LU_PIVOT_DECOMPOSITION_MAX_DIMENSION,
+    MAX_MATRIX_VALUE as LU_PIVOT_DECOMPOSITION_MAX_MATRIX_VALUE,
+    MAX_OUTPUT_ELEMENTS as LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LU_PIVOT_DECOMPOSITION_MAX_VALID_INPUT_LENGTH,
+    MIN_DIMENSION as LU_PIVOT_DECOMPOSITION_MIN_DIMENSION,
+    MIN_MATRIX_VALUE as LU_PIVOT_DECOMPOSITION_MIN_MATRIX_VALUE,
+    OUTPUT_ERROR as LU_PIVOT_DECOMPOSITION_OUTPUT_ERROR,
+    RELATIVE_TOLERANCE as LU_PIVOT_DECOMPOSITION_RELATIVE_TOLERANCE,
+    expected_output as lu_pivot_decomposition_oracle,
+)
 from pi_monte_carlo_estimation_oracle import (
     ABSOLUTE_TOLERANCE as PI_MONTE_CARLO_ABSOLUTE_TOLERANCE,
     INVALID_RESULT as PI_MONTE_CARLO_INVALID_RESULT,
@@ -405,10 +435,12 @@ ORACLES = {
     "mean_shift": mean_shift_oracle,
     "k_means_clust": k_means_clust_oracle,
     "lu_decompose": lu_decompose_oracle,
+    "lu_pivot_decomposition": lu_pivot_decomposition_oracle,
     "polynomial_regression": polynomial_regression_oracle,
     "pi_monte_carlo_estimation": pi_monte_carlo_estimation_oracle,
     "soboleva_modified_hyperbolic_tangent": soboleva_modified_hyperbolic_tangent_oracle,
     "sherman_morrison": sherman_morrison_oracle,
+    "linearregressionrawr": linearregressionrawr_abi_oracle,
 }
 MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH = 1 + 16 * 16 + 16
 
@@ -1249,6 +1281,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         if algorithm == "linear_regression_vectorized" else
                         SHERMAN_MORRISON_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "sherman_morrison" else
+                        LINEARREGRESSIONRAWR_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "linearregressionrawr" else
                         MD2_DIGEST_MAX_INPUT_LENGTH + 1 if algorithm == "md2_digest" else
                         MEDIAN_FILTER_MAX_INPUT_LENGTH if algorithm == "median_filter" else
                         MUTATE_MAX_INPUT_LENGTH if algorithm == "mutate" else
@@ -1275,6 +1309,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         max_input_length = K_MEANS_CLUST_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "lu_decompose":
         max_input_length = LU_DECOMPOSE_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "lu_pivot_decomposition":
+        max_input_length = LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "polynomial_regression":
         max_input_length = POLYNOMIAL_REGRESSION_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "perlin_noise":
@@ -1292,7 +1328,9 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
                      "mean_shift", "k_means_clust", "lu_decompose",
-                     "polynomial_regression", "sherman_morrison"}:
+                     "lu_pivot_decomposition",
+                     "polynomial_regression", "sherman_morrison",
+                     "linearregressionrawr"}:
         expected_result, oracle_values = oracle(values)
         oracle_output = None if expected_result < 0 else oracle_values
     else:
@@ -2901,6 +2939,218 @@ K_MEANS_CLUST_ABI_CASE_IDS = frozenset({
 })
 
 
+LU_PIVOT_DECOMPOSITION_CASE_IDS = frozenset({
+    "single_element", "two_by_two_no_swap", "two_by_two_row_swap",
+    "equal_magnitude_keeps_first_row", "three_by_three_two_swaps",
+})
+LU_PIVOT_DECOMPOSITION_ABI_CASE_IDS = frozenset({
+    "null_input_positive_length", "truncated_input", "extra_input_value",
+    "fractional_dimension", "fractional_matrix_entry", "matrix_entry_out_of_range",
+    "dimension_zero", "zero_selected_pivot", "singular_after_elimination",
+    "valid_input_null_output", "valid_input_short_output_capacity",
+    "invalid_input_precedes_null_output",
+})
+LU_PIVOT_DECOMPOSITION_INVALID_ABI_CASE_IDS = frozenset({
+    "null_input_positive_length", "truncated_input", "extra_input_value",
+    "fractional_dimension", "fractional_matrix_entry", "matrix_entry_out_of_range",
+    "dimension_zero", "zero_selected_pivot", "singular_after_elimination",
+    "invalid_input_precedes_null_output",
+})
+LU_PIVOT_DECOMPOSITION_OUTPUT_ERROR_CASE_IDS = frozenset({
+    "valid_input_null_output", "valid_input_short_output_capacity",
+})
+
+
+def validate_lu_pivot_decomposition_workload(workload: dict) -> None:
+    """Pin Dart's partial-pivot LUP operation and verify all ABI fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Dart",
+        "commit": "73da8ab4ea413eee9bf29aa2263157d86060f871",
+        "path": "maths/lu_decomposition.dart",
+        "symbol": "Matrix.decompose",
+        "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/maths/lu_decomposition.dart",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Factor a supplied square matrix using the pinned source's partial-pivot LUP decomposition operation.",
+        "input_encoding": "[dimension, matrix_row_major...]",
+        "matrix_shape": "dimension by dimension, row-major",
+        "pivot_selection": "For column i, scan rows i..dimension-1 in increasing order and select the first row with the greatest absolute entry in that column.",
+        "operation_order": "Swap the selected matrix row and pivot entries. For rows j=i+1..dimension-1, divide packed_lu[j][i] by packed_lu[i][i], then for columns k=i+1..dimension-1 subtract packed_lu[j][i]*packed_lu[i][k] from packed_lu[j][k].",
+        "pivot_vector": "Initialize pivot as [0,1,...,dimension]. Swap entries pivot[i] and pivot[max_index] with each matrix row swap, then increment pivot[dimension]. The final element is dimension plus the number of row swaps.",
+        "output_encoding": "The combined LU matrix in row-major order followed by the full pivot vector of length dimension+1.",
+        "errors": "Malformed input, unsupported bounds, nonintegral matrix entries, or a zero/nonfinite selected pivot returns -1 before output checks. A null output or capacity below dimension*dimension+dimension+1 returns -2 without writes.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[dimension, matrix_row_major...]",
+        "dimension_range": [LU_PIVOT_DECOMPOSITION_MIN_DIMENSION,
+                            LU_PIVOT_DECOMPOSITION_MAX_DIMENSION],
+        "matrix_value_range": [LU_PIVOT_DECOMPOSITION_MIN_MATRIX_VALUE,
+                               LU_PIVOT_DECOMPOSITION_MAX_MATRIX_VALUE],
+        "matrix_values_must_be_integers": True,
+        "selected_pivots_must_be_nonzero": True,
+        "exact_packed_shape": "Exactly 1+dimension*dimension finite elements; the dimension and all matrix entries must be exactly integral.",
+        "maximum_valid_input_length": LU_PIVOT_DECOMPOSITION_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": LU_PIVOT_DECOMPOSITION_INVALID_RESULT,
+        "null_input_result": LU_PIVOT_DECOMPOSITION_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "dimension*dimension row-major combined LU entries followed by dimension+1 pivot values, including dimension plus the number of swaps.",
+        "element_count": "dimension*dimension+dimension+1",
+        "maximum_elements": LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS,
+        "success_result": "output element count",
+        "invalid_input_result": LU_PIVOT_DECOMPOSITION_INVALID_RESULT,
+        "invalid_output_buffer_result": LU_PIVOT_DECOMPOSITION_OUTPUT_ERROR,
+        "null_output_result": LU_PIVOT_DECOMPOSITION_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Input and pivot validity are checked before output pointer and capacity.",
+        "absolute_tolerance": LU_PIVOT_DECOMPOSITION_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": LU_PIVOT_DECOMPOSITION_RELATIVE_TOLERANCE,
+    }
+    workspace = {
+        "elements": LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS,
+        "meaning": "Maximum combined LU matrix and pivot vector.",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": LU_PIVOT_DECOMPOSITION_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": LU_PIVOT_DECOMPOSITION_RELATIVE_TOLERANCE,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+               if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-dart-lu-pivot-decomposition-float64-slice-io-v1"
+            or workload.get("algorithm") != "lu_pivot_decomposition"
+            or workload.get("function_symbol") != "lu_pivot_decomposition"
+            or workload.get("description") != "Compute Dart's partial-pivot LUP decomposition of a small caller-supplied square matrix."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Copy the matrix, preserve strict-greater first-maximum partial pivot selection and the pinned in-place elimination order, then return packed LU and the full permutation/swap-count vector. Reject every zero or nonfinite selected pivot."
+            or (LU_PIVOT_DECOMPOSITION_MIN_DIMENSION,
+                LU_PIVOT_DECOMPOSITION_MAX_DIMENSION,
+                LU_PIVOT_DECOMPOSITION_MIN_MATRIX_VALUE,
+                LU_PIVOT_DECOMPOSITION_MAX_MATRIX_VALUE,
+                LU_PIVOT_DECOMPOSITION_MAX_VALID_INPUT_LENGTH,
+                LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH,
+                LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS,
+                LU_PIVOT_DECOMPOSITION_INVALID_RESULT,
+                LU_PIVOT_DECOMPOSITION_OUTPUT_ERROR,
+                LU_PIVOT_DECOMPOSITION_ABSOLUTE_TOLERANCE,
+                LU_PIVOT_DECOMPOSITION_RELATIVE_TOLERANCE)
+            != (1, 4, -8, 8, 17, 18, 21, -1, -2, 1e-12, 1e-12)
+            or not isinstance(cases, list)
+            or len(case_ids) != len(LU_PIVOT_DECOMPOSITION_CASE_IDS)
+            or len(set(case_ids)) != len(case_ids)
+            or set(case_ids) != LU_PIVOT_DECOMPOSITION_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_ids) != len(LU_PIVOT_DECOMPOSITION_ABI_CASE_IDS)
+            or len(set(abi_ids)) != len(abi_ids)
+            or set(abi_ids) != LU_PIVOT_DECOMPOSITION_ABI_CASE_IDS):
+        raise ValueError("lu_pivot_decomposition metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "lu_pivot_decomposition" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or source["commit"] not in readme
+            or "partial-pivot LUP decomposition" not in readme
+            or "first row with the greatest absolute value" not in readme
+            or "returns `-2` without writes" not in readme
+            or "The C++ and Python `lu_decomposition` sources use no-pivot Doolittle" not in readme):
+        raise ValueError("lu_pivot_decomposition README is missing its pinned source or reviewed semantics")
+
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if (absolute_tolerance != LU_PIVOT_DECOMPOSITION_ABSOLUTE_TOLERANCE
+            or relative_tolerance != LU_PIVOT_DECOMPOSITION_RELATIVE_TOLERANCE):
+        raise ValueError("lu_pivot_decomposition fixtures require the reviewed float64 tolerances")
+
+    for case in cases:
+        if (set(case) != {"id", "input_values", "input_length",
+                          "expected_result", "expected_output"}
+                or case.get("input_is_null", False) is not False
+                or case.get("output_is_null", False) is not False
+                or case.get("output_capacity", LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS)
+                    != LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS):
+            raise ValueError(f"lu_pivot_decomposition semantic framing changed: {case.get('id')}")
+        values, result, output = encode_case(
+            case, "lu_pivot_decomposition", absolute_tolerance, relative_tolerance)
+        if (len(values) > LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH
+                or result <= 0 or result != len(output)
+                or result > LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS):
+            raise ValueError(f"lu_pivot_decomposition semantic fixture is invalid: {case.get('id')}")
+
+    by_id = {case["id"]: case for case in abi_cases}
+    for case in abi_cases:
+        raw_values = case.get("input_values")
+        if (not isinstance(raw_values, list)
+                or len(raw_values) > LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in raw_values)):
+            raise ValueError(f"lu_pivot_decomposition ABI values are invalid: {case.get('id')}")
+        values = [float(value) for value in raw_values]
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        capacity = case.get("output_capacity", LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS)
+        input_length = case.get("input_length", len(values))
+        if (not {"id", "input_values", "input_length", "expected_result",
+                 "expected_output"} <= set(case)
+                or not set(case) <= {"id", "input_values", "input_length",
+                                     "input_is_null", "output_is_null",
+                                     "output_capacity", "expected_result",
+                                     "expected_output"}
+                or type(input_is_null) is not bool
+                or type(output_is_null) is not bool
+                or type(capacity) is not int
+                or not 0 <= capacity <= LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS
+                or type(input_length) is not int
+                or not 0 <= input_length <= LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and (values or input_length <= 0))
+                or (not input_is_null and input_length != len(values))
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output"), list)):
+            raise ValueError(f"lu_pivot_decomposition ABI framing is invalid: {case.get('id')}")
+        result, output = lu_pivot_decomposition_oracle(
+            None if input_is_null else values, capacity,
+            output_is_null, input_is_null, input_length)
+        expected = case["expected_output"]
+        if (case["expected_result"] != result
+                or len(expected) != len(output)
+                or any(type(actual) not in (int, float) or not math.isfinite(float(actual))
+                       or abs(float(actual) - reference)
+                       > absolute_tolerance + relative_tolerance * abs(reference)
+                       for actual, reference in zip(expected, output))):
+            raise ValueError(f"lu_pivot_decomposition ABI fixture mismatch: {case.get('id')}")
+        if (case["id"] in LU_PIVOT_DECOMPOSITION_INVALID_ABI_CASE_IDS
+                and result != LU_PIVOT_DECOMPOSITION_INVALID_RESULT
+                or case["id"] in LU_PIVOT_DECOMPOSITION_OUTPUT_ERROR_CASE_IDS
+                and result != LU_PIVOT_DECOMPOSITION_OUTPUT_ERROR):
+            raise ValueError(f"lu_pivot_decomposition ABI case has the wrong error class: {case.get('id')}")
+
+    if (by_id["null_input_positive_length"].get("input_is_null") is not True
+            or by_id["zero_selected_pivot"]["expected_result"]
+                != LU_PIVOT_DECOMPOSITION_INVALID_RESULT
+            or by_id["singular_after_elimination"]["expected_result"]
+                != LU_PIVOT_DECOMPOSITION_INVALID_RESULT
+            or by_id["valid_input_null_output"].get("output_is_null") is not True
+            or by_id["valid_input_short_output_capacity"].get("output_capacity")
+                >= by_id["valid_input_short_output_capacity"]["expected_result"]
+            or by_id["invalid_input_precedes_null_output"].get("output_is_null") is not True):
+        raise ValueError("lu_pivot_decomposition ABI fixtures do not pin null, capacity, pivot, or input precedence")
+
+
 def validate_k_means_clust_workload(workload: dict) -> None:
     """Pin the one-update Python k-means contract and all ABI fixtures."""
     source = {
@@ -4174,6 +4424,235 @@ def validate_sherman_morrison_workload(workload: dict) -> None:
         raise ValueError("sherman_morrison ABI fixtures do not pin shape, None, capacity, and precedence")
 
 
+def validate_linearregressionrawr_workload(workload: dict) -> None:
+    """Pin the bounded raw-R OLS workload and its float64 slice ABI fixtures."""
+    source = {
+        "repository": "TheAlgorithms/R",
+        "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+        "path": "regression_algorithms/linearregressionrawr.r",
+        "symbol": "ols",
+        "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/regression_algorithms/linearregressionrawr.r",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Return the intercept and slope from the pinned SVD ordinary least-squares calculation for one predictor.",
+        "input_encoding": "[n, x_0..x_(n-1), y_0..y_(n-1)]",
+        "sample_count_range": [LINEARREGRESSIONRAWR_MIN_SAMPLE_COUNT,
+                               LINEARREGRESSIONRAWR_MAX_SAMPLE_COUNT],
+        "predictor_range": [LINEARREGRESSIONRAWR_MIN_PREDICTOR,
+                            LINEARREGRESSIONRAWR_MAX_PREDICTOR],
+        "response_range": [LINEARREGRESSIONRAWR_MIN_RESPONSE,
+                           LINEARREGRESSIONRAWR_MAX_RESPONSE],
+        "domain": "All values are finite binary64 numbers and exact integers. The predictor sums to zero and is nonconstant.",
+        "design_matrix": "The design matrix has an intercept column followed by the single predictor column, as produced by model.matrix(y ~ ., data=x).",
+        "result": "[sum(y)/n, sum(x*y)/sum(x*x)] as binary64 values; centering makes the intercept and predictor columns orthogonal.",
+        "errors": "Malformed shape, nonfinite/fractional/out-of-range values, or a predictor that is not centered and nonconstant returns -1 before output checks. A null output or capacity below two returns -2. Success returns two coefficients. Errors leave output untouched.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[n, x_0..x_(n-1), y_0..y_(n-1)]",
+        "sample_count_range": [LINEARREGRESSIONRAWR_MIN_SAMPLE_COUNT,
+                               LINEARREGRESSIONRAWR_MAX_SAMPLE_COUNT],
+        "sample_count_must_be_integral": True,
+        "predictor_range": [LINEARREGRESSIONRAWR_MIN_PREDICTOR,
+                            LINEARREGRESSIONRAWR_MAX_PREDICTOR],
+        "response_range": [LINEARREGRESSIONRAWR_MIN_RESPONSE,
+                           LINEARREGRESSIONRAWR_MAX_RESPONSE],
+        "values_must_be_integral": True,
+        "predictor_must_sum_to_zero": True,
+        "predictor_must_be_nonconstant": True,
+        "exact_input_length": "1+2*n",
+        "maximum_valid_input_length": LINEARREGRESSIONRAWR_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": LINEARREGRESSIONRAWR_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": LINEARREGRESSIONRAWR_INVALID_RESULT,
+        "null_input_result": LINEARREGRESSIONRAWR_INVALID_RESULT,
+        "null_input_length_zero_result": LINEARREGRESSIONRAWR_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "[intercept, slope]",
+        "maximum_elements": LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS,
+        "maximum_absolute_value": 16,
+        "successful_result": "output element count (2)",
+        "invalid_input_result": LINEARREGRESSIONRAWR_INVALID_RESULT,
+        "invalid_output_buffer_result": LINEARREGRESSIONRAWR_OUTPUT_ERROR,
+        "null_output_result": LINEARREGRESSIONRAWR_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Input validity is checked before output pointer or capacity.",
+        "absolute_tolerance": LINEARREGRESSIONRAWR_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": LINEARREGRESSIONRAWR_RELATIVE_TOLERANCE,
+    }
+    workspace = {"elements": LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS,
+                 "meaning": "The intercept and slope coefficients."}
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": LINEARREGRESSIONRAWR_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": LINEARREGRESSIONRAWR_RELATIVE_TOLERANCE,
+    }
+    case_ids_expected = {
+        "exact_positive_slope", "exact_negative_slope",
+        "fractional_intercept_and_slope", "zero_slope", "nonzero_residuals",
+        "maximum_sample_count", "fractional_coefficients",
+        "trailing_input_value_invalid",
+    }
+    abi_case_ids_expected = {
+        "null_input_zero_length", "null_input_positive_length", "nonfinite_nan",
+        "nonfinite_positive_infinity", "nonfinite_negative_infinity_precedes_null_output",
+        "sample_count_below_minimum", "sample_count_above_maximum",
+        "fractional_sample_count", "fractional_predictor", "predictor_out_of_range",
+        "response_out_of_range", "predictor_not_centered", "constant_predictor",
+        "truncated_input", "valid_input_null_output",
+        "valid_input_short_output_capacity", "valid_input_exact_output_capacity",
+        "invalid_input_precedes_null_output",
+    }
+    cases, abi_cases = workload.get("cases"), workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-r-linearregressionrawr-f64-slice-io-v1"
+            or workload.get("algorithm") != "linearregressionrawr"
+            or workload.get("function_symbol") != "linearregressionrawr"
+            or workload.get("description") != "Fit a centered, bounded single predictor and intercept with the pinned R SVD ordinary least-squares routine."
+            or workload.get("pinned_source") != source
+            or "related_pinned_sources" in workload
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Validate the bounded full-rank input, then compute the exact integer sums for the centered one-predictor least-squares solution and round each quotient to binary64."
+            or (LINEARREGRESSIONRAWR_MIN_SAMPLE_COUNT,
+                LINEARREGRESSIONRAWR_MAX_SAMPLE_COUNT,
+                LINEARREGRESSIONRAWR_MIN_PREDICTOR,
+                LINEARREGRESSIONRAWR_MAX_PREDICTOR,
+                LINEARREGRESSIONRAWR_MIN_RESPONSE,
+                LINEARREGRESSIONRAWR_MAX_RESPONSE,
+                LINEARREGRESSIONRAWR_MAX_VALID_INPUT_LENGTH,
+                LINEARREGRESSIONRAWR_MAX_PARSEABLE_INPUT_LENGTH,
+                LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS,
+                LINEARREGRESSIONRAWR_INVALID_RESULT,
+                LINEARREGRESSIONRAWR_OUTPUT_ERROR,
+                LINEARREGRESSIONRAWR_ABSOLUTE_TOLERANCE,
+                LINEARREGRESSIONRAWR_RELATIVE_TOLERANCE)
+            != (2, 32, -4, 4, -16, 16, 65, 66, 2, -1, -2, 1e-9, 1e-12)
+            or not isinstance(cases, list)
+            or len(case_ids) != len(case_ids_expected)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != case_ids_expected
+            or not isinstance(abi_cases, list)
+            or len(abi_case_ids) != len(abi_case_ids_expected)
+            or len(abi_case_ids) != len(set(abi_case_ids))
+            or set(abi_case_ids) != abi_case_ids_expected):
+        raise ValueError("linearregressionrawr metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "linearregressionrawr" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "The `float64_slice_io` input is" not in readme
+            or "the predictor is centered" not in readme
+            or "Input validity is checked before output-buffer checks." not in readme
+            or "Errors leave the output untouched." not in readme):
+        raise ValueError("linearregressionrawr README is missing its pinned source or ABI semantics")
+
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if (absolute_tolerance != LINEARREGRESSIONRAWR_ABSOLUTE_TOLERANCE
+            or relative_tolerance != LINEARREGRESSIONRAWR_RELATIVE_TOLERANCE):
+        raise ValueError("linearregressionrawr fixtures require the reviewed float64 tolerances")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result",
+                          "expected_output"}
+                or not isinstance(values, list)
+                or not values
+                or len(values) > LINEARREGRESSIONRAWR_MAX_VALID_INPUT_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) not in (int, float)
+                       or not math.isfinite(float(value)) for value in values)):
+            raise ValueError(f"linearregressionrawr semantic input framing is invalid: {case.get('id')}")
+        _values, result, _output = encode_case(
+            case, "linearregressionrawr", absolute_tolerance, relative_tolerance)
+        required_result = (LINEARREGRESSIONRAWR_INVALID_RESULT
+                           if case["id"] == "trailing_input_value_invalid"
+                           else LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS)
+        if result != required_result:
+            raise ValueError(f"linearregressionrawr semantic case has the wrong validity: {case['id']}")
+
+    markers = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
+    for case in abi_cases:
+        case_id = case.get("id")
+        raw_values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "input_is_null",
+                          "output_is_null", "output_capacity", "expected_result",
+                          "expected_output"}
+                or not isinstance(raw_values, list)
+                or len(raw_values) > LINEARREGRESSIONRAWR_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError(f"linearregressionrawr ABI fixture framing is invalid: {case_id}")
+        values: list[float] = []
+        for value in raw_values:
+            if type(value) in (int, float):
+                try:
+                    values.append(float(value))
+                except OverflowError as error:
+                    raise ValueError(f"linearregressionrawr ABI number is too large: {case_id}") from error
+            elif isinstance(value, str) and value in markers:
+                values.append(markers[value])
+            else:
+                raise ValueError(f"linearregressionrawr ABI input value is invalid: {case_id}")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null")
+        output_is_null = case.get("output_is_null")
+        capacity = case.get("output_capacity")
+        if (type(input_length) is not int
+                or not 0 <= input_length <= LINEARREGRESSIONRAWR_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or type(output_is_null) is not bool
+                or type(capacity) is not int
+                or not 0 <= capacity <= LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS
+                or input_is_null and values
+                or not input_is_null and input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"linearregressionrawr ABI input framing is invalid: {case_id}")
+        result, output = linearregressionrawr_abi_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        expected = case.get("expected_output")
+        if (not isinstance(expected, list)
+                or case["expected_result"] != result
+                or len(expected) != len(output)
+                or result < 0 and expected
+                or any(type(actual) not in (int, float)
+                       or not math.isfinite(float(actual))
+                       or abs(float(actual) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                       for actual, reference in zip(expected, output))):
+            raise ValueError(f"linearregressionrawr ABI fixture mismatch: {case_id}")
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    if (abi_by_id["null_input_zero_length"].get("input_is_null") is not True
+            or abi_by_id["null_input_zero_length"].get("input_length") != 0
+            or abi_by_id["null_input_positive_length"].get("input_is_null") is not True
+            or abi_by_id["null_input_positive_length"].get("input_length") != 1
+            or abi_by_id["nonfinite_negative_infinity_precedes_null_output"].get("expected_result")
+                != LINEARREGRESSIONRAWR_INVALID_RESULT
+            or abi_by_id["nonfinite_negative_infinity_precedes_null_output"].get("output_is_null") is not True
+            or abi_by_id["valid_input_null_output"].get("expected_result")
+                != LINEARREGRESSIONRAWR_OUTPUT_ERROR
+            or abi_by_id["valid_input_short_output_capacity"].get("output_capacity") != 1
+            or abi_by_id["valid_input_short_output_capacity"].get("expected_result")
+                != LINEARREGRESSIONRAWR_OUTPUT_ERROR
+            or abi_by_id["valid_input_exact_output_capacity"].get("output_capacity") != 2
+            or abi_by_id["valid_input_exact_output_capacity"].get("expected_result")
+                != LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS
+            or abi_by_id["invalid_input_precedes_null_output"].get("output_is_null") is not True
+            or abi_by_id["invalid_input_precedes_null_output"].get("expected_result")
+                != LINEARREGRESSIONRAWR_INVALID_RESULT):
+        raise ValueError("linearregressionrawr ABI fixtures do not pin null input, capacity, and precedence")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -4253,10 +4732,14 @@ def main() -> int:
         validate_k_means_clust_workload(workload)
     elif algorithm == "lu_decompose":
         validate_lu_decompose_workload(workload)
+    elif algorithm == "lu_pivot_decomposition":
+        validate_lu_pivot_decomposition_workload(workload)
     elif algorithm == "polynomial_regression":
         validate_polynomial_regression_workload(workload)
     elif algorithm == "sherman_morrison":
         validate_sherman_morrison_workload(workload)
+    elif algorithm == "linearregressionrawr":
+        validate_linearregressionrawr_workload(workload)
     absolute_tolerance, relative_tolerance = tolerances(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
