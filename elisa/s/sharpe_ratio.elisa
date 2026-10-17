@@ -1,0 +1,45 @@
+extern pow(base: f64, exponent: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+def sharpe_ratio_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length < 2 or length > 67:
+        return -1.0e300
+    count_value: i64 = values[0]
+    if count_value < 2 or count_value > 64 or length != (count_value + 2).usize():
+        return -1.0e300
+    count: usize = count_value.usize()
+    risk_free_micro: i64 = values[count + 1]
+    if risk_free_micro < -100000 or risk_free_micro > 100000:
+        return -1.0e300
+
+    total: mutable f64 = 0.0
+    constant_returns: mutable bool = true
+    index: mutable usize = 0
+    while index < count:
+        return_micro: i64 = values[index + 1]
+        if return_micro < -200000 or return_micro > 200000:
+            return -1.0e300
+        if return_micro != values[1]:
+            constant_returns <- false
+        total <- total + return_micro.f64() / 1000000.0
+        index <- index + 1
+    if constant_returns:
+        return -1.0e300
+
+    mean: f64 = total / count.f64()
+    risk_free_rate: f64 = risk_free_micro.f64() / 1000000.0
+    excess_return: f64 = mean - risk_free_rate
+    squared_deviations: mutable f64 = 0.0
+    index <- 0
+    while index < count:
+        return_value: f64 = values[index + 1].f64() / 1000000.0
+        difference: f64 = return_value - mean
+        squared_deviations <- squared_deviations + pow(difference, 2.0)
+        index <- index + 1
+    variance: f64 = squared_deviations / (count - 1).f64()
+    standard_deviation: f64 = sqrt(variance)
+    if standard_deviation == 0.0:
+        return -1.0e300
+    excess_return / standard_deviation
+
+export fn sharpe_ratio(values: i64&, length: usize) -> f64 = sharpe_ratio_impl

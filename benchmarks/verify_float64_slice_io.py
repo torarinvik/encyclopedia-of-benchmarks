@@ -14,7 +14,7 @@ import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
-                                  _format_output, encode_case, tolerances,
+                                  _format_output, _output_token, encode_case, tolerances,
                                   validate_joint_probability_distribution_workload,
                                   validate_pid_workload,
                                   validate_shreedharacharya_workload,
@@ -25,7 +25,10 @@ from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   validate_k_d_tree_workload,
                                   validate_linear_regression_vectorized_workload,
                                   validate_perlin_noise_workload,
-                                  _decode_k_d_tree_abi_values)
+                                  validate_single_point_crossover_workload,
+                                  validate_quaternions_workload,
+                                  _decode_k_d_tree_abi_values,
+                                  _decode_single_point_crossover_abi_values)
 from shreedharacharya_oracle import MAX_COEFFICIENT as SHREEDHARACHARYA_MAX_COEFFICIENT
 from shreedharacharya_oracle import MIN_ABS_LEADING_COEFFICIENT as SHREEDHARACHARYA_MIN_ABS_A
 from linear_regression_vectorized_oracle import MAX_ALPHA as LINEAR_REGRESSION_MAX_ALPHA
@@ -49,6 +52,8 @@ from perlin_noise_oracle import MIN_SEED as PERLIN_NOISE_MIN_SEED
 from perlin_noise_oracle import OUTPUT_ERROR as PERLIN_NOISE_OUTPUT_ERROR
 from perlin_noise_oracle import PERSISTENCE_VALUES as PERLIN_NOISE_PERSISTENCE_VALUES
 from perlin_noise_oracle import expected_result as perlin_noise_oracle
+from single_point_crossover_oracle import expected_abi_result as single_point_crossover_expected_abi_result
+from quaternions_oracle import expected_abi_result as quaternions_expected_abi_result
 
 ALGORITHMS = tuple(ORACLES)
 
@@ -84,8 +89,9 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                    else oracle_result is None)
         if invalid:
             records.append((invalid_input, -1, [], workspace, 0, 0))
-    records.extend(((values, -1, [], workspace, 1, 0),
-                    ([], -1, [], workspace, 0, 0)))
+    records.append((values, -1, [], workspace, 1, 0))
+    if algorithm != "md2_digest":
+        records.append(([], -1, [], workspace, 0, 0))
 
     if algorithm == "k_d_tree":
         for case in workload.get("abi_cases", []):
@@ -103,6 +109,168 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             if case.get("expected_result") != expected_result:
                 raise ValueError(f"k_d_tree ABI probe mismatch: {case.get('id')}")
             records.append((inputs, expected_result, expected_output, capacity, 0,
+                            int(output_is_null)))
+
+    if algorithm == "single_point_crossover":
+        for case in workload.get("abi_cases", []):
+            inputs = _decode_single_point_crossover_abi_values(case.get("input_values"))
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null", False)
+            expected_result, output = single_point_crossover_expected_abi_result(
+                inputs, capacity, output_is_null)
+            if case.get("expected_result") != expected_result:
+                raise ValueError(f"single_point_crossover ABI probe mismatch: {case.get('id')}")
+            expected_output = [_output_token(value) for value in output]
+            records.append((inputs, expected_result, expected_output, capacity, 0,
+                            int(output_is_null)))
+
+    if algorithm == "quaternions":
+        oracle = ORACLES[algorithm]
+
+        def add_quaternion_case(inputs: list[float], capacity: int = workspace,
+                                output_is_null: bool = False, input_is_null: bool = False,
+                                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            result, output = quaternions_expected_abi_result(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        absolute_tolerance, relative_tolerance = tolerances(workload)
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid quaternions ABI input values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(inputs))
+            result, output = quaternions_expected_abi_result(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected = case.get("expected_output")
+            if (case.get("expected_result") != result
+                    or not isinstance(expected, list)
+                    or len(expected) != len(output)
+                    or any(type(actual) not in (int, float)
+                           or abs(float(actual) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for actual, reference in zip(expected, output))):
+                raise ValueError(f"quaternions ABI workload mismatch: {case.get('id')}")
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+
+        rng_quaternions = random.Random(20261017)
+        for index in range(64):
+            euler_values = [0.0,
+                            rng_quaternions.uniform(-3.0, 3.0),
+                            rng_quaternions.uniform(-3.0, 3.0),
+                            rng_quaternions.uniform(-3.0, 3.0)]
+            quaternion_components = [rng_quaternions.uniform(-1.0, 1.0)
+                                     for _ in range(4)]
+            norm = math.sqrt(sum(value * value for value in quaternion_components))
+            if norm == 0.0:
+                quaternion_components = [0.5, 0.5, 0.5, 0.5]
+            else:
+                quaternion_components = [value / norm for value in quaternion_components]
+            euler_conversion = [1.0, *quaternion_components]
+            if oracle(euler_conversion) is None:
+                euler_conversion = [1.0, 0.5, 0.5, 0.5, 0.5]
+            hamilton_product = [2.0, *(rng_quaternions.uniform(-1.0, 1.0)
+                                       for _ in range(8))]
+            for inputs in (euler_values, euler_conversion, hamilton_product):
+                result, output = add_quaternion_case(inputs)
+                if result > 0:
+                    add_quaternion_case(inputs, capacity=result - 1)
+                    if index % 16 == 0:
+                        add_quaternion_case(inputs, output_is_null=True)
+
+        malformed = (
+            [0.0], [0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0],
+            [1.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+            [2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [3.0, 0.0, 0.0, 0.0], [0.5, 0.0, 0.0, 0.0],
+            [0.0, 3.000001, 0.0, 0.0],
+            [0.0, math.nan, 0.0, 0.0], [0.0, math.inf, 0.0, 0.0],
+        )
+        for inputs in malformed:
+            add_quaternion_case(inputs)
+        add_quaternion_case([0.0, 3.5, 0.0, 0.0], capacity=0, output_is_null=True)
+        add_quaternion_case([0.0, 0.0, 0.0, 0.0], input_is_null=True, input_length=4)
+
+    if algorithm == "median_filter":
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if not isinstance(raw_values, list):
+                raise ValueError(f"median_filter ABI input must be a list: {case.get('id')}")
+            values: list[float] = []
+            for value in raw_values:
+                if value == "NaN":
+                    values.append(math.nan)
+                elif value == "Infinity":
+                    values.append(math.inf)
+                elif value == "-Infinity":
+                    values.append(-math.inf)
+                elif type(value) in (int, float):
+                    values.append(float(value))
+                else:
+                    raise ValueError(f"unsupported median_filter ABI token in {case.get('id')}")
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null", False)
+            if (type(capacity) is not int or not 0 <= capacity <= workspace
+                    or type(output_is_null) is not bool):
+                raise ValueError(f"invalid median_filter ABI capacity/null flag: {case.get('id')}")
+            expected = ORACLES[algorithm](values)
+            if expected is None:
+                result, encoded = -1, []
+            elif output_is_null or len(expected) > capacity:
+                result, encoded = -2, []
+            else:
+                result = len(expected)
+                encoded = [_output_token(value) for value in expected]
+            if case.get("expected_result") != result:
+                raise ValueError(f"median_filter ABI probe mismatch: {case.get('id')}")
+            records.append((values, result, encoded, capacity, 0,
+                            int(output_is_null)))
+
+    if algorithm == "mutate":
+        nonfinite_tokens = {"NaN": math.nan, "Infinity": math.inf,
+                            "-Infinity": -math.inf}
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if not isinstance(raw_values, list):
+                raise ValueError(f"mutate ABI input must be a list: {case.get('id')}")
+            values: list[float] = []
+            for value in raw_values:
+                if isinstance(value, str):
+                    if value not in nonfinite_tokens:
+                        raise ValueError(f"unsupported mutate ABI token in {case.get('id')}")
+                    values.append(nonfinite_tokens[value])
+                elif type(value) in (int, float):
+                    values.append(float(value))
+                else:
+                    raise ValueError(f"unsupported mutate ABI input in {case.get('id')}")
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null", False)
+            if (type(capacity) is not int or not 0 <= capacity <= workspace
+                    or type(output_is_null) is not bool):
+                raise ValueError(f"invalid mutate ABI capacity/null flag: {case.get('id')}")
+            expected = ORACLES[algorithm](values)
+            if expected is None:
+                result, encoded = -1, []
+            elif output_is_null or len(expected) > capacity:
+                result, encoded = -2, []
+            else:
+                result = len(expected)
+                encoded = [_output_token(value) for value in expected]
+            if case.get("expected_result") != result:
+                raise ValueError(f"mutate ABI probe mismatch: {case.get('id')}")
+            records.append((values, result, encoded, capacity, 0,
                             int(output_is_null)))
 
     if algorithm == "koch_snowflake":
@@ -832,6 +1000,10 @@ def main() -> int:
         validate_linear_regression_vectorized_workload(workload)
     elif algorithm == "perlin_noise":
         validate_perlin_noise_workload(workload)
+    elif algorithm == "single_point_crossover":
+        validate_single_point_crossover_workload(workload)
+    elif algorithm == "quaternions":
+        validate_quaternions_workload(workload)
     data, count = checker_records(algorithm, workload)
     build_root = (args.build_dir or ROOT / "build" / "float64_slice_io" / algorithm).resolve()
     build_root.mkdir(parents=True, exist_ok=True)

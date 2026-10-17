@@ -1,0 +1,65 @@
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 183
+const FNV_OFFSET_BASIS: u64 = 14695981039346656037.u64()
+const FNV_PRIME: u64 = 1099511628211.u64()
+const MASK_63: u64 = 0x7fff_ffff_ffff_ffff.u64()
+
+def mono_alphabetic_cipher_impl(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    operation: i64 = input[0]
+    raw_text_length: i64 = input[1]
+    if (operation != 0 and operation != 1) or raw_text_length < 0 or raw_text_length > 128:
+        return -1
+    text_length: usize = raw_text_length.usize()
+    if input_length != 54 + text_length: return -1
+
+    key_seen: mutable bool[26] = zeroed
+    alphabet_seen: mutable bool[26] = zeroed
+    key_inverse: mutable usize[26] = zeroed
+    alphabet_inverse: mutable usize[26] = zeroed
+    index: mutable usize = 0
+    while index < 26:
+        key_value: i64 = input[2 + index]
+        alphabet_value: i64 = input[28 + index]
+        if key_value < 65 or key_value > 90 or alphabet_value < 65 or alphabet_value > 90: return -1
+        key_letter: usize = (key_value - 65).usize()
+        alphabet_letter: usize = (alphabet_value - 65).usize()
+        if key_seen[key_letter] or alphabet_seen[alphabet_letter]: return -1
+        key_seen[key_letter] <- true
+        alphabet_seen[alphabet_letter] <- true
+        key_inverse[key_letter] <- index
+        alphabet_inverse[alphabet_letter] <- index
+        index <- index + 1
+    output_length: mutable usize = 0
+    index <- 0
+    while index < text_length:
+        value: i64 = input[54 + index]
+        valid: bool = value == 32 or (value >= 48 and value <= 57) or
+            (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+        if not valid: return -1
+        if value < 48 or value > 57: output_length <- output_length + 1
+        index <- index + 1
+
+    hash: mutable u64 = FNV_OFFSET_BASIS
+    length_word: mutable u64 = output_length.u64()
+    index <- 0
+    while index < 8:
+        hash <- (hash ^ (length_word & 255.u64())) * FNV_PRIME
+        length_word <- length_word >> 8
+        index <- index + 1
+    index <- 0
+    while index < text_length:
+        value: i64 = input[54 + index]
+        if value < 48 or value > 57:
+            mapped: mutable i64 = value
+            if value != 32:
+                lower: bool = value >= 97 and value <= 122
+                letter: usize = if lower: (value - 97).usize() else: (value - 65).usize()
+                position: usize = if operation == 0: alphabet_inverse[letter] else: key_inverse[letter]
+                target: i64 = if operation == 0: input[2 + position] else: input[28 + position]
+                mapped <- if lower: target + 32 else: target
+            hash <- (hash ^ mapped.u64()) * FNV_PRIME
+        index <- index + 1
+    (hash & MASK_63).i64()
+
+export fn mono_alphabetic_cipher(input: i64&, input_length: usize) -> i64 = mono_alphabetic_cipher_impl

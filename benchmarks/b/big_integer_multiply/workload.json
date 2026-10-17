@@ -1,0 +1,403 @@
+{
+  "schema_version": 1,
+  "id": "big-integer-multiply-rust-canonical-ascii-bytes-v1",
+  "algorithm": "big_integer_multiply",
+  "function_symbol": "big_integer_multiply",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[len_a, len_b, ascii_a_bytes..., ascii_b_bytes...]",
+    "left_length_range": [
+      1,
+      32
+    ],
+    "right_length_range": [
+      1,
+      32
+    ],
+    "maximum_packed_input_length": 66,
+    "byte_range": [
+      0,
+      127
+    ],
+    "operand_format": "ASCII decimal digits; exactly '0' or no leading zero",
+    "exact_packed_length": "2 + len_a + len_b",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "ASCII_byte_string",
+    "encoding": "canonical base-10 product with no NUL terminator",
+    "successful_result": "number of output bytes",
+    "maximum_output_length": 64,
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "Maximum product length for two 32-digit operands."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/big_integer/multiply.rs",
+    "function": "multiply"
+  },
+  "cases": [
+    {
+      "id": "single_digit",
+      "input_values": [
+        1,
+        1,
+        50,
+        51
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output_hex": "36"
+    },
+    {
+      "id": "published_example",
+      "input_values": [
+        3,
+        3,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54
+      ],
+      "input_length": 8,
+      "expected_result": 5,
+      "expected_output_hex": "3536303838"
+    },
+    {
+      "id": "zero_left",
+      "input_values": [
+        1,
+        3,
+        48,
+        50,
+        50,
+        50
+      ],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output_hex": "30"
+    },
+    {
+      "id": "zero_right",
+      "input_values": [
+        3,
+        1,
+        49,
+        50,
+        51,
+        48
+      ],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output_hex": "30"
+    },
+    {
+      "id": "two_digit_carries",
+      "input_values": [
+        2,
+        2,
+        57,
+        57,
+        57,
+        57
+      ],
+      "input_length": 6,
+      "expected_result": 4,
+      "expected_output_hex": "39383031"
+    },
+    {
+      "id": "unequal_carry",
+      "input_values": [
+        4,
+        2,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57
+      ],
+      "input_length": 8,
+      "expected_result": 6,
+      "expected_output_hex": "393839393031"
+    },
+    {
+      "id": "published_large",
+      "input_values": [
+        6,
+        7,
+        49,
+        57,
+        50,
+        57,
+        51,
+        57,
+        57,
+        52,
+        57,
+        57,
+        53,
+        57,
+        54
+      ],
+      "input_length": 15,
+      "expected_result": 13,
+      "expected_output_hex": "31383332383432353532363434"
+    },
+    {
+      "id": "maximum_64_digit_product",
+      "input_values": [
+        32,
+        32,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57
+      ],
+      "input_length": 66,
+      "expected_result": 64,
+      "expected_output_hex": "39393939393939393939393939393939393939393939393939393939393939383030303030303030303030303030303030303030303030303030303030303031"
+    },
+    {
+      "id": "empty_left_operand",
+      "input_values": [
+        0,
+        1,
+        51
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "leading_zero_invalid",
+      "input_values": [
+        2,
+        1,
+        48,
+        49,
+        51
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sign_invalid",
+      "input_values": [
+        2,
+        1,
+        45,
+        51,
+        52
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nondigit_invalid",
+      "input_values": [
+        4,
+        1,
+        49,
+        50,
+        100,
+        52,
+        51
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "unicode_numeric_outside_ascii",
+      "input_values": [
+        1,
+        1,
+        1635,
+        50
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "operand_over_32_digit_bound",
+      "input_values": [
+        33,
+        1,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        50
+      ],
+      "input_length": 35,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_packed_input",
+      "input_values": [
+        2,
+        2,
+        49,
+        50,
+        51
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_packed_input",
+      "input_values": [
+        1,
+        1,
+        50,
+        51,
+        52
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_buffer",
+      "input_values": [
+        3,
+        3,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54
+      ],
+      "input_length": 8,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 64,
+      "output_is_null": true
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        3,
+        3,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54
+      ],
+      "input_length": 8,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 4
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+const INVALID_RESULT: f64 = -1.0e300
+const FRACTION_SCALE: f64 = 4503599627370496.0
+const FRACTION_MASK: u64 = 4503599627370495
+
+# Elisa has no f64 bit reinterpret cast; decode this positive normal product arithmetically.
+def moles_to_molecules_positive_f64_bits(value: f64) -> u64:
+    normalized: mutable f64 = value
+    exponent: mutable i32 = 0
+    while normalized >= 2.0:
+        normalized <- normalized / 2.0
+        exponent <- exponent + 1
+    while normalized < 1.0:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    fraction: u64 = ((normalized - 1.0) * FRACTION_SCALE).u64()
+    ((exponent + 1023).u64() << 52) | fraction
+
+def moles_to_molecules_parse_scientific_four(value: f64) -> f64:
+    if value == 0.0:
+        return 0.0
+    normalized: mutable f64 = value
+    decimal_exponent: mutable i32 = 0
+    while normalized >= 10.0:
+        normalized <- normalized / 10.0
+        decimal_exponent <- decimal_exponent + 1
+    while normalized < 1.0:
+        normalized <- normalized * 10.0
+        decimal_exponent <- decimal_exponent - 1
+    bits: u64 = moles_to_molecules_positive_f64_bits(value)
+    fraction: u64 = bits & FRACTION_MASK
+    exponent_bits: i32 = ((bits >> 52) & 2047).i32()
+    significand: u64 = (1.u64() << 52) | fraction
+    binary_exponent: i32 = exponent_bits - 1023 - 52
+    decimal_shift: i32 = decimal_exponent - 4
+    denominator: mutable u64 = 1
+    index: mutable i32 = 0
+    while index < decimal_shift:
+        denominator <- denominator * 5
+        index <- index + 1
+    binary_shift: i32 = binary_exponent - decimal_shift
+    numerator: mutable u64 = significand
+    if binary_shift >= 0:
+        numerator <- numerator << binary_shift.u32()
+    else:
+        denominator <- denominator << (-binary_shift).u32()
+    rounded: mutable u64 = numerator / denominator
+    remainder: u64 = numerator % denominator
+    if remainder * 2 > denominator or (remainder * 2 == denominator and (rounded & 1) != 0):
+        rounded <- rounded + 1
+    decimal_scale: mutable f64 = 1.0
+    index <- 0
+    while index < decimal_shift:
+        decimal_scale <- decimal_scale * 10.0
+        index <- index + 1
+    rounded.f64() * decimal_scale
+
+def moles_to_molecules_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length != 1:
+        return INVALID_RESULT
+    moles_micro: i64 = input[0]
+    if moles_micro < 0 or moles_micro > 2000000:
+        return INVALID_RESULT
+    moles: f64 = moles_micro.f64() / 1000000.0
+    molecules: f64 = moles * 6.022e23
+    moles_to_molecules_parse_scientific_four(molecules)
+
+export fn moles_to_molecules(input: i64&, length: usize) -> f64 = moles_to_molecules_impl

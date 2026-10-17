@@ -12,7 +12,7 @@ The source's `Fit` method stores the model weights and its `PredictProbability` 
 
 ## Workload
 
-[`workload.json`](workload.json) covers zero and multiple epochs, positive and negative labels, a bias-only update, gradient cancellation, multiple feature counts, bounded batches, and malformed or out-of-range inputs. The expected probability follows the source's ordered full-batch updates.
+[`workload.json`](workload.json) covers zero and multiple epochs, positive and negative labels, a bias-only update, gradient cancellation, one- and two-feature batches, and malformed or out-of-range inputs. It also marks a three-feature input with a nonbinary label and a truncated larger batch as invalid. The expected probability follows the source's ordered full-batch updates.
 
 ## Build
 

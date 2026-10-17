@@ -1,0 +1,52 @@
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 157
+const FNV_OFFSET_BASIS: u64 = 14695981039346656037.u64()
+const FNV_PRIME: u64 = 1099511628211.u64()
+const MASK_63: u64 = 0x7fff_ffff_ffff_ffff.u64()
+
+def mono_alphabetic_ciphers_impl(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    operation: i64 = input[0]
+    raw_text_length: i64 = input[1]
+    if (operation != 0 and operation != 1) or raw_text_length < 0 or raw_text_length > 128: return -1
+    text_length: usize = raw_text_length.usize()
+    if input_length != 28 + text_length: return -1
+
+    seen: mutable bool[26] = zeroed
+    inverse: mutable usize[26] = zeroed
+    index: mutable usize = 0
+    while index < 26:
+        value: i64 = input[2 + index]
+        if value < 65 or value > 90: return -1
+        letter: usize = (value - 65).usize()
+        if seen[letter]: return -1
+        seen[letter] <- true
+        inverse[letter] <- index
+        index <- index + 1
+    index <- 0
+    while index < text_length:
+        value: i64 = input[28 + index]
+        if value < 32 or value > 126: return -1
+        index <- index + 1
+
+    hash: mutable u64 = FNV_OFFSET_BASIS
+    length_word: mutable u64 = text_length.u64()
+    index <- 0
+    while index < 8:
+        hash <- (hash ^ (length_word & 255.u64())) * FNV_PRIME
+        length_word <- length_word >> 8
+        index <- index + 1
+    index <- 0
+    while index < text_length:
+        value: i64 = input[28 + index]
+        mapped: mutable i64 = value
+        if (value >= 65 and value <= 90) or (value >= 97 and value <= 122):
+            lower: bool = value >= 97 and value <= 122
+            letter: usize = if lower: (value - 97).usize() else: (value - 65).usize()
+            position: usize = if operation == 0: inverse[letter] else: letter
+            target: i64 = if operation == 0: 65.i64() + position.i64() else: input[2 + position]
+            mapped <- if lower: target + 32 else: target
+        hash <- (hash ^ mapped.u64()) * FNV_PRIME
+        index <- index + 1
+    (hash & MASK_63).i64()
+
+export fn mono_alphabetic_ciphers(input: i64&, input_length: usize) -> i64 = mono_alphabetic_ciphers_impl

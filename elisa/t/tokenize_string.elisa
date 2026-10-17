@@ -1,0 +1,38 @@
+def tokenize_string_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 130:
+        return -1
+    if input[0] < 0 or input[0] > 128:
+        return -1
+    text_length: usize = input[0].usize()
+    if length != text_length + 2:
+        return -1
+    separator: i64 = input[1]
+    if separator != 44 and separator != 46 and separator != 58:
+        return -1
+    separator_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < text_length:
+        byte: i64 = input[index + 2]
+        if byte < 32 or byte > 126:
+            return -1
+        if byte == separator:
+            separator_count <- separator_count + 1
+        index <- index + 1
+    if separator_count > 18:
+        return -1
+    output_length: usize = text_length + 2
+    if output.is_null() or capacity < output_length:
+        return -2
+    output[0] <- (separator_count + 1).u8()
+    index <- 0
+    while index < text_length:
+        byte: i64 = input[index + 2]
+        if byte == separator:
+            output[index + 1] <- 0.u8()
+        else:
+            output[index + 1] <- byte.u8()
+        index <- index + 1
+    output[output_length - 1] <- 0.u8()
+    output_length.i64()
+
+export fn tokenize_string(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = tokenize_string_impl

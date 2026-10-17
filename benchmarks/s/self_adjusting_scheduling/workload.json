@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-self-adjusting-scheduling-i64-byte-trace-v1",
+  "algorithm": "self_adjusting_scheduling",
+  "function_symbol": "self_adjusting_scheduling",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/scheduling/SelfAdjustingScheduling.java",
+    "method": "SelfAdjustingScheduling.scheduleNext",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/scheduling/SelfAdjustingScheduling.java",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "schedule a bounded sequence of tasks whose priority increases by cumulative wait time",
+    "selection": "ascending current integer priority; ties are rejected before every requested poll",
+    "update": "increment selected task wait time, add the new cumulative wait time to priority, then requeue",
+    "task_labels": "zero-based indices in input order",
+    "final_update_ties": "allowed when no further poll is requested",
+    "zero_steps": "accepts duplicate starting priorities and emits an empty byte sequence",
+    "integer_overflow": "reject a priority update outside signed-i32 range after computing in a wider type"
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[task_count, steps, signed_i32_priority_per_task...]",
+    "task_count_range": [
+      1,
+      16
+    ],
+    "steps_range": [
+      0,
+      64
+    ],
+    "priority_range": [
+      -2147483648,
+      2147483647
+    ],
+    "exact_packed_length": "2 + task_count",
+    "maximum_valid_input_length": 18,
+    "maximum_parseable_input_length": 19,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_sequence",
+    "encoding": "one zero-based task index byte per scheduled step",
+    "maximum_output_bytes": 64,
+    "success_result": "output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "zero_step_null_output_result": -2
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "one byte per scheduled task index"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "changing_queue_order_final_tie",
+      "input_values": [
+        3,
+        4,
+        0,
+        5,
+        100
+      ],
+      "input_length": 5,
+      "expected_result": 4,
+      "expected_output_hex": "00000001"
+    },
+    {
+      "id": "tie_after_final_update_allowed",
+      "input_values": [
+        2,
+        1,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "tie_before_later_poll_rejected",
+      "input_values": [
+        2,
+        2,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_priorities_with_zero_steps",
+      "input_values": [
+        2,
+        0,
+        5,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_initial_priorities_before_first_poll_rejected",
+      "input_values": [
+        2,
+        1,
+        5,
+        5
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single_task_cumulative_wait",
+      "input_values": [
+        1,
+        5,
+        -7
+      ],
+      "input_length": 3,
+      "expected_result": 5,
+      "expected_output_hex": "0000000000"
+    },
+    {
+      "id": "priority_update_reaches_i32_max",
+      "input_values": [
+        1,
+        1,
+        2147483646
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "priority_update_from_i32_min",
+      "input_values": [
+        1,
+        1,
+        -2147483648
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "overflow_on_final_priority_update",
+      "input_values": [
+        1,
+        1,
+        2147483647
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "initial_priority_above_i32",
+      "input_values": [
+        1,
+        0,
+        2147483648
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_tasks_and_steps",
+      "input_values": [
+        16,
+        64,
+        0,
+        1000000,
+        2000000,
+        3000000,
+        4000000,
+        5000000,
+        6000000,
+        7000000,
+        8000000,
+        9000000,
+        10000000,
+        11000000,
+        12000000,
+        13000000,
+        14000000,
+        15000000
+      ],
+      "input_length": 18,
+      "expected_result": 64,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "zero_steps_capacity_zero",
+      "input_values": [
+        2,
+        0,
+        7,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": 0,
+      "expected_output_hex": "",
+      "output_capacity": 0
+    },
+    {
+      "id": "zero_steps_null_output_pointer",
+      "input_values": [
+        2,
+        0,
+        7,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        1,
+        5,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 4
+    },
+    {
+      "id": "exact_output_capacity",
+      "input_values": [
+        1,
+        5,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 5,
+      "expected_output_hex": "0000000000",
+      "output_capacity": 5
+    },
+    {
+      "id": "invalid_schedule_precedes_null_output",
+      "input_values": [
+        2,
+        2,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_is_null": true
+    },
+    {
+      "id": "task_count_below_bound",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "steps_above_bound",
+      "input_values": [
+        1,
+        65,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "missing_priority",
+      "input_values": [
+        2,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_priority",
+      "input_values": [
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_parseable_length_bad_framing",
+      "input_values": [
+        16,
+        0,
+        0,
+        1000000,
+        2000000,
+        3000000,
+        4000000,
+        5000000,
+        6000000,
+        7000000,
+        8000000,
+        9000000,
+        10000000,
+        11000000,
+        12000000,
+        13000000,
+        14000000,
+        15000000,
+        123
+      ],
+      "input_length": 19,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

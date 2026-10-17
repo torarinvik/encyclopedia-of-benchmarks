@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "median-of-three-quick-sorter-v1",
+  "algorithm": "median_of_three_quick_sorter",
+  "input": {
+    "lengths": [
+      0,
+      16,
+      256
+    ],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 48271,
+      "modulus": 127,
+      "offset": 63,
+      "formula": "values[index] = ((index * 48271) mod 127) - 63"
+    }
+  },
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "sort_call",
+    "warmup_rounds": 2,
+    "sample_count": 7
+  }
+}

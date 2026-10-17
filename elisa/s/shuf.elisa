@@ -1,0 +1,58 @@
+def write_i32_le(output: mutable u8&, index: usize, value: i32) -> void:
+    bits: mutable u32 = value.u32()
+    offset: usize = index * 4
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def shuf_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 67: return -1
+    count_raw: i64 = input[0]
+    sample_size_raw: i64 = input[1]
+    if count_raw < 0 or count_raw > 32 or sample_size_raw < 1 or sample_size_raw > 32: return -1
+    count: usize = count_raw.usize()
+    sample_size: usize = sample_size_raw.usize()
+    if length != 2 + 2 * count: return -1
+    items: mutable i32[32] = zeroed
+    sample: mutable i32[32] = zeroed
+    occupied: mutable bool[32] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[2 + index]
+        if value < -2147483648 or value > 2147483647: return -1
+        items[index] <- value.i32()
+        index <- index + 1
+    initial_count: usize = count
+    if initial_count > sample_size: initial_count <- sample_size
+    index <- 0
+    while index < initial_count:
+        draw: i64 = input[2 + count + index]
+        if draw < 0 or draw >= sample_size.i64(): return -1
+        slot: mutable usize = draw.usize()
+        while occupied[slot]:
+            slot <- slot + 1
+            if slot == sample_size: slot <- 0
+        sample[slot] <- items[index]
+        occupied[slot] <- true
+        index <- index + 1
+    if count >= sample_size:
+        index <- sample_size
+        while index < count:
+            draw: i64 = input[2 + count + index]
+            if draw < 0 or draw > index.i64(): return -1
+            if draw < sample_size.i64(): sample[draw.usize()] <- items[index]
+            index <- index + 1
+    output_count: mutable usize = 0
+    output_bytes: usize = initial_count * 4
+    if output.is_null() or capacity < output_bytes: return -2
+    slot: mutable usize = 0
+    while slot < sample_size:
+        if occupied[slot]:
+            write_i32_le(output, output_count, sample[slot])
+            output_count <- output_count + 1
+        slot <- slot + 1
+    output_count.i64()
+
+export fn shuf(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = shuf_impl

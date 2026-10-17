@@ -1,0 +1,26 @@
+const INVALID_RESULT: f64 = -1.0e300
+
+def schur_complement_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length != 6:
+        return INVALID_RESULT
+    a00: i64 = input[0]
+    a01: i64 = input[1]
+    a11: i64 = input[2]
+    b0: i64 = input[3]
+    b1: i64 = input[4]
+    c00: i64 = input[5]
+    if a00 < -8 or a00 > 8 or a01 < -8 or a01 > 8 or a11 < -8 or a11 > 8 or b0 < -100 or b0 > 100 or b1 < -100 or b1 > 100 or c00 < -100 or c00 > 100:
+        return INVALID_RESULT
+    determinant: i64 = a00 * a11 - a01 * a01
+    if determinant == 0:
+        return INVALID_RESULT
+    inv00: f64 = a11.f64() / determinant.f64()
+    inv01: f64 = -a01.f64() / determinant.f64()
+    inv10: f64 = -a01.f64() / determinant.f64()
+    inv11: f64 = a00.f64() / determinant.f64()
+    left0: f64 = b0.f64() * inv00 + b1.f64() * inv10
+    left1: f64 = b0.f64() * inv01 + b1.f64() * inv11
+    quadratic: f64 = left0 * b0.f64() + left1 * b1.f64()
+    c00.f64() - quadratic
+
+export fn schur_complement(input: i64&, length: usize) -> f64 = schur_complement_impl

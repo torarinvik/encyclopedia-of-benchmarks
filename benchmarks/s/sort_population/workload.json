@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "id": "matlab-sort-population-distinct-cost-i64-record-bytes-v1",
+  "algorithm": "sort_population",
+  "function_symbol": "sort_population",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[n, cost_0, id_0, ..., cost_(n-1), id_(n-1)]",
+    "record_count_range": [
+      1,
+      64
+    ],
+    "maximum_packed_input_length": 129,
+    "exact_packed_length": "1 + 2*n",
+    "cost_range": [
+      -1000000,
+      1000000
+    ],
+    "costs_must_be_distinct": true,
+    "identifier_range": "0..n-1",
+    "identifiers_must_be_permutation": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "interleaved_signed_64_bit_record_bytes",
+    "encoding": "little-endian signed-i64 [cost,id] pairs in ascending cost order",
+    "maximum_output_length": 1024,
+    "successful_result": "output byte length (16*n)",
+    "invalid_input_result": -1,
+    "insufficient_capacity_result": -2,
+    "error_cases_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "64 sorted records, each containing an i64 cost and an i64 identifier."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/MATLAB-Octave",
+    "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+    "path": "algorithms/Genetic-Algorithm/Minimization of polynomial function/SortPopulation.m",
+    "function": "SortPopulation"
+  },
+  "cases": [
+    {
+      "id": "single_record",
+      "input_values": [
+        1,
+        7,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 16,
+      "expected_output_hex": "07000000000000000000000000000000"
+    },
+    {
+      "id": "already_ascending",
+      "input_values": [
+        4,
+        -10,
+        0,
+        -3,
+        1,
+        2,
+        2,
+        17,
+        3
+      ],
+      "input_length": 9,
+      "expected_result": 64,
+      "expected_output_hex": "f6ffffffffffffff0000000000000000fdffffffffffffff01000000000000000200000000000000020000000000000011000000000000000300000000000000"
+    },
+    {
+      "id": "reverse_cost_order",
+      "input_values": [
+        4,
+        12,
+        0,
+        5,
+        1,
+        -2,
+        2,
+        0,
+        3
+      ],
+      "input_length": 9,
+      "expected_result": 64,
+      "expected_output_hex": "feffffffffffffff020000000000000000000000000000000300000000000000050000000000000001000000000000000c000000000000000000000000000000"
+    },
+    {
+      "id": "mixed_negative_zero_positive",
+      "input_values": [
+        4,
+        0,
+        0,
+        -9,
+        1,
+        4,
+        2,
+        -1,
+        3
+      ],
+      "input_length": 9,
+      "expected_result": 64,
+      "expected_output_hex": "f7ffffffffffffff0100000000000000ffffffffffffffff03000000000000000000000000000000000000000000000004000000000000000200000000000000"
+    },
+    {
+      "id": "exact_cost_bounds",
+      "input_values": [
+        3,
+        1000000,
+        0,
+        -1000000,
+        1,
+        0,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": 48,
+      "expected_output_hex": "c0bdf0ffffffffff01000000000000000000000000000000020000000000000040420f00000000000000000000000000"
+    },
+    {
+      "id": "maximum_record_count_64",
+      "input_values": [
+        64,
+        -63,
+        0,
+        -26,
+        1,
+        11,
+        2,
+        48,
+        3,
+        -42,
+        4,
+        -5,
+        5,
+        32,
+        6,
+        -58,
+        7,
+        -21,
+        8,
+        16,
+        9,
+        53,
+        10,
+        -37,
+        11,
+        0,
+        12,
+        37,
+        13,
+        -53,
+        14,
+        -16,
+        15,
+        21,
+        16,
+        58,
+        17,
+        -32,
+        18,
+        5,
+        19,
+        42,
+        20,
+        -48,
+        21,
+        -11,
+        22,
+        26,
+        23,
+        63,
+        24,
+        -27,
+        25,
+        10,
+        26,
+        47,
+        27,
+        -43,
+        28,
+        -6,
+        29,
+        31,
+        30,
+        -59,
+        31,
+        -22,
+        32,
+        15,
+        33,
+        52,
+        34,
+        -38,
+        35,
+        -1,
+        36,
+        36,
+        37,
+        -54,
+        38,
+        -17,
+        39,
+        20,
+        40,
+        57,
+        41,
+        -33,
+        42,
+        4,
+        43,
+        41,
+        44,
+        -49,
+        45,
+        -12,
+        46,
+        25,
+        47,
+        62,
+        48,
+        -28,
+        49,
+        9,
+        50,
+        46,
+        51,
+        -44,
+        52,
+        -7,
+        53,
+        30,
+        54,
+        -60,
+        55,
+        -23,
+        56,
+        14,
+        57,
+        51,
+        58,
+        -39,
+        59,
+        -2,
+        60,
+        35,
+        61,
+        -55,
+        62,
+        -18,
+        63
+      ],
+      "input_length": 129,
+      "expected_result": 1024,
+      "expected_output_hex": "c1ffffffffffffff0000000000000000c4ffffffffffffff3700000000000000c5ffffffffffffff1f00000000000000c6ffffffffffffff0700000000000000c9ffffffffffffff3e00000000000000caffffffffffffff2600000000000000cbffffffffffffff0e00000000000000cfffffffffffffff2d00000000000000d0ffffffffffffff1500000000000000d4ffffffffffffff3400000000000000d5ffffffffffffff1c00000000000000d6ffffffffffffff0400000000000000d9ffffffffffffff3b00000000000000daffffffffffffff2300000000000000dbffffffffffffff0b00000000000000dfffffffffffffff2a00000000000000e0ffffffffffffff1200000000000000e4ffffffffffffff3100000000000000e5ffffffffffffff1900000000000000e6ffffffffffffff0100000000000000e9ffffffffffffff3800000000000000eaffffffffffffff2000000000000000ebffffffffffffff0800000000000000eeffffffffffffff3f00000000000000efffffffffffffff2700000000000000f0ffffffffffffff0f00000000000000f4ffffffffffffff2e00000000000000f5ffffffffffffff1600000000000000f9ffffffffffffff3500000000000000faffffffffffffff1d00000000000000fbffffffffffffff0500000000000000feffffffffffffff3c00000000000000ffffffffffffffff240000000000000000000000000000000c0000000000000004000000000000002b0000000000000005000000000000001300000000000000090000000000000032000000000000000a000000000000001a000000000000000b0000000000000002000000000000000e0000000000000039000000000000000f00000000000000210000000000000010000000000000000900000000000000140000000000000028000000000000001500000000000000100000000000000019000000000000002f000000000000001a0000000000000017000000000000001e0000000000000036000000000000001f000000000000001e000000000000002000000000000000060000000000000023000000000000003d000000000000002400000000000000250000000000000025000000000000000d0000000000000029000000000000002c000000000000002a0000000000000014000000000000002e0000000000000033000000000000002f000000000000001b000000000000003000000000000000030000000000000033000000000000003a000000000000003400000000000000220000000000000035000000000000000a00000000000000390000000000000029000000000000003a0000000000000011000000000000003e0000000000000030000000000000003f000000000000001800000000000000"
+    },
+    {
+      "id": "empty_population_outside_domain",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "record_count_above_limit",
+      "input_values": [
+        65
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_packed_input",
+      "input_values": [
+        2,
+        10,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_packed_value",
+      "input_values": [
+        1,
+        10,
+        0,
+        99
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_cost",
+      "input_values": [
+        2,
+        10,
+        0,
+        10,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "cost_below_bound",
+      "input_values": [
+        1,
+        -1000001,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "cost_above_bound",
+      "input_values": [
+        1,
+        1000001,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_identifier",
+      "input_values": [
+        2,
+        10,
+        0,
+        20,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "identifier_outside_permutation",
+      "input_values": [
+        1,
+        10,
+        1
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_buffer",
+      "input_values": [
+        4,
+        12,
+        0,
+        5,
+        1,
+        -2,
+        2,
+        0,
+        3
+      ],
+      "input_length": 9,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 1024,
+      "output_is_null": true
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        4,
+        12,
+        0,
+        5,
+        1,
+        -2,
+        2,
+        0,
+        3
+      ],
+      "input_length": 9,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_capacity": 47
+    }
+  ]
+}

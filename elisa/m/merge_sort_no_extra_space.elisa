@@ -1,0 +1,71 @@
+def read_i32_le(buffer: u8&, index: usize) -> i32:
+    offset: usize = index * 4
+    bits: u32 = buffer[offset].u32() | (buffer[offset + 1].u32() << 8) | (buffer[offset + 2].u32() << 16) | (buffer[offset + 3].u32() << 24)
+    return bits.i32()
+
+def write_i32_le(buffer: mutable u8&, index: usize, value: i32) -> void:
+    bits: mutable u32 = value.u32()
+    offset: usize = index * 4
+    byte: mutable usize = 0
+    while byte < 4:
+        buffer[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def merge(buffer: mutable u8&, start: usize, middle: usize, end: usize, max_element: i32) -> void:
+    i: mutable usize = start
+    j: mutable usize = middle + 1
+    k: mutable usize = start
+    while i <= middle and j <= end:
+        left: i32 = read_i32_le(buffer, i) % max_element
+        right: i32 = read_i32_le(buffer, j) % max_element
+        current: i32 = read_i32_le(buffer, k)
+        if left <= right:
+            write_i32_le(buffer, k, current + left * max_element)
+            i <- i + 1
+        else:
+            write_i32_le(buffer, k, current + right * max_element)
+            j <- j + 1
+        k <- k + 1
+    while i <= middle:
+        current: i32 = read_i32_le(buffer, k)
+        next_value: i32 = read_i32_le(buffer, i) % max_element
+        write_i32_le(buffer, k, current + next_value * max_element)
+        i <- i + 1
+        k <- k + 1
+    while j <= end:
+        current: i32 = read_i32_le(buffer, k)
+        next_value: i32 = read_i32_le(buffer, j) % max_element
+        write_i32_le(buffer, k, current + next_value * max_element)
+        j <- j + 1
+        k <- k + 1
+    index: mutable usize = start
+    while index <= end:
+        write_i32_le(buffer, index, read_i32_le(buffer, index) / max_element)
+        index <- index + 1
+
+def merge_sort(buffer: mutable u8&, start: usize, end: usize, max_element: i32) -> void:
+    if start >= end: return
+    middle: usize = start + (end - start) / 2
+    merge_sort(buffer, start, middle, max_element)
+    merge_sort(buffer, middle + 1, end, max_element)
+    merge(buffer, start, middle, end, max_element)
+
+def merge_sort_no_extra_space_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length > 256: return -1
+    max_value: mutable i32 = 0
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 32767: return -1
+        if input[index] > max_value: max_value <- input[index]
+        index <- index + 1
+    output_bytes: usize = length * 4
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < length:
+        write_i32_le(output, index, input[index])
+        index <- index + 1
+    if length > 1: merge_sort(output, 0, length - 1, max_value + 1)
+    return output_bytes.i64()
+
+export fn merge_sort_no_extra_space(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64 = merge_sort_no_extra_space_impl

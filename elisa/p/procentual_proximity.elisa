@@ -1,0 +1,68 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def procentual_proximity_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def procentual_proximity_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 523:
+        return -1
+    row_value: i64 = input[0]
+    column_value: i64 = input[1]
+    if row_value < 1 or row_value > 64 or column_value < 1 or column_value > 8:
+        return -1
+    rows: usize = row_value.usize()
+    columns: usize = column_value.usize()
+    if length != 2 + columns + rows * columns:
+        return -1
+    for column in 0..<columns:
+        weight: i64 = input[2 + column]
+        if weight != 0 and weight != 1:
+            return -1
+
+    data: mutable f64[512] = zeroed
+    for row in 0..<rows:
+        for column in 0..<columns:
+            value: i64 = input[2 + columns + row * columns + column]
+            if value < -10000 or value > 10000:
+                return -1
+            data[row * 8 + column] <- value.f64()
+    output_length: usize = rows * (columns + 1) * 8
+    if output.is_null() or capacity < output_length:
+        return -2
+
+    scores: mutable f64[64] = zeroed
+    for column in 0..<columns:
+        minimum: mutable f64 = data[column]
+        maximum: mutable f64 = data[column]
+        for row in 1..<rows:
+            value: f64 = data[row * 8 + column]
+            if value < minimum:
+                minimum <- value
+            if value > maximum:
+                maximum <- value
+        weight: i64 = input[2 + column]
+        if minimum == maximum:
+            if weight == 0:
+                for row in 0..<rows:
+                    scores[row] <- scores[row] + 1.0
+        else:
+            value_range: f64 = maximum - minimum
+            for row in 0..<rows:
+                item_score: mutable f64 = (data[row * 8 + column] - minimum) / value_range
+                if weight == 0:
+                    item_score <- 1.0 - item_score
+                scores[row] <- scores[row] + item_score
+
+    offset: mutable usize = 0
+    for row in 0..<rows:
+        for column in 0..<columns:
+            procentual_proximity_write_f64(output, offset, data[row * 8 + column])
+            offset <- offset + 8
+        procentual_proximity_write_f64(output, offset, scores[row])
+        offset <- offset + 8
+    output_length.i64()
+
+export fn procentual_proximity(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = procentual_proximity_impl

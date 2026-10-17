@@ -1,0 +1,69 @@
+const MEDIAN_FILTER_MAX_WINDOW: usize = 16
+const MEDIAN_FILTER_MAX_SAMPLES: usize = 64
+
+def median_filter_lower_bound(sorted: f64&, size: usize, value: f64) -> usize:
+    low: mutable usize = 0
+    high: mutable usize = size
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if sorted[middle] < value:
+            low <- middle + 1
+        else:
+            high <- middle
+    low
+
+def median_filter_impl(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 66:
+        return -1
+    window_value: f64 = input[0]
+    count_value: f64 = input[1]
+    if window_value != window_value or window_value < 1.0 or window_value > 16.0 or window_value != window_value.i64().f64():
+        return -1
+    if count_value != count_value or count_value < 0.0 or count_value > 64.0 or count_value != count_value.i64().f64():
+        return -1
+    window: usize = window_value.usize()
+    count: usize = count_value.usize()
+    if length != 2 + count:
+        return -1
+    samples: mutable f64[64] = zeroed
+    for index in 0..<count:
+        value: f64 = input[2 + index]
+        if value != value or value < -1000000.0 or value > 1000000.0:
+            return -1
+        samples[index] <- value
+    if output.is_null() or output_capacity < count:
+        return -2
+
+    arrival: mutable f64[16] = zeroed
+    sorted: mutable f64[16] = zeroed
+    result: mutable f64[64] = zeroed
+    size: mutable usize = 0
+    oldest: mutable usize = 0
+    for index in 0..<count:
+        value: f64 = samples[index]
+        if size == window:
+            position: usize = median_filter_lower_bound(sorted, size, arrival[oldest])
+            shift: mutable usize = position + 1
+            while shift < size:
+                sorted[shift - 1] <- sorted[shift]
+                shift <- shift + 1
+            size <- size - 1
+        position: usize = median_filter_lower_bound(sorted, size, value)
+        shift: mutable usize = size
+        while shift > position:
+            sorted[shift] <- sorted[shift - 1]
+            shift <- shift - 1
+        sorted[position] <- value
+        arrival[oldest] <- value
+        oldest <- (oldest + 1) % window
+        size <- size + 1
+        middle: usize = size / 2
+        if size % 2 != 0:
+            result[index] <- sorted[middle]
+        else:
+            result[index] <- 0.5 * (sorted[middle - 1] + sorted[middle])
+    for index in 0..<count:
+        output[index] <- result[index]
+    count.i64()
+
+export fn median_filter(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64 = median_filter_impl

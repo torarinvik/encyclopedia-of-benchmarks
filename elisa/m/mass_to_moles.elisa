@@ -1,0 +1,46 @@
+const INVALID_RESULT: f64 = -1.0e300
+const FRACTION_SCALE: f64 = 4503599627370496.0
+const FRACTION_MASK: u64 = 4503599627370495
+
+# Elisa has no f64 bit reinterpret cast, so decode the normal positive quotient arithmetically.
+def mass_to_moles_positive_f64_bits(value: f64) -> u64:
+    normalized: mutable f64 = value
+    exponent: mutable i32 = 0
+    while normalized >= 2.0:
+        normalized <- normalized / 2.0
+        exponent <- exponent + 1
+    while normalized < 1.0:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    fraction: u64 = ((normalized - 1.0) * FRACTION_SCALE).u64()
+    ((exponent + 1023).u64() << 52) | fraction
+
+def mass_to_moles_round_binary64_to_hundredth(value: f64) -> f64:
+    if value == 0.0:
+        return 0.0
+    bits: u64 = mass_to_moles_positive_f64_bits(value)
+    fraction: u64 = bits & FRACTION_MASK
+    exponent_bits: i32 = ((bits >> 52) & 2047).i32()
+    significand: u64 = (1.u64() << 52) | fraction
+    binary_exponent: i32 = exponent_bits - 1023 - 52
+    shift: u32 = (-binary_exponent).u32()
+    scaled_significand: u64 = significand * 100
+    denominator: u64 = 1.u64() << shift
+    hundredths: mutable u64 = scaled_significand >> shift
+    remainder: u64 = scaled_significand & (denominator - 1)
+    halfway: u64 = denominator >> 1
+    if remainder > halfway or (remainder == halfway and (hundredths & 1) != 0):
+        hundredths <- hundredths + 1
+    hundredths.f64() / 100.0
+
+def mass_to_moles_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length != 2:
+        return INVALID_RESULT
+    mass: i64 = input[0]
+    molar_mass: i64 = input[1]
+    if mass < 0 or mass > 1000 or molar_mass < 1 or molar_mass > 1000:
+        return INVALID_RESULT
+    quotient: f64 = mass.f64() / molar_mass.f64()
+    mass_to_moles_round_binary64_to_hundredth(quotient)
+
+export fn mass_to_moles(input: i64&, length: usize) -> f64 = mass_to_moles_impl

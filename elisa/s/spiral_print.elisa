@@ -1,0 +1,85 @@
+const MAX_CELLS: usize = 256
+const MAX_INPUT_LENGTH: usize = 259
+
+def spiral_print_put_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def spiral_print_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    rows_value: i64 = input[0]
+    columns_value: i64 = input[1]
+    if rows_value < 1 or rows_value > 16 or columns_value < 2 or columns_value > 16:
+        return -1
+
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    cell_count: usize = rows * columns
+    if length != 2 + cell_count:
+        return -1
+
+    matrix: mutable i64[256] = zeroed
+    index: mutable usize = 0
+    while index < cell_count:
+        value: i64 = input[2 + index]
+        if value < -2147483648 or value > 2147483647:
+            return -1
+        matrix[index] <- value
+        index <- index + 1
+
+    required_bytes: usize = 8 * cell_count
+    if output.is_null() or capacity < required_bytes:
+        return -2
+
+    order: mutable i64[256] = zeroed
+    order_length: mutable usize = 0
+    top: mutable usize = 0
+    bottom: mutable usize = rows - 1
+    left: mutable usize = 0
+    right: mutable usize = columns - 1
+    while top <= bottom and left <= right:
+        column: mutable usize = left
+        while column <= right:
+            order[order_length] <- matrix[top * columns + column]
+            order_length <- order_length + 1
+            column <- column + 1
+        top <- top + 1
+
+        row: mutable usize = top
+        while row <= bottom:
+            order[order_length] <- matrix[row * columns + right]
+            order_length <- order_length + 1
+            row <- row + 1
+        right <- right - 1
+
+        if top <= bottom and left <= right:
+            column <- right
+            while true:
+                order[order_length] <- matrix[bottom * columns + column]
+                order_length <- order_length + 1
+                if column == left:
+                    break
+                column <- column - 1
+            bottom <- bottom - 1
+
+        if top <= bottom and left <= right:
+            row <- bottom
+            while true:
+                order[order_length] <- matrix[row * columns + left]
+                order_length <- order_length + 1
+                if row == top:
+                    break
+                row <- row - 1
+            left <- left + 1
+
+    index <- 0
+    while index < order_length:
+        spiral_print_put_i64_le(output, 8 * index, order[index])
+        index <- index + 1
+    required_bytes.i64()
+
+export fn spiral_print(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = spiral_print_impl

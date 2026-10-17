@@ -1,0 +1,91 @@
+def append_record(records: mutable i64&, count: mutable usize&, value: i64) -> void:
+    records[count] <- value
+    count <- count + 1
+
+def write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def lru_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 99: return -1
+    cache_capacity: i64 = input[0]
+    operation_count: i64 = input[1]
+    if cache_capacity < 2 or cache_capacity > 16 or operation_count < 0 or operation_count > 32 or length != (2 + 3 * operation_count).usize(): return -1
+    keys: mutable i64[16] = zeroed
+    values: mutable i64[16] = zeroed
+    seen: mutable i64[32] = zeroed
+    order: mutable usize[16] = zeroed
+    records: mutable i64[114] = zeroed
+    cache_count: mutable usize = 0
+    seen_count: mutable usize = 0
+    record_count: mutable usize = 0
+    cursor: mutable usize = 2
+    step: mutable i64 = 0
+    while step < operation_count:
+        opcode: i64 = input[cursor]
+        key: i64 = input[cursor + 1]
+        value: i64 = input[cursor + 2]
+        cursor <- cursor + 3
+        if key < -1000000 or key > 1000000: return -1
+        if opcode == 0:
+            if value < -1000000 or value > 1000000: return -1
+            index: mutable usize = 0
+            while index < seen_count:
+                if seen[index] == key: return -1
+                index <- index + 1
+            seen[seen_count] <- key
+            seen_count <- seen_count + 1
+            slot: mutable usize = cache_count
+            if cache_count == cache_capacity.usize():
+                slot <- order[0]
+                index <- 0
+                while index + 1 < cache_count:
+                    order[index] <- order[index + 1]
+                    index <- index + 1
+                cache_count <- cache_count - 1
+            keys[slot] <- key
+            values[slot] <- value
+            order[cache_count] <- slot
+            cache_count <- cache_count + 1
+            append_record(records[0], record_count, 0)
+            append_record(records[0], record_count, 0)
+        elif opcode == 1:
+            if value != 0: return -1
+            position: mutable usize = 0
+            while position < cache_count and keys[order[position]] != key:
+                position <- position + 1
+            if position == cache_count: return -1
+            slot: usize = order[position]
+            cached_value: i64 = values[slot]
+            index: mutable usize = position
+            while index + 1 < cache_count:
+                order[index] <- order[index + 1]
+                index <- index + 1
+            order[cache_count - 1] <- slot
+            append_record(records[0], record_count, 1)
+            append_record(records[0], record_count, 1)
+            append_record(records[0], record_count, cached_value)
+        else:
+            return -1
+        step <- step + 1
+    append_record(records[0], record_count, 2)
+    append_record(records[0], record_count, cache_count.i64())
+    index: mutable usize = 0
+    while index < cache_count:
+        slot: usize = order[index]
+        append_record(records[0], record_count, keys[slot])
+        append_record(records[0], record_count, values[slot])
+        index <- index + 1
+    output_bytes: usize = record_count * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < record_count:
+        write_i64_le(output, index * 8, records[index])
+        index <- index + 1
+    return output_bytes.i64()
+
+export fn lru(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = lru_impl

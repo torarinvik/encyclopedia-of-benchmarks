@@ -1,0 +1,48 @@
+const MAX_TASKS: usize = 16
+const MAX_STEPS: usize = 64
+const MAX_INPUT_LENGTH: usize = 19
+
+def self_adjusting_scheduling_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+        return -1
+    task_count_value: i64 = input[0]
+    steps_value: i64 = input[1]
+    if task_count_value < 1 or task_count_value > 16 or steps_value < 0 or steps_value > 64:
+        return -1
+    task_count: usize = task_count_value.usize()
+    steps: usize = steps_value.usize()
+    if length != task_count + 2:
+        return -1
+
+    priorities: mutable i64[16] = zeroed
+    wait_times: mutable i64[16] = zeroed
+    schedule: mutable u8[64] = zeroed
+    for task in 0..<task_count:
+        priority: i64 = input[task + 2]
+        if priority < -2147483648 or priority > 2147483647:
+            return -1
+        priorities[task] <- priority
+
+    for step in 0..<steps:
+        for left in 0..<task_count:
+            for right in (left + 1)..<task_count:
+                if priorities[left] == priorities[right]:
+                    return -1
+        selected: mutable usize = 0
+        for task in 1..<task_count:
+            if priorities[task] < priorities[selected]:
+                selected <- task
+        schedule[step] <- selected.u8()
+        wait_times[selected] <- wait_times[selected] + 1
+        updated_priority: i64 = priorities[selected] + wait_times[selected]
+        if updated_priority < -2147483648 or updated_priority > 2147483647:
+            return -1
+        priorities[selected] <- updated_priority
+
+    if output.is_null() or capacity < steps:
+        return -2
+    for step in 0..<steps:
+        output[step] <- schedule[step]
+    steps.i64()
+
+export fn self_adjusting_scheduling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = self_adjusting_scheduling_impl

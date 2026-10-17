@@ -127,6 +127,29 @@ from perlin_noise_oracle import (
     PERSISTENCE_VALUES as PERLIN_NOISE_PERSISTENCE_VALUES,
     expected_result as perlin_noise_oracle,
 )
+from md2_digest_oracle import MAX_INPUT_LENGTH as MD2_DIGEST_MAX_INPUT_LENGTH
+from md2_digest_oracle import expected_result as md2_digest_oracle
+from median_filter_oracle import MAX_INPUT_LENGTH as MEDIAN_FILTER_MAX_INPUT_LENGTH
+from median_filter_oracle import expected_result as median_filter_oracle
+from mutate_oracle import MAX_INPUT_LENGTH as MUTATE_MAX_INPUT_LENGTH
+from mutate_oracle import expected_result as mutate_oracle
+from single_point_crossover_oracle import INVALID_RESULT as SINGLE_POINT_CROSSOVER_INVALID_RESULT
+from single_point_crossover_oracle import MAX_INPUT_LENGTH as SINGLE_POINT_CROSSOVER_MAX_INPUT_LENGTH
+from single_point_crossover_oracle import MAX_OUTPUT_ELEMENTS as SINGLE_POINT_CROSSOVER_MAX_OUTPUT_ELEMENTS
+from single_point_crossover_oracle import MAX_VALID_INPUT_LENGTH as SINGLE_POINT_CROSSOVER_MAX_VALID_INPUT_LENGTH
+from single_point_crossover_oracle import MIN_PARENT_LENGTH as SINGLE_POINT_CROSSOVER_MIN_PARENT_LENGTH
+from single_point_crossover_oracle import OUTPUT_ERROR as SINGLE_POINT_CROSSOVER_OUTPUT_ERROR
+from single_point_crossover_oracle import expected_abi_result as single_point_crossover_expected_abi_result
+from single_point_crossover_oracle import expected_output as single_point_crossover_oracle
+from quaternions_oracle import ABSOLUTE_TOLERANCE as QUATERNIONS_ABSOLUTE_TOLERANCE
+from quaternions_oracle import INVALID_RESULT as QUATERNIONS_INVALID_RESULT
+from quaternions_oracle import MAX_INPUT_LENGTH as QUATERNIONS_MAX_INPUT_LENGTH
+from quaternions_oracle import MAX_OUTPUT_ELEMENTS as QUATERNIONS_MAX_OUTPUT_ELEMENTS
+from quaternions_oracle import NORMALIZATION_TOLERANCE as QUATERNIONS_NORMALIZATION_TOLERANCE
+from quaternions_oracle import OUTPUT_ERROR as QUATERNIONS_OUTPUT_ERROR
+from quaternions_oracle import RELATIVE_TOLERANCE as QUATERNIONS_RELATIVE_TOLERANCE
+from quaternions_oracle import expected_abi_result as quaternions_expected_abi_result
+from quaternions_oracle import expected_output as quaternions_oracle
 
 ORACLES = {
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
@@ -158,6 +181,11 @@ ORACLES = {
     "k_d_tree": k_d_tree_oracle,
     "linear_regression_vectorized": linear_regression_vectorized_oracle,
     "perlin_noise": perlin_noise_oracle,
+    "md2_digest": md2_digest_oracle,
+    "median_filter": median_filter_oracle,
+    "mutate": mutate_oracle,
+    "single_point_crossover": single_point_crossover_oracle,
+    "quaternions": quaternions_oracle,
 }
 MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH = 1 + 16 * 16 + 16
 
@@ -978,11 +1006,19 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         ROTATION_MATRIX_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "rotation_matrix" else
                         LINEAR_REGRESSION_MAX_PARSEABLE_INPUT_LENGTH
-                        if algorithm == "linear_regression_vectorized" else 64)
+                        if algorithm == "linear_regression_vectorized" else
+                        MD2_DIGEST_MAX_INPUT_LENGTH + 1 if algorithm == "md2_digest" else
+                        MEDIAN_FILTER_MAX_INPUT_LENGTH if algorithm == "median_filter" else
+                        MUTATE_MAX_INPUT_LENGTH if algorithm == "mutate" else
+                        SINGLE_POINT_CROSSOVER_MAX_INPUT_LENGTH
+                        if algorithm == "single_point_crossover" else 64)
     if algorithm == "perlin_noise":
         max_input_length = PERLIN_NOISE_MAX_PARSEABLE_INPUT_ELEMENTS
+    elif algorithm == "quaternions":
+        max_input_length = QUATERNIONS_MAX_INPUT_LENGTH
     if (not isinstance(raw_values, list) or case.get("input_length") != len(raw_values)
-            or not raw_values or len(raw_values) > max_input_length
+            or (not raw_values and algorithm != "md2_digest")
+            or len(raw_values) > max_input_length
             or any(type(value) not in (int, float) or not math.isfinite(float(value))
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
@@ -1321,6 +1357,311 @@ def validate_perlin_noise_workload(workload: dict) -> None:
         encode_case(case, "perlin_noise", absolute_tolerance, relative_tolerance)
 
 
+SINGLE_POINT_CROSSOVER_CASE_IDS = {
+    "minimum_parent_length", "first_legal_cut", "middle_cut", "last_legal_cut",
+    "signed_fractional_genes", "duplicates_and_signed_zero", "maximum_parent_length",
+    "parent_length_below_minimum", "parent_length_above_maximum", "zero_prefix_length",
+    "cut_at_parent_length", "fractional_parent_length", "fractional_cut_length",
+    "truncated_parent_payload", "extra_parent_payload",
+}
+SINGLE_POINT_CROSSOVER_ABI_CASE_IDS = {
+    "invalid_input_before_null_output", "valid_input_null_output",
+    "valid_input_short_output_capacity", "nonfinite_nan_gene",
+    "nonfinite_positive_infinity_gene", "nonfinite_negative_infinity_gene",
+}
+QUATERNIONS_CASE_IDS = {
+    "euler_identity", "euler_roll_axis", "euler_pitch_axis", "euler_yaw_axis",
+    "euler_combined", "euler_lower_angle_boundary", "euler_upper_angle_boundary",
+    "euler_angle_out_of_range", "euler_wrong_length", "unknown_operation",
+    "quaternion_identity", "quaternion_plus_sign_pitch_positive",
+    "quaternion_plus_sign_pitch_negative", "quaternion_binary32_norm_rounding",
+    "quaternion_unnormalized_rejected", "quaternion_component_out_of_range",
+    "quaternion_pitch_argument_out_of_range", "quaternion_wrong_length",
+    "hamilton_identity", "hamilton_noncommuting_basis", "hamilton_general_nonunit",
+    "hamilton_component_bound_and_output_bound", "hamilton_component_out_of_range",
+    "hamilton_extra_input_value",
+}
+QUATERNIONS_ABI_CASE_IDS = {
+    "short_output_op0", "short_output_op1", "short_output_op2", "null_output_op1",
+    "invalid_input_precedes_null_output", "null_input",
+}
+
+
+def _decode_single_point_crossover_abi_values(raw_values: object) -> list[float]:
+    if not isinstance(raw_values, list):
+        raise ValueError("single_point_crossover ABI input_values must be an array")
+    nonfinite_tokens = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
+    values: list[float] = []
+    for value in raw_values:
+        if isinstance(value, str):
+            if value not in nonfinite_tokens:
+                raise ValueError("unsupported single_point_crossover nonfinite input token")
+            values.append(nonfinite_tokens[value])
+        elif type(value) in (int, float):
+            values.append(float(value))
+        else:
+            raise ValueError("single_point_crossover ABI values must be numbers or nonfinite tokens")
+    return values
+
+
+def validate_single_point_crossover_workload(workload: dict) -> None:
+    """Validate the pinned deterministic crossover fixtures and ABI-only probes."""
+    source = {
+        "repository": "TheAlgorithms/MATLAB-Octave",
+        "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+        "path": "algorithms/Genetic-Algorithm/Minimization of polynomial function/SinglePointCrossover.m",
+        "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/Genetic-Algorithm/Minimization%20of%20polynomial%20function/SinglePointCrossover.m",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "single-point crossover of equal-length numeric row vectors",
+        "source_cut_range": "MATLAB randi([1,nVar-1])",
+        "deterministic_cut_input": True,
+        "cut_semantics": "prefix length j; copy indices [0,j) from each parent and swap suffixes [j,n)",
+        "output_layout": "child1[0:n] followed by child2[0:n]",
+        "gene_operation": "copy finite binary64 values without arithmetic",
+        "random_number_generation_included": False,
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[n, j, x1[0:n], x2[0:n]]",
+        "parent_length_range": [SINGLE_POINT_CROSSOVER_MIN_PARENT_LENGTH, 31],
+        "cut_prefix_length_range": "1 <= j < n",
+        "maximum_valid_input_length": SINGLE_POINT_CROSSOVER_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": SINGLE_POINT_CROSSOVER_MAX_INPUT_LENGTH,
+        "invalid_input_result": SINGLE_POINT_CROSSOVER_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "definition": "child1[0:n] followed by child2[0:n]",
+        "maximum_output_elements": SINGLE_POINT_CROSSOVER_MAX_OUTPUT_ELEMENTS,
+        "success_result": "output element count (2*n)",
+        "invalid_input_result": SINGLE_POINT_CROSSOVER_INVALID_RESULT,
+        "invalid_output_buffer_result": SINGLE_POINT_CROSSOVER_OUTPUT_ERROR,
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    abi_ids = [case.get("id") for case in abi_cases if isinstance(case, dict)] if isinstance(abi_cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-matlab-octave-single-point-crossover-f64-slice-io-v1"
+            or workload.get("algorithm") != "single_point_crossover"
+            or workload.get("function_symbol") != "single_point_crossover"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {"elements": 64}
+            or workload.get("measurement") != measurement
+            or SINGLE_POINT_CROSSOVER_MIN_PARENT_LENGTH != 2
+            or SINGLE_POINT_CROSSOVER_MAX_VALID_INPUT_LENGTH != 64
+            or SINGLE_POINT_CROSSOVER_MAX_INPUT_LENGTH != 66
+            or SINGLE_POINT_CROSSOVER_MAX_OUTPUT_ELEMENTS != 62
+            or SINGLE_POINT_CROSSOVER_INVALID_RESULT != -1
+            or SINGLE_POINT_CROSSOVER_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(SINGLE_POINT_CROSSOVER_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SINGLE_POINT_CROSSOVER_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_ids) != len(SINGLE_POINT_CROSSOVER_ABI_CASE_IDS)
+            or len(abi_ids) != len(set(abi_ids))
+            or set(abi_ids) != SINGLE_POINT_CROSSOVER_ABI_CASE_IDS):
+        raise ValueError("single_point_crossover workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "single_point_crossover" / "README.md").read_text(
+        encoding="utf-8")
+    if source["url"] not in readme or "random cut an input" not in readme:
+        raise ValueError("single_point_crossover README is missing its pinned source or deterministic-cut semantics")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "single_point_crossover", absolute_tolerance, relative_tolerance)
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    for case in abi_cases:
+        values = _decode_single_point_crossover_abi_values(case.get("input_values"))
+        capacity = case.get("output_capacity")
+        output_is_null = case.get("output_is_null", False)
+        if (not values or len(values) > SINGLE_POINT_CROSSOVER_MAX_INPUT_LENGTH
+                or type(capacity) is not int or not 0 <= capacity <= 64
+                or type(output_is_null) is not bool):
+            raise ValueError(f"single_point_crossover ABI input/output framing is invalid for {case.get('id')}")
+        expected_result, _expected_output = single_point_crossover_expected_abi_result(
+            values, capacity, output_is_null)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected_result:
+            raise ValueError(f"single_point_crossover ABI probe mismatch: {case.get('id')}")
+    if (abi_by_id["invalid_input_before_null_output"].get("output_is_null") is not True
+            or abi_by_id["valid_input_null_output"].get("output_is_null") is not True
+            or abi_by_id["valid_input_short_output_capacity"].get("output_capacity") != 3
+            or any(abi_by_id[name]["expected_result"] != SINGLE_POINT_CROSSOVER_INVALID_RESULT for name in (
+                "nonfinite_nan_gene", "nonfinite_positive_infinity_gene",
+                "nonfinite_negative_infinity_gene"))):
+        raise ValueError("single_point_crossover ABI workload is missing reviewed invalid, null, capacity, or nonfinite cases")
+
+
+def validate_quaternions_workload(workload: dict) -> None:
+    """Validate the three pinned C quaternion operations and ABI probes."""
+    source = {
+        "repository": "TheAlgorithms/C",
+        "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+        "path": "geometry/quaternions.c",
+        "header_path": "geometry/geometry_datatypes.h",
+        "methods": ["quat_from_euler", "euler_from_quat", "quaternion_multiply"],
+        "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/geometry/quaternions.c",
+        "header_url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/geometry/geometry_datatypes.h",
+    }
+    contract = {
+        "operation_0_euler_to_quaternion": "Input [0, yaw, pitch, roll] in radians; assign the values by name to the C euler fields, cast each angle to binary32, and apply the pinned cosf/sinf half-angle formulas. Return [w, q1, q2, q3].",
+        "operation_1_quaternion_to_euler": "Input [1, w, q1, q2, q3]; cast components to binary32; require each in [-1,1], squared norm within 1e-6 of one under binary32 sum/product steps, and the source binary32 pitch argument in [-1,1]. Return [roll, pitch, yaw] in radians.",
+        "operation_1_pitch": "Preserve executable C expression asinf(2.f * (w*q2 + q1*q3)); this is a plus sign even though the adjacent Doxygen formula differs.",
+        "operation_2_hamilton_product": "Input [2, aw, a1, a2, a3, bw, b1, b2, b3]; cast quaternion components to binary32 and return scalar-first [w, q1, q2, q3] using the pinned left-to-right Hamilton formulas. Operands need not be normalized.",
+        "numeric_semantics": "The ABI transports finite binary64 numbers; operation data is rounded to binary32 before source calculations, all source-style arithmetic and trig results are binary32, then outputs are widened to binary64.",
+        "errors": "Invalid input returns -1. Null or insufficient output capacity returns -2 after input validation. Errors write no output.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": {
+            "operation_0": "[0, yaw, pitch, roll]",
+            "operation_1": "[1, w, q1, q2, q3]",
+            "operation_2": "[2, aw, a1, a2, a3, bw, b1, b2, b3]",
+        },
+        "operation_range": [0, 2],
+        "operation_values": [0, 1, 2],
+        "maximum_valid_length": 9,
+        "maximum_parseable_length": QUATERNIONS_MAX_INPUT_LENGTH,
+        "euler_angle_range_radians": [-3.0, 3.0],
+        "product_component_range_before_binary32_cast": [-1.0, 1.0],
+        "conversion_component_range_after_binary32_cast": [-1.0, 1.0],
+        "conversion_squared_norm_tolerance": QUATERNIONS_NORMALIZATION_TOLERANCE,
+        "conversion_pitch_argument_range_after_binary32_operations": [-1.0, 1.0],
+        "invalid_input_result": QUATERNIONS_INVALID_RESULT,
+        "null_input_result": QUATERNIONS_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "operation_output_lengths": {"0": 4, "1": 3, "2": 4},
+        "maximum_elements": QUATERNIONS_MAX_OUTPUT_ELEMENTS,
+        "encoding": "Widened binary32 source result values; operation 0 and 2 are [w,q1,q2,q3], operation 1 is [roll,pitch,yaw].",
+        "success_result": "number of output float64 elements",
+        "invalid_input_result": QUATERNIONS_INVALID_RESULT,
+        "null_output_result": QUATERNIONS_OUTPUT_ERROR,
+        "insufficient_output_capacity_result": QUATERNIONS_OUTPUT_ERROR,
+        "error_precedence": "Input validation precedes output null/capacity checks.",
+        "no_write_on_error": True,
+        "absolute_tolerance": QUATERNIONS_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": QUATERNIONS_RELATIVE_TOLERANCE,
+        "operation_2_result_range": [-4.0, 4.0],
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": QUATERNIONS_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": QUATERNIONS_RELATIVE_TOLERANCE,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+               if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-c-quaternions-f64-slice-io-v1"
+            or workload.get("algorithm") != "quaternions"
+            or workload.get("function_symbol") != "quaternions"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "elements": QUATERNIONS_MAX_OUTPUT_ELEMENTS,
+                "meaning": "Largest result is a four-element widened binary32 quaternion.",
+            }
+            or workload.get("measurement") != measurement
+            or QUATERNIONS_MAX_INPUT_LENGTH != 10
+            or QUATERNIONS_MAX_OUTPUT_ELEMENTS != 4
+            or QUATERNIONS_INVALID_RESULT != -1
+            or QUATERNIONS_OUTPUT_ERROR != -2
+            or QUATERNIONS_ABSOLUTE_TOLERANCE != 1e-6
+            or QUATERNIONS_RELATIVE_TOLERANCE != 0.0
+            or not isinstance(cases, list)
+            or len(case_ids) != len(QUATERNIONS_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != QUATERNIONS_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_ids) != len(QUATERNIONS_ABI_CASE_IDS)
+            or len(abi_ids) != len(set(abi_ids))
+            or set(abi_ids) != QUATERNIONS_ABI_CASE_IDS):
+        raise ValueError("quaternions workload metadata or case IDs differ from its contract")
+
+    readme = (ROOT / "benchmarks" / "q" / "quaternions" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or source["header_url"] not in readme
+            or "[0, yaw, pitch, roll]" not in readme
+            or "[w, q1, q2, q3]" not in readme
+            or "plus-sign" not in readme):
+        raise ValueError("quaternions README is missing its pinned source or operation semantics")
+
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        if type(case.get("expected_result")) is not int:
+            raise ValueError(f"quaternions expected_result must be an integer: {case.get('id')}")
+        encode_case(case, "quaternions", absolute_tolerance, relative_tolerance)
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    for case in abi_cases:
+        values = case.get("input_values")
+        capacity = case.get("output_capacity")
+        output_is_null = case.get("output_is_null", False)
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        expected_output = case.get("expected_output")
+        if (not isinstance(values, list)
+                or not 1 <= len(values) <= QUATERNIONS_MAX_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in values)
+                or type(capacity) is not int or not 0 <= capacity <= QUATERNIONS_MAX_OUTPUT_ELEMENTS
+                or type(output_is_null) is not bool or type(input_is_null) is not bool
+                or type(input_length) is not int or input_length != len(values)
+                or type(case.get("expected_result")) is not int
+                or not isinstance(expected_output, list)):
+            raise ValueError(f"quaternions ABI framing is invalid: {case.get('id')}")
+        result, output = quaternions_expected_abi_result(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (case["expected_result"] != result or len(expected_output) != len(output)
+                or any(type(actual) not in (int, float)
+                       or abs(float(actual) - expected)
+                       > absolute_tolerance + relative_tolerance * abs(expected)
+                       for actual, expected in zip(expected_output, output))):
+            raise ValueError(f"quaternions ABI fixture mismatch: {case.get('id')}")
+
+    if (abi_by_id["short_output_op0"].get("output_capacity") != 3
+            or abi_by_id["short_output_op1"].get("output_capacity") != 2
+            or abi_by_id["short_output_op2"].get("output_capacity") != 3
+            or any(abi_by_id[name].get("expected_result") != QUATERNIONS_OUTPUT_ERROR
+                   for name in ("short_output_op0", "short_output_op1", "short_output_op2",
+                                "null_output_op1"))
+            or abi_by_id["null_output_op1"].get("output_is_null") is not True
+            or abi_by_id["invalid_input_precedes_null_output"].get("output_is_null") is not True
+            or abi_by_id["invalid_input_precedes_null_output"].get("output_capacity") != 0
+            or abi_by_id["invalid_input_precedes_null_output"].get("expected_result")
+            != QUATERNIONS_INVALID_RESULT
+            or abi_by_id["null_input"].get("input_is_null") is not True
+            or abi_by_id["null_input"].get("expected_result") != QUATERNIONS_INVALID_RESULT):
+        raise ValueError("quaternions ABI fixtures are missing operation-specific capacity or precedence cases")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -1372,6 +1713,10 @@ def main() -> int:
         validate_linear_regression_vectorized_workload(workload)
     elif algorithm == "perlin_noise":
         validate_perlin_noise_workload(workload)
+    elif algorithm == "single_point_crossover":
+        validate_single_point_crossover_workload(workload)
+    elif algorithm == "quaternions":
+        validate_quaternions_workload(workload)
     absolute_tolerance, relative_tolerance = tolerances(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]

@@ -1,0 +1,601 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-median-filter-float64-slice-io-v1",
+  "algorithm": "median_filter",
+  "function_symbol": "median_filter",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/streaming/MedianFilter.java",
+    "symbol": "MedianFilter.filter",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/streaming/MedianFilter.java",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "fresh causal streaming trailing-window median filter",
+    "window_semantics": "at sample i, use samples[max(0, i-window_size+1)..i]",
+    "warmup": "use the partial window before window_size samples have arrived",
+    "even_median": "0.5 * (lower_middle + upper_middle), in that operation order",
+    "duplicates": "retain each sample as a distinct observation",
+    "state": "the ABI adapter constructs a fresh source filter for each invocation"
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[window_size, sample_count, sample_0, ..., sample_(sample_count-1)]",
+    "window_size_range": [
+      1,
+      16
+    ],
+    "sample_count_range": [
+      0,
+      64
+    ],
+    "sample_value_range": [
+      -1000000.0,
+      1000000.0
+    ],
+    "exact_length": "2 + sample_count",
+    "maximum_valid_input_length": 66,
+    "maximum_parseable_input_length": 66,
+    "headers_must_be_exact_integers": true,
+    "samples_must_be_finite": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "one causal median for each input sample, in arrival order",
+    "maximum_elements": 64,
+    "success_result": "sample_count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed input is rejected before output pointer or capacity checks.",
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "workspace": {
+    "elements": 64,
+    "meaning": "one output median per input sample"
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "causal_partial_and_eviction",
+      "input_length": 6,
+      "input_values": [
+        3,
+        4,
+        7,
+        1,
+        9,
+        2
+      ],
+      "expected_result": 4,
+      "expected_output": [
+        7.0,
+        4.0,
+        7.0,
+        2.0
+      ]
+    },
+    {
+      "id": "partial_even_window",
+      "input_length": 4,
+      "input_values": [
+        4,
+        2,
+        10,
+        2
+      ],
+      "expected_result": 2,
+      "expected_output": [
+        10.0,
+        6.0
+      ]
+    },
+    {
+      "id": "duplicates_remain_in_window",
+      "input_length": 6,
+      "input_values": [
+        3,
+        4,
+        3,
+        3,
+        3,
+        2
+      ],
+      "expected_result": 4,
+      "expected_output": [
+        3.0,
+        3.0,
+        3.0,
+        3.0
+      ]
+    },
+    {
+      "id": "fractional_even_median_order",
+      "input_length": 5,
+      "input_values": [
+        2,
+        3,
+        0.25,
+        0.75,
+        -0.5
+      ],
+      "expected_result": 3,
+      "expected_output": [
+        0.25,
+        0.5,
+        0.125
+      ]
+    },
+    {
+      "id": "window_size_one",
+      "input_length": 5,
+      "input_values": [
+        1,
+        3,
+        -1000000,
+        0.125,
+        1000000
+      ],
+      "expected_result": 3,
+      "expected_output": [
+        -1000000.0,
+        0.125,
+        1000000.0
+      ]
+    },
+    {
+      "id": "empty_sample_sequence",
+      "input_length": 2,
+      "input_values": [
+        16,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "maximum_window_size",
+      "input_length": 18,
+      "input_values": [
+        16,
+        16,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "expected_result": 16,
+      "expected_output": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0,
+        4.5,
+        5.0,
+        5.5,
+        6.0,
+        6.5,
+        7.0,
+        7.5
+      ]
+    },
+    {
+      "id": "maximum_sample_count",
+      "input_length": 66,
+      "input_values": [
+        16,
+        64,
+        -50,
+        -21,
+        8,
+        37,
+        -35,
+        -6,
+        23,
+        -49,
+        -20,
+        9,
+        38,
+        -34,
+        -5,
+        24,
+        -48,
+        -19,
+        10,
+        39,
+        -33,
+        -4,
+        25,
+        -47,
+        -18,
+        11,
+        40,
+        -32,
+        -3,
+        26,
+        -46,
+        -17,
+        12,
+        41,
+        -31,
+        -2,
+        27,
+        -45,
+        -16,
+        13,
+        42,
+        -30,
+        -1,
+        28,
+        -44,
+        -15,
+        14,
+        43,
+        -29,
+        0,
+        29,
+        -43,
+        -14,
+        15,
+        44,
+        -28,
+        1,
+        30,
+        -42,
+        -13,
+        16,
+        45,
+        -27,
+        2,
+        31,
+        -41
+      ],
+      "expected_result": 64,
+      "expected_output": [
+        -50.0,
+        -35.5,
+        -21.0,
+        -6.5,
+        -21.0,
+        -13.5,
+        -6.0,
+        -13.5,
+        -20.0,
+        -13.0,
+        -6.0,
+        -13.0,
+        -6.0,
+        -5.5,
+        -6.0,
+        -12.5,
+        -5.5,
+        1.5,
+        -5.5,
+        -5.5,
+        -4.5,
+        -4.5,
+        -11.5,
+        -4.5,
+        2.5,
+        -4.5,
+        -4.5,
+        -3.5,
+        -3.5,
+        -10.5,
+        -3.5,
+        3.5,
+        -3.5,
+        -3.5,
+        -2.5,
+        -2.5,
+        -9.5,
+        -2.5,
+        4.5,
+        -2.5,
+        -2.5,
+        -1.5,
+        -1.5,
+        -8.5,
+        -1.5,
+        5.5,
+        -1.5,
+        -1.5,
+        -0.5,
+        -0.5,
+        -7.5,
+        -0.5,
+        6.5,
+        -0.5,
+        -0.5,
+        0.5,
+        0.5,
+        -6.5,
+        0.5,
+        7.5,
+        0.5,
+        0.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "id": "sample_value_boundaries",
+      "input_length": 4,
+      "input_values": [
+        2,
+        2,
+        -1000000,
+        1000000
+      ],
+      "expected_result": 2,
+      "expected_output": [
+        -1000000.0,
+        0.0
+      ]
+    },
+    {
+      "id": "window_zero_rejected",
+      "input_length": 3,
+      "input_values": [
+        0,
+        1,
+        5
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "window_above_maximum_rejected",
+      "input_length": 2,
+      "input_values": [
+        17,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_window_header",
+      "input_length": 3,
+      "input_values": [
+        2.5,
+        1,
+        5
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_sample_count_header",
+      "input_length": 3,
+      "input_values": [
+        3,
+        1.5,
+        5
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_count_above_maximum",
+      "input_length": 66,
+      "input_values": [
+        3,
+        65,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_count_short_frame",
+      "input_length": 3,
+      "input_values": [
+        3,
+        2,
+        5
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_sample_after_count",
+      "input_length": 4,
+      "input_values": [
+        3,
+        1,
+        5,
+        6
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_below_bound",
+      "input_length": 3,
+      "input_values": [
+        1,
+        1,
+        -1000000.000001
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_above_bound",
+      "input_length": 3,
+      "input_values": [
+        1,
+        1,
+        1000000.000001
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        3,
+        4,
+        7,
+        1,
+        9,
+        2
+      ],
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -2
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        3,
+        4,
+        7,
+        1,
+        9,
+        2
+      ],
+      "output_capacity": 64,
+      "output_is_null": true,
+      "expected_result": -2
+    },
+    {
+      "id": "fractional_window_before_null_output",
+      "input_values": [
+        2.5,
+        1,
+        5
+      ],
+      "output_capacity": 64,
+      "output_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "nonfinite_nan_sample",
+      "input_values": [
+        2,
+        1,
+        "NaN"
+      ],
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "nonfinite_positive_infinity_sample",
+      "input_values": [
+        2,
+        1,
+        "Infinity"
+      ],
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "nonfinite_negative_infinity_sample",
+      "input_values": [
+        2,
+        1,
+        "-Infinity"
+      ],
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1
+    }
+  ]
+}

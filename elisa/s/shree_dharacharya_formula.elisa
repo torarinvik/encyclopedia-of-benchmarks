@@ -1,0 +1,34 @@
+extern sqrt(value: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+def shree_dharacharya_formula_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def shree_dharacharya_formula_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 3:
+        return -1
+    for index in 0..<3:
+        if input[index] < -1000000 or input[index] > 1000000:
+            return -1
+    if input[0] == 0:
+        return -1
+    a: f64 = input[0].f64()
+    b: f64 = input[1].f64()
+    c: f64 = input[2].f64()
+    discriminant: f64 = b * b - 4.0 * a * c
+    if discriminant < 0.0:
+        return -1
+    if output.is_null() or capacity < 16:
+        return -2
+    root: f64 = sqrt(discriminant)
+    denominator: f64 = 2.0 * a
+    first: f64 = (-b + root) / denominator
+    second: f64 = (-b - root) / denominator
+    shree_dharacharya_formula_write_f64(output, 0, first)
+    shree_dharacharya_formula_write_f64(output, 8, second)
+    16
+
+export fn shree_dharacharya_formula(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = shree_dharacharya_formula_impl

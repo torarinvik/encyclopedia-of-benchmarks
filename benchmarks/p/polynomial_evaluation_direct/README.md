@@ -1,6 +1,6 @@
 # Direct polynomial evaluation
 
-This benchmark follows the pinned Python `evaluate_poly` routine, which evaluates each coefficient as `c_i * x**i` and sums terms in ascending degree order. It is separate from [`polynomial_evaluation`](../polynomial_evaluation/README.md), which benchmarks the same source file's Horner routine.
+This benchmark follows the pinned Python `evaluate_poly` routine, which evaluates each coefficient as `c_i * x**i` and sums terms in ascending degree order. It also covers the pinned JavaScript `Polynomial.evaluate()` method, whose ascending-degree coefficient representation has the same direct power-sum semantics. The JavaScript `display()` method only formats text and is outside this benchmark. This is separate from [`polynomial_evaluation`](../polynomial_evaluation/README.md), which benchmarks the Python source file's Horner routine.
 
 ## Contract
 
@@ -26,4 +26,4 @@ The pinned source's example uses coefficient 9.3 and evaluates to 79,800 at x=10
 | V | [`v/p/polynomial_evaluation_direct.v`](../../../v/p/polynomial_evaluation_direct.v) |
 | Zig | [`zig/p/polynomial_evaluation_direct.zig`](../../../zig/p/polynomial_evaluation_direct.zig) |
 
-Pinned source: [TheAlgorithms/Python `polynomial_evaluation.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/polynomial_evaluation.py).
+Pinned sources: [TheAlgorithms/Python `polynomial_evaluation.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/polynomial_evaluation.py) and [TheAlgorithms/JavaScript `Polynomial.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/Polynomial.js).

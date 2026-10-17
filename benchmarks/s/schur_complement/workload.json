@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "id": "schur-complement-python-symmetric-2x2-to-scalar-i64-v1",
+  "algorithm": "schur_complement",
+  "function_symbol": "schur_complement",
+  "description": "Return the scalar C - B.T @ inv(A) @ B for bounded block matrices.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[a00, a01, a11, b0, b1, c00] for symmetric A=[[a00,a01],[a01,a11]], B=[[b0],[b1]], C=[[c00]]",
+    "valid_input_length": 6,
+    "maximum_input_values_for_malformed_cases": 7,
+    "a_entry_range": [
+      -8,
+      8
+    ],
+    "b_c_entry_range": [
+      -100,
+      100
+    ],
+    "a_determinant_nonzero": true,
+    "pseudo_inverse": "not supplied; use the source default inverse path",
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "the only element of C - B.T @ inv(A) @ B, with source matrix-operation order",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-08,
+    "relative_tolerance": 1e-12
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "linear_algebra/src/schur_complement.py",
+    "function": "schur_complement(mat_a, mat_b, mat_c, pseudo_inv=None)"
+  },
+  "cases": [
+    {
+      "id": "identity_A",
+      "input_values": [
+        1,
+        0,
+        1,
+        1,
+        2,
+        10
+      ],
+      "input_length": 6,
+      "expected_result": 5.0
+    },
+    {
+      "id": "diagonal_A",
+      "input_values": [
+        2,
+        0,
+        3,
+        1,
+        2,
+        10
+      ],
+      "input_length": 6,
+      "expected_result": 8.166666666666666
+    },
+    {
+      "id": "off_diagonal_indefinite_A",
+      "input_values": [
+        1,
+        2,
+        1,
+        1,
+        0,
+        5
+      ],
+      "input_length": 6,
+      "expected_result": 5.333333333333333
+    },
+    {
+      "id": "zero_B",
+      "input_values": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        -7
+      ],
+      "input_length": 6,
+      "expected_result": -7.0
+    },
+    {
+      "id": "zero_schur_result",
+      "input_values": [
+        1,
+        0,
+        1,
+        1,
+        0,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "bounded_values",
+      "input_values": [
+        8,
+        0,
+        8,
+        100,
+        -100,
+        100
+      ],
+      "input_length": 6,
+      "expected_result": -2400.0
+    },
+    {
+      "id": "high_magnitude_cancellation",
+      "input_values": [
+        2,
+        5,
+        8,
+        100,
+        100,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "singular_A",
+      "input_values": [
+        1,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "a_entry_above_bound",
+      "input_values": [
+        9,
+        0,
+        1,
+        1,
+        2,
+        3
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "b_entry_above_bound",
+      "input_values": [
+        1,
+        0,
+        1,
+        101,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "c_entry_below_bound",
+      "input_values": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        -101
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "trailing_input",
+      "input_values": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        7
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    }
+  ]
+}

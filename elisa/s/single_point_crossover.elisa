@@ -1,0 +1,42 @@
+const MAX_PARENT_LENGTH: usize = 31
+const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_PARENT_LENGTH
+
+def single_point_crossover_finite(value: f64) -> bool:
+    value == value and value - value == 0.0
+
+def single_point_crossover_impl(input: f64&, input_length: usize,
+    output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 6 or input_length > MAX_INPUT_LENGTH:
+        return -1
+    n_value: f64 = input[0]
+    cut_value: f64 = input[1]
+    if not single_point_crossover_finite(n_value) or not single_point_crossover_finite(cut_value):
+        return -1
+    if n_value < 2.0 or n_value > 31.0 or n_value != n_value.i64().f64() or
+       cut_value < 1.0 or cut_value > n_value - 1.0 or cut_value != cut_value.i64().f64():
+        return -1
+    n: usize = n_value.usize()
+    cut: usize = cut_value.usize()
+    if input_length != 2 + 2 * n:
+        return -1
+    first: mutable f64[31] = zeroed
+    second: mutable f64[31] = zeroed
+    for index in 0..<n:
+        first[index] <- input[2 + index]
+        second[index] <- input[2 + n + index]
+        if not single_point_crossover_finite(first[index]) or not single_point_crossover_finite(second[index]):
+            return -1
+    required: usize = 2 * n
+    if output.is_null() or output_capacity < required:
+        return -2
+    for index in 0..<n:
+        if index < cut:
+            output[index] <- first[index]
+            output[n + index] <- second[index]
+        else:
+            output[index] <- second[index]
+            output[n + index] <- first[index]
+    required.i64()
+
+export fn single_point_crossover(input: f64&, input_length: usize,
+    output: mutable f64&, output_capacity: usize) -> i64 = single_point_crossover_impl

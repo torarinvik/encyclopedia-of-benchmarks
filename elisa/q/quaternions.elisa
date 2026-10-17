@@ -1,0 +1,56 @@
+extern sinf(value: f32) -> f32
+extern cosf(value: f32) -> f32
+extern asinf(value: f32) -> f32
+extern atan2f(y: f32, x: f32) -> f32
+
+def quaternions_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > 10: return -1
+    for i in 0..<length:
+        if input[i] != input[i]: return -1
+    op: f64 = input[0]
+    if op != 0.0 and op != 1.0 and op != 2.0: return -1
+    mode: i64 = op.i64()
+    expected: usize = if mode == 0 then 4 else if mode == 1 then 5 else 9
+    count: usize = if mode == 1 then 3 else 4
+    if length != expected: return -1
+    values: mutable f32[8] = zeroed
+    if mode == 0:
+        for i in 1..<4:
+            if input[i] < -3.0 or input[i] > 3.0: return -1
+            values[i - 1] <- input[i].f32()
+    else if mode == 1:
+        for i in 1..<5:
+            values[i - 1] <- input[i].f32()
+            if values[i - 1] < -1.0 or values[i - 1] > 1.0: return -1
+        w: f32 = values[0]; a: f32 = values[1]; b: f32 = values[2]; c: f32 = values[3]
+        norm: mutable f32 = w * w; norm <- norm + a * a; norm <- norm + b * b; norm <- norm + c * c
+        if norm - 1.0 > 1e-6 or 1.0 - norm > 1e-6: return -1
+        pitch_arg: mutable f32 = w * b + a * c; pitch_arg <- 2.0 * pitch_arg
+        if pitch_arg < -1.0 or pitch_arg > 1.0: return -1
+    else:
+        for i in 1..<9:
+            if input[i] < -1.0 or input[i] > 1.0: return -1
+            values[i - 1] <- input[i].f32()
+    if output == null or capacity < count: return -2
+    result: mutable f32[4] = zeroed
+    if mode == 0:
+        y: f32 = values[0]; p: f32 = values[1]; roll: f32 = values[2]
+        cy: f32 = cosf(y * 0.5); sy: f32 = sinf(y * 0.5); cp: f32 = cosf(p * 0.5); sp: f32 = sinf(p * 0.5); cr: f32 = cosf(roll * 0.5); sr: f32 = sinf(roll * 0.5)
+        result[0] <- cr * cp * cy + sr * sp * sy
+        result[1] <- sr * cp * cy - cr * sp * sy
+        result[2] <- cr * sp * cy + sr * cp * sy
+        result[3] <- cr * cp * sy - sr * sp * cy
+    else if mode == 1:
+        w: f32 = values[0]; a: f32 = values[1]; b: f32 = values[2]; c: f32 = values[3]
+        ry: f32 = 2.0 * (w * a + b * c); rx: f32 = 1.0 - 2.0 * (a * a + b * b); pitch: f32 = asinf(2.0 * (w * b + a * c)); yy: f32 = 2.0 * (w * c + a * b); yx: f32 = 1.0 - 2.0 * (b * b + c * c)
+        result[0] <- atan2f(ry, rx); result[1] <- pitch; result[2] <- atan2f(yy, yx)
+    else:
+        aw: f32 = values[0]; a1: f32 = values[1]; a2: f32 = values[2]; a3: f32 = values[3]; bw: f32 = values[4]; b1: f32 = values[5]; b2: f32 = values[6]; b3: f32 = values[7]
+        result[0] <- aw * bw - a1 * b1 - a2 * b2 - a3 * b3
+        result[1] <- aw * b1 + a1 * bw + a2 * b3 - a3 * b2
+        result[2] <- aw * b2 - a1 * b3 + a2 * bw + a3 * b1
+        result[3] <- aw * b3 + a1 * b2 - a2 * b1 + a3 * bw
+    for i in 0..<count: output[i] <- result[i].f64()
+    count.i64()
+
+export fn quaternions(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = quaternions_impl

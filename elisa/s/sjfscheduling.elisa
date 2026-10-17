@@ -1,0 +1,62 @@
+def write_i32_le(output: mutable u8&, offset: usize, value: i32) -> void:
+    bits: mutable u32 = value.u32()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def sjfscheduling_impl(input: i32&, length: usize, output: mutable u8&,
+                       capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 130: return -1
+    process_count_value: i32 = input[0]
+    if process_count_value < 0 or process_count_value > 64 or
+       length != (1 + 2 * process_count_value).usize(): return -1
+    process_count: usize = process_count_value.usize()
+
+    arrivals: mutable i32[64] = zeroed
+    bursts: mutable i32[64] = zeroed
+    order: mutable i32[64] = zeroed
+    completed: mutable bool[64] = zeroed
+    cursor: mutable usize = 1
+    index: mutable usize = 0
+    while index < process_count:
+        arrival: i32 = input[cursor]
+        burst: i32 = input[cursor + 1]
+        cursor <- cursor + 2
+        if arrival < 0 or arrival > 255 or burst < 1 or burst > 255: return -1
+        arrivals[index] <- arrival
+        bursts[index] <- burst
+        index <- index + 1
+
+    current_time: mutable i32 = 0
+    scheduled: mutable usize = 0
+    while scheduled < process_count:
+        best: mutable usize = process_count
+        index <- 0
+        while index < process_count:
+            if not completed[index] and arrivals[index] <= current_time:
+                if best == process_count or bursts[index] < bursts[best] or
+                   (bursts[index] == bursts[best] and
+                    (arrivals[index] < arrivals[best] or
+                     (arrivals[index] == arrivals[best] and index < best))):
+                    best <- index
+            index <- index + 1
+        if best == process_count:
+            current_time <- current_time + 1
+        else:
+            order[scheduled] <- best.i32()
+            scheduled <- scheduled + 1
+            completed[best] <- true
+            current_time <- current_time + bursts[best]
+
+    output_bytes: usize = process_count * 4
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < process_count:
+        write_i32_le(output, index * 4, order[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn sjfscheduling(input: i32&, length: usize, output: mutable u8&,
+                        capacity: usize) -> i64 = sjfscheduling_impl

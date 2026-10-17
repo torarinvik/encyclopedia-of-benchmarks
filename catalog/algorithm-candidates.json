@@ -356,7 +356,7 @@
       "commit_url": "https://github.com/TheAlgorithms/Zig/commit/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3"
     }
   ],
-  "candidate_count": 3862,
+  "candidate_count": 3863,
   "source_file_count": 6158,
   "candidates": [
     {
@@ -57644,7 +57644,7 @@
       ],
       "review_status": "reviewed_algorithm_semantics",
       "benchmark_name": "md2_digest",
-      "review_notes": "The pinned C# source computes the standard MD2 digest. The cleared float64_slice_io ABI accepts 0..63 integral bytes and returns the exact 16 digest bytes with zero tolerance.",
+      "review_notes": "D58 cleared the full pinned C# MD2 package at the 96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6 source pin. The float64_slice_io contract accepts 0..63 integral bytes, treats a zero-length NULL input as the empty message, and returns the exact 16 digest bytes with zero tolerance.",
       "benchmark_contract": "benchmarks/m/md2_digest/README.md"
     },
     {
@@ -58005,7 +58005,7 @@
       ],
       "review_status": "reviewed_algorithm_semantics",
       "benchmark_name": "median_filter",
-      "review_notes": "The cleared benchmark maps only to the pinned Java streaming trailing-window median filter. The similarly named Python source is an image filter with different behavior and is not mapped to this contract.",
+      "review_notes": "D58 cleared a bounded float64_slice_io contract for the pinned Java streaming trailing-window median filter. The similarly named Python source is an image filter with different behavior and is not mapped to this contract.",
       "benchmark_contract": "benchmarks/m/median_filter/README.md"
     },
     {
@@ -58262,8 +58262,8 @@
         }
       ],
       "benchmark_name": "median_of_three_quick_sorter",
-      "benchmark_contract": "benchmarks/median_of_three_quick_sorter/README.md",
-      "review_notes": "The pinned C# QuickSorter specialization chooses the median of the left, middle, and right elements as pivot and otherwise uses the inherited quicksort. Require a consistent total comparer and bounded arrays."
+  "benchmark_contract": "benchmarks/m/median_of_three_quick_sorter/README.md",
+  "review_notes": "D58 cleared the pinned C# QuickSorter specialization, which chooses the median of the left, middle, and right elements as pivot and otherwise uses the inherited quicksort. The sort_call contract requires a consistent total comparer and bounds arrays to 256 signed-i64 values."
     },
     {
       "candidate_id": "median_of_two_sorted_arrays",
@@ -58856,7 +58856,7 @@
         }
       ],
       "benchmark_name": "merge_sort_no_extra_space",
-      "benchmark_contract": "benchmarks/merge_sort_no_extra_space/README.md",
+      "benchmark_contract": "benchmarks/m/merge_sort_no_extra_space/README.md",
       "review_notes": "The pinned Java source performs recursive in-place merge sort using max+1 encoding and rejects negative values. Require nonnegative values and bounds on maximum value and array length that keep max+1 and encoded intermediates within signed int range."
     },
     {
@@ -61459,7 +61459,12 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python file is a collection of six conversion helpers rather than one routine: molarity_to_normality uses Python round(moles/volume*nfactor); moles_to_pressure, moles_to_volume, and pressure_and_volume_to_temperature use the 0.0821 gas constant and round the result to an integer; mass_to_moles validates nonnegative mass/positive molar mass and rounds to two decimals; moles_to_molecules validates nonnegative moles, multiplies by 6.022e23, then formats with `.4e` (four digits after the decimal in scientific notation, five significant digits). Python's round uses ties-to-even. Zero denominators in the gas/molarity helpers raise source exceptions. Track method-level contracts separately if benchmarked."
+      "review_notes": "This source row maps two distinct helpers from the pinned Python molecular_chemistry.py: mass_to_moles preserves binary64 quotient then two-decimal ties-to-even rounding, while moles_to_molecules preserves binary64 multiplication followed by `.4e` formatting and parsing. Four other helpers in the file remain outside these contracts.",
+      "benchmark_name": "mass_to_moles",
+      "benchmark_contract": "benchmarks/m/mass_to_moles/README.md",
+      "additional_benchmark_names": [
+        "moles_to_molecules"
+      ]
     },
     {
       "candidate_id": "momentum",
@@ -61521,7 +61526,7 @@
       ],
       "review_status": "reviewed_algorithm_semantics",
       "benchmark_name": "mono_alphabetic",
-      "review_notes": "Cleared Java ABI: [op,len,key26,text...], op 0/1, key is uppercase A-Z permutation, text uppercase A-Z length 1..256. Encrypt maps A-Z to key; decrypt uses inverse map. FNV-1a-64 hashes output length and bytes; low 63 bits returned; invalid=-1.",
+      "review_notes": "The pinned Java MonoAlphabetic.encrypt/decrypt use uppercase substitution and inverse lookup. The benchmark packs [op,len,key26,text] over uppercase ASCII, requires a permutation key and 1..256 text bytes, and returns low 63 bits of FNV-1a-64 over an unsigned little-endian u64 output length followed by transformed bytes; invalid=-1.",
       "benchmark_contract": "benchmarks/m/mono_alphabetic/README.md"
     },
     {
@@ -61542,7 +61547,7 @@
       ],
       "review_status": "reviewed_algorithm_semantics",
       "benchmark_name": "mono_alphabetic_cipher",
-      "review_notes": "Cleared PHP ABI: [op,len,key26,alphabet26,text...], op 0/1, key/alphabet uppercase permutations, text ASCII letters/spaces/digits length 0..128. Preserve case/spaces, strip digits, use key/alphabet swap for decrypt. FNV-1a-64 hashes output length and bytes; low 63 bits returned; invalid=-1.",
+      "review_notes": "The pinned PHP monoAlphabeticCipher maps between a supplied alphabet and key, copies spaces, removes ASCII digits, and preserves letter case. The benchmark requires uppercase A-Z permutations and 0..128 ASCII text bytes; output is low 63 bits of FNV-1a-64 over an unsigned little-endian u64 output length followed by transformed bytes; invalid=-1.",
       "benchmark_contract": "benchmarks/m/mono_alphabetic_cipher/README.md"
     },
     {
@@ -62378,9 +62383,8 @@
     },
     {
       "candidate_id": "multiply",
-      "source_repository_count": 2,
+      "source_repository_count": 1,
       "source_repositories": [
-        "Go",
         "Rust"
       ],
       "local_source_folders": [
@@ -62389,13 +62393,6 @@
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
-          "repository": "Go",
-          "language": "Go",
-          "path": "math/matrix/multiply.go",
-          "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/matrix/multiply.go",
-          "local_folder_source": null
-        },
-        {
           "repository": "Rust",
           "language": "Rust",
           "path": "src/big_integer/multiply.rs",
@@ -62403,7 +62400,29 @@
           "local_folder_source": "rust"
         }
       ],
-      "review_notes": "The same filename maps to unrelated algorithms. The pinned Go Matrix.Multiply computes a compatible rectangular product for integer matrices, creates one goroutine per output cell, and returns a new matrix or a dimension/access error; it can share the existing matrix_multiplication contract on its bounded square domain. The pinned Rust multiply performs grade-school multiplication of canonical nonnegative decimal strings and panics on invalid input; its validity guard uses char::is_numeric while the arithmetic unwraps to_digit(10), so non-ASCII numeric characters are a panic risk. These sources need separate candidate scopes: matrix multiplication versus big-integer decimal multiplication."
+      "benchmark_name": "big_integer_multiply",
+      "benchmark_contract": "benchmarks/b/big_integer_multiply/README.md",
+      "review_notes": "D58 CLEARed the Rust-only source contract for src/big_integer/multiply.rs: grade-school multiplication of canonical nonnegative ASCII decimal operands, each 1..32 digits, with exact ASCII product bytes up to 64 bytes. Invalid strings return -1 through the bounded adapter; null or short output returns -2. The Go Matrix.Multiply source with the same filename is tracked separately as multiply_matrix and is not part of this decimal-string package."
+    },
+    {
+      "candidate_id": "multiply_matrix",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Go"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_alias",
+      "alias_of": "matrix_multiplication",
+      "implementations": [
+        {
+          "repository": "Go",
+          "language": "Go",
+          "path": "math/matrix/multiply.go",
+          "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/matrix/multiply.go",
+          "local_folder_source": null
+        }
+      ],
+      "review_notes": "The pinned Go Matrix.Multiply computes a rectangular product for integer matrices, creates one goroutine per output cell, and returns a new matrix or a dimension/access error. On the existing benchmark's bounded square domain it aliases matrix_multiplication; this Go matrix source is distinct from the Rust decimal-string multiply candidate."
     },
     {
       "candidate_id": "multiply_digit",
@@ -62462,7 +62481,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned MATLAB Mutate(x,mu) draws an independent uniform rand value for each element, copies x, and replaces entries whose draw is below mu with 1-x. It preserves the input shape; for binary genomes this flips each bit with probability mu. The source does not validate mu or binary values, so a portable contract should bound 0<=mu<=1, define the gene domain, and provide a deterministic random stream or seed."
+      "benchmark_name": "mutate",
+      "benchmark_contract": "benchmarks/m/mutate/README.md",
+      "review_notes": "D58 CLEARed a one-dimensional binary-row contract for the pinned MATLAB Mutate(x,mu): input [mu,n,genes[n],draws[n]], with 0<=n<=64, mu in [0,1], binary genes, and supplied draws in [0,1). Flip gene i iff draw[i]<mu; equality does not flip. Supplied draws make the rand threshold operator deterministic while preserving the source's per-position behavior. Success returns n exact f64 outputs; malformed input returns -1 before pointer/capacity checks; null/short output returns -2, including a null output for n=0. Zero comparison tolerance."
     },
     {
       "candidate_id": "my_atoi",
@@ -69510,7 +69531,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned notebook implements deterministic piecewise pixel-value mapping for contrast stretching. Benchmark the pixel mapping only; image loading and plotting are demo scaffolding."
+      "review_notes": "The pinned notebook's first pixel_value cell implements deterministic contrast stretching with r1=100, s1=50, r2=180, and s2=200. The benchmark preserves its three branch expressions and uint8 truncation; image loading and plotting are excluded.",
+      "benchmark_name": "piecewise_linear_transform",
+      "benchmark_contract": "benchmarks/p/piecewise_linear_transform/README.md"
     },
     {
       "candidate_id": "piecewise_without_inbuilt",
@@ -70249,7 +70272,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned JavaScript class stores coefficients in ascending degree order and evaluates polynomial operations on that representation. It is distinct from the Horner benchmark."
+      "review_notes": "D58 cleared the pinned JavaScript `Polynomial.evaluate` method as an alias to the existing direct power-sum contract. It stores coefficients in ascending degree order; `display()` is string formatting and is outside evaluation.",
+      "benchmark_name": "polynomial_evaluation_direct",
+      "benchmark_contract": "benchmarks/p/polynomial_evaluation_direct/README.md"
     },
     {
       "candidate_id": "polynomial_evaluation",
@@ -71059,7 +71084,7 @@
       ],
       "benchmark_name": "logistic_regression_predict",
       "benchmark_contract": "benchmarks/l/logistic_regression_predict/README.md",
-      "review_notes": "The pinned MATLAB helper computes predictions by thresholding sigmoid(X*Theta) at 0.5. The bounded contract supplies integer feature and parameter matrices, preserves the inclusive zero-logit threshold, and packs each row prediction into its corresponding bit."
+      "review_notes": "The pinned MATLAB helper computes predictions by thresholding sigmoid(X*Theta) at 0.5. The bounded contract supplies integer feature and parameter matrices, preserves the inclusive zero-logit threshold, and packs each row prediction into its corresponding bit. D58's full-package static review is CLEAR."
     },
     {
       "candidate_id": "preemptive_priority_scheduling",
@@ -79955,7 +79980,7 @@
       ],
       "benchmark_name": "quaternions",
       "benchmark_contract": "benchmarks/q/quaternions/README.md",
-      "review_notes": "The pinned C library exposes three method operations: Euler-to-quaternion, quaternion-to-Euler, and Hamilton product. Preserve source float formulas and rotation convention; require finite bounded inputs and normalized quaternions for conversion."
+      "review_notes": "The pinned C library exposes three method operations: Euler-to-quaternion, quaternion-to-Euler, and Hamilton product. Packed Euler input is [yaw, pitch, roll] after the operation selector. Preserve binary32 source formulas, including the executable plus-sign pitch expression despite the adjacent Doxygen equation; return scalar-first Hamilton products and require finite bounded inputs plus normalized quaternions for conversion."
     },
     {
       "candidate_id": "queue",
@@ -86461,7 +86486,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source computes a Schur complement and remains a distinct matrix algorithm candidate."
+      "review_notes": "The pinned Python source computes C - B.T @ inv(A) @ B through its default inverse path. The benchmark fixes symmetric 2x2 A and scalar B/C inputs, including a cancellation case for binary64 parity.",
+      "benchmark_name": "schur_complement",
+      "benchmark_contract": "benchmarks/s/schur_complement/README.md"
     },
     {
       "candidate_id": "scikit_learn",
@@ -86499,7 +86526,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements a scoring algorithm with source-specific scoring rules; keep it distinct from similarly named scoring utilities."
+      "review_notes": "D58 cleared `procentual_proximity` from the pinned Python scoring module. The bounded contract preserves lower/higher-is-better column normalization, left-to-right score accumulation, and appends each score after its original row values.",
+      "benchmark_name": "procentual_proximity",
+      "benchmark_contract": "benchmarks/p/procentual_proximity/README.md"
     },
     {
       "candidate_id": "scoring_functions",
@@ -86518,7 +86547,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source provides scoring functions with source-defined input/output behavior and remains a distinct candidate."
+      "review_notes": "The pinned Python `scoring_functions.py` method `mbd(predict, actual)` computes signed mean prediction error relative to mean actual value, as a percentage. This mapping covers only `mbd`; the file's other scoring functions remain out of scope.",
+      "benchmark_name": "mean_bias_deviation_percent",
+      "benchmark_contract": "benchmarks/m/mean_bias_deviation_percent/README.md"
     },
     {
       "candidate_id": "scramble_strings",
@@ -87585,7 +87616,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements self-adjusting scheduling and remains distinct under its source-specific policy."
+      "benchmark_name": "self_adjusting_scheduling",
+      "benchmark_contract": "benchmarks/s/self_adjusting_scheduling/README.md",
+      "review_notes": "The pinned Java priority queue selects the smallest current task priority, increments that task's cumulative wait time, adds the new wait time to its priority, and requeues it. The bounded benchmark rejects ties before a requested poll so priority-only comparisons remain deterministic and checks signed-i32 overflow after a wider update."
     },
     {
       "candidate_id": "self_organizing_linked_list",
@@ -88836,7 +88869,7 @@
       ],
       "benchmark_name": "shree_dharacharya_formula",
       "benchmark_contract": "benchmarks/s/shree_dharacharya_formula/README.md",
-      "review_notes": "The pinned source computes real quadratic roots. Require a!=0 and discriminant>=0; preserve the repeated root twice."
+      "review_notes": "D58 CLEARed the pinned MATLAB source, bounded contract, workload/oracle, and all nine ports: exact [a,b,c] signed-i64 input with coefficients in ±1,000,000, a!=0, and discriminant>=0; return both direct-formula roots in plus-root then minus-root order as 16 little-endian binary64 bytes, duplicating a repeated root. Invalid input returns -1; null/short output returns -2. This source contract is distinct from the Dart shreedharacharya package. Byte-output runner/verifier routing is registered."
     },
     {
       "candidate_id": "shreedharacharya",
@@ -89642,7 +89675,7 @@
       ],
       "benchmark_name": "simple_proof_of_work",
       "benchmark_contract": "benchmarks/s/simple_proof_of_work/README.md",
-      "review_notes": "The pinned Python proof_of_work hashes the delimiter-free UTF-8/ASCII string f\"{block_number}{transactions}{previous_hash}{nonce}\" with SHA-256, starts nonce at 0, checks lowercase hexdigest for the requested zero prefix, and returns the first matching nonce and digest. The bounded wrapper contract adds explicit max_nonce 0..4096 and difficulty 0..2, searches nonce 0 through max_nonce inclusive in source order, and returns a distinct exhausted-capacity sentinel if no nonce matches. Require nonnegative signed-i64 block number and bounded ASCII transaction/previous-hash fields. No benchmark workload may omit the nonce cap; negative difficulty is invalid in the source and difficulty 0 returns nonce 0 immediately."
+      "review_notes": "The pinned Python proof_of_work hashes the delimiter-free UTF-8/ASCII string f\"{block_number}{transactions}{previous_hash}{nonce}\" with SHA-256, starts nonce at 0, checks lowercase hexdigest for the requested zero prefix, and returns the first matching nonce and digest. The bounded wrapper contract adds explicit max_nonce 0..4096 and difficulty 0..2, searches nonce 0 through max_nonce inclusive in source order, and returns a distinct exhausted-capacity sentinel if no nonce matches. Require nonnegative signed-i64 block number and bounded ASCII transaction/previous-hash fields. No benchmark workload may omit the nonce cap; negative difficulty is invalid in the source and difficulty 0 returns nonce 0 immediately. All nine ports, the workload/oracle, runner validator, and independent verifier corpus are statically integrated and reviewed; no builds, tests, or verifier CLI runs were performed."
     },
     {
       "candidate_id": "simple_sub_cipher",
@@ -90210,7 +90243,7 @@
       ],
       "benchmark_name": "single_point_crossover",
       "benchmark_contract": "benchmarks/s/single_point_crossover/README.md",
-      "review_notes": "The pinned MATLAB helper performs one-point crossover on equal-length parents of length >=2. The cut is random; control MATLAB RNG externally for reproducible cases."
+      "review_notes": "The pinned MATLAB helper performs one-point crossover on equal-length parents of length >=2, copying each prefix and exchanging suffixes at a random cut. The benchmark supplies the cut explicitly for deterministic cross-language calls."
     },
     {
       "candidate_id": "singly_circular_linked_list",
@@ -92274,7 +92307,7 @@
       ],
       "benchmark_name": "spiral_print",
       "benchmark_contract": "benchmarks/s/spiral_print/README.md",
-      "review_notes": "The pinned C++ sources are print helpers for matrix spiral order; Python exposes a separate print/return API. Preserve those source-specific APIs. Python input must be a rectangular mutable matrix; do not claim destructive-mutation behavior beyond the separate spiral_traversal contract."
+      "review_notes": "The pinned C++ spiralPrint helpers and Python spiral_print_clockwise share clockwise order for rectangular matrices with 1-16 rows and 2-16 columns. Exclude Python's separate spiral_traversal API and one-column inputs, where its print helper duplicates values."
     },
     {
       "candidate_id": "spirograph",
@@ -96171,7 +96204,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements a list-backed table structure and remains distinct from the heap-backed table candidate."
+      "benchmark_name": "table_list",
+      "benchmark_contract": "benchmarks/t/table_list/README.md",
+      "review_notes": "The pinned Lua source implements a list-backed table structure with 1-based get/set operations, endpoint reads and pops, explicit in-bounds queries, and forward/reverse iterators; the bounded benchmark preserves those operations and remains distinct from the heap-backed table candidate."
     },
     {
       "candidate_id": "table_stack",
@@ -97707,7 +97742,7 @@
       ],
       "benchmark_name": "time_simulation",
       "benchmark_contract": "benchmarks/t/time_simulation/README.md",
-      "review_notes": "The pinned Zig source is a virtual-clock event simulation. The scalar contract bounds the active queue to 1024 events, uses signed-i64 timestamps and nondecreasing tick targets, preserves fixed non-rescheduling callbacks and active-slot tie order, and hashes the event trace with FNV-1a-64. The 4096-action boundary trace can fire 4092 callbacks; each port's callback log is sized for 4096 entries. D58's final package review is pending."
+      "review_notes": "The pinned Zig source is a virtual-clock event simulation. The scalar contract bounds the active queue to 1024 events, uses signed-i64 timestamps and nondecreasing tick targets, preserves fixed non-rescheduling callbacks and active-slot tie order, and hashes the event trace with FNV-1a-64. The 4096-action boundary trace can fire 4092 callbacks; each port's callback log is sized for 4096 entries. D58's full-package review is CLEAR, with no remaining static mismatch."
     },
     {
       "candidate_id": "timeline",
@@ -97907,7 +97942,9 @@
           "portability": "architecture_specific_reference"
         }
       ],
-      "review_notes": "The pinned source tokenizes strings according to its own delimiter and token-boundary rules."
+      "review_notes": "The pinned AArch64 stTokenize routine splits printable ASCII at a caller-selected comma, period, or colon and preserves empty tokens. The portable contract bounds input to 128 text bytes and at most 19 tokens, and serializes the token count followed by NUL-separated copied text.",
+      "benchmark_name": "tokenize_string",
+      "benchmark_contract": "benchmarks/t/tokenize_string/README.md"
     },
     {
       "candidate_id": "tonelli_shanks",
@@ -98392,7 +98429,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source is a translation workflow with its own mapping/input behavior; keep it distinct from simple text substitutions."
+      "benchmark_name": "translator",
+      "benchmark_contract": "benchmarks/t/translator/README.md",
+      "review_notes": "The pinned C# Translator.Translate method scans each current text position with growing substrings, uses the shortest exact key match, and drops the remaining suffix when no key matches. The benchmark bounds keys, values, and text to printable ASCII bytes."
     },
     {
       "candidate_id": "transposition",

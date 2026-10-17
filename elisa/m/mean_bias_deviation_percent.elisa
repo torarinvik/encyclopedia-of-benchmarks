@@ -1,0 +1,28 @@
+const INVALID_RESULT: f64 = -1.0e300
+
+def mean_bias_deviation_percent_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 1 or length > 131:
+        return INVALID_RESULT
+    if input[0] < 1 or input[0] > 64:
+        return INVALID_RESULT
+    count: usize = input[0].usize()
+    if length != 1 + 2 * count:
+        return INVALID_RESULT
+    difference_sum: mutable i64 = 0
+    actual_sum: mutable i64 = 0
+    index: mutable usize = 0
+    while index < count:
+        prediction: i64 = input[1 + index]
+        actual: i64 = input[1 + count + index]
+        if prediction < -1000 or prediction > 1000 or actual < -1000 or actual > 1000:
+            return INVALID_RESULT
+        difference_sum <- difference_sum + prediction - actual
+        actual_sum <- actual_sum + actual
+        index <- index + 1
+    if actual_sum == 0:
+        return INVALID_RESULT
+    numerator: f64 = difference_sum.f64() / count.f64()
+    denominator: f64 = actual_sum.f64() / count.f64()
+    numerator / denominator * 100.0
+
+export fn mean_bias_deviation_percent(input: i64&, length: usize) -> f64 = mean_bias_deviation_percent_impl

@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-javascript-shuf-forced-draw-i64-array-bytes-output-v1",
+  "algorithm": "shuf",
+  "function_symbol": "shuf",
+  "input": {
+    "kind": "bounded_iterator_sample_with_forced_draws",
+    "encoding": "[n, k, signed_i32_values[0..n), bounded_draws[0..n)] as signed 64-bit values",
+    "source_count_range": [
+      0,
+      32
+    ],
+    "sample_size_range": [
+      1,
+      32
+    ],
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "draw_rule": "Each draw is the exact integer floor(Math.random() * bound) supplied by the caller; for source index i < min(n,k), bound=k; for i >= k, bound=i+1.",
+    "valid_input_length": "2 + 2*n",
+    "maximum_valid_input_length": 66,
+    "maximum_input_values_for_malformed_cases": 67,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "min(n,k) signed i32 values, each four bytes little-endian two's-complement",
+    "result": "number of values written",
+    "max_bytes": 128
+  },
+  "workspace": {
+    "bytes": 128
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/JavaScript",
+    "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+    "path": "Dynamic-Programming/Shuf.js",
+    "method": "shuf(datasetSource, sampleSize)"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty_stream",
+      "input_values": [0, 3],
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_stream_null_output",
+      "input_values": [0, 3],
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "singleton_sample",
+      "input_values": [1, 1, 42, 0],
+      "expected_result": 1,
+      "expected_output_hex": "2a000000"
+    },
+    {
+      "id": "short_stream_slot_order_and_collision",
+      "input_values": [3, 5, 10, 20, 30, 4, 4, 1],
+      "expected_result": 3,
+      "expected_output_hex": "140000001e0000000a000000"
+    },
+    {
+      "id": "full_initial_sample_with_wraparound_probes",
+      "input_values": [4, 4, 1, 2, 3, 4, 2, 2, 2, 2],
+      "expected_result": 4,
+      "expected_output_hex": "03000000040000000100000002000000"
+    },
+    {
+      "id": "reservoir_replace_and_reject",
+      "input_values": [5, 3, 10, 20, 30, 40, 50, 2, 2, 0, 3, 1],
+      "expected_result": 3,
+      "expected_output_hex": "14000000320000000a000000"
+    },
+    {
+      "id": "reservoir_replaces_first_slot",
+      "input_values": [4, 3, 1, 2, 3, 4, 1, 1, 2, 0],
+      "expected_result": 3,
+      "expected_output_hex": "040000000100000002000000"
+    },
+    {
+      "id": "duplicate_and_signed_boundaries",
+      "input_values": [6, 2, -2147483648, 7, 7, -1, 2147483647, 7, 1, 1, 2, 1, 0, 2],
+      "expected_result": 2,
+      "expected_output_hex": "ffffff7fffffffff"
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [2, 2, 10, 20, 0, 1],
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_output_capacity",
+      "input_values": [2, 2, 10, 20, 0, 1],
+      "output_capacity": 8,
+      "expected_result": 2,
+      "expected_output_hex": "0a00000014000000"
+    },
+    {
+      "id": "nonempty_null_output",
+      "input_values": [1, 1, 42, 0],
+      "output_capacity": 4,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_count",
+      "input_values": [-1, 1],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_sample_size",
+      "input_values": [1, 0, 10, 0],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_values_and_draws",
+      "input_values": [2, 1, 10],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [1, 1, 10, 0, 99],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "value_outside_i32",
+      "input_values": [1, 1, 2147483648, 0],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "initial_draw_out_of_range",
+      "input_values": [1, 1, 10, 1],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "reservoir_draw_out_of_range",
+      "input_values": [2, 1, 10, 20, 0, 2],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [-1, 1],
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -25,3 +25,6 @@ def mean_absolute_percentage_error(values):
         denominator = EPSILON if true_value == 0.0 else true_value
         total += abs((denominator - predicted) / denominator)
     return total / n
+
+
+expected_result = mean_absolute_percentage_error

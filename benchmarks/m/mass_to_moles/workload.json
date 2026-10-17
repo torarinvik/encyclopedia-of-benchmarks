@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "id": "mass-to-moles-python-integer-valued-i64-v1",
+  "algorithm": "mass_to_moles",
+  "function_symbol": "mass_to_moles",
+  "description": "Return mass divided by molar mass, rounded to two decimal places.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[mass, molar_mass], interpreted as exact integer-valued numeric arguments",
+    "valid_input_length": 2,
+    "maximum_input_values_for_malformed_cases": 3,
+    "mass_range": [
+      0,
+      1000
+    ],
+    "molar_mass_range": [
+      1,
+      1000
+    ],
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "round(float(mass / molar_mass), 2), with Python ties-to-even rounding",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "conversions/molecular_chemistry.py",
+    "method": "mass_to_moles(mass, molar_mass)"
+  },
+  "cases": [
+    {
+      "id": "integer_ratio_example",
+      "input_values": [
+        36,
+        18
+      ],
+      "input_length": 2,
+      "expected_result": 2.0
+    },
+    {
+      "id": "zero_mass",
+      "input_values": [
+        0,
+        18
+      ],
+      "input_length": 2,
+      "expected_result": 0.0
+    },
+    {
+      "id": "exact_one",
+      "input_values": [
+        18,
+        18
+      ],
+      "input_length": 2,
+      "expected_result": 1.0
+    },
+    {
+      "id": "one_third",
+      "input_values": [
+        1,
+        3
+      ],
+      "input_length": 2,
+      "expected_result": 0.33
+    },
+    {
+      "id": "tie_rounds_to_even_down",
+      "input_values": [
+        1,
+        8
+      ],
+      "input_length": 2,
+      "expected_result": 0.12
+    },
+    {
+      "id": "tie_rounds_to_even_up",
+      "input_values": [
+        3,
+        8
+      ],
+      "input_length": 2,
+      "expected_result": 0.38
+    },
+    {
+      "id": "small_fraction",
+      "input_values": [
+        1,
+        100
+      ],
+      "input_length": 2,
+      "expected_result": 0.01
+    },
+    {
+      "id": "maximum_bounded_quotient",
+      "input_values": [
+        1000,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 1000.0
+    },
+    {
+      "id": "binary64_quotient_above_decimal_half",
+      "input_values": [
+        1,
+        40
+      ],
+      "input_length": 2,
+      "expected_result": 0.03
+    },
+    {
+      "id": "binary64_quotient_below_decimal_half",
+      "input_values": [
+        107,
+        40
+      ],
+      "input_length": 2,
+      "expected_result": 2.67
+    },
+    {
+      "id": "negative_mass",
+      "input_values": [
+        -1,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_molar_mass",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "mass_above_bound",
+      "input_values": [
+        1001,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "molar_mass_above_bound",
+      "input_values": [
+        1,
+        1001
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "negative_molar_mass",
+      "input_values": [
+        1,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "missing_argument",
+      "input_values": [
+        12
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "trailing_argument",
+      "input_values": [
+        12,
+        3,
+        4
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    }
+  ]
+}

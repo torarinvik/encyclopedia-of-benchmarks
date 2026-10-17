@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-random-i64-array-bytes-output-v1",
+  "algorithm": "random",
+  "function_symbol": "pcg32_random",
+  "description": "Bounded sequence generation using the pinned PCG32 transition and output permutation.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/math/random.rs",
+    "symbol": "PCG32::new and PCG32::get_u32",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/random.rs"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[seed_bits, multiplier_bits, stream, count]",
+    "seed_and_multiplier_rule": "Interpret the signed-i64 words by their two’s-complement bit patterns as u64 values.",
+    "stream_range": [
+      0,
+      9223372036854775807
+    ],
+    "count_range": [
+      0,
+      256
+    ],
+    "maximum_valid_input_words": 4,
+    "maximum_parseable_input_words": 5,
+    "exact_packed_shape": "Exactly 4 signed-i64 words.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_unsigned_u32_array",
+    "encoding": "count PCG32 get_u32 values; no final-state word.",
+    "valid_output_bytes_range": [
+      0,
+      1024
+    ],
+    "maximum_output_bytes": 1024,
+    "success_result": "output byte length",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Invalid or null input is rejected before output pointer or capacity checks."
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Up to 256 generated unsigned 32-bit values."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_sequence",
+      "input_values": [
+        314159,
+        6364136223846793005,
+        721347520444481703,
+        0
+      ],
+      "input_length": 4,
+      "output_capacity": 0,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "default_constructor_vector",
+      "input_values": [
+        314159,
+        6364136223846793005,
+        721347520444481703,
+        8
+      ],
+      "input_length": 4,
+      "output_capacity": 32,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 32,
+      "expected_output_hex": "a59fa799720ce3891550c5b6a3ce26f07845717425ce1768e05b2f13cf399993"
+    },
+    {
+      "id": "zero_seed_default_stream",
+      "input_values": [
+        0,
+        6364136223846793005,
+        721347520444481703,
+        8
+      ],
+      "input_length": 4,
+      "output_capacity": 32,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 32,
+      "expected_output_hex": "4ea223e8d9cb7e7a066cfd89a86a64ae45f93ccd03b3046285858c1911e6fc49"
+    },
+    {
+      "id": "zero_multiplier_and_zero_stream",
+      "input_values": [
+        0,
+        0,
+        0,
+        4
+      ],
+      "input_length": 4,
+      "output_capacity": 16,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "negative_seed_bit_pattern",
+      "input_values": [
+        -1,
+        6364136223846793005,
+        7,
+        6
+      ],
+      "input_length": 4,
+      "output_capacity": 24,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 24,
+      "expected_output_hex": "23277bdbf4043e0f291f7b4ae26df78d30281d2e6153d192"
+    },
+    {
+      "id": "negative_multiplier_bit_pattern",
+      "input_values": [
+        9223372036854775807,
+        -1,
+        1,
+        5
+      ],
+      "input_length": 4,
+      "output_capacity": 20,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 20,
+      "expected_output_hex": "0400000004000000040000000400000004000000"
+    },
+    {
+      "id": "largest_documented_stream",
+      "input_values": [
+        -9223372036854775808,
+        -1,
+        9223372036854775807,
+        4
+      ],
+      "input_length": 4,
+      "output_capacity": 16,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 16,
+      "expected_output_hex": "04000000f8ff010004000000f8ff0100"
+    },
+    {
+      "id": "maximum_count_256",
+      "input_values": [
+        42,
+        6364136223846793005,
+        721347520444481703,
+        256
+      ],
+      "input_length": 4,
+      "output_capacity": 1024,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 1024,
+      "expected_output_hex": "d67bf5c2a9c4076b9bb2b77283532144ad5eaff532b6be682c31c7cbd7c7efd50808ec7ab53a13ffd91d8ab581202e67dc4d5a0696dbd4f851f8f6e46b22fa0edaeafcb344dee22b23bac71ac4b963c1489c0846174f0bd9d0265dabab6702f1832bee7921a2e0a3aa1b1a2f9b1c569014071885c89c6c27f0e075dc0b454650b6f8c693e67d4f77f54294e2e804c3b99a687c836fd94cb4d6d65d06b6287234a2115bd73bc36d81ef67410d9c74996fee12ec07da161d8a3aaddda860639671997ea4c1d54964a09630a08018f06cdd229f808085d2aa8ee2c9991b948a7443cfb3fc949c3291c1ef5530e207d2fc3948f8585499ba021971684c301b75184b80c0f6bf704fc7399bd97ddd30c29a27aa052f640cec6d9b1f5282534f64c05e94615e9376612f7f54e0affea55f9dd7fb321d1736ce8cb4c0b366e84024f400fbed5f837fc331e53e80ad687fc1c0a1d14678e58621a2985ddaa49e188571ff32a3e36cf81257b45eeec3cf96a1b23fc9a20918a3b198b0b1dc4f979ddb9217670427aeba1c5f1e6d692fe69256c0bf598077e21aa0081555642196bbc59c83b88ef26a5f4fe35d060a26fa82ad66a604fd77ea76bf74031f49f51af79ed0083bceeaf78ec9ebfc2d8901281ebba128f75c98d141856284b3a21f572ae69b68299d14591cf415836e0bc3ad7aaa1d7974844005ad8a2ba40e8627247f998fd39a2f6b3f58a8e731447d59515093160a71eb1d64c3f80d1bb21c4562d7e62e13de7000d3d94e24f33b0cd63cb3bfcb3ddb7e5f593a69e43b5dce5424a6dbe2b16d63ac9652897599052cffb28492a6e83d2eb4bc82df957595283ee64a7ebaca901e6fec70ba3bbd1deb5f20ccaf7305db16ab2c5af5f66ac2be16e9a4b4a91ceb7827bb6ad948a4ed632904b340d6b6254864f7609382ae9d3155d5028709fc80c4d299a20b57a01fcff0a89b23bc4adbe4f4a326ad0694c6c139eb9e4d674f6629a97bf802ba8a9e679ecba5cc0adc64ffac24e617586c690c4e3ee400fd460947d6559a6d63b51986b4f2fbd97608b9348ad5bc72b9e011d03c38a7dca8d221b5f60816c957c03501df92024abaf803e9b8b440c28e1e5a00fb7d5735a9ad421f2102d8a792369685375da21b3df69856e2f1f998f843e4a30c9ebd691aa7a947d6fe424eba6ded0c6f5eb13e5f00d21350b678f8d5f8bb206274494a6d861d0570c141cf19d1910d46dc565fb2aa92866d1750291f75c5e0f284f85c3649a418f5b4bdb1380fdabf6a4cccda857344a0dda210829b13e49d63156ec9a0e7f422cf0bc7dab09fb832f1edd1f392e5bbd1cea57c5e469b34560f762697a3b413f155aab1d946b42b5d1dac2da05a97417fca11064d7e5ed83b361dbb43e9ca68051135378f31d0a238885b3ed632f56c090bfdbaa66df9e35932cd093ee785"
+    },
+    {
+      "id": "negative_stream",
+      "input_values": [
+        1,
+        6364136223846793005,
+        -1,
+        1
+      ],
+      "input_length": 4,
+      "output_capacity": 1024,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_count",
+      "input_values": [
+        1,
+        6364136223846793005,
+        0,
+        -1
+      ],
+      "input_length": 4,
+      "output_capacity": 1024,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count_above_bound",
+      "input_values": [
+        1,
+        6364136223846793005,
+        0,
+        257
+      ],
+      "input_length": 4,
+      "output_capacity": 1024,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        1,
+        6364136223846793005,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 1024,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input_word",
+      "input_values": [
+        1,
+        6364136223846793005,
+        0,
+        1,
+        99
+      ],
+      "input_length": 5,
+      "output_capacity": 1024,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_zero_length",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 0,
+      "input_is_null": true,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 4,
+      "output_capacity": 0,
+      "input_is_null": true,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_nonempty",
+      "input_values": [
+        1,
+        6364136223846793005,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "output_capacity": 4,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_nonempty",
+      "input_values": [
+        1,
+        6364136223846793005,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "output_capacity": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_empty",
+      "input_values": [
+        1,
+        6364136223846793005,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "output_capacity": 0,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_zero_capacity",
+      "input_values": [
+        1,
+        6364136223846793005,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "output_capacity": 0,
+      "input_is_null": false,
+      "output_is_null": false,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        1,
+        6364136223846793005,
+        -1,
+        1
+      ],
+      "input_length": 4,
+      "output_capacity": 0,
+      "input_is_null": false,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "contract": {
+    "generator": "PCG32 with the pinned custom constructor",
+    "state_width_bits": 64,
+    "unsigned_arithmetic": "All state additions and multiplications wrap modulo 2^64.",
+    "stream_increment": "increment = ((stream << 1) | 1) mod 2^64",
+    "constructor": "state = (seed_bits + increment) mod 2^64; then state = (state * multiplier_bits + increment) mod 2^64.",
+    "next_u32": "Use the current state as old_state, advance state = (old_state * multiplier_bits + increment) mod 2^64, then emit xorshift/rotate output from old_state.",
+    "output_transform": "xorshifted = (((old_state >> 18) XOR old_state) >> 27) low 32 bits; rotation = old_state >> 59; output = rotate_right_u32(xorshifted, rotation).",
+    "returned_values": "Exactly count generated u32 outputs; final generator state is not returned."
+  }
+}

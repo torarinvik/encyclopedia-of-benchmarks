@@ -1,0 +1,60 @@
+def big_integer_multiply_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > 66:
+        return -1
+    left_value: i64 = input[0]
+    right_value: i64 = input[1]
+    if left_value < 1 or left_value > 32 or right_value < 1 or right_value > 32:
+        return -1
+    left_length: usize = left_value.usize()
+    right_length: usize = right_value.usize()
+    if length != 2 + left_length + right_length:
+        return -1
+    right_start: usize = 2 + left_length
+    index: mutable usize = 0
+    while index < left_length:
+        if input[2 + index] < 48 or input[2 + index] > 57:
+            return -1
+        index <- index + 1
+    index <- 0
+    while index < right_length:
+        if input[right_start + index] < 48 or input[right_start + index] > 57:
+            return -1
+        index <- index + 1
+    if (left_length > 1 and input[2] == 48) or (right_length > 1 and input[right_start] == 48):
+        return -1
+
+    product: mutable i64[64]
+    index <- 0
+    while index < 64:
+        product[index] <- 0
+        index <- index + 1
+    product_size: usize = left_length + right_length
+    is_zero: bool = (left_length == 1 and input[2] == 48) or (right_length == 1 and input[right_start] == 48)
+    if not is_zero:
+        i: mutable usize = 0
+        while i < left_length:
+            j: mutable usize = 0
+            while j < right_length:
+                position: usize = i + j
+                multiplication: i64 = (input[2 + left_length - i - 1] - 48) * (input[right_start + right_length - j - 1] - 48)
+                product[position + 1] <- product[position + 1] + (product[position] + multiplication) / 10
+                product[position] <- (product[position] + multiplication) % 10
+                j <- j + 1
+            i <- i + 1
+    effective_size: mutable usize = product_size
+    if is_zero:
+        effective_size <- 1
+    elif product[product_size - 1] == 0:
+        effective_size <- effective_size - 1
+    if output.is_null() or capacity < effective_size:
+        return -2
+    if is_zero:
+        output[0] <- 48.u8()
+    else:
+        index <- 0
+        while index < effective_size:
+            output[index] <- (48 + product[effective_size - index - 1]).u8()
+            index <- index + 1
+    effective_size.i64()
+
+export fn big_integer_multiply(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = big_integer_multiply_impl

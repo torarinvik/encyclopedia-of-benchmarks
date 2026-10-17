@@ -178,7 +178,7 @@
       "expected_result": 0.50577410796456
     },
     {
-      "id": "three_feature_small_rate",
+      "id": "invalid_three_feature_nonbinary_label",
       "input_values": [
         3,
         3,
@@ -203,7 +203,7 @@
       "expected_result": -1e+300
     },
     {
-      "id": "larger_bounded_batch",
+      "id": "invalid_truncated_larger_batch",
       "input_values": [
         8,
         2,

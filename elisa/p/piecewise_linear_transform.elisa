@@ -1,0 +1,25 @@
+def piecewise_linear_transform_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 256:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+        index <- index + 1
+    if output.is_null() or capacity < length:
+        return -2
+    index <- 0
+    while index < length:
+        pixel: f64 = input[index].f64()
+        mapped: f64 = 0.0
+        if pixel <= 100.0:
+            mapped <- (50.0 / 100.0) * pixel
+        elif pixel <= 180.0:
+            mapped <- ((200.0 - 50.0) / (180.0 - 100.0)) * (pixel - 100.0) + 50.0
+        else:
+            mapped <- ((255.0 - 200.0) / (255.0 - 180.0)) * (pixel - 180.0) + 200.0
+        output[index] <- mapped.u8()
+        index <- index + 1
+    length.i64()
+
+export fn piecewise_linear_transform(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = piecewise_linear_transform_impl

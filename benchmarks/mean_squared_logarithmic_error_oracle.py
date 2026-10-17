@@ -24,3 +24,6 @@ def mean_squared_logarithmic_error(values):
         difference = math.log1p(true_value) - math.log1p(predicted)
         total += difference * difference
     return total / n
+
+
+expected_result = mean_squared_logarithmic_error

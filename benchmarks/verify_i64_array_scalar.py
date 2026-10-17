@@ -147,6 +147,10 @@ from logistic_regression_predict_oracle import expected_result as logistic_regre
 from time_simulation_oracle import MAX_ACTIONS as TIME_SIMULATION_MAX_ACTIONS
 from time_simulation_oracle import MAX_INPUT_LENGTH as TIME_SIMULATION_MAX_INPUT_LENGTH
 from time_simulation_oracle import expected_result as time_simulation_oracle
+from rotting_oranges_oracle import MAX_INPUT_LENGTH as ROTTING_ORANGES_MAX_INPUT_LENGTH
+from rotting_oranges_oracle import MAX_ROWS as ROTTING_ORANGES_MAX_ROWS
+from rotting_oranges_oracle import MAX_COLUMNS as ROTTING_ORANGES_MAX_COLUMNS
+from rotting_oranges_oracle import expected_result as rotting_oranges_oracle
 from recursive_linear_search_oracle import MAX_COUNT as MAX_RECURSIVE_LINEAR_SEARCH_COUNT
 from recursive_linear_search_oracle import MAX_INPUT_LENGTH as MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH
 from recursive_linear_search_oracle import MAX_VALUE as MAX_RECURSIVE_LINEAR_SEARCH_VALUE
@@ -573,7 +577,15 @@ from n_in_a_row_board_status_oracle import MAX_BOARD_SIZE as MAX_N_IN_A_ROW_BOAR
 from n_in_a_row_board_status_oracle import expected_result as n_in_a_row_board_status_oracle
 from depth_first_search_tic_tac_toe_oracle import expected_result as depth_first_search_tic_tac_toe_oracle
 from dynamic_coin_change_solver_oracle import expected_result as dynamic_coin_change_solver_oracle
+from mono_alphabetic_oracle import MAX_TEXT_LENGTH as MONO_ALPHABETIC_MAX_TEXT_LENGTH
+from mono_alphabetic_oracle import expected_output as mono_alphabetic_oracle
+from mono_alphabetic_cipher_oracle import MAX_TEXT_LENGTH as MONO_ALPHABETIC_CIPHER_MAX_TEXT_LENGTH
+from mono_alphabetic_cipher_oracle import expected_output as mono_alphabetic_cipher_oracle
 from run_i64_array_scalar import encode_case
+from run_i64_array_scalar import MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH
+from run_i64_array_scalar import validate_mono_alphabetic_workload
+from run_i64_array_scalar import MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
+from run_i64_array_scalar import validate_mono_alphabetic_cipher_workload
 from run_i64_array_scalar import validate_scramble_strings_workload
 from run_i64_array_scalar import validate_richest_customer_wealth_workload
 from run_i64_array_scalar import validate_segment_tree_update_workload
@@ -590,6 +602,7 @@ from run_i64_array_scalar import validate_matrix_exponentiation_workload
 from run_i64_array_scalar import validate_miller_rabin_primality_checker_workload
 from run_i64_array_scalar import validate_logistic_regression_predict_workload
 from run_i64_array_scalar import validate_time_simulation_workload
+from run_i64_array_scalar import validate_rotting_oranges_workload
 from generalized_esd_oracle import expected_result as generalized_esd_oracle
 from string_prefix_suffix_oracle import expected_result as string_prefix_suffix_oracle
 from one_bit_difference_oracle import expected_result as one_bit_difference_oracle
@@ -1079,6 +1092,7 @@ ALGORITHMS += ("matrix_exponentiation",)
 ALGORITHMS += ("miller_rabin_primality_checker",)
 ALGORITHMS += ("logistic_regression_predict",)
 ALGORITHMS += ("time_simulation",)
+ALGORITHMS += ("rotting_oranges",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -1578,6 +1592,10 @@ def monotonic_array_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "mono_alphabetic_cipher":
+        return mono_alphabetic_cipher_oracle(values)
+    if algorithm == "mono_alphabetic":
+        return mono_alphabetic_oracle(values)
     if algorithm == "knapsack_zero_one_tabulation":
         return knapsack_zero_one_tabulation_oracle(values)
     if algorithm == "sparse_matrix":
@@ -1816,6 +1834,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return logistic_regression_predict_oracle(values)
     if algorithm == "time_simulation":
         return time_simulation_oracle(values)
+    if algorithm == "rotting_oranges":
+        return rotting_oranges_oracle(values)
     if algorithm == "recursive_linear_search":
         return recursive_linear_search_oracle(values)
     if algorithm == "shortest_word_distance":
@@ -2362,7 +2382,11 @@ def oracle(algorithm: str, values: list[int]) -> int:
 
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "graph_enumeration":
+    if algorithm == "mono_alphabetic_cipher":
+        validate_mono_alphabetic_cipher_workload(workload)
+    elif algorithm == "mono_alphabetic":
+        validate_mono_alphabetic_workload(workload)
+    elif algorithm == "graph_enumeration":
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":
         validate_lca_workload(workload)
@@ -2378,6 +2402,8 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_logistic_regression_predict_workload(workload)
     elif algorithm == "time_simulation":
         validate_time_simulation_workload(workload)
+    elif algorithm == "rotting_oranges":
+        validate_rotting_oranges_workload(workload)
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
     special_records: list[str] = []
@@ -2386,7 +2412,7 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         expected = case["expected_result"]
         if case.get("input_is_null", False):
             input_length = case.get("input_length")
-            minimum_null_length = 0 if algorithm == "mul_array" else 1
+            minimum_null_length = 0 if algorithm in ("mul_array", "rotting_oranges") else 1
             if (values or type(input_length) is not int
                     or not minimum_null_length <= input_length <= 100002):
                 raise ValueError(f"null input case has an invalid declared length: {case.get('id')}")
@@ -2396,7 +2422,70 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             continue
         if oracle(algorithm, values) != expected:
             raise ValueError(f"published workload disagrees with {algorithm} oracle")
-    if algorithm == "knapsack_zero_one_tabulation":
+    if algorithm == "mono_alphabetic_cipher":
+        rng_mono_alphabetic_cipher = random.Random(20261018)
+        identity = list(range(65, 91))
+        for _ in range(64):
+            key = identity.copy()
+            alphabet = identity.copy()
+            rng_mono_alphabetic_cipher.shuffle(key)
+            rng_mono_alphabetic_cipher.shuffle(alphabet)
+            text_length = rng_mono_alphabetic_cipher.randint(
+                0, MONO_ALPHABETIC_CIPHER_MAX_TEXT_LENGTH)
+            text = [rng_mono_alphabetic_cipher.choice(
+                (*range(65, 91), *range(97, 123), 32, *range(48, 58)))
+                    for _ in range(text_length)]
+            for operation in (0, 1):
+                values = [operation, text_length, *key, *alphabet, *text]
+                cases[tuple(values)] = oracle(algorithm, values)
+
+        duplicate_key = identity.copy()
+        duplicate_key[-1] = duplicate_key[-2]
+        duplicate_alphabet = identity.copy()
+        duplicate_alphabet[-1] = duplicate_alphabet[-2]
+        malformed = (
+            (), (2, 0, *identity, *identity),
+            (0, 129, *identity, *identity, *([65] * 129)),
+            (0, 0, *duplicate_key, *identity),
+            (0, 0, *identity, *duplicate_alphabet),
+            (0, 1, *identity, *identity, 33),
+            (0, 1, *identity, *identity, 128),
+            (0, 1, *identity, *identity),
+            (0, 0, *identity, *identity, 65),
+            (0, 0, *identity, *identity, -(1 << 63)),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "mono_alphabetic":
+        rng_mono_alphabetic = random.Random(20261017)
+        identity_key = list(range(65, 91))
+        for _ in range(64):
+            key = identity_key.copy()
+            rng_mono_alphabetic.shuffle(key)
+            text_length = rng_mono_alphabetic.randint(1, MONO_ALPHABETIC_MAX_TEXT_LENGTH)
+            text = [rng_mono_alphabetic.randint(65, 90) for _ in range(text_length)]
+            for operation in (0, 1):
+                values = [operation, text_length, *key, *text]
+                cases[tuple(values)] = oracle(algorithm, values)
+
+        duplicate_key = identity_key.copy()
+        duplicate_key[-1] = duplicate_key[-2]
+        malformed = (
+            (), (2, 1, *identity_key, 65),
+            (0, 0, *identity_key),
+            (0, MONO_ALPHABETIC_MAX_TEXT_LENGTH + 1, *identity_key,
+             *([65] * (MONO_ALPHABETIC_MAX_TEXT_LENGTH + 1))),
+            (0, 1, *duplicate_key, 65),
+            (0, 1, *identity_key, 97),
+            (0, 1, *identity_key, 128),
+            (0, 1, *identity_key, 65, 66),
+            (0, 1, *identity_key[:-1]),
+        )
+        for values in malformed:
+            if len(values) <= MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "knapsack_zero_one_tabulation":
         choices = ((1, 0), (1, 1), (2, 3), (3, 4), (4, 5))
         sequences: list[tuple[tuple[int, int], ...]] = [()]
         for size in range(1, 5):
@@ -6807,6 +6896,28 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for values in malformed:
             if len(values) <= TIME_SIMULATION_MAX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "rotting_oranges":
+        rng_rotting_oranges = random.Random(20261017)
+        for _ in range(128):
+            rows = rng_rotting_oranges.randint(1, ROTTING_ORANGES_MAX_ROWS)
+            columns = rng_rotting_oranges.randint(1, ROTTING_ORANGES_MAX_COLUMNS)
+            cells = rng_rotting_oranges.choices(
+                (0, 1, 2), weights=(4, 5, 1), k=rows * columns)
+            values = (rows, columns, *cells)
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum_parseable_trailing = (
+            ROTTING_ORANGES_MAX_ROWS, ROTTING_ORANGES_MAX_COLUMNS,
+            *([0] * (ROTTING_ORANGES_MAX_INPUT_LENGTH - 2)),
+        )
+        malformed = (
+            (0, 1), (-1, 1), (ROTTING_ORANGES_MAX_ROWS + 1, 1),
+            (1, ROTTING_ORANGES_MAX_COLUMNS + 1), (1, 1), (1, 1, -1),
+            (1, 1, 3), (1, 1, 2, 0), maximum_parseable_trailing,
+        )
+        for values in malformed:
+            if len(values) <= ROTTING_ORANGES_MAX_INPUT_LENGTH:
                 cases[values] = oracle(algorithm, list(values))
     elif algorithm == "recursive_linear_search":
         for count in (1, 2, 8, MAX_RECURSIVE_LINEAR_SEARCH_COUNT):

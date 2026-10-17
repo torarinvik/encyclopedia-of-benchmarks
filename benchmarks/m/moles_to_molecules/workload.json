@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "moles-to-molecules-python-micro-mole-format-v1",
+  "algorithm": "moles_to_molecules",
+  "function_symbol": "moles_to_molecules",
+  "description": "Convert moles to a molecule count with the source's four-decimal scientific formatting.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[moles_micro], where moles_micro represents moles scaled by 1,000,000",
+    "valid_input_length": 1,
+    "maximum_input_values_for_malformed_cases": 2,
+    "scale": 1000000,
+    "moles_micro_range": [
+      0,
+      2000000
+    ],
+    "invalid_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "format((moles_micro / 1_000_000.0) * 6.022e23, '.4e') then parse the formatted text as binary64",
+    "invalid_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "conversions/molecular_chemistry.py",
+    "method": "moles_to_molecules(moles)"
+  },
+  "cases": [
+    {
+      "id": "two_mole_example",
+      "input_values": [
+        2000000
+      ],
+      "input_length": 1,
+      "expected_result": 1.2044e+24
+    },
+    {
+      "id": "half_mole_example",
+      "input_values": [
+        500000
+      ],
+      "input_length": 1,
+      "expected_result": 3.011e+23
+    },
+    {
+      "id": "zero_moles",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0.0
+    },
+    {
+      "id": "one_mole",
+      "input_values": [
+        1000000
+      ],
+      "input_length": 1,
+      "expected_result": 6.022e+23
+    },
+    {
+      "id": "quarter_mole",
+      "input_values": [
+        250000
+      ],
+      "input_length": 1,
+      "expected_result": 1.5055e+23
+    },
+    {
+      "id": "one_micro_mole",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": 6.022e+17
+    },
+    {
+      "id": "nontrivial_scaled_input",
+      "input_values": [
+        123456
+      ],
+      "input_length": 1,
+      "expected_result": 7.4345e+22
+    },
+    {
+      "id": "binary64_decimal_rounding_tie",
+      "input_values": [
+        175
+      ],
+      "input_length": 1,
+      "expected_result": 1.0538e+20
+    },
+    {
+      "id": "negative_moles",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "above_bound",
+      "input_values": [
+        2000001
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "missing_argument",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_argument",
+      "input_values": [
+        1,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    }
+  ]
+}

@@ -72,6 +72,16 @@ from pushdown_automaton_oracle import expected_result as pushdown_automaton_expe
 from sprague_grundy_theorem_oracle import MAX_INPUT_LENGTH as MAX_SPRAGUE_GRUNDY_INPUT_LENGTH
 from sprague_grundy_theorem_oracle import expected_result as sprague_grundy_theorem_expected
 from minimum_coin_change_combinations_oracle import expected_result as minimum_coin_change_combinations_expected
+from mono_alphabetic_oracle import INVALID_RESULT as MONO_ALPHABETIC_INVALID_RESULT
+from mono_alphabetic_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH
+from mono_alphabetic_oracle import MAX_TEXT_LENGTH as MONO_ALPHABETIC_MAX_TEXT_LENGTH
+from mono_alphabetic_oracle import MAX_VALID_INPUT_LENGTH as MONO_ALPHABETIC_MAX_VALID_INPUT_LENGTH
+from mono_alphabetic_oracle import expected_output as mono_alphabetic_expected
+from mono_alphabetic_cipher_oracle import INVALID_RESULT as MONO_ALPHABETIC_CIPHER_INVALID_RESULT
+from mono_alphabetic_cipher_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
+from mono_alphabetic_cipher_oracle import MAX_TEXT_LENGTH as MONO_ALPHABETIC_CIPHER_MAX_TEXT_LENGTH
+from mono_alphabetic_cipher_oracle import MAX_VALID_INPUT_LENGTH as MONO_ALPHABETIC_CIPHER_MAX_VALID_INPUT_LENGTH
+from mono_alphabetic_cipher_oracle import expected_output as mono_alphabetic_cipher_expected
 from problem016_power_digit_sum_oracle import expected_result as problem016_power_digit_sum_expected
 from is_strong_password_oracle import INVALID_RESULT as IS_STRONG_PASSWORD_INVALID_RESULT
 from is_strong_password_oracle import MAX_INPUT_LENGTH as MAX_IS_STRONG_PASSWORD_INPUT_LENGTH
@@ -128,6 +138,12 @@ from time_simulation_oracle import MAX_TIMESTAMP as TIME_SIMULATION_MAX_TIMESTAM
 from time_simulation_oracle import MAX_VALID_INPUT_VALUES as TIME_SIMULATION_MAX_VALID_INPUT_VALUES
 from time_simulation_oracle import MASK63 as TIME_SIMULATION_MASK63
 from time_simulation_oracle import expected_result as time_simulation_expected
+from rotting_oranges_oracle import INVALID_RESULT as ROTTING_ORANGES_INVALID_RESULT
+from rotting_oranges_oracle import MAX_INPUT_LENGTH as ROTTING_ORANGES_MAX_INPUT_LENGTH
+from rotting_oranges_oracle import MAX_ROWS as ROTTING_ORANGES_MAX_ROWS
+from rotting_oranges_oracle import MAX_COLUMNS as ROTTING_ORANGES_MAX_COLUMNS
+from rotting_oranges_oracle import MAX_VALID_INPUT_LENGTH as ROTTING_ORANGES_MAX_VALID_INPUT_LENGTH
+from rotting_oranges_oracle import expected_result as rotting_oranges_expected
 from edmonds_blossom_algorithm_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_BLOSSOM_INPUT_LENGTH
 from edmonds_blossom_algorithm_oracle import expected_result as edmonds_blossom_expected
 from edmonds_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_INPUT_LENGTH
@@ -2424,6 +2440,18 @@ TIME_SIMULATION_CASE_IDS = frozenset({
     "wrong_length_invalid", "trailing_word_invalid", "maximum_cumulative_fires",
 })
 
+ROTTING_ORANGES_CASE_IDS = frozenset({
+    "null_empty_grid", "null_positive_length_invalid", "empty_array", "zero_rows",
+    "zero_width_rows", "single_rotten", "single_fresh_without_source", "single_empty",
+    "one_by_two", "one_by_four_line", "empty_breaks_line", "two_by_two", "two_sources",
+    "two_by_three_corridor", "three_by_three_open", "three_by_three_center_empty",
+    "isolated_source", "all_rotten", "all_empty", "fresh_with_no_rotten", "non_square_grid",
+    "maximum_sixteen_by_sixteen", "invalid_missing_cell", "invalid_trailing_cell",
+    "invalid_zero_rows_nonzero_cols", "invalid_negative_rows", "invalid_excessive_rows",
+    "invalid_excessive_columns", "invalid_cell_negative", "invalid_cell_above_domain",
+    "invalid_maximum_parseable_trailing_cell", "obstacle_snake_slow_spread",
+})
+
 
 def validate_time_simulation_workload(workload: dict) -> None:
     source = {
@@ -2504,6 +2532,315 @@ def validate_time_simulation_workload(workload: dict) -> None:
             raise ValueError(f"time_simulation workload mismatch: {case.get('id')}")
 
 
+def validate_rotting_oranges_workload(workload: dict) -> None:
+    source_url = (
+        "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/"
+        "src/main/java/com/thealgorithms/datastructures/graphs/RottingOranges.java"
+    )
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/datastructures/graphs/RottingOranges.java",
+        "symbol": "run",
+        "url": source_url,
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[rows, cols, row-major cells]",
+        "rows_range": [1, ROTTING_ORANGES_MAX_ROWS],
+        "columns_range": [1, ROTTING_ORANGES_MAX_COLUMNS],
+        "cell_values": [0, 1, 2],
+        "maximum_valid_input_length": ROTTING_ORANGES_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": ROTTING_ORANGES_MAX_INPUT_LENGTH,
+        "empty_encodings": [
+            "null pointer with length 0",
+            "[0, 0] for zero rows",
+            "[rows, 0] for 1..16 zero-width rows",
+        ],
+        "exact_length": "2 + rows*cols for positive dimensions",
+        "invalid_input_result": ROTTING_ORANGES_INVALID_RESULT,
+        "null_input_result": 0,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_scalar",
+        "encoding": "minimum whole minutes until every fresh orange rots",
+        "no_fresh_result": 0,
+        "unreachable_result": -1,
+        "finite_result_range": [
+            0, ROTTING_ORANGES_MAX_ROWS * ROTTING_ORANGES_MAX_COLUMNS - 1,
+        ],
+        "finite_result_upper_bound_note": (
+            "Conservative bound from a shortest path visiting at most 256 cells; not claimed attainable."
+        ),
+        "invalid_input_result": ROTTING_ORANGES_INVALID_RESULT,
+        "input_mutated": False,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 6,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    case_ids = (
+        [case.get("id") for case in cases if isinstance(case, dict)]
+        if isinstance(cases, list) else []
+    )
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-rotting-oranges-i64-array-scalar-v1"
+            or workload.get("algorithm") != "rotting_oranges"
+            or workload.get("function_symbol") != "rotting_oranges"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or ROTTING_ORANGES_MAX_ROWS != 16
+            or ROTTING_ORANGES_MAX_COLUMNS != 16
+            or ROTTING_ORANGES_MAX_VALID_INPUT_LENGTH != 258
+            or ROTTING_ORANGES_MAX_INPUT_LENGTH != 259
+            or ROTTING_ORANGES_INVALID_RESULT != -(1 << 63)
+            or not isinstance(cases, list)
+            or len(case_ids) != len(cases)
+            or len(case_ids) != len(ROTTING_ORANGES_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != ROTTING_ORANGES_CASE_IDS):
+        raise ValueError("rotting_oranges workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "rotting_oranges" / "README.md").read_text(encoding="utf-8")
+    if (source_url not in readme or "null pointer with length 0" not in readme
+            or "255" not in readme or "not modified" not in readme):
+        raise ValueError("rotting_oranges README is missing its pinned source or reviewed edge behavior")
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63) for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= ROTTING_ORANGES_MAX_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"rotting_oranges input framing is invalid: {case.get('id')}")
+        expected = rotting_oranges_expected(values, input_length, input_is_null)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(f"rotting_oranges workload mismatch: {case.get('id')}")
+
+
+def validate_mono_alphabetic_workload(workload: dict) -> None:
+    """Validate the pinned Java monoalphabetic cipher contract and fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/ciphers/MonoAlphabetic.java",
+        "symbol": "encrypt and decrypt",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/MonoAlphabetic.java",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[operation, text_length, key_ascii[26], text_ascii[text_length]]",
+        "operation_range": [0, 1],
+        "operations": {
+            "0": "encrypt by indexing key with plaintext letter",
+            "1": "decrypt by inverse key lookup",
+        },
+        "key_length": 26,
+        "key_value_range": [65, 90],
+        "key_must_be_permutation": True,
+        "text_length_range": [1, MONO_ALPHABETIC_MAX_TEXT_LENGTH],
+        "text_value_range": [65, 90],
+        "exact_length": "28 + text_length",
+        "maximum_valid_input_length": MONO_ALPHABETIC_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": MONO_ALPHABETIC_INVALID_RESULT,
+        "null_input_result": MONO_ALPHABETIC_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar_fnv1a64_low63",
+        "encoding": "Low 63 bits of standard FNV-1a-64 over output length as an unsigned 64-bit little-endian word followed by transformed uppercase ASCII bytes.",
+        "length_prefix_bytes": 8,
+        "length_prefix_encoding": "unsigned 64-bit little-endian",
+        "fnv1a_offset_basis": 14695981039346656037,
+        "fnv1a_prime": 1099511628211,
+        "result_mask": (1 << 63) - 1,
+        "invalid_input_result": MONO_ALPHABETIC_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    required_case_ids = {
+        "identity_encrypt_alphabet", "identity_decrypt_alphabet",
+        "qwerty_encrypt", "qwerty_decrypt", "reverse_key_encrypt",
+        "reverse_key_decrypt", "shift_key_one_character", "maximum_text_length",
+        "invalid_operation", "empty_text_rejected", "truncated_text",
+        "trailing_text_byte", "duplicate_key_letter", "lowercase_key_letter",
+        "lowercase_text_letter", "non_ascii_text_value",
+        "maximum_parseable_trailing_word", "null_input_positive_length",
+    }
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    null_cases = ([case for case in cases if isinstance(case, dict)
+                   and case.get("input_is_null", False)] if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-mono-alphabetic-i64-array-scalar-v1"
+            or workload.get("algorithm") != "mono_alphabetic"
+            or workload.get("function_symbol") != "mono_alphabetic"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or MONO_ALPHABETIC_MAX_TEXT_LENGTH != 256
+            or MONO_ALPHABETIC_MAX_VALID_INPUT_LENGTH != 284
+            or MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH != 285
+            or MONO_ALPHABETIC_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids
+            or len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_positive_length"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 29
+            or null_cases[0].get("expected_result") != MONO_ALPHABETIC_INVALID_RESULT):
+        raise ValueError("mono_alphabetic workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "mono_alphabetic" / "README.md").read_text(encoding="utf-8")
+    if (source["url"] not in readme or "low 63 bits" not in readme
+            or "permutation" not in readme or "key_0, ..., key_25" not in readme):
+        raise ValueError("mono_alphabetic README is missing its pinned source or framing semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"mono_alphabetic input framing is invalid: {case.get('id')}")
+        expected = mono_alphabetic_expected(values, input_is_null, input_length)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(f"mono_alphabetic workload mismatch: {case.get('id')}")
+        encode_case(case, "mono_alphabetic")
+
+
+def validate_mono_alphabetic_cipher_workload(workload: dict) -> None:
+    """Validate the pinned PHP monoalphabetic cipher contract and fixtures."""
+    source = {
+        "repository": "TheAlgorithms/PHP",
+        "commit": "b8a54469cc36332ef2934101b58d71075ef1d78e",
+        "path": "Ciphers/MonoAlphabeticCipher.php",
+        "symbol": "monoAlphabeticCipher, maEncrypt, maDecrypt",
+        "url": "https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Ciphers/MonoAlphabeticCipher.php",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[operation, text_length, key_ascii[26], alphabet_ascii[26], text_ascii[text_length]]",
+        "operation_range": [0, 1],
+        "operations": {
+            "0": "encrypt: substitute from alphabet to key",
+            "1": "decrypt: swap key and alphabet",
+        },
+        "key_length": 26,
+        "alphabet_length": 26,
+        "key_and_alphabet_must_be_permutations": True,
+        "key_and_alphabet_value_range": [65, 90],
+        "text_length_range": [0, MONO_ALPHABETIC_CIPHER_MAX_TEXT_LENGTH],
+        "text_value_set": "ASCII A-Z, a-z, space, or decimal digits 0-9",
+        "case_behavior": "Preserve each input letter case; copy spaces unchanged.",
+        "digit_behavior": "Remove all ASCII decimal digits before substitution.",
+        "exact_length": "54 + text_length",
+        "maximum_valid_input_length": MONO_ALPHABETIC_CIPHER_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": MONO_ALPHABETIC_CIPHER_INVALID_RESULT,
+        "null_input_result": MONO_ALPHABETIC_CIPHER_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar_fnv1a64_low63",
+        "encoding": "Low 63 bits of standard FNV-1a-64 over output length as an unsigned 64-bit little-endian word followed by transformed ASCII bytes.",
+        "length_prefix_bytes": 8,
+        "length_prefix_encoding": "unsigned 64-bit little-endian",
+        "fnv1a_offset_basis": 14695981039346656037,
+        "fnv1a_prime": 1099511628211,
+        "result_mask": (1 << 63) - 1,
+        "invalid_input_result": MONO_ALPHABETIC_CIPHER_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    required_case_ids = {
+        "empty_text", "identity_mixed_case_and_space", "qwerty_encrypt_mixed_case",
+        "qwerty_decrypt_mixed_case", "reversed_alphabet_encrypt",
+        "reversed_alphabet_decrypt", "digits_removed_between_words",
+        "digits_only_empty_output", "space_only_output", "maximum_text_length",
+        "invalid_operation", "duplicate_key", "lowercase_alphabet",
+        "punctuation_rejected", "non_ascii_rejected", "declared_length_too_long",
+        "trailing_input_byte", "maximum_parseable_trailing_word",
+        "null_input_positive_length",
+    }
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    null_cases = ([case for case in cases if isinstance(case, dict)
+                   and case.get("input_is_null", False)] if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-php-mono-alphabetic-cipher-i64-array-scalar-v1"
+            or workload.get("algorithm") != "mono_alphabetic_cipher"
+            or workload.get("function_symbol") != "mono_alphabetic_cipher"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or MONO_ALPHABETIC_CIPHER_MAX_TEXT_LENGTH != 128
+            or MONO_ALPHABETIC_CIPHER_MAX_VALID_INPUT_LENGTH != 182
+            or MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH != 183
+            or MONO_ALPHABETIC_CIPHER_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids
+            or len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_positive_length"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 54
+            or null_cases[0].get("expected_result") != MONO_ALPHABETIC_CIPHER_INVALID_RESULT):
+        raise ValueError("mono_alphabetic_cipher workload metadata or case IDs do not match the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "mono_alphabetic_cipher" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or "low 63 bits" not in readme
+            or "Digits are removed" not in readme
+            or "Empty input is valid" not in readme):
+        raise ValueError("mono_alphabetic_cipher README is missing its pinned source or transformation semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or (input_is_null and values)
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"mono_alphabetic_cipher input framing is invalid: {case.get('id')}")
+        expected = mono_alphabetic_cipher_expected(values, input_is_null, input_length)
+        if type(case.get("expected_result")) is not int or case["expected_result"] != expected:
+            raise ValueError(f"mono_alphabetic_cipher workload mismatch: {case.get('id')}")
+        encode_case(case, "mono_alphabetic_cipher")
+
+
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH if algorithm == "kth_element_finder" else
@@ -2564,6 +2901,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else LOGISTIC_REGRESSION_PREDICT_MAX_INPUT_LENGTH
                         if algorithm == "logistic_regression_predict"
                         else TIME_SIMULATION_MAX_INPUT_LENGTH if algorithm == "time_simulation"
+                        else ROTTING_ORANGES_MAX_INPUT_LENGTH if algorithm == "rotting_oranges"
                         else MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH if algorithm == "linear_recurrence_matrix"
                         else MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH if algorithm == "recursive_linear_search"
                         else MAX_SHORTEST_WORD_DISTANCE_PARSEABLE_INPUT_LENGTH
@@ -2945,12 +3283,23 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else KCENTERS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kcenters"
                         else MINIMAX_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "minimax"
                         else SPARSE_MATRIX_MAX_INPUT_LENGTH if algorithm == "sparse_matrix"
+                        else MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH if algorithm == "mono_alphabetic"
+                        else MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "mono_alphabetic_cipher"
                         else 516 if algorithm == "euler" else 100001)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "largest_product_in_a_grid":
+    if algorithm == "mono_alphabetic_cipher":
+        expected_from_source = mono_alphabetic_cipher_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mono_alphabetic_cipher expected_result must match the bounded case-preserving substitution and FNV-1a contract")
+    elif algorithm == "mono_alphabetic":
+        expected_from_source = mono_alphabetic_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mono_alphabetic expected_result must match the bounded permutation substitution and FNV-1a contract")
+    elif algorithm == "largest_product_in_a_grid":
         expected_from_source = largest_product_in_a_grid_expected(values)
         if expected != expected_from_source:
             raise ValueError("largest_product_in_a_grid expected_result must match the bounded four-direction grid product")
@@ -3254,6 +3603,11 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = time_simulation_expected(values)
         if expected != expected_from_source:
             raise ValueError("time_simulation expected_result must match the virtual-clock trace hash")
+    elif algorithm == "rotting_oranges":
+        expected_from_source = rotting_oranges_expected(
+            values, case.get("input_length", len(values)), case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("rotting_oranges expected_result must match the bounded multi-source grid BFS")
     elif algorithm == "recursive_linear_search":
         expected_from_source = recursive_linear_search_expected(values)
         if expected != expected_from_source:
@@ -7827,7 +8181,11 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
         parser.error("workload does not match the built array scalar algorithm")
-    if algorithm == "scramble_strings":
+    if algorithm == "mono_alphabetic_cipher":
+        validate_mono_alphabetic_cipher_workload(workload)
+    elif algorithm == "mono_alphabetic":
+        validate_mono_alphabetic_workload(workload)
+    elif algorithm == "scramble_strings":
         validate_scramble_strings_workload(workload)
     elif algorithm == "richest_customer_wealth":
         validate_richest_customer_wealth_workload(workload)
@@ -7857,6 +8215,8 @@ def main() -> int:
         validate_logistic_regression_predict_workload(workload)
     elif algorithm == "time_simulation":
         validate_time_simulation_workload(workload)
+    elif algorithm == "rotting_oranges":
+        validate_rotting_oranges_workload(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
@@ -7882,7 +8242,7 @@ def main() -> int:
         if type(input_is_null) is not bool:
             raise ValueError(f"input_is_null must be boolean for {case['id']}")
         if input_is_null:
-            minimum_null_length = 0 if algorithm == "mul_array" else 1
+            minimum_null_length = 0 if algorithm in ("mul_array", "rotting_oranges") else 1
             if values or type(input_length) is not int or not minimum_null_length <= input_length <= 100002:
                 raise ValueError(f"null input length is outside the supported range for {case['id']}")
         elif input_length != len(values):

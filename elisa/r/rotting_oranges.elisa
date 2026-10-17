@@ -1,0 +1,101 @@
+const MAX_CELLS: usize = 256
+const MAX_INPUT_LENGTH: usize = 259
+const INVALID_RESULT: i64 = -9223372036854775808
+
+def rotting_oranges_impl(input: i64&, length: usize) -> i64:
+    if input.is_null():
+        if length == 0:
+            return 0
+        return INVALID_RESULT
+    if length == 0:
+        return 0
+    if length < 2 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    if input[0] == 0:
+        if input[1] == 0 and length == 2:
+            return 0
+        return INVALID_RESULT
+    if input[0] < 1 or input[0] > 16 or input[1] < 0 or input[1] > 16:
+        return INVALID_RESULT
+
+    rows: usize = input[0].usize()
+    columns: usize = input[1].usize()
+    cell_count: usize = rows * columns
+    if length != 2 + cell_count:
+        return INVALID_RESULT
+
+    cells: mutable u8[256] = zeroed
+    queue: mutable usize[256] = zeroed
+    distance: mutable usize[256] = zeroed
+    head: mutable usize = 0
+    tail: mutable usize = 0
+    fresh: mutable usize = 0
+    rotted: mutable usize = 0
+    index: mutable usize = 0
+    while index < cell_count:
+        value: i64 = input[2 + index]
+        if value < 0 or value > 2:
+            return INVALID_RESULT
+        cells[index] <- value.u8()
+        if value == 1:
+            fresh <- fresh + 1
+        elif value == 2:
+            queue[tail] <- index
+            tail <- tail + 1
+        index <- index + 1
+    if columns == 0 or fresh == 0:
+        return 0
+
+    minutes: mutable usize = 0
+    while head < tail:
+        current: usize = queue[head]
+        head <- head + 1
+        row: usize = current / columns
+        column: usize = current % columns
+        next_distance: usize = distance[current] + 1
+
+        if row > 0:
+            next: usize = current - columns
+            if cells[next] == 1:
+                cells[next] <- 2
+                distance[next] <- next_distance
+                if next_distance > minutes:
+                    minutes <- next_distance
+                rotted <- rotted + 1
+                queue[tail] <- next
+                tail <- tail + 1
+        if column + 1 < columns:
+            next: usize = current + 1
+            if cells[next] == 1:
+                cells[next] <- 2
+                distance[next] <- next_distance
+                if next_distance > minutes:
+                    minutes <- next_distance
+                rotted <- rotted + 1
+                queue[tail] <- next
+                tail <- tail + 1
+        if row + 1 < rows:
+            next: usize = current + columns
+            if cells[next] == 1:
+                cells[next] <- 2
+                distance[next] <- next_distance
+                if next_distance > minutes:
+                    minutes <- next_distance
+                rotted <- rotted + 1
+                queue[tail] <- next
+                tail <- tail + 1
+        if column > 0:
+            next: usize = current - 1
+            if cells[next] == 1:
+                cells[next] <- 2
+                distance[next] <- next_distance
+                if next_distance > minutes:
+                    minutes <- next_distance
+                rotted <- rotted + 1
+                queue[tail] <- next
+                tail <- tail + 1
+    if rotted == fresh:
+        return minutes.i64()
+    return -1
+
+export fn rotting_oranges(input: i64&, length: usize) -> i64 = rotting_oranges_impl

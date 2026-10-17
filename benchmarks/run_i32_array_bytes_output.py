@@ -138,6 +138,48 @@ from hungarian_algorithm_oracle import MIN_COST as HUNGARIAN_MIN_COST
 from hungarian_algorithm_oracle import MIN_DIMENSION as HUNGARIAN_MIN_DIMENSION
 from hungarian_algorithm_oracle import OUTPUT_ERROR as HUNGARIAN_OUTPUT_ERROR
 from hungarian_algorithm_oracle import expected_output as hungarian_expected_output
+from merge_sort_no_extra_space_oracle import INVALID_RESULT as MERGE_SORT_INVALID_RESULT
+from merge_sort_no_extra_space_oracle import MAX_LENGTH as MERGE_SORT_MAX_LENGTH
+from merge_sort_no_extra_space_oracle import MAX_OUTPUT_BYTES as MERGE_SORT_MAX_OUTPUT_BYTES
+from merge_sort_no_extra_space_oracle import MAX_PARSEABLE_LENGTH as MERGE_SORT_MAX_PARSEABLE_LENGTH
+from merge_sort_no_extra_space_oracle import MAX_VALUE as MERGE_SORT_MAX_VALUE
+from merge_sort_no_extra_space_oracle import MIN_VALUE as MERGE_SORT_MIN_VALUE
+from merge_sort_no_extra_space_oracle import OUTPUT_ERROR as MERGE_SORT_OUTPUT_ERROR
+from merge_sort_no_extra_space_oracle import expected_output as merge_sort_expected_output
+from reverse_singly_linked_list_oracle import INVALID_RESULT as REVERSE_SINGLY_LINKED_LIST_INVALID_RESULT
+from reverse_singly_linked_list_oracle import MAX_LENGTH as REVERSE_SINGLY_LINKED_LIST_MAX_LENGTH
+from reverse_singly_linked_list_oracle import MAX_OUTPUT_BYTES as REVERSE_SINGLY_LINKED_LIST_MAX_OUTPUT_BYTES
+from reverse_singly_linked_list_oracle import MAX_PARSEABLE_LENGTH as REVERSE_SINGLY_LINKED_LIST_MAX_PARSEABLE_LENGTH
+from reverse_singly_linked_list_oracle import OUTPUT_ERROR as REVERSE_SINGLY_LINKED_LIST_OUTPUT_ERROR
+from reverse_singly_linked_list_oracle import expected_output as reverse_singly_linked_list_expected_output
+from reverse_kgroup_oracle import INVALID_RESULT as REVERSE_KGROUP_INVALID_RESULT
+from reverse_kgroup_oracle import MAX_LIST_LENGTH as REVERSE_KGROUP_MAX_LIST_LENGTH
+from reverse_kgroup_oracle import MAX_OUTPUT_BYTES as REVERSE_KGROUP_MAX_OUTPUT_BYTES
+from reverse_kgroup_oracle import MAX_PARSEABLE_INPUT_LENGTH as REVERSE_KGROUP_MAX_PARSEABLE_INPUT_LENGTH
+from reverse_kgroup_oracle import MAX_VALID_INPUT_LENGTH as REVERSE_KGROUP_MAX_VALID_INPUT_LENGTH
+from reverse_kgroup_oracle import OUTPUT_ERROR as REVERSE_KGROUP_OUTPUT_ERROR
+from reverse_kgroup_oracle import expected_output as reverse_kgroup_expected_output
+from snail_oracle import INVALID_RESULT as SNAIL_INVALID_RESULT
+from snail_oracle import MAX_COLUMNS as SNAIL_MAX_COLUMNS
+from snail_oracle import MAX_OUTPUT_BYTES as SNAIL_MAX_OUTPUT_BYTES
+from snail_oracle import MAX_PARSEABLE_INPUT_LENGTH as SNAIL_MAX_PARSEABLE_INPUT_LENGTH
+from snail_oracle import MAX_ROWS as SNAIL_MAX_ROWS
+from snail_oracle import MAX_VALID_INPUT_LENGTH as SNAIL_MAX_VALID_INPUT_LENGTH
+from snail_oracle import OUTPUT_ERROR as SNAIL_OUTPUT_ERROR
+from snail_oracle import expected_output as snail_expected_output
+from sjfscheduling_oracle import I32_MAX as SJFSCHEDULING_I32_MAX
+from sjfscheduling_oracle import I32_MIN as SJFSCHEDULING_I32_MIN
+from sjfscheduling_oracle import INVALID_RESULT as SJFSCHEDULING_INVALID_RESULT
+from sjfscheduling_oracle import MAX_ARRIVAL_TIME as SJFSCHEDULING_MAX_ARRIVAL_TIME
+from sjfscheduling_oracle import MAX_BURST_TIME as SJFSCHEDULING_MAX_BURST_TIME
+from sjfscheduling_oracle import MAX_OUTPUT_BYTES as SJFSCHEDULING_MAX_OUTPUT_BYTES
+from sjfscheduling_oracle import MAX_PARSEABLE_INPUT_LENGTH as SJFSCHEDULING_MAX_PARSEABLE_INPUT_LENGTH
+from sjfscheduling_oracle import MAX_PROCESS_COUNT as SJFSCHEDULING_MAX_PROCESS_COUNT
+from sjfscheduling_oracle import MAX_VALID_INPUT_LENGTH as SJFSCHEDULING_MAX_VALID_INPUT_LENGTH
+from sjfscheduling_oracle import MIN_ARRIVAL_TIME as SJFSCHEDULING_MIN_ARRIVAL_TIME
+from sjfscheduling_oracle import MIN_BURST_TIME as SJFSCHEDULING_MIN_BURST_TIME
+from sjfscheduling_oracle import OUTPUT_ERROR as SJFSCHEDULING_OUTPUT_ERROR
+from sjfscheduling_oracle import expected_output as sjfscheduling_expected_output
 
 MAX_OUTPUT_CAPACITY = 400004
 ALGORITHMS = ("salsa", "steinhaus_johnson_trotter", "minimum_spanning_tree_kruskal2",
@@ -145,7 +187,8 @@ ALGORITHMS = ("salsa", "steinhaus_johnson_trotter", "minimum_spanning_tree_krusk
               "minimum_spanning_tree_prims",
               "mo",
               "preemptive_priority_scheduling", "multikey_quick_sort", "max_pooling",
-              "hungarian_algorithm")
+              "hungarian_algorithm", "merge_sort_no_extra_space", "reverse_singly_linked_list",
+              "snail", "reverse_kgroup", "sjfscheduling")
 
 
 def oracle_for(values: list[int], algorithm: str, output_capacity: int,
@@ -185,6 +228,21 @@ def oracle_for(values: list[int], algorithm: str, output_capacity: int,
     if algorithm == "hungarian_algorithm":
         return hungarian_expected_output(
             values, output_capacity, output_is_null, input_is_null, input_length)
+    if algorithm == "merge_sort_no_extra_space":
+        return merge_sort_expected_output(
+            values, output_capacity, output_is_null, input_is_null, input_length)
+    if algorithm == "reverse_singly_linked_list":
+        return reverse_singly_linked_list_expected_output(
+            values, output_capacity, output_is_null, input_is_null, input_length)
+    if algorithm == "snail":
+        return snail_expected_output(
+            values, output_capacity, output_is_null, input_is_null, input_length)
+    if algorithm == "reverse_kgroup":
+        return reverse_kgroup_expected_output(
+            values, output_capacity, output_is_null, input_is_null, input_length)
+    if algorithm == "sjfscheduling":
+        return sjfscheduling_expected_output(
+            values, output_capacity, output_is_null, input_is_null, input_length)
     raise ValueError(f"no i32 byte-output oracle for {algorithm}")
 
 
@@ -213,6 +271,16 @@ def max_parseable_input_length(algorithm: str) -> int:
         return MO_MAX_INPUT_LENGTH
     if algorithm == "hungarian_algorithm":
         return HUNGARIAN_MAX_INPUT_LENGTH
+    if algorithm == "merge_sort_no_extra_space":
+        return MERGE_SORT_MAX_PARSEABLE_LENGTH
+    if algorithm == "reverse_singly_linked_list":
+        return REVERSE_SINGLY_LINKED_LIST_MAX_PARSEABLE_LENGTH
+    if algorithm == "snail":
+        return SNAIL_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "reverse_kgroup":
+        return REVERSE_KGROUP_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "sjfscheduling":
+        return SJFSCHEDULING_MAX_PARSEABLE_INPUT_LENGTH
     raise ValueError(f"no i32 byte-output input bound for {algorithm}")
 
 
@@ -241,6 +309,16 @@ def max_output_bytes(algorithm: str) -> int:
         return MO_MAX_OUTPUT_BYTES
     if algorithm == "hungarian_algorithm":
         return HUNGARIAN_MAX_OUTPUT_BYTES
+    if algorithm == "merge_sort_no_extra_space":
+        return MERGE_SORT_MAX_OUTPUT_BYTES
+    if algorithm == "reverse_singly_linked_list":
+        return REVERSE_SINGLY_LINKED_LIST_MAX_OUTPUT_BYTES
+    if algorithm == "snail":
+        return SNAIL_MAX_OUTPUT_BYTES
+    if algorithm == "reverse_kgroup":
+        return REVERSE_KGROUP_MAX_OUTPUT_BYTES
+    if algorithm == "sjfscheduling":
+        return SJFSCHEDULING_MAX_OUTPUT_BYTES
     raise ValueError(f"no i32 byte-output size bound for {algorithm}")
 
 
@@ -1446,6 +1524,634 @@ def validate_hungarian_algorithm_workload(workload: dict) -> None:
             raise ValueError(f"hungarian_algorithm workload mismatch: {case.get('id')}")
 
 
+MERGE_SORT_CASE_IDS = frozenset({
+    "empty", "single_zero", "single_maximum", "already_sorted", "reverse_order",
+    "duplicates_and_zero", "all_zero", "maximum_values", "maximum_length_256",
+    "negative_value", "value_above_domain", "length_above_domain",
+    "null_input_even_when_empty", "null_output", "insufficient_output_capacity",
+    "invalid_input_precedes_null_output",
+})
+
+
+def validate_merge_sort_no_extra_space_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/sorts/MergeSortNoExtraSpace.java",
+        "symbol": "sort",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/sorts/MergeSortNoExtraSpace.java",
+    }
+    cases = workload.get("cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    null_input_cases = [case for case in cases if case.get("input_is_null", False)] if isinstance(cases, list) else []
+    null_output_cases = [case for case in cases if case.get("output_is_null", False)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-merge-sort-no-extra-space-i32-array-bytes-output-v1"
+            or workload.get("algorithm") != "merge_sort_no_extra_space"
+            or workload.get("function_symbol") != "merge_sort_no_extra_space"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != {
+                "kind": "signed_i32_array",
+                "length_range": [0, MERGE_SORT_MAX_LENGTH],
+                "maximum_parseable_length": MERGE_SORT_MAX_PARSEABLE_LENGTH,
+                "value_range": [MERGE_SORT_MIN_VALUE, MERGE_SORT_MAX_VALUE],
+                "null_input_result": MERGE_SORT_INVALID_RESULT,
+                "invalid_input_result": MERGE_SORT_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "sorted_signed_i32_array",
+                "encoding": "little-endian signed-i32 values",
+                "success_result": "4 * input_length",
+                "maximum_output_bytes": MERGE_SORT_MAX_OUTPUT_BYTES,
+                "invalid_input_result": MERGE_SORT_INVALID_RESULT,
+                "null_output_result": MERGE_SORT_OUTPUT_ERROR,
+                "insufficient_output_capacity_result": MERGE_SORT_OUTPUT_ERROR,
+                "no_write_on_error": True,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i32_array_bytes_output_call",
+                "sample_count": 5,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 100,
+            }
+            or MERGE_SORT_MAX_LENGTH != 256
+            or MERGE_SORT_MAX_PARSEABLE_LENGTH != 257
+            or MERGE_SORT_MAX_OUTPUT_BYTES != 1024
+            or MERGE_SORT_INVALID_RESULT != -1 or MERGE_SORT_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(MERGE_SORT_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MERGE_SORT_CASE_IDS):
+        raise ValueError("merge_sort_no_extra_space workload metadata or case IDs do not match its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "merge_sort_no_extra_space" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or "maxElement = max + 1" not in readme
+            or "no auxiliary element buffer" not in readme or "little-endian signed-32-bit" not in readme):
+        raise ValueError("merge_sort_no_extra_space README is missing its pinned source or algorithm bounds")
+
+    if (len(null_input_cases) != 1
+            or null_input_cases[0].get("id") != "null_input_even_when_empty"
+            or null_input_cases[0].get("input_values") != []
+            or null_input_cases[0].get("input_length") != 1
+            or null_input_cases[0].get("expected_result") != MERGE_SORT_INVALID_RESULT
+            or {case.get("id"): case.get("expected_result") for case in null_output_cases} != {
+                "null_output": MERGE_SORT_OUTPUT_ERROR,
+                "invalid_input_precedes_null_output": MERGE_SORT_INVALID_RESULT,
+            }):
+        raise ValueError("merge_sort_no_extra_space workload is missing null-pointer precedence cases")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        capacity = case.get("output_capacity")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        if (not isinstance(values, list)
+                or len(values) > MERGE_SORT_MAX_PARSEABLE_LENGTH
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= MERGE_SORT_MAX_PARSEABLE_LENGTH
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and output_is_null
+                or input_is_null and (values or input_length == 0)
+                or not input_is_null and input_length != len(values)
+                or type(capacity) is not int or not 0 <= capacity <= MERGE_SORT_MAX_OUTPUT_BYTES):
+            raise ValueError(f"merge_sort_no_extra_space workload framing is invalid: {case.get('id')}")
+        result, output = merge_sort_expected_output(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (type(case.get("expected_result")) is not int
+                or case["expected_result"] != result
+                or case.get("expected_output_hex", "").lower() != output.hex()):
+            raise ValueError(f"merge_sort_no_extra_space workload mismatch: {case.get('id')}")
+
+
+REVERSE_SINGLY_LINKED_LIST_CASE_IDS = frozenset({
+    "empty", "singleton", "reverse_order", "duplicate_payloads", "signed_boundaries",
+    "maximum_length_256", "length_above_domain", "null_input_even_when_empty",
+    "null_input_zero_length",
+    "null_output_even_when_empty", "insufficient_output_capacity",
+    "invalid_input_precedes_null_output",
+})
+
+
+def validate_reverse_singly_linked_list_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/JavaScript",
+        "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+        "path": "Data-Structures/Linked-List/ReverseSinglyLinkedList.js",
+        "symbol": "ReverseSinglyLinkedList.solution",
+        "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Data-Structures/Linked-List/ReverseSinglyLinkedList.js",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    null_input_cases = [case for case in cases if case.get("input_is_null", False)] if isinstance(cases, list) else []
+    null_output_cases = [case for case in cases if case.get("output_is_null", False)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-javascript-reverse-singly-linked-list-i32-array-bytes-output-v1"
+            or workload.get("algorithm") != "reverse_singly_linked_list"
+            or workload.get("function_symbol") != "reverse_singly_linked_list"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != {
+                "kind": "signed_i32_array",
+                "length_range": [0, REVERSE_SINGLY_LINKED_LIST_MAX_LENGTH],
+                "maximum_parseable_length": REVERSE_SINGLY_LINKED_LIST_MAX_PARSEABLE_LENGTH,
+                "null_input_result": REVERSE_SINGLY_LINKED_LIST_INVALID_RESULT,
+                "invalid_input_result": REVERSE_SINGLY_LINKED_LIST_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "reversed_signed_i32_array",
+                "encoding": "little-endian signed-i32 values",
+                "success_result": "4 * input_length",
+                "maximum_output_bytes": REVERSE_SINGLY_LINKED_LIST_MAX_OUTPUT_BYTES,
+                "invalid_input_result": REVERSE_SINGLY_LINKED_LIST_INVALID_RESULT,
+                "null_output_result": REVERSE_SINGLY_LINKED_LIST_OUTPUT_ERROR,
+                "insufficient_output_capacity_result": REVERSE_SINGLY_LINKED_LIST_OUTPUT_ERROR,
+                "no_write_on_error": True,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i32_array_bytes_output_call",
+                "sample_count": 5,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 100,
+            }
+            or REVERSE_SINGLY_LINKED_LIST_MAX_LENGTH != 256
+            or REVERSE_SINGLY_LINKED_LIST_MAX_PARSEABLE_LENGTH != 257
+            or REVERSE_SINGLY_LINKED_LIST_MAX_OUTPUT_BYTES != 1024
+            or REVERSE_SINGLY_LINKED_LIST_INVALID_RESULT != -1
+            or REVERSE_SINGLY_LINKED_LIST_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(REVERSE_SINGLY_LINKED_LIST_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != REVERSE_SINGLY_LINKED_LIST_CASE_IDS):
+        raise ValueError("reverse_singly_linked_list workload metadata or case IDs differ from its contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "reverse_singly_linked_list" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in normalized_readme
+            or "null input pointer is invalid even when the length is zero" not in normalized_readme
+            or "little-endian signed-32-bit" not in normalized_readme):
+        raise ValueError("reverse_singly_linked_list README is missing its source or ABI semantics")
+
+    if ({case.get("id"): (case.get("input_length"), case.get("expected_result"))
+            for case in null_input_cases} != {
+                "null_input_even_when_empty": (1, REVERSE_SINGLY_LINKED_LIST_INVALID_RESULT),
+                "null_input_zero_length": (0, REVERSE_SINGLY_LINKED_LIST_INVALID_RESULT),
+            }
+            or {case.get("id"): case.get("expected_result") for case in null_output_cases} != {
+                "null_output_even_when_empty": REVERSE_SINGLY_LINKED_LIST_OUTPUT_ERROR,
+                "invalid_input_precedes_null_output": REVERSE_SINGLY_LINKED_LIST_INVALID_RESULT,
+            }):
+        raise ValueError("reverse_singly_linked_list workload is missing pointer-precedence cases")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        capacity = case.get("output_capacity")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        if (not isinstance(values, list)
+                or len(values) > REVERSE_SINGLY_LINKED_LIST_MAX_PARSEABLE_LENGTH
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= REVERSE_SINGLY_LINKED_LIST_MAX_PARSEABLE_LENGTH
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and output_is_null
+                or input_is_null and values
+                or not input_is_null and input_length != len(values)
+                or type(capacity) is not int
+                or not 0 <= capacity <= REVERSE_SINGLY_LINKED_LIST_MAX_OUTPUT_BYTES):
+            raise ValueError(f"reverse_singly_linked_list framing is invalid for {case.get('id')}")
+        result, output = reverse_singly_linked_list_expected_output(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (type(case.get("expected_result")) is not int
+                or case["expected_result"] != result
+                or case.get("expected_output_hex", "").lower() != output.hex()):
+            raise ValueError(f"reverse_singly_linked_list workload mismatch: {case.get('id')}")
+
+
+SNAIL_CASE_IDS = frozenset({
+    "empty_matrix", "positive_rows_with_zero_columns", "single_cell",
+    "single_row_left_to_right", "three_by_three_clockwise", "two_by_four_wide_rectangle",
+    "four_by_two_tall_rectangle", "three_by_two_negative_values", "signed_i32_boundaries",
+    "zero_rows_with_positive_columns", "negative_rows", "column_above_bound",
+    "source_unsafe_multirow_single_column", "truncated_matrix", "trailing_matrix_word",
+    "null_input_zero_length", "null_input_positive_length", "null_output_nonempty",
+    "short_output_nonempty", "null_output_empty", "empty_zero_capacity",
+    "invalid_input_precedes_null_output", "maximum_16_by_16_input_and_output",
+})
+
+
+def validate_snail_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Rust",
+        "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+        "path": "src/dynamic_programming/snail.rs",
+        "symbol": "snail",
+        "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/snail.rs",
+    }
+    input_spec = {
+        "kind": "signed_i32_array",
+        "encoding": "[rows, columns, row-major cells]",
+        "rows_range": [0, SNAIL_MAX_ROWS],
+        "columns_range": [0, SNAIL_MAX_COLUMNS],
+        "cell_range": "full signed i32",
+        "shape_rule": (
+            "Exactly 2 + rows*columns words; rows=0 requires columns=0; columns=1 is supported only "
+            "when rows=1; positive rows with zero columns represent empty rows."
+        ),
+        "maximum_valid_input_words": SNAIL_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_words": SNAIL_MAX_PARSEABLE_INPUT_LENGTH,
+        "exact_packed_shape": "Exactly 2 + rows*columns signed-i32 words.",
+        "invalid_input_result": SNAIL_INVALID_RESULT,
+        "null_input_result": SNAIL_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "little_endian_signed_i32_array",
+        "encoding": "Clockwise inward matrix traversal starting at the top-left cell; no shape prefix.",
+        "valid_output_bytes_range": [0, SNAIL_MAX_OUTPUT_BYTES],
+        "maximum_output_bytes": SNAIL_MAX_OUTPUT_BYTES,
+        "success_result": "output byte length",
+        "invalid_input_result": SNAIL_INVALID_RESULT,
+        "null_output_result": SNAIL_OUTPUT_ERROR,
+        "insufficient_output_capacity_result": SNAIL_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Invalid or null input is rejected before output pointer or capacity checks.",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-rust-snail-i32-array-bytes-output-v1"
+            or workload.get("algorithm") != "snail"
+            or workload.get("function_symbol") != "snail"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": SNAIL_MAX_OUTPUT_BYTES,
+                "meaning": "Up to 256 signed-i32 traversal values.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i32_array_bytes_output_call",
+                "sample_count": 5,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 100,
+            }
+            or SNAIL_MAX_ROWS != 16 or SNAIL_MAX_COLUMNS != 16
+            or SNAIL_MAX_VALID_INPUT_LENGTH != 258 or SNAIL_MAX_PARSEABLE_INPUT_LENGTH != 259
+            or SNAIL_MAX_OUTPUT_BYTES != 1024
+            or SNAIL_INVALID_RESULT != -1 or SNAIL_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(SNAIL_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SNAIL_CASE_IDS):
+        raise ValueError("snail workload metadata or case IDs differ from its contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "snail" / "README.md").read_text(encoding="utf-8")
+    if (source["url"] not in readme
+            or "clockwise inward" not in readme
+            or "one column only for a 1-by-1 matrix" not in readme
+            or "little-endian signed-i32" not in readme):
+        raise ValueError("snail README is missing its pinned source or ABI semantics")
+
+    null_input_cases = {case.get("id"): case.get("expected_result") for case in cases
+                        if case.get("input_is_null", False)}
+    null_output_cases = {case.get("id"): case.get("expected_result") for case in cases
+                         if case.get("output_is_null", False)}
+    if (null_input_cases != {
+            "null_input_zero_length": SNAIL_INVALID_RESULT,
+            "null_input_positive_length": SNAIL_INVALID_RESULT,
+        }
+            or null_output_cases != {
+                "null_output_nonempty": SNAIL_OUTPUT_ERROR,
+                "null_output_empty": SNAIL_OUTPUT_ERROR,
+                "invalid_input_precedes_null_output": SNAIL_INVALID_RESULT,
+            }):
+        raise ValueError("snail workload is missing pointer and error-precedence cases")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        capacity = case.get("output_capacity")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        if (not isinstance(values, list)
+                or len(values) > SNAIL_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= SNAIL_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and output_is_null
+                or input_is_null and values
+                or not input_is_null and input_length != len(values)
+                or type(capacity) is not int
+                or not 0 <= capacity <= SNAIL_MAX_OUTPUT_BYTES):
+            raise ValueError(f"snail workload framing is invalid: {case.get('id')}")
+        result, output = snail_expected_output(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (type(case.get("expected_result")) is not int
+                or case["expected_result"] != result
+                or case.get("expected_output_hex", "").lower() != output.hex()):
+            raise ValueError(f"snail workload mismatch: {case.get('id')}")
+
+
+REVERSE_KGROUP_CASE_IDS = frozenset({
+    "empty_list_k1", "single_node", "group_size_one", "one_complete_group",
+    "multiple_complete_groups", "short_final_group_unchanged", "group_larger_than_list",
+    "signed_boundaries", "maximum_length_exact_capacity", "maximum_length_one_byte_short",
+    "zero_group_invalid", "negative_group_invalid", "group_above_bound",
+    "length_above_domain", "null_input_positive_length", "null_input_even_when_empty",
+    "null_output_even_when_empty", "invalid_input_precedes_null_output",
+})
+
+
+def validate_reverse_kgroup_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/datastructures/lists/ReverseKGroup.java",
+        "symbol": "ReverseKGroup.reverseKGroup",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/lists/ReverseKGroup.java",
+    }
+    input_spec = {
+        "kind": "signed_i32_array",
+        "encoding": "[group_size, list_values...]",
+        "group_size_range": [1, REVERSE_KGROUP_MAX_LIST_LENGTH],
+        "list_length_range": [0, REVERSE_KGROUP_MAX_LIST_LENGTH],
+        "maximum_valid_input_length": REVERSE_KGROUP_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": REVERSE_KGROUP_MAX_PARSEABLE_INPUT_LENGTH,
+        "value_range": [I32_MIN, I32_MAX],
+        "invalid_input_result": REVERSE_KGROUP_INVALID_RESULT,
+        "null_input_result": REVERSE_KGROUP_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "complete_group_reversed_signed_i32_array",
+        "encoding": "little-endian signed-i32 list payloads; final short group unchanged",
+        "maximum_output_bytes": REVERSE_KGROUP_MAX_OUTPUT_BYTES,
+        "success_result": "4 * list_length",
+        "invalid_input_result": REVERSE_KGROUP_INVALID_RESULT,
+        "null_output_result": REVERSE_KGROUP_OUTPUT_ERROR,
+        "insufficient_output_capacity_result": REVERSE_KGROUP_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    measurement = {
+        "comparison_model": "i32_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+           if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-reverse-kgroup-i32-array-bytes-output-v1"
+            or workload.get("algorithm") != "reverse_kgroup"
+            or workload.get("function_symbol") != "reverse_kgroup"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != measurement
+            or REVERSE_KGROUP_MAX_LIST_LENGTH != 256
+            or REVERSE_KGROUP_MAX_VALID_INPUT_LENGTH != 257
+            or REVERSE_KGROUP_MAX_PARSEABLE_INPUT_LENGTH != 258
+            or REVERSE_KGROUP_MAX_OUTPUT_BYTES != 1024
+            or REVERSE_KGROUP_INVALID_RESULT != -1 or REVERSE_KGROUP_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(ids) != len(REVERSE_KGROUP_CASE_IDS)
+            or len(ids) != len(set(ids)) or set(ids) != REVERSE_KGROUP_CASE_IDS):
+        raise ValueError("reverse_kgroup workload metadata or case IDs differ from its contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "reverse_kgroup" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "leaves a final group shorter than `k` unchanged" not in readme
+            or "little-endian signed-32-bit" not in readme):
+        raise ValueError("reverse_kgroup README is missing its pinned source or ABI semantics")
+
+    null_input_cases = {case.get("id"): case.get("expected_result") for case in cases
+                        if case.get("input_is_null", False)}
+    null_output_cases = {case.get("id"): case.get("expected_result") for case in cases
+                         if case.get("output_is_null", False)}
+    if (null_input_cases != {
+            "null_input_positive_length": REVERSE_KGROUP_INVALID_RESULT,
+            "null_input_even_when_empty": REVERSE_KGROUP_INVALID_RESULT,
+        }
+            or null_output_cases != {
+                "null_output_even_when_empty": REVERSE_KGROUP_OUTPUT_ERROR,
+                "invalid_input_precedes_null_output": REVERSE_KGROUP_INVALID_RESULT,
+            }):
+        raise ValueError("reverse_kgroup workload is missing null-pointer precedence cases")
+
+    maximum = next(case for case in cases if case.get("id") == "maximum_length_exact_capacity")
+    if (maximum.get("input_length") != REVERSE_KGROUP_MAX_VALID_INPUT_LENGTH
+            or maximum.get("output_capacity") != REVERSE_KGROUP_MAX_OUTPUT_BYTES
+            or maximum.get("expected_result") != REVERSE_KGROUP_MAX_OUTPUT_BYTES
+            or len(bytes.fromhex(maximum.get("expected_output_hex", "")))
+                != REVERSE_KGROUP_MAX_OUTPUT_BYTES):
+        raise ValueError("reverse_kgroup workload is missing maximum input/output coverage")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        capacity = case.get("workspace_bytes", case.get("output_capacity", REVERSE_KGROUP_MAX_OUTPUT_BYTES))
+        expected_hex = case.get("expected_output_hex", "")
+        if (not isinstance(values, list)
+                or len(values) > REVERSE_KGROUP_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= REVERSE_KGROUP_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and (values or output_is_null)
+                or not input_is_null and input_length != len(values)
+                or type(capacity) is not int or not 0 <= capacity <= REVERSE_KGROUP_MAX_OUTPUT_BYTES
+                or type(expected_hex) is not str):
+            raise ValueError(f"reverse_kgroup workload framing is invalid: {case.get('id')}")
+        result, output = reverse_kgroup_expected_output(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (type(case.get("expected_result")) is not int
+                or case["expected_result"] != result
+                or expected_hex.lower() != output.hex()
+                or result >= 0 and result != len(output)
+                or result < 0 and (result not in (REVERSE_KGROUP_INVALID_RESULT,
+                                                  REVERSE_KGROUP_OUTPUT_ERROR) or output)):
+            raise ValueError(f"reverse_kgroup workload mismatch: {case.get('id')}")
+
+
+SJFSCHEDULING_CASE_IDS = frozenset({
+    "empty_trace", "single_process", "shortest_burst_first", "idle_until_first_arrival",
+    "later_short_job_does_not_preempt", "new_short_job_waits_until_current_completion",
+    "input_order_breaks_same_arrival_burst_tie", "arrival_order_breaks_ready_burst_tie",
+    "arrival_and_burst_upper_bounds", "no_processes_nonnull_zero_capacity",
+    "negative_process_count", "process_count_above_bound", "non_null_empty_input_is_malformed",
+    "truncated_process_record", "trailing_input_cell", "maximum_parseable_malformed_length",
+    "negative_arrival_time", "arrival_time_above_bound", "zero_burst_time",
+    "burst_time_above_bound", "null_input_pointer_zero_length",
+    "null_output_pointer_empty_schedule", "null_output_pointer_nonempty_schedule",
+    "invalid_input_precedes_null_output", "invalid_input_precedes_short_capacity",
+    "short_output_capacity", "exact_output_capacity", "maximum_process_count_and_output",
+    "maximum_output_one_byte_short",
+})
+
+
+def validate_sjfscheduling_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/scheduling/SJFScheduling.java",
+        "symbol": "SJFScheduling.scheduleProcesses and getSchedule",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/scheduling/SJFScheduling.java",
+    }
+    dependency = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/devutils/entities/ProcessDetails.java",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/devutils/entities/ProcessDetails.java",
+    }
+    contract = {
+        "operation": "one nonpreemptive shortest-job-first scheduling call on a fresh scheduler",
+        "initial_time": 0,
+        "process_ids": "The adapter assigns each process its input index as its unique decimal String processId.",
+        "arrival_order": "Stable ascending arrival time; equal arrival times preserve input order.",
+        "ready_selection": "Choose the first ready process with the minimum burst time.",
+        "idle_time": "Advance current time by one while the ready list is empty.",
+        "scheduling": "Run each selected process to completion before the next dispatch.",
+        "output": "Input indices in completion order.",
+    }
+    input_spec = {
+        "kind": "signed_i32_array",
+        "encoding": "[process_count, (arrival_time, burst_time)*]",
+        "process_count_range": [0, SJFSCHEDULING_MAX_PROCESS_COUNT],
+        "arrival_time_range": [SJFSCHEDULING_MIN_ARRIVAL_TIME,
+                               SJFSCHEDULING_MAX_ARRIVAL_TIME],
+        "burst_time_range": [SJFSCHEDULING_MIN_BURST_TIME,
+                             SJFSCHEDULING_MAX_BURST_TIME],
+        "maximum_valid_input_length": SJFSCHEDULING_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": SJFSCHEDULING_MAX_PARSEABLE_INPUT_LENGTH,
+        "exact_packed_shape": "Exactly 1 + 2 * process_count signed-i32 words.",
+        "invalid_input_result": SJFSCHEDULING_INVALID_RESULT,
+        "null_input_result": SJFSCHEDULING_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "little_endian_signed_i32_array",
+        "encoding": "Original input indices in nonpreemptive SJF completion order.",
+        "valid_output_bytes_range": [0, SJFSCHEDULING_MAX_OUTPUT_BYTES],
+        "maximum_output_bytes": SJFSCHEDULING_MAX_OUTPUT_BYTES,
+        "success_result": "output byte length",
+        "invalid_input_result": SJFSCHEDULING_INVALID_RESULT,
+        "null_output_result": SJFSCHEDULING_OUTPUT_ERROR,
+        "insufficient_output_capacity_result": SJFSCHEDULING_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Invalid or null input is rejected before output pointer or capacity checks.",
+    }
+    measurement = {
+        "comparison_model": "i32_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+           if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-sjfscheduling-i32-array-bytes-output-v1"
+            or workload.get("algorithm") != "sjfscheduling"
+            or workload.get("function_symbol") != "sjfscheduling"
+            or workload.get("description") != "Bounded nonpreemptive SJF process scheduling with arrival times."
+            or workload.get("pinned_source") != source
+            or workload.get("pinned_dependency") != dependency
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": SJFSCHEDULING_MAX_OUTPUT_BYTES,
+                "meaning": "At most 64 signed-i32 process indices.",
+            }
+            or workload.get("measurement") != measurement
+            or SJFSCHEDULING_MAX_PROCESS_COUNT != 64
+            or SJFSCHEDULING_MAX_VALID_INPUT_LENGTH != 129
+            or SJFSCHEDULING_MAX_PARSEABLE_INPUT_LENGTH != 130
+            or SJFSCHEDULING_MAX_OUTPUT_BYTES != 256
+            or SJFSCHEDULING_I32_MIN != -(1 << 31)
+            or SJFSCHEDULING_I32_MAX != (1 << 31) - 1
+            or SJFSCHEDULING_INVALID_RESULT != -1 or SJFSCHEDULING_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(ids) != len(SJFSCHEDULING_CASE_IDS)
+            or len(ids) != len(set(ids)) or set(ids) != SJFSCHEDULING_CASE_IDS):
+        raise ValueError("sjfscheduling workload metadata or case IDs differ from its contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "sjfscheduling" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or dependency["url"] not in readme
+            or "a null input pointer return `-1`" not in normalized_readme
+            or "stably sorted by arrival time" not in normalized_readme
+            or "little-endian signed-i32" not in normalized_readme):
+        raise ValueError("sjfscheduling README is missing pinned sources or ABI semantics")
+
+    null_input_cases = {case.get("id"): case.get("expected_result") for case in cases
+                        if case.get("input_is_null", False)}
+    null_output_cases = {case.get("id"): case.get("expected_result") for case in cases
+                         if case.get("output_is_null", False)}
+    if (null_input_cases != {
+            "null_input_pointer_zero_length": SJFSCHEDULING_INVALID_RESULT,
+        }
+            or null_output_cases != {
+                "null_output_pointer_empty_schedule": SJFSCHEDULING_OUTPUT_ERROR,
+                "null_output_pointer_nonempty_schedule": SJFSCHEDULING_OUTPUT_ERROR,
+                "invalid_input_precedes_null_output": SJFSCHEDULING_INVALID_RESULT,
+            }
+            or next(case for case in cases if case["id"] == "invalid_input_precedes_short_capacity").get(
+                "expected_result") != SJFSCHEDULING_INVALID_RESULT):
+        raise ValueError("sjfscheduling workload is missing pointer or capacity precedence cases")
+
+    maximum = {case["id"]: case for case in cases}
+    if (maximum["maximum_process_count_and_output"].get("input_length")
+            != SJFSCHEDULING_MAX_VALID_INPUT_LENGTH
+            or maximum["maximum_process_count_and_output"].get("expected_result")
+            != SJFSCHEDULING_MAX_OUTPUT_BYTES
+            or maximum["maximum_output_one_byte_short"].get("expected_result")
+            != SJFSCHEDULING_OUTPUT_ERROR):
+        raise ValueError("sjfscheduling workload is missing its maximum input/output cases")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        capacity = case.get("output_capacity", case.get(
+            "workspace_bytes", SJFSCHEDULING_MAX_OUTPUT_BYTES))
+        expected_hex = case.get("expected_output_hex", "")
+        if (not isinstance(values, list)
+                or len(values) > SJFSCHEDULING_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX
+                       for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= SJFSCHEDULING_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or (input_is_null and (values or output_is_null))
+                or (not input_is_null and input_length != len(values))
+                or type(capacity) is not int
+                or not 0 <= capacity <= SJFSCHEDULING_MAX_OUTPUT_BYTES
+                or type(expected_hex) is not str):
+            raise ValueError(f"sjfscheduling workload framing is invalid: {case.get('id')}")
+        result, output = sjfscheduling_expected_output(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (type(case.get("expected_result")) is not int
+                or case["expected_result"] != result
+                or expected_hex.lower() != output.hex()
+                or (result >= 0 and result != len(output))
+                or (result < 0 and (result not in (
+                    SJFSCHEDULING_INVALID_RESULT, SJFSCHEDULING_OUTPUT_ERROR) or output))):
+            raise ValueError(f"sjfscheduling workload mismatch: {case.get('id')}")
+
+
 def fnv1a(data: bytes) -> int:
     result = 14695981039346656037
     for value in data:
@@ -1509,6 +2215,16 @@ def main() -> int:
         validate_mo_workload(workload)
     elif algorithm == "hungarian_algorithm":
         validate_hungarian_algorithm_workload(workload)
+    elif algorithm == "merge_sort_no_extra_space":
+        validate_merge_sort_no_extra_space_workload(workload)
+    elif algorithm == "reverse_singly_linked_list":
+        validate_reverse_singly_linked_list_workload(workload)
+    elif algorithm == "snail":
+        validate_snail_workload(workload)
+    elif algorithm == "reverse_kgroup":
+        validate_reverse_kgroup_workload(workload)
+    elif algorithm == "sjfscheduling":
+        validate_sjfscheduling_workload(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
@@ -1539,9 +2255,12 @@ def main() -> int:
                 or len(values) > parseable_input_length):
             raise ValueError(f"invalid signed-i32 input array in {case['id']}")
         if input_is_null:
+            minimum_null_length = 0 if algorithm in {
+                "reverse_singly_linked_list", "snail", "reverse_kgroup",
+                "sjfscheduling"} else 1
             if (values or type(input_length) is not int
-                    or not 1 <= input_length <= parseable_input_length):
-                raise ValueError(f"null input must have an empty payload and positive declared length in {case['id']}")
+                    or not minimum_null_length <= input_length <= parseable_input_length):
+                raise ValueError(f"null input has invalid payload or declared length in {case['id']}")
         elif (type(input_length) is not int
                 or not 0 <= input_length <= parseable_input_length):
             raise ValueError(f"declared input length is out of range in {case['id']}")

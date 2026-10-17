@@ -1,0 +1,32 @@
+def mutate_impl(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 130:
+        return -1
+    mu: f64 = input[0]
+    count_value: f64 = input[1]
+    if mu != mu or mu < 0.0 or mu > 1.0:
+        return -1
+    if count_value != count_value or count_value < 0.0 or count_value > 64.0 or count_value != count_value.i64().f64():
+        return -1
+    count: usize = count_value.usize()
+    if length != 2 + 2 * count:
+        return -1
+    for index in 0..<count:
+        gene: f64 = input[2 + index]
+        if gene != 0.0 and gene != 1.0:
+            return -1
+    for index in 0..<count:
+        draw: f64 = input[2 + count + index]
+        if draw != draw or draw < 0.0 or draw >= 1.0:
+            return -1
+    if output.is_null() or output_capacity < count:
+        return -2
+    for index in 0..<count:
+        gene: f64 = input[2 + index]
+        draw: f64 = input[2 + count + index]
+        if draw < mu:
+            output[index] <- 1.0 - gene
+        else:
+            output[index] <- gene
+    count.i64()
+
+export fn mutate(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64 = mutate_impl

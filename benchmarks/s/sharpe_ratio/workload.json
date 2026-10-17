@@ -1,0 +1,539 @@
+{
+  "schema_version": 1,
+  "id": "python-sharpe-ratio-micro-periodic-returns-v1",
+  "algorithm": "sharpe_ratio",
+  "function_symbol": "sharpe_ratio",
+  "description": "Non-annualized Sharpe ratio using sample standard deviation and a per-period risk-free rate.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[count, return_0_micro, ..., return_(count-1)_micro, risk_free_micro]",
+    "scale": 1000000,
+    "count_range": [
+      2,
+      64
+    ],
+    "return_micro_range": [
+      -200000,
+      200000
+    ],
+    "risk_free_micro_range": [
+      -100000,
+      100000
+    ],
+    "exact_input_length": "count + 2",
+    "maximum_valid_input_length": 66,
+    "maximum_parseable_input_length": 67,
+    "constant_returns": "Outside the benchmark domain; return the invalid sentinel to keep the float64 output finite.",
+    "invalid_result": -1e+300,
+    "null_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "(mean(returns) - risk_free_rate) / sample_standard_deviation(returns), with variance divided by count - 1",
+    "invalid_result": -1e+300,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "financial/sharpe_ratio.py",
+    "method": "sharpe_ratio(returns, risk_free_rate=0.0)"
+  },
+  "cases": [
+    {
+      "id": "pinned_example_zero_risk_free",
+      "input_values": [
+        5,
+        100000,
+        200000,
+        150000,
+        50000,
+        120000,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 2.2164070167498036
+    },
+    {
+      "id": "pinned_example_risk_free",
+      "input_values": [
+        5,
+        100000,
+        200000,
+        150000,
+        50000,
+        120000,
+        20000
+      ],
+      "input_length": 7,
+      "expected_result": 1.8589220140482225
+    },
+    {
+      "id": "pinned_negative_returns",
+      "input_values": [
+        5,
+        -50000,
+        -100000,
+        -80000,
+        -120000,
+        -150000,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -2.6261286571944513
+    },
+    {
+      "id": "two_sample_positive_excess",
+      "input_values": [
+        2,
+        10000,
+        30000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 1.4142135623730951
+    },
+    {
+      "id": "two_sample_negative_excess",
+      "input_values": [
+        2,
+        10000,
+        30000,
+        30000
+      ],
+      "input_length": 4,
+      "expected_result": -0.7071067811865475
+    },
+    {
+      "id": "two_sample_zero_excess",
+      "input_values": [
+        2,
+        10000,
+        30000,
+        20000
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "smallest_nonconstant_difference",
+      "input_values": [
+        2,
+        0,
+        1,
+        -1
+      ],
+      "input_length": 4,
+      "expected_result": 2.121320343559643
+    },
+    {
+      "id": "two_sample_boundary_returns",
+      "input_values": [
+        2,
+        -200000,
+        200000,
+        -100000
+      ],
+      "input_length": 4,
+      "expected_result": 0.35355339059327373
+    },
+    {
+      "id": "mixed_boundary_returns",
+      "input_values": [
+        3,
+        -200000,
+        0,
+        200000,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "risk_free_upper_boundary",
+      "input_values": [
+        3,
+        50000,
+        0,
+        -50000,
+        100000
+      ],
+      "input_length": 5,
+      "expected_result": -2.0
+    },
+    {
+      "id": "risk_free_lower_boundary",
+      "input_values": [
+        3,
+        50000,
+        0,
+        -50000,
+        -100000
+      ],
+      "input_length": 5,
+      "expected_result": 2.0
+    },
+    {
+      "id": "maximum_sample_count",
+      "input_values": [
+        64,
+        -200000,
+        -180000,
+        -160000,
+        -140000,
+        -120000,
+        -100000,
+        -80000,
+        -60000,
+        -40000,
+        -20000,
+        0,
+        20000,
+        40000,
+        60000,
+        80000,
+        100000,
+        120000,
+        140000,
+        160000,
+        180000,
+        200000,
+        -200000,
+        -180000,
+        -160000,
+        -140000,
+        -120000,
+        -100000,
+        -80000,
+        -60000,
+        -40000,
+        -20000,
+        0,
+        20000,
+        40000,
+        60000,
+        80000,
+        100000,
+        120000,
+        140000,
+        160000,
+        180000,
+        200000,
+        -200000,
+        -180000,
+        -160000,
+        -140000,
+        -120000,
+        -100000,
+        -80000,
+        -60000,
+        -40000,
+        -20000,
+        0,
+        20000,
+        40000,
+        60000,
+        80000,
+        100000,
+        120000,
+        140000,
+        160000,
+        180000,
+        200000,
+        -200000,
+        5000
+      ],
+      "input_length": 66,
+      "expected_result": -0.06570462763491663
+    },
+    {
+      "id": "constant_returns_outside_finite_domain",
+      "input_values": [
+        3,
+        50000,
+        50000,
+        50000,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "zero_count",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "one_sample",
+      "input_values": [
+        1,
+        50000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "count_above_bound",
+      "input_values": [
+        65,
+        -30000,
+        -20000,
+        -10000,
+        0,
+        10000,
+        20000,
+        30000,
+        -30000,
+        -20000,
+        -10000,
+        0,
+        10000,
+        20000,
+        30000,
+        -30000,
+        -20000,
+        -10000,
+        0,
+        10000,
+        20000,
+        30000,
+        -30000,
+        -20000,
+        -10000,
+        0,
+        10000,
+        20000,
+        30000,
+        -30000,
+        -20000,
+        -10000,
+        0,
+        10000,
+        20000,
+        30000,
+        -30000,
+        -20000,
+        -10000,
+        0,
+        10000,
+        20000,
+        30000,
+        -30000,
+        -20000,
+        -10000,
+        0,
+        10000,
+        20000,
+        30000,
+        -30000,
+        -20000,
+        -10000,
+        0,
+        10000,
+        20000,
+        30000,
+        -30000,
+        -20000,
+        -10000,
+        0,
+        10000,
+        20000,
+        30000,
+        -30000,
+        -20000,
+        0
+      ],
+      "input_length": 67,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "missing_risk_free_rate",
+      "input_values": [
+        2,
+        10000,
+        20000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "extra_trailing_value",
+      "input_values": [
+        2,
+        10000,
+        20000,
+        0,
+        7
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "return_below_bound",
+      "input_values": [
+        2,
+        -200001,
+        20000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "return_above_bound",
+      "input_values": [
+        2,
+        10000,
+        200001,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "risk_free_below_bound",
+      "input_values": [
+        2,
+        10000,
+        20000,
+        -100001
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "risk_free_above_bound",
+      "input_values": [
+        2,
+        10000,
+        20000,
+        100001
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "i64_min_outside_rate_domain",
+      "input_values": [
+        2,
+        -9223372036854775808,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "i64_max_outside_rate_domain",
+      "input_values": [
+        2,
+        0,
+        1,
+        9223372036854775807
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "maximum_parseable_extra_value",
+      "input_values": [
+        64,
+        -200000,
+        -180000,
+        -160000,
+        -140000,
+        -120000,
+        -100000,
+        -80000,
+        -60000,
+        -40000,
+        -20000,
+        0,
+        20000,
+        40000,
+        60000,
+        80000,
+        100000,
+        120000,
+        140000,
+        160000,
+        180000,
+        200000,
+        -200000,
+        -180000,
+        -160000,
+        -140000,
+        -120000,
+        -100000,
+        -80000,
+        -60000,
+        -40000,
+        -20000,
+        0,
+        20000,
+        40000,
+        60000,
+        80000,
+        100000,
+        120000,
+        140000,
+        160000,
+        180000,
+        200000,
+        -200000,
+        -180000,
+        -160000,
+        -140000,
+        -120000,
+        -100000,
+        -80000,
+        -60000,
+        -40000,
+        -20000,
+        0,
+        20000,
+        40000,
+        60000,
+        80000,
+        100000,
+        120000,
+        140000,
+        160000,
+        180000,
+        200000,
+        -200000,
+        0,
+        1
+      ],
+      "input_length": 67,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "missing_count",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "null_input_zero_length",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1e+300
+    }
+  ]
+}

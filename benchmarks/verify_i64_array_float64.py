@@ -21,7 +21,11 @@ from light_aberration_oracle import expected_result as light_aberration_oracle
 from run_i64_array_float64 import (
     encode_case, resolve_tolerances, result_matches,
     validate_temperature_conversions_workload, validate_simpson_integration_workload,
-    validate_secant_workload,
+    validate_secant_workload, validate_mean_bias_deviation_percent_workload,
+    validate_mass_to_moles_workload,
+    validate_moles_to_molecules_workload,
+    validate_schur_complement_workload,
+    validate_sharpe_ratio_workload,
 )
 from variance_oracle import INVALID_RESULT as VARIANCE_INVALID_RESULT
 from variance_oracle import MAX_INPUT_LENGTH as MAX_VARIANCE_INPUT_LENGTH
@@ -546,6 +550,12 @@ ALGORITHMS += ("simpson_integration",)
 ALGORITHMS += ("rectangular_method",)
 ALGORITHMS += ("transformations_2d",)
 ALGORITHMS += ("speeds_of_gas_molecules",)
+ALGORITHMS += ("logistic_regression_csharp_binary_gd",)
+ALGORITHMS += ("mean_bias_deviation_percent",)
+ALGORITHMS += ("mass_to_moles",)
+ALGORITHMS += ("moles_to_molecules",)
+ALGORITHMS += ("schur_complement",)
+ALGORITHMS += ("sharpe_ratio",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -553,6 +563,124 @@ MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_PROBABILITY = 1_000_000
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH = (
     2 + MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH
     + MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH * MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES)
+MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT = -1.0e300
+MAX_MEAN_BIAS_DEVIATION_PERCENT_INPUT_LENGTH = 131
+MASS_TO_MOLES_INVALID_RESULT = -1.0e300
+MAX_MASS_TO_MOLES_INPUT_LENGTH = 3
+MOLES_TO_MOLECULES_INVALID_RESULT = -1.0e300
+MAX_MOLES_TO_MOLECULES_INPUT_LENGTH = 2
+SCHUR_COMPLEMENT_INVALID_RESULT = -1.0e300
+MAX_SCHUR_COMPLEMENT_INPUT_LENGTH = 7
+SHARPE_RATIO_INVALID_RESULT = -1.0e300
+SHARPE_RATIO_MAX_SAMPLE_COUNT = 64
+SHARPE_RATIO_MAX_INPUT_LENGTH = SHARPE_RATIO_MAX_SAMPLE_COUNT + 3
+SHARPE_RATIO_SCALE = 1_000_000
+SHARPE_RATIO_MIN_RETURN_MICRO = -200_000
+SHARPE_RATIO_MAX_RETURN_MICRO = 200_000
+SHARPE_RATIO_MIN_RISK_FREE_MICRO = -100_000
+SHARPE_RATIO_MAX_RISK_FREE_MICRO = 100_000
+
+
+def mean_bias_deviation_percent_verifier_oracle(values: list[int]) -> float:
+    """Independently compute the bounded source-order mean bias deviation percentage."""
+    if (not isinstance(values, list)
+            or not 1 <= len(values) <= MAX_MEAN_BIAS_DEVIATION_PERCENT_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)):
+        return MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
+    count = values[0]
+    if not 1 <= count <= 64 or len(values) != 1 + 2 * count:
+        return MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
+    predictions = values[1:1 + count]
+    actual = values[1 + count:]
+    if any(not -1000 <= value <= 1000 for value in predictions + actual):
+        return MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
+    actual_sum = sum(actual)
+    if actual_sum == 0:
+        return MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
+    difference_sum = sum(prediction - observed
+                         for prediction, observed in zip(predictions, actual))
+    numerator = difference_sum / count
+    denominator = actual_sum / count
+    return float(numerator) / denominator * 100.0
+
+
+def mass_to_moles_verifier_oracle(values: list[int]) -> float:
+    """Independently preserve Python's rounding of the computed binary64 quotient."""
+    if (not isinstance(values, list) or len(values) != 2
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)):
+        return MASS_TO_MOLES_INVALID_RESULT
+    mass, molar_mass = values
+    if not 0 <= mass <= 1000 or not 1 <= molar_mass <= 1000:
+        return MASS_TO_MOLES_INVALID_RESULT
+    return round(float(mass / molar_mass), 2)
+
+
+def moles_to_molecules_verifier_oracle(values: list[int]) -> float:
+    """Mirror the source's binary64 product followed by `.4e` format and parse."""
+    if (not isinstance(values, list)
+            or not 1 <= len(values) <= MAX_MOLES_TO_MOLECULES_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)):
+        return MOLES_TO_MOLECULES_INVALID_RESULT
+    if len(values) != 1 or not 0 <= values[0] <= 2_000_000:
+        return MOLES_TO_MOLECULES_INVALID_RESULT
+    moles = values[0] / 1_000_000.0
+    formatted = f"{moles * 6.022e23:.4e}"
+    return float(formatted)
+
+
+def schur_complement_verifier_oracle(values: list[int]) -> float:
+    """Independently evaluate the bounded scalar 2x2 Schur complement."""
+    if (not isinstance(values, list)
+            or not 1 <= len(values) <= MAX_SCHUR_COMPLEMENT_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)
+            or len(values) != 6):
+        return SCHUR_COMPLEMENT_INVALID_RESULT
+    a00, a01, a11, b0, b1, c00 = values
+    if (any(not -8 <= value <= 8 for value in (a00, a01, a11))
+            or any(not -100 <= value <= 100 for value in (b0, b1, c00))):
+        return SCHUR_COMPLEMENT_INVALID_RESULT
+    determinant = a00 * a11 - a01 * a01
+    if determinant == 0:
+        return SCHUR_COMPLEMENT_INVALID_RESULT
+    inverse = ((a11 / determinant, -a01 / determinant),
+               (-a01 / determinant, a00 / determinant))
+    projected = (float(b0) * inverse[0][0] + float(b1) * inverse[1][0],
+                 float(b0) * inverse[0][1] + float(b1) * inverse[1][1])
+    quadratic_form = projected[0] * float(b0) + projected[1] * float(b1)
+    return float(c00) - quadratic_form
+
+
+def sharpe_ratio_verifier_oracle(values: list[int]) -> float:
+    """Independently evaluate the bounded non-annualized Sharpe ratio."""
+    if (not isinstance(values, list)
+            or not 2 <= len(values) <= SHARPE_RATIO_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                   for value in values)):
+        return SHARPE_RATIO_INVALID_RESULT
+    count = values[0]
+    if not 2 <= count <= SHARPE_RATIO_MAX_SAMPLE_COUNT or len(values) != count + 2:
+        return SHARPE_RATIO_INVALID_RESULT
+    returns_micro = values[1:-1]
+    risk_free_micro = values[-1]
+    if (any(not SHARPE_RATIO_MIN_RETURN_MICRO <= value <= SHARPE_RATIO_MAX_RETURN_MICRO
+            for value in returns_micro)
+            or not SHARPE_RATIO_MIN_RISK_FREE_MICRO
+            <= risk_free_micro <= SHARPE_RATIO_MAX_RISK_FREE_MICRO
+            or all(value == returns_micro[0] for value in returns_micro[1:])):
+        return SHARPE_RATIO_INVALID_RESULT
+    returns = [value / SHARPE_RATIO_SCALE for value in returns_micro]
+    risk_free_rate = risk_free_micro / SHARPE_RATIO_SCALE
+    mean_return = sum(returns) / len(returns)
+    excess_return = mean_return - risk_free_rate
+    variance = sum((value - mean_return) ** 2 for value in returns) / (len(returns) - 1)
+    standard_deviation = variance ** 0.5
+    if standard_deviation == 0.0:
+        return SHARPE_RATIO_INVALID_RESULT
+    return excess_return / standard_deviation
 MAX_MIDPOINT_INTEGRAL_INTERVALS = 64
 MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI = 10_000
 MAX_TERNARY_ENDPOINT_MILLI = 100_000
@@ -560,7 +688,69 @@ MAX_TERNARY_PRECISION_MILLI = 8
 MAX_UNSCENTED_KALMAN_FILTER_INPUT_LENGTH = 9 + UNSCENTED_KALMAN_FILTER_MAX_STEPS
 
 
+def logistic_regression_csharp_binary_gd_oracle(values: list[int]) -> float:
+    """Independent ordered full-batch training oracle for the C# prediction contract."""
+    invalid = -1e300
+    if (not isinstance(values, list) or not 4 <= len(values) <= 300
+            or any(type(value) is not int or not -(2**63) <= value < 2**63
+                   for value in values)):
+        return invalid
+    sample_count, feature_count, epochs, rate_q = values[:4]
+    if (not 1 <= sample_count <= 32 or not 1 <= feature_count <= 8
+            or not 0 <= epochs <= 128 or not 1 <= rate_q <= 100_000
+            or len(values) != 4 + sample_count * feature_count + sample_count + feature_count):
+        return invalid
+    feature_end = 4 + sample_count * feature_count
+    label_end = feature_end + sample_count
+    raw_features, labels, raw_query = (
+        values[4:feature_end], values[feature_end:label_end], values[label_end:])
+    if (any(not -1_000_000 <= value <= 1_000_000
+            for value in (*raw_features, *raw_query))
+            or any(label not in (0, 1) for label in labels)):
+        return invalid
+
+    scale = 1_000_000.0
+    rate = rate_q / scale
+    weights = [0.0] * feature_count
+    bias = 0.0
+    for _ in range(epochs):
+        weight_gradient = [0.0] * feature_count
+        bias_gradient = 0.0
+        for row_index, label in enumerate(labels):
+            row_start = row_index * feature_count
+            score = 0.0
+            for column in range(feature_count):
+                score += raw_features[row_start + column] / scale * weights[column]
+            score += bias
+            error = 1.0 / (1.0 + math.exp(-score)) - label
+            bias_gradient += error
+            for column in range(feature_count):
+                weight_gradient[column] += (
+                    error * raw_features[row_start + column] / scale)
+        weights = [weight - rate * gradient / sample_count
+                   for weight, gradient in zip(weights, weight_gradient)]
+        bias -= rate * bias_gradient / sample_count
+
+    query_score = 0.0
+    for feature, weight in zip(raw_query, weights):
+        query_score += feature / scale * weight
+    query_score += bias
+    return 1.0 / (1.0 + math.exp(-query_score))
+
+
 def oracle(algorithm: str, values: list[int]) -> float:
+    if algorithm == "mean_bias_deviation_percent":
+        return mean_bias_deviation_percent_verifier_oracle(values)
+    if algorithm == "mass_to_moles":
+        return mass_to_moles_verifier_oracle(values)
+    if algorithm == "moles_to_molecules":
+        return moles_to_molecules_verifier_oracle(values)
+    if algorithm == "schur_complement":
+        return schur_complement_verifier_oracle(values)
+    if algorithm == "sharpe_ratio":
+        return sharpe_ratio_verifier_oracle(values)
+    if algorithm == "logistic_regression_csharp_binary_gd":
+        return logistic_regression_csharp_binary_gd_oracle(values)
     if algorithm == "sparsity":
         return sparsity_oracle(values)
     if algorithm == "simplex":
@@ -763,6 +953,16 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_simpson_integration_workload(workload)
     elif algorithm == "secant":
         validate_secant_workload(workload)
+    elif algorithm == "mean_bias_deviation_percent":
+        validate_mean_bias_deviation_percent_workload(workload)
+    elif algorithm == "mass_to_moles":
+        validate_mass_to_moles_workload(workload)
+    elif algorithm == "moles_to_molecules":
+        validate_moles_to_molecules_workload(workload)
+    elif algorithm == "schur_complement":
+        validate_schur_complement_workload(workload)
+    elif algorithm == "sharpe_ratio":
+        validate_sharpe_ratio_workload(workload)
     absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     if (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0
             or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
@@ -780,7 +980,118 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             continue
         cases[tuple(values)] = source_result
 
-    if algorithm == "sparsity":
+    if algorithm == "mean_bias_deviation_percent":
+        def add_mean_bias_deviation_case(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_MEAN_BIAS_DEVIATION_PERCENT_INPUT_LENGTH:
+                raise ValueError("mean_bias_deviation_percent generated input exceeds its parseable bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        rng_mean_bias = random.Random(20261017)
+        for _ in range(128):
+            count = rng_mean_bias.randint(1, 64)
+            predictions = [rng_mean_bias.randint(-1000, 1000) for _ in range(count)]
+            actual = [rng_mean_bias.randint(-1000, 1000) for _ in range(count)]
+            if sum(actual) == 0:
+                actual[-1] = 1
+                if sum(actual) == 0:
+                    actual = [0] * count
+                    actual[-1] = 1
+            add_mean_bias_deviation_case((count, *predictions, *actual))
+
+        malformed = (
+            (), (0,), (1,), (1, 0), (1, 0, 0, 99),
+            (2, 1, 2, 1, -1), (2, 0, 0, 1, -1),
+            (1, 0, 1001), (1, 0, -1001),
+            (1, I64_MAX, 1), (1, I64_MIN, -1000),
+            (65, *([0] * 65), *([1] * 65)),
+        )
+        for values in malformed:
+            add_mean_bias_deviation_case(tuple(values))
+    elif algorithm == "mass_to_moles":
+        def add_mass_to_moles_case(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_MASS_TO_MOLES_INPUT_LENGTH:
+                raise ValueError("mass_to_moles generated input exceeds its parseable bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        rng_mass_to_moles = random.Random(20261017)
+        for _ in range(128):
+            add_mass_to_moles_case((rng_mass_to_moles.randint(0, 1000),
+                                    rng_mass_to_moles.randint(1, 1000)))
+        for values in (
+                (), (0,), (1,), (0, 0), (-1, 1), (1001, 1), (1, -1),
+                (1, 1001), (1, 1, 99), (I64_MIN, 1), (1, I64_MAX)):
+            add_mass_to_moles_case(values)
+    elif algorithm == "moles_to_molecules":
+        def add_moles_to_molecules_case(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_MOLES_TO_MOLECULES_INPUT_LENGTH:
+                raise ValueError("moles_to_molecules generated input exceeds its parseable bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        rng_moles_to_molecules = random.Random(20261017)
+        for _ in range(128):
+            add_moles_to_molecules_case((rng_moles_to_molecules.randint(0, 2_000_000),))
+        for values in (
+                (), (0, 0), (-1,), (2_000_001,), (I64_MIN,), (I64_MAX,),
+                (1, 99)):
+            add_moles_to_molecules_case(values)
+    elif algorithm == "schur_complement":
+        def add_schur_complement_case(values: tuple[int, ...]) -> None:
+            if len(values) > MAX_SCHUR_COMPLEMENT_INPUT_LENGTH:
+                raise ValueError("schur_complement generated input exceeds its parseable bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        rng_schur_complement = random.Random(20261017)
+        for _ in range(128):
+            while True:
+                a00 = rng_schur_complement.randint(-8, 8)
+                a01 = rng_schur_complement.randint(-8, 8)
+                a11 = rng_schur_complement.randint(-8, 8)
+                if a00 * a11 - a01 * a01 != 0:
+                    break
+            b0 = rng_schur_complement.randint(-100, 100)
+            b1 = rng_schur_complement.randint(-100, 100)
+            c00 = rng_schur_complement.randint(-100, 100)
+            add_schur_complement_case((a00, a01, a11, b0, b1, c00))
+
+        malformed = (
+            (), (0,), (1, 0, 1, 0, 0), (1, 0, 1, 0, 0, 0, 7),
+            (1, 1, 1, 0, 0, 0), (9, 0, 1, 0, 0, 0),
+            (1, 0, 1, 101, 0, 0), (1, 0, 1, 0, 0, -101),
+            (I64_MIN, 0, 1, 0, 0, 0), (1, 0, 1, I64_MAX, 0, 0),
+        )
+        for values in malformed:
+            add_schur_complement_case(values)
+    elif algorithm == "sharpe_ratio":
+        def add_sharpe_ratio_case(values: tuple[int, ...]) -> None:
+            if len(values) > SHARPE_RATIO_MAX_INPUT_LENGTH:
+                raise ValueError("sharpe_ratio generated input exceeds its parseable bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        rng_sharpe_ratio = random.Random(20261017)
+        for _ in range(128):
+            count = rng_sharpe_ratio.randint(2, SHARPE_RATIO_MAX_SAMPLE_COUNT)
+            returns = [rng_sharpe_ratio.randint(
+                SHARPE_RATIO_MIN_RETURN_MICRO, SHARPE_RATIO_MAX_RETURN_MICRO)
+                for _ in range(count)]
+            if all(value == returns[0] for value in returns[1:]):
+                returns[-1] = (returns[-1] - 1 if returns[-1] == SHARPE_RATIO_MAX_RETURN_MICRO
+                               else returns[-1] + 1)
+            risk_free = rng_sharpe_ratio.randint(
+                SHARPE_RATIO_MIN_RISK_FREE_MICRO, SHARPE_RATIO_MAX_RISK_FREE_MICRO)
+            add_sharpe_ratio_case((count, *returns, risk_free))
+
+        malformed = (
+            (), (0, 0), (1, 0, 0), (2, 10_000, 20_000),
+            (2, 10_000, 20_000, 0, 7), (65, *([0] * 66)),
+            (2, -200_001, 20_000, 0), (2, 10_000, 200_001, 0),
+            (2, 10_000, 20_000, -100_001), (2, 10_000, 20_000, 100_001),
+            (3, 50_000, 50_000, 50_000, 0),
+            (2, I64_MIN, 0, 0), (2, 0, 1, I64_MAX),
+            (64, *([0] * 65), 1),
+        )
+        for values in malformed:
+            add_sharpe_ratio_case(values)
+    elif algorithm == "sparsity":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
         measurement = workload.get("measurement", {})
@@ -5041,6 +5352,11 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "kullback_leibler_divergence": MAX_KULLBACK_LEIBLER_DIVERGENCE_INPUT_LENGTH,
                     "kl_divergence_loss": 2,
                     "mean_absolute_error": MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH,
+                    "mean_bias_deviation_percent": 1,
+                    "mass_to_moles": 2,
+                    "moles_to_molecules": 1,
+                    "schur_complement": 6,
+                    "sharpe_ratio": 0,
                     "smooth_l1_loss": MAX_SMOOTH_L1_LOSS_INPUT_LENGTH,
                     "binary_cross_entropy": MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH,
                     "binary_focal_cross_entropy": MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH,
@@ -5059,7 +5375,13 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     null_lengths["laplace_transformation"] = 3
     null_lengths["relativity"] = 3
     null_length = null_lengths[algorithm]
-    null_result = (SPARSITY_INVALID_RESULT if algorithm == "sparsity" else
+    null_result = (MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
+                   if algorithm == "mean_bias_deviation_percent" else
+                   MASS_TO_MOLES_INVALID_RESULT if algorithm == "mass_to_moles" else
+                   MOLES_TO_MOLECULES_INVALID_RESULT if algorithm == "moles_to_molecules" else
+                   SCHUR_COMPLEMENT_INVALID_RESULT if algorithm == "schur_complement" else
+                   SHARPE_RATIO_INVALID_RESULT if algorithm == "sharpe_ratio" else
+                   SPARSITY_INVALID_RESULT if algorithm == "sparsity" else
                    COLLABORATIVE_PREDICTION_INVALID_RESULT if algorithm == "collaborative_filtering" else
                    COLLABORATIVE_PEARSON_INVALID_RESULT if algorithm == "collaborative_filtering_pearson_similarity" else
                    QUADRATIC_EQUATION_SOLVER_INVALID_RESULT

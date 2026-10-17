@@ -1,0 +1,93 @@
+const MAX_STRINGS: usize = 256
+const MAX_LENGTH: usize = 32
+const MAX_INPUT: usize = 1 + MAX_STRINGS * (1 + MAX_LENGTH) + 1
+const FNV_OFFSET: u64 = 14_695_981_039_346_656_037.u64()
+const FNV_PRIME: u64 = 1_099_511_628_211.u64()
+const MASK_63: u64 = 0x7fff_ffff_ffff_ffff.u64()
+
+struct EncodedString:
+    bytes: u8[32]
+    length: usize
+
+def bucket(value: EncodedString&, digit: usize) -> usize:
+    if digit >= value.length:
+        return 0
+    value.bytes[digit].usize() + 1
+
+def msd_sort(values: mutable EncodedString[256]&, auxiliary: mutable EncodedString[256]&, low: usize, high: usize, digit: usize) -> void:
+    if high - low < 2 or digit >= MAX_LENGTH:
+        return
+    counts: mutable usize[257] = zeroed
+    index: mutable usize = low
+    while index < high:
+        counts[bucket(values[index], digit)] <- counts[bucket(values[index], digit)] + 1
+        index <- index + 1
+    starts: mutable usize[257] = zeroed
+    next: mutable usize[257] = zeroed
+    position: mutable usize = low
+    bucket_index: mutable usize = 0
+    while bucket_index < 257:
+        starts[bucket_index] <- position
+        next[bucket_index] <- position
+        position <- position + counts[bucket_index]
+        bucket_index <- bucket_index + 1
+    index <- low
+    while index < high:
+        bucket_value: usize = bucket(values[index], digit)
+        auxiliary[next[bucket_value]] <- values[index]
+        next[bucket_value] <- next[bucket_value] + 1
+        index <- index + 1
+    index <- low
+    while index < high:
+        values[index] <- auxiliary[index]
+        index <- index + 1
+    bucket_index <- 1
+    while bucket_index < 257:
+        first: usize = starts[bucket_index]
+        last: usize = first + counts[bucket_index]
+        if last - first > 1:
+            msd_sort(values, auxiliary, first, last, digit + 1)
+        bucket_index <- bucket_index + 1
+
+def msd_radix_string_sorter_impl(input: i64&, length: usize) -> i64:
+    if input == null or length == 0 or length > MAX_INPUT or input[0] < 0 or input[0] > 256:
+        return -1
+    count: usize = input[0].usize()
+    values: mutable EncodedString[256] = zeroed
+    auxiliary: mutable EncodedString[256] = zeroed
+    position: mutable usize = 1
+    string_index: mutable usize = 0
+    while string_index < count:
+        if position >= length or input[position] < 0 or input[position] > 32:
+            return -1
+        string_length: usize = input[position].usize()
+        position <- position + 1
+        if string_length > length - position:
+            return -1
+        values[string_index].length <- string_length
+        digit: mutable usize = 0
+        while digit < string_length:
+            if input[position] < 0 or input[position] > 255:
+                return -1
+            values[string_index].bytes[digit] <- input[position].u8()
+            position <- position + 1
+            digit <- digit + 1
+        string_index <- string_index + 1
+    if position != length:
+        return -1
+    if count > 1:
+        msd_sort(values, auxiliary, 0, count, 0)
+    hash: mutable u64 = FNV_OFFSET
+    hash <- (hash ^ (count.u64() & 255.u64())) * FNV_PRIME
+    hash <- (hash ^ ((count.u64() >> 8) & 255.u64())) * FNV_PRIME
+    string_index <- 0
+    while string_index < count:
+        hash <- (hash ^ values[string_index].length.u64()) * FNV_PRIME
+        digit <- 0
+        while digit < values[string_index].length:
+            hash <- (hash ^ values[string_index].bytes[digit].u64()) * FNV_PRIME
+            digit <- digit + 1
+        string_index <- string_index + 1
+    (hash & MASK_63).i64()
+
+export fn msd_radix_string_sorter(input: i64&, length: usize) -> i64 = msd_radix_string_sorter_impl

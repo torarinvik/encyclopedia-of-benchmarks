@@ -15,7 +15,7 @@ The largest possible absolute result is at most `1000 * (1 + 10 + ... + 10^7) = 
 
 ## Source semantics
 
-This follows pinned [TheAlgorithms Python `polynomial_evaluation.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/polynomial_evaluation.py), specifically its `horner` routine. The same file also contains `evaluate_poly`, which evaluates each power directly; this benchmark covers only Horner's method and keeps its reverse coefficient traversal and multiply-then-add order. The separate JavaScript `Polynomial` source constructs a display string and is not an evaluation routine.
+This follows pinned [TheAlgorithms Python `polynomial_evaluation.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/polynomial_evaluation.py), specifically its `horner` routine. The same file also contains `evaluate_poly`, which evaluates each power directly; this benchmark covers only Horner's method and keeps its reverse coefficient traversal and multiply-then-add order. The JavaScript `Polynomial.evaluate` method maps separately to [`polynomial_evaluation_direct`](../polynomial_evaluation_direct/README.md); its `display()` formatting method is outside evaluation.
 
 ## Workload and build
 

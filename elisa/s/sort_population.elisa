@@ -1,0 +1,63 @@
+def sort_population_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def sort_population_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 129:
+        return -1
+    if input[0] < 1 or input[0] > 64:
+        return -1
+    count: usize = input[0].usize()
+    if length != 1 + 2 * count:
+        return -1
+    costs: mutable i64[64]
+    identifiers: mutable i64[64]
+    seen: mutable bool[64]
+    index: mutable usize = 0
+    while index < 64:
+        seen[index] <- false
+        index <- index + 1
+    index <- 0
+    while index < count:
+        cost: i64 = input[1 + 2 * index]
+        identifier: i64 = input[2 + 2 * index]
+        if cost < -1000000 or cost > 1000000 or identifier < 0 or identifier >= count.i64():
+            return -1
+        id: usize = identifier.usize()
+        if seen[id]:
+            return -1
+        seen[id] <- true
+        costs[index] <- cost
+        identifiers[index] <- identifier
+        index <- index + 1
+    index <- 1
+    while index < count:
+        key_cost: i64 = costs[index]
+        key_identifier: i64 = identifiers[index]
+        position: mutable usize = index
+        while position > 0 and costs[position - 1] > key_cost:
+            costs[position] <- costs[position - 1]
+            identifiers[position] <- identifiers[position - 1]
+            position <- position - 1
+        costs[position] <- key_cost
+        identifiers[position] <- key_identifier
+        index <- index + 1
+    index <- 1
+    while index < count:
+        if costs[index - 1] == costs[index]:
+            return -1
+        index <- index + 1
+    output_length: usize = count * 16
+    if output.is_null() or capacity < output_length:
+        return -2
+    index <- 0
+    while index < count:
+        sort_population_write_i64_le(output, index * 16, costs[index])
+        sort_population_write_i64_le(output, index * 16 + 8, identifiers[index])
+        index <- index + 1
+    output_length.i64()
+
+export fn sort_population(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sort_population_impl

@@ -161,6 +161,30 @@ from kl_divergence_loss_oracle import expected_result as kl_divergence_loss_expe
 from mean_absolute_error_oracle import INVALID_RESULT as MEAN_ABSOLUTE_ERROR_INVALID_RESULT
 from mean_absolute_error_oracle import MAX_INPUT_LENGTH as MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH
 from mean_absolute_error_oracle import expected_result as mean_absolute_error_expected
+from mean_bias_deviation_percent_oracle import INVALID_RESULT as MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
+from mean_bias_deviation_percent_oracle import MAX_INPUT_LENGTH as MAX_MEAN_BIAS_DEVIATION_PERCENT_INPUT_LENGTH
+from mean_bias_deviation_percent_oracle import expected_result as mean_bias_deviation_percent_expected
+from mass_to_moles_oracle import INVALID_RESULT as MASS_TO_MOLES_INVALID_RESULT
+from mass_to_moles_oracle import MAX_INPUT_LENGTH as MAX_MASS_TO_MOLES_INPUT_LENGTH
+from mass_to_moles_oracle import expected_result as mass_to_moles_expected
+from moles_to_molecules_oracle import INVALID_RESULT as MOLES_TO_MOLECULES_INVALID_RESULT
+from moles_to_molecules_oracle import MAX_INPUT_LENGTH as MAX_MOLES_TO_MOLECULES_INPUT_LENGTH
+from moles_to_molecules_oracle import expected_result as moles_to_molecules_expected
+from schur_complement_oracle import INVALID_RESULT as SCHUR_COMPLEMENT_INVALID_RESULT
+from schur_complement_oracle import MAX_INPUT_LENGTH as MAX_SCHUR_COMPLEMENT_INPUT_LENGTH
+from schur_complement_oracle import expected_result as schur_complement_expected
+from sharpe_ratio_oracle import I64_MAX as SHARPE_RATIO_I64_MAX
+from sharpe_ratio_oracle import I64_MIN as SHARPE_RATIO_I64_MIN
+from sharpe_ratio_oracle import INVALID_RESULT as SHARPE_RATIO_INVALID_RESULT
+from sharpe_ratio_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_SHARPE_RATIO_PARSEABLE_INPUT_LENGTH
+from sharpe_ratio_oracle import MAX_SAMPLE_COUNT as SHARPE_RATIO_MAX_SAMPLE_COUNT
+from sharpe_ratio_oracle import MAX_VALID_INPUT_LENGTH as MAX_SHARPE_RATIO_VALID_INPUT_LENGTH
+from sharpe_ratio_oracle import MAX_RETURN_MICRO as SHARPE_RATIO_MAX_RETURN_MICRO
+from sharpe_ratio_oracle import MAX_RISK_FREE_MICRO as SHARPE_RATIO_MAX_RISK_FREE_MICRO
+from sharpe_ratio_oracle import MIN_RETURN_MICRO as SHARPE_RATIO_MIN_RETURN_MICRO
+from sharpe_ratio_oracle import MIN_RISK_FREE_MICRO as SHARPE_RATIO_MIN_RISK_FREE_MICRO
+from sharpe_ratio_oracle import SCALE as SHARPE_RATIO_SCALE
+from sharpe_ratio_oracle import expected_result as sharpe_ratio_expected
 from smooth_l1_loss_oracle import INVALID_RESULT as SMOOTH_L1_LOSS_INVALID_RESULT
 from smooth_l1_loss_oracle import MAX_INPUT_LENGTH as MAX_SMOOTH_L1_LOSS_INPUT_LENGTH
 from smooth_l1_loss_oracle import expected_result as smooth_l1_loss_expected
@@ -651,6 +675,351 @@ def validate_secant_workload(workload: dict) -> None:
         raise ValueError("secant zero-update fixture must remain within the reviewed starting-point bounds")
 
 
+MEAN_BIAS_DEVIATION_PERCENT_CASE_IDS = {
+    "source_overpredicts", "source_underpredicts", "identical_predictions",
+    "negative_actual_mean", "single_pair", "small_nonzero_actual_sum",
+    "maximum_sample_count", "empty_count", "zero_actual_mean", "missing_actual_value",
+    "trailing_input_value", "count_above_bound", "sample_above_bound", "sample_below_bound",
+}
+
+
+def validate_mean_bias_deviation_percent_workload(workload: dict) -> None:
+    """Pin the method-level MBD input, source, and measurement contract."""
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    pinned_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "machine_learning/scoring_functions.py",
+        "method": "mbd(predict, actual)",
+    }
+    cases = workload.get("cases")
+    case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "mean-bias-deviation-percent-python-bounded-i64-v1"
+            or workload.get("algorithm") != "mean_bias_deviation_percent"
+            or workload.get("function_symbol") != "mean_bias_deviation_percent"
+            or workload.get("pinned_source") != pinned_source
+            or input_spec.get("kind") != "signed_64_bit_integer_array"
+            or input_spec.get("encoding") != "[n, predict[0..n], actual[0..n]]"
+            or input_spec.get("n_range") != [1, 64]
+            or input_spec.get("parser_n_maximum") != 65
+            or input_spec.get("sample_range") != [-1000, 1000]
+            or input_spec.get("actual_sum_nonzero") is not True
+            or input_spec.get("maximum_valid_input_values") != 129
+            or input_spec.get("maximum_input_values_for_malformed_cases")
+            != MAX_MEAN_BIAS_DEVIATION_PERCENT_INPUT_LENGTH
+            or input_spec.get("invalid_result") != MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("meaning")
+            != "((sum(predict[i] - actual[i]) / n) / (sum(actual[i]) / n)) * 100, in the source operation order"
+            or output_spec.get("invalid_result") != MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("absolute_tolerance") != 1e-12
+            or measurement.get("relative_tolerance") != 1e-12
+            or measurement.get("sample_count") != 6
+            or measurement.get("warmup_rounds") != 2
+            or measurement.get("repetitions_per_sample") != 1000
+            or not isinstance(cases, list)
+            or len(cases) != len(MEAN_BIAS_DEVIATION_PERCENT_CASE_IDS)
+            or case_ids != MEAN_BIAS_DEVIATION_PERCENT_CASE_IDS):
+        raise ValueError("mean_bias_deviation_percent workload metadata does not match its reviewed contract")
+
+MASS_TO_MOLES_CASE_IDS = {
+    "integer_ratio_example", "zero_mass", "exact_one", "one_third",
+    "tie_rounds_to_even_down", "tie_rounds_to_even_up", "small_fraction",
+    "maximum_bounded_quotient", "binary64_quotient_above_decimal_half",
+    "binary64_quotient_below_decimal_half", "negative_mass", "zero_molar_mass",
+    "mass_above_bound", "molar_mass_above_bound", "negative_molar_mass",
+    "missing_argument", "trailing_argument",
+}
+
+
+def validate_mass_to_moles_workload(workload: dict) -> None:
+    """Pin the method-level mass-to-moles bounds and Python rounding behavior."""
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    pinned_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "conversions/molecular_chemistry.py",
+        "method": "mass_to_moles(mass, molar_mass)",
+    }
+    cases = workload.get("cases")
+    case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "mass-to-moles-python-integer-valued-i64-v1"
+            or workload.get("algorithm") != "mass_to_moles"
+            or workload.get("function_symbol") != "mass_to_moles"
+            or workload.get("pinned_source") != pinned_source
+            or input_spec.get("kind") != "signed_64_bit_integer_array"
+            or input_spec.get("encoding")
+            != "[mass, molar_mass], interpreted as exact integer-valued numeric arguments"
+            or input_spec.get("valid_input_length") != 2
+            or input_spec.get("maximum_input_values_for_malformed_cases")
+            != MAX_MASS_TO_MOLES_INPUT_LENGTH
+            or input_spec.get("mass_range") != [0, 1000]
+            or input_spec.get("molar_mass_range") != [1, 1000]
+            or input_spec.get("invalid_result") != MASS_TO_MOLES_INVALID_RESULT
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("meaning")
+            != "round(float(mass / molar_mass), 2), with Python ties-to-even rounding"
+            or output_spec.get("invalid_result") != MASS_TO_MOLES_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("absolute_tolerance") != 1e-12
+            or measurement.get("relative_tolerance") != 1e-12
+            or measurement.get("sample_count") != 6
+            or measurement.get("warmup_rounds") != 2
+            or measurement.get("repetitions_per_sample") != 1000
+            or not isinstance(cases, list)
+            or len(cases) != len(MASS_TO_MOLES_CASE_IDS)
+            or case_ids != MASS_TO_MOLES_CASE_IDS):
+        raise ValueError("mass_to_moles workload metadata does not match its reviewed contract")
+
+
+MOLES_TO_MOLECULES_CASE_IDS = {
+    "two_mole_example", "half_mole_example", "zero_moles", "one_mole",
+    "quarter_mole", "one_micro_mole", "nontrivial_scaled_input",
+    "binary64_decimal_rounding_tie", "negative_moles", "above_bound",
+    "missing_argument", "extra_argument",
+}
+
+
+def validate_moles_to_molecules_workload(workload: dict) -> None:
+    """Pin the source-order binary64 product and `.4e` format/parse conversion."""
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    pinned_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "conversions/molecular_chemistry.py",
+        "method": "moles_to_molecules(moles)",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "moles-to-molecules-python-micro-mole-format-v1"
+            or workload.get("algorithm") != "moles_to_molecules"
+            or workload.get("function_symbol") != "moles_to_molecules"
+            or workload.get("pinned_source") != pinned_source
+            or input_spec.get("kind") != "signed_64_bit_integer_array"
+            or input_spec.get("encoding")
+            != "[moles_micro], where moles_micro represents moles scaled by 1,000,000"
+            or input_spec.get("valid_input_length") != 1
+            or input_spec.get("maximum_input_values_for_malformed_cases")
+            != MAX_MOLES_TO_MOLECULES_INPUT_LENGTH
+            or input_spec.get("scale") != 1_000_000
+            or input_spec.get("moles_micro_range") != [0, 2_000_000]
+            or input_spec.get("invalid_result") != MOLES_TO_MOLECULES_INVALID_RESULT
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("meaning")
+            != "format((moles_micro / 1_000_000.0) * 6.022e23, '.4e') then parse the formatted text as binary64"
+            or output_spec.get("invalid_result") != MOLES_TO_MOLECULES_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("absolute_tolerance") != 1e-12
+            or measurement.get("relative_tolerance") != 1e-12
+            or measurement.get("sample_count") != 6
+            or measurement.get("warmup_rounds") != 2
+            or measurement.get("repetitions_per_sample") != 1000
+            or not isinstance(cases, list)
+            or len(cases) != len(MOLES_TO_MOLECULES_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MOLES_TO_MOLECULES_CASE_IDS):
+        raise ValueError("moles_to_molecules workload metadata does not match its reviewed contract")
+
+    tie_case = next(case for case in cases if case["id"] == "binary64_decimal_rounding_tie")
+    if (tie_case.get("input_values") != [175]
+            or tie_case.get("expected_result") != 1.0538e20):
+        raise ValueError("moles_to_molecules workload is missing its scientific-format tie fixture")
+
+
+SCHUR_COMPLEMENT_CASE_IDS = {
+    "identity_A", "diagonal_A", "off_diagonal_indefinite_A", "zero_B",
+    "zero_schur_result", "bounded_values", "high_magnitude_cancellation",
+    "singular_A", "a_entry_above_bound",
+    "b_entry_above_bound", "c_entry_below_bound", "empty_input", "short_input",
+    "trailing_input",
+}
+
+
+def validate_schur_complement_workload(workload: dict) -> None:
+    """Pin the bounded scalar projection of the Python Schur-complement source."""
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    pinned_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "linear_algebra/src/schur_complement.py",
+        "function": "schur_complement(mat_a, mat_b, mat_c, pseudo_inv=None)",
+    }
+    cases = workload.get("cases")
+    case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "schur-complement-python-symmetric-2x2-to-scalar-i64-v1"
+            or workload.get("algorithm") != "schur_complement"
+            or workload.get("function_symbol") != "schur_complement"
+            or workload.get("pinned_source") != pinned_source
+            or input_spec.get("kind") != "signed_64_bit_integer_array"
+            or input_spec.get("encoding")
+            != "[a00, a01, a11, b0, b1, c00] for symmetric A=[[a00,a01],[a01,a11]], B=[[b0],[b1]], C=[[c00]]"
+            or input_spec.get("valid_input_length") != 6
+            or input_spec.get("maximum_input_values_for_malformed_cases")
+            != MAX_SCHUR_COMPLEMENT_INPUT_LENGTH
+            or input_spec.get("a_entry_range") != [-8, 8]
+            or input_spec.get("b_c_entry_range") != [-100, 100]
+            or input_spec.get("a_determinant_nonzero") is not True
+            or input_spec.get("pseudo_inverse") != "not supplied; use the source default inverse path"
+            or input_spec.get("invalid_result") != SCHUR_COMPLEMENT_INVALID_RESULT
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("meaning")
+            != "the only element of C - B.T @ inv(A) @ B, with source matrix-operation order"
+            or output_spec.get("invalid_result") != SCHUR_COMPLEMENT_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("absolute_tolerance") != 1e-8
+            or measurement.get("relative_tolerance") != 1e-12
+            or measurement.get("sample_count") != 6
+            or measurement.get("warmup_rounds") != 2
+            or measurement.get("repetitions_per_sample") != 1000
+            or not isinstance(cases, list)
+            or len(cases) != len(SCHUR_COMPLEMENT_CASE_IDS)
+            or case_ids != SCHUR_COMPLEMENT_CASE_IDS):
+        raise ValueError("schur_complement workload metadata does not match its reviewed contract")
+
+
+SHARPE_RATIO_CASE_IDS = frozenset({
+    "pinned_example_zero_risk_free", "pinned_example_risk_free", "pinned_negative_returns",
+    "two_sample_positive_excess", "two_sample_negative_excess", "two_sample_zero_excess",
+    "smallest_nonconstant_difference", "two_sample_boundary_returns", "mixed_boundary_returns",
+    "risk_free_upper_boundary", "risk_free_lower_boundary", "maximum_sample_count",
+    "constant_returns_outside_finite_domain", "zero_count", "one_sample", "count_above_bound",
+    "missing_risk_free_rate", "extra_trailing_value", "return_below_bound",
+    "return_above_bound", "risk_free_below_bound", "risk_free_above_bound",
+    "i64_min_outside_rate_domain", "i64_max_outside_rate_domain",
+    "maximum_parseable_extra_value", "missing_count", "null_input_zero_length",
+})
+
+
+def validate_sharpe_ratio_workload(workload: dict) -> None:
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    pinned_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "financial/sharpe_ratio.py",
+        "method": "sharpe_ratio(returns, risk_free_rate=0.0)",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "python-sharpe-ratio-micro-periodic-returns-v1"
+            or workload.get("algorithm") != "sharpe_ratio"
+            or workload.get("function_symbol") != "sharpe_ratio"
+            or workload.get("description")
+            != "Non-annualized Sharpe ratio using sample standard deviation and a per-period risk-free rate."
+            or workload.get("pinned_source") != pinned_source
+            or input_spec != {
+                "kind": "signed_64_bit_integer_array",
+                "encoding": "[count, return_0_micro, ..., return_(count-1)_micro, risk_free_micro]",
+                "scale": SHARPE_RATIO_SCALE,
+                "count_range": [2, SHARPE_RATIO_MAX_SAMPLE_COUNT],
+                "return_micro_range": [SHARPE_RATIO_MIN_RETURN_MICRO,
+                                       SHARPE_RATIO_MAX_RETURN_MICRO],
+                "risk_free_micro_range": [SHARPE_RATIO_MIN_RISK_FREE_MICRO,
+                                          SHARPE_RATIO_MAX_RISK_FREE_MICRO],
+                "exact_input_length": "count + 2",
+                "maximum_valid_input_length": MAX_SHARPE_RATIO_VALID_INPUT_LENGTH,
+                "maximum_parseable_input_length": MAX_SHARPE_RATIO_PARSEABLE_INPUT_LENGTH,
+                "constant_returns": "Outside the benchmark domain; return the invalid sentinel to keep the float64 output finite.",
+                "invalid_result": SHARPE_RATIO_INVALID_RESULT,
+                "null_input_result": SHARPE_RATIO_INVALID_RESULT,
+            }
+            or output_spec != {
+                "kind": "binary64",
+                "meaning": "(mean(returns) - risk_free_rate) / sample_standard_deviation(returns), with variance divided by count - 1",
+                "invalid_result": SHARPE_RATIO_INVALID_RESULT,
+                "absolute_tolerance": 1e-12,
+                "relative_tolerance": 1e-12,
+            }
+            or measurement != {
+                "comparison_model": "i64_array_float64_call",
+                "sample_count": 5,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 1000,
+                "absolute_tolerance": 1e-12,
+                "relative_tolerance": 1e-12,
+            }
+            or SHARPE_RATIO_SCALE != 1_000_000
+            or SHARPE_RATIO_MAX_SAMPLE_COUNT != 64
+            or MAX_SHARPE_RATIO_VALID_INPUT_LENGTH != 66
+            or MAX_SHARPE_RATIO_PARSEABLE_INPUT_LENGTH != 67
+            or SHARPE_RATIO_I64_MIN != -(1 << 63)
+            or SHARPE_RATIO_I64_MAX != (1 << 63) - 1
+            or SHARPE_RATIO_INVALID_RESULT != -1e300
+            or not isinstance(cases, list)
+            or len(case_ids) != len(SHARPE_RATIO_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SHARPE_RATIO_CASE_IDS):
+        raise ValueError("sharpe_ratio workload metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "sharpe_ratio" / "README.md").read_text(
+        encoding="utf-8")
+    if ("financial/sharpe_ratio.py" not in readme
+            or pinned_source["commit"] not in readme
+            or "sample variance" not in readme
+            or "Constant-return arrays are outside the benchmark domain" not in readme):
+        raise ValueError("sharpe_ratio README is missing its source or contract semantics")
+
+    maximum = {case["id"]: case for case in cases}["maximum_sample_count"]
+    if (maximum.get("input_length") != MAX_SHARPE_RATIO_VALID_INPUT_LENGTH
+            or len(maximum.get("input_values", [])) != MAX_SHARPE_RATIO_VALID_INPUT_LENGTH):
+        raise ValueError("sharpe_ratio workload is missing its maximum sample-count case")
+
+    null_cases = [case for case in cases if case.get("input_is_null") is True]
+    if (len(null_cases) != 1
+            or null_cases[0].get("id") != "null_input_zero_length"
+            or null_cases[0].get("input_values") != []
+            or null_cases[0].get("input_length") != 0
+            or null_cases[0].get("expected_result") != SHARPE_RATIO_INVALID_RESULT
+            or any("input_is_null" in case and type(case["input_is_null"]) is not bool
+                   for case in cases)):
+        raise ValueError("sharpe_ratio workload must declare its zero-length null input")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        expected = case.get("expected_result")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or len(values) > MAX_SHARPE_RATIO_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int
+                       or not SHARPE_RATIO_I64_MIN <= value <= SHARPE_RATIO_I64_MAX
+                       for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(input_is_null) is not bool
+                or type(expected) not in (int, float) or not math.isfinite(expected)):
+            raise ValueError(f"sharpe_ratio workload framing is invalid: {case.get('id')}")
+        source_result = sharpe_ratio_expected(values)
+        if source_result == SHARPE_RATIO_INVALID_RESULT:
+            if expected != SHARPE_RATIO_INVALID_RESULT:
+                raise ValueError(f"invalid sharpe_ratio input must use its sentinel: {case['id']}")
+        elif expected == SHARPE_RATIO_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError(f"sharpe_ratio expected_result differs from the pinned formula: {case['id']}")
+
+
+MAX_LOGISTIC_REGRESSION_CSHARP_BINARY_GD_INPUT_LENGTH = 300
+
+
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH if algorithm == "linear_regression_cost" else
@@ -661,6 +1030,11 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH if algorithm == "binary_cross_entropy" else
                         MAX_SMOOTH_L1_LOSS_INPUT_LENGTH if algorithm == "smooth_l1_loss" else
                         MAX_MEAN_ABSOLUTE_ERROR_INPUT_LENGTH if algorithm == "mean_absolute_error" else
+                        MAX_MEAN_BIAS_DEVIATION_PERCENT_INPUT_LENGTH if algorithm == "mean_bias_deviation_percent" else
+                        MAX_MOLES_TO_MOLECULES_INPUT_LENGTH if algorithm == "moles_to_molecules" else
+                        MAX_MASS_TO_MOLES_INPUT_LENGTH if algorithm == "mass_to_moles" else
+                        MAX_SCHUR_COMPLEMENT_INPUT_LENGTH if algorithm == "schur_complement" else
+                        MAX_SHARPE_RATIO_PARSEABLE_INPUT_LENGTH if algorithm == "sharpe_ratio" else
                         MAX_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH if algorithm == "mean_absolute_percentage_error" else
                         MAX_SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH if algorithm == "symmetric_mean_absolute_percentage_error" else
                         MAX_GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INPUT_LENGTH if algorithm == "gaussian_negative_log_likelihood_loss" else
@@ -778,6 +1152,8 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_SYMMETRIC_DERIVATIVE_PARSEABLE_INPUT_LENGTH if algorithm == "symmetric_derivative" else
                         MAX_SIMPLEX_INPUT_LENGTH if algorithm == "simplex" else
                         MAX_SIMPLE_NEURAL_NETWORK_INPUT_LENGTH if algorithm == "simple_neural_network" else
+                        MAX_LOGISTIC_REGRESSION_CSHARP_BINARY_GD_INPUT_LENGTH
+                        if algorithm == "logistic_regression_csharp_binary_gd" else
                         MAX_SPARSITY_INPUT_VALUES + 1 if algorithm == "sparsity" else
                         MAX_RELATIVITY_INPUT_LENGTH if algorithm == "relativity" else
                         MAX_INPUT_LENGTH)
@@ -785,7 +1161,15 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) not in (int, float) or not math.isfinite(expected)):
         raise ValueError("array-float64 cases require up to 4096 signed 64-bit values and a finite result")
-    if algorithm == "sparsity":
+    if algorithm == "sharpe_ratio":
+        source_result = sharpe_ratio_expected(values)
+        if source_result == SHARPE_RATIO_INVALID_RESULT:
+            if expected != SHARPE_RATIO_INVALID_RESULT:
+                raise ValueError("invalid sharpe_ratio inputs must use the -1e300 result sentinel")
+        elif expected == SHARPE_RATIO_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("sharpe_ratio expected_result must match the pinned sample-variance formula")
+    elif algorithm == "sparsity":
         source_result = sparsity_expected(values)
         if source_result == SPARSITY_INVALID_RESULT:
             if expected != SPARSITY_INVALID_RESULT:
@@ -1056,6 +1440,38 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == MEAN_ABSOLUTE_ERROR_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("mean_absolute_error expected_result must match the fixed-point mean absolute residual")
+    elif algorithm == "mean_bias_deviation_percent":
+        source_result = mean_bias_deviation_percent_expected(values)
+        if source_result == MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT:
+            if expected != MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT:
+                raise ValueError("invalid mean_bias_deviation_percent inputs must use the -1e300 result sentinel")
+        elif expected == MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("mean_bias_deviation_percent expected_result must match the source-order MBD formula")
+    elif algorithm == "mass_to_moles":
+        source_result = mass_to_moles_expected(values)
+        if source_result == MASS_TO_MOLES_INVALID_RESULT:
+            if expected != MASS_TO_MOLES_INVALID_RESULT:
+                raise ValueError("invalid mass_to_moles inputs must use the -1e300 result sentinel")
+        elif expected == MASS_TO_MOLES_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("mass_to_moles expected_result must match Python's binary64 round-to-even")
+    elif algorithm == "moles_to_molecules":
+        source_result = moles_to_molecules_expected(values)
+        if source_result == MOLES_TO_MOLECULES_INVALID_RESULT:
+            if expected != MOLES_TO_MOLECULES_INVALID_RESULT:
+                raise ValueError("invalid moles_to_molecules inputs must use the -1e300 result sentinel")
+        elif expected == MOLES_TO_MOLECULES_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("moles_to_molecules expected_result must match the source `.4e` format/parse order")
+    elif algorithm == "schur_complement":
+        source_result = schur_complement_expected(values)
+        if source_result == SCHUR_COMPLEMENT_INVALID_RESULT:
+            if expected != SCHUR_COMPLEMENT_INVALID_RESULT:
+                raise ValueError("invalid schur_complement inputs must use the -1e300 result sentinel")
+        elif expected == SCHUR_COMPLEMENT_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-8):
+            raise ValueError("schur_complement expected_result must match source matrix-operation order")
     elif algorithm == "smooth_l1_loss":
         source_result = smooth_l1_loss_expected(values)
         if source_result == SMOOTH_L1_LOSS_INVALID_RESULT:
@@ -2951,6 +3367,16 @@ def main() -> int:
         validate_simpson_integration_workload(workload)
     elif algorithm == "secant":
         validate_secant_workload(workload)
+    elif algorithm == "mean_bias_deviation_percent":
+        validate_mean_bias_deviation_percent_workload(workload)
+    elif algorithm == "mass_to_moles":
+        validate_mass_to_moles_workload(workload)
+    elif algorithm == "moles_to_molecules":
+        validate_moles_to_molecules_workload(workload)
+    elif algorithm == "schur_complement":
+        validate_schur_complement_workload(workload)
+    elif algorithm == "sharpe_ratio":
+        validate_sharpe_ratio_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")
@@ -2982,8 +3408,10 @@ def main() -> int:
             raise ValueError(f"input_is_null must be a boolean for {case['id']}")
         input_length = case.get("input_length", len(values))
         if input_is_null:
-            if (algorithm != "temperature_conversions" or values
-                    or input_length != 2):
+            supported_null_input = (
+                algorithm == "temperature_conversions" and input_length == 2
+                or algorithm == "sharpe_ratio" and input_length == 0)
+            if not supported_null_input or values:
                 raise ValueError(f"unsupported null-pointer input for {case['id']}")
         elif input_length != len(values):
             raise ValueError(f"declared input length differs for {case['id']}")

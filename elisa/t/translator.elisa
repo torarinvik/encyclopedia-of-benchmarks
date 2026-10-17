@@ -1,0 +1,96 @@
+const MAX_KEYS: usize = 4
+const MAX_KEY_LENGTH: usize = 4
+const MAX_TEXT_LENGTH: usize = 64
+const MAX_INPUT_LENGTH: usize = 107
+const MAX_OUTPUT_LENGTH: usize = 256
+
+def translator_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 0 or input[0] > 4 or input[1] < 0 or input[1] > 64:
+        return -1
+    key_count: usize = input[0].usize()
+    text_length: usize = input[1].usize()
+    keys: mutable u8[4][4] = zeroed
+    replacements: mutable u8[4][4] = zeroed
+    key_lengths: mutable usize[4] = zeroed
+    replacement_lengths: mutable usize[4] = zeroed
+    cursor: mutable usize = 2
+    for key_index in 0..<key_count:
+        if cursor + 2 > length:
+            return -1
+        key_length_value: i64 = input[cursor]
+        value_length_value: i64 = input[cursor + 1]
+        cursor <- cursor + 2
+        if key_length_value < 1 or key_length_value > 4 or value_length_value < 0 or value_length_value > 4:
+            return -1
+        key_length: usize = key_length_value.usize()
+        value_length: usize = value_length_value.usize()
+        if cursor + key_length + value_length > length:
+            return -1
+        for index in 0..<key_length:
+            byte: i64 = input[cursor + index]
+            if byte < 32 or byte > 126:
+                return -1
+            keys[key_index][index] <- byte.u8()
+        cursor <- cursor + key_length
+        for index in 0..<value_length:
+            byte: i64 = input[cursor + index]
+            if byte < 32 or byte > 126:
+                return -1
+            replacements[key_index][index] <- byte.u8()
+        cursor <- cursor + value_length
+        key_lengths[key_index] <- key_length
+        replacement_lengths[key_index] <- value_length
+        for previous in 0..<key_index:
+            if key_lengths[previous] != key_length:
+                continue
+            equal: mutable bool = true
+            for index in 0..<key_length:
+                if keys[previous][index] != keys[key_index][index]:
+                    equal <- false
+            if equal:
+                return -1
+    if cursor + text_length != length:
+        return -1
+    text: mutable u8[64] = zeroed
+    for index in 0..<text_length:
+        byte: i64 = input[cursor + index]
+        if byte < 32 or byte > 126:
+            return -1
+        text[index] <- byte.u8()
+
+    result: mutable u8[256] = zeroed
+    result_length: mutable usize = 0
+    start: mutable usize = 0
+    while start < text_length:
+        matched: mutable bool = false
+        remaining: usize = text_length - start
+        maximum_length: usize = if remaining < MAX_KEY_LENGTH then remaining else MAX_KEY_LENGTH
+        candidate_length: mutable usize = 1
+        while candidate_length <= maximum_length and not matched:
+            for key_index in 0..<key_count:
+                if key_lengths[key_index] != candidate_length:
+                    continue
+                equal: mutable bool = true
+                for index in 0..<candidate_length:
+                    if text[start + index] != keys[key_index][index]:
+                        equal <- false
+                if not equal:
+                    continue
+                for index in 0..<replacement_lengths[key_index]:
+                    result[result_length + index] <- replacements[key_index][index]
+                result_length <- result_length + replacement_lengths[key_index]
+                start <- start + candidate_length
+                matched <- true
+                break
+            candidate_length <- candidate_length + 1
+        if not matched:
+            break
+    if output.is_null() or capacity < result_length:
+        return -2
+    for index in 0..<result_length:
+        output[index] <- result[index]
+    result_length.i64()
+
+export fn translator(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = translator_impl

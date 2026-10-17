@@ -1,0 +1,632 @@
+{
+  "schema_version": 1,
+  "id": "matlab-mutate-binary-row-vector-f64-slice-io-v1",
+  "algorithm": "mutate",
+  "function_symbol": "mutate",
+  "pinned_source": {
+    "repository": "TheAlgorithms/MATLAB-Octave",
+    "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",
+    "path": "algorithms/Genetic-Algorithm/Minimization of polynomial function/Mutate.m",
+    "symbol": "Mutate",
+    "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/Genetic-Algorithm/Minimization%20of%20polynomial%20function/Mutate.m",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "binary mutation using supplied per-gene uniform draws",
+    "source_rule": "flip gene i iff draw[i] < mu; equality does not flip",
+    "shape": "one-dimensional row vector of n binary genes and n matching draws",
+    "rng_adapter": "draws are supplied as input to make the source threshold operator deterministic"
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[mu, n, genes[0..n), draws[0..n)]",
+    "exact_length": "2 + 2*n",
+    "maximum_valid_input_length": 130,
+    "maximum_parseable_input_length": 130,
+    "gene_count_range": [
+      0,
+      64
+    ],
+    "gene_count_must_be_exact_integer": true,
+    "mutation_rate_range": [
+      0.0,
+      1.0
+    ],
+    "gene_domain": [
+      0.0,
+      1.0
+    ],
+    "genes_must_be_exact_binary_values": true,
+    "draw_range": [
+      0.0,
+      1.0
+    ],
+    "draw_upper_bound_is_exclusive": true,
+    "all_values_must_be_finite": true,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "one mutated binary value per input gene, preserving row-vector order",
+    "maximum_elements": 64,
+    "success_result": "gene_count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "null_output_is_error_for_empty_result": true,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed or out-of-domain input is rejected before output pointer or capacity checks.",
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "workspace": {
+    "elements": 64,
+    "meaning": "one mutated output value per gene"
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "no_mutations_at_zero_rate",
+      "input_length": 10,
+      "input_values": [
+        0.0,
+        4,
+        0,
+        1,
+        0,
+        1,
+        0.0,
+        0.25,
+        0.5,
+        0.999999999999
+      ],
+      "expected_result": 4,
+      "expected_output": [
+        0.0,
+        1.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "id": "all_mutations_at_unit_rate",
+      "input_length": 10,
+      "input_values": [
+        1.0,
+        4,
+        0,
+        1,
+        0,
+        1,
+        0.0,
+        0.25,
+        0.5,
+        0.999999999999
+      ],
+      "expected_result": 4,
+      "expected_output": [
+        1.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "strict_threshold_below_equal_above",
+      "input_length": 10,
+      "input_values": [
+        0.5,
+        4,
+        0,
+        1,
+        0,
+        1,
+        0.499999999999,
+        0.5,
+        0.500000000001,
+        0.0
+      ],
+      "expected_result": 4,
+      "expected_output": [
+        1.0,
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "mixed_mutations",
+      "input_length": 14,
+      "input_values": [
+        0.3,
+        6,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0.1,
+        0.3,
+        0.29,
+        0.8,
+        0.0,
+        0.999999999999
+      ],
+      "expected_result": 6,
+      "expected_output": [
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "empty_genome",
+      "input_length": 2,
+      "input_values": [
+        0.5,
+        0
+      ],
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "single_gene_mutation",
+      "input_length": 4,
+      "input_values": [
+        0.25,
+        1,
+        1,
+        0.0
+      ],
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "draw_equal_to_zero_rate_does_not_flip",
+      "input_length": 4,
+      "input_values": [
+        0.0,
+        1,
+        1,
+        0.0
+      ],
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "maximum_gene_count_64",
+      "input_length": 130,
+      "input_values": [
+        0.5,
+        64,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25,
+        0.25,
+        0.75,
+        0.75,
+        0.25
+      ],
+      "expected_result": 64,
+      "expected_output": [
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "missing_header",
+      "input_length": 1,
+      "input_values": [
+        0.5
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "missing_draw_value",
+      "input_length": 3,
+      "input_values": [
+        0.5,
+        1,
+        0.0
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_gene_value",
+      "input_length": 3,
+      "input_values": [
+        0.5,
+        0,
+        0.0
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_gene_count",
+      "input_length": 2,
+      "input_values": [
+        0.5,
+        1.5
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_gene_count",
+      "input_length": 2,
+      "input_values": [
+        0.5,
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "gene_count_above_limit",
+      "input_length": 2,
+      "input_values": [
+        0.5,
+        65
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "mutation_rate_below_zero",
+      "input_length": 2,
+      "input_values": [
+        -0.0001,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "mutation_rate_above_one",
+      "input_length": 2,
+      "input_values": [
+        1.0001,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonbinary_gene",
+      "input_length": 4,
+      "input_values": [
+        0.5,
+        1,
+        0.5,
+        0.25
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "draw_below_zero",
+      "input_length": 4,
+      "input_values": [
+        0.5,
+        1,
+        0,
+        -0.0001
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "draw_equal_to_one",
+      "input_length": 4,
+      "input_values": [
+        0.5,
+        1,
+        0,
+        1.0
+      ],
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "valid_short_output_capacity",
+      "input_values": [
+        0.5,
+        4,
+        0,
+        1,
+        0,
+        1,
+        0.25,
+        0.75,
+        0.25,
+        0.75
+      ],
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -2
+    },
+    {
+      "id": "valid_null_output",
+      "input_values": [
+        0.5,
+        2,
+        0,
+        1,
+        0.25,
+        0.75
+      ],
+      "output_capacity": 64,
+      "output_is_null": true,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid_input_before_null_output",
+      "input_values": [
+        0.5,
+        1,
+        0.5,
+        0.25
+      ],
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "empty_genome_null_output",
+      "input_values": [
+        0.5,
+        0
+      ],
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2
+    },
+    {
+      "id": "empty_genome_zero_capacity",
+      "input_values": [
+        0.5,
+        0
+      ],
+      "output_capacity": 0,
+      "output_is_null": false,
+      "expected_result": 0
+    },
+    {
+      "id": "nonfinite_rate_nan",
+      "input_values": [
+        "NaN",
+        0
+      ],
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "nonfinite_gene_positive_infinity",
+      "input_values": [
+        0.5,
+        1,
+        "Infinity",
+        0.25
+      ],
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "nonfinite_draw_negative_infinity",
+      "input_values": [
+        0.5,
+        1,
+        1,
+        "-Infinity"
+      ],
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1
+    }
+  ]
+}

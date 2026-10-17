@@ -1,0 +1,597 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-quaternions-f64-slice-io-v1",
+  "algorithm": "quaternions",
+  "function_symbol": "quaternions",
+  "description": "Three source-faithful binary32 quaternion and Euler-angle operations carried through the float64 slice ABI.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C",
+    "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+    "path": "geometry/quaternions.c",
+    "header_path": "geometry/geometry_datatypes.h",
+    "methods": [
+      "quat_from_euler",
+      "euler_from_quat",
+      "quaternion_multiply"
+    ],
+    "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/geometry/quaternions.c",
+    "header_url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/geometry/geometry_datatypes.h"
+  },
+  "contract": {
+    "operation_0_euler_to_quaternion": "Input [0, yaw, pitch, roll] in radians; assign the values by name to the C euler fields, cast each angle to binary32, and apply the pinned cosf/sinf half-angle formulas. Return [w, q1, q2, q3].",
+    "operation_1_quaternion_to_euler": "Input [1, w, q1, q2, q3]; cast components to binary32; require each in [-1,1], squared norm within 1e-6 of one under binary32 sum/product steps, and the source binary32 pitch argument in [-1,1]. Return [roll, pitch, yaw] in radians.",
+    "operation_1_pitch": "Preserve executable C expression asinf(2.f * (w*q2 + q1*q3)); this is a plus sign even though the adjacent Doxygen formula differs.",
+    "operation_2_hamilton_product": "Input [2, aw, a1, a2, a3, bw, b1, b2, b3]; cast quaternion components to binary32 and return scalar-first [w, q1, q2, q3] using the pinned left-to-right Hamilton formulas. Operands need not be normalized.",
+    "numeric_semantics": "The ABI transports finite binary64 numbers; operation data is rounded to binary32 before source calculations, all source-style arithmetic and trig results are binary32, then outputs are widened to binary64.",
+    "errors": "Invalid input returns -1. Null or insufficient output capacity returns -2 after input validation. Errors write no output."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": {
+      "operation_0": "[0, yaw, pitch, roll]",
+      "operation_1": "[1, w, q1, q2, q3]",
+      "operation_2": "[2, aw, a1, a2, a3, bw, b1, b2, b3]"
+    },
+    "operation_range": [
+      0,
+      2
+    ],
+    "operation_values": [
+      0,
+      1,
+      2
+    ],
+    "maximum_valid_length": 9,
+    "maximum_parseable_length": 10,
+    "euler_angle_range_radians": [
+      -3.0,
+      3.0
+    ],
+    "product_component_range_before_binary32_cast": [
+      -1.0,
+      1.0
+    ],
+    "conversion_component_range_after_binary32_cast": [
+      -1.0,
+      1.0
+    ],
+    "conversion_squared_norm_tolerance": 1e-06,
+    "conversion_pitch_argument_range_after_binary32_operations": [
+      -1.0,
+      1.0
+    ],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "operation_output_lengths": {
+      "0": 4,
+      "1": 3,
+      "2": 4
+    },
+    "maximum_elements": 4,
+    "encoding": "Widened binary32 source result values; operation 0 and 2 are [w,q1,q2,q3], operation 1 is [roll,pitch,yaw].",
+    "success_result": "number of output float64 elements",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "error_precedence": "Input validation precedes output null/capacity checks.",
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-06,
+    "relative_tolerance": 0.0,
+    "operation_2_result_range": [
+      -4.0,
+      4.0
+    ]
+  },
+  "workspace": {
+    "elements": 4,
+    "meaning": "Largest result is a four-element widened binary32 quaternion."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-06,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "euler_identity",
+      "input_values": [
+        0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "euler_roll_axis",
+      "input_values": [
+        0,
+        0.0,
+        0.0,
+        1.5707963267948966
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output": [
+        0.7071067690849304,
+        0.7071067690849304,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "euler_pitch_axis",
+      "input_values": [
+        0,
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output": [
+        0.9305076003074646,
+        0.0,
+        -0.36627253890037537,
+        0.0
+      ]
+    },
+    {
+      "id": "euler_yaw_axis",
+      "input_values": [
+        0,
+        2.25,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output": [
+        0.4311765134334564,
+        0.0,
+        0.0,
+        0.902267575263977
+      ]
+    },
+    {
+      "id": "euler_combined",
+      "input_values": [
+        0,
+        1.4,
+        -0.5,
+        0.3
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output": [
+        0.7089260220527649,
+        0.2683357000350952,
+        -0.09382233768701553,
+        0.645458996295929
+      ]
+    },
+    {
+      "id": "euler_lower_angle_boundary",
+      "input_values": [
+        0,
+        -3.0,
+        -3.0,
+        -3.0
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output": [
+        -0.992149829864502,
+        -0.07537446916103363,
+        0.06539203226566315,
+        -0.07537446171045303
+      ]
+    },
+    {
+      "id": "euler_upper_angle_boundary",
+      "input_values": [
+        0,
+        3.0,
+        3.0,
+        3.0
+      ],
+      "input_length": 4,
+      "expected_result": 4,
+      "expected_output": [
+        0.9928576946258545,
+        -0.06539203226566315,
+        0.07537446916103363,
+        -0.06539202481508255
+      ]
+    },
+    {
+      "id": "euler_angle_out_of_range",
+      "input_values": [
+        0,
+        0.0,
+        0.0,
+        3.000001
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "euler_wrong_length",
+      "input_values": [
+        0,
+        0.0,
+        0.0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "unknown_operation",
+      "input_values": [
+        3,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "quaternion_identity",
+      "input_values": [
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "quaternion_plus_sign_pitch_positive",
+      "input_values": [
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output": [
+        1.5707963705062866,
+        1.5707963705062866,
+        1.5707963705062866
+      ]
+    },
+    {
+      "id": "quaternion_plus_sign_pitch_negative",
+      "input_values": [
+        1,
+        0.5,
+        -0.5,
+        -0.5,
+        0.5
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output": [
+        -1.5707963705062866,
+        -1.5707963705062866,
+        1.5707963705062866
+      ]
+    },
+    {
+      "id": "quaternion_binary32_norm_rounding",
+      "input_values": [
+        1,
+        0.70710677,
+        0.0,
+        0.70710677,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        1.570451021194458,
+        0.0
+      ]
+    },
+    {
+      "id": "quaternion_unnormalized_rejected",
+      "input_values": [
+        1,
+        0.8,
+        0.8,
+        0.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "quaternion_component_out_of_range",
+      "input_values": [
+        1,
+        1.2,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "quaternion_pitch_argument_out_of_range",
+      "input_values": [
+        1,
+        0.5000001,
+        0.5000001,
+        0.5000001,
+        0.5000001
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "quaternion_wrong_length",
+      "input_values": [
+        1,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "hamilton_identity",
+      "input_values": [
+        2,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5,
+        -0.25,
+        0.75
+      ],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output": [
+        0.0,
+        0.5,
+        -0.25,
+        0.75
+      ]
+    },
+    {
+      "id": "hamilton_noncommuting_basis",
+      "input_values": [
+        2,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "id": "hamilton_general_nonunit",
+      "input_values": [
+        2,
+        0.5,
+        -0.25,
+        0.75,
+        1.0,
+        0.25,
+        0.5,
+        -0.5,
+        0.75
+      ],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output": [
+        -0.125,
+        1.25,
+        0.625,
+        0.375
+      ]
+    },
+    {
+      "id": "hamilton_component_bound_and_output_bound",
+      "input_values": [
+        2,
+        1.0,
+        1.0,
+        1.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output": [
+        0.0,
+        4.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "hamilton_component_out_of_range",
+      "input_values": [
+        2,
+        1.01,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "hamilton_extra_input_value",
+      "input_values": [
+        2,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        7.0
+      ],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "short_output_op0",
+      "input_values": [
+        0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "short_output_op1",
+      "input_values": [
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 5,
+      "output_capacity": 2,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "short_output_op2",
+      "input_values": [
+        2,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 9,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_output_op1",
+      "input_values": [
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "input_length": 5,
+      "output_capacity": 4,
+      "output_is_null": true,
+      "input_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        0,
+        0.0,
+        0.0,
+        3.5
+      ],
+      "input_length": 4,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "input_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null_input",
+      "input_values": [
+        0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

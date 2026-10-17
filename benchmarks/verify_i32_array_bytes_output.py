@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import platform
 import random
+import struct
 import subprocess
 import sys
 
@@ -138,12 +139,42 @@ from hungarian_algorithm_oracle import MAX_PARSEABLE_INPUT_WORDS as HUNGARIAN_MA
 from hungarian_algorithm_oracle import MAX_VALID_INPUT_WORDS as HUNGARIAN_MAX_VALID_INPUT_LENGTH
 from hungarian_algorithm_oracle import OUTPUT_ERROR as HUNGARIAN_OUTPUT_ERROR
 from hungarian_algorithm_oracle import expected_output as hungarian_oracle
+from merge_sort_no_extra_space_oracle import INVALID_RESULT as MERGE_SORT_INVALID_RESULT
+from merge_sort_no_extra_space_oracle import MAX_LENGTH as MERGE_SORT_MAX_LENGTH
+from merge_sort_no_extra_space_oracle import MAX_OUTPUT_BYTES as MERGE_SORT_MAX_OUTPUT_BYTES
+from merge_sort_no_extra_space_oracle import MAX_PARSEABLE_LENGTH as MERGE_SORT_MAX_PARSEABLE_LENGTH
+from merge_sort_no_extra_space_oracle import MAX_VALUE as MERGE_SORT_MAX_VALUE
+from merge_sort_no_extra_space_oracle import MIN_VALUE as MERGE_SORT_MIN_VALUE
+from merge_sort_no_extra_space_oracle import OUTPUT_ERROR as MERGE_SORT_OUTPUT_ERROR
+from merge_sort_no_extra_space_oracle import expected_output as merge_sort_no_extra_space_oracle
+from reverse_singly_linked_list_oracle import INVALID_RESULT as REVERSE_LIST_INVALID_RESULT
+from reverse_singly_linked_list_oracle import MAX_LENGTH as REVERSE_LIST_MAX_LENGTH
+from reverse_singly_linked_list_oracle import MAX_OUTPUT_BYTES as REVERSE_LIST_MAX_OUTPUT_BYTES
+from reverse_singly_linked_list_oracle import MAX_PARSEABLE_LENGTH as REVERSE_LIST_MAX_PARSEABLE_LENGTH
+from reverse_singly_linked_list_oracle import OUTPUT_ERROR as REVERSE_LIST_OUTPUT_ERROR
+from reverse_kgroup_oracle import INVALID_RESULT as REVERSE_KGROUP_INVALID_RESULT
+from reverse_kgroup_oracle import MAX_LIST_LENGTH as REVERSE_KGROUP_MAX_LIST_LENGTH
+from reverse_kgroup_oracle import MAX_OUTPUT_BYTES as REVERSE_KGROUP_MAX_OUTPUT_BYTES
+from reverse_kgroup_oracle import MAX_PARSEABLE_INPUT_LENGTH as REVERSE_KGROUP_MAX_PARSEABLE_INPUT_LENGTH
+from reverse_kgroup_oracle import MAX_VALID_INPUT_LENGTH as REVERSE_KGROUP_MAX_VALID_INPUT_LENGTH
+from reverse_kgroup_oracle import OUTPUT_ERROR as REVERSE_KGROUP_OUTPUT_ERROR
+from snail_oracle import INVALID_RESULT as SNAIL_INVALID_RESULT
+from snail_oracle import MAX_COLUMNS as SNAIL_MAX_COLUMNS
+from snail_oracle import MAX_OUTPUT_BYTES as SNAIL_MAX_OUTPUT_BYTES
+from snail_oracle import MAX_PARSEABLE_INPUT_LENGTH as SNAIL_MAX_PARSEABLE_INPUT_LENGTH
+from snail_oracle import MAX_ROWS as SNAIL_MAX_ROWS
+from snail_oracle import MAX_VALID_INPUT_LENGTH as SNAIL_MAX_VALID_INPUT_LENGTH
+from snail_oracle import OUTPUT_ERROR as SNAIL_OUTPUT_ERROR
 from run_i32_array_bytes_output import (
     validate_kruskal2_workload, validate_mlfq_workload,
     validate_max_pooling_workload, validate_multikey_workload,
     validate_minimum_spanning_tree_prims_workload, validate_preemptive_workload,
     validate_hungarian_algorithm_workload, validate_mo_workload, validate_rat_maze_workload,
-    validate_scan_scheduling_workload,
+    validate_scan_scheduling_workload, validate_merge_sort_no_extra_space_workload,
+    validate_reverse_singly_linked_list_workload,
+    validate_snail_workload,
+    validate_reverse_kgroup_workload,
+    validate_sjfscheduling_workload,
 )
 
 ALGORITHMS = ("salsa", "steinhaus_johnson_trotter", "minimum_spanning_tree_kruskal2",
@@ -151,7 +182,9 @@ ALGORITHMS = ("salsa", "steinhaus_johnson_trotter", "minimum_spanning_tree_krusk
               "minimum_spanning_tree_prims",
               "mo",
               "preemptive_priority_scheduling",
-              "multikey_quick_sort", "max_pooling", "hungarian_algorithm")
+              "multikey_quick_sort", "max_pooling", "hungarian_algorithm",
+              "merge_sort_no_extra_space", "reverse_singly_linked_list", "snail",
+              "reverse_kgroup", "sjfscheduling")
 MAX_OUTPUT_CAPACITY = 400004
 
 
@@ -1254,6 +1287,476 @@ def hungarian_algorithm_corpus(workload: dict) -> tuple[str, int]:
     return separate_length_corpus(cases)
 
 
+def merge_sort_no_extra_space_corpus(workload: dict) -> tuple[str, int]:
+    validate_merge_sort_no_extra_space_workload(workload)
+    default_capacity = MERGE_SORT_MAX_OUTPUT_BYTES
+    cases: dict[tuple[tuple[int, ...], int, int, bool, bool], tuple[int, bytes]] = {}
+
+    def add(values: tuple[int, ...], capacity: int = default_capacity,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None) -> None:
+        if input_length is None:
+            input_length = len(values)
+        if (len(values) > MERGE_SORT_MAX_PARSEABLE_LENGTH
+                or type(input_length) is not int
+                or not 0 <= input_length <= MERGE_SORT_MAX_PARSEABLE_LENGTH
+                or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY):
+            raise ValueError("merge_sort_no_extra_space input length or output capacity is out of range")
+        if (type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and output_is_null
+                or input_is_null and (values or input_length == 0)
+                or not input_is_null and input_length != len(values)
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX
+                       for value in values)):
+            raise ValueError("merge_sort_no_extra_space input or pointer framing is invalid")
+        result, output = merge_sort_no_extra_space_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if result >= 0:
+            if (result != len(output) or result > MERGE_SORT_MAX_OUTPUT_BYTES or result % 4 != 0):
+                raise ValueError("merge_sort_no_extra_space success violates its byte-output bound")
+        elif result not in (MERGE_SORT_INVALID_RESULT, MERGE_SORT_OUTPUT_ERROR) or output:
+            raise ValueError("merge_sort_no_extra_space errors must not write output")
+        key = (values, input_length, capacity, output_is_null, input_is_null)
+        if key in cases and cases[key] != (result, output):
+            raise ValueError("merge_sort_no_extra_space probe collides with a distinct output call")
+        cases[key] = result, output
+
+    for case in workload["cases"]:
+        add(tuple(case["input_values"]), case["output_capacity"],
+            case.get("output_is_null", False), case.get("input_is_null", False),
+            case["input_length"])
+
+    empty_values: tuple[int, ...] = ()
+    add(empty_values, 0)
+    add(empty_values, default_capacity)
+    add(empty_values, MAX_OUTPUT_CAPACITY)
+    add(empty_values, 0, output_is_null=True)
+
+    sample_values = (MERGE_SORT_MAX_VALUE, 0, 1, 1, 32766, 32767, 0)
+    sample_result, _ = merge_sort_no_extra_space_oracle(sample_values)
+    for capacity in (0, sample_result - 1, sample_result,
+                     default_capacity, MAX_OUTPUT_CAPACITY):
+        add(sample_values, capacity)
+    add(sample_values, default_capacity, output_is_null=True)
+    add((-1,), 0, output_is_null=True)
+    add((MERGE_SORT_MAX_VALUE + 1,), 0, output_is_null=True)
+    add((), default_capacity, input_is_null=True, input_length=1)
+
+    rng = random.Random(20261017)
+    boundary_values = (MERGE_SORT_MIN_VALUE, 1, MERGE_SORT_MAX_VALUE - 1, MERGE_SORT_MAX_VALUE)
+    for index in range(128):
+        length = rng.randint(0, MERGE_SORT_MAX_LENGTH)
+        values = tuple(rng.choice(boundary_values + (rng.randint(
+            MERGE_SORT_MIN_VALUE, MERGE_SORT_MAX_VALUE),)) for _ in range(length))
+        result, _ = merge_sort_no_extra_space_oracle(values)
+        for capacity in (0, max(0, result - 1), result, default_capacity):
+            add(values, capacity)
+        if index % 16 == 0 and length:
+            add(values, default_capacity, output_is_null=True)
+
+    malformed = (
+        (MERGE_SORT_MAX_VALUE + 1,), (-1,), (I32_MIN,), (I32_MAX,),
+        tuple([MERGE_SORT_MIN_VALUE] * MERGE_SORT_MAX_PARSEABLE_LENGTH),
+    )
+    for values in malformed:
+        add(values)
+    add((-1,), 0, output_is_null=True)
+    return separate_length_corpus(cases)
+
+
+def reverse_singly_linked_list_corpus(workload: dict) -> tuple[str, int]:
+    validate_reverse_singly_linked_list_workload(workload)
+    default_capacity = REVERSE_LIST_MAX_OUTPUT_BYTES
+    cases: dict[tuple[tuple[int, ...], int, int, bool, bool], tuple[int, bytes]] = {}
+
+    def add(values: tuple[int, ...], capacity: int = default_capacity,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None) -> None:
+        if input_length is None:
+            input_length = len(values)
+        if (len(values) > REVERSE_LIST_MAX_PARSEABLE_LENGTH
+                or type(input_length) is not int
+                or not 0 <= input_length <= REVERSE_LIST_MAX_PARSEABLE_LENGTH
+                or type(capacity) is not int
+                or not 0 <= capacity <= REVERSE_LIST_MAX_OUTPUT_BYTES):
+            raise ValueError("reverse_singly_linked_list input length or output capacity is out of range")
+        if (type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and output_is_null
+                or input_is_null and values
+                or not input_is_null and input_length > len(values)
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX
+                       for value in values)):
+            raise ValueError("reverse_singly_linked_list input or pointer framing is invalid")
+
+        if input_is_null or input_length > REVERSE_LIST_MAX_LENGTH:
+            result, output = REVERSE_LIST_INVALID_RESULT, b""
+        else:
+            selected = values[:input_length]
+            output = struct.pack("<" + "i" * len(selected), *reversed(selected))
+            if output_is_null or capacity < len(output):
+                result, output = REVERSE_LIST_OUTPUT_ERROR, b""
+            else:
+                result = len(output)
+        key = (values, input_length, capacity, output_is_null, input_is_null)
+        if key in cases and cases[key] != (result, output):
+            raise ValueError("reverse_singly_linked_list probe collides with a distinct output call")
+        cases[key] = result, output
+
+    for case in workload["cases"]:
+        add(tuple(case["input_values"]), case["output_capacity"],
+            case.get("output_is_null", False), case.get("input_is_null", False),
+            case["input_length"])
+
+    add((), 0)
+    add((), default_capacity)
+    add((), 0, output_is_null=True)
+    add((17, -4, 29), input_length=2)
+    add((17, -4, 29), input_length=0)
+
+    full_values = tuple(range(-128, 128))
+    for capacity in (0, REVERSE_LIST_MAX_OUTPUT_BYTES - 1, REVERSE_LIST_MAX_OUTPUT_BYTES):
+        add(full_values, capacity)
+    add(full_values, default_capacity, output_is_null=True)
+    over_domain = tuple([0] * REVERSE_LIST_MAX_PARSEABLE_LENGTH)
+    add(over_domain, 0)
+    add(over_domain, 0, output_is_null=True)
+    add((), default_capacity, input_is_null=True, input_length=0)
+    add((), default_capacity, input_is_null=True, input_length=1)
+
+    rng = random.Random(20261017)
+    boundary_values = (I32_MIN, -1, 0, 1, I32_MAX)
+    for index in range(128):
+        length = rng.randint(0, REVERSE_LIST_MAX_LENGTH)
+        values = tuple(rng.choice(boundary_values + (rng.randint(I32_MIN, I32_MAX),))
+                       for _ in range(length))
+        output_bytes = length * 4
+        for capacity in (0, max(0, output_bytes - 1), output_bytes, default_capacity):
+            add(values, capacity)
+        if index % 16 == 0 and length:
+            add(values, default_capacity, output_is_null=True)
+
+    return separate_length_corpus(cases)
+
+
+def snail_corpus(workload: dict) -> tuple[str, int]:
+    validate_snail_workload(workload)
+    cases: dict[tuple[tuple[int, ...], int, int, bool, bool], tuple[int, bytes]] = {}
+
+    def reference(values: tuple[int, ...], input_length: int, capacity: int,
+                  output_is_null: bool, input_is_null: bool) -> tuple[int, bytes]:
+        if input_is_null or input_length != len(values):
+            return SNAIL_INVALID_RESULT, b""
+        if (not 2 <= len(values) <= SNAIL_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX
+                       for value in values)):
+            return SNAIL_INVALID_RESULT, b""
+        rows, columns = values[:2]
+        if (not 0 <= rows <= SNAIL_MAX_ROWS
+                or not 0 <= columns <= SNAIL_MAX_COLUMNS
+                or rows == 0 and columns != 0
+                or columns == 1 and rows != 1
+                or len(values) != 2 + rows * columns):
+            return SNAIL_INVALID_RESULT, b""
+
+        ordered: list[int] = []
+        if rows and columns:
+            visited: set[tuple[int, int]] = set()
+            row, column, direction = 0, 0, 0
+            directions = ((0, 1), (1, 0), (0, -1), (-1, 0))
+            while len(visited) < rows * columns:
+                visited.add((row, column))
+                ordered.append(values[2 + row * columns + column])
+                if len(visited) == rows * columns:
+                    break
+                for _ in range(4):
+                    delta_row, delta_column = directions[direction]
+                    next_row, next_column = row + delta_row, column + delta_column
+                    if (0 <= next_row < rows and 0 <= next_column < columns
+                            and (next_row, next_column) not in visited):
+                        row, column = next_row, next_column
+                        break
+                    direction = (direction + 1) % 4
+
+        output = struct.pack("<" + "i" * len(ordered), *ordered) if ordered else b""
+        if output_is_null or capacity < len(output):
+            return SNAIL_OUTPUT_ERROR, b""
+        return len(output), output
+
+    def add(values: tuple[int, ...], capacity: int = SNAIL_MAX_OUTPUT_BYTES,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None) -> None:
+        if input_length is None:
+            input_length = len(values)
+        if (len(values) > SNAIL_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_length) is not int
+                or not 0 <= input_length <= SNAIL_MAX_PARSEABLE_INPUT_LENGTH
+                or type(capacity) is not int
+                or not 0 <= capacity <= SNAIL_MAX_OUTPUT_BYTES
+                or type(output_is_null) is not bool or type(input_is_null) is not bool
+                or input_is_null and output_is_null
+                or input_is_null and values
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX
+                       for value in values)):
+            raise ValueError("snail corpus input or pointer framing is invalid")
+        result, output = reference(values, input_length, capacity, output_is_null, input_is_null)
+        key = (values, input_length, capacity, output_is_null, input_is_null)
+        if key in cases and cases[key] != (result, output):
+            raise ValueError("snail probe collides with a distinct output call")
+        cases[key] = result, output
+
+    for case in workload["cases"]:
+        add(tuple(case["input_values"]), case["output_capacity"],
+            case.get("output_is_null", False), case.get("input_is_null", False),
+            case["input_length"])
+
+    add((), 0, input_length=0)
+    add((), SNAIL_MAX_OUTPUT_BYTES, input_length=2)
+    add((0, 0), 0)
+    add((4, 0), 0)
+    add((1, 4, 11, -7, 23, 5), 0)
+    add((1, 4, 11, -7, 23, 5), 15)
+    add((1, 4, 11, -7, 23, 5), 16)
+    add((1, 4, 11, -7, 23, 5), 16, output_is_null=True)
+    add((0, 1), 0, output_is_null=True)
+    add((2, 1, 11, 22), 0)
+    add((2, 1, 11, 22), 0, output_is_null=True)
+    add((1, 1, 42, 0), 0)
+    add((1, 1, 42), 0, input_length=2)
+    add((SNAIL_MAX_ROWS, SNAIL_MAX_COLUMNS, *range(
+        SNAIL_MAX_ROWS * SNAIL_MAX_COLUMNS), 99), 0)
+    add((), SNAIL_MAX_OUTPUT_BYTES, input_is_null=True, input_length=0)
+    add((), SNAIL_MAX_OUTPUT_BYTES, input_is_null=True, input_length=2)
+
+    rng = random.Random(20261017)
+    boundary_values = (I32_MIN, -1, 0, 1, I32_MAX)
+    for index in range(128):
+        rows = rng.randint(0, SNAIL_MAX_ROWS)
+        if rows == 0:
+            columns = 0
+        else:
+            columns = rng.randint(0, SNAIL_MAX_COLUMNS)
+            if columns == 1 and rows > 1:
+                columns = 2
+        cells = tuple(rng.choice(boundary_values + (rng.randint(I32_MIN, I32_MAX),))
+                      for _ in range(rows * columns))
+        values = (rows, columns) + cells
+        required = 4 * len(cells)
+        for capacity in (0, max(0, required - 1), required, SNAIL_MAX_OUTPUT_BYTES):
+            add(values, capacity)
+        if index % 16 == 0 and required:
+            add(values, SNAIL_MAX_OUTPUT_BYTES, output_is_null=True)
+
+    return separate_length_corpus(cases)
+
+
+def reverse_kgroup_corpus(workload: dict) -> tuple[str, int]:
+    validate_reverse_kgroup_workload(workload)
+    default_capacity = REVERSE_KGROUP_MAX_OUTPUT_BYTES
+    cases: dict[tuple[tuple[int, ...], int, int, bool, bool], tuple[int, bytes]] = {}
+
+    def reference(values: tuple[int, ...], input_length: int, capacity: int,
+                  output_is_null: bool, input_is_null: bool) -> tuple[int, bytes]:
+        if input_is_null or input_length != len(values):
+            return REVERSE_KGROUP_INVALID_RESULT, b""
+        if (not 1 <= len(values) <= REVERSE_KGROUP_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX
+                       for value in values)
+                or len(values) > REVERSE_KGROUP_MAX_VALID_INPUT_LENGTH):
+            return REVERSE_KGROUP_INVALID_RESULT, b""
+        group_size = values[0]
+        payload = list(values[1:])
+        if (not 1 <= group_size <= REVERSE_KGROUP_MAX_LIST_LENGTH
+                or len(payload) > REVERSE_KGROUP_MAX_LIST_LENGTH):
+            return REVERSE_KGROUP_INVALID_RESULT, b""
+
+        reversed_payload: list[int] = []
+        for start in range(0, len(payload), group_size):
+            group = payload[start:start + group_size]
+            reversed_payload.extend(reversed(group) if len(group) == group_size else group)
+        output = (struct.pack("<" + "i" * len(reversed_payload), *reversed_payload)
+                  if reversed_payload else b"")
+        if output_is_null or capacity < len(output):
+            return REVERSE_KGROUP_OUTPUT_ERROR, b""
+        return len(output), output
+
+    def add(values: tuple[int, ...], capacity: int = default_capacity,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None) -> None:
+        if input_length is None:
+            input_length = len(values)
+        if (len(values) > REVERSE_KGROUP_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX
+                       for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= REVERSE_KGROUP_MAX_PARSEABLE_INPUT_LENGTH
+                or type(capacity) is not int
+                or not 0 <= capacity <= REVERSE_KGROUP_MAX_OUTPUT_BYTES
+                or type(output_is_null) is not bool or type(input_is_null) is not bool
+                or input_is_null and output_is_null
+                or input_is_null and values
+                or not input_is_null and input_length != len(values)):
+            raise ValueError("reverse_kgroup corpus input or pointer framing is invalid")
+        result, output = reference(values, input_length, capacity, output_is_null, input_is_null)
+        key = (values, input_length, capacity, output_is_null, input_is_null)
+        if key in cases and cases[key] != (result, output):
+            raise ValueError("reverse_kgroup probe collides with a distinct output call")
+        cases[key] = result, output
+
+    for case in workload["cases"]:
+        add(tuple(case["input_values"]),
+            case.get("workspace_bytes", case.get("output_capacity", default_capacity)),
+            case.get("output_is_null", False), case.get("input_is_null", False),
+            case["input_length"])
+
+    add((), 0, input_length=0)
+    add((1,), 0)
+    add((256,), default_capacity)
+    add((1, -5, 7, I32_MIN, I32_MAX))
+    add((2, 10, 20, 30))
+    add((3, 1, 2, 3, 4, 5, 6, 7, 8), output_is_null=True)
+    add((1,), 0, output_is_null=True)
+    add((0,), 0, output_is_null=True)
+    add((), default_capacity, input_is_null=True, input_length=0)
+    add((), default_capacity, input_is_null=True, input_length=1)
+
+    maximum_values = tuple(range(-128, 128))
+    for group_size in (1, 2, 3, 255, 256):
+        values = (group_size, *maximum_values)
+        result, _ = reference(values, len(values), default_capacity, False, False)
+        for capacity in (0, max(0, result - 1), result, default_capacity):
+            add(values, capacity)
+        add(values, default_capacity, output_is_null=True)
+
+    malformed = (
+        (), (0,), (-1,), (REVERSE_KGROUP_MAX_LIST_LENGTH + 1,),
+        (1, *range(REVERSE_KGROUP_MAX_LIST_LENGTH + 1)),
+        (2, 1), (3, 1, 2),
+    )
+    for values in malformed:
+        add(tuple(values))
+
+    rng = random.Random(20261017)
+    boundary_values = (I32_MIN, -1, 0, 1, I32_MAX)
+    for index in range(128):
+        group_size = rng.randint(1, REVERSE_KGROUP_MAX_LIST_LENGTH)
+        list_length = rng.randint(0, REVERSE_KGROUP_MAX_LIST_LENGTH)
+        payload = tuple(rng.choice(boundary_values + (rng.randint(I32_MIN, I32_MAX),))
+                        for _ in range(list_length))
+        values = (group_size, *payload)
+        result, _ = reference(values, len(values), default_capacity, False, False)
+        for capacity in (0, max(0, result - 1), result, default_capacity):
+            add(values, capacity)
+        if index % 16 == 0 and list_length:
+            add(values, default_capacity, output_is_null=True)
+
+    return separate_length_corpus(cases)
+
+
+def sjfscheduling_corpus(workload: dict) -> tuple[str, int]:
+    validate_sjfscheduling_workload(workload)
+    default_capacity = 256
+    cases: dict[tuple[tuple[int, ...], int, int, bool, bool], tuple[int, bytes]] = {}
+
+    def reference(values: tuple[int, ...], input_length: int, capacity: int,
+                  output_is_null: bool, input_is_null: bool) -> tuple[int, bytes]:
+        if input_is_null or input_length != len(values):
+            return -1, b""
+        if (not 1 <= len(values) <= 130
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX
+                       for value in values)):
+            return -1, b""
+        process_count = values[0]
+        if not 0 <= process_count <= 64 or len(values) != 1 + 2 * process_count:
+            return -1, b""
+
+        waiting: list[tuple[int, int, int]] = []
+        for index in range(process_count):
+            arrival, burst = values[1 + 2 * index:3 + 2 * index]
+            if not 0 <= arrival <= 255 or not 1 <= burst <= 255:
+                return -1, b""
+            waiting.append((index, arrival, burst))
+        waiting.sort(key=lambda process: process[1])
+
+        current_time = 0
+        next_waiting = 0
+        ready: list[tuple[int, int, int]] = []
+        schedule: list[int] = []
+        while len(schedule) < process_count:
+            while (next_waiting < process_count
+                   and waiting[next_waiting][1] <= current_time):
+                ready.append(waiting[next_waiting])
+                next_waiting += 1
+            if not ready:
+                current_time += 1
+                continue
+            selected_index = min(range(len(ready)), key=lambda index: ready[index][2])
+            process_id, _, burst = ready.pop(selected_index)
+            schedule.append(process_id)
+            current_time += burst
+
+        output = struct.pack("<" + "i" * len(schedule), *schedule) if schedule else b""
+        if output_is_null or capacity < len(output):
+            return -2, b""
+        return len(output), output
+
+    def add(values: tuple[int, ...], capacity: int = default_capacity,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None) -> None:
+        if input_length is None:
+            input_length = len(values)
+        if (len(values) > 130
+                or any(type(value) is not int or not I32_MIN <= value <= I32_MAX
+                       for value in values)
+                or type(input_length) is not int or not 0 <= input_length <= 130
+                or type(capacity) is not int or not 0 <= capacity <= 256
+                or type(output_is_null) is not bool or type(input_is_null) is not bool
+                or input_is_null and output_is_null
+                or input_is_null and values
+                or not input_is_null and input_length != len(values)):
+            raise ValueError("sjfscheduling corpus input or pointer framing is invalid")
+        result, output = reference(values, input_length, capacity, output_is_null, input_is_null)
+        key = (values, input_length, capacity, output_is_null, input_is_null)
+        if key in cases and cases[key] != (result, output):
+            raise ValueError("sjfscheduling probe collides with a distinct output call")
+        cases[key] = result, output
+
+    for case in workload["cases"]:
+        add(tuple(case["input_values"]), case.get("output_capacity", default_capacity),
+            case.get("output_is_null", False), case.get("input_is_null", False),
+            case["input_length"])
+
+    add((0,), 0)
+    add((0,), default_capacity, output_is_null=True)
+    add((1, 0, 1), 0)
+    add((1, 0, 1), 3)
+    add((1, 0, 1), 4)
+    add((1, 0, 1), default_capacity, output_is_null=True)
+    add((1, 0, 0), 0, output_is_null=True)
+    add((1, 0, 0), 0)
+    add((), default_capacity, input_is_null=True, input_length=0)
+    add((), default_capacity, input_is_null=True, input_length=1)
+
+    malformed = (
+        (), (2,), (1, 0), (1, 0, 1, 9), (65,), (-1,),
+        (1, -1, 1), (1, 256, 1), (1, 0, 0), (1, 0, 256),
+        (64, *([0, 1] * 64), 7),
+    )
+    for values in malformed:
+        add(values)
+
+    rng = random.Random(20261017)
+    for _ in range(128):
+        count = rng.randint(0, 64)
+        values = (count, *(cell for _ in range(count)
+                           for cell in (rng.randint(0, 255), rng.randint(1, 255))))
+        result, _ = reference(values, len(values), default_capacity, False, False)
+        for capacity in (0, max(0, result - 1), result, default_capacity):
+            if capacity >= 0:
+                add(values, capacity)
+
+    return separate_length_corpus(cases)
+
+
 def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     if algorithm == "salsa":
         return salsa_corpus(workload)
@@ -1279,6 +1782,16 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         return mo_corpus(workload)
     if algorithm == "hungarian_algorithm":
         return hungarian_algorithm_corpus(workload)
+    if algorithm == "merge_sort_no_extra_space":
+        return merge_sort_no_extra_space_corpus(workload)
+    if algorithm == "reverse_singly_linked_list":
+        return reverse_singly_linked_list_corpus(workload)
+    if algorithm == "snail":
+        return snail_corpus(workload)
+    if algorithm == "reverse_kgroup":
+        return reverse_kgroup_corpus(workload)
+    if algorithm == "sjfscheduling":
+        return sjfscheduling_corpus(workload)
     raise ValueError(f"no i32 byte-output corpus for {algorithm}")
 
 
