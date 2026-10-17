@@ -1,0 +1,98 @@
+const MAX_COUNT: usize = 64
+const MAX_INPUT_LENGTH: usize = 66
+
+def smoothsort_sift(values: mutable i64&, root_arg: usize, order_arg: usize, leonardo: usize&) -> void:
+    root: mutable usize = root_arg
+    order: mutable usize = order_arg
+    while order > 1:
+        right: usize = root - 1
+        left: usize = root - 1 - leonardo[order - 2]
+        if not (values[left] < values[right]) and values[root] < values[left]:
+            temporary: i64 = values[root]
+            values[root] <- values[left]
+            values[left] <- temporary
+            root <- left
+            order <- order - 1
+        else if values[left] < values[right] and values[root] < values[right]:
+            temporary: i64 = values[root]
+            values[root] <- values[right]
+            values[right] <- temporary
+            root <- right
+            order <- order - 2
+        else:
+            break
+
+def smoothsort_trinkle(values: mutable i64&, position_arg: usize, orders: mutable usize&, index_arg: usize, leonardo: usize&) -> void:
+    position: mutable usize = position_arg
+    index: mutable usize = index_arg
+    while index > 0:
+        previous: usize = position - leonardo[orders[index]]
+        if not (values[position] < values[previous]): break
+        if orders[index] > 1:
+            right: usize = position - 1
+            left: usize = position - 1 - leonardo[orders[index] - 2]
+            if not (values[right] < values[previous]) or not (values[left] < values[previous]): break
+        temporary: i64 = values[position]
+        values[position] <- values[previous]
+        values[previous] <- temporary
+        position <- previous
+        index <- index - 1
+    smoothsort_sift(&values[0], position, orders[index], &leonardo[0])
+
+def smoothsort_sort(values: mutable i64&, count: usize) -> void:
+    if count < 2: return
+    leonardo: mutable usize[16] = zeroed
+    leonardo[0] <- 1
+    leonardo[1] <- 1
+    for index in 2..<16:
+        leonardo[index] <- leonardo[index - 1] + leonardo[index - 2] + 1
+    orders: mutable usize[MAX_COUNT] = zeroed
+    heap_count: mutable usize = 0
+    for position in 0..<count:
+        if heap_count >= 2 and orders[heap_count - 2] == orders[heap_count - 1] + 1:
+            heap_count <- heap_count - 1
+            orders[heap_count - 1] <- orders[heap_count - 1] + 1
+        else if heap_count > 0 and orders[heap_count - 1] == 1:
+            orders[heap_count] <- 0
+            heap_count <- heap_count + 1
+        else:
+            orders[heap_count] <- 1
+            heap_count <- heap_count + 1
+        smoothsort_trinkle(&values[0], position, &orders[0], heap_count - 1, &leonardo[0])
+    position: mutable usize = count
+    while position > 0:
+        position <- position - 1
+        heap_count <- heap_count - 1
+        order: usize = orders[heap_count]
+        if order > 1:
+            right_order: usize = order - 2
+            left_order: usize = order - 1
+            right_position: usize = position - 1
+            left_position: usize = position - 1 - leonardo[right_order]
+            orders[heap_count] <- left_order
+            heap_count <- heap_count + 1
+            smoothsort_trinkle(&values[0], left_position, &orders[0], heap_count - 1, &leonardo[0])
+            orders[heap_count] <- right_order
+            heap_count <- heap_count + 1
+            smoothsort_trinkle(&values[0], right_position, &orders[0], heap_count - 1, &leonardo[0])
+
+def smoothsort_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255.u64()).u8()
+        bits <- bits >> 8
+
+def smoothsort_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 0 or input[0] > MAX_COUNT.i64(): return -1
+    count: usize = input[0].usize()
+    if length != 1 + count or length > MAX_COUNT + 1: return -1
+    values: mutable i64[MAX_COUNT] = zeroed
+    for index in 0..<count: values[index] <- input[index + 1]
+    smoothsort_sort(&values[0], count)
+    output_bytes: usize = count * 8
+    if output == null or capacity < output_bytes: return -2
+    for index in 0..<count: smoothsort_store_i64(&output[0], index * 8, values[index])
+    output_bytes.i64()
+
+export fn smoothsort(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = smoothsort_impl

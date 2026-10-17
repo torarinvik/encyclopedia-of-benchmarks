@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-rhumb-bearing-float64-slice-io-v1",
+  "algorithm": "rhumb_bearing",
+  "function_symbol": "rhumb_bearing",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/navigation/rhumbline.rs",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/navigation/rhumbline.rs",
+    "role": "algorithm",
+    "symbol": "rhumb_bearing"
+  },
+  "contract": {
+    "operation": "Compute the pinned rhumb-line bearing in degrees between two geographic coordinates.",
+    "formula": "Convert latitudes to radians; compute longitude delta in radians and wrap it once only when strictly outside +/-PI; compute del_psi = ln(tan(phi2/2+PI/4)/tan(phi1/2+PI/4)); bearing = atan2(del_lambda, del_psi) * 180 / PI; return (bearing + 360) % 360.",
+    "bearing_range_degrees": "[0,360)",
+    "longitude_wrap": "Strict one-wrap; exact +/-PI is unchanged.",
+    "errors": "Malformed, nonfinite, or out-of-domain input returns -1 before output checks. Null or insufficient output returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[latitude1_degrees, longitude1_degrees, latitude2_degrees, longitude2_degrees]",
+    "exact_length": 4,
+    "maximum_valid_input_length": 4,
+    "maximum_parseable_input_length": 5,
+    "latitude_range_degrees": [
+      -85.0,
+      85.0
+    ],
+    "longitude_range_degrees": [
+      -180.0,
+      180.0
+    ],
+    "all_values_finite": true,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "One rhumb bearing in degrees normalized into [0,360).",
+    "maximum_elements": 1,
+    "success_result": 1,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed or out-of-domain input is rejected before output pointer or capacity checks.",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 1,
+    "meaning": "One output bearing."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "identical_point",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "eastward_equator",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        90.0
+      ]
+    },
+    {
+      "id": "westward_equator",
+      "input_values": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        270.0
+      ]
+    },
+    {
+      "id": "northward_meridian",
+      "input_values": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "southward_meridian",
+      "input_values": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        180.0
+      ]
+    },
+    {
+      "id": "diagonal_path",
+      "input_values": [
+        10.0,
+        20.0,
+        30.0,
+        70.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        66.80800001835854
+      ]
+    },
+    {
+      "id": "antimeridian_eastward",
+      "input_values": [
+        10.0,
+        179.0,
+        10.0,
+        -179.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        90.0
+      ]
+    },
+    {
+      "id": "antimeridian_westward",
+      "input_values": [
+        10.0,
+        -179.0,
+        10.0,
+        179.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        270.0
+      ]
+    },
+    {
+      "id": "positive_half_turn_strict_boundary",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0,
+        180.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        90.0
+      ]
+    },
+    {
+      "id": "negative_half_turn_strict_boundary",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0,
+        -180.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        270.0
+      ]
+    },
+    {
+      "id": "latitude_domain_boundaries",
+      "input_values": [
+        -85.0,
+        0.0,
+        85.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "latitude_above_domain",
+      "input_values": [
+        85.000001,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "longitude_above_domain",
+      "input_values": [
+        0.0,
+        180.000001,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": false,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid_input_before_null_output",
+      "input_values": [
+        86.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 4,
+      "input_is_null": true,
+      "output_capacity": 1,
+      "output_is_null": false,
+      "expected_result": -1
+    }
+  ]
+}

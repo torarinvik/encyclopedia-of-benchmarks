@@ -1,0 +1,99 @@
+const MAX_DIMENSION: usize = 8
+const MAX_CELLS: usize = 64
+const MAX_INPUT_LENGTH: usize = 79
+
+struct AxisSolution:
+    first: i64
+    second: i64
+    translation: i64
+    valid: bool
+
+def solve_axis(x: i64[3], y: i64[3], target: i64[3]) -> AxisSolution:
+    determinant: i64 = x[0] * (y[1] - y[2]) + x[1] * (y[2] - y[0]) + x[2] * (y[0] - y[1])
+    if determinant == 0:
+        return AxisSolution()
+    first: i64 = target[0] * (y[1] - y[2]) + target[1] * (y[2] - y[0]) + target[2] * (y[0] - y[1])
+    second: i64 = x[0] * (target[1] - target[2]) + x[1] * (target[2] - target[0]) + x[2] * (target[0] - target[1])
+    translation: i64 = x[0] * (y[1] * target[2] - y[2] * target[1]) + x[1] * (y[2] * target[0] - y[0] * target[2]) + x[2] * (y[0] * target[1] - y[1] * target[0])
+    if first % determinant != 0 or second % determinant != 0 or translation % determinant != 0:
+        return AxisSolution()
+    AxisSolution(first: first / determinant, second: second / determinant, translation: translation / determinant, valid: true)
+
+def affine_image_rotation_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
+        return -1
+    rows_value: i64 = input[0].i64()
+    columns_value: i64 = input[1].i64()
+    if rows_value < 1 or rows_value > 8 or columns_value < 1 or columns_value > 8:
+        return -1
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    cells: usize = rows * columns
+    if length != 14 + cells:
+        return -1
+    pixels: mutable u8[64] = zeroed
+    index: mutable usize = 0
+    while index < cells:
+        pixel: i64 = input[index + 2].i64()
+        if pixel < 0 or pixel > 255:
+            return -1
+        pixels[index] <- pixel.u8()
+        index <- index + 1
+
+    point_offset: usize = 2 + cells
+    source_x: mutable i64[3] = zeroed
+    source_y: mutable i64[3] = zeroed
+    destination_x: mutable i64[3] = zeroed
+    destination_y: mutable i64[3] = zeroed
+    index <- 0
+    while index < 3:
+        source_x[index] <- input[point_offset + 2 * index].i64()
+        source_y[index] <- input[point_offset + 2 * index + 1].i64()
+        destination_x[index] <- input[point_offset + 6 + 2 * index].i64()
+        destination_y[index] <- input[point_offset + 7 + 2 * index].i64()
+        if source_x[index] < -16 or source_x[index] > 16 or source_y[index] < -16 or source_y[index] > 16 or destination_x[index] < -16 or destination_x[index] > 16 or destination_y[index] < -16 or destination_y[index] > 16:
+            return -1
+        index <- index + 1
+
+    x_axis: AxisSolution = solve_axis(source_x, source_y, destination_x)
+    y_axis: AxisSolution = solve_axis(source_x, source_y, destination_y)
+    if not x_axis.valid or not y_axis.valid:
+        return -1
+    a: i64 = x_axis.first
+    b: i64 = x_axis.second
+    tx: i64 = x_axis.translation
+    c: i64 = y_axis.first
+    d: i64 = y_axis.second
+    ty: i64 = y_axis.translation
+    if a < -2 or a > 2 or b < -2 or b > 2 or c < -2 or c > 2 or d < -2 or d > 2 or tx < -16 or tx > 16 or ty < -16 or ty > 16:
+        return -1
+    determinant: i64 = a * d - b * c
+    if determinant != -1 and determinant != 1:
+        return -1
+    index <- 0
+    while index < 3:
+        if destination_x[index] != a * source_x[index] + b * source_y[index] + tx or destination_y[index] != c * source_x[index] + d * source_y[index] + ty:
+            return -1
+        index <- index + 1
+
+    if output == null or capacity < cells:
+        return -2
+    written: mutable usize = 0
+    output_y: mutable i64 = 0
+    while output_y < columns.i64():
+        output_x: mutable i64 = 0
+        while output_x < rows.i64():
+            dx: i64 = output_x - tx
+            dy: i64 = output_y - ty
+            source_column: i64 = (d * dx - b * dy) / determinant
+            source_row: i64 = (-c * dx + a * dy) / determinant
+            if source_column >= 0 and source_column < columns.i64() and source_row >= 0 and source_row < rows.i64():
+                output[written] <- pixels[source_row.usize() * columns + source_column.usize()]
+            else:
+                output[written] <- 0
+            written <- written + 1
+            output_x <- output_x + 1
+        output_y <- output_y + 1
+    cells.i64()
+
+export fn affine_image_rotation(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64 = affine_image_rotation_impl

@@ -26,6 +26,7 @@ from run_i64_array_float64 import (
     validate_moles_to_molecules_workload,
     validate_schur_complement_workload,
     validate_sharpe_ratio_workload,
+    validate_maxwells_equations_workload,
 )
 from variance_oracle import INVALID_RESULT as VARIANCE_INVALID_RESULT
 from variance_oracle import MAX_INPUT_LENGTH as MAX_VARIANCE_INPUT_LENGTH
@@ -507,6 +508,13 @@ from relativity_oracle import MAX_LENGTH_TIME_MILLI as RELATIVITY_MAX_LENGTH_TIM
 from relativity_oracle import SPEED_OF_LIGHT as RELATIVITY_SPEED_OF_LIGHT
 from relativity_oracle import SPEED_OF_LIGHT_MILLI as RELATIVITY_SPEED_OF_LIGHT_MILLI
 from relativity_oracle import expected_result as relativity_oracle
+from maxwells_equations_oracle import INVALID_RESULT as MAXWELLS_EQUATIONS_INVALID_RESULT
+from maxwells_equations_oracle import MAX_FLUX_RATE_RAW as MAXWELLS_EQUATIONS_MAX_FLUX_RATE_RAW
+from maxwells_equations_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH
+from maxwells_equations_oracle import MAX_PHYSICAL_RAW as MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW
+from maxwells_equations_oracle import MAX_CONSTANT_RAW as MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW
+from maxwells_equations_oracle import MIN_CONSTANT_RAW as MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW
+from maxwells_equations_oracle import expected_result as maxwells_equations_reference
 
 ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "weddles_rule", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range", "apparent_power", "archimedes_principle_of_buoyant_force", "automatic_differentiation", "boyles_law", "butterworth_filter", "center_of_mass", "centripetal_force", "cohen_sutherland")
 ALGORITHMS += ("reverse_polish_notation",)
@@ -556,6 +564,7 @@ ALGORITHMS += ("mass_to_moles",)
 ALGORITHMS += ("moles_to_molecules",)
 ALGORITHMS += ("schur_complement",)
 ALGORITHMS += ("sharpe_ratio",)
+ALGORITHMS += ("maxwells_equations",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -739,6 +748,8 @@ def logistic_regression_csharp_binary_gd_oracle(values: list[int]) -> float:
 
 
 def oracle(algorithm: str, values: list[int]) -> float:
+    if algorithm == "maxwells_equations":
+        return maxwells_equations_reference(values)
     if algorithm == "mean_bias_deviation_percent":
         return mean_bias_deviation_percent_verifier_oracle(values)
     if algorithm == "mass_to_moles":
@@ -963,6 +974,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_schur_complement_workload(workload)
     elif algorithm == "sharpe_ratio":
         validate_sharpe_ratio_workload(workload)
+    elif algorithm == "maxwells_equations":
+        validate_maxwells_equations_workload(workload)
     absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     if (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0
             or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
@@ -980,7 +993,99 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             continue
         cases[tuple(values)] = source_result
 
-    if algorithm == "mean_bias_deviation_percent":
+    if algorithm == "maxwells_equations":
+        rng_maxwells = random.Random(20261017)
+
+        def sampled_constant() -> int:
+            return rng_maxwells.choice((
+                0, MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW,
+                MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW,
+                rng_maxwells.randint(MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW,
+                                     MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW),
+            ))
+
+        def add_maxwells_case(values: tuple[int, ...]) -> None:
+            if (len(values) > MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("maxwells_equations generated input exceeds its signed-i64 parseable bound")
+            result = oracle(algorithm, list(values))
+            if result != MAXWELLS_EQUATIONS_INVALID_RESULT and not math.isfinite(result):
+                raise ValueError("maxwells_equations oracle generated a non-finite result")
+            cases[values] = result
+
+        for index in range(128):
+            operation = index % 7
+            physical = lambda: rng_maxwells.randint(
+                -MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW,
+                MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW)
+            if operation == 0:
+                values = (0, physical(), rng_maxwells.randint(0, MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW),
+                          physical(), sampled_constant())
+            elif operation == 1:
+                values = (1, physical(), physical())
+            elif operation == 2:
+                values = (2, physical(), physical(),
+                          rng_maxwells.randint(-MAXWELLS_EQUATIONS_MAX_FLUX_RATE_RAW,
+                                               MAXWELLS_EQUATIONS_MAX_FLUX_RATE_RAW),
+                          sampled_constant(), sampled_constant())
+            elif operation in (3, 4):
+                values = (operation, sampled_constant(), sampled_constant())
+            elif operation == 5:
+                values = (5, physical(), physical(), sampled_constant())
+            else:
+                values = (6, physical(), physical(), sampled_constant(), sampled_constant())
+            add_maxwells_case(tuple(values))
+
+        edge_cases = (
+            (0, -MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW, 0,
+             MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW, 0),
+            (0, MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW,
+             MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW,
+             -MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW, MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW),
+            (1, -MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW,
+             MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW),
+            (2, MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW,
+             -MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW,
+             MAXWELLS_EQUATIONS_MAX_FLUX_RATE_RAW,
+             MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW,
+             MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW),
+            (3, MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW,
+             MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW),
+            (4, MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW,
+             MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW),
+            (5, -MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW,
+             MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW,
+             MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW),
+            (6, MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW,
+             -MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW,
+             MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW,
+             MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW),
+        )
+        for values in edge_cases:
+            add_maxwells_case(values)
+
+        malformed = (
+            (), (7,), (-1,), (0,), (0, 0, 0, 0), (0, 0, 0, 0, 0, 0),
+            (0, MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW + 1, 0, 0, 0),
+            (0, 0, -1, 0, 0),
+            (0, 0, 0, 0, MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW - 1),
+            (0, 0, 0, 0, MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW + 1),
+            (1, 0), (1, 0, 0, 0),
+            (1, MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW + 1, 0),
+            (2, 0, 0, 0, 0), (2, 0, 0, MAXWELLS_EQUATIONS_MAX_FLUX_RATE_RAW + 1, 0, 0),
+            (2, 0, 0, 0, -1, 0), (2, 0, 0, 0, 0, MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW + 1),
+            (3, -1, 0), (3, MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW + 1, 0),
+            (4, 0), (4, 0, 0, 0),
+            (5, 0, 0), (5, 0, 0, 0, 0),
+            (5, 0, 0, MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW - 1),
+            (6, 0, 0, 0), (6, 0, MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW + 1, 0, 0),
+            (6, 0, 0, -1, 0), (6, 0, 0, 0, MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW + 1),
+            (I64_MIN,), (I64_MAX,), tuple([0] * MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add_maxwells_case(tuple(values))
+    elif algorithm == "mean_bias_deviation_percent":
         def add_mean_bias_deviation_case(values: tuple[int, ...]) -> None:
             if len(values) > MAX_MEAN_BIAS_DEVIATION_PERCENT_INPUT_LENGTH:
                 raise ValueError("mean_bias_deviation_percent generated input exceeds its parseable bound")
@@ -5357,6 +5462,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "moles_to_molecules": 1,
                     "schur_complement": 6,
                     "sharpe_ratio": 0,
+                    "maxwells_equations": 0,
                     "smooth_l1_loss": MAX_SMOOTH_L1_LOSS_INPUT_LENGTH,
                     "binary_cross_entropy": MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH,
                     "binary_focal_cross_entropy": MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH,
@@ -5381,6 +5487,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                    MOLES_TO_MOLECULES_INVALID_RESULT if algorithm == "moles_to_molecules" else
                    SCHUR_COMPLEMENT_INVALID_RESULT if algorithm == "schur_complement" else
                    SHARPE_RATIO_INVALID_RESULT if algorithm == "sharpe_ratio" else
+                   MAXWELLS_EQUATIONS_INVALID_RESULT if algorithm == "maxwells_equations" else
                    SPARSITY_INVALID_RESULT if algorithm == "sparsity" else
                    COLLABORATIVE_PREDICTION_INVALID_RESULT if algorithm == "collaborative_filtering" else
                    COLLABORATIVE_PEARSON_INVALID_RESULT if algorithm == "collaborative_filtering_pearson_similarity" else
@@ -5556,7 +5663,9 @@ def main() -> int:
     directory = args.build_dir.resolve()
     directory.mkdir(parents=True, exist_ok=True)
     algorithm = args.algorithm
-    workload_path = ROOT / "benchmarks" / algorithm[0] / algorithm / "workload.json"
+    workload_path = (ROOT / "benchmarks" / "maxwells_equations" / "workload.json"
+                     if algorithm == "maxwells_equations" else
+                     ROOT / "benchmarks" / algorithm[0] / algorithm / "workload.json")
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     data, case_count = corpus(workload, algorithm)
     (directory / f"{algorithm}-corpus.txt").write_text(data, encoding="utf-8")

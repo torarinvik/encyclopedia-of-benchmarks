@@ -581,11 +581,16 @@ from mono_alphabetic_oracle import MAX_TEXT_LENGTH as MONO_ALPHABETIC_MAX_TEXT_L
 from mono_alphabetic_oracle import expected_output as mono_alphabetic_oracle
 from mono_alphabetic_cipher_oracle import MAX_TEXT_LENGTH as MONO_ALPHABETIC_CIPHER_MAX_TEXT_LENGTH
 from mono_alphabetic_cipher_oracle import expected_output as mono_alphabetic_cipher_oracle
+from msd_radix_string_sorter_oracle import MAX_INPUT_LENGTH as MSD_RADIX_STRING_SORTER_MAX_INPUT_LENGTH
+from msd_radix_string_sorter_oracle import MAX_STRING_LENGTH as MSD_RADIX_STRING_SORTER_MAX_STRING_LENGTH
+from msd_radix_string_sorter_oracle import MAX_STRINGS as MSD_RADIX_STRING_SORTER_MAX_STRINGS
+from msd_radix_string_sorter_oracle import expected_result as msd_radix_string_sorter_oracle
 from run_i64_array_scalar import encode_case
 from run_i64_array_scalar import MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_mono_alphabetic_workload
 from run_i64_array_scalar import MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_mono_alphabetic_cipher_workload
+from run_i64_array_scalar import validate_msd_radix_string_sorter_workload
 from run_i64_array_scalar import validate_scramble_strings_workload
 from run_i64_array_scalar import validate_richest_customer_wealth_workload
 from run_i64_array_scalar import validate_segment_tree_update_workload
@@ -594,6 +599,7 @@ from run_i64_array_scalar import validate_match_word_pattern_workload
 from run_i64_array_scalar import MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_power_using_recursion_workload
 from run_i64_array_scalar import validate_sparse_matrix_workload
+from run_i64_array_scalar import validate_mrucache_workload
 from run_i64_array_scalar import validate_graph_enumeration_workload
 from run_i64_array_scalar import validate_lca_workload
 from run_i64_array_scalar import validate_johnsons_algorithm_workload
@@ -948,6 +954,13 @@ from sparse_matrix_oracle import MAX_INPUT_LENGTH as SPARSE_MATRIX_MAX_INPUT_LEN
 from sparse_matrix_oracle import MAX_VALID_INPUT_LENGTH as SPARSE_MATRIX_MAX_VALID_INPUT_LENGTH
 from sparse_matrix_oracle import MIN_CELL as SPARSE_MATRIX_MIN_CELL
 from sparse_matrix_oracle import expected_result as sparse_matrix_oracle
+from mrucache_oracle import INT32_MAX as MRUCACHE_INT32_MAX
+from mrucache_oracle import INT32_MIN as MRUCACHE_INT32_MIN
+from mrucache_oracle import MAX_CAPACITY as MRUCACHE_MAX_CAPACITY
+from mrucache_oracle import MAX_INPUT_LENGTH as MRUCACHE_MAX_INPUT_LENGTH
+from mrucache_oracle import MAX_OPERATIONS as MRUCACHE_MAX_OPERATIONS
+from mrucache_oracle import MAX_VALUE as MRUCACHE_MAX_VALUE
+from mrucache_oracle import expected_result as mrucache_oracle
 from lca_oracle import INVALID_RESULT as LCA_INVALID_RESULT
 from lca_oracle import MAX_INPUT_LENGTH as LCA_MAX_INPUT_LENGTH
 from lca_oracle import MAX_NODES as LCA_MAX_NODES
@@ -1093,6 +1106,7 @@ ALGORITHMS += ("miller_rabin_primality_checker",)
 ALGORITHMS += ("logistic_regression_predict",)
 ALGORITHMS += ("time_simulation",)
 ALGORITHMS += ("rotting_oranges",)
+ALGORITHMS += ("mrucache",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -1592,6 +1606,9 @@ def monotonic_array_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "msd_radix_string_sorter":
+        result = msd_radix_string_sorter_oracle(values)
+        return -1 if result is None else result
     if algorithm == "mono_alphabetic_cipher":
         return mono_alphabetic_cipher_oracle(values)
     if algorithm == "mono_alphabetic":
@@ -1600,6 +1617,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return knapsack_zero_one_tabulation_oracle(values)
     if algorithm == "sparse_matrix":
         return sparse_matrix_oracle(values)
+    if algorithm == "mrucache":
+        return mrucache_oracle(values)
     if algorithm == "minimax":
         return minimax_oracle(values)
     if algorithm == "kcenters":
@@ -2382,7 +2401,9 @@ def oracle(algorithm: str, values: list[int]) -> int:
 
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "mono_alphabetic_cipher":
+    if algorithm == "msd_radix_string_sorter":
+        validate_msd_radix_string_sorter_workload(workload)
+    elif algorithm == "mono_alphabetic_cipher":
         validate_mono_alphabetic_cipher_workload(workload)
     elif algorithm == "mono_alphabetic":
         validate_mono_alphabetic_workload(workload)
@@ -2404,6 +2425,8 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_time_simulation_workload(workload)
     elif algorithm == "rotting_oranges":
         validate_rotting_oranges_workload(workload)
+    elif algorithm == "mrucache":
+        validate_mrucache_workload(workload)
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
     special_records: list[str] = []
@@ -2422,7 +2445,44 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             continue
         if oracle(algorithm, values) != expected:
             raise ValueError(f"published workload disagrees with {algorithm} oracle")
-    if algorithm == "mono_alphabetic_cipher":
+    if algorithm == "msd_radix_string_sorter":
+        rng_msd_radix = random.Random(20261019)
+
+        def pack_msd(strings: list[tuple[int, ...]]) -> tuple[int, ...]:
+            packed: list[int] = [len(strings)]
+            for string in strings:
+                packed.extend((len(string), *string))
+            return tuple(packed)
+
+        all_bytes = list(range(256))
+        all_byte_strings = [tuple(all_bytes[offset:offset + MSD_RADIX_STRING_SORTER_MAX_STRING_LENGTH])
+                            for offset in range(0, len(all_bytes), MSD_RADIX_STRING_SORTER_MAX_STRING_LENGTH)]
+        for strings in (
+            [], [()], [()], [(), (), (65,), (65,), (65, 0), (65,)],
+            all_byte_strings,
+        ):
+            packed = pack_msd(strings)
+            cases[packed] = oracle(algorithm, list(packed))
+
+        for _ in range(64):
+            count = rng_msd_radix.randint(0, MSD_RADIX_STRING_SORTER_MAX_STRINGS)
+            strings = [tuple(rng_msd_radix.randrange(256)
+                             for _ in range(rng_msd_radix.randint(
+                                 0, MSD_RADIX_STRING_SORTER_MAX_STRING_LENGTH)))
+                       for _ in range(count)]
+            packed = pack_msd(strings)
+            cases[packed] = oracle(algorithm, list(packed))
+
+        malformed = (
+            (), (-1,), (MSD_RADIX_STRING_SORTER_MAX_STRINGS + 1,), (1,),
+            (1, -1), (1, MSD_RADIX_STRING_SORTER_MAX_STRING_LENGTH + 1),
+            (1, 1, -1), (1, 1, 256), (2, 0), (0, 0),
+            (1, 1, 65, 0),
+        )
+        for values in malformed:
+            if len(values) <= MSD_RADIX_STRING_SORTER_MAX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "mono_alphabetic_cipher":
         rng_mono_alphabetic_cipher = random.Random(20261018)
         identity = list(range(65, 91))
         for _ in range(64):
@@ -12205,6 +12265,52 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             (-(1 << 63), 1), ((1 << 63) - 1, 1), first_overlength_matrix,
         ):
             add_sparse_matrix_case(tuple(malformed))
+    if algorithm == "mrucache":
+        def add_mrucache_case(values: tuple[int, ...]) -> None:
+            if len(values) > MRUCACHE_MAX_INPUT_LENGTH:
+                raise ValueError("mrucache generated input exceeds its parseable-length bound")
+            result = mrucache_oracle(list(values))
+            if result != -1 and not 0 <= result <= (1 << 63) - 1:
+                raise ValueError("mrucache oracle returned a result outside its signed-63-bit contract")
+            cases[values] = result
+
+        rng_mrucache = random.Random(20261017)
+        for _ in range(128):
+            capacity = rng_mrucache.randint(1, MRUCACHE_MAX_CAPACITY)
+            operation_count = rng_mrucache.randint(0, MRUCACHE_MAX_OPERATIONS)
+            values = [capacity, operation_count]
+            for _ in range(operation_count):
+                operation = rng_mrucache.randrange(2)
+                key = rng_mrucache.choice((MRUCACHE_INT32_MIN, MRUCACHE_INT32_MAX,
+                                           rng_mrucache.randint(-32, 32)))
+                value = (rng_mrucache.randint(0, MRUCACHE_MAX_VALUE) if operation == 0 else
+                         rng_mrucache.choice((MRUCACHE_INT32_MIN, 0, MRUCACHE_INT32_MAX)))
+                values.extend((operation, key, value))
+            add_mrucache_case(tuple(values))
+
+        maximum_trace = [MRUCACHE_MAX_CAPACITY, MRUCACHE_MAX_OPERATIONS]
+        for index in range(MRUCACHE_MAX_OPERATIONS):
+            operation = 0 if index < MRUCACHE_MAX_CAPACITY else index % 2
+            key = (MRUCACHE_INT32_MIN + index if index < MRUCACHE_MAX_CAPACITY else
+                   MRUCACHE_INT32_MIN if index % 2 == 0 else MRUCACHE_INT32_MAX)
+            value = index if operation == 0 else 0
+            maximum_trace.extend((operation, key, value))
+        add_mrucache_case(tuple(maximum_trace))
+
+        malformed = (
+            (), (0,), (-1, 0), (0, 0), (MRUCACHE_MAX_CAPACITY + 1, 0),
+            (1, -1), (1, MRUCACHE_MAX_OPERATIONS + 1),
+            (1, 1, 2, 3), (1, 1, -1, 0),
+            (1, 1, 0, MRUCACHE_INT32_MIN - 1, 0),
+            (1, 1, 0, MRUCACHE_INT32_MAX + 1, 0),
+            (1, 1, 0, 1, -1), (1, 1, 0, 1, MRUCACHE_MAX_VALUE + 1),
+            (1, 1, 1, 1, MRUCACHE_INT32_MIN - 1),
+            (1, 1, 1, 1, MRUCACHE_INT32_MAX + 1),
+            (1, 0, 0), tuple([0] * MRUCACHE_MAX_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add_mrucache_case(tuple(values))
+        special_records.append("NULL 1 -1\n")
     case_count = len(cases) + len(special_records)
     lines = [str(case_count) + "\n"]
     for values, expected in sorted(cases.items()):

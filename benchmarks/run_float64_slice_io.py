@@ -150,6 +150,70 @@ from quaternions_oracle import OUTPUT_ERROR as QUATERNIONS_OUTPUT_ERROR
 from quaternions_oracle import RELATIVE_TOLERANCE as QUATERNIONS_RELATIVE_TOLERANCE
 from quaternions_oracle import expected_abi_result as quaternions_expected_abi_result
 from quaternions_oracle import expected_output as quaternions_oracle
+from rhumb_distance_oracle import EARTH_RADIUS as RHUMB_DISTANCE_EARTH_RADIUS
+from rhumb_distance_oracle import INVALID_RESULT as RHUMB_DISTANCE_INVALID_RESULT
+from rhumb_distance_oracle import MAX_INPUT_LENGTH as RHUMB_DISTANCE_MAX_INPUT_LENGTH
+from rhumb_distance_oracle import MAX_LATITUDE as RHUMB_DISTANCE_MAX_LATITUDE
+from rhumb_distance_oracle import MAX_LONGITUDE as RHUMB_DISTANCE_MAX_LONGITUDE
+from rhumb_distance_oracle import MAX_OUTPUT_ELEMENTS as RHUMB_DISTANCE_MAX_OUTPUT_ELEMENTS
+from rhumb_distance_oracle import MAX_PARSEABLE_INPUT_LENGTH as RHUMB_DISTANCE_MAX_PARSEABLE_INPUT_LENGTH
+from rhumb_distance_oracle import MIN_LATITUDE as RHUMB_DISTANCE_MIN_LATITUDE
+from rhumb_distance_oracle import MIN_LONGITUDE as RHUMB_DISTANCE_MIN_LONGITUDE
+from rhumb_distance_oracle import OUTPUT_ERROR as RHUMB_DISTANCE_OUTPUT_ERROR
+from rhumb_distance_oracle import expected_output as rhumb_distance_oracle
+from rhumb_bearing_oracle import INVALID_RESULT as RHUMB_BEARING_INVALID_RESULT
+from rhumb_bearing_oracle import MAX_INPUT_LENGTH as RHUMB_BEARING_MAX_INPUT_LENGTH
+from rhumb_bearing_oracle import MAX_LATITUDE as RHUMB_BEARING_MAX_LATITUDE
+from rhumb_bearing_oracle import MAX_LONGITUDE as RHUMB_BEARING_MAX_LONGITUDE
+from rhumb_bearing_oracle import MAX_OUTPUT_ELEMENTS as RHUMB_BEARING_MAX_OUTPUT_ELEMENTS
+from rhumb_bearing_oracle import MAX_PARSEABLE_INPUT_LENGTH as RHUMB_BEARING_MAX_PARSEABLE_INPUT_LENGTH
+from rhumb_bearing_oracle import MIN_LATITUDE as RHUMB_BEARING_MIN_LATITUDE
+from rhumb_bearing_oracle import MIN_LONGITUDE as RHUMB_BEARING_MIN_LONGITUDE
+from rhumb_bearing_oracle import OUTPUT_ERROR as RHUMB_BEARING_OUTPUT_ERROR
+from rhumb_bearing_oracle import expected_output as rhumb_bearing_oracle
+from rhumb_destination_oracle import EARTH_RADIUS as RHUMB_DESTINATION_EARTH_RADIUS
+from rhumb_destination_oracle import INVALID_RESULT as RHUMB_DESTINATION_INVALID_RESULT
+from rhumb_destination_oracle import MAX_BEARING as RHUMB_DESTINATION_MAX_BEARING
+from rhumb_destination_oracle import MAX_DISTANCE as RHUMB_DESTINATION_MAX_DISTANCE
+from rhumb_destination_oracle import MAX_INPUT_LENGTH as RHUMB_DESTINATION_MAX_INPUT_LENGTH
+from rhumb_destination_oracle import MAX_LATITUDE as RHUMB_DESTINATION_MAX_LATITUDE
+from rhumb_destination_oracle import MAX_LONGITUDE as RHUMB_DESTINATION_MAX_LONGITUDE
+from rhumb_destination_oracle import MAX_OUTPUT_ELEMENTS as RHUMB_DESTINATION_MAX_OUTPUT_ELEMENTS
+from rhumb_destination_oracle import MAX_PARSEABLE_INPUT_LENGTH as RHUMB_DESTINATION_MAX_PARSEABLE_INPUT_LENGTH
+from rhumb_destination_oracle import MIN_BEARING as RHUMB_DESTINATION_MIN_BEARING
+from rhumb_destination_oracle import MIN_DISTANCE as RHUMB_DESTINATION_MIN_DISTANCE
+from rhumb_destination_oracle import MIN_LATITUDE as RHUMB_DESTINATION_MIN_LATITUDE
+from rhumb_destination_oracle import MIN_LONGITUDE as RHUMB_DESTINATION_MIN_LONGITUDE
+from rhumb_destination_oracle import OUTPUT_ERROR as RHUMB_DESTINATION_OUTPUT_ERROR
+from rhumb_destination_oracle import expected_output as rhumb_destination_oracle
+from median_of_running_array_double_oracle import (
+    INVALID_RESULT as MEDIAN_RUNNING_DOUBLE_INVALID_RESULT,
+    MAX_SAMPLE as MEDIAN_RUNNING_DOUBLE_MAX_SAMPLE,
+    MAX_SAMPLE_COUNT as MEDIAN_RUNNING_DOUBLE_MAX_SAMPLE_COUNT,
+    MAX_OUTPUT_ELEMENTS as MEDIAN_RUNNING_DOUBLE_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as MEDIAN_RUNNING_DOUBLE_MAX_PARSEABLE_INPUT_LENGTH,
+    MIN_SAMPLE as MEDIAN_RUNNING_DOUBLE_MIN_SAMPLE,
+    MIN_SAMPLE_COUNT as MEDIAN_RUNNING_DOUBLE_MIN_SAMPLE_COUNT,
+    OUTPUT_ERROR as MEDIAN_RUNNING_DOUBLE_OUTPUT_ERROR,
+    expected_output as median_of_running_array_double_oracle,
+)
+from median_of_running_array_float_oracle import (
+    INVALID_RESULT as MEDIAN_RUNNING_FLOAT_INVALID_RESULT,
+    MAX_SAMPLE as MEDIAN_RUNNING_FLOAT_MAX_SAMPLE,
+    MAX_SAMPLE_COUNT as MEDIAN_RUNNING_FLOAT_MAX_SAMPLE_COUNT,
+    MAX_OUTPUT_ELEMENTS as MEDIAN_RUNNING_FLOAT_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as MEDIAN_RUNNING_FLOAT_MAX_PARSEABLE_INPUT_LENGTH,
+    MIN_SAMPLE as MEDIAN_RUNNING_FLOAT_MIN_SAMPLE,
+    MIN_SAMPLE_COUNT as MEDIAN_RUNNING_FLOAT_MIN_SAMPLE_COUNT,
+    OUTPUT_ERROR as MEDIAN_RUNNING_FLOAT_OUTPUT_ERROR,
+    expected_output as median_of_running_array_float_oracle,
+)
+from mean_shift_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MEAN_SHIFT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as MEAN_SHIFT_MAX_VALID_INPUT_LENGTH,
+    WORKSPACE_ELEMENTS as MEAN_SHIFT_WORKSPACE_ELEMENTS,
+    expected_output as mean_shift_oracle,
+)
 
 ORACLES = {
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
@@ -186,6 +250,12 @@ ORACLES = {
     "mutate": mutate_oracle,
     "single_point_crossover": single_point_crossover_oracle,
     "quaternions": quaternions_oracle,
+    "rhumb_distance": rhumb_distance_oracle,
+    "rhumb_bearing": rhumb_bearing_oracle,
+    "rhumb_destination": rhumb_destination_oracle,
+    "median_of_running_array_double": median_of_running_array_double_oracle,
+    "median_of_running_array_float": median_of_running_array_float_oracle,
+    "mean_shift": mean_shift_oracle,
 }
 MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH = 1 + 16 * 16 + 16
 
@@ -975,6 +1045,23 @@ def _format_output(value: float | str) -> str:
     return "NaN" if value == "NaN" else format(float(value), ".17g")
 
 
+def _same_float64_value(actual: object, expected: object) -> bool:
+    if type(actual) not in (int, float) or type(expected) not in (int, float):
+        return False
+    actual_number, expected_number = float(actual), float(expected)
+    if actual_number != expected_number:
+        return False
+    return (actual_number != 0.0
+            or math.copysign(1.0, actual_number) == math.copysign(1.0, expected_number))
+
+
+def _same_float64_sequence(actual: object, expected: object) -> bool:
+    return (isinstance(actual, list) and isinstance(expected, list)
+            and len(actual) == len(expected)
+            and all(_same_float64_value(value, reference)
+                    for value, reference in zip(actual, expected)))
+
+
 def tolerances(workload: dict) -> tuple[float, float]:
     measurement = workload.get("measurement", {})
     output = workload.get("output", {})
@@ -1011,7 +1098,16 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         MEDIAN_FILTER_MAX_INPUT_LENGTH if algorithm == "median_filter" else
                         MUTATE_MAX_INPUT_LENGTH if algorithm == "mutate" else
                         SINGLE_POINT_CROSSOVER_MAX_INPUT_LENGTH
-                        if algorithm == "single_point_crossover" else 64)
+                        if algorithm == "single_point_crossover" else
+                        RHUMB_DISTANCE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "rhumb_distance" else
+                        RHUMB_BEARING_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "rhumb_bearing" else
+                        RHUMB_DESTINATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "rhumb_destination" else
+                        MEDIAN_RUNNING_DOUBLE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "median_of_running_array_double" else
+                        MEDIAN_RUNNING_FLOAT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "median_of_running_array_float" else 64)
+    if algorithm == "mean_shift":
+        max_input_length = MEAN_SHIFT_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "perlin_noise":
         max_input_length = PERLIN_NOISE_MAX_PARSEABLE_INPUT_ELEMENTS
     elif algorithm == "quaternions":
@@ -1023,7 +1119,10 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"joint_probability_distribution", "shreedharacharya", "rotation_matrix"}:
+    if algorithm in {"joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+                     "rhumb_distance", "rhumb_bearing", "rhumb_destination",
+                     "median_of_running_array_double", "median_of_running_array_float",
+                     "mean_shift"}:
         expected_result, oracle_values = oracle(values)
         oracle_output = None if expected_result < 0 else oracle_values
     else:
@@ -1036,6 +1135,14 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
     if (not isinstance(raw_expected, list) or len(raw_expected) != len(expected_output)):
         raise ValueError(f"{case.get('id')}: expected_output must match the oracle output shape")
     actual_output = [_output_token(_output_value(value)) for value in raw_expected]
+    if algorithm in {"median_of_running_array_double", "mean_shift"}:
+        if not _same_float64_sequence(actual_output, expected_output):
+            raise ValueError(f"{case.get('id')}: expected_output differs, including signed zero")
+        return values, expected_result, actual_output
+    if algorithm == "median_of_running_array_float":
+        if not _same_float64_sequence(actual_output, expected_output):
+            raise ValueError(f"{case.get('id')}: expected_output differs, including binary32 signed zero")
+        return values, expected_result, actual_output
     for actual, expected in zip(actual_output, expected_output):
         if expected == "NaN":
             if actual != "NaN":
@@ -1662,6 +1769,773 @@ def validate_quaternions_workload(workload: dict) -> None:
         raise ValueError("quaternions ABI fixtures are missing operation-specific capacity or precedence cases")
 
 
+RHUMB_DISTANCE_CASE_IDS = frozenset({
+    "identical_point", "one_degree_equator", "east_west_at_45_degrees",
+    "meridional_path", "diagonal_path", "antimeridian_eastward",
+    "antimeridian_westward", "positive_half_turn_strict_boundary",
+    "negative_half_turn_strict_boundary", "near_zero_mercator_delta_uses_cosine_branch",
+    "mercator_delta_above_threshold", "latitude_and_longitude_boundaries",
+    "latitude_above_domain", "longitude_above_domain", "short_input",
+    "trailing_input_value",
+})
+RHUMB_DISTANCE_ABI_CASE_IDS = frozenset({
+    "valid_input_null_output", "valid_input_short_output_capacity",
+    "invalid_input_precedes_null_output", "null_input_positive_length",
+})
+
+
+def validate_rhumb_distance_workload(workload: dict) -> None:
+    """Pin the Rust rhumb-line formula and null/error ABI probes."""
+    source = {
+        "repository": "TheAlgorithms/Rust",
+        "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+        "path": "src/navigation/rhumbline.rs",
+        "symbol": "rhumb_dist",
+        "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/navigation/rhumbline.rs",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Compute the pinned rhumb-line distance in meters between two geographic coordinates.",
+        "formula": "Preserve source operation order: radians; one longitude-delta wrap only when strictly outside +/-PI; Mercator latitude difference; q = del_phi/del_psi only when abs(del_psi) > 1e-12, otherwise cos(phi1); sqrt(del_phi^2 + (q*del_lambda)^2) * 6371000.0.",
+        "distance_unit": "meters",
+        "longitude_wrap": "One subtraction/addition of 2*PI for del_lambda strictly greater than PI or strictly less than -PI; exact +/-PI is unchanged.",
+        "near_zero_mercator_delta": "Use cos(phi1) when abs(del_psi) <= 1e-12.",
+        "errors": "Reject malformed, nonfinite, or out-of-domain input with -1 before output checks. A null output or capacity below one returns -2 and writes nothing.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[latitude1_degrees, longitude1_degrees, latitude2_degrees, longitude2_degrees]",
+        "exact_length": RHUMB_DISTANCE_MAX_INPUT_LENGTH,
+        "maximum_valid_input_length": RHUMB_DISTANCE_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_length": RHUMB_DISTANCE_MAX_PARSEABLE_INPUT_LENGTH,
+        "latitude_range_degrees": [RHUMB_DISTANCE_MIN_LATITUDE, RHUMB_DISTANCE_MAX_LATITUDE],
+        "longitude_range_degrees": [RHUMB_DISTANCE_MIN_LONGITUDE, RHUMB_DISTANCE_MAX_LONGITUDE],
+        "all_values_finite": True,
+        "invalid_input_result": RHUMB_DISTANCE_INVALID_RESULT,
+        "null_input_result": RHUMB_DISTANCE_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "One rhumb-line distance in meters.",
+        "maximum_elements": RHUMB_DISTANCE_MAX_OUTPUT_ELEMENTS,
+        "success_result": RHUMB_DISTANCE_MAX_OUTPUT_ELEMENTS,
+        "invalid_input_result": RHUMB_DISTANCE_INVALID_RESULT,
+        "invalid_output_buffer_result": RHUMB_DISTANCE_OUTPUT_ERROR,
+        "null_output_result": RHUMB_DISTANCE_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed or out-of-domain input is rejected before output pointer or capacity checks.",
+        "absolute_tolerance": 1e-7,
+        "relative_tolerance": 1e-12,
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": 1e-7,
+        "relative_tolerance": 1e-12,
+    }
+    cases, abi_cases = workload.get("cases"), workload.get("abi_cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    abi_ids = [case.get("id") for case in abi_cases if isinstance(case, dict)] if isinstance(abi_cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-rust-rhumb-distance-float64-slice-io-v1"
+            or workload.get("algorithm") != "rhumb_distance"
+            or workload.get("function_symbol") != "rhumb_distance"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {"elements": RHUMB_DISTANCE_MAX_OUTPUT_ELEMENTS,
+                                               "meaning": "One output distance."}
+            or workload.get("measurement") != measurement
+            or RHUMB_DISTANCE_EARTH_RADIUS != 6_371_000.0
+            or RHUMB_DISTANCE_MAX_INPUT_LENGTH != 4
+            or RHUMB_DISTANCE_MAX_PARSEABLE_INPUT_LENGTH != 5
+            or RHUMB_DISTANCE_MAX_OUTPUT_ELEMENTS != 1
+            or RHUMB_DISTANCE_INVALID_RESULT != -1 or RHUMB_DISTANCE_OUTPUT_ERROR != -2
+            or not isinstance(cases, list) or len(case_ids) != len(RHUMB_DISTANCE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids)) or set(case_ids) != RHUMB_DISTANCE_CASE_IDS
+            or not isinstance(abi_cases, list) or len(abi_ids) != len(RHUMB_DISTANCE_ABI_CASE_IDS)
+            or len(abi_ids) != len(set(abi_ids)) or set(abi_ids) != RHUMB_DISTANCE_ABI_CASE_IDS):
+        raise ValueError("rhumb_distance workload metadata or case IDs differ from the reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "rhumb_distance" / "README.md").read_text(encoding="utf-8")
+    if (source["url"] not in readme or "wrap the longitude delta once" not in readme
+            or "abs(del_psi) > 1e-12" not in readme or "6,371,000" not in readme):
+        raise ValueError("rhumb_distance README is missing its source or formula semantics")
+
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if absolute_tolerance != 1e-7 or relative_tolerance != 1e-12:
+        raise ValueError("rhumb_distance tolerances differ from the reviewed meter contract")
+    for case in cases:
+        encode_case(case, "rhumb_distance", absolute_tolerance, relative_tolerance)
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    for case in abi_cases:
+        values = case.get("input_values")
+        capacity = case.get("output_capacity")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        input_length = case.get("input_length")
+        expected_output = case.get("expected_output", [])
+        if (not isinstance(values, list)
+                or type(input_length) is not int or not 0 <= input_length <= RHUMB_DISTANCE_MAX_PARSEABLE_INPUT_LENGTH
+                or type(capacity) is not int or not 0 <= capacity <= RHUMB_DISTANCE_MAX_OUTPUT_ELEMENTS
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and (values or input_length == 0)
+                or not input_is_null and input_length != len(values)
+                or input_is_null and output_is_null
+                or any(type(value) not in (int, float) or not math.isfinite(float(value)) for value in values)
+                or type(case.get("expected_result")) is not int
+                or not isinstance(expected_output, list)):
+            raise ValueError(f"rhumb_distance ABI framing is invalid: {case.get('id')}")
+        result, output = rhumb_distance_oracle(values, capacity, output_is_null, input_is_null, input_length)
+        if (case["expected_result"] != result or len(expected_output) != len(output)
+                or any(abs(float(actual) - reference) > absolute_tolerance + relative_tolerance * abs(reference)
+                       for actual, reference in zip(expected_output, output))):
+            raise ValueError(f"rhumb_distance ABI fixture mismatch: {case.get('id')}")
+    if (abi_by_id["null_input_positive_length"].get("input_values") != []
+            or abi_by_id["null_input_positive_length"].get("input_length") != 4
+            or abi_by_id["null_input_positive_length"].get("input_is_null") is not True
+            or abi_by_id["invalid_input_precedes_null_output"].get("expected_result") != RHUMB_DISTANCE_INVALID_RESULT
+            or abi_by_id["valid_input_null_output"].get("expected_result") != RHUMB_DISTANCE_OUTPUT_ERROR
+            or abi_by_id["valid_input_short_output_capacity"].get("expected_result") != RHUMB_DISTANCE_OUTPUT_ERROR):
+        raise ValueError("rhumb_distance ABI probes are missing null-pointer or error-precedence coverage")
+
+
+RHUMB_BEARING_CASE_IDS = frozenset({
+    "identical_point", "eastward_equator", "westward_equator", "northward_meridian",
+    "southward_meridian", "diagonal_path", "antimeridian_eastward", "antimeridian_westward",
+    "positive_half_turn_strict_boundary", "negative_half_turn_strict_boundary",
+    "latitude_domain_boundaries", "latitude_above_domain", "longitude_above_domain",
+    "short_input", "trailing_input_value",
+})
+RHUMB_DESTINATION_CASE_IDS = frozenset({
+    "zero_distance_identity", "northward_equator", "eastward_equator_unnormalized_longitude",
+    "southward_from_midlatitude", "westward_from_midlatitude", "diagonal_destination",
+    "near_zero_del_psi_fallback", "east_west_at_high_latitude", "bearing_360_source_trigonometry",
+    "maximum_distance_and_latitude", "latitude_above_domain", "longitude_above_domain",
+    "negative_distance", "distance_above_domain", "bearing_above_domain", "short_input",
+    "trailing_input_value",
+})
+RHUMB_SIBLING_ABI_CASE_IDS = frozenset({
+    "valid_input_null_output", "valid_input_short_output_capacity",
+    "invalid_input_before_null_output", "null_input_positive_length",
+})
+
+
+def _validate_rhumb_sibling_workload(workload: dict, algorithm: str) -> None:
+    source_symbol = algorithm
+    source_url = ("https://github.com/TheAlgorithms/Rust/blob/"
+                  "fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/navigation/rhumbline.rs")
+    source = {
+        "repository": "TheAlgorithms/Rust",
+        "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+        "path": "src/navigation/rhumbline.rs",
+        "url": source_url,
+        "role": "algorithm",
+        "symbol": source_symbol,
+    }
+    if algorithm == "rhumb_bearing":
+        case_ids = RHUMB_BEARING_CASE_IDS
+        absolute_tolerance, relative_tolerance = 1e-10, 1e-12
+        contract = {
+            "operation": "Compute the pinned rhumb-line bearing in degrees between two geographic coordinates.",
+            "formula": "Convert latitudes to radians; compute longitude delta in radians and wrap it once only when strictly outside +/-PI; compute del_psi = ln(tan(phi2/2+PI/4)/tan(phi1/2+PI/4)); bearing = atan2(del_lambda, del_psi) * 180 / PI; return (bearing + 360) % 360.",
+            "bearing_range_degrees": "[0,360)",
+            "longitude_wrap": "Strict one-wrap; exact +/-PI is unchanged.",
+            "errors": "Malformed, nonfinite, or out-of-domain input returns -1 before output checks. Null or insufficient output returns -2 without writes.",
+        }
+        input_spec = {
+            "kind": "finite_float64_array",
+            "encoding": "[latitude1_degrees, longitude1_degrees, latitude2_degrees, longitude2_degrees]",
+            "exact_length": RHUMB_BEARING_MAX_INPUT_LENGTH,
+            "maximum_valid_input_length": RHUMB_BEARING_MAX_INPUT_LENGTH,
+            "maximum_parseable_input_length": RHUMB_BEARING_MAX_PARSEABLE_INPUT_LENGTH,
+            "latitude_range_degrees": [RHUMB_BEARING_MIN_LATITUDE, RHUMB_BEARING_MAX_LATITUDE],
+            "longitude_range_degrees": [RHUMB_BEARING_MIN_LONGITUDE, RHUMB_BEARING_MAX_LONGITUDE],
+            "all_values_finite": True,
+            "invalid_input_result": RHUMB_BEARING_INVALID_RESULT,
+            "null_input_result": RHUMB_BEARING_INVALID_RESULT,
+        }
+        output_spec = {
+            "kind": "float64_array",
+            "encoding": "One rhumb bearing in degrees normalized into [0,360).",
+            "maximum_elements": RHUMB_BEARING_MAX_OUTPUT_ELEMENTS,
+            "success_result": RHUMB_BEARING_MAX_OUTPUT_ELEMENTS,
+            "invalid_input_result": RHUMB_BEARING_INVALID_RESULT,
+            "invalid_output_buffer_result": RHUMB_BEARING_OUTPUT_ERROR,
+            "null_output_result": RHUMB_BEARING_OUTPUT_ERROR,
+            "no_write_on_error": True,
+            "error_precedence": "Malformed or out-of-domain input is rejected before output pointer or capacity checks.",
+            "absolute_tolerance": absolute_tolerance,
+            "relative_tolerance": relative_tolerance,
+        }
+        workspace = {"elements": RHUMB_BEARING_MAX_OUTPUT_ELEMENTS, "meaning": "One output bearing."}
+        readme_phrases = ("wrap the longitude delta once", "Exact half-turn deltas remain",
+                          "(bearing + 360) % 360")
+        expected_id = "thealgorithms-rust-rhumb-bearing-float64-slice-io-v1"
+        max_input, max_output = RHUMB_BEARING_MAX_INPUT_LENGTH, RHUMB_BEARING_MAX_OUTPUT_ELEMENTS
+        repetitions = 1000
+        constants_ok = (max_input == 4 and RHUMB_BEARING_MAX_PARSEABLE_INPUT_LENGTH == 5
+                        and max_output == 1 and RHUMB_BEARING_INVALID_RESULT == -1
+                        and RHUMB_BEARING_OUTPUT_ERROR == -2)
+    elif algorithm == "rhumb_destination":
+        case_ids = RHUMB_DESTINATION_CASE_IDS
+        absolute_tolerance, relative_tolerance = 1e-10, 1e-12
+        contract = {
+            "operation": "Compute the destination latitude and longitude after traveling a distance at a bearing along a rhumb line.",
+            "formula": "Preserve source order: del=distance/6371000; radians; del_phi=del*cos(theta); clamp phi1+del_phi to +/-PI/2; compute del_psi; q=del_phi/del_psi only when abs(del_psi)>1e-12, otherwise cos(phi1); del_lambda=del*sin(theta)/q; add to lambda1; return [phi2*180/PI,lambda2*180/PI].",
+            "destination_longitude": "Return the source longitude result without normalization.",
+            "safe_domain_note": "The bounded latitude and distance ranges keep the computed latitude within +/-82.7 degrees, so the source clamp is present but inactive and the Mercator terms remain finite.",
+            "errors": "Malformed, nonfinite, or out-of-domain input returns -1 before output checks. Null or insufficient output returns -2 without writes.",
+        }
+        input_spec = {
+            "kind": "finite_float64_array",
+            "encoding": "[latitude_degrees, longitude_degrees, distance_meters, bearing_degrees]",
+            "exact_length": RHUMB_DESTINATION_MAX_INPUT_LENGTH,
+            "maximum_valid_input_length": RHUMB_DESTINATION_MAX_INPUT_LENGTH,
+            "maximum_parseable_input_length": RHUMB_DESTINATION_MAX_PARSEABLE_INPUT_LENGTH,
+            "latitude_range_degrees": [RHUMB_DESTINATION_MIN_LATITUDE, RHUMB_DESTINATION_MAX_LATITUDE],
+            "longitude_range_degrees": [RHUMB_DESTINATION_MIN_LONGITUDE, RHUMB_DESTINATION_MAX_LONGITUDE],
+            "distance_range_meters": [RHUMB_DESTINATION_MIN_DISTANCE, RHUMB_DESTINATION_MAX_DISTANCE],
+            "bearing_range_degrees": [RHUMB_DESTINATION_MIN_BEARING, RHUMB_DESTINATION_MAX_BEARING],
+            "all_values_finite": True,
+            "invalid_input_result": RHUMB_DESTINATION_INVALID_RESULT,
+            "null_input_result": RHUMB_DESTINATION_INVALID_RESULT,
+        }
+        output_spec = {
+            "kind": "float64_array",
+            "encoding": "[destination_latitude_degrees, destination_longitude_degrees]; longitude is not normalized.",
+            "maximum_elements": RHUMB_DESTINATION_MAX_OUTPUT_ELEMENTS,
+            "success_result": RHUMB_DESTINATION_MAX_OUTPUT_ELEMENTS,
+            "invalid_input_result": RHUMB_DESTINATION_INVALID_RESULT,
+            "invalid_output_buffer_result": RHUMB_DESTINATION_OUTPUT_ERROR,
+            "null_output_result": RHUMB_DESTINATION_OUTPUT_ERROR,
+            "no_write_on_error": True,
+            "error_precedence": "Malformed or out-of-domain input is rejected before output pointer or capacity checks.",
+            "absolute_tolerance": absolute_tolerance,
+            "relative_tolerance": relative_tolerance,
+        }
+        workspace = {"elements": RHUMB_DESTINATION_MAX_OUTPUT_ELEMENTS,
+                     "meaning": "Destination latitude and longitude."}
+        readme_phrases = ("longitude left unnormalized", "keeps the computed latitude",
+                          "capacity below two")
+        expected_id = "thealgorithms-rust-rhumb-destination-float64-slice-io-v1"
+        max_input, max_output = RHUMB_DESTINATION_MAX_INPUT_LENGTH, RHUMB_DESTINATION_MAX_OUTPUT_ELEMENTS
+        repetitions = 1000
+        constants_ok = (RHUMB_DESTINATION_EARTH_RADIUS == 6_371_000.0 and max_input == 4
+                        and RHUMB_DESTINATION_MAX_PARSEABLE_INPUT_LENGTH == 5 and max_output == 2
+                        and RHUMB_DESTINATION_INVALID_RESULT == -1
+                        and RHUMB_DESTINATION_OUTPUT_ERROR == -2)
+    else:
+        raise ValueError(f"no rhumb sibling validator for {algorithm}")
+
+    cases, abi_cases = workload.get("cases"), workload.get("abi_cases")
+    case_id_list = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    abi_id_list = [case.get("id") for case in abi_cases if isinstance(case, dict)] if isinstance(abi_cases, list) else []
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": repetitions,
+        "absolute_tolerance": absolute_tolerance,
+        "relative_tolerance": relative_tolerance,
+    }
+    if (workload.get("schema_version") != 1 or workload.get("id") != expected_id
+            or workload.get("algorithm") != algorithm or workload.get("function_symbol") != algorithm
+            or workload.get("pinned_source") != source or workload.get("contract") != contract
+            or workload.get("input") != input_spec or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace or workload.get("measurement") != measurement
+            or not constants_ok or not isinstance(cases, list) or len(case_id_list) != len(case_ids)
+            or len(case_id_list) != len(set(case_id_list)) or set(case_id_list) != case_ids
+            or not isinstance(abi_cases, list) or len(abi_id_list) != len(RHUMB_SIBLING_ABI_CASE_IDS)
+            or len(abi_id_list) != len(set(abi_id_list)) or set(abi_id_list) != RHUMB_SIBLING_ABI_CASE_IDS):
+        raise ValueError(f"{algorithm} workload metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "r" / algorithm / "README.md").read_text(encoding="utf-8")
+    if source_url not in readme or any(phrase.lower() not in readme.lower() for phrase in readme_phrases):
+        raise ValueError(f"{algorithm} README is missing its pinned source or formula semantics")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, algorithm, absolute_tolerance, relative_tolerance)
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    for case in abi_cases:
+        values = case.get("input_values")
+        capacity = case.get("output_capacity")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        input_length = case.get("input_length")
+        expected_output = case.get("expected_output", [])
+        if (not isinstance(values, list) or type(input_length) is not int
+                or not 0 <= input_length <= max_input + 1
+                or type(capacity) is not int or not 0 <= capacity <= max_output
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and (values or input_length == 0)
+                or not input_is_null and input_length != len(values)
+                or input_is_null and output_is_null
+                or any(type(value) not in (int, float) or not math.isfinite(float(value)) for value in values)
+                or type(case.get("expected_result")) is not int or not isinstance(expected_output, list)):
+            raise ValueError(f"{algorithm} ABI framing is invalid: {case.get('id')}")
+        result, output = ORACLES[algorithm](values, capacity, output_is_null, input_is_null, input_length)
+        if (case["expected_result"] != result or len(expected_output) != len(output)
+                or any(abs(float(actual) - reference)
+                       > absolute_tolerance + relative_tolerance * abs(reference)
+                       for actual, reference in zip(expected_output, output))):
+            raise ValueError(f"{algorithm} ABI fixture mismatch: {case.get('id')}")
+    if (abi_by_id["null_input_positive_length"].get("input_values") != []
+            or abi_by_id["null_input_positive_length"].get("input_length") != max_input
+            or abi_by_id["null_input_positive_length"].get("input_is_null") is not True
+            or abi_by_id["invalid_input_before_null_output"].get("expected_result") != -1
+            or abi_by_id["valid_input_null_output"].get("expected_result") != -2
+            or abi_by_id["valid_input_short_output_capacity"].get("expected_result") != -2):
+        raise ValueError(f"{algorithm} ABI probes are missing null-pointer or error-precedence coverage")
+
+
+def validate_rhumb_bearing_workload(workload: dict) -> None:
+    _validate_rhumb_sibling_workload(workload, "rhumb_bearing")
+
+
+def validate_rhumb_destination_workload(workload: dict) -> None:
+    _validate_rhumb_sibling_workload(workload, "rhumb_destination")
+
+
+def validate_median_of_running_array_double_workload(workload: dict) -> None:
+    source_commit = "e43ec3897e48f23843972d02cd05a5bb1b6864a2"
+    source_base = "https://github.com/TheAlgorithms/Java/blob/" + source_commit + "/"
+    pinned_sources = [
+        {
+            "repository": "TheAlgorithms/Java", "commit": source_commit,
+            "path": "src/main/java/com/thealgorithms/misc/MedianOfRunningArrayDouble.java",
+            "symbol": "MedianOfRunningArrayDouble.calculateAverage",
+            "url": source_base + "src/main/java/com/thealgorithms/misc/MedianOfRunningArrayDouble.java",
+        },
+        {
+            "repository": "TheAlgorithms/Java", "commit": source_commit,
+            "path": "src/main/java/com/thealgorithms/misc/MedianOfRunningArray.java",
+            "symbol": "MedianOfRunningArray.insert/getMedian",
+            "url": source_base + "src/main/java/com/thealgorithms/misc/MedianOfRunningArray.java",
+        },
+    ]
+    contract = {
+        "operation": "Return the median after every insertion into a fresh stream.",
+        "insertion": "If minHeap is nonempty and sample < minHeap.peek(), insert into maxHeap; otherwise insert into minHeap.",
+        "rebalancing": "Move one root only when one heap has more than one extra element.",
+        "odd_prefix": "Return the root of the larger heap; heap ordering and the size difference of one make it the sorted center.",
+        "even_prefix": "Compute (maxHeap.peek() + minHeap.peek()) / 2.0d in that operation order.",
+        "double_ordering": "Use Java Double.compare ordering for finite values, including -0.0 < +0.0; reject NaN and infinities.",
+        "oracle": "Sort each prefix by Java finite Double order, including signed-zero ordering, then select the center or apply the pinned even average.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[sample_count, sample_0, ..., sample_(sample_count-1)]",
+        "sample_count_range": [MEDIAN_RUNNING_DOUBLE_MIN_SAMPLE_COUNT,
+                               MEDIAN_RUNNING_DOUBLE_MAX_SAMPLE_COUNT],
+        "sample_range": [MEDIAN_RUNNING_DOUBLE_MIN_SAMPLE, MEDIAN_RUNNING_DOUBLE_MAX_SAMPLE],
+        "maximum_valid_input_length": 65,
+        "maximum_parseable_input_length": MEDIAN_RUNNING_DOUBLE_MAX_PARSEABLE_INPUT_LENGTH,
+        "exact_packed_shape": "Exactly 1 + sample_count binary64 values; sample_count is an exact integer.",
+        "headers_must_be_exact_integers": True,
+        "samples_must_be_finite": True,
+        "invalid_input_result": MEDIAN_RUNNING_DOUBLE_INVALID_RESULT,
+        "null_input_result": MEDIAN_RUNNING_DOUBLE_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "One prefix median per sample, in insertion order.",
+        "maximum_elements": MEDIAN_RUNNING_DOUBLE_MAX_OUTPUT_ELEMENTS,
+        "success_result": "sample_count",
+        "invalid_input_result": MEDIAN_RUNNING_DOUBLE_INVALID_RESULT,
+        "invalid_output_buffer_result": MEDIAN_RUNNING_DOUBLE_OUTPUT_ERROR,
+        "null_output_result": MEDIAN_RUNNING_DOUBLE_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks.",
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    workspace = {"elements": MEDIAN_RUNNING_DOUBLE_MAX_OUTPUT_ELEMENTS,
+                 "meaning": "One median per input sample."}
+    measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 1000,
+        "absolute_tolerance": 0.0, "relative_tolerance": 0.0,
+    }
+    case_ids = {
+        "single_value", "increasing_stream", "decreasing_stream", "negative_even_average",
+        "positive_even_average", "odd_prefix_upper_heap_root", "odd_prefix_lower_heap_root",
+        "negative_zero_sorts_below_positive_zero", "signed_zero_even_average", "duplicates",
+        "sample_boundaries", "maximum_stream_length", "empty_stream", "fractional_count_header",
+        "count_above_limit", "missing_sample", "trailing_input_value", "sample_below_domain",
+        "sample_above_domain",
+    }
+    abi_ids = {"valid_input_null_output", "valid_input_short_output_capacity",
+               "invalid_input_before_null_output", "null_input_positive_length"}
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_keys = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    abi_keys = [case.get("id") for case in abi_cases if isinstance(case, dict)] if isinstance(abi_cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-median-of-running-array-double-float64-slice-io-v1"
+            or workload.get("algorithm") != "median_of_running_array_double"
+            or workload.get("function_symbol") != "median_of_running_array_double"
+            or workload.get("pinned_sources") != pinned_sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or MEDIAN_RUNNING_DOUBLE_MIN_SAMPLE_COUNT != 1
+            or MEDIAN_RUNNING_DOUBLE_MAX_SAMPLE_COUNT != 64
+            or MEDIAN_RUNNING_DOUBLE_MIN_SAMPLE != -1_000_000.0
+            or MEDIAN_RUNNING_DOUBLE_MAX_SAMPLE != 1_000_000.0
+            or MEDIAN_RUNNING_DOUBLE_MAX_PARSEABLE_INPUT_LENGTH != 66
+            or len(case_keys) != len(case_ids) or len(set(case_keys)) != len(case_keys)
+            or set(case_keys) != case_ids
+            or len(abi_keys) != len(abi_ids) or len(set(abi_keys)) != len(abi_keys)
+            or set(abi_keys) != abi_ids):
+        raise ValueError("median_of_running_array_double metadata differs from its reviewed contract")
+    readme = (ROOT / "benchmarks" / "m" / "median_of_running_array_double" / "README.md").read_text(
+        encoding="utf-8")
+    if any(source["url"] not in readme for source in pinned_sources):
+        raise ValueError("median_of_running_array_double README is missing its pinned source links")
+
+    for key, fixtures in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixtures:
+            case_id = case["id"]
+            raw_values = case.get("input_values")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            input_length = case.get("input_length", len(raw_values) if isinstance(raw_values, list) else None)
+            capacity = case.get("output_capacity", MEDIAN_RUNNING_DOUBLE_MAX_OUTPUT_ELEMENTS)
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > MEDIAN_RUNNING_DOUBLE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) for value in raw_values)
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or type(input_length) is not int or type(capacity) is not int
+                    or not 0 <= capacity <= MEDIAN_RUNNING_DOUBLE_MAX_OUTPUT_ELEMENTS):
+                raise ValueError(f"median_of_running_array_double framing is invalid: {case_id}")
+            values = [float(value) for value in raw_values]
+            if any(not math.isfinite(value) for value in values):
+                raise ValueError(f"median_of_running_array_double input must be finite: {case_id}")
+            result, expected = median_of_running_array_double_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            raw_expected = case.get("expected_output")
+            if (type(case.get("expected_result")) is not int or case["expected_result"] != result
+                    or not isinstance(raw_expected, list)
+                    or not _same_float64_sequence(raw_expected, expected)):
+                raise ValueError(f"median_of_running_array_double fixture mismatch: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null
+                                    or capacity != MEDIAN_RUNNING_DOUBLE_MAX_OUTPUT_ELEMENTS
+                                    or input_length != len(raw_values)):
+                raise ValueError(f"median_of_running_array_double semantic framing changed: {case_id}")
+            if case_id == "null_input_positive_length" and (
+                    not input_is_null or raw_values or input_length <= 0):
+                raise ValueError("median_of_running_array_double null-input ABI probe changed")
+
+
+def validate_median_of_running_array_float_workload(workload: dict) -> None:
+    source_commit = "e43ec3897e48f23843972d02cd05a5bb1b6864a2"
+    source_base = "https://github.com/TheAlgorithms/Java/blob/" + source_commit + "/"
+    pinned_sources = [
+        {
+            "repository": "TheAlgorithms/Java", "commit": source_commit,
+            "path": "src/main/java/com/thealgorithms/misc/MedianOfRunningArrayFloat.java",
+            "symbol": "MedianOfRunningArrayFloat.calculateAverage",
+            "url": source_base + "src/main/java/com/thealgorithms/misc/MedianOfRunningArrayFloat.java",
+        },
+        {
+            "repository": "TheAlgorithms/Java", "commit": source_commit,
+            "path": "src/main/java/com/thealgorithms/misc/MedianOfRunningArray.java",
+            "symbol": "MedianOfRunningArray.insert/getMedian",
+            "url": source_base + "src/main/java/com/thealgorithms/misc/MedianOfRunningArray.java",
+        },
+    ]
+    contract = {
+        "operation": "Return the median after every insertion into a fresh stream.",
+        "insertion": "If minHeap is nonempty and sample.compareTo(minHeap.peek()) < 0, insert into maxHeap; otherwise insert into minHeap.",
+        "rebalancing": "Move one root only when one heap has more than one extra element.",
+        "odd_prefix": "Return the root of the larger heap; heap ordering and size difference of one make it the sorted center.",
+        "even_prefix": "Compute (maxHeap.peek() + minHeap.peek()) / 2.0f in that operation order, with binary32 rounding after addition and division.",
+        "float_ordering": "Use Java Float.compare ordering for finite values, including -0.0f < +0.0f; reject NaN and infinities.",
+        "input_representation": "Every sample is transported as binary64 but must be exactly representable as binary32, preserving signed zero.",
+        "oracle": "Sort each prefix by Java finite Float order, including signed-zero ordering; select the center or apply the pinned float32 average.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[sample_count, sample_0, ..., sample_(sample_count-1)]",
+        "sample_count_range": [MEDIAN_RUNNING_FLOAT_MIN_SAMPLE_COUNT,
+                               MEDIAN_RUNNING_FLOAT_MAX_SAMPLE_COUNT],
+        "sample_range": [MEDIAN_RUNNING_FLOAT_MIN_SAMPLE, MEDIAN_RUNNING_FLOAT_MAX_SAMPLE],
+        "samples_must_be_finite": True,
+        "samples_must_be_exact_binary32": True,
+        "exact_packed_shape": "Exactly 1 + sample_count binary64 values; sample_count is an exact integer.",
+        "maximum_valid_input_length": 65,
+        "maximum_parseable_input_length": MEDIAN_RUNNING_FLOAT_MAX_PARSEABLE_INPUT_LENGTH,
+        "headers_must_be_exact_integers": True,
+        "invalid_input_result": MEDIAN_RUNNING_FLOAT_INVALID_RESULT,
+        "null_input_result": MEDIAN_RUNNING_FLOAT_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "One widened binary32 median per sample, in insertion order.",
+        "maximum_elements": MEDIAN_RUNNING_FLOAT_MAX_OUTPUT_ELEMENTS,
+        "success_result": "sample_count",
+        "invalid_input_result": MEDIAN_RUNNING_FLOAT_INVALID_RESULT,
+        "invalid_output_buffer_result": MEDIAN_RUNNING_FLOAT_OUTPUT_ERROR,
+        "null_output_result": MEDIAN_RUNNING_FLOAT_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks.",
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+        "signed_zero_oracle_preserved": True,
+    }
+    workspace = {"elements": MEDIAN_RUNNING_FLOAT_MAX_OUTPUT_ELEMENTS,
+                 "meaning": "One median per input sample."}
+    measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 1000,
+        "absolute_tolerance": 0.0, "relative_tolerance": 0.0,
+    }
+    case_ids = {
+        "single_value", "increasing_stream", "decreasing_stream", "negative_even_average",
+        "positive_even_average", "odd_prefix_upper_heap_root", "odd_prefix_lower_heap_root",
+        "negative_zero_sorts_below_positive_zero", "signed_zero_even_average",
+        "negative_zero_even_average", "float32_average_rounding", "float32_tie_to_even_average",
+        "float32_next_average", "subnormal_average_tie", "sample_boundaries",
+        "maximum_stream_length", "maximum_parseable_trailing_value", "empty_stream",
+        "fractional_count_header", "count_above_limit",
+        "missing_sample", "trailing_input_value", "non_binary32_sample", "sample_below_domain",
+        "sample_above_domain",
+    }
+    abi_ids = {"valid_input_null_output", "valid_input_short_output_capacity",
+               "invalid_input_before_null_output", "null_input_positive_length"}
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_keys = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    abi_keys = [case.get("id") for case in abi_cases if isinstance(case, dict)] if isinstance(abi_cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-median-of-running-array-float-float64-slice-io-v1"
+            or workload.get("algorithm") != "median_of_running_array_float"
+            or workload.get("function_symbol") != "median_of_running_array_float"
+            or workload.get("pinned_sources") != pinned_sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or MEDIAN_RUNNING_FLOAT_MIN_SAMPLE_COUNT != 1
+            or MEDIAN_RUNNING_FLOAT_MAX_SAMPLE_COUNT != 64
+            or MEDIAN_RUNNING_FLOAT_MIN_SAMPLE != -1_000_000.0
+            or MEDIAN_RUNNING_FLOAT_MAX_SAMPLE != 1_000_000.0
+            or MEDIAN_RUNNING_FLOAT_MAX_PARSEABLE_INPUT_LENGTH != 66
+            or len(case_keys) != len(case_ids) or len(set(case_keys)) != len(case_keys)
+            or set(case_keys) != case_ids
+            or len(abi_keys) != len(abi_ids) or len(set(abi_keys)) != len(abi_keys)
+            or set(abi_keys) != abi_ids):
+        raise ValueError("median_of_running_array_float metadata differs from its reviewed contract")
+    readme = (ROOT / "benchmarks" / "m" / "median_of_running_array_float" / "README.md").read_text(
+        encoding="utf-8")
+    if any(source["url"] not in readme for source in pinned_sources):
+        raise ValueError("median_of_running_array_float README is missing its pinned source links")
+
+    for key, fixtures in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixtures:
+            case_id = case["id"]
+            raw_values = case.get("input_values")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            input_length = case.get("input_length", len(raw_values) if isinstance(raw_values, list) else None)
+            capacity = case.get("output_capacity", MEDIAN_RUNNING_FLOAT_MAX_OUTPUT_ELEMENTS)
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > MEDIAN_RUNNING_FLOAT_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) for value in raw_values)
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or type(input_length) is not int or type(capacity) is not int
+                    or not 0 <= capacity <= MEDIAN_RUNNING_FLOAT_MAX_OUTPUT_ELEMENTS):
+                raise ValueError(f"median_of_running_array_float framing is invalid: {case_id}")
+            values = [float(value) for value in raw_values]
+            if any(not math.isfinite(value) for value in values):
+                raise ValueError(f"median_of_running_array_float input must be finite: {case_id}")
+            result, expected = median_of_running_array_float_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            raw_expected = case.get("expected_output")
+            if (type(case.get("expected_result")) is not int or case["expected_result"] != result
+                    or not isinstance(raw_expected, list)
+                    or not _same_float64_sequence(raw_expected, expected)):
+                raise ValueError(f"median_of_running_array_float fixture mismatch: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null
+                                    or capacity != MEDIAN_RUNNING_FLOAT_MAX_OUTPUT_ELEMENTS
+                                    or input_length != len(raw_values)):
+                raise ValueError(f"median_of_running_array_float semantic framing changed: {case_id}")
+            if case_id == "null_input_positive_length" and (
+                    not input_is_null or raw_values or input_length <= 0):
+                raise ValueError("median_of_running_array_float null-input ABI probe changed")
+
+
+def validate_mean_shift_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "machine_learning/mean_shift.py",
+        "symbol": "mean_shift",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/mean_shift.py",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Return one zero-based mean-shift cluster label per input point.",
+        "input_layout": "[point_count, dimension, bandwidth, max_iterations, tolerance, point-major flattened coordinates...]",
+        "point_order": "Preserve input order when scanning points, updating candidates, merging candidates, and emitting labels.",
+        "distance": "sum((a-b)**2 for dimensions) ** 0.5 using binary64 operations and coordinate order.",
+        "window_membership": "Include original data points whose distance to a candidate is <= bandwidth.",
+        "mean": "For each dimension, sum neighboring coordinates in source point order and divide by the neighbor count.",
+        "convergence": "A candidate is converged only when its movement distance is strictly less than tolerance.",
+        "convergence_loop": "Check candidate movement in order and stop at the first non-converged candidate, matching all() short-circuiting. If all candidates converge, break before replacing candidates with the newly computed points; merge the previous candidates.",
+        "merge": "Visit candidates in order and retain one only when its distance to every previously retained centroid is >= bandwidth.",
+        "labels": "Assign each original point to the nearest retained centroid; equal distances select the first retained centroid.",
+        "threshold_margin": "Every neighbor-membership, centroid-merge, and convergence distance comparison reached by source control flow must be at least 1e-6 away from its bandwidth or tolerance threshold. Each non-equal nearest-centroid distance compared with the current best must also differ by at least 1e-6; exact ties remain valid and retain the first centroid.",
+        "errors": "Invalid input returns -1 before output checks. A null output or capacity below point_count returns -2 without writes.",
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "[point_count, dimension, bandwidth, max_iterations, tolerance, coordinates...]",
+        "point_count_range": [1, 16],
+        "dimension_range": [1, 3],
+        "coordinate_range": [-10.0, 10.0],
+        "bandwidth_range": [0.5, 20.0],
+        "max_iterations_range": [1, 64],
+        "tolerance_range": [1e-5, 1e-2],
+        "headers_must_be_exact_integers": ["point_count", "dimension", "max_iterations"],
+        "exact_packed_shape": "Exactly 5 + point_count * dimension finite binary64 values.",
+        "maximum_valid_input_length": MEAN_SHIFT_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": MEAN_SHIFT_MAX_PARSEABLE_INPUT_LENGTH,
+        "threshold_margin": 1e-6,
+        "nearest_centroid_margin": "For each point, source-order min evaluation allows exact equal distances; any nonzero difference from the current best below 1e-6 is invalid.",
+        "invalid_input_result": -1,
+        "null_input_result": -1,
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "One exact binary64 integer label per original point, in input order.",
+        "maximum_elements": MEAN_SHIFT_WORKSPACE_ELEMENTS,
+        "workspace_elements": MEAN_SHIFT_WORKSPACE_ELEMENTS,
+        "success_result": "point_count",
+        "invalid_input_result": -1,
+        "invalid_output_buffer_result": -2,
+        "null_output_result": -2,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed, null, out-of-range, or threshold-margin-invalid input is rejected before output pointer or capacity checks.",
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    workspace = {
+        "elements": MEAN_SHIFT_WORKSPACE_ELEMENTS,
+        "meaning": "One label per input point.",
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": 0.0,
+        "relative_tolerance": 0.0,
+    }
+    case_ids = {
+        "single_point", "two_separated_clusters", "window_member_inside_threshold_margin",
+        "window_member_outside_threshold_margin", "two_dimensional_euclidean_clusters",
+        "greedy_first_retained_merge_and_nearest_tie", "iteration_limit_uses_last_updated_candidates",
+        "convergence_all_short_circuits_after_first_movement", "maximum_points_dimensions_and_output",
+        "zero_point_count_invalid", "nonintegral_point_count_invalid", "trailing_coordinate_invalid",
+        "coordinate_out_of_range_invalid", "bandwidth_below_contract_range_invalid",
+        "iteration_count_above_contract_range_invalid", "bandwidth_threshold_margin_violation_invalid",
+        "convergence_threshold_margin_violation_invalid",
+        "nearest_centroid_near_tie_margin_violation_invalid",
+    }
+    abi_ids = {
+        "valid_input_null_output", "valid_input_short_output_capacity",
+        "invalid_input_precedes_null_output", "null_input_positive_length",
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_keys = ([case.get("id") for case in cases if isinstance(case, dict)]
+                 if isinstance(cases, list) else [])
+    abi_keys = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-mean-shift-float64-slice-io-v1"
+            or workload.get("algorithm") != "mean_shift"
+            or workload.get("function_symbol") != "mean_shift"
+            or workload.get("description") != "Shift points to neighborhood means, greedily merge centroids, and return stable zero-based cluster labels."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or MEAN_SHIFT_MAX_VALID_INPUT_LENGTH != 53
+            or MEAN_SHIFT_MAX_PARSEABLE_INPUT_LENGTH != 54
+            or MEAN_SHIFT_WORKSPACE_ELEMENTS != 16
+            or not isinstance(cases, list)
+            or len(case_keys) != len(case_ids) or len(set(case_keys)) != len(case_keys)
+            or set(case_keys) != case_ids
+            or not isinstance(abi_cases, list)
+            or len(abi_keys) != len(abi_ids) or len(set(abi_keys)) != len(abi_keys)
+            or set(abi_keys) != abi_ids):
+        raise ValueError("mean_shift metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "mean_shift" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or source["commit"] not in readme
+            or "all() short-circuiting" not in readme
+            or "nearest-centroid assignment" not in readme
+            or "exact ties remain valid" not in readme):
+        raise ValueError("mean_shift README is missing its pinned source or reviewed semantics")
+
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if absolute_tolerance != 0.0 or relative_tolerance != 0.0:
+        raise ValueError("mean_shift labels require exact float64 comparison")
+    for case in cases:
+        values, _result, _output = encode_case(
+            case, "mean_shift", absolute_tolerance, relative_tolerance)
+        if len(values) > MEAN_SHIFT_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError(f"mean_shift input exceeds the parseable bound: {case.get('id')}")
+
+    nonfinite_tokens = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
+    for case in abi_cases:
+        raw_values = case.get("input_values")
+        if not isinstance(raw_values, list):
+            raise ValueError(f"mean_shift ABI input must be an array: {case.get('id')}")
+        values: list[float] = []
+        for value in raw_values:
+            if isinstance(value, str) and value in nonfinite_tokens:
+                values.append(nonfinite_tokens[value])
+            elif type(value) in (int, float):
+                values.append(float(value))
+            else:
+                raise ValueError(f"mean_shift ABI input token is invalid: {case.get('id')}")
+        capacity = case.get("output_capacity")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        input_length = case.get("input_length", len(values))
+        if (len(values) > MEAN_SHIFT_MAX_PARSEABLE_INPUT_LENGTH
+                or type(capacity) is not int or not 0 <= capacity <= MEAN_SHIFT_WORKSPACE_ELEMENTS
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and output_is_null
+                or type(input_length) is not int
+                or not 0 <= input_length <= MEAN_SHIFT_MAX_PARSEABLE_INPUT_LENGTH
+                or input_is_null and (values or input_length <= 0)
+                or not input_is_null and input_length != len(values)):
+            raise ValueError(f"mean_shift ABI framing is invalid: {case.get('id')}")
+        result, output = mean_shift_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        expected_output = case.get("expected_output")
+        if (case.get("expected_result") != result
+                or not isinstance(expected_output, list)
+                or not _same_float64_sequence(expected_output, output)):
+            raise ValueError(f"mean_shift ABI workload mismatch: {case.get('id')}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -1717,6 +2591,18 @@ def main() -> int:
         validate_single_point_crossover_workload(workload)
     elif algorithm == "quaternions":
         validate_quaternions_workload(workload)
+    elif algorithm == "rhumb_distance":
+        validate_rhumb_distance_workload(workload)
+    elif algorithm == "rhumb_bearing":
+        validate_rhumb_bearing_workload(workload)
+    elif algorithm == "rhumb_destination":
+        validate_rhumb_destination_workload(workload)
+    elif algorithm == "median_of_running_array_double":
+        validate_median_of_running_array_double_workload(workload)
+    elif algorithm == "median_of_running_array_float":
+        validate_median_of_running_array_float_workload(workload)
+    elif algorithm == "mean_shift":
+        validate_mean_shift_workload(workload)
     absolute_tolerance, relative_tolerance = tolerances(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
@@ -1770,14 +2656,20 @@ def main() -> int:
         raw = json.loads(completed.stdout)
         observed_result = raw.get("observed_result")
         observed_output = raw.get("observed_output")
+        output_matches = (
+            isinstance(observed_output, list) and len(observed_output) == len(expected_output)
+            and all((expected == "NaN" and value == "NaN") or
+                    (expected != "NaN" and type(value) in (int, float)
+                     and math.isfinite(_output_value(value))
+                     and abs(_output_value(value) - float(expected))
+                     <= absolute_tolerance + relative_tolerance * abs(float(expected)))
+                    for value, expected in zip(observed_output, expected_output))
+        )
+        if algorithm in {"median_of_running_array_double", "median_of_running_array_float",
+                         "mean_shift"}:
+            output_matches = _same_float64_sequence(observed_output, expected_output)
         if (observed_result != expected_result or not isinstance(observed_output, list)
-                or len(observed_output) != len(expected_output)
-                or any((expected == "NaN" and value != "NaN") or
-                       (expected != "NaN" and
-                        (not math.isfinite(_output_value(value)) or
-                         abs(_output_value(value) - float(expected)) >
-                         absolute_tolerance + relative_tolerance * abs(float(expected))))
-                       for value, expected in zip(observed_output, expected_output))
+                or not output_matches
                 or len(raw.get("samples_ns", [])) != samples):
             raise ValueError(f"float64-slice runner returned an invalid result for {case['id']}")
         records.append({"schema_version": "1.0.0", "run_id": run_id,

@@ -82,6 +82,11 @@ from mono_alphabetic_cipher_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_MONO
 from mono_alphabetic_cipher_oracle import MAX_TEXT_LENGTH as MONO_ALPHABETIC_CIPHER_MAX_TEXT_LENGTH
 from mono_alphabetic_cipher_oracle import MAX_VALID_INPUT_LENGTH as MONO_ALPHABETIC_CIPHER_MAX_VALID_INPUT_LENGTH
 from mono_alphabetic_cipher_oracle import expected_output as mono_alphabetic_cipher_expected
+from msd_radix_string_sorter_oracle import INVALID_RESULT as MSD_RADIX_STRING_SORTER_INVALID_RESULT
+from msd_radix_string_sorter_oracle import MAX_INPUT_LENGTH as MAX_MSD_RADIX_STRING_SORTER_INPUT_LENGTH
+from msd_radix_string_sorter_oracle import MAX_STRING_LENGTH as MSD_RADIX_STRING_SORTER_MAX_STRING_LENGTH
+from msd_radix_string_sorter_oracle import MAX_STRINGS as MSD_RADIX_STRING_SORTER_MAX_STRINGS
+from msd_radix_string_sorter_oracle import expected_result as msd_radix_string_sorter_expected
 from problem016_power_digit_sum_oracle import expected_result as problem016_power_digit_sum_expected
 from is_strong_password_oracle import INVALID_RESULT as IS_STRONG_PASSWORD_INVALID_RESULT
 from is_strong_password_oracle import MAX_INPUT_LENGTH as MAX_IS_STRONG_PASSWORD_INPUT_LENGTH
@@ -379,6 +384,15 @@ from sparse_matrix_oracle import MAX_DIMENSION as SPARSE_MATRIX_MAX_DIMENSION
 from sparse_matrix_oracle import MAX_INPUT_LENGTH as SPARSE_MATRIX_MAX_INPUT_LENGTH
 from sparse_matrix_oracle import MAX_VALID_INPUT_LENGTH as SPARSE_MATRIX_MAX_VALID_INPUT_LENGTH
 from sparse_matrix_oracle import expected_result as sparse_matrix_expected
+from mrucache_oracle import FNV_OFFSET as MRUCACHE_FNV_OFFSET
+from mrucache_oracle import FNV_PRIME as MRUCACHE_FNV_PRIME
+from mrucache_oracle import INT32_MAX as MRUCACHE_INT32_MAX
+from mrucache_oracle import INT32_MIN as MRUCACHE_INT32_MIN
+from mrucache_oracle import MAX_CAPACITY as MRUCACHE_MAX_CAPACITY
+from mrucache_oracle import MAX_INPUT_LENGTH as MRUCACHE_MAX_INPUT_LENGTH
+from mrucache_oracle import MAX_OPERATIONS as MRUCACHE_MAX_OPERATIONS
+from mrucache_oracle import MAX_VALUE as MRUCACHE_MAX_VALUE
+from mrucache_oracle import expected_result as mrucache_expected
 from submatrix_oracle import MAX_INPUT_LENGTH as MAX_SUBMATRIX_INPUT_LENGTH
 from submatrix_oracle import expected_result as submatrix_expected
 from first_fundamental_form_oracle import MAX_INPUT_LENGTH as MAX_FIRST_FUNDAMENTAL_FORM_INPUT_LENGTH
@@ -2841,6 +2855,189 @@ def validate_mono_alphabetic_cipher_workload(workload: dict) -> None:
         encode_case(case, "mono_alphabetic_cipher")
 
 
+def validate_msd_radix_string_sorter_workload(workload: dict) -> None:
+    """Validate the pinned C# MSD radix string sorter and its workload."""
+    source = {
+        "repository": "TheAlgorithms/C-Sharp",
+        "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+        "path": "Algorithms/Sorters/String/MsdRadixStringSorter.cs",
+        "method": "MsdRadixStringSorter.Sort(string[])",
+        "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Sorters/String/MsdRadixStringSorter.cs",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[n,(length,codeUnit...)*n]",
+        "count_range": [0, MSD_RADIX_STRING_SORTER_MAX_STRINGS],
+        "string_length_range": [0, MSD_RADIX_STRING_SORTER_MAX_STRING_LENGTH],
+        "utf16_code_unit_range": [0, 255],
+        "exact_length": "1 + sum(1 + string_length_i) for i in 0..n-1",
+        "maximum_valid_input_length": 8449,
+        "maximum_parseable_input_length": MAX_MSD_RADIX_STRING_SORTER_INPUT_LENGTH,
+        "invalid_input_result": MSD_RADIX_STRING_SORTER_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "Low 63 bits of FNV-1a-64 over the canonical sorted-string byte encoding.",
+        "checksum_serialization": "n:u16-le then sorted (length:u8, codeUnit:u8*) records",
+        "success_result": "nonnegative low 63 bits of the FNV-1a-64 hash",
+        "invalid_input_result": MSD_RADIX_STRING_SORTER_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    required_case_ids = {
+        "empty_string_collection", "one_empty_string", "single_character",
+        "reverse_lexicographic", "prefixes_and_duplicates",
+        "empty_strings_before_prefixes", "code_unit_boundaries",
+        "embedded_zero_and_max_byte", "two_max_length_strings",
+        "maximum_count_empty_strings", "maximum_valid_input", "empty_input_array",
+        "negative_count", "count_above_maximum", "missing_string_length",
+        "negative_string_length", "string_length_above_maximum",
+        "code_unit_above_byte_range", "negative_code_unit", "truncated_string_payload",
+        "trailing_value_after_zero_count", "trailing_value_after_valid_string",
+        "missing_final_string", "maximum_parseable_trailing_value",
+    }
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-csharp-msd-radix-string-sorter-i64-array-scalar-v1"
+            or workload.get("algorithm") != "msd_radix_string_sorter"
+            or workload.get("function_symbol") != "msd_radix_string_sorter"
+            or workload.get("pinned_source") != source
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or MSD_RADIX_STRING_SORTER_MAX_STRINGS != 256
+            or MSD_RADIX_STRING_SORTER_MAX_STRING_LENGTH != 32
+            or MAX_MSD_RADIX_STRING_SORTER_INPUT_LENGTH != 8450
+            or MSD_RADIX_STRING_SORTER_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids):
+        raise ValueError("msd_radix_string_sorter workload metadata or case IDs do not match its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "msd_radix_string_sorter" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or "0..255" not in readme
+            or "8,449" not in readme or "8,450" not in readme
+            or "stably in lexicographic order" not in readme):
+        raise ValueError("msd_radix_string_sorter README is missing its pinned source or sorting bounds")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or len(values) > MAX_MSD_RADIX_STRING_SORTER_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or ("input_length" in case and case.get("input_length") != len(values))):
+            raise ValueError(f"msd_radix_string_sorter input framing is invalid: {case.get('id')}")
+        source_result = msd_radix_string_sorter_expected(values)
+        expected = (MSD_RADIX_STRING_SORTER_INVALID_RESULT
+                    if source_result is None else source_result)
+        if case["expected_result"] != expected:
+            raise ValueError(f"msd_radix_string_sorter workload mismatch: {case.get('id')}")
+        encode_case(case, "msd_radix_string_sorter")
+
+
+MRUCACHE_CASE_IDS = frozenset({
+    "empty-cache-trace", "get-missing-on-empty-cache", "put-and-hit",
+    "put-update-and-hit", "miss-does-not-promote-before-eviction",
+    "hit-promotion-controls-mru-eviction", "capacity-one",
+    "update-mru-tail-without-eviction", "zero-value-is-distinct-from-miss",
+    "signed-key-boundaries", "get-on-tail-keeps-order", "repeated-missing-gets",
+    "interleaved-gets-and-puts", "get-field-ignored", "invalid-zero-capacity",
+    "invalid-capacity-over-bound", "invalid-negative-capacity",
+    "invalid-negative-operation-count", "invalid-operation-count-over-bound",
+    "invalid-operation-code", "invalid-key-out-of-i32", "invalid-put-value-below-range",
+    "invalid-put-value-above-range", "invalid-get-value-field-out-of-i32",
+    "invalid-missing-operation-record", "invalid-extra-value",
+})
+
+
+def validate_mrucache_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/datastructures/caches/MRUCache.java",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[capacity, q, (op, key, value)*q]",
+        "maximum_q": MRUCACHE_MAX_OPERATIONS,
+        "maximum_input_values_for_malformed_cases": MRUCACHE_MAX_INPUT_LENGTH,
+        "exact_length": "2+3*q",
+        "operations": {"0": "put", "1": "get"},
+        "capacity_range": [1, MRUCACHE_MAX_CAPACITY],
+        "key_range": [MRUCACHE_INT32_MIN, MRUCACHE_INT32_MAX],
+        "put_value_range": [0, MRUCACHE_MAX_VALUE],
+        "get_value_field": "validated as signed-i32, then ignored",
+        "missing_get_result": -1,
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar_fnv1a64",
+        "record_encoding": "get_count:u16 little-endian followed by each GET response as signed-i32 little-endian, in call order",
+        "meaning": "low 63 bits of FNV-1a-64 over the framed GET response sequence",
+        "offset_basis": MRUCACHE_FNV_OFFSET,
+        "prime": MRUCACHE_FNV_PRIME,
+        "invalid_input_result": -1,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 8,
+    }
+    cases = workload.get("cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "java-mru-cache-operation-trace-i64-array-scalar-v1"
+            or workload.get("algorithm") != "mrucache"
+            or workload.get("function_symbol") != "mrucache"
+            or workload.get("pinned_sources") != [source]
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or "workspace" in workload
+            or workload.get("measurement") != measurement
+            or MRUCACHE_MAX_CAPACITY != 16
+            or MRUCACHE_MAX_OPERATIONS != 128
+            or MRUCACHE_MAX_INPUT_LENGTH != 387
+            or MRUCACHE_INT32_MIN != -(1 << 31)
+            or MRUCACHE_INT32_MAX != (1 << 31) - 1
+            or MRUCACHE_MAX_VALUE != 1_000_000
+            or MRUCACHE_FNV_OFFSET != 14_695_981_039_346_656_037
+            or MRUCACHE_FNV_PRIME != 1_099_511_628_211
+            or not isinstance(cases, list)
+            or len(case_ids) != len(MRUCACHE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MRUCACHE_CASE_IDS):
+        raise ValueError("mrucache workload metadata or case IDs do not match its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "mrucache" / "README.md").read_text(encoding="utf-8")
+    source_url = "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/caches/MRUCache.java"
+    if (source_url not in readme or "tail is the most recently used" not in readme
+            or "evicts that tail entry" not in readme
+            or "leaves the order unchanged" not in readme
+            or "low 63 bits of FNV-1a-64" not in readme):
+        raise ValueError("mrucache README is missing its pinned source or reviewed cache semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or len(values) > MRUCACHE_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"mrucache input framing is invalid: {case.get('id')}")
+        expected = mrucache_expected(values)
+        if case["expected_result"] != expected:
+            raise ValueError(f"mrucache workload mismatch: {case.get('id')}")
+
+
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH if algorithm == "kth_element_finder" else
@@ -3282,16 +3479,25 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else KAHNS_ALGORITHM_LONG_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kahns_algorithm_long"
                         else KCENTERS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kcenters"
                         else MINIMAX_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "minimax"
+                        else MRUCACHE_MAX_INPUT_LENGTH if algorithm == "mrucache"
                         else SPARSE_MATRIX_MAX_INPUT_LENGTH if algorithm == "sparse_matrix"
                         else MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH if algorithm == "mono_alphabetic"
                         else MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
                         if algorithm == "mono_alphabetic_cipher"
+                        else MAX_MSD_RADIX_STRING_SORTER_INPUT_LENGTH
+                        if algorithm == "msd_radix_string_sorter"
                         else 516 if algorithm == "euler" else 100001)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "mono_alphabetic_cipher":
+    if algorithm == "msd_radix_string_sorter":
+        source_result = msd_radix_string_sorter_expected(values)
+        expected_from_source = (MSD_RADIX_STRING_SORTER_INVALID_RESULT
+                               if source_result is None else source_result)
+        if expected != expected_from_source:
+            raise ValueError("msd_radix_string_sorter expected_result must match the bounded stable MSD ordering and canonical hash")
+    elif algorithm == "mono_alphabetic_cipher":
         expected_from_source = mono_alphabetic_cipher_expected(values)
         if expected != expected_from_source:
             raise ValueError("mono_alphabetic_cipher expected_result must match the bounded case-preserving substitution and FNV-1a contract")
@@ -8138,6 +8344,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = minimax_expected(values)
         if expected != expected_from_source:
             raise ValueError("minimax expected_result must match the bounded full-tree max/min reduction")
+    elif algorithm == "mrucache":
+        expected_from_source = mrucache_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mrucache expected_result must match the bounded MRU-tail eviction and GET-response hash contract")
     elif algorithm == "sparse_matrix":
         input_is_null = case.get("input_is_null", False)
         input_length = case.get("input_length", len(values))
@@ -8181,7 +8391,9 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"):
         parser.error("workload does not match the built array scalar algorithm")
-    if algorithm == "mono_alphabetic_cipher":
+    if algorithm == "msd_radix_string_sorter":
+        validate_msd_radix_string_sorter_workload(workload)
+    elif algorithm == "mono_alphabetic_cipher":
         validate_mono_alphabetic_cipher_workload(workload)
     elif algorithm == "mono_alphabetic":
         validate_mono_alphabetic_workload(workload)
@@ -8199,6 +8411,8 @@ def main() -> int:
         validate_power_using_recursion_workload(workload)
     elif algorithm == "sparse_matrix":
         validate_sparse_matrix_workload(workload)
+    elif algorithm == "mrucache":
+        validate_mrucache_workload(workload)
     elif algorithm == "graph_enumeration":
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":

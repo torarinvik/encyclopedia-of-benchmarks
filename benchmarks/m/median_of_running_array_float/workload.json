@@ -1,0 +1,653 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-median-of-running-array-float-float64-slice-io-v1",
+  "algorithm": "median_of_running_array_float",
+  "function_symbol": "median_of_running_array_float",
+  "description": "Return Java Float-valued running medians after each insertion, preserving binary32 arithmetic and signed-zero ordering.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/misc/MedianOfRunningArrayFloat.java",
+      "symbol": "MedianOfRunningArrayFloat.calculateAverage",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/misc/MedianOfRunningArrayFloat.java"
+    },
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/misc/MedianOfRunningArray.java",
+      "symbol": "MedianOfRunningArray.insert/getMedian",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/misc/MedianOfRunningArray.java"
+    }
+  ],
+  "contract": {
+    "operation": "Return the median after every insertion into a fresh stream.",
+    "insertion": "If minHeap is nonempty and sample.compareTo(minHeap.peek()) < 0, insert into maxHeap; otherwise insert into minHeap.",
+    "rebalancing": "Move one root only when one heap has more than one extra element.",
+    "odd_prefix": "Return the root of the larger heap; heap ordering and size difference of one make it the sorted center.",
+    "even_prefix": "Compute (maxHeap.peek() + minHeap.peek()) / 2.0f in that operation order, with binary32 rounding after addition and division.",
+    "float_ordering": "Use Java Float.compare ordering for finite values, including -0.0f < +0.0f; reject NaN and infinities.",
+    "input_representation": "Every sample is transported as binary64 but must be exactly representable as binary32, preserving signed zero.",
+    "oracle": "Sort each prefix by Java finite Float order, including signed-zero ordering; select the center or apply the pinned float32 average."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[sample_count, sample_0, ..., sample_(sample_count-1)]",
+    "sample_count_range": [
+      1,
+      64
+    ],
+    "sample_range": [
+      -1000000.0,
+      1000000.0
+    ],
+    "samples_must_be_finite": true,
+    "samples_must_be_exact_binary32": true,
+    "exact_packed_shape": "Exactly 1 + sample_count binary64 values; sample_count is an exact integer.",
+    "maximum_valid_input_length": 65,
+    "maximum_parseable_input_length": 66,
+    "headers_must_be_exact_integers": true,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "One widened binary32 median per sample, in insertion order.",
+    "maximum_elements": 64,
+    "success_result": "sample_count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks.",
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0,
+    "signed_zero_oracle_preserved": true
+  },
+  "workspace": {
+    "elements": 64,
+    "meaning": "One median per input sample."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "single_value",
+      "input_values": [
+        1,
+        4.5
+      ],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [
+        4.5
+      ]
+    },
+    {
+      "id": "increasing_stream",
+      "input_values": [
+        5,
+        1.0,
+        1.25,
+        2.5,
+        3.75,
+        8.0
+      ],
+      "input_length": 6,
+      "expected_result": 5,
+      "expected_output": [
+        1.0,
+        1.125,
+        1.25,
+        1.875,
+        2.5
+      ]
+    },
+    {
+      "id": "decreasing_stream",
+      "input_values": [
+        5,
+        8.0,
+        3.75,
+        2.5,
+        1.25,
+        1.0
+      ],
+      "input_length": 6,
+      "expected_result": 5,
+      "expected_output": [
+        8.0,
+        5.875,
+        3.75,
+        3.125,
+        2.5
+      ]
+    },
+    {
+      "id": "negative_even_average",
+      "input_values": [
+        2,
+        -1.0,
+        0.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        -1.0,
+        -0.5
+      ]
+    },
+    {
+      "id": "positive_even_average",
+      "input_values": [
+        2,
+        0.5,
+        1.5
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "id": "odd_prefix_upper_heap_root",
+      "input_values": [
+        3,
+        0.0,
+        1.0,
+        2.0
+      ],
+      "input_length": 4,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "id": "odd_prefix_lower_heap_root",
+      "input_values": [
+        3,
+        2.0,
+        1.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 3,
+      "expected_output": [
+        2.0,
+        1.5,
+        1.0
+      ]
+    },
+    {
+      "id": "negative_zero_sorts_below_positive_zero",
+      "input_values": [
+        3,
+        0.0,
+        -0.0,
+        -1.0
+      ],
+      "input_length": 4,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        -0.0
+      ]
+    },
+    {
+      "id": "signed_zero_even_average",
+      "input_values": [
+        2,
+        0.0,
+        -0.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "negative_zero_even_average",
+      "input_values": [
+        2,
+        -0.0,
+        -0.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        -0.0,
+        -0.0
+      ]
+    },
+    {
+      "id": "float32_average_rounding",
+      "input_values": [
+        2,
+        0.10000000149011612,
+        0.20000000298023224
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        0.10000000149011612,
+        0.15000000596046448
+      ]
+    },
+    {
+      "id": "float32_tie_to_even_average",
+      "input_values": [
+        2,
+        1.0,
+        1.0000001192092896
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "float32_next_average",
+      "input_values": [
+        2,
+        1.0,
+        1.000000238418579
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        1.0,
+        1.0000001192092896
+      ]
+    },
+    {
+      "id": "subnormal_average_tie",
+      "input_values": [
+        2,
+        0.0,
+        1.401298464324817e-45
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "sample_boundaries",
+      "input_values": [
+        2,
+        -1000000.0,
+        1000000.0
+      ],
+      "input_length": 3,
+      "expected_result": 2,
+      "expected_output": [
+        -1000000.0,
+        0.0
+      ]
+    },
+    {
+      "id": "maximum_stream_length",
+      "input_values": [
+        64,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5
+      ],
+      "input_length": 65,
+      "expected_result": 64,
+      "expected_output": [
+        1000000.0,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0,
+        0.5,
+        0.0
+      ]
+    },
+    {
+      "id": "maximum_parseable_trailing_value",
+      "input_values": [
+        64,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        1000000.0,
+        -1000000.0,
+        0.5,
+        -0.5,
+        0.0
+      ],
+      "input_length": 66,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "empty_stream",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_count_header",
+      "input_values": [
+        1.5,
+        2.0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "count_above_limit",
+      "input_values": [
+        65
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "missing_sample",
+      "input_values": [
+        2,
+        1.0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        1,
+        5.0,
+        0.0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "non_binary32_sample",
+      "input_values": [
+        1,
+        0.1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_below_domain",
+      "input_values": [
+        1,
+        -1000000.0625
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_above_domain",
+      "input_values": [
+        1,
+        1000000.0625
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        3,
+        1.0,
+        2.0,
+        3.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        3,
+        1.0,
+        2.0,
+        3.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_before_null_output",
+      "input_values": [
+        1,
+        0.1
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

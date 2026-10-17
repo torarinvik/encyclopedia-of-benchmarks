@@ -1,0 +1,92 @@
+const MAX_POINTS: usize = 16
+const MAX_DIMENSION: usize = 3
+const MAX_INPUT_LENGTH: usize = 54
+const MARGIN: f64 = 0.000001
+
+extern pow(base: f64, exponent: f64) -> f64
+extern fabs(value: f64) -> f64
+extern trunc(value: f64) -> f64
+
+def mean_shift_distance(a: f64&, b: f64&, a_start: usize, b_start: usize, dimensions: usize) -> f64:
+    sum: mutable f64 = 0.0
+    for dimension in 0..<dimensions:
+        difference: f64 = a[a_start + dimension] - b[b_start + dimension]
+        sum <- sum + difference * difference
+    pow(sum, 0.5)
+
+def mean_shift_near(value: f64, threshold: f64) -> bool:
+    fabs(value - threshold) < MARGIN
+
+def mean_shift_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input == null or length < 5 or length > MAX_INPUT_LENGTH: return -1
+    for index in 0..<length:
+        if input[index] != input[index]: return -1
+    n_value: f64 = input[0]
+    dimension_value: f64 = input[1]
+    bandwidth: f64 = input[2]
+    iteration_value: f64 = input[3]
+    tolerance: f64 = input[4]
+    if trunc(n_value) != n_value or trunc(dimension_value) != dimension_value or trunc(iteration_value) != iteration_value: return -1
+    if n_value < 1.0 or n_value > 16.0 or dimension_value < 1.0 or dimension_value > 3.0 or iteration_value < 1.0 or iteration_value > 64.0 or bandwidth < 0.5 or bandwidth > 20.0 or tolerance < 0.00001 or tolerance > 0.01: return -1
+    n: usize = n_value.usize()
+    dimensions: usize = dimension_value.usize()
+    max_iterations: usize = iteration_value.usize()
+    if length != 5 + n * dimensions: return -1
+    data: mutable f64[48] = zeroed
+    for index in 0..<n * dimensions:
+        value: f64 = input[5 + index]
+        if value < -10.0 or value > 10.0: return -1
+        data[index] <- value
+    candidates: mutable f64[48] = zeroed
+    next: mutable f64[48] = zeroed
+    for index in 0..<n * dimensions: candidates[index] <- data[index]
+    for _ in 0..<max_iterations:
+        for candidate_index in 0..<n:
+            sums: mutable f64[3] = zeroed
+            neighbor_count: mutable usize = 0
+            for point_index in 0..<n:
+                distance: f64 = mean_shift_distance(&data[0], &candidates[0], point_index * dimensions, candidate_index * dimensions, dimensions)
+                if mean_shift_near(distance, bandwidth): return -1
+                if distance <= bandwidth:
+                    neighbor_count <- neighbor_count + 1
+                    for dimension in 0..<dimensions: sums[dimension] <- sums[dimension] + data[point_index * dimensions + dimension]
+            for dimension in 0..<dimensions:
+                next[candidate_index * dimensions + dimension] <- if neighbor_count == 0: candidates[candidate_index * dimensions + dimension] else: sums[dimension] / neighbor_count.f64()
+        all_converged: mutable bool = true
+        for candidate_index in 0..<n:
+            movement: f64 = mean_shift_distance(&candidates[0], &next[0], candidate_index * dimensions, candidate_index * dimensions, dimensions)
+            if mean_shift_near(movement, tolerance): return -1
+            if movement >= tolerance:
+                all_converged <- false
+                break
+        if all_converged: break
+        for index in 0..<n * dimensions: candidates[index] <- next[index]
+    centroids: mutable f64[48] = zeroed
+    centroid_count: mutable usize = 0
+    for candidate_index in 0..<n:
+        keep: mutable bool = true
+        for existing in 0..<centroid_count:
+            distance: f64 = mean_shift_distance(&candidates[0], &centroids[0], candidate_index * dimensions, existing * dimensions, dimensions)
+            if mean_shift_near(distance, bandwidth): return -1
+            if distance < bandwidth:
+                keep <- false
+                break
+        if keep:
+            for dimension in 0..<dimensions: centroids[centroid_count * dimensions + dimension] <- candidates[candidate_index * dimensions + dimension]
+            centroid_count <- centroid_count + 1
+    labels: mutable f64[16] = zeroed
+    for point_index in 0..<n:
+        best_index: mutable usize = 0
+        best_distance: mutable f64 = mean_shift_distance(&data[0], &centroids[0], point_index * dimensions, 0, dimensions)
+        for centroid_index in 1..<centroid_count:
+            distance: f64 = mean_shift_distance(&data[0], &centroids[0], point_index * dimensions, centroid_index * dimensions, dimensions)
+            if distance != best_distance and mean_shift_near(distance, best_distance): return -1
+            if distance < best_distance:
+                best_index <- centroid_index
+                best_distance <- distance
+        labels[point_index] <- best_index.f64()
+    if output == null or capacity < n: return -2
+    for index in 0..<n: output[index] <- labels[index]
+    n.i64()
+
+export fn mean_shift(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = mean_shift_impl

@@ -27,6 +27,13 @@ from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   validate_perlin_noise_workload,
                                   validate_single_point_crossover_workload,
                                   validate_quaternions_workload,
+                                  validate_rhumb_distance_workload,
+                                  validate_rhumb_bearing_workload,
+                                  validate_rhumb_destination_workload,
+                                  validate_median_of_running_array_double_workload,
+                                  validate_median_of_running_array_float_workload,
+                                  validate_mean_shift_workload,
+                                  _same_float64_sequence,
                                   _decode_k_d_tree_abi_values,
                                   _decode_single_point_crossover_abi_values)
 from shreedharacharya_oracle import MAX_COEFFICIENT as SHREEDHARACHARYA_MAX_COEFFICIENT
@@ -54,11 +61,29 @@ from perlin_noise_oracle import PERSISTENCE_VALUES as PERLIN_NOISE_PERSISTENCE_V
 from perlin_noise_oracle import expected_result as perlin_noise_oracle
 from single_point_crossover_oracle import expected_abi_result as single_point_crossover_expected_abi_result
 from quaternions_oracle import expected_abi_result as quaternions_expected_abi_result
+from median_of_running_array_float_oracle import _as_float32 as median_float32
+from mean_shift_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MEAN_SHIFT_MAX_PARSEABLE_INPUT_LENGTH,
+    WORKSPACE_ELEMENTS as MEAN_SHIFT_WORKSPACE_ELEMENTS,
+    expected_output as mean_shift_oracle,
+)
 
 ALGORITHMS = tuple(ORACLES)
 
 
 def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
+    if algorithm == "rhumb_distance":
+        validate_rhumb_distance_workload(workload)
+    elif algorithm == "rhumb_bearing":
+        validate_rhumb_bearing_workload(workload)
+    elif algorithm == "rhumb_destination":
+        validate_rhumb_destination_workload(workload)
+    elif algorithm == "median_of_running_array_double":
+        validate_median_of_running_array_double_workload(workload)
+    elif algorithm == "median_of_running_array_float":
+        validate_median_of_running_array_float_workload(workload)
+    elif algorithm == "mean_shift":
+        validate_mean_shift_workload(workload)
     absolute_tolerance, relative_tolerance = tolerances(workload)
     workspace = workload.get("workspace", {}).get("elements")
     if type(workspace) is not int or not 1 <= workspace <= 64:
@@ -85,7 +110,10 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         invalid_input = [0.0] * invalid_length
         oracle_result = ORACLES[algorithm](invalid_input)
         invalid = (oracle_result[0] < 0
-                   if algorithm in {"joint_probability_distribution", "shreedharacharya", "rotation_matrix"}
+                   if algorithm in {"joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+                                    "rhumb_distance", "rhumb_bearing", "rhumb_destination",
+                                    "median_of_running_array_double", "median_of_running_array_float",
+                                    "mean_shift"}
                    else oracle_result is None)
         if invalid:
             records.append((invalid_input, -1, [], workspace, 0, 0))
@@ -202,6 +230,124 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             add_quaternion_case(inputs)
         add_quaternion_case([0.0, 3.5, 0.0, 0.0], capacity=0, output_is_null=True)
         add_quaternion_case([0.0, 0.0, 0.0, 0.0], input_is_null=True, input_length=4)
+
+    if algorithm in {"median_of_running_array_double", "median_of_running_array_float"}:
+        oracle = ORACLES[algorithm]
+        is_float = algorithm == "median_of_running_array_float"
+
+        def add_median_double_case(inputs: list[float], capacity: int = workspace,
+                                   output_is_null: bool = False, input_is_null: bool = False,
+                                   input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if input_is_null:
+                result, output = oracle([], capacity, output_is_null, True, input_length)
+                checker_inputs = [0.0] * input_length
+            else:
+                result, output = oracle(inputs, capacity, output_is_null, False, input_length)
+                checker_inputs = inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid median_of_running_array_double ABI values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(inputs))
+            result, output = add_median_double_case(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            if (result != case.get("expected_result")
+                    or not _same_float64_sequence(output, case.get("expected_output"))):
+                raise ValueError(f"{algorithm} ABI probe mismatch: {case.get('id')}")
+
+        rng_median = random.Random(20261020)
+        special_samples = (-1_000_000.0, 1_000_000.0, -0.0, 0.0)
+        for index in range(128):
+            sample_count = rng_median.randint(1, 64)
+            samples = [rng_median.choice(special_samples) if index % 4 == 0
+                       else (median_float32(rng_median.uniform(-1_000_000.0, 1_000_000.0))
+                             if is_float else rng_median.uniform(-1_000_000.0, 1_000_000.0))
+                       for _ in range(sample_count)]
+            inputs = [float(sample_count), *samples]
+            result, _ = add_median_double_case(inputs)
+            if result > 0:
+                add_median_double_case(inputs, capacity=result - 1)
+                if index % 16 == 0:
+                    add_median_double_case(inputs, output_is_null=True)
+
+        malformed = (
+            [], [0.0], [1.5, 0.0], [65.0], [1.0], [1.0, 1.0, 2.0],
+            [1.0, -1_000_000.000001], [1.0, 1_000_000.000001],
+            [66.0, *([0.0] * 65)],
+            [1.0, math.nan], [1.0, math.inf], [1.0, -math.inf],
+        )
+        if is_float:
+            malformed += ([1.0, 0.1],)
+        for inputs in malformed:
+            add_median_double_case(inputs)
+
+    if algorithm in {"rhumb_distance", "rhumb_bearing", "rhumb_destination"}:
+        oracle = ORACLES[algorithm]
+
+        def add_rhumb_case(inputs: list[float], capacity: int = workspace,
+                           output_is_null: bool = False, input_is_null: bool = False,
+                           input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if input_is_null:
+                result, output = oracle([], capacity, output_is_null, True, input_length)
+                checker_inputs = [0.0] * input_length
+            else:
+                result, output = oracle(inputs, capacity, output_is_null, False, input_length)
+                checker_inputs = inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case["input_values"]
+            inputs = [float(value) for value in raw_values]
+            result, output = add_rhumb_case(
+                inputs, case["output_capacity"], case.get("output_is_null", False),
+                case.get("input_is_null", False), case["input_length"])
+            expected = case.get("expected_output", [])
+            if (result != case["expected_result"] or len(output) != len(expected)
+                    or any(abs(float(actual) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for actual, reference in zip(expected, output))):
+                raise ValueError(f"{algorithm} ABI probe mismatch: {case.get('id')}")
+
+        rng_rhumb = random.Random(20261017)
+        for index in range(128):
+            if algorithm in {"rhumb_distance", "rhumb_bearing"}:
+                inputs = [rng_rhumb.uniform(-85.0, 85.0), rng_rhumb.uniform(-180.0, 180.0),
+                          rng_rhumb.uniform(-85.0, 85.0), rng_rhumb.uniform(-180.0, 180.0)]
+            else:
+                inputs = [rng_rhumb.uniform(-80.0, 80.0), rng_rhumb.uniform(-180.0, 180.0),
+                          rng_rhumb.uniform(0.0, 300_000.0), rng_rhumb.uniform(0.0, 360.0)]
+            add_rhumb_case(inputs)
+            if index % 16 == 0:
+                add_rhumb_case(inputs, output_is_null=True)
+
+        valid_probe = ([10.0, 20.0, 30.0, 40.0] if algorithm != "rhumb_destination"
+                       else [10.0, 20.0, 100_000.0, 90.0])
+        add_rhumb_case(valid_probe, capacity=0)
+        add_rhumb_case(valid_probe, capacity=1)
+        malformed_inputs = ([], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 1.0],
+                            [85.000001, 0.0, 0.0, 0.0], [0.0, 180.000001, 0.0, 0.0])
+        if algorithm == "rhumb_destination":
+            malformed_inputs += ([0.0, 0.0, -1.0, 0.0], [0.0, 0.0, 300_001.0, 0.0],
+                                 [0.0, 0.0, 0.0, 360.0001])
+        for malformed in malformed_inputs:
+            add_rhumb_case(malformed)
+        add_rhumb_case([86.0, 0.0, 0.0, 0.0], capacity=0, output_is_null=True)
 
     if algorithm == "median_filter":
         for case in workload.get("abi_cases", []):
@@ -884,6 +1030,57 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         # The checker distinguishes a null pointer from a one-element input array.
         records.append(([0.0], PERLIN_NOISE_INVALID_RESULT, [], workspace, 1, 0))
 
+    if algorithm == "mean_shift":
+        if (workspace != MEAN_SHIFT_WORKSPACE_ELEMENTS
+                or absolute_tolerance != 0.0 or relative_tolerance != 0.0):
+            raise ValueError("mean_shift requires a 16-element workspace and exact label comparison")
+        nonfinite_tokens = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if not isinstance(raw_values, list):
+                raise ValueError(f"mean_shift ABI input must be an array: {case.get('id')}")
+            inputs: list[float] = []
+            for value in raw_values:
+                if isinstance(value, str) and value in nonfinite_tokens:
+                    inputs.append(nonfinite_tokens[value])
+                elif type(value) in (int, float):
+                    inputs.append(float(value))
+                else:
+                    raise ValueError(f"mean_shift ABI input token is invalid: {case.get('id')}")
+            capacity = case.get("output_capacity")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            input_length = case.get("input_length", len(inputs))
+            if (type(capacity) is not int or not 0 <= capacity <= workspace
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= MEAN_SHIFT_MAX_PARSEABLE_INPUT_LENGTH
+                    or input_is_null and (inputs or input_length <= 0)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError(f"mean_shift ABI framing is invalid: {case.get('id')}")
+            result, output = mean_shift_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (case.get("expected_result") != result
+                    or not isinstance(expected_output, list)
+                    or not _same_float64_sequence(expected_output, output)):
+                raise ValueError(f"mean_shift ABI workload mismatch: {case.get('id')}")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+
+        valid_nonfinite_base = [1.0, 1.0, 1.0, 1.0, 0.01, 0.0]
+        for index in range(len(valid_nonfinite_base)):
+            for special in (math.nan, math.inf, -math.inf):
+                inputs = list(valid_nonfinite_base)
+                inputs[index] = special
+                result, output = mean_shift_oracle(inputs)
+                if result != -1 or output:
+                    raise ValueError("mean_shift oracle accepted a nonfinite ABI probe")
+                records.append((inputs, -1, [], workspace, 0, 0))
+
     lines = [f"{len(records)} {absolute_tolerance:.17g} {relative_tolerance:.17g} {workspace}\n"]
     for inputs, expected_result, expected_output, capacity, input_null, output_null in records:
         lines.append(f"{len(inputs)} {expected_result} {len(expected_output)} {capacity} "
@@ -896,7 +1093,8 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
 
 
 def _matches_output(observed: object, expected: list[float | str],
-                    absolute_tolerance: float, relative_tolerance: float) -> bool:
+                    absolute_tolerance: float, relative_tolerance: float,
+                    *, preserve_signed_zero: bool = False) -> bool:
     if not isinstance(observed, list) or len(observed) != len(expected):
         return False
     for actual, reference in zip(observed, expected):
@@ -907,6 +1105,10 @@ def _matches_output(observed: object, expected: list[float | str],
         if type(actual) not in (int, float) or not math.isfinite(float(actual)):
             return False
         target = float(reference)
+        if (preserve_signed_zero and target == 0.0 and float(actual) == 0.0
+                and absolute_tolerance == 0.0 and relative_tolerance == 0.0
+                and math.copysign(1.0, float(actual)) != math.copysign(1.0, target)):
+            return False
         if abs(float(actual) - target) > absolute_tolerance + relative_tolerance * abs(target):
             return False
     return True
@@ -957,7 +1159,11 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
                 or record["measurement"]["comparison_model"] != "float64_slice_io_call"
                 or record["measurement"]["observed_result"] != expected_result
                 or not _matches_output(record["measurement"]["observed_output"], expected_output,
-                                       absolute_tolerance, relative_tolerance)
+                                       absolute_tolerance, relative_tolerance,
+                                       preserve_signed_zero=algorithm in {
+                                           "median_of_running_array_double",
+                                           "median_of_running_array_float",
+                                           "mean_shift"})
                 or len(record["measurement"]["samples_ns"]) != 1):
             raise RuntimeError(f"recorded result/provenance mismatch: {case['id']}")
     return {"algorithm": algorithm, "language": language, "status": "passed",

@@ -410,6 +410,13 @@ from sparsity_oracle import expected_result as sparsity_expected
 from relativity_oracle import INVALID_RESULT as RELATIVITY_INVALID_RESULT
 from relativity_oracle import MAX_INPUT_LENGTH as MAX_RELATIVITY_INPUT_LENGTH
 from relativity_oracle import expected_result as relativity_expected
+from maxwells_equations_oracle import INVALID_RESULT as MAXWELLS_EQUATIONS_INVALID_RESULT
+from maxwells_equations_oracle import MAX_FLUX_RATE_RAW as MAXWELLS_EQUATIONS_MAX_FLUX_RATE_RAW
+from maxwells_equations_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH
+from maxwells_equations_oracle import MAX_PHYSICAL_RAW as MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW
+from maxwells_equations_oracle import MAX_CONSTANT_RAW as MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW
+from maxwells_equations_oracle import MIN_CONSTANT_RAW as MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW
+from maxwells_equations_oracle import expected_result as maxwells_equations_expected
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
@@ -1017,6 +1024,155 @@ def validate_sharpe_ratio_workload(workload: dict) -> None:
             raise ValueError(f"sharpe_ratio expected_result differs from the pinned formula: {case['id']}")
 
 
+MAXWELLS_EQUATIONS_CASE_IDS = frozenset({
+    "gauss-electric-default-valid", "gauss-electric-default-invalid",
+    "gauss-electric-custom-permittivity-valid", "gauss-electric-zero-expected-valid",
+    "gauss-electric-zero-expected-absolute-tolerance-valid",
+    "gauss-electric-zero-expected-absolute-tolerance-invalid",
+    "gauss-electric-negative-area-invalid", "gauss-electric-custom-permittivity-below-range-invalid",
+    "gauss-electric-wrong-length-invalid", "unknown-operation-invalid",
+    "faraday-law-source-example-valid", "faraday-law-sign-mismatch-invalid",
+    "faraday-law-zero-expected-valid", "faraday-law-zero-expected-absolute-tolerance-valid",
+    "faraday-law-zero-expected-absolute-tolerance-invalid",
+    "ampere-maxwell-default-source-example-valid", "ampere-maxwell-default-invalid",
+    "ampere-maxwell-custom-constants-valid", "ampere-maxwell-zero-expected-valid",
+    "ampere-maxwell-zero-expected-absolute-tolerance-valid",
+    "ampere-maxwell-zero-expected-absolute-tolerance-invalid",
+    "ampere-maxwell-negative-permeability-invalid",
+    "ampere-maxwell-permittivity-below-range-invalid", "ampere-maxwell-wrong-length-invalid",
+    "ampere-maxwell-maximum-parseable-trailing-word-invalid", "wave-speed-vacuum-default",
+    "wave-speed-custom-constants", "wave-speed-upper-bound",
+    "wave-speed-negative-permeability-invalid", "wave-speed-constant-above-range-invalid",
+    "wave-impedance-vacuum-default", "wave-impedance-custom-constants",
+    "wave-impedance-upper-bound", "poynting-vacuum-source-example",
+    "poynting-signed-custom-result", "poynting-zero-field", "poynting-upper-magnitude-bound",
+    "poynting-negative-permeability-invalid", "poynting-field-above-range-invalid",
+    "energy-density-vacuum-example", "energy-density-custom-constants",
+    "energy-density-zero-fields", "energy-density-upper-bound",
+    "energy-density-negative-permittivity-invalid", "energy-density-wrong-length-invalid",
+    "generic-trailing-word-invalid",
+})
+
+
+def validate_maxwells_equations_workload(workload: dict) -> None:
+    """Pin all seven bounded Maxwell scalar methods and their shared ABI."""
+    source_url = (
+        "https://github.com/TheAlgorithms/Python/blob/"
+        "e1a2a8b016001309a73d5fec4818c35cca139795/physics/maxwells_equations.py")
+    methods = {
+        "0": ("gauss_law_electric", 5, ["operation", "electric_field_1e12",
+                                        "surface_area_1e12", "enclosed_charge_1e12",
+                                        "permittivity_1e18"]),
+        "1": ("faraday_law", 3, ["operation", "electric_field_circulation_1e12",
+                                  "magnetic_flux_change_rate_1e12"]),
+        "2": ("ampere_maxwell_law", 6, ["operation", "magnetic_field_circulation_1e12",
+                                         "enclosed_current_1e12", "electric_flux_change_rate_1e6",
+                                         "permeability_1e18", "permittivity_1e18"]),
+        "3": ("electromagnetic_wave_speed", 3,
+              ["operation", "permeability_1e18", "permittivity_1e18"]),
+        "4": ("electromagnetic_wave_impedance", 3,
+              ["operation", "permeability_1e18", "permittivity_1e18"]),
+        "5": ("poynting_vector_magnitude", 4,
+              ["operation", "electric_field_1e12", "magnetic_field_1e12", "permeability_1e18"]),
+        "6": ("energy_density_electromagnetic", 5,
+              ["operation", "electric_field_1e12", "magnetic_field_1e12",
+               "permittivity_1e18", "permeability_1e18"]),
+    }
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    pinned_sources = workload.get("pinned_sources")
+    operation_layouts = input_spec.get("operation_layouts", {})
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "maxwells-equations-python-i64-array-f64-v1"
+            or workload.get("algorithm") != "maxwells_equations"
+            or workload.get("function_symbol") != "maxwells_equations"
+            or input_spec.get("kind") != "signed_64_bit_integer_array"
+            or input_spec.get("maximum_valid_input_length") != 6
+            or input_spec.get("maximum_parseable_input_length") != MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH
+            or input_spec.get("operation_selector_index") != 0
+            or input_spec.get("invalid_input_result") != MAXWELLS_EQUATIONS_INVALID_RESULT
+            or set(operation_layouts) != set(methods)
+            or any(operation_layouts[code].get("method") != method
+                   or operation_layouts[code].get("exact_length") != length
+                   or operation_layouts[code].get("layout") != layout
+                   for code, (method, length, layout) in methods.items())
+            or input_spec["operation_layouts"]["0"].get("electric_field_raw_range")
+                != [-MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW, MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW]
+            or input_spec["operation_layouts"]["0"].get("surface_area_raw_range")
+                != [0, MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW]
+            or input_spec["operation_layouts"]["0"].get("enclosed_charge_raw_range")
+                != [-MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW, MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW]
+            or input_spec["operation_layouts"]["0"].get("constant_nonzero_raw_range")
+                != [MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW, MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW]
+            or input_spec["operation_layouts"]["2"].get("electric_flux_change_rate_raw_range")
+                != [-MAXWELLS_EQUATIONS_MAX_FLUX_RATE_RAW, MAXWELLS_EQUATIONS_MAX_FLUX_RATE_RAW]
+            or output_spec != {
+                "kind": "binary64",
+                "meaning": "Source result for the selected Maxwell scalar method; law checks are exactly 1.0 or 0.0.",
+                "relative_tolerance": 1e-12,
+                "absolute_tolerance": 1e-12,
+                "invalid_input_result": MAXWELLS_EQUATIONS_INVALID_RESULT,
+            }
+            or measurement != {
+                "comparison_model": "i64_array_float64_call",
+                "relative_tolerance": 1e-12,
+                "absolute_tolerance": 1e-12,
+                "sample_count": 5,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 1000,
+            }
+            or not isinstance(pinned_sources, list)
+            or len(pinned_sources) != 7
+            or any(source.get("repository") != "TheAlgorithms/Python"
+                   or source.get("commit") != "e1a2a8b016001309a73d5fec4818c35cca139795"
+                   or source.get("path") != "physics/maxwells_equations.py"
+                   or source.get("url") != source_url
+                   for source in pinned_sources)
+            or [source.get("symbol") for source in pinned_sources]
+                != [method[0] for method in methods.values()]
+            or not isinstance(cases, list)
+            or len(case_ids) != len(MAXWELLS_EQUATIONS_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MAXWELLS_EQUATIONS_CASE_IDS
+            or MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH != 7
+            or MAXWELLS_EQUATIONS_MAX_PHYSICAL_RAW != 1_000_000_000_000_000
+            or MAXWELLS_EQUATIONS_MAX_FLUX_RATE_RAW != 1_000_000_000_000_000_000
+            or MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW != 1_000_000
+            or MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW != 1_000_000_000_000_000
+            or MAXWELLS_EQUATIONS_INVALID_RESULT != -1e300):
+        raise ValueError("maxwells_equations workload metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "maxwells_equations" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme
+            or "seven independent numeric methods" not in readme
+            or "`gauss_law_magnetic(surface_area)` is explicitly excluded" not in readme
+            or "including its sign" not in readme):
+        raise ValueError("maxwells_equations README is missing its source or contract behavior")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        expected = case.get("expected_result")
+        if (not isinstance(values, list)
+                or len(values) > MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(expected) not in (int, float) or not math.isfinite(expected)):
+            raise ValueError(f"maxwells_equations workload framing is invalid: {case.get('id')}")
+        source_result = maxwells_equations_expected(values)
+        if source_result == MAXWELLS_EQUATIONS_INVALID_RESULT:
+            if expected != MAXWELLS_EQUATIONS_INVALID_RESULT:
+                raise ValueError(f"invalid Maxwell input must use its sentinel: {case['id']}")
+        elif expected == MAXWELLS_EQUATIONS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError(f"maxwells_equations expected_result differs from the oracle: {case['id']}")
+
+
 MAX_LOGISTIC_REGRESSION_CSHARP_BINARY_GD_INPUT_LENGTH = 300
 
 
@@ -1156,11 +1312,20 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "logistic_regression_csharp_binary_gd" else
                         MAX_SPARSITY_INPUT_VALUES + 1 if algorithm == "sparsity" else
                         MAX_RELATIVITY_INPUT_LENGTH if algorithm == "relativity" else
+                        MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH if algorithm == "maxwells_equations" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) not in (int, float) or not math.isfinite(expected)):
         raise ValueError("array-float64 cases require up to 4096 signed 64-bit values and a finite result")
+    if algorithm == "maxwells_equations":
+        source_result = maxwells_equations_expected(values)
+        if source_result == MAXWELLS_EQUATIONS_INVALID_RESULT:
+            if expected != MAXWELLS_EQUATIONS_INVALID_RESULT:
+                raise ValueError("invalid Maxwell inputs must use the -1e300 result sentinel")
+        elif expected == MAXWELLS_EQUATIONS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("maxwells_equations expected_result must match its seven-method oracle")
     if algorithm == "sharpe_ratio":
         source_result = sharpe_ratio_expected(values)
         if source_result == SHARPE_RATIO_INVALID_RESULT:
@@ -3359,7 +3524,10 @@ def main() -> int:
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
 
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
-    workload_path = args.workload or ROOT / "benchmarks" / letter / algorithm / "workload.json"
+    default_workload = (ROOT / "benchmarks" / "maxwells_equations" / "workload.json"
+                        if algorithm == "maxwells_equations" else
+                        ROOT / "benchmarks" / letter / algorithm / "workload.json")
+    workload_path = args.workload or default_workload
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if algorithm == "temperature_conversions":
         validate_temperature_conversions_workload(workload)
@@ -3377,6 +3545,8 @@ def main() -> int:
         validate_schur_complement_workload(workload)
     elif algorithm == "sharpe_ratio":
         validate_sharpe_ratio_workload(workload)
+    elif algorithm == "maxwells_equations":
+        validate_maxwells_equations_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")

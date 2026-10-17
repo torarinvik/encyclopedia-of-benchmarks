@@ -1,0 +1,35 @@
+extern tan(value: f64) -> f64
+extern log(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+const PI: f64 = 3.14159265358979323846264338327950288
+const EARTH_RADIUS: f64 = 6371000.0
+
+def rhumb_distance_finite(value: f64) -> bool:
+    value == value and value >= -1e308 and value <= 1e308
+
+def rhumb_distance_impl(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_length != 4:
+        return -1
+    lat1: f64 = input[0]; long1: f64 = input[1]; lat2: f64 = input[2]; long2: f64 = input[3]
+    if not rhumb_distance_finite(lat1) or not rhumb_distance_finite(long1) or not rhumb_distance_finite(lat2) or not rhumb_distance_finite(long2) or lat1 < -85.0 or lat1 > 85.0 or lat2 < -85.0 or lat2 > 85.0 or long1 < -180.0 or long1 > 180.0 or long2 < -180.0 or long2 > 180.0:
+        return -1
+    phi1: f64 = lat1 * PI / 180.0
+    phi2: f64 = lat2 * PI / 180.0
+    del_phi: f64 = phi2 - phi1
+    del_lambda: mutable f64 = (long2 - long1) * PI / 180.0
+    if del_lambda > PI:
+        del_lambda <- del_lambda - 2.0 * PI
+    else if del_lambda < -PI:
+        del_lambda <- del_lambda + 2.0 * PI
+    del_psi: f64 = log(tan(phi2 / 2.0 + PI / 4.0) / tan(phi1 / 2.0 + PI / 4.0))
+    q: f64 = if (del_psi > 1e-12 or del_psi < -1e-12): del_phi / del_psi else: cos(phi1)
+    distance: f64 = sqrt(pow(del_phi, 2.0) + pow(q * del_lambda, 2.0)) * EARTH_RADIUS
+    if output == null or output_capacity < 1:
+        return -2
+    output[0] <- distance
+    return 1
+
+export fn rhumb_distance(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = rhumb_distance_impl

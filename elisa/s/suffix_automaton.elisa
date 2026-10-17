@@ -1,0 +1,162 @@
+const MAX_TEXT: usize = 256
+const MAX_QUERIES: usize = 128
+const MAX_STATES: usize = 512
+const MAX_INPUT_LENGTH: usize = 33283
+const MAX_VALID_INPUT_LENGTH: usize = 33282
+const ALPHABET: usize = 128
+
+struct SamState:
+    length: i32
+    link: i32
+    next: i32[128]
+
+def suffix_automaton_initialize_state(states: mutable SamState&, index: usize) -> void:
+    states[index].length <- 0
+    states[index].link <- -1
+    for symbol in 0..<ALPHABET:
+        states[index].next[symbol] <- -1
+
+def suffix_automaton_build(states: mutable SamState&, text: mutable i32&, text_length: usize) -> usize:
+    suffix_automaton_initialize_state(&states[0], 0)
+    state_count: mutable usize = 1
+    last: mutable usize = 0
+    for position in 0..<text_length:
+        symbol: usize = text[position].usize()
+        current: usize = state_count
+        state_count <- state_count + 1
+        suffix_automaton_initialize_state(&states[0], current)
+        states[current].length <- states[last].length + 1
+        previous: mutable i32 = last.i32()
+        while previous != -1 and states[previous.usize()].next[symbol] == -1:
+            states[previous.usize()].next[symbol] <- current.i32()
+            previous <- states[previous.usize()].link
+        if previous == -1:
+            states[current].link <- 0
+        else:
+            next_state: usize = states[previous.usize()].next[symbol].usize()
+            if states[previous.usize()].length + 1 == states[next_state].length:
+                states[current].link <- next_state.i32()
+            else:
+                clone: usize = state_count
+                state_count <- state_count + 1
+                suffix_automaton_initialize_state(&states[0], clone)
+                states[clone].length <- states[previous.usize()].length + 1
+                states[clone].link <- states[next_state].link
+                for character in 0..<ALPHABET:
+                    states[clone].next[character] <- states[next_state].next[character]
+                while previous != -1 and states[previous.usize()].next[symbol] == next_state.i32():
+                    states[previous.usize()].next[symbol] <- clone.i32()
+                    previous <- states[previous.usize()].link
+                states[next_state].link <- clone.i32()
+                states[current].link <- clone.i32()
+        last <- current
+    state_count
+
+def suffix_automaton_contains(states: SamState&, pattern: mutable i32&, pattern_length: usize) -> i32:
+    current: mutable usize = 0
+    for index in 0..<pattern_length:
+        current_value: i32 = states[current].next[pattern[index].usize()]
+        if current_value == -1: return 0
+        current <- current_value.usize()
+    1
+
+def suffix_automaton_count_occurrences(states: SamState&, state_count: usize, text: mutable i32&, text_length: usize, pattern: mutable i32&, pattern_length: usize) -> i64:
+    current: mutable usize = 0
+    for index in 0..<pattern_length:
+        current_value: i32 = states[current].next[pattern[index].usize()]
+        if current_value == -1: return 0
+        current <- current_value.usize()
+
+    occurrences: mutable i32[MAX_STATES] = zeroed
+    by_length: mutable i32[MAX_TEXT + 1] = zeroed
+    order: mutable i32[MAX_STATES] = zeroed
+    for state in 0..<state_count:
+        by_length[states[state].length.usize()] <- by_length[states[state].length.usize()] + 1
+    for length in 1..<(text_length + 1):
+        by_length[length] <- by_length[length] + by_length[length - 1]
+    state: mutable usize = state_count
+    while state > 0:
+        state <- state - 1
+        state_length: usize = states[state].length.usize()
+        by_length[state_length] <- by_length[state_length] - 1
+        order[by_length[state_length].usize()] <- state.i32()
+    last: mutable usize = 0
+    for index in 0..<text_length:
+        last <- states[last].next[text[index].usize()].usize()
+        occurrences[last] <- 1
+    index: mutable usize = state_count
+    while index > 0:
+        index <- index - 1
+        ordered_state: usize = order[index].usize()
+        link: i32 = states[ordered_state].link
+        if link != -1:
+            occurrences[link.usize()] <- occurrences[link.usize()] + occurrences[ordered_state]
+    occurrences[current].i64()
+
+def suffix_automaton_count_distinct(states: SamState&, state_count: usize) -> i64:
+    total: mutable i64 = 0
+    for state in 1..<state_count:
+        link: usize = states[state].link.usize()
+        total <- total + (states[state].length - states[link].length).i64()
+    total
+
+def suffix_automaton_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255.u64()).u8()
+        bits <- bits >> 8
+
+def suffix_automaton_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 1 or input[0] > 256: return -1
+    text_length: usize = input[0].usize()
+    query_count_index: usize = text_length + 1
+    if length <= query_count_index or input[query_count_index] < 0 or input[query_count_index] > 128: return -1
+    query_count: usize = input[query_count_index].usize()
+    if length > MAX_VALID_INPUT_LENGTH: return -1
+
+    text: mutable i32[MAX_TEXT] = zeroed
+    for index in 0..<text_length:
+        symbol: i64 = input[index + 1]
+        if symbol < 0 or symbol >= 128: return -1
+        text[index] <- symbol.i32()
+
+    states: mutable SamState[MAX_STATES] = zeroed
+    state_count: usize = suffix_automaton_build(&states[0], &text[0], text_length)
+    results: mutable i64[MAX_QUERIES] = zeroed
+    opcodes: mutable u8[MAX_QUERIES] = zeroed
+    cursor: mutable usize = query_count_index + 1
+    for query in 0..<query_count:
+        if cursor + 1 >= length: return -1
+        opcode_value: i64 = input[cursor]
+        cursor <- cursor + 1
+        pattern_length_value: i64 = input[cursor]
+        cursor <- cursor + 1
+        if opcode_value < 0 or opcode_value > 2 or pattern_length_value < 0 or pattern_length_value > 256: return -1
+        opcode: usize = opcode_value.usize()
+        pattern_length: usize = pattern_length_value.usize()
+        if opcode == 2 and pattern_length != 0: return -1
+        if pattern_length > length - cursor: return -1
+        pattern: mutable i32[MAX_TEXT] = zeroed
+        for index in 0..<pattern_length:
+            symbol: i64 = input[cursor]
+            cursor <- cursor + 1
+            if symbol < 0 or symbol >= 128: return -1
+            pattern[index] <- symbol.i32()
+        opcodes[query] <- opcode.u8()
+        if opcode == 0:
+            results[query] <- suffix_automaton_contains(&states[0], &pattern[0], pattern_length).i64()
+        else if opcode == 1:
+            results[query] <- suffix_automaton_count_occurrences(&states[0], state_count, &text[0], text_length, &pattern[0], pattern_length)
+        else:
+            results[query] <- suffix_automaton_count_distinct(&states[0], state_count)
+    if cursor != length: return -1
+
+    output_bytes: usize = query_count * 9
+    if output == null or capacity < output_bytes: return -2
+    for query in 0..<query_count:
+        output[query * 9] <- opcodes[query]
+        suffix_automaton_store_i64(&output[0], query * 9 + 1, results[query])
+    output_bytes.i64()
+
+export fn suffix_automaton(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = suffix_automaton_impl

@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-mean-shift-float64-slice-io-v1",
+  "algorithm": "mean_shift",
+  "function_symbol": "mean_shift",
+  "description": "Shift points to neighborhood means, greedily merge centroids, and return stable zero-based cluster labels.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/mean_shift.py",
+    "symbol": "mean_shift",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/mean_shift.py",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Return one zero-based mean-shift cluster label per input point.",
+    "input_layout": "[point_count, dimension, bandwidth, max_iterations, tolerance, point-major flattened coordinates...]",
+    "point_order": "Preserve input order when scanning points, updating candidates, merging candidates, and emitting labels.",
+    "distance": "sum((a-b)**2 for dimensions) ** 0.5 using binary64 operations and coordinate order.",
+    "window_membership": "Include original data points whose distance to a candidate is <= bandwidth.",
+    "mean": "For each dimension, sum neighboring coordinates in source point order and divide by the neighbor count.",
+    "convergence": "A candidate is converged only when its movement distance is strictly less than tolerance.",
+    "convergence_loop": "Check candidate movement in order and stop at the first non-converged candidate, matching all() short-circuiting. If all candidates converge, break before replacing candidates with the newly computed points; merge the previous candidates.",
+    "merge": "Visit candidates in order and retain one only when its distance to every previously retained centroid is >= bandwidth.",
+    "labels": "Assign each original point to the nearest retained centroid; equal distances select the first retained centroid.",
+    "threshold_margin": "Every neighbor-membership, centroid-merge, and convergence distance comparison reached by source control flow must be at least 1e-6 away from its bandwidth or tolerance threshold. Each non-equal nearest-centroid distance compared with the current best must also differ by at least 1e-6; exact ties remain valid and retain the first centroid.",
+    "errors": "Invalid input returns -1 before output checks. A null output or capacity below point_count returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[point_count, dimension, bandwidth, max_iterations, tolerance, coordinates...]",
+    "point_count_range": [1, 16],
+    "dimension_range": [1, 3],
+    "coordinate_range": [-10.0, 10.0],
+    "bandwidth_range": [0.5, 20.0],
+    "max_iterations_range": [1, 64],
+    "tolerance_range": [1e-5, 1e-2],
+    "headers_must_be_exact_integers": ["point_count", "dimension", "max_iterations"],
+    "exact_packed_shape": "Exactly 5 + point_count * dimension finite binary64 values.",
+    "maximum_valid_input_length": 53,
+    "maximum_parseable_input_length": 54,
+    "threshold_margin": 1e-6,
+    "nearest_centroid_margin": "For each point, source-order min evaluation allows exact equal distances; any nonzero difference from the current best below 1e-6 is invalid.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "One exact binary64 integer label per original point, in input order.",
+    "maximum_elements": 16,
+    "workspace_elements": 16,
+    "success_result": "point_count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed, null, out-of-range, or threshold-margin-invalid input is rejected before output pointer or capacity checks.",
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "workspace": {
+    "elements": 16,
+    "meaning": "One label per input point."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "single_point",
+      "input_values": [1, 1, 1.0, 8, 0.001, 3.0],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output": [0.0]
+    },
+    {
+      "id": "two_separated_clusters",
+      "input_values": [4, 1, 0.5, 8, 0.001, 0.0, 0.25, 5.0, 5.25],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output": [0.0, 0.0, 1.0, 1.0]
+    },
+    {
+      "id": "window_member_inside_threshold_margin",
+      "input_values": [3, 1, 1.0, 1, 0.01, 0.0, 0.999, 4.0],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output": [0.0, 0.0, 1.0]
+    },
+    {
+      "id": "window_member_outside_threshold_margin",
+      "input_values": [3, 1, 1.0, 1, 0.01, 0.0, 1.001, 4.0],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output": [0.0, 1.0, 2.0]
+    },
+    {
+      "id": "two_dimensional_euclidean_clusters",
+      "input_values": [4, 2, 0.75, 8, 0.001, 0.0, 0.0, 0.3, 0.4, 5.0, 5.0, 5.3, 5.4],
+      "input_length": 13,
+      "expected_result": 4,
+      "expected_output": [0.0, 0.0, 1.0, 1.0]
+    },
+    {
+      "id": "greedy_first_retained_merge_and_nearest_tie",
+      "input_values": [7, 1, 0.625, 1, 0.01, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 1.0],
+      "input_length": 12,
+      "expected_result": 7,
+      "expected_output": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
+    },
+    {
+      "id": "iteration_limit_uses_last_updated_candidates",
+      "input_values": [2, 1, 0.5, 1, 0.001, 0.0, 0.25],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [0.0, 0.0]
+    },
+    {
+      "id": "convergence_all_short_circuits_after_first_movement",
+      "input_values": [4, 1, 0.5, 1, 0.0078125, 0.0, 0.25, 5.0, 5.015625],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output": [0.0, 0.0, 1.0, 1.0]
+    },
+    {
+      "id": "maximum_points_dimensions_and_output",
+      "input_values": [
+        16, 3, 0.5, 64, 0.01,
+        -7.5, 0.0, 0.0, -6.5, 0.0, 0.0, -5.5, 0.0, 0.0, -4.5, 0.0, 0.0,
+        -3.5, 0.0, 0.0, -2.5, 0.0, 0.0, -1.5, 0.0, 0.0, -0.5, 0.0, 0.0,
+        0.5, 0.0, 0.0, 1.5, 0.0, 0.0, 2.5, 0.0, 0.0, 3.5, 0.0, 0.0,
+        4.5, 0.0, 0.0, 5.5, 0.0, 0.0, 6.5, 0.0, 0.0, 7.5, 0.0, 0.0
+      ],
+      "input_length": 53,
+      "expected_result": 16,
+      "expected_output": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0]
+    },
+    {
+      "id": "zero_point_count_invalid",
+      "input_values": [0, 1, 1.0, 1, 0.01],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonintegral_point_count_invalid",
+      "input_values": [1.5, 1, 1.0, 1, 0.01, 0.0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_coordinate_invalid",
+      "input_values": [1, 1, 1.0, 1, 0.01, 0.0, 2.0],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "coordinate_out_of_range_invalid",
+      "input_values": [1, 1, 1.0, 1, 0.01, 10.0001],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "bandwidth_below_contract_range_invalid",
+      "input_values": [1, 1, 0.49, 1, 0.01, 0.0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "iteration_count_above_contract_range_invalid",
+      "input_values": [1, 1, 1.0, 65, 0.01, 0.0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "bandwidth_threshold_margin_violation_invalid",
+      "input_values": [2, 1, 1.0, 1, 0.01, 0.0, 1.0],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "convergence_threshold_margin_violation_invalid",
+      "input_values": [2, 1, 0.5, 1, 0.01, 0.0, 0.02],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nearest_centroid_near_tie_margin_violation_invalid",
+      "input_values": [
+        15, 1, 1.0, 1, 0.01,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.7500002,
+        1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5
+      ],
+      "input_length": 20,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "valid_input_null_output",
+      "input_values": [2, 1, 0.5, 4, 0.001, 0.0, 0.25],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [2, 1, 0.5, 4, 0.001, 0.0, 0.25],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [2, 1, 1.0, 1, 0.01, 0.0, 1.0],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 6,
+      "input_is_null": true,
+      "output_capacity": 16,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

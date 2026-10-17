@@ -1,0 +1,114 @@
+const MAX_OPERATIONS: usize = 64
+const MAX_LIVE_VALUES: usize = 32
+const MAX_INPUT_LENGTH: usize = 130
+const MAX_OUTPUT_VALUES: usize = 1024
+
+struct SkewNode:
+    value: i32
+    left: i32
+    right: i32
+    next_free: i32
+
+struct SkewHeapState:
+    nodes: SkewNode[32]
+    root: i32
+    free_head: i32
+    count: usize
+
+def skew_heap_initialize(heap: mutable SkewHeapState&) -> void:
+    heap.root <- -1
+    heap.count <- 0
+    heap.free_head <- 0
+    for index in 0..<MAX_LIVE_VALUES:
+        heap.nodes[index].left <- -1
+        heap.nodes[index].right <- -1
+        heap.nodes[index].next_free <- if index + 1 < MAX_LIVE_VALUES: (index + 1).i32() else: -1
+
+def skew_heap_merge(heap: mutable SkewHeapState&, first_arg: i32, second_arg: i32) -> i32:
+    if first_arg < 0: return second_arg
+    if second_arg < 0: return first_arg
+    first: mutable i32 = first_arg
+    second: mutable i32 = second_arg
+    if heap.nodes[first.usize()].value > heap.nodes[second.usize()].value:
+        temporary: i32 = first
+        first <- second
+        second <- temporary
+    old_right: i32 = heap.nodes[first.usize()].right
+    heap.nodes[first.usize()].right <- heap.nodes[first.usize()].left
+    heap.nodes[first.usize()].left <- skew_heap_merge(&heap, old_right, second)
+    first
+
+def skew_heap_insert(heap: mutable SkewHeapState&, value: i32) -> bool:
+    if heap.free_head < 0: return false
+    node: usize = heap.free_head.usize()
+    heap.free_head <- heap.nodes[node].next_free
+    heap.nodes[node].value <- value
+    heap.nodes[node].left <- -1
+    heap.nodes[node].right <- -1
+    heap.nodes[node].next_free <- -1
+    heap.root <- skew_heap_merge(&heap, heap.root, node.i32())
+    heap.count <- heap.count + 1
+    true
+
+def skew_heap_pop(heap: mutable SkewHeapState&) -> i32:
+    node: usize = heap.root.usize()
+    value: i32 = heap.nodes[node].value
+    heap.root <- skew_heap_merge(&heap, heap.nodes[node].left, heap.nodes[node].right)
+    heap.nodes[node].next_free <- heap.free_head
+    heap.free_head <- node.i32()
+    heap.count <- heap.count - 1
+    value
+
+def skew_heap_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255.u64()).u8()
+        bits <- bits >> 8
+
+def skew_heap_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 0 or input[0] > MAX_OPERATIONS.i64(): return -1
+    operation_count: usize = input[0].usize()
+    if length != 1 + 2 * operation_count or length > MAX_INPUT_LENGTH - 1: return -1
+    heap: mutable SkewHeapState = zeroed
+    skew_heap_initialize(&heap)
+    answers: mutable i64[MAX_OUTPUT_VALUES] = zeroed
+    answer_count: mutable usize = 0
+    for operation in 0..<operation_count:
+        opcode: i64 = input[1 + 2 * operation]
+        argument: i64 = input[2 + 2 * operation]
+        if opcode < 0 or opcode > 5: return -1
+        if opcode == 0:
+            if argument < -2147483648 or argument > 2147483647 or heap.count == MAX_LIVE_VALUES: return -1
+            if not skew_heap_insert(&heap, argument.i32()): return -1
+        else:
+            if argument != 0: return -1
+            if opcode == 1:
+                if heap.root < 0: return -1
+                answers[answer_count] <- heap.nodes[heap.root.usize()].value.i64()
+                answer_count <- answer_count + 1
+            else if opcode == 2:
+                if heap.root < 0: return -1
+                answers[answer_count] <- skew_heap_pop(&heap).i64()
+                answer_count <- answer_count + 1
+            else if opcode == 3:
+                snapshot: mutable i32[MAX_LIVE_VALUES] = zeroed
+                snapshot_count: mutable usize = 0
+                while heap.root >= 0:
+                    snapshot[snapshot_count] <- skew_heap_pop(&heap)
+                    snapshot_count <- snapshot_count + 1
+                for index in 0..<snapshot_count:
+                    if not skew_heap_insert(&heap, snapshot[index]): return -1
+                    answers[answer_count] <- snapshot[index].i64()
+                    answer_count <- answer_count + 1
+            else if opcode == 4:
+                skew_heap_initialize(&heap)
+            else:
+                answers[answer_count] <- if heap.count == 0: 1 else: 0
+                answer_count <- answer_count + 1
+    output_bytes: usize = answer_count * 8
+    if output == null or capacity < output_bytes: return -2
+    for index in 0..<answer_count: skew_heap_store_i64(&output[0], index * 8, answers[index])
+    output_bytes.i64()
+
+export fn skew_heap(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = skew_heap_impl

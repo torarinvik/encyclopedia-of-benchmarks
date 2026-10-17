@@ -175,6 +175,7 @@ int main(int argc, char **argv)
     for (size_t index = 0; index < expected_length; ++index) {
         printf("%s", index == 0 ? "" : ",");
         if (isnan(output[index])) printf("\"NaN\"");
+        else if (output[index] == 0.0 && signbit(output[index])) printf("-0.0");
         else printf("%.17g", output[index]);
     }
     printf("],\"samples_ns\":[");

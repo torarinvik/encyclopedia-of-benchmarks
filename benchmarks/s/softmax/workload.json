@@ -18,8 +18,16 @@
       "repository": "TheAlgorithms/Rust",
       "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
       "path": "src/math/softmax.rs"
+    },
+    {
+      "repository": "TheAlgorithms/C-Sharp",
+      "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbb6c",
+      "path": "Algorithms/Numeric/SoftMax.cs"
     }
   ],
+  "source_semantics": {
+    "csharp": "SoftMax.Compute applies Math.Exp to each logit, accumulates the exponentials in input order, then divides each exponent by their sum in a second pass. It does not max-shift; the shared [-20,20] domain keeps direct exponentials finite and nonzero."
+  },
   "excluded_source": {
     "repository": "TheAlgorithms/MATLAB-Octave",
     "commit": "e150b77ad256de46c1ce3815c3d7945ac4fc28dc",

@@ -52113,9 +52113,9 @@
           "local_folder_source": null
         }
       ],
-  "review_notes": "The pinned Python `gradient_descent` function initializes theta to zero and preserves the vectorized update order: predict with X @ theta, subtract y, compute X.T @ errors divided by sample count, then subtract alpha times the gradient. The benchmark constrains the first feature column to 1.0, bounds finite data and iteration/learning-rate values, and compares learned coefficients with 1e-10 absolute and relative tolerance. Dataset download, progress output, and mean absolute error are excluded.",
-  "benchmark_name": "linear_regression_vectorized",
-  "benchmark_contract": "benchmarks/l/linear_regression_vectorized/README.md"
+      "review_notes": "The pinned Python `gradient_descent` function initializes theta to zero and preserves the vectorized update order: predict with X @ theta, subtract y, compute X.T @ errors divided by sample count, then subtract alpha times the gradient. The benchmark constrains the first feature column to 1.0, bounds finite data and iteration/learning-rate values, and compares learned coefficients with 1e-10 absolute and relative tolerance. Dataset download, progress output, and mean absolute error are excluded.",
+      "benchmark_name": "linear_regression_vectorized",
+      "benchmark_contract": "benchmarks/l/linear_regression_vectorized/README.md"
     },
     {
       "candidate_id": "linear_search",
@@ -57538,7 +57538,7 @@
       ],
       "benchmark_name": "maxwells_equations",
       "benchmark_contract": "benchmarks/maxwells_equations/README.md",
-      "review_notes": "The pinned Python module exposes distinct method-level operations: scalar checks for Gauss electric, Faraday, and Ampere laws with source tolerances, plus electromagnetic wave speed 1/sqrt(mu*epsilon) for positive constants. gauss_law_magnetic(surface_area) returns True for every nonnegative area without inspecting magnetic flux; record it only as a constant-true placeholder, not a real flux check. Do not conflate the module’s functions into one physical simulation."
+      "review_notes": "The pinned Python module has seven meaningful numeric methods, represented as independent operations in benchmarks/maxwells_equations: op 0 gauss_law_electric, op 1 faraday_law, op 2 ampere_maxwell_law, op 3 electromagnetic_wave_speed, op 4 electromagnetic_wave_impedance, op 5 poynting_vector_magnitude, and op 6 energy_density_electromagnetic. The three law checks preserve the source's 1% relative tolerance and 1e-10 absolute tolerance when the expected value is zero. Positive constants use exact source defaults when their selector value is zero and bounded positive custom values otherwise. The Poynting method returns the signed source expression (electric_field * magnetic_field) / permeability without taking an absolute value. gauss_law_magnetic(surface_area) is explicitly excluded because it returns true for every nonnegative area after hard-coding magnetic flux to zero; it does not inspect a flux input and is only a constant-true placeholder. Keep the methods as separate scalar operations, not a combined field simulation."
     },
     {
       "candidate_id": "maze_recursion",
@@ -57809,7 +57809,7 @@
       ],
       "review_status": "reviewed_algorithm_semantics",
       "benchmark_name": "mean_shift",
-      "review_notes": "The pinned Python source performs iterative mean-shift centroid updates and cluster merging. The cleared bounded contract limits points and dimensions, requires an explicit margin around threshold decisions, and preserves point-order and tie behavior.",
+      "review_notes": "D58-cleared bounded contract: n=1..16 points, d=1..3 dimensions, coordinates in [-10,10], bandwidth in [0.5,20], iterations in [1,64], and tolerance in [1e-5,1e-2]. Every bandwidth and convergence comparison must stay at least 1e-6 from its threshold. Packed input has at most 53 valid words and 54 parseable words; output is at most 16 labels, one per point in original order. Reject malformed inputs and threshold-margin violations before output-pointer/capacity checks. Preserve the pinned source's distance<=bandwidth neighborhood inclusion; strict movement<tolerance convergence; all-candidates convergence break before assigning the newly shifted candidates; greedy candidate merge in input order, keeping the first representative and merging only distances < bandwidth; and nearest-centroid assignment where exact ties select the first centroid.",
       "benchmark_contract": "benchmarks/m/mean_shift/README.md"
     },
     {
@@ -58057,8 +58057,8 @@
         }
       ],
       "benchmark_name": "median_heap",
-      "benchmark_contract": "benchmarks/median_heap/README.md",
-      "review_notes": "The pinned Lua structure keeps lower and upper heaps; top returns the lower-half top (the lower median for even cardinality), and pop removes it then rebalances. Require nonempty operations and a bounded totally ordered numeric input domain."
+      "benchmark_contract": "benchmarks/m/median_heap/README.md",
+      "review_notes": "The pinned Lua structure keeps lower and upper heaps; top returns the lower-half top (the lower median for even cardinality), and pop removes it then rebalances. The contract permits zero through 256 operations, signed-i32 values, and at most 64 live values; Lua nil results use the collision-free INT64_MIN sentinel."
     },
     {
       "candidate_id": "median_matrix",
@@ -58157,8 +58157,8 @@
         }
       ],
       "benchmark_name": "median_of_running_array_byte",
-      "benchmark_contract": "benchmarks/median_of_running_array_byte/README.md",
-      "review_notes": "The pinned Java subclass maintains lower/upper heaps and returns the median; for even cardinality it averages using signed byte arithmetic and truncates toward zero. Preserve byte range/cast behavior; query only when nonempty."
+      "benchmark_contract": "benchmarks/m/median_of_running_array_byte/README.md",
+      "review_notes": "The pinned Java subclass reports the median after each insertion. It sends a sample to maxHeap only when minHeap is nonempty and the sample is strictly less than minHeap.peek(); it rebalances only when one heap exceeds the other by more than one. Odd prefixes return the root of the larger heap, so either heap orientation can occur. Even prefixes average the two roots as ints with Java truncation toward zero before casting back to byte; the empty stream is invalid."
     },
     {
       "candidate_id": "median_of_running_array_double",
@@ -58178,8 +58178,8 @@
         }
       ],
       "benchmark_name": "median_of_running_array_double",
-      "benchmark_contract": "benchmarks/median_of_running_array_double/README.md",
-      "review_notes": "The pinned Java subclass maintains lower/upper heaps and averages the two middle values for even cardinality. Restrict inputs to finite doubles to avoid NaN/infinity ordering differences; query only when nonempty."
+      "benchmark_contract": "benchmarks/m/median_of_running_array_double/README.md",
+      "review_notes": "The pinned Java subclass inherits the lower max-heap and upper min-heap running median. Odd prefixes return the larger heap root; even prefixes compute (lowerRoot + upperRoot) / 2.0d in source order. The bounded contract accepts finite samples in [-1,000,000,1,000,000], preserves Java Double.compare ordering including -0.0 below +0.0, and rejects NaN/infinity. This double-valued specialization is separate from the integer-truncating and byte-wrapping variants."
     },
     {
       "candidate_id": "median_of_running_array_float",
@@ -58199,7 +58199,7 @@
         }
       ],
       "benchmark_name": "median_of_running_array_float",
-      "benchmark_contract": "benchmarks/median_of_running_array_float/README.md",
+      "benchmark_contract": "benchmarks/m/median_of_running_array_float/README.md",
       "review_notes": "The pinned Java subclass maintains lower/upper heaps and averages the two middle values using float arithmetic for even cardinality. Preserve float rounding; query only when nonempty."
     },
     {
@@ -58241,7 +58241,7 @@
         }
       ],
       "benchmark_name": "median_of_running_array_long",
-      "benchmark_contract": "benchmarks/median_of_running_array_long/README.md",
+      "benchmark_contract": "benchmarks/m/median_of_running_array_long/README.md",
       "review_notes": "The pinned Java subclass maintains lower/upper heaps and computes an even median as (a+b)/2L. Bound magnitudes so the addition cannot overflow signed long; query only when nonempty."
     },
     {
@@ -58262,8 +58262,8 @@
         }
       ],
       "benchmark_name": "median_of_three_quick_sorter",
-  "benchmark_contract": "benchmarks/m/median_of_three_quick_sorter/README.md",
-  "review_notes": "D58 cleared the pinned C# QuickSorter specialization, which chooses the median of the left, middle, and right elements as pivot and otherwise uses the inherited quicksort. The sort_call contract requires a consistent total comparer and bounds arrays to 256 signed-i64 values."
+      "benchmark_contract": "benchmarks/m/median_of_three_quick_sorter/README.md",
+      "review_notes": "D58 cleared the pinned C# QuickSorter specialization, which chooses the median of the left, middle, and right elements as pivot and otherwise uses the inherited quicksort. The sort_call contract requires a consistent total comparer and bounds arrays to 256 signed-i64 values."
     },
     {
       "candidate_id": "median_of_two_sorted_arrays",
@@ -62154,7 +62154,7 @@
       ],
       "review_status": "reviewed_algorithm_semantics",
       "benchmark_name": "msd_radix_string_sorter",
-      "review_notes": "Cleared ABI: [n,(length,codeUnit...)*n], n 0..256, lengths 0..32, UTF-16 code units 0..255. Preserve stable MSD sort. FNV-1a-64 hashes n:u16 then sorted length:u8 and bytes; low 63 bits returned; invalid=-1.",
+      "review_notes": "The pinned C# sorter performs stable MSD counting/distribution over UTF-16 code units. The benchmark bounds n to 0..256, strings to 0..32 units, and units to 0..255; its recursion preserves end-of-string order while covering byte buckets 0..255. It hashes n:u16-le and sorted length:u8/code-unit bytes with FNV-1a-64, returning the low 63 bits; invalid=-1.",
       "benchmark_contract": "benchmarks/m/msd_radix_string_sorter/README.md"
     },
     {
@@ -70335,9 +70335,9 @@
           "local_folder_source": null
         }
       ],
-  "review_notes": "The pinned Python source exposes `maxpooling` and `avgpooling` plus image-loading helpers. This benchmark maps only `maxpooling`: square signed-i32 pixel matrices, positive pool size no greater than the matrix, and positive stride. It emits row-major full-window maxima as little-endian f64 bytes; average pooling and image-loading behavior are separate and excluded.",
-  "benchmark_name": "max_pooling",
-  "benchmark_contract": "benchmarks/m/max_pooling/README.md"
+      "review_notes": "The pinned Python source exposes `maxpooling` and `avgpooling` plus image-loading helpers. This benchmark maps only `maxpooling`: square signed-i32 pixel matrices, positive pool size no greater than the matrix, and positive stride. It emits row-major full-window maxima as little-endian f64 bytes; average pooling and image-loading behavior are separate and excluded.",
+      "benchmark_name": "max_pooling",
+      "benchmark_contract": "benchmarks/m/max_pooling/README.md"
     },
     {
       "candidate_id": "porta_cipher",
@@ -72487,7 +72487,15 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python file bundles two distinct queue types. FixedPriorityQueue has three FIFO buckets where priority 0 is highest; dequeue scans buckets in 0, 1, 2 order, and each bucket is capped at 100 items. Python negative indexing accidentally accepts priorities -1, -2, and -3 despite the documented 0..2 domain; a full bucket raises built-in OverflowError. ElementPriorityQueue stores up to 100 integers in an unsorted list and dequeues the minimum, removing the first equal value so ties are FIFO; enqueue is O(1), dequeue O(n), and empty dequeue raises UnderFlowError. These are separately benchmarkable ADTs, so this combined row needs a class-level scope or split before receiving one contract. The element-priority variant overlaps remove-min output semantics with ascending_priority_queue but uses an array list rather than a linked list."
+      "review_notes": "The pinned Python file contains two separately benchmarked queue classes. FixedPriorityQueue uses three FIFO buckets, serves priority 0 first, and preserves Python's observable negative-index mapping for priorities -3 through -1; each bucket holds at most 100 values. ElementPriorityQueue appends to an unsorted list and dequeues the minimum, removing the first equal occurrence; it holds at most 100 signed-i32 values and is distinct from the linked-list implementation in ascending_priority_queue. See the separate fixed-bucket and element-priority packages.",
+      "benchmark_name": "fixed_priority_queue_using_list",
+      "benchmark_contract": "benchmarks/f/fixed_priority_queue_using_list/README.md",
+      "additional_benchmark_names": [
+        "element_priority_queue_using_list"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/e/element_priority_queue_using_list/README.md"
+      ]
     },
     {
       "candidate_id": "priority_queues",
@@ -85585,7 +85593,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "Three separate source methods: Java allocating string left rotation; Java in-place char-array left rotation; Python affine image rotation via OpenCV three-point transform/warp. String contracts require 0<=n<=length. Preserve the Python source passing output tuple as (rows,cols) even though OpenCV expects (width,height), and document that dimension behavior. D58 cleared the 25-case char-array workload, oracle, and nine ports by static review; 8484 statically cleared the shared bytes-output runner/verifier integration.",
+      "review_notes": "Three separate source methods: Java allocating string left rotation; Java in-place char-array left rotation; Python affine image rotation via OpenCV three-point transform/warp. String contracts require 0<=n<=length. The string_left_rotation benchmark preserves all Java UTF-16 code units 0..65535, including lone surrogates and rotations that split surrogate pairs, and returns raw little-endian u16 bytes; its ABI cases cover null and short outputs plus empty output with a null pointer. affine_image_rotation uses 1..8 dimensions, byte pixels, bounded integer coefficients/translations, and exact unimodular transforms; it preserves the source's `(rows, cols)` dsize argument and `(cols, rows)` output shape, with raw grayscale bytes and zero border fill. Preserve the Python source passing output tuple as (rows,cols) even though OpenCV expects (width,height), and document that dimension behavior. D58 cleared the 25-case char-array workload, oracle, and nine ports by static review; 8484 statically cleared the shared bytes-output runner/verifier integration.",
       "benchmark_name": "string_left_rotation",
       "benchmark_contract": "benchmarks/s/string_left_rotation/README.md",
       "additional_benchmark_names": [
@@ -91266,9 +91274,8 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "soft_max",
-      "benchmark_contract": "benchmarks/s/soft_max/README.md",
-      "review_notes": "The pinned source applies naive exponentials and normalization to nonempty, moderate finite logits. It does not subtract the maximum and may overflow on large values."
+      "alias_of": "softmax",
+      "review_notes": "Alias of the bounded softmax contract. The pinned C# `SoftMax.Compute` directly applies `Math.Exp` to each logit, accumulates the exponentials in input order, then divides each exponent by the sum. It does not max-shift; the shared [-20,20] domain keeps direct exponentials finite and nonzero."
     },
     {
       "candidate_id": "softmax",
@@ -96185,7 +96192,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements a heap-backed table/priority structure with source-defined operation semantics; it remains a distinct candidate."
+      "benchmark_name": "table_heap",
+      "benchmark_contract": "benchmarks/t/table_heap/README.md",
+      "review_notes": "D58-cleared i64_array_bytes_output contract: input is [initial_count,(id,priority)*,operation_count,(opcode,arg1,arg2,arg3)*], with 0..64 initial unique signed-i32 IDs and 0..256 operations. Exact packed length is 2+2*initial_count+4*operation_count; maximum valid/parseable lengths are 1,154/1,155 words. Model objects by ID with mutable signed-i32 priorities and compare priority[id_a] < priority[id_b]. Maintain an ID-to-current-heap-index map across every swap, push, pop, replacement, and removal; find_index and ID-based mutations use direct map lookup. Preserve heap tie order: use the right child by default, choose the left child only when strictly smaller, and swap only when the chosen child is strictly smaller than its parent. Opcodes: 0 push(id,priority), 1 top, 2 pop, 3 size, 4 empty, 5 find_index(id), 6 decrease(id,new_priority), 7 increase(id,new_priority), 8 replace(old_id,new_id,new_priority), 9 remove(id). Priorities change before heapify; decrease/increase enforce <=/>= respectively; IDs remain unique; replacing an ID with itself is valid only with unchanged priority. Empty top and missing find return nil; empty pop and missing update/remove are invalid. Serialize nil as INT64_MIN. Invalid input returns -1 before output checks; valid null/short output returns -2 without writes. Output is at most 2,048 bytes."
     },
     {
       "candidate_id": "table_list",

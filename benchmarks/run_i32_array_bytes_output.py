@@ -138,6 +138,35 @@ from hungarian_algorithm_oracle import MIN_COST as HUNGARIAN_MIN_COST
 from hungarian_algorithm_oracle import MIN_DIMENSION as HUNGARIAN_MIN_DIMENSION
 from hungarian_algorithm_oracle import OUTPUT_ERROR as HUNGARIAN_OUTPUT_ERROR
 from hungarian_algorithm_oracle import expected_output as hungarian_expected_output
+from affine_image_rotation_oracle import I32_MAX as AFFINE_IMAGE_ROTATION_I32_MAX
+from affine_image_rotation_oracle import I32_MIN as AFFINE_IMAGE_ROTATION_I32_MIN
+from affine_image_rotation_oracle import INVALID_RESULT as AFFINE_IMAGE_ROTATION_INVALID_RESULT
+from affine_image_rotation_oracle import MAX_COORDINATE as AFFINE_IMAGE_ROTATION_MAX_COORDINATE
+from affine_image_rotation_oracle import MAX_DIMENSION as AFFINE_IMAGE_ROTATION_MAX_DIMENSION
+from affine_image_rotation_oracle import MAX_MATRIX_COEFFICIENT as AFFINE_IMAGE_ROTATION_MAX_MATRIX_COEFFICIENT
+from affine_image_rotation_oracle import MAX_OUTPUT_BYTES as AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES
+from affine_image_rotation_oracle import MAX_PARSEABLE_INPUT_WORDS as AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH
+from affine_image_rotation_oracle import MAX_PIXEL as AFFINE_IMAGE_ROTATION_MAX_PIXEL
+from affine_image_rotation_oracle import MAX_TRANSLATION as AFFINE_IMAGE_ROTATION_MAX_TRANSLATION
+from affine_image_rotation_oracle import MAX_VALID_INPUT_WORDS as AFFINE_IMAGE_ROTATION_MAX_VALID_INPUT_LENGTH
+from affine_image_rotation_oracle import MIN_COORDINATE as AFFINE_IMAGE_ROTATION_MIN_COORDINATE
+from affine_image_rotation_oracle import MIN_DIMENSION as AFFINE_IMAGE_ROTATION_MIN_DIMENSION
+from affine_image_rotation_oracle import MIN_MATRIX_COEFFICIENT as AFFINE_IMAGE_ROTATION_MIN_MATRIX_COEFFICIENT
+from affine_image_rotation_oracle import MIN_PIXEL as AFFINE_IMAGE_ROTATION_MIN_PIXEL
+from affine_image_rotation_oracle import MIN_TRANSLATION as AFFINE_IMAGE_ROTATION_MIN_TRANSLATION
+from affine_image_rotation_oracle import OUTPUT_ERROR as AFFINE_IMAGE_ROTATION_OUTPUT_ERROR
+from affine_image_rotation_oracle import expected_output as affine_image_rotation_expected_output
+from median_of_running_array_byte_oracle import I32_MAX as MEDIAN_BYTE_I32_MAX
+from median_of_running_array_byte_oracle import I32_MIN as MEDIAN_BYTE_I32_MIN
+from median_of_running_array_byte_oracle import INVALID_RESULT as MEDIAN_BYTE_INVALID_RESULT
+from median_of_running_array_byte_oracle import MAX_OUTPUT_BYTES as MEDIAN_BYTE_MAX_OUTPUT_BYTES
+from median_of_running_array_byte_oracle import MAX_PARSEABLE_INPUT_WORDS as MEDIAN_BYTE_MAX_INPUT_LENGTH
+from median_of_running_array_byte_oracle import MAX_SAMPLE as MEDIAN_BYTE_MAX_SAMPLE
+from median_of_running_array_byte_oracle import MAX_SAMPLE_COUNT as MEDIAN_BYTE_MAX_SAMPLE_COUNT
+from median_of_running_array_byte_oracle import MIN_SAMPLE as MEDIAN_BYTE_MIN_SAMPLE
+from median_of_running_array_byte_oracle import MIN_SAMPLE_COUNT as MEDIAN_BYTE_MIN_SAMPLE_COUNT
+from median_of_running_array_byte_oracle import OUTPUT_ERROR as MEDIAN_BYTE_OUTPUT_ERROR
+from median_of_running_array_byte_oracle import expected_output as median_of_running_array_byte_expected_output
 from merge_sort_no_extra_space_oracle import INVALID_RESULT as MERGE_SORT_INVALID_RESULT
 from merge_sort_no_extra_space_oracle import MAX_LENGTH as MERGE_SORT_MAX_LENGTH
 from merge_sort_no_extra_space_oracle import MAX_OUTPUT_BYTES as MERGE_SORT_MAX_OUTPUT_BYTES
@@ -188,7 +217,8 @@ ALGORITHMS = ("salsa", "steinhaus_johnson_trotter", "minimum_spanning_tree_krusk
               "mo",
               "preemptive_priority_scheduling", "multikey_quick_sort", "max_pooling",
               "hungarian_algorithm", "merge_sort_no_extra_space", "reverse_singly_linked_list",
-              "snail", "reverse_kgroup", "sjfscheduling")
+              "snail", "reverse_kgroup", "sjfscheduling", "affine_image_rotation",
+              "median_of_running_array_byte")
 
 
 def oracle_for(values: list[int], algorithm: str, output_capacity: int,
@@ -227,6 +257,12 @@ def oracle_for(values: list[int], algorithm: str, output_capacity: int,
             values, output_capacity, output_is_null, input_is_null, input_length)
     if algorithm == "hungarian_algorithm":
         return hungarian_expected_output(
+            values, output_capacity, output_is_null, input_is_null, input_length)
+    if algorithm == "affine_image_rotation":
+        return affine_image_rotation_expected_output(
+            values, output_capacity, output_is_null, input_is_null, input_length)
+    if algorithm == "median_of_running_array_byte":
+        return median_of_running_array_byte_expected_output(
             values, output_capacity, output_is_null, input_is_null, input_length)
     if algorithm == "merge_sort_no_extra_space":
         return merge_sort_expected_output(
@@ -271,6 +307,10 @@ def max_parseable_input_length(algorithm: str) -> int:
         return MO_MAX_INPUT_LENGTH
     if algorithm == "hungarian_algorithm":
         return HUNGARIAN_MAX_INPUT_LENGTH
+    if algorithm == "affine_image_rotation":
+        return AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH
+    if algorithm == "median_of_running_array_byte":
+        return MEDIAN_BYTE_MAX_INPUT_LENGTH
     if algorithm == "merge_sort_no_extra_space":
         return MERGE_SORT_MAX_PARSEABLE_LENGTH
     if algorithm == "reverse_singly_linked_list":
@@ -309,6 +349,10 @@ def max_output_bytes(algorithm: str) -> int:
         return MO_MAX_OUTPUT_BYTES
     if algorithm == "hungarian_algorithm":
         return HUNGARIAN_MAX_OUTPUT_BYTES
+    if algorithm == "affine_image_rotation":
+        return AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES
+    if algorithm == "median_of_running_array_byte":
+        return MEDIAN_BYTE_MAX_OUTPUT_BYTES
     if algorithm == "merge_sort_no_extra_space":
         return MERGE_SORT_MAX_OUTPUT_BYTES
     if algorithm == "reverse_singly_linked_list":
@@ -1524,6 +1568,337 @@ def validate_hungarian_algorithm_workload(workload: dict) -> None:
             raise ValueError(f"hungarian_algorithm workload mismatch: {case.get('id')}")
 
 
+AFFINE_IMAGE_ROTATION_CASE_IDS = frozenset({
+    "identity_rectangular_swapped_shape", "quarter_turn_counterclockwise",
+    "positive_integer_shear", "negative_integer_shear", "translate_right",
+    "vertical_reflection", "half_turn_rectangular", "one_pixel_identity",
+    "maximum_dimensions_identity", "constant_zero_border", "empty_input",
+    "one_word_input", "null_input_positive_length", "zero_rows", "zero_columns",
+    "rows_above_limit", "pixel_below_range", "pixel_above_range",
+    "coordinate_below_range", "collinear_source_points", "fractional_affine_coefficients",
+    "non_unimodular_scale", "singular_affine_map", "coefficient_above_limit",
+    "trailing_word", "maximum_parseable_trailing_word", "input_length_mismatch",
+    "exact_capacity", "short_capacity_no_write", "null_output_no_write",
+    "invalid_input_precedes_null_output", "coordinate_above_range",
+})
+
+
+def validate_affine_image_rotation_workload(workload: dict) -> None:
+    """Pin the exact-lattice Python affine image rotation and byte-output ABI."""
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "digital_image_processing/rotation/rotation.py",
+        "symbol": "get_rotation",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/digital_image_processing/rotation/rotation.py",
+    }
+    input_spec = {
+        "kind": "signed_i32_array",
+        "encoding": "[rows, cols, row-major grayscale pixels..., pt1 x,y pairs..., pt2 x,y pairs...], with three corresponding points in each set.",
+        "row_count_range": [AFFINE_IMAGE_ROTATION_MIN_DIMENSION, AFFINE_IMAGE_ROTATION_MAX_DIMENSION],
+        "column_count_range": [AFFINE_IMAGE_ROTATION_MIN_DIMENSION, AFFINE_IMAGE_ROTATION_MAX_DIMENSION],
+        "pixel_range": [AFFINE_IMAGE_ROTATION_MIN_PIXEL, AFFINE_IMAGE_ROTATION_MAX_PIXEL],
+        "coordinate_range": [AFFINE_IMAGE_ROTATION_MIN_COORDINATE, AFFINE_IMAGE_ROTATION_MAX_COORDINATE],
+        "matrix_coefficient_range": [AFFINE_IMAGE_ROTATION_MIN_MATRIX_COEFFICIENT,
+                                      AFFINE_IMAGE_ROTATION_MAX_MATRIX_COEFFICIENT],
+        "translation_range": [AFFINE_IMAGE_ROTATION_MIN_TRANSLATION,
+                              AFFINE_IMAGE_ROTATION_MAX_TRANSLATION],
+        "required_determinants": [-1, 1],
+        "maximum_valid_input_length": AFFINE_IMAGE_ROTATION_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH,
+        "exact_packed_shape": "Exactly 14 + rows*cols signed-i32 words.",
+        "invalid_input_result": AFFINE_IMAGE_ROTATION_INVALID_RESULT,
+        "null_input_result": AFFINE_IMAGE_ROTATION_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "row_major_u8_image_bytes",
+        "encoding": "Exactly rows*cols grayscale bytes in an output matrix of shape (cols, rows), with no count prefix.",
+        "valid_output_bytes_range": [1, AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES],
+        "maximum_output_bytes": AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES,
+        "success_result": "output byte length (rows*cols)",
+        "invalid_input_result": AFFINE_IMAGE_ROTATION_INVALID_RESULT,
+        "null_output_result": AFFINE_IMAGE_ROTATION_OUTPUT_ERROR,
+        "insufficient_output_capacity_result": AFFINE_IMAGE_ROTATION_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks.",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-affine-image-rotation-i32-array-bytes-output-v1"
+            or workload.get("algorithm") != "affine_image_rotation"
+            or workload.get("function_symbol") != "affine_image_rotation"
+            or workload.get("description") != (
+                "Warp a bounded grayscale image by an exact integer affine map while preserving the source's swapped destination-size tuple behavior.")
+            or workload.get("pinned_sources") != [source]
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES,
+                "meaning": "Up to 64 row-major grayscale output pixels.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i32_array_bytes_output_call",
+                "sample_count": 5,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 100,
+            }
+            or AFFINE_IMAGE_ROTATION_MIN_DIMENSION != 1
+            or AFFINE_IMAGE_ROTATION_MAX_DIMENSION != 8
+            or AFFINE_IMAGE_ROTATION_MIN_PIXEL != 0
+            or AFFINE_IMAGE_ROTATION_MAX_PIXEL != 255
+            or AFFINE_IMAGE_ROTATION_MIN_COORDINATE != -16
+            or AFFINE_IMAGE_ROTATION_MAX_COORDINATE != 16
+            or AFFINE_IMAGE_ROTATION_MIN_MATRIX_COEFFICIENT != -2
+            or AFFINE_IMAGE_ROTATION_MAX_MATRIX_COEFFICIENT != 2
+            or AFFINE_IMAGE_ROTATION_MIN_TRANSLATION != -16
+            or AFFINE_IMAGE_ROTATION_MAX_TRANSLATION != 16
+            or AFFINE_IMAGE_ROTATION_MAX_VALID_INPUT_LENGTH != 78
+            or AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH != 79
+            or AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES != 64
+            or AFFINE_IMAGE_ROTATION_INVALID_RESULT != -1
+            or AFFINE_IMAGE_ROTATION_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(AFFINE_IMAGE_ROTATION_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != AFFINE_IMAGE_ROTATION_CASE_IDS):
+        raise ValueError("affine_image_rotation workload metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "a" / "affine_image_rotation" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "OpenCV treats that tuple as `(width,height)`" not in readme
+            or "output shape is `(cols, rows)`" not in readme
+            or "integer pixel lattice" not in readme
+            or "default constant-zero border" not in readme):
+        raise ValueError("affine_image_rotation README is missing its pinned source or OpenCV behavior")
+
+    null_input_cases = [case for case in cases if case.get("input_is_null", False)]
+    null_output_cases = [case for case in cases if case.get("output_is_null", False)]
+    exact_capacity = next(case for case in cases if case.get("id") == "exact_capacity")
+    short_capacity = next(case for case in cases if case.get("id") == "short_capacity_no_write")
+    invalid_null = next(case for case in cases if case.get("id") == "invalid_input_precedes_null_output")
+    maximum_case = next(case for case in cases if case.get("id") == "maximum_dimensions_identity")
+    parseable_case = next(case for case in cases if case.get("id") == "maximum_parseable_trailing_word")
+    if (len(null_input_cases) != 1
+            or null_input_cases[0].get("id") != "null_input_positive_length"
+            or null_input_cases[0].get("input_values") != []
+            or null_input_cases[0].get("input_length") != 1
+            or null_input_cases[0].get("expected_result") != AFFINE_IMAGE_ROTATION_INVALID_RESULT
+            or {case.get("id"): case.get("expected_result") for case in null_output_cases} != {
+                "null_output_no_write": AFFINE_IMAGE_ROTATION_OUTPUT_ERROR,
+                "invalid_input_precedes_null_output": AFFINE_IMAGE_ROTATION_INVALID_RESULT,
+            }
+            or exact_capacity.get("expected_result") != 1
+            or exact_capacity.get("output_capacity") != 1
+            or exact_capacity.get("expected_output_hex", "").lower() != "ff"
+            or short_capacity.get("output_capacity") != 0
+            or short_capacity.get("expected_result") != AFFINE_IMAGE_ROTATION_OUTPUT_ERROR
+            or invalid_null.get("expected_result") != AFFINE_IMAGE_ROTATION_INVALID_RESULT
+            or maximum_case.get("input_length") != AFFINE_IMAGE_ROTATION_MAX_VALID_INPUT_LENGTH
+            or maximum_case.get("expected_result") != AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES
+            or len(bytes.fromhex(maximum_case.get("expected_output_hex", "")))
+                != AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES
+            or parseable_case.get("input_length") != AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH
+            or parseable_case.get("expected_result") != AFFINE_IMAGE_ROTATION_INVALID_RESULT):
+        raise ValueError("affine_image_rotation workload is missing required boundary or ABI probes")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        capacity = case.get("output_capacity", AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES)
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        if (not isinstance(values, list)
+                or len(values) > AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH
+                or any(type(value) is not int
+                       or not AFFINE_IMAGE_ROTATION_I32_MIN <= value <= AFFINE_IMAGE_ROTATION_I32_MAX
+                       for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH
+                or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and (values or input_length == 0)
+                or input_is_null and output_is_null
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output_hex"), str)):
+            raise ValueError(f"affine_image_rotation workload framing is invalid: {case.get('id')}")
+        result, output = affine_image_rotation_expected_output(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (case["expected_result"] != result
+                or case["expected_output_hex"].lower() != output.hex()
+                or len(output) > AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES
+                or result < 0 and output):
+            raise ValueError(f"affine_image_rotation workload mismatch: {case.get('id')}")
+
+
+MEDIAN_OF_RUNNING_ARRAY_BYTE_CASE_IDS = frozenset({
+    "single_minimum_byte", "single_maximum_byte", "increasing_stream_even_truncation",
+    "decreasing_stream_even_truncation", "negative_odd_sum_truncates_toward_zero",
+    "negative_even_sum", "opposite_byte_endpoints", "duplicate_values",
+    "alternating_byte_extremes", "both_heap_rebalance_directions",
+    "odd_prefix_upper_heap_root", "odd_prefix_lower_heap_root", "maximum_stream_length",
+    "empty_input", "empty_stream_is_invalid", "missing_sample", "negative_count",
+    "count_above_limit", "sample_below_byte_range", "sample_above_byte_range",
+    "trailing_word", "maximum_parseable_trailing_word", "input_length_mismatch",
+    "null_input_positive_length", "exact_output_capacity", "short_output_capacity_no_write",
+    "null_output_no_write", "invalid_input_precedes_null_output",
+})
+
+
+def validate_median_of_running_array_byte_workload(workload: dict) -> None:
+    """Pin the Java signed-byte prefix-median source and output ABI."""
+    sources = [
+        {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/misc/MedianOfRunningArrayByte.java",
+            "symbol": "MedianOfRunningArrayByte.calculateAverage",
+            "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/misc/MedianOfRunningArrayByte.java",
+        },
+        {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/misc/MedianOfRunningArray.java",
+            "symbol": "MedianOfRunningArray.insert/getMedian",
+            "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/misc/MedianOfRunningArray.java",
+        },
+    ]
+    input_spec = {
+        "kind": "signed_i32_array",
+        "encoding": "[sample_count, samples...] in insertion order; each sample represents one Java signed byte.",
+        "sample_count_range": [MEDIAN_BYTE_MIN_SAMPLE_COUNT, MEDIAN_BYTE_MAX_SAMPLE_COUNT],
+        "sample_range": [MEDIAN_BYTE_MIN_SAMPLE, MEDIAN_BYTE_MAX_SAMPLE],
+        "maximum_valid_input_length": MEDIAN_BYTE_MAX_SAMPLE_COUNT + 1,
+        "maximum_parseable_input_length": MEDIAN_BYTE_MAX_INPUT_LENGTH,
+        "exact_packed_shape": "Exactly 1 + sample_count signed-i32 words.",
+        "invalid_input_result": MEDIAN_BYTE_INVALID_RESULT,
+        "null_input_result": MEDIAN_BYTE_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "raw_twos_complement_i8_array",
+        "encoding": "One byte per nonempty prefix median, in insertion order; no count prefix.",
+        "valid_output_bytes_range": [MEDIAN_BYTE_MIN_SAMPLE_COUNT, MEDIAN_BYTE_MAX_OUTPUT_BYTES],
+        "maximum_output_bytes": MEDIAN_BYTE_MAX_OUTPUT_BYTES,
+        "success_result": "output byte length (sample_count)",
+        "invalid_input_result": MEDIAN_BYTE_INVALID_RESULT,
+        "null_output_result": MEDIAN_BYTE_OUTPUT_ERROR,
+        "insufficient_output_capacity_result": MEDIAN_BYTE_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks.",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-median-of-running-array-byte-i32-array-bytes-output-v1"
+            or workload.get("algorithm") != "median_of_running_array_byte"
+            or workload.get("function_symbol") != "median_of_running_array_byte"
+            or workload.get("description") != (
+                "Return the signed-byte median after each insertion. Preserve Java two-heap insertion, one-root rebalancing, odd-prefix larger-heap-root selection, and subclass rounding.")
+            or workload.get("pinned_sources") != sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": MEDIAN_BYTE_MAX_OUTPUT_BYTES,
+                "meaning": "Up to 64 signed-byte prefix medians.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i32_array_bytes_output_call",
+                "sample_count": 5,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 100,
+            }
+            or MEDIAN_BYTE_MIN_SAMPLE_COUNT != 1
+            or MEDIAN_BYTE_MAX_SAMPLE_COUNT != 64
+            or MEDIAN_BYTE_MIN_SAMPLE != -128
+            or MEDIAN_BYTE_MAX_SAMPLE != 127
+            or MEDIAN_BYTE_MAX_INPUT_LENGTH != 66
+            or MEDIAN_BYTE_MAX_OUTPUT_BYTES != 64
+            or MEDIAN_BYTE_INVALID_RESULT != -1
+            or MEDIAN_BYTE_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(MEDIAN_OF_RUNNING_ARRAY_BYTE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MEDIAN_OF_RUNNING_ARRAY_BYTE_CASE_IDS):
+        raise ValueError("median_of_running_array_byte workload metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "median_of_running_array_byte" / "README.md").read_text(
+        encoding="utf-8")
+    if (any(source["url"] not in readme for source in sources)
+            or "strictly less than its root" not in readme
+            or "whichever heap is larger" not in readme
+            or "Java division truncating toward zero" not in readme
+            or "Empty input is invalid" not in readme):
+        raise ValueError("median_of_running_array_byte README is missing its source or heap semantics")
+
+    case_by_id = {case["id"]: case for case in cases}
+    null_input_cases = [case for case in cases if case.get("input_is_null", False)]
+    null_output_cases = [case for case in cases if case.get("output_is_null", False)]
+    exact_capacity = case_by_id["exact_output_capacity"]
+    short_capacity = case_by_id["short_output_capacity_no_write"]
+    invalid_null = case_by_id["invalid_input_precedes_null_output"]
+    maximum_case = case_by_id["maximum_stream_length"]
+    parseable_case = case_by_id["maximum_parseable_trailing_word"]
+    upper_root_case = case_by_id["odd_prefix_upper_heap_root"]
+    lower_root_case = case_by_id["odd_prefix_lower_heap_root"]
+    if (len(null_input_cases) != 1
+            or null_input_cases[0].get("id") != "null_input_positive_length"
+            or null_input_cases[0].get("input_values") != []
+            or null_input_cases[0].get("input_length") != 1
+            or null_input_cases[0].get("expected_result") != MEDIAN_BYTE_INVALID_RESULT
+            or {case.get("id"): case.get("expected_result") for case in null_output_cases} != {
+                "null_output_no_write": MEDIAN_BYTE_OUTPUT_ERROR,
+                "invalid_input_precedes_null_output": MEDIAN_BYTE_INVALID_RESULT,
+            }
+            or exact_capacity.get("expected_result") != 1
+            or exact_capacity.get("output_capacity") != 1
+            or exact_capacity.get("expected_output_hex", "").lower() != "05"
+            or short_capacity.get("output_capacity") != 0
+            or short_capacity.get("expected_result") != MEDIAN_BYTE_OUTPUT_ERROR
+            or invalid_null.get("expected_result") != MEDIAN_BYTE_INVALID_RESULT
+            or maximum_case.get("input_length") != MEDIAN_BYTE_MAX_SAMPLE_COUNT + 1
+            or maximum_case.get("expected_result") != MEDIAN_BYTE_MAX_OUTPUT_BYTES
+            or len(bytes.fromhex(maximum_case.get("expected_output_hex", "")))
+                != MEDIAN_BYTE_MAX_OUTPUT_BYTES
+            or parseable_case.get("input_length") != MEDIAN_BYTE_MAX_INPUT_LENGTH
+            or parseable_case.get("expected_result") != MEDIAN_BYTE_INVALID_RESULT
+            or upper_root_case.get("input_values") != [3, 0, 1, 2]
+            or upper_root_case.get("expected_output_hex", "").lower() != "000001"
+            or lower_root_case.get("input_values") != [3, 2, 1, 0]
+            or lower_root_case.get("expected_output_hex", "").lower() != "020101"):
+        raise ValueError("median_of_running_array_byte workload is missing required boundary or heap probes")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        capacity = case.get("output_capacity", MEDIAN_BYTE_MAX_OUTPUT_BYTES)
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        if (not isinstance(values, list)
+                or len(values) > MEDIAN_BYTE_MAX_INPUT_LENGTH
+                or any(type(value) is not int
+                       or not MEDIAN_BYTE_I32_MIN <= value <= MEDIAN_BYTE_I32_MAX
+                       for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= MEDIAN_BYTE_MAX_INPUT_LENGTH
+                or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and (values or input_length == 0)
+                or input_is_null and output_is_null
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output_hex"), str)):
+            raise ValueError(f"median_of_running_array_byte workload framing is invalid: {case.get('id')}")
+        result, output = median_of_running_array_byte_expected_output(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (case["expected_result"] != result
+                or case["expected_output_hex"].lower() != output.hex()
+                or len(output) > MEDIAN_BYTE_MAX_OUTPUT_BYTES
+                or result < 0 and output):
+            raise ValueError(f"median_of_running_array_byte workload mismatch: {case.get('id')}")
+
+
 MERGE_SORT_CASE_IDS = frozenset({
     "empty", "single_zero", "single_maximum", "already_sorted", "reverse_order",
     "duplicates_and_zero", "all_zero", "maximum_values", "maximum_length_256",
@@ -2215,6 +2590,10 @@ def main() -> int:
         validate_mo_workload(workload)
     elif algorithm == "hungarian_algorithm":
         validate_hungarian_algorithm_workload(workload)
+    elif algorithm == "affine_image_rotation":
+        validate_affine_image_rotation_workload(workload)
+    elif algorithm == "median_of_running_array_byte":
+        validate_median_of_running_array_byte_workload(workload)
     elif algorithm == "merge_sort_no_extra_space":
         validate_merge_sort_no_extra_space_workload(workload)
     elif algorithm == "reverse_singly_linked_list":

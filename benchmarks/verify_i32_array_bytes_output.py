@@ -139,6 +139,34 @@ from hungarian_algorithm_oracle import MAX_PARSEABLE_INPUT_WORDS as HUNGARIAN_MA
 from hungarian_algorithm_oracle import MAX_VALID_INPUT_WORDS as HUNGARIAN_MAX_VALID_INPUT_LENGTH
 from hungarian_algorithm_oracle import OUTPUT_ERROR as HUNGARIAN_OUTPUT_ERROR
 from hungarian_algorithm_oracle import expected_output as hungarian_oracle
+from affine_image_rotation_oracle import I32_MAX as AFFINE_IMAGE_ROTATION_I32_MAX
+from affine_image_rotation_oracle import I32_MIN as AFFINE_IMAGE_ROTATION_I32_MIN
+from affine_image_rotation_oracle import INVALID_RESULT as AFFINE_IMAGE_ROTATION_INVALID_RESULT
+from affine_image_rotation_oracle import MAX_COORDINATE as AFFINE_IMAGE_ROTATION_MAX_COORDINATE
+from affine_image_rotation_oracle import MAX_DIMENSION as AFFINE_IMAGE_ROTATION_MAX_DIMENSION
+from affine_image_rotation_oracle import MAX_MATRIX_COEFFICIENT as AFFINE_IMAGE_ROTATION_MAX_MATRIX_COEFFICIENT
+from affine_image_rotation_oracle import MAX_OUTPUT_BYTES as AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES
+from affine_image_rotation_oracle import MAX_PARSEABLE_INPUT_WORDS as AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH
+from affine_image_rotation_oracle import MAX_PIXEL as AFFINE_IMAGE_ROTATION_MAX_PIXEL
+from affine_image_rotation_oracle import MAX_TRANSLATION as AFFINE_IMAGE_ROTATION_MAX_TRANSLATION
+from affine_image_rotation_oracle import MIN_COORDINATE as AFFINE_IMAGE_ROTATION_MIN_COORDINATE
+from affine_image_rotation_oracle import MIN_DIMENSION as AFFINE_IMAGE_ROTATION_MIN_DIMENSION
+from affine_image_rotation_oracle import MIN_MATRIX_COEFFICIENT as AFFINE_IMAGE_ROTATION_MIN_MATRIX_COEFFICIENT
+from affine_image_rotation_oracle import MIN_PIXEL as AFFINE_IMAGE_ROTATION_MIN_PIXEL
+from affine_image_rotation_oracle import MIN_TRANSLATION as AFFINE_IMAGE_ROTATION_MIN_TRANSLATION
+from affine_image_rotation_oracle import OUTPUT_ERROR as AFFINE_IMAGE_ROTATION_OUTPUT_ERROR
+from affine_image_rotation_oracle import expected_output as affine_image_rotation_oracle
+from median_of_running_array_byte_oracle import I32_MAX as MEDIAN_BYTE_I32_MAX
+from median_of_running_array_byte_oracle import I32_MIN as MEDIAN_BYTE_I32_MIN
+from median_of_running_array_byte_oracle import INVALID_RESULT as MEDIAN_BYTE_INVALID_RESULT
+from median_of_running_array_byte_oracle import MAX_OUTPUT_BYTES as MEDIAN_BYTE_MAX_OUTPUT_BYTES
+from median_of_running_array_byte_oracle import MAX_PARSEABLE_INPUT_WORDS as MEDIAN_BYTE_MAX_INPUT_LENGTH
+from median_of_running_array_byte_oracle import MAX_SAMPLE as MEDIAN_BYTE_MAX_SAMPLE
+from median_of_running_array_byte_oracle import MAX_SAMPLE_COUNT as MEDIAN_BYTE_MAX_SAMPLE_COUNT
+from median_of_running_array_byte_oracle import MIN_SAMPLE as MEDIAN_BYTE_MIN_SAMPLE
+from median_of_running_array_byte_oracle import MIN_SAMPLE_COUNT as MEDIAN_BYTE_MIN_SAMPLE_COUNT
+from median_of_running_array_byte_oracle import OUTPUT_ERROR as MEDIAN_BYTE_OUTPUT_ERROR
+from median_of_running_array_byte_oracle import expected_output as median_of_running_array_byte_oracle
 from merge_sort_no_extra_space_oracle import INVALID_RESULT as MERGE_SORT_INVALID_RESULT
 from merge_sort_no_extra_space_oracle import MAX_LENGTH as MERGE_SORT_MAX_LENGTH
 from merge_sort_no_extra_space_oracle import MAX_OUTPUT_BYTES as MERGE_SORT_MAX_OUTPUT_BYTES
@@ -170,6 +198,8 @@ from run_i32_array_bytes_output import (
     validate_max_pooling_workload, validate_multikey_workload,
     validate_minimum_spanning_tree_prims_workload, validate_preemptive_workload,
     validate_hungarian_algorithm_workload, validate_mo_workload, validate_rat_maze_workload,
+    validate_affine_image_rotation_workload,
+    validate_median_of_running_array_byte_workload,
     validate_scan_scheduling_workload, validate_merge_sort_no_extra_space_workload,
     validate_reverse_singly_linked_list_workload,
     validate_snail_workload,
@@ -184,7 +214,8 @@ ALGORITHMS = ("salsa", "steinhaus_johnson_trotter", "minimum_spanning_tree_krusk
               "preemptive_priority_scheduling",
               "multikey_quick_sort", "max_pooling", "hungarian_algorithm",
               "merge_sort_no_extra_space", "reverse_singly_linked_list", "snail",
-              "reverse_kgroup", "sjfscheduling")
+              "reverse_kgroup", "sjfscheduling", "affine_image_rotation",
+              "median_of_running_array_byte")
 MAX_OUTPUT_CAPACITY = 400004
 
 
@@ -1287,6 +1318,241 @@ def hungarian_algorithm_corpus(workload: dict) -> tuple[str, int]:
     return separate_length_corpus(cases)
 
 
+def affine_image_rotation_corpus(workload: dict) -> tuple[str, int]:
+    validate_affine_image_rotation_workload(workload)
+    default_capacity = AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES
+    cases: dict[tuple[tuple[int, ...], int, int, bool, bool], tuple[int, bytes]] = {}
+
+    def add(values: tuple[int, ...], capacity: int = default_capacity,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None) -> None:
+        values = tuple(values)
+        if input_length is None:
+            input_length = len(values)
+        if (len(values) > AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH
+                or type(input_length) is not int
+                or not 0 <= input_length <= AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH
+                or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY):
+            raise ValueError("affine_image_rotation input length or output capacity is out of range")
+        if (type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and output_is_null
+                or any(type(value) is not int
+                       or not AFFINE_IMAGE_ROTATION_I32_MIN <= value <= AFFINE_IMAGE_ROTATION_I32_MAX
+                       for value in values)):
+            raise ValueError("affine_image_rotation input or pointer framing is invalid")
+        result, output = affine_image_rotation_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if result >= 0:
+            if result != len(output) or result > AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES or result < 1:
+                raise ValueError("affine_image_rotation success violates its image byte-output bound")
+        elif result not in (AFFINE_IMAGE_ROTATION_INVALID_RESULT,
+                            AFFINE_IMAGE_ROTATION_OUTPUT_ERROR) or output:
+            raise ValueError("affine_image_rotation errors must not write output")
+        key = (values, input_length, capacity, output_is_null, input_is_null)
+        if key in cases and cases[key] != (result, output):
+            raise ValueError("affine_image_rotation probe collides with a distinct output call")
+        cases[key] = result, output
+
+    for case in workload["cases"]:
+        values = tuple(case["input_values"])
+        capacity = case["output_capacity"]
+        output_is_null = case["output_is_null"]
+        input_is_null = case["input_is_null"]
+        input_length = case["input_length"]
+        result, output = affine_image_rotation_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (result != case["expected_result"]
+                or output.hex() != case["expected_output_hex"].lower()):
+            raise ValueError(f"affine_image_rotation workload mismatch: {case['id']}")
+        add(values, capacity, output_is_null, input_is_null, input_length)
+
+    rng = random.Random(20261020)
+    linear_maps = [
+        (a, b, c, d)
+        for a in range(AFFINE_IMAGE_ROTATION_MIN_MATRIX_COEFFICIENT,
+                       AFFINE_IMAGE_ROTATION_MAX_MATRIX_COEFFICIENT + 1)
+        for b in range(AFFINE_IMAGE_ROTATION_MIN_MATRIX_COEFFICIENT,
+                       AFFINE_IMAGE_ROTATION_MAX_MATRIX_COEFFICIENT + 1)
+        for c in range(AFFINE_IMAGE_ROTATION_MIN_MATRIX_COEFFICIENT,
+                       AFFINE_IMAGE_ROTATION_MAX_MATRIX_COEFFICIENT + 1)
+        for d in range(AFFINE_IMAGE_ROTATION_MIN_MATRIX_COEFFICIENT,
+                       AFFINE_IMAGE_ROTATION_MAX_MATRIX_COEFFICIENT + 1)
+        if a * d - b * c in (-1, 1)
+    ]
+
+    def pack(rows: int, cols: int, pixels: tuple[int, ...],
+             source: tuple[tuple[int, int], ...],
+             destination: tuple[tuple[int, int], ...]) -> tuple[int, ...]:
+        return (rows, cols, *pixels,
+                *(coordinate for point in source for coordinate in point),
+                *(coordinate for point in destination for coordinate in point))
+
+    edge_maps = (
+        (2, 1, 1, 1, 0, 0),
+        (-2, 1, 1, 0, 0, 0),
+        (1, 0, 0, 1, 16, 16),
+        (1, 0, 0, 1, -16, -16),
+    )
+    edge_sources = (
+        ((0, 0), (1, 0), (0, 1)),
+        ((0, 0), (1, 0), (0, 1)),
+        ((-1, -1), (0, -1), (-1, 0)),
+        ((1, 1), (2, 1), (1, 2)),
+    )
+    for (a, b, c, d, tx, ty), source in zip(edge_maps, edge_sources):
+        destination = tuple((a * x + b * y + tx, c * x + d * y + ty)
+                            for x, y in source)
+        add(pack(2, 3, (0, 1, 2, 3, 254, 255), source, destination))
+
+    for index in range(64):
+        rows = rng.randint(AFFINE_IMAGE_ROTATION_MIN_DIMENSION,
+                           AFFINE_IMAGE_ROTATION_MAX_DIMENSION)
+        cols = rng.randint(AFFINE_IMAGE_ROTATION_MIN_DIMENSION,
+                           AFFINE_IMAGE_ROTATION_MAX_DIMENSION)
+        pixels = tuple(rng.randint(AFFINE_IMAGE_ROTATION_MIN_PIXEL,
+                                   AFFINE_IMAGE_ROTATION_MAX_PIXEL)
+                       for _ in range(rows * cols))
+        a, b, c, d = rng.choice(linear_maps)
+        x = rng.randint(-1, 1)
+        y = rng.randint(-1, 1)
+        source = ((x, y), (x + 1, y), (x, y + 1))
+        tx = rng.randint(-4, 4)
+        ty = rng.randint(-4, 4)
+        destination = tuple((a * px + b * py + tx, c * px + d * py + ty)
+                            for px, py in source)
+        values = pack(rows, cols, pixels, source, destination)
+        add(values)
+        if index % 8 == 0:
+            result, _ = affine_image_rotation_oracle(values)
+            for capacity in (0, max(0, result - 1), result, default_capacity):
+                add(values, capacity)
+            add(values, default_capacity, output_is_null=True)
+
+    maximum_values = tuple(next(case["input_values"] for case in workload["cases"]
+                                if case["id"] == "maximum_dimensions_identity"))
+    for capacity in (0, AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES - 1,
+                     AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES,
+                     AFFINE_IMAGE_ROTATION_MAX_OUTPUT_BYTES + 1,
+                     MAX_OUTPUT_CAPACITY):
+        add(maximum_values, capacity)
+    add(maximum_values, default_capacity, output_is_null=True)
+    add((), default_capacity, input_is_null=True, input_length=1)
+    add((), default_capacity, input_is_null=True,
+        input_length=AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH)
+
+    base_values = tuple(next(case["input_values"] for case in workload["cases"]
+                             if case["id"] == "one_pixel_identity"))
+    invalid_inputs = (
+        (), (1,), (0, 1), (1, 0), base_values[:-1], (*base_values, 0),
+        (0, *base_values[1:]), (base_values[0], 0, *base_values[2:]),
+        (*base_values[:2], AFFINE_IMAGE_ROTATION_MIN_PIXEL - 1, *base_values[3:]),
+        (*base_values[:2], AFFINE_IMAGE_ROTATION_MAX_PIXEL + 1, *base_values[3:]),
+        (*base_values[:3], AFFINE_IMAGE_ROTATION_MIN_COORDINATE - 1, *base_values[4:]),
+        (*base_values[:3], AFFINE_IMAGE_ROTATION_MAX_COORDINATE + 1, *base_values[4:]),
+        (1, 1, 0, 0, 0, 1, 0, 2, 0, 0, 0, 1, 0, 2, 0),
+        (1, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 0, 0, 1),
+        (1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 2, 0),
+        (1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 3, 0, 0, 1),
+        (*base_values[:3], AFFINE_IMAGE_ROTATION_I32_MIN, *base_values[4:]),
+        (*base_values[:3], AFFINE_IMAGE_ROTATION_I32_MAX, *base_values[4:]),
+        (AFFINE_IMAGE_ROTATION_I32_MIN,), (AFFINE_IMAGE_ROTATION_I32_MAX,),
+    )
+    for values in invalid_inputs:
+        if len(values) <= AFFINE_IMAGE_ROTATION_MAX_INPUT_LENGTH:
+            add(tuple(values))
+    add(base_values, default_capacity, input_length=len(base_values) - 1)
+    add(base_values, default_capacity, input_length=len(base_values) + 1)
+    add(base_values, 0, output_is_null=True)
+
+    return separate_length_corpus(cases)
+
+
+def median_of_running_array_byte_corpus(workload: dict) -> tuple[str, int]:
+    validate_median_of_running_array_byte_workload(workload)
+    default_capacity = MEDIAN_BYTE_MAX_OUTPUT_BYTES
+    cases: dict[tuple[tuple[int, ...], int, int, bool, bool], tuple[int, bytes]] = {}
+
+    def add(values: tuple[int, ...], capacity: int = default_capacity,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None) -> None:
+        values = tuple(values)
+        if input_length is None:
+            input_length = len(values)
+        if (len(values) > MEDIAN_BYTE_MAX_INPUT_LENGTH
+                or type(input_length) is not int
+                or not 0 <= input_length <= MEDIAN_BYTE_MAX_INPUT_LENGTH
+                or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY):
+            raise ValueError("median_of_running_array_byte input length or output capacity is out of range")
+        if (type(input_is_null) is not bool or type(output_is_null) is not bool
+                or input_is_null and output_is_null
+                or input_is_null and (values or input_length == 0)
+                or any(type(value) is not int
+                       or not MEDIAN_BYTE_I32_MIN <= value <= MEDIAN_BYTE_I32_MAX
+                       for value in values)):
+            raise ValueError("median_of_running_array_byte input or pointer framing is invalid")
+        result, output = median_of_running_array_byte_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if result >= 0:
+            if result != len(output) or result > MEDIAN_BYTE_MAX_OUTPUT_BYTES:
+                raise ValueError("median_of_running_array_byte success violates its byte-output bound")
+        elif result not in (MEDIAN_BYTE_INVALID_RESULT, MEDIAN_BYTE_OUTPUT_ERROR) or output:
+            raise ValueError("median_of_running_array_byte errors must not write output")
+        key = (values, input_length, capacity, output_is_null, input_is_null)
+        if key in cases and cases[key] != (result, output):
+            raise ValueError("median_of_running_array_byte probe collides with a distinct output call")
+        cases[key] = result, output
+
+    for case in workload["cases"]:
+        add(tuple(case["input_values"]), case["output_capacity"],
+            case.get("output_is_null", False), case.get("input_is_null", False),
+            case["input_length"])
+
+    add((), default_capacity, input_is_null=True, input_length=1)
+    add((), default_capacity, input_is_null=True,
+        input_length=MEDIAN_BYTE_MAX_INPUT_LENGTH)
+    add((), 0)
+    add((), MAX_OUTPUT_CAPACITY)
+    add((), default_capacity, output_is_null=True)
+
+    rng = random.Random(20261017)
+    boundaries = (MEDIAN_BYTE_MIN_SAMPLE, -1, 0, 1, MEDIAN_BYTE_MAX_SAMPLE)
+    for index in range(128):
+        count = rng.randint(MEDIAN_BYTE_MIN_SAMPLE_COUNT, MEDIAN_BYTE_MAX_SAMPLE_COUNT)
+        samples = tuple(rng.choice(boundaries + (rng.randint(
+            MEDIAN_BYTE_MIN_SAMPLE, MEDIAN_BYTE_MAX_SAMPLE),)) for _ in range(count))
+        values = (count, *samples)
+        result, _ = median_of_running_array_byte_oracle(values)
+        for capacity in (0, max(0, result - 1), result, default_capacity):
+            add(values, capacity)
+        if index % 16 == 0:
+            add(values, default_capacity, output_is_null=True)
+
+    maximum_values = (MEDIAN_BYTE_MAX_SAMPLE_COUNT,
+                      *([MEDIAN_BYTE_MIN_SAMPLE, MEDIAN_BYTE_MAX_SAMPLE] * 32))
+    for capacity in (0, MEDIAN_BYTE_MAX_OUTPUT_BYTES - 1,
+                     MEDIAN_BYTE_MAX_OUTPUT_BYTES, MAX_OUTPUT_CAPACITY):
+        add(maximum_values, capacity)
+    add(maximum_values, default_capacity, output_is_null=True)
+
+    malformed = (
+        (), (0,), (-1,), (MEDIAN_BYTE_MAX_SAMPLE_COUNT + 1,),
+        (1,), (2, MEDIAN_BYTE_MIN_SAMPLE),
+        (1, MEDIAN_BYTE_MIN_SAMPLE - 1), (1, MEDIAN_BYTE_MAX_SAMPLE + 1),
+        (1, 0, 0),
+        (MEDIAN_BYTE_MAX_SAMPLE_COUNT,
+         *([0] * MEDIAN_BYTE_MAX_SAMPLE_COUNT), 0),
+        (MEDIAN_BYTE_I32_MIN,), (MEDIAN_BYTE_I32_MAX,),
+    )
+    for values in malformed:
+        add(values)
+    valid_values = (1, 0)
+    add(valid_values, default_capacity, input_length=len(valid_values) - 1)
+    add(valid_values, default_capacity, input_length=len(valid_values) + 1)
+    add(valid_values, 0, output_is_null=True)
+    add((1, MEDIAN_BYTE_MAX_SAMPLE + 1), 0, output_is_null=True)
+    return separate_length_corpus(cases)
+
+
 def merge_sort_no_extra_space_corpus(workload: dict) -> tuple[str, int]:
     validate_merge_sort_no_extra_space_workload(workload)
     default_capacity = MERGE_SORT_MAX_OUTPUT_BYTES
@@ -1782,6 +2048,10 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         return mo_corpus(workload)
     if algorithm == "hungarian_algorithm":
         return hungarian_algorithm_corpus(workload)
+    if algorithm == "affine_image_rotation":
+        return affine_image_rotation_corpus(workload)
+    if algorithm == "median_of_running_array_byte":
+        return median_of_running_array_byte_corpus(workload)
     if algorithm == "merge_sort_no_extra_space":
         return merge_sort_no_extra_space_corpus(workload)
     if algorithm == "reverse_singly_linked_list":

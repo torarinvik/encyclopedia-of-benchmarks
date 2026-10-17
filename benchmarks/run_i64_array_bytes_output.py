@@ -78,6 +78,81 @@ from gabor_filter_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_GABOR_FILTER_P
 from gabor_filter_oracle import expected_output as gabor_filter_expected_output
 from graph_adjacency_list_oracle import expected_output as graph_adjacency_list_expected_output
 from graph_adjacency_matrix_oracle import expected_output as graph_adjacency_matrix_expected_output
+from fixed_priority_queue_using_list_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FIXED_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as fixed_priority_queue_using_list_oracle,
+)
+from element_priority_queue_using_list_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ELEMENT_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as element_priority_queue_using_list_oracle,
+)
+from median_of_running_array_long_oracle import (
+    I64_MAX as MEDIAN_RUNNING_LONG_I64_MAX,
+    I64_MIN as MEDIAN_RUNNING_LONG_I64_MIN,
+    MAX_SAMPLE as MEDIAN_RUNNING_LONG_MAX_SAMPLE,
+    MAX_SAMPLE_COUNT as MEDIAN_RUNNING_LONG_MAX_SAMPLE_COUNT,
+    MAX_INPUT_LENGTH as MEDIAN_RUNNING_LONG_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIAN_RUNNING_LONG_MAX_OUTPUT_BYTES,
+    MIN_SAMPLE as MEDIAN_RUNNING_LONG_MIN_SAMPLE,
+    MIN_SAMPLE_COUNT as MEDIAN_RUNNING_LONG_MIN_SAMPLE_COUNT,
+    expected_output as median_of_running_array_long_oracle,
+)
+from median_heap_oracle import (
+    INT32_MAX as MEDIAN_HEAP_INT32_MAX,
+    INT32_MIN as MEDIAN_HEAP_INT32_MIN,
+    MAX_LIVE_VALUES as MEDIAN_HEAP_MAX_LIVE_VALUES,
+    MAX_OPERATIONS as MEDIAN_HEAP_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as MEDIAN_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIAN_HEAP_MAX_OUTPUT_BYTES,
+    NIL_SENTINEL as MEDIAN_HEAP_NIL_SENTINEL,
+    expected_output as median_heap_oracle,
+)
+from table_heap_oracle import (
+    I32_MAX as TABLE_HEAP_I32_MAX,
+    I32_MIN as TABLE_HEAP_I32_MIN,
+    MAX_INITIAL_ITEMS as TABLE_HEAP_MAX_INITIAL_ITEMS,
+    MAX_OPERATIONS as TABLE_HEAP_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as TABLE_HEAP_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TABLE_HEAP_MAX_OUTPUT_BYTES,
+    NIL_SENTINEL as TABLE_HEAP_NIL_SENTINEL,
+    expected_output as table_heap_oracle,
+)
+from skew_heap_oracle import (
+    INT32_MAX as SKEW_HEAP_INT32_MAX,
+    INT32_MIN as SKEW_HEAP_INT32_MIN,
+    MAX_LIVE_VALUES as SKEW_HEAP_MAX_LIVE_VALUES,
+    MAX_OPERATIONS as SKEW_HEAP_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SKEW_HEAP_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_VALUES as SKEW_HEAP_MAX_OUTPUT_VALUES,
+    MAX_OUTPUT_BYTES as SKEW_HEAP_MAX_OUTPUT_BYTES,
+    expected_output as skew_heap_oracle,
+)
+from smoothsort_oracle import (
+    INT64_MAX as SMOOTHSORT_INT64_MAX,
+    INT64_MIN as SMOOTHSORT_INT64_MIN,
+    MAX_VALUES as SMOOTHSORT_MAX_VALUES,
+    MAX_VALID_INPUT_LENGTH as SMOOTHSORT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_VALUES as SMOOTHSORT_MAX_OUTPUT_VALUES,
+    MAX_OUTPUT_BYTES as SMOOTHSORT_MAX_OUTPUT_BYTES,
+    expected_output as smoothsort_oracle,
+)
+from suffix_automaton_oracle import (
+    INT64_MAX as SUFFIX_AUTOMATON_INT64_MAX,
+    INT64_MIN as SUFFIX_AUTOMATON_INT64_MIN,
+    MAX_ASCII as SUFFIX_AUTOMATON_MAX_ASCII,
+    MIN_ASCII as SUFFIX_AUTOMATON_MIN_ASCII,
+    MAX_TEXT_LENGTH as SUFFIX_AUTOMATON_MAX_TEXT_LENGTH,
+    MAX_QUERY_COUNT as SUFFIX_AUTOMATON_MAX_QUERY_COUNT,
+    MAX_PATTERN_LENGTH as SUFFIX_AUTOMATON_MAX_PATTERN_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SUFFIX_AUTOMATON_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH,
+    OUTPUT_BYTES_PER_QUERY as SUFFIX_AUTOMATON_OUTPUT_BYTES_PER_QUERY,
+    MAX_OUTPUT_BYTES as SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES,
+    expected_output as suffix_automaton_oracle,
+)
 from graph_peripherality_oracle import expected_output as graph_peripherality_expected_output
 from graph_centrality_oracle import expected_output as graph_centrality_expected_output
 from depth_first_search_iterative_order_oracle import expected_output as depth_first_search_iterative_order_expected_output
@@ -897,6 +972,13 @@ from char_array_left_rotation_oracle import MAX_ARRAY_LENGTH as CHAR_ARRAY_LEFT_
 from char_array_left_rotation_oracle import MAX_INPUT_LENGTH as CHAR_ARRAY_LEFT_ROTATION_MAX_INPUT_LENGTH
 from char_array_left_rotation_oracle import MAX_PARSEABLE_INPUT_LENGTH as CHAR_ARRAY_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH
 from char_array_left_rotation_oracle import expected_output as char_array_left_rotation_expected_output
+from string_left_rotation_oracle import INVALID_RESULT as STRING_LEFT_ROTATION_INVALID_RESULT
+from string_left_rotation_oracle import INSUFFICIENT_OUTPUT_CAPACITY as STRING_LEFT_ROTATION_OUTPUT_ERROR
+from string_left_rotation_oracle import MAX_CODE_UNIT as STRING_LEFT_ROTATION_MAX_CODE_UNIT
+from string_left_rotation_oracle import MAX_INPUT_LENGTH as STRING_LEFT_ROTATION_MAX_INPUT_LENGTH
+from string_left_rotation_oracle import MAX_PARSEABLE_INPUT_LENGTH as STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH
+from string_left_rotation_oracle import MAX_STRING_LENGTH as STRING_LEFT_ROTATION_MAX_STRING_LENGTH
+from string_left_rotation_oracle import expected_output as string_left_rotation_expected_output
 from reverse_queue_recursion_oracle import MAX_QUEUE_LENGTH as REVERSE_QUEUE_RECURSION_MAX_QUEUE_LENGTH
 from reverse_queue_recursion_oracle import MAX_VALID_INPUT_LENGTH as REVERSE_QUEUE_RECURSION_MAX_VALID_INPUT_LENGTH
 from reverse_queue_recursion_oracle import MAX_INPUT_LENGTH as REVERSE_QUEUE_RECURSION_MAX_PARSEABLE_INPUT_LENGTH
@@ -2263,6 +2345,7 @@ RECORDER_WORKSPACE_ALGORITHMS.add('print_reverse')
 RECORDER_WORKSPACE_ALGORITHMS.add('rotate_to_the_right')
 RECORDER_WORKSPACE_ALGORITHMS.add('skytale_cipher')
 RECORDER_WORKSPACE_ALGORITHMS.add('char_array_left_rotation')
+RECORDER_WORKSPACE_ALGORITHMS.add('string_left_rotation')
 RECORDER_WORKSPACE_ALGORITHMS.add('reverse_queue_recursion')
 RECORDER_WORKSPACE_ALGORITHMS.add('reverse_stack')
 RECORDER_WORKSPACE_ALGORITHMS.add('reverse_a_linked_list_using_recusion')
@@ -2320,12 +2403,36 @@ RECORDER_WORKSPACE_ALGORITHMS.update({
     'translator',
     'spiral_print',
     'piecewise_linear_transform',
+    'fixed_priority_queue_using_list',
+    'element_priority_queue_using_list',
+    'median_of_running_array_long',
+    'median_heap',
+    'table_heap',
+    'skew_heap',
+    'smoothsort',
+    'suffix_automaton',
 })
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
     if algorithm == "big_integer_multiply":
         return big_integer_multiply_oracle(values)
+    if algorithm == "fixed_priority_queue_using_list":
+        return fixed_priority_queue_using_list_oracle(values)
+    if algorithm == "element_priority_queue_using_list":
+        return element_priority_queue_using_list_oracle(values)
+    if algorithm == "median_of_running_array_long":
+        return median_of_running_array_long_oracle(values)
+    if algorithm == "median_heap":
+        return median_heap_oracle(values)
+    if algorithm == "table_heap":
+        return table_heap_oracle(values)
+    if algorithm == "skew_heap":
+        return skew_heap_oracle(values)
+    if algorithm == "smoothsort":
+        return smoothsort_oracle(values)
+    if algorithm == "suffix_automaton":
+        return suffix_automaton_oracle(values)
     if algorithm == "tokenize_string":
         return tokenize_string_oracle(values)
     if algorithm == "translator":
@@ -2368,6 +2475,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return split_expected_output(values)
     if algorithm == "char_array_left_rotation":
         return char_array_left_rotation_expected_output(values)
+    if algorithm == "string_left_rotation":
+        return string_left_rotation_expected_output(values)
     if algorithm == "reverse_queue_recursion":
         return reverse_queue_recursion_expected_output(values)
     if algorithm == "reverse_stack":
@@ -14087,6 +14196,172 @@ def validate_char_array_left_rotation_workload(workload: dict) -> None:
             raise ValueError(f"char_array_left_rotation workload mismatch: {case.get('id')}")
 
 
+STRING_LEFT_ROTATION_CASE_IDS = {
+    "pinned_example", "zero_rotation", "full_length_rotation", "middle_rotation",
+    "empty_string", "single_code_unit_zero", "single_code_unit_full",
+    "two_code_unit_rotation", "odd_length_rotation", "even_length_rotation",
+    "embedded_nul", "code_unit_boundaries", "surrogate_pair_split", "lone_surrogates",
+    "repeated_code_units", "maximum_length_no_rotation", "maximum_length_near_half",
+    "empty_input_array", "missing_rotation_count", "negative_string_length",
+    "string_length_above_maximum", "negative_rotation_count", "rotation_count_above_length",
+    "truncated_string_payload", "trailing_value_after_valid_string", "negative_code_unit",
+    "code_unit_above_u16", "missing_nonempty_payload", "trailing_value_after_empty_string",
+    "maximum_parseable_trailing_value",
+}
+STRING_LEFT_ROTATION_ABI_CASE_IDS = {
+    "empty_output_null_pointer_succeeds", "nonempty_null_output_pointer",
+    "nonempty_short_output_capacity", "nonempty_exact_output_capacity",
+    "invalid_input_precedes_null_output", "null_input_pointer",
+}
+
+
+def validate_string_left_rotation_workload(workload: dict) -> None:
+    """Pin Java UTF-16 string rotation and its raw-byte output ABI."""
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    workspace = workload.get("workspace", {})
+    measurement = workload.get("measurement", {})
+    expected_sources = [{
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/strings/Rotation.java",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/strings/Rotation.java",
+    }]
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    cases = cases if isinstance(cases, list) else []
+    abi_cases = abi_cases if isinstance(abi_cases, list) else []
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)]
+    abi_case_ids = [case.get("id") for case in abi_cases if isinstance(case, dict)]
+    output_bytes = 2 * STRING_LEFT_ROTATION_MAX_STRING_LENGTH
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "java-string-left-rotation-utf16-code-unit-v1"
+            or workload.get("algorithm") != "string_left_rotation"
+            or workload.get("function_symbol") != "string_left_rotation"
+            or workload.get("pinned_sources") != expected_sources
+            or input_spec != {
+                "kind": "signed_64_bit_integer_array",
+                "encoding": "[string_length, rotation_count, UTF-16 code units...]",
+                "string_length_range": [0, STRING_LEFT_ROTATION_MAX_STRING_LENGTH],
+                "rotation_count_range": "0 through string_length, inclusive",
+                "utf16_code_unit_range": [0, STRING_LEFT_ROTATION_MAX_CODE_UNIT],
+                "exact_packed_length": "2 + string_length",
+                "maximum_valid_input_values": STRING_LEFT_ROTATION_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_values": STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": STRING_LEFT_ROTATION_INVALID_RESULT,
+                "null_input_result": STRING_LEFT_ROTATION_INVALID_RESULT,
+            }
+            or output_spec != {
+                "kind": "raw_bytes",
+                "encoding": "Rotated UTF-16 code units serialized as little-endian 16-bit values, no terminator or prefix",
+                "maximum_output_bytes": output_bytes,
+                "success_result": "output byte length",
+                "invalid_result": STRING_LEFT_ROTATION_INVALID_RESULT,
+                "null_output_result": STRING_LEFT_ROTATION_OUTPUT_ERROR,
+                "insufficient_output_capacity_result": STRING_LEFT_ROTATION_OUTPUT_ERROR,
+                "empty_output_allows_null_pointer": True,
+                "no_write_on_error": True,
+            }
+            or workspace != {
+                "bytes": output_bytes,
+                "meaning": "Maximum UTF-16 byte output.",
+            }
+            or measurement != {
+                "comparison_model": "i64_array_bytes_output_call",
+                "sample_count": 5,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 100,
+            }
+            or STRING_LEFT_ROTATION_MAX_STRING_LENGTH != 256
+            or STRING_LEFT_ROTATION_MAX_CODE_UNIT != 0xFFFF
+            or STRING_LEFT_ROTATION_MAX_INPUT_LENGTH != 258
+            or STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH != 259
+            or output_bytes != 512
+            or STRING_LEFT_ROTATION_INVALID_RESULT != -1
+            or STRING_LEFT_ROTATION_OUTPUT_ERROR != -2
+            or len(case_ids) != len(STRING_LEFT_ROTATION_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != STRING_LEFT_ROTATION_CASE_IDS
+            or len(abi_case_ids) != len(STRING_LEFT_ROTATION_ABI_CASE_IDS)
+            or len(abi_case_ids) != len(set(abi_case_ids))
+            or set(abi_case_ids) != STRING_LEFT_ROTATION_ABI_CASE_IDS):
+        raise ValueError("string_left_rotation workload metadata or case IDs differ from its reviewed ABI contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "string_left_rotation" / "README.md").read_text(
+        encoding="utf-8")
+    if (expected_sources[0]["url"] not in readme
+            or "UTF-16 code units" not in readme
+            or "65,535" not in readme
+            or "little-endian" not in readme
+            or "null or undersized" not in readme
+            or "empty result succeeds with" not in readme):
+        raise ValueError("string_left_rotation README is missing its pinned source or UTF-16 ABI details")
+
+    cases_by_id = {case["id"]: case for case in abi_cases}
+    empty_null = cases_by_id["empty_output_null_pointer_succeeds"]
+    nonempty_null = cases_by_id["nonempty_null_output_pointer"]
+    short_capacity = cases_by_id["nonempty_short_output_capacity"]
+    exact_capacity = cases_by_id["nonempty_exact_output_capacity"]
+    invalid_null = cases_by_id["invalid_input_precedes_null_output"]
+    null_input = cases_by_id["null_input_pointer"]
+    if (empty_null.get("input_values") != [0, 0]
+            or empty_null.get("input_is_null") is not False
+            or empty_null.get("output_is_null") is not True
+            or empty_null.get("output_capacity") != 0
+            or empty_null.get("expected_result") != 0
+            or nonempty_null.get("input_values") != [1, 0, 65]
+            or nonempty_null.get("output_is_null") is not True
+            or nonempty_null.get("expected_result") != STRING_LEFT_ROTATION_OUTPUT_ERROR
+            or short_capacity.get("input_values") != [2, 1, 65, 66]
+            or short_capacity.get("output_capacity") != 3
+            or short_capacity.get("expected_result") != STRING_LEFT_ROTATION_OUTPUT_ERROR
+            or exact_capacity.get("input_values") != [2, 1, 65, 66]
+            or exact_capacity.get("output_capacity") != 4
+            or exact_capacity.get("expected_result") != 4
+            or exact_capacity.get("expected_output_hex", "").lower() != "42004100"
+            or invalid_null.get("input_values") != [1, -1, 65]
+            or invalid_null.get("output_is_null") is not True
+            or invalid_null.get("expected_result") != STRING_LEFT_ROTATION_INVALID_RESULT
+            or null_input.get("input_values") != []
+            or null_input.get("input_is_null") is not True
+            or null_input.get("input_length") != 1
+            or null_input.get("expected_result") != STRING_LEFT_ROTATION_INVALID_RESULT):
+        raise ValueError("string_left_rotation abi_cases must cover empty/null, capacity, precedence, and null-input behavior")
+
+    for case in (*cases, *abi_cases):
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        capacity = case.get("output_capacity", output_bytes)
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        if (not isinstance(values, list)
+                or len(values) > STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(input_length) is not int
+                or type(capacity) is not int
+                or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                or type(input_is_null) is not bool
+                or type(output_is_null) is not bool
+                or (input_is_null and (values or not 1 <= input_length <= STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH))
+                or (not input_is_null and input_length != len(values))
+                or (input_is_null and output_is_null)
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output_hex"), str)):
+            raise ValueError(f"string_left_rotation input/output framing is invalid for {case.get('id')}")
+        result, output = string_left_rotation_expected_output(
+            values, capacity, output_is_null, input_is_null, input_length)
+        try:
+            expected_output = bytes.fromhex(case["expected_output_hex"])
+        except ValueError as error:
+            raise ValueError(f"string_left_rotation output hex is invalid for {case.get('id')}") from error
+        if (result != case["expected_result"]
+                or output != expected_output
+                or len(output) > output_bytes
+                or (result < 0 and output)):
+            raise ValueError(f"string_left_rotation workload mismatch: {case.get('id')}")
+
+
 REVERSE_QUEUE_RECURSION_CASE_IDS = {
     "null_queue_pointer_noop", "null_input_length_zero_invalid", "null_input_length_two_invalid",
     "empty_nonnull_queue_zero_capacity", "empty_queue_null_output", "singleton",
@@ -22259,6 +22534,1037 @@ def validate_self_adjusting_scheduling_workload(workload: dict) -> None:
             raise ValueError(f"self_adjusting_scheduling workload mismatch: {case.get('id')}")
 
 
+def validate_priority_queue_using_list_workload(workload: dict, algorithm: str) -> None:
+    """Check both pinned list-priority-queue contracts and every frozen fixture."""
+    fixed = algorithm == "fixed_priority_queue_using_list"
+    if not fixed and algorithm != "element_priority_queue_using_list":
+        raise ValueError(f"unsupported list priority queue: {algorithm}")
+    oracle = fixed_priority_queue_using_list_oracle if fixed else element_priority_queue_using_list_oracle
+    max_parseable = (FIXED_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH if fixed
+                     else ELEMENT_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH)
+    expected_input = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[operation_count, (opcode, priority, data)*operation_count]" if fixed
+                    else "[operation_count, (opcode, argument)*operation_count]",
+        "maximum_operations": 256,
+        "maximum_valid_input_length": 769 if fixed else 513,
+        "maximum_parseable_input_length": max_parseable,
+        "operation_codes": ({"0": "enqueue(priority, data)",
+                             "1": "dequeue; priority and data must be zero padding"} if fixed
+                            else {"0": "enqueue(data)",
+                                  "1": "dequeue minimum; argument must be zero padding"}),
+        "queue_limit": "100 items per priority bucket" if fixed else "100 total items",
+        "data_range": [-(1 << 31), (1 << 31) - 1],
+        "exact_packed_shape": "Exactly 1 + 3 * operation_count signed-64 words." if fixed
+                              else "Exactly 1 + 2 * operation_count signed-64 words.",
+        "invalid_input_result": -1,
+        "null_input_result": -1,
+    }
+    if fixed:
+        expected_input.update({
+            "priority_range": [-3, 2],
+            "priority_mapping": {"-3": "bucket 0", "-2": "bucket 1", "-1": "bucket 2",
+                                 "0": "bucket 0", "1": "bucket 1", "2": "bucket 2"},
+        })
+    expected_output_spec = {
+        "kind": "little_endian_signed_64_bit_integer_sequence",
+        "encoding": "One signed 64-bit word per dequeued value, in dequeue order.",
+        "result": "number of output bytes",
+        "maximum_output_bytes": 1024,
+        "invalid_input_result": -1,
+        "null_output_result": -2,
+        "insufficient_capacity_result": -2,
+        "no_write_on_error": True,
+    }
+    class_name = "FixedPriorityQueue" if fixed else "ElementPriorityQueue"
+    expected_workspace = {
+        "bytes": 1024,
+        "reason": "At most 128 dequeue operations fit in a 256-operation valid trace; each emits one i64.",
+    }
+    source_url = "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/queues/priority_queue_using_list.py"
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != f"thealgorithms-python-{algorithm.replace('_', '-')}-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != algorithm
+            or workload.get("pinned_source") != {
+                "repository": "TheAlgorithms/Python",
+                "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+                "path": "data_structures/queues/priority_queue_using_list.py",
+                "symbol": class_name,
+                "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/queues/priority_queue_using_list.py",
+            }
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output_spec
+            or workload.get("workspace") != expected_workspace
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_bytes_output_call",
+                "sample_count": 5,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 100,
+            }):
+        raise ValueError(f"{algorithm} metadata differs from its reviewed contract")
+    readme = (ROOT / "benchmarks" / algorithm[0] / algorithm / "README.md").read_text(
+        encoding="utf-8")
+    if source_url not in readme or class_name not in readme:
+        raise ValueError(f"{algorithm} README is missing the pinned class or source link")
+    expected_case_ids = ({
+        "empty_trace", "priority_order_and_fifo", "python_negative_priority_indices",
+        "pinned_class_example", "signed_i32_boundaries", "enqueue_only_zero_output",
+        "full_bucket_then_drain", "maximum_operations_and_output", "dequeue_empty_invalid",
+        "negative_priority_below_python_index_range", "priority_above_python_index_range",
+        "dequeue_nonzero_padding_invalid", "unknown_opcode_invalid", "truncated_record_invalid",
+        "trailing_word_invalid", "per_bucket_overflow_invalid", "maximum_parseable_trailing_word_invalid",
+    } if fixed else {
+        "empty_trace", "minimum_order_and_duplicate_values", "negative_values_sorted",
+        "signed_i32_boundaries", "enqueue_only_zero_output", "full_capacity_then_drain",
+        "maximum_operations_and_output", "dequeue_empty_invalid", "dequeue_nonzero_padding_invalid",
+        "unknown_opcode_invalid", "truncated_record_invalid", "trailing_word_invalid",
+        "capacity_overflow_invalid", "maximum_parseable_trailing_word_invalid",
+    })
+    expected_abi_ids = {
+        "null_input_pointer", "invalid_trace_precedes_null_output", "zero_output_null_pointer",
+        "zero_output_zero_capacity", "one_dequeue_null_output", "one_dequeue_short_capacity",
+        "one_dequeue_exact_capacity", "invalid_after_prior_dequeue_no_partial_write",
+        "invalid_after_prior_dequeue_precedes_null_output", "maximum_output_exact_capacity",
+        "maximum_output_short_capacity",
+    }
+    for key, expected_ids in (("cases", expected_case_ids), ("abi_cases", expected_abi_ids)):
+        cases = workload.get(key)
+        if (not isinstance(cases, list)
+                or any(not isinstance(case, dict) for case in cases)
+                or len({case.get("id") for case in cases}) != len(cases)
+                or {case.get("id") for case in cases} != expected_ids):
+            raise ValueError(f"{algorithm} {key} do not match their reviewed fixture set")
+        for case in cases:
+            case_id = case["id"]
+            values = case.get("input_values")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            capacity = case.get("output_capacity", 1024)
+            if (not isinstance(values, list)
+                    or len(values) > max_parseable
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool
+                    or type(input_length) is not int
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY):
+                raise ValueError(f"{algorithm} framing is invalid in {case_id}")
+            result, output = oracle(values, capacity, output_is_null, input_is_null, input_length)
+            expected_hex = case.get("expected_output_hex", "")
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not isinstance(expected_hex, str)
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"{algorithm} workload mismatch: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null or capacity != 1024):
+                raise ValueError(f"{algorithm} semantic fixture has ABI-only framing: {case_id}")
+            if case_id == "null_input_pointer" and (not input_is_null or input_length != 1 or values):
+                raise ValueError(f"{algorithm} null-input probe changed: {case_id}")
+            if case_id == "invalid_trace_precedes_null_output" and (
+                    not output_is_null or result != -1 or output):
+                raise ValueError(f"{algorithm} input-error precedence probe changed")
+            if case_id == "zero_output_null_pointer" and (
+                    not output_is_null or capacity != 0 or result != -2 or output):
+                raise ValueError(f"{algorithm} zero-output null-pointer probe changed")
+            if case_id.endswith("short_capacity") and (output_is_null or result != -2 or output):
+                raise ValueError(f"{algorithm} short-capacity probe changed: {case_id}")
+            if case_id == "maximum_output_exact_capacity" and (
+                    capacity != 1024 or result != 1024 or len(output) != 1024):
+                raise ValueError(f"{algorithm} maximum-output exact-capacity probe changed")
+            if case_id == "maximum_output_short_capacity" and (
+                    capacity != 1023 or result != -2 or output):
+                raise ValueError(f"{algorithm} maximum-output short-capacity probe changed")
+            if case_id.endswith("null_output") and case_id != "null_input_pointer":
+                if not output_is_null or (result == -1 and output):
+                    raise ValueError(f"{algorithm} null-output probe changed: {case_id}")
+
+
+def validate_fixed_priority_queue_using_list_workload(workload: dict) -> None:
+    validate_priority_queue_using_list_workload(workload, "fixed_priority_queue_using_list")
+
+
+def validate_element_priority_queue_using_list_workload(workload: dict) -> None:
+    validate_priority_queue_using_list_workload(workload, "element_priority_queue_using_list")
+
+
+def validate_median_of_running_array_long_workload(workload: dict) -> None:
+    source_commit = "e43ec3897e48f23843972d02cd05a5bb1b6864a2"
+    source_base = "https://github.com/TheAlgorithms/Java/blob/" + source_commit + "/"
+    pinned_sources = [
+        {
+            "repository": "TheAlgorithms/Java", "commit": source_commit,
+            "path": "src/main/java/com/thealgorithms/misc/MedianOfRunningArrayLong.java",
+            "symbol": "MedianOfRunningArrayLong.calculateAverage",
+            "url": source_base + "src/main/java/com/thealgorithms/misc/MedianOfRunningArrayLong.java",
+        },
+        {
+            "repository": "TheAlgorithms/Java", "commit": source_commit,
+            "path": "src/main/java/com/thealgorithms/misc/MedianOfRunningArray.java",
+            "symbol": "MedianOfRunningArray.insert/getMedian",
+            "url": source_base + "src/main/java/com/thealgorithms/misc/MedianOfRunningArray.java",
+        },
+    ]
+    contract = {
+        "operation": "Return the median after each insertion into a fresh stream.",
+        "insertion": "If minHeap is nonempty and sample < minHeap.peek(), insert into maxHeap; otherwise insert into minHeap.",
+        "rebalancing": "Move one root only when one heap has more than one extra element.",
+        "odd_prefix": "Return the root of the larger heap; heap ordering and the size difference of one make this the sorted center.",
+        "even_prefix": "Compute (maxHeap.peek() + minHeap.peek()) / 2L in Java signed-long arithmetic with division truncating toward zero.",
+        "overflow_bound": "Sample range [-2^62,2^62-1] ensures the sum of any two roots remains a signed-i64 value.",
+        "output_encoding": "One signed-i64 little-endian word per prefix; no count prefix.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[sample_count,sample_0,...,sample_(sample_count-1)]",
+        "sample_count_range": [MEDIAN_RUNNING_LONG_MIN_SAMPLE_COUNT,
+                               MEDIAN_RUNNING_LONG_MAX_SAMPLE_COUNT],
+        "sample_range": [MEDIAN_RUNNING_LONG_MIN_SAMPLE, MEDIAN_RUNNING_LONG_MAX_SAMPLE],
+        "maximum_valid_input_length": 65,
+        "maximum_parseable_input_length": MEDIAN_RUNNING_LONG_MAX_INPUT_LENGTH,
+        "exact_packed_shape": "Exactly 1 + sample_count signed-i64 words.",
+        "invalid_input_result": -1,
+        "null_input_result": -1,
+    }
+    output_spec = {
+        "kind": "little_endian_i64_array",
+        "encoding": "One median per nonempty prefix; no count prefix.",
+        "maximum_elements": MEDIAN_RUNNING_LONG_MAX_SAMPLE_COUNT,
+        "maximum_bytes": MEDIAN_RUNNING_LONG_MAX_OUTPUT_BYTES,
+        "success_result": "8 * sample_count bytes",
+        "invalid_input_result": -1,
+        "null_output_result": -2,
+        "insufficient_output_capacity_result": -2,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed or null input is rejected before output pointer or capacity checks.",
+    }
+    workspace = {"bytes": MEDIAN_RUNNING_LONG_MAX_OUTPUT_BYTES,
+                 "meaning": "Up to 64 signed-i64 prefix medians."}
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+    }
+    case_ids = {
+        "single_minimum", "single_maximum", "increasing_stream", "decreasing_stream",
+        "negative_odd_sum_truncates_toward_zero", "negative_even_sum", "positive_even_sum",
+        "opposite_sample_boundaries", "odd_prefix_upper_heap_root", "odd_prefix_lower_heap_root",
+        "duplicates", "maximum_stream_length", "empty_nonnull_input", "count_zero",
+        "count_above_limit", "missing_sample", "trailing_word", "maximum_parseable_trailing_word",
+        "sample_below_bound", "sample_above_bound", "input_length_mismatch",
+        "null_input_positive_length", "exact_output_capacity", "short_output_capacity",
+        "null_output", "invalid_input_precedes_null_output",
+    }
+    cases = workload.get("cases")
+    case_ids_found = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-median-of-running-array-long-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "median_of_running_array_long"
+            or workload.get("function_symbol") != "median_of_running_array_long"
+            or workload.get("pinned_sources") != pinned_sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or MEDIAN_RUNNING_LONG_I64_MIN != -(1 << 63)
+            or MEDIAN_RUNNING_LONG_I64_MAX != (1 << 63) - 1
+            or MEDIAN_RUNNING_LONG_MIN_SAMPLE != -(1 << 62)
+            or MEDIAN_RUNNING_LONG_MAX_SAMPLE != (1 << 62) - 1
+            or MEDIAN_RUNNING_LONG_MAX_SAMPLE_COUNT != 64
+            or MEDIAN_RUNNING_LONG_MAX_INPUT_LENGTH != 66
+            or MEDIAN_RUNNING_LONG_MAX_OUTPUT_BYTES != 512
+            or len(case_ids_found) != len(case_ids)
+            or len(set(case_ids_found)) != len(case_ids_found)
+            or set(case_ids_found) != case_ids):
+        raise ValueError("median_of_running_array_long metadata differs from its reviewed contract")
+    readme = (ROOT / "benchmarks" / "m" / "median_of_running_array_long" / "README.md").read_text(
+        encoding="utf-8")
+    if any(source["url"] not in readme for source in pinned_sources):
+        raise ValueError("median_of_running_array_long README is missing its pinned source links")
+
+    for case in cases:
+        case_id = case["id"]
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        capacity = case.get("output_capacity", MEDIAN_RUNNING_LONG_MAX_OUTPUT_BYTES)
+        if (not isinstance(values, list)
+                or len(values) > MEDIAN_RUNNING_LONG_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not MEDIAN_RUNNING_LONG_I64_MIN <= value <= MEDIAN_RUNNING_LONG_I64_MAX
+                       for value in values)
+                or type(input_length) is not int
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY):
+            raise ValueError(f"median_of_running_array_long framing is invalid: {case_id}")
+        if case_id == "input_length_mismatch":
+            if input_is_null or input_length != len(values) - 1:
+                raise ValueError("median_of_running_array_long input-length fixture changed")
+        elif not input_is_null and input_length != len(values):
+            raise ValueError(f"median_of_running_array_long declared length differs: {case_id}")
+        if case_id == "null_input_positive_length" and (not input_is_null or values or input_length <= 0):
+            raise ValueError("median_of_running_array_long null-input probe changed")
+        result, output = median_of_running_array_long_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (type(case.get("expected_result")) is not int
+                or case["expected_result"] != result
+                or case.get("expected_output_hex", "").lower() != output.hex()):
+            raise ValueError(f"median_of_running_array_long fixture mismatch: {case_id}")
+
+
+def validate_median_heap_workload(workload: dict) -> None:
+    source_commit = "cedc141018ad48884318fe08a6db278664b17128"
+    source_base = "https://github.com/TheAlgorithms/Lua/blob/" + source_commit + "/src/data_structures/"
+    pinned_sources = [
+        {"repository": "TheAlgorithms/Lua", "commit": source_commit,
+         "path": "src/data_structures/median_heap.lua", "symbol": "median_heap",
+         "url": source_base + "median_heap.lua"},
+        {"repository": "TheAlgorithms/Lua", "commit": source_commit,
+         "path": "src/data_structures/heap.lua", "symbol": "heap",
+         "url": source_base + "heap.lua"},
+    ]
+    contract = {
+        "operation": "Replay operations on a fresh median_heap instance using the source numeric less_than comparator.",
+        "operations": {"0": "push(value)", "1": "top()", "2": "pop()", "3": "size()", "4": "empty()"},
+        "lower_heap": "Max-heap over the lower half of the values.",
+        "upper_heap": "Min-heap over the upper half of the values.",
+        "top_pop_semantics": "Return the lower-half root, the sorted lower median at index (size - 1) // 2; pop removes it and rebalances from upper only when lower becomes smaller.",
+        "nil_serialization": "Serialize Lua nil returns from push and empty top/pop as INT64_MIN; the accepted pushed-value domain is signed i32 so the sentinel cannot collide.",
+        "empty_encoding": "Return 1 for true and 0 for false.",
+        "oracle": "Maintain a sorted multiset and independently select/remove index (size - 1) // 2 for top/pop.",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[operation_count, (opcode, argument)*operation_count]",
+        "maximum_operations": MEDIAN_HEAP_MAX_OPERATIONS,
+        "maximum_valid_input_length": 1 + 2 * MEDIAN_HEAP_MAX_OPERATIONS,
+        "maximum_parseable_input_length": MEDIAN_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+        "operation_codes": {
+            "0": "push(value); argument is signed i32",
+            "1": "top(); argument must be zero padding",
+            "2": "pop(); argument must be zero padding",
+            "3": "size(); argument must be zero padding",
+            "4": "empty(); argument must be zero padding",
+        },
+        "value_range": [MEDIAN_HEAP_INT32_MIN, MEDIAN_HEAP_INT32_MAX],
+        "maximum_live_values": MEDIAN_HEAP_MAX_LIVE_VALUES,
+        "exact_packed_shape": "Exactly 1 + 2 * operation_count signed-64 words.",
+        "invalid_input_result": -1,
+        "null_input_result": -1,
+    }
+    output_spec = {
+        "kind": "little_endian_signed_64_bit_integer_sequence",
+        "encoding": "One signed-i64 result per operation in operation order; push/nil results use INT64_MIN.",
+        "result": "number of output bytes",
+        "maximum_output_bytes": MEDIAN_HEAP_MAX_OUTPUT_BYTES,
+        "invalid_input_result": -1,
+        "null_output_result": -2,
+        "insufficient_capacity_result": -2,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed or invalid input is rejected before output pointer or capacity checks.",
+    }
+    case_ids = {
+        "empty_trace", "push_returns_nil_sentinel", "empty_top_pop_size_empty",
+        "push_top_pop_lower_median", "even_cardinality_uses_lower_median",
+        "pop_rebalances_from_upper_heap", "duplicates_and_equal_values",
+        "signed_i32_boundaries", "maximum_live_capacity_then_pop",
+        "maximum_operation_count_and_output", "maximum_parseable_trailing_word",
+        "invalid_opcode", "nonzero_no_argument_padding", "push_below_signed_i32",
+        "push_above_signed_i32", "push_over_live_capacity", "operation_count_above_limit",
+        "negative_operation_count", "missing_operation_argument", "trailing_word",
+        "invalid_late_opcode_has_no_partial_output",
+    }
+    abi_case_ids = {
+        "valid_input_null_output", "valid_input_short_output_capacity",
+        "invalid_input_before_null_output", "null_input_positive_length",
+        "exact_output_capacity", "short_output_capacity",
+        "zero_output_nonnull_zero_capacity", "zero_output_null_output",
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    found_case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                      if isinstance(cases, list) else [])
+    found_abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                          if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-lua-median-heap-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "median_heap"
+            or workload.get("function_symbol") != "median_heap"
+            or workload.get("pinned_sources") != pinned_sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": MEDIAN_HEAP_MAX_OUTPUT_BYTES,
+                "reason": "Each of at most 256 operations emits at most one i64 result.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_bytes_output_call",
+                "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or MEDIAN_HEAP_MAX_OPERATIONS != 256
+            or MEDIAN_HEAP_MAX_LIVE_VALUES != 64
+            or MEDIAN_HEAP_MAX_PARSEABLE_INPUT_LENGTH != 514
+            or MEDIAN_HEAP_MAX_OUTPUT_BYTES != 2048
+            or MEDIAN_HEAP_INT32_MIN != -(1 << 31)
+            or MEDIAN_HEAP_INT32_MAX != (1 << 31) - 1
+            or MEDIAN_HEAP_NIL_SENTINEL != -(1 << 63)
+            or len(found_case_ids) != len(case_ids)
+            or len(set(found_case_ids)) != len(found_case_ids)
+            or set(found_case_ids) != case_ids
+            or len(found_abi_case_ids) != len(abi_case_ids)
+            or len(set(found_abi_case_ids)) != len(found_abi_case_ids)
+            or set(found_abi_case_ids) != abi_case_ids):
+        raise ValueError("median_heap metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "median_heap" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (any(source["url"] not in readme for source in pinned_sources)
+            or source_commit not in readme or "lower median" not in normalized_readme
+            or "INT64_MIN" not in readme or "sorted-list oracle" not in normalized_readme):
+        raise ValueError("median_heap README is missing its pinned sources or reviewed semantics")
+
+    for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case["id"]
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", MEDIAN_HEAP_MAX_OUTPUT_BYTES)
+            if (not isinstance(values, list)
+                    or len(values) > MEDIAN_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= MEDIAN_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MEDIAN_HEAP_MAX_OUTPUT_BYTES
+                    or input_is_null and (values or input_length <= 0 or output_is_null)
+                    or not input_is_null and input_length != len(values)):
+                raise ValueError(f"median_heap framing is invalid: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null
+                                   or capacity != MEDIAN_HEAP_MAX_OUTPUT_BYTES):
+                raise ValueError(f"median_heap semantic fixture has ABI-only framing: {case_id}")
+            result, output = median_heap_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            expected_hex = case.get("expected_output_hex", "")
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not isinstance(expected_hex, str)
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"median_heap fixture mismatch: {case_id}")
+
+
+def validate_table_heap_workload(workload: dict) -> None:
+    source_commit = "cedc141018ad48884318fe08a6db278664b17128"
+    source_base = "https://github.com/TheAlgorithms/Lua/blob/" + source_commit + "/src/data_structures/"
+    pinned_sources = [
+        {"repository": "TheAlgorithms/Lua", "commit": source_commit,
+         "path": "src/data_structures/table_heap.lua",
+         "symbol": "table_heap.new/push/top/pop/find_index/decrease/increase/replace/remove",
+         "url": source_base + "table_heap.lua"},
+        {"repository": "TheAlgorithms/Lua", "commit": source_commit,
+         "path": "src/data_structures/heap.lua",
+         "symbol": "heap.new/_heapify_down/_heapify_up/push/top/pop/size/empty",
+         "url": source_base + "heap.lua"},
+    ]
+    contract = {
+        "operation": "Replay operations on a fresh table_heap instance whose comparator reads a mutable ID-to-priority map.",
+        "comparator": "less_than(id_a,id_b) is priority[id_a] < priority[id_b], with strict signed-i32 comparison.",
+        "constructor": "Build the complete priority map, then heapify initial IDs bottom-up; create the ID-to-index map after heapify.",
+        "index_map": "Maintain an ID-to-current-heap-index map across every swap, push, pop, replacement, and removal. find_index and ID-based mutations use direct map lookup; linear scans of the heap do not satisfy the source contract.",
+        "downheap_ties": "Begin with the right child; select the left only when its priority is strictly smaller. Swap only when the chosen child priority is strictly smaller than the parent.",
+        "priority_updates": "Write a new priority before decrease/increase/replace invokes heapify; retain the old priority through replace/remove comparator decisions.",
+        "replace_self": "Replacing an ID with itself is a no-op only when its priority is unchanged.",
+        "nil_serialization": "Lua nil and mutator return values are encoded as INT64_MIN; IDs are signed i32 and cannot collide.",
+        "empty_semantics": "Empty top and find_index for a missing ID return nil; pop on empty is an invalid trace.",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[initial_count, (id, priority)*, operation_count, (opcode, arg1, arg2, arg3)*]",
+        "initial_count_range": [0, TABLE_HEAP_MAX_INITIAL_ITEMS],
+        "maximum_initial_items": TABLE_HEAP_MAX_INITIAL_ITEMS,
+        "maximum_operations": TABLE_HEAP_MAX_OPERATIONS,
+        "maximum_valid_input_length": TABLE_HEAP_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+        "operation_codes": {
+            "0": "push(id,priority): arg1=id, arg2=priority, arg3=0",
+            "1": "top(): all arguments are zero padding",
+            "2": "pop(): all arguments are zero padding; invalid when empty",
+            "3": "size(): all arguments are zero padding",
+            "4": "empty(): all arguments are zero padding",
+            "5": "find_index(id): arg1=id, arg2=arg3=0",
+            "6": "decrease(id,new_priority): arg1=id, arg2=new_priority, arg3=0",
+            "7": "increase(id,new_priority): arg1=id, arg2=new_priority, arg3=0",
+            "8": "replace(old_id,new_id,new_priority): use all three arguments",
+            "9": "remove(id): arg1=id, arg2=arg3=0",
+        },
+        "identifier_range": [TABLE_HEAP_I32_MIN, TABLE_HEAP_I32_MAX],
+        "priority_range": [TABLE_HEAP_I32_MIN, TABLE_HEAP_I32_MAX],
+        "maximum_live_items": TABLE_HEAP_MAX_INITIAL_ITEMS,
+        "exact_packed_shape": "Exactly 2 + 2 * initial_count + 4 * operation_count signed-64 words.",
+        "invalid_input_result": -1,
+        "null_input_result": -1,
+    }
+    output_spec = {
+        "kind": "little_endian_signed_64_bit_integer_sequence",
+        "encoding": "One signed-i64 result per operation in operation order; nil/mutator results are INT64_MIN.",
+        "success_result": "number of output bytes (8 * operation_count)",
+        "maximum_output_bytes": TABLE_HEAP_MAX_OUTPUT_BYTES,
+        "nil_sentinel": TABLE_HEAP_NIL_SENTINEL,
+        "invalid_input_result": -1,
+        "null_output_result": -2,
+        "insufficient_capacity_result": -2,
+        "no_write_on_error": True,
+        "error_precedence": "Malformed or invalid traces are rejected before output-pointer or capacity checks.",
+    }
+    case_ids = {
+        "empty_trace", "empty_queries_then_push", "constructor_downheap_right_child_tie",
+        "pop_downheap_right_child_tie", "decrease_then_increase", "replace_then_remove",
+        "same_id_replace_unchanged_priority_noop", "equal_priority_push_retains_parent",
+        "signed_i32_id_priority_boundaries", "reuse_removed_identifier",
+        "decrease_equal_priority_noop", "increase_equal_priority_noop",
+        "maximum_valid_input_and_output", "duplicate_initial_identifier", "empty_pop_is_invalid",
+        "push_duplicate_live_identifier", "push_at_capacity_is_invalid",
+        "decrease_missing_identifier", "decrease_must_not_raise_priority",
+        "increase_must_not_lower_priority", "replace_missing_old_identifier",
+        "replace_with_another_live_identifier", "replace_same_identifier_changed_priority_invalid",
+        "remove_missing_identifier", "nonzero_padding_invalid", "unknown_opcode_invalid",
+        "initial_identifier_outside_i32", "count_above_limit", "missing_operation_word",
+        "trailing_word_invalid", "maximum_parseable_trailing_word_invalid",
+    }
+    abi_case_ids = {
+        "valid_input_null_output", "valid_input_short_output_capacity", "exact_output_capacity",
+        "invalid_input_precedes_null_output", "null_input_positive_length",
+        "input_length_mismatch",
+        "zero_output_zero_capacity", "zero_output_null_output",
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    found_case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                      if isinstance(cases, list) else [])
+    found_abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                          if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-lua-table-heap-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "table_heap"
+            or workload.get("function_symbol") != "table_heap"
+            or workload.get("pinned_sources") != pinned_sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": TABLE_HEAP_MAX_OUTPUT_BYTES,
+                "meaning": "At most one signed-i64 result for each of 256 operations.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_bytes_output_call",
+                "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or TABLE_HEAP_MAX_INITIAL_ITEMS != 64
+            or TABLE_HEAP_MAX_OPERATIONS != 256
+            or TABLE_HEAP_MAX_VALID_INPUT_LENGTH != 1154
+            or TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH != 1155
+            or TABLE_HEAP_MAX_OUTPUT_BYTES != 2048
+            or TABLE_HEAP_I32_MIN != -(1 << 31)
+            or TABLE_HEAP_I32_MAX != (1 << 31) - 1
+            or TABLE_HEAP_NIL_SENTINEL != -(1 << 63)
+            or len(found_case_ids) != len(case_ids)
+            or len(set(found_case_ids)) != len(found_case_ids)
+            or set(found_case_ids) != case_ids
+            or len(found_abi_case_ids) != len(abi_case_ids)
+            or len(set(found_abi_case_ids)) != len(found_abi_case_ids)
+            or set(found_abi_case_ids) != abi_case_ids):
+        raise ValueError("table_heap metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "t" / "table_heap" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (any(source["url"] not in readme for source in pinned_sources)
+            or source_commit not in readme or "array-heap tie behavior" not in normalized_readme
+            or "INT64_MIN" not in readme or "signed 32-bit IDs" not in normalized_readme
+            or "direct map lookups" not in normalized_readme
+            or "rather than scanning the heap" not in normalized_readme):
+        raise ValueError("table_heap README is missing its pinned sources or reviewed semantics")
+
+    for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case["id"]
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", TABLE_HEAP_MAX_OUTPUT_BYTES)
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= TABLE_HEAP_MAX_OUTPUT_BYTES
+                    or (input_is_null and (values or not 1 <= input_length <= TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH))
+                    or (not input_is_null and input_length != len(values)
+                        and not (key == "abi_cases" and case_id == "input_length_mismatch"
+                                 and input_length < len(values)))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"table_heap framing is invalid: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null
+                                   or capacity != TABLE_HEAP_MAX_OUTPUT_BYTES):
+                raise ValueError(f"table_heap semantic fixture has ABI-only framing: {case_id}")
+            result, output = table_heap_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"table_heap fixture mismatch: {case_id}")
+
+
+def validate_skew_heap_workload(workload: dict) -> None:
+    source_commit = "e1a2a8b016001309a73d5fec4818c35cca139795"
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": source_commit,
+        "path": "data_structures/heap/skew_heap.py",
+        "symbol": "SkewHeap",
+        "url": f"https://github.com/TheAlgorithms/Python/blob/{source_commit}/data_structures/heap/skew_heap.py",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Replay the pinned SkewHeap min-priority operation trace.",
+        "merge": "Choose the smaller root and swap only when the first root is strictly greater; equal roots keep the first argument.",
+        "insert": "Merge a singleton node into the heap.",
+        "pop": "Remove the minimum and merge the removed root's children.",
+        "iteration": "Match list(heap) by draining in ascending order, recording the values, then reinserting that sorted snapshot; heap shape is not compared.",
+        "duplicates": "Preserve duplicate values.",
+        "empty_queries": "An empty top or pop is invalid; is_empty returns 1 for empty and 0 otherwise.",
+        "errors": "Reject malformed traces before output pointer or capacity checks; errors write nothing.",
+        "serialization": "Concatenate top, pop, iteration, and is_empty results in operation order as little-endian signed i64 values.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[operation_count,(opcode,argument)*]",
+        "operation_count_range": [0, SKEW_HEAP_MAX_OPERATIONS],
+        "maximum_valid_input_length": SKEW_HEAP_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+        "exact_length": "1 + 2 * operation_count",
+        "opcodes": {
+            "0": "insert(value)", "1": "top(argument=0)", "2": "pop(argument=0)",
+            "3": "iterate_ascending(argument=0)", "4": "clear(argument=0)",
+            "5": "is_empty(argument=0)",
+        },
+        "insert_value_range": [SKEW_HEAP_INT32_MIN, SKEW_HEAP_INT32_MAX],
+        "maximum_live_values": SKEW_HEAP_MAX_LIVE_VALUES,
+        "duplicates": "allowed and preserved",
+        "non_insert_argument": 0,
+        "empty_top_or_pop": "invalid trace; source raises IndexError",
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "little_endian_signed_i64_vector",
+        "meaning": "Concatenated top, pop, iteration, and is_empty results in trace order; insert and clear emit no values.",
+        "maximum_output_values": SKEW_HEAP_MAX_OUTPUT_VALUES,
+        "maximum_output_bytes": SKEW_HEAP_MAX_OUTPUT_BYTES,
+        "return_value": "number of output bytes written",
+        "output_capacity_unit": "bytes",
+        "insufficient_output_capacity_result": -2,
+        "null_output_result": -2,
+        "null_output_on_zero_bytes": "still returns -2",
+        "non_null_zero_capacity_on_zero_bytes": "succeeds with return value 0",
+        "no_write_on_error": True,
+        "error_precedence": "The full input and operation trace is validated before output pointer or capacity checks.",
+    }
+    case_ids = {
+        "empty_trace", "empty_heap_flag", "single_value_lifecycle",
+        "iteration_sorted_duplicates_and_preserved_values", "signed_i32_extremes",
+        "clear_and_reuse", "maximum_repeated_iteration_output", "empty_top_invalid",
+        "empty_pop_invalid", "unknown_opcode_invalid", "nonzero_noninsert_argument_invalid",
+        "insert_above_i32_range_invalid", "live_value_limit_exceeded",
+        "operation_count_above_limit_invalid", "truncated_operation_invalid",
+        "trailing_input_value_invalid",
+    }
+    abi_case_ids = {
+        "valid_input_null_output", "valid_input_short_output_capacity",
+        "valid_null_output_zero_bytes", "valid_zero_capacity_zero_bytes",
+        "invalid_input_precedes_null_output", "null_input_positive_length",
+        "valid_exact_output_capacity",
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    found_case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                      if isinstance(cases, list) else [])
+    found_abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                          if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-skew-heap-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "skew_heap"
+            or workload.get("function_symbol") != "skew_heap"
+            or workload.get("description") != "Trace min-skew-heap operations, including source iteration that drains and reinserts sorted values."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": SKEW_HEAP_MAX_OUTPUT_BYTES,
+                "meaning": "Maximum serialized query output for one trace.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_bytes_output_call",
+                "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000,
+            }
+            or SKEW_HEAP_MAX_OPERATIONS != 64
+            or SKEW_HEAP_MAX_VALID_INPUT_LENGTH != 129
+            or SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH != 130
+            or SKEW_HEAP_MAX_LIVE_VALUES != 32
+            or SKEW_HEAP_MAX_OUTPUT_VALUES != 1024
+            or SKEW_HEAP_MAX_OUTPUT_BYTES != 8192
+            or SKEW_HEAP_INT32_MIN != -(1 << 31)
+            or SKEW_HEAP_INT32_MAX != (1 << 31) - 1
+            or len(found_case_ids) != len(case_ids)
+            or len(set(found_case_ids)) != len(found_case_ids)
+            or set(found_case_ids) != case_ids
+            or len(found_abi_case_ids) != len(abi_case_ids)
+            or len(set(found_abi_case_ids)) != len(found_abi_case_ids)
+            or set(found_abi_case_ids) != abi_case_ids):
+        raise ValueError("skew_heap metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "skew_heap" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme or source_commit not in readme
+            or "list(heap)" not in readme or "strictly greater" not in normalized_readme
+            or "duplicates are preserved" not in normalized_readme
+            or "little-endian signed 64-bit integers" not in normalized_readme):
+        raise ValueError("skew_heap README is missing its pinned source or reviewed semantics")
+
+    for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case["id"]
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", SKEW_HEAP_MAX_OUTPUT_BYTES)
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SKEW_HEAP_MAX_OUTPUT_BYTES
+                    or (input_is_null and (values or not 1 <= input_length <= SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH))
+                    or (not input_is_null and input_length != len(values))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"skew_heap framing is invalid: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null
+                                   or capacity != SKEW_HEAP_MAX_OUTPUT_BYTES):
+                raise ValueError(f"skew_heap semantic fixture has ABI-only framing: {case_id}")
+            result, output = skew_heap_oracle(values, capacity, output_is_null,
+                                              input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"skew_heap fixture mismatch: {case_id}")
+
+
+def validate_smoothsort_workload(workload: dict) -> None:
+    source_commit = "e1a2a8b016001309a73d5fec4818c35cca139795"
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": source_commit,
+        "path": "sorts/smoothsort.py",
+        "symbol": "smoothsort",
+        "url": f"https://github.com/TheAlgorithms/Python/blob/{source_commit}/sorts/smoothsort.py",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Return the same values in ascending signed-integer order; the pinned function mutates and returns its input list.",
+        "comparison": "Use signed numeric ordering as induced by the source comparison operator `<`; the wrapper restricts values to integers.",
+        "empty_input": "A zero-element list is valid and returns an empty result.",
+        "relationship_to_smooth_sort": "This Python Smoothsort candidate remains separate from `smooth_sort` unless exact in-place ABI parity is established.",
+        "errors": "Invalid count or malformed input returns -1 before output checks. Null output returns -2 even for an empty result; insufficient byte capacity returns -2. Errors write nothing.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[count, value_0, ..., value_(count-1)]",
+        "count_range": [0, SMOOTHSORT_MAX_VALUES],
+        "value_range": [SMOOTHSORT_INT64_MIN, SMOOTHSORT_INT64_MAX],
+        "exact_length": "1 + count",
+        "maximum_valid_input_length": SMOOTHSORT_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "little_endian_signed_i64_vector",
+        "meaning": "All input values sorted ascending, preserving duplicates.",
+        "maximum_output_values": SMOOTHSORT_MAX_OUTPUT_VALUES,
+        "maximum_output_bytes": SMOOTHSORT_MAX_OUTPUT_BYTES,
+        "return_value": "number of output bytes written",
+        "output_capacity_unit": "bytes",
+        "invalid_output_result": -2,
+        "null_output_result": -2,
+        "null_output_on_zero_bytes": "still returns -2",
+        "non_null_zero_capacity_on_zero_bytes": "succeeds with return value 0",
+        "no_write_on_error": True,
+        "error_precedence": "Count, input framing, and integer values are validated before output pointer or capacity checks.",
+    }
+    case_ids = {
+        "empty_list", "single_negative_value", "already_sorted_with_duplicates",
+        "reverse_order", "duplicate_negative_and_zero_values", "nearly_sorted",
+        "signed_i64_extremes", "maximum_count_and_output", "count_above_limit",
+        "negative_count", "truncated_values", "trailing_value", "missing_count",
+    }
+    abi_case_ids = {
+        "valid_input_null_output", "valid_null_output_empty_result",
+        "valid_zero_capacity_empty_result", "valid_short_output_capacity",
+        "invalid_input_precedes_null_output", "null_input_positive_length",
+        "valid_exact_output_capacity",
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    found_case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                      if isinstance(cases, list) else [])
+    found_abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                          if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-smoothsort-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "smoothsort"
+            or workload.get("function_symbol") != "smoothsort"
+            or workload.get("description") != "Sort a bounded signed-i64 array in ascending order using the pinned in-place Smoothsort source."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": SMOOTHSORT_MAX_OUTPUT_BYTES,
+                "meaning": "Maximum sorted output vector.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_bytes_output_call",
+                "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000,
+            }
+            or SMOOTHSORT_MAX_VALUES != 64
+            or SMOOTHSORT_MAX_VALID_INPUT_LENGTH != 65
+            or SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH != 66
+            or SMOOTHSORT_MAX_OUTPUT_VALUES != 64
+            or SMOOTHSORT_MAX_OUTPUT_BYTES != 512
+            or SMOOTHSORT_INT64_MIN != -(1 << 63)
+            or SMOOTHSORT_INT64_MAX != (1 << 63) - 1
+            or len(found_case_ids) != len(case_ids)
+            or len(set(found_case_ids)) != len(found_case_ids)
+            or set(found_case_ids) != case_ids
+            or len(found_abi_case_ids) != len(abi_case_ids)
+            or len(set(found_abi_case_ids)) != len(found_abi_case_ids)
+            or set(found_abi_case_ids) != abi_case_ids):
+        raise ValueError("smoothsort metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "smoothsort" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme or source_commit not in readme
+            or "Leonardo heaps" not in normalized_readme
+            or "mutates the input list in place" not in normalized_readme
+            or "ascending order" not in normalized_readme
+            or "distinct from" not in normalized_readme
+            or "empty result" not in normalized_readme):
+        raise ValueError("smoothsort README is missing its pinned source or reviewed semantics")
+
+    for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case["id"]
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", SMOOTHSORT_MAX_OUTPUT_BYTES)
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not SMOOTHSORT_INT64_MIN <= value <= SMOOTHSORT_INT64_MAX
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SMOOTHSORT_MAX_OUTPUT_BYTES
+                    or (input_is_null and (values or not 1 <= input_length <= SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH))
+                    or (not input_is_null and input_length != len(values))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"smoothsort framing is invalid: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null
+                                   or capacity != SMOOTHSORT_MAX_OUTPUT_BYTES):
+                raise ValueError(f"smoothsort semantic fixture has ABI-only framing: {case_id}")
+            result, output = smoothsort_oracle(values, capacity, output_is_null,
+                                               input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"smoothsort fixture mismatch: {case_id}")
+
+
+def validate_suffix_automaton_workload(workload: dict) -> None:
+    source_commit = "e1a2a8b016001309a73d5fec4818c35cca139795"
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": source_commit,
+        "path": "strings/suffix_automaton.py",
+        "symbol": "SuffixAutomaton",
+        "url": f"https://github.com/TheAlgorithms/Python/blob/{source_commit}/strings/suffix_automaton.py",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Build a suffix automaton for one nonempty ASCII text and execute typed membership, occurrence, and distinct-substring queries.",
+        "input_layout": "[text_length,text_bytes...,query_count,(opcode,pattern_length,pattern_bytes...)*]",
+        "query_0": "contains(pattern); length 0..256; result is boolean 0/1.",
+        "query_1": "count_occurrences(pattern); length 0..256; occurrences include overlaps; the empty pattern returns text_length.",
+        "query_2": "count_distinct_substrings(); pattern_length must be zero; empty substring is not counted.",
+        "output_record": "One opcode byte followed by the result as a signed-i64 little-endian value.",
+        "output_return": "Number of output bytes written; nine bytes per query.",
+        "errors": "Invalid text, malformed records, invalid opcodes, or invalid ASCII values return -1 before output checks. Null output returns -2 even with zero queries; insufficient byte capacity returns -2. Errors write nothing.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[text_length,text_byte_0,...,text_byte_(n-1),query_count,(opcode,pattern_length,pattern_bytes...)*]",
+        "text_length_range": [1, SUFFIX_AUTOMATON_MAX_TEXT_LENGTH],
+        "text_byte_range": [SUFFIX_AUTOMATON_MIN_ASCII, SUFFIX_AUTOMATON_MAX_ASCII],
+        "query_count_range": [0, SUFFIX_AUTOMATON_MAX_QUERY_COUNT],
+        "query_opcodes": {
+            "0": "contains(pattern)",
+            "1": "count_occurrences(pattern)",
+            "2": "count_distinct_substrings(no pattern)",
+        },
+        "pattern_length_range": [0, SUFFIX_AUTOMATON_MAX_PATTERN_LENGTH],
+        "pattern_byte_range": [SUFFIX_AUTOMATON_MIN_ASCII, SUFFIX_AUTOMATON_MAX_ASCII],
+        "op_2_pattern_length": 0,
+        "maximum_valid_input_length": SUFFIX_AUTOMATON_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "tagged_query_records",
+        "record_layout": "opcode u8 followed by result i64 little-endian",
+        "bytes_per_query": SUFFIX_AUTOMATON_OUTPUT_BYTES_PER_QUERY,
+        "maximum_queries": SUFFIX_AUTOMATON_MAX_QUERY_COUNT,
+        "maximum_output_bytes": SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES,
+        "return_value": "number of output bytes written",
+        "output_capacity_unit": "bytes",
+        "invalid_output_result": -2,
+        "null_output_result": -2,
+        "null_output_on_zero_bytes": "still returns -2",
+        "non_null_zero_capacity_on_zero_bytes": "succeeds with return value 0",
+        "no_write_on_error": True,
+        "error_precedence": "The full input and all query records are validated before output pointer or capacity checks.",
+    }
+    case_ids = {
+        "banana_membership_empty_pattern_and_distinct_count",
+        "overlapping_occurrence_counts", "single_character_and_empty_patterns",
+        "ascii_nul_bytes", "no_queries", "maximum_text_pattern_queries_and_output",
+        "empty_text_invalid", "text_byte_above_ascii_invalid", "nonascii_pattern_invalid",
+        "unknown_opcode_invalid", "distinct_query_pattern_invalid", "pattern_too_long_invalid",
+        "negative_pattern_length_invalid", "truncated_pattern_invalid",
+        "missing_query_count_invalid", "query_count_above_limit_invalid", "trailing_word_invalid",
+    }
+    abi_case_ids = {
+        "valid_input_null_output", "valid_input_short_output_capacity",
+        "valid_null_output_zero_queries", "valid_zero_capacity_zero_queries",
+        "invalid_input_precedes_null_output", "null_input_positive_length",
+        "valid_exact_output_capacity",
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    found_case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                      if isinstance(cases, list) else [])
+    found_abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                          if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-suffix-automaton-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "suffix_automaton"
+            or workload.get("function_symbol") != "suffix_automaton"
+            or workload.get("description") != "Answer typed substring queries from an online suffix automaton and serialize tagged results."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES,
+                "meaning": "Maximum tagged query result vector.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_bytes_output_call",
+                "sample_count": 7, "warmup_rounds": 2, "repetitions_per_sample": 1000,
+            }
+            or SUFFIX_AUTOMATON_MAX_TEXT_LENGTH != 256
+            or SUFFIX_AUTOMATON_MAX_QUERY_COUNT != 128
+            or SUFFIX_AUTOMATON_MAX_PATTERN_LENGTH != 256
+            or SUFFIX_AUTOMATON_MIN_ASCII != 0 or SUFFIX_AUTOMATON_MAX_ASCII != 127
+            or SUFFIX_AUTOMATON_MAX_VALID_INPUT_LENGTH != 33282
+            or SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH != 33283
+            or SUFFIX_AUTOMATON_OUTPUT_BYTES_PER_QUERY != 9
+            or SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES != 1152
+            or SUFFIX_AUTOMATON_INT64_MIN != -(1 << 63)
+            or SUFFIX_AUTOMATON_INT64_MAX != (1 << 63) - 1
+            or len(found_case_ids) != len(case_ids)
+            or len(set(found_case_ids)) != len(found_case_ids)
+            or set(found_case_ids) != case_ids
+            or len(found_abi_case_ids) != len(abi_case_ids)
+            or len(set(found_abi_case_ids)) != len(found_abi_case_ids)
+            or set(found_abi_case_ids) != abi_case_ids):
+        raise ValueError("suffix_automaton metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "suffix_automaton" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme or source_commit not in readme
+            or "nonempty text" not in normalized_readme
+            or "Occurrence counts include overlaps." not in normalized_readme
+            or "empty-pattern behavior is preserved" not in normalized_readme
+            or "Distinct-substring counts exclude the empty substring." not in readme
+            or "Each record is nine bytes" not in normalized_readme):
+        raise ValueError("suffix_automaton README is missing its pinned source or reviewed semantics")
+
+    for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case["id"]
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES)
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not SUFFIX_AUTOMATON_INT64_MIN <= value <= SUFFIX_AUTOMATON_INT64_MAX
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES
+                    or (input_is_null and (values or not 1 <= input_length <= SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH))
+                    or (not input_is_null and input_length != len(values))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"suffix_automaton framing is invalid: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null
+                                   or capacity != SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES):
+                raise ValueError(f"suffix_automaton semantic fixture has ABI-only framing: {case_id}")
+            result, output = suffix_automaton_oracle(values, capacity, output_is_null,
+                                                     input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"suffix_automaton fixture mismatch: {case_id}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -22315,6 +23621,8 @@ def main() -> int:
         validate_split_workload(workload)
     elif algorithm == "char_array_left_rotation":
         validate_char_array_left_rotation_workload(workload)
+    elif algorithm == "string_left_rotation":
+        validate_string_left_rotation_workload(workload)
     elif algorithm == "reverse_queue_recursion":
         validate_reverse_queue_recursion_workload(workload)
     elif algorithm == "reverse_stack":
@@ -22429,6 +23737,22 @@ def main() -> int:
         validate_table_list_workload(workload)
     elif algorithm == "self_adjusting_scheduling":
         validate_self_adjusting_scheduling_workload(workload)
+    elif algorithm == "fixed_priority_queue_using_list":
+        validate_fixed_priority_queue_using_list_workload(workload)
+    elif algorithm == "element_priority_queue_using_list":
+        validate_element_priority_queue_using_list_workload(workload)
+    elif algorithm == "median_of_running_array_long":
+        validate_median_of_running_array_long_workload(workload)
+    elif algorithm == "median_heap":
+        validate_median_heap_workload(workload)
+    elif algorithm == "table_heap":
+        validate_table_heap_workload(workload)
+    elif algorithm == "skew_heap":
+        validate_skew_heap_workload(workload)
+    elif algorithm == "smoothsort":
+        validate_smoothsort_workload(workload)
+    elif algorithm == "suffix_automaton":
+        validate_suffix_automaton_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
         parser.error("workload does not match the built byte-output algorithm")
@@ -22454,7 +23778,28 @@ def main() -> int:
         values = case.get("input_values")
         input_is_null = case.get("input_is_null", False)
         input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
-        max_input_length = (PIECEWISE_LINEAR_TRANSFORM_MAX_INPUT_LENGTH
+        if (algorithm == "median_of_running_array_long"
+                and case.get("id") == "input_length_mismatch"
+                and isinstance(values, list) and type(input_length) is int
+                and 0 <= input_length < len(values)):
+            values = values[:input_length]
+        max_input_length = (SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "suffix_automaton" else
+                            SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "smoothsort" else
+                            SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "skew_heap" else
+                            TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "table_heap" else
+                            MEDIAN_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "median_heap" else
+                            MEDIAN_RUNNING_LONG_MAX_INPUT_LENGTH
+                            if algorithm == "median_of_running_array_long" else
+                            FIXED_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "fixed_priority_queue_using_list" else
+                            ELEMENT_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "element_priority_queue_using_list" else
+                            PIECEWISE_LINEAR_TRANSFORM_MAX_INPUT_LENGTH
                             if algorithm == "piecewise_linear_transform" else
                             SORT_POPULATION_MAX_INPUT_LENGTH if algorithm == "sort_population" else
                             TOKENIZE_STRING_MAX_INPUT_LENGTH if algorithm == "tokenize_string" else
@@ -22757,6 +24102,7 @@ def main() -> int:
                             PERMUTE_STRING_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "permute_string" else
                             SPLIT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "split" else
                             CHAR_ARRAY_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "char_array_left_rotation" else
+                            STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "string_left_rotation" else
                             REVERSE_QUEUE_RECURSION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_queue_recursion" else
                             REVERSE_STACK_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_stack" else
                             REVERSE_A_LINKED_LIST_USING_RECURSION_MAX_INPUT_LENGTH if algorithm == "reverse_a_linked_list_using_recusion" else
@@ -22901,6 +24247,30 @@ def main() -> int:
             else:
                 expected_count, expected = print_reverse_expected_output(
                     values, output_capacity, output_is_null, input_is_null)
+        elif algorithm == "fixed_priority_queue_using_list":
+            expected_count, expected = fixed_priority_queue_using_list_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "element_priority_queue_using_list":
+            expected_count, expected = element_priority_queue_using_list_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "median_of_running_array_long":
+            expected_count, expected = median_of_running_array_long_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "median_heap":
+            expected_count, expected = median_heap_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "table_heap":
+            expected_count, expected = table_heap_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "skew_heap":
+            expected_count, expected = skew_heap_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "smoothsort":
+            expected_count, expected = smoothsort_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "suffix_automaton":
+            expected_count, expected = suffix_automaton_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
         elif input_is_null:
             expected_count, expected = required_count, b""
         elif output_is_null and algorithm == "skytale_cipher" and required_count < 0:

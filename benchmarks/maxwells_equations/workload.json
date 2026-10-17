@@ -1,0 +1,757 @@
+{
+  "schema_version": 1,
+  "id": "maxwells-equations-python-i64-array-f64-v1",
+  "algorithm": "maxwells_equations",
+  "function_symbol": "maxwells_equations",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "maximum_valid_input_length": 6,
+    "maximum_parseable_input_length": 7,
+    "operation_selector_index": 0,
+    "operation_layouts": {
+      "0": {
+        "method": "gauss_law_electric",
+        "exact_length": 5,
+        "layout": [
+          "operation",
+          "electric_field_1e12",
+          "surface_area_1e12",
+          "enclosed_charge_1e12",
+          "permittivity_1e18"
+        ],
+        "electric_field_raw_range": [
+          -1000000000000000,
+          1000000000000000
+        ],
+        "surface_area_raw_range": [
+          0,
+          1000000000000000
+        ],
+        "enclosed_charge_raw_range": [
+          -1000000000000000,
+          1000000000000000
+        ],
+        "permittivity_zero_means": "exact source VACUUM_PERMITTIVITY default; nonzero must be at least 1000000",
+        "constant_zero_selects_source_default": true,
+        "constant_nonzero_raw_range": [
+          1000000,
+          1000000000000000
+        ]
+      },
+      "1": {
+        "method": "faraday_law",
+        "exact_length": 3,
+        "layout": [
+          "operation",
+          "electric_field_circulation_1e12",
+          "magnetic_flux_change_rate_1e12"
+        ],
+        "electric_field_circulation_raw_range": [
+          -1000000000000000,
+          1000000000000000
+        ],
+        "magnetic_flux_change_rate_raw_range": [
+          -1000000000000000,
+          1000000000000000
+        ]
+      },
+      "2": {
+        "method": "ampere_maxwell_law",
+        "exact_length": 6,
+        "layout": [
+          "operation",
+          "magnetic_field_circulation_1e12",
+          "enclosed_current_1e12",
+          "electric_flux_change_rate_1e6",
+          "permeability_1e18",
+          "permittivity_1e18"
+        ],
+        "magnetic_field_circulation_raw_range": [
+          -1000000000000000,
+          1000000000000000
+        ],
+        "enclosed_current_raw_range": [
+          -1000000000000000,
+          1000000000000000
+        ],
+        "electric_flux_change_rate_raw_range": [
+          -1000000000000000000,
+          1000000000000000000
+        ],
+        "constant_zero_means": "select the exact source default for that parameter; nonzero constants must be at least 1000000",
+        "constant_zero_selects_source_default": true,
+        "constant_nonzero_raw_range": [
+          1000000,
+          1000000000000000
+        ]
+      },
+      "3": {
+        "method": "electromagnetic_wave_speed",
+        "exact_length": 3,
+        "layout": [
+          "operation",
+          "permeability_1e18",
+          "permittivity_1e18"
+        ],
+        "constant_zero_selects_source_default": true,
+        "constant_nonzero_raw_range": [
+          1000000,
+          1000000000000000
+        ]
+      },
+      "4": {
+        "method": "electromagnetic_wave_impedance",
+        "exact_length": 3,
+        "layout": [
+          "operation",
+          "permeability_1e18",
+          "permittivity_1e18"
+        ],
+        "constant_zero_selects_source_default": true,
+        "constant_nonzero_raw_range": [
+          1000000,
+          1000000000000000
+        ]
+      },
+      "5": {
+        "method": "poynting_vector_magnitude",
+        "exact_length": 4,
+        "layout": [
+          "operation",
+          "electric_field_1e12",
+          "magnetic_field_1e12",
+          "permeability_1e18"
+        ],
+        "electric_field_raw_range": [
+          -1000000000000000,
+          1000000000000000
+        ],
+        "magnetic_field_raw_range": [
+          -1000000000000000,
+          1000000000000000
+        ],
+        "constant_zero_selects_source_default": true,
+        "constant_nonzero_raw_range": [
+          1000000,
+          1000000000000000
+        ]
+      },
+      "6": {
+        "method": "energy_density_electromagnetic",
+        "exact_length": 5,
+        "layout": [
+          "operation",
+          "electric_field_1e12",
+          "magnetic_field_1e12",
+          "permittivity_1e18",
+          "permeability_1e18"
+        ],
+        "electric_field_raw_range": [
+          -1000000000000000,
+          1000000000000000
+        ],
+        "magnetic_field_raw_range": [
+          -1000000000000000,
+          1000000000000000
+        ],
+        "constant_zero_selects_source_default": true,
+        "constant_nonzero_raw_range": [
+          1000000,
+          1000000000000000
+        ]
+      }
+    },
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "Source result for the selected Maxwell scalar method; law checks are exactly 1.0 or 0.0.",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e+300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "gauss-electric-default-valid",
+      "input_values": [
+        0,
+        1000000000000000,
+        1000000000000,
+        8854,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "gauss-electric-default-invalid",
+      "input_values": [
+        0,
+        500000000000000,
+        1000000000000,
+        8854,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "gauss-electric-custom-permittivity-valid",
+      "input_values": [
+        0,
+        2000000000000,
+        1000000000000,
+        2000,
+        1000000000
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "gauss-electric-zero-expected-valid",
+      "input_values": [
+        0,
+        0,
+        1000000000000,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "gauss-electric-zero-expected-absolute-tolerance-valid",
+      "input_values": [
+        0,
+        10,
+        1000000000000,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 1.0
+    },
+    {
+      "id": "gauss-electric-zero-expected-absolute-tolerance-invalid",
+      "input_values": [
+        0,
+        1000,
+        1000000000000,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "gauss-electric-negative-area-invalid",
+      "input_values": [
+        0,
+        0,
+        -1,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "gauss-electric-custom-permittivity-below-range-invalid",
+      "input_values": [
+        0,
+        0,
+        1000000000000,
+        0,
+        999999
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "gauss-electric-wrong-length-invalid",
+      "input_values": [
+        0,
+        0,
+        1000000000000
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "unknown-operation-invalid",
+      "input_values": [
+        7,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "faraday-law-source-example-valid",
+      "input_values": [
+        1,
+        10000000000000,
+        -10000000000000
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "faraday-law-sign-mismatch-invalid",
+      "input_values": [
+        1,
+        10000000000000,
+        10000000000000
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "faraday-law-zero-expected-valid",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "faraday-law-zero-expected-absolute-tolerance-valid",
+      "input_values": [
+        1,
+        10,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 1.0
+    },
+    {
+      "id": "faraday-law-zero-expected-absolute-tolerance-invalid",
+      "input_values": [
+        1,
+        1000,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 0.0
+    },
+    {
+      "id": "ampere-maxwell-default-source-example-valid",
+      "input_values": [
+        2,
+        1256637,
+        1000000000000,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 1.0
+    },
+    {
+      "id": "ampere-maxwell-default-invalid",
+      "input_values": [
+        2,
+        3000000,
+        1000000000000,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "ampere-maxwell-custom-constants-valid",
+      "input_values": [
+        2,
+        2000000,
+        980000000000,
+        5000000000000,
+        2000000000000,
+        4000000000
+      ],
+      "input_length": 6,
+      "expected_result": 1.0
+    },
+    {
+      "id": "ampere-maxwell-zero-expected-valid",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 1.0
+    },
+    {
+      "id": "ampere-maxwell-zero-expected-absolute-tolerance-valid",
+      "input_values": [
+        2,
+        10,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 1.0
+    },
+    {
+      "id": "ampere-maxwell-zero-expected-absolute-tolerance-invalid",
+      "input_values": [
+        2,
+        1000,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": 0.0
+    },
+    {
+      "id": "ampere-maxwell-negative-permeability-invalid",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        -1,
+        0
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "ampere-maxwell-permittivity-below-range-invalid",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "ampere-maxwell-wrong-length-invalid",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "ampere-maxwell-maximum-parseable-trailing-word-invalid",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "wave-speed-vacuum-default",
+      "input_values": [
+        3,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 299792458.0816064
+    },
+    {
+      "id": "wave-speed-custom-constants",
+      "input_values": [
+        3,
+        2000000000000,
+        8000000
+      ],
+      "input_length": 3,
+      "expected_result": 250000000.00000003
+    },
+    {
+      "id": "wave-speed-upper-bound",
+      "input_values": [
+        3,
+        1000000,
+        1000000
+      ],
+      "input_length": 3,
+      "expected_result": 1000000000000.0
+    },
+    {
+      "id": "wave-speed-negative-permeability-invalid",
+      "input_values": [
+        3,
+        -1,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "wave-speed-constant-above-range-invalid",
+      "input_values": [
+        3,
+        1000000000000001,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "wave-impedance-vacuum-default",
+      "input_values": [
+        4,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": 376.7303135643202
+    },
+    {
+      "id": "wave-impedance-custom-constants",
+      "input_values": [
+        4,
+        2000000000000,
+        8000000
+      ],
+      "input_length": 3,
+      "expected_result": 500.0
+    },
+    {
+      "id": "wave-impedance-upper-bound",
+      "input_values": [
+        4,
+        1000000000000000,
+        1000000
+      ],
+      "input_length": 3,
+      "expected_result": 31622.776601683792
+    },
+    {
+      "id": "poynting-vacuum-source-example",
+      "input_values": [
+        5,
+        377000000000000,
+        1000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 300.0070677282227
+    },
+    {
+      "id": "poynting-signed-custom-result",
+      "input_values": [
+        5,
+        -2000000000000,
+        3000000000000,
+        2000000000000
+      ],
+      "input_length": 4,
+      "expected_result": -3000000.0
+    },
+    {
+      "id": "poynting-zero-field",
+      "input_values": [
+        5,
+        0,
+        500000000000000,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": 0.0
+    },
+    {
+      "id": "poynting-upper-magnitude-bound",
+      "input_values": [
+        5,
+        1000000000000000,
+        1000000000000000,
+        1000000
+      ],
+      "input_length": 4,
+      "expected_result": 1e+18
+    },
+    {
+      "id": "poynting-negative-permeability-invalid",
+      "input_values": [
+        5,
+        1000000000000,
+        1000000000000,
+        -1
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "poynting-field-above-range-invalid",
+      "input_values": [
+        5,
+        1000000000000001,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "energy-density-vacuum-example",
+      "input_values": [
+        6,
+        1000000000000000,
+        1000000000,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 0.39789178482364473
+    },
+    {
+      "id": "energy-density-custom-constants",
+      "input_values": [
+        6,
+        3000000000000,
+        4000000000000,
+        2000000000000,
+        8000000000000
+      ],
+      "input_length": 5,
+      "expected_result": 1000000.000009
+    },
+    {
+      "id": "energy-density-zero-fields",
+      "input_values": [
+        6,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 0.0
+    },
+    {
+      "id": "energy-density-upper-bound",
+      "input_values": [
+        6,
+        1000000000000000,
+        1000000000000000,
+        1000000000000000,
+        1000000
+      ],
+      "input_length": 5,
+      "expected_result": 5.000000000000005e+17
+    },
+    {
+      "id": "energy-density-negative-permittivity-invalid",
+      "input_values": [
+        6,
+        0,
+        0,
+        -1,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "energy-density-wrong-length-invalid",
+      "input_values": [
+        6,
+        0,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "generic-trailing-word-invalid",
+      "input_values": [
+        3,
+        0,
+        0,
+        1
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    }
+  ],
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "physics/maxwells_equations.py",
+      "symbol": "gauss_law_electric",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/maxwells_equations.py"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "physics/maxwells_equations.py",
+      "symbol": "faraday_law",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/maxwells_equations.py"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "physics/maxwells_equations.py",
+      "symbol": "ampere_maxwell_law",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/maxwells_equations.py"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "physics/maxwells_equations.py",
+      "symbol": "electromagnetic_wave_speed",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/maxwells_equations.py"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "physics/maxwells_equations.py",
+      "symbol": "electromagnetic_wave_impedance",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/maxwells_equations.py"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "physics/maxwells_equations.py",
+      "symbol": "poynting_vector_magnitude",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/maxwells_equations.py"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "physics/maxwells_equations.py",
+      "symbol": "energy_density_electromagnetic",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/physics/maxwells_equations.py"
+    }
+  ]
+}

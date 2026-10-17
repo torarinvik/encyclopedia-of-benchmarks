@@ -789,6 +789,10 @@ from char_array_left_rotation_oracle import MAX_ARRAY_LENGTH as CHAR_ARRAY_LEFT_
 from char_array_left_rotation_oracle import MAX_INPUT_LENGTH as CHAR_ARRAY_LEFT_ROTATION_MAX_INPUT_LENGTH
 from char_array_left_rotation_oracle import MAX_PARSEABLE_INPUT_LENGTH as CHAR_ARRAY_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH
 from char_array_left_rotation_oracle import expected_output as char_array_left_rotation_oracle
+from string_left_rotation_oracle import MAX_INPUT_LENGTH as STRING_LEFT_ROTATION_MAX_INPUT_LENGTH
+from string_left_rotation_oracle import MAX_PARSEABLE_INPUT_LENGTH as STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH
+from string_left_rotation_oracle import MAX_STRING_LENGTH as STRING_LEFT_ROTATION_MAX_STRING_LENGTH
+from string_left_rotation_oracle import expected_output as string_left_rotation_oracle
 from reverse_queue_recursion_oracle import MAX_QUEUE_LENGTH as REVERSE_QUEUE_RECURSION_MAX_QUEUE_LENGTH
 from reverse_queue_recursion_oracle import MAX_VALID_INPUT_LENGTH as REVERSE_QUEUE_RECURSION_MAX_VALID_INPUT_LENGTH
 from reverse_queue_recursion_oracle import MAX_INPUT_LENGTH as REVERSE_QUEUE_RECURSION_MAX_PARSEABLE_INPUT_LENGTH
@@ -922,6 +926,7 @@ from run_i64_array_bytes_output import validate_job_sequencing_workload
 from run_i64_array_bytes_output import validate_permute_string_workload
 from run_i64_array_bytes_output import validate_split_workload
 from run_i64_array_bytes_output import validate_char_array_left_rotation_workload
+from run_i64_array_bytes_output import validate_string_left_rotation_workload
 from run_i64_array_bytes_output import validate_reverse_queue_recursion_workload
 from run_i64_array_bytes_output import validate_reverse_stack_workload
 from run_i64_array_bytes_output import validate_reverse_a_linked_list_using_recusion_workload
@@ -973,6 +978,84 @@ from run_i64_array_bytes_output import validate_merge_sorted_singly_linked_list_
 from run_i64_array_bytes_output import validate_median_search2_workload
 from run_i64_array_bytes_output import validate_maze_recursion_workload
 from run_i64_array_bytes_output import validate_median_of_matrix_workload
+from run_i64_array_bytes_output import validate_fixed_priority_queue_using_list_workload
+from run_i64_array_bytes_output import validate_element_priority_queue_using_list_workload
+from run_i64_array_bytes_output import validate_median_of_running_array_long_workload
+from run_i64_array_bytes_output import validate_median_heap_workload
+from run_i64_array_bytes_output import validate_table_heap_workload
+from run_i64_array_bytes_output import validate_skew_heap_workload
+from run_i64_array_bytes_output import validate_smoothsort_workload
+from run_i64_array_bytes_output import validate_suffix_automaton_workload
+from fixed_priority_queue_using_list_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as FIXED_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as fixed_priority_queue_using_list_oracle,
+)
+from element_priority_queue_using_list_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as ELEMENT_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as element_priority_queue_using_list_oracle,
+)
+from median_of_running_array_long_oracle import (
+    MAX_INPUT_LENGTH as MEDIAN_RUNNING_LONG_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIAN_RUNNING_LONG_MAX_OUTPUT_BYTES,
+    MAX_SAMPLE as MEDIAN_RUNNING_LONG_MAX_SAMPLE,
+    MIN_SAMPLE as MEDIAN_RUNNING_LONG_MIN_SAMPLE,
+    expected_output as median_of_running_array_long_oracle,
+)
+from median_heap_oracle import (
+    INT32_MAX as MEDIAN_HEAP_INT32_MAX,
+    INT32_MIN as MEDIAN_HEAP_INT32_MIN,
+    MAX_LIVE_VALUES as MEDIAN_HEAP_MAX_LIVE_VALUES,
+    MAX_OPERATIONS as MEDIAN_HEAP_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as MEDIAN_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIAN_HEAP_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_LENGTH as MEDIAN_HEAP_MAX_VALID_INPUT_LENGTH,
+    expected_output as median_heap_oracle,
+)
+from table_heap_oracle import (
+    I32_MAX as TABLE_HEAP_I32_MAX,
+    I32_MIN as TABLE_HEAP_I32_MIN,
+    MAX_INITIAL_ITEMS as TABLE_HEAP_MAX_INITIAL_ITEMS,
+    MAX_OPERATIONS as TABLE_HEAP_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as TABLE_HEAP_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TABLE_HEAP_MAX_OUTPUT_BYTES,
+    expected_output as table_heap_oracle,
+)
+from skew_heap_oracle import (
+    INT32_MAX as SKEW_HEAP_INT32_MAX,
+    INT32_MIN as SKEW_HEAP_INT32_MIN,
+    MAX_LIVE_VALUES as SKEW_HEAP_MAX_LIVE_VALUES,
+    MAX_OPERATIONS as SKEW_HEAP_MAX_OPERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SKEW_HEAP_MAX_VALID_INPUT_LENGTH,
+    MAX_OUTPUT_VALUES as SKEW_HEAP_MAX_OUTPUT_VALUES,
+    MAX_OUTPUT_BYTES as SKEW_HEAP_MAX_OUTPUT_BYTES,
+    expected_output as skew_heap_oracle,
+)
+from smoothsort_oracle import (
+    INT64_MAX as SMOOTHSORT_INT64_MAX,
+    INT64_MIN as SMOOTHSORT_INT64_MIN,
+    MAX_VALUES as SMOOTHSORT_MAX_VALUES,
+    MAX_VALID_INPUT_LENGTH as SMOOTHSORT_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_VALUES as SMOOTHSORT_MAX_OUTPUT_VALUES,
+    MAX_OUTPUT_BYTES as SMOOTHSORT_MAX_OUTPUT_BYTES,
+    expected_output as smoothsort_oracle,
+)
+from suffix_automaton_oracle import (
+    INT64_MAX as SUFFIX_AUTOMATON_INT64_MAX,
+    INT64_MIN as SUFFIX_AUTOMATON_INT64_MIN,
+    MAX_ASCII as SUFFIX_AUTOMATON_MAX_ASCII,
+    MIN_ASCII as SUFFIX_AUTOMATON_MIN_ASCII,
+    MAX_TEXT_LENGTH as SUFFIX_AUTOMATON_MAX_TEXT_LENGTH,
+    MAX_QUERY_COUNT as SUFFIX_AUTOMATON_MAX_QUERY_COUNT,
+    MAX_PATTERN_LENGTH as SUFFIX_AUTOMATON_MAX_PATTERN_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SUFFIX_AUTOMATON_MAX_VALID_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH,
+    OUTPUT_BYTES_PER_QUERY as SUFFIX_AUTOMATON_OUTPUT_BYTES_PER_QUERY,
+    MAX_OUTPUT_BYTES as SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES,
+    expected_output as suffix_automaton_oracle,
+)
 from run_i64_array_bytes_output import validate_translator_workload
 from run_i64_array_bytes_output import validate_spiral_print_workload
 from run_i64_array_bytes_output import validate_shuf_workload
@@ -1846,6 +1929,7 @@ SPLIT_MAX_VALID_INPUT_LENGTH = SPLIT_MAX_INPUT_LENGTH
 SPLIT_MAX_OUTPUT_BYTES = 2 + 2 * SPLIT_MAX_TEXT_LENGTH + 1
 ALGORITHMS = (*ALGORITHMS, "split")
 ALGORITHMS = (*ALGORITHMS, "char_array_left_rotation")
+ALGORITHMS = (*ALGORITHMS, "string_left_rotation")
 ALGORITHMS = (*ALGORITHMS, "reverse_queue_recursion")
 ALGORITHMS = (*ALGORITHMS, "reverse_stack")
 ALGORITHMS = (*ALGORITHMS, "reverse_a_linked_list_using_recusion")
@@ -2110,6 +2194,7 @@ WORKSPACE_ALGORITHMS.add("job_sequencing")
 WORKSPACE_ALGORITHMS.add("permute_string")
 WORKSPACE_ALGORITHMS.add("split")
 WORKSPACE_ALGORITHMS.add("char_array_left_rotation")
+WORKSPACE_ALGORITHMS.add("string_left_rotation")
 WORKSPACE_ALGORITHMS.add("reverse_queue_recursion")
 WORKSPACE_ALGORITHMS.add("reverse_stack")
 WORKSPACE_ALGORITHMS.add("reverse_a_linked_list_using_recusion")
@@ -2181,7 +2266,18 @@ WORKSPACE_ALGORITHMS.update({
     "shuf",
     "table_list",
     "self_adjusting_scheduling",
+    "fixed_priority_queue_using_list",
+    "element_priority_queue_using_list",
+    "median_of_running_array_long",
+    "median_heap",
+    "table_heap",
+    "skew_heap",
+    "smoothsort",
+    "suffix_automaton",
 })
+ALGORITHMS = (*ALGORITHMS, "fixed_priority_queue_using_list", "element_priority_queue_using_list",
+              "median_of_running_array_long", "median_heap", "table_heap", "skew_heap", "smoothsort",
+              "suffix_automaton")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 
@@ -28179,6 +28275,115 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                         input_is_null, input_length)
                        for (values, capacity, output_is_null, input_is_null, input_length),
                            (result, output) in sorted(cases.items()))
+    elif algorithm == "string_left_rotation":
+        validate_string_left_rotation_workload(workload)
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (default_capacity != 2 * STRING_LEFT_ROTATION_MAX_STRING_LENGTH
+                or STRING_LEFT_ROTATION_MAX_STRING_LENGTH != 256
+                or STRING_LEFT_ROTATION_MAX_INPUT_LENGTH != 258
+                or STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH != 259):
+            raise ValueError("string_left_rotation bounds differ from its reviewed UTF-16 byte-output contract")
+
+        cases: dict[tuple[tuple[int, ...], int, bool, bool, int], tuple[int, bytes]] = {}
+
+        def add_string_left_rotation_case(
+                values: tuple[int, ...], capacity: int = default_capacity,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> None:
+            values = tuple(values)
+            if input_length is None:
+                input_length = len(values)
+            if (len(values) > STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or input_length == 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError("string_left_rotation generated input/output framing is out of range")
+            if input_is_null and output_is_null:
+                raise ValueError("string_left_rotation input and output cannot both be null")
+            result, output = string_left_rotation_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if result >= 0:
+                if result != len(output) or result > 2 * STRING_LEFT_ROTATION_MAX_STRING_LENGTH:
+                    raise ValueError("string_left_rotation success violates its UTF-16 byte-output bound")
+            elif output:
+                raise ValueError("string_left_rotation errors must not write output")
+            key = (values, capacity, output_is_null, input_is_null, input_length)
+            value = (result, output)
+            if key in cases and cases[key] != value:
+                raise ValueError("string_left_rotation corpus key collides with a distinct output call")
+            cases[key] = value
+
+        for case in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(case["input_values"])
+            capacity = case.get("output_capacity", default_capacity)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values))
+            result, output = string_left_rotation_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != case["expected_result"]
+                    or output.hex() != case.get("expected_output_hex", "").lower()):
+                raise ValueError(f"string_left_rotation workload mismatch: {case['id']}")
+            add_string_left_rotation_case(
+                values, capacity, output_is_null, input_is_null, input_length)
+
+        rng_rotation = random.Random(20261020)
+        for string_length in (0, 1, 2, 3, 16, STRING_LEFT_ROTATION_MAX_STRING_LENGTH):
+            units = tuple(rng_rotation.randrange(0x10000) for _ in range(string_length))
+            for rotation_count in sorted({0, string_length // 2, string_length}):
+                add_string_left_rotation_case((string_length, rotation_count, *units))
+        for _ in range(64):
+            string_length = rng_rotation.randint(0, STRING_LEFT_ROTATION_MAX_STRING_LENGTH)
+            rotation_count = rng_rotation.randint(0, string_length)
+            units = tuple(rng_rotation.randrange(0x10000) for _ in range(string_length))
+            add_string_left_rotation_case((string_length, rotation_count, *units))
+
+        capacity_probe = (2, 1, 65, 66)
+        for capacity in (0, 3, 4, 5, default_capacity, default_capacity + 1):
+            add_string_left_rotation_case(capacity_probe, capacity)
+        add_string_left_rotation_case(capacity_probe, default_capacity, output_is_null=True)
+        empty_probe = (0, 0)
+        for capacity in (0, 1, default_capacity):
+            add_string_left_rotation_case(empty_probe, capacity)
+        add_string_left_rotation_case(empty_probe, 0, output_is_null=True)
+        maximum_case = next(case for case in workload["cases"]
+                            if case["id"] == "maximum_length_near_half")
+        maximum_probe = tuple(maximum_case["input_values"])
+        for capacity in (0, default_capacity - 1, default_capacity, default_capacity + 1):
+            add_string_left_rotation_case(maximum_probe, capacity)
+        add_string_left_rotation_case(maximum_probe, 0, output_is_null=True)
+        add_string_left_rotation_case((), default_capacity, input_is_null=True, input_length=1)
+        add_string_left_rotation_case(
+            (), default_capacity, input_is_null=True,
+            input_length=STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH)
+        invalid_null_case = next(case for case in workload["abi_cases"]
+                                 if case["id"] == "invalid_input_precedes_null_output")
+        add_string_left_rotation_case(
+            tuple(invalid_null_case["input_values"]), 0, output_is_null=True)
+
+        parseable_extra = (*maximum_probe, 0)
+        add_string_left_rotation_case(parseable_extra)
+        malformed = (
+            (), (0,), (1,), (1, 0), (1, 0, 65, 66), (2, -1, 65, 66),
+            (2, 3, 65, 66), (-1, 0), (STRING_LEFT_ROTATION_MAX_STRING_LENGTH + 1, 0),
+            (1, 0, 65536), (1, 0, -1), (1, 0, -(1 << 63)),
+            (1, 0, (1 << 63) - 1), (3, 1, 65, 66),
+            (1, -(1 << 63), 65), (-(1 << 63),), ((1 << 63) - 1,),
+        )
+        for values in malformed:
+            if len(values) <= STRING_LEFT_ROTATION_MAX_PARSEABLE_INPUT_LENGTH:
+                add_string_left_rotation_case(tuple(values))
+
+        records.extend((values, result, output, capacity, output_is_null,
+                        input_is_null, input_length)
+                       for (values, capacity, output_is_null, input_is_null, input_length),
+                           (result, output) in sorted(cases.items()))
     elif algorithm == "reverse_queue_recursion":
         validate_reverse_queue_recursion_workload(workload)
         default_capacity = workload.get("workspace", {}).get("bytes")
@@ -32491,6 +32696,706 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                         input_is_null, input_length)
                        for (values, capacity, output_is_null, input_is_null, input_length),
                            (result, output) in sorted(cases.items()))
+    elif algorithm == "median_of_running_array_long":
+        validate_median_of_running_array_long_workload(workload)
+
+        def add_median_long_case(values: tuple[int, ...], capacity: int = MEDIAN_RUNNING_LONG_MAX_OUTPUT_BYTES,
+                                 *, output_is_null: bool = False,
+                                 input_is_null: bool = False,
+                                 input_length: int | None = None) -> None:
+            effective_input_length = len(values) if input_length is None else input_length
+            if (len(values) > MEDIAN_RUNNING_LONG_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_input_length) is not int
+                    or (input_is_null and (values or effective_input_length <= 0 or output_is_null))
+                    or (not input_is_null and effective_input_length != len(values))):
+                raise ValueError("median_of_running_array_long generated framing is invalid")
+            result, output = median_of_running_array_long_oracle(
+                values, capacity, output_is_null, input_is_null, effective_input_length)
+            if (result >= 0 and (result != len(output) or len(output) > MEDIAN_RUNNING_LONG_MAX_OUTPUT_BYTES)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("median_of_running_array_long oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_input_length))
+
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            capacity = case.get("output_capacity", MEDIAN_RUNNING_LONG_MAX_OUTPUT_BYTES)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values))
+            result, output = median_of_running_array_long_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if result != case["expected_result"] or output.hex() != case.get("expected_output_hex", "").lower():
+                raise ValueError(f"median_of_running_array_long fixture mismatch: {case['id']}")
+            corpus_values = values
+            if case["id"] == "input_length_mismatch":
+                if input_is_null or input_length >= len(values):
+                    raise ValueError("median_of_running_array_long input-length fixture is malformed")
+                corpus_values = values[:input_length]
+            add_median_long_case(corpus_values, capacity, output_is_null=output_is_null,
+                                 input_is_null=input_is_null, input_length=input_length)
+
+        rng_median_long = random.Random(20261021)
+        sample_boundaries = (MEDIAN_RUNNING_LONG_MIN_SAMPLE, MEDIAN_RUNNING_LONG_MAX_SAMPLE, 0, -1, 1)
+        for index in range(128):
+            sample_count = rng_median_long.randint(1, 64)
+            samples = [rng_median_long.choice(sample_boundaries) if index % 4 == 0
+                       else rng_median_long.randint(MEDIAN_RUNNING_LONG_MIN_SAMPLE,
+                                                    MEDIAN_RUNNING_LONG_MAX_SAMPLE)
+                       for _ in range(sample_count)]
+            values = (sample_count, *samples)
+            add_median_long_case(values)
+            result, _output = median_of_running_array_long_oracle(values)
+            if result > 0:
+                add_median_long_case(values, result - 1)
+                if index % 16 == 0:
+                    add_median_long_case(values, output_is_null=True)
+
+        malformed = (
+            (), (0,), (65,), (1,), (1, MEDIAN_RUNNING_LONG_MIN_SAMPLE - 1),
+            (1, MEDIAN_RUNNING_LONG_MAX_SAMPLE + 1), (2, 1), (1, 1, 2),
+        )
+        for values in malformed:
+            add_median_long_case(values)
+    elif algorithm == "median_heap":
+        validate_median_heap_workload(workload)
+        capacity_limit = MEDIAN_HEAP_MAX_OUTPUT_BYTES
+
+        def add_median_heap_case(values: tuple[int, ...], capacity: int = capacity_limit,
+                                 *, output_is_null: bool = False,
+                                 input_is_null: bool = False,
+                                 input_length: int | None = None) -> None:
+            effective_input_length = len(values) if input_length is None else input_length
+            if (len(values) > MEDIAN_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MEDIAN_HEAP_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_input_length) is not int
+                    or not 0 <= effective_input_length <= MEDIAN_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or effective_input_length <= 0 or output_is_null))
+                    or (not input_is_null and effective_input_length != len(values))):
+                raise ValueError("median_heap generated framing is invalid")
+            result, output = median_heap_oracle(
+                values, capacity, output_is_null, input_is_null, effective_input_length)
+            if (result >= 0 and (result != len(output) or len(output) > MEDIAN_HEAP_MAX_OUTPUT_BYTES)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("median_heap oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_input_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", capacity_limit)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = median_heap_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"median_heap fixture mismatch: {fixture['id']}")
+            add_median_heap_case(values, capacity, output_is_null=output_is_null,
+                                 input_is_null=input_is_null, input_length=input_length)
+
+        maximum_output_probe = (MEDIAN_HEAP_MAX_OPERATIONS,
+                                *([3, 0] * MEDIAN_HEAP_MAX_OPERATIONS))
+        for capacity in (0, MEDIAN_HEAP_MAX_OUTPUT_BYTES - 1,
+                         MEDIAN_HEAP_MAX_OUTPUT_BYTES):
+            add_median_heap_case(maximum_output_probe, capacity)
+        add_median_heap_case(maximum_output_probe, output_is_null=True)
+
+        rng_median_heap = random.Random(20261022)
+        value_boundaries = (MEDIAN_HEAP_INT32_MIN, MEDIAN_HEAP_INT32_MAX, -1, 0, 1)
+        for trace_index in range(128):
+            operation_count = rng_median_heap.randint(0, MEDIAN_HEAP_MAX_OPERATIONS)
+            operations = [operation_count]
+            live_values = 0
+            for operation_index in range(operation_count):
+                choices = (0, 1, 2, 3, 4) if live_values < MEDIAN_HEAP_MAX_LIVE_VALUES else (1, 2, 3, 4)
+                opcode = rng_median_heap.choice(choices)
+                argument = (rng_median_heap.choice(value_boundaries)
+                            if operation_index % 4 == 0 else
+                            rng_median_heap.randint(MEDIAN_HEAP_INT32_MIN, MEDIAN_HEAP_INT32_MAX)) \
+                    if opcode == 0 else 0
+                operations.extend((opcode, argument))
+                if opcode == 0:
+                    live_values += 1
+                elif opcode == 2 and live_values:
+                    live_values -= 1
+            values = tuple(operations)
+            result, _output = median_heap_oracle(values)
+            add_median_heap_case(values)
+            if result > 0:
+                add_median_heap_case(values, result - 1)
+                if trace_index % 16 == 0:
+                    add_median_heap_case(values, output_is_null=True)
+
+        over_capacity_pushes = (
+            MEDIAN_HEAP_MAX_LIVE_VALUES + 1,
+            *(word for value in range(MEDIAN_HEAP_MAX_LIVE_VALUES + 1) for word in (0, value)),
+        )
+        trailing_word = (0, *([0] * MEDIAN_HEAP_MAX_VALID_INPUT_LENGTH))
+        malformed = (
+            (), (0, 0), (257,), (1,), (1, 0), (1, 5, 0),
+            (1, 0, MEDIAN_HEAP_INT32_MIN - 1), (1, 0, MEDIAN_HEAP_INT32_MAX + 1),
+            (1, 1, 1), (1, 2, 1), (1, 3, 1), (1, 4, 1),
+            over_capacity_pushes, trailing_word, (2, 0, 7, 9, 0),
+        )
+        for values in malformed:
+            add_median_heap_case(values)
+        add_median_heap_case((1, 5, 0), output_is_null=True)
+    elif algorithm == "table_heap":
+        validate_table_heap_workload(workload)
+        capacity_limit = TABLE_HEAP_MAX_OUTPUT_BYTES
+
+        def add_table_heap_case(values: tuple[int, ...], capacity: int = capacity_limit,
+                                *, output_is_null: bool = False,
+                                input_is_null: bool = False,
+                                input_length: int | None = None) -> None:
+            effective_input_length = len(values) if input_length is None else input_length
+            if (len(values) > TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= TABLE_HEAP_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_input_length) is not int
+                    or not 0 <= effective_input_length <= TABLE_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or effective_input_length <= 0))
+                    or (input_is_null and output_is_null)
+                    or (not input_is_null and effective_input_length != len(values))):
+                raise ValueError("table_heap generated framing is invalid")
+            result, output = table_heap_oracle(
+                values, capacity, output_is_null, input_is_null, effective_input_length)
+            if (result >= 0 and (result != len(output) or len(output) > TABLE_HEAP_MAX_OUTPUT_BYTES)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("table_heap oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_input_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", capacity_limit)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            if (fixture["id"] == "input_length_mismatch" and not input_is_null
+                    and type(input_length) is int and input_length < len(values)):
+                values = values[:input_length]
+            result, output = table_heap_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"table_heap fixture mismatch: {fixture['id']}")
+            add_table_heap_case(values, capacity, output_is_null=output_is_null,
+                                input_is_null=input_is_null, input_length=input_length)
+
+        maximum_output_probe = (
+            0, TABLE_HEAP_MAX_OPERATIONS,
+            *(word for _ in range(TABLE_HEAP_MAX_OPERATIONS) for word in (1, 0, 0, 0)),
+        )
+        for capacity in (0, TABLE_HEAP_MAX_OUTPUT_BYTES - 1, TABLE_HEAP_MAX_OUTPUT_BYTES):
+            add_table_heap_case(maximum_output_probe, capacity)
+        add_table_heap_case(maximum_output_probe, output_is_null=True)
+
+        rng_table_heap = random.Random(20261023)
+        for trace_index in range(48):
+            live_priorities: dict[int, int] = {}
+            initial_items: list[tuple[int, int]] = []
+
+            def fresh_table_heap_id() -> int:
+                while True:
+                    candidate = rng_table_heap.randint(TABLE_HEAP_I32_MIN, TABLE_HEAP_I32_MAX)
+                    if candidate not in live_priorities:
+                        return candidate
+
+            for _ in range(rng_table_heap.randint(0, 16)):
+                identifier = fresh_table_heap_id()
+                priority = rng_table_heap.randint(TABLE_HEAP_I32_MIN, TABLE_HEAP_I32_MAX)
+                initial_items.append((identifier, priority))
+                live_priorities[identifier] = priority
+            operations: list[tuple[int, int, int, int]] = []
+
+            def pack_table_heap_trace(
+                trace_operations: list[tuple[int, int, int, int]],
+            ) -> tuple[int, ...]:
+                words = [len(initial_items)]
+                for identifier, priority in initial_items:
+                    words.extend((identifier, priority))
+                words.append(len(trace_operations))
+                for operation in trace_operations:
+                    words.extend(operation)
+                return tuple(words)
+
+            operation_count = rng_table_heap.randint(0, TABLE_HEAP_MAX_OPERATIONS)
+            for _ in range(operation_count):
+                choices = [1, 3, 4, 5]
+                if len(live_priorities) < TABLE_HEAP_MAX_INITIAL_ITEMS:
+                    choices.append(0)
+                if live_priorities:
+                    choices.extend((2, 6, 7, 8, 9))
+                opcode = rng_table_heap.choice(choices)
+                if opcode == 0:
+                    identifier = fresh_table_heap_id()
+                    priority = rng_table_heap.randint(TABLE_HEAP_I32_MIN, TABLE_HEAP_I32_MAX)
+                    live_priorities[identifier] = priority
+                    operation = (0, identifier, priority, 0)
+                elif opcode == 1:
+                    operation = (1, 0, 0, 0)
+                elif opcode == 2:
+                    top_trace = pack_table_heap_trace([*operations, (1, 0, 0, 0)])
+                    top_result, top_output = table_heap_oracle(top_trace)
+                    if top_result != len(top_output) or not top_output:
+                        raise ValueError("table_heap random trace could not identify the popped top")
+                    removed_id = int.from_bytes(top_output[-8:], "little", signed=True)
+                    if removed_id not in live_priorities:
+                        raise ValueError("table_heap random trace returned an unknown top ID")
+                    del live_priorities[removed_id]
+                    operation = (2, 0, 0, 0)
+                elif opcode == 3:
+                    operation = (3, 0, 0, 0)
+                elif opcode == 4:
+                    operation = (4, 0, 0, 0)
+                elif opcode == 5:
+                    identifier = (rng_table_heap.choice(tuple(live_priorities))
+                                  if live_priorities and rng_table_heap.randrange(2)
+                                  else rng_table_heap.randint(TABLE_HEAP_I32_MIN, TABLE_HEAP_I32_MAX))
+                    operation = (5, identifier, 0, 0)
+                elif opcode == 6:
+                    identifier = rng_table_heap.choice(tuple(live_priorities))
+                    priority = min(live_priorities[identifier],
+                                   rng_table_heap.randint(TABLE_HEAP_I32_MIN, TABLE_HEAP_I32_MAX))
+                    live_priorities[identifier] = priority
+                    operation = (6, identifier, priority, 0)
+                elif opcode == 7:
+                    identifier = rng_table_heap.choice(tuple(live_priorities))
+                    priority = max(live_priorities[identifier],
+                                   rng_table_heap.randint(TABLE_HEAP_I32_MIN, TABLE_HEAP_I32_MAX))
+                    live_priorities[identifier] = priority
+                    operation = (7, identifier, priority, 0)
+                elif opcode == 8:
+                    old_identifier = rng_table_heap.choice(tuple(live_priorities))
+                    new_identifier = fresh_table_heap_id()
+                    priority = rng_table_heap.randint(TABLE_HEAP_I32_MIN, TABLE_HEAP_I32_MAX)
+                    del live_priorities[old_identifier]
+                    live_priorities[new_identifier] = priority
+                    operation = (8, old_identifier, new_identifier, priority)
+                else:
+                    identifier = rng_table_heap.choice(tuple(live_priorities))
+                    del live_priorities[identifier]
+                    operation = (9, identifier, 0, 0)
+                operations.append(operation)
+
+            values = pack_table_heap_trace(operations)
+            result, _output = table_heap_oracle(values)
+            add_table_heap_case(values)
+            if result > 0:
+                add_table_heap_case(values, result - 1)
+                if trace_index % 12 == 0:
+                    add_table_heap_case(values, output_is_null=True)
+
+        maximum_ids = tuple(range(TABLE_HEAP_MAX_INITIAL_ITEMS))
+        over_capacity_push = (
+            TABLE_HEAP_MAX_INITIAL_ITEMS,
+            *(word for identifier in maximum_ids for word in (identifier, identifier)),
+            1, 0, TABLE_HEAP_MAX_INITIAL_ITEMS, TABLE_HEAP_MAX_INITIAL_ITEMS, 0,
+        )
+        maximum_parseable_trailing_word = (
+            0, 0, *([0] * (TABLE_HEAP_MAX_VALID_INPUT_LENGTH - 1)),
+        )
+        malformed = (
+            (), (0,), (TABLE_HEAP_MAX_INITIAL_ITEMS + 1, 0),
+            (0, TABLE_HEAP_MAX_OPERATIONS + 1), (0, -1),
+            (0, 1, 1, 0, 0), (0, 1, 10, 0, 0, 0),
+            (0, 1, 1, 0, 0, 1), (2, 5, 1, 5, 2, 0),
+            (1, 1 << 31, 0, 0), (1, 0, 1 << 31, 0),
+            (1, 5, 1, 1, 0, 5, 2, 0),
+            (0, 1, 6, 5, 0, 0), (1, 5, 2, 1, 6, 5, 6, 0),
+            (1, 5, 5, 1, 7, 5, 4, 0), (0, 1, 8, 5, 6, 7),
+            (2, 5, 1, 6, 2, 1, 8, 5, 6, 3),
+            (1, 5, 1, 1, 8, 5, 6), (0, 1, 9, 5, 0, 0),
+            (0, 0, 99), maximum_parseable_trailing_word,
+            over_capacity_push,
+            (0, 2, 1, 0, 0, 0, 10, 0, 0, 0),
+        )
+        for values in malformed:
+            add_table_heap_case(values)
+        add_table_heap_case((0,), input_length=1)
+        add_table_heap_case((0, 2), output_is_null=True)
+        add_table_heap_case((), input_is_null=True, input_length=4)
+    elif algorithm == "skew_heap":
+        validate_skew_heap_workload(workload)
+        capacity_limit = SKEW_HEAP_MAX_OUTPUT_BYTES
+
+        def add_skew_heap_case(values: tuple[int, ...], capacity: int = capacity_limit,
+                               *, output_is_null: bool = False,
+                               input_is_null: bool = False,
+                               input_length: int | None = None) -> None:
+            effective_input_length = len(values) if input_length is None else input_length
+            if (len(values) > SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SKEW_HEAP_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_input_length) is not int
+                    or not 0 <= effective_input_length <= SKEW_HEAP_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or effective_input_length <= 0 or output_is_null))
+                    or (not input_is_null and effective_input_length != len(values))):
+                raise ValueError("skew_heap generated framing is invalid")
+            result, output = skew_heap_oracle(
+                values, capacity, output_is_null, input_is_null, effective_input_length)
+            if (result >= 0 and (result != len(output) or len(output) > SKEW_HEAP_MAX_OUTPUT_BYTES)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("skew_heap oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_input_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", capacity_limit)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = skew_heap_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"skew_heap fixture mismatch: {fixture['id']}")
+            add_skew_heap_case(values, capacity, output_is_null=output_is_null,
+                               input_is_null=input_is_null, input_length=input_length)
+
+        maximum_output_probe = (
+            SKEW_HEAP_MAX_OPERATIONS,
+            *(word for value in range(SKEW_HEAP_MAX_LIVE_VALUES) for word in (0, value)),
+            *(word for _ in range(SKEW_HEAP_MAX_LIVE_VALUES) for word in (3, 0)),
+        )
+        for capacity in (0, SKEW_HEAP_MAX_OUTPUT_BYTES - 1, SKEW_HEAP_MAX_OUTPUT_BYTES):
+            add_skew_heap_case(maximum_output_probe, capacity)
+        add_skew_heap_case(maximum_output_probe, output_is_null=True)
+
+        rng_skew_heap = random.Random(20261024)
+        value_boundaries = (SKEW_HEAP_INT32_MIN, SKEW_HEAP_INT32_MAX, -1, 0, 1)
+        for trace_index in range(128):
+            operation_count = rng_skew_heap.randint(0, SKEW_HEAP_MAX_OPERATIONS)
+            operations = [operation_count]
+            live_values = 0
+            for _ in range(operation_count):
+                choices = [0, 3, 4, 5]
+                if live_values:
+                    choices.extend((1, 2))
+                if live_values >= SKEW_HEAP_MAX_LIVE_VALUES:
+                    choices.remove(0)
+                opcode = rng_skew_heap.choice(choices)
+                argument = (rng_skew_heap.choice(value_boundaries)
+                            if trace_index % 4 == 0 and opcode == 0 else
+                            rng_skew_heap.randint(SKEW_HEAP_INT32_MIN, SKEW_HEAP_INT32_MAX)
+                            if opcode == 0 else 0)
+                operations.extend((opcode, argument))
+                if opcode == 0:
+                    live_values += 1
+                elif opcode == 2:
+                    live_values -= 1
+                elif opcode == 4:
+                    live_values = 0
+            values = tuple(operations)
+            result, _output = skew_heap_oracle(values)
+            add_skew_heap_case(values)
+            if result > 0:
+                add_skew_heap_case(values, result - 1)
+                if trace_index % 16 == 0:
+                    add_skew_heap_case(values, output_is_null=True)
+
+        over_capacity_insert = (
+            SKEW_HEAP_MAX_LIVE_VALUES + 1,
+            *(word for value in range(SKEW_HEAP_MAX_LIVE_VALUES + 1) for word in (0, value)),
+        )
+        maximum_parseable_trailing_word = (0, *([0] * SKEW_HEAP_MAX_VALID_INPUT_LENGTH))
+        malformed = (
+            (), (0, 0), (SKEW_HEAP_MAX_OPERATIONS + 1,), (1,), (1, 0),
+            (1, 1, 0), (1, 2, 0), (1, 6, 0), (1, 5, 1),
+            (1, 0, SKEW_HEAP_INT32_MIN - 1),
+            (1, 0, SKEW_HEAP_INT32_MAX + 1), over_capacity_insert,
+            maximum_parseable_trailing_word,
+        )
+        for values in malformed:
+            add_skew_heap_case(values)
+        add_skew_heap_case((0,), input_length=1)
+        add_skew_heap_case((0,), output_is_null=True)
+        add_skew_heap_case((), input_is_null=True, input_length=1)
+    elif algorithm == "smoothsort":
+        validate_smoothsort_workload(workload)
+        capacity_limit = SMOOTHSORT_MAX_OUTPUT_BYTES
+
+        def add_smoothsort_case(values: tuple[int, ...], capacity: int = capacity_limit,
+                                *, output_is_null: bool = False,
+                                input_is_null: bool = False,
+                                input_length: int | None = None) -> None:
+            effective_input_length = len(values) if input_length is None else input_length
+            if (len(values) > SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not SMOOTHSORT_INT64_MIN <= value <= SMOOTHSORT_INT64_MAX
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SMOOTHSORT_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_input_length) is not int
+                    or not 0 <= effective_input_length <= SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or effective_input_length <= 0 or output_is_null))
+                    or (not input_is_null and effective_input_length != len(values))):
+                raise ValueError("smoothsort generated framing is invalid")
+            result, output = smoothsort_oracle(
+                values, capacity, output_is_null, input_is_null, effective_input_length)
+            if (result >= 0 and (result != len(output) or len(output) > SMOOTHSORT_MAX_OUTPUT_BYTES)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("smoothsort oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_input_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", capacity_limit)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = smoothsort_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"smoothsort fixture mismatch: {fixture['id']}")
+            add_smoothsort_case(values, capacity, output_is_null=output_is_null,
+                                input_is_null=input_is_null, input_length=input_length)
+
+        maximum_output_probe = (
+            SMOOTHSORT_MAX_VALUES,
+            *(SMOOTHSORT_MAX_VALUES - 1 - i for i in range(SMOOTHSORT_MAX_VALUES)),
+        )
+        for capacity in (0, SMOOTHSORT_MAX_OUTPUT_BYTES - 1, SMOOTHSORT_MAX_OUTPUT_BYTES):
+            add_smoothsort_case(maximum_output_probe, capacity)
+        add_smoothsort_case(maximum_output_probe, output_is_null=True)
+
+        rng_smoothsort = random.Random(20261025)
+        value_boundaries = (SMOOTHSORT_INT64_MIN, SMOOTHSORT_INT64_MAX, -1, 0, 1)
+        for trace_index in range(128):
+            value_count = rng_smoothsort.randint(0, SMOOTHSORT_MAX_VALUES)
+            values = (value_count, *(
+                rng_smoothsort.choice(value_boundaries) if trace_index % 4 == 0
+                else rng_smoothsort.randint(SMOOTHSORT_INT64_MIN, SMOOTHSORT_INT64_MAX)
+                for _ in range(value_count)
+            ))
+            result, _output = smoothsort_oracle(values)
+            add_smoothsort_case(values)
+            if result > 0:
+                add_smoothsort_case(values, result - 1)
+                if trace_index % 16 == 0:
+                    add_smoothsort_case(values, output_is_null=True)
+
+        maximum_parseable_trailing_value = (0, *([0] * SMOOTHSORT_MAX_VALID_INPUT_LENGTH))
+        malformed = (
+            (), (SMOOTHSORT_MAX_VALUES + 1,), (-1,), (2, 1), (0, 0),
+            maximum_parseable_trailing_value,
+        )
+        for values in malformed:
+            add_smoothsort_case(values)
+        add_smoothsort_case((0,), capacity=0)
+        add_smoothsort_case((0,), capacity=0, output_is_null=True)
+        add_smoothsort_case((), input_is_null=True, input_length=1)
+    elif algorithm == "suffix_automaton":
+        validate_suffix_automaton_workload(workload)
+        capacity_limit = SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES
+
+        def add_suffix_automaton_case(values: tuple[int, ...], capacity: int = capacity_limit,
+                                      *, output_is_null: bool = False,
+                                      input_is_null: bool = False,
+                                      input_length: int | None = None) -> None:
+            effective_input_length = len(values) if input_length is None else input_length
+            if (len(values) > SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not SUFFIX_AUTOMATON_INT64_MIN <= value <= SUFFIX_AUTOMATON_INT64_MAX
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_input_length) is not int
+                    or not 0 <= effective_input_length <= SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or effective_input_length <= 0 or output_is_null))
+                    or (not input_is_null and effective_input_length != len(values))):
+                raise ValueError("suffix_automaton generated framing is invalid")
+            result, output = suffix_automaton_oracle(
+                values, capacity, output_is_null, input_is_null, effective_input_length)
+            if (result >= 0 and (result != len(output) or len(output) > SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("suffix_automaton oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_input_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", capacity_limit)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = suffix_automaton_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"suffix_automaton fixture mismatch: {fixture['id']}")
+            add_suffix_automaton_case(values, capacity, output_is_null=output_is_null,
+                                      input_is_null=input_is_null, input_length=input_length)
+
+        maximum_output_probe = (
+            1, SUFFIX_AUTOMATON_MIN_ASCII + 97, SUFFIX_AUTOMATON_MAX_QUERY_COUNT,
+            *([2, 0] * SUFFIX_AUTOMATON_MAX_QUERY_COUNT),
+        )
+        for capacity in (0, SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES - 1,
+                         SUFFIX_AUTOMATON_MAX_OUTPUT_BYTES):
+            add_suffix_automaton_case(maximum_output_probe, capacity)
+        add_suffix_automaton_case(maximum_output_probe, output_is_null=True)
+
+        rng_suffix_automaton = random.Random(20261026)
+        ascii_boundaries = (SUFFIX_AUTOMATON_MIN_ASCII, ord("a"), SUFFIX_AUTOMATON_MAX_ASCII)
+        for trace_index in range(128):
+            text_length = rng_suffix_automaton.randint(1, 64)
+            text = [rng_suffix_automaton.choice(ascii_boundaries) if trace_index % 4 == 0
+                    else rng_suffix_automaton.randint(SUFFIX_AUTOMATON_MIN_ASCII,
+                                                      SUFFIX_AUTOMATON_MAX_ASCII)
+                    for _ in range(text_length)]
+            query_count = rng_suffix_automaton.randint(0, 32)
+            values = [text_length, *text, query_count]
+            for _ in range(query_count):
+                opcode = rng_suffix_automaton.choice((0, 1, 2))
+                if opcode == 2:
+                    values.extend((opcode, 0))
+                    continue
+                pattern_length = rng_suffix_automaton.choice((0, 1, 2, min(text_length, 8), 32))
+                if pattern_length and rng_suffix_automaton.randrange(2):
+                    start = rng_suffix_automaton.randrange(text_length)
+                    pattern = text[start:start + pattern_length]
+                    pattern.extend(rng_suffix_automaton.randint(SUFFIX_AUTOMATON_MIN_ASCII,
+                                                                 SUFFIX_AUTOMATON_MAX_ASCII)
+                                   for _ in range(pattern_length - len(pattern)))
+                else:
+                    pattern = [rng_suffix_automaton.randint(SUFFIX_AUTOMATON_MIN_ASCII,
+                                                            SUFFIX_AUTOMATON_MAX_ASCII)
+                               for _ in range(pattern_length)]
+                values.extend((opcode, pattern_length, *pattern))
+            packed_values = tuple(values)
+            result, _output = suffix_automaton_oracle(packed_values)
+            add_suffix_automaton_case(packed_values)
+            if result > 0:
+                add_suffix_automaton_case(packed_values, result - 1)
+                if trace_index % 16 == 0:
+                    add_suffix_automaton_case(packed_values, output_is_null=True)
+
+        malformed = (
+            (), (0, 97, 0), (257, *([97] * 256), 0), (1, 128, 0),
+            (1, 97), (1, 97, SUFFIX_AUTOMATON_MAX_QUERY_COUNT + 1),
+            (1, 97, 1, 3, 0), (1, 97, 1, 2, 1, 97),
+            (1, 97, 1, 0, SUFFIX_AUTOMATON_MAX_PATTERN_LENGTH + 1),
+            (1, 97, 1, 0, -1), (1, 97, 1, 0, 1),
+            (1, 97, 1, 0, 1, 128), (1, 97, 0, 7),
+        )
+        for values in malformed:
+            add_suffix_automaton_case(values)
+        add_suffix_automaton_case((1, 97, 0), capacity=0)
+        add_suffix_automaton_case((1, 97, 0), capacity=0, output_is_null=True)
+        add_suffix_automaton_case((), input_is_null=True, input_length=1)
+    elif algorithm in {"fixed_priority_queue_using_list", "element_priority_queue_using_list"}:
+        fixed = algorithm == "fixed_priority_queue_using_list"
+        validate = (validate_fixed_priority_queue_using_list_workload if fixed
+                    else validate_element_priority_queue_using_list_workload)
+        oracle = (fixed_priority_queue_using_list_oracle if fixed
+                  else element_priority_queue_using_list_oracle)
+        max_input_length = (FIXED_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH if fixed
+                            else ELEMENT_PRIORITY_QUEUE_MAX_PARSEABLE_INPUT_LENGTH)
+        validate(workload)
+        capacity_limit = workload["workspace"]["bytes"]
+
+        def add_priority_queue_case(values: tuple[int, ...], capacity: int = capacity_limit,
+                                    *, output_is_null: bool = False,
+                                    input_is_null: bool = False,
+                                    input_length: int | None = None) -> None:
+            effective_input_length = len(values) if input_length is None else input_length
+            if (len(values) > max_input_length
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_input_length) is not int
+                    or (input_is_null and (values or effective_input_length < 1 or output_is_null))
+                    or (not input_is_null and effective_input_length != len(values))):
+                raise ValueError(f"{algorithm} generated framing is invalid")
+            result, output = oracle(values, capacity, output_is_null,
+                                    input_is_null, effective_input_length)
+            if (result >= 0 and result != len(output)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError(f"{algorithm} oracle returned inconsistent output framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_input_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("workspace_bytes", fixture.get("output_capacity", capacity_limit))
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = oracle(values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"{algorithm} fixture mismatch: {fixture['id']}")
+            add_priority_queue_case(values, capacity, output_is_null=output_is_null,
+                                    input_is_null=input_is_null, input_length=input_length)
+
+        rng = random.Random(20261017 if fixed else 20261018)
+        for sample_index in range(128):
+            operation_count = rng.randint(8, 256)
+            operations: list[int] = []
+            bucket_sizes = [0, 0, 0]
+            queue_size = 0
+            for _operation in range(operation_count):
+                can_enqueue = (queue_size < (256 if fixed else 100)
+                               and (not fixed or any(size < 100 for size in bucket_sizes)))
+                if can_enqueue and (queue_size == 0 or rng.random() < 0.58):
+                    value = rng.choice((-(1 << 31), (1 << 31) - 1, rng.randint(-1000, 1000)))
+                    if fixed:
+                        priority = rng.choice((-3, -2, -1, 0, 1, 2))
+                        bucket = priority if priority >= 0 else 3 + priority
+                        if bucket_sizes[bucket] >= 100:
+                            available = [index for index, size in enumerate(bucket_sizes) if size < 100]
+                            bucket = rng.choice(available)
+                            priority = bucket if rng.random() < 0.5 else bucket - 3
+                        operations.extend((0, priority, value))
+                        bucket_sizes[bucket] += 1
+                    else:
+                        operations.extend((0, value))
+                    queue_size += 1
+                else:
+                    if fixed:
+                        operations.extend((1, 0, 0))
+                        bucket = next(index for index, size in enumerate(bucket_sizes) if size > 0)
+                        bucket_sizes[bucket] -= 1
+                    else:
+                        operations.extend((1, 0))
+                    queue_size -= 1
+            values = (operation_count, *operations)
+            add_priority_queue_case(values)
+            result, _output = oracle(values, capacity_limit)
+            if result > 0:
+                add_priority_queue_case(values, result - 1)
+            elif sample_index % 17 == 0:
+                add_priority_queue_case(values, 0, output_is_null=True)
+
+        malformed = (((), (0,), (-1,), (257,), (1, 0), (1, 1), (1, 0, 0, 0))
+                     if fixed else
+                     ((), (0,), (-1,), (257,), (1,), (1, 0), (1, 2, 0), (1, 1, 0, 0)))
+        for values in malformed:
+            add_priority_queue_case(values)
     else:
         raise ValueError(f"no corpus for {algorithm}")
     lines = [str(len(records)) + "\n"]
@@ -32549,6 +33454,9 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     for case, record in zip(workload["cases"], records):
         values = case["input_values"]
         input_length = case.get("input_length", len(values))
+        if (algorithm == "median_of_running_array_long"
+                and case.get("id") == "input_length_mismatch"):
+            values = values[:input_length]
         input_is_null = case.get("input_is_null", False)
         if "expected_output_hex" in case:
             expected_output_length = len(bytes.fromhex(case["expected_output_hex"]))

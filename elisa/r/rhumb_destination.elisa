@@ -1,0 +1,39 @@
+extern tan(value: f64) -> f64
+extern log(value: f64) -> f64
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+
+const PI: f64 = 3.14159265358979323846264338327950288
+const EARTH_RADIUS: f64 = 6371000.0
+
+def rhumb_destination_finite(value: f64) -> bool:
+    value == value and value >= -1e308 and value <= 1e308
+
+def rhumb_destination_impl(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_length != 4:
+        return -1
+    latitude: f64 = input[0]; longitude: f64 = input[1]; distance: f64 = input[2]; bearing: f64 = input[3]
+    if not rhumb_destination_finite(latitude) or not rhumb_destination_finite(longitude) or not rhumb_destination_finite(distance) or not rhumb_destination_finite(bearing) or latitude < -80.0 or latitude > 80.0 or longitude < -180.0 or longitude > 180.0 or distance < 0.0 or distance > 300000.0 or bearing < 0.0 or bearing > 360.0:
+        return -1
+    del: f64 = distance / EARTH_RADIUS
+    phi1: f64 = latitude * PI / 180.0
+    lambda1: f64 = longitude * PI / 180.0
+    theta: f64 = bearing * PI / 180.0
+    del_phi: f64 = del * cos(theta)
+    phi2: mutable f64 = phi1 + del_phi
+    if phi2 > PI / 2.0:
+        phi2 <- PI / 2.0
+    else if phi2 < -PI / 2.0:
+        phi2 <- -PI / 2.0
+    del_psi: f64 = log(tan(phi2 / 2.0 + PI / 4.0) / tan(phi1 / 2.0 + PI / 4.0))
+    q: f64 = if (del_psi > 1e-12 or del_psi < -1e-12): del_phi / del_psi else: cos(phi1)
+    del_lambda: f64 = del * sin(theta) / q
+    result_latitude: f64 = phi2 * 180.0 / PI
+    result_longitude: f64 = (lambda1 + del_lambda) * 180.0 / PI
+    if output == null or output_capacity < 2:
+        return -2
+    output[0] <- result_latitude
+    output[1] <- result_longitude
+    return 2
+
+export fn rhumb_destination(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = rhumb_destination_impl

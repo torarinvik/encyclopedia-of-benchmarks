@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-rhumb-destination-float64-slice-io-v1",
+  "algorithm": "rhumb_destination",
+  "function_symbol": "rhumb_destination",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/navigation/rhumbline.rs",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/navigation/rhumbline.rs",
+    "role": "algorithm",
+    "symbol": "rhumb_destination"
+  },
+  "contract": {
+    "operation": "Compute the destination latitude and longitude after traveling a distance at a bearing along a rhumb line.",
+    "formula": "Preserve source order: del=distance/6371000; radians; del_phi=del*cos(theta); clamp phi1+del_phi to +/-PI/2; compute del_psi; q=del_phi/del_psi only when abs(del_psi)>1e-12, otherwise cos(phi1); del_lambda=del*sin(theta)/q; add to lambda1; return [phi2*180/PI,lambda2*180/PI].",
+    "destination_longitude": "Return the source longitude result without normalization.",
+    "safe_domain_note": "The bounded latitude and distance ranges keep the computed latitude within +/-82.7 degrees, so the source clamp is present but inactive and the Mercator terms remain finite.",
+    "errors": "Malformed, nonfinite, or out-of-domain input returns -1 before output checks. Null or insufficient output returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[latitude_degrees, longitude_degrees, distance_meters, bearing_degrees]",
+    "exact_length": 4,
+    "maximum_valid_input_length": 4,
+    "maximum_parseable_input_length": 5,
+    "latitude_range_degrees": [
+      -80.0,
+      80.0
+    ],
+    "longitude_range_degrees": [
+      -180.0,
+      180.0
+    ],
+    "distance_range_meters": [
+      0.0,
+      300000.0
+    ],
+    "bearing_range_degrees": [
+      0.0,
+      360.0
+    ],
+    "all_values_finite": true,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[destination_latitude_degrees, destination_longitude_degrees]; longitude is not normalized.",
+    "maximum_elements": 2,
+    "success_result": 2,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed or out-of-domain input is rejected before output pointer or capacity checks.",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 2,
+    "meaning": "Destination latitude and longitude."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "zero_distance_identity",
+      "input_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "northward_equator",
+      "input_values": [
+        0.0,
+        0.0,
+        100000.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        0.8993216059187306,
+        0.0
+      ]
+    },
+    {
+      "id": "eastward_equator_unnormalized_longitude",
+      "input_values": [
+        0.0,
+        179.0,
+        300000.0,
+        90.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        1.6520269891386461e-16,
+        181.6979648177562
+      ]
+    },
+    {
+      "id": "southward_from_midlatitude",
+      "input_values": [
+        10.0,
+        20.0,
+        100000.0,
+        180.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        9.100678394081271,
+        20.0
+      ]
+    },
+    {
+      "id": "westward_from_midlatitude",
+      "input_values": [
+        10.0,
+        20.0,
+        100000.0,
+        270.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        10.0,
+        19.086804908706295
+      ]
+    },
+    {
+      "id": "diagonal_destination",
+      "input_values": [
+        30.0,
+        40.0,
+        250000.0,
+        45.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        31.589791015031775,
+        41.85083591793737
+      ]
+    },
+    {
+      "id": "near_zero_del_psi_fallback",
+      "input_values": [
+        1.0,
+        0.0,
+        1e-06,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        1.0000000000089933,
+        0.0
+      ]
+    },
+    {
+      "id": "east_west_at_high_latitude",
+      "input_values": [
+        80.0,
+        0.0,
+        300000.0,
+        90.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        80.0,
+        15.536960157054343
+      ]
+    },
+    {
+      "id": "bearing_360_source_trigonometry",
+      "input_values": [
+        0.0,
+        0.0,
+        1.0,
+        360.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        8.993216059187306e-06,
+        -2.2027026552662854e-21
+      ]
+    },
+    {
+      "id": "maximum_distance_and_latitude",
+      "input_values": [
+        80.0,
+        -180.0,
+        300000.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        82.6979648177562,
+        -180.0
+      ]
+    },
+    {
+      "id": "latitude_above_domain",
+      "input_values": [
+        80.000001,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "longitude_above_domain",
+      "input_values": [
+        0.0,
+        180.000001,
+        1.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_distance",
+      "input_values": [
+        0.0,
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "distance_above_domain",
+      "input_values": [
+        0.0,
+        0.0,
+        300000.001,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "bearing_above_domain",
+      "input_values": [
+        0.0,
+        0.0,
+        1.0,
+        360.000001
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -2
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": false,
+      "expected_result": -2
+    },
+    {
+      "id": "invalid_input_before_null_output",
+      "input_values": [
+        0.0,
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 4,
+      "input_is_null": true,
+      "output_capacity": 2,
+      "output_is_null": false,
+      "expected_result": -1
+    }
+  ]
+}

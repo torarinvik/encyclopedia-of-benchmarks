@@ -1,0 +1,36 @@
+const MAX_STRING_LENGTH: usize = 256
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 259
+
+def string_left_rotation_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    raw_length: i64 = input[0]
+    raw_rotation: i64 = input[1]
+    if raw_length < 0 or raw_length > 256 or raw_rotation < 0 or raw_rotation > raw_length or length != raw_length.usize() + 2:
+        return -1
+    text_length: usize = raw_length.usize()
+    rotation: usize = raw_rotation.usize()
+    units: mutable u16[256] = zeroed
+    index: mutable usize = 0
+    while index < text_length:
+        if input[index + 2] < 0 or input[index + 2] > 65_535:
+            return -1
+        units[index] <- input[index + 2].u16()
+        index <- index + 1
+    required: usize = text_length * 2
+    if required == 0:
+        return 0
+    if output == null or output_capacity < required:
+        return -2
+    index <- 0
+    while index < text_length:
+        source: usize = rotation + index
+        if source >= text_length:
+            source <- source - text_length
+        value: u16 = units[source]
+        output[index * 2] <- (value & 255).u8()
+        output[index * 2 + 1] <- (value >> 8).u8()
+        index <- index + 1
+    required.i64()
+
+export fn string_left_rotation(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = string_left_rotation_impl

@@ -1,0 +1,104 @@
+const MAX_COUNT: usize = 64
+const MAX_INPUT_LENGTH: usize = 66
+const MIN_SAMPLE: i64 = -4611686018427387904
+const MAX_SAMPLE: i64 = 4611686018427387903
+
+def median_long_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255.u64()).u8()
+        bits <- bits >> 8
+
+def median_long_push_max(heap: mutable i64&, count: mutable usize&, value: i64) -> void:
+    position: mutable usize = count
+    count <- count + 1
+    while position > 0 and heap[(position - 1) / 2] < value:
+        parent: usize = (position - 1) / 2
+        heap[position] <- heap[parent]
+        position <- parent
+    heap[position] <- value
+
+def median_long_pop_max(heap: mutable i64&, count: mutable usize&) -> i64:
+    result: i64 = heap[0]
+    count <- count - 1
+    value: i64 = heap[count]
+    if count == 0:
+        return result
+    position: mutable usize = 0
+    while 2 * position + 1 < count:
+        child: mutable usize = 2 * position + 1
+        if child + 1 < count and heap[child + 1] > heap[child]: child <- child + 1
+        if heap[child] <= value: break
+        heap[position] <- heap[child]
+        position <- child
+    heap[position] <- value
+    result
+
+def median_long_push_min(heap: mutable i64&, count: mutable usize&, value: i64) -> void:
+    position: mutable usize = count
+    count <- count + 1
+    while position > 0 and heap[(position - 1) / 2] > value:
+        parent: usize = (position - 1) / 2
+        heap[position] <- heap[parent]
+        position <- parent
+    heap[position] <- value
+
+def median_long_pop_min(heap: mutable i64&, count: mutable usize&) -> i64:
+    result: i64 = heap[0]
+    count <- count - 1
+    value: i64 = heap[count]
+    if count == 0:
+        return result
+    position: mutable usize = 0
+    while 2 * position + 1 < count:
+        child: mutable usize = 2 * position + 1
+        if child + 1 < count and heap[child + 1] < heap[child]: child <- child + 1
+        if heap[child] >= value: break
+        heap[position] <- heap[child]
+        position <- child
+    heap[position] <- value
+    result
+
+def median_of_running_array_long_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > 64 or length != 1 + count_value.usize():
+        return -1
+    count: usize = count_value.usize()
+    lower: mutable i64[64] = zeroed
+    upper: mutable i64[64] = zeroed
+    medians: mutable i64[64] = zeroed
+    lower_count: mutable usize = 0
+    upper_count: mutable usize = 0
+    for index in 0..<count:
+        sample: i64 = input[index + 1]
+        if sample < MIN_SAMPLE or sample > MAX_SAMPLE:
+            return -1
+        if upper_count > 0 and sample < upper[0]:
+            median_long_push_max(&lower[0], &lower_count, sample)
+        else:
+            median_long_push_min(&upper[0], &upper_count, sample)
+        if lower_count > upper_count + 1:
+            median_long_push_min(&upper[0], &upper_count, median_long_pop_max(&lower[0], &lower_count))
+        else if upper_count > lower_count + 1:
+            median_long_push_max(&lower[0], &lower_count, median_long_pop_min(&upper[0], &upper_count))
+        if lower_count > upper_count:
+            medians[index] <- lower[0]
+        else if upper_count > lower_count:
+            medians[index] <- upper[0]
+        else:
+            sum: i64 = lower[0] + upper[0]
+            if sum < 0:
+                magnitude_minus_one: i64 = -(sum + 1)
+                medians[index] <- -(magnitude_minus_one / 2 + magnitude_minus_one % 2)
+            else:
+                medians[index] <- sum / 2
+    output_bytes: usize = count * 8
+    if output == null or capacity < output_bytes:
+        return -2
+    for index in 0..<count:
+        median_long_store_i64(&output[0], index * 8, medians[index])
+    output_bytes.i64()
+
+export fn median_of_running_array_long(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = median_of_running_array_long_impl
