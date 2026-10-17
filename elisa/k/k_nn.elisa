@@ -1,0 +1,83 @@
+const MAX_INPUT_VALUES: usize = 300
+const MAX_TRAINING_COUNT: usize = 32
+const MAX_FEATURE_COUNT: usize = 8
+
+def k_nn_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_VALUES: return -1
+    training_value: i64 = input[0]
+    feature_value: i64 = input[1]
+    neighbor_value: i64 = input[2]
+    if training_value < 1 or training_value > MAX_TRAINING_COUNT.i64() or
+        feature_value < 1 or feature_value > MAX_FEATURE_COUNT.i64() or
+        neighbor_value < 1 or neighbor_value > training_value or neighbor_value % 2 == 0:
+        return -1
+    training_count: usize = training_value.usize()
+    feature_count: usize = feature_value.usize()
+    neighbor_count: usize = neighbor_value.usize()
+    feature_start: usize = 3
+    label_start: usize = feature_start + training_count * feature_count
+    query_start: usize = label_start + training_count
+    if length != query_start + feature_count: return -1
+    index: mutable usize = 0
+    while index < training_count * feature_count:
+        value: i64 = input[feature_start + index]
+        if value < -32 or value > 32: return -1
+        index <- index + 1
+    index <- 0
+    while index < training_count:
+        label: i64 = input[label_start + index]
+        if label != 0 and label != 1: return -1
+        index <- index + 1
+    index <- 0
+    while index < feature_count:
+        value: i64 = input[query_start + index]
+        if value < -32 or value > 32: return -1
+        index <- index + 1
+
+    query_norm: mutable i64 = 0
+    index <- 0
+    while index < feature_count:
+        query: i64 = input[query_start + index]
+        query_norm <- query_norm + query * query
+        index <- index + 1
+    distances: mutable i64[MAX_TRAINING_COUNT] = zeroed
+    order: mutable usize[MAX_TRAINING_COUNT] = zeroed
+    row: mutable usize = 0
+    while row < training_count:
+        row_norm: mutable i64 = 0
+        cross_product: mutable i64 = 0
+        feature: mutable usize = 0
+        while feature < feature_count:
+            coordinate: i64 = input[feature_start + row * feature_count + feature]
+            query: i64 = input[query_start + feature]
+            row_norm <- row_norm + coordinate * coordinate
+            cross_product <- cross_product + coordinate * query
+            feature <- feature + 1
+        distances[row] <- query_norm - 2 * cross_product + row_norm
+        order[row] <- row
+        row <- row + 1
+    row <- 0
+    while row < training_count:
+        other: mutable usize = row + 1
+        while other < training_count:
+            if distances[row] == distances[other]: return -1
+            other <- other + 1
+        row <- row + 1
+    index <- 1
+    while index < training_count:
+        row_value: usize = order[index]
+        cursor: mutable usize = index
+        while cursor > 0 and distances[order[cursor - 1]] > distances[row_value]:
+            order[cursor] <- order[cursor - 1]
+            cursor <- cursor - 1
+        order[cursor] <- row_value
+        index <- index + 1
+    zero_votes: mutable usize = 0
+    index <- 0
+    while index < neighbor_count:
+        if input[label_start + order[index]] == 0: zero_votes <- zero_votes + 1
+        index <- index + 1
+    if zero_votes > neighbor_count / 2: return 0
+    1
+
+export fn k_nn(input: i64&, length: usize) -> i64 = k_nn_impl

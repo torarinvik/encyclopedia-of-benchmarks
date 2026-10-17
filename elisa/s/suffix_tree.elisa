@@ -1,0 +1,149 @@
+const MAX_TEXT_LENGTH: usize = 64
+const MAX_NODES: usize = 129
+const MAX_EDGES: usize = 128
+const MAX_OUTPUT_BYTES: usize = 5176
+
+def suffix_tree_append_edge(parent: usize, child: usize, first_edge: mutable i64&,
+        last_edge: mutable i64&, edge_child: mutable i64&, edge_next: mutable i64&,
+        edge_count: mutable usize&):
+    edge: usize = edge_count
+    edge_count <- edge_count + 1
+    edge_child[edge] <- child.i64()
+    edge_next[edge] <- -1
+    if last_edge[parent] < 0:
+        first_edge[parent] <- edge.i64()
+    else:
+        edge_next[last_edge[parent].usize()] <- edge.i64()
+    last_edge[parent] <- edge.i64()
+
+def suffix_tree_write_u64(output: mutable u8&, position: mutable usize&, value: u64):
+    shift: usize = 0
+    while shift < 8:
+        output[position] <- (value >> (shift * 8)).u8()
+        position <- position + 1
+        shift <- shift + 1
+
+def suffix_tree_impl(input: i64&, input_length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > 66:
+        return -1
+    text_length_value: i64 = input[0]
+    if text_length_value < 0 or text_length_value > MAX_TEXT_LENGTH.i64():
+        return -1
+    text_length: usize = text_length_value.usize()
+    if input_length != 1 + text_length:
+        return -1
+    text: mutable u8[MAX_TEXT_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < text_length:
+        code: i64 = input[1 + index]
+        if code < 0 or code > 127:
+            return -1
+        text[index] <- code.u8()
+        index <- index + 1
+
+    labels: mutable u8[MAX_NODES][MAX_TEXT_LENGTH] = zeroed
+    label_lengths: mutable usize[MAX_NODES] = zeroed
+    first_edge: mutable i64[MAX_NODES] = zeroed
+    last_edge: mutable i64[MAX_NODES] = zeroed
+    edge_child: mutable i64[MAX_EDGES] = zeroed
+    edge_next: mutable i64[MAX_EDGES] = zeroed
+    index <- 0
+    while index < MAX_NODES:
+        first_edge[index] <- -1
+        last_edge[index] <- -1
+        index <- index + 1
+    index <- 0
+    while index < MAX_EDGES:
+        edge_next[index] <- -1
+        index <- index + 1
+    node_count: mutable usize = 1
+    edge_count: mutable usize = 0
+    start: mutable usize = 0
+    while start < text_length:
+        suffix_length: usize = text_length - start
+        offset: mutable usize = 0
+        node: mutable usize = 0
+        while offset < suffix_length:
+            first_code: u8 = text[start + offset]
+            selected: mutable i64 = first_edge[node]
+            while selected >= 0 and labels[edge_child[selected.usize()].usize()][0] != first_code:
+                selected <- edge_next[selected.usize()]
+            if selected < 0:
+                leaf: usize = node_count
+                node_count <- node_count + 1
+                leaf_length: usize = suffix_length - offset
+                index <- 0
+                while index < leaf_length:
+                    labels[leaf][index] <- text[start + offset + index]
+                    index <- index + 1
+                label_lengths[leaf] <- leaf_length
+                suffix_tree_append_edge(node, leaf, first_edge, last_edge,
+                    edge_child, edge_next, edge_count)
+                break
+
+            child: usize = edge_child[selected.usize()].usize()
+            child_length: usize = label_lengths[child]
+            common: mutable usize = 0
+            while common < child_length and offset + common < suffix_length and
+                    labels[child][common] == text[start + offset + common]:
+                common <- common + 1
+            if common == child_length:
+                offset <- offset + common
+                node <- child
+            else:
+                split: usize = node_count
+                node_count <- node_count + 1
+                index <- 0
+                while index < common:
+                    labels[split][index] <- labels[child][index]
+                    index <- index + 1
+                label_lengths[split] <- common
+                remainder_length: usize = child_length - common
+                index <- 0
+                while index < remainder_length:
+                    labels[child][index] <- labels[child][common + index]
+                    index <- index + 1
+                label_lengths[child] <- remainder_length
+                edge_child[selected.usize()] <- split.i64()
+                suffix_tree_append_edge(split, child, first_edge, last_edge,
+                    edge_child, edge_next, edge_count)
+                offset <- offset + common
+                node <- split
+
+        start <- start + 1
+
+    bytes: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    written: mutable usize = 0
+    suffix_tree_write_u64(bytes, written, node_count.u64())
+    node: usize = 0
+    while node < node_count:
+        label_length: usize = label_lengths[node]
+        suffix_tree_write_u64(bytes, written, label_length.u64())
+        index <- 0
+        while index < label_length:
+            bytes[written] <- labels[node][index]
+            written <- written + 1
+            index <- index + 1
+        child_count: mutable u64 = 0
+        edge: mutable i64 = first_edge[node]
+        while edge >= 0:
+            child_count <- child_count + 1.u64()
+            edge <- edge_next[edge.usize()]
+        suffix_tree_write_u64(bytes, written, child_count)
+        edge <- first_edge[node]
+        while edge >= 0:
+            suffix_tree_write_u64(bytes, written, edge_child[edge.usize()].u64())
+            edge <- edge_next[edge.usize()]
+        node <- node + 1
+
+    if output.is_null() or output_capacity < written:
+        return -2
+    index <- 0
+    while index < written:
+        output[index] <- bytes[index]
+        index <- index + 1
+    written.i64()
+
+export fn suffix_tree_construct(input: i64&, input_length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = suffix_tree_impl

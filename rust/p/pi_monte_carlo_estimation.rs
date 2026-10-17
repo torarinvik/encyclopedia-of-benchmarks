@@ -2,6 +2,16 @@ const MT_N: usize = 624;
 const MT_M: usize = 397;
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 3;
 
+#[inline(never)]
+fn rounded_mul(left: f64, right: f64) -> f64 {
+    std::hint::black_box(left * right)
+}
+
+#[inline(never)]
+fn rounded_add(left: f64, right: f64) -> f64 {
+    std::hint::black_box(left + right)
+}
+
 struct Mt19937 {
     state: [u32; MT_N],
     index: usize,
@@ -98,7 +108,9 @@ pub unsafe extern "C" fn pi_monte_carlo_estimation(
     for _ in 0..simulations {
         let x = rng.random();
         let y = rng.random();
-        if x * x + y * y <= 1.0 { hits += 1; }
+        let x_squared = rounded_mul(x, x);
+        let y_squared = rounded_mul(y, y);
+        if rounded_add(x_squared, y_squared) <= 1.0 { hits += 1; }
     }
     *output = (4 * hits) as f64 / simulations as f64;
     1

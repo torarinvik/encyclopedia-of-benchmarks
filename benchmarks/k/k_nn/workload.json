@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-r-knn-binary-classification-i64-scalar-v1",
+  "algorithm": "k_nn",
+  "function_symbol": "k_nn",
+  "description": "Classify one query using the pinned R k-NN algorithm in bounded unweighted, unnormalized binary mode.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/R",
+    "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+    "path": "machine_learning/k-NN.r",
+    "symbol": "knn_train; knn_predict",
+    "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/machine_learning/k-NN.r",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Train the pinned k-NN classifier from supplied rows and return the predicted binary class for one query row.",
+    "input_encoding": "[training_count, feature_count, k, training_features_row_major..., labels..., query_features...]",
+    "labels": "Each input label is 0 or 1; adapters convert labels to factor strings with levels c(\"0\",\"1\") so the pinned source selects classification mode and preserves class order.",
+    "options": "weighted=FALSE, normalize=FALSE, return_probs=FALSE, return_neighbors=FALSE; k is never adjusted because 1<=k<=training_count.",
+    "distance": "The pinned source calls squared_euclidean_distances(query, training_rows), with the query as matrix A and training rows as matrix B. It evaluates query_norm - 2*cross_product + training_row_norm and ranks the squared distances ascending. All input coordinates are small integers, so every intermediate is an exactly representable integer in binary64.",
+    "tie_policy": "Valid inputs have pairwise distinct squared distances from the query. Binary labels and odd k ensure a unique majority class; the output is the first maximum in factor level order c(\"0\",\"1\").",
+    "output_encoding": "Predicted binary class ID, 0 or 1, as a signed i64 scalar.",
+    "invalid": "Malformed framing, unsupported bounds, nonbinary labels, an even or out-of-range k, or tied query distances returns -1."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[training_count, feature_count, k, training_features_row_major..., labels..., query_features...]",
+    "training_count_range": [1, 32],
+    "feature_count_range": [1, 8],
+    "k_range": "Odd integer from 1 through training_count",
+    "feature_value_range": [-32, 32],
+    "label_values": [0, 1],
+    "distance_ties_allowed": false,
+    "exact_input_length": "3 + training_count*feature_count + training_count + feature_count",
+    "maximum_valid_input_values": 299,
+    "maximum_input_values_for_malformed_cases": 300,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "Predicted binary class ID",
+    "valid_values": [0, 1],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "oracle_method": "Compute exact integer squared Euclidean distances, reject ties, order the training rows by distance, and return the majority of the first odd k binary labels.",
+  "cases": [
+    {
+      "id": "nearest_single_neighbor_class_zero",
+      "input_values": [3, 1, 1, 0, 10, -10, 0, 1, 1, 1],
+      "input_length": 10,
+      "expected_result": 0
+    },
+    {
+      "id": "three_neighbor_vote_class_zero",
+      "input_values": [5, 1, 3, -2, -1, 4, 5, 9, 0, 0, 1, 1, 1, 0],
+      "input_length": 14,
+      "expected_result": 0
+    },
+    {
+      "id": "three_neighbor_vote_class_one",
+      "input_values": [5, 1, 3, -3, -1, 1, 4, 8, 0, 1, 1, 1, 0, 2],
+      "input_length": 14,
+      "expected_result": 1
+    },
+    {
+      "id": "k_equals_training_count",
+      "input_values": [3, 1, 3, -2, 1, 5, 0, 1, 1, 0],
+      "input_length": 10,
+      "expected_result": 1
+    },
+    {
+      "id": "two_dimensional_query",
+      "input_values": [4, 2, 3, 0, 0, 1, 2, 2, 1, 4, 4, 0, 1, 1, 0, 1, 0],
+      "input_length": 17,
+      "expected_result": 1
+    },
+    {
+      "id": "negative_feature_coordinates",
+      "input_values": [3, 2, 1, -3, 3, 1, 1, 5, 5, 0, 1, 0, 0, 0],
+      "input_length": 14,
+      "expected_result": 1
+    },
+    {
+      "id": "single_training_row_exact_match",
+      "input_values": [1, 2, 1, 7, -5, 1, 7, -5],
+      "input_length": 8,
+      "expected_result": 1
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [1, 1, 1, 0, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": -1
+    },
+    {
+      "id": "even_k",
+      "input_values": [3, 1, 2, -2, 0, 2, 0, 1, 1, 1],
+      "input_length": 10,
+      "expected_result": -1
+    },
+    {
+      "id": "k_exceeds_training_count",
+      "input_values": [1, 1, 3, 0, 1, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "tied_query_distances",
+      "input_values": [2, 1, 1, -1, 1, 0, 1, 0],
+      "input_length": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "nonbinary_label",
+      "input_values": [1, 1, 1, 0, 2, 1],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_query",
+      "input_values": [3, 1, 1, 0, 10, -10, 0, 1, 1],
+      "input_length": 9,
+      "expected_result": -1
+    },
+    {
+      "id": "feature_out_of_range",
+      "input_values": [1, 1, 1, 33, 0, 0],
+      "input_length": 6,
+      "expected_result": -1
+    }
+  ]
+}

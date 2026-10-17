@@ -12,6 +12,7 @@ import argparse
 import json
 import re
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 LANGUAGES = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
@@ -65,23 +66,35 @@ def audit() -> dict:
         # Some source-backed packages keep ports in the original category
         # directory rather than the benchmark slug's initial-letter directory.
         # In that case, trust only an explicit README link to an existing file
-        # inside the matching language tree.
+        # inside the matching language tree. Match build_abi.py's basename,
+        # URL, confinement, and ambiguity checks so coverage cannot report a
+        # source that the builder would reject or resolve differently.
         if not guide.is_file():
             return False
         language_root = (ROOT / language).resolve()
-        for target in re.findall(r"\]\(([^)]+)\)", guide.read_text(encoding="utf-8")):
-            target = target.split("#", 1)[0]
-            if "://" in target:
-                continue
-            path = (guide.parent / target).resolve()
-            if path.suffix != f".{extension}" or not path.is_file():
+        source_name = f"{algorithm}.{extension}"
+        linked_sources = set()
+        for raw_target in re.findall(r"\]\(([^)]+)\)", guide.read_text(encoding="utf-8")):
+            target = raw_target.strip()
+            if target.startswith("<") and ">" in target:
+                target = target[1:target.index(">")]
+            else:
+                target = target.split(maxsplit=1)[0] if target else ""
+            parsed_target = urlsplit(target)
+            if (not target or parsed_target.scheme or parsed_target.netloc
+                    or not parsed_target.path or parsed_target.path.startswith(("/", "\\"))):
                 continue
             try:
+                path = (guide.parent / unquote(parsed_target.path)).resolve()
                 path.relative_to(language_root)
-            except ValueError:
+            except (OSError, RuntimeError, ValueError):
                 continue
-            return True
-        return False
+            if (path.is_file() and path.name == source_name
+                    and path.suffix == f".{extension}"):
+                linked_sources.add(path)
+        if len(linked_sources) > 1:
+            raise ValueError(f"README links multiple {language} sources named {source_name}")
+        return bool(linked_sources)
 
     for candidate in candidates:
         name = candidate["candidate_id"]

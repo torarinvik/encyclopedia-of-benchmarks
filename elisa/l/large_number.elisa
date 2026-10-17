@@ -1,0 +1,52 @@
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 131
+const MAX_DIGITS: usize = 64
+
+def large_number_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    left_length_value: i64 = input[0]
+    right_length_value: i64 = input[1]
+    if left_length_value < 1 or left_length_value > MAX_DIGITS.i64() or
+        right_length_value < 1 or right_length_value > MAX_DIGITS.i64(): return -1
+    left_length: usize = left_length_value.usize()
+    right_length: usize = right_length_value.usize()
+    if input_length != 2 + left_length + right_length: return -1
+
+    left: mutable u8[MAX_DIGITS] = zeroed
+    right: mutable u8[MAX_DIGITS] = zeroed
+    index: mutable usize = 0
+    while index < left_length:
+        digit: i64 = input[2 + index]
+        if digit < 48 or digit > 57 or (index == 0 and left_length > 1 and digit == 48): return -1
+        left[left_length - index - 1] <- (digit - 48).u8()
+        index <- index + 1
+    index <- 0
+    while index < right_length:
+        digit: i64 = input[2 + left_length + index]
+        if digit < 48 or digit > 57 or (index == 0 and right_length > 1 and digit == 48): return -1
+        right[right_length - index - 1] <- (digit - 48).u8()
+        index <- index + 1
+
+    sum: mutable u8[MAX_DIGITS + 1] = zeroed
+    sum_length: mutable usize = 0
+    longer: usize = if left_length > right_length then left_length else right_length
+    carry: mutable u8 = 0.u8()
+    while sum_length < longer or carry != 0.u8():
+        total: mutable u8 = carry
+        if sum_length < right_length: total <- total + right[sum_length]
+        if sum_length < left_length: total <- total + left[sum_length]
+        sum[sum_length] <- total % 10.u8()
+        carry <- total / 10.u8()
+        sum_length <- sum_length + 1
+    staged: mutable u8[MAX_DIGITS + 1] = zeroed
+    index <- 0
+    while index < sum_length:
+        staged[index] <- 48.u8() + sum[sum_length - index - 1]
+        index <- index + 1
+    if output.is_null() or output_capacity < sum_length: return -2
+    index <- 0
+    while index < sum_length:
+        output[index] <- staged[index]
+        index <- index + 1
+    sum_length.i64()
+
+export fn large_number_add(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = large_number_impl

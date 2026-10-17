@@ -1,0 +1,98 @@
+const MAX_INPUT_LENGTH: usize = 18
+const MAX_DIMENSION: usize = 4
+const MAX_MATRIX_ELEMENTS: usize = 16
+
+def lu_decompose_rounded_multiply(left: f64, right: f64) -> f64:
+    left * right
+
+def lu_decompose_rounded_add(left: f64, right: f64) -> f64:
+    left + right
+
+def lu_decompose_rounded_subtract(left: f64, right: f64) -> f64:
+    left - right
+
+def lu_decompose_rounded_divide(left: f64, right: f64) -> f64:
+    left / right
+
+def lu_decompose_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+        return false
+    if value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def lu_decompose_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if not lu_decompose_exact_integer(input[0], 1, MAX_DIMENSION.i64()): return -1
+    dimension: usize = input[0].usize()
+    matrix_elements: usize = dimension * dimension
+    if input_length != 1 + matrix_elements: return -1
+
+    matrix: mutable f64[MAX_MATRIX_ELEMENTS] = zeroed
+    index: mutable usize = 0
+    while index < matrix_elements:
+        if not lu_decompose_exact_integer(input[index + 1], -8, 8): return -1
+        matrix[index] <- input[index + 1]
+        index <- index + 1
+
+    lower: mutable f64[MAX_MATRIX_ELEMENTS] = zeroed
+    upper: mutable f64[MAX_MATRIX_ELEMENTS] = zeroed
+    row: mutable usize = 0
+    while row < dimension:
+        column: mutable usize = row
+        while column < dimension:
+            sum: mutable f64 = 0.0
+            index <- 0
+            while index < row:
+                product: f64 = lu_decompose_rounded_multiply(
+                    lower[row * dimension + index], upper[index * dimension + column])
+                sum <- lu_decompose_rounded_add(sum, product)
+                index <- index + 1
+            upper[row * dimension + column] <- lu_decompose_rounded_subtract(
+                matrix[row * dimension + column], sum)
+            value: f64 = upper[row * dimension + column]
+            if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+                return -1
+            column <- column + 1
+
+        pivot: f64 = upper[row * dimension + row]
+        if pivot == 0.0 or pivot != pivot or pivot >= 1.7976931348623157e308 or
+            pivot <= -1.7976931348623157e308: return -1
+        lower[row * dimension + row] <- 1.0
+        lower_row: mutable usize = row + 1
+        while lower_row < dimension:
+            sum: mutable f64 = 0.0
+            index <- 0
+            while index < row:
+                product: f64 = lu_decompose_rounded_multiply(
+                    lower[lower_row * dimension + index], upper[index * dimension + row])
+                sum <- lu_decompose_rounded_add(sum, product)
+                index <- index + 1
+            numerator: f64 = lu_decompose_rounded_subtract(
+                matrix[lower_row * dimension + row], sum)
+            value: f64 = lu_decompose_rounded_divide(numerator, pivot)
+            if value != value or value >= 1.7976931348623157e308 or
+                value <= -1.7976931348623157e308: return -1
+            lower[lower_row * dimension + row] <- value
+            lower_row <- lower_row + 1
+        row <- row + 1
+
+    index <- 0
+    while index < matrix_elements:
+        lower_value: f64 = lower[index]
+        upper_value: f64 = upper[index]
+        if lower_value != lower_value or upper_value != upper_value or
+            lower_value >= 1.7976931348623157e308 or lower_value <= -1.7976931348623157e308 or
+            upper_value >= 1.7976931348623157e308 or upper_value <= -1.7976931348623157e308:
+            return -1
+        index <- index + 1
+
+    output_length: usize = 2 * matrix_elements
+    if output.is_null() or capacity < output_length: return -2
+    index <- 0
+    while index < matrix_elements:
+        output[index] <- lower[index]
+        output[matrix_elements + index] <- upper[index]
+        index <- index + 1
+    output_length.i64()
+
+export fn lu_decompose(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = lu_decompose_impl

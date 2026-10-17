@@ -1,0 +1,622 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-soboleva-modified-hyperbolic-tangent-f64-slice-io-v1",
+  "algorithm": "soboleva_modified_hyperbolic_tangent",
+  "function_symbol": "soboleva_modified_hyperbolic_tangent",
+  "description": "Apply the pinned Soboleva modified hyperbolic tangent elementwise to a bounded binary64 vector.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "neural_network/activation_functions/soboleva_modified_hyperbolic_tangent.py",
+    "symbol": "soboleva_modified_hyperbolic_tangent",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/neural_network/activation_functions/soboleva_modified_hyperbolic_tangent.py"
+  },
+  "contract": {
+    "operation": "Apply the pinned elementwise activation formula to each vector sample.",
+    "input_encoding": "[sample_count, a, b, c, d, x_0, ..., x_(sample_count-1)]",
+    "formula": "(exp(a*x)-exp(-b*x))/(exp(c*x)+exp(-d*x))",
+    "operation_order": "Compute exp(a*x) - exp(-b*x), compute exp(c*x) + exp(-d*x), then divide numerator by denominator.",
+    "exponent_safety": "a,b,c,d in [-2,2] and x in [-20,20] imply every exp argument is in [-40,40].",
+    "output": "One binary64 value per input sample in original order.",
+    "invalid_input_result": -1,
+    "output_error_result": -2
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[sample_count, a, b, c, d, x_0, ..., x_(sample_count-1)]",
+    "sample_count_range": [
+      1,
+      32
+    ],
+    "coefficient_range": [
+      -2.0,
+      2.0
+    ],
+    "sample_range": [
+      -20.0,
+      20.0
+    ],
+    "maximum_valid_input_length": 37,
+    "maximum_parseable_input_length": 38,
+    "exact_packed_shape": "Exactly 5+sample_count finite binary64 elements; sample_count must be an exact integer.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "One activation value per vector sample, in input order.",
+    "element_count": "sample_count",
+    "maximum_output_elements": 32,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed or null input returns -1 before output pointer or capacity checks.",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 32,
+    "meaning": "One output value per vector sample."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "zero_coefficients",
+      "input_values": [
+        3,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -20.0,
+        0.0,
+        20.0
+      ],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "source_docstring_example",
+      "input_values": [
+        6,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        5.4,
+        -2.4,
+        6.3,
+        -5.23,
+        3.27,
+        0.56
+      ],
+      "input_length": 11,
+      "expected_result": 6,
+      "expected_output": [
+        0.11075085271802987,
+        -0.28236684713312116,
+        0.07861168722462103,
+        -0.11800849880944399,
+        0.22999055831876936,
+        0.15660429853940053
+      ]
+    },
+    {
+      "id": "symmetric_coefficients_tanh",
+      "input_values": [
+        5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        -4.0,
+        -1.0,
+        0.0,
+        1.0,
+        4.0
+      ],
+      "input_length": 10,
+      "expected_result": 5,
+      "expected_output": [
+        -0.964027580075817,
+        -0.4621171572600098,
+        0.0,
+        0.4621171572600098,
+        0.964027580075817
+      ]
+    },
+    {
+      "id": "asymmetric_fractional_coefficients",
+      "input_values": [
+        5,
+        0.7,
+        0.2,
+        1.1,
+        0.9,
+        -3.0,
+        -0.5,
+        0.0,
+        0.5,
+        3.0
+      ],
+      "input_length": 10,
+      "expected_result": 5,
+      "expected_output": [
+        -0.11394424166691142,
+        -0.18668247940242752,
+        0.0,
+        0.21689409708715765,
+        0.2802576113023545
+      ]
+    },
+    {
+      "id": "negative_and_mixed_coefficients",
+      "input_values": [
+        5,
+        -1.5,
+        0.5,
+        -0.25,
+        2.0,
+        -20.0,
+        -1.0,
+        0.0,
+        1.0,
+        20.0
+      ],
+      "input_length": 10,
+      "expected_result": 5,
+      "expected_output": [
+        4.53999296689086e-05,
+        0.3266391298797732,
+        0.0,
+        -0.4194129448503972,
+        -0.00673794698519752
+      ]
+    },
+    {
+      "id": "maximum_exponent_magnitude",
+      "input_values": [
+        2,
+        2.0,
+        2.0,
+        -2.0,
+        2.0,
+        -20.0,
+        20.0
+      ],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [
+        -0.5,
+        2.7703111921967554e+34
+      ]
+    },
+    {
+      "id": "maximum_vector_length",
+      "input_values": [
+        32,
+        0.25,
+        1.5,
+        -0.5,
+        2.0,
+        -20.0,
+        -18.70967741935484,
+        -17.419354838709676,
+        -16.129032258064516,
+        -14.838709677419356,
+        -13.548387096774194,
+        -12.258064516129032,
+        -10.96774193548387,
+        -9.67741935483871,
+        -8.387096774193548,
+        -7.096774193548388,
+        -5.806451612903226,
+        -4.516129032258064,
+        -3.225806451612904,
+        -1.9354838709677402,
+        -0.6451612903225801,
+        0.6451612903225801,
+        1.9354838709677402,
+        3.225806451612904,
+        4.516129032258064,
+        5.806451612903224,
+        7.096774193548388,
+        8.387096774193548,
+        9.677419354838708,
+        10.967741935483872,
+        12.258064516129032,
+        13.548387096774192,
+        14.838709677419352,
+        16.12903225806452,
+        17.41935483870968,
+        18.70967741935484,
+        20.0
+      ],
+      "input_length": 37,
+      "expected_result": 32,
+      "expected_output": [
+        -4.539992976248058e-05,
+        -8.654563510483665e-05,
+        -0.00016498146571725697,
+        -0.0003145032559598309,
+        -0.0005995358179374196,
+        -0.0011428918135855505,
+        -0.002178688325343625,
+        -0.004153221237592911,
+        -0.007917259008392819,
+        -0.015092576970918209,
+        -0.028770205691227707,
+        -0.054834845932117404,
+        -0.10439469978540362,
+        -0.1970436203502672,
+        -0.3480086041222612,
+        -0.3551496922901594,
+        0.7955160168748927,
+        3.911131677421436,
+        11.1109144929334,
+        29.53526334710657,
+        77.83841720306593,
+        204.9062976471164,
+        539.325195625864,
+        1419.505677698365,
+        3736.1329143277153,
+        9833.482040149529,
+        25881.671188249846,
+        68120.41710460877,
+        179292.5652866298,
+        471897.0512539274,
+        1242030.4579890333,
+        3269017.3724718024
+      ]
+    },
+    {
+      "id": "single_sample_zero",
+      "input_values": [
+        1,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "coefficient_boundaries",
+      "input_values": [
+        3,
+        -2.0,
+        2.0,
+        2.0,
+        -2.0,
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "maximum_parseable_trailing_value_invalid",
+      "input_values": [
+        32,
+        0.25,
+        1.5,
+        -0.5,
+        2.0,
+        -20.0,
+        -18.70967741935484,
+        -17.419354838709676,
+        -16.129032258064516,
+        -14.838709677419356,
+        -13.548387096774194,
+        -12.258064516129032,
+        -10.96774193548387,
+        -9.67741935483871,
+        -8.387096774193548,
+        -7.096774193548388,
+        -5.806451612903226,
+        -4.516129032258064,
+        -3.225806451612904,
+        -1.9354838709677402,
+        -0.6451612903225801,
+        0.6451612903225801,
+        1.9354838709677402,
+        3.225806451612904,
+        4.516129032258064,
+        5.806451612903224,
+        7.096774193548388,
+        8.387096774193548,
+        9.677419354838708,
+        10.967741935483872,
+        12.258064516129032,
+        13.548387096774192,
+        14.838709677419352,
+        16.12903225806452,
+        17.41935483870968,
+        18.70967741935484,
+        20.0,
+        0.0
+      ],
+      "input_length": 38,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_vector_length_invalid",
+      "input_values": [
+        0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "vector_length_above_limit_invalid",
+      "input_values": [
+        33,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_vector_length_invalid",
+      "input_values": [
+        -1,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_vector_length_invalid",
+      "input_values": [
+        1.5,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "missing_coefficient_invalid",
+      "input_values": [
+        1,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "missing_vector_sample_invalid",
+      "input_values": [
+        1,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_value_invalid",
+      "input_values": [
+        1,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "coefficient_above_bound_invalid",
+      "input_values": [
+        1,
+        2.0001,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "coefficient_below_bound_invalid",
+      "input_values": [
+        1,
+        0.0,
+        -2.0001,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_above_bound_invalid",
+      "input_values": [
+        1,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        20.0001
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_below_bound_invalid",
+      "input_values": [
+        1,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -20.0001
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        2,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        -1.0,
+        1.0
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_capacity",
+      "input_values": [
+        2,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        -1.0,
+        1.0
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_before_null_output",
+      "input_values": [
+        1,
+        3.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 6,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "input_length_mismatch",
+      "input_values": [
+        2,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        -1.0,
+        1.0
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "exact_output_capacity",
+      "input_values": [
+        2,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        -1.0,
+        1.0
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output": [
+        -0.24261298046797103,
+        0.24261298046797108
+      ]
+    }
+  ]
+}

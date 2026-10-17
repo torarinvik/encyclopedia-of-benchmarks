@@ -7,6 +7,14 @@ MT_M :: 397
 MT_MASK :: u64(0xffff_ffff)
 MAX_PARSEABLE_INPUT_LENGTH :: c.size_t(3)
 
+rounded_mul :: #force_no_inline proc "contextless" (left, right: f64) -> f64 {
+	return left * right
+}
+
+rounded_add :: #force_no_inline proc "contextless" (left, right: f64) -> f64 {
+	return left + right
+}
+
 Mt19937 :: struct {
 	state: [MT_N]u32,
 	index: int,
@@ -93,7 +101,9 @@ pi_monte_carlo_estimation :: proc "c" (input: [^]f64, input_length: c.size_t,
 	hits := 0
 	for _ in 0..<simulations {
 		x, y := mt_random(&rng), mt_random(&rng)
-		if x*x+y*y <= 1.0 { hits += 1 }
+		x_squared := rounded_mul(x, x)
+		y_squared := rounded_mul(y, y)
+		if rounded_add(x_squared, y_squared) <= 1.0 { hits += 1 }
 	}
 	output[0] = f64(4*hits)/f64(simulations)
 	return 1

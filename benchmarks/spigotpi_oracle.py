@@ -9,6 +9,7 @@ MAX_INPUT_LENGTH = 2
 MAX_OUTPUT_BYTES = MAX_DIGITS
 INVALID_RESULT = -1
 INSUFFICIENT_CAPACITY_RESULT = -2
+NULL_OUTPUT_RESULT = INSUFFICIENT_CAPACITY_RESULT
 I64_MIN, I64_MAX = -(1 << 63), (1 << 63) - 1
 
 
@@ -30,23 +31,42 @@ def _pi_digits(count: int) -> bytes:
             series += Decimal(multiplier * linear) / power
             step += 12
         pi = Decimal(426_880) * Decimal(10_005).sqrt() / series
-        rendered = format(pi, f".{count - 1}f").replace(".", "")
+        # Keep guard digits and truncate to match Spigot(n)'s first-n-digit
+        # contract. Formatting directly to count-1 places would round the
+        # final requested digit (for example, 4 digits would become 3142).
+        rendered = format(pi, f".{count + 12}f").replace(".", "")
         return rendered[:count].encode("ascii")
 
 
-def expected_output(values: list[int] | tuple[int, ...],
-                    output_capacity: int | None = None) -> tuple[int, bytes]:
+def expected_output(values: list[int] | tuple[int, ...] | None,
+                    output_capacity: int | None = None,
+                    output_is_null: bool = False,
+                    input_is_null: bool = False,
+                    input_length: int | None = None) -> tuple[int, bytes]:
     """Return n leading decimal digits of pi or an ABI status."""
+    if type(output_is_null) is not bool or type(input_is_null) is not bool:
+        return INVALID_RESULT, b""
+    if output_capacity is not None and (
+        type(output_capacity) is not int or output_capacity < 0
+    ):
+        return INVALID_RESULT, b""
+    if input_length is not None and (
+        type(input_length) is not int or input_length < 0
+    ):
+        return INVALID_RESULT, b""
+    if input_is_null or not isinstance(values, (list, tuple)):
+        return INVALID_RESULT, b""
+    if input_length is not None and input_length != len(values):
+        return INVALID_RESULT, b""
     if (not isinstance(values, (list, tuple)) or len(values) != 1
             or type(values[0]) is not int or not I64_MIN <= values[0] <= I64_MAX):
         return INVALID_RESULT, b""
     count = values[0]
     if not 0 <= count <= MAX_DIGITS:
         return INVALID_RESULT, b""
-    if output_capacity is not None:
-        if type(output_capacity) is not int or output_capacity < 0:
-            return INVALID_RESULT, b""
-        if output_capacity < count:
-            return INSUFFICIENT_CAPACITY_RESULT, b""
     result = _pi_digits(count)
+    if output_is_null:
+        return NULL_OUTPUT_RESULT, b""
+    if output_capacity is not None and output_capacity < count:
+        return INSUFFICIENT_CAPACITY_RESULT, b""
     return len(result), result

@@ -1,0 +1,48 @@
+const MAX_SAMPLE_COUNT: usize = 32
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 38
+
+extern exp(value: f64) -> f64
+
+def soboleva_modified_hyperbolic_tangent_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 5 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    count_value: f64 = input[0]
+    if count_value != count_value or count_value < 1.0 or count_value > 32.0:
+        return -1
+    count: usize = count_value.usize()
+    if count_value != count.f64() or input_length != 5 + count:
+        return -1
+
+    a: f64 = input[1]
+    b: f64 = input[2]
+    c: f64 = input[3]
+    d: f64 = input[4]
+    if a != a or b != b or c != c or d != d or
+       a < -2.0 or a > 2.0 or b < -2.0 or b > 2.0 or
+       c < -2.0 or c > 2.0 or d < -2.0 or d > 2.0:
+        return -1
+    index: mutable usize = 0
+    while index < count:
+        x: f64 = input[index + 5]
+        if x != x or x < -20.0 or x > 20.0:
+            return -1
+        index <- index + 1
+    if output.is_null() or output_capacity < count:
+        return -2
+
+    index <- 0
+    while index < count:
+        x: f64 = input[index + 5]
+        exp_ax: f64 = exp(a * x)
+        exp_neg_bx: f64 = exp((-b) * x)
+        numerator: f64 = exp_ax - exp_neg_bx
+        exp_cx: f64 = exp(c * x)
+        exp_neg_dx: f64 = exp((-d) * x)
+        denominator: f64 = exp_cx + exp_neg_dx
+        output[index] <- numerator / denominator
+        index <- index + 1
+    count.i64()
+
+export fn soboleva_modified_hyperbolic_tangent(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = soboleva_modified_hyperbolic_tangent_impl

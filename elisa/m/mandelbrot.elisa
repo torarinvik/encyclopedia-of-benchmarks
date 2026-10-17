@@ -1,0 +1,78 @@
+@inline(never)
+def mandelbrot_rounded_add(left: f64, right: f64) -> f64:
+    left + right
+
+@inline(never)
+def mandelbrot_rounded_subtract(left: f64, right: f64) -> f64:
+    left - right
+
+@inline(never)
+def mandelbrot_rounded_multiply(left: f64, right: f64) -> f64:
+    left * right
+
+@inline(never)
+def mandelbrot_rounded_divide(left: f64, right: f64) -> f64:
+    left / right
+
+def mandelbrot_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 6: return -1
+    width_value: i64 = input[0]
+    height_value: i64 = input[1]
+    center_x_q: i64 = input[2]
+    center_y_q: i64 = input[3]
+    figure_width_q: i64 = input[4]
+    max_step_value: i64 = input[5]
+    if width_value < 1 or width_value > 16 or height_value < 1 or height_value > 16 or
+        center_x_q < -64 or center_x_q > 64 or center_y_q < -64 or center_y_q > 64 or
+        figure_width_q < 1 or figure_width_q > 64 or max_step_value < 2 or max_step_value > 64:
+        return -1
+    width: usize = width_value.usize()
+    height: usize = height_value.usize()
+    max_step: usize = max_step_value.usize()
+    pixel_count: usize = width * height
+    if output.is_null() or capacity < pixel_count: return -2
+
+    center_x: f64 = center_x_q.f64() / 16.0
+    center_y: f64 = center_y_q.f64() / 16.0
+    figure_width: f64 = figure_width_q.f64() / 16.0
+    figure_height: f64 = mandelbrot_rounded_multiply(
+        mandelbrot_rounded_divide(figure_width, width.f64()), height.f64())
+    offset: mutable usize = 0
+    image_x: mutable usize = 0
+    while image_x < width:
+        x_position: f64 = mandelbrot_rounded_subtract(
+            mandelbrot_rounded_divide(image_x.f64(), width.f64()), 0.5)
+        figure_x: f64 = mandelbrot_rounded_add(center_x,
+            mandelbrot_rounded_multiply(x_position, figure_width))
+        image_y: mutable usize = 0
+        while image_y < height:
+            y_position: f64 = mandelbrot_rounded_subtract(
+                mandelbrot_rounded_divide(image_y.f64(), height.f64()), 0.5)
+            figure_y: f64 = mandelbrot_rounded_add(center_y,
+                mandelbrot_rounded_multiply(y_position, figure_height))
+            a: mutable f64 = figure_x
+            b: mutable f64 = figure_y
+            current_step: mutable usize = 0
+            step: mutable usize = 0
+            while step < max_step:
+                current_step <- step
+                a_new: f64 = mandelbrot_rounded_add(
+                    mandelbrot_rounded_subtract(mandelbrot_rounded_multiply(a, a),
+                        mandelbrot_rounded_multiply(b, b)), figure_x)
+                b <- mandelbrot_rounded_add(
+                    mandelbrot_rounded_multiply(mandelbrot_rounded_multiply(2.0, a), b), figure_y)
+                a <- a_new
+                radius_squared: f64 = mandelbrot_rounded_add(
+                    mandelbrot_rounded_multiply(a, a), mandelbrot_rounded_multiply(b, b))
+                if radius_squared > 4.0: break
+                step <- step + 1
+            normalized_distance: f64 = mandelbrot_rounded_divide(
+                current_step.f64(), (max_step - 1).f64())
+            if normalized_distance >= 1.0: output[offset] <- 0.u8()
+            else: output[offset] <- 255.u8()
+            offset <- offset + 1
+            image_y <- image_y + 1
+        image_x <- image_x + 1
+    pixel_count.i64()
+
+export fn mandelbrot(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = mandelbrot_impl

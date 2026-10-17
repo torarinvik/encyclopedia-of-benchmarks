@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-cpp-large-number-decimal-add-i64-bytes-v1",
+  "algorithm": "large_number",
+  "function_symbol": "large_number_add",
+  "description": "Add two bounded canonical nonnegative decimal strings using the large_number digit-vector carry operation.",
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[left_length, right_length, left_ascii_digits..., right_ascii_digits...]",
+    "left_length_range": [1, 64],
+    "right_length_range": [1, 64],
+    "digit_ascii_range": [48, 57],
+    "operands_must_be_canonical_decimal": true,
+    "canonical_zero": "The one-character operand 0 is allowed; a multi-character operand must not start with 0.",
+    "exact_packed_length": "Exactly 2+left_length+right_length signed 64-bit integers.",
+    "maximum_valid_input_length": 130,
+    "maximum_parseable_input_length": 131,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "encoding": "ASCII decimal sum from most significant digit to least significant digit, with no NUL terminator.",
+    "maximum_bytes": 65,
+    "success_result": "output byte count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input validity is checked before output pointer and capacity."
+  },
+  "workspace": {
+    "bytes": 65,
+    "meaning": "Maximum decimal sum length for two 64-digit operands."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Plus-Plus",
+    "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+    "path": "math/large_number.h",
+    "symbol": "large_number::operator+=(large_number)",
+    "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/large_number.h",
+    "role": "algorithm"
+  },
+  "related_pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "math/large_number.h",
+      "symbol": "large_number::operator+=(large_number)",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/large_number.h"
+    }
+  ],
+  "contract": {
+    "operation": "Construct fresh decimal digit-vector objects from two canonical nonnegative decimal strings, mutate the left object with operator+=(large_number), and stream its canonical sum.",
+    "digit_representation": "Each decimal digit is stored least-significant first in an unsigned-byte vector.",
+    "addition_order": "Scan digit index i from zero upward through the longer operand or until carry is zero. Add carry, the right digit if present, and the left digit if present; store total mod 10 and set carry to total divided by 10. Append each carry digit when the left vector has no entry at i.",
+    "output_encoding": "ASCII decimal bytes in most-significant-first order, no prefix and no terminator.",
+    "errors": "Malformed packing, unsupported lengths, non-ASCII-decimal digit values, noncanonical leading zeroes, or out-of-range signed 64-bit input values return -1 before output checks. Null output or insufficient output capacity returns -2 without writes."
+  },
+  "cases": [
+    {
+      "id": "zero_plus_zero",
+      "input_values": [1, 1, 48, 48],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output_hex": "30"
+    },
+    {
+      "id": "single_digit_carry",
+      "input_values": [1, 1, 57, 57],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output_hex": "3138"
+    },
+    {
+      "id": "carry_over_zero_run",
+      "input_values": [3, 1, 57, 57, 57, 49],
+      "input_length": 6,
+      "expected_result": 4,
+      "expected_output_hex": "31303030"
+    },
+    {
+      "id": "unequal_lengths",
+      "input_values": [5, 3, 49, 50, 51, 52, 53, 55, 56, 57],
+      "input_length": 10,
+      "expected_result": 5,
+      "expected_output_hex": "3133313334"
+    },
+    {
+      "id": "pinned_header_example",
+      "input_values": [4, 31, 53, 50, 48, 50, 55, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48],
+      "input_length": 37,
+      "expected_result": 31,
+      "expected_output_hex": "37303030303030303030303030303030303030303030303030303035323032"
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 4,
+      "input_is_null": true,
+      "output_capacity": 65,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [1, 1, 49, 50, 51],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [2, 1, 49, 50],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_operand_length",
+      "input_values": [0, 1, 49],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nondigit_ascii_value",
+      "input_values": [1, 1, 49, 58],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "leading_zero_left_operand",
+      "input_values": [2, 1, 48, 49, 49],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "leading_zero_right_operand",
+      "input_values": [1, 2, 49, 48, 49],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [1, 1, 49, 50],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [2, 1, 57, 57, 49],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [1, 1, 49, 58],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+const MAX_PASSCODE_LENGTH: usize = 20
+const MAX_TEXT_LENGTH: usize = 256
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 279
+const ALPHABET_LENGTH: usize = 97
+
+def shuffled_shift_cipher_is_alphanumeric(value: i64) -> bool:
+    (value >= 48 and value <= 57) or (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
+
+def shuffled_shift_cipher_impl(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    pass_length_value: i64 = input[0]
+    text_length_value: i64 = input[1]
+    if pass_length_value < 1 or pass_length_value > 20 or text_length_value < 0 or text_length_value > 256:
+        return -1
+    pass_length: usize = pass_length_value.usize()
+    text_length: usize = text_length_value.usize()
+    if input_length != 2 + pass_length + text_length: return -1
+
+    passcode: mutable u8[MAX_PASSCODE_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < pass_length:
+        value: i64 = input[index + 2]
+        if not shuffled_shift_cipher_is_alphanumeric(value): return -1
+        passcode[index] <- value.u8()
+        index <- index + 1
+    text_start: usize = 2 + pass_length
+    plaintext: mutable u8[MAX_TEXT_LENGTH] = zeroed
+    index <- 0
+    while index < text_length:
+        value: i64 = input[text_start + index]
+        if not ((value >= 32 and value <= 126) or value == 9 or value == 10): return -1
+        plaintext[index] <- value.u8()
+        index <- index + 1
+    if output.is_null() or output_capacity < text_length: return -2
+
+    breakpoints: mutable bool[128] = zeroed
+    shift_sum: mutable i64 = 0
+    index <- 0
+    while index < pass_length:
+        byte: u8 = passcode[index]
+        breakpoints[byte.usize()] <- true
+        if index % 2 == 0:
+            shift_sum <- shift_sum + byte.i64()
+        else:
+            shift_sum <- shift_sum - byte.i64()
+        index <- index + 1
+    shift: usize = pass_length
+    if shift_sum > 0: shift <- shift_sum.usize()
+
+    alphabet: mutable u8[ALPHABET_LENGTH] = zeroed
+    alphabet_length: mutable usize = 0
+    value: mutable usize = 97
+    while value < 123:
+        alphabet[alphabet_length] <- value.u8()
+        alphabet_length <- alphabet_length + 1
+        value <- value + 1
+    value <- 65
+    while value < 91:
+        alphabet[alphabet_length] <- value.u8()
+        alphabet_length <- alphabet_length + 1
+        value <- value + 1
+    value <- 48
+    while value < 58:
+        alphabet[alphabet_length] <- value.u8()
+        alphabet_length <- alphabet_length + 1
+        value <- value + 1
+    value <- 33
+    while value < 127:
+        if not shuffled_shift_cipher_is_alphanumeric(value.i64()):
+            alphabet[alphabet_length] <- value.u8()
+            alphabet_length <- alphabet_length + 1
+        value <- value + 1
+    alphabet[alphabet_length] <- 32.u8(); alphabet_length <- alphabet_length + 1
+    alphabet[alphabet_length] <- 9.u8(); alphabet_length <- alphabet_length + 1
+    alphabet[alphabet_length] <- 10.u8(); alphabet_length <- alphabet_length + 1
+
+    key: mutable u8[ALPHABET_LENGTH] = zeroed
+    segment: mutable u8[ALPHABET_LENGTH] = zeroed
+    key_length: mutable usize = 0
+    segment_length: mutable usize = 0
+    index <- 0
+    while index < alphabet_length:
+        byte: u8 = alphabet[index]
+        segment[segment_length] <- byte
+        segment_length <- segment_length + 1
+        if breakpoints[byte.usize()] or index + 1 == alphabet_length:
+            while segment_length > 0:
+                segment_length <- segment_length - 1
+                key[key_length] <- segment[segment_length]
+                key_length <- key_length + 1
+        index <- index + 1
+
+    index <- 0
+    while index < text_length:
+        key_index: mutable usize = 0
+        while key_index < key_length and key[key_index] != plaintext[index]:
+            key_index <- key_index + 1
+        output[index] <- key[(key_index + shift) % ALPHABET_LENGTH]
+        index <- index + 1
+    text_length.i64()
+
+export fn shuffled_shift_cipher(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = shuffled_shift_cipher_impl

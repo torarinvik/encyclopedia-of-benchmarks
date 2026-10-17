@@ -1,0 +1,137 @@
+const MAX_TEXT_LENGTH: usize = 64
+const MAX_INPUT_LENGTH: usize = 66
+const MAX_SYMBOLS: usize = 10
+const MAX_OUTPUT_BYTES: usize = 111
+
+def shannon_fano_impl(input: i64&, input_length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    null_empty: bool = input.is_null() and input_length == 0
+    if input.is_null() and not null_empty: return -1
+    text: mutable u8[MAX_TEXT_LENGTH] = zeroed
+    text_length: mutable usize = 0
+    if not null_empty:
+        if input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+        length_value: i64 = input[0]
+        if length_value < 0 or length_value > MAX_TEXT_LENGTH.i64(): return -1
+        text_length <- length_value.usize()
+        if input_length != 1 + text_length: return -1
+        index: mutable usize = 0
+        while index < text_length:
+            code: i64 = input[1 + index]
+            if code < 0 or code > 127: return -1
+            text[index] <- code.u8()
+            index <- index + 1
+
+    frequencies: mutable usize[128] = zeroed
+    index: mutable usize = 0
+    while index < text_length:
+        frequencies[text[index].usize()] <- frequencies[text[index].usize()] + 1
+        index <- index + 1
+    symbols: mutable usize[128] = zeroed
+    symbol_count: mutable usize = 0
+    symbol: mutable usize = 0
+    while symbol < 128:
+        if frequencies[symbol] > 0:
+            symbols[symbol_count] <- symbol
+            symbol_count <- symbol_count + 1
+        symbol <- symbol + 1
+    if symbol_count > MAX_SYMBOLS: return -1
+    left: mutable usize = 0
+    while left < symbol_count:
+        right: mutable usize = left + 1
+        while right < symbol_count:
+            if frequencies[symbols[left]] == frequencies[symbols[right]]: return -1
+            right <- right + 1
+        left <- left + 1
+    index <- 1
+    while index < symbol_count:
+        value: usize = symbols[index]
+        position: mutable usize = index
+        while position > 0 and frequencies[symbols[position - 1]] < frequencies[value]:
+            symbols[position] <- symbols[position - 1]
+            position <- position - 1
+        symbols[position] <- value
+        index <- index + 1
+
+    code_bits: mutable u64[128] = zeroed
+    code_lengths: mutable usize[128] = zeroed
+    if symbol_count == 1:
+        code_lengths[symbols[0]] <- 1
+    else if symbol_count > 1:
+        stack_start: mutable usize[20] = zeroed
+        stack_finish: mutable usize[20] = zeroed
+        stack_bits: mutable u64[20] = zeroed
+        stack_length_value: mutable usize[20] = zeroed
+        stack_size: mutable usize = 1
+        stack_start[0] <- 0
+        stack_finish[0] <- symbol_count - 1
+        while stack_size > 0:
+            stack_size <- stack_size - 1
+            frame_start: usize = stack_start[stack_size]
+            frame_finish: usize = stack_finish[stack_size]
+            frame_bits: u64 = stack_bits[stack_size]
+            frame_length: usize = stack_length_value[stack_size]
+            if frame_start == frame_finish:
+                code_bits[symbols[frame_start]] <- frame_bits
+                code_lengths[symbols[frame_start]] <- frame_length
+            else:
+                total: mutable usize = 0
+                range_index: mutable usize = frame_start
+                while range_index <= frame_finish:
+                    total <- total + frequencies[symbols[range_index]]
+                    range_index <- range_index + 1
+                left_sum: mutable usize = 0
+                best_difference: mutable usize = MAX_TEXT_LENGTH + 1
+                split: mutable usize = frame_start
+                range_index <- frame_start
+                while range_index < frame_finish:
+                    left_sum <- left_sum + frequencies[symbols[range_index]]
+                    right_sum: usize = total - left_sum
+                    difference: usize = left_sum
+                    if left_sum >= right_sum:
+                        difference <- left_sum - right_sum
+                    else:
+                        difference <- right_sum - left_sum
+                    if difference < best_difference:
+                        best_difference <- difference
+                        split <- range_index
+                    range_index <- range_index + 1
+                next_length: usize = frame_length + 1
+                stack_start[stack_size] <- split + 1
+                stack_finish[stack_size] <- frame_finish
+                stack_bits[stack_size] <- (frame_bits << 1) | 1.u64()
+                stack_length_value[stack_size] <- next_length
+                stack_size <- stack_size + 1
+                stack_start[stack_size] <- frame_start
+                stack_finish[stack_size] <- split
+                stack_bits[stack_size] <- frame_bits << 1
+                stack_length_value[stack_size] <- next_length
+                stack_size <- stack_size + 1
+
+    bytes: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    written: mutable usize = 0
+    bytes[written] <- symbol_count.u8()
+    written <- written + 1
+    symbol <- 0
+    while symbol < 128:
+        code_length: usize = code_lengths[symbol]
+        if code_length > 0:
+            bytes[written] <- symbol.u8()
+            bytes[written + 1] <- code_length.u8()
+            written <- written + 2
+            offset: mutable usize = 0
+            while offset < code_length:
+                bit: u64 = (code_bits[symbol] >> (code_length - 1 - offset)) & 1.u64()
+                bytes[written] <- 48.u8() + bit.u8()
+                written <- written + 1
+                offset <- offset + 1
+        symbol <- symbol + 1
+    if output.is_null() or output_capacity < written: return -2
+    index <- 0
+    while index < written:
+        output[index] <- bytes[index]
+        index <- index + 1
+    written.i64()
+
+export fn shannon_fano_generate_codes(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = shannon_fano_impl

@@ -1,0 +1,554 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-r-linearregressionrawr-f64-slice-io-v1",
+  "algorithm": "linearregressionrawr",
+  "function_symbol": "linearregressionrawr",
+  "description": "Fit a centered, bounded single predictor and intercept with the pinned R SVD ordinary least-squares routine.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/R",
+    "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+    "path": "regression_algorithms/linearregressionrawr.r",
+    "symbol": "ols",
+    "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/regression_algorithms/linearregressionrawr.r",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Return the intercept and slope from the pinned SVD ordinary least-squares calculation for one predictor.",
+    "input_encoding": "[n, x_0..x_(n-1), y_0..y_(n-1)]",
+    "sample_count_range": [
+      2,
+      32
+    ],
+    "predictor_range": [
+      -4,
+      4
+    ],
+    "response_range": [
+      -16,
+      16
+    ],
+    "domain": "All values are finite binary64 numbers and exact integers. The predictor sums to zero and is nonconstant.",
+    "design_matrix": "The design matrix has an intercept column followed by the single predictor column, as produced by model.matrix(y ~ ., data=x).",
+    "result": "[sum(y)/n, sum(x*y)/sum(x*x)] as binary64 values; centering makes the intercept and predictor columns orthogonal.",
+    "errors": "Malformed shape, nonfinite/fractional/out-of-range values, or a predictor that is not centered and nonconstant returns -1 before output checks. A null output or capacity below two returns -2. Success returns two coefficients. Errors leave output untouched."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n, x_0..x_(n-1), y_0..y_(n-1)]",
+    "sample_count_range": [
+      2,
+      32
+    ],
+    "sample_count_must_be_integral": true,
+    "predictor_range": [
+      -4,
+      4
+    ],
+    "response_range": [
+      -16,
+      16
+    ],
+    "values_must_be_integral": true,
+    "predictor_must_sum_to_zero": true,
+    "predictor_must_be_nonconstant": true,
+    "exact_input_length": "1+2*n",
+    "maximum_valid_input_length": 65,
+    "maximum_parseable_input_length": 66,
+    "invalid_input_result": -1,
+    "null_input_result": -1,
+    "null_input_length_zero_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[intercept, slope]",
+    "maximum_elements": 2,
+    "maximum_absolute_value": 16,
+    "successful_result": "output element count (2)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input validity is checked before output pointer or capacity.",
+    "absolute_tolerance": 1e-09,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 2,
+    "meaning": "The intercept and slope coefficients."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-09,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Validate the bounded full-rank input, then compute the exact integer sums for the centered one-predictor least-squares solution and round each quotient to binary64.",
+  "cases": [
+    {
+      "id": "exact_positive_slope",
+      "input_values": [
+        5,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "input_length": 11,
+      "expected_result": 2,
+      "expected_output": [
+        5.0,
+        2.0
+      ]
+    },
+    {
+      "id": "exact_negative_slope",
+      "input_values": [
+        4,
+        -3,
+        -1,
+        1,
+        3,
+        12,
+        6,
+        0,
+        -6
+      ],
+      "input_length": 9,
+      "expected_result": 2,
+      "expected_output": [
+        3.0,
+        -3.0
+      ]
+    },
+    {
+      "id": "fractional_intercept_and_slope",
+      "input_values": [
+        4,
+        -2,
+        -1,
+        1,
+        2,
+        3,
+        -2,
+        5,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": 2,
+      "expected_output": [
+        1.5,
+        0.1
+      ]
+    },
+    {
+      "id": "zero_slope",
+      "input_values": [
+        2,
+        -1,
+        1,
+        2,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [
+        2.0,
+        0.0
+      ]
+    },
+    {
+      "id": "nonzero_residuals",
+      "input_values": [
+        5,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        1,
+        2,
+        5,
+        8,
+        8
+      ],
+      "input_length": 11,
+      "expected_result": 2,
+      "expected_output": [
+        4.8,
+        2.0
+      ]
+    },
+    {
+      "id": "maximum_sample_count",
+      "input_values": [
+        32,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        -4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        -16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "input_length": 65,
+      "expected_result": 2,
+      "expected_output": [
+        0.0,
+        4.0
+      ]
+    },
+    {
+      "id": "fractional_coefficients",
+      "input_values": [
+        3,
+        -1,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [
+        0.3333333333333333,
+        0.0
+      ]
+    },
+    {
+      "id": "trailing_input_value_invalid",
+      "input_values": [
+        2,
+        -1,
+        1,
+        0,
+        0,
+        7
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_zero_length",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonfinite_nan",
+      "input_values": [2, -1, 1, "NaN", 2],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonfinite_positive_infinity",
+      "input_values": [2, -1, 1, 2, "Infinity"],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonfinite_negative_infinity_precedes_null_output",
+      "input_values": [2, -1, 1, 2, "-Infinity"],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_count_below_minimum",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_count_above_maximum",
+      "input_values": [
+        33
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_sample_count",
+      "input_values": [
+        2.5
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_predictor",
+      "input_values": [
+        2,
+        -1.5,
+        1,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "predictor_out_of_range",
+      "input_values": [
+        2,
+        -5,
+        5,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "response_out_of_range",
+      "input_values": [
+        2,
+        -1,
+        1,
+        -17,
+        17
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "predictor_not_centered",
+      "input_values": [
+        3,
+        0,
+        1,
+        1,
+        2,
+        4,
+        5
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "constant_predictor",
+      "input_values": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 9,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [
+        2,
+        -1,
+        1,
+        0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        2,
+        -1,
+        1,
+        2,
+        2
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        2,
+        -1,
+        1,
+        2,
+        2
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_exact_output_capacity",
+      "input_values": [
+        2,
+        -1,
+        1,
+        2,
+        2
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output": [
+        2.0,
+        0.0
+      ]
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        2,
+        -1.5,
+        1,
+        2,
+        2
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

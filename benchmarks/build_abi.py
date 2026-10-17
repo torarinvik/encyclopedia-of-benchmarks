@@ -13,6 +13,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTENSIONS = {"c": "c", "c3": "c3", "cpp": "cpp", "elisa": "elisa", "nim": "nim",
@@ -77,14 +78,45 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     language_root = ROOT / language / letter
     source_name = f"{algorithm}.{EXTENSIONS[language]}"
-    # Coverage accepts both the flat source layout and a per-algorithm
-    # subdirectory. Prefer the flat path when both exist so existing builds
-    # keep resolving to the same source.
+    # Prefer the conventional first-letter layout when present, preserving
+    # existing build resolution. Some source-backed packages keep a port in
+    # its original language category directory; below, an explicit README link
+    # can resolve that port while staying inside the language root.
     source_candidates = (language_root / source_name,
-                         language_root / algorithm / source_name)
+                         language_root / algorithm / source_name,
+                         ROOT / language / source_name,
+                         ROOT / language / algorithm / source_name)
     source = next((candidate for candidate in source_candidates if candidate.is_file()),
                   source_candidates[0])
     workload = ROOT / "benchmarks" / letter / algorithm / "workload.json"
+    if not source.is_file():
+        guide = workload.with_name("README.md")
+        if guide.is_file():
+            language_root_resolved = (ROOT / language).resolve()
+            linked_sources = set()
+            for raw_target in re.findall(
+                    r"\]\(([^)]+)\)", guide.read_text(encoding="utf-8")):
+                target = raw_target.strip()
+                if target.startswith("<") and ">" in target:
+                    target = target[1:target.index(">")]
+                else:
+                    target = target.split(maxsplit=1)[0] if target else ""
+                parsed_target = urlsplit(target)
+                if (not target or parsed_target.scheme or parsed_target.netloc
+                        or not parsed_target.path or parsed_target.path.startswith(("/", "\\"))):
+                    continue
+                try:
+                    linked_source = (guide.parent / unquote(parsed_target.path)).resolve()
+                    linked_source.relative_to(language_root_resolved)
+                except (OSError, RuntimeError, ValueError):
+                    continue
+                if (linked_source.is_file() and linked_source.name == source_name
+                        and linked_source.suffix == f".{EXTENSIONS[language]}"):
+                    linked_sources.add(linked_source)
+            if len(linked_sources) > 1:
+                raise ValueError(f"README links multiple {language} sources named {source_name}")
+            if linked_sources:
+                source = next(iter(linked_sources))
     if not source.is_file() or not workload.is_file():
         raise ValueError(f"source or workload missing for {algorithm}/{language}")
     spec = json.loads(workload.read_text(encoding="utf-8"))
@@ -115,8 +147,10 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     if language in {"c", "cpp"}:
         standard = "-std=c11" if language == "c" else "-std=c++17"
         flags = [standard, "-O3", "-DNDEBUG", "-c"]
-        if algorithm in {"pid", "pi_monte_carlo_estimation"}:
+        if algorithm in {"pid", "pi_monte_carlo_estimation", "shunting_yard", "mandelbrot"}:
             flags.append("-ffp-contract=off")
+        if algorithm == "mandelbrot":
+            flags.append("-fno-fast-math")
         run([compiler, *flags, str(source), "-o", str(artifact)])
     elif language == "c3":
         flags = ["-O3", "--no-entry"]
@@ -127,8 +161,10 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         run([compiler, *flags, "-o", str(artifact), str(source)])
     elif language == "nim":
         flags = ["--app:staticlib", "--noMain", "--mm:none", "-d:release"]
-        if algorithm == "pi_monte_carlo_estimation":
+        if algorithm in {"pi_monte_carlo_estimation", "shunting_yard", "mandelbrot"}:
             flags.append("--passC:-ffp-contract=off")
+        if algorithm == "mandelbrot":
+            flags.append("--passC:-fno-fast-math")
         compile_source = source
         if not algorithm[0].isalpha():
             compile_source = directory / f"module_{algorithm}.nim"
@@ -150,6 +186,10 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         native_link_flags = shlex.split(libraries[0])
     elif language == "v":
         flags = ["-prod", "-is_o", "-gc", "none", "-no-skip-unused", "-cc", c_compiler]
+        if algorithm in {"shunting_yard", "mandelbrot"}:
+            flags.extend(["-cflags", "-ffp-contract=off"])
+        if algorithm == "mandelbrot":
+            flags.extend(["-cflags", "-fno-fast-math"])
         if algorithm == "stream_sieve":
             flags.append("-enable-globals")
         run([compiler, *flags,

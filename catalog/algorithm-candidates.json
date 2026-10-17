@@ -356,7 +356,7 @@
       "commit_url": "https://github.com/TheAlgorithms/Zig/commit/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3"
     }
   ],
-  "candidate_count": 3863,
+  "candidate_count": 3864,
   "source_file_count": 6158,
   "candidates": [
     {
@@ -44607,7 +44607,17 @@
         "Java",
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -44627,7 +44637,7 @@
       ],
       "benchmark_name": "inverse_of_matrix",
       "benchmark_contract": "benchmarks/i/inverse_of_matrix/README.md",
-      "review_notes": "The pinned Java and Python sources are distinct variants; do not alias them. Java uses scaled-pivot Gaussian elimination, mutates its input, and needs finite nonsingular matrices with safe nonzero pivots. Python uses Decimal direct formulas only for 2x2 or 3x3 matrices, rejects zero determinant, and returns float values."
+      "review_notes": "The pinned Java and Python sources are distinct variants, not aliases: Java uses scaled-pivot Gaussian elimination and mutates its input; Python uses Decimal determinant/cofactor formulas for 2x2 and 3x3 matrices. The shared i64_array_bytes_output contract uses q/16 coefficients in [-2,2] and accepts matrices with one strictly dominant column per row, with those columns forming a permutation. This shared subset is nonsingular with bounded pivots; the full row-major inverse is returned. All nine local ports use Java scaled-pivot Gaussian elimination; 97b cleared the ports and strict runner/verifier integration in final static review. See the workload and exact-rational oracle."
     },
     {
       "candidate_id": "inversions",
@@ -47528,7 +47538,17 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -47539,7 +47559,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python source exposes Lloyd-style clustering with caller-supplied initial centroids, making the core deterministic for fixed input and initialization. Plotting/report helpers are ancillary; empty clusters can produce NaN."
+      "review_notes": "The pinned Python source exposes Lloyd-style clustering with caller-supplied initial centroids, making the core deterministic for fixed input and initialization. Plotting/report helpers are ancillary; empty clusters can produce NaN.",
+      "benchmark_name": "k_means_clust",
+      "benchmark_contract": "benchmarks/k/k_means_clust/README.md"
     },
     {
       "candidate_id": "k_means_clustering",
@@ -47652,7 +47674,17 @@
       "source_repositories": [
         "R"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -47663,7 +47695,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned R implementation supports classification and regression, optional inverse-distance weighting, normalization, and k adjustment. A benchmark contract must select the mode and options rather than treating these options as one fixed output contract."
+      "review_notes": "The pinned R `knn_train`/`knn_predict` contract selects binary factor classification with factor levels `0,1`, weighted=FALSE, normalize=FALSE, and no probability/neighbor outputs. The bounded i64_array_scalar input uses 1..32 training rows, 1..8 integer features in [-32,32], odd k<=n, and distinct squared query distances. It returns the majority class; binary odd-k voting avoids class ties. R passes the query as A and training rows as B to its squared-distance helper, evaluating query_norm - 2*cross_product + training_row_norm. These integer-domain distances are exact and the independent oracle ranks their exact integer values.",
+      "benchmark_contract": "benchmarks/k/k_nn/README.md",
+      "benchmark_name": "k_nn"
     },
     {
       "candidate_id": "kadane",
@@ -50226,7 +50260,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements large-number arithmetic; the source-level operations and representation remain distinct from other numeric candidates."
+      "review_notes": "The pinned C++ and C++-1 headers implement large_number with base-10 digits stored least-significant first. The bounded workload constructs fresh objects from canonical nonnegative ASCII decimal strings and exercises only operator+=(large_number): it scans digit indices upward, stores the sum modulo 10, and appends carry digits. The string constructor preserves leading zeroes and skips nondigits, so inputs exclude both; the default constructor and stateful static-return operator+ are outside scope.",
+      "benchmark_name": "large_number",
+      "benchmark_contract": "benchmarks/l/large_number/README.md"
     },
     {
       "candidate_id": "large_tree_node",
@@ -50973,7 +51009,17 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -50986,7 +51032,7 @@
       ],
       "benchmark_name": "lempel_ziv",
       "benchmark_contract": "benchmarks/l/lempel_ziv/README.md",
-      "review_notes": "Benchmark only the pure compress_data operation over bit strings. Preserve dictionary-width transitions and unmatched-final-suffix zero extension. Exclude CLI/file wrappers, gamma header, byte stop-bit framing, and claims of a general lossless format."
+      "review_notes": "The pinned Python compress_data source processes a bounded ASCII bit string with the initial 0/1 lexicon, removes each matched phrase, inserts the matched+0 and matched+1 branches, prefixes current codes at power-of-two indices, and zero-extends an unmatched final suffix until it is a key. The i64_array_bytes_output contract carries [bit_count, ASCII bits...] and returns compressed ASCII bits, excluding the CLI, gamma file-size prefix, and stop-bit padding. All nine local language ports and runner/verifier integration are statically cleared."
     },
     {
       "candidate_id": "lempel_ziv_decompress",
@@ -50994,7 +51040,17 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -51007,7 +51063,7 @@
       ],
       "benchmark_name": "lempel_ziv_decompress",
       "benchmark_contract": "benchmarks/l/lempel_ziv_decompress/README.md",
-      "review_notes": "Benchmark pure decompress_data on valid code streams generated by the pinned source. Exclude file framing, headers, and padding; do not claim general file round trips."
+      "review_notes": "The pinned Python decompress_data source consumes bounded ASCII code bits, preserves dictionary insertion/rebuild order and code-width transitions, emits each matched phrase expansion, and discards a final unmatched prefix. Semantic fixtures use the pinned companion compressor; output is the source decoder's result, not a claim of general file round trips. The i64_array_bytes_output contract excludes file framing, headers, and padding. All nine local language ports and runner/verifier integration are statically cleared."
     },
     {
       "candidate_id": "length",
@@ -54824,7 +54880,14 @@
       ],
       "local_source_folders": [
         "c",
-        "cpp"
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
@@ -54857,7 +54920,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned C and C++/C++-1 sources provide the same no-pivot Doolittle-style decomposition in `lu_decomposition`: C takes a caller-supplied size and does no matrix-shape or zero-pivot validation; C++ wrappers use the shared header, whose overload checks square size but still divides by zero pivots. Both return L and U through caller-owned arrays and include random-printing demos. Julia `lu_decompose(mat)` returns `(L,U)` for an input assumed square, uses no pivoting or singularity check, and can divide by a zero pivot; its indexed loops include the current diagonal term while that output entry is still zero. The candidate is decomposition, not determinant/solve; C shape/error behavior differs from C++/Julia."
+      "review_notes": "The pinned C and C++/C++-1 sources provide the same no-pivot Doolittle-style decomposition in `lu_decomposition`: C takes a caller-supplied size and does no matrix-shape or zero-pivot validation; C++ wrappers use the shared header, whose overload checks square size but still divides by zero pivots. Both return L and U through caller-owned arrays and include random-printing demos. Julia `lu_decompose(mat)` returns `(L,U)` for an input assumed square, uses no pivoting or singularity check, and can divide by a zero pivot; its indexed loops include the current diagonal term while that output entry is still zero. The candidate is decomposition, not determinant/solve; C shape/error behavior differs from C++/Julia.",
+      "benchmark_name": "lu_decompose",
+      "benchmark_contract": "benchmarks/l/lu_decompose/README.md"
     },
     {
       "candidate_id": "lu_decomposition",
@@ -55776,7 +55841,17 @@
         "JavaScript",
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -55808,7 +55883,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source computes a deterministic Mandelbrot set/fractal representation. Use black/white mode in a shared benchmark contract to avoid cross-language color-rounding differences."
+      "review_notes": "The pinned C#, Java, JavaScript, and Python sources share pixel coordinates, initial z=c, the same binary64 recurrence and strict radius-four escape check, and black/white distance classification. The bounded i64_array_bytes_output contract uses q/16 view parameters, max_step 2..64, source x-major traversal, and one grayscale byte per pixel. It pins round-to-nearest/ties-to-even operation rounding with FMA and reassociation disabled; escape on the final iteration is black. All nine local ports are present; 97b cleared strict runner/verifier/build integration in final static review.",
+      "benchmark_name": "mandelbrot",
+      "benchmark_contract": "benchmarks/m/mandelbrot/README.md"
     },
     {
       "candidate_id": "manhattan",
@@ -57604,7 +57681,7 @@
       ],
       "review_status": "reviewed_algorithm_semantics",
       "benchmark_name": "mcoloring",
-      "review_notes": "Despite its name, the pinned Java source performs order-dependent BFS greedy coloring rather than exact m-colorability. The cleared contract restricts input to simple undirected forests, where the pinned color count is order independent; invalid and non-forest inputs return -1.",
+      "review_notes": "Despite its name, the pinned Java source performs BFS greedy coloring rather than exact m-colorability. The cleared i64_array_scalar contract packs [vertex_count,color_limit,adjacency_masks...] for simple undirected forests, where its boolean result is order independent; invalid and non-forest inputs return -1. All nine target-language ports preserve the pinned result as 1 or 0.",
       "benchmark_contract": "benchmarks/m/mcoloring/README.md"
     },
     {
@@ -61497,7 +61574,17 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -61508,7 +61595,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python class is a stateful NumPy momentum-SGD optimizer. Each `param_id` gets an independent velocity initialized with `zeros_like(params)`; each update sets `v = momentum*v - learning_rate*gradients` and returns `params + v`, while retaining the velocity for later calls. The update recurrence is mathematically equivalent to the Rust `momentum` candidate's scaled-velocity form when starting from zero, but the Python API keeps per-parameter state across calls rather than running a local multi-iteration optimizer. No shape, finiteness, or hyperparameter validation is performed."
+      "review_notes": "The pinned Python class is a stateful NumPy momentum-SGD optimizer. Each `param_id` gets an independent zero-initialized velocity; each call computes `v = momentum*v - learning_rate*gradient`, returns `params + v`, and retains `v` for that ID. The benchmark packs an interleaved multi-ID trace, starts a fresh optimizer per case, and returns final parameters followed by final velocities grouped by ID. It narrows the source's broadcasting and dtype behavior to equal-width finite binary64 vectors. Nine local language ports and runner/verifier integration are statically cleared."
     },
     {
       "candidate_id": "mono_alphabetic",
@@ -69457,7 +69544,17 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "implementations": [
         {
           "repository": "Python",
@@ -70318,7 +70415,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python source builds a polynomial design matrix and solves by SVD pseudoinverse. Plotting is ancillary to the regression implementation."
+      "review_notes": "The pinned Python source builds an increasing-power Vandermonde design matrix, rejects rank-deficient fits with matrix_rank, fits with pinv(X) @ y_train using SVD, and predicts via design_matrix @ params. The bounded workload requires degree 0..3, pairwise-distinct training abscissas in [-2,2], degree < training_count, integer responses in [-32,32], and query abscissas in [-2,2]; the full-rank bounded domain supports 1e-9 float64 cross-language tolerance. Plotting and the dataset demo are ancillary.",
+      "benchmark_name": "polynomial_regression",
+      "benchmark_contract": "benchmarks/p/polynomial_regression/README.md"
     },
     {
       "candidate_id": "pooling_functions",
@@ -79870,7 +79969,7 @@
       ],
       "benchmark_name": "quadratic_probing",
       "benchmark_contract": "benchmarks/q/quadratic_probing/README.md",
-      "review_notes": "The pinned Python class implements a quadratic-probing strategy over its HashTable base with probe sequence key+i^2 beginning at i=1. Use bounded operation traces and reset table state for each case."
+      "review_notes": "The pinned Python QuadraticProbing source hashes keys with key % capacity and probes (home + i*i) % capacity from i=1. Preserve the source collision helper's home-index comparison: it compares occupied slot values with the home index rather than the inserted key, so displaced entries can be overwritten and displaced duplicates can be inserted again. The i64_array_bytes_output contract packs [capacity,insert_count,keys...], bounds capacity to 5..31 and insertions to 0..3 to avoid resize and ensure accepted probe routes terminate, and returns capacity plus every slot as little-endian i64 words (-1 for empty; zero remains a valid key). D58 cleared all nine language ports and 97b cleared runner/verifier integration; the workload covers 9 semantic and 8 ABI cases, with deterministic verifier traces. Invalid input returns -1 before output checks; null or short output returns -2."
     },
     {
       "candidate_id": "quadratic_probing_hash_table",
@@ -81354,7 +81453,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Python",
@@ -81364,9 +81463,10 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "radix2_fft",
-      "benchmark_contract": "benchmarks/r/radix2_fft/README.md",
-      "review_notes": "The pinned source computes polynomial convolution via a radix-2 FFT and rounds results to 8 decimal places. It may alias to the existing convolution_fft benchmark only for nonempty real coefficient vectors with nonzero trailing coefficients and nonzero polynomials; preserve the full n+m-1 output."
+      "benchmark_name": "convolution_fft",
+      "benchmark_contract": "benchmarks/c/convolution_fft/README.md",
+      "alias_of": "convolution_fft",
+      "review_notes": "The pinned Python FFT class multiplies coefficient sequences in ascending degree order, pads to a power of two covering the full product, rounds each complex result component to 8 decimal places, and trims trailing zero coefficients. It aliases the shared convolution_fft contract only on its supported subset: both inputs are nonempty, nonzero real q/16 coefficient vectors of length 1..64, and each final coefficient is nonzero. Those conditions avoid the source's all-zero input failure and input/output trimming; the nonzero top-product coefficient preserves all n+m-1 outputs. Exact q/16 products are multiples of 1/256, so their real coefficients are exactly representable at 8 decimal places, while the bounded FFT's residual imaginary parts round to zero."
     },
     {
       "candidate_id": "radix_sort",
@@ -84933,7 +85033,17 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -84944,7 +85054,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "One Python RMSProp update step. Require equal parameter/gradient lengths, positive learning rate and epsilon, rho in [0,1), and an absent or matching-length moving average. Return updated parameters and mutate a supplied moving average.",
+      "review_notes": "D58 statically cleared the bounded RMSprop contract and nine language ports. Pack [n,state_mode,learning_rate,rho,epsilon,params...,gradients...,moving_avg...] with n=0..32; mode 0 initializes zero state and mode 1 supplies exactly n averages. Each index updates v=rho*v+(1-rho)*gradient^2 before param-=learning_rate/sqrt(v+epsilon)*gradient. Parameters and gradients are bounded to [-100,100], learning rate to [1e-6,1], rho to [0,0.99], epsilon to [1e-8,1], and state to [0,10000]. The float64_slice_io ABI returns [updated_params...,updated_state...], rejects malformed input with -1 before null/short output with -2, and compares at 1e-12 absolute/relative tolerance. The 17 semantic and 9 ABI fixtures are integrated; no builds or tests were run.",
       "benchmark_name": "rmsprop",
       "benchmark_contract": "benchmarks/r/rmsprop/README.md"
     },
@@ -85846,7 +85956,7 @@
         "rust"
       ],
       "review_status": "reviewed_algorithm_semantics",
-      "review_notes": "The pinned Python and Rust sources implement textbook raw RSA modular exponentiation without padding. Python ASCII-encodes text and packs each block as a little-endian base-256 integer before pow(block, e, n), then reconstructs text from the stored message length. Rust exposes u64 encrypt/decrypt through square-and-multiply mod_pow and convenience text routines that encrypt one Unicode scalar per value; invalid decrypted Unicode scalars become '?'. The underlying RSA transform is shared, but block packing and character representation are not wire-format compatible. The candidate is the encryption/decryption operation, distinct from RSA private-key factor recovery and key generation; the Rust module also exposes a separate p,q-based keypair helper.",
+      "review_notes": "The pinned Python and Rust sources implement textbook raw RSA modular exponentiation without padding. Python ASCII-encodes text and packs each block as a little-endian base-256 integer before pow(block, e, n), then reconstructs text from the stored message length. Rust exposes u64 encrypt/decrypt through square-and-multiply mod_pow and convenience text routines that encrypt one Unicode scalar per value; invalid decrypted Unicode scalars become '?'. The underlying RSA transform is shared, but block packing and character representation are not wire-format compatible. The candidate is the encryption/decryption operation, distinct from RSA private-key factor recovery and key generation; the Rust module also exposes a separate p,q-based keypair helper. The bounded benchmark selects one ASCII character so Python default-size byte packing and Rust one-Unicode-scalar encryption use the same integer block; it returns one ciphertext scalar from caller-supplied exponent and modulus. Key generation, decryption, file I/O and multi-character encoding are excluded.",
       "implementations": [
         {
           "repository": "Python",
@@ -85862,7 +85972,9 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/rsa_cipher.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_name": "rsa_cipher",
+      "benchmark_contract": "benchmarks/r/rsa_cipher/README.md"
     },
     {
       "candidate_id": "rsa_factorization",
@@ -89026,7 +89138,7 @@
       ],
       "benchmark_name": "shuffled_shift_cipher",
       "benchmark_contract": "benchmarks/s/shuffled_shift_cipher/README.md",
-      "review_notes": "The pinned source uses a fixed nonempty passcode and a 97-character alphabet. The random default is outside the deterministic contract."
+      "review_notes": "The pinned Python source uses a fixed nonempty passcode, reverses alphabet segments at unique passcode breakpoints to build its 97-character key, and shifts each plaintext character by the positive alternating signed passcode sum or the passcode length fallback. The packed input is [passcode_length, plaintext_length, passcode_ascii..., plaintext_ascii...]; output is raw ASCII ciphertext. The random default is excluded. Malformed or null input returns -1 before output checks; for valid input, a null output pointer returns -2, including for empty plaintext, while empty plaintext with a non-null pointer and zero capacity succeeds. All nine ports implement the bounded 1..20 passcode and 0..256 plaintext contract."
     },
     {
       "candidate_id": "shunting_yard",
@@ -89036,7 +89148,15 @@
         "Swift"
       ],
       "local_source_folders": [
-        "c"
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
       ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
@@ -89057,7 +89177,7 @@
       ],
       "benchmark_name": "shunting_yard",
       "benchmark_contract": "benchmarks/s/shunting_yard/README.md",
-      "review_notes": "The C source has a precedence-stack bug and is excluded as invalid. The Swift source supports complete binary numeric expressions using +,-,*,/,^ only; no parentheses or unary operators. Reject incomplete expressions and unparsed tokens."
+      "review_notes": "The pinned upstream C source has an invalid precedence-stack implementation and is excluded; the nine local ports implement the valid Swift source. Swift evaluates complete binary expressions with +, -, *, /, and ^; power is right-associative and the other operators are left-associative. The bounded ASCII grammar excludes unary operators, exponent notation, parentheses, implicit multiplication, and trailing unparsed text; it bounds literals and intermediate values and rejects incomplete expressions, division by zero, and invalid real powers. The README specifies stepwise binary64 decimal conversion with separate rounding at each operation, round-to-nearest/ties-to-even, and reassociation/FMA disabled. D58 cleared the contract, workload, and oracle; 97b's final static review cleared all nine ports, oracle/workload/runner/verifier integration, README links and semantics, and README-linked builder/coverage source resolution."
     },
     {
       "candidate_id": "sierpinski_carpet",
@@ -90423,7 +90543,17 @@
       "source_repositories": [
         "Go"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -90436,7 +90566,7 @@
       ],
       "benchmark_name": "singlylinkedlist",
       "benchmark_contract": "benchmarks/s/singlylinkedlist/README.md",
-      "review_notes": "The pinned C++ list operations are defined on valid ranges; DelByPos(length+1) deletes the tail, while position zero may panic. Preserve this source boundary behavior and use only valid operations in the cross-language contract."
+      "review_notes": "The pinned Go Singly list stores generic node values and exposes add-at-beginning/end, delete-at-beginning/end, DelByPos, full reverse, and inclusive ReversePartition operations; the benchmark narrows values to signed integers. DelByPos is one-based: position 1 deletes the head, position=length deletes the tail through its general traversal, and position=length+1 selects the explicit DelAtEnd branch. Position zero can panic on a nonempty list, so it is excluded. The i64_array_bytes_output contract records the final list plus one (success,value) pair per operation; empty deletes return (zero,false). 97b statically cleared the README, workload, oracle, all nine local ports, runner/verifier integration, and generated valid traces; no builds or tests were run."
     },
     {
       "candidate_id": "sir",
@@ -91221,7 +91351,7 @@
       ],
       "benchmark_name": "soboleva_modified_hyperbolic_tangent",
       "benchmark_contract": "benchmarks/s/soboleva_modified_hyperbolic_tangent/README.md",
-      "review_notes": "The pinned source applies (exp(a*x)-exp(-b*x))/(exp(c*x)+exp(-d*x)) elementwise. Bound inputs to prevent exponential overflow."
+      "review_notes": "The pinned Python source computes the numerator exp(a*x)-exp(-b*x), then denominator exp(c*x)+exp(-d*x), then divides, preserving operation order elementwise. The packed float64 input is [sample_count,a,b,c,d,samples...]; coefficients are bounded to [-2,2], samples to [-20,20], and output has one value per sample with 1e-12 absolute and relative tolerances. The exponent bound prevents overflow and keeps the denominator positive. Malformed or null input returns -1 before output pointer or capacity checks; null or short output returns -2. All nine ports preserve the formula order."
     },
     {
       "candidate_id": "sociable_number",
@@ -91447,7 +91577,17 @@
       "source_repositories": [
         "Python"
       ],
-      "local_source_folders": [],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -91460,7 +91600,7 @@
       ],
       "benchmark_name": "solution42",
       "benchmark_contract": "benchmarks/s/solution42/README.md",
-      "review_notes": "The pinned source reads the first line of an adjacent words.txt fixture, scores uppercase letters with A=1, and counts values among the first 100 triangular numbers. Preserve the fixed fixture and first-line-only behavior."
+      "review_notes": "The pinned Python solution reads the fixed words.txt fixture as text and processes only its first LF, CRLF, or lone-CR line. The i64_array_scalar adapter passes one ASCII byte per signed-i64 value, bounds input to 16,384 values, counts uppercase word scores in T_1..T_100 with duplicates, and preserves a 16,346-byte fixture returning 162. Length zero reaches the port as a null pointer and is valid with result 0; a null pointer with positive length, overlength input, or a non-ASCII value returns -1. Ten workload fixtures cover the source result, line endings, empty input, invalid bytes and length, and null-pointer precedence. All nine local language ports are present; runner and deterministic verifier integration are registered."
     },
     {
       "candidate_id": "solv",
@@ -92283,7 +92423,7 @@
       ],
       "benchmark_name": "spigotpi",
       "benchmark_contract": "benchmarks/s/spigotpi/README.md",
-      "review_notes": "The pinned Go source generates decimal digits of pi by the spigot algorithm. Require n >= 0 and a positive feasible allocation for the ordinary benchmark contract; preserve the returned digit-string format. Runner/verifier integration is formally CLEAR; malformed values outside signed-i64 range were removed from the workload."
+      "review_notes": "The pinned Go Spigot(n) returns the requested leading decimal digits as text, beginning with 3. The bounded bytes-output contract accepts n from 0 through 256 and returns exactly n ASCII digits without a decimal point. Its independent Chudnovsky oracle renders guard digits and truncates, with n=4 yielding 3141. The workload includes explicit null input/output ABI cases and names null_output_result=-2. D58 cleared the source contract and nine ports; 97b cleared the i64_array_bytes_output runner/verifier integration and README-linked build discovery for the language m/ paths."
     },
     {
       "candidate_id": "spiral_print",
@@ -95284,9 +95424,8 @@
     },
     {
       "candidate_id": "suffix_tree",
-      "source_repository_count": 2,
+      "source_repository_count": 1,
       "source_repositories": [
-        "Python",
         "Rust"
       ],
       "local_source_folders": [
@@ -95295,13 +95434,6 @@
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
-          "repository": "Python",
-          "language": "Python",
-          "path": "data_structures/suffix_tree/suffix_tree.py",
-          "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/suffix_tree/suffix_tree.py",
-          "local_folder_source": null
-        },
-        {
           "repository": "Rust",
           "language": "Rust",
           "path": "src/string/suffix_tree.rs",
@@ -95309,7 +95441,9 @@
           "local_folder_source": "rust"
         }
       ],
-      "review_notes": "The pinned Python SuffixTree inserts every suffix character-by-character into an uncompressed trie, giving quadratic construction in the text length. search returns true when the pattern path exists and does not consult the terminal marker, which implements substring membership; the empty pattern therefore matches even an empty text. Leaves receive start/end metadata, while suffix_link is not used. Despite the filename, this Python source is a suffix trie rather than a compressed suffix tree; the Rust implementation listed in the same candidate needs a separate compatibility check."
+      "review_notes": "The pinned Rust source builds a compressed suffix tree by inserting every suffix and splitting edge labels at mismatches; it exposes the node vector but has no search operation. Its bounded construction contract serializes node labels and ordered child indices, preserving insertion/split order, and is separate from Python's uncompressed suffix_trie constructor/search behavior.",
+      "benchmark_name": "suffix_tree",
+      "benchmark_contract": "benchmarks/s/suffix_tree/README.md"
     },
     {
       "candidate_id": "suffix_tree_node",
@@ -95329,6 +95463,37 @@
         }
       ],
       "review_notes": "The pinned Python source only defines a SuffixTreeNode record with children, an end-of-string flag, start/end indices, and a suffix_link. It provides no construction, search, traversal, or independent algorithm output; the node is a helper imported by suffix_tree.py. Exclude this helper class as a standalone benchmark candidate."
+    },
+    {
+      "candidate_id": "suffix_trie",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [
+        "c",
+        "c3",
+        "cpp",
+        "elisa",
+        "nim",
+        "odin",
+        "rust",
+        "v",
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Python",
+          "language": "Python",
+          "path": "data_structures/suffix_tree/suffix_tree.py",
+          "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/suffix_tree/suffix_tree.py",
+          "local_folder_source": null
+        }
+      ],
+      "review_notes": "The pinned Python class is named SuffixTree but constructs an uncompressed character trie containing every suffix. Its search method follows child links without checking the terminal marker, giving substring-membership semantics and returning true for an empty pattern even when the text is empty. The matching bounded contract covers construction plus one ASCII search; the same-stem Rust source is kept in the separate `suffix_tree` candidate because it constructs a compressed suffix tree and has no search method.",
+      "benchmark_name": "suffix_trie",
+      "benchmark_contract": "benchmarks/s/suffix_trie/README.md"
     },
     {
       "candidate_id": "sum_digit",

@@ -27,6 +27,7 @@ from run_i64_array_float64 import (
     validate_schur_complement_workload,
     validate_sharpe_ratio_workload,
     validate_maxwells_equations_workload,
+    validate_shunting_yard_workload,
 )
 from variance_oracle import INVALID_RESULT as VARIANCE_INVALID_RESULT
 from variance_oracle import MAX_INPUT_LENGTH as MAX_VARIANCE_INPUT_LENGTH
@@ -515,6 +516,9 @@ from maxwells_equations_oracle import MAX_PHYSICAL_RAW as MAXWELLS_EQUATIONS_MAX
 from maxwells_equations_oracle import MAX_CONSTANT_RAW as MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW
 from maxwells_equations_oracle import MIN_CONSTANT_RAW as MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW
 from maxwells_equations_oracle import expected_result as maxwells_equations_reference
+from shunting_yard_oracle import MAX_EXPRESSION_BYTES as SHUNTING_YARD_MAX_EXPRESSION_BYTES
+from shunting_yard_oracle import MAX_PARSEABLE_INPUT_LENGTH as SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH
+from shunting_yard_oracle import expected_result as shunting_yard_oracle
 
 ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "weddles_rule", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range", "apparent_power", "archimedes_principle_of_buoyant_force", "automatic_differentiation", "boyles_law", "butterworth_filter", "center_of_mass", "centripetal_force", "cohen_sutherland")
 ALGORITHMS += ("reverse_polish_notation",)
@@ -565,6 +569,7 @@ ALGORITHMS += ("moles_to_molecules",)
 ALGORITHMS += ("schur_complement",)
 ALGORITHMS += ("sharpe_ratio",)
 ALGORITHMS += ("maxwells_equations",)
+ALGORITHMS += ("shunting_yard",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -954,6 +959,8 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return peak_signal_to_noise_ratio_oracle(values)
     if algorithm == "reverse_polish_notation":
         return reverse_polish_notation_oracle(values)
+    if algorithm == "shunting_yard":
+        return shunting_yard_oracle(values)
     raise ValueError(f"no oracle for {algorithm}")
 
 
@@ -976,6 +983,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_sharpe_ratio_workload(workload)
     elif algorithm == "maxwells_equations":
         validate_maxwells_equations_workload(workload)
+    elif algorithm == "shunting_yard":
+        validate_shunting_yard_workload(workload)
     absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     if (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0
             or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
@@ -5382,6 +5391,45 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                      (1, 0, 0, 0, 0, 0, 0, 0))
         for values in malformed:
             cases[values] = GAUSSIAN_LEGENDRE_INVALID_RESULT
+    elif algorithm == "shunting_yard":
+        rng_shunting_yard = random.Random(20261017)
+
+        def add_expression(expression: str) -> None:
+            encoded = expression.encode("ascii")
+            if not 1 <= len(encoded) <= SHUNTING_YARD_MAX_EXPRESSION_BYTES:
+                raise ValueError("shunting_yard generated expression exceeds its ASCII byte bound")
+            values = (len(encoded), *encoded)
+            if len(values) > SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH:
+                raise ValueError("shunting_yard generated array exceeds its parseable bound")
+            cases[values] = oracle(algorithm, list(values))
+
+        add_expression("+".join("1" for _ in range(16)))
+        add_expression("1+" * 15 + "1")
+        add_expression("12345678901234567")
+        add_expression("1000001")
+        add_expression("1^1^1^1^1^1^1^1^1^1^1^1^1^1^1^1^1")
+
+        for _ in range(128):
+            operand_count = rng_shunting_yard.randint(1, 10)
+            operands = [str(rng_shunting_yard.randint(0, 1000))
+                        for _ in range(operand_count)]
+            operators = [rng_shunting_yard.choice(("+", "-", "*", "/", "^"))
+                         for _ in range(operand_count - 1)]
+            pieces = [operands[0]]
+            for operator, operand in zip(operators, operands[1:]):
+                separator = rng_shunting_yard.choice(("", " ", "\t", "\n", "\v", "\f", "\r"))
+                pieces.extend((separator, operator, separator, operand))
+            add_expression("".join(pieces))
+
+        malformed = (
+            (), (0,), (256,), (255, *([49] * 256)),
+            (255, *([49] * 255)), (1, 49, 50), (1, -1), (1, 0x80),
+            (SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH + 1,),
+        )
+        for values in malformed:
+            if (len(values) <= SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH
+                    and all(type(value) is int and I64_MIN <= value <= I64_MAX for value in values)):
+                cases[values] = oracle(algorithm, list(values))
     else:
         raise ValueError(f"no corpus for {algorithm}")
 
@@ -5463,6 +5511,7 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "schur_complement": 6,
                     "sharpe_ratio": 0,
                     "maxwells_equations": 0,
+                    "shunting_yard": SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH,
                     "smooth_l1_loss": MAX_SMOOTH_L1_LOSS_INPUT_LENGTH,
                     "binary_cross_entropy": MAX_BINARY_CROSS_ENTROPY_INPUT_LENGTH,
                     "binary_focal_cross_entropy": MAX_BINARY_FOCAL_CROSS_ENTROPY_INPUT_LENGTH,

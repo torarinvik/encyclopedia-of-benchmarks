@@ -1,0 +1,81 @@
+const MAX_INPUT_LENGTH: usize = 84
+
+def k_means_clust_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if value != value or value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def k_means_clust_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > MAX_INPUT_LENGTH: return -1
+    if not k_means_clust_exact_integer(input[0], 1, 16) or
+        not k_means_clust_exact_integer(input[1], 1, 4) or
+        not k_means_clust_exact_integer(input[2], 1, 4): return -1
+    point_count: usize = input[0].usize()
+    dimension: usize = input[1].usize()
+    cluster_count: usize = input[2].usize()
+    if cluster_count > point_count: return -1
+    data_start: usize = 3
+    centroid_start: usize = data_start + point_count * dimension
+    expected_length: usize = centroid_start + cluster_count * dimension
+    if input_length != expected_length: return -1
+    index: mutable usize = data_start
+    while index < expected_length:
+        if not k_means_clust_exact_integer(input[index], -16, 16): return -1
+        index <- index + 1
+
+    assignments: mutable usize[16] = zeroed
+    counts: mutable usize[4] = zeroed
+    sums: mutable i64[16] = zeroed
+    point: mutable usize = 0
+    while point < point_count:
+        best_cluster: mutable usize = 0
+        best_distance: mutable i64 = 0
+        feature: mutable usize = 0
+        while feature < dimension:
+            value: i64 = input[data_start + point * dimension + feature].i64()
+            center: i64 = input[centroid_start + feature].i64()
+            delta: i64 = value - center
+            best_distance <- best_distance + delta * delta
+            feature <- feature + 1
+        cluster: mutable usize = 1
+        while cluster < cluster_count:
+            distance: mutable i64 = 0
+            feature <- 0
+            while feature < dimension:
+                value: i64 = input[data_start + point * dimension + feature].i64()
+                center: i64 = input[centroid_start + cluster * dimension + feature].i64()
+                delta: i64 = value - center
+                distance <- distance + delta * delta
+                feature <- feature + 1
+            if distance < best_distance:
+                best_distance <- distance
+                best_cluster <- cluster
+            cluster <- cluster + 1
+        assignments[point] <- best_cluster
+        counts[best_cluster] <- counts[best_cluster] + 1
+        feature <- 0
+        while feature < dimension:
+            sums[best_cluster * dimension + feature] <- sums[best_cluster * dimension + feature] +
+                input[data_start + point * dimension + feature].i64()
+            feature <- feature + 1
+        point <- point + 1
+    cluster: mutable usize = 0
+    while cluster < cluster_count:
+        if counts[cluster] == 0: return -1
+        cluster <- cluster + 1
+    output_length: usize = point_count + cluster_count * dimension
+    if output.is_null() or capacity < output_length: return -2
+    point <- 0
+    while point < point_count:
+        output[point] <- assignments[point].f64()
+        point <- point + 1
+    cluster <- 0
+    while cluster < cluster_count:
+        feature <- 0
+        while feature < dimension:
+            output[point_count + cluster * dimension + feature] <-
+                sums[cluster * dimension + feature].f64() / counts[cluster].f64()
+            feature <- feature + 1
+        cluster <- cluster + 1
+    output_length.i64()
+
+export fn k_means_clust(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = k_means_clust_impl

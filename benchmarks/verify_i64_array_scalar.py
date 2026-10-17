@@ -620,6 +620,7 @@ from run_i64_array_scalar import validate_segment_tree_apply_workload
 from run_i64_array_scalar import validate_smooth_sort_workload
 from run_i64_array_scalar import validate_tim_sorter_workload
 from run_i64_array_scalar import validate_clojure_persistent_list_queue_workload
+from run_i64_array_scalar import validate_mcoloring_workload
 from run_i64_array_scalar import validate_graph_enumeration_workload
 from run_i64_array_scalar import validate_lca_workload
 from run_i64_array_scalar import validate_johnsons_algorithm_workload
@@ -629,6 +630,10 @@ from run_i64_array_scalar import validate_miller_rabin_primality_checker_workloa
 from run_i64_array_scalar import validate_logistic_regression_predict_workload
 from run_i64_array_scalar import validate_time_simulation_workload
 from run_i64_array_scalar import validate_rotting_oranges_workload
+from run_i64_array_scalar import validate_solution42_workload
+from run_i64_array_scalar import validate_k_nn_workload
+from run_i64_array_scalar import validate_rsa_cipher_workload
+from run_i64_array_scalar import validate_suffix_trie_workload
 from generalized_esd_oracle import expected_result as generalized_esd_oracle
 from string_prefix_suffix_oracle import expected_result as string_prefix_suffix_oracle
 from one_bit_difference_oracle import expected_result as one_bit_difference_oracle
@@ -960,6 +965,35 @@ from kcenters_oracle import MAX_INPUT_LENGTH as KCENTERS_MAX_INPUT_LENGTH
 from kcenters_oracle import MAX_PARSEABLE_INPUT_LENGTH as KCENTERS_MAX_PARSEABLE_INPUT_LENGTH
 from kcenters_oracle import MAX_POINTS as KCENTERS_MAX_POINTS
 from kcenters_oracle import expected_result as kcenters_oracle
+from k_nn_oracle import INVALID_RESULT as K_NN_INVALID_RESULT
+from k_nn_oracle import MAX_FEATURE_COUNT as K_NN_MAX_FEATURE_COUNT
+from k_nn_oracle import MAX_FEATURE_VALUE as K_NN_MAX_FEATURE_VALUE
+from k_nn_oracle import MAX_PARSEABLE_INPUT_VALUES as K_NN_MAX_PARSEABLE_INPUT_VALUES
+from k_nn_oracle import MAX_TRAINING_COUNT as K_NN_MAX_TRAINING_COUNT
+from k_nn_oracle import MAX_VALID_INPUT_VALUES as K_NN_MAX_VALID_INPUT_VALUES
+from k_nn_oracle import MIN_FEATURE_COUNT as K_NN_MIN_FEATURE_COUNT
+from k_nn_oracle import MIN_FEATURE_VALUE as K_NN_MIN_FEATURE_VALUE
+from k_nn_oracle import MIN_TRAINING_COUNT as K_NN_MIN_TRAINING_COUNT
+from k_nn_oracle import expected_result as k_nn_oracle
+from rsa_cipher_oracle import I64_MAX as RSA_CIPHER_I64_MAX
+from rsa_cipher_oracle import I64_MIN as RSA_CIPHER_I64_MIN
+from rsa_cipher_oracle import INVALID_RESULT as RSA_CIPHER_INVALID_RESULT
+from rsa_cipher_oracle import MAX_ASCII_CODE as RSA_CIPHER_MAX_ASCII_CODE
+from rsa_cipher_oracle import MAX_EXPONENT as RSA_CIPHER_MAX_EXPONENT
+from rsa_cipher_oracle import MAX_MODULUS as RSA_CIPHER_MAX_MODULUS
+from rsa_cipher_oracle import MAX_PARSEABLE_INPUT_VALUES as RSA_CIPHER_MAX_PARSEABLE_INPUT_VALUES
+from rsa_cipher_oracle import MAX_VALID_INPUT_VALUES as RSA_CIPHER_MAX_VALID_INPUT_VALUES
+from rsa_cipher_oracle import MIN_ASCII_CODE as RSA_CIPHER_MIN_ASCII_CODE
+from rsa_cipher_oracle import MIN_MODULUS as RSA_CIPHER_MIN_MODULUS
+from rsa_cipher_oracle import expected_result as rsa_cipher_oracle
+from suffix_trie_oracle import INVALID_RESULT as SUFFIX_TRIE_INVALID_RESULT
+from suffix_trie_oracle import MAX_ASCII_CODE as SUFFIX_TRIE_MAX_ASCII_CODE
+from suffix_trie_oracle import MAX_PARSEABLE_INPUT_VALUES as SUFFIX_TRIE_MAX_PARSEABLE_INPUT_VALUES
+from suffix_trie_oracle import MAX_PATTERN_LENGTH as SUFFIX_TRIE_MAX_PATTERN_LENGTH
+from suffix_trie_oracle import MAX_TEXT_LENGTH as SUFFIX_TRIE_MAX_TEXT_LENGTH
+from suffix_trie_oracle import MAX_VALID_INPUT_VALUES as SUFFIX_TRIE_MAX_VALID_INPUT_VALUES
+from suffix_trie_oracle import MIN_ASCII_CODE as SUFFIX_TRIE_MIN_ASCII_CODE
+from suffix_trie_oracle import expected_result as suffix_trie_oracle
 from minimax_oracle import I32_MAX as MINIMAX_I32_MAX
 from minimax_oracle import I32_MIN as MINIMAX_I32_MIN
 from minimax_oracle import INVALID_RESULT as MINIMAX_INVALID_RESULT
@@ -1116,6 +1150,10 @@ from lca_oracle import INVALID_RESULT as LCA_INVALID_RESULT
 from lca_oracle import MAX_INPUT_LENGTH as LCA_MAX_INPUT_LENGTH
 from lca_oracle import MAX_NODES as LCA_MAX_NODES
 from lca_oracle import expected_result as lca_oracle
+from mcoloring_oracle import MAX_VERTICES as MCOLORING_MAX_VERTICES
+from mcoloring_oracle import expected_result as mcoloring_oracle
+from solution42_oracle import MAX_INPUT_LENGTH as SOLUTION42_MAX_INPUT_LENGTH
+from solution42_oracle import expected_result as solution42_oracle
 from johnsons_algorithm_oracle import MAX_INPUT_LENGTH as JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH
 from johnsons_algorithm_oracle import MAX_VERTICES as JOHNSONS_ALGORITHM_MAX_VERTICES
 from johnsons_algorithm_oracle import MAX_WEIGHT as JOHNSONS_ALGORITHM_MAX_WEIGHT
@@ -1277,6 +1315,11 @@ ALGORITHMS += ("segment_tree_apply",)
 ALGORITHMS += ("smooth_sort",)
 ALGORITHMS += ("clojure_persistent_list_queue",)
 ALGORITHMS += ("tim_sorter",)
+ALGORITHMS += ("mcoloring",)
+ALGORITHMS += ("solution42",)
+ALGORITHMS += ("k_nn",)
+ALGORITHMS += ("rsa_cipher",)
+ALGORITHMS += ("suffix_trie",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -1859,6 +1902,12 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return multiplexer_oracle(values)
     if algorithm == "support_vector_classifier":
         return support_vector_classifier_oracle(values)
+    if algorithm == "k_nn":
+        return k_nn_oracle(values)
+    if algorithm == "rsa_cipher":
+        return rsa_cipher_oracle(values)
+    if algorithm == "suffix_trie":
+        return suffix_trie_oracle(values)
     if algorithm == "string_hash_equality":
         return string_hash_equality_oracle(values)
     if algorithm == "pairing_heap":
@@ -1903,6 +1952,10 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return graph_enumeration_oracle(values)
     if algorithm == "lca":
         return lca_oracle(values)
+    if algorithm == "mcoloring":
+        return mcoloring_oracle(values)
+    if algorithm == "solution42":
+        return solution42_oracle(values)
     if algorithm == "johnsons_algorithm":
         return johnsons_algorithm_oracle(values)
     if algorithm == "greedy_graph_coloring":
@@ -2677,6 +2730,16 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_tim_sorter_workload(workload)
     elif algorithm == "clojure_persistent_list_queue":
         validate_clojure_persistent_list_queue_workload(workload)
+    elif algorithm == "mcoloring":
+        validate_mcoloring_workload(workload)
+    elif algorithm == "solution42":
+        validate_solution42_workload(workload)
+    elif algorithm == "k_nn":
+        validate_k_nn_workload(workload)
+    elif algorithm == "rsa_cipher":
+        validate_rsa_cipher_workload(workload)
+    elif algorithm == "suffix_trie":
+        validate_suffix_trie_workload(workload)
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
     special_records: list[str] = []
@@ -2685,17 +2748,219 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         expected = case["expected_result"]
         if case.get("input_is_null", False):
             input_length = case.get("input_length")
-            minimum_null_length = 0 if algorithm in ("mul_array", "rotting_oranges") else 1
+            minimum_null_length = 0 if algorithm in (
+                "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie") else 1
             if (values or type(input_length) is not int
                     or not minimum_null_length <= input_length <= 100002):
                 raise ValueError(f"null input case has an invalid declared length: {case.get('id')}")
             if algorithm == "mul_array" and expected != (1 if input_length == 0 else -1):
                 raise ValueError("mul_array null input cases must distinguish empty and positive lengths")
+            if algorithm == "solution42" and expected != solution42_oracle(None, input_length, True):
+                raise ValueError("solution42 null input case differs from its empty/nonempty pointer contract")
             special_records.append(f"NULL {input_length} {expected}\n")
             continue
         if oracle(algorithm, values) != expected:
             raise ValueError(f"published workload disagrees with {algorithm} oracle")
-    if algorithm == "msd_radix_string_sorter":
+    if algorithm == "k_nn":
+        def add_k_nn_case(values: tuple[int, ...], *, require_valid: bool = False) -> None:
+            if (len(values) > K_NN_MAX_PARSEABLE_INPUT_VALUES
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("k_nn generated input exceeds its signed-i64 framing bounds")
+            result = k_nn_oracle(list(values))
+            if result not in (K_NN_INVALID_RESULT, 0, 1):
+                raise ValueError("k_nn oracle returned a result outside the binary scalar contract")
+            if require_valid and result not in (0, 1):
+                raise ValueError("k_nn generated query is not valid under the distinct-distance contract")
+            cases[values] = result
+
+        maximum_count = K_NN_MAX_TRAINING_COUNT
+        maximum_dimensions = K_NN_MAX_FEATURE_COUNT
+        maximum_rows = [tuple((row_index + 1, *([0] * (maximum_dimensions - 1))))
+                        for row_index in range(maximum_count)]
+        maximum_labels = tuple(index % 2 for index in range(maximum_count))
+        maximum_query = (0,) * maximum_dimensions
+        maximum_trace = (
+            maximum_count, maximum_dimensions, maximum_count - 1,
+            *(coordinate for row in maximum_rows for coordinate in row),
+            *maximum_labels, *maximum_query,
+        )
+        if len(maximum_trace) != K_NN_MAX_VALID_INPUT_VALUES:
+            raise ValueError("k_nn maximum frame does not match its reviewed input bound")
+        add_k_nn_case(maximum_trace, require_valid=True)
+        add_k_nn_case((*maximum_trace, 0))
+        special_records.append(f"NULL 0 {K_NN_INVALID_RESULT}\n")
+
+        rng_k_nn = random.Random(20261021)
+        for _ in range(128):
+            training_count = rng_k_nn.randint(K_NN_MIN_TRAINING_COUNT,
+                                               K_NN_MAX_TRAINING_COUNT)
+            feature_count = rng_k_nn.randint(K_NN_MIN_FEATURE_COUNT,
+                                              K_NN_MAX_FEATURE_COUNT)
+            query = tuple(rng_k_nn.randint(-16, 16)
+                          if feature_index == 0 else
+                          rng_k_nn.randint(K_NN_MIN_FEATURE_VALUE, K_NN_MAX_FEATURE_VALUE)
+                          for feature_index in range(feature_count))
+            distances = list(range(1, training_count + 1))
+            rng_k_nn.shuffle(distances)
+            rows = []
+            for distance in distances:
+                row = list(query)
+                candidate = query[0] + distance
+                row[0] = candidate if candidate <= K_NN_MAX_FEATURE_VALUE else query[0] - distance
+                rows.append(tuple(row))
+            labels = tuple(rng_k_nn.randrange(2) for _ in range(training_count))
+            k = rng_k_nn.choice(tuple(range(1, training_count + 1, 2)))
+            values = (training_count, feature_count, k,
+                      *(coordinate for row in rows for coordinate in row),
+                      *labels, *query)
+            add_k_nn_case(values, require_valid=True)
+
+        malformed_k_nn = (
+            (), (0, 1, 1), (K_NN_MAX_TRAINING_COUNT + 1, 1, 1),
+            (1, 0, 1), (1, K_NN_MAX_FEATURE_COUNT + 1, 1),
+            (1, 1, 0, 0, 0, 0), (3, 1, 2, -2, 0, 2, 0, 1, 1, 1),
+            (1, 1, 3, 0, 1, 0), (2, 1, 1, -1, 1, 0, 1, 0),
+            (1, 1, 1, 0, 2, 1), (1, 1, 1, 33, 0, 0),
+            (3, 1, 1, 0, 10, -10, 0, 1, 1),
+            tuple([0] * K_NN_MAX_PARSEABLE_INPUT_VALUES),
+        )
+        for malformed in malformed_k_nn:
+            add_k_nn_case(tuple(malformed))
+    elif algorithm == "rsa_cipher":
+        def add_rsa_case(values: tuple[int, ...], *, require_valid: bool = False) -> int:
+            if (len(values) > RSA_CIPHER_MAX_PARSEABLE_INPUT_VALUES
+                    or any(type(value) is not int
+                           or not RSA_CIPHER_I64_MIN <= value <= RSA_CIPHER_I64_MAX
+                           for value in values)):
+                raise ValueError("rsa_cipher generated input exceeds its signed-i64 framing bounds")
+            result = rsa_cipher_oracle(list(values))
+            if result != RSA_CIPHER_INVALID_RESULT and not 0 <= result <= RSA_CIPHER_MAX_MODULUS - 1:
+                raise ValueError("rsa_cipher oracle returned ciphertext outside the modulus")
+            if require_valid and result == RSA_CIPHER_INVALID_RESULT:
+                raise ValueError("rsa_cipher generated key parameters are outside the bounded contract")
+            cases[values] = result
+            return result
+
+        for case in workload.get("abi_cases", []):
+            values = tuple(case["input_values"])
+            input_is_null = case.get("input_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            input_length = case.get("input_length", len(values))
+            if input_is_null:
+                if values or input_length != 0:
+                    raise ValueError("rsa_cipher null-input ABI fixture has invalid framing")
+                special_records.append(f"NULL {input_length} {case['expected_result']}\n")
+                continue
+            if add_rsa_case(values) != case["expected_result"]:
+                raise ValueError(f"rsa_cipher ABI fixture mismatch: {case.get('id')}")
+
+        maximum_trace = (RSA_CIPHER_MAX_ASCII_CODE,
+                         RSA_CIPHER_MAX_EXPONENT,
+                         RSA_CIPHER_MAX_MODULUS)
+        if len(maximum_trace) != RSA_CIPHER_MAX_VALID_INPUT_VALUES:
+            raise ValueError("rsa_cipher maximum frame does not match its reviewed input bound")
+        add_rsa_case(maximum_trace, require_valid=True)
+        add_rsa_case((*maximum_trace, 0))
+
+        rng_rsa = random.Random(20261017)
+        for _ in range(128):
+            modulus = rng_rsa.randint(RSA_CIPHER_MIN_MODULUS, RSA_CIPHER_MAX_MODULUS)
+            exponent = rng_rsa.randint(1, modulus - 1)
+            ascii_code = rng_rsa.randint(RSA_CIPHER_MIN_ASCII_CODE,
+                                         RSA_CIPHER_MAX_ASCII_CODE)
+            add_rsa_case((ascii_code, exponent, modulus), require_valid=True)
+
+        malformed_rsa = (
+            (), (0,), (0, 1), (0, 0, 0),
+            (RSA_CIPHER_MAX_ASCII_CODE + 1, 1, RSA_CIPHER_MIN_MODULUS),
+            (0, 1, RSA_CIPHER_MIN_MODULUS - 1),
+            (0, 0, RSA_CIPHER_MIN_MODULUS),
+            (0, RSA_CIPHER_MIN_MODULUS, RSA_CIPHER_MIN_MODULUS),
+            (-1, 1, RSA_CIPHER_MIN_MODULUS),
+            (0, 1, RSA_CIPHER_MAX_MODULUS + 1),
+            (0, 1, RSA_CIPHER_MIN_MODULUS, 0),
+        )
+        for malformed in malformed_rsa:
+            if add_rsa_case(malformed) != RSA_CIPHER_INVALID_RESULT:
+                raise ValueError("rsa_cipher oracle accepted a generated malformed probe")
+    elif algorithm == "suffix_trie":
+        def add_suffix_trie_case(values: tuple[int, ...], *, require_valid: bool = False) -> int:
+            if (len(values) > SUFFIX_TRIE_MAX_PARSEABLE_INPUT_VALUES
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("suffix_trie generated input exceeds its signed-i64 framing bounds")
+            result = suffix_trie_oracle(list(values))
+            if result not in (SUFFIX_TRIE_INVALID_RESULT, 0, 1):
+                raise ValueError("suffix_trie oracle returned a value outside its scalar contract")
+            if require_valid and result not in (0, 1):
+                raise ValueError("suffix_trie generated input is invalid under the bounded contract")
+            cases[values] = result
+            return result
+
+        for case in workload.get("abi_cases", []):
+            values = tuple(case["input_values"])
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values))
+            if input_is_null:
+                if values or input_length != 0 or case["expected_result"] != SUFFIX_TRIE_INVALID_RESULT:
+                    raise ValueError("suffix_trie null-input ABI fixture has invalid framing")
+                special_records.append(f"NULL {input_length} {case['expected_result']}\n")
+                continue
+            # Fractional values cannot be represented by this signed-i64 ABI checker;
+            # the strict workload validator checks that fixture against the oracle.
+            if any(type(value) is not int for value in values):
+                if case["id"] != "fractional_text_length" or case["expected_result"] != SUFFIX_TRIE_INVALID_RESULT:
+                    raise ValueError("suffix_trie has an unrepresentable or unexpected nonintegral ABI fixture")
+                continue
+            if add_suffix_trie_case(values) != case["expected_result"]:
+                raise ValueError(f"suffix_trie ABI fixture mismatch: {case.get('id')}")
+
+        maximum_text = tuple(index for index in range(SUFFIX_TRIE_MAX_TEXT_LENGTH))
+        maximum_pattern = tuple(range(16, 16 + SUFFIX_TRIE_MAX_PATTERN_LENGTH))
+        maximum_trace = (SUFFIX_TRIE_MAX_TEXT_LENGTH, SUFFIX_TRIE_MAX_PATTERN_LENGTH,
+                         *maximum_text, *maximum_pattern)
+        if len(maximum_trace) != SUFFIX_TRIE_MAX_VALID_INPUT_VALUES:
+            raise ValueError("suffix_trie maximum frame does not match its reviewed input bound")
+        add_suffix_trie_case(maximum_trace, require_valid=True)
+        add_suffix_trie_case((*maximum_trace, 0))
+
+        rng_suffix_trie = random.Random(20261017)
+        for _ in range(128):
+            text = tuple(rng_suffix_trie.randint(SUFFIX_TRIE_MIN_ASCII_CODE,
+                                                  SUFFIX_TRIE_MAX_ASCII_CODE)
+                         for _ in range(rng_suffix_trie.randint(0, SUFFIX_TRIE_MAX_TEXT_LENGTH)))
+            pattern = tuple(rng_suffix_trie.randint(SUFFIX_TRIE_MIN_ASCII_CODE,
+                                                     SUFFIX_TRIE_MAX_ASCII_CODE)
+                            for _ in range(rng_suffix_trie.randint(0, SUFFIX_TRIE_MAX_PATTERN_LENGTH)))
+            add_suffix_trie_case((len(text), len(pattern), *text, *pattern), require_valid=True)
+
+        malformed_suffix_trie = (
+            (), (0,), (0, 0, 0), (1, 0), (0, 1),
+            (SUFFIX_TRIE_MAX_TEXT_LENGTH + 1, 0),
+            (0, SUFFIX_TRIE_MAX_PATTERN_LENGTH + 1),
+            (1, 1, SUFFIX_TRIE_MIN_ASCII_CODE - 1, SUFFIX_TRIE_MIN_ASCII_CODE),
+            (1, 1, SUFFIX_TRIE_MAX_ASCII_CODE + 1, SUFFIX_TRIE_MIN_ASCII_CODE),
+            (2, 1, SUFFIX_TRIE_MIN_ASCII_CODE),
+        )
+        for malformed in malformed_suffix_trie:
+            if add_suffix_trie_case(tuple(malformed)) != SUFFIX_TRIE_INVALID_RESULT:
+                raise ValueError("suffix_trie oracle accepted a generated malformed probe")
+    elif algorithm == "solution42":
+        rng_solution42 = random.Random(20261017)
+        for _ in range(96):
+            values = tuple(rng_solution42.randrange(128)
+                           for _ in range(rng_solution42.randint(0, 256)))
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum_length = tuple((65, 44) * (SOLUTION42_MAX_INPUT_LENGTH // 2))
+        cases[maximum_length] = oracle(algorithm, list(maximum_length))
+        for values in ((-1,), (128,), (255,)):
+            cases[values] = oracle(algorithm, list(values))
+
+        # The shared scalar runner presents every zero-length call as NULL+0.
+        special_records.append("NULL 0 0\n")
+    elif algorithm == "msd_radix_string_sorter":
         rng_msd_radix = random.Random(20261019)
 
         def pack_msd(strings: list[tuple[int, ...]]) -> tuple[int, ...]:
@@ -13508,6 +13773,22 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for malformed in malformed_tim_sorter:
             add_tim_sorter_case(tuple(malformed))
+    if algorithm == "mcoloring":
+        rng_mcoloring = random.Random(20261017)
+        for _ in range(96):
+            vertex_count = rng_mcoloring.randint(0, MCOLORING_MAX_VERTICES)
+            color_limit = rng_mcoloring.randint(1, 14)
+            masks = [0] * vertex_count
+            for vertex in range(1, vertex_count):
+                if rng_mcoloring.randrange(3) != 0:
+                    neighbor = rng_mcoloring.randrange(vertex)
+                    masks[vertex] |= 1 << neighbor
+                    masks[neighbor] |= 1 << vertex
+            values = (vertex_count, color_limit, *masks)
+            result = mcoloring_oracle(list(values))
+            if result not in (0, 1):
+                raise ValueError("mcoloring generated forest was rejected by its oracle")
+            cases[values] = result
     case_count = len(cases) + len(special_records)
     lines = [str(case_count) + "\n"]
     for values, expected in sorted(cases.items()):

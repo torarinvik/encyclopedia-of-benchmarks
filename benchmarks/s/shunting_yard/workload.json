@@ -1,0 +1,543 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-swift-shunting-yard-i64-ascii-float64-v1",
+  "algorithm": "shunting_yard",
+  "function_symbol": "shunting_yard",
+  "description": "Evaluate complete bounded ASCII binary arithmetic expressions with the pinned Swift shunting-yard precedence and associativity rules.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Swift",
+    "commit": "2c9eb8b85dee6db46cb33452c0b904eb7d7d179c",
+    "path": "algorithms/parsing/shunting_yard/shunting_yard.swift",
+    "type": "algorithm",
+    "symbol": "ShuntingYard.evaluate(_:)"
+  },
+  "contract": {
+    "operation": "Scan and evaluate a complete expression containing nonnegative decimal literals and the binary operators +, -, *, /, and ^.",
+    "input_encoding": "[byte_count, ASCII expression bytes...]",
+    "numeric_literals": "ASCII digits with an optional decimal point followed by one or more digits; no sign or exponent notation. Each literal is in [0, 1000000] and at most 16 bytes.",
+    "decimal_conversion": "Convert integer digits left-to-right from binary64 0.0 by multiplying by 10.0 and then adding the digit. After the decimal point, start scale at binary64 0.1; for each fractional digit, add digit times scale, then divide scale by 10.0. Each operation rounds separately to binary64; fused multiply-add is disabled. The rounding mode is round-to-nearest, ties-to-even, and compilers must not reassociate these operations.",
+    "whitespace": "ASCII space, tab, line feed, vertical tab, form feed, and carriage return may appear between tokens.",
+    "operator_precedence": {
+      "^": 3,
+      "*": 2,
+      "/": 2,
+      "+": 1,
+      "-": 1
+    },
+    "associativity": {
+      "^": "right",
+      "*": "left",
+      "/": "left",
+      "+": "left",
+      "-": "left"
+    },
+    "application_order": "The source pops the top value as a, then the next as b; subtraction is b-a, division is b/a, power is pow(b,a).",
+    "grammar": "A single number or an alternating sequence of number, binary operator, number; no parentheses, unary operators, implicit multiplication, or trailing unparsed text.",
+    "numeric_domain": "All intermediate values must be finite with absolute value at most 1000000000000; division by zero and invalid real powers are outside the valid domain.",
+    "malformed": "Malformed framing, an incomplete expression, an unparsed token, or an expression outside the bounded numeric domain returns -1e300."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[byte_count, ASCII bytes...]",
+    "byte_count_range": [
+      1,
+      255
+    ],
+    "maximum_input_values": 256,
+    "maximum_parseable_input_values": 257,
+    "max_operands": 16,
+    "max_operators": 15,
+    "max_literal_bytes": 16,
+    "max_literal_value": 1000000,
+    "max_absolute_intermediate": 1000000000000,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "float64_scalar",
+    "meaning": "The value of the complete expression evaluated by the pinned precedence/associativity rules.",
+    "invalid_input_result": -1e+300,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Independent strict ASCII tokenizer using the canonical stepwise binary64 decimal conversion, then an operator-stack evaluator with the pinned pop order and binary64 math.pow.",
+  "cases": [
+    {
+      "id": "single_literal",
+      "expression": "17.25",
+      "input_values": [
+        5,
+        49,
+        55,
+        46,
+        50,
+        53
+      ],
+      "input_length": 6,
+      "expected_result": 17.25
+    },
+    {
+      "id": "multiplication_precedes_addition",
+      "expression": "3 + 4 * 5",
+      "input_values": [
+        9,
+        51,
+        32,
+        43,
+        32,
+        52,
+        32,
+        42,
+        32,
+        53
+      ],
+      "input_length": 10,
+      "expected_result": 23
+    },
+    {
+      "id": "no_space_operator_scan",
+      "expression": "3+4*5",
+      "input_values": [
+        5,
+        51,
+        43,
+        52,
+        42,
+        53
+      ],
+      "input_length": 6,
+      "expected_result": 23
+    },
+    {
+      "id": "addition_precedence_after_multiplication",
+      "expression": "4 * 5 + 3",
+      "input_values": [
+        9,
+        52,
+        32,
+        42,
+        32,
+        53,
+        32,
+        43,
+        32,
+        51
+      ],
+      "input_length": 10,
+      "expected_result": 23
+    },
+    {
+      "id": "subtraction_is_left_associative",
+      "expression": "20 - 5 - 3",
+      "input_values": [
+        10,
+        50,
+        48,
+        32,
+        45,
+        32,
+        53,
+        32,
+        45,
+        32,
+        51
+      ],
+      "input_length": 11,
+      "expected_result": 12
+    },
+    {
+      "id": "division_is_left_associative",
+      "expression": "16 / 4 / 2",
+      "input_values": [
+        10,
+        49,
+        54,
+        32,
+        47,
+        32,
+        52,
+        32,
+        47,
+        32,
+        50
+      ],
+      "input_length": 11,
+      "expected_result": 2
+    },
+    {
+      "id": "power_is_right_associative",
+      "expression": "2 ^ 3 ^ 2",
+      "input_values": [
+        9,
+        50,
+        32,
+        94,
+        32,
+        51,
+        32,
+        94,
+        32,
+        50
+      ],
+      "input_length": 10,
+      "expected_result": 512
+    },
+    {
+      "id": "power_precedes_multiplication",
+      "expression": "2 * 3 ^ 4",
+      "input_values": [
+        9,
+        50,
+        32,
+        42,
+        32,
+        51,
+        32,
+        94,
+        32,
+        52
+      ],
+      "input_length": 10,
+      "expected_result": 162
+    },
+    {
+      "id": "mixed_decimal_result",
+      "expression": "10.5 - 4 * 5",
+      "input_values": [
+        12,
+        49,
+        48,
+        46,
+        53,
+        32,
+        45,
+        32,
+        52,
+        32,
+        42,
+        32,
+        53
+      ],
+      "input_length": 13,
+      "expected_result": -9.5
+    },
+    {
+      "id": "fractional_division",
+      "expression": "1 / 8",
+      "input_values": [
+        5,
+        49,
+        32,
+        47,
+        32,
+        56
+      ],
+      "input_length": 6,
+      "expected_result": 0.125
+    },
+    {
+      "id": "decimal_operands",
+      "expression": "0.5 + 0.25",
+      "input_values": [
+        10,
+        48,
+        46,
+        53,
+        32,
+        43,
+        32,
+        48,
+        46,
+        50,
+        53
+      ],
+      "input_length": 11,
+      "expected_result": 0.75
+    },
+    {
+      "id": "fractional_power",
+      "expression": "2 ^ 0.5",
+      "input_values": [
+        7,
+        50,
+        32,
+        94,
+        32,
+        48,
+        46,
+        53
+      ],
+      "input_length": 8,
+      "expected_result": 1.4142135623730951
+    },
+    {
+      "id": "scanner_ascii_whitespace",
+      "expression": " \t3 \n +\t4 ",
+      "input_values": [
+        10,
+        32,
+        9,
+        51,
+        32,
+        10,
+        32,
+        43,
+        9,
+        52,
+        32
+      ],
+      "input_length": 11,
+      "expected_result": 7
+    },
+    {
+      "id": "mixed_precedence",
+      "expression": "3 + 4 * 2 / 5 - 1",
+      "input_values": [
+        17,
+        51,
+        32,
+        43,
+        32,
+        52,
+        32,
+        42,
+        32,
+        50,
+        32,
+        47,
+        32,
+        53,
+        32,
+        45,
+        32,
+        49
+      ],
+      "input_length": 18,
+      "expected_result": 3.6
+    },
+    {
+      "id": "negative_intermediate",
+      "expression": "2 - 5 * 2",
+      "input_values": [
+        9,
+        50,
+        32,
+        45,
+        32,
+        53,
+        32,
+        42,
+        32,
+        50
+      ],
+      "input_length": 10,
+      "expected_result": -8
+    },
+    {
+      "id": "zero_to_zero",
+      "expression": "0 ^ 0",
+      "input_values": [
+        5,
+        48,
+        32,
+        94,
+        32,
+        48
+      ],
+      "input_length": 6,
+      "expected_result": 1
+    },
+    {
+      "id": "incomplete_trailing_operator",
+      "expression": "3 +",
+      "input_values": [
+        3,
+        51,
+        32,
+        43
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "incomplete_leading_operator",
+      "expression": "* 2",
+      "input_values": [
+        3,
+        42,
+        32,
+        50
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "consecutive_operators",
+      "expression": "3 + * 2",
+      "input_values": [
+        7,
+        51,
+        32,
+        43,
+        32,
+        42,
+        32,
+        50
+      ],
+      "input_length": 8,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "unary_minus_rejected",
+      "expression": "-3 + 1",
+      "input_values": [
+        6,
+        45,
+        51,
+        32,
+        43,
+        32,
+        49
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "adjacent_numbers_rejected",
+      "expression": "3 4",
+      "input_values": [
+        3,
+        51,
+        32,
+        52
+      ],
+      "input_length": 4,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "parentheses_rejected",
+      "expression": "(3 + 4)",
+      "input_values": [
+        7,
+        40,
+        51,
+        32,
+        43,
+        32,
+        52,
+        41
+      ],
+      "input_length": 8,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "unparsed_suffix_rejected",
+      "expression": "3 + 4x",
+      "input_values": [
+        6,
+        51,
+        32,
+        43,
+        32,
+        52,
+        120
+      ],
+      "input_length": 7,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "malformed_decimal_rejected",
+      "expression": "1..2",
+      "input_values": [
+        4,
+        49,
+        46,
+        46,
+        50
+      ],
+      "input_length": 5,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "division_by_zero_outside_finite_domain",
+      "expression": "1 / 0",
+      "input_values": [
+        5,
+        49,
+        32,
+        47,
+        32,
+        48
+      ],
+      "input_length": 6,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "intermediate_exceeds_bound",
+      "expression": "2 ^ 3 ^ 4",
+      "input_values": [
+        9,
+        50,
+        32,
+        94,
+        32,
+        51,
+        32,
+        94,
+        32,
+        52
+      ],
+      "input_length": 10,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "empty_expression",
+      "expression": "",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "missing_count",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "count_above_bound",
+      "input_values": [
+        256
+      ],
+      "input_length": 1,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "packed_length_mismatch",
+      "input_values": [
+        3,
+        49,
+        43
+      ],
+      "input_length": 3,
+      "expected_result": -1e+300
+    },
+    {
+      "id": "non_ascii_byte",
+      "input_values": [
+        1,
+        233
+      ],
+      "input_length": 2,
+      "expected_result": -1e+300
+    }
+  ]
+}

@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-quadratic-probing-i64-array-bytes-output-v1",
+  "algorithm": "quadratic_probing",
+  "function_symbol": "quadratic_probing",
+  "description": "Bounded integer-key insertion traces for the pinned Python quadratic-probing table.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "data_structures/hashing/quadratic_probing.py",
+    "symbol": "QuadraticProbing._collision_resolution",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/hashing/quadratic_probing.py"
+  },
+  "supporting_pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "data_structures/hashing/hash_table.py",
+    "symbol": "HashTable.__init__/hash_function/balanced_factor/insert_data",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/hashing/hash_table.py"
+  },
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "data_structures/hashing/quadratic_probing.py",
+      "symbol": "QuadraticProbing._collision_resolution",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/hashing/quadratic_probing.py"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "data_structures/hashing/hash_table.py",
+      "symbol": "HashTable.__init__/hash_function/balanced_factor/insert_data",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/hashing/hash_table.py"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "data_structures/hashing/number_theory/prime_numbers.py",
+      "symbol": "next_prime (imported by HashTable; growth excluded by this contract)",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/hashing/number_theory/prime_numbers.py"
+    }
+  ],
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[capacity, insert_count, key_0, ..., key_(insert_count-1)]",
+    "capacity_range": [
+      5,
+      31
+    ],
+    "insert_count_range": [
+      0,
+      3
+    ],
+    "key_range": [
+      0,
+      9223372036854775807
+    ],
+    "exact_length": "2 + insert_count",
+    "maximum_valid_input_length": 5,
+    "maximum_parseable_input_length": 5,
+    "fresh_table_per_call": true,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "hash": "key mod capacity, using Python nonnegative integer remainder.",
+    "base_insert": "Place at an empty home slot; skip only when the home slot already contains this same data value.",
+    "collision_sequence": "(home + i*i) mod capacity for i=1,2,...; i starts at 1 for every collided insertion.",
+    "collision_comparison": "The pinned collision method receives the home-slot index and compares an occupied value with that index rather than the inserted key.",
+    "load_factor": "Default charge_factor=1 and lim_charge=0.75. At most three inserts and capacity>=5 keep the table below the threshold, so no resize occurs.",
+    "termination": "The bounded accepted domain is capacity 5..31 and at most three inserts; source routes terminate within this domain.",
+    "duplicates": "Same key at home is skipped; a duplicate displaced from home can be inserted again, matching the pinned base and collision methods."
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_sequence",
+    "encoding": "[capacity, slot_0, ..., slot_(capacity-1)]",
+    "empty_slot_encoding": -1,
+    "stored_keys": "Nonnegative keys are emitted unchanged, including zero.",
+    "result": "number of returned bytes",
+    "maximum_output_bytes": 256,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "reason": "Capacity is at most 31; output contains one capacity word and 31 slot words."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_capacity",
+      "input_values": [
+        7,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 64,
+      "expected_output_hex": "0700000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "home_slots_and_zero_key",
+      "input_values": [
+        7,
+        3,
+        0,
+        1,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": 64,
+      "expected_output_hex": "0700000000000000000000000000000001000000000000000200000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "first_quadratic_offset",
+      "input_values": [
+        7,
+        2,
+        0,
+        7
+      ],
+      "input_length": 4,
+      "expected_result": 64,
+      "expected_output_hex": "070000000000000000000000000000000700000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "second_quadratic_offset",
+      "input_values": [
+        7,
+        3,
+        0,
+        7,
+        14
+      ],
+      "input_length": 5,
+      "expected_result": 64,
+      "expected_output_hex": "070000000000000000000000000000000700000000000000ffffffffffffffffffffffffffffffff0e00000000000000ffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "wraparound",
+      "input_values": [
+        7,
+        3,
+        6,
+        13,
+        20
+      ],
+      "input_length": 5,
+      "expected_result": 64,
+      "expected_output_hex": "07000000000000000d00000000000000ffffffffffffffffffffffffffffffff1400000000000000ffffffffffffffffffffffffffffffff0600000000000000"
+    },
+    {
+      "id": "duplicate_at_home_is_skipped",
+      "input_values": [
+        7,
+        3,
+        7,
+        7,
+        7
+      ],
+      "input_length": 5,
+      "expected_result": 64,
+      "expected_output_hex": "07000000000000000700000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "displaced_duplicate_is_inserted_again",
+      "input_values": [
+        7,
+        3,
+        0,
+        7,
+        7
+      ],
+      "input_length": 5,
+      "expected_result": 64,
+      "expected_output_hex": "070000000000000000000000000000000700000000000000ffffffffffffffffffffffffffffffff0700000000000000ffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "home_index_comparison_overwrites_displaced_key",
+      "input_values": [
+        7,
+        3,
+        10,
+        3,
+        17
+      ],
+      "input_length": 5,
+      "expected_result": 64,
+      "expected_output_hex": "0700000000000000ffffffffffffffffffffffffffffffffffffffffffffffff0a000000000000001100000000000000ffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "minimum_capacity",
+      "input_values": [
+        5,
+        3,
+        0,
+        5,
+        10
+      ],
+      "input_length": 5,
+      "expected_result": 48,
+      "expected_output_hex": "050000000000000000000000000000000500000000000000ffffffffffffffffffffffffffffffff0a00000000000000"
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "positive_length_null_input",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_precedes_null_output",
+      "input_values": [
+        4,
+        0
+      ],
+      "input_length": 2,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_null_output",
+      "input_values": [
+        5,
+        0
+      ],
+      "input_length": 2,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        5,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 47,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_output_capacity",
+      "input_values": [
+        5,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "0500000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "malformed_record_length",
+      "input_values": [
+        7,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_output_exact_capacity",
+      "input_values": [
+        31,
+        3,
+        0,
+        31,
+        62
+      ],
+      "input_length": 5,
+      "output_capacity": 256,
+      "expected_result": 256,
+      "expected_output_hex": "1f0000000000000000000000000000001f00000000000000ffffffffffffffffffffffffffffffff3e00000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "id": "negative_key_rejected",
+      "input_values": [
+        7,
+        1,
+        -1
+      ],
+      "input_length": 3,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

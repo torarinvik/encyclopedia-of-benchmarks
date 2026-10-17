@@ -1,0 +1,153 @@
+extern sqrt(value: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 18
+const MAX_TRAINING_COUNT: usize = 5
+const MAX_COLUMNS: usize = 4
+const MAX_OUTPUT_ELEMENTS: usize = 8
+const MAX_FINITE_F64: f64 = 1.7976931348623157e308
+
+def polynomial_regression_is_finite(value: f64) -> bool:
+    value == value and value < MAX_FINITE_F64 and value > -MAX_FINITE_F64
+
+def polynomial_regression_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if not polynomial_regression_is_finite(value): return false
+    if value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def polynomial_regression_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > MAX_INPUT_LENGTH: return -1
+    if not polynomial_regression_exact_integer(input[0], 0, 3) or
+        not polynomial_regression_exact_integer(input[1], 1, MAX_TRAINING_COUNT.i64()) or
+        not polynomial_regression_exact_integer(input[2], 1, 4): return -1
+    degree: usize = input[0].usize()
+    training_count: usize = input[1].usize()
+    query_count: usize = input[2].usize()
+    columns: usize = degree + 1
+    if training_count < columns: return -1
+    expected_length: usize = 3 + 2 * training_count + query_count
+    if input_length != expected_length: return -1
+
+    x_train: mutable f64[MAX_TRAINING_COUNT] = zeroed
+    y_train: mutable f64[MAX_TRAINING_COUNT] = zeroed
+    x_query: mutable f64[4] = zeroed
+    index: mutable usize = 0
+    while index < training_count:
+        value: f64 = input[3 + index]
+        if not polynomial_regression_exact_integer(value, -2, 2): return -1
+        x_train[index] <- value
+        value <- input[3 + training_count + index]
+        if not polynomial_regression_exact_integer(value, -32, 32): return -1
+        y_train[index] <- value
+        index <- index + 1
+    query: mutable usize = 0
+    while query < query_count:
+        value: f64 = input[3 + 2 * training_count + query]
+        if not polynomial_regression_exact_integer(value, -2, 2): return -1
+        x_query[query] <- value
+        query <- query + 1
+    index <- 0
+    while index < training_count:
+        query <- index + 1
+        while query < training_count:
+            if x_train[index] == x_train[query]: return -1
+            query <- query + 1
+        index <- index + 1
+
+    design: mutable f64[20] = zeroed
+    row: mutable usize = 0
+    while row < training_count:
+        column: mutable usize = 0
+        power: mutable f64 = 1.0
+        while column < columns:
+            design[row * columns + column] <- power
+            power <- power * x_train[row]
+            column <- column + 1
+        row <- row + 1
+
+    q_matrix: mutable f64[20] = zeroed
+    r_matrix: mutable f64[16] = zeroed
+    column <- 0
+    while column < columns:
+        vector: mutable f64[5] = zeroed
+        row <- 0
+        while row < training_count:
+            vector[row] <- design[row * columns + column]
+            row <- row + 1
+        previous: mutable usize = 0
+        while previous < column:
+            dot: mutable f64 = 0.0
+            row <- 0
+            while row < training_count:
+                dot <- dot + q_matrix[row * columns + previous] * design[row * columns + column]
+                row <- row + 1
+            r_matrix[previous * columns + column] <- dot
+            row <- 0
+            while row < training_count:
+                vector[row] <- vector[row] - dot * q_matrix[row * columns + previous]
+                row <- row + 1
+            previous <- previous + 1
+        norm_squared: mutable f64 = 0.0
+        row <- 0
+        while row < training_count:
+            norm_squared <- norm_squared + vector[row] * vector[row]
+            row <- row + 1
+        if not polynomial_regression_is_finite(norm_squared) or norm_squared <= 0.0: return -1
+        norm: f64 = sqrt(norm_squared)
+        if not polynomial_regression_is_finite(norm) or norm <= 0.0: return -1
+        r_matrix[column * columns + column] <- norm
+        row <- 0
+        while row < training_count:
+            q_matrix[row * columns + column] <- vector[row] / norm
+            row <- row + 1
+        column <- column + 1
+
+    projected: mutable f64[4] = zeroed
+    column <- 0
+    while column < columns:
+        row <- 0
+        while row < training_count:
+            projected[column] <- projected[column] + q_matrix[row * columns + column] * y_train[row]
+            row <- row + 1
+        column <- column + 1
+    coefficients: mutable f64[4] = zeroed
+    remaining: mutable usize = columns
+    while remaining > 0:
+        column <- remaining - 1
+        value: mutable f64 = projected[column]
+        query <- column + 1
+        while query < columns:
+            value <- value - r_matrix[column * columns + query] * coefficients[query]
+            query <- query + 1
+        diagonal: f64 = r_matrix[column * columns + column]
+        if diagonal == 0.0 or not polynomial_regression_is_finite(diagonal): return -1
+        coefficients[column] <- value / diagonal
+        if not polynomial_regression_is_finite(coefficients[column]): return -1
+        remaining <- remaining - 1
+
+    results: mutable f64[MAX_OUTPUT_ELEMENTS] = zeroed
+    column <- 0
+    while column < columns:
+        results[column] <- coefficients[column]
+        column <- column + 1
+    query <- 0
+    while query < query_count:
+        prediction: mutable f64 = 0.0
+        power: mutable f64 = 1.0
+        column <- 0
+        while column < columns:
+            prediction <- prediction + power * coefficients[column]
+            power <- power * x_query[query]
+            column <- column + 1
+        if not polynomial_regression_is_finite(prediction): return -1
+        results[columns + query] <- prediction
+        query <- query + 1
+
+    output_length: usize = columns + query_count
+    if output.is_null() or capacity < output_length: return -2
+    index <- 0
+    while index < output_length:
+        output[index] <- results[index]
+        index <- index + 1
+    output_length.i64()
+
+export fn polynomial_regression(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = polynomial_regression_impl

@@ -524,7 +524,61 @@ from transposition_cipher_oracle import expected_output as transposition_cipher_
 from spigotpi_oracle import MAX_DIGITS as SPIGOTPI_MAX_DIGITS
 from spigotpi_oracle import MAX_INPUT_LENGTH as SPIGOTPI_MAX_INPUT_LENGTH
 from spigotpi_oracle import MAX_OUTPUT_BYTES as SPIGOTPI_MAX_OUTPUT_BYTES
+from spigotpi_oracle import NULL_OUTPUT_RESULT as SPIGOTPI_NULL_OUTPUT_RESULT
 from spigotpi_oracle import expected_output as spigotpi_oracle
+from inverse_of_matrix_oracle import (
+    ABSOLUTE_TOLERANCE as INVERSE_OF_MATRIX_ABSOLUTE_TOLERANCE,
+    COEFFICIENT_SCALE as INVERSE_OF_MATRIX_COEFFICIENT_SCALE,
+    I64_MAX as INVERSE_OF_MATRIX_I64_MAX,
+    I64_MIN as INVERSE_OF_MATRIX_I64_MIN,
+    INSUFFICIENT_CAPACITY_RESULT as INVERSE_OF_MATRIX_OUTPUT_ERROR,
+    INVALID_RESULT as INVERSE_OF_MATRIX_INVALID_RESULT,
+    MAX_ABSOLUTE_INVERSE as INVERSE_OF_MATRIX_MAX_ABSOLUTE_INVERSE,
+    MAX_COEFFICIENT_Q as INVERSE_OF_MATRIX_MAX_COEFFICIENT_Q,
+    MAX_DIMENSION as INVERSE_OF_MATRIX_MAX_DIMENSION,
+    MAX_INPUT_VALUES as INVERSE_OF_MATRIX_MAX_INPUT_VALUES,
+    MAX_OUTPUT_BYTES as INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_VALUES as INVERSE_OF_MATRIX_MAX_OUTPUT_VALUES,
+    MIN_COEFFICIENT_Q as INVERSE_OF_MATRIX_MIN_COEFFICIENT_Q,
+    MIN_DIMENSION as INVERSE_OF_MATRIX_MIN_DIMENSION,
+    RELATIVE_TOLERANCE as INVERSE_OF_MATRIX_RELATIVE_TOLERANCE,
+    expected_output as inverse_of_matrix_oracle,
+)
+from mandelbrot_oracle import (
+    BLACK as MANDELBROT_BLACK,
+    COORDINATE_SCALE as MANDELBROT_COORDINATE_SCALE,
+    I64_MAX as MANDELBROT_I64_MAX,
+    I64_MIN as MANDELBROT_I64_MIN,
+    INSUFFICIENT_CAPACITY_RESULT as MANDELBROT_OUTPUT_ERROR,
+    INVALID_RESULT as MANDELBROT_INVALID_RESULT,
+    MAX_CENTER_Q as MANDELBROT_MAX_CENTER_Q,
+    MAX_DIMENSION as MANDELBROT_MAX_DIMENSION,
+    MAX_FIGURE_WIDTH_Q as MANDELBROT_MAX_FIGURE_WIDTH_Q,
+    MAX_INPUT_VALUES as MANDELBROT_MAX_INPUT_VALUES,
+    MAX_MAX_STEP as MANDELBROT_MAX_MAX_STEP,
+    MAX_OUTPUT_BYTES as MANDELBROT_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_VALUES as MANDELBROT_MAX_VALID_INPUT_VALUES,
+    MIN_CENTER_Q as MANDELBROT_MIN_CENTER_Q,
+    MIN_DIMENSION as MANDELBROT_MIN_DIMENSION,
+    MIN_FIGURE_WIDTH_Q as MANDELBROT_MIN_FIGURE_WIDTH_Q,
+    MIN_MAX_STEP as MANDELBROT_MIN_MAX_STEP,
+    WHITE as MANDELBROT_WHITE,
+    expected_output as mandelbrot_oracle,
+)
+from singlylinkedlist_oracle import (
+    I64_MAX as SINGLYLINKEDLIST_I64_MAX,
+    I64_MIN as SINGLYLINKEDLIST_I64_MIN,
+    INSUFFICIENT_CAPACITY_RESULT as SINGLYLINKEDLIST_OUTPUT_ERROR,
+    INVALID_RESULT as SINGLYLINKEDLIST_INVALID_RESULT,
+    MAX_INITIAL_NODES as SINGLYLINKEDLIST_MAX_INITIAL_NODES,
+    MAX_INPUT_VALUES as SINGLYLINKEDLIST_MAX_INPUT_VALUES,
+    MAX_LIST_NODES as SINGLYLINKEDLIST_MAX_LIST_NODES,
+    MAX_OPERATIONS as SINGLYLINKEDLIST_MAX_OPERATIONS,
+    MAX_OUTPUT_BYTES as SINGLYLINKEDLIST_MAX_OUTPUT_BYTES,
+    MAX_VALUE as SINGLYLINKEDLIST_MAX_VALUE,
+    MIN_VALUE as SINGLYLINKEDLIST_MIN_VALUE,
+    expected_output as singlylinkedlist_oracle,
+)
 from median_finder_oracle import MAX_COUNT as MEDIAN_FINDER_MAX_COUNT
 from median_finder_oracle import MAX_INPUT_LENGTH as MEDIAN_FINDER_MAX_INPUT_LENGTH
 from median_finder_oracle import MAX_OUTPUT_BYTES as MEDIAN_FINDER_MAX_OUTPUT_BYTES
@@ -1069,7 +1123,82 @@ from lru_cache2_oracle import (
     MIN_CAPACITY as LRU_CACHE2_MIN_CAPACITY,
     expected_output as lru_cache2_oracle,
 )
+from lempel_ziv_decompress_oracle import (
+    I64_MAX as LEMPEL_ZIV_DECOMPRESS_I64_MAX,
+    I64_MIN as LEMPEL_ZIV_DECOMPRESS_I64_MIN,
+    MAX_INPUT_BITS as LEMPEL_ZIV_DECOMPRESS_MAX_INPUT_BITS,
+    MAX_OUTPUT_BYTES as LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH,
+    compress_for_fixture as lempel_ziv_compress_for_fixture,
+    expected_output as lempel_ziv_decompress_oracle,
+)
+from lempel_ziv_oracle import (
+    I64_MAX as LEMPEL_ZIV_I64_MAX,
+    I64_MIN as LEMPEL_ZIV_I64_MIN,
+    MAX_INPUT_BITS as LEMPEL_ZIV_MAX_INPUT_BITS,
+    MAX_OUTPUT_BYTES as LEMPEL_ZIV_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as lempel_ziv_oracle,
+)
+from large_number_oracle import (
+    I64_MAX as LARGE_NUMBER_I64_MAX,
+    I64_MIN as LARGE_NUMBER_I64_MIN,
+    MAX_DIGITS as LARGE_NUMBER_MAX_DIGITS,
+    MAX_OUTPUT_BYTES as LARGE_NUMBER_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LARGE_NUMBER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LARGE_NUMBER_MAX_VALID_INPUT_LENGTH,
+    expected_output as large_number_verifier_oracle,
+)
+from suffix_tree_oracle import (
+    I64_MAX as SUFFIX_TREE_I64_MAX,
+    I64_MIN as SUFFIX_TREE_I64_MIN,
+    INVALID_RESULT as SUFFIX_TREE_INVALID_RESULT,
+    MAX_OUTPUT_BYTES as SUFFIX_TREE_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_VALUES as SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES,
+    MAX_TEXT_LENGTH as SUFFIX_TREE_MAX_TEXT_LENGTH,
+    MAX_VALID_INPUT_VALUES as SUFFIX_TREE_MAX_VALID_INPUT_VALUES,
+    OUTPUT_ERROR as SUFFIX_TREE_OUTPUT_ERROR,
+    expected_output as suffix_tree_verifier_oracle,
+)
+from shannon_fano_oracle import (
+    INVALID_RESULT as SHANNON_FANO_INVALID_RESULT,
+    MAX_CODE_LENGTH as SHANNON_FANO_MAX_CODE_LENGTH,
+    MAX_OUTPUT_BYTES as SHANNON_FANO_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_VALUES as SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES,
+    MAX_SYMBOLS as SHANNON_FANO_MAX_SYMBOLS,
+    MAX_TEXT_LENGTH as SHANNON_FANO_MAX_TEXT_LENGTH,
+    MAX_VALID_INPUT_VALUES as SHANNON_FANO_MAX_VALID_INPUT_VALUES,
+    OUTPUT_ERROR as SHANNON_FANO_OUTPUT_ERROR,
+    expected_output as shannon_fano_verifier_oracle,
+)
+from skyline_algorithm_oracle import (
+    I32_MAX as SKYLINE_ALGORITHM_I32_MAX,
+    I32_MIN as SKYLINE_ALGORITHM_I32_MIN,
+    I64_MAX as SKYLINE_ALGORITHM_I64_MAX,
+    I64_MIN as SKYLINE_ALGORITHM_I64_MIN,
+    INVALID_RESULT as SKYLINE_ALGORITHM_INVALID_RESULT,
+    MAX_OUTPUT_BYTES as SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POINT_COUNT as SKYLINE_ALGORITHM_MAX_POINT_COUNT,
+    MAX_VALID_INPUT_LENGTH as SKYLINE_ALGORITHM_MAX_VALID_INPUT_LENGTH,
+    MIN_POINT_COUNT as SKYLINE_ALGORITHM_MIN_POINT_COUNT,
+    OUTPUT_ERROR as SKYLINE_ALGORITHM_OUTPUT_ERROR,
+    expected_output as skyline_algorithm_verifier_oracle,
+)
 from run_i64_array_bytes_output import validate_translator_workload
+from run_i64_array_bytes_output import validate_shuffled_shift_cipher_workload
+from run_i64_array_bytes_output import validate_quadratic_probing_workload
+from run_i64_array_bytes_output import validate_lempel_ziv_decompress_workload
+from run_i64_array_bytes_output import validate_lempel_ziv_workload
+from run_i64_array_bytes_output import validate_spigotpi_workload
+from run_i64_array_bytes_output import validate_inverse_of_matrix_workload
+from run_i64_array_bytes_output import validate_mandelbrot_workload
+from run_i64_array_bytes_output import validate_mandelbrot_build_controls
+from run_i64_array_bytes_output import validate_singlylinkedlist_workload
+from run_i64_array_bytes_output import validate_large_number_workload
+from run_i64_array_bytes_output import validate_suffix_tree_workload
+from run_i64_array_bytes_output import validate_shannon_fano_workload
+from run_i64_array_bytes_output import validate_skyline_algorithm_workload
 from run_i64_array_bytes_output import validate_spiral_print_workload
 from run_i64_array_bytes_output import validate_shuf_workload
 from run_i64_array_bytes_output import validate_table_list_workload
@@ -1096,6 +1225,17 @@ from translator_oracle import MAX_TEXT_LENGTH as TRANSLATOR_MAX_TEXT_LENGTH
 from translator_oracle import MAX_VALUE_LENGTH as TRANSLATOR_MAX_VALUE_LENGTH
 from translator_oracle import MAX_PRINTABLE_ASCII as TRANSLATOR_MAX_PRINTABLE_ASCII
 from translator_oracle import MIN_PRINTABLE_ASCII as TRANSLATOR_MIN_PRINTABLE_ASCII
+from shuffled_shift_cipher_oracle import ALPHABET as SHUFFLED_SHIFT_CIPHER_ALPHABET
+from shuffled_shift_cipher_oracle import MAX_OUTPUT_BYTES as SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES
+from shuffled_shift_cipher_oracle import MAX_PARSEABLE_INPUT_LENGTH as SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+from shuffled_shift_cipher_oracle import expected_output as shuffled_shift_cipher_verifier_oracle
+from quadratic_probing_oracle import I64_MAX as QUADRATIC_PROBING_I64_MAX
+from quadratic_probing_oracle import MAX_CAPACITY as QUADRATIC_PROBING_MAX_CAPACITY
+from quadratic_probing_oracle import MAX_INPUT_LENGTH as QUADRATIC_PROBING_MAX_INPUT_LENGTH
+from quadratic_probing_oracle import MAX_INSERTS as QUADRATIC_PROBING_MAX_INSERTS
+from quadratic_probing_oracle import MAX_OUTPUT_BYTES as QUADRATIC_PROBING_MAX_OUTPUT_BYTES
+from quadratic_probing_oracle import MIN_CAPACITY as QUADRATIC_PROBING_MIN_CAPACITY
+from quadratic_probing_oracle import expected_output as quadratic_probing_verifier_oracle
 from spiral_print_oracle import INVALID_RESULT as SPIRAL_PRINT_INVALID_RESULT
 from spiral_print_oracle import MAX_COLUMNS as SPIRAL_PRINT_MAX_COLUMNS
 from spiral_print_oracle import MAX_INPUT_LENGTH as SPIRAL_PRINT_MAX_INPUT_LENGTH
@@ -1867,6 +2007,8 @@ ALGORITHMS = (*ALGORITHMS, "mfcc")
 ALGORITHMS = (*ALGORITHMS, "map_reduce")
 ALGORITHMS = (*ALGORITHMS, "transposition_cipher")
 ALGORITHMS = (*ALGORITHMS, "spigotpi")
+ALGORITHMS = (*ALGORITHMS, "inverse_of_matrix")
+ALGORITHMS = (*ALGORITHMS, "mandelbrot")
 ALGORITHMS = (*ALGORITHMS, "median_finder")
 ALGORITHMS = (*ALGORITHMS, "word_ladder_dfs")
 ALGORITHMS = (*ALGORITHMS, "morse_code_converter_encode", "morse_code_converter_decode")
@@ -1992,6 +2134,8 @@ ALGORITHMS = (*ALGORITHMS, "merge_sorted_singly_linked_list")
 ALGORITHMS = (*ALGORITHMS, "median_search2")
 ALGORITHMS = (*ALGORITHMS, "maze_recursion")
 ALGORITHMS = (*ALGORITHMS, "median_of_matrix")
+ALGORITHMS = (*ALGORITHMS, "shannon_fano")
+ALGORITHMS = (*ALGORITHMS, "skyline_algorithm")
 REVERSE_A_LINKED_LIST_MAX_INPUT_LENGTH = REVERSE_A_LINKED_LIST_MAX_N + 1
 REVERSE_A_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH = REVERSE_A_LINKED_LIST_MAX_INPUT_LENGTH + 1
 REVERSE_A_LINKED_LIST_MAX_OUTPUT_BYTES = 4 * REVERSE_A_LINKED_LIST_MAX_N
@@ -2125,6 +2269,8 @@ WORKSPACE_ALGORITHMS.add("mfcc")
 WORKSPACE_ALGORITHMS.add("map_reduce")
 WORKSPACE_ALGORITHMS.add("transposition_cipher")
 WORKSPACE_ALGORITHMS.add("spigotpi")
+WORKSPACE_ALGORITHMS.add("inverse_of_matrix")
+WORKSPACE_ALGORITHMS.add("mandelbrot")
 WORKSPACE_ALGORITHMS.add("median_finder")
 WORKSPACE_ALGORITHMS.add("word_ladder_dfs")
 WORKSPACE_ALGORITHMS.update({"morse_code_converter_encode", "morse_code_converter_decode"})
@@ -2290,8 +2436,19 @@ WORKSPACE_ALGORITHMS.update({
 })
 ALGORITHMS = (*ALGORITHMS, "fixed_priority_queue_using_list", "element_priority_queue_using_list",
               "median_of_running_array_long", "median_heap", "table_heap", "skew_heap", "smoothsort",
-              "suffix_automaton", "lru_cache2")
+              "suffix_automaton", "lru_cache2", "shuffled_shift_cipher", "quadratic_probing",
+              "lempel_ziv_decompress", "lempel_ziv", "singlylinkedlist", "large_number",
+              "suffix_tree")
 WORKSPACE_ALGORITHMS.add("lru_cache2")
+WORKSPACE_ALGORITHMS.add("shuffled_shift_cipher")
+WORKSPACE_ALGORITHMS.add("quadratic_probing")
+WORKSPACE_ALGORITHMS.add("lempel_ziv_decompress")
+WORKSPACE_ALGORITHMS.add("lempel_ziv")
+WORKSPACE_ALGORITHMS.add("singlylinkedlist")
+WORKSPACE_ALGORITHMS.add("large_number")
+WORKSPACE_ALGORITHMS.add("suffix_tree")
+WORKSPACE_ALGORITHMS.add("shannon_fano")
+WORKSPACE_ALGORITHMS.add("skyline_algorithm")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 
@@ -3955,6 +4112,166 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             add_translator_case(values)
+    elif algorithm == "shuffled_shift_cipher":
+        validate_shuffled_shift_cipher_workload(workload)
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH != 279
+                or SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES != 256
+                or len(SHUFFLED_SHIFT_CIPHER_ALPHABET) != 97
+                or default_capacity != SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES):
+            raise ValueError("shuffled_shift_cipher bounds differ from its reviewed byte-output contract")
+
+        def add_shuffled_shift_cipher_case(
+                values: tuple[int, ...], capacity: int = default_capacity,
+                *, output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> None:
+            values = tuple(values)
+            effective_length = len(values) if input_length is None else input_length
+            if (len(values) > SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_length) is not int
+                    or not 0 <= effective_length <= SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or effective_length == 0))
+                    or (not input_is_null and effective_length != len(values))):
+                raise ValueError("shuffled_shift_cipher generated input/output framing is out of range")
+            result, output = shuffled_shift_cipher_verifier_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            if (result >= 0 and (result != len(output)
+                                 or len(output) > SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES
+                                 or output_is_null)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("shuffled_shift_cipher verifier oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("workspace_bytes", fixture.get(
+                "output_capacity", default_capacity))
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = shuffled_shift_cipher_verifier_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture.get("expected_result")
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"shuffled_shift_cipher workload mismatch: {fixture['id']}")
+            record_values = values
+            if (fixture["id"] == "input_length_mismatch" and not input_is_null
+                    and type(input_length) is int and 0 <= input_length < len(values)):
+                record_values = values[:input_length]
+            add_shuffled_shift_cipher_case(
+                record_values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+
+        rng_shuffled_shift_cipher = random.Random(20261017)
+        passcode_alphabet = tuple(range(48, 58)) + tuple(range(65, 91)) + tuple(range(97, 123))
+        for _ in range(96):
+            passcode_length = rng_shuffled_shift_cipher.randint(1, 20)
+            text_length = rng_shuffled_shift_cipher.randint(0, 256)
+            passcode = [rng_shuffled_shift_cipher.choice(passcode_alphabet)
+                        for _ in range(passcode_length)]
+            plaintext = [ord(rng_shuffled_shift_cipher.choice(SHUFFLED_SHIFT_CIPHER_ALPHABET))
+                         for _ in range(text_length)]
+            add_shuffled_shift_cipher_case(tuple((passcode_length, text_length, *passcode, *plaintext)))
+
+        maximum_input = tuple(next(fixture["input_values"] for fixture in workload["cases"]
+                                   if fixture["id"] == "maximum_passcode_and_plaintext"))
+        for capacity in (SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES - 1,
+                         SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES):
+            add_shuffled_shift_cipher_case(maximum_input, capacity)
+        empty_plaintext = (1, 0, 65)
+        add_shuffled_shift_cipher_case(empty_plaintext, 0)
+        add_shuffled_shift_cipher_case(empty_plaintext, 0, output_is_null=True)
+        add_shuffled_shift_cipher_case((0, 1, 65), 0, output_is_null=True)
+        add_shuffled_shift_cipher_case((), input_is_null=True, input_length=3)
+        malformed = (
+            (), (1,), (0, 0), (1, 257, 65), (1, 1, 33, 65),
+            (1, 1, 65, 0), (1, 1, 65, 127), (1, 1, 65, 65, 66),
+        )
+        for values in malformed:
+            add_shuffled_shift_cipher_case(values)
+    elif algorithm == "quadratic_probing":
+        validate_quadratic_probing_workload(workload)
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (QUADRATIC_PROBING_MAX_INPUT_LENGTH != 5
+                or QUADRATIC_PROBING_MAX_OUTPUT_BYTES != 256
+                or default_capacity != QUADRATIC_PROBING_MAX_OUTPUT_BYTES):
+            raise ValueError("quadratic_probing bounds differ from its reviewed byte-output contract")
+
+        def add_quadratic_probing_case(
+                values: tuple[int, ...], capacity: int = default_capacity,
+                *, output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> None:
+            values = tuple(values)
+            effective_length = len(values) if input_length is None else input_length
+            if (len(values) > QUADRATIC_PROBING_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= QUADRATIC_PROBING_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_length) is not int
+                    or not 0 <= effective_length <= QUADRATIC_PROBING_MAX_INPUT_LENGTH
+                    or input_is_null and (values or effective_length <= 0)
+                    or not input_is_null and effective_length != len(values)):
+                raise ValueError("quadratic_probing generated input/output framing is out of range")
+            result, output = quadratic_probing_verifier_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            if (result >= 0 and (result != len(output)
+                                 or len(output) > QUADRATIC_PROBING_MAX_OUTPUT_BYTES
+                                 or output_is_null)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("quadratic_probing verifier oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("workspace_bytes", fixture.get(
+                "output_capacity", default_capacity))
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = quadratic_probing_verifier_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture.get("expected_result")
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"quadratic_probing workload mismatch: {fixture['id']}")
+            add_quadratic_probing_case(
+                values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+
+        rng_quadratic_probing = random.Random(20261017)
+        for _ in range(96):
+            capacity = rng_quadratic_probing.randint(
+                QUADRATIC_PROBING_MIN_CAPACITY, QUADRATIC_PROBING_MAX_CAPACITY)
+            insert_count = rng_quadratic_probing.randint(0, QUADRATIC_PROBING_MAX_INSERTS)
+            keys = [rng_quadratic_probing.choice((0, capacity, QUADRATIC_PROBING_I64_MAX,
+                                                  rng_quadratic_probing.getrandbits(63)))
+                    for _ in range(insert_count)]
+            add_quadratic_probing_case(tuple((capacity, insert_count, *keys)))
+
+        minimum_capacity_input = (QUADRATIC_PROBING_MIN_CAPACITY, 0)
+        for capacity in (48 - 1, 48):
+            add_quadratic_probing_case(minimum_capacity_input, capacity)
+        maximum_output_input = (QUADRATIC_PROBING_MAX_CAPACITY, 3, 0, 31, 62)
+        for capacity in (QUADRATIC_PROBING_MAX_OUTPUT_BYTES - 1,
+                         QUADRATIC_PROBING_MAX_OUTPUT_BYTES):
+            add_quadratic_probing_case(maximum_output_input, capacity)
+        add_quadratic_probing_case(minimum_capacity_input, 0, output_is_null=True)
+        add_quadratic_probing_case((4, 0), 0, output_is_null=True)
+        add_quadratic_probing_case((), input_is_null=True, input_length=2)
+        malformed = (
+            (), (5,), (4, 0), (32, 0), (5, -1), (5, 4, 0, 1, 2),
+            (5, 1, -1), (5, 0, 99),
+        )
+        for values in malformed:
+            add_quadratic_probing_case(values)
     elif algorithm == "spiral_print":
         validate_spiral_print_workload(workload)
         default_capacity = workload.get("workspace", {}).get("bytes")
@@ -8153,46 +8470,44 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         records.extend((values, result, output, capacity)
                        for (values, capacity), (result, output) in sorted(cases.items()))
     elif algorithm == "spigotpi":
-        cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
+        validate_spigotpi_workload(workload)
+        cases: dict[tuple[tuple[int, ...], int, bool, bool, int], tuple[int, bytes]] = {}
         default_capacity = workload.get("workspace", {}).get("bytes")
-        input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
         if (type(default_capacity) is not int
                 or default_capacity != SPIGOTPI_MAX_OUTPUT_BYTES
-                or default_capacity > MAX_OUTPUT_CAPACITY):
+                or default_capacity > MAX_OUTPUT_CAPACITY
+                or output_spec.get("null_output_result") != SPIGOTPI_NULL_OUTPUT_RESULT
+                or SPIGOTPI_NULL_OUTPUT_RESULT != -2):
             raise ValueError("spigotpi workspace must match the reviewed output bound")
-        if (input_spec.get("kind") != "packed_signed_64_bit_integer_array"
-                or input_spec.get("layout") != "[n]"
-                or input_spec.get("exact_packed_length") != 1
-                or input_spec.get("maximum_input_values_for_malformed_cases") != SPIGOTPI_MAX_INPUT_LENGTH
-                or input_spec.get("n_range") != [0, SPIGOTPI_MAX_DIGITS]
-                or input_spec.get("invalid_input_result") != -1
-                or output_spec.get("kind") != "byte_sequence"
-                or output_spec.get("maximum_bytes") != SPIGOTPI_MAX_OUTPUT_BYTES
-                or output_spec.get("insufficient_capacity_result") != -2
-                or output_spec.get("errors_leave_output_untouched") is not True):
-            raise ValueError("spigotpi workload bounds do not match its reviewed contract")
 
-        def add(values: tuple[int, ...], capacity: int = default_capacity) -> None:
+        def add(values: tuple[int, ...], capacity: int = default_capacity,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> None:
             if type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY:
                 raise ValueError("spigotpi output capacity exceeds the output bounds")
-            cases[(values, capacity)] = spigotpi_oracle(list(values), capacity)
+            declared_length = len(values) if input_length is None else input_length
+            result = spigotpi_oracle(
+                list(values), capacity, output_is_null, input_is_null, declared_length)
+            cases[(values, capacity, output_is_null, input_is_null, declared_length)] = result
 
         for case in workload["cases"]:
             values = tuple(case["input_values"])
-            capacity = case.get("workspace_bytes", default_capacity)
-            result, output = spigotpi_oracle(list(values), capacity)
-            if (case.get("input_length") not in (None, len(values))
-                    or case["expected_result"] != result
-                    or case.get("expected_output_hex", "").lower() != output.hex()):
-                raise ValueError(f"spigotpi workload mismatch: {case['id']}")
-            add(values, capacity)
+            add(values, case.get("workspace_bytes", default_capacity),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length", len(values)))
+
+        for case in workload["abi_cases"]:
+            values = tuple(case["input_values"])
+            add(values, case.get("output_capacity", default_capacity),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length", len(values)))
 
         for digits in range(SPIGOTPI_MAX_DIGITS + 1):
             add((digits,))
 
         for capacity in (0, 1, SPIGOTPI_MAX_DIGITS - 1,
-                         SPIGOTPI_MAX_DIGITS, SPIGOTPI_MAX_DIGITS + 1):
+                         SPIGOTPI_MAX_DIGITS):
             add((SPIGOTPI_MAX_DIGITS,), capacity)
         for capacity in (0, 1, 2):
             add((1,), capacity)
@@ -8204,13 +8519,352 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             add(tuple(values))
+        records.extend((values, result, output, capacity, output_is_null,
+                        input_is_null, input_length)
+                       for (values, capacity, output_is_null, input_is_null, input_length),
+                           (result, output) in sorted(cases.items()))
+    elif algorithm == "inverse_of_matrix":
+        validate_inverse_of_matrix_workload(workload)
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity != INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY):
+            raise ValueError("inverse_of_matrix workspace must match its reviewed output bound")
 
-        null_values = ((1 << 63) - 1,)
-        null_key = (null_values, default_capacity)
-        cases[null_key] = (-1, b"")
-        null_input_cases.add(null_key)
-        records.extend((values, result, output, capacity)
-                       for (values, capacity), (result, output) in sorted(cases.items()))
+        def add_inverse_case(values: tuple[int, ...], capacity: int = default_capacity,
+                             *, output_is_null: bool = False,
+                             input_is_null: bool = False,
+                             input_length: int | None = None) -> None:
+            declared_length = len(values) if input_length is None else input_length
+            if (len(values) > INVERSE_OF_MATRIX_MAX_INPUT_VALUES
+                    or any(type(value) is not int
+                           or not INVERSE_OF_MATRIX_I64_MIN <= value <= INVERSE_OF_MATRIX_I64_MAX
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(declared_length) is not int
+                    or not 0 <= declared_length <= INVERSE_OF_MATRIX_MAX_INPUT_VALUES
+                    or (input_is_null and (values or declared_length <= 0 or output_is_null))
+                    or (not input_is_null and declared_length != len(values))):
+                raise ValueError("inverse_of_matrix generated framing is out of range")
+            result, output = inverse_of_matrix_oracle(
+                values, capacity=capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=declared_length)
+            if (result >= 0 and len(output) != result
+                    or result < 0 and (result not in (INVERSE_OF_MATRIX_INVALID_RESULT,
+                                                       INVERSE_OF_MATRIX_OUTPUT_ERROR)
+                                       or output)):
+                raise ValueError("inverse_of_matrix oracle returned inconsistent output framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, declared_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("workspace_bytes", fixture.get(
+                "output_capacity", default_capacity))
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = inverse_of_matrix_oracle(
+                values, capacity=capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=input_length)
+            if result != fixture["expected_result"]:
+                raise ValueError(f"inverse_of_matrix workload status mismatch: {fixture['id']}")
+            if "expected_output_hex" in fixture:
+                if output.hex() != fixture["expected_output_hex"].lower():
+                    raise ValueError(f"inverse_of_matrix ABI output mismatch: {fixture['id']}")
+            else:
+                vector = fixture.get("expected_output")
+                actual = struct.unpack("<" + "d" * (len(output) // 8), output) if output else ()
+                if (not isinstance(vector, list) or len(vector) != len(actual)
+                        or any(not math.isclose(expected, observed,
+                                                rel_tol=INVERSE_OF_MATRIX_RELATIVE_TOLERANCE,
+                                                abs_tol=INVERSE_OF_MATRIX_ABSOLUTE_TOLERANCE)
+                               for expected, observed in zip(vector, actual))):
+                    raise ValueError(f"inverse_of_matrix output mismatch: {fixture['id']}")
+            add_inverse_case(values, capacity, output_is_null=output_is_null,
+                             input_is_null=input_is_null, input_length=input_length)
+
+        rng_inverse = random.Random(20261019)
+
+        def generated_dominant_matrix(dimension: int) -> tuple[int, ...]:
+            dominant_columns = rng_inverse.sample(range(dimension), dimension)
+            matrix = [[0] * dimension for _ in range(dimension)]
+            for row_index, dominant_column in enumerate(dominant_columns):
+                magnitude = rng_inverse.randint(1, INVERSE_OF_MATRIX_MAX_COEFFICIENT_Q)
+                sign = -1 if rng_inverse.randrange(2) else 1
+                matrix[row_index][dominant_column] = sign * magnitude
+                remaining = magnitude - 1
+                other_columns = [column for column in range(dimension)
+                                 if column != dominant_column]
+                rng_inverse.shuffle(other_columns)
+                for column in other_columns:
+                    other_magnitude = rng_inverse.randint(0, remaining) if remaining else 0
+                    remaining -= other_magnitude
+                    other_sign = -1 if rng_inverse.randrange(2) else 1
+                    matrix[row_index][column] = other_sign * other_magnitude
+            return (dimension, *(value for row in matrix for value in row))
+
+        generated_valid: list[tuple[int, ...]] = []
+        for _ in range(128):
+            packed = generated_dominant_matrix(rng_inverse.choice((2, 3)))
+            generated_valid.append(packed)
+            add_inverse_case(packed)
+        for packed in generated_valid[::8]:
+            result, _output = inverse_of_matrix_oracle(packed)
+            add_inverse_case(packed, result - 1 if result > 0 else 0)
+        for packed in generated_valid[::16]:
+            add_inverse_case(packed, output_is_null=True)
+
+        identity_2 = (2, 16, 0, 0, 16)
+        identity_3 = (3, 16, 0, 0, 0, 16, 0, 0, 16)
+        add_inverse_case(identity_2, 0)
+        add_inverse_case(identity_2, 31)
+        add_inverse_case(identity_2, 32)
+        add_inverse_case(identity_3, 0)
+        add_inverse_case(identity_3, 71)
+        add_inverse_case(identity_3, 72)
+        add_inverse_case(identity_2, output_is_null=True)
+        add_inverse_case((2, 16, 16, 16, 16), 0, output_is_null=True)
+        add_inverse_case((), input_is_null=True, input_length=5)
+        malformed_matrices = (
+            (), (0,), (1, 16), (4, 0), (2, 16, 0, 0),
+            (2, 33, 0, 0, 16), (2, 16, 16, 16, 16),
+            (2, 32, 16, 16, 0), (3, 16, 0, 0, 0, 16, 0, 0, 16, 0),
+            tuple([0] * INVERSE_OF_MATRIX_MAX_INPUT_VALUES),
+        )
+        for values in malformed_matrices:
+            add_inverse_case(tuple(values))
+    elif algorithm == "mandelbrot":
+        validate_mandelbrot_workload(workload)
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity != MANDELBROT_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY
+                or workload.get("output", {}).get("null_output_result")
+                != MANDELBROT_OUTPUT_ERROR):
+            raise ValueError("mandelbrot workspace must match the reviewed output bound")
+
+        def add_mandelbrot_case(values: tuple[int, ...], capacity: int = default_capacity,
+                                *, output_is_null: bool = False,
+                                input_is_null: bool = False,
+                                input_length: int | None = None) -> None:
+            declared_length = len(values) if input_length is None else input_length
+            if (len(values) > MANDELBROT_MAX_INPUT_VALUES
+                    or any(type(value) is not int
+                           or not MANDELBROT_I64_MIN <= value <= MANDELBROT_I64_MAX
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MANDELBROT_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(declared_length) is not int
+                    or not 0 <= declared_length <= MANDELBROT_MAX_INPUT_VALUES
+                    or (input_is_null and values)
+                    or (not input_is_null and declared_length != len(values))):
+                raise ValueError("mandelbrot generated framing is out of range")
+            result, output = mandelbrot_oracle(
+                values, capacity=capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=declared_length)
+            if (result >= 0 and len(output) != result
+                    or result < 0 and (result not in (MANDELBROT_INVALID_RESULT,
+                                                       MANDELBROT_OUTPUT_ERROR)
+                                       or output)):
+                raise ValueError("mandelbrot oracle returned inconsistent output framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, declared_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("workspace_bytes", fixture.get(
+                "output_capacity", default_capacity))
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = mandelbrot_oracle(
+                values, capacity=capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"mandelbrot workload fixture mismatch: {fixture['id']}")
+            add_mandelbrot_case(values, capacity, output_is_null=output_is_null,
+                                input_is_null=input_is_null, input_length=input_length)
+
+        maximum_view = (MANDELBROT_MAX_DIMENSION, MANDELBROT_MAX_DIMENSION,
+                        0, 0, MANDELBROT_MIN_FIGURE_WIDTH_Q, MANDELBROT_MIN_MAX_STEP)
+        add_mandelbrot_case(maximum_view)
+        for capacity in (0, 1, MANDELBROT_MAX_OUTPUT_BYTES - 1,
+                         MANDELBROT_MAX_OUTPUT_BYTES):
+            add_mandelbrot_case(maximum_view, capacity)
+        add_mandelbrot_case(maximum_view, output_is_null=True)
+        add_mandelbrot_case((), input_is_null=True, input_length=6)
+
+        rng_mandelbrot = random.Random(20261019)
+        for _ in range(96):
+            values = (
+                rng_mandelbrot.randint(MANDELBROT_MIN_DIMENSION, MANDELBROT_MAX_DIMENSION),
+                rng_mandelbrot.randint(MANDELBROT_MIN_DIMENSION, MANDELBROT_MAX_DIMENSION),
+                rng_mandelbrot.randint(MANDELBROT_MIN_CENTER_Q, MANDELBROT_MAX_CENTER_Q),
+                rng_mandelbrot.randint(MANDELBROT_MIN_CENTER_Q, MANDELBROT_MAX_CENTER_Q),
+                rng_mandelbrot.randint(MANDELBROT_MIN_FIGURE_WIDTH_Q,
+                                       MANDELBROT_MAX_FIGURE_WIDTH_Q),
+                rng_mandelbrot.randint(MANDELBROT_MIN_MAX_STEP, MANDELBROT_MAX_MAX_STEP),
+            )
+            add_mandelbrot_case(values)
+
+        malformed_views = (
+            (), (1, 1, 0, 0, 1), (1, 1, 0, 0, 1, 2, 0),
+            (0, 1, 0, 0, 1, 2), (17, 1, 0, 0, 1, 2),
+            (1, 0, 0, 0, 1, 2), (1, 1, -65, 0, 1, 2),
+            (1, 1, 0, 65, 1, 2), (1, 1, 0, 0, 0, 2),
+            (1, 1, 0, 0, 65, 2), (1, 1, 0, 0, 1, 1),
+            (1, 1, 0, 0, 1, 65), tuple([0] * MANDELBROT_MAX_INPUT_VALUES),
+        )
+        for values in malformed_views:
+            add_mandelbrot_case(tuple(values))
+    elif algorithm == "singlylinkedlist":
+        validate_singlylinkedlist_workload(workload)
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (type(default_capacity) is not int
+                or default_capacity != SINGLYLINKEDLIST_MAX_OUTPUT_BYTES
+                or default_capacity > MAX_OUTPUT_CAPACITY
+                or workload.get("output", {}).get("null_output_result")
+                != SINGLYLINKEDLIST_OUTPUT_ERROR
+                or workload.get("output", {}).get("insufficient_capacity_result")
+                != SINGLYLINKEDLIST_OUTPUT_ERROR):
+            raise ValueError("singlylinkedlist workspace must match the reviewed output bound")
+
+        def add_singlylinkedlist_case(values: tuple[int, ...], capacity: int = default_capacity,
+                                      *, output_is_null: bool = False,
+                                      input_is_null: bool = False,
+                                      input_length: int | None = None) -> None:
+            declared_length = len(values) if input_length is None else input_length
+            if (len(values) > SINGLYLINKEDLIST_MAX_INPUT_VALUES
+                    or any(type(value) is not int
+                           or not SINGLYLINKEDLIST_I64_MIN <= value <= SINGLYLINKEDLIST_I64_MAX
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SINGLYLINKEDLIST_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or input_is_null and (values or output_is_null)
+                    or type(declared_length) is not int
+                    or not 0 <= declared_length <= SINGLYLINKEDLIST_MAX_INPUT_VALUES
+                    or (not input_is_null and declared_length != len(values))):
+                raise ValueError("singlylinkedlist generated framing is out of range")
+            result, output = singlylinkedlist_oracle(
+                values, capacity=capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=declared_length)
+            if (result >= 0 and len(output) != result
+                    or result < 0 and (result not in (SINGLYLINKEDLIST_INVALID_RESULT,
+                                                       SINGLYLINKEDLIST_OUTPUT_ERROR)
+                                       or output)):
+                raise ValueError("singlylinkedlist oracle returned inconsistent output framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, declared_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("workspace_bytes", fixture.get(
+                "output_capacity", default_capacity))
+            add_singlylinkedlist_case(
+                values, capacity, output_is_null=fixture.get("output_is_null", False),
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(values)))
+
+        maximum_input_trace = (
+            SINGLYLINKEDLIST_MAX_INITIAL_NODES,
+            SINGLYLINKEDLIST_MAX_OPERATIONS,
+            *range(SINGLYLINKEDLIST_MAX_INITIAL_NODES),
+            *(value for _ in range(SINGLYLINKEDLIST_MAX_OPERATIONS) for value in (6, 1, 32)),
+        )
+        add_singlylinkedlist_case(maximum_input_trace)
+
+        maximum_output_trace = (
+            SINGLYLINKEDLIST_MAX_INITIAL_NODES,
+            SINGLYLINKEDLIST_MAX_OPERATIONS,
+            *([SINGLYLINKEDLIST_MIN_VALUE] * SINGLYLINKEDLIST_MAX_INITIAL_NODES),
+            *(value for _ in range(SINGLYLINKEDLIST_MAX_OPERATIONS)
+              for value in (1, SINGLYLINKEDLIST_MAX_VALUE)),
+        )
+        output_result, _output_bytes = singlylinkedlist_oracle(maximum_output_trace)
+        if output_result != SINGLYLINKEDLIST_MAX_OUTPUT_BYTES:
+            raise ValueError("singlylinkedlist maximum trace does not fill the reviewed output bound")
+        add_singlylinkedlist_case(maximum_output_trace)
+        for capacity in (0, 1, SINGLYLINKEDLIST_MAX_OUTPUT_BYTES - 1,
+                         SINGLYLINKEDLIST_MAX_OUTPUT_BYTES):
+            add_singlylinkedlist_case(maximum_output_trace, capacity)
+        add_singlylinkedlist_case(maximum_output_trace, output_is_null=True)
+        add_singlylinkedlist_case((), input_is_null=True, input_length=0)
+
+        rng_singlylinkedlist = random.Random(20261020)
+        for _trace_index in range(128):
+            initial_count = rng_singlylinkedlist.randint(0, SINGLYLINKEDLIST_MAX_INITIAL_NODES)
+            initial_values = [rng_singlylinkedlist.choice((
+                SINGLYLINKEDLIST_MIN_VALUE, SINGLYLINKEDLIST_MAX_VALUE,
+                rng_singlylinkedlist.randint(SINGLYLINKEDLIST_MIN_VALUE,
+                                             SINGLYLINKEDLIST_MAX_VALUE)))
+                for _ in range(initial_count)]
+            state = initial_values.copy()
+            operation_count = rng_singlylinkedlist.randint(0, SINGLYLINKEDLIST_MAX_OPERATIONS)
+            operations: list[tuple[int, tuple[int, ...]]] = []
+            for _operation_index in range(operation_count):
+                choices = [2, 3, 4, 5]
+                if len(state) < SINGLYLINKEDLIST_MAX_LIST_NODES:
+                    choices.extend((0, 1))
+                if state:
+                    choices.append(6)
+                opcode = rng_singlylinkedlist.choice(choices)
+                if opcode in (0, 1):
+                    value = rng_singlylinkedlist.choice((
+                        SINGLYLINKEDLIST_MIN_VALUE, SINGLYLINKEDLIST_MAX_VALUE,
+                        rng_singlylinkedlist.randint(SINGLYLINKEDLIST_MIN_VALUE,
+                                                     SINGLYLINKEDLIST_MAX_VALUE)))
+                    if opcode == 0:
+                        state.insert(0, value)
+                    else:
+                        state.append(value)
+                    arguments = (value,)
+                elif opcode in (2, 3):
+                    if state:
+                        state.pop(0 if opcode == 2 else -1)
+                    arguments = ()
+                elif opcode == 4:
+                    position = (1 if not state else rng_singlylinkedlist.choice(
+                        (1, len(state), len(state) + 1,
+                         rng_singlylinkedlist.randint(1, len(state)))))
+                    if state:
+                        state.pop(min(position - 1, len(state) - 1))
+                    arguments = (position,)
+                elif opcode == 5:
+                    state.reverse()
+                    arguments = ()
+                else:
+                    left = rng_singlylinkedlist.randint(1, len(state))
+                    right = rng_singlylinkedlist.randint(left, len(state))
+                    state[left - 1:right] = reversed(state[left - 1:right])
+                    arguments = (left, right)
+                operations.append((opcode, arguments))
+            packed = [initial_count, operation_count, *initial_values]
+            for opcode, arguments in operations:
+                packed.extend((opcode, *arguments))
+            add_singlylinkedlist_case(tuple(packed))
+
+        malformed_traces = (
+            (), (0,), (SINGLYLINKEDLIST_MAX_INITIAL_NODES + 1, 0),
+            (0, SINGLYLINKEDLIST_MAX_OPERATIONS + 1), (1, 0),
+            (0, 0, 0), (1, 0, SINGLYLINKEDLIST_MAX_VALUE + 1),
+            (0, 1, 7), (0, 1, 0), (0, 1, 1),
+            (1, 1, 0, 4, 0), (0, 1, 4, 2),
+            (1, 1, 0, 4, 3), (1, 1, 0, 6, 0, 1),
+            (1, 1, 0, 6, 2, 1), (1, 1, 0, 6, 1, 2),
+            tuple([0] * SINGLYLINKEDLIST_MAX_INPUT_VALUES),
+        )
+        for values in malformed_traces:
+            add_singlylinkedlist_case(tuple(values))
     elif algorithm == "median_finder":
         cases: dict[tuple[tuple[int, ...], int], tuple[int, bytes]] = {}
         default_capacity = workload.get("workspace", {}).get("bytes")
@@ -33416,6 +34070,173 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in malformed:
             add_lru_cache2_case(tuple(values))
         add_lru_cache2_case((), input_is_null=True, input_length=1)
+    elif algorithm == "lempel_ziv_decompress":
+        validate_lempel_ziv_decompress_workload(workload)
+        capacity_limit = LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES
+
+        def add_lempel_ziv_decompress_case(
+                values: tuple[int, ...], capacity: int = capacity_limit,
+                *, output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> None:
+            effective_input_length = len(values) if input_length is None else input_length
+            if (len(values) > LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not LEMPEL_ZIV_DECOMPRESS_I64_MIN <= value <= LEMPEL_ZIV_DECOMPRESS_I64_MAX
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_input_length) is not int
+                    or not 0 <= effective_input_length <= LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or effective_input_length <= 0 or output_is_null))
+                    or (not input_is_null and effective_input_length != len(values))):
+                raise ValueError("lempel_ziv_decompress generated framing is invalid")
+            result, output = lempel_ziv_decompress_oracle(
+                values, capacity, output_is_null, input_is_null, effective_input_length)
+            if (result >= 0 and (result != len(output)
+                                 or len(output) > LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("lempel_ziv_decompress oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_input_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", capacity_limit)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = lempel_ziv_decompress_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"lempel_ziv_decompress fixture mismatch: {fixture['id']}")
+            add_lempel_ziv_decompress_case(
+                values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+
+        rng_lempel_ziv = random.Random(20261017)
+        fixture_sources = (
+            "0", "1", "01", "001011", "0101" * 16,
+            "001011" * 16, "0" * 96, "01" * 64,
+        )
+        for source_bits in fixture_sources:
+            compressed = lempel_ziv_compress_for_fixture(source_bits)
+            if len(compressed) <= LEMPEL_ZIV_DECOMPRESS_MAX_INPUT_BITS:
+                add_lempel_ziv_decompress_case(
+                    (len(compressed), *(ord(bit) for bit in compressed)))
+        for trace_index in range(96):
+            source_length = rng_lempel_ziv.randint(1, 96)
+            source_bits = "".join(rng_lempel_ziv.choice("01")
+                                   for _ in range(source_length))
+            compressed = lempel_ziv_compress_for_fixture(source_bits)
+            if len(compressed) > LEMPEL_ZIV_DECOMPRESS_MAX_INPUT_BITS:
+                continue
+            packed = (len(compressed), *(ord(bit) for bit in compressed))
+            result, _output = lempel_ziv_decompress_oracle(packed)
+            add_lempel_ziv_decompress_case(packed)
+            if result > 0:
+                add_lempel_ziv_decompress_case(packed, result - 1)
+                if trace_index % 16 == 0:
+                    add_lempel_ziv_decompress_case(packed, output_is_null=True)
+
+        maximum_fixture = next(
+            tuple(case["input_values"]) for case in workload["cases"]
+            if case["id"] == "near_maximum_packed_input")
+        maximum_result, _maximum_output = lempel_ziv_decompress_oracle(maximum_fixture)
+        if maximum_result > 0:
+            add_lempel_ziv_decompress_case(maximum_fixture, maximum_result - 1)
+            add_lempel_ziv_decompress_case(maximum_fixture, maximum_result)
+            add_lempel_ziv_decompress_case(maximum_fixture, output_is_null=True)
+
+        malformed = (
+            (), (0, 0), (-1,), (LEMPEL_ZIV_DECOMPRESS_MAX_INPUT_BITS + 1,),
+            (2, 48), (1, 50), (1, 0), (1, 48, 49),
+            (0, *([0] * (LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH - 1)),),
+        )
+        for values in malformed:
+            add_lempel_ziv_decompress_case(tuple(values))
+        add_lempel_ziv_decompress_case((1, 48), capacity=0)
+        add_lempel_ziv_decompress_case((1, 48), capacity=1)
+        add_lempel_ziv_decompress_case((1, 48), output_is_null=True)
+        add_lempel_ziv_decompress_case((), input_is_null=True, input_length=1)
+    elif algorithm == "lempel_ziv":
+        validate_lempel_ziv_workload(workload)
+        capacity_limit = LEMPEL_ZIV_MAX_OUTPUT_BYTES
+
+        def add_lempel_ziv_case(
+                values: tuple[int, ...], capacity: int = capacity_limit,
+                *, output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> None:
+            effective_input_length = len(values) if input_length is None else input_length
+            if (len(values) > LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not LEMPEL_ZIV_I64_MIN <= value <= LEMPEL_ZIV_I64_MAX
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= LEMPEL_ZIV_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_input_length) is not int
+                    or not 0 <= effective_input_length <= LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or effective_input_length <= 0 or output_is_null))
+                    or (not input_is_null and effective_input_length != len(values))):
+                raise ValueError("lempel_ziv generated framing is invalid")
+            result, output = lempel_ziv_oracle(
+                values, capacity, output_is_null, input_is_null, effective_input_length)
+            if (result >= 0 and (result != len(output) or len(output) > LEMPEL_ZIV_MAX_OUTPUT_BYTES)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("lempel_ziv oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_input_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", capacity_limit)
+            output_is_null = fixture.get("output_is_null", False)
+            input_is_null = fixture.get("input_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            result, output = lempel_ziv_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"lempel_ziv fixture mismatch: {fixture['id']}")
+            add_lempel_ziv_case(
+                values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+
+        rng_lempel_ziv_compressor = random.Random(20261018)
+        for trace_index in range(128):
+            bit_count = rng_lempel_ziv_compressor.randint(0, LEMPEL_ZIV_MAX_INPUT_BITS)
+            input_bits = "".join(rng_lempel_ziv_compressor.choice("01")
+                                  for _ in range(bit_count))
+            values = (bit_count, *(ord(bit) for bit in input_bits))
+            result, _output = lempel_ziv_oracle(values)
+            add_lempel_ziv_case(values)
+            if result > 0:
+                add_lempel_ziv_case(values, result - 1)
+                if trace_index % 16 == 0:
+                    add_lempel_ziv_case(values, output_is_null=True)
+
+        maximum_fixture = next(
+            tuple(case["input_values"]) for case in workload["cases"]
+            if case["id"] == "maximum_128_bit_input")
+        maximum_result, _maximum_output = lempel_ziv_oracle(maximum_fixture)
+        if maximum_result > 0:
+            add_lempel_ziv_case(maximum_fixture, maximum_result - 1)
+            add_lempel_ziv_case(maximum_fixture, maximum_result)
+            add_lempel_ziv_case(maximum_fixture, output_is_null=True)
+
+        malformed = (
+            (), (0, 0), (-1,), (LEMPEL_ZIV_MAX_INPUT_BITS + 1,),
+            (2, 48), (1, 50), (1, 0), (1, 48, 49),
+            (0, *([0] * (LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH - 1)),),
+        )
+        for values in malformed:
+            add_lempel_ziv_case(tuple(values))
+        add_lempel_ziv_case((1, 48), capacity=0)
+        add_lempel_ziv_case((1, 48), capacity=1)
+        add_lempel_ziv_case((1, 48), output_is_null=True)
+        add_lempel_ziv_case((), input_is_null=True, input_length=1)
     elif algorithm in {"fixed_priority_queue_using_list", "element_priority_queue_using_list"}:
         fixed = algorithm == "fixed_priority_queue_using_list"
         validate = (validate_fixed_priority_queue_using_list_workload if fixed
@@ -33506,6 +34327,413 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                      ((), (0,), (-1,), (257,), (1,), (1, 0), (1, 2, 0), (1, 1, 0, 0)))
         for values in malformed:
             add_priority_queue_case(values)
+    elif algorithm == "large_number":
+        validate_large_number_workload(workload)
+        default_capacity = workload.get("workspace", {}).get("bytes")
+        if (default_capacity != LARGE_NUMBER_MAX_OUTPUT_BYTES
+                or LARGE_NUMBER_MAX_DIGITS != 64
+                or LARGE_NUMBER_MAX_VALID_INPUT_LENGTH != 130
+                or LARGE_NUMBER_MAX_PARSEABLE_INPUT_LENGTH != 131
+                or LARGE_NUMBER_I64_MIN != -(1 << 63)
+                or LARGE_NUMBER_I64_MAX != (1 << 63) - 1):
+            raise ValueError("large_number bounds differ from the reviewed byte-output contract")
+
+        def add_large_number_case(
+                values: tuple[int, ...], capacity: int = default_capacity,
+                *, output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> None:
+            values = tuple(values)
+            effective_length = len(values) if input_length is None else input_length
+            if (len(values) > LARGE_NUMBER_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not LARGE_NUMBER_I64_MIN <= value <= LARGE_NUMBER_I64_MAX
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= LARGE_NUMBER_MAX_OUTPUT_BYTES
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(effective_length) is not int
+                    or not 0 <= effective_length <= LARGE_NUMBER_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null and (values or effective_length <= 0 or output_is_null))
+                    or (not input_is_null and effective_length != len(values))):
+                raise ValueError("large_number generated input/output framing is out of range")
+            result, output = large_number_verifier_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            if (result >= 0 and (result != len(output)
+                                 or len(output) > LARGE_NUMBER_MAX_OUTPUT_BYTES
+                                 or output_is_null)
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("large_number verifier oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_length))
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("workspace_bytes", fixture.get(
+                "output_capacity", default_capacity))
+            capacity = default_capacity if capacity is None else capacity
+            input_is_null = fixture.get("input_is_null")
+            output_is_null = fixture.get("output_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            output_is_null = False if output_is_null is None else output_is_null
+            input_length = fixture.get("input_length", len(values))
+            result, output = large_number_verifier_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(fixture.get("expected_result")) is not int
+                    or result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"large_number workload mismatch: {fixture['id']}")
+            add_large_number_case(values, capacity, output_is_null=output_is_null,
+                                  input_is_null=input_is_null, input_length=input_length)
+
+        rng_large_number = random.Random(20261017)
+        for sample_index in range(128):
+            left_length = rng_large_number.randint(1, LARGE_NUMBER_MAX_DIGITS)
+            right_length = rng_large_number.randint(1, LARGE_NUMBER_MAX_DIGITS)
+            left = (rng_large_number.randint(49, 57),) + tuple(
+                rng_large_number.randint(48, 57) for _ in range(left_length - 1))
+            right = (rng_large_number.randint(49, 57),) + tuple(
+                rng_large_number.randint(48, 57) for _ in range(right_length - 1))
+            values = (left_length, right_length, *left, *right)
+            add_large_number_case(values)
+            required, _ = large_number_verifier_oracle(values)
+            if required > 0:
+                add_large_number_case(values, required - 1)
+            if sample_index % 16 == 0:
+                add_large_number_case(values, output_is_null=True)
+
+        maximum_input = (
+            LARGE_NUMBER_MAX_DIGITS, LARGE_NUMBER_MAX_DIGITS,
+            *([57] * LARGE_NUMBER_MAX_DIGITS),
+            49, *([48] * (LARGE_NUMBER_MAX_DIGITS - 1)),
+        )
+        max_result, max_output = large_number_verifier_oracle(maximum_input)
+        if (len(maximum_input) != LARGE_NUMBER_MAX_VALID_INPUT_LENGTH
+                or max_result != LARGE_NUMBER_MAX_OUTPUT_BYTES
+                or len(max_output) != LARGE_NUMBER_MAX_OUTPUT_BYTES):
+            raise ValueError("large_number maximum-shape input does not produce 65 output bytes")
+        for capacity in (0, LARGE_NUMBER_MAX_OUTPUT_BYTES - 1,
+                         LARGE_NUMBER_MAX_OUTPUT_BYTES):
+            add_large_number_case(maximum_input, capacity)
+        add_large_number_case(maximum_input, output_is_null=True)
+        add_large_number_case(maximum_input + (0,))
+        add_large_number_case((), input_is_null=True, input_length=4)
+        add_large_number_case((1, 1, 57, 49), 1)
+        add_large_number_case((1, 1, 57, 49), 2)
+        add_large_number_case((1, 1, 58, 49), 0, output_is_null=True)
+
+        malformed = (
+            (), (1,), (0, 1, 49), (65, 1, *([49] * 65), 49),
+            (1, 65, 49, *([49] * 65)),
+            (2, 1, 48, 49, 49), (1, 1, 49, 50),
+            (1, 1, 49, 58), (1, 1, -1, 49),
+            (1, 1, 49, 49, 0),
+        )
+        for values in malformed:
+            add_large_number_case(values)
+    elif algorithm == "suffix_tree":
+        validate_suffix_tree_workload(workload)
+        workspace_bytes = workload.get("workspace", {}).get("bytes")
+        if (workspace_bytes != SUFFIX_TREE_MAX_OUTPUT_BYTES
+                or SUFFIX_TREE_MAX_TEXT_LENGTH != 64
+                or SUFFIX_TREE_MAX_VALID_INPUT_VALUES != 65
+                or SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES != 66
+                or SUFFIX_TREE_I64_MIN != -(1 << 63)
+                or SUFFIX_TREE_I64_MAX != (1 << 63) - 1):
+            raise ValueError("suffix_tree bounds differ from its frozen bytes-output contract")
+
+        def add_suffix_tree_case(
+                values: tuple[int, ...], capacity: int = workspace_bytes,
+                *, output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, bytes]:
+            values = tuple(values)
+            effective_length = len(values) if input_length is None else input_length
+            if (len(values) > SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES
+                    or any(type(value) is not int
+                           or not SUFFIX_TREE_I64_MIN <= value <= SUFFIX_TREE_I64_MAX
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(effective_length) is not int
+                    or not 0 <= effective_length <= SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES
+                    or input_is_null and (values or effective_length <= 0 or output_is_null)
+                    or not input_is_null and effective_length != len(values)):
+                raise ValueError("suffix_tree generated input/output framing is out of range")
+            result, output = suffix_tree_verifier_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            if (result >= 0 and (result != len(output)
+                                 or len(output) > SUFFIX_TREE_MAX_OUTPUT_BYTES
+                                 or output_is_null)
+                    or result < 0 and (result not in (SUFFIX_TREE_INVALID_RESULT,
+                                                      SUFFIX_TREE_OUTPUT_ERROR) or output)):
+                raise ValueError("suffix_tree oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_length))
+            return result, output
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", fixture.get("workspace_bytes"))
+            capacity = workspace_bytes if capacity is None else capacity
+            input_is_null = fixture.get("input_is_null", False)
+            output_is_null = fixture.get("output_is_null", False)
+            input_length = fixture.get("input_length", len(values))
+            if any(type(value) is not int for value in values):
+                if (fixture["id"] != "fractional_text_length"
+                        or fixture["expected_result"] != SUFFIX_TREE_INVALID_RESULT
+                        or fixture.get("expected_output_hex", "") != ""):
+                    raise ValueError("suffix_tree has an unrepresentable or unexpected nonintegral fixture")
+                continue
+            result, output = add_suffix_tree_case(
+                values, capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"suffix_tree workload mismatch: {fixture['id']}")
+
+        rng_suffix_tree = random.Random(20261017)
+        for _ in range(128):
+            text = tuple(rng_suffix_tree.randint(0, 127)
+                         for _ in range(rng_suffix_tree.randint(0, SUFFIX_TREE_MAX_TEXT_LENGTH)))
+            add_suffix_tree_case((len(text), *text))
+
+        maximum_text = (97,) * (SUFFIX_TREE_MAX_TEXT_LENGTH - 1) + (36,)
+        maximum_input = (SUFFIX_TREE_MAX_TEXT_LENGTH, *maximum_text)
+        maximum_result, maximum_output = suffix_tree_verifier_oracle(maximum_input)
+        if (len(maximum_input) != SUFFIX_TREE_MAX_VALID_INPUT_VALUES
+                or not 0 < maximum_result == len(maximum_output)
+                or maximum_result > SUFFIX_TREE_MAX_OUTPUT_BYTES):
+            raise ValueError("suffix_tree maximum-shape input exceeds its serialized workspace bound")
+        for capacity in (0, maximum_result - 1, maximum_result):
+            add_suffix_tree_case(maximum_input, capacity)
+        add_suffix_tree_case(maximum_input, output_is_null=True)
+        add_suffix_tree_case(maximum_input + (0,))
+        add_suffix_tree_case((), input_is_null=True, input_length=1)
+
+        malformed_suffix_tree = (
+            (), (0, 0), (1,), (SUFFIX_TREE_MAX_TEXT_LENGTH + 1,),
+            (1, -1), (1, 128), (2, 97),
+            tuple([0] * SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES),
+        )
+        for values in malformed_suffix_tree:
+            result, output = add_suffix_tree_case(tuple(values))
+            if result != SUFFIX_TREE_INVALID_RESULT or output:
+                raise ValueError("suffix_tree oracle accepted a malformed or error-writing probe")
+    elif algorithm == "shannon_fano":
+        validate_shannon_fano_workload(workload)
+        workspace_bytes = workload.get("workspace", {}).get("bytes")
+        if (workspace_bytes != SHANNON_FANO_MAX_OUTPUT_BYTES
+                or SHANNON_FANO_MAX_TEXT_LENGTH != 64
+                or SHANNON_FANO_MAX_SYMBOLS != 10
+                or SHANNON_FANO_MAX_CODE_LENGTH != 9
+                or SHANNON_FANO_MAX_VALID_INPUT_VALUES != 65
+                or SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES != 66):
+            raise ValueError("shannon_fano bounds differ from its reviewed byte-output contract")
+
+        def add_shannon_fano_case(
+                values: tuple[int, ...], capacity: int = workspace_bytes,
+                *, output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, bytes]:
+            values = tuple(values)
+            effective_length = len(values) if input_length is None else input_length
+            if (len(values) > SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(effective_length) is not int
+                    or not 0 <= effective_length <= SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES
+                    or input_is_null and (values or output_is_null)
+                    or not input_is_null and effective_length != len(values)):
+                raise ValueError("shannon_fano generated input/output framing is out of range")
+            result, output = shannon_fano_verifier_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            if (result >= 0 and (result != len(output)
+                                 or len(output) > SHANNON_FANO_MAX_OUTPUT_BYTES
+                                 or output_is_null)
+                    or result < 0 and (result not in (SHANNON_FANO_INVALID_RESULT,
+                                                      SHANNON_FANO_OUTPUT_ERROR) or output)):
+                raise ValueError("shannon_fano oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_length))
+            return result, output
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", fixture.get("workspace_bytes"))
+            capacity = workspace_bytes if capacity is None else capacity
+            result, output = add_shannon_fano_case(
+                values, capacity,
+                output_is_null=fixture.get("output_is_null", False),
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(values)))
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"shannon_fano workload mismatch: {fixture['id']}")
+
+        rng_shannon_fano = random.Random(20261017)
+        for index in range(128):
+            symbol_count = rng_shannon_fano.randint(1, SHANNON_FANO_MAX_SYMBOLS)
+            symbols = rng_shannon_fano.sample(range(128), symbol_count)
+            frequencies = rng_shannon_fano.sample(range(1, SHANNON_FANO_MAX_SYMBOLS + 1),
+                                                   symbol_count)
+            text = [symbol for symbol, frequency in zip(symbols, frequencies)
+                    for _ in range(frequency)]
+            rng_shannon_fano.shuffle(text)
+            values = (len(text), *text)
+            result, _ = add_shannon_fano_case(values)
+            if result > 0:
+                add_shannon_fano_case(values, result - 1)
+                if index % 16 == 0:
+                    add_shannon_fano_case(values, output_is_null=True)
+
+        maximum_fixture = next(case for case in workload["cases"]
+                               if case["id"] == "maximum_valid_text_and_symbols")
+        maximum_input = tuple(maximum_fixture["input_values"])
+        maximum_result, maximum_output = shannon_fano_verifier_oracle(maximum_input)
+        if (len(maximum_input) != SHANNON_FANO_MAX_VALID_INPUT_VALUES
+                or maximum_input[0] != SHANNON_FANO_MAX_TEXT_LENGTH
+                or len(set(maximum_input[1:])) != SHANNON_FANO_MAX_SYMBOLS
+                or not 0 < maximum_result == len(maximum_output)
+                or maximum_result > SHANNON_FANO_MAX_OUTPUT_BYTES):
+            raise ValueError("shannon_fano maximum-shape input exceeds its serialization bound")
+        for capacity in (0, maximum_result - 1, maximum_result,
+                         SHANNON_FANO_MAX_OUTPUT_BYTES):
+            add_shannon_fano_case(maximum_input, capacity)
+        add_shannon_fano_case(maximum_input, output_is_null=True)
+        add_shannon_fano_case(maximum_input + (0,))
+        add_shannon_fano_case((), input_is_null=True, input_length=0)
+        add_shannon_fano_case((), input_is_null=True, input_length=1)
+
+        malformed_shannon_fano = (
+            (), (0, 0), (1,), (SHANNON_FANO_MAX_TEXT_LENGTH + 1,),
+            (1, -1), (1, 128), (2, 97), (1, 97, 97),
+            (2, 97, 98), (5, 97, 97, 98, 98, 99),
+            tuple([0] * SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES),
+        )
+        for values in malformed_shannon_fano:
+            result, output = add_shannon_fano_case(tuple(values))
+            if result != SHANNON_FANO_INVALID_RESULT or output:
+                raise ValueError("shannon_fano oracle accepted malformed or tied input")
+        result, output = add_shannon_fano_case((2, 97, 98), 0, output_is_null=True)
+        if result != SHANNON_FANO_INVALID_RESULT or output:
+            raise ValueError("shannon_fano did not check tied input before output pointer")
+    elif algorithm == "skyline_algorithm":
+        validate_skyline_algorithm_workload(workload)
+        workspace_bytes = workload.get("workspace", {}).get("bytes")
+        if (workspace_bytes != SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES
+                or SKYLINE_ALGORITHM_I64_MIN != -(1 << 63)
+                or SKYLINE_ALGORITHM_I64_MAX != (1 << 63) - 1
+                or SKYLINE_ALGORITHM_I32_MIN != -(1 << 31)
+                or SKYLINE_ALGORITHM_I32_MAX != (1 << 31) - 1
+                or SKYLINE_ALGORITHM_MIN_POINT_COUNT != 1
+                or SKYLINE_ALGORITHM_MAX_POINT_COUNT != 64
+                or SKYLINE_ALGORITHM_MAX_VALID_INPUT_LENGTH != 129
+                or SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH != 130):
+            raise ValueError("skyline_algorithm bounds differ from its reviewed byte-output contract")
+
+        def add_skyline_algorithm_case(
+                values: tuple[int, ...], capacity: int = workspace_bytes,
+                *, output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, bytes]:
+            values = tuple(values)
+            effective_length = len(values) if input_length is None else input_length
+            if (len(values) > SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not SKYLINE_ALGORITHM_I64_MIN <= value <= SKYLINE_ALGORITHM_I64_MAX
+                           for value in values)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(effective_length) is not int
+                    or not 0 <= effective_length <= SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH
+                    or input_is_null and (values or output_is_null)
+                    or not input_is_null and effective_length != len(values)):
+                raise ValueError("skyline_algorithm generated input/output framing is out of range")
+            result, output = skyline_algorithm_verifier_oracle(
+                values, capacity, output_is_null, input_is_null, effective_length)
+            if (result >= 0 and (result != len(output)
+                                 or len(output) > SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES
+                                 or output_is_null
+                                 or not output
+                                 or len(output) != 1 + output[0] * 8)
+                    or result < 0 and (result not in (SKYLINE_ALGORITHM_INVALID_RESULT,
+                                                      SKYLINE_ALGORITHM_OUTPUT_ERROR) or output)):
+                raise ValueError("skyline_algorithm oracle returned inconsistent byte framing")
+            records.append((values, result, output, capacity, output_is_null,
+                            input_is_null, effective_length))
+            return result, output
+
+        for fixture in (*workload["cases"], *workload["abi_cases"]):
+            values = tuple(fixture["input_values"])
+            capacity = fixture.get("output_capacity", fixture.get("workspace_bytes"))
+            capacity = workspace_bytes if capacity is None else capacity
+            result, output = add_skyline_algorithm_case(
+                values, capacity,
+                output_is_null=fixture.get("output_is_null", False),
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(values)))
+            if (result != fixture["expected_result"]
+                    or output.hex() != fixture.get("expected_output_hex", "").lower()):
+                raise ValueError(f"skyline_algorithm workload mismatch: {fixture['id']}")
+
+        rng_skyline_algorithm = random.Random(20261017)
+        for index in range(128):
+            point_count = rng_skyline_algorithm.randint(
+                SKYLINE_ALGORITHM_MIN_POINT_COUNT, SKYLINE_ALGORITHM_MAX_POINT_COUNT)
+            x = rng_skyline_algorithm.randint(-1000, 1000)
+            points = []
+            for _ in range(point_count):
+                x += rng_skyline_algorithm.randint(1, 5)
+                y = rng_skyline_algorithm.randint(1, 1_000_000)
+                points.extend((x, y))
+            values = (point_count, *points)
+            result, _ = add_skyline_algorithm_case(values)
+            if result > 0:
+                add_skyline_algorithm_case(values, result - 1)
+                if index % 16 == 0:
+                    add_skyline_algorithm_case(values, output_is_null=True)
+
+        maximum_fixture = next(case for case in workload["cases"]
+                               if case["id"] == "maximum_size_all_frontier")
+        maximum_input = tuple(maximum_fixture["input_values"])
+        maximum_result, maximum_output = skyline_algorithm_verifier_oracle(maximum_input)
+        if (len(maximum_input) != SKYLINE_ALGORITHM_MAX_VALID_INPUT_LENGTH
+                or maximum_input[0] != SKYLINE_ALGORITHM_MAX_POINT_COUNT
+                or not 0 < maximum_result == len(maximum_output)
+                or maximum_result != SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES):
+            raise ValueError("skyline_algorithm maximum-shape input does not fill the output bound")
+        for capacity in (0, maximum_result - 1, maximum_result,
+                         SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES):
+            add_skyline_algorithm_case(maximum_input, capacity)
+        add_skyline_algorithm_case(maximum_input, output_is_null=True)
+        add_skyline_algorithm_case(maximum_input + (0,))
+        add_skyline_algorithm_case((), input_is_null=True, input_length=0)
+        add_skyline_algorithm_case((), input_is_null=True, input_length=1)
+        add_skyline_algorithm_case((2, SKYLINE_ALGORITHM_I32_MIN, 1,
+                                    SKYLINE_ALGORITHM_I32_MAX,
+                                    SKYLINE_ALGORITHM_I32_MAX))
+
+        malformed_skyline_algorithm = (
+            (), (0,), (SKYLINE_ALGORITHM_MAX_POINT_COUNT + 1,), (1,),
+            (2, 0, 1, 1), (1, 0, 1, 99),
+            (1, SKYLINE_ALGORITHM_I32_MIN - 1, 1),
+            (1, SKYLINE_ALGORITHM_I32_MAX + 1, 1),
+            (1, 0, 0), (1, 0, SKYLINE_ALGORITHM_I32_MAX + 1),
+            (2, 4, 1, 3, 2), tuple([0] * SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed_skyline_algorithm:
+            result, output = add_skyline_algorithm_case(tuple(values))
+            if result != SKYLINE_ALGORITHM_INVALID_RESULT or output:
+                raise ValueError("skyline_algorithm oracle accepted malformed input")
+        result, output = add_skyline_algorithm_case(
+            (1, 1, 0), 0, output_is_null=True)
+        if result != SKYLINE_ALGORITHM_INVALID_RESULT or output:
+            raise ValueError("skyline_algorithm did not check invalid input before output pointer")
     else:
         raise ValueError(f"no corpus for {algorithm}")
     lines = [str(len(records)) + "\n"]
@@ -33543,6 +34771,9 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
                      compiler=elisa_compiler if language == "elisa" else None,
                      with_checker=True, family="i64_array_bytes_output",
                      extra_link_sources=link_shims)
+    if algorithm == "mandelbrot":
+        validate_mandelbrot_build_controls(
+            algorithm, manifest, (ROOT / manifest["source_path"]).resolve())
     checker = manifest["binaries"]["i64_array_bytes_output_check"]["path"]
     checked = subprocess.run([checker], input=data, capture_output=True, text=True, timeout=120)
     if checked.returncode:
@@ -33564,7 +34795,7 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     for case, record in zip(workload["cases"], records):
         values = case["input_values"]
         input_length = case.get("input_length", len(values))
-        if (algorithm == "median_of_running_array_long"
+        if (algorithm in {"median_of_running_array_long", "shuffled_shift_cipher"}
                 and case.get("id") == "input_length_mismatch"):
             values = values[:input_length]
         input_is_null = case.get("input_is_null", False)

@@ -1,0 +1,90 @@
+const MAX_DIMENSION: usize = 4
+const MAX_INPUT_LENGTH: usize = 26
+const MAX_OUTPUT_ELEMENTS: usize = 16
+
+def sherman_morrison_impl(input: f64&, input_length: usize, output: mutable f64&,
+        output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH:
+        return -1
+    dimension_value: f64 = input[0]
+    if dimension_value != dimension_value or dimension_value < 1.0 or
+            dimension_value > MAX_DIMENSION.f64():
+        return -1
+    dimension: usize = dimension_value.usize()
+    if dimension_value != dimension.f64(): return -1
+    expected_length: usize = 1 + dimension * dimension + 2 * dimension
+    if input_length != expected_length: return -1
+
+    coefficients: mutable f64[MAX_OUTPUT_ELEMENTS + 2 * MAX_DIMENSION] = zeroed
+    index: mutable usize = 0
+    while index < expected_length - 1:
+        value: f64 = input[1 + index]
+        if value != value or value < -2.0 or value > 2.0 or value.i64().f64() != value:
+            return -1
+        coefficients[index] <- value
+        index <- index + 1
+
+    matrix_elements: usize = dimension * dimension
+    matrix: mutable f64[MAX_OUTPUT_ELEMENTS] = zeroed
+    u: mutable f64[MAX_DIMENSION] = zeroed
+    v: mutable f64[MAX_DIMENSION] = zeroed
+    row: mutable usize = 0
+    while row < dimension:
+        column: mutable usize = 0
+        while column < dimension:
+            matrix[row * dimension + column] <- coefficients[row * dimension + column]
+            column <- column + 1
+        row <- row + 1
+    index <- 0
+    while index < dimension:
+        u[index] <- coefficients[matrix_elements + index]
+        v[index] <- coefficients[matrix_elements + dimension + index]
+        index <- index + 1
+
+    right: mutable f64[MAX_DIMENSION] = zeroed
+    column <- 0
+    while column < dimension:
+        inner: mutable usize = 0
+        while inner < dimension:
+            right[column] <- right[column] + v[inner] * matrix[inner * dimension + column]
+            inner <- inner + 1
+        column <- column + 1
+    denominator: mutable f64 = 0.0
+    inner <- 0
+    while inner < dimension:
+        denominator <- denominator + right[inner] * u[inner]
+        inner <- inner + 1
+    denominator <- denominator + 1.0
+
+    updated: mutable f64[MAX_OUTPUT_ELEMENTS] = zeroed
+    if denominator != 0.0:
+        left: mutable f64[MAX_DIMENSION] = zeroed
+        row <- 0
+        while row < dimension:
+            inner <- 0
+            while inner < dimension:
+                left[row] <- left[row] + matrix[row * dimension + inner] * u[inner]
+                inner <- inner + 1
+            row <- row + 1
+        reciprocal: f64 = 1.0 / denominator
+        row <- 0
+        while row < dimension:
+            column <- 0
+            while column < dimension:
+                outer_product: f64 = left[row] * right[column]
+                scaled_product: f64 = outer_product * reciprocal
+                updated[row * dimension + column] <- matrix[row * dimension + column] - scaled_product
+                column <- column + 1
+            row <- row + 1
+
+    if output.is_null(): return -2
+    if denominator == 0.0: return 0
+    if output_capacity < dimension * dimension: return -2
+    index <- 0
+    while index < dimension * dimension:
+        output[index] <- updated[index]
+        index <- index + 1
+    (dimension * dimension).i64()
+
+export fn sherman_morrison(input: f64&, input_length: usize, output: mutable f64&,
+        output_capacity: usize) -> i64 = sherman_morrison_impl

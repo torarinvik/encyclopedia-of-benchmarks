@@ -28,9 +28,13 @@ boundary included. This benchmark defines a canonical binary64 multiplication
 projection of that predicate, `x*x + y*y <= 1.0`, with left-to-right addition.
 It may differ from CPython's platform `pow` result for rare rounding-boundary
 inputs; the selected fixed-seed fixtures were compared with the pinned
-expression and have the same hit counts. C, C++, and Nim implementations must
-disable floating-point contraction so the multiplication and addition round
-separately; Nim passes this requirement to its C backend.
+expression and have the same hit counts. The ports preserve each multiplication
+and the addition as a separately rounded binary64 operation: C and C++ use
+volatile helpers with contraction disabled, C3 uses non-inlined helpers, Elisa
+uses `fma` calls to produce each rounded product and the rounded sum, Nim disables
+contraction in its C backend, Odin uses forced non-inlined helpers, Rust uses
+non-inlined `black_box` helpers, V uses non-inlined helpers, and Zig selects
+strict floating-point mode.
 Let `hits` be the number of points satisfying the benchmark predicate; the
 result is `4 * hits / number_of_simulations`, returned as one binary64 output
 element. The contract uses zero absolute and relative tolerance.

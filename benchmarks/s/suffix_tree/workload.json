@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-suffix-tree-construction-i64-bytes-v1",
+  "algorithm": "suffix_tree",
+  "function_symbol": "suffix_tree_construct",
+  "description": "Construct the pinned Rust compressed suffix tree and serialize its node vector in insertion order.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/string/suffix_tree.rs",
+    "symbol": "SuffixTree::new; SuffixTree::add_suffix; Node",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/string/suffix_tree.rs",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Construct a compressed suffix tree by inserting each suffix of the supplied ASCII text, splitting existing edge labels at the first mismatch, and serialize the resulting public node vector.",
+    "input_encoding": "[text_length, text_ascii_codes...]",
+    "suffix_order": "Insert text[i..] in increasing byte-start order for i from zero through text_length-1. No terminal marker is added.",
+    "child_selection": "At each node, scan child indices in their stored order and select the first child whose label begins with the current suffix code. If none matches, append a node for the remaining suffix and stop that suffix insertion.",
+    "edge_splitting": "When a selected label diverges from the suffix, append a new node containing the common prefix and the old node as its child; trim the old node label to its unmatched suffix and replace the parent's selected child index with the new node. Continue after the common prefix.",
+    "output_serialization": "u64 little-endian node count, then for each node in vector insertion order: u64 little-endian label byte length, raw ASCII label bytes, u64 little-endian child count, and each child index as u64 little-endian in stored order.",
+    "root": "Node zero has an empty label. The source does not store a terminal marker or search results.",
+    "errors": "Malformed input, unsupported lengths, nonintegral encoded values, or non-7-bit-ASCII codes return -1 before output checks. Null output or insufficient output capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[text_length, text_ascii_codes...]",
+    "text_length_range": [0, 64],
+    "ascii_code_range": [0, 127],
+    "exact_input_length": "1+text_length",
+    "maximum_valid_input_values": 65,
+    "maximum_input_values_for_malformed_cases": 66,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "encoding": "Serialized node count, edge-label byte strings, and child-index vectors, all lengths/indices as little-endian u64.",
+    "maximum_bytes": 5176,
+    "success_result": "output byte count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input validity is checked before output pointer and capacity."
+  },
+  "workspace": {
+    "bytes": 5176,
+    "meaning": "Conservative bound: text_length*(text_length+1)/2 label bytes, up to 1+2*text_length node records, and up to 2*text_length child indices."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "oracle_method": "Mirror the pinned Rust suffix insertion and edge-splitting loop over bounded ASCII bytes, retaining node-vector insertion order and each child vector's order; serialize the resulting nodes using the documented little-endian u64 framing.",
+  "cases": [
+    {
+      "id": "empty_text_root_only",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "single_ascii_character",
+      "input_values": [1, 97],
+      "input_length": 2,
+      "expected_result": 49,
+      "expected_output_hex": "02000000000000000000000000000000010000000000000001000000000000000100000000000000610000000000000000"
+    },
+    {
+      "id": "two_distinct_codes",
+      "input_values": [2, 97, 98],
+      "input_length": 3,
+      "expected_result": 75,
+      "expected_output_hex": "030000000000000000000000000000000200000000000000010000000000000002000000000000000200000000000000616200000000000000000100000000000000620000000000000000"
+    },
+    {
+      "id": "repeated_characters_with_marker",
+      "input_values": [5, 97, 97, 97, 97, 36],
+      "input_length": 6,
+      "expected_result": 225,
+      "expected_output_hex": "090000000000000000000000000000000200000000000000060000000000000008000000000000000200000000000000612400000000000000000100000000000000610200000000000000010000000000000003000000000000000100000000000000240000000000000000010000000000000061020000000000000002000000000000000500000000000000010000000000000024000000000000000001000000000000006102000000000000000400000000000000070000000000000001000000000000002400000000000000000100000000000000240000000000000000"
+    },
+    {
+      "id": "rust_source_banana_sentinel_tree",
+      "input_values": [7, 98, 97, 110, 97, 110, 97, 36],
+      "input_length": 8,
+      "expected_result": 286,
+      "expected_output_hex": "0b00000000000000000000000000000004000000000000000100000000000000080000000000000006000000000000000a00000000000000070000000000000062616e616e6124000000000000000003000000000000006e6124000000000000000003000000000000006e6124000000000000000002000000000000006e61020000000000000002000000000000000500000000000000010000000000000024000000000000000002000000000000006e61020000000000000003000000000000000700000000000000010000000000000024000000000000000001000000000000006102000000000000000400000000000000090000000000000001000000000000002400000000000000000100000000000000240000000000000000"
+    },
+    {
+      "id": "embedded_nul_ascii",
+      "input_values": [3, 97, 0, 98],
+      "input_length": 4,
+      "expected_result": 102,
+      "expected_output_hex": "040000000000000000000000000000000300000000000000010000000000000002000000000000000300000000000000030000000000000061006200000000000000000200000000000000006200000000000000000100000000000000620000000000000000"
+    },
+    {
+      "id": "split_prefix_case",
+      "input_values": [6, 97, 98, 99, 97, 98, 36],
+      "input_length": 7,
+      "expected_result": 234,
+      "expected_output_hex": "090000000000000000000000000000000400000000000000040000000000000006000000000000000300000000000000080000000000000004000000000000006361622400000000000000000400000000000000636162240000000000000000040000000000000063616224000000000000000002000000000000006162020000000000000001000000000000000500000000000000010000000000000024000000000000000001000000000000006202000000000000000200000000000000070000000000000001000000000000002400000000000000000100000000000000240000000000000000"
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 5176,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [1, 97, 98],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [2, 97],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "fractional_text_length",
+      "input_values": [1.5, 97],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_ascii_code",
+      "input_values": [1, -1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "ascii_code_above_bound",
+      "input_values": [1, 128],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "text_length_above_bound",
+      "input_values": [65],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [0],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 24,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [1, 97],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 48,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [1, 128],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

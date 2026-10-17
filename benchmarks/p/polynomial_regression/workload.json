@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-polynomial-regression-fit-predict-float64-slice-io-v1",
+  "algorithm": "polynomial_regression",
+  "function_symbol": "polynomial_regression",
+  "description": "Fit a bounded univariate polynomial least-squares model and predict at caller-supplied abscissas.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/polynomial_regression.py",
+    "symbol": "PolynomialRegression._design_matrix; PolynomialRegression.fit; PolynomialRegression.predict",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/polynomial_regression.py",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Fit polynomial least-squares coefficients from training pairs using the Moore-Penrose pseudoinverse of an increasing-power Vandermonde matrix, then predict at each query abscissa.",
+    "input_encoding": "[degree, training_count, query_count, x_train..., y_train..., x_query...]",
+    "design_matrix": "Each training row is [1, x, x^2, ..., x^degree], matching numpy.vander(..., increasing=True).",
+    "fit": "Compute beta = pinv(X) @ y_train using the source's SVD pseudoinverse semantics. Inputs are restricted to pairwise-distinct integer training abscissas with degree < training_count, yielding a full-rank and well-conditioned bounded design.",
+    "prediction": "For each query x, evaluate [1, x, ..., x^degree] @ beta in increasing-power coefficient order.",
+    "output_encoding": "Fitted coefficients [beta_0, ..., beta_degree] followed by predictions in query order.",
+    "errors": "Malformed input, unsupported bounds, nonintegral encoded values, repeated training abscissas, or non-finite values returns -1 before output checks. A null output or capacity below the required element count returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[degree, training_count, query_count, x_train..., y_train..., x_query...]",
+    "degree_range": [0, 3],
+    "training_count_range": "Integer from degree+1 through 5",
+    "query_count_range": [1, 4],
+    "training_abscissa_range": [-2, 2],
+    "training_abscissas_must_be_pairwise_distinct": true,
+    "query_abscissa_range": [-2, 2],
+    "response_range": [-32, 32],
+    "encoded_values_must_be_integers": true,
+    "exact_packed_shape": "Exactly 3+2*training_count+query_count finite values; all encoded values must be exactly integral.",
+    "maximum_valid_input_length": 17,
+    "maximum_parseable_input_length": 18,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "degree+1 fitted coefficients followed by query_count predictions.",
+    "element_count": "degree+1+query_count",
+    "maximum_elements": 8,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input validity is checked before output pointer and capacity.",
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "workspace": {
+    "elements": 8,
+    "meaning": "Up to four fitted coefficients and four predictions."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "oracle_method": "For the bounded integer domain, solve the full-rank least-squares normal equations with exact rational arithmetic, convert coefficients to float64, and evaluate each query in increasing-power order. This is mathematically equivalent to the source pseudoinverse on the restricted full-rank designs; fixture comparisons allow 1e-9 absolute and relative tolerance.",
+  "cases": [
+    {
+      "id": "degree_zero_mean",
+      "input_values": [0, 3, 2, -1, 0, 1, 1, 2, 3, -2, 2],
+      "input_length": 11,
+      "expected_result": 3,
+      "expected_output": [2, 2, 2]
+    },
+    {
+      "id": "noisy_linear_fit",
+      "input_values": [1, 4, 3, -2, -1, 1, 2, 0, 1, 4, 7, -2, 0, 2],
+      "input_length": 14,
+      "expected_result": 5,
+      "expected_output": [3, 1.7, -0.4, 3, 6.4]
+    },
+    {
+      "id": "exact_quadratic_fit",
+      "input_values": [2, 4, 2, -2, -1, 0, 1, 1, 0, 1, 4, -2, 2],
+      "input_length": 13,
+      "expected_result": 5,
+      "expected_output": [1, 2, 1, 1, 9]
+    },
+    {
+      "id": "exact_cubic_fit",
+      "input_values": [3, 4, 3, -2, -1, 1, 2, -17, -5, 1, 7, -2, 0, 2],
+      "input_length": 14,
+      "expected_result": 7,
+      "expected_output": [-1, 2, -1, 1, -17, -1, 7]
+    },
+    {
+      "id": "quadratic_least_squares_fractional_coefficients",
+      "input_values": [2, 5, 3, -2, -1, 0, 1, 2, 5, 1, 0, 2, 8, -2, 0, 2],
+      "input_length": 16,
+      "expected_result": 6,
+      "expected_output": [-0.08571428571428572, 0.7, 1.6428571428571428, 5.085714285714285, -0.08571428571428572, 7.885714285714286]
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 5,
+      "input_is_null": true,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [0, 1, 1, 0, 1, 2, 7],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_degree",
+      "input_values": [1.5, 2, 1, 0, 1, 0, 1, 2],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "training_count_below_degree_plus_one",
+      "input_values": [2, 2, 1, 0, 1, 0, 1, 2],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "duplicate_training_abscissa_rank_deficient",
+      "input_values": [1, 2, 1, 0, 0, 1, 2, 2],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_response",
+      "input_values": [0, 1, 1, 0, 0.5, 1],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "training_abscissa_out_of_range",
+      "input_values": [0, 1, 1, 3, 0, 0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [1, 2, 1, 0, 1, 0, 1, 2],
+      "input_length": 8,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [1, 2, 1, 0, 1, 0, 1, 2],
+      "input_length": 8,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_fit_precedes_null_output",
+      "input_values": [1, 2, 1, 0, 0, 1, 2, 2],
+      "input_length": 8,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -5,6 +5,16 @@ const mt_m = 397
 const mt_mask = u64(0xffffffff)
 const max_parseable_input_length = 3
 
+@[noinline]
+fn rounded_mul(left f64, right f64) f64 {
+	return left * right
+}
+
+@[noinline]
+fn rounded_add(left f64, right f64) f64 {
+	return left + right
+}
+
 struct Mt19937 {
 mut:
 	state [mt_n]u32
@@ -93,7 +103,9 @@ pub fn pi_monte_carlo_estimation(input &f64, input_length usize, mut output &f64
 		mut hits := 0
 		for _ in 0 .. simulations {
 			x, y := mt_random(mut rng), mt_random(mut rng)
-			if x * x + y * y <= 1.0 { hits++ }
+			x_squared := rounded_mul(x, x)
+			y_squared := rounded_mul(y, y)
+			if rounded_add(x_squared, y_squared) <= 1.0 { hits++ }
 		}
 		output[0] = f64(4 * hits) / f64(simulations)
 		return 1

@@ -3,6 +3,8 @@ const MT_M: usize = 397
 const MT_MASK: u64 = 4294967295u64
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 3
 
+extern fma(first: f64, second: f64, third: f64) -> f64
+
 def mt_add(left: u32, right: u32) -> u32:
     ((left.u64() + right.u64()) & MT_MASK).u32()
 
@@ -104,9 +106,10 @@ def pi_monte_carlo_estimation_impl(input: f64&, input_length: usize,
     while trial < simulations:
         x: f64 = mt_random(&state[0], rng_index&)
         y: f64 = mt_random(&state[0], rng_index&)
-        x_squared: f64 = x * x
-        y_squared: f64 = y * y
-        if x_squared + y_squared <= 1.0:
+        x_squared: f64 = fma(x, x, 0.0)
+        y_squared: f64 = fma(y, y, 0.0)
+        rounded_sum: f64 = fma(1.0, x_squared, y_squared)
+        if rounded_sum <= 1.0:
             hits <- hits + 1
         trial <- trial + 1
     output[0] <- (4 * hits).f64() / simulations.f64()

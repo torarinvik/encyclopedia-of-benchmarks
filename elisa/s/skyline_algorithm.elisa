@@ -1,0 +1,125 @@
+const SKYLINE_MAX_POINTS: usize = 64
+const SKYLINE_MAX_INPUT_LENGTH: usize = 130
+const SKYLINE_MAX_OUTPUT_BYTES: usize = 513
+const SKYLINE_I32_MIN: i64 = -2147483648
+const SKYLINE_I32_MAX: i64 = 2147483647
+
+struct SkylinePoint:
+    x: i32
+    y: i32
+
+def skyline_dominates(left: SkylinePoint, right: SkylinePoint) -> bool:
+    (left.x < right.x and left.y <= right.y) or (left.x <= right.x and left.y < right.y)
+
+def skyline_produce(points: SkylinePoint&, start: usize, count: usize,
+        output: mutable SkylinePoint&) -> usize:
+    if count == 1:
+        output[0] <- points[start]
+        return 1
+    if count == 2:
+        if skyline_dominates(points[start], points[start + 1]):
+            output[0] <- points[start]
+            return 1
+        if skyline_dominates(points[start + 1], points[start]):
+            output[0] <- points[start + 1]
+            return 1
+        output[0] <- points[start]
+        output[1] <- points[start + 1]
+        return 2
+
+    middle: usize = count / 2
+    left: mutable SkylinePoint[SKYLINE_MAX_POINTS] = zeroed
+    right: mutable SkylinePoint[SKYLINE_MAX_POINTS] = zeroed
+    left_count: mutable usize = skyline_produce(points, start, middle, left)
+    right_count: mutable usize = skyline_produce(points, start + middle, count - middle, right)
+
+    index: mutable usize = 0
+    while index + 1 < left_count:
+        if left[index].x == left[index + 1].x and left[index].y > left[index + 1].y:
+            move: mutable usize = index
+            while move + 1 < left_count:
+                left[move] <- left[move + 1]
+                move <- move + 1
+            left_count <- left_count - 1
+            if index > 0: index <- index - 1
+        else:
+            index <- index + 1
+    minimum_y: mutable i32 = left[0].y
+    index <- 1
+    while index < left_count:
+        if minimum_y > left[index].y:
+            minimum_y <- left[index].y
+            if minimum_y == 1: break
+        index <- index + 1
+    index <- 0
+    while index < right_count:
+        if right[index].y >= minimum_y:
+            move: mutable usize = index
+            while move + 1 < right_count:
+                right[move] <- right[move + 1]
+                move <- move + 1
+            right_count <- right_count - 1
+        else:
+            index <- index + 1
+    index <- 0
+    while index < left_count:
+        output[index] <- left[index]
+        index <- index + 1
+    index <- 0
+    while index < right_count:
+        output[left_count + index] <- right[index]
+        index <- index + 1
+    left_count + right_count
+
+def skyline_impl(input: i64&, input_length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > SKYLINE_MAX_INPUT_LENGTH:
+        return -1
+    count_value: i64 = input[0]
+    if count_value < 1 or count_value > SKYLINE_MAX_POINTS.i64():
+        return -1
+    count: usize = count_value.usize()
+    if input_length != 1 + 2 * count:
+        return -1
+
+    points: mutable SkylinePoint[SKYLINE_MAX_POINTS] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        x_value: i64 = input[1 + 2 * index]
+        y_value: i64 = input[2 + 2 * index]
+        if x_value < SKYLINE_I32_MIN or x_value > SKYLINE_I32_MAX or
+                y_value < 1 or y_value > SKYLINE_I32_MAX:
+            return -1
+        if index > 0 and x_value <= input[1 + 2 * (index - 1)]:
+            return -1
+        points[index].x <- x_value.i32()
+        points[index].y <- y_value.i32()
+        index <- index + 1
+
+    skyline: mutable SkylinePoint[SKYLINE_MAX_POINTS] = zeroed
+    skyline_count: usize = skyline_produce(points, 0, count, skyline)
+    staged: mutable u8[SKYLINE_MAX_OUTPUT_BYTES] = zeroed
+    staged[0] <- skyline_count.u8()
+    index <- 0
+    while index < skyline_count:
+        x_bits: mutable u32 = skyline[index].x.u32()
+        y_bits: mutable u32 = skyline[index].y.u32()
+        byte: mutable usize = 0
+        while byte < 4:
+            staged[1 + 8 * index + byte] <- x_bits.u8()
+            staged[1 + 8 * index + 4 + byte] <- y_bits.u8()
+            x_bits <- x_bits >> 8
+            y_bits <- y_bits >> 8
+            byte <- byte + 1
+        index <- index + 1
+    written: usize = 1 + 8 * skyline_count
+    if output.is_null() or output_capacity < written:
+        return -2
+    index <- 0
+    while index < written:
+        output[index] <- staged[index]
+        index <- index + 1
+    written.i64()
+
+export fn skyline_algorithm(input: i64&, input_length: usize, output: mutable u8&,
+        output_capacity: usize) -> i64 = skyline_impl

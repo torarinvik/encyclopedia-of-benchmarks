@@ -1,0 +1,21 @@
+def rsa_cipher_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 3: return -1
+    ascii_code: i64 = values[0]
+    exponent_input: i64 = values[1]
+    modulus: i64 = values[2]
+    if ascii_code < 0 or ascii_code > 127 or modulus < 128 or modulus > 65535 or
+        exponent_input < 1 or exponent_input >= modulus: return -1
+
+    base: mutable u64 = ascii_code.u64()
+    exponent: mutable u64 = exponent_input.u64()
+    modulus_unsigned: u64 = modulus.u64()
+    result: mutable u64 = 1.u64()
+    base <- base % modulus_unsigned
+    while exponent > 0.u64():
+        if exponent % 2.u64() == 1.u64():
+            result <- (result * base) % modulus_unsigned
+        exponent <- exponent >> 1
+        base <- (base * base) % modulus_unsigned
+    result.i64()
+
+export fn rsa_cipher_encrypt_ascii(values: i64&, length: usize) -> i64 = rsa_cipher_impl

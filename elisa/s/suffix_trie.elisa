@@ -1,0 +1,70 @@
+const MAX_TEXT_LENGTH: usize = 64
+const MAX_PATTERN_LENGTH: usize = 16
+const MAX_INPUT_LENGTH: usize = 83
+const MAX_NODES: usize = 2081
+
+def suffix_trie_impl(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    text_length_value: i64 = input[0]
+    pattern_length_value: i64 = input[1]
+    if text_length_value < 0 or text_length_value > MAX_TEXT_LENGTH.i64() or
+        pattern_length_value < 0 or pattern_length_value > MAX_PATTERN_LENGTH.i64(): return -1
+    text_length: usize = text_length_value.usize()
+    pattern_length: usize = pattern_length_value.usize()
+    if input_length != 2 + text_length + pattern_length: return -1
+    text: mutable u8[MAX_TEXT_LENGTH] = zeroed
+    pattern: mutable u8[MAX_PATTERN_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < text_length:
+        code: i64 = input[2 + index]
+        if code < 0 or code > 127: return -1
+        text[index] <- code.u8()
+        index <- index + 1
+    index <- 0
+    while index < pattern_length:
+        code: i64 = input[2 + text_length + index]
+        if code < 0 or code > 127: return -1
+        pattern[index] <- code.u8()
+        index <- index + 1
+
+    first_child: mutable i64[MAX_NODES] = zeroed
+    next_sibling: mutable i64[MAX_NODES] = zeroed
+    edge_code: mutable u8[MAX_NODES] = zeroed
+    index <- 0
+    while index < MAX_NODES:
+        first_child[index] <- -1
+        next_sibling[index] <- -1
+        index <- index + 1
+    node_count: mutable usize = 1
+    start: mutable usize = 0
+    while start < text_length:
+        parent: mutable usize = 0
+        position: mutable usize = start
+        while position < text_length:
+            code: u8 = text[position]
+            child: mutable i64 = first_child[parent]
+            while child >= 0 and edge_code[child.usize()] != code:
+                child <- next_sibling[child.usize()]
+            if child < 0:
+                child <- node_count.i64()
+                node_count <- node_count + 1
+                edge_code[child.usize()] <- code
+                next_sibling[child.usize()] <- first_child[parent]
+                first_child[parent] <- child
+            parent <- child.usize()
+            position <- position + 1
+        start <- start + 1
+
+    parent: mutable usize = 0
+    index <- 0
+    while index < pattern_length:
+        code: u8 = pattern[index]
+        child: mutable i64 = first_child[parent]
+        while child >= 0 and edge_code[child.usize()] != code:
+            child <- next_sibling[child.usize()]
+        if child < 0: return 0
+        parent <- child.usize()
+        index <- index + 1
+    1
+
+export fn suffix_trie_search(input: i64&, input_length: usize) -> i64 = suffix_trie_impl

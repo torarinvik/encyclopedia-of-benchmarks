@@ -27,6 +27,53 @@ import sys
 from build_abi import ROOT, sha256_file
 from big_integer_multiply_oracle import MAX_INPUT_LENGTH as BIG_INTEGER_MULTIPLY_MAX_INPUT_LENGTH
 from big_integer_multiply_oracle import expected_output as big_integer_multiply_oracle
+from large_number_oracle import (
+    I64_MAX as LARGE_NUMBER_I64_MAX,
+    I64_MIN as LARGE_NUMBER_I64_MIN,
+    INVALID_RESULT as LARGE_NUMBER_INVALID_RESULT,
+    MAX_DIGITS as LARGE_NUMBER_MAX_DIGITS,
+    MAX_OUTPUT_BYTES as LARGE_NUMBER_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LARGE_NUMBER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LARGE_NUMBER_MAX_VALID_INPUT_LENGTH,
+    OUTPUT_ERROR as LARGE_NUMBER_OUTPUT_ERROR,
+    expected_output as large_number_oracle,
+)
+from suffix_tree_oracle import (
+    I64_MAX as SUFFIX_TREE_I64_MAX,
+    I64_MIN as SUFFIX_TREE_I64_MIN,
+    INVALID_RESULT as SUFFIX_TREE_INVALID_RESULT,
+    MAX_OUTPUT_BYTES as SUFFIX_TREE_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_VALUES as SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES,
+    MAX_TEXT_LENGTH as SUFFIX_TREE_MAX_TEXT_LENGTH,
+    MAX_VALID_INPUT_VALUES as SUFFIX_TREE_MAX_VALID_INPUT_VALUES,
+    OUTPUT_ERROR as SUFFIX_TREE_OUTPUT_ERROR,
+    expected_output as suffix_tree_oracle,
+)
+from shannon_fano_oracle import (
+    INVALID_RESULT as SHANNON_FANO_INVALID_RESULT,
+    MAX_CODE_LENGTH as SHANNON_FANO_MAX_CODE_LENGTH,
+    MAX_OUTPUT_BYTES as SHANNON_FANO_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_VALUES as SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES,
+    MAX_SYMBOLS as SHANNON_FANO_MAX_SYMBOLS,
+    MAX_TEXT_LENGTH as SHANNON_FANO_MAX_TEXT_LENGTH,
+    MAX_VALID_INPUT_VALUES as SHANNON_FANO_MAX_VALID_INPUT_VALUES,
+    OUTPUT_ERROR as SHANNON_FANO_OUTPUT_ERROR,
+    expected_output as shannon_fano_oracle,
+)
+from skyline_algorithm_oracle import (
+    I32_MAX as SKYLINE_ALGORITHM_I32_MAX,
+    I32_MIN as SKYLINE_ALGORITHM_I32_MIN,
+    I64_MAX as SKYLINE_ALGORITHM_I64_MAX,
+    I64_MIN as SKYLINE_ALGORITHM_I64_MIN,
+    INVALID_RESULT as SKYLINE_ALGORITHM_INVALID_RESULT,
+    MAX_OUTPUT_BYTES as SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POINT_COUNT as SKYLINE_ALGORITHM_MAX_POINT_COUNT,
+    MAX_VALID_INPUT_LENGTH as SKYLINE_ALGORITHM_MAX_VALID_INPUT_LENGTH,
+    MIN_POINT_COUNT as SKYLINE_ALGORITHM_MIN_POINT_COUNT,
+    OUTPUT_ERROR as SKYLINE_ALGORITHM_OUTPUT_ERROR,
+    expected_output as skyline_algorithm_oracle,
+)
 from procentual_proximity_oracle import expected_output as procentual_proximity_oracle
 from shree_dharacharya_formula_oracle import MAX_PARSEABLE_INPUT_LENGTH as SHREE_DHARACHARYA_FORMULA_MAX_PARSEABLE_INPUT_LENGTH
 from shree_dharacharya_formula_oracle import expected_output as shree_dharacharya_formula_oracle
@@ -46,6 +93,33 @@ from translator_oracle import (INVALID_RESULT as TRANSLATOR_INVALID_RESULT,
                                MIN_PRINTABLE_ASCII as TRANSLATOR_MIN_PRINTABLE_ASCII,
                                OUTPUT_ERROR as TRANSLATOR_OUTPUT_ERROR,
                                expected_output as translator_oracle)
+from shuffled_shift_cipher_oracle import (
+    ALPHABET as SHUFFLED_SHIFT_CIPHER_ALPHABET,
+    I64_MAX as SHUFFLED_SHIFT_CIPHER_I64_MAX,
+    I64_MIN as SHUFFLED_SHIFT_CIPHER_I64_MIN,
+    INVALID_RESULT as SHUFFLED_SHIFT_CIPHER_INVALID_RESULT,
+    MAX_OUTPUT_BYTES as SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_PASSCODE_LENGTH as SHUFFLED_SHIFT_CIPHER_MAX_PASSCODE_LENGTH,
+    MAX_TEXT_LENGTH as SHUFFLED_SHIFT_CIPHER_MAX_TEXT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SHUFFLED_SHIFT_CIPHER_MAX_VALID_INPUT_LENGTH,
+    MIN_PASSCODE_LENGTH as SHUFFLED_SHIFT_CIPHER_MIN_PASSCODE_LENGTH,
+    MIN_TEXT_LENGTH as SHUFFLED_SHIFT_CIPHER_MIN_TEXT_LENGTH,
+    OUTPUT_ERROR as SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR,
+    expected_output as shuffled_shift_cipher_oracle,
+)
+from quadratic_probing_oracle import (
+    I64_MAX as QUADRATIC_PROBING_I64_MAX,
+    I64_MIN as QUADRATIC_PROBING_I64_MIN,
+    INVALID_RESULT as QUADRATIC_PROBING_INVALID_RESULT,
+    MAX_CAPACITY as QUADRATIC_PROBING_MAX_CAPACITY,
+    MAX_INPUT_LENGTH as QUADRATIC_PROBING_MAX_INPUT_LENGTH,
+    MAX_INSERTS as QUADRATIC_PROBING_MAX_INSERTS,
+    MAX_OUTPUT_BYTES as QUADRATIC_PROBING_MAX_OUTPUT_BYTES,
+    MIN_CAPACITY as QUADRATIC_PROBING_MIN_CAPACITY,
+    OUTPUT_ERROR as QUADRATIC_PROBING_OUTPUT_ERROR,
+    expected_output as quadratic_probing_oracle,
+)
 from spiral_print_oracle import (INVALID_RESULT as SPIRAL_PRINT_INVALID_RESULT,
                                  MAX_COLUMNS as SPIRAL_PRINT_MAX_COLUMNS,
                                  MAX_INPUT_LENGTH as SPIRAL_PRINT_MAX_INPUT_LENGTH,
@@ -169,6 +243,29 @@ from lru_cache2_oracle import (
     OUTPUT_ERROR as LRU_CACHE2_OUTPUT_ERROR,
     PUT_SENTINEL as LRU_CACHE2_PUT_SENTINEL,
     expected_output as lru_cache2_oracle,
+)
+from lempel_ziv_decompress_oracle import (
+    I64_MAX as LEMPEL_ZIV_DECOMPRESS_I64_MAX,
+    I64_MIN as LEMPEL_ZIV_DECOMPRESS_I64_MIN,
+    INVALID_RESULT as LEMPEL_ZIV_DECOMPRESS_INVALID_RESULT,
+    MAX_INPUT_BITS as LEMPEL_ZIV_DECOMPRESS_MAX_INPUT_BITS,
+    MAX_INPUT_LENGTH as LEMPEL_ZIV_DECOMPRESS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH,
+    OUTPUT_ERROR as LEMPEL_ZIV_DECOMPRESS_OUTPUT_ERROR,
+    compress_for_fixture as lempel_ziv_decompress_compress_for_fixture,
+    expected_output as lempel_ziv_decompress_oracle,
+)
+from lempel_ziv_oracle import (
+    I64_MAX as LEMPEL_ZIV_I64_MAX,
+    I64_MIN as LEMPEL_ZIV_I64_MIN,
+    INVALID_RESULT as LEMPEL_ZIV_INVALID_RESULT,
+    MAX_INPUT_BITS as LEMPEL_ZIV_MAX_INPUT_BITS,
+    MAX_INPUT_LENGTH as LEMPEL_ZIV_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LEMPEL_ZIV_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH,
+    OUTPUT_ERROR as LEMPEL_ZIV_OUTPUT_ERROR,
+    expected_output as lempel_ziv_oracle,
 )
 from graph_peripherality_oracle import expected_output as graph_peripherality_expected_output
 from graph_centrality_oracle import expected_output as graph_centrality_expected_output
@@ -565,8 +662,72 @@ from map_reduce_oracle import MAX_INPUT_LENGTH as MAX_MAP_REDUCE_INPUT_LENGTH
 from map_reduce_oracle import expected_output as map_reduce_expected_output
 from transposition_cipher_oracle import MAX_INPUT_LENGTH as MAX_TRANSPOSITION_CIPHER_INPUT_LENGTH
 from transposition_cipher_oracle import expected_output as transposition_cipher_expected_output
-from spigotpi_oracle import MAX_INPUT_LENGTH as MAX_SPIGOTPI_INPUT_LENGTH
-from spigotpi_oracle import expected_output as spigotpi_expected_output
+from spigotpi_oracle import (
+    I64_MAX as SPIGOTPI_I64_MAX,
+    I64_MIN as SPIGOTPI_I64_MIN,
+    INSUFFICIENT_CAPACITY_RESULT as SPIGOTPI_OUTPUT_ERROR,
+    INVALID_RESULT as SPIGOTPI_INVALID_RESULT,
+    NULL_OUTPUT_RESULT as SPIGOTPI_NULL_OUTPUT_RESULT,
+    MAX_DIGITS as SPIGOTPI_MAX_DIGITS,
+    MAX_INPUT_LENGTH as MAX_SPIGOTPI_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as SPIGOTPI_MAX_OUTPUT_BYTES,
+    expected_output as spigotpi_expected_output,
+)
+from inverse_of_matrix_oracle import (
+    ABSOLUTE_TOLERANCE as INVERSE_OF_MATRIX_ABSOLUTE_TOLERANCE,
+    COEFFICIENT_SCALE as INVERSE_OF_MATRIX_COEFFICIENT_SCALE,
+    I64_MAX as INVERSE_OF_MATRIX_I64_MAX,
+    I64_MIN as INVERSE_OF_MATRIX_I64_MIN,
+    INSUFFICIENT_CAPACITY_RESULT as INVERSE_OF_MATRIX_OUTPUT_ERROR,
+    INVALID_RESULT as INVERSE_OF_MATRIX_INVALID_RESULT,
+    MAX_ABSOLUTE_INVERSE as INVERSE_OF_MATRIX_MAX_ABSOLUTE_INVERSE,
+    MAX_COEFFICIENT_Q as INVERSE_OF_MATRIX_MAX_COEFFICIENT_Q,
+    MAX_DIMENSION as INVERSE_OF_MATRIX_MAX_DIMENSION,
+    MAX_INPUT_VALUES as INVERSE_OF_MATRIX_MAX_INPUT_VALUES,
+    MAX_OUTPUT_BYTES as INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_VALUES as INVERSE_OF_MATRIX_MAX_OUTPUT_VALUES,
+    MIN_COEFFICIENT_Q as INVERSE_OF_MATRIX_MIN_COEFFICIENT_Q,
+    MIN_DIMENSION as INVERSE_OF_MATRIX_MIN_DIMENSION,
+    RELATIVE_TOLERANCE as INVERSE_OF_MATRIX_RELATIVE_TOLERANCE,
+    expected_output as inverse_of_matrix_expected_output,
+)
+from mandelbrot_oracle import (
+    BLACK as MANDELBROT_BLACK,
+    COORDINATE_SCALE as MANDELBROT_COORDINATE_SCALE,
+    I64_MAX as MANDELBROT_I64_MAX,
+    I64_MIN as MANDELBROT_I64_MIN,
+    INSUFFICIENT_CAPACITY_RESULT as MANDELBROT_OUTPUT_ERROR,
+    INVALID_RESULT as MANDELBROT_INVALID_RESULT,
+    MAX_CENTER_Q as MANDELBROT_MAX_CENTER_Q,
+    MAX_DIMENSION as MANDELBROT_MAX_DIMENSION,
+    MAX_FIGURE_WIDTH_Q as MANDELBROT_MAX_FIGURE_WIDTH_Q,
+    MAX_INPUT_VALUES as MANDELBROT_MAX_INPUT_VALUES,
+    MAX_MAX_STEP as MANDELBROT_MAX_MAX_STEP,
+    MAX_OUTPUT_BYTES as MANDELBROT_MAX_OUTPUT_BYTES,
+    MAX_VALID_INPUT_VALUES as MANDELBROT_MAX_VALID_INPUT_VALUES,
+    MIN_CENTER_Q as MANDELBROT_MIN_CENTER_Q,
+    MIN_DIMENSION as MANDELBROT_MIN_DIMENSION,
+    MIN_FIGURE_WIDTH_Q as MANDELBROT_MIN_FIGURE_WIDTH_Q,
+    MIN_MAX_STEP as MANDELBROT_MIN_MAX_STEP,
+    WHITE as MANDELBROT_WHITE,
+    expected_output as mandelbrot_expected_output,
+)
+from singlylinkedlist_oracle import (
+    I64_MAX as SINGLYLINKEDLIST_I64_MAX,
+    I64_MIN as SINGLYLINKEDLIST_I64_MIN,
+    INSUFFICIENT_CAPACITY_RESULT as SINGLYLINKEDLIST_OUTPUT_ERROR,
+    INVALID_RESULT as SINGLYLINKEDLIST_INVALID_RESULT,
+    MAX_INITIAL_NODES as SINGLYLINKEDLIST_MAX_INITIAL_NODES,
+    MAX_INPUT_VALUES as SINGLYLINKEDLIST_MAX_INPUT_VALUES,
+    MAX_LIST_NODES as SINGLYLINKEDLIST_MAX_LIST_NODES,
+    MAX_OPERATIONS as SINGLYLINKEDLIST_MAX_OPERATIONS,
+    MAX_OUTPUT_BYTES as SINGLYLINKEDLIST_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_VALUES as SINGLYLINKEDLIST_MAX_OUTPUT_VALUES,
+    MAX_VALUE as SINGLYLINKEDLIST_MAX_VALUE,
+    MAX_VALID_INPUT_VALUES as SINGLYLINKEDLIST_MAX_VALID_INPUT_VALUES,
+    MIN_VALUE as SINGLYLINKEDLIST_MIN_VALUE,
+    expected_output as singlylinkedlist_expected_output,
+)
 from median_finder_oracle import MAX_INPUT_LENGTH as MAX_MEDIAN_FINDER_INPUT_LENGTH
 from median_finder_oracle import expected_output as median_finder_expected_output
 from search_in_arow_and_col_wise_sorted_matrix_oracle import MAX_INPUT_VALUES as SEARCH_ROW_COLUMN_MATRIX_MAX_INPUT_VALUES
@@ -2429,6 +2590,17 @@ RECORDER_WORKSPACE_ALGORITHMS.update({
     'smoothsort',
     'suffix_automaton',
     'lru_cache2',
+    'shuffled_shift_cipher',
+    'quadratic_probing',
+    'lempel_ziv_decompress',
+    'lempel_ziv',
+    'inverse_of_matrix',
+    'mandelbrot',
+    'singlylinkedlist',
+    'large_number',
+    'suffix_tree',
+    'shannon_fano',
+    'skyline_algorithm',
 })
 
 
@@ -2453,10 +2625,26 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return suffix_automaton_oracle(values)
     if algorithm == "lru_cache2":
         return lru_cache2_oracle(values)
+    if algorithm == "lempel_ziv_decompress":
+        return lempel_ziv_decompress_oracle(values)
+    if algorithm == "lempel_ziv":
+        return lempel_ziv_oracle(values)
     if algorithm == "tokenize_string":
         return tokenize_string_oracle(values)
     if algorithm == "translator":
         return translator_oracle(values)
+    if algorithm == "shuffled_shift_cipher":
+        return shuffled_shift_cipher_oracle(values)
+    if algorithm == "quadratic_probing":
+        return quadratic_probing_oracle(values)
+    if algorithm == "large_number":
+        return large_number_oracle(values)
+    if algorithm == "suffix_tree":
+        return suffix_tree_oracle(values)
+    if algorithm == "shannon_fano":
+        return shannon_fano_oracle(values)
+    if algorithm == "skyline_algorithm":
+        return skyline_algorithm_oracle(values)
     if algorithm == "spiral_print":
         return spiral_print_oracle(values)
     if algorithm == "piecewise_linear_transform":
@@ -2801,6 +2989,12 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return transposition_cipher_expected_output(values)
     if algorithm == "spigotpi":
         return spigotpi_expected_output(values)
+    if algorithm == "inverse_of_matrix":
+        return inverse_of_matrix_expected_output(values)
+    if algorithm == "mandelbrot":
+        return mandelbrot_expected_output(values)
+    if algorithm == "singlylinkedlist":
+        return singlylinkedlist_expected_output(values)
     if algorithm == "median_finder":
         return median_finder_expected_output(values)
 
@@ -17274,8 +17468,7 @@ def validate_mixed_keyword_cypher_workload(workload: dict) -> None:
                 or type(output_is_null) is not bool
                 or (input_is_null and (values or not 1 <= input_length <= MIXED_KEYWORD_CYPHER_MAX_INPUT_LENGTH
                                        or output_is_null))
-                or (not input_is_null and input_length != len(values)
-                    and case.get("id") != "input_length_mismatch")
+                or (not input_is_null and input_length != len(values))
                 or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
                 or ("workspace_bytes" in case and "output_capacity" in case
                     and case["workspace_bytes"] != case["output_capacity"])
@@ -22072,6 +22265,201 @@ def validate_translator_workload(workload: dict) -> None:
             raise ValueError(f"translator workload mismatch: {case.get('id')}")
 
 
+SHUFFLED_SHIFT_CIPHER_CASE_IDS = {
+    "pinned_doctest_example", "all_alphanumeric_characters", "punctuation_and_whitespace",
+    "zero_alternating_sum_fallback", "negative_alternating_sum_fallback",
+    "positive_alternating_sum", "duplicate_breakpoints", "empty_plaintext",
+    "maximum_passcode_and_plaintext", "maximum_parseable_trailing_value_invalid",
+    "empty_passcode_invalid", "punctuation_passcode_invalid", "non_ascii_passcode_invalid",
+    "nul_plaintext_invalid", "del_plaintext_invalid", "negative_passcode_length_invalid",
+    "passcode_above_limit_invalid", "text_above_limit_invalid", "missing_plaintext_invalid",
+    "trailing_value_invalid", "missing_text_length_invalid",
+}
+SHUFFLED_SHIFT_CIPHER_ABI_CASE_IDS = {
+    "valid_null_nonempty_output", "valid_short_output_capacity", "empty_output_null_pointer",
+    "empty_output_zero_capacity", "invalid_input_before_null_output",
+    "null_input_positive_length", "input_length_mismatch", "exact_output_capacity",
+}
+
+
+def validate_shuffled_shift_cipher_workload(workload: dict) -> None:
+    """Pin the deterministic shuffled-shift cipher contract and all fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "ciphers/shuffled_shift_cipher.py",
+        "symbol": "ShuffledShiftCipher.encrypt",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/shuffled_shift_cipher.py",
+    }
+    contract = {
+        "operation": "Encrypt plaintext with the pinned shuffled key and shift derived from an explicit passcode.",
+        "input_encoding": "[passcode_length, plaintext_length, passcode_ascii..., plaintext_ascii...]",
+        "passcode_domain": "Nonempty ASCII letters and digits; the random passcode default is excluded.",
+        "alphabet": "string.ascii_letters + string.digits + string.punctuation + \" \" + tab + newline in that exact order (97 unique ASCII characters).",
+        "key_construction": "Scan the alphabet in order, accumulating a segment through each passcode breakpoint (a unique passcode character); reverse and append each segment. Reverse and append the final segment at the alphabet final character.",
+        "shift_construction": "Sum passcode codepoints with signs +,-,+,- starting at index zero; use that sum if positive, otherwise use passcode length.",
+        "encryption": "For each plaintext character c, emit key[(key.index(c) + shift) % 97].",
+        "output_encoding": "Raw ASCII ciphertext bytes; one output byte per plaintext character, without length prefix or terminator.",
+        "random_default": "Excluded; every valid call supplies a nonempty passcode.",
+        "invalid_input_result": -1,
+        "output_error_result": -2,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[passcode_length, plaintext_length, passcode_ascii..., plaintext_ascii...]",
+        "passcode_length_range": [1, 20],
+        "passcode_bytes": "ASCII A-Z, a-z, or 0-9.",
+        "plaintext_length_range": [0, 256],
+        "plaintext_bytes": "ASCII codepoints in the exact 97-character source alphabet.",
+        "exact_length": "2+passcode_length+plaintext_length",
+        "maximum_valid_input_length": 278,
+        "maximum_parseable_input_length": SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": SHUFFLED_SHIFT_CIPHER_INVALID_RESULT,
+        "null_input_result": SHUFFLED_SHIFT_CIPHER_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "raw_bytes",
+        "encoding": "ASCII ciphertext; no prefix or terminator.",
+        "maximum_output_bytes": SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES,
+        "success_result": "output byte length (equal to plaintext_length)",
+        "invalid_input_result": SHUFFLED_SHIFT_CIPHER_INVALID_RESULT,
+        "null_output_result": SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR,
+        "insufficient_output_capacity_result": SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR,
+        "empty_output_allows_null_pointer": False,
+        "error_precedence": "Malformed or null input returns -1 before null output or output capacity checks.",
+        "no_write_on_error": True,
+    }
+    workspace = {"bytes": SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES,
+                 "meaning": "Maximum ciphertext length."}
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-shuffled-shift-cipher-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "shuffled_shift_cipher"
+            or workload.get("function_symbol") != "shuffled_shift_cipher"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or len(SHUFFLED_SHIFT_CIPHER_ALPHABET) != 97
+            or len(set(SHUFFLED_SHIFT_CIPHER_ALPHABET)) != 97
+            or SHUFFLED_SHIFT_CIPHER_MIN_PASSCODE_LENGTH != 1
+            or SHUFFLED_SHIFT_CIPHER_MAX_PASSCODE_LENGTH != 20
+            or SHUFFLED_SHIFT_CIPHER_MIN_TEXT_LENGTH != 0
+            or SHUFFLED_SHIFT_CIPHER_MAX_TEXT_LENGTH != 256
+            or SHUFFLED_SHIFT_CIPHER_MAX_VALID_INPUT_LENGTH != 278
+            or SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH != 279
+            or SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES != 256
+            or SHUFFLED_SHIFT_CIPHER_I64_MIN != -(1 << 63)
+            or SHUFFLED_SHIFT_CIPHER_I64_MAX != (1 << 63) - 1
+            or SHUFFLED_SHIFT_CIPHER_INVALID_RESULT != -1
+            or SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(SHUFFLED_SHIFT_CIPHER_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SHUFFLED_SHIFT_CIPHER_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_case_ids) != len(SHUFFLED_SHIFT_CIPHER_ABI_CASE_IDS)
+            or len(abi_case_ids) != len(set(abi_case_ids))
+            or set(abi_case_ids) != SHUFFLED_SHIFT_CIPHER_ABI_CASE_IDS):
+        raise ValueError("shuffled_shift_cipher workload metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "shuffled_shift_cipher" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split()).replace("`", "")
+    if (source["url"] not in readme
+            or "97-character alphabet" not in normalized_readme
+            or "alternating signed sum" not in normalized_readme
+            or "Malformed or null input returns -1 before output checks" not in normalized_readme
+            or "null output pointer returns -2 even when the plaintext is empty" not in normalized_readme
+            or "non-null output pointer and zero capacity returns zero bytes" not in normalized_readme):
+        raise ValueError("shuffled_shift_cipher README is missing its pinned source or contract semantics")
+
+    cases_by_id = {case["id"]: case for case in cases}
+    abi_cases_by_id = {case["id"]: case for case in abi_cases}
+    if (len(cases_by_id["maximum_passcode_and_plaintext"].get("input_values", []))
+            != SHUFFLED_SHIFT_CIPHER_MAX_VALID_INPUT_LENGTH
+            or len(cases_by_id["maximum_parseable_trailing_value_invalid"].get("input_values", []))
+            != SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH):
+        raise ValueError("shuffled_shift_cipher workload is missing its maximum-bound fixtures")
+    invalid_before_null = abi_cases_by_id["invalid_input_before_null_output"]
+    empty_null_output = abi_cases_by_id["empty_output_null_pointer"]
+    empty_zero_capacity = abi_cases_by_id["empty_output_zero_capacity"]
+    short_capacity = abi_cases_by_id["valid_short_output_capacity"]
+    exact_capacity = abi_cases_by_id["exact_output_capacity"]
+    null_input = abi_cases_by_id["null_input_positive_length"]
+    length_mismatch = abi_cases_by_id["input_length_mismatch"]
+    valid_null_output = abi_cases_by_id["valid_null_nonempty_output"]
+    if (invalid_before_null.get("input_values") != [0, 1, 65]
+            or invalid_before_null.get("input_is_null", False)
+            or invalid_before_null.get("output_is_null") is not True
+            or invalid_before_null.get("expected_result") != SHUFFLED_SHIFT_CIPHER_INVALID_RESULT
+            or empty_null_output.get("input_values") != [1, 0, 65]
+            or empty_null_output.get("output_is_null") is not True
+            or empty_null_output.get("output_capacity") != 0
+            or empty_null_output.get("expected_result") != SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR
+            or empty_zero_capacity.get("input_values") != [1, 0, 65]
+            or empty_zero_capacity.get("output_is_null") is not False
+            or empty_zero_capacity.get("output_capacity") != 0
+            or empty_zero_capacity.get("expected_result") != 0
+            or short_capacity.get("output_is_null") is not False
+            or short_capacity.get("output_capacity") != 0
+            or short_capacity.get("expected_result") != SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR
+            or exact_capacity.get("output_is_null") is not False
+            or exact_capacity.get("output_capacity") != 1
+            or exact_capacity.get("expected_result") != 1
+            or exact_capacity.get("expected_output_hex") != "79"
+            or valid_null_output.get("output_is_null") is not True
+            or valid_null_output.get("expected_result") != SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR
+            or null_input.get("input_is_null") is not True
+            or null_input.get("input_values") != []
+            or null_input.get("input_length") != 3
+            or null_input.get("expected_result") != SHUFFLED_SHIFT_CIPHER_INVALID_RESULT
+            or length_mismatch.get("input_is_null", False)
+            or length_mismatch.get("input_length") != 3
+            or len(length_mismatch.get("input_values", [])) != 4
+            or length_mismatch.get("expected_result") != SHUFFLED_SHIFT_CIPHER_INVALID_RESULT):
+        raise ValueError("shuffled_shift_cipher ABI fixtures do not pin pointer, capacity, and input precedence")
+    for case in (*cases, *abi_cases):
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        capacity = case.get("workspace_bytes", case.get(
+            "output_capacity", SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES))
+        if (not isinstance(values, list)
+                or len(values) > SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int
+                       or not SHUFFLED_SHIFT_CIPHER_I64_MIN <= value <= SHUFFLED_SHIFT_CIPHER_I64_MAX
+                       for value in values)
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or type(input_length) is not int
+                or not 0 <= input_length <= SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and values)
+                or (not input_is_null and input_length != len(values)
+                    and case.get("id") != "input_length_mismatch")
+                or type(capacity) is not int
+                or not 0 <= capacity <= SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES):
+            raise ValueError(f"shuffled_shift_cipher input/output framing is invalid: {case.get('id')}")
+        expected_result, expected_output = shuffled_shift_cipher_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (type(case.get("expected_result")) is not int
+                or expected_result != case["expected_result"]
+                or expected_output.hex() != case.get("expected_output_hex", "").lower()):
+            raise ValueError(f"shuffled_shift_cipher workload mismatch: {case.get('id')}")
+
+
 SPIRAL_PRINT_CASE_IDS = {
     "minimum_one_by_two", "single_row", "two_by_three", "three_by_two", "three_by_four",
     "negative_and_duplicate_cells", "four_by_five", "maximum_sixteen_by_sixteen",
@@ -22204,7 +22592,394 @@ def validate_spiral_print_workload(workload: dict) -> None:
             raise ValueError(f"spiral_print workload mismatch: {case.get('id')}")
 
 
-SHUF_CASE_IDS = frozenset({
+SHUFFLED_SHIFT_CIPHER_CASE_IDS = {
+    "pinned_doctest_example", "all_alphanumeric_characters", "punctuation_and_whitespace",
+    "zero_alternating_sum_fallback", "negative_alternating_sum_fallback",
+    "positive_alternating_sum", "duplicate_breakpoints", "empty_plaintext",
+    "maximum_passcode_and_plaintext", "maximum_parseable_trailing_value_invalid",
+    "empty_passcode_invalid", "punctuation_passcode_invalid", "non_ascii_passcode_invalid",
+    "nul_plaintext_invalid", "del_plaintext_invalid", "negative_passcode_length_invalid",
+    "passcode_above_limit_invalid", "text_above_limit_invalid", "missing_plaintext_invalid",
+    "trailing_value_invalid", "missing_text_length_invalid",
+}
+SHUFFLED_SHIFT_CIPHER_ABI_CASE_IDS = {
+    "valid_null_nonempty_output", "valid_short_output_capacity", "empty_output_null_pointer",
+    "empty_output_zero_capacity", "invalid_input_before_null_output",
+    "null_input_positive_length", "input_length_mismatch", "exact_output_capacity",
+}
+
+
+def validate_shuffled_shift_cipher_workload(workload: dict) -> None:
+    """Pin the deterministic shuffled-shift cipher contract and all fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "ciphers/shuffled_shift_cipher.py",
+        "symbol": "ShuffledShiftCipher.encrypt",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/shuffled_shift_cipher.py",
+    }
+    contract = {
+        "operation": "Encrypt plaintext with the pinned shuffled key and shift derived from an explicit passcode.",
+        "input_encoding": "[passcode_length, plaintext_length, passcode_ascii..., plaintext_ascii...]",
+        "passcode_domain": "Nonempty ASCII letters and digits; the random passcode default is excluded.",
+        "alphabet": "string.ascii_letters + string.digits + string.punctuation + \" \" + tab + newline in that exact order (97 unique ASCII characters).",
+        "key_construction": "Scan the alphabet in order, accumulating a segment through each passcode breakpoint (a unique passcode character); reverse and append each segment. Reverse and append the final segment at the alphabet final character.",
+        "shift_construction": "Sum passcode codepoints with signs +,-,+,- starting at index zero; use that sum if positive, otherwise use passcode length.",
+        "encryption": "For each plaintext character c, emit key[(key.index(c) + shift) % 97].",
+        "output_encoding": "Raw ASCII ciphertext bytes; one output byte per plaintext character, without length prefix or terminator.",
+        "random_default": "Excluded; every valid call supplies a nonempty passcode.",
+        "invalid_input_result": -1,
+        "output_error_result": -2,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[passcode_length, plaintext_length, passcode_ascii..., plaintext_ascii...]",
+        "passcode_length_range": [1, 20],
+        "passcode_bytes": "ASCII A-Z, a-z, or 0-9.",
+        "plaintext_length_range": [0, 256],
+        "plaintext_bytes": "ASCII codepoints in the exact 97-character source alphabet.",
+        "exact_length": "2+passcode_length+plaintext_length",
+        "maximum_valid_input_length": 278,
+        "maximum_parseable_input_length": SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": SHUFFLED_SHIFT_CIPHER_INVALID_RESULT,
+        "null_input_result": SHUFFLED_SHIFT_CIPHER_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "raw_bytes",
+        "encoding": "ASCII ciphertext; no prefix or terminator.",
+        "maximum_output_bytes": SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES,
+        "success_result": "output byte length (equal to plaintext_length)",
+        "invalid_input_result": SHUFFLED_SHIFT_CIPHER_INVALID_RESULT,
+        "null_output_result": SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR,
+        "insufficient_output_capacity_result": SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR,
+        "empty_output_allows_null_pointer": False,
+        "error_precedence": "Malformed or null input returns -1 before null output or output capacity checks.",
+        "no_write_on_error": True,
+    }
+    workspace = {"bytes": SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES,
+                 "meaning": "Maximum ciphertext length."}
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-shuffled-shift-cipher-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "shuffled_shift_cipher"
+            or workload.get("function_symbol") != "shuffled_shift_cipher"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or len(SHUFFLED_SHIFT_CIPHER_ALPHABET) != 97
+            or len(set(SHUFFLED_SHIFT_CIPHER_ALPHABET)) != 97
+            or SHUFFLED_SHIFT_CIPHER_MIN_PASSCODE_LENGTH != 1
+            or SHUFFLED_SHIFT_CIPHER_MAX_PASSCODE_LENGTH != 20
+            or SHUFFLED_SHIFT_CIPHER_MIN_TEXT_LENGTH != 0
+            or SHUFFLED_SHIFT_CIPHER_MAX_TEXT_LENGTH != 256
+            or SHUFFLED_SHIFT_CIPHER_MAX_VALID_INPUT_LENGTH != 278
+            or SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH != 279
+            or SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES != 256
+            or SHUFFLED_SHIFT_CIPHER_I64_MIN != -(1 << 63)
+            or SHUFFLED_SHIFT_CIPHER_I64_MAX != (1 << 63) - 1
+            or SHUFFLED_SHIFT_CIPHER_INVALID_RESULT != -1
+            or SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(SHUFFLED_SHIFT_CIPHER_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SHUFFLED_SHIFT_CIPHER_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_case_ids) != len(SHUFFLED_SHIFT_CIPHER_ABI_CASE_IDS)
+            or len(abi_case_ids) != len(set(abi_case_ids))
+            or set(abi_case_ids) != SHUFFLED_SHIFT_CIPHER_ABI_CASE_IDS):
+        raise ValueError("shuffled_shift_cipher workload metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "shuffled_shift_cipher" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split()).replace("`", "")
+    if (source["url"] not in readme
+            or "97-character alphabet" not in normalized_readme
+            or "alternating signed sum" not in normalized_readme
+            or "Malformed or null input returns -1 before output checks" not in normalized_readme
+            or "null output pointer returns -2 even when the plaintext is empty" not in normalized_readme
+            or "non-null output pointer and zero capacity returns zero bytes" not in normalized_readme):
+        raise ValueError("shuffled_shift_cipher README is missing its pinned source or contract semantics")
+
+    cases_by_id = {case["id"]: case for case in cases}
+    abi_cases_by_id = {case["id"]: case for case in abi_cases}
+    if (len(cases_by_id["maximum_passcode_and_plaintext"].get("input_values", []))
+            != SHUFFLED_SHIFT_CIPHER_MAX_VALID_INPUT_LENGTH
+            or len(cases_by_id["maximum_parseable_trailing_value_invalid"].get("input_values", []))
+            != SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH):
+        raise ValueError("shuffled_shift_cipher workload is missing its maximum-bound fixtures")
+    invalid_before_null = abi_cases_by_id["invalid_input_before_null_output"]
+    empty_null_output = abi_cases_by_id["empty_output_null_pointer"]
+    empty_zero_capacity = abi_cases_by_id["empty_output_zero_capacity"]
+    short_capacity = abi_cases_by_id["valid_short_output_capacity"]
+    exact_capacity = abi_cases_by_id["exact_output_capacity"]
+    null_input = abi_cases_by_id["null_input_positive_length"]
+    length_mismatch = abi_cases_by_id["input_length_mismatch"]
+    valid_null_output = abi_cases_by_id["valid_null_nonempty_output"]
+    if (invalid_before_null.get("input_values") != [0, 1, 65]
+            or invalid_before_null.get("input_is_null", False)
+            or invalid_before_null.get("output_is_null") is not True
+            or invalid_before_null.get("expected_result") != SHUFFLED_SHIFT_CIPHER_INVALID_RESULT
+            or empty_null_output.get("input_values") != [1, 0, 65]
+            or empty_null_output.get("output_is_null") is not True
+            or empty_null_output.get("output_capacity") != 0
+            or empty_null_output.get("expected_result") != SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR
+            or empty_zero_capacity.get("input_values") != [1, 0, 65]
+            or empty_zero_capacity.get("output_is_null") is not False
+            or empty_zero_capacity.get("output_capacity") != 0
+            or empty_zero_capacity.get("expected_result") != 0
+            or short_capacity.get("output_is_null") is not False
+            or short_capacity.get("output_capacity") != 0
+            or short_capacity.get("expected_result") != SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR
+            or exact_capacity.get("output_is_null") is not False
+            or exact_capacity.get("output_capacity") != 1
+            or exact_capacity.get("expected_result") != 1
+            or exact_capacity.get("expected_output_hex") != "79"
+            or valid_null_output.get("output_is_null") is not True
+            or valid_null_output.get("expected_result") != SHUFFLED_SHIFT_CIPHER_OUTPUT_ERROR
+            or null_input.get("input_is_null") is not True
+            or null_input.get("input_values") != []
+            or null_input.get("input_length") != 3
+            or null_input.get("expected_result") != SHUFFLED_SHIFT_CIPHER_INVALID_RESULT
+            or length_mismatch.get("input_is_null", False)
+            or length_mismatch.get("input_length") != 3
+            or len(length_mismatch.get("input_values", [])) != 4
+            or length_mismatch.get("expected_result") != SHUFFLED_SHIFT_CIPHER_INVALID_RESULT):
+        raise ValueError("shuffled_shift_cipher ABI fixtures do not pin pointer, capacity, and input precedence")
+    for case in (*cases, *abi_cases):
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        capacity = case.get("workspace_bytes", case.get(
+            "output_capacity", SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES))
+        if (not isinstance(values, list)
+                or len(values) > SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int
+                       or not SHUFFLED_SHIFT_CIPHER_I64_MIN <= value <= SHUFFLED_SHIFT_CIPHER_I64_MAX
+                       for value in values)
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or type(input_length) is not int
+                or not 0 <= input_length <= SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and values)
+                or (not input_is_null and input_length != len(values)
+                    and case.get("id") != "input_length_mismatch")
+                or type(capacity) is not int
+                or not 0 <= capacity <= SHUFFLED_SHIFT_CIPHER_MAX_OUTPUT_BYTES):
+            raise ValueError(f"shuffled_shift_cipher input/output framing is invalid: {case.get('id')}")
+        expected_result, expected_output = shuffled_shift_cipher_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (type(case.get("expected_result")) is not int
+                or expected_result != case["expected_result"]
+                or expected_output.hex() != case.get("expected_output_hex", "").lower()):
+            raise ValueError(f"shuffled_shift_cipher workload mismatch: {case.get('id')}")
+
+
+QUADRATIC_PROBING_CASE_IDS = {
+    "empty_capacity", "home_slots_and_zero_key", "first_quadratic_offset",
+    "second_quadratic_offset", "wraparound", "duplicate_at_home_is_skipped",
+    "displaced_duplicate_is_inserted_again", "home_index_comparison_overwrites_displaced_key",
+    "minimum_capacity",
+}
+QUADRATIC_PROBING_ABI_CASE_IDS = {
+    "positive_length_null_input", "invalid_precedes_null_output", "valid_null_output",
+    "short_output_capacity", "exact_output_capacity", "malformed_record_length",
+    "maximum_output_exact_capacity", "negative_key_rejected",
+}
+
+
+def validate_quadratic_probing_workload(workload: dict) -> None:
+    """Pin the Python quadratic-probing trace and its bounded ABI fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "data_structures/hashing/quadratic_probing.py",
+        "symbol": "QuadraticProbing._collision_resolution",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/hashing/quadratic_probing.py",
+    }
+    supporting_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "data_structures/hashing/hash_table.py",
+        "symbol": "HashTable.__init__/hash_function/balanced_factor/insert_data",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/hashing/hash_table.py",
+    }
+    pinned_sources = [
+        source,
+        supporting_source,
+        {
+            "repository": "TheAlgorithms/Python",
+            "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+            "path": "data_structures/hashing/number_theory/prime_numbers.py",
+            "symbol": "next_prime (imported by HashTable; growth excluded by this contract)",
+            "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/hashing/number_theory/prime_numbers.py",
+        },
+    ]
+    contract = {
+        "hash": "key mod capacity, using Python nonnegative integer remainder.",
+        "base_insert": "Place at an empty home slot; skip only when the home slot already contains this same data value.",
+        "collision_sequence": "(home + i*i) mod capacity for i=1,2,...; i starts at 1 for every collided insertion.",
+        "collision_comparison": "The pinned collision method receives the home-slot index and compares an occupied value with that index rather than the inserted key.",
+        "load_factor": "Default charge_factor=1 and lim_charge=0.75. At most three inserts and capacity>=5 keep the table below the threshold, so no resize occurs.",
+        "termination": "The bounded accepted domain is capacity 5..31 and at most three inserts; source routes terminate within this domain.",
+        "duplicates": "Same key at home is skipped; a duplicate displaced from home can be inserted again, matching the pinned base and collision methods.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[capacity, insert_count, key_0, ..., key_(insert_count-1)]",
+        "capacity_range": [QUADRATIC_PROBING_MIN_CAPACITY, QUADRATIC_PROBING_MAX_CAPACITY],
+        "insert_count_range": [0, QUADRATIC_PROBING_MAX_INSERTS],
+        "key_range": [0, QUADRATIC_PROBING_I64_MAX],
+        "exact_length": "2 + insert_count",
+        "maximum_valid_input_length": QUADRATIC_PROBING_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_length": QUADRATIC_PROBING_MAX_INPUT_LENGTH,
+        "fresh_table_per_call": True,
+        "null_input_result": QUADRATIC_PROBING_INVALID_RESULT,
+        "invalid_input_result": QUADRATIC_PROBING_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "little_endian_signed_64_bit_word_sequence",
+        "encoding": "[capacity, slot_0, ..., slot_(capacity-1)]",
+        "empty_slot_encoding": -1,
+        "stored_keys": "Nonnegative keys are emitted unchanged, including zero.",
+        "result": "number of returned bytes",
+        "maximum_output_bytes": QUADRATIC_PROBING_MAX_OUTPUT_BYTES,
+        "invalid_input_result": QUADRATIC_PROBING_INVALID_RESULT,
+        "null_output_result": QUADRATIC_PROBING_OUTPUT_ERROR,
+        "insufficient_capacity_result": QUADRATIC_PROBING_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    workspace = {
+        "bytes": QUADRATIC_PROBING_MAX_OUTPUT_BYTES,
+        "reason": "Capacity is at most 31; output contains one capacity word and 31 slot words.",
+    }
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-quadratic-probing-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "quadratic_probing"
+            or workload.get("function_symbol") != "quadratic_probing"
+            or workload.get("pinned_source") != source
+            or workload.get("supporting_pinned_source") != supporting_source
+            or workload.get("pinned_sources") != pinned_sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or QUADRATIC_PROBING_MIN_CAPACITY != 5
+            or QUADRATIC_PROBING_MAX_CAPACITY != 31
+            or QUADRATIC_PROBING_MAX_INSERTS != 3
+            or QUADRATIC_PROBING_MAX_INPUT_LENGTH != 5
+            or QUADRATIC_PROBING_MAX_OUTPUT_BYTES != 256
+            or QUADRATIC_PROBING_I64_MIN != -(1 << 63)
+            or QUADRATIC_PROBING_I64_MAX != (1 << 63) - 1
+            or QUADRATIC_PROBING_INVALID_RESULT != -1
+            or QUADRATIC_PROBING_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(QUADRATIC_PROBING_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != QUADRATIC_PROBING_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_case_ids) != len(QUADRATIC_PROBING_ABI_CASE_IDS)
+            or len(abi_case_ids) != len(set(abi_case_ids))
+            or set(abi_case_ids) != QUADRATIC_PROBING_ABI_CASE_IDS):
+        raise ValueError("quadratic_probing workload metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "q" / "quadratic_probing" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split()).replace("`", "")
+    if (source["url"] not in readme or supporting_source["url"] not in readme
+            or "home-slot index" not in normalized_readme
+            or "at most 256 bytes" not in normalized_readme
+            or "Malformed input returns -1 before output checks" not in normalized_readme
+            or "Exact capacity succeeds" not in normalized_readme):
+        raise ValueError("quadratic_probing README is missing its pinned source or bounded semantics")
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    invalid_before_null = abi_by_id["invalid_precedes_null_output"]
+    null_input = abi_by_id["positive_length_null_input"]
+    valid_null = abi_by_id["valid_null_output"]
+    short_capacity = abi_by_id["short_output_capacity"]
+    exact_capacity = abi_by_id["exact_output_capacity"]
+    malformed_length = abi_by_id["malformed_record_length"]
+    maximum_output = abi_by_id["maximum_output_exact_capacity"]
+    negative_key = abi_by_id["negative_key_rejected"]
+    if (invalid_before_null.get("input_values") != [4, 0]
+            or invalid_before_null.get("output_is_null") is not True
+            or invalid_before_null.get("expected_result") != QUADRATIC_PROBING_INVALID_RESULT
+            or null_input.get("input_is_null") is not True
+            or null_input.get("input_values") != []
+            or null_input.get("input_length") != 2
+            or null_input.get("expected_result") != QUADRATIC_PROBING_INVALID_RESULT
+            or valid_null.get("input_values") != [5, 0]
+            or valid_null.get("output_is_null") is not True
+            or valid_null.get("expected_result") != QUADRATIC_PROBING_OUTPUT_ERROR
+            or short_capacity.get("input_values") != [5, 0]
+            or short_capacity.get("output_capacity") != 47
+            or short_capacity.get("expected_result") != QUADRATIC_PROBING_OUTPUT_ERROR
+            or exact_capacity.get("output_capacity") != 48
+            or exact_capacity.get("expected_result") != 48
+            or len(exact_capacity.get("expected_output_hex", "")) != 96
+            or malformed_length.get("input_values") != [7, 2, 0]
+            or malformed_length.get("expected_result") != QUADRATIC_PROBING_INVALID_RESULT
+            or maximum_output.get("input_values") != [31, 3, 0, 31, 62]
+            or maximum_output.get("output_capacity") != QUADRATIC_PROBING_MAX_OUTPUT_BYTES
+            or maximum_output.get("expected_result") != QUADRATIC_PROBING_MAX_OUTPUT_BYTES
+            or negative_key.get("input_values") != [7, 1, -1]
+            or negative_key.get("expected_result") != QUADRATIC_PROBING_INVALID_RESULT):
+        raise ValueError("quadratic_probing ABI fixtures do not pin error precedence or capacity boundaries")
+
+    for case in (*cases, *abi_cases):
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        output_is_null = case.get("output_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        capacity = case.get("workspace_bytes", case.get(
+            "output_capacity", QUADRATIC_PROBING_MAX_OUTPUT_BYTES))
+        if (not isinstance(values, list)
+                or len(values) > QUADRATIC_PROBING_MAX_INPUT_LENGTH
+                or any(type(value) is not int
+                       or not QUADRATIC_PROBING_I64_MIN <= value <= QUADRATIC_PROBING_I64_MAX
+                       for value in values)
+                or type(input_is_null) is not bool or type(output_is_null) is not bool
+                or type(input_length) is not int
+                or not 0 <= input_length <= QUADRATIC_PROBING_MAX_INPUT_LENGTH
+                or (input_is_null and values)
+                or (not input_is_null and input_length != len(values))
+                or type(capacity) is not int
+                or not 0 <= capacity <= QUADRATIC_PROBING_MAX_OUTPUT_BYTES):
+            raise ValueError(f"quadratic_probing input/output framing is invalid: {case.get('id')}")
+        result, output = quadratic_probing_oracle(
+            values, capacity, output_is_null, input_is_null, input_length)
+        if (type(case.get("expected_result")) is not int
+                or result != case["expected_result"]
+                or output.hex() != case.get("expected_output_hex", "").lower()):
+            raise ValueError(f"quadratic_probing workload mismatch: {case.get('id')}")
+
+
+SPIRAL_PRINT_CASE_IDS = {
     "empty_stream", "empty_stream_null_output", "singleton_sample",
     "short_stream_slot_order_and_collision", "full_initial_sample_with_wraparound_probes",
     "reservoir_replace_and_reject", "reservoir_replaces_first_slot",
@@ -23740,6 +24515,1842 @@ def validate_lru_cache2_workload(workload: dict) -> None:
                 raise ValueError(f"lru_cache2 fixture mismatch: {case_id}")
 
 
+LEMPEL_ZIV_DECOMPRESS_CASE_IDS = frozenset({
+    "empty_bitstream", "single_zero", "single_one", "two_symbol_stream",
+    "short_mixed_stream", "repeated_zero_stream",
+    "alternating_stream_crosses_code_width_changes", "periodic_stream_64_bits",
+    "near_maximum_packed_input", "non_bit_ascii_value", "negative_bit_count",
+    "bit_count_above_bound", "packed_shape_too_short", "non_ascii_integer",
+    "extra_packed_byte",
+})
+LEMPEL_ZIV_DECOMPRESS_ABI_CASE_IDS = frozenset({
+    "positive_length_null_input", "invalid_precedes_null_output", "valid_null_output",
+    "empty_result_null_output", "short_output_capacity", "exact_output_capacity",
+    "maximum_input_short_capacity", "maximum_input_exact_capacity",
+})
+
+
+def validate_lempel_ziv_decompress_workload(workload: dict) -> None:
+    source_commit = "e1a2a8b016001309a73d5fec4818c35cca139795"
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": source_commit,
+        "path": "data_compression/lempel_ziv_decompress.py",
+        "symbol": "decompress_data",
+        "url": f"https://github.com/TheAlgorithms/Python/blob/{source_commit}/data_compression/lempel_ziv_decompress.py",
+        "role": "algorithm",
+    }
+    supporting_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": source_commit,
+        "path": "data_compression/lempel_ziv.py",
+        "symbol": "compress_data",
+        "url": f"https://github.com/TheAlgorithms/Python/blob/{source_commit}/data_compression/lempel_ziv.py",
+        "role": "fixture_stream_generator",
+    }
+    contract = {
+        "operation": "Run the pure in-memory decompressor on an ASCII string of 0/1 bits; file framing and byte padding are excluded.",
+        "input_encoding": "[bit_count, ASCII byte values for the compressed bit string]",
+        "output_encoding": "Decompressed ASCII bytes for the resulting 0/1 string.",
+        "dictionary_order": "Start with {\"0\":\"0\",\"1\":\"1\"}; on a match emit its expansion, replace that key with expansion+\"0\", rebuild with 0-prefixed keys when math.log2(index).is_integer(), insert bin(index)[2:] -> expansion+\"1\", increment index, and clear the pending prefix. Discard any final unmatched prefix.",
+        "fixture_streams": "All semantic valid-stream fixtures are produced by the pinned companion compress_data function. The decompressor output is recorded as observed from the pinned decode recurrence; the package does not claim a general lossless file round trip.",
+        "errors": "Invalid packed input returns -1 before output checks. A null output or insufficient byte capacity returns -2 without writes.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[bit_count, ASCII 48/49 code-point values...]",
+        "bit_count_range": [0, LEMPEL_ZIV_DECOMPRESS_MAX_INPUT_BITS],
+        "code_byte_values": [48, 49],
+        "exact_packed_length": "1+bit_count",
+        "maximum_valid_input_length": LEMPEL_ZIV_DECOMPRESS_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_length": LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": LEMPEL_ZIV_DECOMPRESS_INVALID_RESULT,
+        "null_input_result": LEMPEL_ZIV_DECOMPRESS_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "ascii_byte_sequence",
+        "encoding": "Decompressed 0/1 character string, represented byte-for-byte as ASCII.",
+        "maximum_bytes": LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES,
+        "result": "number of returned bytes",
+        "invalid_input_result": LEMPEL_ZIV_DECOMPRESS_INVALID_RESULT,
+        "null_output_result": LEMPEL_ZIV_DECOMPRESS_OUTPUT_ERROR,
+        "insufficient_capacity_result": LEMPEL_ZIV_DECOMPRESS_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-lempel-ziv-decompress-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "lempel_ziv_decompress"
+            or workload.get("function_symbol") != "decompress_data"
+            or workload.get("description") != "Decode bounded ASCII bit streams with the pinned Lempel-Ziv variant and return decompressed ASCII bit bytes."
+            or workload.get("pinned_source") != source
+            or workload.get("supporting_pinned_source") != supporting_source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES,
+                "meaning": "At most L matches emit expansion lengths 1 through L for L<=128.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_bytes_output_call",
+                "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or LEMPEL_ZIV_DECOMPRESS_MAX_INPUT_BITS != 128
+            or LEMPEL_ZIV_DECOMPRESS_MAX_INPUT_LENGTH != 129
+            or LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH != 130
+            or LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES != 8256
+            or LEMPEL_ZIV_DECOMPRESS_I64_MIN != -(1 << 63)
+            or LEMPEL_ZIV_DECOMPRESS_I64_MAX != (1 << 63) - 1
+            or LEMPEL_ZIV_DECOMPRESS_INVALID_RESULT != -1
+            or LEMPEL_ZIV_DECOMPRESS_OUTPUT_ERROR != -2
+            or len(case_ids) != len(LEMPEL_ZIV_DECOMPRESS_CASE_IDS)
+            or len(set(case_ids)) != len(case_ids)
+            or set(case_ids) != LEMPEL_ZIV_DECOMPRESS_CASE_IDS
+            or len(abi_case_ids) != len(LEMPEL_ZIV_DECOMPRESS_ABI_CASE_IDS)
+            or len(set(abi_case_ids)) != len(abi_case_ids)
+            or set(abi_case_ids) != LEMPEL_ZIV_DECOMPRESS_ABI_CASE_IDS):
+        raise ValueError("lempel_ziv_decompress metadata or fixture IDs differ from its reviewed contract")
+
+    readme_path = ROOT / "benchmarks" / "l" / "lempel_ziv_decompress" / "README.md"
+    readme = readme_path.read_text(encoding="utf-8")
+    if (source["url"] not in readme
+            or supporting_source["url"] not in readme
+            or "final unmatched prefix is discarded" not in readme
+            or "8,256 bytes" not in readme
+            or "capacity below the decoded byte count returns `-2`" not in readme):
+        raise ValueError("lempel_ziv_decompress README is missing its pinned source or reviewed semantics")
+
+    for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case.get("id")
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES)
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not LEMPEL_ZIV_DECOMPRESS_I64_MIN <= value <= LEMPEL_ZIV_DECOMPRESS_I64_MAX
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES
+                    or (input_is_null and (values or not 1 <= input_length <= LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH))
+                    or (not input_is_null and input_length != len(values))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"lempel_ziv_decompress fixture framing is invalid: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null
+                                   or capacity != LEMPEL_ZIV_DECOMPRESS_MAX_OUTPUT_BYTES):
+                raise ValueError(f"lempel_ziv_decompress semantic fixture has ABI-only framing: {case_id}")
+            result, output = lempel_ziv_decompress_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"lempel_ziv_decompress fixture mismatch: {case_id}")
+            if key == "cases":
+                compressor_bits = case.get("compressor_input_bits")
+                if result >= 0:
+                    if (not isinstance(compressor_bits, str)
+                            or any(bit not in "01" for bit in compressor_bits)
+                            or lempel_ziv_decompress_compress_for_fixture(compressor_bits)
+                            != "".join(chr(value) for value in values[1:])):
+                        raise ValueError(f"lempel_ziv_decompress source fixture mismatch: {case_id}")
+                elif compressor_bits is not None:
+                    raise ValueError(f"lempel_ziv_decompress invalid fixture has source bits: {case_id}")
+
+
+LEMPEL_ZIV_CASE_IDS = frozenset({
+    "empty_input", "single_zero", "single_one", "two_bit_prefix", "short_mixed_input",
+    "zero_extended_final_suffix", "repetitive_zero_input",
+    "alternating_input_crosses_width_changes", "periodic_64_bit_input",
+    "maximum_128_bit_input", "non_bit_ascii_value", "negative_bit_count",
+    "bit_count_above_bound", "packed_shape_too_short", "extra_packed_byte",
+})
+LEMPEL_ZIV_ABI_CASE_IDS = frozenset({
+    "positive_length_null_input", "invalid_precedes_null_output", "valid_null_output",
+    "empty_nonnull_output_capacity_zero", "empty_null_output_capacity_zero",
+    "short_output_capacity", "exact_output_capacity", "maximum_input_short_capacity",
+    "maximum_input_exact_capacity",
+})
+
+
+def validate_lempel_ziv_workload(workload: dict) -> None:
+    source_commit = "e1a2a8b016001309a73d5fec4818c35cca139795"
+    source_url = f"https://github.com/TheAlgorithms/Python/blob/{source_commit}/data_compression/lempel_ziv.py"
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": source_commit,
+        "path": "data_compression/lempel_ziv.py",
+        "symbol": "compress_data",
+        "url": source_url,
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Compress the input 0/1 string in memory; omit file headers and byte framing.",
+        "input_encoding": "[bit_count, ASCII 48/49 values...]",
+        "output_encoding": "Compressed code string encoded as ASCII bytes.",
+        "dictionary_order": "Start with {\"0\":\"0\",\"1\":\"1\"}; on each matched input phrase emit its code, remove that key, set phrase+\"0\" to the emitted code, prefix all current code values with 0 when math.log2(index).is_integer(), then set phrase+\"1\" to bin(index)[2:], increment index and reset the pending phrase.",
+        "final_suffix": "When input ends with a nonempty unmatched phrase, append 0 bits until it is a dictionary key and emit its code. For binary input the lexicon remains a complete prefix code, so this loop terminates; the oracle uses a defensive finite bound.",
+        "errors": "Malformed bytes or packed shape return -1 before output checks. Null output or insufficient capacity returns -2 without writes.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[bit_count, ASCII 48/49 code-point values...]",
+        "bit_count_range": [0, LEMPEL_ZIV_MAX_INPUT_BITS],
+        "code_byte_values": [48, 49],
+        "exact_packed_length": "1+bit_count",
+        "maximum_valid_input_length": LEMPEL_ZIV_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_length": LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": LEMPEL_ZIV_INVALID_RESULT,
+        "null_input_result": LEMPEL_ZIV_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "ascii_byte_sequence",
+        "encoding": "Compressed 0/1 code string as ASCII.",
+        "maximum_bytes": LEMPEL_ZIV_MAX_OUTPUT_BYTES,
+        "result": "number of returned bytes",
+        "invalid_input_result": LEMPEL_ZIV_INVALID_RESULT,
+        "null_output_result": LEMPEL_ZIV_OUTPUT_ERROR,
+        "insufficient_capacity_result": LEMPEL_ZIV_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-lempel-ziv-i64-array-bytes-output-v1"
+            or workload.get("algorithm") != "lempel_ziv"
+            or workload.get("function_symbol") != "compress_data"
+            or workload.get("description") != "Compress bounded ASCII bit strings using the pinned Lempel-Ziv dictionary-width and suffix rules."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != {
+                "bytes": LEMPEL_ZIV_MAX_OUTPUT_BYTES,
+                "meaning": "At most 129 emitted codes, each no longer than the 8-bit dictionary code width at 128 input bits.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_bytes_output_call",
+                "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or LEMPEL_ZIV_MAX_INPUT_BITS != 128
+            or LEMPEL_ZIV_MAX_INPUT_LENGTH != 129
+            or LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH != 130
+            or LEMPEL_ZIV_MAX_OUTPUT_BYTES != 1032
+            or LEMPEL_ZIV_I64_MIN != -(1 << 63)
+            or LEMPEL_ZIV_I64_MAX != (1 << 63) - 1
+            or LEMPEL_ZIV_INVALID_RESULT != -1
+            or LEMPEL_ZIV_OUTPUT_ERROR != -2
+            or len(case_ids) != len(LEMPEL_ZIV_CASE_IDS)
+            or len(set(case_ids)) != len(case_ids)
+            or set(case_ids) != LEMPEL_ZIV_CASE_IDS
+            or len(abi_case_ids) != len(LEMPEL_ZIV_ABI_CASE_IDS)
+            or len(set(abi_case_ids)) != len(abi_case_ids)
+            or set(abi_case_ids) != LEMPEL_ZIV_ABI_CASE_IDS):
+        raise ValueError("lempel_ziv metadata or fixture IDs differ from its reviewed contract")
+
+    readme_path = ROOT / "benchmarks" / "l" / "lempel_ziv" / "README.md"
+    readme = readme_path.read_text(encoding="utf-8")
+    if (source_url not in readme
+            or "final zero-extension loop" not in readme
+            or "complete prefix code" not in readme
+            or "1,032 bytes" not in readme
+            or "insufficient capacity returns `-2`" not in readme):
+        raise ValueError("lempel_ziv README is missing its pinned source or reviewed semantics")
+
+    for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case.get("id")
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", LEMPEL_ZIV_MAX_OUTPUT_BYTES)
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not LEMPEL_ZIV_I64_MIN <= value <= LEMPEL_ZIV_I64_MAX
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= LEMPEL_ZIV_MAX_OUTPUT_BYTES
+                    or (input_is_null and (values or not 1 <= input_length <= LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH))
+                    or (not input_is_null and input_length != len(values))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"lempel_ziv fixture framing is invalid: {case_id}")
+            if key == "cases" and (input_is_null or output_is_null
+                                   or capacity != LEMPEL_ZIV_MAX_OUTPUT_BYTES):
+                raise ValueError(f"lempel_ziv semantic fixture has ABI-only framing: {case_id}")
+            result, output = lempel_ziv_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"lempel_ziv fixture mismatch: {case_id}")
+            if key == "cases":
+                input_bits = case.get("input_bits")
+                if result >= 0:
+                    if (not isinstance(input_bits, str)
+                            or any(bit not in "01" for bit in input_bits)
+                            or [ord(bit) for bit in input_bits] != values[1:]):
+                        raise ValueError(f"lempel_ziv source fixture mismatch: {case_id}")
+                elif input_bits is not None:
+                    raise ValueError(f"lempel_ziv invalid fixture has source bits: {case_id}")
+                if case_id == "zero_extended_final_suffix" and (
+                        input_bits != "00" or case.get("source_zero_extension_bits") != 1):
+                    raise ValueError("lempel_ziv final-suffix fixture lost its zero-extension probe")
+
+
+SPIGOTPI_CASE_IDS = frozenset({
+    "zero_digits", "first_digit", "two_digits", "four_digit_truncation", "ten_digits",
+    "medium_precision", "maximum_precision", "missing_count", "extra_input",
+    "negative_count", "count_above_limit",
+})
+SPIGOTPI_ABI_CASE_IDS = frozenset({
+    "positive_length_null_input", "invalid_precedes_null_output", "valid_null_output",
+    "empty_result_nonnull_capacity_zero", "empty_result_null_output",
+    "short_output_capacity", "exact_output_capacity", "maximum_input_short_capacity",
+})
+
+
+def validate_spigotpi_workload(workload: dict) -> None:
+    source_commit = "5ba447ec5ff3d1213de65b92e726ee74c5d5cc19"
+    source_url = f"https://github.com/TheAlgorithms/Go/blob/{source_commit}/math/pi/spigotpi.go"
+    source = {
+        "repository": "TheAlgorithms/Go",
+        "commit": source_commit,
+        "path": "math/pi/spigotpi.go",
+        "method": "Spigot(n)",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "layout": "[n]",
+        "exact_packed_length": 1,
+        "maximum_input_values_for_malformed_cases": MAX_SPIGOTPI_INPUT_LENGTH,
+        "n_range": [0, SPIGOTPI_MAX_DIGITS],
+        "invalid_input_result": SPIGOTPI_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "byte_sequence",
+        "encoding": "n ASCII decimal digit bytes of pi, beginning with 3 and with no decimal point",
+        "maximum_bytes": SPIGOTPI_MAX_OUTPUT_BYTES,
+        "successful_result": "output byte length",
+        "invalid_result": SPIGOTPI_INVALID_RESULT,
+        "insufficient_capacity_result": SPIGOTPI_OUTPUT_ERROR,
+        "null_output_result": SPIGOTPI_NULL_OUTPUT_RESULT,
+        "errors_leave_output_untouched": True,
+    }
+    workspace = {
+        "bytes": SPIGOTPI_MAX_OUTPUT_BYTES,
+        "reason": "The output is exactly n bytes for n in 0 through 256.",
+    }
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-go-spigotpi-digit-array-v1"
+            or workload.get("algorithm") != "spigotpi"
+            or workload.get("function_symbol") != "spigotpi"
+            or workload.get("description") != "Return the requested number of leading decimal digits of pi as ASCII bytes."
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or workload.get("pinned_source") != source
+            or workload.get("oracle_method") != "Independent Chudnovsky-series computation using Python Decimal."
+            or SPIGOTPI_MAX_DIGITS != 256
+            or SPIGOTPI_MAX_OUTPUT_BYTES != 256
+            or MAX_SPIGOTPI_INPUT_LENGTH != 2
+            or SPIGOTPI_I64_MIN != -(1 << 63)
+            or SPIGOTPI_I64_MAX != (1 << 63) - 1
+            or SPIGOTPI_INVALID_RESULT != -1
+            or SPIGOTPI_OUTPUT_ERROR != -2
+            or SPIGOTPI_NULL_OUTPUT_RESULT != -2
+            or len(case_ids) != len(SPIGOTPI_CASE_IDS)
+            or len(set(case_ids)) != len(case_ids)
+            or set(case_ids) != SPIGOTPI_CASE_IDS
+            or len(abi_case_ids) != len(SPIGOTPI_ABI_CASE_IDS)
+            or len(set(abi_case_ids)) != len(abi_case_ids)
+            or set(abi_case_ids) != SPIGOTPI_ABI_CASE_IDS):
+        raise ValueError("spigotpi metadata or fixture IDs differ from its reviewed contract")
+
+    readme_path = ROOT / "benchmarks" / "s" / "spigotpi" / "README.md"
+    readme = readme_path.read_text(encoding="utf-8")
+    if (source_url not in readme
+            or "first `n` decimal digits" not in readme
+            or "truncates after computing guard digits" not in readme
+            or "null output pointer or insufficient capacity returns `-2`" not in readme
+            or "without writing" not in readme):
+        raise ValueError("spigotpi README is missing its pinned source or reviewed semantics")
+
+    for key, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case.get("id")
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", case.get("workspace_bytes", SPIGOTPI_MAX_OUTPUT_BYTES))
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > MAX_SPIGOTPI_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not SPIGOTPI_I64_MIN <= value <= SPIGOTPI_I64_MAX
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= MAX_SPIGOTPI_INPUT_LENGTH
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SPIGOTPI_MAX_OUTPUT_BYTES
+                    or (input_is_null and (values or input_length <= 0))
+                    or (not input_is_null and input_length != len(values))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"spigotpi fixture framing is invalid: {case_id}")
+            if key == "cases" and (
+                    input_is_null or output_is_null
+                    or capacity != SPIGOTPI_MAX_OUTPUT_BYTES):
+                raise ValueError(f"spigotpi semantic fixture has ABI-only framing: {case_id}")
+            result, output = spigotpi_expected_output(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"spigotpi fixture mismatch: {case_id}")
+
+
+INVERSE_OF_MATRIX_CASE_IDS = {
+    "two_by_two_identity", "two_by_two_row_pivot", "two_by_two_upper_triangular",
+    "two_by_two_signed", "three_by_three_identity", "three_by_three_upper_triangular",
+    "three_by_three_cycle", "three_by_three_permuted_pivots", "three_by_three_signed_block",
+    "singular_two_by_two", "duplicate_dominant_column", "coefficient_out_of_range",
+    "unsupported_dimension", "packed_length_mismatch", "maximum_input_values",
+}
+INVERSE_OF_MATRIX_ABI_CASE_IDS = {
+    "positive_length_null_input", "invalid_input_precedes_null_output", "valid_null_output",
+    "short_output_capacity", "exact_output_capacity", "maximum_output_short_capacity",
+    "maximum_output_exact_capacity",
+}
+
+
+def validate_inverse_of_matrix_workload(workload: dict) -> None:
+    """Pin the shared Java/Python matrix-inverse contract and float64 fixtures."""
+    java_source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/matrix/InverseOfMatrix.java",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/matrix/InverseOfMatrix.java",
+        "role": "algorithm",
+    }
+    python_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "matrix/inverse_of_matrix.py",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/matrix/inverse_of_matrix.py",
+        "role": "algorithm",
+    }
+    pinned_sources = [java_source, python_source]
+    contract = {
+        "operation": "Return the full row-major inverse matrix for a strictly generalized diagonally dominant 2x2 or 3x3 real matrix.",
+        "input_encoding": "[dimension, row-major coefficients q...]",
+        "coefficient_interpretation": "Each signed integer q in [-32, 32] represents the exact binary64 value q/16.",
+        "valid_matrix_subset": "Each row has exactly one column whose coefficient magnitude is strictly greater than the sum of the magnitudes of the other row coefficients, and those dominant columns form a permutation of all columns.",
+        "output_encoding": "Row-major inverse coefficients as little-endian IEEE-754 binary64 values.",
+        "numeric_domain": "Accepted matrices are finite and nonsingular. Their q/16 grid and strict generalized diagonal dominance bound pivots; inverse coefficients have absolute value at most 32768.",
+        "invalid": "Malformed framing, unsupported dimension, out-of-range coefficient, or a matrix outside the shared stable domain returns -1.",
+        "capacity": "For valid input, null or short output returns -2; otherwise return the full output byte length.",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "layout": "[dimension, q00, q01, ..., q(n-1)(n-1)] in row-major order",
+        "dimension_range": [INVERSE_OF_MATRIX_MIN_DIMENSION, INVERSE_OF_MATRIX_MAX_DIMENSION],
+        "coefficient_range": [INVERSE_OF_MATRIX_MIN_COEFFICIENT_Q, INVERSE_OF_MATRIX_MAX_COEFFICIENT_Q],
+        "coefficient_scale": INVERSE_OF_MATRIX_COEFFICIENT_SCALE,
+        "coefficient_interpretation": "q represents the exact real binary64 value q/16",
+        "exact_packed_length": "1 + dimension*dimension",
+        "maximum_valid_input_values": 1 + INVERSE_OF_MATRIX_MAX_DIMENSION ** 2,
+        "maximum_input_values_for_malformed_cases": INVERSE_OF_MATRIX_MAX_INPUT_VALUES,
+        "invalid_input_result": INVERSE_OF_MATRIX_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_vector",
+        "encoding": "IEEE-754 binary64 little-endian",
+        "layout": "Complete inverse matrix in row-major order",
+        "max_length": INVERSE_OF_MATRIX_MAX_OUTPUT_VALUES,
+        "max_absolute_value": INVERSE_OF_MATRIX_MAX_ABSOLUTE_INVERSE,
+        "maximum_bytes": INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES,
+        "successful_result": "output byte length",
+        "invalid_result": INVERSE_OF_MATRIX_INVALID_RESULT,
+        "insufficient_capacity_result": INVERSE_OF_MATRIX_OUTPUT_ERROR,
+        "errors_leave_output_untouched": True,
+        "absolute_tolerance": INVERSE_OF_MATRIX_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": INVERSE_OF_MATRIX_RELATIVE_TOLERANCE,
+    }
+    workspace = {
+        "bytes": INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES,
+        "meaning": "Maximum output buffer for nine binary64 inverse coefficients",
+    }
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 6,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "java-python-inverse-of-matrix-bounded-real-matrix-v1"
+            or workload.get("algorithm") != "inverse_of_matrix"
+            or workload.get("function_symbol") != "inverse_of_matrix"
+            or workload.get("description") != "Compute a bounded 2x2 or 3x3 real matrix inverse using the shared stable domain of the pinned Java and Python implementations."
+            or workload.get("pinned_sources") != pinned_sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Exact integer determinant/cofactor inversion over the q/16 coefficient grid, followed by binary64 conversion and row-major little-endian serialization."
+            or INVERSE_OF_MATRIX_MIN_DIMENSION != 2
+            or INVERSE_OF_MATRIX_MAX_DIMENSION != 3
+            or INVERSE_OF_MATRIX_MIN_COEFFICIENT_Q != -32
+            or INVERSE_OF_MATRIX_MAX_COEFFICIENT_Q != 32
+            or INVERSE_OF_MATRIX_COEFFICIENT_SCALE != 16
+            or INVERSE_OF_MATRIX_MAX_INPUT_VALUES != 11
+            or INVERSE_OF_MATRIX_MAX_OUTPUT_VALUES != 9
+            or INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES != 72
+            or INVERSE_OF_MATRIX_MAX_ABSOLUTE_INVERSE != 32768.0
+            or INVERSE_OF_MATRIX_INVALID_RESULT != -1
+            or INVERSE_OF_MATRIX_OUTPUT_ERROR != -2
+            or INVERSE_OF_MATRIX_I64_MIN != -(1 << 63)
+            or INVERSE_OF_MATRIX_I64_MAX != (1 << 63) - 1
+            or INVERSE_OF_MATRIX_ABSOLUTE_TOLERANCE != 1e-9
+            or INVERSE_OF_MATRIX_RELATIVE_TOLERANCE != 1e-12
+            or not isinstance(cases, list)
+            or len(case_ids) != len(INVERSE_OF_MATRIX_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != INVERSE_OF_MATRIX_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_case_ids) != len(INVERSE_OF_MATRIX_ABI_CASE_IDS)
+            or len(abi_case_ids) != len(set(abi_case_ids))
+            or set(abi_case_ids) != INVERSE_OF_MATRIX_ABI_CASE_IDS):
+        raise ValueError("inverse_of_matrix metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "i" / "inverse_of_matrix" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split()).replace("`", "")
+    if (java_source["url"] not in readme
+            or python_source["url"] not in readme
+            or "The ABI is i64_array_bytes_output" not in normalized_readme
+            or "strictly generalized diagonally dominant" not in normalized_readme
+            or "nine local ports use Java's scaled-pivot Gaussian elimination method" not in normalized_readme
+            or "exact binary64 value q/16" not in normalized_readme
+            or "a null or undersized output buffer returns -2" not in normalized_readme
+            or "Validation happens before output-buffer checks" not in normalized_readme
+            or "maximum output is 9 values or 72 bytes" not in normalized_readme
+            or "Results use absolute tolerance 1e-9 and relative tolerance 1e-12" not in normalized_readme):
+        raise ValueError("inverse_of_matrix README is missing its pinned source or reviewed semantics")
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    if (abi_by_id["positive_length_null_input"].get("input_is_null") is not True
+            or abi_by_id["positive_length_null_input"].get("input_length") != 5
+            or abi_by_id["positive_length_null_input"].get("expected_result") != INVERSE_OF_MATRIX_INVALID_RESULT
+            or abi_by_id["invalid_input_precedes_null_output"].get("output_is_null") is not True
+            or abi_by_id["invalid_input_precedes_null_output"].get("expected_result") != INVERSE_OF_MATRIX_INVALID_RESULT
+            or abi_by_id["valid_null_output"].get("output_is_null") is not True
+            or abi_by_id["valid_null_output"].get("expected_result") != INVERSE_OF_MATRIX_OUTPUT_ERROR
+            or abi_by_id["short_output_capacity"].get("output_capacity") != 31
+            or abi_by_id["short_output_capacity"].get("expected_result") != INVERSE_OF_MATRIX_OUTPUT_ERROR
+            or abi_by_id["exact_output_capacity"].get("output_capacity") != 32
+            or abi_by_id["exact_output_capacity"].get("expected_result") != 32
+            or abi_by_id["maximum_output_short_capacity"].get("output_capacity") != 71
+            or abi_by_id["maximum_output_short_capacity"].get("expected_result") != INVERSE_OF_MATRIX_OUTPUT_ERROR
+            or abi_by_id["maximum_output_exact_capacity"].get("output_capacity") != INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES
+            or abi_by_id["maximum_output_exact_capacity"].get("expected_result") != INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES):
+        raise ValueError("inverse_of_matrix ABI fixtures do not pin error precedence or capacity boundaries")
+
+    for fixture_kind, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case.get("id")
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", case.get("workspace_bytes", INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES))
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > INVERSE_OF_MATRIX_MAX_INPUT_VALUES
+                    or any(type(value) is not int
+                           or not INVERSE_OF_MATRIX_I64_MIN <= value <= INVERSE_OF_MATRIX_I64_MAX
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= INVERSE_OF_MATRIX_MAX_INPUT_VALUES
+                    or type(input_is_null) is not bool or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES
+                    or (input_is_null and (values or input_length <= 0))
+                    or (not input_is_null and input_length != len(values))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"inverse_of_matrix fixture framing is invalid: {case_id}")
+            if fixture_kind == "cases" and (
+                    input_is_null or output_is_null or capacity != INVERSE_OF_MATRIX_MAX_OUTPUT_BYTES):
+                raise ValueError(f"inverse_of_matrix semantic fixture has ABI-only framing: {case_id}")
+            result, output = inverse_of_matrix_expected_output(
+                values, capacity=capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=input_length)
+            if type(case.get("expected_result")) is not int or case["expected_result"] != result:
+                raise ValueError(f"inverse_of_matrix status fixture mismatch: {case_id}")
+            if fixture_kind == "abi_cases":
+                if expected_hex.lower() != output.hex():
+                    raise ValueError(f"inverse_of_matrix ABI output fixture mismatch: {case_id}")
+                continue
+            expected_vector = case.get("expected_output")
+            if (not isinstance(expected_vector, list)
+                    or any(type(value) not in (int, float) or not math.isfinite(value)
+                           for value in expected_vector)):
+                raise ValueError(f"inverse_of_matrix expected vector is invalid: {case_id}")
+            actual_vector = struct.unpack("<" + "d" * (len(output) // 8), output) if output else ()
+            if (len(expected_vector) != len(actual_vector)
+                    or any(not math.isclose(expected, actual,
+                                            rel_tol=INVERSE_OF_MATRIX_RELATIVE_TOLERANCE,
+                                            abs_tol=INVERSE_OF_MATRIX_ABSOLUTE_TOLERANCE)
+                           for expected, actual in zip(expected_vector, actual_vector))):
+                raise ValueError(f"inverse_of_matrix output fixture differs from the exact-rational oracle: {case_id}")
+
+
+MANDELBROT_CASE_IDS = {
+    "origin_stays_black", "immediate_escape_is_white",
+    "escape_radius_is_strict_and_final_escape_is_black",
+    "escape_before_last_iteration_is_white", "two_by_two_source_traversal",
+}
+MANDELBROT_ABI_CASE_IDS = {
+    "null_input", "invalid_step_precedes_null_output", "extra_input_value",
+    "valid_input_null_output", "one_pixel_short_capacity", "one_pixel_exact_capacity",
+    "maximum_output_short_by_one",
+}
+
+
+def validate_mandelbrot_workload(workload: dict) -> None:
+    """Pin the shared binary64 Mandelbrot recurrence and byte-output fixtures."""
+    pinned_sources = [
+        {
+            "repository": "TheAlgorithms/C-Sharp",
+            "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+            "path": "Algorithms/Other/Mandelbrot.cs",
+            "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Other/Mandelbrot.cs",
+            "role": "algorithm",
+        },
+        {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/others/Mandelbrot.java",
+            "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/Mandelbrot.java",
+            "role": "algorithm",
+        },
+        {
+            "repository": "TheAlgorithms/JavaScript",
+            "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+            "path": "Maths/Mandelbrot.js",
+            "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/Mandelbrot.js",
+            "role": "algorithm",
+        },
+        {
+            "repository": "TheAlgorithms/Python",
+            "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+            "path": "fractals/mandelbrot.py",
+            "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/fractals/mandelbrot.py",
+            "role": "algorithm",
+        },
+    ]
+    contract = {
+        "operation": "Compute the pinned pixel recurrence and collapse each black or white RGB pixel to one grayscale byte.",
+        "input_encoding": "[width, height, center_x_q, center_y_q, figure_width_q, max_step]",
+        "coordinate_encoding": "center_x=center_x_q/16, center_y=center_y_q/16, figure_width=figure_width_q/16",
+        "floating_point": "IEEE-754 binary64 round-to-nearest, ties-to-even after each written operation. Preserve expression evaluation order; fused multiply-add contraction and reassociation are disabled.",
+        "coordinate_formula": "figure_height=(figure_width/width)*height; figure_x=center_x+((image_x/width-0.5)*figure_width); figure_y=center_y+((image_y/height-0.5)*figure_height)",
+        "iteration": "Initialize a=figure_x and b=figure_y. For step=0..max_step-1, assign current_step=step, then a_new=((a*a)-(b*b))+figure_x; b=((2*a)*b)+figure_y; a=a_new. Stop only when (a*a)+(b*b)>4.",
+        "pixel_classification": "Return black (0) when current_step/(max_step-1)>=1, otherwise white (255). In particular, escape on the final iteration is black.",
+        "output_encoding": "One grayscale byte per pixel, image_x outermost and image_y innermost, matching the pinned source loop traversal.",
+        "invalid": "Malformed input framing or an out-of-range field returns -1.",
+        "capacity": "For valid input, null or undersized output returns -2; success returns width*height. Input validation precedes output checks, and errors leave output untouched.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[width, height, center_x_q, center_y_q, figure_width_q, max_step]",
+        "width_range": [MANDELBROT_MIN_DIMENSION, MANDELBROT_MAX_DIMENSION],
+        "height_range": [MANDELBROT_MIN_DIMENSION, MANDELBROT_MAX_DIMENSION],
+        "center_x_q_range": [MANDELBROT_MIN_CENTER_Q, MANDELBROT_MAX_CENTER_Q],
+        "center_y_q_range": [MANDELBROT_MIN_CENTER_Q, MANDELBROT_MAX_CENTER_Q],
+        "figure_width_q_range": [MANDELBROT_MIN_FIGURE_WIDTH_Q, MANDELBROT_MAX_FIGURE_WIDTH_Q],
+        "max_step_range": [MANDELBROT_MIN_MAX_STEP, MANDELBROT_MAX_MAX_STEP],
+        "coordinate_scale": MANDELBROT_COORDINATE_SCALE,
+        "exact_input_length": MANDELBROT_MAX_VALID_INPUT_VALUES,
+        "maximum_valid_input_values": MANDELBROT_MAX_VALID_INPUT_VALUES,
+        "maximum_input_values_for_malformed_cases": MANDELBROT_MAX_INPUT_VALUES,
+        "invalid_input_result": MANDELBROT_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "byte_vector",
+        "encoding": "one grayscale byte per pixel: black=0x00, white=0xff",
+        "layout": "image_x outermost, image_y innermost",
+        "length": "width*height",
+        "maximum_bytes": MANDELBROT_MAX_OUTPUT_BYTES,
+        "success_result": "number of output bytes",
+        "invalid_result": MANDELBROT_INVALID_RESULT,
+        "null_output_result": MANDELBROT_OUTPUT_ERROR,
+        "insufficient_capacity_result": MANDELBROT_OUTPUT_ERROR,
+        "errors_leave_output_untouched": True,
+        "error_precedence": "Input validity is checked before output pointer and capacity.",
+    }
+    workspace = {
+        "bytes": MANDELBROT_MAX_OUTPUT_BYTES,
+        "meaning": "Maximum output buffer for a 16 by 16 view",
+    }
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-mandelbrot-bounded-black-white-i64-bytes-v1"
+            or workload.get("algorithm") != "mandelbrot"
+            or workload.get("function_symbol") != "mandelbrot"
+            or workload.get("description") != "Render the shared bounded black-and-white Mandelbrot view and return one byte per pixel in source traversal order."
+            or workload.get("pinned_sources") != pinned_sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Evaluate the source coordinate and iteration recurrences in the specified binary64 order, then serialize source-ordered black/white bytes."
+            or MANDELBROT_MIN_DIMENSION != 1
+            or MANDELBROT_MAX_DIMENSION != 16
+            or MANDELBROT_MIN_CENTER_Q != -64
+            or MANDELBROT_MAX_CENTER_Q != 64
+            or MANDELBROT_MIN_FIGURE_WIDTH_Q != 1
+            or MANDELBROT_MAX_FIGURE_WIDTH_Q != 64
+            or MANDELBROT_MIN_MAX_STEP != 2
+            or MANDELBROT_MAX_MAX_STEP != 64
+            or MANDELBROT_COORDINATE_SCALE != 16
+            or MANDELBROT_MAX_VALID_INPUT_VALUES != 6
+            or MANDELBROT_MAX_INPUT_VALUES != 7
+            or MANDELBROT_MAX_OUTPUT_BYTES != 256
+            or MANDELBROT_BLACK != 0
+            or MANDELBROT_WHITE != 255
+            or MANDELBROT_INVALID_RESULT != -1
+            or MANDELBROT_OUTPUT_ERROR != -2
+            or MANDELBROT_I64_MIN != -(1 << 63)
+            or MANDELBROT_I64_MAX != (1 << 63) - 1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(MANDELBROT_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MANDELBROT_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_case_ids) != len(MANDELBROT_ABI_CASE_IDS)
+            or len(abi_case_ids) != len(set(abi_case_ids))
+            or set(abi_case_ids) != MANDELBROT_ABI_CASE_IDS):
+        raise ValueError("mandelbrot metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "mandelbrot" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split()).replace("`", "")
+    if (any(source["url"] not in readme for source in pinned_sources)
+            or "The ABI is i64_array_bytes_output" not in normalized_readme
+            or "binary64 round-to-nearest, ties-to-even" not in normalized_readme
+            or "fused multiply-add contraction and reassociation disabled" not in normalized_readme
+            or "image_x outermost and image_y innermost" not in normalized_readme
+            or "final iteration is black" not in normalized_readme
+            or "Validation precedes output checks" not in normalized_readme):
+        raise ValueError("mandelbrot README is missing a pinned source or reviewed semantics")
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    if (abi_by_id["null_input"].get("input_is_null") is not True
+            or abi_by_id["null_input"].get("expected_result") != MANDELBROT_INVALID_RESULT
+            or abi_by_id["invalid_step_precedes_null_output"].get("output_is_null") is not True
+            or abi_by_id["invalid_step_precedes_null_output"].get("expected_result") != MANDELBROT_INVALID_RESULT
+            or abi_by_id["extra_input_value"].get("input_length") != MANDELBROT_MAX_INPUT_VALUES
+            or abi_by_id["extra_input_value"].get("expected_result") != MANDELBROT_INVALID_RESULT
+            or abi_by_id["valid_input_null_output"].get("output_is_null") is not True
+            or abi_by_id["valid_input_null_output"].get("expected_result") != MANDELBROT_OUTPUT_ERROR
+            or abi_by_id["one_pixel_short_capacity"].get("output_capacity") != 0
+            or abi_by_id["one_pixel_short_capacity"].get("expected_result") != MANDELBROT_OUTPUT_ERROR
+            or abi_by_id["one_pixel_exact_capacity"].get("output_capacity") != 1
+            or abi_by_id["one_pixel_exact_capacity"].get("expected_result") != 1
+            or abi_by_id["maximum_output_short_by_one"].get("output_capacity") != 255
+            or abi_by_id["maximum_output_short_by_one"].get("expected_result") != MANDELBROT_OUTPUT_ERROR):
+        raise ValueError("mandelbrot ABI fixtures do not pin validation precedence and capacity boundaries")
+
+    for fixture_kind, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case.get("id")
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", case.get("workspace_bytes", MANDELBROT_MAX_OUTPUT_BYTES))
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > MANDELBROT_MAX_INPUT_VALUES
+                    or any(type(value) is not int
+                           or not MANDELBROT_I64_MIN <= value <= MANDELBROT_I64_MAX
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= MANDELBROT_MAX_INPUT_VALUES
+                    or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MANDELBROT_MAX_OUTPUT_BYTES
+                    or (input_is_null and values)
+                    or (not input_is_null and input_length != len(values))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"mandelbrot fixture framing is invalid: {case_id}")
+            if fixture_kind == "cases" and (
+                    input_is_null or output_is_null or capacity != MANDELBROT_MAX_OUTPUT_BYTES):
+                raise ValueError(f"mandelbrot semantic fixture has ABI-only framing: {case_id}")
+            result, output = mandelbrot_expected_output(
+                values, capacity=capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"mandelbrot fixture differs from the binary64 oracle: {case_id}")
+
+    maximum_view = (MANDELBROT_MAX_DIMENSION, MANDELBROT_MAX_DIMENSION,
+                    0, 0, MANDELBROT_MIN_FIGURE_WIDTH_Q, MANDELBROT_MIN_MAX_STEP)
+    maximum_result, maximum_output = mandelbrot_expected_output(maximum_view)
+    if maximum_result != MANDELBROT_MAX_OUTPUT_BYTES or len(maximum_output) != MANDELBROT_MAX_OUTPUT_BYTES:
+        raise ValueError("mandelbrot maximum output does not match its workspace")
+
+
+def validate_mandelbrot_build_controls(algorithm: str, manifest: dict, source: Path) -> None:
+    """Require strict FP compiler flags or four source-level rounding barriers."""
+    if algorithm != "mandelbrot":
+        return
+    language = manifest.get("language")
+    try:
+        flags = set(shlex.split(manifest.get("build_flags", "")))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("mandelbrot build flags are not a valid shell-escaped string") from exc
+    required_flags = {
+        "c": {"-ffp-contract=off", "-fno-fast-math"},
+        "cpp": {"-ffp-contract=off", "-fno-fast-math"},
+        "nim": {"--passC:-ffp-contract=off", "--passC:-fno-fast-math"},
+        "v": {"-ffp-contract=off", "-fno-fast-math"},
+    }.get(language, set())
+    if not required_flags.issubset(flags):
+        missing = ", ".join(sorted(required_flags - flags))
+        raise ValueError(f"mandelbrot build is missing strict floating-point flags: {missing}")
+    barriers = {
+        "c": "volatile double result =",
+        "cpp": "volatile double result =",
+        "c3": "@noinline",
+        "elisa": "@inline(never)",
+        "nim": "{.noinline.}",
+        "odin": "#force_no_inline",
+        "rust": "#[inline(never)]",
+        "v": "@[noinline]",
+        "zig": "noinline fn",
+    }.get(language)
+    if barriers is None:
+        raise ValueError(f"mandelbrot build uses an unsupported language: {language}")
+    source_text = source.read_text(encoding="utf-8")
+    if source_text.count(barriers) < 4:
+        raise ValueError("mandelbrot source must keep each arithmetic rounding barrier out of line")
+
+
+SINGLYLINKEDLIST_CASE_IDS = {
+    "empty_list_no_operations", "add_at_both_ends_reverse_and_delete_tail",
+    "delete_by_position_including_length_plus_one_tail",
+    "delete_middle_then_regular_tail_position", "inclusive_reverse_partition",
+    "empty_deletions_return_zero_and_false",
+}
+SINGLYLINKEDLIST_ABI_CASE_IDS = {
+    "null_input", "extra_input_value", "unknown_opcode_precedes_null_output",
+    "invalid_range_precedes_null_output", "valid_null_output", "short_capacity",
+    "exact_minimum_capacity",
+}
+
+
+def validate_singlylinkedlist_workload(workload: dict) -> None:
+    """Pin the Go singly-linked-list operation trace and all serialized fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Go",
+        "commit": "5ba447ec5ff3d1213de65b92e726ee74c5d5cc19",
+        "path": "structure/linkedlist/singlylinkedlist.go",
+        "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/structure/linkedlist/singlylinkedlist.go",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Run an ordered mutation trace over a fresh list initialized from signed integer values.",
+        "input_encoding": "[initial_count, operation_count, initial_values..., operation_stream...]",
+        "operation_encoding": "Opcode 0: add-at-beginning(value); 1: add-at-end(value); 2: delete-at-beginning; 3: delete-at-end; 4: delete-by-position(position); 5: reverse; 6: reverse-partition(left,right).",
+        "operation_arity": "Opcodes 0, 1, and 4 have one argument; opcode 6 has two; opcodes 2, 3, and 5 have none.",
+        "positions": "List positions are one-based. For a nonempty list, delete-by-position accepts 1..current_length+1; both current_length and current_length+1 delete the tail, while current_length+1 follows the pinned source's explicit tail-delete branch. On an empty list only position 1 is accepted and returns (0,false). Position zero is excluded because the pinned source can panic on a nonempty list.",
+        "range_reversal": "Reverse-partition uses an inclusive one-based range with 1<=left<=right<=current_length.",
+        "operation_results": "Emit one (success,value) pair per operation. Additions and reversals emit (1,0); successful deletions emit (1,deleted_value); empty-list deletions emit (0,0).",
+        "output_encoding": "Little-endian signed i64 words: [final_count, final_values..., operation_count, (success,value) per operation].",
+        "invalid": "Malformed framing, counts, value ranges, opcodes, or operation positions/ranges outside this contract return -1.",
+        "capacity": "For valid input, null or short output returns -2; success returns the number of output bytes. Input validation precedes output checks, and errors leave output untouched.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[initial_count, operation_count, initial_values..., (opcode, opcode_arguments...)*]",
+        "initial_count_range": [0, SINGLYLINKEDLIST_MAX_INITIAL_NODES],
+        "operation_count_range": [0, SINGLYLINKEDLIST_MAX_OPERATIONS],
+        "value_range": [SINGLYLINKEDLIST_MIN_VALUE, SINGLYLINKEDLIST_MAX_VALUE],
+        "maximum_list_length": SINGLYLINKEDLIST_MAX_LIST_NODES,
+        "exact_input_length": "2 + initial_count + encoded operation words",
+        "maximum_valid_input_values": SINGLYLINKEDLIST_MAX_VALID_INPUT_VALUES,
+        "maximum_input_values_for_malformed_cases": SINGLYLINKEDLIST_MAX_INPUT_VALUES,
+        "invalid_input_result": SINGLYLINKEDLIST_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "little_endian_signed_i64_vector",
+        "layout": "[final_count, final_values..., operation_count, (success,value) per operation]",
+        "maximum_values": SINGLYLINKEDLIST_MAX_OUTPUT_VALUES,
+        "maximum_bytes": SINGLYLINKEDLIST_MAX_OUTPUT_BYTES,
+        "success_result": "number of output bytes",
+        "invalid_result": SINGLYLINKEDLIST_INVALID_RESULT,
+        "null_output_result": SINGLYLINKEDLIST_OUTPUT_ERROR,
+        "insufficient_capacity_result": SINGLYLINKEDLIST_OUTPUT_ERROR,
+        "errors_leave_output_untouched": True,
+        "error_precedence": "Input validity is checked before output pointer and capacity.",
+    }
+    workspace = {
+        "bytes": SINGLYLINKEDLIST_MAX_OUTPUT_BYTES,
+        "meaning": "Maximum output buffer for 96 list values and 64 operation result pairs",
+    }
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-go-singlylinkedlist-i64-trace-v1"
+            or workload.get("algorithm") != "singlylinkedlist"
+            or workload.get("function_symbol") != "singlylinkedlist"
+            or workload.get("description") != "Apply a bounded sequence of singly linked-list operations and return the final list plus each operation result."
+            or workload.get("pinned_sources") != [source]
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Simulate the ordered source operations over an independent sequence model, including DelByPos tail behavior, then serialize final contents and operation result pairs as little-endian signed i64 values."
+            or SINGLYLINKEDLIST_MAX_INITIAL_NODES != 32
+            or SINGLYLINKEDLIST_MAX_OPERATIONS != 64
+            or SINGLYLINKEDLIST_MAX_LIST_NODES != 96
+            or SINGLYLINKEDLIST_MIN_VALUE != -1_000_000
+            or SINGLYLINKEDLIST_MAX_VALUE != 1_000_000
+            or SINGLYLINKEDLIST_MAX_VALID_INPUT_VALUES != 226
+            or SINGLYLINKEDLIST_MAX_INPUT_VALUES != 227
+            or SINGLYLINKEDLIST_MAX_OUTPUT_VALUES != 226
+            or SINGLYLINKEDLIST_MAX_OUTPUT_BYTES != 1808
+            or SINGLYLINKEDLIST_INVALID_RESULT != -1
+            or SINGLYLINKEDLIST_OUTPUT_ERROR != -2
+            or SINGLYLINKEDLIST_I64_MIN != -(1 << 63)
+            or SINGLYLINKEDLIST_I64_MAX != (1 << 63) - 1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(SINGLYLINKEDLIST_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SINGLYLINKEDLIST_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_case_ids) != len(SINGLYLINKEDLIST_ABI_CASE_IDS)
+            or len(abi_case_ids) != len(set(abi_case_ids))
+            or set(abi_case_ids) != SINGLYLINKEDLIST_ABI_CASE_IDS):
+        raise ValueError("singlylinkedlist metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "singlylinkedlist" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split()).replace("`", "")
+    if (source["url"] not in readme
+            or "The ABI is i64_array_bytes_output" not in normalized_readme
+            or "current_length + 1" not in normalized_readme
+            or "Position zero is excluded" not in normalized_readme
+            or "inclusive one-based range" not in normalized_readme
+            or "one result pair per operation" not in normalized_readme
+            or "Input validation precedes output checks" not in normalized_readme
+            or "errors leave the buffer untouched" not in normalized_readme):
+        raise ValueError("singlylinkedlist README is missing its pinned source or reviewed semantics")
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    if (abi_by_id["null_input"].get("input_is_null") is not True
+            or abi_by_id["null_input"].get("input_length") != 0
+            or abi_by_id["null_input"].get("expected_result") != SINGLYLINKEDLIST_INVALID_RESULT
+            or abi_by_id["extra_input_value"].get("input_length") != 3
+            or abi_by_id["extra_input_value"].get("expected_result") != SINGLYLINKEDLIST_INVALID_RESULT
+            or abi_by_id["unknown_opcode_precedes_null_output"].get("output_is_null") is not True
+            or abi_by_id["unknown_opcode_precedes_null_output"].get("expected_result") != SINGLYLINKEDLIST_INVALID_RESULT
+            or abi_by_id["invalid_range_precedes_null_output"].get("output_is_null") is not True
+            or abi_by_id["invalid_range_precedes_null_output"].get("expected_result") != SINGLYLINKEDLIST_INVALID_RESULT
+            or abi_by_id["valid_null_output"].get("expected_result") != SINGLYLINKEDLIST_OUTPUT_ERROR
+            or abi_by_id["short_capacity"].get("output_capacity") != 39
+            or abi_by_id["short_capacity"].get("expected_result") != SINGLYLINKEDLIST_OUTPUT_ERROR
+            or abi_by_id["exact_minimum_capacity"].get("output_capacity") != 16
+            or abi_by_id["exact_minimum_capacity"].get("expected_result") != 16):
+        raise ValueError("singlylinkedlist ABI fixtures do not pin validation precedence and capacity bounds")
+
+    for fixture_kind, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            case_id = case.get("id")
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", case.get("workspace_bytes", SINGLYLINKEDLIST_MAX_OUTPUT_BYTES))
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(values, list)
+                    or len(values) > SINGLYLINKEDLIST_MAX_INPUT_VALUES
+                    or any(type(value) is not int
+                           or not SINGLYLINKEDLIST_I64_MIN <= value <= SINGLYLINKEDLIST_I64_MAX
+                           for value in values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SINGLYLINKEDLIST_MAX_INPUT_VALUES
+                    or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SINGLYLINKEDLIST_MAX_OUTPUT_BYTES
+                    or (input_is_null and values)
+                    or (not input_is_null and input_length != len(values))
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"singlylinkedlist fixture framing is invalid: {case_id}")
+            if fixture_kind == "cases" and (
+                    input_is_null or output_is_null or capacity != SINGLYLINKEDLIST_MAX_OUTPUT_BYTES):
+                raise ValueError(f"singlylinkedlist semantic fixture has ABI-only framing: {case_id}")
+            result, output = singlylinkedlist_expected_output(
+                values, capacity=capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()):
+                raise ValueError(f"singlylinkedlist fixture differs from its sequence oracle: {case_id}")
+
+
+LARGE_NUMBER_CASE_IDS = frozenset({
+    "zero_plus_zero", "single_digit_carry", "carry_over_zero_run",
+    "unequal_lengths", "pinned_header_example",
+})
+LARGE_NUMBER_ABI_CASE_IDS = frozenset({
+    "null_input_positive_length", "extra_input_value", "truncated_input",
+    "zero_operand_length", "nondigit_ascii_value", "leading_zero_left_operand",
+    "leading_zero_right_operand", "valid_input_null_output",
+    "valid_input_short_output_capacity", "invalid_input_precedes_null_output",
+})
+
+SUFFIX_TREE_CASE_IDS = frozenset({
+    "empty_text_root_only", "single_ascii_character", "two_distinct_codes",
+    "repeated_characters_with_marker", "rust_source_banana_sentinel_tree",
+    "embedded_nul_ascii", "split_prefix_case",
+})
+SUFFIX_TREE_ABI_CASE_IDS = frozenset({
+    "null_input_positive_length", "extra_input_value", "truncated_input",
+    "fractional_text_length", "negative_ascii_code", "ascii_code_above_bound",
+    "text_length_above_bound", "valid_input_null_output",
+    "valid_input_short_output_capacity", "invalid_input_precedes_null_output",
+})
+SHANNON_FANO_CASE_IDS = frozenset({
+    "empty_text", "single_symbol", "two_distinct_frequencies",
+    "three_distinct_frequencies", "four_symbol_earliest_split_tie",
+    "input_order_differs_from_frequency_order", "embedded_nul_symbol",
+    "maximum_valid_text_and_symbols",
+})
+SHANNON_FANO_ABI_CASE_IDS = frozenset({
+    "null_input_empty_string", "null_input_positive_length",
+    "frequency_tie_two_symbols", "frequency_tie_among_three_symbols",
+    "negative_ascii_code", "ascii_code_above_bound", "text_length_above_bound",
+    "truncated_input", "extra_input_value", "valid_input_null_output",
+    "empty_text_short_capacity", "empty_text_exact_capacity",
+    "invalid_input_precedes_null_output",
+})
+SKYLINE_ALGORITHM_CASE_IDS = frozenset({
+    "single_point", "two_equal_height_keep_left", "two_incomparable_points",
+    "decreasing_y_all_survive", "increasing_y_keep_first", "minimum_y_early_stop",
+    "odd_size_split_keeps_incomparable", "maximum_size_all_frontier",
+})
+SKYLINE_ALGORITHM_ABI_CASE_IDS = frozenset({
+    "null_input_positive_length", "zero_point_count", "point_count_above_maximum",
+    "truncated_packed_input", "extra_packed_input", "x_below_i32_minimum",
+    "x_above_i32_maximum", "y_below_minimum", "y_above_i32_maximum",
+    "x_coordinates_not_strictly_increasing", "valid_input_null_output",
+    "valid_input_short_capacity", "valid_input_exact_capacity",
+    "maximum_output_short_capacity", "invalid_input_precedes_null_output",
+})
+
+
+def validate_large_number_workload(workload: dict) -> None:
+    """Pin the canonical decimal addition workload and its byte-output ABI."""
+    source = {
+        "repository": "TheAlgorithms/C-Plus-Plus",
+        "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+        "path": "math/large_number.h",
+        "symbol": "large_number::operator+=(large_number)",
+        "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/large_number.h",
+        "role": "algorithm",
+    }
+    related_sources = [{
+        "repository": "TheAlgorithms/C-Plus-Plus-1",
+        "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+        "path": "math/large_number.h",
+        "symbol": "large_number::operator+=(large_number)",
+        "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/large_number.h",
+    }]
+    contract = {
+        "operation": "Construct fresh decimal digit-vector objects from two canonical nonnegative decimal strings, mutate the left object with operator+=(large_number), and stream its canonical sum.",
+        "digit_representation": "Each decimal digit is stored least-significant first in an unsigned-byte vector.",
+        "addition_order": "Scan digit index i from zero upward through the longer operand or until carry is zero. Add carry, the right digit if present, and the left digit if present; store total mod 10 and set carry to total divided by 10. Append each carry digit when the left vector has no entry at i.",
+        "output_encoding": "ASCII decimal bytes in most-significant-first order, no prefix and no terminator.",
+        "errors": "Malformed packing, unsupported lengths, non-ASCII-decimal digit values, noncanonical leading zeroes, or out-of-range signed 64-bit input values return -1 before output checks. Null output or insufficient output capacity returns -2 without writes.",
+    }
+    input_spec = {
+        "kind": "packed_signed_64_bit_integer_array",
+        "encoding": "[left_length, right_length, left_ascii_digits..., right_ascii_digits...]",
+        "left_length_range": [1, LARGE_NUMBER_MAX_DIGITS],
+        "right_length_range": [1, LARGE_NUMBER_MAX_DIGITS],
+        "digit_ascii_range": [48, 57],
+        "operands_must_be_canonical_decimal": True,
+        "canonical_zero": "The one-character operand 0 is allowed; a multi-character operand must not start with 0.",
+        "exact_packed_length": "Exactly 2+left_length+right_length signed 64-bit integers.",
+        "maximum_valid_input_length": LARGE_NUMBER_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": LARGE_NUMBER_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": LARGE_NUMBER_INVALID_RESULT,
+        "null_input_result": LARGE_NUMBER_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "raw_bytes",
+        "encoding": "ASCII decimal sum from most significant digit to least significant digit, with no NUL terminator.",
+        "maximum_bytes": LARGE_NUMBER_MAX_OUTPUT_BYTES,
+        "success_result": "output byte count",
+        "invalid_input_result": LARGE_NUMBER_INVALID_RESULT,
+        "invalid_output_buffer_result": LARGE_NUMBER_OUTPUT_ERROR,
+        "null_output_result": LARGE_NUMBER_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Input validity is checked before output pointer and capacity.",
+    }
+    workspace = {
+        "bytes": LARGE_NUMBER_MAX_OUTPUT_BYTES,
+        "meaning": "Maximum decimal sum length for two 64-digit operands.",
+    }
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases, abi_cases = workload.get("cases"), workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+               if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-cpp-large-number-decimal-add-i64-bytes-v1"
+            or workload.get("algorithm") != "large_number"
+            or workload.get("function_symbol") != "large_number_add"
+            or workload.get("description") != "Add two bounded canonical nonnegative decimal strings using the large_number digit-vector carry operation."
+            or workload.get("pinned_source") != source
+            or workload.get("related_pinned_sources") != related_sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or (LARGE_NUMBER_MAX_DIGITS, LARGE_NUMBER_MAX_VALID_INPUT_LENGTH,
+                LARGE_NUMBER_MAX_PARSEABLE_INPUT_LENGTH, LARGE_NUMBER_MAX_OUTPUT_BYTES,
+                LARGE_NUMBER_I64_MIN, LARGE_NUMBER_I64_MAX,
+                LARGE_NUMBER_INVALID_RESULT, LARGE_NUMBER_OUTPUT_ERROR)
+            != (64, 130, 131, 65, -(1 << 63), (1 << 63) - 1, -1, -2)
+            or not isinstance(cases, list)
+            or len(case_ids) != len(LARGE_NUMBER_CASE_IDS)
+            or len(set(case_ids)) != len(case_ids)
+            or set(case_ids) != LARGE_NUMBER_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_ids) != len(LARGE_NUMBER_ABI_CASE_IDS)
+            or len(set(abi_ids)) != len(abi_ids)
+            or set(abi_ids) != LARGE_NUMBER_ABI_CASE_IDS):
+        raise ValueError("large_number metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "large_number" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or related_sources[0]["url"] not in readme
+            or "canonical nonempty decimal string" not in readme
+            or "least-significant first" not in readme
+            or "uses a static accumulator and is outside this workload" not in readme
+            or "without writes" not in readme):
+        raise ValueError("large_number README is missing its pinned sources or reviewed semantics")
+
+    for fixture_kind, fixtures in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixtures:
+            case_id = case.get("id")
+            raw_values = case.get("input_values")
+            input_is_null = case.get("input_is_null")
+            output_is_null = case.get("output_is_null")
+            capacity = case.get("output_capacity", case.get("workspace_bytes"))
+            input_length = case.get(
+                "input_length", len(raw_values) if isinstance(raw_values, list) else None)
+            expected_hex = case.get("expected_output_hex", "")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > (LARGE_NUMBER_MAX_VALID_INPUT_LENGTH
+                                          if fixture_kind == "cases"
+                                          else LARGE_NUMBER_MAX_PARSEABLE_INPUT_LENGTH)
+                    or any(type(value) is not int
+                           or not LARGE_NUMBER_I64_MIN <= value <= LARGE_NUMBER_I64_MAX
+                           for value in raw_values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= LARGE_NUMBER_MAX_PARSEABLE_INPUT_LENGTH
+                    or (input_is_null is not None and type(input_is_null) is not bool)
+                    or (output_is_null is not None and type(output_is_null) is not bool)
+                    or (capacity is not None and type(capacity) is not int)
+                    or not isinstance(expected_hex, str)):
+                raise ValueError(f"large_number fixture framing is invalid: {case_id}")
+            input_is_null = False if input_is_null is None else input_is_null
+            output_is_null = False if output_is_null is None else output_is_null
+            capacity = LARGE_NUMBER_MAX_OUTPUT_BYTES if capacity is None else capacity
+            if (type(capacity) is not int
+                    or not 0 <= capacity <= LARGE_NUMBER_MAX_OUTPUT_BYTES
+                    or input_is_null and (raw_values or input_length <= 0 or output_is_null)
+                    or not input_is_null and input_length != len(raw_values)
+                    or fixture_kind == "cases"
+                    and (input_is_null or output_is_null
+                         or capacity != LARGE_NUMBER_MAX_OUTPUT_BYTES)):
+                raise ValueError(f"large_number fixture ABI framing is invalid: {case_id}")
+            result, output = large_number_oracle(
+                raw_values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()
+                    or fixture_kind == "cases" and result <= 0):
+                raise ValueError(f"large_number fixture differs from its addition oracle: {case_id}")
+
+
+def validate_suffix_tree_workload(workload: dict) -> None:
+    """Pin the compressed suffix-tree serialization and output-buffer contract."""
+    source = {
+        "repository": "TheAlgorithms/Rust",
+        "commit": "fed66cb0c74a939ec5163648458a8c2b46fd4c",
+        "path": "src/string/suffix_tree.rs",
+        "symbol": "SuffixTree::new; SuffixTree::add_suffix; Node",
+        "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74a939ec5163648458a8c2b46fd4c/src/string/suffix_tree.rs",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Construct a compressed suffix tree by inserting each suffix of the supplied ASCII text, splitting existing edge labels at the first mismatch, and serialize the resulting public node vector.",
+        "input_encoding": "[text_length, text_ascii_codes...]",
+        "suffix_order": "Insert text[i..] in increasing byte-start order for i from zero through text_length-1. No terminal marker is added.",
+        "child_selection": "At each node, scan child indices in their stored order and select the first child whose label begins with the current suffix code. If none matches, append a node for the remaining suffix and stop that suffix insertion.",
+        "edge_splitting": "When a selected label diverges from the suffix, append a new node containing the common prefix and the old node as its child; trim the old node label to its unmatched suffix and replace the parent's selected child index with the new node. Continue after the common prefix.",
+        "output_serialization": "u64 little-endian node count, then for each node in vector insertion order: u64 little-endian label byte length, raw ASCII label bytes, u64 little-endian child count, and each child index as u64 little-endian in stored order.",
+        "root": "Node zero has an empty label. The source does not store a terminal marker or search results.",
+        "errors": "Malformed input, unsupported lengths, nonintegral encoded values, or non-7-bit-ASCII codes return -1 before output checks. Null output or insufficient output capacity returns -2 without writes.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[text_length, text_ascii_codes...]",
+        "text_length_range": [0, SUFFIX_TREE_MAX_TEXT_LENGTH],
+        "ascii_code_range": [0, 127],
+        "exact_input_length": "1+text_length",
+        "maximum_valid_input_values": SUFFIX_TREE_MAX_VALID_INPUT_VALUES,
+        "maximum_input_values_for_malformed_cases": SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_input_result": SUFFIX_TREE_INVALID_RESULT,
+        "null_input_result": SUFFIX_TREE_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "raw_bytes",
+        "encoding": "Serialized node count, edge-label byte strings, and child-index vectors, all lengths/indices as little-endian u64.",
+        "maximum_bytes": SUFFIX_TREE_MAX_OUTPUT_BYTES,
+        "success_result": "output byte count",
+        "invalid_input_result": SUFFIX_TREE_INVALID_RESULT,
+        "invalid_output_buffer_result": SUFFIX_TREE_OUTPUT_ERROR,
+        "null_output_result": SUFFIX_TREE_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Input validity is checked before output pointer and capacity.",
+    }
+    workspace = {
+        "bytes": SUFFIX_TREE_MAX_OUTPUT_BYTES,
+        "meaning": "Conservative bound: text_length*(text_length+1)/2 label bytes, up to 1+2*text_length node records, and up to 2*text_length child indices.",
+    }
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases, abi_cases = workload.get("cases"), workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+               if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-rust-suffix-tree-construction-i64-bytes-v1"
+            or workload.get("algorithm") != "suffix_tree"
+            or workload.get("function_symbol") != "suffix_tree_construct"
+            or workload.get("description") != "Construct the pinned Rust compressed suffix tree and serialize its node vector in insertion order."
+            or workload.get("pinned_source") != source
+            or "related_pinned_sources" in workload
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Mirror the pinned Rust suffix insertion and edge-splitting loop over bounded ASCII bytes, retaining node-vector insertion order and each child vector's order; serialize the resulting nodes using the documented little-endian u64 framing."
+            or (SUFFIX_TREE_I64_MIN, SUFFIX_TREE_I64_MAX, SUFFIX_TREE_MAX_TEXT_LENGTH,
+                SUFFIX_TREE_MAX_VALID_INPUT_VALUES, SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES,
+                SUFFIX_TREE_MAX_OUTPUT_BYTES, SUFFIX_TREE_INVALID_RESULT,
+                SUFFIX_TREE_OUTPUT_ERROR)
+            != (-(1 << 63), (1 << 63) - 1, 64, 65, 66, 5176, -1, -2)
+            or not isinstance(cases, list)
+            or len(case_ids) != len(SUFFIX_TREE_CASE_IDS)
+            or len(set(case_ids)) != len(case_ids)
+            or set(case_ids) != SUFFIX_TREE_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_ids) != len(SUFFIX_TREE_ABI_CASE_IDS)
+            or len(set(abi_ids)) != len(abi_ids)
+            or set(abi_ids) != SUFFIX_TREE_ABI_CASE_IDS):
+        raise ValueError("suffix_tree metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "suffix_tree" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "The ABI is `i64_array_bytes_output`" not in readme
+            or "Serialize the public `nodes` vector in insertion order" not in readme
+            or "at most 5,176 bytes" not in readme
+            or "return `-2` without writes" not in readme
+            or "Input is `[text_length, text_ascii_codes...]`" not in readme):
+        raise ValueError("suffix_tree README is missing its pinned source or serialized-output semantics")
+
+    for fixture_kind, fixtures in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixtures:
+            case_id = case.get("id")
+            raw_values = case.get("input_values")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", case.get("workspace_bytes"))
+            input_length = case.get(
+                "input_length", len(raw_values) if isinstance(raw_values, list) else None)
+            expected_hex = case.get("expected_output_hex", "")
+            allowed_length = (SUFFIX_TREE_MAX_VALID_INPUT_VALUES
+                              if fixture_kind == "cases"
+                              else SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES)
+            is_fractional_fixture = case_id == "fractional_text_length"
+            integer_values_valid = all(
+                type(value) is int and SUFFIX_TREE_I64_MIN <= value <= SUFFIX_TREE_I64_MAX
+                for value in raw_values) if isinstance(raw_values, list) else False
+            fractional_fixture_valid = (
+                isinstance(raw_values, list) and len(raw_values) == 2
+                and type(raw_values[0]) is float and raw_values[0] == 1.5
+                and type(raw_values[1]) is int
+                and SUFFIX_TREE_I64_MIN <= raw_values[1] <= SUFFIX_TREE_I64_MAX)
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > allowed_length
+                    or not (fractional_fixture_valid if is_fractional_fixture else integer_values_valid)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES
+                    or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool
+                    or capacity is not None and type(capacity) is not int
+                    or not isinstance(expected_hex, str)
+                    or type(case.get("expected_result")) is not int):
+                raise ValueError(f"suffix_tree fixture framing is invalid: {case_id}")
+            input_is_null = bool(input_is_null)
+            output_is_null = bool(output_is_null)
+            capacity = SUFFIX_TREE_MAX_OUTPUT_BYTES if capacity is None else capacity
+            if (not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or input_is_null and (raw_values or fixture_kind != "abi_cases"
+                                          or input_length <= 0 or output_is_null)
+                    or not input_is_null and input_length != len(raw_values)
+                    or fixture_kind == "cases"
+                    and (input_is_null or output_is_null
+                         or case.get("output_capacity") is not None
+                         or case.get("workspace_bytes") is not None)):
+                raise ValueError(f"suffix_tree fixture ABI framing is invalid: {case_id}")
+            result, output = suffix_tree_oracle(
+                raw_values, capacity, output_is_null, input_is_null, input_length)
+            if (case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()
+                    or result < 0 and output
+                    or fixture_kind == "cases" and result <= 0):
+                raise ValueError(f"suffix_tree fixture differs from its serialization oracle: {case_id}")
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    if (abi_by_id["null_input_positive_length"].get("input_is_null") is not True
+            or abi_by_id["null_input_positive_length"].get("input_length") != 1
+            or len(abi_by_id["extra_input_value"]["input_values"])
+                != 1 + abi_by_id["extra_input_value"]["input_values"][0] + 1
+            or len(abi_by_id["truncated_input"]["input_values"])
+                >= 1 + abi_by_id["truncated_input"]["input_values"][0]
+            or type(abi_by_id["fractional_text_length"]["input_values"][0]) is int
+            or abi_by_id["negative_ascii_code"]["input_values"][1] != -1
+            or abi_by_id["ascii_code_above_bound"]["input_values"][1] != 128
+            or abi_by_id["text_length_above_bound"]["input_values"][0]
+                != SUFFIX_TREE_MAX_TEXT_LENGTH + 1
+            or abi_by_id["valid_input_null_output"].get("output_is_null") is not True
+            or abi_by_id["valid_input_null_output"].get("expected_result") != SUFFIX_TREE_OUTPUT_ERROR
+            or abi_by_id["valid_input_short_output_capacity"].get("output_capacity") != 48
+            or abi_by_id["valid_input_short_output_capacity"].get("expected_result")
+                != SUFFIX_TREE_OUTPUT_ERROR
+            or abi_by_id["invalid_input_precedes_null_output"].get("output_is_null") is not True
+            or abi_by_id["invalid_input_precedes_null_output"].get("output_capacity") != 0
+            or abi_by_id["invalid_input_precedes_null_output"].get("expected_result")
+                != SUFFIX_TREE_INVALID_RESULT):
+        raise ValueError("suffix_tree ABI fixtures do not exercise their named error and capacity cases")
+
+
+def validate_shannon_fano_workload(workload: dict) -> None:
+    """Pin the Java Shannon-Fano tie rules, canonical serialization, and byte ABI."""
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/compression/ShannonFano.java",
+        "symbol": "ShannonFano.generateCodes; ShannonFano.buildCodeTree; ShannonFano.findSplitIndex",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/compression/ShannonFano.java",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Count ASCII symbols, sort by descending frequency, recursively split contiguous ranges at the earliest frequency-balanced boundary, and return each symbol's prefix code.",
+        "input_encoding": "[text_length, text_ascii_codes...]",
+        "text_length_range": [0, SHANNON_FANO_MAX_TEXT_LENGTH],
+        "ascii_code_range": [0, 127],
+        "frequency_ties": "Reject inputs where distinct symbols have equal positive frequency because Java's stable sort would otherwise inherit unspecified HashMap iteration order.",
+        "split_tie_rule": "Find the split with minimum absolute difference between left and right frequency sums; keep the earliest split on equal differences.",
+        "single_symbol_code": "0",
+        "null_input": "A null input pointer with length zero represents Java null and returns the empty map; a null pointer with positive length is invalid.",
+        "output_serialization": "One symbol-count byte; then entries in ascending symbol-byte order, each encoded as symbol byte, code-length byte, and ASCII code bytes.",
+        "errors": "Malformed input, unsupported lengths, out-of-range symbols, or tied frequencies return -1 before output checks. Null output or insufficient output capacity returns -2 without writes.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[text_length, text_ascii_codes...]",
+        "text_length_range": [0, SHANNON_FANO_MAX_TEXT_LENGTH],
+        "ascii_code_range": [0, 127],
+        "exact_input_length": "1+text_length",
+        "maximum_valid_input_values": SHANNON_FANO_MAX_VALID_INPUT_VALUES,
+        "maximum_input_values_for_malformed_cases": SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES,
+        "null_input_zero_length_is_valid": True,
+        "invalid_input_result": SHANNON_FANO_INVALID_RESULT,
+        "null_input_positive_length_result": SHANNON_FANO_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "raw_bytes",
+        "encoding": "One count byte followed by ascending-symbol entries (symbol, code length, ASCII code bytes).",
+        "maximum_symbols": SHANNON_FANO_MAX_SYMBOLS,
+        "maximum_code_length": SHANNON_FANO_MAX_CODE_LENGTH,
+        "maximum_bytes": SHANNON_FANO_MAX_OUTPUT_BYTES,
+        "success_result": "output byte count",
+        "invalid_input_result": SHANNON_FANO_INVALID_RESULT,
+        "invalid_output_buffer_result": SHANNON_FANO_OUTPUT_ERROR,
+        "null_output_result": SHANNON_FANO_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Input validity is checked before output pointer and capacity.",
+    }
+    workspace = {
+        "bytes": SHANNON_FANO_MAX_OUTPUT_BYTES,
+        "meaning": "One count byte plus up to ten entries of symbol byte, code-length byte, and nine ASCII code bytes.",
+    }
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases, abi_cases = workload.get("cases"), workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+               if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-shannon-fano-i64-bytes-v1"
+            or workload.get("algorithm") != "shannon_fano"
+            or workload.get("function_symbol") != "shannon_fano_generate_codes"
+            or workload.get("description") != "Construct pinned Shannon-Fano prefix codes for bounded ASCII text and serialize the code map canonically."
+            or workload.get("pinned_source") != source
+            or "related_pinned_sources" in workload
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Mirror Java's frequency count, descending-frequency order (valid because tied positive frequencies are rejected), earliest-minimum split selection, recursive 0/1 prefix assignment, and single-symbol special case; serialize map entries by ascending symbol byte."
+            or (SHANNON_FANO_MAX_TEXT_LENGTH, SHANNON_FANO_MAX_SYMBOLS,
+                SHANNON_FANO_MAX_CODE_LENGTH, SHANNON_FANO_MAX_VALID_INPUT_VALUES,
+                SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES, SHANNON_FANO_MAX_OUTPUT_BYTES,
+                SHANNON_FANO_INVALID_RESULT, SHANNON_FANO_OUTPUT_ERROR)
+            != (64, 10, 9, 65, 66, 111, -1, -2)
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)
+            or len(case_ids) != len(SHANNON_FANO_CASE_IDS)
+            or len(set(case_ids)) != len(case_ids)
+            or set(case_ids) != SHANNON_FANO_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_cases) != len(abi_ids)
+            or len(abi_ids) != len(SHANNON_FANO_ABI_CASE_IDS)
+            or len(set(abi_ids)) != len(abi_ids)
+            or set(abi_ids) != SHANNON_FANO_ABI_CASE_IDS):
+        raise ValueError("shannon_fano metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "shannon_fano" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "The ABI is `i64_array_bytes_output`" not in readme
+            or "tied frequencies for distinct symbols are invalid" not in readme
+            or "null input pointer with length zero" not in readme
+            or "ascending symbol-byte order" not in readme
+            or "return `-2` without writes" not in readme):
+        raise ValueError("shannon_fano README is missing its source or reviewed serialization semantics")
+
+    def canonical_serialization(data: bytes) -> bool:
+        if not data:
+            return False
+        count = data[0]
+        if count > SHANNON_FANO_MAX_SYMBOLS:
+            return False
+        cursor = 1
+        previous_symbol = -1
+        for _ in range(count):
+            if cursor + 2 > len(data):
+                return False
+            symbol, code_length = data[cursor], data[cursor + 1]
+            cursor += 2
+            if (symbol <= previous_symbol or not 1 <= code_length <= SHANNON_FANO_MAX_CODE_LENGTH
+                    or cursor + code_length > len(data)
+                    or any(bit not in (ord("0"), ord("1"))
+                           for bit in data[cursor:cursor + code_length])):
+                return False
+            previous_symbol = symbol
+            cursor += code_length
+        return cursor == len(data)
+
+    for fixture_kind, fixtures in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixtures:
+            case_id = case.get("id")
+            raw_values = case.get("input_values")
+            allowed_keys = ({"id", "input_values", "input_length", "expected_result",
+                             "expected_output_hex"} if fixture_kind == "cases" else
+                            {"id", "input_values", "input_length", "input_is_null",
+                             "output_is_null", "output_capacity", "expected_result",
+                             "expected_output_hex"})
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            input_length = case.get("input_length")
+            expected_hex = case.get("expected_output_hex")
+            if (set(case) != allowed_keys
+                    or not isinstance(raw_values, list)
+                    or len(raw_values) > (SHANNON_FANO_MAX_VALID_INPUT_VALUES
+                                          if fixture_kind == "cases"
+                                          else SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES)
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in raw_values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES
+                    or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool
+                    or not isinstance(expected_hex, str)
+                    or type(case.get("expected_result")) is not int):
+                raise ValueError(f"shannon_fano fixture framing is invalid: {case_id}")
+            if fixture_kind == "cases":
+                capacity = SHANNON_FANO_MAX_OUTPUT_BYTES
+                if (not raw_values or input_length != len(raw_values)
+                        or input_is_null or output_is_null
+                        or "output_capacity" in case):
+                    raise ValueError(f"shannon_fano semantic framing changed: {case_id}")
+            else:
+                capacity = case.get("output_capacity")
+                if (type(capacity) is not int
+                        or not 0 <= capacity <= SHANNON_FANO_MAX_OUTPUT_BYTES
+                        or input_is_null and (raw_values or output_is_null)
+                        or not input_is_null and input_length != len(raw_values)):
+                    raise ValueError(f"shannon_fano ABI framing is invalid: {case_id}")
+            result, output = shannon_fano_oracle(
+                raw_values, capacity, output_is_null, input_is_null, input_length)
+            if (case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()
+                    or result >= 0 and (result != len(output)
+                                        or len(output) > SHANNON_FANO_MAX_OUTPUT_BYTES
+                                        or not canonical_serialization(output))
+                    or result < 0 and output
+                    or fixture_kind == "cases" and result <= 0):
+                raise ValueError(f"shannon_fano fixture differs from its canonical oracle: {case_id}")
+
+    semantic_by_id = {case["id"]: case for case in cases}
+    by_id = {case["id"]: case for case in abi_cases}
+    split_tie = semantic_by_id["four_symbol_earliest_split_tie"]["input_values"]
+    split_frequencies = Counter(split_tie[1:]).values()
+    tie_two_frequencies = Counter(by_id["frequency_tie_two_symbols"]["input_values"][1:]).values()
+    tie_three_frequencies = Counter(by_id["frequency_tie_among_three_symbols"]["input_values"][1:]).values()
+    if (sorted(split_frequencies) != [2, 4, 5, 6]
+            or len(set(tie_two_frequencies)) == len(tie_two_frequencies)
+            or len(set(tie_three_frequencies)) == len(tie_three_frequencies)
+            or by_id["null_input_empty_string"].get("input_length") != 0
+            or by_id["null_input_empty_string"].get("expected_result") != 1
+            or by_id["null_input_empty_string"].get("expected_output_hex") != "00"
+            or by_id["null_input_positive_length"].get("input_length") != 1
+            or by_id["null_input_positive_length"].get("expected_result")
+                != SHANNON_FANO_INVALID_RESULT
+            or by_id["empty_text_short_capacity"].get("output_capacity") != 0
+            or by_id["empty_text_short_capacity"].get("expected_result")
+                != SHANNON_FANO_OUTPUT_ERROR
+            or by_id["empty_text_exact_capacity"].get("output_capacity") != 1
+            or by_id["empty_text_exact_capacity"].get("expected_result") != 1
+            or by_id["valid_input_null_output"].get("expected_result")
+                != SHANNON_FANO_OUTPUT_ERROR
+            or by_id["invalid_input_precedes_null_output"].get("output_is_null") is not True
+            or by_id["invalid_input_precedes_null_output"].get("expected_result")
+                != SHANNON_FANO_INVALID_RESULT
+            or semantic_by_id["single_symbol"].get("expected_output_hex") != "01780130"
+            or semantic_by_id["maximum_valid_text_and_symbols"]["input_values"][0]
+                != SHANNON_FANO_MAX_TEXT_LENGTH
+            or len(set(semantic_by_id["maximum_valid_text_and_symbols"]["input_values"][1:]))
+                != SHANNON_FANO_MAX_SYMBOLS
+            or len(semantic_by_id["maximum_valid_text_and_symbols"]["input_values"])
+                != SHANNON_FANO_MAX_VALID_INPUT_VALUES):
+        raise ValueError("shannon_fano fixtures do not pin split/frequency ties, null, and capacity rules")
+
+
+def validate_skyline_algorithm_workload(workload: dict) -> None:
+    """Pin the Java divide-and-conquer skyline and its signed-i32 byte format."""
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/divideandconquer/SkylineAlgorithm.java",
+        "symbol": "SkylineAlgorithm.produceSubSkyLines; SkylineAlgorithm.produceFinalSkyLine; Point.dominates",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/divideandconquer/SkylineAlgorithm.java",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Return the lower-left Pareto frontier for the input points using the source divide-and-conquer split and merge.",
+        "input_encoding": "[point_count, x0, y0, ..., x(point_count-1), y(point_count-1)]",
+        "point_count_range": [SKYLINE_ALGORITHM_MIN_POINT_COUNT, SKYLINE_ALGORITHM_MAX_POINT_COUNT],
+        "x_range": [SKYLINE_ALGORITHM_I32_MIN, SKYLINE_ALGORITHM_I32_MAX],
+        "y_range": [1, SKYLINE_ALGORITHM_I32_MAX],
+        "x_order": "Coordinates must be strictly increasing; source does not sort the points.",
+        "dominance": "Point a dominates b iff (a.x < b.x and a.y <= b.y) or (a.x <= b.x and a.y < b.y).",
+        "merge": "Split at floor(size/2), recursively process left then right, find the left minimum y (early exit at 1), discard right points with y >= that minimum, then concatenate in input order.",
+        "output_serialization": "One point-count byte followed by each source-order point as signed little-endian i32 x and i32 y.",
+        "errors": "Malformed framing, invalid count, coordinates outside signed i32, y below 1, or non-increasing x returns -1 before output checks. Null output or short capacity returns -2 without writes.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[point_count, x0, y0, ..., x(point_count-1), y(point_count-1)]",
+        "point_count_range": [SKYLINE_ALGORITHM_MIN_POINT_COUNT,
+                              SKYLINE_ALGORITHM_MAX_POINT_COUNT],
+        "x_range": [SKYLINE_ALGORITHM_I32_MIN, SKYLINE_ALGORITHM_I32_MAX],
+        "y_range": [1, SKYLINE_ALGORITHM_I32_MAX],
+        "x_must_be_strictly_increasing": True,
+        "exact_input_length": "1+2*point_count",
+        "maximum_valid_input_values": SKYLINE_ALGORITHM_MAX_VALID_INPUT_LENGTH,
+        "maximum_input_values_for_malformed_cases": SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": SKYLINE_ALGORITHM_INVALID_RESULT,
+        "null_input_result": SKYLINE_ALGORITHM_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "raw_bytes",
+        "encoding": "One count byte followed by signed little-endian i32 x/y pairs in input order.",
+        "maximum_bytes": SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES,
+        "success_result": "output byte count",
+        "invalid_input_result": SKYLINE_ALGORITHM_INVALID_RESULT,
+        "invalid_output_buffer_result": SKYLINE_ALGORITHM_OUTPUT_ERROR,
+        "null_output_result": SKYLINE_ALGORITHM_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "error_precedence": "Input validity is checked before output pointer and capacity.",
+    }
+    workspace = {
+        "bytes": SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES,
+        "meaning": "One count byte plus 64 signed i32 x/y pairs.",
+    }
+    measurement = {
+        "comparison_model": "i64_array_bytes_output_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases, abi_cases = workload.get("cases"), workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+               if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-skyline-algorithm-i64-bytes-v1"
+            or workload.get("algorithm") != "skyline_algorithm"
+            or workload.get("function_symbol") != "skyline_algorithm"
+            or workload.get("description") != "Compute the pinned Java lower-left Pareto skyline for bounded, x-ordered points."
+            or workload.get("pinned_source") != source
+            or "related_pinned_sources" in workload
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") != workspace
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Mirror Point.dominates, the size-1/2 base cases, floor(size/2) recursive split, left-side duplicate-x removal, early-stop minimum-y scan, right-side y filtering, and source-order concatenation; serialize signed i32 point pairs little-endian."
+            or (SKYLINE_ALGORITHM_I64_MIN, SKYLINE_ALGORITHM_I64_MAX,
+                SKYLINE_ALGORITHM_I32_MIN, SKYLINE_ALGORITHM_I32_MAX,
+                SKYLINE_ALGORITHM_MIN_POINT_COUNT, SKYLINE_ALGORITHM_MAX_POINT_COUNT,
+                SKYLINE_ALGORITHM_MAX_VALID_INPUT_LENGTH,
+                SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH,
+                SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES,
+                SKYLINE_ALGORITHM_INVALID_RESULT, SKYLINE_ALGORITHM_OUTPUT_ERROR)
+            != (-(1 << 63), (1 << 63) - 1, -(1 << 31), (1 << 31) - 1,
+                1, 64, 129, 130, 513, -1, -2)
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)
+            or len(case_ids) != len(SKYLINE_ALGORITHM_CASE_IDS)
+            or len(set(case_ids)) != len(case_ids)
+            or set(case_ids) != SKYLINE_ALGORITHM_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_cases) != len(abi_ids)
+            or len(abi_ids) != len(SKYLINE_ALGORITHM_ABI_CASE_IDS)
+            or len(set(abi_ids)) != len(abi_ids)
+            or set(abi_ids) != SKYLINE_ALGORITHM_ABI_CASE_IDS):
+        raise ValueError("skyline_algorithm metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "skyline_algorithm" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "The ABI is `i64_array_bytes_output`" not in readme
+            or "x coordinates must be strictly increasing" not in readme
+            or "source does not sort the input" not in readme
+            or "signed little-endian i32" not in readme
+            or "returns `-2` without writes" not in readme):
+        raise ValueError("skyline_algorithm README is missing its source or ordering semantics")
+
+    def canonical_serialization(data: bytes) -> bool:
+        if not data or data[0] > SKYLINE_ALGORITHM_MAX_POINT_COUNT:
+            return False
+        if len(data) != 1 + data[0] * 8:
+            return False
+        previous_x: int | None = None
+        for index in range(data[0]):
+            x, y = struct.unpack_from("<ii", data, 1 + index * 8)
+            if (not SKYLINE_ALGORITHM_I32_MIN <= x <= SKYLINE_ALGORITHM_I32_MAX
+                    or not 1 <= y <= SKYLINE_ALGORITHM_I32_MAX
+                    or previous_x is not None and x <= previous_x):
+                return False
+            previous_x = x
+        return True
+
+    for fixture_kind, fixtures in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixtures:
+            case_id = case.get("id")
+            raw_values = case.get("input_values")
+            allowed_keys = ({"id", "input_values", "expected_result",
+                             "expected_output_hex", "input_length"}
+                            if fixture_kind == "cases" else
+                            {"id", "input_values", "input_length", "input_is_null",
+                             "output_is_null", "output_capacity", "expected_result",
+                             "expected_output_hex"})
+            input_length = case.get("input_length")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            expected_hex = case.get("expected_output_hex")
+            if (set(case) != allowed_keys
+                    or not isinstance(raw_values, list)
+                    or len(raw_values) > (SKYLINE_ALGORITHM_MAX_VALID_INPUT_LENGTH
+                                          if fixture_kind == "cases"
+                                          else SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH)
+                    or any(type(value) is not int
+                           or not SKYLINE_ALGORITHM_I64_MIN <= value <= SKYLINE_ALGORITHM_I64_MAX
+                           for value in raw_values)
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH
+                    or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool
+                    or not isinstance(expected_hex, str)
+                    or type(case.get("expected_result")) is not int):
+                raise ValueError(f"skyline_algorithm fixture framing is invalid: {case_id}")
+            if fixture_kind == "cases":
+                capacity = SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES
+                if (input_is_null or output_is_null or input_length != len(raw_values)
+                        or "output_capacity" in case):
+                    raise ValueError(f"skyline_algorithm semantic framing changed: {case_id}")
+            else:
+                capacity = case.get("output_capacity")
+                if (type(capacity) is not int
+                        or not 0 <= capacity <= SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES
+                        or input_is_null and (raw_values or output_is_null)
+                        or not input_is_null and input_length != len(raw_values)):
+                    raise ValueError(f"skyline_algorithm ABI framing is invalid: {case_id}")
+            result, output = skyline_algorithm_oracle(
+                raw_values, capacity, output_is_null, input_is_null, input_length)
+            if (case["expected_result"] != result
+                    or expected_hex.lower() != output.hex()
+                    or result >= 0 and (result != len(output)
+                                        or len(output) > SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES
+                                        or not canonical_serialization(output))
+                    or result < 0 and output
+                    or fixture_kind == "cases" and result <= 0):
+                raise ValueError(f"skyline_algorithm fixture differs from its skyline oracle: {case_id}")
+
+    semantic_by_id = {case["id"]: case for case in cases}
+    by_id = {case["id"]: case for case in abi_cases}
+    maximum = semantic_by_id["maximum_size_all_frontier"]
+    maximum_short = by_id["maximum_output_short_capacity"]
+    if (maximum["input_values"][0] != SKYLINE_ALGORITHM_MAX_POINT_COUNT
+            or len(maximum["input_values"]) != SKYLINE_ALGORITHM_MAX_VALID_INPUT_LENGTH
+            or maximum["expected_result"] != SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES
+            or maximum_short["input_values"] != maximum["input_values"]
+            or maximum_short.get("output_capacity") != SKYLINE_ALGORITHM_MAX_OUTPUT_BYTES - 1
+            or maximum_short.get("expected_result") != SKYLINE_ALGORITHM_OUTPUT_ERROR
+            or by_id["null_input_positive_length"].get("input_is_null") is not True
+            or by_id["null_input_positive_length"].get("input_length") != 1
+            or by_id["valid_input_null_output"].get("expected_result")
+                != SKYLINE_ALGORITHM_OUTPUT_ERROR
+            or by_id["valid_input_short_capacity"].get("output_capacity") != 8
+            or by_id["valid_input_short_capacity"].get("expected_result")
+                != SKYLINE_ALGORITHM_OUTPUT_ERROR
+            or by_id["valid_input_exact_capacity"].get("output_capacity") != 9
+            or by_id["valid_input_exact_capacity"].get("expected_result") != 9
+            or by_id["invalid_input_precedes_null_output"].get("output_is_null") is not True
+            or by_id["invalid_input_precedes_null_output"].get("output_capacity") != 0
+            or by_id["invalid_input_precedes_null_output"].get("expected_result")
+                != SKYLINE_ALGORITHM_INVALID_RESULT):
+        raise ValueError("skyline_algorithm fixtures do not pin maximum shape and output precedence")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -23904,6 +26515,10 @@ def main() -> int:
         validate_piecewise_linear_transform_workload(workload)
     elif algorithm == "translator":
         validate_translator_workload(workload)
+    elif algorithm == "shuffled_shift_cipher":
+        validate_shuffled_shift_cipher_workload(workload)
+    elif algorithm == "quadratic_probing":
+        validate_quadratic_probing_workload(workload)
     elif algorithm == "spiral_print":
         validate_spiral_print_workload(workload)
     elif algorithm == "shuf":
@@ -23930,6 +26545,27 @@ def main() -> int:
         validate_suffix_automaton_workload(workload)
     elif algorithm == "lru_cache2":
         validate_lru_cache2_workload(workload)
+    elif algorithm == "lempel_ziv_decompress":
+        validate_lempel_ziv_decompress_workload(workload)
+    elif algorithm == "lempel_ziv":
+        validate_lempel_ziv_workload(workload)
+    elif algorithm == "spigotpi":
+        validate_spigotpi_workload(workload)
+    elif algorithm == "inverse_of_matrix":
+        validate_inverse_of_matrix_workload(workload)
+    elif algorithm == "mandelbrot":
+        validate_mandelbrot_workload(workload)
+        validate_mandelbrot_build_controls(algorithm, manifest, source)
+    elif algorithm == "singlylinkedlist":
+        validate_singlylinkedlist_workload(workload)
+    elif algorithm == "large_number":
+        validate_large_number_workload(workload)
+    elif algorithm == "suffix_tree":
+        validate_suffix_tree_workload(workload)
+    elif algorithm == "shannon_fano":
+        validate_shannon_fano_workload(workload)
+    elif algorithm == "skyline_algorithm":
+        validate_skyline_algorithm_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
         parser.error("workload does not match the built byte-output algorithm")
@@ -23964,8 +26600,16 @@ def main() -> int:
                 and isinstance(values, list) and type(input_length) is int
                 and 0 <= input_length < len(values)):
             values = values[:input_length]
+        if (algorithm == "shuffled_shift_cipher" and case.get("id") == "input_length_mismatch"
+                and isinstance(values, list) and type(input_length) is int
+                and 0 <= input_length < len(values)):
+            values = values[:input_length]
         max_input_length = (LRU_CACHE2_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "lru_cache2" else
+                            LEMPEL_ZIV_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "lempel_ziv" else
+                            LEMPEL_ZIV_DECOMPRESS_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "lempel_ziv_decompress" else
                             SUFFIX_AUTOMATON_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "suffix_automaton" else
                             SMOOTHSORT_MAX_PARSEABLE_INPUT_LENGTH
@@ -23987,6 +26631,10 @@ def main() -> int:
                             SORT_POPULATION_MAX_INPUT_LENGTH if algorithm == "sort_population" else
                             TOKENIZE_STRING_MAX_INPUT_LENGTH if algorithm == "tokenize_string" else
                             TRANSLATOR_MAX_INPUT_LENGTH if algorithm == "translator" else
+                            SHUFFLED_SHIFT_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "shuffled_shift_cipher" else
+                            QUADRATIC_PROBING_MAX_INPUT_LENGTH
+                            if algorithm == "quadratic_probing" else
                             SPIRAL_PRINT_MAX_INPUT_LENGTH if algorithm == "spiral_print" else
                             BIG_INTEGER_MULTIPLY_MAX_INPUT_LENGTH if algorithm == "big_integer_multiply" else
                             SHREE_DHARACHARYA_FORMULA_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "shree_dharacharya_formula" else
@@ -24138,6 +26786,13 @@ def main() -> int:
                             MAX_MAP_REDUCE_INPUT_LENGTH + 1 if algorithm == "map_reduce" else
                             MAX_TRANSPOSITION_CIPHER_INPUT_LENGTH + 1 if algorithm == "transposition_cipher" else
                             MAX_SPIGOTPI_INPUT_LENGTH if algorithm == "spigotpi" else
+                            INVERSE_OF_MATRIX_MAX_INPUT_VALUES if algorithm == "inverse_of_matrix" else
+                            MANDELBROT_MAX_INPUT_VALUES if algorithm == "mandelbrot" else
+                            SINGLYLINKEDLIST_MAX_INPUT_VALUES if algorithm == "singlylinkedlist" else
+                            LARGE_NUMBER_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "large_number" else
+                            SUFFIX_TREE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "suffix_tree" else
+                            SHANNON_FANO_MAX_PARSEABLE_INPUT_VALUES if algorithm == "shannon_fano" else
+                            SKYLINE_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "skyline_algorithm" else
                             MAX_MEDIAN_FINDER_INPUT_LENGTH if algorithm == "median_finder" else
                             4 if algorithm == "midpoint_integration" else
                             2 if algorithm == "hilbert_curve" else
@@ -24368,7 +27023,8 @@ def main() -> int:
             else:
                 minimum_null_input_length = 0 if algorithm in {
                     "print_reverse", "lru", "linkedlist_implentation_usingarray", "random",
-                    "self_organizing_linked_list", "simple_proof_of_work"} else 1
+                    "self_organizing_linked_list", "simple_proof_of_work", "mandelbrot",
+                    "singlylinkedlist"} else 1
                 valid_null_input_length = (type(input_length) is int
                                            and minimum_null_input_length <= input_length <= max_input_length)
             if (values or type(input_length) is not int or not valid_null_input_length):
@@ -24402,7 +27058,7 @@ def main() -> int:
                 "procentual_proximity",
                 "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2",
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft", "median_finder", "mfcc",
-                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work"}:
+                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work", "inverse_of_matrix"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")
         absolute_tolerance = workload["output"].get("absolute_tolerance", 0.0) if float64_vector else 0.0
         relative_tolerance = workload["output"].get("relative_tolerance", 0.0) if float64_vector else 0.0
@@ -24453,6 +27109,39 @@ def main() -> int:
                 values, output_capacity, output_is_null, input_is_null, input_length)
         elif algorithm == "lru_cache2":
             expected_count, expected = lru_cache2_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "lempel_ziv_decompress":
+            expected_count, expected = lempel_ziv_decompress_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "lempel_ziv":
+            expected_count, expected = lempel_ziv_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "spigotpi":
+            expected_count, expected = spigotpi_expected_output(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "inverse_of_matrix":
+            expected_count, expected = inverse_of_matrix_expected_output(
+                values, capacity=output_capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=input_length)
+        elif algorithm == "mandelbrot":
+            expected_count, expected = mandelbrot_expected_output(
+                values, capacity=output_capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=input_length)
+        elif algorithm == "singlylinkedlist":
+            expected_count, expected = singlylinkedlist_expected_output(
+                values, capacity=output_capacity, input_is_null=input_is_null,
+                output_is_null=output_is_null, input_length=input_length)
+        elif algorithm == "large_number":
+            expected_count, expected = large_number_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "suffix_tree":
+            expected_count, expected = suffix_tree_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "shannon_fano":
+            expected_count, expected = shannon_fano_oracle(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "skyline_algorithm":
+            expected_count, expected = skyline_algorithm_oracle(
                 values, output_capacity, output_is_null, input_is_null, input_length)
         elif algorithm == "suffix_automaton":
             expected_count, expected = suffix_automaton_oracle(
@@ -25043,7 +27732,9 @@ def main() -> int:
                 "shortest_job_first", "slack_time_scheduling", "merge_linked_lists", "lru",
                 "singly_link_list_deletion", "iddfs", "hashmap", "long_utils",
                 "shortest_common_supersequence", "piecewise_linear_transform", "translator",
-                "spiral_print", "shree_dharacharya_formula"} and required_count < 0:
+                "shuffled_shift_cipher", "quadratic_probing", "spiral_print", "inverse_of_matrix",
+                "mandelbrot", "singlylinkedlist",
+                "shree_dharacharya_formula"} and required_count < 0:
             expected_count, expected = required_count, b""
         elif output_is_null:
             null_result = workload.get("output", {}).get("null_output_result")

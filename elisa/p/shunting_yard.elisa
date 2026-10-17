@@ -1,0 +1,129 @@
+const INVALID_RESULT: f64 = -1.0e300
+const MAX_INPUT_VALUES: usize = 257
+const MAX_EXPRESSION_BYTES: usize = 255
+const MAX_OPERANDS: usize = 16
+const MAX_OPERATORS: usize = 15
+const MAX_LITERAL_BYTES: usize = 16
+const MAX_LITERAL_VALUE: f64 = 1000000.0
+const MAX_INTERMEDIATE: f64 = 1000000000000.0
+
+extern pow(base: f64, exponent: f64) -> f64
+
+@inline(never)
+def shunting_yard_rounded_multiply(left: f64, right: f64) -> f64:
+    left * right
+
+@inline(never)
+def shunting_yard_rounded_add(left: f64, right: f64) -> f64:
+    left + right
+
+@inline(never)
+def shunting_yard_rounded_divide(left: f64, right: f64) -> f64:
+    left / right
+
+def shunting_yard_precedence(operator: u8) -> usize:
+    if operator == 94.u8(): return 3
+    if operator == 42.u8() or operator == 47.u8(): return 2
+    1
+
+def shunting_yard_apply(numbers: mutable f64&, number_count: mutable usize&,
+                        operator: u8) -> bool:
+    if number_count < 2: return false
+    number_count <- number_count - 1
+    right: f64 = numbers[number_count]
+    number_count <- number_count - 1
+    left: f64 = numbers[number_count]
+    result: mutable f64 = 0.0
+    if operator == 43.u8(): result <- left + right
+    elif operator == 45.u8(): result <- left - right
+    elif operator == 42.u8(): result <- left * right
+    elif operator == 47.u8():
+        if right == 0.0: return false
+        result <- left / right
+    else: result <- pow(left, right)
+    if result != result or result < -MAX_INTERMEDIATE or result > MAX_INTERMEDIATE:
+        return false
+    numbers[number_count] <- result
+    number_count <- number_count + 1
+    true
+
+export fn shunting_yard(input: i64&, length: usize) -> f64:
+    if input == null or length < 2 or length > MAX_INPUT_VALUES: return INVALID_RESULT
+    byte_count_value: i64 = input[0]
+    if byte_count_value < 1 or byte_count_value > MAX_EXPRESSION_BYTES.i64(): return INVALID_RESULT
+    byte_count: usize = byte_count_value.usize()
+    if length != byte_count + 1: return INVALID_RESULT
+
+    numbers: mutable f64[MAX_OPERANDS] = zeroed
+    operators: mutable u8[MAX_OPERATORS] = zeroed
+    number_count: mutable usize = 0
+    operator_count: mutable usize = 0
+    operand_count: mutable usize = 0
+    seen_operator_count: mutable usize = 0
+    position: mutable usize = 0
+    expect_number: mutable bool = true
+    while position < byte_count:
+        value: i64 = input[position + 1]
+        if value < 0 or value > 127: return INVALID_RESULT
+        character: u8 = value.u8()
+        if character == 32.u8() or (character >= 9.u8() and character <= 13.u8()):
+            position <- position + 1
+            continue
+        if expect_number:
+            start: usize = position
+            integer_digits: mutable usize = 0
+            number: mutable f64 = 0.0
+            while position < byte_count:
+                digit_value: i64 = input[position + 1]
+                if digit_value < 48 or digit_value > 57: break
+                number <- shunting_yard_rounded_add(
+                    shunting_yard_rounded_multiply(number, 10.0),
+                    (digit_value - 48).f64())
+                integer_digits <- integer_digits + 1
+                position <- position + 1
+            if integer_digits == 0: return INVALID_RESULT
+            if position < byte_count and input[position + 1] == 46:
+                position <- position + 1
+                fraction_digits: mutable usize = 0
+                scale: mutable f64 = 0.1
+                while position < byte_count:
+                    digit_value: i64 = input[position + 1]
+                    if digit_value < 48 or digit_value > 57: break
+                    product: f64 = shunting_yard_rounded_multiply(
+                        (digit_value - 48).f64(), scale)
+                    number <- shunting_yard_rounded_add(number, product)
+                    scale <- shunting_yard_rounded_divide(scale, 10.0)
+                    fraction_digits <- fraction_digits + 1
+                    position <- position + 1
+                if fraction_digits == 0: return INVALID_RESULT
+            if position - start > MAX_LITERAL_BYTES or number > MAX_LITERAL_VALUE or operand_count >= MAX_OPERANDS:
+                return INVALID_RESULT
+            numbers[number_count] <- number
+            number_count <- number_count + 1
+            operand_count <- operand_count + 1
+            expect_number <- false
+        else:
+            if character != 43.u8() and character != 45.u8() and character != 42.u8() and character != 47.u8() and character != 94.u8():
+                return INVALID_RESULT
+            while operator_count > 0:
+                top: u8 = operators[operator_count - 1]
+                top_precedence: usize = shunting_yard_precedence(top)
+                current_precedence: usize = shunting_yard_precedence(character)
+                if top_precedence < current_precedence or
+                    (top_precedence == current_precedence and character == 94.u8()):
+                    break
+                operator_count <- operator_count - 1
+                if not shunting_yard_apply(&numbers, number_count&, top): return INVALID_RESULT
+            if operator_count >= MAX_OPERATORS: return INVALID_RESULT
+            operators[operator_count] <- character
+            operator_count <- operator_count + 1
+            seen_operator_count <- seen_operator_count + 1
+            position <- position + 1
+            expect_number <- true
+    if expect_number or operand_count == 0 or seen_operator_count + 1 != operand_count:
+        return INVALID_RESULT
+    while operator_count > 0:
+        operator_count <- operator_count - 1
+        if not shunting_yard_apply(&numbers, number_count&, operators[operator_count]): return INVALID_RESULT
+    if number_count != 1: return INVALID_RESULT
+    numbers[0]

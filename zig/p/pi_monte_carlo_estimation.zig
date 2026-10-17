@@ -74,6 +74,7 @@ fn mtRandom(rng: *Mt19937) f64 {
 }
 
 export fn pi_monte_carlo_estimation(input: [*c]const f64, input_length: usize, output: [*c]f64, output_capacity: usize) i64 {
+    @setFloatMode(.strict);
     if (input == null or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH) return -1;
     if (input_length != 2) return -1;
     const simulations_value = input[0];

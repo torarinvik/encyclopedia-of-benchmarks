@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-suffix-trie-search-i64-scalar-v1",
+  "algorithm": "suffix_trie",
+  "function_symbol": "suffix_trie_search",
+  "description": "Build the bounded Python source suffix trie and return whether one ASCII pattern follows a path from its root.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "data_structures/suffix_tree/suffix_tree.py",
+    "symbol": "SuffixTree.__init__; SuffixTree.build_suffix_tree; SuffixTree._add_suffix; SuffixTree.search",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/suffix_tree/suffix_tree.py",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Build an uncompressed character trie containing every suffix of the supplied text, then search the trie for one pattern by following child links from the root.",
+    "input_encoding": "[text_length, pattern_length, text_ascii_codes..., pattern_ascii_codes...]",
+    "source_construction": "Insert text[i:] for i from 0 through text_length-1, character by character, sharing existing trie prefixes.",
+    "search_semantics": "Return true when every pattern code follows a child link. The source does not check the terminal marker, so this is substring membership; the empty pattern returns true.",
+    "output_encoding": "One signed 64-bit scalar: 1 when found, 0 when absent.",
+    "errors": "Malformed input, unsupported lengths, nonintegral encoded values, or non-7-bit-ASCII codes return -1."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[text_length, pattern_length, text_ascii_codes..., pattern_ascii_codes...]",
+    "text_length_range": [0, 64],
+    "pattern_length_range": [0, 16],
+    "ascii_code_range": [0, 127],
+    "exact_input_length": "2+text_length+pattern_length",
+    "maximum_valid_input_values": 82,
+    "maximum_input_values_for_malformed_cases": 83,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "1 if the pattern is found by suffix-trie path search, otherwise 0.",
+    "valid_values": [0, 1],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "oracle_method": "The trie contains a path for a pattern exactly when that pattern is a substring of the indexed text. Compare the ASCII pattern against the text, including the empty-pattern rule.",
+  "cases": [
+    {
+      "id": "empty_text_empty_pattern",
+      "input_values": [0, 0],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "empty_text_nonempty_pattern",
+      "input_values": [0, 1, 97],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "nonempty_text_empty_pattern",
+      "input_values": [3, 0, 97, 98, 99],
+      "input_length": 5,
+      "expected_result": 1
+    },
+    {
+      "id": "whole_text_is_a_suffix",
+      "input_values": [6, 6, 98, 97, 110, 97, 110, 97, 98, 97, 110, 97, 110, 97],
+      "input_length": 14,
+      "expected_result": 1
+    },
+    {
+      "id": "interior_substring",
+      "input_values": [6, 3, 98, 97, 110, 97, 110, 97, 110, 97, 110],
+      "input_length": 11,
+      "expected_result": 1
+    },
+    {
+      "id": "overlapping_repeated_pattern",
+      "input_values": [4, 3, 97, 97, 97, 97, 97, 97, 97],
+      "input_length": 9,
+      "expected_result": 1
+    },
+    {
+      "id": "absent_pattern",
+      "input_values": [6, 3, 98, 97, 110, 97, 110, 97, 110, 97, 98],
+      "input_length": 11,
+      "expected_result": 0
+    },
+    {
+      "id": "embedded_nul_ascii",
+      "input_values": [3, 2, 97, 0, 98, 0, 98],
+      "input_length": 7,
+      "expected_result": 1
+    },
+    {
+      "id": "pattern_longer_than_text",
+      "input_values": [2, 3, 97, 98, 97, 98, 99],
+      "input_length": 7,
+      "expected_result": 0
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [1, 1, 97, 97, 0],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [2, 1, 97],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "fractional_text_length",
+      "input_values": [1.5, 0, 97],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_ascii_code",
+      "input_values": [1, 1, -1, 97],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "ascii_code_above_bound",
+      "input_values": [1, 1, 128, 97],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "text_length_above_bound",
+      "input_values": [65, 0],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "pattern_length_above_bound",
+      "input_values": [0, 17],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ]
+}

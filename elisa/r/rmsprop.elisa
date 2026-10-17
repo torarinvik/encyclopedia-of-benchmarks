@@ -1,0 +1,78 @@
+const MAX_VECTOR_LENGTH: usize = 32
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 102
+
+extern sqrt(value: f64) -> f64
+
+def rmsprop_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 5 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    count_value: f64 = input[0]
+    if count_value != count_value or count_value < 0.0 or count_value > 32.0:
+        return -1
+    count: usize = count_value.usize()
+    if count_value != count.f64():
+        return -1
+    mode_value: f64 = input[1]
+    if mode_value != 0.0 and mode_value != 1.0:
+        return -1
+    mode: usize = mode_value.usize()
+    expected_length: usize = 5 + 2 * count
+    if mode == 1:
+        expected_length <- expected_length + count
+    if input_length != expected_length:
+        return -1
+
+    learning_rate: f64 = input[2]
+    rho: f64 = input[3]
+    epsilon: f64 = input[4]
+    if learning_rate != learning_rate or learning_rate < 0.000001 or learning_rate > 1.0:
+        return -1
+    if rho != rho or rho < 0.0 or rho > 0.99:
+        return -1
+    if epsilon != epsilon or epsilon < 0.00000001 or epsilon > 1.0:
+        return -1
+
+    params: mutable [32]f64 = [0.0; 32]
+    gradients: mutable [32]f64 = [0.0; 32]
+    moving_avg: mutable [32]f64 = [0.0; 32]
+    index: mutable usize = 0
+    while index < count:
+        param: f64 = input[5 + index]
+        gradient: f64 = input[5 + count + index]
+        if param != param or param < -100.0 or param > 100.0:
+            return -1
+        if gradient != gradient or gradient < -100.0 or gradient > 100.0:
+            return -1
+        params[index] <- param
+        gradients[index] <- gradient
+        moving_avg[index] <- 0.0
+        index <- index + 1
+    if mode == 1:
+        index <- 0
+        while index < count:
+            value: f64 = input[5 + 2 * count + index]
+            if value != value or value < 0.0 or value > 10000.0:
+                return -1
+            moving_avg[index] <- value
+            index <- index + 1
+    if output.is_null() or output_capacity < 2 * count:
+        return -2
+
+    index <- 0
+    while index < count:
+        gradient: f64 = gradients[index]
+        updated_avg: f64 = rho * moving_avg[index] + (1.0 - rho) * (gradient * gradient)
+        moving_avg[index] <- updated_avg
+        updated_param: f64 = params[index] - (learning_rate / sqrt(updated_avg + epsilon)) * gradient
+        params[index] <- updated_param
+        index <- index + 1
+    index <- 0
+    while index < count:
+        output[index] <- params[index]
+        output[count + index] <- moving_avg[index]
+        index <- index + 1
+    (2 * count).i64()
+
+export fn rmsprop(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = rmsprop_impl

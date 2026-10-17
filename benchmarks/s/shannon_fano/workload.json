@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-shannon-fano-i64-bytes-v1",
+  "algorithm": "shannon_fano",
+  "function_symbol": "shannon_fano_generate_codes",
+  "description": "Construct pinned Shannon-Fano prefix codes for bounded ASCII text and serialize the code map canonically.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/compression/ShannonFano.java",
+    "symbol": "ShannonFano.generateCodes; ShannonFano.buildCodeTree; ShannonFano.findSplitIndex",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/compression/ShannonFano.java",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Count ASCII symbols, sort by descending frequency, recursively split contiguous ranges at the earliest frequency-balanced boundary, and return each symbol's prefix code.",
+    "input_encoding": "[text_length, text_ascii_codes...]",
+    "text_length_range": [0, 64],
+    "ascii_code_range": [0, 127],
+    "frequency_ties": "Reject inputs where distinct symbols have equal positive frequency because Java's stable sort would otherwise inherit unspecified HashMap iteration order.",
+    "split_tie_rule": "Find the split with minimum absolute difference between left and right frequency sums; keep the earliest split on equal differences.",
+    "single_symbol_code": "0",
+    "null_input": "A null input pointer with length zero represents Java null and returns the empty map; a null pointer with positive length is invalid.",
+    "output_serialization": "One symbol-count byte; then entries in ascending symbol-byte order, each encoded as symbol byte, code-length byte, and ASCII code bytes.",
+    "errors": "Malformed input, unsupported lengths, out-of-range symbols, or tied frequencies return -1 before output checks. Null output or insufficient output capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[text_length, text_ascii_codes...]",
+    "text_length_range": [0, 64],
+    "ascii_code_range": [0, 127],
+    "exact_input_length": "1+text_length",
+    "maximum_valid_input_values": 65,
+    "maximum_input_values_for_malformed_cases": 66,
+    "null_input_zero_length_is_valid": true,
+    "invalid_input_result": -1,
+    "null_input_positive_length_result": -1
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "encoding": "One count byte followed by ascending-symbol entries (symbol, code length, ASCII code bytes).",
+    "maximum_symbols": 10,
+    "maximum_code_length": 9,
+    "maximum_bytes": 111,
+    "success_result": "output byte count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input validity is checked before output pointer and capacity."
+  },
+  "workspace": {
+    "bytes": 111,
+    "meaning": "One count byte plus up to ten entries of symbol byte, code-length byte, and nine ASCII code bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "oracle_method": "Mirror Java's frequency count, descending-frequency order (valid because tied positive frequencies are rejected), earliest-minimum split selection, recursive 0/1 prefix assignment, and single-symbol special case; serialize map entries by ascending symbol byte.",
+  "cases": [
+    {
+      "id": "empty_text",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "single_symbol",
+      "input_values": [6, 120, 120, 120, 120, 120, 120],
+      "input_length": 7,
+      "expected_result": 4,
+      "expected_output_hex": "01780130"
+    },
+    {
+      "id": "two_distinct_frequencies",
+      "input_values": [3, 97, 97, 98],
+      "input_length": 4,
+      "expected_result": 7,
+      "expected_output_hex": "02610130620131"
+    },
+    {
+      "id": "three_distinct_frequencies",
+      "input_values": [6, 97, 97, 97, 98, 98, 99],
+      "input_length": 7,
+      "expected_result": 12,
+      "expected_output_hex": "036101306202313063023131"
+    },
+    {
+      "id": "four_symbol_earliest_split_tie",
+      "input_values": [17, 97, 97, 97, 97, 97, 97, 98, 98, 98, 98, 98, 99, 99, 99, 99, 100, 100],
+      "input_length": 18,
+      "expected_result": 18,
+      "expected_output_hex": "046101306202313063033131306403313131"
+    },
+    {
+      "id": "input_order_differs_from_frequency_order",
+      "input_values": [10, 97, 98, 98, 98, 98, 99, 99, 100, 100, 100],
+      "input_length": 11,
+      "expected_result": 18,
+      "expected_output_hex": "046103313131620130630331313064023130"
+    },
+    {
+      "id": "embedded_nul_symbol",
+      "input_values": [3, 0, 0, 97],
+      "input_length": 4,
+      "expected_result": 7,
+      "expected_output_hex": "02000130610131"
+    },
+    {
+      "id": "maximum_valid_text_and_symbols",
+      "input_values": [64, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 67, 67, 67, 67, 67, 67, 67, 67, 68, 68, 68, 68, 68, 68, 68, 69, 69, 69, 69, 69, 69, 70, 70, 70, 70, 70, 71, 71, 71, 71, 72, 72, 72, 73, 73, 74],
+      "input_length": 65,
+      "expected_result": 60,
+      "expected_output_hex": "0a4102303042023031430331303044033130314504313130304604313130314704313131304805313131313049063131313131304a06313131313131"
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_empty_string",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 111,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 111,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "frequency_tie_two_symbols",
+      "input_values": [2, 97, 98],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 111,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "frequency_tie_among_three_symbols",
+      "input_values": [5, 97, 97, 98, 98, 99],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 111,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_ascii_code",
+      "input_values": [1, -1],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 111,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "ascii_code_above_bound",
+      "input_values": [1, 128],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 111,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "text_length_above_bound",
+      "input_values": [65],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 111,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [2, 97],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 111,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [1, 97, 97],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 111,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [1, 97],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 111,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_text_short_capacity",
+      "input_values": [0],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_text_exact_capacity",
+      "input_values": [0],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [2, 97, 98],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

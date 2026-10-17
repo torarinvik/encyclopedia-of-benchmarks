@@ -1,0 +1,92 @@
+const MAX_BIT_COUNT: usize = 128
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 130
+const MAX_OUTPUT_BYTES: usize = 8256
+const MAX_DICTIONARY_ENTRIES: usize = 130
+const MAX_PHRASE_LENGTH: usize = 129
+
+// The dictionary stores fixed-width binary codes as integers. Prefixing every
+// key with zero increases the width while leaving its numeric value unchanged.
+def lempel_ziv_decompress_impl(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    bit_count_value: i64 = input[0]
+    if bit_count_value < 0 or bit_count_value > 128:
+        return -1
+    bit_count: usize = bit_count_value.usize()
+    if input_length != 1 + bit_count:
+        return -1
+    index: mutable usize = 0
+    while index < bit_count:
+        if input[index + 1] != 48 and input[index + 1] != 49:
+            return -1
+        index <- index + 1
+
+    codes: mutable [130]usize = [0; 130]
+    phrase_lengths: mutable [130]usize = [0; 130]
+    phrases: mutable [16770]u8 = [0; 16770]
+    codes[0] <- 0
+    codes[1] <- 1
+    phrase_lengths[0] <- 1
+    phrase_lengths[1] <- 1
+    phrases[0] <- 48
+    phrases[MAX_PHRASE_LENGTH] <- 49
+    entry_count: mutable usize = 2
+    code_width: mutable usize = 1
+    next_index: mutable usize = 2
+    result: mutable [8256]u8 = [0; 8256]
+    result_length: mutable usize = 0
+    cursor: mutable usize = 0
+
+    while cursor + code_width <= bit_count:
+        code_width_used: usize = code_width
+        code: mutable usize = 0
+        bit_offset: mutable usize = 0
+        while bit_offset < code_width:
+            code <- code * 2 + (input[cursor + bit_offset + 1] - 48).usize()
+            bit_offset <- bit_offset + 1
+        found: mutable usize = entry_count
+        index <- 0
+        while index < entry_count:
+            if codes[index] == code:
+                found <- index
+                break
+            index <- index + 1
+        if found == entry_count:
+            break
+
+        last_length: usize = phrase_lengths[found]
+        last_phrase: mutable [129]u8 = [0; 129]
+        index <- 0
+        while index < last_length:
+            value: u8 = phrases[found * MAX_PHRASE_LENGTH + index]
+            last_phrase[index] <- value
+            result[result_length] <- value
+            result_length <- result_length + 1
+            index <- index + 1
+        phrases[found * MAX_PHRASE_LENGTH + last_length] <- 48
+        phrase_lengths[found] <- last_length + 1
+
+        if (next_index & (next_index - 1)) == 0:
+            code_width <- code_width + 1
+        codes[entry_count] <- next_index
+        phrase_lengths[entry_count] <- last_length + 1
+        index <- 0
+        while index < last_length:
+            phrases[entry_count * MAX_PHRASE_LENGTH + index] <- last_phrase[index]
+            index <- index + 1
+        phrases[entry_count * MAX_PHRASE_LENGTH + last_length] <- 49
+        entry_count <- entry_count + 1
+        next_index <- next_index + 1
+        cursor <- cursor + code_width_used
+
+    if output.is_null() or output_capacity < result_length:
+        return -2
+    index <- 0
+    while index < result_length:
+        output[index] <- result[index]
+        index <- index + 1
+    result_length.i64()
+
+export fn lempel_ziv_decompress(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = lempel_ziv_decompress_impl

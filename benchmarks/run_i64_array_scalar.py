@@ -149,6 +149,11 @@ from rotting_oranges_oracle import MAX_ROWS as ROTTING_ORANGES_MAX_ROWS
 from rotting_oranges_oracle import MAX_COLUMNS as ROTTING_ORANGES_MAX_COLUMNS
 from rotting_oranges_oracle import MAX_VALID_INPUT_LENGTH as ROTTING_ORANGES_MAX_VALID_INPUT_LENGTH
 from rotting_oranges_oracle import expected_result as rotting_oranges_expected
+from solution42_oracle import I64_MAX as SOLUTION42_I64_MAX
+from solution42_oracle import I64_MIN as SOLUTION42_I64_MIN
+from solution42_oracle import INVALID_RESULT as SOLUTION42_INVALID_RESULT
+from solution42_oracle import MAX_INPUT_LENGTH as SOLUTION42_MAX_INPUT_LENGTH
+from solution42_oracle import expected_result as solution42_expected
 from edmonds_blossom_algorithm_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_BLOSSOM_INPUT_LENGTH
 from edmonds_blossom_algorithm_oracle import expected_result as edmonds_blossom_expected
 from edmonds_oracle import MAX_INPUT_LENGTH as MAX_EDMONDS_INPUT_LENGTH
@@ -377,6 +382,39 @@ from kahns_algorithm_long_oracle import MAX_PARSEABLE_INPUT_LENGTH as KAHNS_ALGO
 from kahns_algorithm_long_oracle import expected_result as kahns_algorithm_long_expected
 from kcenters_oracle import MAX_PARSEABLE_INPUT_LENGTH as KCENTERS_MAX_PARSEABLE_INPUT_LENGTH
 from kcenters_oracle import expected_result as kcenters_expected
+from k_nn_oracle import I64_MAX as K_NN_I64_MAX
+from k_nn_oracle import I64_MIN as K_NN_I64_MIN
+from k_nn_oracle import INVALID_RESULT as K_NN_INVALID_RESULT
+from k_nn_oracle import MAX_FEATURE_COUNT as K_NN_MAX_FEATURE_COUNT
+from k_nn_oracle import MAX_FEATURE_VALUE as K_NN_MAX_FEATURE_VALUE
+from k_nn_oracle import MAX_PARSEABLE_INPUT_VALUES as K_NN_MAX_PARSEABLE_INPUT_VALUES
+from k_nn_oracle import MAX_TRAINING_COUNT as K_NN_MAX_TRAINING_COUNT
+from k_nn_oracle import MAX_VALID_INPUT_VALUES as K_NN_MAX_VALID_INPUT_VALUES
+from k_nn_oracle import MIN_FEATURE_COUNT as K_NN_MIN_FEATURE_COUNT
+from k_nn_oracle import MIN_FEATURE_VALUE as K_NN_MIN_FEATURE_VALUE
+from k_nn_oracle import MIN_TRAINING_COUNT as K_NN_MIN_TRAINING_COUNT
+from k_nn_oracle import expected_result as k_nn_expected
+from rsa_cipher_oracle import I64_MAX as RSA_CIPHER_I64_MAX
+from rsa_cipher_oracle import I64_MIN as RSA_CIPHER_I64_MIN
+from rsa_cipher_oracle import INVALID_RESULT as RSA_CIPHER_INVALID_RESULT
+from rsa_cipher_oracle import MAX_ASCII_CODE as RSA_CIPHER_MAX_ASCII_CODE
+from rsa_cipher_oracle import MAX_EXPONENT as RSA_CIPHER_MAX_EXPONENT
+from rsa_cipher_oracle import MAX_MODULUS as RSA_CIPHER_MAX_MODULUS
+from rsa_cipher_oracle import MAX_PARSEABLE_INPUT_VALUES as RSA_CIPHER_MAX_PARSEABLE_INPUT_VALUES
+from rsa_cipher_oracle import MAX_VALID_INPUT_VALUES as RSA_CIPHER_MAX_VALID_INPUT_VALUES
+from rsa_cipher_oracle import MIN_ASCII_CODE as RSA_CIPHER_MIN_ASCII_CODE
+from rsa_cipher_oracle import MIN_MODULUS as RSA_CIPHER_MIN_MODULUS
+from rsa_cipher_oracle import expected_result as rsa_cipher_expected
+from suffix_trie_oracle import I64_MAX as SUFFIX_TRIE_I64_MAX
+from suffix_trie_oracle import I64_MIN as SUFFIX_TRIE_I64_MIN
+from suffix_trie_oracle import INVALID_RESULT as SUFFIX_TRIE_INVALID_RESULT
+from suffix_trie_oracle import MAX_ASCII_CODE as SUFFIX_TRIE_MAX_ASCII_CODE
+from suffix_trie_oracle import MAX_PARSEABLE_INPUT_VALUES as SUFFIX_TRIE_MAX_PARSEABLE_INPUT_VALUES
+from suffix_trie_oracle import MAX_PATTERN_LENGTH as SUFFIX_TRIE_MAX_PATTERN_LENGTH
+from suffix_trie_oracle import MAX_TEXT_LENGTH as SUFFIX_TRIE_MAX_TEXT_LENGTH
+from suffix_trie_oracle import MAX_VALID_INPUT_VALUES as SUFFIX_TRIE_MAX_VALID_INPUT_VALUES
+from suffix_trie_oracle import MIN_ASCII_CODE as SUFFIX_TRIE_MIN_ASCII_CODE
+from suffix_trie_oracle import expected_result as suffix_trie_expected
 from minimax_oracle import MAX_PARSEABLE_INPUT_LENGTH as MINIMAX_MAX_PARSEABLE_INPUT_LENGTH
 from minimax_oracle import expected_result as minimax_expected
 from sparse_matrix_oracle import INVALID_RESULT as SPARSE_MATRIX_INVALID_RESULT
@@ -874,6 +912,16 @@ from lca_oracle import INVALID_RESULT as LCA_INVALID_RESULT
 from lca_oracle import MAX_INPUT_LENGTH as LCA_MAX_INPUT_LENGTH
 from lca_oracle import MAX_NODES as LCA_MAX_NODES
 from lca_oracle import expected_result as lca_expected_result
+from mcoloring_oracle import I64_MAX as MCOLORING_I64_MAX
+from mcoloring_oracle import I64_MIN as MCOLORING_I64_MIN
+from mcoloring_oracle import INVALID_RESULT as MCOLORING_INVALID_RESULT
+from mcoloring_oracle import MAX_COLORS as MCOLORING_MAX_COLORS
+from mcoloring_oracle import MAX_PARSEABLE_INPUT_LENGTH as MCOLORING_MAX_PARSEABLE_INPUT_LENGTH
+from mcoloring_oracle import MAX_VALID_INPUT_LENGTH as MCOLORING_MAX_VALID_INPUT_LENGTH
+from mcoloring_oracle import MAX_VERTICES as MCOLORING_MAX_VERTICES
+from mcoloring_oracle import MIN_COLORS as MCOLORING_MIN_COLORS
+from mcoloring_oracle import MIN_VERTICES as MCOLORING_MIN_VERTICES
+from mcoloring_oracle import expected_result as mcoloring_expected
 from johnsons_algorithm_oracle import MAX_INPUT_LENGTH as JOHNSONS_ALGORITHM_MAX_INPUT_LENGTH
 from johnsons_algorithm_oracle import MAX_VERTICES as JOHNSONS_ALGORITHM_MAX_VERTICES
 from johnsons_algorithm_oracle import MAX_WEIGHT as JOHNSONS_ALGORITHM_MAX_WEIGHT
@@ -5426,6 +5474,242 @@ def validate_clojure_persistent_list_queue_workload(workload: dict) -> None:
             raise ValueError(f"clojure_persistent_list_queue workload mismatch: {case.get('id')}")
 
 
+MCOLORING_CASE_IDS = frozenset({
+    "empty_graph_minimum_color_limit", "empty_graph_maximum_color_limit",
+    "single_isolated_vertex", "disconnected_isolated_vertices", "single_edge_one_color",
+    "single_edge_two_colors", "path_four_two_colors", "path_four_one_color",
+    "star_two_colors", "disconnected_forest_and_isolate", "more_colors_than_vertices",
+    "maximum_vertex_path", "negative_vertex_count_invalid", "vertex_count_above_limit_invalid",
+    "zero_color_limit_invalid", "color_limit_above_bound_invalid", "missing_color_limit_invalid",
+    "missing_adjacency_mask_invalid", "trailing_input_value_invalid",
+    "negative_adjacency_mask_invalid", "out_of_range_mask_bit_invalid", "self_loop_invalid",
+    "asymmetric_adjacency_invalid", "triangle_cycle_invalid", "four_cycle_invalid",
+    "disconnected_triangle_invalid", "maximum_parseable_trailing_mask_invalid",
+})
+
+
+def validate_mcoloring_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/backtracking/MColoring.java",
+        "symbol": "MColoring.isColoringPossible",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/backtracking/MColoring.java",
+    }
+    contract = {
+        "operation": "Return the pinned BFS coloring routine's boolean result on a bounded simple undirected forest.",
+        "input_layout": "[vertex_count, color_limit, adjacency_mask_0, ..., adjacency_mask_(vertex_count-1)]",
+        "vertex_count_range": [0, 14],
+        "color_limit_range": [1, 14],
+        "vertex_labels": "The packed contract uses zero-based vertices; adapters map vertex i to pinned Java node i+1.",
+        "adjacency_mask": "Bit j in mask_i represents the undirected edge {i,j}; masks must be symmetric and loopless.",
+        "graph_requirement": "The represented graph must be a simple undirected forest; disconnected components and isolated vertices are allowed.",
+        "source_behavior": "Initialize every node color to 1; scan start vertices in ascending order using BFS; if an edge joins equal colors, increment the neighbor color by one; track the maximum color and return false as soon as it exceeds color_limit.",
+        "scope_note": "This is the pinned routine's boolean result restricted to forests, not a general exact m-colorability solver.",
+        "invalid_input_result": MCOLORING_INVALID_RESULT,
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[vertex_count, color_limit, adjacency_mask_0, ..., adjacency_mask_(vertex_count-1)]",
+        "vertex_count_range": [MCOLORING_MIN_VERTICES, MCOLORING_MAX_VERTICES],
+        "color_limit_range": [MCOLORING_MIN_COLORS, MCOLORING_MAX_COLORS],
+        "adjacency_mask_range": "0 through (1<<vertex_count)-1",
+        "adjacency_masks_must_be_symmetric": True,
+        "self_loops_allowed": False,
+        "simple_undirected_forest_required": True,
+        "maximum_valid_input_length": MCOLORING_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": MCOLORING_MAX_PARSEABLE_INPUT_LENGTH,
+        "exact_length": "2+vertex_count",
+        "invalid_input_result": MCOLORING_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "boolean_as_i64",
+        "true": 1,
+        "false": 0,
+        "invalid_input_result": MCOLORING_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-mcoloring-forest-i64-array-scalar-v1"
+            or workload.get("algorithm") != "mcoloring"
+            or workload.get("function_symbol") != "mcoloring"
+            or workload.get("description") != "Pinned BFS greedy-coloring feasibility on simple undirected forests."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or "workspace" in workload
+            or MCOLORING_I64_MIN != -(1 << 63)
+            or MCOLORING_I64_MAX != (1 << 63) - 1
+            or MCOLORING_MIN_VERTICES != 0 or MCOLORING_MAX_VERTICES != 14
+            or MCOLORING_MIN_COLORS != 1 or MCOLORING_MAX_COLORS != 14
+            or MCOLORING_MAX_VALID_INPUT_LENGTH != 16
+            or MCOLORING_MAX_PARSEABLE_INPUT_LENGTH != 17
+            or MCOLORING_INVALID_RESULT != -1
+            or workload.get("measurement") != measurement
+            or not isinstance(cases, list)
+            or len(case_ids) != len(MCOLORING_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != MCOLORING_CASE_IDS):
+        raise ValueError("mcoloring metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "mcoloring" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (source["url"] not in readme
+            or "does not claim to solve general exact m-colorability" not in normalized_readme
+            or "Every source node starts with color 1" not in normalized_readme
+            or "visits start vertices in increasing order with BFS" not in normalized_readme
+            or "several tree components or isolated vertices is allowed" not in normalized_readme):
+        raise ValueError("mcoloring README is missing its pinned source or reviewed behavior")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (not isinstance(values, list)
+                or len(values) > MCOLORING_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_length) is not int or input_length != len(values)
+                or any(type(value) is not int or not MCOLORING_I64_MIN <= value <= MCOLORING_I64_MAX
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"mcoloring input framing is invalid: {case.get('id')}")
+        if case["expected_result"] != mcoloring_expected(values):
+            raise ValueError(f"mcoloring workload mismatch: {case.get('id')}")
+
+
+SOLUTION42_CASE_IDS = {
+    "pinned_words_fixture", "first_hundred_triangular_word_scores", "first_line_only",
+    "crlf_first_line_only", "single_line_without_newline", "empty_file",
+    "invalid_non_ascii_byte", "lone_cr_first_line_only", "invalid_above_max_input_length",
+    "null_input_pointer_positive_length",
+}
+
+
+def validate_solution42_workload(workload: dict) -> None:
+    """Pin the Project Euler 42 fixture and bounded byte-array contract."""
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "project_euler/problem_042/solution42.py",
+        "symbol": "solution",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/project_euler/problem_042/solution42.py",
+    }
+    supporting_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "project_euler/problem_042/words.txt",
+        "symbol": "fixed input fixture read by solution()",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/project_euler/problem_042/words.txt",
+    }
+    pinned_sources = [source, {**supporting_source, "symbol": "fixed fixture bytes"}]
+    fixture = {
+        "local_path": "benchmarks/s/solution42/words.txt",
+        "encoding": "ASCII text, one comma-delimited line with a trailing line feed",
+        "byte_length": 16346,
+        "sha256": "2eeb1d986f5928a6ae22e5b02b1a956da39500b736c424f104334495c019538c",
+        "source_result": 162,
+    }
+    input_spec = {
+        "kind": "array_of_signed_64_bit_ascii_byte_values",
+        "encoding": "one ASCII byte value per i64 input element; no header",
+        "maximum_length": SOLUTION42_MAX_INPUT_LENGTH,
+        "valid_value_range": [0, 127],
+        "file_read": "Only the first line is processed; bytes after the first CR or LF are ignored.",
+        "invalid_result": SOLUTION42_INVALID_RESULT,
+        "null_pointer_with_zero_length": "Valid empty file; return zero, matching the scalar ABI runner.",
+        "null_pointer_with_positive_length_result": SOLUTION42_INVALID_RESULT,
+    }
+    algorithm_contract = {
+        "triangular_values": "int(0.5*n*(n+1)) for n=1..100, equivalently n*(n+1)//2 on this range",
+        "line_processing": "Read the first line; strip CR and LF at its ends; split on comma; strip double quote characters from each token at both ends.",
+        "word_score": "Sum ord(character)-64 for every character in the stripped token; the pinned fixture uses uppercase A-Z, with A=1.",
+        "counting": "Count every token whose score is one of the first 100 triangular values; duplicate tokens count independently.",
+        "empty_input": "Like an empty first line, yielding one empty token of score zero and result zero.",
+    }
+    output_spec = {
+        "kind": "signed_64_bit_scalar",
+        "result": "number of triangular word tokens in the first line",
+        "invalid_input_result": SOLUTION42_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-solution42-i64-array-scalar-v1"
+            or workload.get("algorithm") != "solution42"
+            or workload.get("function_symbol") != "solution42"
+            or workload.get("description") != "Count triangle words from the pinned Project Euler 42 words fixture, preserving its first-line-only read."
+            or workload.get("pinned_source") != source
+            or workload.get("supporting_pinned_source") != supporting_source
+            or workload.get("pinned_sources") != pinned_sources
+            or workload.get("fixture") != fixture
+            or workload.get("input") != input_spec
+            or workload.get("algorithm_contract") != algorithm_contract
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or SOLUTION42_MAX_INPUT_LENGTH != 16384
+            or SOLUTION42_I64_MIN != -(1 << 63)
+            or SOLUTION42_I64_MAX != (1 << 63) - 1
+            or SOLUTION42_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(SOLUTION42_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SOLUTION42_CASE_IDS):
+        raise ValueError("solution42 metadata or fixture IDs differ from its reviewed contract")
+
+    fixture_path = ROOT / fixture["local_path"]
+    readme = (ROOT / "benchmarks" / "s" / "solution42" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split()).replace("`", "")
+    if (not fixture_path.is_file()
+            or sha256_file(fixture_path) != fixture["sha256"]
+            or fixture_path.stat().st_size != fixture["byte_length"]
+            or source["url"] not in readme
+            or supporting_source["url"] not in readme
+            or "Bytes after the first LF, CRLF, or lone CR line terminator are ignored" not in normalized_readme
+            or "(NULL, 0) is valid" not in normalized_readme
+            or "A null pointer with positive length is invalid" not in normalized_readme):
+        raise ValueError("solution42 README or pinned fixture differs from its reviewed source")
+    fixture_case = next(case for case in cases if case["id"] == "pinned_words_fixture")
+    if (fixture_case.get("input_values") != list(fixture_path.read_bytes())
+            or fixture_case.get("expected_result") != fixture["source_result"]):
+        raise ValueError("solution42 embedded words fixture differs from the pinned file")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or len(values) > SOLUTION42_MAX_INPUT_LENGTH + 1
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or not 0 <= input_length <= SOLUTION42_MAX_INPUT_LENGTH + 1
+                or (input_is_null and values)
+                or (not input_is_null and input_length != len(values))
+                or any(type(value) is not int
+                       or not SOLUTION42_I64_MIN <= value <= SOLUTION42_I64_MAX
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"solution42 input framing is invalid: {case.get('id')}")
+        expected = solution42_expected(values, input_length, input_is_null)
+        if case["expected_result"] != expected:
+            raise ValueError(f"solution42 workload mismatch: {case.get('id')}")
+
+
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH if algorithm == "kth_element_finder" else
@@ -5443,6 +5727,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         KNAPSACK_ZERO_ONE_TABULATION_MAX_INPUT_LENGTH
                         if algorithm == "knapsack_zero_one_tabulation" else
                         LCA_MAX_INPUT_LENGTH if algorithm == "lca" else
+                        MCOLORING_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "mcoloring" else
                         MAX_GREEDY_GRAPH_COLORING_INPUT_LENGTH if algorithm == "greedy_graph_coloring" else
                         MAX_GREEDY_BEST_FIRST_INPUT_LENGTH if algorithm == "greedy_best_first" else
                         MAX_GROW_ONLY_SET_INPUT_LENGTH if algorithm == "grow_only_set" else
@@ -5487,6 +5772,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "logistic_regression_predict"
                         else TIME_SIMULATION_MAX_INPUT_LENGTH if algorithm == "time_simulation"
                         else ROTTING_ORANGES_MAX_INPUT_LENGTH if algorithm == "rotting_oranges"
+                        else SOLUTION42_MAX_INPUT_LENGTH + 1 if algorithm == "solution42"
                         else MAX_LINEAR_RECURRENCE_MATRIX_INPUT_LENGTH if algorithm == "linear_recurrence_matrix"
                         else MAX_RECURSIVE_LINEAR_SEARCH_INPUT_LENGTH if algorithm == "recursive_linear_search"
                         else MAX_SHORTEST_WORD_DISTANCE_PARSEABLE_INPUT_LENGTH
@@ -5866,6 +6152,9 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else PIPELINE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "pipeline"
                         else KAHNS_ALGORITHM_LONG_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kahns_algorithm_long"
                         else KCENTERS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kcenters"
+                        else K_NN_MAX_PARSEABLE_INPUT_VALUES if algorithm == "k_nn"
+                        else RSA_CIPHER_MAX_PARSEABLE_INPUT_VALUES if algorithm == "rsa_cipher"
+                        else SUFFIX_TRIE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "suffix_trie"
                         else MINIMAX_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "minimax"
                         else MRUCACHE_MAX_INPUT_LENGTH if algorithm == "mrucache"
                         else KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kruskal_mst"
@@ -10758,6 +11047,28 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = kcenters_expected(values)
         if expected != expected_from_source:
             raise ValueError("kcenters expected_result must match the bounded deterministic center selection")
+    elif algorithm == "k_nn":
+        expected_from_source = k_nn_expected(
+            None if case.get("input_is_null", False) else values,
+            case.get("input_is_null", False), case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("k_nn expected_result must match the bounded binary k-nearest-neighbor vote")
+    elif algorithm == "rsa_cipher":
+        input_is_null = case.get("input_is_null", False)
+        input_is_null = False if input_is_null is None else input_is_null
+        input_length = case.get("input_length", len(values))
+        expected_from_source = rsa_cipher_expected(
+            None if input_is_null else values, input_is_null, input_length)
+        if expected != expected_from_source:
+            raise ValueError("rsa_cipher expected_result must match the bounded one-byte RSA transform")
+    elif algorithm == "suffix_trie":
+        input_is_null = case.get("input_is_null", False)
+        input_is_null = False if input_is_null is None else input_is_null
+        input_length = case.get("input_length", len(values))
+        expected_from_source = suffix_trie_expected(
+            None if input_is_null else values, input_is_null, input_length)
+        if expected != expected_from_source:
+            raise ValueError("suffix_trie expected_result must match bounded suffix-trie path search")
     elif algorithm == "minimax":
         expected_from_source = minimax_expected(values)
         if expected != expected_from_source:
@@ -10827,7 +11138,486 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             values, case.get("input_length", len(values)), case.get("input_is_null", False))
         if expected != expected_from_source:
             raise ValueError("lca expected_result must match the bounded root-at-zero tree query")
+    elif algorithm == "mcoloring":
+        expected_from_source = mcoloring_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mcoloring expected_result must match the pinned BFS forest-coloring contract")
+    elif algorithm == "solution42":
+        expected_from_source = solution42_expected(
+            values, case.get("input_length", len(values)), case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("solution42 expected_result must match the bounded first-line triangle-word count")
     return values
+
+
+K_NN_CASE_IDS = {
+    "nearest_single_neighbor_class_zero", "three_neighbor_vote_class_zero",
+    "three_neighbor_vote_class_one", "k_equals_training_count", "two_dimensional_query",
+    "negative_feature_coordinates", "single_training_row_exact_match",
+}
+K_NN_ABI_CASE_IDS = {
+    "null_input", "extra_input_value", "even_k", "k_exceeds_training_count",
+    "tied_query_distances", "nonbinary_label", "truncated_query", "feature_out_of_range",
+}
+
+
+def validate_k_nn_workload(workload: dict) -> None:
+    """Pin the R binary k-NN mode, exact-distance contract, and serialized fixtures."""
+    source = {
+        "repository": "TheAlgorithms/R",
+        "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+        "path": "machine_learning/k-NN.r",
+        "symbol": "knn_train; knn_predict",
+        "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/machine_learning/k-NN.r",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Train the pinned k-NN classifier from supplied rows and return the predicted binary class for one query row.",
+        "input_encoding": "[training_count, feature_count, k, training_features_row_major..., labels..., query_features...]",
+        "labels": "Each input label is 0 or 1; adapters convert labels to factor strings with levels c(\"0\",\"1\") so the pinned source selects classification mode and preserves class order.",
+        "options": "weighted=FALSE, normalize=FALSE, return_probs=FALSE, return_neighbors=FALSE; k is never adjusted because 1<=k<=training_count.",
+        "distance": "The pinned source calls squared_euclidean_distances(query, training_rows), with the query as matrix A and training rows as matrix B. It evaluates query_norm - 2*cross_product + training_row_norm and ranks the squared distances ascending. All input coordinates are small integers, so every intermediate is an exactly representable integer in binary64.",
+        "tie_policy": "Valid inputs have pairwise distinct squared distances from the query. Binary labels and odd k ensure a unique majority class; the output is the first maximum in factor level order c(\"0\",\"1\").",
+        "output_encoding": "Predicted binary class ID, 0 or 1, as a signed i64 scalar.",
+        "invalid": "Malformed framing, unsupported bounds, nonbinary labels, an even or out-of-range k, or tied query distances returns -1.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[training_count, feature_count, k, training_features_row_major..., labels..., query_features...]",
+        "training_count_range": [K_NN_MIN_TRAINING_COUNT, K_NN_MAX_TRAINING_COUNT],
+        "feature_count_range": [K_NN_MIN_FEATURE_COUNT, K_NN_MAX_FEATURE_COUNT],
+        "k_range": "Odd integer from 1 through training_count",
+        "feature_value_range": [K_NN_MIN_FEATURE_VALUE, K_NN_MAX_FEATURE_VALUE],
+        "label_values": [0, 1],
+        "distance_ties_allowed": False,
+        "exact_input_length": "3 + training_count*feature_count + training_count + feature_count",
+        "maximum_valid_input_values": K_NN_MAX_VALID_INPUT_VALUES,
+        "maximum_input_values_for_malformed_cases": K_NN_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_input_result": K_NN_INVALID_RESULT,
+        "null_input_result": K_NN_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "Predicted binary class ID",
+        "valid_values": [0, 1],
+        "invalid_input_result": K_NN_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_case_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+                    if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-r-knn-binary-classification-i64-scalar-v1"
+            or workload.get("algorithm") != "k_nn"
+            or workload.get("function_symbol") != "k_nn"
+            or workload.get("description") != "Classify one query using the pinned R k-NN algorithm in bounded unweighted, unnormalized binary mode."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Compute exact integer squared Euclidean distances, reject ties, order the training rows by distance, and return the majority of the first odd k binary labels."
+            or K_NN_I64_MIN != -(1 << 63)
+            or K_NN_I64_MAX != (1 << 63) - 1
+            or K_NN_MIN_TRAINING_COUNT != 1
+            or K_NN_MAX_TRAINING_COUNT != 32
+            or K_NN_MIN_FEATURE_COUNT != 1
+            or K_NN_MAX_FEATURE_COUNT != 8
+            or K_NN_MIN_FEATURE_VALUE != -32
+            or K_NN_MAX_FEATURE_VALUE != 32
+            or K_NN_MAX_VALID_INPUT_VALUES != 299
+            or K_NN_MAX_PARSEABLE_INPUT_VALUES != 300
+            or K_NN_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(K_NN_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != K_NN_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_case_ids) != len(K_NN_ABI_CASE_IDS)
+            or len(abi_case_ids) != len(set(abi_case_ids))
+            or set(abi_case_ids) != K_NN_ABI_CASE_IDS):
+        raise ValueError("k_nn metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "k" / "k_nn" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split()).replace("`", "")
+    if (source["url"] not in readme
+            or "The ABI is i64_array_scalar" not in normalized_readme
+            or "levels \"0\" and \"1\" in that order" not in normalized_readme
+            or "weighted=FALSE, normalize=FALSE, return_probs=FALSE" not in normalized_readme
+            or "query_norm - 2*cross_product + training_row_norm" not in normalized_readme
+            or "distinct squared distance" not in normalized_readme
+            or "No output buffer is used" not in normalized_readme):
+        raise ValueError("k_nn README is missing its pinned source or reviewed mode semantics")
+
+    null_case = next(case for case in abi_cases if case.get("id") == "null_input")
+    if (null_case.get("input_values") != []
+            or null_case.get("input_length") != 0
+            or null_case.get("input_is_null") is not True
+            or null_case.get("expected_result") != K_NN_INVALID_RESULT):
+        raise ValueError("k_nn null-input fixture differs from its invalid pointer contract")
+
+    for fixture_kind, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            values = case.get("input_values")
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or len(values) > K_NN_MAX_PARSEABLE_INPUT_VALUES
+                    or any(type(value) is not int
+                           or not K_NN_I64_MIN <= value <= K_NN_I64_MAX for value in values)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= K_NN_MAX_PARSEABLE_INPUT_VALUES
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))
+                    or fixture_kind == "cases" and input_is_null
+                    or type(case.get("expected_result")) is not int):
+                raise ValueError(f"k_nn fixture framing is invalid: {case.get('id')}")
+            expected = k_nn_expected(
+                None if input_is_null else values, input_is_null, input_length)
+            if case["expected_result"] != expected:
+                raise ValueError(f"k_nn fixture differs from its distance/voting oracle: {case.get('id')}")
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    if (len(abi_by_id["extra_input_value"]["input_values"]) != 7
+            or abi_by_id["even_k"]["input_values"][2] % 2 != 0
+            or abi_by_id["k_exceeds_training_count"]["input_values"][2]
+                <= abi_by_id["k_exceeds_training_count"]["input_values"][0]
+            or abi_by_id["nonbinary_label"]["input_values"][-2] in (0, 1)
+            or len(abi_by_id["truncated_query"]["input_values"])
+                == 3 + abi_by_id["truncated_query"]["input_values"][0]
+                * abi_by_id["truncated_query"]["input_values"][1]
+                + abi_by_id["truncated_query"]["input_values"][0]
+                + abi_by_id["truncated_query"]["input_values"][1]
+            or abi_by_id["feature_out_of_range"]["input_values"][3]
+                in range(K_NN_MIN_FEATURE_VALUE, K_NN_MAX_FEATURE_VALUE + 1)):
+        raise ValueError("k_nn ABI fixtures do not exercise their named malformed inputs")
+    tied_values = abi_by_id["tied_query_distances"]["input_values"]
+    tied_count, tied_dimensions = tied_values[:2]
+    tied_feature_end = 3 + tied_count * tied_dimensions
+    tied_labels_end = tied_feature_end + tied_count
+    tied_query = tied_values[tied_labels_end:]
+    tied_rows = [tied_values[3 + row * tied_dimensions:
+                             3 + (row + 1) * tied_dimensions]
+                 for row in range(tied_count)]
+    tied_distances = [sum((coordinate - tied_query[feature]) ** 2
+                          for feature, coordinate in enumerate(row))
+                      for row in tied_rows]
+    if len(set(tied_distances)) == len(tied_distances):
+        raise ValueError("k_nn tied-distance fixture no longer contains a query-distance tie")
+
+
+RSA_CIPHER_CASE_IDS = frozenset({
+    "source_rsa_example_ascii_a", "ascii_lowercase_a", "zero_byte", "space_character",
+    "ascii_upper_boundary", "minimum_modulus_and_largest_ascii", "identity_exponent",
+    "larger_modulus_and_exponent",
+})
+RSA_CIPHER_ABI_CASE_IDS = frozenset({
+    "null_input", "extra_input_value", "truncated_input", "non_ascii_code",
+    "modulus_too_small", "zero_exponent", "exponent_not_below_modulus",
+    "negative_ascii_code", "modulus_above_bound",
+})
+
+SUFFIX_TRIE_CASE_IDS = frozenset({
+    "empty_text_empty_pattern", "empty_text_nonempty_pattern", "nonempty_text_empty_pattern",
+    "whole_text_is_a_suffix", "interior_substring", "overlapping_repeated_pattern",
+    "absent_pattern", "embedded_nul_ascii", "pattern_longer_than_text",
+})
+SUFFIX_TRIE_ABI_CASE_IDS = frozenset({
+    "null_input", "extra_input_value", "truncated_input", "fractional_text_length",
+    "negative_ascii_code", "ascii_code_above_bound", "text_length_above_bound",
+    "pattern_length_above_bound",
+})
+
+
+def validate_rsa_cipher_workload(workload: dict) -> None:
+    """Pin the one-byte ASCII RSA contract and verify all scalar fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "ciphers/rsa_cipher.py",
+        "symbol": "encrypt_message; get_blocks_from_text",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/rsa_cipher.py",
+        "role": "algorithm",
+    }
+    related_sources = [{
+        "repository": "TheAlgorithms/Rust",
+        "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+        "path": "src/ciphers/rsa_cipher.rs",
+        "symbol": "encrypt_text; encrypt; mod_pow",
+        "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/rsa_cipher.rs",
+    }]
+    contract = {
+        "operation": "Encrypt exactly one ASCII character through the source's textbook RSA public-key operation.",
+        "input_encoding": "[ascii_code, exponent, modulus]",
+        "block_encoding": "The Python source ASCII-encodes text and packs each block little-endian in base 256. With one character, the sole block integer equals ascii_code. Rust encrypt_text uses one Unicode scalar per value; on ASCII this is the same integer.",
+        "formula": "ciphertext = ascii_code^exponent mod modulus",
+        "key": "The caller supplies the public exponent and modulus. This workload does not generate or verify RSA keys.",
+        "output_encoding": "One signed 64-bit ciphertext scalar.",
+        "invalid": "Malformed framing, a non-ASCII code, an exponent outside 1..modulus-1, or a modulus outside 128..65535 returns -1.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[ascii_code, exponent, modulus]",
+        "ascii_code_range": [RSA_CIPHER_MIN_ASCII_CODE, RSA_CIPHER_MAX_ASCII_CODE],
+        "exponent_range": "Integer from 1 through modulus-1",
+        "modulus_range": [RSA_CIPHER_MIN_MODULUS, RSA_CIPHER_MAX_MODULUS],
+        "exact_input_length": 3,
+        "maximum_valid_input_values": RSA_CIPHER_MAX_VALID_INPUT_VALUES,
+        "maximum_input_values_for_malformed_cases": RSA_CIPHER_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_input_result": RSA_CIPHER_INVALID_RESULT,
+        "null_input_result": RSA_CIPHER_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "Textbook RSA ciphertext for the one-byte ASCII block.",
+        "valid_values": "0 through modulus-1",
+        "invalid_input_result": RSA_CIPHER_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+               if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-rust-rsa-cipher-single-ascii-i64-scalar-v1"
+            or workload.get("algorithm") != "rsa_cipher"
+            or workload.get("function_symbol") != "rsa_cipher_encrypt_ascii"
+            or workload.get("description") != "Encrypt one bounded ASCII character with the pinned textbook RSA transform and a caller-supplied public key."
+            or workload.get("pinned_source") != source
+            or workload.get("related_pinned_sources") != related_sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Compute exact modular exponentiation of the ASCII code using the supplied exponent and modulus."
+            or RSA_CIPHER_I64_MIN != -(1 << 63)
+            or RSA_CIPHER_I64_MAX != (1 << 63) - 1
+            or RSA_CIPHER_MIN_ASCII_CODE != 0
+            or RSA_CIPHER_MAX_ASCII_CODE != 127
+            or RSA_CIPHER_MIN_MODULUS != 128
+            or RSA_CIPHER_MAX_MODULUS != 65535
+            or RSA_CIPHER_MAX_EXPONENT != 65534
+            or RSA_CIPHER_MAX_VALID_INPUT_VALUES != 3
+            or RSA_CIPHER_MAX_PARSEABLE_INPUT_VALUES != 4
+            or RSA_CIPHER_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(RSA_CIPHER_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != RSA_CIPHER_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_ids) != len(RSA_CIPHER_ABI_CASE_IDS)
+            or len(abi_ids) != len(set(abi_ids))
+            or set(abi_ids) != RSA_CIPHER_ABI_CASE_IDS):
+        raise ValueError("rsa_cipher metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "rsa_cipher" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split()).replace("`", "")
+    if (source["url"] not in readme
+            or related_sources[0]["url"] not in readme
+            or "raw RSA encryption of one ASCII character" not in normalized_readme
+            or "The ABI is i64_array_scalar" not in normalized_readme
+            or "the block value is exactly ascii_code" not in normalized_readme
+            or "does not verify primality or key-pair membership" not in normalized_readme
+            or "Input length must be exactly 3 values" not in normalized_readme):
+        raise ValueError("rsa_cipher README is missing its pinned source or one-byte semantics")
+
+    null_case = next(case for case in abi_cases if case.get("id") == "null_input")
+    if (null_case.get("input_values") != []
+            or null_case.get("input_length") != 0
+            or null_case.get("input_is_null") is not True
+            or null_case.get("expected_result") != RSA_CIPHER_INVALID_RESULT):
+        raise ValueError("rsa_cipher null-input fixture differs from its invalid pointer contract")
+
+    for fixture_kind, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            values = case.get("input_values")
+            input_is_null = case.get("input_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or len(values) > RSA_CIPHER_MAX_PARSEABLE_INPUT_VALUES
+                    or any(type(value) is not int
+                           or not RSA_CIPHER_I64_MIN <= value <= RSA_CIPHER_I64_MAX for value in values)
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= RSA_CIPHER_MAX_PARSEABLE_INPUT_VALUES
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))
+                    or fixture_kind == "cases" and input_is_null
+                    or type(case.get("expected_result")) is not int):
+                raise ValueError(f"rsa_cipher fixture framing is invalid: {case.get('id')}")
+            expected = rsa_cipher_expected(
+                None if input_is_null else values, input_is_null, input_length)
+            if case["expected_result"] != expected:
+                raise ValueError(f"rsa_cipher fixture disagrees with modular exponentiation: {case.get('id')}")
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    if (len(abi_by_id["extra_input_value"]["input_values"]) != 4
+            or len(abi_by_id["truncated_input"]["input_values"]) != 2
+            or abi_by_id["non_ascii_code"]["input_values"][0] != 128
+            or abi_by_id["modulus_too_small"]["input_values"][2] != 127
+            or abi_by_id["zero_exponent"]["input_values"][1] != 0
+            or abi_by_id["exponent_not_below_modulus"]["input_values"][1]
+                != abi_by_id["exponent_not_below_modulus"]["input_values"][2]
+            or abi_by_id["negative_ascii_code"]["input_values"][0] != -1
+            or abi_by_id["modulus_above_bound"]["input_values"][2] != RSA_CIPHER_MAX_MODULUS + 1):
+        raise ValueError("rsa_cipher ABI fixtures do not exercise their named invalid inputs")
+
+
+def validate_suffix_trie_workload(workload: dict) -> None:
+    """Pin the suffix-trie path-search contract and verify its scalar fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "data_structures/suffix_tree/suffix_tree.py",
+        "symbol": "SuffixTree.__init__; SuffixTree.build_suffix_tree; SuffixTree._add_suffix; SuffixTree.search",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/suffix_tree/suffix_tree.py",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Build an uncompressed character trie containing every suffix of the supplied text, then search the trie for one pattern by following child links from the root.",
+        "input_encoding": "[text_length, pattern_length, text_ascii_codes..., pattern_ascii_codes...]",
+        "source_construction": "Insert text[i:] for i from 0 through text_length-1, character by character, sharing existing trie prefixes.",
+        "search_semantics": "Return true when every pattern code follows a child link. The source does not check the terminal marker, so this is substring membership; the empty pattern returns true.",
+        "output_encoding": "One signed 64-bit scalar: 1 when found, 0 when absent.",
+        "errors": "Malformed input, unsupported lengths, nonintegral encoded values, or non-7-bit-ASCII codes return -1.",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "encoding": "[text_length, pattern_length, text_ascii_codes..., pattern_ascii_codes...]",
+        "text_length_range": [0, SUFFIX_TRIE_MAX_TEXT_LENGTH],
+        "pattern_length_range": [0, SUFFIX_TRIE_MAX_PATTERN_LENGTH],
+        "ascii_code_range": [SUFFIX_TRIE_MIN_ASCII_CODE, SUFFIX_TRIE_MAX_ASCII_CODE],
+        "exact_input_length": "2+text_length+pattern_length",
+        "maximum_valid_input_values": SUFFIX_TRIE_MAX_VALID_INPUT_VALUES,
+        "maximum_input_values_for_malformed_cases": SUFFIX_TRIE_MAX_PARSEABLE_INPUT_VALUES,
+        "invalid_input_result": SUFFIX_TRIE_INVALID_RESULT,
+        "null_input_result": SUFFIX_TRIE_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "1 if the pattern is found by suffix-trie path search, otherwise 0.",
+        "valid_values": [0, 1],
+        "invalid_input_result": SUFFIX_TRIE_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+    }
+    cases = workload.get("cases")
+    abi_cases = workload.get("abi_cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    abi_ids = ([case.get("id") for case in abi_cases if isinstance(case, dict)]
+               if isinstance(abi_cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-suffix-trie-search-i64-scalar-v1"
+            or workload.get("algorithm") != "suffix_trie"
+            or workload.get("function_symbol") != "suffix_trie_search"
+            or workload.get("description") != "Build the bounded Python source suffix trie and return whether one ASCII pattern follows a path from its root."
+            or workload.get("pinned_source") != source
+            or "related_pinned_sources" in workload
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "The trie contains a path for a pattern exactly when that pattern is a substring of the indexed text. Compare the ASCII pattern against the text, including the empty-pattern rule."
+            or SUFFIX_TRIE_I64_MIN != -(1 << 63)
+            or SUFFIX_TRIE_I64_MAX != (1 << 63) - 1
+            or SUFFIX_TRIE_MAX_TEXT_LENGTH != 64
+            or SUFFIX_TRIE_MAX_PATTERN_LENGTH != 16
+            or SUFFIX_TRIE_MIN_ASCII_CODE != 0
+            or SUFFIX_TRIE_MAX_ASCII_CODE != 127
+            or SUFFIX_TRIE_MAX_VALID_INPUT_VALUES != 82
+            or SUFFIX_TRIE_MAX_PARSEABLE_INPUT_VALUES != 83
+            or SUFFIX_TRIE_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(case_ids) != len(SUFFIX_TRIE_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SUFFIX_TRIE_CASE_IDS
+            or not isinstance(abi_cases, list)
+            or len(abi_ids) != len(SUFFIX_TRIE_ABI_CASE_IDS)
+            or len(abi_ids) != len(set(abi_ids))
+            or set(abi_ids) != SUFFIX_TRIE_ABI_CASE_IDS):
+        raise ValueError("suffix_trie metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "suffix_trie" / "README.md").read_text(
+        encoding="utf-8")
+    normalized_readme = " ".join(readme.split()).replace("`", "")
+    if (source["url"] not in readme
+            or "The ABI is i64_array_scalar" not in normalized_readme
+            or "observable search operation is substring membership" not in normalized_readme
+            or "The empty query matches, including when the indexed text is empty" not in normalized_readme
+            or "Malformed framing" not in normalized_readme
+            or "outside the output contract" not in normalized_readme):
+        raise ValueError("suffix_trie README is missing its pinned source or reviewed path semantics")
+
+    null_case = next(case for case in abi_cases if case.get("id") == "null_input")
+    if (null_case.get("input_values") != []
+            or null_case.get("input_length") != 0
+            or null_case.get("input_is_null") is not True
+            or null_case.get("expected_result") != SUFFIX_TRIE_INVALID_RESULT):
+        raise ValueError("suffix_trie null-input fixture differs from its invalid pointer contract")
+
+    for fixture_kind, fixture_list in (("cases", cases), ("abi_cases", abi_cases)):
+        for case in fixture_list:
+            values = case.get("input_values")
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            if (not isinstance(values, list)
+                    or len(values) > SUFFIX_TRIE_MAX_PARSEABLE_INPUT_VALUES
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SUFFIX_TRIE_MAX_PARSEABLE_INPUT_VALUES
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))
+                    or fixture_kind == "cases" and input_is_null
+                    or type(case.get("expected_result")) is not int):
+                raise ValueError(f"suffix_trie fixture framing is invalid: {case.get('id')}")
+            expected = suffix_trie_expected(
+                None if input_is_null else values, input_is_null, input_length)
+            if case["expected_result"] != expected:
+                raise ValueError(f"suffix_trie fixture differs from its path-search oracle: {case.get('id')}")
+            if fixture_kind == "cases" and expected not in (0, 1):
+                raise ValueError(f"suffix_trie semantic fixture is not valid: {case.get('id')}")
+
+    abi_by_id = {case["id"]: case for case in abi_cases}
+    if (len(abi_by_id["extra_input_value"]["input_values"])
+                != 2 + abi_by_id["extra_input_value"]["input_values"][0]
+                + abi_by_id["extra_input_value"]["input_values"][1] + 1
+            or len(abi_by_id["truncated_input"]["input_values"])
+                >= 2 + abi_by_id["truncated_input"]["input_values"][0]
+                + abi_by_id["truncated_input"]["input_values"][1]
+            or type(abi_by_id["fractional_text_length"]["input_values"][0]) is int
+            or abi_by_id["negative_ascii_code"]["input_values"][2] >= SUFFIX_TRIE_MIN_ASCII_CODE
+            or abi_by_id["ascii_code_above_bound"]["input_values"][2]
+                != SUFFIX_TRIE_MAX_ASCII_CODE + 1
+            or abi_by_id["text_length_above_bound"]["input_values"][0]
+                != SUFFIX_TRIE_MAX_TEXT_LENGTH + 1
+            or abi_by_id["pattern_length_above_bound"]["input_values"][1]
+                != SUFFIX_TRIE_MAX_PATTERN_LENGTH + 1):
+        raise ValueError("suffix_trie ABI fixtures do not exercise their named malformed inputs")
 
 
 def main() -> int:
@@ -10920,6 +11710,10 @@ def main() -> int:
         validate_tim_sorter_workload(workload)
     elif algorithm == "clojure_persistent_list_queue":
         validate_clojure_persistent_list_queue_workload(workload)
+    elif algorithm == "mcoloring":
+        validate_mcoloring_workload(workload)
+    elif algorithm == "solution42":
+        validate_solution42_workload(workload)
     elif algorithm == "graph_enumeration":
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":
@@ -10938,6 +11732,12 @@ def main() -> int:
         validate_time_simulation_workload(workload)
     elif algorithm == "rotting_oranges":
         validate_rotting_oranges_workload(workload)
+    elif algorithm == "k_nn":
+        validate_k_nn_workload(workload)
+    elif algorithm == "rsa_cipher":
+        validate_rsa_cipher_workload(workload)
+    elif algorithm == "suffix_trie":
+        validate_suffix_trie_workload(workload)
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]
@@ -10963,7 +11763,8 @@ def main() -> int:
         if type(input_is_null) is not bool:
             raise ValueError(f"input_is_null must be boolean for {case['id']}")
         if input_is_null:
-            minimum_null_length = 0 if algorithm in ("mul_array", "rotting_oranges") else 1
+            minimum_null_length = 0 if algorithm in (
+                "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie") else 1
             if values or type(input_length) is not int or not minimum_null_length <= input_length <= 100002:
                 raise ValueError(f"null input length is outside the supported range for {case['id']}")
         elif input_length != len(values):

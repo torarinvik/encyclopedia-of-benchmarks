@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-k-means-clust-one-update-float64-slice-io-v1",
+  "algorithm": "k_means_clust",
+  "function_symbol": "k_means_clust",
+  "description": "Assign bounded points to supplied centroids and revise each centroid once using the pinned Python k-means implementation.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/k_means_clust.py",
+    "symbol": "kmeans; assign_clusters; revise_centroids",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/k_means_clust.py",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Run exactly one assignment-and-centroid-revision iteration from caller-supplied initial centroids, equivalent to kmeans(..., maxiter=1).",
+    "input_encoding": "[point_count, dimension, cluster_count, data_row_major..., initial_centroids_row_major...]",
+    "data": "Each point and each initial centroid is a row of dimension coordinates.",
+    "assignment": "Assign each data row to the centroid with minimum Euclidean distance. Equal distances select the lowest centroid index, matching numpy.argmin on axis 1.",
+    "revision": "Replace each centroid coordinate with the arithmetic mean of the coordinates assigned to that centroid, matching revise_centroids. Every cluster must receive at least one point so no NaN centroid is produced.",
+    "distance": "Coordinates are bounded integers. Exact squared Euclidean distances preserve the ordering and ties of the pinned Euclidean-distance calculation throughout this domain.",
+    "output_encoding": "Assignments in input row order as exact integer-valued doubles, followed by revised centroid coordinates in row-major order.",
+    "errors": "Malformed input, unsupported bounds, nonintegral counts or coordinates, or an empty assigned cluster returns -1 before output checks. A null output or capacity below the required element count returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[point_count, dimension, cluster_count, data_row_major..., initial_centroids_row_major...]",
+    "point_count_range": [1, 16],
+    "dimension_range": [1, 4],
+    "cluster_count_range": "Integer from 1 through min(4, point_count)",
+    "coordinate_range": [-16, 16],
+    "coordinate_values_must_be_integers": true,
+    "all_clusters_must_receive_at_least_one_point": true,
+    "exact_packed_shape": "Exactly 3+point_count*dimension+cluster_count*dimension elements; counts and coordinates must be finite and exactly integral.",
+    "maximum_valid_input_length": 83,
+    "maximum_parseable_input_length": 84,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "point_count assignment IDs followed by cluster_count*dimension revised centroid coordinates.",
+    "element_count": "point_count+cluster_count*dimension",
+    "maximum_elements": 32,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input validity is checked before output pointer and capacity.",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 32,
+    "meaning": "Assignments and revised centroids for the maximum bounded workload."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Use exact squared Euclidean distances over bounded integer coordinates, retain the first centroid on ties, reject empty clusters, and return each nonempty cluster's arithmetic mean.",
+  "cases": [
+    {
+      "id": "source_docstring_two_clusters",
+      "input_values": [4, 2, 2, 0, 0, 0, 1, 10, 10, 10, 11, 0, 0, 10, 10],
+      "input_length": 15,
+      "expected_result": 8,
+      "expected_output": [0, 0, 1, 1, 0, 0.5, 10, 10.5]
+    },
+    {
+      "id": "first_centroid_wins_exact_midpoint",
+      "input_values": [3, 1, 2, 0, 5, 10, 0, 10],
+      "input_length": 8,
+      "expected_result": 5,
+      "expected_output": [0, 0, 1, 2.5, 10]
+    },
+    {
+      "id": "single_cluster_two_dimensional_mean",
+      "input_values": [3, 2, 1, -3, 5, 2, -1, 7, 2, 0, 0],
+      "input_length": 11,
+      "expected_result": 5,
+      "expected_output": [0, 0, 0, 2, 2]
+    },
+    {
+      "id": "three_singleton_clusters",
+      "input_values": [3, 2, 3, -2, 1, 0, 0, 5, -5, -2, 1, 0, 0, 5, -5],
+      "input_length": 15,
+      "expected_result": 9,
+      "expected_output": [0, 1, 2, -2, 1, 0, 0, 5, -5]
+    },
+    {
+      "id": "negative_fractional_means",
+      "input_values": [4, 1, 2, -5, -2, 4, 5, -5, 4],
+      "input_length": 9,
+      "expected_result": 6,
+      "expected_output": [0, 0, 1, 1, -3.5, 4.5]
+    },
+    {
+      "id": "four_dimensional_cluster_means",
+      "input_values": [4, 4, 2, 0, 0, 0, 0, 1, 1, 0, 0, 9, 9, 9, 9, 10, 10, 9, 9, 0, 0, 0, 0, 10, 10, 10, 10],
+      "input_length": 27,
+      "expected_result": 12,
+      "expected_output": [0, 0, 1, 1, 0.5, 0.5, 0, 0, 9.5, 9.5, 9, 9]
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 5,
+      "input_is_null": true,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [1, 1, 1, 0, 0, 7],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [2, 1, 1, 0, 1],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_count",
+      "input_values": [1.5, 1, 1, 0, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_coordinate",
+      "input_values": [1, 1, 1, 0.5, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "empty_cluster",
+      "input_values": [2, 1, 2, 0, 1, 0, 16],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "coordinate_out_of_range",
+      "input_values": [1, 1, 1, 17, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [1, 1, 1, 0, 0],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [1, 1, 1, 0, 0],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [2, 1, 2, 0, 1, 0, 16],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 32,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

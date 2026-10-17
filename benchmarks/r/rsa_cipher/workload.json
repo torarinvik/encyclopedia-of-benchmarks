@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-rust-rsa-cipher-single-ascii-i64-scalar-v1",
+  "algorithm": "rsa_cipher",
+  "function_symbol": "rsa_cipher_encrypt_ascii",
+  "description": "Encrypt one bounded ASCII character with the pinned textbook RSA transform and a caller-supplied public key.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "ciphers/rsa_cipher.py",
+    "symbol": "encrypt_message; get_blocks_from_text",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/rsa_cipher.py",
+    "role": "algorithm"
+  },
+  "related_pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Rust",
+      "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+      "path": "src/ciphers/rsa_cipher.rs",
+      "symbol": "encrypt_text; encrypt; mod_pow",
+      "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/ciphers/rsa_cipher.rs"
+    }
+  ],
+  "contract": {
+    "operation": "Encrypt exactly one ASCII character through the source's textbook RSA public-key operation.",
+    "input_encoding": "[ascii_code, exponent, modulus]",
+    "block_encoding": "The Python source ASCII-encodes text and packs each block little-endian in base 256. With one character, the sole block integer equals ascii_code. Rust encrypt_text uses one Unicode scalar per value; on ASCII this is the same integer.",
+    "formula": "ciphertext = ascii_code^exponent mod modulus",
+    "key": "The caller supplies the public exponent and modulus. This workload does not generate or verify RSA keys.",
+    "output_encoding": "One signed 64-bit ciphertext scalar.",
+    "invalid": "Malformed framing, a non-ASCII code, an exponent outside 1..modulus-1, or a modulus outside 128..65535 returns -1."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[ascii_code, exponent, modulus]",
+    "ascii_code_range": [0, 127],
+    "exponent_range": "Integer from 1 through modulus-1",
+    "modulus_range": [128, 65535],
+    "exact_input_length": 3,
+    "maximum_valid_input_values": 3,
+    "maximum_input_values_for_malformed_cases": 4,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "Textbook RSA ciphertext for the one-byte ASCII block.",
+    "valid_values": "0 through modulus-1",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "oracle_method": "Compute exact modular exponentiation of the ASCII code using the supplied exponent and modulus.",
+  "cases": [
+    {
+      "id": "source_rsa_example_ascii_a",
+      "input_values": [65, 17, 3233],
+      "input_length": 3,
+      "expected_result": 2790
+    },
+    {
+      "id": "ascii_lowercase_a",
+      "input_values": [97, 17, 3233],
+      "input_length": 3,
+      "expected_result": 1632
+    },
+    {
+      "id": "zero_byte",
+      "input_values": [0, 3, 257],
+      "input_length": 3,
+      "expected_result": 0
+    },
+    {
+      "id": "space_character",
+      "input_values": [32, 17, 3233],
+      "input_length": 3,
+      "expected_result": 1992
+    },
+    {
+      "id": "ascii_upper_boundary",
+      "input_values": [127, 3, 257],
+      "input_length": 3,
+      "expected_result": 93
+    },
+    {
+      "id": "minimum_modulus_and_largest_ascii",
+      "input_values": [127, 3, 128],
+      "input_length": 3,
+      "expected_result": 127
+    },
+    {
+      "id": "identity_exponent",
+      "input_values": [42, 1, 3233],
+      "input_length": 3,
+      "expected_result": 42
+    },
+    {
+      "id": "larger_modulus_and_exponent",
+      "input_values": [126, 257, 65521],
+      "input_length": 3,
+      "expected_result": 21282
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [65, 17, 3233, 0],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [65, 17],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "non_ascii_code",
+      "input_values": [128, 17, 3233],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "modulus_too_small",
+      "input_values": [127, 3, 127],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "zero_exponent",
+      "input_values": [65, 0, 3233],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "exponent_not_below_modulus",
+      "input_values": [65, 3233, 3233],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_ascii_code",
+      "input_values": [-1, 17, 3233],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "modulus_above_bound",
+      "input_values": [65, 17, 65536],
+      "input_length": 3,
+      "expected_result": -1
+    }
+  ]
+}

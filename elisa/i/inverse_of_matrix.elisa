@@ -1,0 +1,150 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+@inline(never)
+def inverse_of_matrix_rounded_multiply(left: f64, right: f64) -> f64:
+    left * right
+
+@inline(never)
+def inverse_of_matrix_rounded_subtract(left: f64, right: f64) -> f64:
+    left - right
+
+@inline(never)
+def inverse_of_matrix_rounded_divide(left: f64, right: f64) -> f64:
+    left / right
+
+def inverse_of_matrix_abs(value: f64) -> f64:
+    if value < 0.0: return -value
+    value
+
+def inverse_of_matrix_valid_dominance(matrix: f64&, dimension: usize) -> bool:
+    seen: mutable bool[3] = zeroed
+    row: mutable usize = 0
+    while row < dimension:
+        dominant: mutable i64 = -1
+        column: mutable usize = 0
+        while column < dimension:
+            other_sum: mutable f64 = 0.0
+            other: mutable usize = 0
+            while other < dimension:
+                if other != column: other_sum <- other_sum + inverse_of_matrix_abs(matrix[row * dimension + other])
+                other <- other + 1
+            if inverse_of_matrix_abs(matrix[row * dimension + column]) > other_sum:
+                if dominant >= 0: return false
+                dominant <- column.i64()
+            column <- column + 1
+        if dominant < 0: return false
+        dominant_column: usize = dominant.usize()
+        if seen[dominant_column]: return false
+        seen[dominant_column] <- true
+        row <- row + 1
+    true
+
+def inverse_of_matrix_invert(matrix: mutable f64&, dimension: usize) -> f64[9]:
+    inverse: mutable f64[9] = zeroed
+    identity: mutable f64[9] = zeroed
+    indices: mutable usize[3] = zeroed
+    scales: mutable f64[3] = zeroed
+    row: mutable usize = 0
+    while row < dimension:
+        indices[row] <- row
+        identity[row * dimension + row] <- 1.0
+        column: mutable usize = 0
+        while column < dimension:
+            coefficient: f64 = inverse_of_matrix_abs(matrix[row * dimension + column])
+            if coefficient > scales[row]: scales[row] <- coefficient
+            column <- column + 1
+        row <- row + 1
+    column: mutable usize = 0
+    while column + 1 < dimension:
+        best_ratio: mutable f64 = 0.0
+        pivot_slot: mutable usize = column
+        slot: mutable usize = column
+        while slot < dimension:
+            pivot_row: usize = indices[slot]
+            ratio: f64 = inverse_of_matrix_rounded_divide(inverse_of_matrix_abs(matrix[pivot_row * dimension + column]), scales[pivot_row])
+            if ratio > best_ratio:
+                best_ratio <- ratio
+                pivot_slot <- slot
+            slot <- slot + 1
+        temporary: usize = indices[column]
+        indices[column] <- indices[pivot_slot]
+        indices[pivot_slot] <- temporary
+        pivot_row: usize = indices[column]
+        slot <- column + 1
+        while slot < dimension:
+            target_row: usize = indices[slot]
+            ratio: f64 = inverse_of_matrix_rounded_divide(matrix[target_row * dimension + column], matrix[pivot_row * dimension + column])
+            matrix[target_row * dimension + column] <- ratio
+            trailing: mutable usize = column + 1
+            while trailing < dimension:
+                product: f64 = inverse_of_matrix_rounded_multiply(ratio, matrix[pivot_row * dimension + trailing])
+                matrix[target_row * dimension + trailing] <- inverse_of_matrix_rounded_subtract(matrix[target_row * dimension + trailing], product)
+                trailing <- trailing + 1
+            slot <- slot + 1
+        column <- column + 1
+    column <- 0
+    while column + 1 < dimension:
+        slot: mutable usize = column + 1
+        while slot < dimension:
+            target_row: usize = indices[slot]
+            pivot_row: usize = indices[column]
+            rhs: mutable usize = 0
+            while rhs < dimension:
+                product: f64 = inverse_of_matrix_rounded_multiply(matrix[target_row * dimension + column], identity[pivot_row * dimension + rhs])
+                identity[target_row * dimension + rhs] <- inverse_of_matrix_rounded_subtract(identity[target_row * dimension + rhs], product)
+                rhs <- rhs + 1
+            slot <- slot + 1
+        column <- column + 1
+    rhs: mutable usize = 0
+    while rhs < dimension:
+        last_row: usize = indices[dimension - 1]
+        inverse[(dimension - 1) * dimension + rhs] <- inverse_of_matrix_rounded_divide(identity[last_row * dimension + rhs], matrix[last_row * dimension + dimension - 1])
+        row_index: mutable usize = dimension - 1
+        while row_index > 0:
+            row_index <- row_index - 1
+            source_row: usize = indices[row_index]
+            value: mutable f64 = identity[source_row * dimension + rhs]
+            trailing: mutable usize = row_index + 1
+            while trailing < dimension:
+                product: f64 = inverse_of_matrix_rounded_multiply(matrix[source_row * dimension + trailing], inverse[trailing * dimension + rhs])
+                value <- inverse_of_matrix_rounded_subtract(value, product)
+                trailing <- trailing + 1
+            inverse[row_index * dimension + rhs] <- inverse_of_matrix_rounded_divide(value, matrix[source_row * dimension + row_index])
+        rhs <- rhs + 1
+    inverse
+
+def inverse_of_matrix_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def inverse_of_matrix_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 11: return -1
+    if input[0] != 2 and input[0] != 3: return -1
+    dimension: usize = input[0].usize()
+    if length != 1 + dimension * dimension: return -1
+    matrix: mutable f64[9] = zeroed
+    index: mutable usize = 0
+    while index < dimension * dimension:
+        coefficient: i64 = input[index + 1]
+        if coefficient < -32 or coefficient > 32: return -1
+        matrix[index] <- coefficient.f64() / 16.0
+        index <- index + 1
+    if not inverse_of_matrix_valid_dominance(&matrix, dimension): return -1
+    inverse: f64[9] = inverse_of_matrix_invert(&matrix, dimension)
+    index <- 0
+    while index < dimension * dimension:
+        if inverse[index] != inverse[index] or inverse_of_matrix_abs(inverse[index]) > 32768.0: return -1
+        index <- index + 1
+    output_bytes: usize = dimension * dimension * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < dimension * dimension:
+        inverse_of_matrix_put_f64(output, index * 8, inverse[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn inverse_of_matrix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = inverse_of_matrix_impl

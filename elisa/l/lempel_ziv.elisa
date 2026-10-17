@@ -1,0 +1,183 @@
+const MAX_BIT_COUNT: usize = 128
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 130
+const MAX_OUTPUT_BYTES: usize = 1032
+const MAX_DICTIONARY_ENTRIES: usize = 130
+const MAX_KEY_LENGTH: usize = 129
+const MAX_CODE_WIDTH: usize = 8
+
+def lempel_ziv_impl(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    bit_count_value: i64 = input[0]
+    if bit_count_value < 0 or bit_count_value > 128:
+        return -1
+    bit_count: usize = bit_count_value.usize()
+    if input_length != 1 + bit_count:
+        return -1
+    index: mutable usize = 0
+    while index < bit_count:
+        if input[index + 1] != 48 and input[index + 1] != 49:
+            return -1
+        index <- index + 1
+
+    keys: mutable [16770]u8 = [0; 16770]
+    key_lengths: mutable [130]usize = [0; 130]
+    codes: mutable [1040]u8 = [0; 1040]
+    code_lengths: mutable [130]usize = [0; 130]
+    keys[0] <- 48
+    keys[MAX_KEY_LENGTH] <- 49
+    key_lengths[0] <- 1
+    key_lengths[1] <- 1
+    codes[0] <- 48
+    codes[MAX_CODE_WIDTH] <- 49
+    code_lengths[0] <- 1
+    code_lengths[1] <- 1
+    entry_count: mutable usize = 2
+    next_index: mutable usize = 2
+    current: mutable [129]u8 = [0; 129]
+    current_length: mutable usize = 0
+    result: mutable [1032]u8 = [0; 1032]
+    result_length: mutable usize = 0
+
+    index <- 0
+    while index < bit_count:
+        current[current_length] <- input[index + 1].u8()
+        current_length <- current_length + 1
+        found: mutable usize = entry_count
+        entry: mutable usize = 0
+        while entry < entry_count:
+            if key_lengths[entry] == current_length:
+                component: mutable usize = 0
+                matched: mutable bool = true
+                while component < current_length:
+                    if keys[entry * MAX_KEY_LENGTH + component] != current[component]:
+                        matched <- false
+                        break
+                    component <- component + 1
+                if matched:
+                    found <- entry
+                    break
+            entry <- entry + 1
+        if found == entry_count:
+            index <- index + 1
+            continue
+
+        last_code_length: usize = code_lengths[found]
+        last_code: mutable [8]u8 = [0; 8]
+        component: mutable usize = 0
+        while component < last_code_length:
+            last_code[component] <- codes[found * MAX_CODE_WIDTH + component]
+            result[result_length] <- last_code[component]
+            result_length <- result_length + 1
+            component <- component + 1
+
+        entry <- found
+        while entry + 1 < entry_count:
+            component <- 0
+            while component < MAX_KEY_LENGTH:
+                keys[entry * MAX_KEY_LENGTH + component] <- keys[(entry + 1) * MAX_KEY_LENGTH + component]
+                component <- component + 1
+            component <- 0
+            while component < MAX_CODE_WIDTH:
+                codes[entry * MAX_CODE_WIDTH + component] <- codes[(entry + 1) * MAX_CODE_WIDTH + component]
+                component <- component + 1
+            key_lengths[entry] <- key_lengths[entry + 1]
+            code_lengths[entry] <- code_lengths[entry + 1]
+            entry <- entry + 1
+        entry_count <- entry_count - 1
+
+        entry <- entry_count
+        component <- 0
+        while component < current_length:
+            keys[entry * MAX_KEY_LENGTH + component] <- current[component]
+            component <- component + 1
+        keys[entry * MAX_KEY_LENGTH + current_length] <- 48
+        key_lengths[entry] <- current_length + 1
+        component <- 0
+        while component < last_code_length:
+            codes[entry * MAX_CODE_WIDTH + component] <- last_code[component]
+            component <- component + 1
+        code_lengths[entry] <- last_code_length
+        entry_count <- entry_count + 1
+
+        if (next_index & (next_index - 1)) == 0:
+            entry <- 0
+            while entry < entry_count:
+                code_length: usize = code_lengths[entry]
+                component <- code_length
+                while component > 0:
+                    codes[entry * MAX_CODE_WIDTH + component] <- codes[entry * MAX_CODE_WIDTH + component - 1]
+                    component <- component - 1
+                codes[entry * MAX_CODE_WIDTH] <- 48
+                code_lengths[entry] <- code_length + 1
+                entry <- entry + 1
+        entry <- entry_count
+        component <- 0
+        while component < current_length:
+            keys[entry * MAX_KEY_LENGTH + component] <- current[component]
+            component <- component + 1
+        keys[entry * MAX_KEY_LENGTH + current_length] <- 49
+        key_lengths[entry] <- current_length + 1
+        code_width: mutable usize = 1
+        temp: mutable usize = next_index
+        while temp > 1:
+            temp <- temp / 2
+            code_width <- code_width + 1
+        code_lengths[entry] <- code_width
+        component <- 0
+        while component < code_width:
+            bit: usize = (next_index >> (code_width - component - 1)) & 1
+            codes[entry * MAX_CODE_WIDTH + component] <- 48 + bit.u8()
+            component <- component + 1
+        entry_count <- entry_count + 1
+        next_index <- next_index + 1
+        current_length <- 0
+        index <- index + 1
+
+    if current_length > 0:
+        max_key_length: mutable usize = 0
+        entry: mutable usize = 0
+        while entry < entry_count:
+            if key_lengths[entry] > max_key_length:
+                max_key_length <- key_lengths[entry]
+            entry <- entry + 1
+        found: mutable usize = entry_count
+        while found == entry_count:
+            entry <- 0
+            while entry < entry_count:
+                if key_lengths[entry] == current_length:
+                    component: mutable usize = 0
+                    matched: mutable bool = true
+                    while component < current_length:
+                        if keys[entry * MAX_KEY_LENGTH + component] != current[component]:
+                            matched <- false
+                            break
+                        component <- component + 1
+                    if matched:
+                        found <- entry
+                        break
+                entry <- entry + 1
+            if found == entry_count:
+                if current_length >= max_key_length:
+                    break
+                current[current_length] <- 48
+                current_length <- current_length + 1
+        if found == entry_count:
+            return -1
+        component <- 0
+        while component < code_lengths[found]:
+            result[result_length] <- codes[found * MAX_CODE_WIDTH + component]
+            result_length <- result_length + 1
+            component <- component + 1
+
+    if output.is_null() or output_capacity < result_length:
+        return -2
+    index <- 0
+    while index < result_length:
+        output[index] <- result[index]
+        index <- index + 1
+    result_length.i64()
+
+export fn lempel_ziv(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = lempel_ziv_impl

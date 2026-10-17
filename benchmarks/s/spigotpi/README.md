@@ -5,9 +5,9 @@ This benchmark ports the pinned Go `Spigot(n)` routine. It returns the first `n`
 ## Contract
 
 - Input is exactly `[n]`, where `n` is from 0 through 256.
-- Output is exactly `n` ASCII digits of pi, with no decimal point or terminator. `n = 0` produces empty output.
+- Output is exactly the first `n` ASCII digits of pi, beginning with `3`, with no decimal point or terminator. `n = 0` produces empty output. The independent Decimal oracle computes guard digits and truncates to `n`; it does not round the last requested digit.
 - Invalid input shape or range returns `-1`. A null output pointer or insufficient capacity returns `-2` without writing. Success returns the byte length.
-- [`workload.json`](workload.json) records bounded and malformed cases. The independent [`spigotpi_oracle.py`](../../spigotpi_oracle.py) uses the Chudnovsky series with Python `Decimal`.
+- [`workload.json`](workload.json) records bounded, malformed, null-pointer, and capacity cases. The independent [`spigotpi_oracle.py`](../../spigotpi_oracle.py) uses the Chudnovsky series with Python `Decimal` and truncates after computing guard digits.
 
 ## Pinned source
 

@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "id": "java-python-inverse-of-matrix-bounded-real-matrix-v1",
+  "algorithm": "inverse_of_matrix",
+  "function_symbol": "inverse_of_matrix",
+  "description": "Compute a bounded 2x2 or 3x3 real matrix inverse using the shared stable domain of the pinned Java and Python implementations.",
+  "contract": {
+    "operation": "Return the full row-major inverse matrix for a strictly generalized diagonally dominant 2x2 or 3x3 real matrix.",
+    "input_encoding": "[dimension, row-major coefficients q...]",
+    "coefficient_interpretation": "Each signed integer q in [-32, 32] represents the exact binary64 value q/16.",
+    "valid_matrix_subset": "Each row has exactly one column whose coefficient magnitude is strictly greater than the sum of the magnitudes of the other row coefficients, and those dominant columns form a permutation of all columns.",
+    "output_encoding": "Row-major inverse coefficients as little-endian IEEE-754 binary64 values.",
+    "numeric_domain": "Accepted matrices are finite and nonsingular. Their q/16 grid and strict generalized diagonal dominance bound pivots; inverse coefficients have absolute value at most 32768.",
+    "invalid": "Malformed framing, unsupported dimension, out-of-range coefficient, or a matrix outside the shared stable domain returns -1.",
+    "capacity": "For valid input, null or short output returns -2; otherwise return the full output byte length."
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[dimension, q00, q01, ..., q(n-1)(n-1)] in row-major order",
+    "dimension_range": [2, 3],
+    "coefficient_range": [-32, 32],
+    "coefficient_scale": 16,
+    "coefficient_interpretation": "q represents the exact real binary64 value q/16",
+    "exact_packed_length": "1 + dimension*dimension",
+    "maximum_valid_input_values": 10,
+    "maximum_input_values_for_malformed_cases": 11,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "encoding": "IEEE-754 binary64 little-endian",
+    "layout": "Complete inverse matrix in row-major order",
+    "max_length": 9,
+    "max_absolute_value": 32768,
+    "maximum_bytes": 72,
+    "successful_result": "output byte length",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "errors_leave_output_untouched": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "bytes": 72,
+    "meaning": "Maximum output buffer for nine binary64 inverse coefficients"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 6,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/matrix/InverseOfMatrix.java",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/matrix/InverseOfMatrix.java",
+      "role": "algorithm"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "matrix/inverse_of_matrix.py",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/matrix/inverse_of_matrix.py",
+      "role": "algorithm"
+    }
+  ],
+  "oracle_method": "Exact integer determinant/cofactor inversion over the q/16 coefficient grid, followed by binary64 conversion and row-major little-endian serialization.",
+  "cases": [
+    {
+      "id": "two_by_two_identity",
+      "input_values": [2, 16, 0, 0, 16],
+      "input_length": 5,
+      "expected_result": 32,
+      "expected_output": [1.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "id": "two_by_two_row_pivot",
+      "input_values": [2, 0, 16, 16, 0],
+      "input_length": 5,
+      "expected_result": 32,
+      "expected_output": [0.0, 1.0, 1.0, 0.0]
+    },
+    {
+      "id": "two_by_two_upper_triangular",
+      "input_values": [2, 32, 16, 0, 32],
+      "input_length": 5,
+      "expected_result": 32,
+      "expected_output": [0.5, -0.25, 0.0, 0.5]
+    },
+    {
+      "id": "two_by_two_signed",
+      "input_values": [2, 32, 16, -16, 32],
+      "input_length": 5,
+      "expected_result": 32,
+      "expected_output": [0.4, -0.2, 0.2, 0.4]
+    },
+    {
+      "id": "three_by_three_identity",
+      "input_values": [3, 16, 0, 0, 0, 16, 0, 0, 16],
+      "input_length": 10,
+      "expected_result": 72,
+      "expected_output": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "id": "three_by_three_upper_triangular",
+      "input_values": [3, 32, 16, 0, 0, 32, 16, 0, 0, 32],
+      "input_length": 10,
+      "expected_result": 72,
+      "expected_output": [0.5, -0.25, 0.125, 0.0, 0.5, -0.25, 0.0, 0.0, 0.5]
+    },
+    {
+      "id": "three_by_three_cycle",
+      "input_values": [3, 32, 16, 0, 0, 32, 16, 16, 0, 32],
+      "input_length": 10,
+      "expected_result": 72,
+      "expected_output": [0.4444444444444444, -0.2222222222222222, 0.1111111111111111, 0.1111111111111111, 0.4444444444444444, -0.2222222222222222, -0.2222222222222222, 0.1111111111111111, 0.4444444444444444]
+    },
+    {
+      "id": "three_by_three_permuted_pivots",
+      "input_values": [3, 16, 32, 0, 0, 16, 32, 32, 0, 16],
+      "input_length": 10,
+      "expected_result": 72,
+      "expected_output": [0.1111111111111111, -0.2222222222222222, 0.4444444444444444, 0.4444444444444444, 0.1111111111111111, -0.2222222222222222, -0.2222222222222222, 0.4444444444444444, 0.1111111111111111]
+    },
+    {
+      "id": "three_by_three_signed_block",
+      "input_values": [3, 32, -16, 0, 16, 32, 0, 0, 0, 16],
+      "input_length": 10,
+      "expected_result": 72,
+      "expected_output": [0.4, 0.2, 0.0, -0.2, 0.4, 0.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "id": "singular_two_by_two",
+      "input_values": [2, 16, 16, 16, 16],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "duplicate_dominant_column",
+      "input_values": [2, 32, 16, 16, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "coefficient_out_of_range",
+      "input_values": [2, 33, 0, 0, 16],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "unsupported_dimension",
+      "input_values": [1, 16],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "packed_length_mismatch",
+      "input_values": [2, 16, 0, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "maximum_input_values",
+      "input_values": [3, 16, 0, 0, 0, 16, 0, 0, 16],
+      "input_length": 10,
+      "expected_result": 72,
+      "expected_output": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "positive_length_null_input",
+      "input_values": [],
+      "input_length": 5,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 72,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [2, 16, 16, 16, 16],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_null_output",
+      "input_values": [2, 16, 0, 0, 16],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [2, 16, 0, 0, 16],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_output_capacity",
+      "input_values": [2, 16, 0, 0, 16],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "000000000000f03f00000000000000000000000000000000000000000000f03f"
+    },
+    {
+      "id": "maximum_output_short_capacity",
+      "input_values": [3, 16, 0, 0, 0, 16, 0, 0, 16],
+      "input_length": 10,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 71,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_output_exact_capacity",
+      "input_values": [3, 16, 0, 0, 0, 16, 0, 0, 16],
+      "input_length": 10,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 72,
+      "expected_result": 72,
+      "expected_output_hex": "000000000000f03f000000000000000000000000000000000000000000000000000000000000f03f000000000000000000000000000000000000000000000000000000000000f03f"
+    }
+  ]
+}

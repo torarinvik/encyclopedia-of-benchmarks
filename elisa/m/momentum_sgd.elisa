@@ -1,0 +1,100 @@
+const MAX_GROUP_COUNT: usize = 8
+const MAX_VECTOR_LENGTH: usize = 16
+const MAX_GROUP_VECTOR_ELEMENTS: usize = 32
+const MAX_CALL_COUNT: usize = 8
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 270
+
+def momentum_sgd_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 5 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    group_value: f64 = input[0]
+    vector_value: f64 = input[1]
+    calls_value: f64 = input[2]
+    if group_value != group_value or group_value < 1.0 or group_value > 8.0:
+        return -1
+    if vector_value != vector_value or vector_value < 1.0 or vector_value > 16.0:
+        return -1
+    if calls_value != calls_value or calls_value < 1.0 or calls_value > 8.0:
+        return -1
+    group_count: usize = group_value.usize()
+    vector_length: usize = vector_value.usize()
+    call_count: usize = calls_value.usize()
+    if group_value != group_count.f64() or vector_value != vector_length.f64() or calls_value != call_count.f64():
+        return -1
+    if group_count * vector_length > MAX_GROUP_VECTOR_ELEMENTS or call_count < group_count:
+        return -1
+    if input_length != 5 + call_count * (1 + 2 * vector_length):
+        return -1
+
+    learning_rate: f64 = input[3]
+    momentum: f64 = input[4]
+    if learning_rate != learning_rate or learning_rate < 0.000001 or learning_rate > 1.0:
+        return -1
+    if momentum != momentum or momentum < 0.0 or momentum > 0.99:
+        return -1
+
+    ids: mutable [8]usize = [0; 8]
+    event_params: mutable [128]f64 = [0.0; 128]
+    event_gradients: mutable [128]f64 = [0.0; 128]
+    seen: mutable [8]bool = [false; 8]
+    event: mutable usize = 0
+    cursor: mutable usize = 5
+    while event < call_count:
+        id_value: f64 = input[cursor]
+        if id_value != id_value or id_value < 0.0 or id_value >= group_count.f64():
+            return -1
+        id: usize = id_value.usize()
+        if id_value != id.f64():
+            return -1
+        ids[event] <- id
+        seen[id] <- true
+        cursor <- cursor + 1
+        component: mutable usize = 0
+        while component < vector_length:
+            value: f64 = input[cursor + component]
+            if value != value or value < -1000.0 or value > 1000.0:
+                return -1
+            event_params[event * vector_length + component] <- value
+            component <- component + 1
+        cursor <- cursor + vector_length
+        component <- 0
+        while component < vector_length:
+            value: f64 = input[cursor + component]
+            if value != value or value < -1000.0 or value > 1000.0:
+                return -1
+            event_gradients[event * vector_length + component] <- value
+            component <- component + 1
+        cursor <- cursor + vector_length
+        event <- event + 1
+    id: mutable usize = 0
+    while id < group_count:
+        if not seen[id]:
+            return -1
+        id <- id + 1
+    if output.is_null() or output_capacity < 2 * group_count * vector_length:
+        return -2
+
+    velocities: mutable [32]f64 = [0.0; 32]
+    last_params: mutable [32]f64 = [0.0; 32]
+    event <- 0
+    while event < call_count:
+        id <- ids[event]
+        component: mutable usize = 0
+        while component < vector_length:
+            state_index: usize = id * vector_length + component
+            event_index: usize = event * vector_length + component
+            updated_velocity: f64 = momentum * velocities[state_index] - learning_rate * event_gradients[event_index]
+            velocities[state_index] <- updated_velocity
+            last_params[state_index] <- event_params[event_index] + updated_velocity
+            component <- component + 1
+        event <- event + 1
+    id <- 0
+    while id < group_count * vector_length:
+        output[id] <- last_params[id]
+        output[group_count * vector_length + id] <- velocities[id]
+        id <- id + 1
+    (2 * group_count * vector_length).i64()
+
+export fn momentum_sgd(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = momentum_sgd_impl

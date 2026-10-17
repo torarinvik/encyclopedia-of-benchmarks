@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-lu-decompose-float64-slice-io-v1",
+  "algorithm": "lu_decompose",
+  "function_symbol": "lu_decompose",
+  "description": "Compute the no-pivot Doolittle lower and upper factors of a small caller-supplied square matrix.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C",
+    "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+    "path": "numerical_methods/lu_decompose.c",
+    "symbol": "lu_decomposition",
+    "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/numerical_methods/lu_decompose.c",
+    "role": "algorithm"
+  },
+  "related_pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "numerical_methods/lu_decomposition.h",
+      "symbol": "lu_decomposition",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/numerical_methods/lu_decomposition.h"
+    },
+    {
+      "repository": "TheAlgorithms/Julia",
+      "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+      "path": "src/matrix/lu_decompose.jl",
+      "symbol": "lu_decompose",
+      "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/matrix/lu_decompose.jl"
+    }
+  ],
+  "contract": {
+    "operation": "Factor a supplied square matrix using no-pivot Doolittle LU decomposition.",
+    "input_encoding": "[dimension, matrix_row_major...]",
+    "matrix_shape": "dimension by dimension, row-major",
+    "operation_order": "For row i, compute U[i,j] for j=i..n-1 as A[i,j] minus the increasing-index sum over k=0..i-1 of L[i,k]*U[k,j]. Then set L[i,i]=1 and compute L[j,i] for j=i+1..n-1 as (A[j,i] minus the increasing-index sum over k=0..i-1 of L[j,k]*U[k,i]) divided by U[i,i].",
+    "pivoting": "No pivoting or row permutation is performed. Every computed diagonal pivot U[i,i] must be nonzero.",
+    "output_encoding": "The full lower-triangular L matrix in row-major order followed by the full upper-triangular U matrix in row-major order.",
+    "errors": "Malformed input, unsupported bounds, nonintegral matrix entries, a zero or nonfinite computed pivot, or nonfinite output returns -1 before output checks. A null output or capacity below 2*dimension*dimension returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[dimension, matrix_row_major...]",
+    "dimension_range": [1, 4],
+    "matrix_value_range": [-8, 8],
+    "matrix_values_must_be_integers": true,
+    "all_computed_diagonal_pivots_must_be_nonzero": true,
+    "exact_packed_shape": "Exactly 1+dimension*dimension finite elements; dimension and matrix entries must be exactly integral.",
+    "maximum_valid_input_length": 17,
+    "maximum_parseable_input_length": 18,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "dimension*dimension row-major L entries followed by dimension*dimension row-major U entries.",
+    "element_count": "2*dimension*dimension",
+    "maximum_elements": 32,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input and pivot validity are checked before output pointer and capacity.",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 32,
+    "meaning": "The maximum row-major L and U matrices."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Preserve the source row/column loop order and binary64 multiply-add-subtract-division sequence; reject any zero diagonal pivot.",
+  "cases": [
+    {
+      "id": "single_element",
+      "input_values": [1, 5],
+      "input_length": 2,
+      "expected_result": 2,
+      "expected_output": [1, 5]
+    },
+    {
+      "id": "two_by_two_fractional_lower_factor",
+      "input_values": [2, 4, 2, 2, 5],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output": [1, 0, 0.5, 1, 4, 2, 0, 4]
+    },
+    {
+      "id": "three_by_three_integer_factors",
+      "input_values": [3, 2, 1, 1, 4, 3, 3, 8, 7, 8],
+      "input_length": 10,
+      "expected_result": 18,
+      "expected_output": [1, 0, 0, 2, 1, 0, 4, 3, 1, 2, 1, 1, 0, 1, 1, 0, 0, 1]
+    },
+    {
+      "id": "three_by_three_fractional_factors",
+      "input_values": [3, 4, 2, 1, 2, 5, 3, 1, 2, 4],
+      "input_length": 10,
+      "expected_result": 18,
+      "expected_output": [1, 0, 0, 0.5, 1, 0, 0.25, 0.375, 1, 4, 2, 1, 0, 4, 2.5, 0, 0, 2.8125]
+    },
+    {
+      "id": "negative_pivot_and_factor",
+      "input_values": [2, -4, 2, 2, 3],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output": [1, 0, -0.5, 1, -4, 2, 0, 4]
+    },
+    {
+      "id": "already_upper_triangular",
+      "input_values": [3, 3, 2, 1, 0, 4, -1, 0, 0, 2],
+      "input_length": 10,
+      "expected_result": 18,
+      "expected_output": [1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2, 1, 0, 4, -1, 0, 0, 2]
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "output_capacity": 32,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [1, 5, 7],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [2, 4, 2, 2],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_dimension",
+      "input_values": [2.5, 1, 0, 0, 1],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_matrix_value",
+      "input_values": [1, 2.5],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "matrix_value_out_of_range",
+      "input_values": [1, 9],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_second_pivot",
+      "input_values": [2, 1, 2, 2, 4],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [1, 5],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [1, 5],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [2, 1, 2, 2, 4],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

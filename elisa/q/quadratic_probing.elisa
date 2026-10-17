@@ -1,0 +1,69 @@
+const MIN_CAPACITY: usize = 5
+const MAX_CAPACITY: usize = 31
+const MAX_INSERT_COUNT: usize = 3
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 5
+const MAX_OUTPUT_BYTES: usize = 256
+
+def quadratic_probing_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255.u64()).u8()
+        byte <- byte + 1
+
+def quadratic_probing_impl(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return -1
+    capacity_value: i64 = input[0]
+    count_value: i64 = input[1]
+    if capacity_value < 5 or capacity_value > 31 or count_value < 0 or count_value > 3:
+        return -1
+    capacity: usize = capacity_value.usize()
+    insert_count: usize = count_value.usize()
+    if input_length != 2 + insert_count: return -1
+    key_index: mutable usize = 0
+    while key_index < insert_count:
+        if input[key_index + 2] < 0: return -1
+        key_index <- key_index + 1
+
+    slots: mutable i64[MAX_CAPACITY] = zeroed
+    index: mutable usize = 0
+    while index < MAX_CAPACITY:
+        slots[index] <- -1
+        index <- index + 1
+    key_index <- 0
+    while key_index < insert_count:
+        key: i64 = input[key_index + 2]
+        home: usize = (key % capacity.i64()).usize()
+        if slots[home] == -1:
+            slots[home] <- key
+            key_index <- key_index + 1
+            continue
+        if slots[home] == key:
+            key_index <- key_index + 1
+            continue
+        visited: mutable bool[MAX_CAPACITY] = zeroed
+        probe: mutable usize = 1
+        while true:
+            slot: usize = (home + probe * probe) % capacity
+            if slots[slot] == -1 or slots[slot] == home.i64():
+                slots[slot] <- key
+                break
+            if visited[slot]: return -1
+            visited[slot] <- true
+            probe <- probe + 1
+        key_index <- key_index + 1
+
+    byte_length: usize = 8 * (capacity + 1)
+    if byte_length > MAX_OUTPUT_BYTES or output.is_null() or output_capacity < byte_length:
+        return -2
+    quadratic_probing_write_i64(output, 0, capacity.i64())
+    index <- 0
+    while index < capacity:
+        quadratic_probing_write_i64(output, 8 * (index + 1), slots[index])
+        index <- index + 1
+    byte_length.i64()
+
+export fn quadratic_probing(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = quadratic_probing_impl

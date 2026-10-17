@@ -417,6 +417,18 @@ from maxwells_equations_oracle import MAX_PHYSICAL_RAW as MAXWELLS_EQUATIONS_MAX
 from maxwells_equations_oracle import MAX_CONSTANT_RAW as MAXWELLS_EQUATIONS_MAX_CONSTANT_RAW
 from maxwells_equations_oracle import MIN_CONSTANT_RAW as MAXWELLS_EQUATIONS_MIN_CONSTANT_RAW
 from maxwells_equations_oracle import expected_result as maxwells_equations_expected
+from shunting_yard_oracle import ABSOLUTE_TOLERANCE as SHUNTING_YARD_ABSOLUTE_TOLERANCE
+from shunting_yard_oracle import INVALID_RESULT as SHUNTING_YARD_INVALID_RESULT
+from shunting_yard_oracle import MAX_ABSOLUTE_INTERMEDIATE as SHUNTING_YARD_MAX_ABSOLUTE_INTERMEDIATE
+from shunting_yard_oracle import MAX_EXPRESSION_BYTES as SHUNTING_YARD_MAX_EXPRESSION_BYTES
+from shunting_yard_oracle import MAX_INPUT_LENGTH as SHUNTING_YARD_MAX_INPUT_LENGTH
+from shunting_yard_oracle import MAX_LITERAL_BYTES as SHUNTING_YARD_MAX_LITERAL_BYTES
+from shunting_yard_oracle import MAX_LITERAL_VALUE as SHUNTING_YARD_MAX_LITERAL_VALUE
+from shunting_yard_oracle import MAX_OPERANDS as SHUNTING_YARD_MAX_OPERANDS
+from shunting_yard_oracle import MAX_OPERATORS as SHUNTING_YARD_MAX_OPERATORS
+from shunting_yard_oracle import MAX_PARSEABLE_INPUT_LENGTH as SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH
+from shunting_yard_oracle import RELATIVE_TOLERANCE as SHUNTING_YARD_RELATIVE_TOLERANCE
+from shunting_yard_oracle import expected_result as shunting_yard_expected
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
@@ -1173,6 +1185,167 @@ def validate_maxwells_equations_workload(workload: dict) -> None:
             raise ValueError(f"maxwells_equations expected_result differs from the oracle: {case['id']}")
 
 
+SHUNTING_YARD_CASE_IDS = frozenset({
+    "single_literal", "multiplication_precedes_addition", "no_space_operator_scan",
+    "addition_precedence_after_multiplication", "subtraction_is_left_associative",
+    "division_is_left_associative", "power_is_right_associative",
+    "power_precedes_multiplication", "mixed_decimal_result", "fractional_division",
+    "decimal_operands", "fractional_power", "scanner_ascii_whitespace", "mixed_precedence",
+    "negative_intermediate", "zero_to_zero", "incomplete_trailing_operator",
+    "incomplete_leading_operator", "consecutive_operators", "unary_minus_rejected",
+    "adjacent_numbers_rejected", "parentheses_rejected", "unparsed_suffix_rejected",
+    "malformed_decimal_rejected", "division_by_zero_outside_finite_domain",
+    "intermediate_exceeds_bound", "empty_expression", "missing_count", "count_above_bound",
+    "packed_length_mismatch", "non_ascii_byte",
+})
+
+
+def validate_shunting_yard_workload(workload: dict) -> None:
+    """Pin the bounded Swift expression contract and verify every published fixture."""
+    source_commit = "2c9eb8b85dee6db46cb33452c0b904eb7d7d179c"
+    source_url = (f"https://github.com/TheAlgorithms/Swift/blob/{source_commit}/"
+                 "algorithms/parsing/shunting_yard/shunting_yard.swift")
+    pinned_source = {
+        "repository": "TheAlgorithms/Swift",
+        "commit": source_commit,
+        "path": "algorithms/parsing/shunting_yard/shunting_yard.swift",
+        "type": "algorithm",
+        "symbol": "ShuntingYard.evaluate(_:)",
+    }
+    contract = {
+        "operation": "Scan and evaluate a complete expression containing nonnegative decimal literals and the binary operators +, -, *, /, and ^.",
+        "input_encoding": "[byte_count, ASCII expression bytes...]",
+        "numeric_literals": "ASCII digits with an optional decimal point followed by one or more digits; no sign or exponent notation. Each literal is in [0, 1000000] and at most 16 bytes.",
+        "decimal_conversion": "Convert integer digits left-to-right from binary64 0.0 by multiplying by 10.0 and then adding the digit. After the decimal point, start scale at binary64 0.1; for each fractional digit, add digit times scale, then divide scale by 10.0. Each operation rounds separately to binary64; fused multiply-add is disabled. The rounding mode is round-to-nearest, ties-to-even, and compilers must not reassociate these operations.",
+        "whitespace": "ASCII space, tab, line feed, vertical tab, form feed, and carriage return may appear between tokens.",
+        "operator_precedence": {"^": 3, "*": 2, "/": 2, "+": 1, "-": 1},
+        "associativity": {"^": "right", "*": "left", "/": "left", "+": "left", "-": "left"},
+        "application_order": "The source pops the top value as a, then the next as b; subtraction is b-a, division is b/a, power is pow(b,a).",
+        "grammar": "A single number or an alternating sequence of number, binary operator, number; no parentheses, unary operators, implicit multiplication, or trailing unparsed text.",
+        "numeric_domain": "All intermediate values must be finite with absolute value at most 1000000000000; division by zero and invalid real powers are outside the valid domain.",
+        "malformed": "Malformed framing, an incomplete expression, an unparsed token, or an expression outside the bounded numeric domain returns -1e300.",
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[byte_count, ASCII bytes...]",
+        "byte_count_range": [1, SHUNTING_YARD_MAX_EXPRESSION_BYTES],
+        "maximum_input_values": SHUNTING_YARD_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_values": SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH,
+        "max_operands": SHUNTING_YARD_MAX_OPERANDS,
+        "max_operators": SHUNTING_YARD_MAX_OPERATORS,
+        "max_literal_bytes": SHUNTING_YARD_MAX_LITERAL_BYTES,
+        "max_literal_value": int(SHUNTING_YARD_MAX_LITERAL_VALUE),
+        "max_absolute_intermediate": int(SHUNTING_YARD_MAX_ABSOLUTE_INTERMEDIATE),
+        "invalid_input_result": SHUNTING_YARD_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "float64_scalar",
+        "meaning": "The value of the complete expression evaluated by the pinned precedence/associativity rules.",
+        "invalid_input_result": SHUNTING_YARD_INVALID_RESULT,
+        "absolute_tolerance": SHUNTING_YARD_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": SHUNTING_YARD_RELATIVE_TOLERANCE,
+    }
+    measurement = {
+        "comparison_model": "i64_array_float64_call",
+        "sample_count": 7,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": SHUNTING_YARD_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": SHUNTING_YARD_RELATIVE_TOLERANCE,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-swift-shunting-yard-i64-ascii-float64-v1"
+            or workload.get("algorithm") != "shunting_yard"
+            or workload.get("function_symbol") != "shunting_yard"
+            or workload.get("description") != "Evaluate complete bounded ASCII binary arithmetic expressions with the pinned Swift shunting-yard precedence and associativity rules."
+            or workload.get("pinned_source") != pinned_source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or workload.get("oracle_method") != "Independent strict ASCII tokenizer using the canonical stepwise binary64 decimal conversion, then an operator-stack evaluator with the pinned pop order and binary64 math.pow."
+            or SHUNTING_YARD_MAX_EXPRESSION_BYTES != 255
+            or SHUNTING_YARD_MAX_INPUT_LENGTH != 256
+            or SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH != 257
+            or SHUNTING_YARD_MAX_OPERANDS != 16
+            or SHUNTING_YARD_MAX_OPERATORS != 15
+            or SHUNTING_YARD_MAX_LITERAL_BYTES != 16
+            or SHUNTING_YARD_MAX_LITERAL_VALUE != 1_000_000.0
+            or SHUNTING_YARD_MAX_ABSOLUTE_INTERMEDIATE != 1_000_000_000_000.0
+            or SHUNTING_YARD_INVALID_RESULT != -1e300
+            or SHUNTING_YARD_ABSOLUTE_TOLERANCE != 1e-12
+            or SHUNTING_YARD_RELATIVE_TOLERANCE != 1e-12
+            or not isinstance(cases, list)
+            or len(case_ids) != len(SHUNTING_YARD_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != SHUNTING_YARD_CASE_IDS):
+        raise ValueError("shunting_yard workload metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "shunting_yard" / "README.md").read_text(
+        encoding="utf-8")
+    decimal_conversion_doc = (
+        "Convert integer digits left-to-right from binary64 0.0 by multiplying by 10.0 "
+        "and then adding the digit. After the decimal point, start scale at binary64 0.1; "
+        "for each fractional digit, add digit times scale, then divide scale by 10.0. "
+        "Each operation rounds separately to binary64; fused multiply-add is disabled. "
+        "The rounding mode is round-to-nearest, ties-to-even, and compilers must not "
+        "reassociate these operations.")
+    port_source_links = (
+        "../../../c/s/shunting_yard.c",
+        "../../../c3/s/shunting_yard.c3",
+        "../../../cpp/s/shunting_yard.cpp",
+        "../../../elisa/p/shunting_yard.elisa",
+        "../../../nim/p/shunting_yard.nim",
+        "../../../odin/p/shunting_yard.odin",
+        "../../../rust/p/shunting_yard.rs",
+        "../../../v/p/shunting_yard.v",
+        "../../../zig/p/shunting_yard.zig",
+    )
+    if (source_url not in readme
+            or "`i64_array_float64`" not in readme
+            or "Power is right-associative" not in readme
+            or "The wrapper requires a complete alternating number/operator expression" not in readme
+            or decimal_conversion_doc not in readme
+            or "upstream C candidate is excluded because its precedence-stack implementation is incorrect" not in readme
+            or "the local C port implements the valid Swift contract." not in readme
+            or any(port_link not in readme for port_link in port_source_links)):
+        raise ValueError("shunting_yard README is missing its source or reviewed semantics")
+
+    for case in cases:
+        case_id = case.get("id")
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        expected = case.get("expected_result")
+        if (not isinstance(values, list)
+                or len(values) > SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(expected) not in (int, float) or not math.isfinite(expected)):
+            raise ValueError(f"shunting_yard fixture framing is invalid: {case_id}")
+        if "expression" in case:
+            expression = case.get("expression")
+            if not isinstance(expression, str):
+                raise ValueError(f"shunting_yard expression fixture is invalid: {case_id}")
+            try:
+                encoded = expression.encode("ascii")
+            except UnicodeEncodeError as error:
+                raise ValueError(f"shunting_yard expression fixture is not ASCII: {case_id}") from error
+            if values != [len(encoded), *encoded]:
+                raise ValueError(f"shunting_yard expression bytes differ from the packed fixture: {case_id}")
+        result = shunting_yard_expected(values)
+        if result == SHUNTING_YARD_INVALID_RESULT:
+            if expected != SHUNTING_YARD_INVALID_RESULT:
+                raise ValueError(f"invalid shunting_yard fixture must use its sentinel: {case_id}")
+        elif (expected == SHUNTING_YARD_INVALID_RESULT
+              or not math.isclose(expected, result,
+                                  rel_tol=SHUNTING_YARD_RELATIVE_TOLERANCE,
+                                  abs_tol=SHUNTING_YARD_ABSOLUTE_TOLERANCE)):
+            raise ValueError(f"shunting_yard fixture differs from the oracle: {case_id}")
+
+
 MAX_LOGISTIC_REGRESSION_CSHARP_BINARY_GD_INPUT_LENGTH = 300
 
 
@@ -1312,12 +1485,23 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "logistic_regression_csharp_binary_gd" else
                         MAX_SPARSITY_INPUT_VALUES + 1 if algorithm == "sparsity" else
                         MAX_RELATIVITY_INPUT_LENGTH if algorithm == "relativity" else
+                        SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "shunting_yard" else
                         MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH if algorithm == "maxwells_equations" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) not in (int, float) or not math.isfinite(expected)):
         raise ValueError("array-float64 cases require up to 4096 signed 64-bit values and a finite result")
+    if algorithm == "shunting_yard":
+        source_result = shunting_yard_expected(values)
+        if source_result == SHUNTING_YARD_INVALID_RESULT:
+            if expected != SHUNTING_YARD_INVALID_RESULT:
+                raise ValueError("invalid shunting_yard inputs must use the -1e300 result sentinel")
+        elif expected == SHUNTING_YARD_INVALID_RESULT or not math.isclose(
+                expected, source_result,
+                rel_tol=SHUNTING_YARD_RELATIVE_TOLERANCE,
+                abs_tol=SHUNTING_YARD_ABSOLUTE_TOLERANCE):
+            raise ValueError("shunting_yard expected_result must match the bounded expression oracle")
     if algorithm == "maxwells_equations":
         source_result = maxwells_equations_expected(values)
         if source_result == MAXWELLS_EQUATIONS_INVALID_RESULT:
@@ -3547,6 +3731,8 @@ def main() -> int:
         validate_sharpe_ratio_workload(workload)
     elif algorithm == "maxwells_equations":
         validate_maxwells_equations_workload(workload)
+    elif algorithm == "shunting_yard":
+        validate_shunting_yard_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")
