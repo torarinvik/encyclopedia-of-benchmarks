@@ -1,0 +1,153 @@
+const RSA_KEY_GENERATOR_INVALID_RESULT: i64 = -1
+const RSA_KEY_GENERATOR_MIN_KEY_SIZE: i64 = 2
+const RSA_KEY_GENERATOR_MAX_KEY_SIZE: i64 = 20
+const RSA_KEY_GENERATOR_MAX_DRAWS: i64 = 1024
+const RSA_KEY_GENERATOR_MAX_PACKED_LENGTH: usize = 1027
+const RSA_KEY_GENERATOR_FNV_OFFSET: u64 = 14695981039346656037.u64()
+const RSA_KEY_GENERATOR_FNV_PRIME: u64 = 1099511628211.u64()
+
+def rsa_key_generator_draw(input: i64&, length: usize, cursor: mutable usize&, low: i64, high: i64,
+                           valid: mutable bool&) -> i64:
+    if not valid: return -1
+    if cursor >= length:
+        valid <- false
+        return -1
+    value: i64 = input[cursor]
+    cursor <- cursor + 1
+    if value < low or value >= high:
+        valid <- false
+        return -1
+    value
+
+def rsa_key_generator_gcd(a_input: i64, b_input: i64) -> i64:
+    a: mutable i64 = a_input
+    b: mutable i64 = b_input
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    if a < 0: -a else: a
+
+def rsa_key_generator_power_mod(base: i64, exponent_input: i64, modulus: i64) -> i64:
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    power: mutable i64 = base % modulus
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * power) % modulus
+        power <- (power * power) % modulus
+        exponent <- exponent / 2
+    result
+
+def rsa_key_generator_rabin_miller(num: i64, input: i64&, length: usize,
+                                   cursor: mutable usize&, valid: mutable bool&) -> bool:
+    s: mutable i64 = num - 1
+    t: mutable i64 = 0
+    while s % 2 == 0:
+        s <- s / 2
+        t <- t + 1
+    round: mutable usize = 0
+    while round < 5:
+        base: i64 = rsa_key_generator_draw(input, length, cursor, 2, num - 1, valid)
+        if not valid: return false
+        value: mutable i64 = rsa_key_generator_power_mod(base, s, num)
+        if value != 1:
+            i: mutable i64 = 0
+            while value != num - 1:
+                if i == t - 1: return false
+                i <- i + 1
+                value <- (value * value) % num
+        round <- round + 1
+    true
+
+def rsa_key_generator_is_prime_low_num(num: i64, input: i64&, length: usize,
+                                       cursor: mutable usize&, valid: mutable bool&) -> bool:
+    if num < 2: return false
+    if num <= 997:
+        divisor: mutable i64 = 2
+        while divisor * divisor <= num:
+            if num % divisor == 0: return false
+            divisor <- divisor + 1
+        return true
+    divisor: mutable i64 = 2
+    while divisor <= 997:
+        if num % divisor == 0: return false
+        divisor <- divisor + 1
+    rsa_key_generator_rabin_miller(num, input, length, cursor, valid)
+
+def rsa_key_generator_generate_large_prime(key_size: i64, input: i64&, length: usize,
+                                           cursor: mutable usize&, valid: mutable bool&) -> i64:
+    low: i64 = 1.i64() << (key_size - 1).usize()
+    high: i64 = 1.i64() << key_size.usize()
+    while valid:
+        candidate: i64 = rsa_key_generator_draw(input, length, cursor, low, high, valid)
+        if not valid: return -1
+        if rsa_key_generator_is_prime_low_num(candidate, input, length, cursor, valid): return candidate
+    -1
+
+def rsa_key_generator_find_mod_inverse(a: i64, modulus: i64) -> i64:
+    if rsa_key_generator_gcd(a, modulus) != 1: return -1
+    u1: mutable i64 = 1
+    u2: mutable i64 = 0
+    u3: mutable i64 = a
+    v1: mutable i64 = 0
+    v2: mutable i64 = 1
+    v3: mutable i64 = modulus
+    while v3 != 0:
+        quotient: i64 = u3 / v3
+        next_v1: i64 = u1 - quotient * v1
+        next_v2: i64 = u2 - quotient * v2
+        next_v3: i64 = u3 - quotient * v3
+        u1 <- v1
+        u2 <- v2
+        u3 <- v3
+        v1 <- next_v1
+        v2 <- next_v2
+        v3 <- next_v3
+    u1 % modulus
+
+def rsa_key_generator_hash_i64(hash_input: u64, value: i64) -> u64:
+    hash: mutable u64 = hash_input
+    bits: u64 = value.u64()
+    byte_index: mutable usize = 0
+    while byte_index < 8:
+        byte: u64 = (bits >> (byte_index * 8)) & 255.u64()
+        hash <- (hash ^ byte) * RSA_KEY_GENERATOR_FNV_PRIME
+        byte_index <- byte_index + 1
+    hash
+
+def rsa_key_generator_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > RSA_KEY_GENERATOR_MAX_PACKED_LENGTH: return -1
+    key_size: i64 = input[0]
+    draw_count: i64 = input[1]
+    if key_size < RSA_KEY_GENERATOR_MIN_KEY_SIZE or key_size > RSA_KEY_GENERATOR_MAX_KEY_SIZE or
+       draw_count < 0 or draw_count > RSA_KEY_GENERATOR_MAX_DRAWS or length != (2 + draw_count).usize(): return -1
+    draw_limit: i64 = 1.i64() << key_size.usize()
+    index: mutable usize = 0
+    while index < draw_count.usize():
+        value: i64 = input[2 + index]
+        if value < 2 or value >= draw_limit: return -1
+        index <- index + 1
+    cursor: mutable usize = 2
+    valid: mutable bool = true
+    p: i64 = rsa_key_generator_generate_large_prime(key_size, input, length, cursor, valid)
+    if not valid: return -1
+    q: i64 = rsa_key_generator_generate_large_prime(key_size, input, length, cursor, valid)
+    if not valid: return -1
+    n: i64 = p * q
+    phi: i64 = (p - 1) * (q - 1)
+    low: i64 = 1.i64() << (key_size - 1).usize()
+    high: i64 = 1.i64() << key_size.usize()
+    e: mutable i64 = 0
+    while true:
+        e <- rsa_key_generator_draw(input, length, cursor, low, high, valid)
+        if not valid: return -1
+        if rsa_key_generator_gcd(e, phi) == 1: break
+    d: i64 = rsa_key_generator_find_mod_inverse(e, phi)
+    hash: mutable u64 = RSA_KEY_GENERATOR_FNV_OFFSET
+    hash <- rsa_key_generator_hash_i64(hash, n)
+    hash <- rsa_key_generator_hash_i64(hash, e)
+    hash <- rsa_key_generator_hash_i64(hash, n)
+    hash <- rsa_key_generator_hash_i64(hash, d)
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn rsa_key_generator(input: i64&, length: usize) -> i64 = rsa_key_generator_impl

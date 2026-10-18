@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-zig-k-means-clustering-first-points-i64-array-scalar-v1",
+  "algorithm": "k_means_clustering_zig",
+  "function_symbol": "k_means_clustering_zig",
+  "description": "Bounded one-dimensional replay of Zig's f32 two-center clustering and exact center/count convergence.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Zig",
+    "commit": "86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3",
+    "path": "machine_learning/k_means_clustering.zig",
+    "symbol": "KMeans",
+    "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/machine_learning/k_means_clustering.zig"
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[n, x0, ..., x(n-1)]",
+    "point_count_range": [2, 8],
+    "cluster_count": 2,
+    "coordinate_range": [-16, 16],
+    "coordinates_strictly_increasing": true,
+    "coordinate_type": "binary32",
+    "y_coordinate": 0,
+    "exact_length": "n + 1",
+    "maximum_valid_input_length": 9,
+    "maximum_parseable_input_length": 10,
+    "null_input_length": 0,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Two ordered center x values quantized at scale 256 and biased by 4097, packed in base 8194, then multiplied by 81 and combined with base-9 cluster counts.",
+    "center_scale": 256,
+    "center_rounding": "truncate toward zero after binary32 multiplication",
+    "center_bias": 4097,
+    "center_base": 8194,
+    "count_base": 9,
+    "count_pair_base": 81,
+    "valid_range": [8195, 5438472515],
+    "iteration_cap_result": -2,
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id": "first_two_points_seed_centers", "input_values": [4, -16, -12, 6, 12], "input_length": 5, "expected_result": 341003783},
+    {"id": "singletons_remain_own_clusters", "input_values": [2, -4, 4], "input_length": 3, "expected_result": 2040007933},
+    {"id": "one_point_is_not_enough", "input_values": [1, 0], "input_length": 2, "expected_result": -1},
+    {"id": "coordinates_not_increasing", "input_values": [4, -16, 6, -12, 12], "input_length": 5, "expected_result": -1},
+    {"id": "coordinate_out_of_range", "input_values": [2, -17, 4], "input_length": 3, "expected_result": -1},
+    {"id": "extra_input_word", "input_values": [2, -4, 4, 0], "input_length": 4, "expected_result": -1},
+    {"id": "null_input_pointer", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ],
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 1000}
+}

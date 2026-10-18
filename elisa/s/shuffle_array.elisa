@@ -1,0 +1,65 @@
+const MAX_N: usize = 32
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 67
+const MAX_OUTPUT_BYTES: usize = 520
+const I32_MIN: i64 = -2147483648
+const I32_MAX: i64 = 2147483647
+
+def shuffle_array_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def shuffle_array_impl(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    variant: i64 = input[0]
+    n_value: i64 = input[1]
+    if (variant != 0 and variant != 1) or n_value < 0 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    value_count: usize = n
+    if variant == 1: value_count <- 2 * n
+    draw_count: usize = 0
+    if variant == 0 and n > 0: draw_count <- n - 1
+    if input_length != 2 + value_count + draw_count: return -1
+
+    result_values: mutable i64[2 * MAX_N] = zeroed
+    result_count: usize = value_count
+    index: mutable usize = 0
+    while index < value_count:
+        value: i64 = input[2 + index]
+        if value < I32_MIN or value > I32_MAX: return -1
+        result_values[index] <- value
+        index <- index + 1
+
+    if variant == 0:
+        draw_index: mutable usize = 0
+        while draw_index < draw_count:
+            current_index: usize = n - 1 - draw_index
+            chosen_value: i64 = input[2 + n + draw_index]
+            if chosen_value < 0 or chosen_value > current_index.i64(): return -1
+            chosen_index: usize = chosen_value.usize()
+            temporary: i64 = result_values[current_index]
+            result_values[current_index] <- result_values[chosen_index]
+            result_values[chosen_index] <- temporary
+            draw_index <- draw_index + 1
+    else:
+        index <- 0
+        while index < n:
+            result_values[2 * index] <- input[2 + index]
+            result_values[2 * index + 1] <- input[2 + n + index]
+            index <- index + 1
+
+    output_bytes: usize = 8 * (result_count + 1)
+    if output_bytes > MAX_OUTPUT_BYTES or output.is_null() or output_capacity < output_bytes: return -2
+    shuffle_array_store_i64_le(output, 0, result_count.i64())
+    index <- 0
+    while index < result_count:
+        shuffle_array_store_i64_le(output, 8 * (index + 1), result_values[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn shuffle_array(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = shuffle_array_impl

@@ -1,0 +1,96 @@
+extern sqrt(value: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 144
+const MAX_ROWS: usize = 32
+const MAX_DIMENSIONS: usize = 4
+const MAX_CLUSTERS: usize = 8
+const MAX_ITERATIONS: usize = 64
+const INVALID_RESULT: f64 = -1e300
+
+def kmeans_raw_r_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 12 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    if input[0] < 2 or input[0] > MAX_ROWS.i64() or
+        input[1] < 2 or input[1] > MAX_DIMENSIONS.i64() or
+        input[2] < 1 or input[2] > MAX_CLUSTERS.i64() or input[2] > input[0] / 2 or
+        input[3] < 1 or input[3] > MAX_ITERATIONS.i64():
+        return INVALID_RESULT
+
+    rows: usize = input[0].usize()
+    dimensions: usize = input[1].usize()
+    clusters: usize = input[2].usize()
+    iteration_limit: usize = input[3].usize()
+    data_count: usize = rows * dimensions
+    data_start: usize = 4 + clusters
+    selector_start: usize = data_start + data_count
+    if length != selector_start + 3: return INVALID_RESULT
+
+    data: mutable f64[MAX_ROWS * MAX_DIMENSIONS] = zeroed
+    for cluster in 0..<clusters:
+        initial_row: i64 = input[4 + cluster]
+        if initial_row < 0 or initial_row >= input[0]: return INVALID_RESULT
+        for earlier in 0..<cluster:
+            if input[4 + earlier] == initial_row: return INVALID_RESULT
+    for index in 0..<data_count:
+        coordinate: i64 = input[data_start + index]
+        if coordinate < -64 or coordinate > 64: return INVALID_RESULT
+        data[index] <- coordinate.f64()
+
+    field: i64 = input[selector_start]
+    arg0: i64 = input[selector_start + 1]
+    arg1: i64 = input[selector_start + 2]
+    if field < 0 or field > 2: return INVALID_RESULT
+    if field == 0 and (arg0 < 0 or arg0 >= input[2] or arg1 < 0 or arg1 >= input[1]): return INVALID_RESULT
+    if field == 1 and (arg0 < 0 or arg0 >= input[0] or arg1 < 0 or arg1 >= input[2]): return INVALID_RESULT
+    if field == 2 and (arg0 < 0 or arg0 >= input[0] or arg1 != 0): return INVALID_RESULT
+
+    centers: mutable f64[MAX_CLUSTERS * MAX_DIMENSIONS] = zeroed
+    for cluster in 0..<clusters:
+        initial_row: usize = input[4 + cluster].usize()
+        for dimension in 0..<dimensions:
+            centers[cluster * dimensions + dimension] <- data[initial_row * dimensions + dimension]
+
+    distances: mutable f64[MAX_ROWS * MAX_CLUSTERS] = zeroed
+    assignments: mutable usize[MAX_ROWS] = zeroed
+    stable: mutable bool = false
+    for iteration in 0..<iteration_limit:
+        member_counts: mutable usize[MAX_CLUSTERS] = zeroed
+        for row in 0..<rows:
+            best_cluster: mutable usize = 0
+            for cluster in 0..<clusters:
+                squared_distance: mutable f64 = 0.0
+                for dimension in 0..<dimensions:
+                    difference: f64 = data[row * dimensions + dimension] - centers[cluster * dimensions + dimension]
+                    squared_distance <- squared_distance + difference * difference
+                distances[row * clusters + cluster] <- sqrt(squared_distance)
+                if cluster > 0 and distances[row * clusters + cluster] < distances[row * clusters + best_cluster]:
+                    best_cluster <- cluster
+            assignments[row] <- best_cluster
+            member_counts[best_cluster] <- member_counts[best_cluster] + 1
+        for cluster in 0..<clusters:
+            if member_counts[cluster] < 2: return INVALID_RESULT
+
+        updated: mutable f64[MAX_CLUSTERS * MAX_DIMENSIONS] = zeroed
+        for row in 0..<rows:
+            cluster: usize = assignments[row]
+            for dimension in 0..<dimensions:
+                index: usize = cluster * dimensions + dimension
+                updated[index] <- updated[index] + data[row * dimensions + dimension]
+        stable <- true
+        for cluster in 0..<clusters:
+            for dimension in 0..<dimensions:
+                index: usize = cluster * dimensions + dimension
+                updated[index] <- updated[index] / member_counts[cluster].f64()
+                if updated[index] != centers[index]: stable <- false
+        for index in 0..<clusters * dimensions:
+            centers[index] <- updated[index]
+        if stable: break
+    if not stable: return INVALID_RESULT
+
+    index0: usize = arg0.usize()
+    index1: usize = arg1.usize()
+    if field == 0: return centers[index0 * dimensions + index1]
+    if field == 1: return distances[index0 * clusters + index1]
+    assignments[index0].f64()
+
+export fn kmeans_raw_r(input: i64&, length: usize) -> f64 = kmeans_raw_r_impl

@@ -1,0 +1,123 @@
+const MAX_INITIAL_NODES: usize = 12
+const MAX_OPERATIONS: usize = 16
+const MAX_KNOWN_IDS: usize = MAX_INITIAL_NODES + 2 * MAX_OPERATIONS
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 64
+const MAX_OUTPUT_WORDS: usize = 81
+const MAX_OUTPUT_BYTES: usize = 648
+
+def unweighted_graph_find_id(ids: i64&, count: usize, id: i64) -> i64:
+    index: mutable usize = 0
+    while index < count:
+        if ids[index] == id: return index.i64()
+        index <- index + 1
+    -1
+
+def unweighted_graph_impl(input: i64&, input_length: usize,
+                           output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if (input[0] != 0 and input[0] != 1) or input[1] < 0 or input[1] > MAX_INITIAL_NODES.i64() or
+        input[2] < 0 or input[2] > MAX_OPERATIONS.i64(): return -1
+    directed: bool = input[0] == 1
+    initial_count: usize = input[1].usize()
+    operation_count: usize = input[2].usize()
+    if input_length != 3 + initial_count + operation_count * 3: return -1
+
+    ids: mutable i64[MAX_KNOWN_IDS] = zeroed
+    declared: mutable bool[MAX_KNOWN_IDS] = zeroed
+    adjacency: mutable bool[MAX_KNOWN_IDS * MAX_KNOWN_IDS] = zeroed
+    known_count: mutable usize = 0
+    index: mutable usize = 0
+    while index < initial_count:
+        node: i64 = input[3 + index]
+        if node < -2147483648 or node > 2147483647: return -1
+        if unweighted_graph_find_id(ids, known_count, node) >= 0: return -1
+        ids[known_count] <- node
+        declared[known_count] <- true
+        known_count <- known_count + 1
+        index <- index + 1
+
+    result: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    result_count: mutable usize = 0
+    operations_offset: usize = 3 + initial_count
+    index <- 0
+    while index < operation_count:
+        offset: usize = operations_offset + index * 3
+        op: i64 = input[offset]
+        first: i64 = input[offset + 1]
+        second: i64 = input[offset + 2]
+        if first < -2147483648 or first > 2147483647 or second < -2147483648 or second > 2147483647: return -1
+        if op == 0:
+            if second != 0: return -1
+            existing: i64 = unweighted_graph_find_id(ids, known_count, first)
+            if existing >= 0 and declared[existing.usize()]: return -1
+            if existing < 0:
+                if known_count >= MAX_KNOWN_IDS: return -1
+                existing <- known_count.i64()
+                ids[known_count] <- first
+                declared[known_count] <- false
+                known_count <- known_count + 1
+            declared[existing.usize()] <- true
+        else if op == 1:
+            from: i64 = unweighted_graph_find_id(ids, known_count, first)
+            if from < 0 or not declared[from.usize()]: return -1
+            to: i64 = unweighted_graph_find_id(ids, known_count, second)
+            if not directed and (to < 0 or not declared[to.usize()]): return -1
+            if to < 0:
+                if known_count >= MAX_KNOWN_IDS: return -1
+                to <- known_count.i64()
+                ids[known_count] <- second
+                declared[known_count] <- false
+                known_count <- known_count + 1
+            edge_index: usize = from.usize() * MAX_KNOWN_IDS + to.usize()
+            if adjacency[edge_index]: return -1
+            adjacency[edge_index] <- true
+            if not directed: adjacency[to.usize() * MAX_KNOWN_IDS + from.usize()] <- true
+        else if op == 2:
+            if second != 0: return -1
+            node: i64 = unweighted_graph_find_id(ids, known_count, first)
+            if node < 0 or not declared[node.usize()]: return -1
+            sorted: mutable i64[MAX_KNOWN_IDS] = zeroed
+            neighbor_count: mutable usize = 0
+            neighbor: mutable usize = 0
+            while neighbor < known_count:
+                if adjacency[node.usize() * MAX_KNOWN_IDS + neighbor]:
+                    sorted[neighbor_count] <- ids[neighbor]
+                    neighbor_count <- neighbor_count + 1
+                neighbor <- neighbor + 1
+            left: mutable usize = 1
+            while left < neighbor_count:
+                value: i64 = sorted[left]
+                right: mutable usize = left
+                while right > 0 and sorted[right - 1] > value:
+                    sorted[right] <- sorted[right - 1]
+                    right <- right - 1
+                sorted[right] <- value
+                left <- left + 1
+            if result_count + 2 + neighbor_count > MAX_OUTPUT_WORDS: return -1
+            result[result_count] <- first
+            result[result_count + 1] <- neighbor_count.i64()
+            result_count <- result_count + 2
+            neighbor <- 0
+            while neighbor < neighbor_count:
+                result[result_count] <- sorted[neighbor]
+                result_count <- result_count + 1
+                neighbor <- neighbor + 1
+        else:
+            return -1
+        index <- index + 1
+
+    output_bytes: usize = result_count * 8
+    if output_bytes > MAX_OUTPUT_BYTES: return -1
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < result_count:
+        bits: u64 = result[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
+            byte <- byte + 1
+        index <- index + 1
+    output_bytes.i64()
+
+export fn unweighted_graph(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = unweighted_graph_impl

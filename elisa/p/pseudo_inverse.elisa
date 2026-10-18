@@ -1,0 +1,44 @@
+extern floor(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+def pseudo_inverse_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > 7: return -1
+    i: mutable usize = 0
+    while i < input_length:
+        if input[i] != input[i]: return -1
+        i <- i + 1
+    if input[0] < 1.0 or input[0] > 4.0 or input[0] != floor(input[0]): return -1
+    if input[1] != 1.0: return -1
+    rows: usize = input[0].usize()
+    if input_length != 2 + rows: return -1
+    column: mutable f64[4] = zeroed
+    squared_norm: mutable f64 = 0.0
+    i <- 0
+    while i < rows:
+        value: f64 = input[2 + i]
+        if value < -4.0 or value > 4.0 or value != floor(value): return -1
+        column[i] <- value
+        squared_norm <- squared_norm + value * value
+        i <- i + 1
+    staged: mutable f64[6] = zeroed
+    staged[0] <- 1.0
+    staged[1] <- rows.f64()
+    if sqrt(squared_norm) < 1e-4:
+        i <- 0
+        while i < rows:
+            staged[2 + i] <- 0.0
+            i <- i + 1
+    else:
+        i <- 0
+        while i < rows:
+            staged[2 + i] <- column[i] / squared_norm
+            i <- i + 1
+    output_size: usize = rows + 2
+    if output.is_null() or capacity < output_size: return -2
+    i <- 0
+    while i < output_size:
+        output[i] <- staged[i]
+        i <- i + 1
+    output_size.i64()
+
+export fn pseudo_inverse(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = pseudo_inverse_impl

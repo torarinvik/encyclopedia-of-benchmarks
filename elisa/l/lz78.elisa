@@ -1,0 +1,73 @@
+const MAX_INPUT_LENGTH: usize = 66
+const MAX_TEXT_LENGTH: usize = 64
+const MAX_OUTPUT_BYTES: usize = 1024
+
+def lz78_compress_impl(input: i64&, input_length: usize,
+                       output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 0 or input[0] > MAX_TEXT_LENGTH.i64(): return -1
+    text_length: usize = input[0].usize()
+    if input_length != 1 + text_length: return -1
+
+    index: mutable usize = 0
+    while index < text_length:
+        character: i64 = input[index + 1]
+        if character < 32 or character > 126: return -1
+        index <- index + 1
+
+    edge_parent: mutable i64[64] = zeroed
+    edge_character: mutable i64[64] = zeroed
+    dictionary_size: mutable usize = 0
+    token_indices: mutable i64[64] = zeroed
+    token_characters: mutable i64[64] = zeroed
+    token_count: mutable usize = 0
+    current_index: mutable i64 = 0
+    index <- 0
+    while index < text_length:
+        character: i64 = input[index + 1]
+        found: mutable i64 = -1
+        edge: mutable usize = 0
+        while edge < dictionary_size:
+            if edge_parent[edge] == current_index and edge_character[edge] == character:
+                found <- edge.i64()
+                break
+            edge <- edge + 1
+        if found >= 0:
+            current_index <- found + 1
+        else:
+            token_indices[token_count] <- current_index
+            token_characters[token_count] <- character
+            token_count <- token_count + 1
+            edge_parent[dictionary_size] <- current_index
+            edge_character[dictionary_size] <- character
+            dictionary_size <- dictionary_size + 1
+            current_index <- 0
+        index <- index + 1
+    if current_index != 0:
+        token_indices[token_count] <- current_index
+        token_characters[token_count] <- 0
+        token_count <- token_count + 1
+
+    output_bytes: usize = 16 * token_count
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    token: mutable usize = 0
+    while token < token_count:
+        first_bits: u64 = token_indices[token].u64()
+        second_bits: u64 = token_characters[token].u64()
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            shift: usize = byte_index * 8
+            staged[token * 16 + byte_index] <- ((first_bits >> shift) & 255).u8()
+            staged[token * 16 + 8 + byte_index] <- ((second_bits >> shift) & 255).u8()
+            byte_index <- byte_index + 1
+        token <- token + 1
+
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < output_bytes:
+        output[index] <- staged[index]
+        index <- index + 1
+    output_bytes.i64()
+
+export fn lz78_compress(input: i64&, input_length: usize,
+                        output: mutable u8&, capacity: usize) -> i64 = lz78_compress_impl

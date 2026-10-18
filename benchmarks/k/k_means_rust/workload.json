@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-k-means-randomized-i64-array-scalar-v1",
+  "algorithm": "k_means_rust",
+  "function_symbol": "k_means_rust",
+  "description": "Deterministic draw-stream replay of Rust's randomized two-dimensional k-means function.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/machine_learning/k_means.rs",
+    "symbol": "k_means",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/k_means.rs"
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[n, max_iter, x_draw0_u53, y_draw0_u53, x_draw1_u53, y_draw1_u53, x0, x1, x2, x3]",
+    "point_count_range": [4, 4],
+    "cluster_count": 2,
+    "max_iter_range": [1, 16],
+    "u53_draw_range": [0, 9007199254740991],
+    "required_y_draws": [0, 0],
+    "draw_conversion": "binary64(draw) / 9007199254740992.0",
+    "x_draws_must_differ": true,
+    "coordinate_range": [-16, 16],
+    "coordinates_strictly_increasing": true,
+    "first_two_coordinates_below_zero": true,
+    "last_two_coordinates_above_one": true,
+    "exact_length": 10,
+    "maximum_valid_input_length": 10,
+    "maximum_parseable_input_length": 11,
+    "null_input_length": 0,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Point labels packed as one bit per input point, least-significant bit first.",
+    "valid_range": [0, 15],
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id": "ascending_random_centers", "input_values": [4, 1, 0, 0, 9007199254740991, 0, -12, -8, 8, 12], "input_length": 10, "expected_result": 12},
+    {"id": "descending_random_centers", "input_values": [4, 8, 9007199254740991, 0, 0, 0, -12, -8, 8, 12], "input_length": 10, "expected_result": 3},
+    {"id": "repeated_passes_keep_labels", "input_values": [4, 16, 17, 0, 31, 0, -16, -4, 4, 16], "input_length": 10, "expected_result": 12},
+    {"id": "zero_iteration_limit", "input_values": [4, 0, 0, 0, 1, 0, -12, -8, 8, 12], "input_length": 10, "expected_result": -1},
+    {"id": "equal_random_x_centers", "input_values": [4, 1, 0, 0, 0, 0, -12, -8, 8, 12], "input_length": 10, "expected_result": -1},
+    {"id": "nonzero_random_y_draw", "input_values": [4, 1, 0, 1, 2, 0, -12, -8, 8, 12], "input_length": 10, "expected_result": -1},
+    {"id": "null_input_pointer", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ],
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 1000}
+}

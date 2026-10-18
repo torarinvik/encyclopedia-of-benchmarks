@@ -1,0 +1,160 @@
+struct SplayNode:
+    key: i32
+    left: i64
+    right: i64
+
+def splay_rotate_right(nodes: mutable SplayNode&, root: i64) -> i64:
+    child: i64 = nodes[root.usize()].left
+    nodes[root.usize()].left <- nodes[child.usize()].right
+    nodes[child.usize()].right <- root
+    return child
+
+def splay_rotate_left(nodes: mutable SplayNode&, root: i64) -> i64:
+    child: i64 = nodes[root.usize()].right
+    nodes[root.usize()].right <- nodes[child.usize()].left
+    nodes[child.usize()].left <- root
+    return child
+
+def splay_tree_splay(nodes: mutable SplayNode&, root: i64, key: i32) -> i64:
+    if root < 0 or nodes[root.usize()].key == key: return root
+    if key < nodes[root.usize()].key:
+        left: i64 = nodes[root.usize()].left
+        if left < 0: return root
+        if key < nodes[left.usize()].key:
+            nodes[left.usize()].left <- splay_tree_splay(nodes, nodes[left.usize()].left, key)
+            root = splay_rotate_right(nodes, root)
+        elif key > nodes[left.usize()].key:
+            nodes[left.usize()].right <- splay_tree_splay(nodes, nodes[left.usize()].right, key)
+            if nodes[left.usize()].right >= 0:
+                nodes[root.usize()].left <- splay_rotate_left(nodes, left)
+        if nodes[root.usize()].left < 0: return root
+        return splay_rotate_right(nodes, root)
+    right: i64 = nodes[root.usize()].right
+    if right < 0: return root
+    if key > nodes[right.usize()].key:
+        nodes[right.usize()].right <- splay_tree_splay(nodes, nodes[right.usize()].right, key)
+        root = splay_rotate_left(nodes, root)
+    elif key < nodes[right.usize()].key:
+        nodes[right.usize()].left <- splay_tree_splay(nodes, nodes[right.usize()].left, key)
+        if nodes[right.usize()].left >= 0:
+            nodes[root.usize()].right <- splay_rotate_right(nodes, right)
+    if nodes[root.usize()].right < 0: return root
+    return splay_rotate_left(nodes, root)
+
+def splay_tree_inorder(nodes: SplayNode&, root: i64, keys: mutable i64&, count: mutable usize&) -> void:
+    if root < 0: return
+    splay_tree_inorder(nodes, nodes[root.usize()].left, keys, count)
+    keys[count] <- nodes[root.usize()].key.i64()
+    count <- count + 1
+    splay_tree_inorder(nodes, nodes[root.usize()].right, keys, count)
+
+def splay_tree_write_word(output: mutable u8&, offset: mutable usize&, word: i64) -> void:
+    bits: u64 = if word < 0: (word + 18446744073709551616).u64() else: word.u64()
+    i: usize = 0
+    while i < 8:
+        output[offset] <- (bits >> (8 * i)).u8()
+        offset <- offset + 1
+        i <- i + 1
+
+def splay_tree_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length == 0 or input_length > 130 or input[0] < 0 or input[0] > 64: return -1
+    op_count: usize = input[0].usize()
+    if input_length != 1 + 2 * op_count: return -1
+    ops: mutable i64[64] = zeroed
+    keys: mutable i64[64] = zeroed
+    tags: mutable i64[64] = zeroed
+    live: mutable i64[32] = zeroed
+    live_count: mutable usize = 0
+    offset: mutable usize = 1
+    i: mutable usize = 0
+    while i < op_count:
+        op: i64 = input[offset]
+        key: i64 = input[offset + 1]
+        offset <- offset + 2
+        if (op != 0 and op != 1 and op != 2) or key < -2147483648 or key > 2147483647: return -1
+        ops[i] <- op
+        keys[i] <- key
+        found: mutable usize = live_count
+        j: mutable usize = 0
+        while j < live_count:
+            if live[j] == key:
+                found <- j
+                break
+            j <- j + 1
+        if op == 0:
+            if found < live_count or live_count == 32: return -1
+            live[live_count] <- key
+            live_count <- live_count + 1
+        elif op == 2:
+            if live_count == 0: return -1
+            if found < live_count:
+                live_count <- live_count - 1
+                live[found] <- live[live_count]
+        i <- i + 1
+    nodes: mutable SplayNode[64] = zeroed
+    node_count: mutable usize = 0
+    root: mutable i64 = -1
+    i <- 0
+    while i < op_count:
+        key: i32 = keys[i].i32()
+        if ops[i] == 0:
+            if root < 0:
+                nodes[node_count].key <- key
+                nodes[node_count].left <- -1
+                nodes[node_count].right <- -1
+                root <- node_count.i64()
+                node_count <- node_count + 1
+            else:
+                root <- splay_tree_splay(nodes[0], root, key)
+                nodes[node_count].key <- key
+                nodes[node_count].left <- -1
+                nodes[node_count].right <- -1
+                fresh: i64 = node_count.i64()
+                node_count <- node_count + 1
+                if key < nodes[root.usize()].key:
+                    nodes[fresh.usize()].left <- nodes[root.usize()].left
+                    nodes[fresh.usize()].right <- root
+                    nodes[root.usize()].left <- -1
+                else:
+                    nodes[fresh.usize()].right <- nodes[root.usize()].right
+                    nodes[fresh.usize()].left <- root
+                    nodes[root.usize()].right <- -1
+                root <- fresh
+            tags[i] <- -2
+        elif ops[i] == 1:
+            root <- splay_tree_splay(nodes[0], root, key)
+            tags[i] <- if root >= 0 and nodes[root.usize()].key == key: 1 else: 0
+        else:
+            root <- splay_tree_splay(nodes[0], root, key)
+            tags[i] <- -3
+            if nodes[root.usize()].key == key:
+                left: i64 = nodes[root.usize()].left
+                right: i64 = nodes[root.usize()].right
+                if left < 0: root <- right
+                else:
+                    root <- splay_tree_splay(nodes[0], left, key)
+                    nodes[root.usize()].right <- right
+        i <- i + 1
+    final_keys: mutable i64[32] = zeroed
+    final_count: mutable usize = 0
+    splay_tree_inorder(nodes[0], root, final_keys[0], final_count)
+    staged: mutable u8[784] = zeroed
+    written: mutable usize = 0
+    splay_tree_write_word(staged[0], written, op_count.i64())
+    i <- 0
+    while i < op_count:
+        splay_tree_write_word(staged[0], written, tags[i])
+        i <- i + 1
+    splay_tree_write_word(staged[0], written, final_count.i64())
+    i <- 0
+    while i < final_count:
+        splay_tree_write_word(staged[0], written, final_keys[i])
+        i <- i + 1
+    if output.is_null() or capacity < written: return -2
+    i <- 0
+    while i < written:
+        output[i] <- staged[i]
+        i <- i + 1
+    return written.i64()
+
+export fn splay_tree(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64 = splay_tree_impl

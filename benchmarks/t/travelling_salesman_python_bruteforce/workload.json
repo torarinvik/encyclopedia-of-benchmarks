@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-bruteforce-coordinates-float64-slice-io-v1",
+  "algorithm": "travelling_salesman_python_bruteforce",
+  "function_symbol": "travelling_salesman_brute_force",
+  "description": "Tour and distance from the pinned Python coordinate-based TSP method.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "graphs/travelling_salesman_problem.py",
+      "symbols": [
+        "euclidean_distance",
+        "validate_graph",
+        "travelling_salesman_brute_force"
+      ],
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/travelling_salesman_problem.py",
+      "role": "algorithm"
+    }
+  ],
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[city_count, x0, y0, ..., x(n-1), y(n-1)]",
+    "city_count_range": [
+      2,
+      8
+    ],
+    "coordinate_range": [
+      -16,
+      16
+    ],
+    "coordinate_domain": "integer-valued finite binary64 coordinates",
+    "node_order": "Input order corresponds to insertion order of the source graph dictionary; path output uses those zero-based positions.",
+    "maximum_input_values": 17,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[path_length, city indices..., total Euclidean distance]",
+    "maximum_elements": 11,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "contract": {
+    "method": "Enumerate itertools.permutations of all non-start nodes in insertion order.",
+    "tie_behavior": "Retain the first route whose distance is a strict new minimum.",
+    "distance": "Use Euclidean distance sqrt((x2-x1)^2+(y2-y1)^2), accumulating route edges from left to right."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "two_cities",
+      "input_values": [
+        2,
+        0,
+        0,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "output_capacity": 11,
+      "expected_result": 5,
+      "expected_output": [
+        3.0,
+        0.0,
+        1.0,
+        0.0,
+        10.0
+      ]
+    },
+    {
+      "id": "three_city_equal_route_tie",
+      "input_values": [
+        3,
+        0,
+        0,
+        3,
+        0,
+        3,
+        4
+      ],
+      "input_length": 7,
+      "output_capacity": 11,
+      "expected_result": 6,
+      "expected_output": [
+        4.0,
+        0.0,
+        1.0,
+        2.0,
+        0.0,
+        12.0
+      ]
+    },
+    {
+      "id": "four_city_square_tie",
+      "input_values": [
+        4,
+        0,
+        0,
+        2,
+        0,
+        2,
+        2,
+        0,
+        2
+      ],
+      "input_length": 9,
+      "output_capacity": 11,
+      "expected_result": 7,
+      "expected_output": [
+        5.0,
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        0.0,
+        8.0
+      ]
+    },
+    {
+      "id": "invalid_single_city",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 11,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_fractional_coordinate",
+      "input_values": [
+        2,
+        0,
+        0,
+        1.5,
+        2
+      ],
+      "input_length": 5,
+      "output_capacity": 11,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_coordinate_bound",
+      "input_values": [
+        2,
+        0,
+        0,
+        17,
+        2
+      ],
+      "input_length": 5,
+      "output_capacity": 11,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        2,
+        0,
+        0,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "output_capacity": 4,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        2,
+        0,
+        0,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "output_capacity": 11,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

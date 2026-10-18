@@ -8,7 +8,7 @@ The `float64_slice_io` input is `[node_count, feature_count, radius, alpha_code,
 
 For each node in increasing order, compute the sum of squared coordinate differences in increasing feature order. The best matching unit (BMU) is the first node with the smallest squared distance. The updated neighborhood is the clipped half-open interval `[max(0, BMU-radius), min(node_count, BMU+radius+1))`. For each selected node and feature in increasing order, update `W[node][feature] += alpha*(sample[feature]-W[node][feature])`.
 
-The output contains only the updated row-major weight matrix; the source's `D` distance array is scratch state used to choose the BMU and is not returned by the trainer. The result code is the number of output elements, `node_count*feature_count`. Invalid framing or bounds returns `-1` before output checks. A null output buffer or capacity below the weight count returns `-2` without writes. Output values use absolute and relative tolerances of `1e-12`.
+The source helper writes per-node squared distances to its caller-supplied `D` vector. The benchmark wrapper supplies that scratch vector for BMU selection but exposes only the updated row-major weight matrix. The result code is the number of output elements, `node_count*feature_count`. Invalid framing or bounds returns `-1` before output checks. A null output buffer or capacity below the weight count returns `-2` without writes. Output values use absolute and relative tolerances of `1e-12`.
 
 The maximum valid input length is 40 values; one extra value is parseable so trailing data can be rejected. The maximum output length is 32 values.
 

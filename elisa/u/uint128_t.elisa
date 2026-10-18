@@ -1,0 +1,79 @@
+def uint_fixed_divide_words(dividend: u32&, divisor: u32&, limb_count: usize,
+    quotient: mutable u32&, remainder: mutable u32&) -> void:
+    rem: mutable u32[9] = zeroed
+    offset: mutable usize = 0
+    bit_count: usize = limb_count * 32
+    while offset < bit_count:
+        bit: usize = bit_count - 1 - offset
+        carry: mutable u32 = (dividend[bit / 32] >> (bit % 32)) & 1
+        index: mutable usize = 0
+        while index < limb_count:
+            next: u32 = rem[index] >> 31
+            rem[index] <- (rem[index] << 1) | carry
+            carry <- next
+            index <- index + 1
+        rem[limb_count] <- carry
+        comparison: mutable i64 = if rem[limb_count] == 0: 0 else: 1
+        if comparison == 0:
+            index <- limb_count
+            while index > 0:
+                index <- index - 1
+                if rem[index] > divisor[index]:
+                    comparison <- 1
+                    break
+                if rem[index] < divisor[index]:
+                    comparison <- -1
+                    break
+        if comparison >= 0:
+            borrow: mutable u64 = 0
+            index <- 0
+            while index < limb_count:
+                sub: u64 = divisor[index].u64() + borrow
+                old: u64 = rem[index].u64()
+                if old >= sub:
+                    rem[index] <- (old - sub).u32()
+                    borrow <- 0
+                else:
+                    rem[index] <- (old + 0x1_0000_0000 - sub).u32()
+                    borrow <- 1
+                index <- index + 1
+            rem[limb_count] <- (rem[limb_count].u64() - borrow).u32()
+            quotient[bit / 32] <- quotient[bit / 32] | (1.u32() << (bit % 32))
+        offset <- offset + 1
+    index <- 0
+    while index < limb_count:
+        remainder[index] <- rem[index]
+        index <- index + 1
+
+def uint_fixed_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize, limb_count: usize) -> i64:
+    if input.is_null() or length < 1 or length > 18 or length != 1 + 2 * limb_count: return -1
+    if input[0] != 0 and input[0] != 1: return -1
+    dividend: mutable u32[8] = zeroed
+    divisor: mutable u32[8] = zeroed
+    divisor_nonzero: mutable bool = false
+    index: mutable usize = 0
+    while index < limb_count:
+        a: i64 = input[index + 1]
+        b: i64 = input[index + 1 + limb_count]
+        if a < 0 or a > 4_294_967_295 or b < 0 or b > 4_294_967_295: return -1
+        dividend[index] <- a.u32()
+        divisor[index] <- b.u32()
+        divisor_nonzero <- divisor_nonzero or divisor[index] != 0
+        index <- index + 1
+    if not divisor_nonzero: return -1
+    output_bytes: usize = limb_count * 4
+    if output.is_null() or capacity < output_bytes: return -2
+    quotient: mutable u32[8] = zeroed
+    remainder: mutable u32[8] = zeroed
+    uint_fixed_divide_words(dividend&, divisor&, limb_count, quotient&, remainder&)
+    index <- 0
+    while index < limb_count:
+        answer: u32 = if input[0] == 0: quotient[index] else: remainder[index]
+        byte: mutable usize = 0
+        while byte < 4:
+            output[index * 4 + byte] <- (answer >> (byte * 8)).u8()
+            byte <- byte + 1
+        index <- index + 1
+    output_bytes.i64()
+
+export fn uint128_t(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = uint_fixed_impl(input, length, output, capacity, 4)

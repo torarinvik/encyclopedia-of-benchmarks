@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-multilayer-perceptron-classifier-float64-slice-io-v1",
+  "algorithm": "multilayer_perceptron_classifier",
+  "function_symbol": "MLP.train / MLP.get_acc_loss",
+  "description": "Train the pinned one-hidden-layer Python MLP on its fixed three-row split and return the test metric history.",
+  "workspace": {
+    "elements": 26
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[epoch_count, learning_rate, gamma, four row-major 2D feature rows, four labels]",
+    "epoch_count_range": [1, 12],
+    "learning_rate_values": [0.05, 0.1, 0.2],
+    "gamma_values": [0.5, 0.75, 1.0],
+    "feature_dimensions": [4, 2],
+    "feature_value_range": [-2, 2],
+    "feature_step": 0.25,
+    "labels": [0, 1, 2],
+    "maximum_valid_input_length": 15,
+    "maximum_parseable_input_length": 16,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[epoch_count, test_accuracy_history, test_loss_history, mean_test_accuracy]",
+    "maximum_elements": 26,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "initialization": "Start each request at the first model initialization after a fresh import, using the pinned default_rng(42) sequence and fixed source He scales for input width two and hidden width two.",
+    "dataloader": "Use feature rows 0,1,2 for training and row 3 for testing. The source's shuffle_data is a no-op. Output width is len(train_labels)=3, even if one or more class IDs are absent.",
+    "targets": "Encode each class label as a length-three vector with 0.99 at the label index and zeros elsewhere.",
+    "forward": "Append a bias feature of one; compute input-to-hidden affine transform, ReLU, then hidden-to-output affine transform with no output activation.",
+    "updates": "For each epoch, visit the three training rows in order and apply one sample gradient step. delta_out=output-target; delta_hidden=(delta_out*w2^T)*(z1>0); subtract learning_rate times the input/hidden and hidden/output gradients.",
+    "metrics": "After all three row updates in an epoch, score the single test row. Accuracy uses first-index argmax tie behavior. Loss is sum((output-target)^2)/2. Multiply learning_rate by gamma after recording the epoch metrics; do not stop early.",
+    "output_values": "Return epoch_count, all test-accuracy values, all test-loss values, and the mean test accuracy printed by train().",
+    "errors": "Reject malformed length, nonfinite values, unsupported hyperparameters, feature values outside the finite quarter-step grid in [-2,2], and labels outside {0,1,2} with -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/multilayer_perceptron_classifier.py",
+    "symbol": "Dataloader.get_train_test_data / Dataloader.get_inout_dim / MLP.initialize / MLP.forward / MLP.back_prop / MLP.train / MLP.get_acc_loss",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/multilayer_perceptron_classifier.py",
+    "role": "algorithm",
+    "dependencies": [
+      "NumPy default_rng(42) initialization sequence, fixed to its first model draw"
+    ]
+  },
+  "cases": [
+    {
+      "id": "three_row_source_split",
+      "input_values": [2, 0.1, 0.75, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0],
+      "input_length": 15,
+      "expected_result": 6,
+      "expected_output": [2, 1, 1, 0.49005, 0.49005, 1]
+    },
+    {
+      "id": "nonzero_hidden_activations_and_decay",
+      "input_values": [4, 0.1, 0.75, 2, 2, -2, -2, 2, 0, -2, 2, 0, 1, 2, 1],
+      "input_length": 15,
+      "expected_result": 10,
+      "expected_output": [4, 1, 1, 1, 1, 5.619679834308548, 5.619679834308548, 5.619679834308548, 5.619679834308548, 1]
+    },
+    {
+      "id": "reject_out_of_range_test_class",
+      "input_values": [1, 0.1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 3],
+      "input_length": 15,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+const MAX_NUM: i64 = 1000000
+
+def gcd_nonnegative(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def advance(value: i64, step: i64, modulus: i64) -> i64:
+    (value * value + step) % modulus
+
+def pollard_rho_python_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 5: return -1
+    num: i64 = input[0]
+    seed: mutable i64 = input[1]
+    step: mutable i64 = input[2]
+    attempts: i64 = input[3]
+    step_limit: i64 = input[4]
+    if num < 2 or num > MAX_NUM or seed < 0 or seed >= num or step < 0 or step > 1000 or attempts < 1 or attempts > 8 or step_limit < 1 or step_limit > 64: return -1
+    if num > 2 and num % 2 == 0: return 2
+
+    attempt: mutable i64 = 0
+    while attempt < attempts:
+        tortoise: mutable i64 = seed
+        hare: mutable i64 = seed
+        iteration: mutable i64 = 0
+        while iteration < step_limit:
+            tortoise <- advance(tortoise, step, num)
+            hare <- advance(advance(hare, step, num), step, num)
+            difference: mutable i64 = hare - tortoise
+            if difference < 0: difference <- -difference
+            divisor: i64 = gcd_nonnegative(difference, num)
+            if divisor != 1:
+                if divisor < num: return divisor
+                break
+            iteration <- iteration + 1
+        seed <- hare
+        step <- step + 1
+        attempt <- attempt + 1
+    0
+
+export fn pollard_rho_python(input: i64&, length: usize) -> i64 = pollard_rho_python_impl

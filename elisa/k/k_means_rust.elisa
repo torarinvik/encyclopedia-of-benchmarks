@@ -1,0 +1,53 @@
+const U53_MAX: i64 = 9007199254740991
+const U53_DENOMINATOR: f64 = 9007199254740992.0
+
+def k_means_rust_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 10 or input[0] != 4: return -1
+    max_iter: i64 = input[1]
+    if max_iter < 1 or max_iter > 16: return -1
+    draw0: i64 = input[2]
+    draw1: i64 = input[4]
+    if input[3] != 0 or input[5] != 0 or draw0 < 0 or draw0 > U53_MAX or
+        draw1 < 0 or draw1 > U53_MAX or draw0 == draw1: return -1
+
+    points: mutable f64[4] = zeroed
+    for index in 0..<4:
+        coordinate: i64 = input[index + 6]
+        if coordinate < -16 or coordinate > 16 or
+            (index > 0 and input[index + 5] >= coordinate): return -1
+        points[index] <- coordinate.f64()
+    if input[7] >= 0 or input[8] <= 1: return -1
+
+    centers: mutable f64[4] = zeroed
+    centers[0] <- draw0.f64() / U53_DENOMINATOR
+    centers[1] <- 0.0
+    centers[2] <- draw1.f64() / U53_DENOMINATOR
+    centers[3] <- 0.0
+    labels: mutable i64[4] = zeroed
+    for pass in 0..<max_iter.usize():
+        sums: mutable f64[4] = zeroed
+        counts: mutable usize[2] = zeroed
+        for index in 0..<4:
+            dx0: f64 = points[index] - centers[0]
+            dy0: f64 = -centers[1]
+            dx1: f64 = points[index] - centers[2]
+            dy1: f64 = -centers[3]
+            distance0: f64 = dx0 * dx0 + dy0 * dy0
+            distance1: f64 = dx1 * dx1 + dy1 * dy1
+            cluster: usize = 0
+            if distance1 < distance0: cluster <- 1
+            labels[index] <- cluster.i64()
+            sums[cluster * 2] <- sums[cluster * 2] + points[index]
+            sums[cluster * 2 + 1] <- sums[cluster * 2 + 1] + 0.0
+            counts[cluster] <- counts[cluster] + 1
+        if counts[0] == 0 or counts[1] == 0: return -1
+        for cluster in 0..<2:
+            centers[cluster * 2] <- sums[cluster * 2] / counts[cluster].f64()
+            centers[cluster * 2 + 1] <- sums[cluster * 2 + 1] / counts[cluster].f64()
+
+    packed: mutable i64 = 0
+    weights: i64[4] = {1, 2, 4, 8}
+    for index in 0..<4: packed <- packed + labels[index] * weights[index]
+    packed
+
+export fn k_means_rust(input: i64&, length: usize) -> i64 = k_means_rust_impl

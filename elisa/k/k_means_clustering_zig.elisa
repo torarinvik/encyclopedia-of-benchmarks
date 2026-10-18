@@ -1,0 +1,51 @@
+const MAX_POINTS: usize = 8
+const MAX_INPUT_LENGTH: usize = 10
+const MAX_MOVES: usize = 64
+const CENTER_BIAS: i64 = 4097
+const CENTER_BASE: i64 = 8194
+
+def k_means_clustering_zig_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 2 or input[0] > MAX_POINTS.i64(): return -1
+    point_count: usize = input[0].usize()
+    if length != point_count + 1: return -1
+
+    points: mutable f32[8] = zeroed
+    for index in 0..<point_count:
+        coordinate: i64 = input[index + 1]
+        if coordinate < -16 or coordinate > 16 or (index > 0 and input[index] >= coordinate): return -1
+        points[index] <- coordinate.f32()
+
+    centers: mutable f32[2] = zeroed
+    centers[0] <- points[0]
+    centers[1] <- points[1]
+    old_counts: mutable usize[2] = zeroed
+    for move in 0..<MAX_MOVES:
+        sums: mutable f32[2] = zeroed
+        counts: mutable usize[2] = zeroed
+        for index in 0..<point_count:
+            first_delta: f32 = points[index] - centers[0]
+            second_delta: f32 = centers[1] - points[index]
+            first_distance: f32 = first_delta * first_delta
+            second_distance: f32 = second_delta * second_delta
+            cluster: usize = 0
+            if second_distance < first_distance: cluster <- 1
+            sums[cluster] <- sums[cluster] + points[index]
+            counts[cluster] <- counts[cluster] + 1
+        if counts[0] == 0 or counts[1] == 0: return -1
+        moved: mutable f32[2] = zeroed
+        moved[0] <- sums[0] / counts[0].f32()
+        moved[1] <- sums[1] / counts[1].f32()
+        if moved[0] == centers[0] and moved[1] == centers[1] and
+            counts[0] == old_counts[0] and counts[1] == old_counts[1]:
+            code0: i64 = (moved[0] * 256.0.f32()).i64() + CENTER_BIAS
+            code1: i64 = (moved[1] * 256.0.f32()).i64() + CENTER_BIAS
+            if code0 < 1 or code0 > 8193 or code1 < 1 or code1 > 8193: return -1
+            return (code0 * CENTER_BASE + code1) * 81 + counts[0].i64() * 9 + counts[1].i64()
+        centers[0] <- moved[0]
+        centers[1] <- moved[1]
+        old_counts[0] <- counts[0]
+        old_counts[1] <- counts[1]
+    return -2
+
+export fn k_means_clustering_zig(input: i64&, length: usize) -> i64 = k_means_clustering_zig_impl

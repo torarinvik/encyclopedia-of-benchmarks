@@ -1,0 +1,53 @@
+def page_rank_java_impl(input: f64&, input_length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > 18: return -1
+    n_value: f64 = input[0]
+    iteration_value: f64 = input[1]
+    if n_value != n_value or iteration_value != iteration_value: return -1
+    if n_value < 1.0 or n_value > 4.0 or iteration_value < 1.0 or iteration_value > 8.0: return -1
+    nodes: usize = n_value.usize()
+    iterations: usize = iteration_value.usize()
+    if n_value != nodes.f64() or iteration_value != iterations.f64() or input_length != 2 + nodes * nodes: return -1
+    matrix: mutable u8[16] = zeroed
+    degrees: mutable usize[4] = zeroed
+    row: mutable usize = 0
+    while row < nodes:
+        column: mutable usize = 0
+        while column < nodes:
+            value: f64 = input[2 + row * nodes + column]
+            if value != value or (value != 0.0 and value != 1.0) or (row == column and value != 0.0): return -1
+            matrix[row * nodes + column] <- value.u8()
+            degrees[row] <- degrees[row] + matrix[row * nodes + column].usize()
+            column <- column + 1
+        row <- row + 1
+    ranks: mutable f64[4] = zeroed
+    i: mutable usize = 0
+    while i < nodes:
+        ranks[i] <- 1.0 / nodes.f64()
+        i <- i + 1
+    iteration: mutable usize = 0
+    while iteration < iterations:
+        next_ranks: mutable f64[4] = zeroed
+        column: mutable usize = 0
+        while column < nodes:
+            incoming: mutable f64 = 0.0
+            row <- 0
+            while row < nodes:
+                if matrix[row * nodes + column] == 1 and degrees[row] > 0:
+                    incoming <- incoming + ranks[row] / degrees[row].f64()
+                row <- row + 1
+            next_ranks[column] <- 0.5 + 0.5 * incoming
+            column <- column + 1
+        row <- 0
+        while row < nodes:
+            ranks[row] <- next_ranks[row]
+            row <- row + 1
+        iteration <- iteration + 1
+    if output.is_null() or capacity < nodes: return -2
+    i <- 0
+    while i < nodes:
+        output[i] <- ranks[i]
+        i <- i + 1
+    return nodes.i64()
+
+export fn page_rank_java(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = page_rank_java_impl

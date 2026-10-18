@@ -1,0 +1,37 @@
+const INVALID_RESULT: i64 = -1
+const OUTPUT_ERROR: i64 = -2
+const INPUT_LENGTH: usize = 6
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 7
+
+def sir_in_range(value: f64, minimum: f64, maximum: f64) -> bool:
+    value >= minimum and value <= maximum
+
+def sir_impl(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < INPUT_LENGTH or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+        return INVALID_RESULT
+    if input_length != INPUT_LENGTH: return INVALID_RESULT
+
+    s: f64 = input[0]
+    i: f64 = input[1]
+    r: f64 = input[2]
+    beta: f64 = input[3]
+    k: f64 = input[4]
+    time: f64 = input[5]
+    if not sir_in_range(s, 0.0, 1000000.0) or not sir_in_range(i, 0.0, 1000000.0) or
+        not sir_in_range(r, 0.0, 1000000.0) or not sir_in_range(beta, 0.0, 0.001) or
+        not sir_in_range(k, 0.0, 1.0) or not sir_in_range(time, 0.0, 140.0):
+        return INVALID_RESULT
+
+    d_s: f64 = ((-beta) * s) * i
+    d_i_infection: f64 = (beta * s) * i
+    d_i_recovery: f64 = k * i
+    d_i: f64 = d_i_infection - d_i_recovery
+    d_r: f64 = k * i
+
+    if output.is_null() or output_capacity < 3: return OUTPUT_ERROR
+    output[0] <- d_s
+    output[1] <- d_i
+    output[2] <- d_r
+    3
+
+export fn sir(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = sir_impl

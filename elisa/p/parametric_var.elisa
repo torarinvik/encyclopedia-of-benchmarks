@@ -1,0 +1,91 @@
+extern fabs(value: f64) -> f64
+extern floor(value: f64) -> f64
+extern log(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+const PARAMETRIC_VAR_MAX_PARSEABLE_LENGTH: usize = 69
+const PARAMETRIC_VAR_INVALID_RESULT: i64 = -1
+const PARAMETRIC_VAR_OUTPUT_ERROR: i64 = -2
+const PARAMETRIC_VAR_SQRT_TWO_PI: f64 = 2.50662827463100050242
+
+def parametric_var_normal_quantile(probability: f64) -> f64:
+    q: f64 = probability - 0.5
+    if fabs(q) <= 0.425:
+        r: f64 = 0.180625 - q * q
+        numerator: mutable f64 = 2509.0809287301226727
+        numerator <- numerator * r + 33430.575583588128105
+        numerator <- numerator * r + 67265.770927008700853
+        numerator <- numerator * r + 45921.953931549871457
+        numerator <- numerator * r + 13731.693765509461125
+        numerator <- numerator * r + 1971.5909503065514427
+        numerator <- numerator * r + 133.14166789178437745
+        numerator <- numerator * r + 3.387132872796366608
+        denominator: mutable f64 = 5226.495278852854561
+        denominator <- denominator * r + 28729.085735721942674
+        denominator <- denominator * r + 39307.89580009271061
+        denominator <- denominator * r + 21213.794301586595867
+        denominator <- denominator * r + 5394.1960214247511077
+        denominator <- denominator * r + 687.1870074920579083
+        denominator <- denominator * r + 42.313330701600911252
+        denominator <- denominator * r + 1.0
+        return q * numerator / denominator
+
+    r: f64 = sqrt(-log(1.0 - probability)) - 1.6
+    numerator: mutable f64 = 7.7454501427834140764e-4
+    numerator <- numerator * r + 0.0227238449892691845833
+    numerator <- numerator * r + 0.24178072517745061177
+    numerator <- numerator * r + 1.27045825245236838258
+    numerator <- numerator * r + 3.64784832476320460504
+    numerator <- numerator * r + 5.7694972214606914055
+    numerator <- numerator * r + 4.6303378461565452959
+    numerator <- numerator * r + 1.42343711074968357734
+    denominator: mutable f64 = 1.05075007164441684324e-9
+    denominator <- denominator * r + 5.475938084995344946e-4
+    denominator <- denominator * r + 0.0151986665636164571966
+    denominator <- denominator * r + 0.14810397642748007459
+    denominator <- denominator * r + 0.68976733498510000455
+    denominator <- denominator * r + 1.6763848301838038494
+    denominator <- denominator * r + 2.05319162663775882187
+    denominator <- denominator * r + 1.0
+    result: f64 = numerator / denominator
+    if q < 0.0: result <- -result
+    result
+
+def calculate_var_parametric_impl(input: f64&, length: usize,
+                                  output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > PARAMETRIC_VAR_MAX_PARSEABLE_LENGTH:
+        return PARAMETRIC_VAR_INVALID_RESULT
+    for index in 0..<length:
+        if input[index] != input[index]: return PARAMETRIC_VAR_INVALID_RESULT
+
+    portfolio: f64 = input[0]
+    confidence: f64 = input[1]
+    horizon: f64 = input[2]
+    raw_count: f64 = input[3]
+    if portfolio < 100.0 or portfolio > 1000000.0 or
+       confidence < 0.5 or confidence > 0.95 or
+       horizon < 1.0 or horizon > 10.0 or
+       raw_count < 20.0 or raw_count > 64.0 or floor(raw_count) != raw_count:
+        return PARAMETRIC_VAR_INVALID_RESULT
+    count: usize = raw_count.usize()
+    if length != 4 + count: return PARAMETRIC_VAR_INVALID_RESULT
+
+    total: mutable f64 = 0.0
+    for index in 0..<count:
+        value: f64 = input[4 + index]
+        if value < -0.25 or value > 0.25: return PARAMETRIC_VAR_INVALID_RESULT
+        total <- total + value
+    mean: f64 = total / count.f64()
+    squared_deviations: mutable f64 = 0.0
+    for index in 0..<count:
+        difference: f64 = input[4 + index] - mean
+        squared_deviations <- squared_deviations + difference * difference
+    sample_sd: f64 = sqrt(squared_deviations / (count - 1).f64())
+
+    if output.is_null() or output_capacity < 1: return PARAMETRIC_VAR_OUTPUT_ERROR
+    z: f64 = parametric_var_normal_quantile(confidence)
+    output[0] <- portfolio * (z * sample_sd - mean) * sqrt(horizon)
+    1
+
+export fn calculate_var_parametric(input: f64&, length: usize,
+                                   output: mutable f64&, output_capacity: usize) -> i64 = calculate_var_parametric_impl

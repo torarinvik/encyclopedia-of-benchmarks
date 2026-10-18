@@ -1,0 +1,241 @@
+extern sqrt(value: f64) -> f64
+
+def finite(value: f64) -> bool:
+    return value == value and value < 1e300 and value > -1e300
+
+def diagonalize(a: f64&, vectors: mutable f64&, n: usize,
+        values: mutable f64[4]) -> bool:
+    i: mutable usize = 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            vectors[i * 4 + j] <- (1.0 if i == j else 0.0)
+            j <- j + 1
+        i <- i + 1
+    converged: mutable bool = false
+    sweep: mutable usize = 0
+    while sweep <= 64:
+        largest: mutable f64 = 0.0
+        p: mutable usize = 0
+        while p < n:
+            q: mutable usize = p + 1
+            while q < n:
+                value: f64 = a[p * 4 + q]
+                if value < 0.0: value <- -value
+                if value > largest: largest <- value
+                q <- q + 1
+            p <- p + 1
+        if largest <= 1e-14:
+            converged <- true
+            break
+        if sweep == 64: break
+        p <- 0
+        while p < n:
+            q <- p + 1
+            while q < n:
+                apq: f64 = a[p * 4 + q]
+                abs_apq: f64 = apq
+                if abs_apq < 0.0: abs_apq <- -abs_apq
+                if abs_apq > 1e-14:
+                    tau: f64 = (a[q * 4 + q] - a[p * 4 + p]) / (2.0 * apq)
+                    abs_tau: f64 = tau
+                    if abs_tau < 0.0: abs_tau <- -abs_tau
+                    sign: f64 = (1.0 if tau >= 0.0 else -1.0)
+                    t: f64 = sign / (abs_tau + sqrt(1.0 + tau * tau))
+                    c: f64 = 1.0 / sqrt(1.0 + t * t)
+                    s: f64 = t * c
+                    app: f64 = a[p * 4 + p]
+                    aqq: f64 = a[q * 4 + q]
+                    a[p * 4 + p] <- app - t * apq
+                    a[q * 4 + q] <- aqq + t * apq
+                    a[p * 4 + q] <- 0.0
+                    a[q * 4 + p] <- 0.0
+                    r: mutable usize = 0
+                    while r < n:
+                        if r != p and r != q:
+                            arp: f64 = a[r * 4 + p]
+                            arq: f64 = a[r * 4 + q]
+                            a[r * 4 + p] <- c * arp - s * arq
+                            a[p * 4 + r] <- a[r * 4 + p]
+                            a[r * 4 + q] <- s * arp + c * arq
+                            a[q * 4 + r] <- a[r * 4 + q]
+                        vrp: f64 = vectors[r * 4 + p]
+                        vrq: f64 = vectors[r * 4 + q]
+                        vectors[r * 4 + p] <- c * vrp - s * vrq
+                        vectors[r * 4 + q] <- s * vrp + c * vrq
+                        r <- r + 1
+                q <- q + 1
+            p <- p + 1
+        sweep <- sweep + 1
+    if not converged: return false
+    i <- 0
+    while i < n:
+        values[i] <- a[i * 4 + i]
+        i <- i + 1
+    i <- 0
+    while i < n:
+        j <- i + 1
+        while j < n:
+            if values[j] > values[i]:
+                temp: f64 = values[i]
+                values[i] <- values[j]
+                values[j] <- temp
+                r: mutable usize = 0
+                while r < n:
+                    temp_v: f64 = vectors[r * 4 + i]
+                    vectors[r * 4 + i] <- vectors[r * 4 + j]
+                    vectors[r * 4 + j] <- temp_v
+                    r <- r + 1
+            j <- j + 1
+        i <- i + 1
+    return true
+
+def principle_component_analysis_impl(input: f64&, input_length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > 35: return -1
+    i: mutable usize = 0
+    while i < input_length:
+        if not finite(input[i]): return -1
+        i <- i + 1
+    samples_v: f64 = input[0]
+    features_v: f64 = input[1]
+    components_v: f64 = input[2]
+    if samples_v < 3.0 or samples_v > 8.0 or features_v < 2.0 or features_v > 4.0 or components_v < 1.0 or components_v > 4.0: return -1
+    samples: usize = samples_v.usize()
+    features: usize = features_v.usize()
+    components: usize = components_v.usize()
+    if samples_v != samples.f64() or features_v != features.f64() or components_v != components.f64(): return -1
+    if samples <= features or components > features or input_length != 3 + samples * features: return -1
+    rows: mutable f64[32] = zeroed
+    means: mutable f64[4] = zeroed
+    r: mutable usize = 0
+    while r < samples:
+        c: mutable usize = 0
+        while c < features:
+            x: f64 = input[3 + r * features + c]
+            if x < -9.0 or x > 9.0 or x != x: return -1
+            xi: i64 = x.i64()
+            if xi.f64() != x: return -1
+            rows[r * 4 + c] <- x
+            means[c] <- means[c] + x
+            if not finite(means[c]): return -1
+            c <- c + 1
+        r <- r + 1
+    c: mutable usize = 0
+    while c < features:
+        means[c] <- means[c] / samples.f64()
+        c <- c + 1
+    variances: mutable f64[4] = zeroed
+    r <- 0
+    while r < samples:
+        c <- 0
+        while c < features:
+            delta: f64 = rows[r * 4 + c] - means[c]
+            variances[c] <- variances[c] + delta * delta
+            c <- c + 1
+        r <- r + 1
+    scales: mutable f64[4] = zeroed
+    c <- 0
+    while c < features:
+        variances[c] <- variances[c] / samples.f64()
+        if variances[c] <= 0.0 or not finite(variances[c]): return -1
+        scales[c] <- sqrt(variances[c])
+        c <- c + 1
+    z: mutable f64[32] = zeroed
+    pca_means: mutable f64[4] = zeroed
+    r <- 0
+    while r < samples:
+        c <- 0
+        while c < features:
+            z[r * 4 + c] <- (rows[r * 4 + c] - means[c]) / scales[c]
+            pca_means[c] <- pca_means[c] + z[r * 4 + c]
+            c <- c + 1
+        r <- r + 1
+    c <- 0
+    while c < features:
+        pca_means[c] <- pca_means[c] / samples.f64()
+        c <- c + 1
+    centered: mutable f64[32] = zeroed
+    r <- 0
+    while r < samples:
+        c <- 0
+        while c < features:
+            centered[r * 4 + c] <- z[r * 4 + c] - pca_means[c]
+            c <- c + 1
+        r <- r + 1
+    covariance: mutable f64[16] = zeroed
+    i <- 0
+    while i < features:
+        j: mutable usize = i
+        while j < features:
+            total: mutable f64 = 0.0
+            r <- 0
+            while r < samples:
+                total <- total + centered[r * 4 + i] * centered[r * 4 + j]
+                r <- r + 1
+            covariance[i * 4 + j] <- total / (samples - 1).f64()
+            covariance[j * 4 + i] <- covariance[i * 4 + j]
+            j <- j + 1
+        i <- i + 1
+    vectors: mutable f64[16] = zeroed
+    eigenvalues: mutable f64[4] = zeroed
+    if not diagonalize(&covariance[0], &vectors[0], features, eigenvalues): return -1
+    i <- 0
+    while i < features:
+        if eigenvalues[i] <= 0.0 or not finite(eigenvalues[i]): return -1
+        if i + 1 < features and eigenvalues[i] - eigenvalues[i + 1] <= 1e-8: return -1
+        i <- i + 1
+    total_variance: mutable f64 = 0.0
+    i <- 0
+    while i < features:
+        total_variance <- total_variance + eigenvalues[i]
+        i <- i + 1
+    if total_variance <= 0.0 or not finite(total_variance): return -1
+    scores: mutable f64[32] = zeroed
+    k: mutable usize = 0
+    while k < components:
+        r <- 0
+        while r < samples:
+            c <- 0
+            while c < features:
+                scores[k * 8 + r] <- scores[k * 8 + r] + centered[r * 4 + c] * vectors[c * 4 + k]
+                c <- c + 1
+            r <- r + 1
+        pivot: mutable usize = 0
+        r <- 1
+        while r < samples:
+            left: f64 = scores[k * 8 + r]
+            right: f64 = scores[k * 8 + pivot]
+            if left < 0.0: left <- -left
+            if right < 0.0: right <- -right
+            if left > right: pivot <- r
+            r <- r + 1
+        if scores[k * 8 + pivot] < 0.0:
+            r <- 0
+            while r < samples:
+                scores[k * 8 + r] <- -scores[k * 8 + r]
+                r <- r + 1
+        k <- k + 1
+    staged: mutable f64[38] = zeroed
+    staged[0] <- samples.f64()
+    staged[1] <- components.f64()
+    pos: mutable usize = 2
+    r <- 0
+    while r < samples:
+        k <- 0
+        while k < components:
+            staged[pos] <- scores[k * 8 + r]
+            pos <- pos + 1
+            k <- k + 1
+        r <- r + 1
+    k <- 0
+    while k < components:
+        staged[pos] <- eigenvalues[k] / total_variance
+        pos <- pos + 1
+        k <- k + 1
+    if output.is_null() or capacity < pos: return -2
+    i <- 0
+    while i < pos:
+        output[i] <- staged[i]
+        i <- i + 1
+    return pos.i64()

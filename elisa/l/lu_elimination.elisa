@@ -1,0 +1,105 @@
+const MAX_INPUT_LENGTH: usize = 22
+const MAX_DIMENSION: usize = 4
+
+def lu_elimination_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+        return false
+    if value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def lu_elimination_impl(input: f64&, input_length: usize,
+                        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if not lu_elimination_exact_integer(input[0], 0, MAX_DIMENSION.i64()): return -1
+    dimension: usize = input[0].usize()
+    matrix_elements: usize = dimension * dimension
+    if input_length != 1 + matrix_elements + dimension: return -1
+
+    matrix: mutable f64[16] = zeroed
+    rhs: mutable f64[4] = zeroed
+    index: mutable usize = 0
+    while index < matrix_elements:
+        value: f64 = input[index + 1]
+        if not lu_elimination_exact_integer(value, -1, 1): return -1
+        matrix[index] <- value
+        index <- index + 1
+    index <- 0
+    while index < dimension:
+        value: f64 = input[1 + matrix_elements + index]
+        if not lu_elimination_exact_integer(value, -8, 8): return -1
+        rhs[index] <- value
+        index <- index + 1
+
+    lower: mutable f64[16] = zeroed
+    upper: mutable f64[16] = zeroed
+    row: mutable usize = 0
+    while row < dimension:
+        column: mutable usize = row
+        while column < dimension:
+            sum: mutable f64 = 0.0
+            index <- 0
+            while index < row:
+                sum <- sum + lower[row * dimension + index] * upper[index * dimension + column]
+                index <- index + 1
+            upper[row * dimension + column] <- matrix[row * dimension + column] - sum
+            column <- column + 1
+        pivot: f64 = upper[row * dimension + row]
+        if pivot == 0.0 or pivot != pivot or pivot >= 1.7976931348623157e308 or pivot <= -1.7976931348623157e308:
+            return -1
+        column <- row
+        while column < dimension:
+            if row == column:
+                lower[row * dimension + row] <- 1.0
+            else:
+                sum <- 0.0
+                index <- 0
+                while index < row:
+                    sum <- sum + lower[column * dimension + index] * upper[index * dimension + row]
+                    index <- index + 1
+                lower[column * dimension + row] <- (matrix[column * dimension + row] - sum) / pivot
+                value: f64 = lower[column * dimension + row]
+                if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+                    return -1
+            column <- column + 1
+        row <- row + 1
+
+    transformed: mutable f64[4] = zeroed
+    row <- 0
+    while row < dimension:
+        sum: mutable f64 = 0.0
+        column <- 0
+        while column < row:
+            sum <- sum + transformed[column] * lower[row * dimension + column]
+            column <- column + 1
+        transformed[row] <- (rhs[row] - sum) / lower[row * dimension + row]
+        value: f64 = transformed[row]
+        if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+            return -1
+        row <- row + 1
+
+    solution: mutable f64[4] = zeroed
+    row <- dimension
+    while row > 0:
+        row <- row - 1
+        sum: mutable f64 = 0.0
+        column <- row
+        while column < dimension:
+            sum <- sum + solution[column] * upper[row * dimension + column]
+            column <- column + 1
+        back_pivot: f64 = upper[row * dimension + row]
+        if back_pivot == 0.0 or back_pivot != back_pivot or back_pivot >= 1.7976931348623157e308 or back_pivot <= -1.7976931348623157e308:
+            return -1
+        solution[row] <- (transformed[row] - sum) / back_pivot
+        solution_value: f64 = solution[row]
+        if solution_value != solution_value or solution_value >= 1.7976931348623157e308 or solution_value <= -1.7976931348623157e308:
+            return -1
+
+    if output.is_null() or capacity < dimension: return -2
+    index <- 0
+    while index < dimension:
+        output[index] <- solution[index]
+        index <- index + 1
+    dimension.i64()
+
+export fn lu_elimination(input: f64&, input_length: usize,
+                         output: mutable f64&, capacity: usize) -> i64 = lu_elimination_impl

@@ -1,0 +1,115 @@
+def decision_tree_python_regression_mean_y(input: f64&, samples: usize, start: usize, count: usize) -> f64:
+    total: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < count:
+        total <- total + input[3 + samples + start + i]
+        i <- i + 1
+    return total / count.f64()
+
+def decision_tree_python_regression_feature_mse(input: f64&, start: usize, count: usize, prediction: f64) -> f64:
+    total: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < count:
+        difference: f64 = input[3 + start + i] - prediction
+        total <- total + difference * difference
+        i <- i + 1
+    return total / count.f64()
+
+struct DecisionTreePythonRegressionNode:
+    prediction: f64
+    boundary: f64
+    left: usize
+    right: usize
+    is_leaf: bool
+
+def decision_tree_python_regression_build(input: f64&, samples: usize, start: usize,
+        count: usize, depth: usize, min_leaf: usize,
+        nodes: mutable DecisionTreePythonRegressionNode&,
+        next_node: mutable usize&) -> usize:
+    node: usize = next_node[0]
+    next_node[0] <- next_node[0] + 1
+    total_mean: f64 = decision_tree_python_regression_mean_y(input, samples, start, count)
+    if count < 2 * min_leaf or depth == 1:
+        nodes[node].prediction <- total_mean
+        nodes[node].is_leaf <- true
+        return node
+    best_split: mutable usize = 0
+    minimum_error: mutable f64 = 2.0 * decision_tree_python_regression_feature_mse(input, start, count, total_mean)
+    split: mutable usize = min_leaf
+    while split <= count - min_leaf:
+        left_mean: f64 = decision_tree_python_regression_mean_y(input, samples, start, split)
+        right_count: usize = count - split
+        right_mean: f64 = decision_tree_python_regression_mean_y(input, samples, start + split, right_count)
+        error: f64 = decision_tree_python_regression_feature_mse(input, start, split, left_mean) +
+            decision_tree_python_regression_feature_mse(input, start + split, right_count, right_mean)
+        if error < minimum_error:
+            best_split <- split
+            minimum_error <- error
+        split <- split + 1
+    if best_split == 0:
+        nodes[node].prediction <- total_mean
+        nodes[node].is_leaf <- true
+        return node
+    nodes[node].boundary <- input[3 + start + best_split]
+    nodes[node].is_leaf <- false
+    nodes[node].left <- decision_tree_python_regression_build(input, samples, start,
+        best_split, depth - 1, min_leaf, nodes, next_node)
+    nodes[node].right <- decision_tree_python_regression_build(input, samples, start + best_split,
+        count - best_split, depth - 1, min_leaf, nodes, next_node)
+    return node
+
+def decision_tree_python_regression_predict(nodes: DecisionTreePythonRegressionNode&, root: usize, query: f64) -> f64:
+    node: mutable usize = root
+    while not nodes[node].is_leaf:
+        if query >= nodes[node].boundary: node <- nodes[node].right
+        else: node <- nodes[node].left
+    return nodes[node].prediction
+
+def decision_tree_python_regression_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 8 or input_length > 41: return -1
+    i: mutable usize = 0
+    while i < 3:
+        if input[i] != input[i]: return -1
+        i <- i + 1
+    if input[0] < 1.0 or input[0] > 6.0 or input[1] < 1.0 or input[1] > 6.0 or input[2] < 2.0 or input[2] > 12.0: return -1
+    if input[0] != input[0].i64().f64() or input[1] != input[1].i64().f64() or input[2] != input[2].i64().f64(): return -1
+    depth: usize = input[0].usize()
+    min_leaf: usize = input[1].usize()
+    samples: usize = input[2].usize()
+    query_count_index: usize = 3 + 2 * samples
+    if input_length <= query_count_index: return -1
+    query_count_value: f64 = input[query_count_index]
+    if query_count_value != query_count_value or query_count_value < 1.0 or query_count_value > 12.0: return -1
+    if query_count_value != query_count_value.i64().f64(): return -1
+    queries: usize = query_count_value.usize()
+    if input_length != query_count_index + 1 + queries or input_length > 40: return -1
+    i <- 3
+    while i < query_count_index:
+        value: f64 = input[i]
+        if value != value or value < -8.0 or value > 8.0 or value != value.i64().f64(): return -1
+        i <- i + 1
+    i <- query_count_index + 1
+    while i < input_length:
+        value: f64 = input[i]
+        if value != value or value < -8.0 or value > 8.0 or value != value.i64().f64(): return -1
+        i <- i + 1
+    tree: mutable DecisionTreePythonRegressionNode[23] = zeroed
+    next_node: mutable usize = 0
+    root: usize = decision_tree_python_regression_build(input, samples, 0, samples, depth,
+        min_leaf, tree, next_node)
+    staged: mutable f64[13] = zeroed
+    staged[0] <- queries.f64()
+    i <- 0
+    while i < queries:
+        staged[i + 1] <- decision_tree_python_regression_predict(tree, root, input[query_count_index + 1 + i])
+        i <- i + 1
+    if output.is_null() or output_capacity < queries + 1: return -2
+    i <- 0
+    while i < queries + 1:
+        output[i] <- staged[i]
+        i <- i + 1
+    return (queries + 1).i64()
+
+export fn decision_tree_python_regression(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = decision_tree_python_regression_impl

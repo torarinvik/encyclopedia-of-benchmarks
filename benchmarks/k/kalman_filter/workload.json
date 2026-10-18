@@ -1,0 +1,488 @@
+{
+  "schema_version": 1,
+  "id": "kalman-filter-java-scalar-trace-float64-slice-io-v1",
+  "algorithm": "kalman_filter",
+  "function_symbol": "kalman_filter",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/streaming/KalmanFilter.java",
+    "symbol": "KalmanFilter.filter(double)",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/streaming/KalmanFilter.java",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "construct a scalar filter, then call filter(measurement) for each supplied measurement in order",
+    "cycle": "predict with zero control, then update with the constructor's default measurement noise",
+    "update_order": [
+      "covariance += process_noise",
+      "innovation_variance = covariance + measurement_noise",
+      "gain = covariance / innovation_variance",
+      "estimate += gain * (measurement - estimate)",
+      "covariance = covariance * measurement_noise / innovation_variance"
+    ],
+    "output_order": "for each measurement, emit [estimate, error_covariance, last_gain] after the update",
+    "excluded_java_helpers": [
+      "predict(controlInput)",
+      "update(measurement, noise)",
+      "fuse"
+    ]
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[initial_estimate_micro, initial_covariance_micro, process_noise_micro, measurement_noise_micro, step_count, measurement_micro...]",
+    "valid_length_range": [
+      6,
+      17
+    ],
+    "maximum_valid_length": 17,
+    "maximum_parseable_length": 64,
+    "micro_scale": 1000000,
+    "micro_fields_must_be_integer_valued": true,
+    "step_count_is_unscaled_integer": true,
+    "scaled_ranges": {
+      "initial_estimate_micro": [
+        -1000000000,
+        1000000000
+      ],
+      "initial_covariance_micro": [
+        0,
+        1000000000000
+      ],
+      "process_noise_micro": [
+        0,
+        1000000000000
+      ],
+      "measurement_noise_micro": [
+        1,
+        1000000000000
+      ],
+      "measurement_micro": [
+        -1000000000,
+        1000000000
+      ]
+    },
+    "step_count_range": [
+      1,
+      12
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "three values per step: [estimate, error_covariance, last_gain]",
+    "maximum_elements": 36,
+    "success_result": "number of output float64 elements (3 * step_count)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 36,
+    "meaning": "Per-step estimate, covariance, and gain records."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "three_repeated_measurements",
+      "input_values": [
+        0,
+        1000000,
+        0,
+        1000000,
+        3,
+        10000000,
+        10000000,
+        10000000
+      ],
+      "input_length": 8,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": 9,
+      "expected_output": [
+        5.0,
+        0.5,
+        0.5,
+        6.666666666666666,
+        0.3333333333333333,
+        0.3333333333333333,
+        7.5,
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "process_noise_before_update",
+      "input_values": [
+        0,
+        0,
+        1000000,
+        1000000,
+        2,
+        10000000,
+        0
+      ],
+      "input_length": 7,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": 6,
+      "expected_output": [
+        5.0,
+        0.5,
+        0.5,
+        2.0,
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "id": "zero_initial_covariance",
+      "input_values": [
+        2000000,
+        0,
+        0,
+        1000000,
+        2,
+        10000000,
+        -10000000
+      ],
+      "input_length": 7,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": 6,
+      "expected_output": [
+        2.0,
+        0.0,
+        0.0,
+        2.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "maximum_variances_and_state",
+      "input_values": [
+        -1000000000,
+        1000000000000,
+        1000000000000,
+        1000000000000,
+        1,
+        1000000000
+      ],
+      "input_length": 6,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": 3,
+      "expected_output": [
+        333.33333333333326,
+        666666.6666666666,
+        0.6666666666666666
+      ]
+    },
+    {
+      "id": "maximum_step_count",
+      "input_values": [
+        0,
+        1000000,
+        10000,
+        100000,
+        12,
+        1000000,
+        2000000,
+        3000000,
+        4000000,
+        5000000,
+        6000000,
+        7000000,
+        8000000,
+        9000000,
+        10000000,
+        11000000,
+        12000000
+      ],
+      "input_length": 17,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": 36,
+      "expected_output": [
+        0.9099099099099098,
+        0.09099099099099099,
+        0.9099099099099098,
+        1.4576423128641864,
+        0.05024652622142537,
+        0.5024652622142537,
+        2.037509440295376,
+        0.037596151156611,
+        0.37596151156611,
+        2.6703646779906416,
+        0.0322475557686513,
+        0.322475557686513,
+        3.3622668878766304,
+        0.029700022288862326,
+        0.2970002228886232,
+        4.111859204525221,
+        0.028418050075019515,
+        0.2841805007501952,
+        4.913465191924413,
+        0.02775508689379585,
+        0.2775508689379585,
+        5.759404115177835,
+        0.02740739942540463,
+        0.27407399425404627,
+        6.64161471771292,
+        0.02722371544897206,
+        0.2722371544897206,
+        7.552620353341236,
+        0.027126299070960553,
+        0.2712629907096055,
+        8.485982141999761,
+        0.027074528607928316,
+        0.2707452860792831,
+        9.436418061264089,
+        0.027046986033394935,
+        0.2704698603339493
+      ]
+    },
+    {
+      "id": "negative_initial_covariance",
+      "input_values": [
+        0,
+        -1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_process_noise",
+      "input_values": [
+        0,
+        1,
+        -1,
+        1,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_default_measurement_noise",
+      "input_values": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 6,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "measurement_outside_bound",
+      "input_values": [
+        0,
+        1,
+        0,
+        1,
+        1,
+        1000000001
+      ],
+      "input_length": 6,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_micro_unit",
+      "input_values": [
+        0,
+        1000000,
+        0,
+        1000000,
+        1,
+        500000.5
+      ],
+      "input_length": 6,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_steps",
+      "input_values": [
+        0,
+        1000000,
+        0,
+        1000000,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "missing_measurement",
+      "input_values": [
+        0,
+        1000000,
+        0,
+        1000000,
+        2,
+        10000000
+      ],
+      "input_length": 6,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_measurement",
+      "input_values": [
+        0,
+        1000000,
+        0,
+        1000000,
+        1,
+        10000000,
+        0
+      ],
+      "input_length": 7,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "parseable_limit",
+      "input_values": [
+        0,
+        1000000,
+        0,
+        1000000,
+        1,
+        1000000,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 64,
+      "output_capacity": 36,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "short_output_capacity",
+      "input_values": [0, 1000000, 0, 1000000, 1, 10000000],
+      "input_length": 6,
+      "output_capacity": 2,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_output",
+      "input_values": [0, 1000000, 0, 1000000, 1, 10000000],
+      "input_length": 6,
+      "output_capacity": 3,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [0, 1000000, 0, 0, 1, 0],
+      "input_length": 6,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

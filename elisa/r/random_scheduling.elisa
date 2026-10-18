@@ -1,0 +1,65 @@
+const MAX_TASK_COUNT: usize = 32
+const MAX_INPUT_LENGTH: usize = 35
+const MAX_OUTPUT_BYTES: usize = 256
+const JAVA_MULTIPLIER: u64 = 25214903917
+const JAVA_ADDEND: u64 = 11
+const JAVA_MASK: u64 = 281474976710655
+
+struct JavaRandom:
+    state: mutable u64
+
+def random_scheduling_next_bits(random: mutable JavaRandom&, bits: usize) -> u32:
+    random.state <- (random.state * JAVA_MULTIPLIER + JAVA_ADDEND) & JAVA_MASK
+    (random.state >> (48 - bits)).u32()
+
+def random_scheduling_next_int(random: mutable JavaRandom&, bound: u32) -> u32:
+    if (bound & (bound - 1)) == 0:
+        return ((bound.u64() * random_scheduling_next_bits(random, 31).u64()) >> 31).u32()
+    while true:
+        bits: u32 = random_scheduling_next_bits(random, 31)
+        value: u32 = bits % bound
+        if bits.u64() - value.u64() + (bound - 1).u64() <= 2147483647: return value
+    0
+
+def random_scheduling_put_i64_le(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def random_scheduling_impl(input: i64&, input_length: usize,
+                           output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    if input[1] < 0 or input[1] > MAX_TASK_COUNT.i64(): return -1
+    task_count: usize = input[1].usize()
+    if input_length != task_count + 2: return -1
+    tasks: mutable i64[MAX_TASK_COUNT] = zeroed
+    index: mutable usize = 0
+    while index < task_count:
+        task: i64 = input[index + 2]
+        if task < -2147483648 or task > 2147483647: return -1
+        tasks[index] <- task
+        index <- index + 1
+
+    random: mutable JavaRandom = zeroed
+    random.state <- (input[0].u64() ^ JAVA_MULTIPLIER) & JAVA_MASK
+    size: mutable usize = task_count
+    while size > 1:
+        selected: usize = random_scheduling_next_int(random, size.u32()).usize()
+        saved: i64 = tasks[size - 1]
+        tasks[size - 1] <- tasks[selected]
+        tasks[selected] <- saved
+        size <- size - 1
+
+    output_bytes: usize = task_count * 8
+    if output_bytes > MAX_OUTPUT_BYTES: return -1
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < task_count:
+        random_scheduling_put_i64_le(output, index * 8, tasks[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn random_scheduling(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = random_scheduling_impl

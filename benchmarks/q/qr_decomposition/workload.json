@@ -1,0 +1,500 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-qr-decomposition-float64-slice-io-v1",
+  "algorithm": "qr_decomposition",
+  "function_symbol": "qr_decomposition",
+  "description": "Check square QR factorizations through reconstruction, orthogonality, and triangularity errors.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C",
+    "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+    "path": "numerical_methods/qr_decompose.h",
+    "symbol": "qr_decompose",
+    "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/numerical_methods/qr_decompose.h",
+    "role": "algorithm"
+  },
+  "related_pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C",
+      "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+      "path": "numerical_methods/qr_decomposition.c",
+      "symbol": "main",
+      "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/numerical_methods/qr_decomposition.c"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "numerical_methods/qr_decompose.h",
+      "symbol": "qr_algorithm::qr_decompose",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/numerical_methods/qr_decompose.h"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "numerical_methods/qr_decomposition.cpp",
+      "symbol": "main",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/numerical_methods/qr_decomposition.cpp"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "numerical_methods/qr_decomposition.cpp",
+      "symbol": "main",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/numerical_methods/qr_decomposition.cpp"
+    },
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "maths/qr_decomposition.py",
+      "symbol": "qr_householder",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/qr_decomposition.py"
+    },
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/matrix/QRDecomposition.java",
+      "symbol": "QRDecomposition.decompose",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/matrix/QRDecomposition.java"
+    }
+  ],
+  "contract": {
+    "operation": "Factor a bounded square matrix with QR methods whose raw Q and R values may differ, then return factorization-property error norms.",
+    "input_encoding": "[dimension, A_row_major...]",
+    "exact_input_length": "1+dimension*dimension",
+    "matrix_shape": "dimension by dimension, row-major",
+    "matrix_domain": "Exact integer entries in [-1,1]; every leading principal minor is nonzero.",
+    "leading_principal_minor_rule": "For every k in 1..dimension, the determinant of A[0:k,0:k] must be nonzero. This exact condition keeps each unpivoted QR step defined and prevents the Python Householder zero-sign pivot case.",
+    "property_errors": [
+      "Frobenius norm ||A-Q*R||.",
+      "Frobenius norm ||Q^T*Q-I||.",
+      "Frobenius norm of the strictly lower-triangular part of R."
+    ],
+    "output_encoding": "[reconstruction_error, orthogonality_error, lower_triangle_error].",
+    "errors": "Malformed framing, unsupported bounds, fractional entries, a zero leading principal minor, or nonfinite factors/errors returns -1 before output checks. A null output or capacity below three returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[dimension, A_row_major...]",
+    "dimension_range": [
+      1,
+      4
+    ],
+    "matrix_value_range": [
+      -1,
+      1
+    ],
+    "matrix_values_must_be_integers": true,
+    "all_leading_principal_minors_must_be_nonzero": true,
+    "maximum_valid_input_length": 17,
+    "maximum_parseable_input_length": 18,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "Three Frobenius error norms: reconstruction, orthogonality, and strictly lower-triangular R.",
+    "element_count": 3,
+    "maximum_elements": 3,
+    "success_result": "output element count",
+    "ideal_expected_output": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing, bounds, integrality, and leading-principal-minor checks precede output pointer and capacity.",
+    "absolute_tolerance": 1e-08,
+    "relative_tolerance": 1e-08
+  },
+  "workspace": {
+    "elements": 3,
+    "meaning": "Three factorization-property error norms."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-08,
+    "relative_tolerance": 1e-08
+  },
+  "oracle_method": "Reject matrices with any zero leading principal minor using exact bounded integer determinants. The ideal property target for a valid QR factorization is zero reconstruction, orthogonality, and lower-triangle error.",
+  "cases": [
+    {
+      "id": "one_by_one_negative",
+      "input_values": [
+        1,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "two_by_two_identity",
+      "input_values": [
+        2,
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "two_by_two_nonorthogonal_columns",
+      "input_values": [
+        2,
+        1,
+        1,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "two_by_two_negative_determinant",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "three_by_three_upper_triangular",
+      "input_values": [
+        3,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 10,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "three_by_three_dense",
+      "input_values": [
+        3,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1
+      ],
+      "input_length": 10,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "four_by_four_upper_triangular",
+      "input_values": [
+        4,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "input_length": 17,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "four_by_four_negative_determinant",
+      "input_values": [
+        4,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        -1
+      ],
+      "input_length": 17,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "maximum_shape",
+      "input_values": [
+        4,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 17,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [
+        2,
+        1,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dimension_zero",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dimension_above_maximum",
+      "input_values": [
+        5
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_dimension",
+      "input_values": [
+        1.5,
+        0
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_matrix_entry",
+      "input_values": [
+        1,
+        0.5
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "matrix_entry_out_of_range",
+      "input_values": [
+        1,
+        2
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "singular_matrix",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_leading_minor_but_full_rank",
+      "input_values": [
+        2,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        1,
+        1
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        1,
+        -1
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        2,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

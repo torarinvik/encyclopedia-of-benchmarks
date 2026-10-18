@@ -1,0 +1,95 @@
+def lrucache_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 99: return -1
+    capacity_value: i64 = input[0]
+    operation_count_value: i64 = input[1]
+    if capacity_value < 2 or capacity_value > 16 or operation_count_value < 0 or operation_count_value > 32: return -1
+    cache_capacity: usize = capacity_value.usize()
+    operation_count: usize = operation_count_value.usize()
+    if length != 2 + 3 * operation_count: return -1
+
+    keys: mutable i64[16] = zeroed
+    cached_values: mutable i64[16] = zeroed
+    seen_put_keys: mutable i64[32] = zeroed
+    operation_records: mutable i64[96] = zeroed
+    used: mutable usize = 0
+    seen_count: mutable usize = 0
+    operation: mutable usize = 0
+    while operation < operation_count:
+        opcode: i64 = input[2 + 3 * operation]
+        key: i64 = input[3 + 3 * operation]
+        value: i64 = input[4 + 3 * operation]
+        if opcode != 0 and opcode != 1: return -1
+        if key < 0 or key > 1000000: return -1
+        returned_value: mutable i64 = -1
+        evicted_key: mutable i64 = -1
+        position: mutable usize = 0
+        while position < used and keys[position] != key:
+            position <- position + 1
+
+        if opcode == 0:
+            if value < 0 or value > 1000000: return -1
+            prior: mutable usize = 0
+            while prior < seen_count:
+                if seen_put_keys[prior] == key: return -1
+                prior <- prior + 1
+            seen_put_keys[seen_count] <- key
+            seen_count <- seen_count + 1
+            if used == cache_capacity:
+                evicted_key <- keys[0]
+                index: mutable usize = 1
+                while index < used:
+                    keys[index - 1] <- keys[index]
+                    cached_values[index - 1] <- cached_values[index]
+                    index <- index + 1
+                used <- used - 1
+            keys[used] <- key
+            cached_values[used] <- value
+            used <- used + 1
+        else:
+            if value != 0 or position == used: return -1
+            returned_value <- cached_values[position]
+            index: mutable usize = position + 1
+            while index < used:
+                keys[index - 1] <- keys[index]
+                cached_values[index - 1] <- cached_values[index]
+                index <- index + 1
+            keys[used - 1] <- key
+            cached_values[used - 1] <- returned_value
+
+        operation_records[3 * operation] <- opcode
+        operation_records[3 * operation + 1] <- returned_value
+        operation_records[3 * operation + 2] <- evicted_key
+        operation <- operation + 1
+
+    fields: mutable i64[130] = zeroed
+    word_count: mutable usize = 0
+    fields[word_count] <- operation_count_value
+    word_count <- word_count + 1
+    index: mutable usize = 0
+    while index < 3 * operation_count:
+        fields[word_count] <- operation_records[index]
+        word_count <- word_count + 1
+        index <- index + 1
+    fields[word_count] <- used.i64()
+    word_count <- word_count + 1
+    index <- 0
+    while index < used:
+        reverse_index: usize = used - 1 - index
+        fields[word_count] <- keys[reverse_index]
+        fields[word_count + 1] <- cached_values[reverse_index]
+        word_count <- word_count + 2
+        index <- index + 1
+
+    output_bytes: usize = word_count * 8
+    if output.is_null() or output_capacity < output_bytes: return -2
+    index <- 0
+    while index < word_count:
+        bits: u64 = fields[index].u64()
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            output[index * 8 + byte_index] <- ((bits >> (byte_index * 8)) & 255).u8()
+            byte_index <- byte_index + 1
+        index <- index + 1
+    output_bytes.i64()
+
+export fn lrucache(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = lrucache_impl

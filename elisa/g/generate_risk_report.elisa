@@ -1,0 +1,122 @@
+extern sqrt(value: f64) -> f64
+extern log(value: f64) -> f64
+extern exp(value: f64) -> f64
+
+def qnorm_r_as241(probability: f64) -> f64:
+    q: f64 = probability - 0.5
+    if q >= -0.425 and q <= 0.425:
+        r: f64 = 0.180625 - q * q
+        numerator: mutable f64 = 2509.0809287301226727
+        numerator <- numerator * r + 33430.575583588128105
+        numerator <- numerator * r + 67265.770927008700853
+        numerator <- numerator * r + 45921.953931549871457
+        numerator <- numerator * r + 13731.693765509461125
+        numerator <- numerator * r + 1971.5909503065514427
+        numerator <- numerator * r + 133.14166789178437745
+        numerator <- numerator * r + 3.387132872796366608
+        denominator: mutable f64 = 5226.495278852854561
+        denominator <- denominator * r + 28729.085735721942674
+        denominator <- denominator * r + 39307.89580009271061
+        denominator <- denominator * r + 21213.794301586595867
+        denominator <- denominator * r + 5394.1960214247511077
+        denominator <- denominator * r + 687.1870074920579083
+        denominator <- denominator * r + 42.313330701600911252
+        denominator <- denominator * r + 1.0
+        return q * numerator / denominator
+    r: f64 = sqrt(-log(1.0 - probability)) - 1.6
+    numerator: mutable f64 = 0.00077454501427834140764
+    numerator <- numerator * r + 0.0227238449892691845833
+    numerator <- numerator * r + 0.24178072517745061177
+    numerator <- numerator * r + 1.27045825245236838258
+    numerator <- numerator * r + 3.64784832476320460504
+    numerator <- numerator * r + 5.7694972214606914055
+    numerator <- numerator * r + 4.6303378461565452959
+    numerator <- numerator * r + 1.42343711074968357734
+    denominator: mutable f64 = 1.05075007164441684324e-9
+    denominator <- denominator * r + 0.0005475938084995344946
+    denominator <- denominator * r + 0.0151986665636164571966
+    denominator <- denominator * r + 0.14810397642748007459
+    denominator <- denominator * r + 0.68976733498510000455
+    denominator <- denominator * r + 1.6763848301838038494
+    denominator <- denominator * r + 2.05319162663775882187
+    denominator <- denominator * r + 1.0
+    return numerator / denominator
+
+def generate_risk_report_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 24 or input_length > 69: return -1
+    portfolio: f64 = input[0]
+    confidence: f64 = input[1]
+    horizon: f64 = input[2]
+    count_value: f64 = input[3]
+    if portfolio != portfolio or confidence != confidence or horizon != horizon or count_value != count_value: return -1
+    if count_value < 20.0 or count_value > 64.0: return -1
+    count: usize = count_value.usize()
+    if count_value != count.f64() or input_length != 4 + count: return -1
+    if portfolio < 100.0 or portfolio > 1000000.0 or confidence < 0.5 or confidence > 0.95 or horizon < 1.0 or horizon > 10.0: return -1
+
+    returns: mutable f64[64] = zeroed
+    sum: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < count:
+        value: f64 = input[4 + i]
+        if value != value or value < -0.25 or value > 0.25: return -1
+        returns[i] <- value
+        sum <- sum + value
+        i <- i + 1
+    mean: f64 = sum / count.f64()
+    squared_deviations: mutable f64 = 0.0
+    i <- 0
+    while i < count:
+        difference: f64 = returns[i] - mean
+        squared_deviations <- squared_deviations + difference * difference
+        i <- i + 1
+    sample_sd: f64 = sqrt(squared_deviations / (count - 1).f64())
+    if sample_sd == 0.0: return -1
+    tail_count: usize = ((1.0 - confidence) * count.f64()).usize()
+    if tail_count < 1: return -1
+    i <- 1
+    while i < count:
+        value: f64 = returns[i]
+        position: mutable usize = i
+        while position > 0 and returns[position - 1] > value:
+            returns[position] <- returns[position - 1]
+            position <- position - 1
+        returns[position] <- value
+        i <- i + 1
+    tail_sum: mutable f64 = 0.0
+    i <- 0
+    while i < tail_count:
+        tail_sum <- tail_sum + returns[i]
+        i <- i + 1
+    scale: f64 = sqrt(horizon)
+    z: f64 = qnorm_r_as241(confidence)
+    density: f64 = exp(-0.5 * z * z) / sqrt(2.0 * 3.14159265358979323846264338327950288)
+    es_multiplier: f64 = density / (1.0 - confidence)
+    third_moment: mutable f64 = 0.0
+    fourth_moment: mutable f64 = 0.0
+    i <- 0
+    while i < count:
+        difference: f64 = returns[i] - mean
+        square: f64 = difference * difference
+        third_moment <- third_moment + square * difference
+        fourth_moment <- fourth_moment + square * square
+        i <- i + 1
+    third_moment <- third_moment / count.f64()
+    fourth_moment <- fourth_moment / count.f64()
+    staged: mutable f64[8] = zeroed
+    staged[0] <- -returns[tail_count - 1] * portfolio * scale
+    staged[1] <- -(tail_sum / tail_count.f64()) * portfolio * scale
+    staged[2] <- portfolio * (z * sample_sd - mean) * scale
+    staged[3] <- portfolio * (es_multiplier * sample_sd - mean) * scale
+    staged[4] <- mean
+    staged[5] <- sample_sd
+    staged[6] <- third_moment / (sample_sd * sample_sd * sample_sd)
+    staged[7] <- fourth_moment / (sample_sd * sample_sd * sample_sd * sample_sd) - 3.0
+    if output.is_null() or capacity < 8: return -2
+    i <- 0
+    while i < 8:
+        output[i] <- staged[i]
+        i <- i + 1
+    return 8
+
+export fn generate_risk_report(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = generate_risk_report_impl

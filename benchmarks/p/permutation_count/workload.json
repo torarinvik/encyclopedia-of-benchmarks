@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-julia-permutation-count-i64-scalar-v1",
+  "algorithm": "permutation_count",
+  "function_symbol": "permutation_count",
+  "description": "Return the bounded nPr count from the pinned Julia permutation routine.",
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[n, r]",
+    "exact_length": 2,
+    "first_rejected_length": 3,
+    "maximum_validation_array_length": 3,
+    "n_range": [
+      0,
+      18
+    ],
+    "r_range": [
+      0,
+      18
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "factorial(n) / factorial(n-r), preserving the pinned helper's empty negative-factorial range behavior.",
+    "invalid_input_result": -1
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Julia",
+    "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+    "path": "src/math/permutation.jl",
+    "symbol": "permutation",
+    "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/permutation.jl",
+    "role": "algorithm",
+    "dependencies": [
+      "src/math/permutation.jl::factorial"
+    ]
+  },
+  "contract": {
+    "operation": "Return factorial(n) divided by factorial(n-r) for bounded n and r.",
+    "source_factorial": "Initialize to 1 and multiply the values in the ascending Julia range 1:value; the range is empty for negative value.",
+    "source_edge_behavior": "For r > n, n-r is negative, so the source denominator is 1 and the result is n!.",
+    "numeric_bound": "n <= 18 keeps the largest factorial (18!) exactly representable by Float64 and below signed-i64 maximum.",
+    "scope": "The Julia nPr scalar count only; C# string permutations and Java array-permutation enumeration are distinct variants."
+  },
+  "cases": [
+    {
+      "id": "zero_permutation",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "zero_selected",
+      "input_values": [
+        8,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "choose_one",
+      "input_values": [
+        9,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": 9
+    },
+    {
+      "id": "five_choose_two_ordered",
+      "input_values": [
+        5,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": 20
+    },
+    {
+      "id": "ten_choose_three_ordered",
+      "input_values": [
+        10,
+        3
+      ],
+      "input_length": 2,
+      "expected_result": 720
+    },
+    {
+      "id": "select_all",
+      "input_values": [
+        7,
+        7
+      ],
+      "input_length": 2,
+      "expected_result": 5040
+    },
+    {
+      "id": "r_exceeds_n_source_edge",
+      "input_values": [
+        5,
+        6
+      ],
+      "input_length": 2,
+      "expected_result": 120
+    },
+    {
+      "id": "maximum_factorial",
+      "input_values": [
+        18,
+        18
+      ],
+      "input_length": 2,
+      "expected_result": 6402373705728000
+    },
+    {
+      "id": "maximum_n_zero_selected",
+      "input_values": [
+        18,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": 1
+    },
+    {
+      "id": "invalid_negative_n",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_negative_r",
+      "input_values": [
+        5,
+        -1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_n_above_float_exact_bound",
+      "input_values": [
+        19,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_r_above_bound",
+      "input_values": [
+        5,
+        19
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_missing_r",
+      "input_values": [
+        5
+      ],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_extra_value",
+      "input_values": [
+        5,
+        2,
+        0
+      ],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_signed_i64_minimum",
+      "input_values": [
+        -9223372036854775808,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_signed_i64_maximum",
+      "input_values": [
+        5,
+        9223372036854775807
+      ],
+      "input_length": 2,
+      "expected_result": -1
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

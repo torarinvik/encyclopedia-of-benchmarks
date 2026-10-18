@@ -1,0 +1,369 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-rust-rat-in-maze-i64-array-bytes-output-v1",
+  "algorithm": "rat_in_maze",
+  "function_symbol": "rat_in_maze",
+  "description": "Run the pinned Python or Rust rat-in-a-maze variant and serialize its first path using the source variant's matrix encoding.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "backtracking/rat_in_maze.py",
+      "symbol": "solve_maze / run_maze",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/backtracking/rat_in_maze.py",
+      "role": "algorithm"
+    },
+    {
+      "repository": "TheAlgorithms/Rust",
+      "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+      "path": "src/backtracking/rat_in_maze.rs",
+      "symbol": "find_path_in_maze / Maze::solve",
+      "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/backtracking/rat_in_maze.rs",
+      "role": "algorithm"
+    }
+  ],
+  "contract": {
+    "operation": "Select a source variant, search a bounded maze in its source-defined order, and serialize the returned route matrix.",
+    "variants": {
+      "0": {
+        "source": "Python solve_maze",
+        "input_layout": "[0, n, source_row, source_col, destination_row, destination_col, row_major_cells...], with 0=open and 1=wall",
+        "dimensions": "Square n by n, 1 <= n <= 8",
+        "moves": "Down, right, up, left",
+        "output_encoding": "Python solution matrix: 0 for route cells, 1 for all other cells",
+        "endpoints": "Both source and destination are supplied and must be in bounds; the route must occupy open cells."
+      },
+      "1": {
+        "source": "Rust find_path_in_maze",
+        "input_layout": "[1, rows, cols, start_row, start_col, row_major_cells...], with 1=open and 0=blocked",
+        "dimensions": "Rectangular rows by cols, each dimension 1 through 8",
+        "moves": "Right, down, left, up",
+        "output_encoding": "Rust boolean solution matrix: 1 for true route cells, 0 otherwise",
+        "endpoints": "Start is supplied and must be in bounds; destination is the bottom-right cell. The source accepts that destination before checking whether it is open, including for a blocked 1-by-1 maze."
+      }
+    },
+    "search_semantics": "Depth-first search returns the first route under the selected move order. Route cells are marked only along the current branch and unmarked when a branch fails.",
+    "no_route_semantics": "Python raises ValueError and Rust returns Ok(None); the benchmark maps either outcome to -3 and writes no output.",
+    "maximum_valid_input_length": 70,
+    "maximum_parseable_input_length": 71,
+    "maximum_output_words": 64,
+    "maximum_output_bytes": 512,
+    "output_encoding": "Row-major little-endian signed i64 matrix words, with no header; output dimensions match the selected input grid.",
+    "success_result": "Output byte count.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_route_result": -3,
+    "errors": "Malformed framing, invalid variant, dimensions, coordinates, or cells returns -1 before output checks. A valid route with null or insufficient output returns -2 without writes. No route returns -3 before output checks."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "Variant-specific layouts described in contract. Cells are row-major signed values 0 or 1.",
+    "variant_range": [
+      0,
+      1
+    ],
+    "dimension_range": [
+      1,
+      8
+    ],
+    "maximum_valid_length": 70,
+    "maximum_parseable_length": 71,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Row-major little-endian signed i64 matrix words; variant 0 uses 0=route/1=other, variant 1 uses 1=route/0=other.",
+    "maximum_output_bytes": 512,
+    "success_result": "Output byte count.",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_route_result": -3,
+    "short_capacity_writes_nothing": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Up to 64 signed-i64 cells for the returned route matrix."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "python_single_cell_exact_output_capacity",
+      "input_values": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "python_down_before_right_first_route",
+      "input_values": [
+        0,
+        2,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 10,
+      "output_capacity": 512,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000010000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "python_custom_source_and_destination",
+      "input_values": [
+        0,
+        2,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 10,
+      "output_capacity": 512,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "python_no_route_uses_exception_status",
+      "input_values": [
+        0,
+        2,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 10,
+      "output_capacity": 512,
+      "expected_result": -3,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "rust_right_before_down_first_route",
+      "input_values": [
+        1,
+        3,
+        3,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 14,
+      "output_capacity": 512,
+      "expected_result": 72,
+      "expected_output_hex": "010000000000000001000000000000000100000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "rust_rectangular_grid",
+      "input_values": [
+        1,
+        2,
+        3,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 11,
+      "output_capacity": 512,
+      "expected_result": 48,
+      "expected_output_hex": "010000000000000001000000000000000100000000000000000000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "rust_blocked_goal_is_accepted_when_reached",
+      "input_values": [
+        1,
+        2,
+        2,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "input_length": 9,
+      "output_capacity": 512,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000010000000000000000000000000000000100000000000000"
+    },
+    {
+      "id": "rust_blocked_single_cell_is_goal",
+      "input_values": [
+        1,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 6,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0100000000000000"
+    },
+    {
+      "id": "rust_no_route_returns_none_status",
+      "input_values": [
+        1,
+        2,
+        2,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 9,
+      "output_capacity": 512,
+      "expected_result": -3,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "python_out_of_range_endpoint",
+      "input_values": [
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "output_capacity": 512,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "rust_nonbinary_cell",
+      "input_values": [
+        1,
+        1,
+        1,
+        0,
+        0,
+        2
+      ],
+      "input_length": 6,
+      "output_capacity": 512,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_value_is_invalid",
+      "input_values": [
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        99
+      ],
+      "input_length": 7,
+      "output_capacity": 512,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_after_valid_route",
+      "input_values": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity_after_valid_route",
+      "input_values": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 7,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        1,
+        1,
+        1,
+        0,
+        0,
+        2
+      ],
+      "input_length": 6,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_is_invalid",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 512,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

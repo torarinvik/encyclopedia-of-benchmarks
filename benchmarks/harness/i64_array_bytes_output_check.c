@@ -187,7 +187,12 @@ int main(void)
                                                    null_output_flag ? NULL : observed,
                                                    (size_t)output_capacity);
         int canary_changed = 0;
-        const int check_canary = null_input_flag ||
+#ifdef BENCHMARK_NULL_EMPTY_INPUT_MAY_WRITE
+        const int null_input_requires_canary = null_input_flag && length != 0;
+#else
+        const int null_input_requires_canary = null_input_flag;
+#endif
+        const int check_canary = null_input_requires_canary ||
                                  (expected_count < 0 && !null_output_flag) ||
                                  output_capacity == 0;
         if (check_canary) {

@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-mini-batch-gradient-descent-f64-slice-v1",
+  "algorithm": "mini_batch_gradient_descent",
+  "function_symbol": "mini_batch_gradient_descent",
+  "description": "Train bounded linear regression with explicit per-epoch sample orders and source-ordered mini-batch updates.",
+  "workspace": {
+    "elements": 4
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "float64_slice",
+    "encoding": "[sample_count, feature_count, batch_size, epoch_count, learning_rate, row-major X, y, epoch-major sample-index permutations]",
+    "sample_count_range": [
+      1,
+      8
+    ],
+    "feature_count_range": [
+      1,
+      3
+    ],
+    "batch_size_range": [
+      1,
+      8
+    ],
+    "epoch_count_range": [
+      0,
+      8
+    ],
+    "learning_rate_range": [
+      0,
+      0.25
+    ],
+    "feature_value_range": [
+      -10,
+      10
+    ],
+    "target_value_range": [
+      -100,
+      100
+    ],
+    "maximum_valid_input_elements": 101,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_slice",
+    "encoding": "[weights in feature order, bias]",
+    "maximum_elements": 4,
+    "invalid_input_result": -1,
+    "invalid_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "initialization": "Initialize all weights and bias to zero.",
+    "ordering": "For each epoch, process the supplied permutation in consecutive batches in order; the final batch is truncated to the remaining sample count.",
+    "prediction": "For each sample in the current batch, compute the feature dot product in feature order using old weights, then add old bias; error is prediction-target.",
+    "weight_update": "For each feature, accumulate feature*error in batch order. Update weights by weights -= (learning_rate*gradient)/batch_length; all batch errors were computed before any update.",
+    "bias_update": "After updating weights, compute the batch mean error from the same pre-update errors in batch order, then update bias by bias -= learning_rate*mean_error.",
+    "determinism": "Each epoch supplies an explicit permutation, replacing NumPy default_rng permutation generation. Accumulations are left-to-right in the stated order.",
+    "bounds": "1..8 samples, 1..3 features, 0..8 epochs, 1..sample_count batch size, finite learning rate in [0,0.25], X in [-10,10], y in [-100,100]."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/mini_batch_gradient_descent.py",
+    "symbol": "mini_batch_gradient_descent",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/mini_batch_gradient_descent.py",
+    "role": "algorithm",
+    "dependencies": [
+      "numpy.dot",
+      "numpy.mean",
+      "numpy.random.Generator.permutation"
+    ]
+  },
+  "cases": [
+    {
+      "id": "zero_epochs",
+      "input_values": [
+        3,
+        2,
+        2,
+        0,
+        0.1,
+        1,
+        2,
+        2,
+        -1,
+        0,
+        3,
+        4,
+        -2,
+        1
+      ],
+      "input_length": 14,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "partial_final_batch",
+      "input_values": [
+        5,
+        2,
+        2,
+        2,
+        0.05,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        -1,
+        2,
+        2,
+        -1,
+        2,
+        -1,
+        3,
+        0,
+        4,
+        0,
+        1,
+        2,
+        3,
+        4,
+        4,
+        3,
+        2,
+        1,
+        0
+      ],
+      "input_length": 30,
+      "expected_result": 3,
+      "expected_output": [
+        0.7129936337890626,
+        -0.14886951171875,
+        0.43535462988281254
+      ]
+    },
+    {
+      "id": "single_sample_epochs",
+      "input_values": [
+        1,
+        1,
+        1,
+        3,
+        0.1,
+        2,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": 2,
+      "expected_output": [
+        0.35000000000000003,
+        0.17500000000000002
+      ]
+    },
+    {
+      "id": "three_feature_batches",
+      "input_values": [
+        4,
+        3,
+        3,
+        2,
+        0.025,
+        1,
+        0,
+        2,
+        0,
+        1,
+        -1,
+        2,
+        1,
+        0,
+        -1,
+        2,
+        1,
+        2,
+        -1,
+        4,
+        0,
+        2,
+        0,
+        3,
+        1,
+        1,
+        3,
+        0,
+        2
+      ],
+      "input_length": 29,
+      "expected_result": 4,
+      "expected_output": [
+        0.2869557291666667,
+        0.09311501736111111,
+        0.09712152777777777,
+        0.12468098958333333
+      ]
+    },
+    {
+      "id": "duplicate_permutation_index",
+      "input_values": [
+        3,
+        1,
+        2,
+        1,
+        0.1,
+        1,
+        2,
+        3,
+        1,
+        2,
+        3,
+        0,
+        0,
+        2
+      ],
+      "input_length": 14,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_learning_rate",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        -0.1,
+        1,
+        2,
+        1,
+        2,
+        0,
+        1
+      ],
+      "input_length": 11,
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_permutation_length",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        0.1,
+        1,
+        2,
+        1,
+        2,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": -1
+    },
+    {
+      "id": "batch_size_too_large",
+      "input_values": [
+        2,
+        1,
+        3,
+        0,
+        0.1,
+        1,
+        2,
+        1,
+        2
+      ],
+      "input_length": 9,
+      "expected_result": -1
+    },
+    {
+      "id": "zero_learning_rate",
+      "input_values": [
+        3,
+        1,
+        2,
+        2,
+        0.0,
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        0,
+        1,
+        2,
+        2,
+        1,
+        0
+      ],
+      "input_length": 17,
+      "expected_result": 2,
+      "expected_output": [
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

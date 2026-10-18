@@ -1,0 +1,99 @@
+extern floor(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+const MAX_CITIES: usize = 8
+const MAX_INPUT_VALUES: usize = 17
+const MAX_OUTPUT_VALUES: usize = 11
+const MAX_MASKS: usize = 256
+const INF_COST: f64 = 1e300
+
+def travelling_salesman_python_held_karp_impl(input: f64&, input_length: usize,
+    output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 5 or input_length > MAX_INPUT_VALUES: return -1
+    n_value: f64 = input[0]
+    if n_value != n_value or n_value < 2.0 or n_value > MAX_CITIES.f64() or floor(n_value) != n_value: return -1
+    n: usize = n_value.usize()
+    if input_length != 1 + 2 * n: return -1
+
+    x: mutable f64[8] = zeroed
+    y: mutable f64[8] = zeroed
+    for city in 0..<n:
+        cx: f64 = input[1 + 2 * city]
+        cy: f64 = input[2 + 2 * city]
+        if cx != cx or cy != cy or cx < -16.0 or cx > 16.0 or cy < -16.0 or cy > 16.0 or
+            floor(cx) != cx or floor(cy) != cy: return -1
+        x[city] <- cx
+        y[city] <- cy
+
+    distances: mutable f64[64] = zeroed
+    for from in 0..<n:
+        for to in 0..<n:
+            dx: f64 = x[to] - x[from]
+            dy: f64 = y[to] - y[from]
+            distances[from * 8 + to] <- sqrt(dx * dx + dy * dy)
+
+    dp: mutable f64[2048] = zeroed
+    for state in 0..<2048: dp[state] <- INF_COST
+    dp[8] <- 0.0
+    mask_count: usize = 1 << n
+    for mask in 0..<mask_count:
+        for u in 0..<n:
+            if (mask & (1 << u)) == 0: continue
+            prefix: f64 = dp[mask * 8 + u]
+            for v in 0..<n:
+                bit: usize = 1 << v
+                if (mask & bit) != 0: continue
+                next_mask: usize = mask | bit
+                candidate: f64 = prefix + distances[u * 8 + v]
+                if candidate < dp[next_mask * 8 + v]: dp[next_mask * 8 + v] <- candidate
+
+    final_mask: usize = mask_count - 1
+    minimum: mutable f64 = INF_COST
+    end_node: mutable usize = n
+    for u in 1..<n:
+        candidate: f64 = dp[final_mask * 8 + u] + distances[u * 8]
+        if minimum > candidate:
+            minimum <- candidate
+            end_node <- u
+    if end_node == n: return -1
+
+    reverse_path: mutable usize[9] = zeroed
+    path_length: mutable usize = 0
+    mask: mutable usize = final_mask
+    while end_node != 0:
+        reverse_path[path_length] <- end_node
+        path_length <- path_length + 1
+        previous_mask: usize = mask ^ (1 << end_node)
+        found: mutable bool = false
+        for u in 0..<n:
+            if (mask & (1 << u)) == 0: continue
+            if dp[mask * 8 + end_node] == dp[previous_mask * 8 + u] + distances[u * 8 + end_node]:
+                mask <- previous_mask
+                end_node <- u
+                found <- true
+                break
+        if not found or path_length > MAX_CITIES: return -1
+    reverse_path[path_length] <- 0
+    path_length <- path_length + 1
+    left: mutable usize = 0
+    right: mutable usize = path_length - 1
+    while left < right:
+        temporary: usize = reverse_path[left]
+        reverse_path[left] <- reverse_path[right]
+        reverse_path[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+    reverse_path[path_length] <- 0
+    path_length <- path_length + 1
+
+    staged: mutable f64[11] = zeroed
+    staged[0] <- path_length.f64()
+    for index in 0..<path_length: staged[index + 1] <- reverse_path[index].f64()
+    staged[path_length + 1] <- minimum
+    output_size: usize = path_length + 2
+    if output.is_null() or capacity < output_size: return -2
+    for index in 0..<output_size: output[index] <- staged[index]
+    output_size.i64()
+
+export fn travelling_salesman_dynamic_programming(input: f64&, input_length: usize,
+    output: mutable f64&, capacity: usize) -> i64 = travelling_salesman_python_held_karp_impl

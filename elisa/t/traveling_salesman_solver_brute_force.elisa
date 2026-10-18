@@ -1,0 +1,74 @@
+const TSS_BF_MAX_CITIES: usize = 8
+const TSS_BF_MAX_PARSEABLE_INPUT_LENGTH: usize = 67
+const TSS_BF_MAX_EDGE_COST: i64 = 1000
+
+def tss_bf_next_permutation(values: mutable usize&, length: usize) -> bool:
+    if length < 2: return false
+    pivot: mutable usize = length - 1
+    while pivot > 0 and values[pivot - 1] >= values[pivot]:
+        pivot <- pivot - 1
+    if pivot == 0: return false
+    pivot <- pivot - 1
+
+    successor: usize = length - 1
+    while values[successor] <= values[pivot]:
+        successor <- successor - 1
+    temporary: mutable usize = values[pivot]
+    values[pivot] <- values[successor]
+    values[successor] <- temporary
+
+    left: mutable usize = pivot + 1
+    right: mutable usize = length - 1
+    while left < right:
+        temporary <- values[left]
+        values[left] <- values[right]
+        values[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+    true
+
+def traveling_salesman_solver_brute_force_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 2 or length > TSS_BF_MAX_PARSEABLE_INPUT_LENGTH:
+        return -1.0e300
+    selector_value: i64 = input[0]
+    city_count_value: i64 = input[1]
+    if city_count_value < 2 or city_count_value > TSS_BF_MAX_CITIES.i64(): return -1.0e300
+    city_count: usize = city_count_value.usize()
+    if selector_value < 0 or selector_value > city_count_value + 1: return -1.0e300
+    if length != 2 + city_count * city_count: return -1.0e300
+
+    distances: mutable i64[64] = zeroed
+    for index in 0..<city_count * city_count:
+        cost: i64 = input[index + 2]
+        if cost < 0 or cost > TSS_BF_MAX_EDGE_COST: return -1.0e300
+        distances[index] <- cost
+
+    permutation_length: usize = city_count - 1
+    permutation: mutable usize[7] = zeroed
+    for index in 0..<permutation_length:
+        permutation[index] <- index + 1
+
+    best_distance: mutable i64 = 9223372036854775807
+    best_route: mutable usize[9] = zeroed
+    while true:
+        route: mutable usize[9] = zeroed
+        route[0] <- 0
+        for index in 0..<permutation_length:
+            route[index + 1] <- permutation[index]
+        route[city_count] <- 0
+
+        distance: mutable i64 = 0
+        for index in 0..<city_count:
+            distance <- distance + distances[route[index] * city_count + route[index + 1]]
+        if distance < best_distance:
+            best_distance <- distance
+            for index in 0..<(city_count + 1):
+                best_route[index] <- route[index]
+
+        if not tss_bf_next_permutation(&permutation[0], permutation_length): break
+
+    if selector_value == 0:
+        return best_distance.f64()
+    best_route[(selector_value - 1).usize()].f64()
+
+export fn traveling_salesman_solver_brute_force(input: i64&, length: usize) -> f64 = traveling_salesman_solver_brute_force_impl

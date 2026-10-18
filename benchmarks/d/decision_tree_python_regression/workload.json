@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-decision-tree-regression-float64-slice-io-v1",
+  "algorithm": "decision_tree_python_regression",
+  "function_symbol": "DecisionTree.train / DecisionTree.predict",
+  "description": "Train the pinned one-dimensional Python regression tree and predict bounded queries.",
+  "workspace": {
+    "elements": 13
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[depth, min_leaf_size, sample_count, x[0..sample_count), y[0..sample_count), query_count, queries[0..query_count)]",
+    "depth_range": [
+      1,
+      6
+    ],
+    "min_leaf_size_range": [
+      1,
+      6
+    ],
+    "sample_count_range": [
+      2,
+      12
+    ],
+    "query_count_range": [
+      1,
+      12
+    ],
+    "sample_and_query_value_range": [
+      -8,
+      8
+    ],
+    "all_fields_must_be_integers": true,
+    "training_order": "preserve_input_order",
+    "maximum_valid_input_length": 40,
+    "maximum_parseable_input_length": 41,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[query_count, predictions in query order...]",
+    "maximum_elements": 13,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "operation": "Train the reusable DecisionTree on one-dimensional x and y arrays, then predict each query; the random demonstration and printing are excluded.",
+    "leaf_rules": "Return the mean of y when the node has fewer than twice min_leaf_size samples or depth equals one.",
+    "split_search": "Visit positional split indices from left to right, skip either child smaller than min_leaf_size, and retain the first split whose score is strictly below the current threshold.",
+    "split_score": "Preserve source behavior: score x slices using mean_squared_error(x_slice, mean(y_slice)); initialize the threshold to twice mean_squared_error(x, mean(y)). If no candidate beats the threshold, return a mean-y leaf.",
+    "prediction": "The boundary is x[split_index]; query values greater than or equal to the boundary recurse right, and smaller values recurse left.",
+    "output": "Emit query_count followed by one mean-label prediction per query, in input order.",
+    "errors": "Malformed framing, out-of-range or fractional values, or unsupported parameters return -1. Null output and insufficient capacity return -2 without writes."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/decision_tree.py",
+    "symbol": "DecisionTree.train / DecisionTree.predict",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/decision_tree.py",
+    "role": "algorithm",
+    "dependencies": [
+      "numpy"
+    ]
+  },
+  "cases": [
+    {
+      "id": "ordered_regression_split",
+      "input_values": [
+        4,
+        2,
+        6,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        4,
+        -8,
+        2,
+        3,
+        8
+      ],
+      "input_length": 20,
+      "expected_result": 5,
+      "expected_output": [
+        4.0,
+        1.0,
+        1.0,
+        4.0,
+        4.0
+      ]
+    },
+    {
+      "id": "depth_one_leaf",
+      "input_values": [
+        1,
+        1,
+        4,
+        0,
+        1,
+        2,
+        3,
+        0,
+        1,
+        2,
+        3,
+        4,
+        -1,
+        1,
+        2,
+        4
+      ],
+      "input_length": 16,
+      "expected_result": 5,
+      "expected_output": [
+        4.0,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "id": "unsorted_positional_samples",
+      "input_values": [
+        2,
+        1,
+        4,
+        0,
+        4,
+        1,
+        5,
+        0,
+        4,
+        1,
+        5,
+        4,
+        -1,
+        0,
+        2,
+        4
+      ],
+      "input_length": 16,
+      "expected_result": 5,
+      "expected_output": [
+        4.0,
+        1.6666666666666667,
+        1.6666666666666667,
+        1.6666666666666667,
+        1.6666666666666667
+      ]
+    },
+    {
+      "id": "no_improving_split",
+      "input_values": [
+        4,
+        1,
+        4,
+        0,
+        1,
+        2,
+        3,
+        7,
+        7,
+        7,
+        7,
+        4,
+        -1,
+        0,
+        2,
+        4
+      ],
+      "input_length": 16,
+      "expected_result": 5,
+      "expected_output": [
+        4.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0
+      ]
+    },
+    {
+      "id": "bad_depth",
+      "input_values": [
+        0,
+        1,
+        4,
+        0,
+        1,
+        2,
+        3,
+        0,
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "input_length": 13,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_sample",
+      "input_values": [
+        2,
+        1,
+        2,
+        0.5,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+extern log(value: f64) -> f64
+
+const MAX_CLASSES: usize = 4
+const MAX_SAMPLES: usize = 16
+const MAX_INPUT: usize = 22
+const MIN_MARGIN: f64 = 1e-8
+
+def lda_exact_integer(value: f64, minimum: f64, maximum: f64) -> bool:
+    if value != value or value < minimum or value > maximum: return false
+    value.i64().f64() == value
+
+def linear_discriminant_analysis_impl(input: f64&, input_length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length == 0 or input_length > MAX_INPUT: return -1
+    if not lda_exact_integer(input[0], 2.0, 4.0): return -1
+    class_count: usize = input[0].usize()
+    if input_length < 1 + class_count: return -1
+    counts: mutable usize[MAX_CLASSES] = zeroed
+    total_count: mutable usize = 0
+    k: mutable usize = 0
+    while k < class_count:
+        if not lda_exact_integer(input[1 + k], 2.0, 6.0): return -1
+        counts[k] <- input[1 + k].usize()
+        total_count <- total_count + counts[k]
+        k <- k + 1
+    if total_count > MAX_SAMPLES or input_length != 1 + class_count + total_count: return -1
+
+    groups: mutable f64[MAX_CLASSES * 6] = zeroed
+    means: mutable f64[MAX_CLASSES] = zeroed
+    offset: mutable usize = 1 + class_count
+    k <- 0
+    while k < class_count:
+        sum: mutable f64 = 0.0
+        j: mutable usize = 0
+        while j < counts[k]:
+            x: f64 = input[offset]
+            offset <- offset + 1
+            if not lda_exact_integer(x, -32.0, 32.0): return -1
+            groups[k * 6 + j] <- x
+            sum <- sum + x
+            j <- j + 1
+        means[k] <- sum / counts[k].f64()
+        if not lda_exact_integer(means[k], -32.0, 32.0): return -1
+        k <- k + 1
+
+    squared_sum: mutable f64 = 0.0
+    k <- 0
+    while k < class_count:
+        j: usize = 0
+        while j < counts[k]:
+            delta: f64 = groups[k * 6 + j] - means[k]
+            squared_sum <- squared_sum + delta * delta
+            j <- j + 1
+        k <- k + 1
+    variance: f64 = (1.0 / (total_count - class_count).f64()) * squared_sum
+    if variance != variance or variance <= 0.0: return -1
+    priors: mutable f64[MAX_CLASSES] = zeroed
+    k <- 0
+    while k < class_count:
+        priors[k] <- counts[k].f64() / total_count.f64()
+        k <- k + 1
+
+    staged: mutable f64[MAX_SAMPLES] = zeroed
+    n: mutable usize = 0
+    group: mutable usize = 0
+    while group < class_count:
+        j: usize = 0
+        while j < counts[group]:
+            x: f64 = groups[group * 6 + j]
+            best: mutable f64 = -1e308
+            second: mutable f64 = -1e308
+            winner: mutable usize = 0
+            k <- 0
+            while k < class_count:
+                score: f64 = x * (means[k] / variance) - (means[k] * means[k] / (2.0 * variance)) + log(priors[k])
+                if score > best:
+                    second <- best
+                    best <- score
+                    winner <- k
+                else if score > second:
+                    second <- score
+                k <- k + 1
+            if best - second < MIN_MARGIN: return -1
+            staged[n] <- winner.f64()
+            n <- n + 1
+            j <- j + 1
+        group <- group + 1
+    if output.is_null() or capacity < n: return -2
+    i: mutable usize = 0
+    while i < n:
+        output[i] <- staged[i]
+        i <- i + 1
+    return n.i64()
+
+export fn linear_discriminant_analysis(input: f64&, input_length: usize,
+    output: mutable f64&, capacity: usize) -> i64 = linear_discriminant_analysis_impl

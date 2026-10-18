@@ -17,6 +17,17 @@ import struct
 import sys
 
 from build_abi import ROOT, sha256_file
+from traveling_salesman_solver_oracle import (
+    INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
+    MAX_BRUTE_FORCE_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_INPUT_LENGTH,
+    MAX_BRUTE_FORCE_PARSEABLE_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_CITIES as TRAVELING_SALESMAN_SOLVER_MAX_CITIES,
+    MAX_EDGE_COST as TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST,
+    MAX_NEAREST_NEIGHBOR_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_INPUT_LENGTH,
+    MAX_NEAREST_NEIGHBOR_PARSEABLE_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result_brute_force as traveling_salesman_solver_brute_force_expected,
+    expected_result_nearest_neighbor as traveling_salesman_solver_nearest_neighbor_expected,
+)
 from gradient_descent_oracle import expected_result as gradient_descent_expected
 from extended_kalman_filter_oracle import INVALID_RESULT as EXTENDED_KALMAN_FILTER_INVALID_RESULT
 from extended_kalman_filter_oracle import MAX_INPUT_LENGTH as MAX_EXTENDED_KALMAN_FILTER_INPUT_LENGTH
@@ -185,6 +196,14 @@ from sharpe_ratio_oracle import MIN_RETURN_MICRO as SHARPE_RATIO_MIN_RETURN_MICR
 from sharpe_ratio_oracle import MIN_RISK_FREE_MICRO as SHARPE_RATIO_MIN_RISK_FREE_MICRO
 from sharpe_ratio_oracle import SCALE as SHARPE_RATIO_SCALE
 from sharpe_ratio_oracle import expected_result as sharpe_ratio_expected
+from realtime_stats_oracle import I64_MAX as REALTIME_STATS_I64_MAX
+from realtime_stats_oracle import I64_MIN as REALTIME_STATS_I64_MIN
+from realtime_stats_oracle import INVALID_RESULT as REALTIME_STATS_INVALID_RESULT
+from realtime_stats_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_REALTIME_STATS_PARSEABLE_INPUT_LENGTH
+from realtime_stats_oracle import MAX_SAMPLES as REALTIME_STATS_MAX_SAMPLES
+from realtime_stats_oracle import MAX_SAMPLE_Q as REALTIME_STATS_MAX_SAMPLE_Q
+from realtime_stats_oracle import MIN_SAMPLE_Q as REALTIME_STATS_MIN_SAMPLE_Q
+from realtime_stats_oracle import expected_result as realtime_stats_expected
 from smooth_l1_loss_oracle import INVALID_RESULT as SMOOTH_L1_LOSS_INVALID_RESULT
 from smooth_l1_loss_oracle import MAX_INPUT_LENGTH as MAX_SMOOTH_L1_LOSS_INPUT_LENGTH
 from smooth_l1_loss_oracle import expected_result as smooth_l1_loss_expected
@@ -429,11 +448,203 @@ from shunting_yard_oracle import MAX_OPERATORS as SHUNTING_YARD_MAX_OPERATORS
 from shunting_yard_oracle import MAX_PARSEABLE_INPUT_LENGTH as SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH
 from shunting_yard_oracle import RELATIVE_TOLERANCE as SHUNTING_YARD_RELATIVE_TOLERANCE
 from shunting_yard_oracle import expected_result as shunting_yard_expected
+from kmeans_raw_r_oracle import INVALID_RESULT as KMEANS_RAW_R_INVALID_RESULT
+from kmeans_raw_r_oracle import MAX_CLUSTERS as KMEANS_RAW_R_MAX_CLUSTERS
+from kmeans_raw_r_oracle import MAX_COORDINATE as KMEANS_RAW_R_MAX_COORDINATE
+from kmeans_raw_r_oracle import MAX_DIMENSIONS as KMEANS_RAW_R_MAX_DIMENSIONS
+from kmeans_raw_r_oracle import MAX_ITERATIONS as KMEANS_RAW_R_MAX_ITERATIONS
+from kmeans_raw_r_oracle import MAX_PARSEABLE_INPUT_LENGTH as KMEANS_RAW_R_MAX_PARSEABLE_INPUT_LENGTH
+from kmeans_raw_r_oracle import MAX_ROWS as KMEANS_RAW_R_MAX_ROWS
+from kmeans_raw_r_oracle import expected_result as kmeans_raw_r_expected
+from monte_carlo_integration_oracle import (
+    ABSOLUTE_TOLERANCE as MONTE_CARLO_INTEGRATION_ABSOLUTE_TOLERANCE,
+    INVALID_RESULT as MONTE_CARLO_INTEGRATION_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as MONTE_CARLO_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as monte_carlo_integration_expected,
+)
+from monte_carlo_integration_independent_oracle import (
+    ABSOLUTE_TOLERANCE as MONTE_CARLO_INTEGRATION_INDEPENDENT_ABSOLUTE_TOLERANCE,
+    INVALID_RESULT as MONTE_CARLO_INTEGRATION_INDEPENDENT_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as monte_carlo_integration_independent_expected,
+)
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_INPUT_LENGTH = 4096
 MAX_UNSCENTED_KALMAN_FILTER_INPUT_LENGTH = 9 + UNSCENTED_KALMAN_FILTER_MAX_STEPS
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH = 2 + 32 + 32 * 32
+MAX_REALTIME_STATS_CASE_INPUT_LENGTH = MAX_REALTIME_STATS_PARSEABLE_INPUT_LENGTH + 1
+MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH = KMEANS_RAW_R_MAX_PARSEABLE_INPUT_LENGTH + 1
+
+
+def validate_monte_carlo_integration_workload(workload: dict, algorithm: str) -> None:
+    """Pin the Java antithetic or Julia independent-draw integration contract."""
+    if algorithm == "monte_carlo_integration":
+        source = {
+            "repository": "TheAlgorithms/Java",
+            "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+            "path": "src/main/java/com/thealgorithms/randomized/MonteCarloIntegration.java",
+            "symbol": "MonteCarloIntegration.approximate",
+            "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/randomized/MonteCarloIntegration.java",
+            "role": "algorithm",
+        }
+        contract = {
+            "operation": "Replay Java's antithetic sampling loop for f(x)=x*x with explicit uniform draws.",
+            "input_encoding": "[a_micro,b_micro,n,u0_micro,...]",
+            "scale": 1_000_000,
+            "bound_range_micro": [-10_000_000, 10_000_000],
+            "sample_count_range": [1, 16],
+            "uniform_draw_range_micro": [0, 999_999],
+            "draw_count": "ceil(n/2)",
+            "pair_rule": "For each pair, consume u and evaluate a+u*interval, then a+(1-u)*interval.",
+            "odd_sample_rule": "When n is odd, consume one final u and evaluate a+u*interval.",
+            "integrand": "x*x",
+            "return_expression": "interval*total/n, with interval=b-a",
+            "exact_input_length": "3+ceil(n/2)",
+            "maximum_valid_input_length": 11,
+            "maximum_parseable_input_length": 12,
+            "output_encoding": "One finite binary64 estimate.",
+            "invalid_result": -1e300,
+        }
+        workload_id = "thealgorithms-java-monte-carlo-integration-antithetic-i64-v1"
+        output_definition = "Java antithetic Monte Carlo estimate for f(x)=x*x"
+        maximum_valid_length = 11
+        maximum_parseable_length = MONTE_CARLO_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH
+        absolute_tolerance = MONTE_CARLO_INTEGRATION_ABSOLUTE_TOLERANCE
+        oracle = monte_carlo_integration_expected
+        expected_ids = {
+            "even_antithetic_pair", "odd_final_independent_draw", "single_sample",
+            "pair_at_uniform_endpoint", "maximum_even_sample_count", "zero_sample_count",
+            "reversed_bounds", "uniform_one_is_excluded", "extra_draw_in_frame",
+            "too_many_parseable_values", "bound_above_range", "null_input_pointer",
+        }
+        readme_marker = "antithetic pairing"
+    elif algorithm == "monte_carlo_integration_independent":
+        source = {
+            "repository": "TheAlgorithms/Julia",
+            "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+            "path": "src/math/monte_carlo_integration.jl",
+            "symbol": "monte_carlo_integration",
+            "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/monte_carlo_integration.jl",
+            "role": "algorithm",
+        }
+        contract = {
+            "operation": "Replay Julia's independent-sample integration loop for f(x)=x*x with explicit uniform draws.",
+            "input_encoding": "[a_micro,b_micro,n,u0_micro,...]",
+            "scale": 1_000_000,
+            "bound_range_micro": [-10_000_000, 10_000_000],
+            "sample_count_range": [1, 16],
+            "uniform_draw_range_micro": [0, 999_999],
+            "draw_count": "n",
+            "sample_rule": "For each draw in order, evaluate a+(b-a)*u and add its square.",
+            "integrand": "x*x",
+            "return_expression": "((b-a)/n)*total",
+            "exact_input_length": "3+n",
+            "maximum_valid_input_length": 19,
+            "maximum_parseable_input_length": 20,
+            "output_encoding": "One finite binary64 estimate.",
+            "invalid_result": -1e300,
+        }
+        workload_id = "thealgorithms-julia-monte-carlo-integration-independent-i64-v1"
+        output_definition = "Julia independent-draw Monte Carlo estimate for f(x)=x*x"
+        maximum_valid_length = 19
+        maximum_parseable_length = MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_PARSEABLE_INPUT_LENGTH
+        absolute_tolerance = MONTE_CARLO_INTEGRATION_INDEPENDENT_ABSOLUTE_TOLERANCE
+        oracle = monte_carlo_integration_independent_expected
+        expected_ids = {
+            "independent_draws_differ_from_antithetic", "single_sample",
+            "three_independent_samples", "negative_domain_samples", "maximum_sample_count",
+            "zero_sample_count", "reversed_bounds", "uniform_one_is_excluded",
+            "missing_sample", "too_many_parseable_values", "bound_above_range",
+            "null_input_pointer",
+        }
+        readme_marker = "independent-sample loop"
+    else:
+        raise ValueError(f"no Monte Carlo workload contract for {algorithm}")
+
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[a_micro, b_micro, n, u0_micro, ...]",
+        "scale": 1_000_000,
+        "bound_range_micro": [-10_000_000, 10_000_000],
+        "bound_order": "a_micro < b_micro",
+        "sample_count_range": [1, 16],
+        "uniform_draw_range_micro": [0, 999_999],
+        "required_length": "3+ceil(n/2)" if algorithm == "monte_carlo_integration" else "3+n",
+        "maximum_valid_length": maximum_valid_length,
+        "maximum_parseable_length": maximum_parseable_length,
+        "invalid_input_result": -1e300,
+        "null_input_length": 3,
+        "null_input_result": -1e300,
+    }
+    output_spec = {
+        "kind": "binary64",
+        "definition": output_definition,
+        "invalid_input_result": -1e300,
+    }
+    measurement = {
+        "comparison_model": "i64_array_float64_call",
+        "sample_count": 5,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+        "absolute_tolerance": absolute_tolerance,
+        "relative_tolerance": 1e-12,
+    }
+    expected_description = (
+        "Deterministic replay of the pinned Java Monte Carlo integration loop with antithetic sample pairs."
+        if algorithm == "monte_carlo_integration" else
+        "Deterministic replay of the pinned Julia Monte Carlo integration loop with independent sample draws."
+    )
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_source", "contract", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != workload_id
+            or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != algorithm
+            or workload.get("description") != expected_description
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_ids):
+        raise ValueError(f"{algorithm} metadata or fixture IDs differ from its pinned contract")
+
+    letter = algorithm[0]
+    readme_path = ROOT / "benchmarks" / letter / algorithm / "README.md"
+    normalized_readme = " ".join(readme_path.read_text(encoding="utf-8").split())
+    if source["url"] not in normalized_readme or readme_marker not in normalized_readme:
+        raise ValueError(f"{algorithm} README is missing its pinned source or sampling semantics")
+
+    for case in cases:
+        case_id = case.get("id")
+        values = case.get("input_values")
+        expected = case.get("expected_result")
+        input_is_null = case.get("input_is_null", False)
+        allowed_fields = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_fields.add("input_is_null")
+        if (set(case) != allowed_fields
+                or not isinstance(values, list)
+                or len(values) > maximum_parseable_length
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("input_length")) is not int
+                or type(input_is_null) is not bool
+                or input_is_null and (case_id != "null_input_pointer" or values
+                                      or case["input_length"] != 3)
+                or not input_is_null and case["input_length"] != len(values)
+                or type(expected) not in (int, float)
+                or not math.isfinite(expected)):
+            raise ValueError(f"{algorithm} fixture framing is invalid: {case_id}")
+        actual = oracle(values)
+        if not math.isclose(expected, actual, rel_tol=1e-12, abs_tol=absolute_tolerance):
+            raise ValueError(f"{algorithm} fixture differs from its pinned oracle: {case_id}")
 
 
 def finance_ratio_expected(values: list[int], algorithm: str) -> float:
@@ -1036,6 +1247,152 @@ def validate_sharpe_ratio_workload(workload: dict) -> None:
             raise ValueError(f"sharpe_ratio expected_result differs from the pinned formula: {case['id']}")
 
 
+def validate_realtime_stats_workload(workload: dict) -> None:
+    expected_sources = [
+        {
+            "repository": "TheAlgorithms/C",
+            "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+            "path": "numerical_methods/realtime_stats.c",
+            "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/numerical_methods/realtime_stats.c",
+        },
+        {
+            "repository": "TheAlgorithms/C-Plus-Plus",
+            "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+            "path": "math/realtime_stats.cpp",
+            "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/math/realtime_stats.cpp",
+        },
+        {
+            "repository": "TheAlgorithms/C-Plus-Plus-1",
+            "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+            "path": "math/realtime_stats.cpp",
+            "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/math/realtime_stats.cpp",
+            "role": "duplicate_source",
+        },
+    ]
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "layout": "[variant, statistic, count, q0, ..., q(count-1)]",
+        "minimum_valid_length": 5,
+        "maximum_valid_length": 35,
+        "maximum_parseable_length": MAX_REALTIME_STATS_PARSEABLE_INPUT_LENGTH,
+        "variant_codes": {
+            "0": "C anchored-mean float32",
+            "1": "C Welford float32",
+            "2": "C++ stats_computer2<float> Welford with double accumulation",
+        },
+        "statistic_codes": {"0": "mean", "1": "variance", "2": "standard deviation"},
+        "minimum_sample_count": 2,
+        "maximum_sample_count": REALTIME_STATS_MAX_SAMPLES,
+        "minimum_sample_q": REALTIME_STATS_MIN_SAMPLE_Q,
+        "maximum_sample_q": REALTIME_STATS_MAX_SAMPLE_Q,
+        "sample_definition": "Each q is an exact binary32 sample q/16.",
+        "state_lifetime": "Every ABI call initializes local state to the source initial values and replays one independent input stream; no state carries across calls.",
+        "invalid_input_result": REALTIME_STATS_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "binary64",
+        "definition": "Selected statistic after replaying one fresh sample stream; C variants preserve float32 update rounding, C++ variant preserves double Welford accumulation.",
+        "absolute_tolerance": 1e-6,
+        "relative_tolerance": 1e-6,
+        "invalid_input_result": REALTIME_STATS_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_float64_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 10000,
+    }
+    expected_case_ids = {
+        "c_anchored_mean_mean_contrasting_stream",
+        "c_anchored_mean_variance_contrasting_stream",
+        "c_anchored_mean_stddev_contrasting_stream",
+        "c_anchored_mean_constant_variance", "c_anchored_mean_maximum_count",
+        "c_anchored_mean_lattice_endpoints", "c_welford_mean_contrasting_stream",
+        "c_welford_variance_contrasting_stream", "c_welford_stddev_contrasting_stream",
+        "c_welford_constant_variance", "c_welford_maximum_count",
+        "c_welford_lattice_endpoints", "cpp_welford_float_mean_contrasting_stream",
+        "cpp_welford_float_variance_contrasting_stream",
+        "cpp_welford_float_stddev_contrasting_stream",
+        "cpp_welford_float_constant_variance", "cpp_welford_float_maximum_count",
+        "cpp_welford_float_lattice_endpoints", "invalid_empty", "invalid_short_header",
+        "invalid_variant_negative", "invalid_variant_too_large", "invalid_statistic_negative",
+        "invalid_statistic_too_large", "invalid_count_below_minimum",
+        "invalid_count_above_maximum", "invalid_count_mismatch", "invalid_trailing_word",
+        "invalid_sample_below_bound", "invalid_sample_above_bound", "invalid_parse_cap_exceeded",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "realtime-stats-streaming-i64-array-float64-v1"
+            or workload.get("algorithm") != "realtime_stats"
+            or workload.get("function_symbol") != "realtime_stats"
+            or workload.get("description") is not None
+            or workload.get("contract") is not None
+            or workload.get("pinned_source") is not None
+            or workload.get("pinned_sources") != expected_sources
+            or workload.get("related_pinned_sources") is not None
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != expected_measurement
+            or REALTIME_STATS_INVALID_RESULT != -1e300
+            or REALTIME_STATS_MAX_SAMPLES != 32
+            or MAX_REALTIME_STATS_PARSEABLE_INPUT_LENGTH != 36
+            or MAX_REALTIME_STATS_CASE_INPUT_LENGTH != 37
+            or REALTIME_STATS_MIN_SAMPLE_Q != -64
+            or REALTIME_STATS_MAX_SAMPLE_Q != 64
+            or REALTIME_STATS_I64_MIN != I64_MIN
+            or REALTIME_STATS_I64_MAX != I64_MAX
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_case_ids):
+        raise ValueError("realtime_stats workload metadata or fixture IDs differ from its contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "realtime_stats" / "README.md").read_text(
+        encoding="utf-8")
+    readme_text = " ".join(readme.split())
+    if (any(source["url"] not in readme for source in expected_sources)
+            or "at most 36 words so it can detect one trailing word" not in readme_text
+            or "absolute and relative tolerances of 1e-6" not in readme_text
+            or "C++ method 1 is excluded because its `Ex` and `Ex2` fields are uninitialized" not in readme_text
+            or "benchmark does not carry that state between ABI calls" not in readme_text):
+        raise ValueError("realtime_stats README is missing source pins or reviewed semantics")
+
+    case_fields = {"id", "input_values", "input_length", "expected_result"}
+    for case in cases:
+        case_id = case.get("id")
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        expected = case.get("expected_result")
+        if (set(case) != case_fields
+                or not isinstance(values, list)
+                or any(type(value) is not int
+                       or not REALTIME_STATS_I64_MIN <= value <= REALTIME_STATS_I64_MAX
+                       for value in values)
+                or type(input_length) is not int
+                or input_length != len(values)
+                or len(values) > MAX_REALTIME_STATS_CASE_INPUT_LENGTH
+                or len(values) > MAX_REALTIME_STATS_PARSEABLE_INPUT_LENGTH + 1
+                or type(expected) not in (int, float)
+                or not math.isfinite(expected)):
+            raise ValueError(f"realtime_stats fixture framing is invalid: {case_id}")
+        source_result = realtime_stats_expected(values)
+        if (source_result == REALTIME_STATS_INVALID_RESULT
+                and expected != REALTIME_STATS_INVALID_RESULT
+                or source_result != REALTIME_STATS_INVALID_RESULT
+                and (expected == REALTIME_STATS_INVALID_RESULT
+                     or not math.isclose(expected, source_result,
+                                         rel_tol=expected_output["relative_tolerance"],
+                                         abs_tol=expected_output["absolute_tolerance"]))):
+            raise ValueError(f"realtime_stats expected_result differs from its source-order oracle: {case_id}")
+        if len(values) > MAX_REALTIME_STATS_PARSEABLE_INPUT_LENGTH and (
+                case_id != "invalid_parse_cap_exceeded"
+                or source_result != REALTIME_STATS_INVALID_RESULT):
+            raise ValueError(f"realtime_stats over-bound input is not the parse-cap rejection: {case_id}")
+
+
 MAXWELLS_EQUATIONS_CASE_IDS = frozenset({
     "gauss-electric-default-valid", "gauss-electric-default-invalid",
     "gauss-electric-custom-permittivity-valid", "gauss-electric-zero-expected-valid",
@@ -1346,12 +1703,303 @@ def validate_shunting_yard_workload(workload: dict) -> None:
             raise ValueError(f"shunting_yard fixture differs from the oracle: {case_id}")
 
 
+KMEANS_RAW_R_CASE_IDS = frozenset({
+    "two_clusters_center_zero_x", "two_clusters_center_one_y",
+    "two_clusters_final_distance", "two_clusters_assignment",
+    "equal_distance_chooses_first_center", "equal_distance_final_value",
+    "iteration_limit_before_stability", "one_cluster_center_y",
+    "one_cluster_distance", "one_cluster_assignment",
+    "maximum_rows_dimensions_and_clusters", "maximum_shape_trailing_word",
+    "maximum_shape_parse_limit_exceeded", "empty_cluster_returns_invalid",
+    "singleton_cluster_returns_invalid", "invalid_duplicate_initial_row",
+    "invalid_initial_row_out_of_range", "invalid_coordinate_out_of_range",
+    "invalid_field_selector", "invalid_center_index",
+    "invalid_cluster_arg_for_assignment", "invalid_row_count",
+    "invalid_dimension_count", "invalid_input_too_short", "null_input",
+})
+
+
+def validate_kmeans_raw_r_workload(workload: dict) -> None:
+    """Pin the deterministic adapter and validate its published fixtures."""
+    source_commit = "f65344fabeea0ae33c1ca321af709447c1a8a4c2"
+    source_path = "clustering_algorithms/kmeans_raw_r.r"
+    source_url = (f"https://github.com/TheAlgorithms/R/blob/{source_commit}/"
+                  f"{source_path}")
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[rows, dimensions, k, iteration_limit, initial_row_indices..., row_major_integer_data..., field, arg0, arg1]",
+        "minimum_rows": 2,
+        "maximum_rows": KMEANS_RAW_R_MAX_ROWS,
+        "minimum_dimensions": 2,
+        "maximum_dimensions": KMEANS_RAW_R_MAX_DIMENSIONS,
+        "maximum_clusters": KMEANS_RAW_R_MAX_CLUSTERS,
+        "maximum_iterations": KMEANS_RAW_R_MAX_ITERATIONS,
+        "maximum_valid_length": (4 + KMEANS_RAW_R_MAX_CLUSTERS
+                                 + KMEANS_RAW_R_MAX_ROWS * KMEANS_RAW_R_MAX_DIMENSIONS + 3),
+        "maximum_parseable_length": KMEANS_RAW_R_MAX_PARSEABLE_INPUT_LENGTH,
+        "coordinate_bounds": [-KMEANS_RAW_R_MAX_COORDINATE, KMEANS_RAW_R_MAX_COORDINATE],
+        "initial_rows": "Distinct zero-based data row indices in explicit source sample order; the adapter adds one for R's one-based matrix row indexing.",
+        "field_codes": {
+            "0": "center coordinate [arg0,arg1], with zero-based center and feature indices translated to R's one-based indexing",
+            "1": "distance from row arg0 to center arg1, with zero-based sample and center indices translated to R's one-based indexing",
+            "2": "zero-based assigned center for row arg0; R's one-based which() result is decremented by one; arg1 must be zero",
+        },
+        "minimum_cluster_size": 2,
+        "null_input_result": KMEANS_RAW_R_INVALID_RESULT,
+        "invalid_input_result": KMEANS_RAW_R_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "binary64",
+        "definition": "One selected final center coordinate, Euclidean distance, or zero-based assignment after Lloyd iterations stabilize.",
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+        "invalid_input_result": KMEANS_RAW_R_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_float64_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 10000,
+    }
+    pinned_sources = [{
+        "repository": "TheAlgorithms/R",
+        "commit": source_commit,
+        "path": source_path,
+        "url": source_url,
+    }]
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "kmeans-raw-r-deterministic-i64-array-float64-v1"
+            or workload.get("algorithm") != "kmeans_raw_r"
+            or workload.get("function_symbol") != "kmeans_raw_r"
+            or workload.get("pinned_sources") != pinned_sources
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or not isinstance(cases, list)
+            or len(case_ids) != len(KMEANS_RAW_R_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != KMEANS_RAW_R_CASE_IDS
+            or KMEANS_RAW_R_MAX_ROWS != 32
+            or KMEANS_RAW_R_MAX_DIMENSIONS != 4
+            or KMEANS_RAW_R_MAX_CLUSTERS != 8
+            or KMEANS_RAW_R_MAX_ITERATIONS != 64
+            or KMEANS_RAW_R_MAX_COORDINATE != 64
+            or KMEANS_RAW_R_MAX_PARSEABLE_INPUT_LENGTH != 144
+            or KMEANS_RAW_R_INVALID_RESULT != -1e300):
+        raise ValueError("kmeans_raw_r workload metadata or case IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "k" / "kmeans_raw_r" / "README.md").read_text(
+        encoding="utf-8")
+    port_source_links = (
+        "../../../c/k/kmeans_raw_r.c",
+        "../../../c3/k/kmeans_raw_r.c3",
+        "../../../cpp/k/kmeans_raw_r.cpp",
+        "../../../elisa/k/kmeans_raw_r.elisa",
+        "../../../nim/k/kmeans_raw_r.nim",
+        "../../../odin/k/kmeans_raw_r.odin",
+        "../../../rust/k/kmeans_raw_r.rs",
+        "../../../v/k/kmeans_raw_r.v",
+        "../../../zig/k/kmeans_raw_r.zig",
+    )
+    if (source_url not in readme
+            or "`i64_array_float64`" not in readme
+            or "sample.int(rows, size=k)" not in readme
+            or "first-result `which.min`" not in readme
+            or "fewer than two rows" not in readme
+            or "iteration limit" not in readme
+            or "`workload.json`" not in readme
+            or "`kmeans_raw_r_oracle.py`" not in readme
+            or any(port_link not in readme for port_link in port_source_links)):
+        raise ValueError("kmeans_raw_r README is missing its pinned source or reviewed contract")
+
+    for case in cases:
+        case_id = case.get("id")
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        expected = case.get("expected_result")
+        input_is_null = case.get("input_is_null", False)
+        if (not isinstance(values, list)
+                or len(values) > MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_length) is not int or input_length != len(values)
+                or type(input_is_null) is not bool
+                or type(expected) not in (int, float) or not math.isfinite(expected)):
+            raise ValueError(f"kmeans_raw_r fixture framing is invalid: {case_id}")
+        if input_is_null and (case_id != "null_input" or values or input_length != 0
+                              or expected != KMEANS_RAW_R_INVALID_RESULT):
+            raise ValueError(f"kmeans_raw_r null fixture is invalid: {case_id}")
+        result = kmeans_raw_r_expected(values)
+        if result == KMEANS_RAW_R_INVALID_RESULT:
+            if expected != KMEANS_RAW_R_INVALID_RESULT:
+                raise ValueError(f"invalid kmeans_raw_r fixture must use its sentinel: {case_id}")
+        elif (expected == KMEANS_RAW_R_INVALID_RESULT
+              or not math.isclose(expected, result, rel_tol=1e-12, abs_tol=1e-12)):
+            raise ValueError(f"kmeans_raw_r fixture differs from the oracle: {case_id}")
+
+
 MAX_LOGISTIC_REGRESSION_CSHARP_BINARY_GD_INPUT_LENGTH = 300
+
+
+def validate_traveling_salesman_solver_workload(workload: dict, algorithm: str) -> None:
+    is_nearest = algorithm == "traveling_salesman_solver_nearest_neighbor"
+    if algorithm not in {"traveling_salesman_solver_brute_force",
+                         "traveling_salesman_solver_nearest_neighbor"}:
+        raise ValueError(f"unsupported traveling_salesman_solver workload: {algorithm}")
+    function_symbol = ("TravelingSalesmanSolver.SolveNearestNeighbor" if is_nearest
+                       else "TravelingSalesmanSolver.SolveBruteForce")
+    source_url = "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Problems/TravelingSalesman/TravelingSalesmanSolver.cs"
+    expected_source = {
+        "repository": "TheAlgorithms/C-Sharp",
+        "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+        "path": "Algorithms/Problems/TravelingSalesman/TravelingSalesmanSolver.cs",
+        "symbol": function_symbol,
+        "url": source_url,
+        "role": "algorithm",
+        "dependencies": [],
+    }
+    max_input_length = (TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_INPUT_LENGTH if is_nearest
+                        else TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_INPUT_LENGTH)
+    max_parseable_input_length = (
+        TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_PARSEABLE_INPUT_LENGTH if is_nearest
+        else TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_PARSEABLE_INPUT_LENGTH)
+    minimum_cities = 1 if is_nearest else 2
+    input_encoding = ("[selector,n,start,distance_row_major...]" if is_nearest
+                      else "[selector,n,distance_row_major...]")
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": input_encoding,
+        "selector": {"0": "closed route distance",
+                     "1_to_n_plus_1": "route position selector-1"},
+        "city_count_range": [minimum_cities, TRAVELING_SALESMAN_SOLVER_MAX_CITIES],
+        **({"start_range": "[0,n)"} if is_nearest else {}),
+        "edge_cost_range": [0, TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST],
+        "matrix": ("complete directed square matrix; diagonal is used for the single-city closing edge and otherwise ignored"
+                   if is_nearest else
+                   "complete directed square matrix; diagonal entries are validated but ignored"),
+        "maximum_valid_array_length": max_input_length,
+        "maximum_parseable_array_length": max_parseable_input_length,
+        "invalid_input_result": TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "binary64",
+        "unit": "route city index or total distance",
+        "invalid_input_result": TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
+        "absolute_tolerance": 0,
+        "relative_tolerance": 0,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_float64_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100 if is_nearest else 50,
+        "absolute_tolerance": 0,
+        "relative_tolerance": 0,
+    }
+    expected_contract = ({
+        "operation": "Start at the selected city, repeatedly visit the nearest unvisited city, then add the directed return edge to the start and return the selected scalar.",
+        "tie_order": "The source scans candidate city indices in ascending order and updates the next city only for a strict distance decrease, so ties select the lowest unvisited index.",
+        "projection": "Selector 0 returns total distance. Selectors 1..n+1 return route elements 0..n as binary64 integers. For n=1, route is [start,start] and distance is the diagonal entry.",
+        "error": "Invalid selector, framing, city count, start, or edge cost returns -1e300. The bounded complete graph always has an available unvisited city.",
+    } if is_nearest else {
+        "operation": "Fix city 0, enumerate permutations of cities 1..n-1, close each directed route back to 0, and return the first minimum route's selected scalar.",
+        "permutation_order": "The source recursively selects remaining cities in ascending array order. Tied minima keep the first lexicographic route because the source updates only for a strict distance decrease.",
+        "projection": "Selector 0 returns the total distance. Selectors 1..n+1 return route elements 0..n as binary64 integers.",
+        "error": "Invalid selector, length, city count, or edge cost returns -1e300. The bounded complete graph always has a route.",
+    })
+    case_ids = ({
+        "single_city_distance_uses_diagonal", "single_city_route_start", "single_city_route_close",
+        "greedy_route_distance_not_global_minimum", "greedy_route_start", "greedy_route_second",
+        "greedy_route_third", "greedy_route_fourth", "greedy_route_close",
+        "tie_uses_lowest_city_index", "tie_route_next_position", "maximum_city_count_distance",
+        "city_count_below_range", "city_count_above_range", "start_out_of_range",
+        "selector_out_of_range", "truncated_matrix", "extra_matrix_value", "edge_above_bound",
+    } if is_nearest else {
+        "two_city_distance", "two_city_start", "two_city_other_city", "two_city_close",
+        "unique_optimum_distance", "unique_optimum_route_start", "unique_optimum_route_second",
+        "unique_optimum_route_third", "unique_optimum_route_fourth", "unique_optimum_route_close",
+        "tie_keeps_lexicographically_first_route", "maximum_city_count_distance",
+        "minimum_city_count_rejected", "too_many_cities_rejected", "selector_out_of_range",
+        "truncated_matrix", "extra_matrix_value", "edge_above_bound",
+    })
+    workload_id = ("thealgorithms-csharp-traveling-salesman-nearest-neighbor-i64-array-float64-v1"
+                   if is_nearest else
+                   "thealgorithms-csharp-traveling-salesman-brute-force-i64-array-float64-v1")
+    description = ("Return a selected route city or total distance from the pinned C# nearest-neighbor TSP solver."
+                   if is_nearest else
+                   "Return a selected route city or total distance from the pinned C# brute-force TSP solver.")
+    oracle_entry = ("expected_result_nearest_neighbor(values)" if is_nearest
+                    else "expected_result_brute_force(values)")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "input", "output", "measurement", "contract", "pinned_source",
+                          "oracle_method", "oracle_module", "oracle_entry_point", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != workload_id
+            or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != function_symbol
+            or workload.get("description") != description
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("measurement") != expected_measurement
+            or workload.get("contract") != expected_contract
+            or workload.get("pinned_source") != expected_source
+            or workload.get("oracle_module") != "benchmarks/traveling_salesman_solver_oracle.py"
+            or workload.get("oracle_entry_point") != oracle_entry
+            or workload.get("oracle_method") != (
+                "Apply ascending-index greedy nearest-neighbor selection, then project one route or distance scalar."
+                if is_nearest else
+                "Enumerate the same fixed-city-0 route set, preserving lexicographic tie order, then project one route or distance scalar.")
+            or (TRAVELING_SALESMAN_SOLVER_MAX_CITIES,
+                TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST,
+                TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_INPUT_LENGTH,
+                TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_PARSEABLE_INPUT_LENGTH,
+                TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_INPUT_LENGTH,
+                TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_PARSEABLE_INPUT_LENGTH,
+                TRAVELING_SALESMAN_SOLVER_INVALID_RESULT)
+            != (8, 1000, 66, 67, 67, 68, -1e300)
+            or not isinstance(workload.get("cases"), list)
+            or len(workload["cases"]) != len(case_ids)
+            or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != case_ids):
+        raise ValueError(f"{algorithm} workload metadata differs from its pinned C# source contract")
+
+    readme = (ROOT / "benchmarks" / "t" / algorithm / "README.md").read_text(encoding="utf-8")
+    if (source_url not in readme or "Selector `0` returns the route distance" not in readme
+            or "`-1e300`" not in readme
+            or ("lexicographically ascending city order" not in readme if not is_nearest
+                else "lowest city index" not in readme)):
+        raise ValueError(f"{algorithm} README is missing its pinned source or route semantics")
+
+    for case in workload["cases"]:
+        case_id = case.get("id")
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > max_parseable_input_length
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)
+                or type(case.get("expected_result")) not in (int, float)):
+            raise ValueError(f"{algorithm} fixture framing is invalid: {case_id}")
+        encoded, expected = encode_case(case, algorithm)
+        source_result = (traveling_salesman_solver_nearest_neighbor_expected(encoded) if is_nearest
+                         else traveling_salesman_solver_brute_force_expected(encoded))
+        if expected != source_result:
+            raise ValueError(f"{algorithm} fixture differs from its pinned C# oracle: {case_id}")
+
+    maximum_case = next((case for case in workload["cases"]
+                         if case.get("id") == "maximum_city_count_distance"), None)
+    if (maximum_case is None or maximum_case["input_length"] != max_input_length
+            or maximum_case["expected_result"] != 8000):
+        raise ValueError(f"{algorithm} workload is missing its maximum city-count route")
 
 
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH if algorithm == "linear_regression_cost" else
+    max_input_length = (MONTE_CARLO_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "monte_carlo_integration" else
+                        MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "monte_carlo_integration_independent" else
+                        MAX_LINEAR_REGRESSION_COST_INPUT_LENGTH if algorithm == "linear_regression_cost" else
                         MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH if algorithm == "sparse_categorical_cross_entropy" else
                         MAX_CATEGORICAL_FOCAL_CROSS_ENTROPY_INPUT_LENGTH if algorithm == "categorical_focal_cross_entropy" else
                         MAX_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH if algorithm == "categorical_cross_entropy" else
@@ -1364,6 +2012,7 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_MASS_TO_MOLES_INPUT_LENGTH if algorithm == "mass_to_moles" else
                         MAX_SCHUR_COMPLEMENT_INPUT_LENGTH if algorithm == "schur_complement" else
                         MAX_SHARPE_RATIO_PARSEABLE_INPUT_LENGTH if algorithm == "sharpe_ratio" else
+                        MAX_REALTIME_STATS_CASE_INPUT_LENGTH if algorithm == "realtime_stats" else
                         MAX_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH if algorithm == "mean_absolute_percentage_error" else
                         MAX_SYMMETRIC_MEAN_ABSOLUTE_PERCENTAGE_ERROR_INPUT_LENGTH if algorithm == "symmetric_mean_absolute_percentage_error" else
                         MAX_GAUSSIAN_NEGATIVE_LOG_LIKELIHOOD_LOSS_INPUT_LENGTH if algorithm == "gaussian_negative_log_likelihood_loss" else
@@ -1486,12 +2135,24 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_SPARSITY_INPUT_VALUES + 1 if algorithm == "sparsity" else
                         MAX_RELATIVITY_INPUT_LENGTH if algorithm == "relativity" else
                         SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "shunting_yard" else
+                        MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH if algorithm == "kmeans_raw_r" else
                         MAXWELLS_EQUATIONS_MAX_INPUT_LENGTH if algorithm == "maxwells_equations" else
+                        TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "traveling_salesman_solver_brute_force" else
+                        TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "traveling_salesman_solver_nearest_neighbor" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) not in (int, float) or not math.isfinite(expected)):
         raise ValueError("array-float64 cases require up to 4096 signed 64-bit values and a finite result")
+    if algorithm in {"traveling_salesman_solver_brute_force",
+                     "traveling_salesman_solver_nearest_neighbor"}:
+        source_result = (traveling_salesman_solver_nearest_neighbor_expected(values)
+                         if algorithm == "traveling_salesman_solver_nearest_neighbor"
+                         else traveling_salesman_solver_brute_force_expected(values))
+        if expected != source_result:
+            raise ValueError(f"{algorithm} expected_result must match the pinned route projection")
     if algorithm == "shunting_yard":
         source_result = shunting_yard_expected(values)
         if source_result == SHUNTING_YARD_INVALID_RESULT:
@@ -1502,6 +2163,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                 rel_tol=SHUNTING_YARD_RELATIVE_TOLERANCE,
                 abs_tol=SHUNTING_YARD_ABSOLUTE_TOLERANCE):
             raise ValueError("shunting_yard expected_result must match the bounded expression oracle")
+    if algorithm == "kmeans_raw_r":
+        source_result = kmeans_raw_r_expected(values)
+        if source_result == KMEANS_RAW_R_INVALID_RESULT:
+            if expected != KMEANS_RAW_R_INVALID_RESULT:
+                raise ValueError("invalid kmeans_raw_r inputs must use the -1e300 result sentinel")
+        elif expected == KMEANS_RAW_R_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("kmeans_raw_r expected_result must match the bounded Lloyd oracle")
     if algorithm == "maxwells_equations":
         source_result = maxwells_equations_expected(values)
         if source_result == MAXWELLS_EQUATIONS_INVALID_RESULT:
@@ -1510,6 +2179,24 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == MAXWELLS_EQUATIONS_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("maxwells_equations expected_result must match its seven-method oracle")
+    if algorithm == "monte_carlo_integration":
+        source_result = monte_carlo_integration_expected(values)
+        if source_result == MONTE_CARLO_INTEGRATION_INVALID_RESULT:
+            if expected != MONTE_CARLO_INTEGRATION_INVALID_RESULT:
+                raise ValueError("invalid monte_carlo_integration inputs must use the -1e300 result sentinel")
+        elif expected == MONTE_CARLO_INTEGRATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12,
+                abs_tol=MONTE_CARLO_INTEGRATION_ABSOLUTE_TOLERANCE):
+            raise ValueError("monte_carlo_integration expected_result must match antithetic-pair sampling")
+    elif algorithm == "monte_carlo_integration_independent":
+        source_result = monte_carlo_integration_independent_expected(values)
+        if source_result == MONTE_CARLO_INTEGRATION_INDEPENDENT_INVALID_RESULT:
+            if expected != MONTE_CARLO_INTEGRATION_INDEPENDENT_INVALID_RESULT:
+                raise ValueError("invalid monte_carlo_integration_independent inputs must use the -1e300 result sentinel")
+        elif expected == MONTE_CARLO_INTEGRATION_INDEPENDENT_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12,
+                abs_tol=MONTE_CARLO_INTEGRATION_INDEPENDENT_ABSOLUTE_TOLERANCE):
+            raise ValueError("monte_carlo_integration_independent expected_result must match independent draws")
     if algorithm == "sharpe_ratio":
         source_result = sharpe_ratio_expected(values)
         if source_result == SHARPE_RATIO_INVALID_RESULT:
@@ -1518,6 +2205,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == SHARPE_RATIO_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("sharpe_ratio expected_result must match the pinned sample-variance formula")
+    elif algorithm == "realtime_stats":
+        source_result = realtime_stats_expected(values)
+        if source_result == REALTIME_STATS_INVALID_RESULT:
+            if expected != REALTIME_STATS_INVALID_RESULT:
+                raise ValueError("invalid realtime_stats inputs must use the -1e300 result sentinel")
+        elif expected == REALTIME_STATS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-6, abs_tol=1e-6):
+            raise ValueError("realtime_stats expected_result must match the source-order stream oracle")
     elif algorithm == "sparsity":
         source_result = sparsity_expected(values)
         if source_result == SPARSITY_INVALID_RESULT:
@@ -3715,6 +4410,10 @@ def main() -> int:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if algorithm == "temperature_conversions":
         validate_temperature_conversions_workload(workload)
+    elif algorithm == "kmeans_raw_r":
+        validate_kmeans_raw_r_workload(workload)
+    elif algorithm in {"monte_carlo_integration", "monte_carlo_integration_independent"}:
+        validate_monte_carlo_integration_workload(workload, algorithm)
     elif algorithm == "simpson_integration":
         validate_simpson_integration_workload(workload)
     elif algorithm == "secant":
@@ -3729,10 +4428,15 @@ def main() -> int:
         validate_schur_complement_workload(workload)
     elif algorithm == "sharpe_ratio":
         validate_sharpe_ratio_workload(workload)
+    elif algorithm == "realtime_stats":
+        validate_realtime_stats_workload(workload)
     elif algorithm == "maxwells_equations":
         validate_maxwells_equations_workload(workload)
     elif algorithm == "shunting_yard":
         validate_shunting_yard_workload(workload)
+    elif algorithm in {"traveling_salesman_solver_brute_force",
+                       "traveling_salesman_solver_nearest_neighbor"}:
+        validate_traveling_salesman_solver_workload(workload, algorithm)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")
@@ -3766,7 +4470,10 @@ def main() -> int:
         if input_is_null:
             supported_null_input = (
                 algorithm == "temperature_conversions" and input_length == 2
-                or algorithm == "sharpe_ratio" and input_length == 0)
+                or algorithm == "sharpe_ratio" and input_length == 0
+                or algorithm == "kmeans_raw_r" and input_length in (0, 4)
+                or algorithm in {"monte_carlo_integration",
+                                 "monte_carlo_integration_independent"} and input_length == 3)
             if not supported_null_input or values:
                 raise ValueError(f"unsupported null-pointer input for {case['id']}")
         elif input_length != len(values):

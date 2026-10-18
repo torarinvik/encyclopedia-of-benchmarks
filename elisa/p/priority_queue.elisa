@@ -1,0 +1,76 @@
+def priority_queue_impl(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length == 0 or input_length > 130: return -1
+    if input[0] < 0 or input[0] > 64: return -1
+    op_count: usize = input[0].usize()
+    heap: mutable i32[64] = zeroed
+    seen: mutable i32[64] = zeroed
+    staged: mutable u8[256] = zeroed
+    heap_size: mutable usize = 0
+    seen_count: mutable usize = 0
+    offset: mutable usize = 1
+    output_size: mutable usize = 0
+    k: mutable usize = 0
+    while k < op_count:
+        if offset >= input_length: return -1
+        op: i64 = input[offset]
+        offset <- offset + 1
+        if op == 0:
+            if offset >= input_length: return -1
+            raw: i64 = input[offset]
+            offset <- offset + 1
+            if raw < -2147483648 or raw > 2147483647: return -1
+            value: i32 = raw.i32()
+            j: usize = 0
+            while j < seen_count:
+                if seen[j] == value: return -1
+                j <- j + 1
+            seen[seen_count] <- value
+            seen_count <- seen_count + 1
+            i: mutable usize = heap_size
+            heap_size <- heap_size + 1
+            heap[i] <- value
+            while i > 0:
+                parent: usize = (i - 1) / 2
+                if heap[parent] <= heap[i]: break
+                temp: i32 = heap[parent]
+                heap[parent] <- heap[i]
+                heap[i] <- temp
+                i <- parent
+        else if op == 1 or op == 2:
+            if heap_size == 0: return -1
+            bits: u32 = heap[0].u32()
+            staged[output_size] <- bits.u8()
+            output_size <- output_size + 1
+            staged[output_size] <- (bits >> 8).u8()
+            output_size <- output_size + 1
+            staged[output_size] <- (bits >> 16).u8()
+            output_size <- output_size + 1
+            staged[output_size] <- (bits >> 24).u8()
+            output_size <- output_size + 1
+            if op == 2:
+                heap_size <- heap_size - 1
+                heap[0] <- heap[heap_size]
+                i: mutable usize = 0
+                while i < heap_size:
+                    child: mutable usize = 2 * i + 1
+                    if child >= heap_size: break
+                    if child + 1 < heap_size and heap[child + 1] < heap[child]: child <- child + 1
+                    if heap[i] <= heap[child]: break
+                    temp: i32 = heap[i]
+                    heap[i] <- heap[child]
+                    heap[child] <- temp
+                    i <- child
+        else:
+            return -1
+        k <- k + 1
+    if offset != input_length: return -1
+    if output.is_null() or capacity < output_size: return -2
+    i: usize = 0
+    while i < output_size:
+        output[i] <- staged[i]
+        i <- i + 1
+    return output_size.i64()
+
+export fn priority_queue(input: i64&, input_length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = priority_queue_impl

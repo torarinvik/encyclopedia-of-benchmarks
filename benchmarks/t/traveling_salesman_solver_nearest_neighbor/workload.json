@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-csharp-traveling-salesman-nearest-neighbor-i64-array-float64-v1",
+  "algorithm": "traveling_salesman_solver_nearest_neighbor",
+  "function_symbol": "TravelingSalesmanSolver.SolveNearestNeighbor",
+  "description": "Return a selected route city or total distance from the pinned C# nearest-neighbor TSP solver.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[selector,n,start,distance_row_major...]",
+    "selector": {
+      "0": "closed route distance",
+      "1_to_n_plus_1": "route position selector-1"
+    },
+    "city_count_range": [1, 8],
+    "start_range": "[0,n)",
+    "edge_cost_range": [0, 1000],
+    "matrix": "complete directed square matrix; diagonal is used for the single-city closing edge and otherwise ignored",
+    "maximum_valid_array_length": 67,
+    "maximum_parseable_array_length": 68,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "unit": "route city index or total distance",
+    "invalid_input_result": -1e+300,
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0
+  },
+  "contract": {
+    "operation": "Start at the selected city, repeatedly visit the nearest unvisited city, then add the directed return edge to the start and return the selected scalar.",
+    "tie_order": "The source scans candidate city indices in ascending order and updates the next city only for a strict distance decrease, so ties select the lowest unvisited index.",
+    "projection": "Selector 0 returns total distance. Selectors 1..n+1 return route elements 0..n as binary64 integers. For n=1, route is [start,start] and distance is the diagonal entry.",
+    "error": "Invalid selector, framing, city count, start, or edge cost returns -1e300. The bounded complete graph always has an available unvisited city."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/Problems/TravelingSalesman/TravelingSalesmanSolver.cs",
+    "symbol": "TravelingSalesmanSolver.SolveNearestNeighbor",
+    "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Problems/TravelingSalesman/TravelingSalesmanSolver.cs",
+    "role": "algorithm",
+    "dependencies": []
+  },
+  "oracle_method": "Apply ascending-index greedy nearest-neighbor selection, then project one route or distance scalar.",
+  "oracle_module": "benchmarks/traveling_salesman_solver_oracle.py",
+  "oracle_entry_point": "expected_result_nearest_neighbor(values)",
+  "cases": [
+    {"id": "single_city_distance_uses_diagonal", "input_values": [0, 1, 0, 7], "input_length": 4, "expected_result": 7},
+    {"id": "single_city_route_start", "input_values": [1, 1, 0, 7], "input_length": 4, "expected_result": 0},
+    {"id": "single_city_route_close", "input_values": [2, 1, 0, 7], "input_length": 4, "expected_result": 0},
+    {"id": "greedy_route_distance_not_global_minimum", "input_values": [0, 4, 0, 0, 1, 2, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 1, 0], "input_length": 19, "expected_result": 53},
+    {"id": "greedy_route_start", "input_values": [1, 4, 0, 0, 1, 2, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 1, 0], "input_length": 19, "expected_result": 0},
+    {"id": "greedy_route_second", "input_values": [2, 4, 0, 0, 1, 2, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 1, 0], "input_length": 19, "expected_result": 1},
+    {"id": "greedy_route_third", "input_values": [3, 4, 0, 0, 1, 2, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 1, 0], "input_length": 19, "expected_result": 3},
+    {"id": "greedy_route_fourth", "input_values": [4, 4, 0, 0, 1, 2, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 1, 0], "input_length": 19, "expected_result": 2},
+    {"id": "greedy_route_close", "input_values": [5, 4, 0, 0, 1, 2, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 1, 0], "input_length": 19, "expected_result": 0},
+    {"id": "tie_uses_lowest_city_index", "input_values": [2, 4, 2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0], "input_length": 19, "expected_result": 0},
+    {"id": "tie_route_next_position", "input_values": [3, 4, 2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0], "input_length": 19, "expected_result": 1},
+    {"id": "maximum_city_count_distance", "input_values": [0, 8, 3, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0], "input_length": 67, "expected_result": 8000},
+    {"id": "city_count_below_range", "input_values": [0, 0, 0], "input_length": 3, "expected_result": -1e+300},
+    {"id": "city_count_above_range", "input_values": [0, 9, 0], "input_length": 3, "expected_result": -1e+300},
+    {"id": "start_out_of_range", "input_values": [0, 2, 2, 0, 1, 1, 0], "input_length": 7, "expected_result": -1e+300},
+    {"id": "selector_out_of_range", "input_values": [4, 1, 0, 7], "input_length": 4, "expected_result": -1e+300},
+    {"id": "truncated_matrix", "input_values": [0, 2, 0, 0, 1, 1], "input_length": 6, "expected_result": -1e+300},
+    {"id": "extra_matrix_value", "input_values": [0, 1, 0, 7, 7], "input_length": 5, "expected_result": -1e+300},
+    {"id": "edge_above_bound", "input_values": [0, 2, 0, 0, 1001, 1, 0], "input_length": 7, "expected_result": -1e+300}
+  ]
+}

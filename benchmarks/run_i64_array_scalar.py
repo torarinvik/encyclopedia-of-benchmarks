@@ -51,17 +51,51 @@ from stochastic_matrix_oracle import expected_result as stochastic_matrix_expect
 from key_finder_oracle import INVALID_RESULT as KEY_FINDER_INVALID_RESULT
 from key_finder_oracle import MAX_PARSEABLE_INPUT_VALUES as MAX_KEY_FINDER_PARSEABLE_INPUT_VALUES
 from key_finder_oracle import expected_result as key_finder_expected
+from lwe_encryption_oracle import DIMENSION as LWE_ENCRYPTION_DIMENSION
+from lwe_encryption_oracle import ERROR_BOUND as LWE_ENCRYPTION_ERROR_BOUND
+from lwe_encryption_oracle import INVALID_RESULT as LWE_ENCRYPTION_INVALID_RESULT
+from lwe_encryption_oracle import MAX_MESSAGE_BYTES as LWE_ENCRYPTION_MAX_MESSAGE_BYTES
+from lwe_encryption_oracle import MAX_PARSEABLE_INPUT_LENGTH as LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH
+from lwe_encryption_oracle import MAX_VALID_INPUT_LENGTH as LWE_ENCRYPTION_MAX_VALID_INPUT_LENGTH
+from lwe_encryption_oracle import MODULUS as LWE_ENCRYPTION_MODULUS
+from lwe_encryption_oracle import SAMPLES as LWE_ENCRYPTION_SAMPLES
+from lwe_encryption_oracle import expected_result as lwe_encryption_expected
 from subset_count_oracle import INVALID_RESULT as SUBSET_COUNT_INVALID_RESULT
 from subset_count_oracle import MAX_INPUT_VALUES as MAX_SUBSET_COUNT_INPUT_VALUES
 from subset_count_oracle import expected_result as subset_count_expected
 from pollard_oracle import INVALID_RESULT as POLLARD_INVALID_RESULT
 from pollard_oracle import MAX_INPUT_LENGTH as MAX_POLLARD_INPUT_LENGTH
 from pollard_oracle import expected_result as pollard_expected
+from pollard_rho_java_oracle import INVALID_RESULT as POLLARD_RHO_JAVA_INVALID_RESULT
+from pollard_rho_java_oracle import SOURCE_FAILURE_RESULT as POLLARD_RHO_JAVA_SOURCE_FAILURE_RESULT
+from pollard_rho_java_oracle import STEP_LIMIT_RESULT as POLLARD_RHO_JAVA_STEP_LIMIT_RESULT
+from pollard_rho_java_oracle import expected_result as pollard_rho_java_expected
+from pollard_rho_python_oracle import INVALID_RESULT as POLLARD_RHO_PYTHON_INVALID_RESULT
+from pollard_rho_python_oracle import MAX_PARSEABLE_LENGTH as POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH
+from pollard_rho_python_oracle import expected_result as pollard_rho_python_expected
+from pollard_rho_rust_oracle import INVALID_RESULT as POLLARD_RHO_RUST_INVALID_RESULT
+from pollard_rho_rust_oracle import MAX_PARSEABLE_LENGTH as POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH
+from pollard_rho_rust_oracle import expected_result as pollard_rho_rust_expected
 from polygon_points_oracle import INVALID_RESULT as POLYGON_POINTS_INVALID_RESULT
 from polygon_points_oracle import MAX_INPUT_LENGTH as MAX_POLYGON_POINTS_INPUT_LENGTH
 from polygon_points_oracle import expected_result as polygon_points_expected
 from traveling_salesman_bitmask_oracle import MAX_INPUT_LENGTH as MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH
 from traveling_salesman_bitmask_oracle import expected_result as traveling_salesman_bitmask_expected
+from traveling_salesman_oracle import INVALID_RESULT as TRAVELING_SALESMAN_INVALID_RESULT
+from traveling_salesman_oracle import JAVA_INT_MAX as TRAVELING_SALESMAN_JAVA_INT_MAX
+from traveling_salesman_oracle import MAX_CITIES as TRAVELING_SALESMAN_MAX_CITIES
+from traveling_salesman_oracle import MAX_EDGE_COST as TRAVELING_SALESMAN_MAX_EDGE_COST
+from traveling_salesman_oracle import MAX_INPUT_LENGTH as MAX_TRAVELING_SALESMAN_INPUT_LENGTH
+from traveling_salesman_oracle import MAX_TOUR_COST as TRAVELING_SALESMAN_MAX_TOUR_COST
+from traveling_salesman_oracle import MIN_CITIES as TRAVELING_SALESMAN_MIN_CITIES
+from traveling_salesman_oracle import expected_result as traveling_salesman_expected
+from smith_waterman_java_oracle import (
+    INVALID_RESULT as SMITH_WATERMAN_JAVA_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as SMITH_WATERMAN_JAVA_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_SEQUENCE_LENGTH as SMITH_WATERMAN_JAVA_MAX_SEQUENCE_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SMITH_WATERMAN_JAVA_MAX_VALID_INPUT_LENGTH,
+    expected_result as smith_waterman_java_expected,
+)
 from roulette_wheel_selection_oracle import MAX_INPUT_LENGTH as MAX_ROULETTE_WHEEL_SELECTION_INPUT_LENGTH
 from roulette_wheel_selection_oracle import expected_result as roulette_wheel_selection_expected
 from stoer_wagner_oracle import MAX_INPUT_VALUES as MAX_STOER_WAGNER_INPUT_LENGTH
@@ -405,6 +439,18 @@ from rsa_cipher_oracle import MAX_VALID_INPUT_VALUES as RSA_CIPHER_MAX_VALID_INP
 from rsa_cipher_oracle import MIN_ASCII_CODE as RSA_CIPHER_MIN_ASCII_CODE
 from rsa_cipher_oracle import MIN_MODULUS as RSA_CIPHER_MIN_MODULUS
 from rsa_cipher_oracle import expected_result as rsa_cipher_expected
+from rsa_factorization_oracle import FACTOR_BASE as RSA_FACTORIZATION_FACTOR_BASE
+from rsa_factorization_oracle import INVALID_RESULT as RSA_FACTORIZATION_INVALID_RESULT
+from rsa_factorization_oracle import MAX_PARSEABLE_LENGTH as RSA_FACTORIZATION_MAX_PARSEABLE_LENGTH
+from rsa_factorization_oracle import MAX_RESULT as RSA_FACTORIZATION_MAX_RESULT
+from rsa_factorization_oracle import expected_result as rsa_factorization_expected
+from rsa_key_generator_oracle import INVALID_RESULT as RSA_KEY_GENERATOR_INVALID_RESULT
+from rsa_key_generator_oracle import MAX_DRAWS as RSA_KEY_GENERATOR_MAX_DRAWS
+from rsa_key_generator_oracle import MAX_KEY_SIZE as RSA_KEY_GENERATOR_MAX_KEY_SIZE
+from rsa_key_generator_oracle import MAX_PARSEABLE_INPUT_LENGTH as RSA_KEY_GENERATOR_MAX_PARSEABLE_INPUT_LENGTH
+from rsa_key_generator_oracle import MAX_VALID_INPUT_LENGTH as RSA_KEY_GENERATOR_MAX_VALID_INPUT_LENGTH
+from rsa_key_generator_oracle import MIN_KEY_SIZE as RSA_KEY_GENERATOR_MIN_KEY_SIZE
+from rsa_key_generator_oracle import expected_result as rsa_key_generator_expected
 from suffix_trie_oracle import I64_MAX as SUFFIX_TRIE_I64_MAX
 from suffix_trie_oracle import I64_MIN as SUFFIX_TRIE_I64_MIN
 from suffix_trie_oracle import INVALID_RESULT as SUFFIX_TRIE_INVALID_RESULT
@@ -459,6 +505,155 @@ from mrucache_oracle import MAX_INPUT_LENGTH as MRUCACHE_MAX_INPUT_LENGTH
 from mrucache_oracle import MAX_OPERATIONS as MRUCACHE_MAX_OPERATIONS
 from mrucache_oracle import MAX_VALUE as MRUCACHE_MAX_VALUE
 from mrucache_oracle import expected_result as mrucache_expected
+from lww_element_set_oracle import I32_MAX as LWW_ELEMENT_SET_I32_MAX
+from lww_element_set_oracle import I32_MIN as LWW_ELEMENT_SET_I32_MIN
+from lww_element_set_oracle import I64_MAX as LWW_ELEMENT_SET_I64_MAX
+from lww_element_set_oracle import I64_MIN as LWW_ELEMENT_SET_I64_MIN
+from lww_element_set_oracle import INVALID_RESULT as LWW_ELEMENT_SET_INVALID_RESULT
+from lww_element_set_oracle import MAX_OPERATIONS as LWW_ELEMENT_SET_MAX_OPERATIONS
+from lww_element_set_oracle import MAX_PARSEABLE_INPUT_LENGTH as LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH
+from lww_element_set_oracle import MAX_VALID_INPUT_LENGTH as LWW_ELEMENT_SET_MAX_VALID_INPUT_LENGTH
+from lww_element_set_oracle import expected_result as lww_element_set_expected
+from smallest_prime_factor_oracle import INVALID_RESULT as SMALLEST_PRIME_FACTOR_INVALID_RESULT
+from smallest_prime_factor_oracle import MAX_INPUT_LENGTH as SMALLEST_PRIME_FACTOR_MAX_INPUT_LENGTH
+from smallest_prime_factor_oracle import MAX_N as SMALLEST_PRIME_FACTOR_MAX_N
+from smallest_prime_factor_oracle import MIN_N as SMALLEST_PRIME_FACTOR_MIN_N
+from smallest_prime_factor_oracle import expected_result as smallest_prime_factor_expected
+from permutation_count_oracle import (
+    INVALID_RESULT as PERMUTATION_COUNT_INVALID_RESULT,
+    MAX_INPUT_LENGTH as PERMUTATION_COUNT_MAX_INPUT_LENGTH,
+    MAX_N as PERMUTATION_COUNT_MAX_N,
+    MAX_R as PERMUTATION_COUNT_MAX_R,
+    expected_result as permutation_count_expected,
+)
+from shors_algorithm_oracle import (
+    INVALID_RESULT as SHORS_ALGORITHM_INVALID_RESULT,
+    MAX_ATTEMPTS as SHORS_ALGORITHM_MAX_ATTEMPTS,
+    MAX_MODULUS as SHORS_ALGORITHM_MAX_MODULUS,
+    MAX_PARSEABLE_INPUT_LENGTH as SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SHORS_ALGORITHM_MAX_VALID_INPUT_LENGTH,
+    MIN_ATTEMPTS as SHORS_ALGORITHM_MIN_ATTEMPTS,
+    MIN_MODULUS as SHORS_ALGORITHM_MIN_MODULUS,
+    expected_result as shors_algorithm_expected,
+)
+from simulated_annealing_oracle import (
+    ACCEPTANCE_LEVELS as SIMULATED_ANNEALING_ACCEPTANCE_LEVELS,
+    INVALID_RESULT as SIMULATED_ANNEALING_INVALID_RESULT,
+    MAX_COORDINATE as SIMULATED_ANNEALING_MAX_COORDINATE,
+    MAX_OUTER_ITERATIONS as SIMULATED_ANNEALING_MAX_OUTER_ITERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as SIMULATED_ANNEALING_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RANDOM_DRAWS as SIMULATED_ANNEALING_MAX_RANDOM_DRAWS,
+    MAX_RATE as SIMULATED_ANNEALING_MAX_RATE,
+    MAX_START_TEMP as SIMULATED_ANNEALING_MAX_START_TEMP,
+    MAX_THRESHOLD as SIMULATED_ANNEALING_MAX_THRESHOLD,
+    MAX_VALID_INPUT_LENGTH as SIMULATED_ANNEALING_MAX_VALID_INPUT_LENGTH,
+    MIN_COORDINATE as SIMULATED_ANNEALING_MIN_COORDINATE,
+    MIN_RATE as SIMULATED_ANNEALING_MIN_RATE,
+    MIN_START_TEMP as SIMULATED_ANNEALING_MIN_START_TEMP,
+    MIN_STEP as SIMULATED_ANNEALING_MIN_STEP,
+    MAX_STEP as SIMULATED_ANNEALING_MAX_STEP,
+    MIN_THRESHOLD as SIMULATED_ANNEALING_MIN_THRESHOLD,
+    SCALE as SIMULATED_ANNEALING_SCALE,
+    STATE_CODE_WIDTH as SIMULATED_ANNEALING_STATE_CODE_WIDTH,
+    STATE_OFFSET as SIMULATED_ANNEALING_STATE_OFFSET,
+    expected_result as simulated_annealing_expected,
+)
+from lamport_signature_oracle import (
+    ENTROPY_BYTES as LAMPORT_SIGNATURE_ENTROPY_BYTES,
+    INVALID_RESULT as LAMPORT_SIGNATURE_INVALID_RESULT,
+    MAX_MESSAGE_BYTES as LAMPORT_SIGNATURE_MAX_MESSAGE_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LAMPORT_SIGNATURE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LAMPORT_SIGNATURE_MAX_VALID_INPUT_LENGTH,
+    SIGNATURE_BYTES as LAMPORT_SIGNATURE_SIGNATURE_BYTES,
+    expected_result as lamport_signature_expected,
+)
+from k_medoids_oracle import (
+    INVALID_RESULT as K_MEDOIDS_INVALID_RESULT,
+    MAX_PARSEABLE_LENGTH as K_MEDOIDS_MAX_PARSEABLE_LENGTH,
+    MAX_RESULT as K_MEDOIDS_MAX_RESULT,
+    MAX_VALID_LENGTH as K_MEDOIDS_MAX_VALID_LENGTH,
+    expected_result as k_medoids_expected,
+)
+from rsa_explicit_key_transform_oracle import (
+    INVALID_RESULT as RSA_EXPLICIT_KEY_TRANSFORM_INVALID_RESULT,
+    MAX_EXPONENT as RSA_EXPLICIT_KEY_TRANSFORM_MAX_EXPONENT,
+    MAX_MESSAGE_LENGTH as RSA_EXPLICIT_KEY_TRANSFORM_MAX_MESSAGE_LENGTH,
+    MAX_MODULUS as RSA_EXPLICIT_KEY_TRANSFORM_MAX_MODULUS,
+    MAX_PARSEABLE_INPUT_LENGTH as RSA_EXPLICIT_KEY_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as RSA_EXPLICIT_KEY_TRANSFORM_MAX_VALID_INPUT_LENGTH,
+    MIN_EXPONENT as RSA_EXPLICIT_KEY_TRANSFORM_MIN_EXPONENT,
+    MIN_MODULUS as RSA_EXPLICIT_KEY_TRANSFORM_MIN_MODULUS,
+    expected_result as rsa_explicit_key_transform_expected,
+)
+from rsa_java_big_integer_oracle import (
+    INVALID_RESULT as RSA_JAVA_BIG_INTEGER_INVALID_RESULT,
+    MAX_EXPONENT as RSA_JAVA_BIG_INTEGER_MAX_EXPONENT,
+    MAX_MESSAGE_LENGTH as RSA_JAVA_BIG_INTEGER_MAX_MESSAGE_LENGTH,
+    MAX_MODULUS as RSA_JAVA_BIG_INTEGER_MAX_MODULUS,
+    MAX_PARSEABLE_INPUT_LENGTH as RSA_JAVA_BIG_INTEGER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as RSA_JAVA_BIG_INTEGER_MAX_VALID_INPUT_LENGTH,
+    MIN_EXPONENT as RSA_JAVA_BIG_INTEGER_MIN_EXPONENT,
+    MIN_MODULUS as RSA_JAVA_BIG_INTEGER_MIN_MODULUS,
+    expected_result as rsa_java_big_integer_expected,
+)
+from rsa_ruby_byte_chunk_oracle import (
+    CHUNK_WIDTH as RSA_RUBY_BYTE_CHUNK_WIDTH,
+    INVALID_RESULT as RSA_RUBY_BYTE_CHUNK_INVALID_RESULT,
+    MAX_EXPONENT as RSA_RUBY_BYTE_CHUNK_MAX_EXPONENT,
+    MAX_MESSAGE_LENGTH as RSA_RUBY_BYTE_CHUNK_MAX_MESSAGE_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as RSA_RUBY_BYTE_CHUNK_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as RSA_RUBY_BYTE_CHUNK_MAX_VALID_INPUT_LENGTH,
+    MIN_EXPONENT as RSA_RUBY_BYTE_CHUNK_MIN_EXPONENT,
+    MODULUS as RSA_RUBY_BYTE_CHUNK_MODULUS,
+    expected_result as rsa_ruby_byte_chunk_expected,
+)
+from k_means_julia_oracle import (
+    INVALID_RESULT as K_MEANS_JULIA_INVALID_RESULT,
+    ITERATION_CAP_RESULT as K_MEANS_JULIA_ITERATION_CAP_RESULT,
+    MAX_COORDINATE as K_MEANS_JULIA_MAX_COORDINATE,
+    MAX_MOVES as K_MEANS_JULIA_MAX_MOVES,
+    MAX_PARSEABLE_INPUT_LENGTH as K_MEANS_JULIA_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POINTS as K_MEANS_JULIA_MAX_POINTS,
+    MIN_COORDINATE as K_MEANS_JULIA_MIN_COORDINATE,
+    MIN_POINTS as K_MEANS_JULIA_MIN_POINTS,
+    expected_result as k_means_julia_expected,
+)
+from k_means_rust_oracle import INVALID_RESULT as K_MEANS_RUST_INVALID_RESULT
+from k_means_rust_oracle import U53_MAX as K_MEANS_RUST_U53_MAX
+from k_means_rust_oracle import expected_result as k_means_rust_expected
+from k_means_clustering_c_oracle import (
+    INVALID_RESULT as K_MEANS_CLUSTERING_C_INVALID_RESULT,
+    ITERATION_CAP_RESULT as K_MEANS_CLUSTERING_C_ITERATION_CAP_RESULT,
+    MAX_COORDINATE as K_MEANS_CLUSTERING_C_MAX_COORDINATE,
+    MAX_MOVES as K_MEANS_CLUSTERING_C_MAX_MOVES,
+    MAX_PARSEABLE_INPUT_LENGTH as K_MEANS_CLUSTERING_C_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POINTS as K_MEANS_CLUSTERING_C_MAX_POINTS,
+    MIN_COORDINATE as K_MEANS_CLUSTERING_C_MIN_COORDINATE,
+    MIN_POINTS as K_MEANS_CLUSTERING_C_MIN_POINTS,
+    expected_result as k_means_clustering_c_expected,
+)
+from k_means_clustering_zig_oracle import (
+    INVALID_RESULT as K_MEANS_CLUSTERING_ZIG_INVALID_RESULT,
+    ITERATION_CAP_RESULT as K_MEANS_CLUSTERING_ZIG_ITERATION_CAP_RESULT,
+    MAX_COORDINATE as K_MEANS_CLUSTERING_ZIG_MAX_COORDINATE,
+    MAX_MOVES as K_MEANS_CLUSTERING_ZIG_MAX_MOVES,
+    MAX_PARSEABLE_INPUT_LENGTH as K_MEANS_CLUSTERING_ZIG_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POINTS as K_MEANS_CLUSTERING_ZIG_MAX_POINTS,
+    MIN_COORDINATE as K_MEANS_CLUSTERING_ZIG_MIN_COORDINATE,
+    MIN_POINTS as K_MEANS_CLUSTERING_ZIG_MIN_POINTS,
+    expected_result as k_means_clustering_zig_expected,
+)
+from kmeans_rust_oracle import (
+    INVALID_RESULT as KMEANS_RUST_INVALID_RESULT,
+    ITERATION_CAP_RESULT as KMEANS_RUST_ITERATION_CAP_RESULT,
+    MAX_COORDINATE as KMEANS_RUST_MAX_COORDINATE,
+    MAX_MOVES as KMEANS_RUST_MAX_MOVES,
+    MAX_PARSEABLE_INPUT_LENGTH as KMEANS_RUST_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POINTS as KMEANS_RUST_MAX_POINTS,
+    MIN_COORDINATE as KMEANS_RUST_MIN_COORDINATE,
+    MIN_POINTS as KMEANS_RUST_MIN_POINTS,
+    expected_result as kmeans_rust_expected,
+)
 from kruskal_mst_oracle import MAX_PARSEABLE_INPUT_LENGTH as KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH
 from kruskal_mst_oracle import MAX_VALID_INPUT_LENGTH as KRUSKAL_MST_MAX_VALID_INPUT_LENGTH
 from kruskal_mst_oracle import MAX_VERTICES as KRUSKAL_MST_MAX_VERTICES
@@ -3270,6 +3465,161 @@ KRUSKAL_MST_CASE_IDS = frozenset({
 })
 
 
+def validate_lww_element_set_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/datastructures/crdt/LWWElementSet.java",
+        "symbol": "LWWElementSet",
+        "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/crdt/LWWElementSet.java",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Replay a bounded four-word operation trace against two fresh LWW set replicas.",
+        "maximum_operations": LWW_ELEMENT_SET_MAX_OPERATIONS,
+        "maximum_valid_input_length": LWW_ELEMENT_SET_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH,
+        "operation_record": "[opcode, arg0, arg1, arg2]",
+        "selectors": {
+            "0": "add(replica, key, timestamp_seconds)",
+            "1": "remove(replica, key, timestamp_seconds)",
+            "2": "lookup(replica, key, 0)",
+            "3": "merge(target_replica, source_replica, 0)",
+        },
+        "replica_domain": [0, 1],
+        "key_domain": "signed-i32",
+        "timestamp_domain": "signed-i32 logical Unix seconds, mapped to Instant.ofEpochSecond",
+        "add_remove_semantics": "Each operation unconditionally replaces that replica's timestamp entry for the key in the selected map, matching HashMap.put.",
+        "lookup_semantics": "True iff the key has an add timestamp and either no remove timestamp or add_timestamp > remove_timestamp.",
+        "merge_semantics": "Merge add and remove maps separately. For each key retain the later timestamp; an equal timestamp selects the incoming source entry, as resolveConflict(e1,e2) returns e2 unless e1.isAfter(e2). Self-merge is a no-op.",
+        "result_encoding": "Bit j is the boolean result of the j-th lookup in trace order; at most 24 lookup results are packed.",
+        "invalid_result": LWW_ELEMENT_SET_INVALID_RESULT,
+        "invalid_inputs": "Null input, invalid framing, unknown opcode, nonzero reserved argument, or out-of-domain replica/key/timestamp returns -1.",
+    }
+    input_spec = {
+        "kind": "signed_64_bit_array",
+        "encoding": "[operation_count, opcode, arg0, arg1, arg2, ...]; every operation occupies four words.",
+        "operation_count_range": [0, LWW_ELEMENT_SET_MAX_OPERATIONS],
+        "maximum_valid_length": LWW_ELEMENT_SET_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_length": LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH,
+        "null_input_result": LWW_ELEMENT_SET_INVALID_RESULT,
+        "invalid_input_result": LWW_ELEMENT_SET_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "encoding": "Low-order bits, in lookup order, with 1 for true and 0 for false; zero when the trace contains no lookups.",
+        "invalid_input_result": LWW_ELEMENT_SET_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 12,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 10000,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    expected_case_ids = {
+        "empty_trace",
+        "lookup_after_add",
+        "lookup_absent_key",
+        "remove_without_add",
+        "equal_add_remove_timestamp_is_absent",
+        "later_add_beats_remove",
+        "repeated_add_overwrites_even_with_older_timestamp",
+        "merge_keeps_later_source_add",
+        "merge_keeps_later_target_add",
+        "merge_keeps_latest_remove_timestamp",
+        "merge_copies_source_state",
+        "self_merge_is_noop",
+        "out_of_range_replica_is_invalid",
+        "nonzero_reserved_argument_is_invalid",
+        "out_of_range_key_is_invalid",
+        "out_of_range_timestamp_is_invalid",
+        "trailing_word_is_invalid",
+        "null_input_is_invalid",
+        "maximum_operation_count_with_absent_lookups",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-lww-element-set-i64-array-scalar-v1"
+            or workload.get("algorithm") != "lww_element_set"
+            or workload.get("function_symbol") != "lww_element_set"
+            or workload.get("description") != "Replay deterministic LWW add, remove, lookup, and two-replica merge operations."
+            or workload.get("pinned_source") != source
+            or workload.get("pinned_sources") is not None
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != measurement
+            or LWW_ELEMENT_SET_MAX_OPERATIONS != 24
+            or LWW_ELEMENT_SET_MAX_VALID_INPUT_LENGTH != 97
+            or LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH != 98
+            or (LWW_ELEMENT_SET_I32_MIN, LWW_ELEMENT_SET_I32_MAX)
+                != (-(1 << 31), (1 << 31) - 1)
+            or (LWW_ELEMENT_SET_I64_MIN, LWW_ELEMENT_SET_I64_MAX)
+                != (-(1 << 63), (1 << 63) - 1)
+            or LWW_ELEMENT_SET_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_case_ids
+            or workload.get("abi_cases", [])):
+        raise ValueError("lww_element_set metadata or fixture IDs differ from its reviewed contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "lww_element_set" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "Timestamps are deterministic logical Unix seconds" not in readme
+            or "on equal timestamps select the incoming source entry" not in readme
+            or "The first lookup in the trace is bit 0" not in readme
+            or "`i64_array_scalar_call`" not in readme):
+        raise ValueError("lww_element_set README is missing its source pin or contract rules")
+
+    case_fields = {"id", "input_values", "input_length", "expected_result"}
+    optional_fields = {"input_is_null"}
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        if (set(case) - (case_fields | optional_fields)
+                or not case_fields <= set(case)
+                or not isinstance(values, list)
+                or len(values) > LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int
+                       or not LWW_ELEMENT_SET_I64_MIN <= value <= LWW_ELEMENT_SET_I64_MAX
+                       for value in values)
+                or type(input_length) is not int
+                or not 0 <= input_length <= LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or input_is_null and values
+                or not input_is_null and input_length != len(values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"lww_element_set fixture framing is invalid: {case.get('id')}")
+        result = lww_element_set_expected(values, input_length, input_is_null)
+        if result != case["expected_result"]:
+            raise ValueError(f"lww_element_set fixture mismatch: {case['id']}")
+        if result != LWW_ELEMENT_SET_INVALID_RESULT and not 0 <= result < (1 << LWW_ELEMENT_SET_MAX_OPERATIONS):
+            raise ValueError(f"lww_element_set result is outside its packed lookup domain: {case['id']}")
+
+    indexed_cases = {case["id"]: case for case in cases}
+    if (indexed_cases["empty_trace"]["expected_result"] != 0
+            or indexed_cases["lookup_after_add"]["expected_result"] != 1
+            or indexed_cases["equal_add_remove_timestamp_is_absent"]["expected_result"] != 0
+            or indexed_cases["merge_keeps_later_source_add"]["expected_result"] != 1
+            or indexed_cases["merge_keeps_later_target_add"]["expected_result"] != 1
+            or indexed_cases["self_merge_is_noop"]["expected_result"] != 1
+            or indexed_cases["trailing_word_is_invalid"]["expected_result"]
+                != LWW_ELEMENT_SET_INVALID_RESULT
+            or indexed_cases["null_input_is_invalid"].get("input_is_null") is not True
+            or indexed_cases["null_input_is_invalid"].get("input_length") != 1
+            or indexed_cases["null_input_is_invalid"]["expected_result"]
+                != LWW_ELEMENT_SET_INVALID_RESULT
+            or len(indexed_cases["maximum_operation_count_with_absent_lookups"]["input_values"])
+                != LWW_ELEMENT_SET_MAX_VALID_INPUT_LENGTH):
+        raise ValueError("lww_element_set fixtures do not pin merge and framing semantics")
+
+
 def validate_kruskal_mst_workload(workload: dict) -> None:
     sources = [
         {
@@ -5740,7 +6090,31 @@ def validate_solution42_workload(workload: dict) -> None:
 
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH if algorithm == "kth_element_finder" else
+    max_input_length = (LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "lwe_encryption" else
+                        POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "pollard_rho_java" else
+                        POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH if algorithm == "pollard_rho_python" else
+                        POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH if algorithm == "pollard_rho_rust" else
+                        RSA_FACTORIZATION_MAX_PARSEABLE_LENGTH if algorithm == "rsa_factorization" else
+                        RSA_KEY_GENERATOR_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "rsa_key_generator" else
+                        PERMUTATION_COUNT_MAX_INPUT_LENGTH if algorithm == "permutation_count" else
+                        LAMPORT_SIGNATURE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "lamport_signature" else
+                        K_MEDOIDS_MAX_PARSEABLE_LENGTH if algorithm == "k_medoids" else
+                        RSA_EXPLICIT_KEY_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "rsa_explicit_key_transform" else
+                        RSA_JAVA_BIG_INTEGER_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "rsa_java_big_integer" else
+                        RSA_RUBY_BYTE_CHUNK_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "rsa_ruby_byte_chunk" else
+                        K_MEANS_JULIA_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "k_means_julia" else
+                        11 if algorithm == "k_means_rust" else
+                        K_MEANS_CLUSTERING_C_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "k_means_clustering_c" else
+                        K_MEANS_CLUSTERING_ZIG_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "k_means_clustering_zig" else
+                        KMEANS_RUST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kmeans_rust" else
+                        SIMULATED_ANNEALING_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "simulated_annealing" else
+                        SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "shors_algorithm" else
+                        MAX_KTH_ELEMENT_FINDER_INPUT_LENGTH if algorithm == "kth_element_finder" else
                         MAX_PUSH_RELABEL_INPUT_LENGTH if algorithm == "push_relabel" else
                         MAX_EDMONDS_BLOSSOM_INPUT_LENGTH if algorithm == "edmonds_blossom_algorithm" else
                         MAX_EROSION_OPERATION_INPUT_LENGTH if algorithm == "erosion_operation" else
@@ -6151,6 +6525,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         else MAX_SUBSET_COUNT_INPUT_VALUES if algorithm == "subset_count"
                         else MAX_POLLARD_INPUT_LENGTH if algorithm == "pollard"
                         else MAX_POLYGON_POINTS_INPUT_LENGTH if algorithm == "polygon_points"
+                        else MAX_TRAVELING_SALESMAN_INPUT_LENGTH
+                        if algorithm == "traveling_salesman"
+                        else SMITH_WATERMAN_JAVA_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "smith_waterman_java"
                         else MAX_TRAVELING_SALESMAN_BITMASK_INPUT_LENGTH
                         if algorithm == "traveling_salesman_bitmask"
                         else MAX_ROULETTE_WHEEL_SELECTION_INPUT_LENGTH
@@ -6189,6 +6567,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "playfair_cipher"
                         else MINIMAX_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "minimax"
                         else MRUCACHE_MAX_INPUT_LENGTH if algorithm == "mrucache"
+                        else LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "lww_element_set"
                         else KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "kruskal_mst"
                         else MOS_ALGORITHM_MAX_INPUT_LENGTH if algorithm == "mos_algorithm"
                         else PERSISTENT_SEG_TREE_LAZY_PROP_MAX_INPUT_LENGTH
@@ -6273,6 +6653,18 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                 raise ValueError("invalid pollard inputs must use the -1 result sentinel")
         elif expected != expected_from_source:
             raise ValueError("pollard expected_result must match the pinned fixed-seed Floyd recurrence")
+    elif algorithm == "pollard_rho_java":
+        expected_from_source = pollard_rho_java_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pollard_rho_java expected_result must match the pinned Java signed-remainder Floyd recurrence")
+    elif algorithm == "pollard_rho_python":
+        expected_from_source = pollard_rho_python_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pollard_rho_python expected_result must match the bounded Python attempt stream")
+    elif algorithm == "pollard_rho_rust":
+        expected_from_source = pollard_rho_rust_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("pollard_rho_rust expected_result must match the seeded Brent source variant")
     elif algorithm == "polygon_points":
         expected_from_source = polygon_points_expected(values)
         if expected_from_source == POLYGON_POINTS_INVALID_RESULT:
@@ -6284,6 +6676,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = traveling_salesman_bitmask_expected(values)
         if expected != expected_from_source:
             raise ValueError("traveling_salesman_bitmask expected_result must match the bounded closed-tour minimum")
+    elif algorithm == "traveling_salesman":
+        expected_from_source = traveling_salesman_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("traveling_salesman expected_result must match Java bruteForce closed-tour enumeration")
+    elif algorithm == "smith_waterman_java":
+        expected_from_source = smith_waterman_java_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("smith_waterman_java expected_result must match the pinned Java local-alignment score")
     elif algorithm == "roulette_wheel_selection":
         expected_from_source = roulette_wheel_selection_expected(values)
         if expected != expected_from_source:
@@ -11093,6 +11493,19 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             None if input_is_null else values, input_is_null, input_length)
         if expected != expected_from_source:
             raise ValueError("rsa_cipher expected_result must match the bounded one-byte RSA transform")
+    elif algorithm == "rsa_factorization":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = rsa_factorization_expected(None if input_is_null else values)
+        if expected != expected_from_source:
+            raise ValueError("rsa_factorization expected_result must match the supplied-base factor recovery")
+    elif algorithm == "lwe_encryption":
+        expected_from_source = lwe_encryption_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("lwe_encryption expected_result must match the pinned encryption/decryption fingerprint")
+    elif algorithm == "rsa_key_generator":
+        expected_from_source = rsa_key_generator_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rsa_key_generator expected_result must match the supplied-random-draw key construction")
     elif algorithm == "suffix_trie":
         input_is_null = case.get("input_is_null", False)
         input_is_null = False if input_is_null is None else input_is_null
@@ -11109,6 +11522,11 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = mrucache_expected(values)
         if expected != expected_from_source:
             raise ValueError("mrucache expected_result must match the bounded MRU-tail eviction and GET-response hash contract")
+    elif algorithm == "lww_element_set":
+        expected_from_source = lww_element_set_expected(
+            values, case.get("input_length", len(values)), case.get("input_is_null", False))
+        if expected != expected_from_source:
+            raise ValueError("lww_element_set expected_result must match the bounded two-replica LWW operation trace")
     elif algorithm == "kruskal_mst":
         expected_from_source = kruskal_mst_expected(values)
         if expected != expected_from_source:
@@ -11187,6 +11605,54 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = playfair_cipher_expected(values)
         if expected != expected_from_source:
             raise ValueError("playfair_cipher expected_result must match the bounded shared Java/Python transform and FNV-1a hash")
+    elif algorithm == "shors_algorithm":
+        expected_from_source = shors_algorithm_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("shors_algorithm expected_result must match bounded classical order finding over the supplied base stream")
+    elif algorithm == "simulated_annealing":
+        expected_from_source = simulated_annealing_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("simulated_annealing expected_result must match the bounded explicit-draw replay")
+    elif algorithm == "lamport_signature":
+        expected_from_source = lamport_signature_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("lamport_signature expected_result must match the supplied-entropy Lamport replay")
+    elif algorithm == "k_medoids":
+        expected_from_source = k_medoids_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("k_medoids expected_result must match ordered one-dimensional medoid updates")
+    elif algorithm == "rsa_explicit_key_transform":
+        expected_from_source = rsa_explicit_key_transform_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rsa_explicit_key_transform expected_result must match the Go/Lua explicit-key replay")
+    elif algorithm == "rsa_java_big_integer":
+        expected_from_source = rsa_java_big_integer_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rsa_java_big_integer expected_result must match the Java BigInteger overload replay")
+    elif algorithm == "rsa_ruby_byte_chunk":
+        expected_from_source = rsa_ruby_byte_chunk_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rsa_ruby_byte_chunk expected_result must match the Ruby decimal byte-chunk replay")
+    elif algorithm == "k_means_julia":
+        expected_from_source = k_means_julia_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("k_means_julia expected_result must match Julia's deterministic center updates")
+    elif algorithm == "k_means_rust":
+        expected_from_source = k_means_rust_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("k_means_rust expected_result must match the supplied two-dimensional draw replay")
+    elif algorithm == "k_means_clustering_c":
+        expected_from_source = k_means_clustering_c_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("k_means_clustering_c expected_result must match the explicit rand-label replay")
+    elif algorithm == "k_means_clustering_zig":
+        expected_from_source = k_means_clustering_zig_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("k_means_clustering_zig expected_result must match its f32 center/count convergence")
+    elif algorithm == "kmeans_rust":
+        expected_from_source = kmeans_rust_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("kmeans_rust expected_result must match deterministic label convergence")
     return values
 
 
@@ -11783,6 +12249,7 @@ def validate_mcnaughton_yamada_thompson_workload(workload: dict) -> None:
         if (set(case) != {"id", "input_values", "input_length", "expected_result"}
                 or not isinstance(values, list)
                 or len(values) > MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
                 or case.get("input_length") != len(values)
                 or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
                        for value in values)
@@ -11947,6 +12414,1867 @@ def validate_playfair_cipher_workload(workload: dict) -> None:
             raise ValueError(f"playfair_cipher semantic case is invalid: {case['id']}")
 
 
+def validate_smallest_prime_factor_workload(workload: dict) -> None:
+    """Pin the bounded primelib scalar workload and validate all of its fixtures."""
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "maths/primelib.py",
+        "symbol": "smallest_prime_factor",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/primelib.py#L252-L286",
+        "role": "algorithm",
+        "dependencies": ["maths/primelib.py::prime_factorization", "maths/primelib.py::is_prime"],
+    }
+    contract = {
+        "operation": "Return min(prime_factorization(n)) for bounded n >= 2.",
+        "source_factorization": "For composite n, test prime candidates in ascending order from 2, append each divisor, and repeatedly divide the quotient; for prime n, return [n].",
+        "scope": "The standalone smallest factor scalar; distinct from greatest_prime_factor and full factor-list outputs.",
+        "excluded_source_domain": "n=0 and n=1 produce sentinel lists [0] and [1] in the helper and are outside this benchmark.",
+    }
+    input_spec = {
+        "kind": "bounded_signed_i64_array",
+        "encoding": "[n]",
+        "exact_length": 1,
+        "first_rejected_length": 2,
+        "maximum_validation_array_length": SMALLEST_PRIME_FACTOR_MAX_INPUT_LENGTH,
+        "n_range": [SMALLEST_PRIME_FACTOR_MIN_N, SMALLEST_PRIME_FACTOR_MAX_N],
+        "invalid_input_result": SMALLEST_PRIME_FACTOR_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "Smallest prime divisor of n; n itself when prime.",
+        "invalid_input_result": SMALLEST_PRIME_FACTOR_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    valid_ids = {f"case_{index}_{suffix}" for index, suffix in enumerate(
+        ("2", "3", "4", "8", "49", "287", "65535", "999983", "1000003", "1000005"), 1)}
+    invalid_ids = {
+        "invalid_zero", "invalid_one", "invalid_negative", "invalid_above_bound",
+        "invalid_empty_input", "invalid_extra_value", "invalid_signed_i64_minimum",
+        "invalid_signed_i64_maximum",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-primelib-smallest-prime-factor-i64-scalar-v1"
+            or workload.get("algorithm") != "smallest_prime_factor"
+            or workload.get("function_symbol") != "smallest_prime_factor"
+            or workload.get("description") != "Return the smallest prime factor from the pinned primelib factorization routine."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != measurement
+            or "abi_cases" in workload
+            or not isinstance(cases, list)
+            or len(case_ids) != len(valid_ids | invalid_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != valid_ids | invalid_ids):
+        raise ValueError("smallest_prime_factor metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "smallest_prime_factor" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "2 <= n <= 1,000,005" not in readme
+            or "ascending trial division" not in readme
+            or "return -1" not in readme):
+        raise ValueError("smallest_prime_factor README is missing its source or contract details")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > SMALLEST_PRIME_FACTOR_MAX_INPUT_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"smallest_prime_factor fixture framing is invalid: {case.get('id')}")
+        result = smallest_prime_factor_expected(values)
+        required_result = (SMALLEST_PRIME_FACTOR_INVALID_RESULT
+                           if case["id"] in invalid_ids else case["expected_result"])
+        if result != case["expected_result"] or result != required_result:
+            raise ValueError(f"smallest_prime_factor fixture differs from its bounded oracle: {case['id']}")
+
+
+def validate_permutation_count_workload(workload: dict) -> None:
+    """Pin the Julia nPr scalar contract and validate every workload fixture."""
+    source = {
+        "repository": "TheAlgorithms/Julia",
+        "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+        "path": "src/math/permutation.jl",
+        "symbol": "permutation",
+        "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/permutation.jl",
+        "role": "algorithm",
+        "dependencies": ["src/math/permutation.jl::factorial"],
+    }
+    contract = {
+        "operation": "Return factorial(n) divided by factorial(n-r) for bounded n and r.",
+        "source_factorial": "Initialize to 1 and multiply the values in the ascending Julia range 1:value; the range is empty for negative value.",
+        "source_edge_behavior": "For r > n, n-r is negative, so the source denominator is 1 and the result is n!.",
+        "numeric_bound": "n <= 18 keeps the largest factorial (18!) exactly representable by Float64 and below signed-i64 maximum.",
+        "scope": "The Julia nPr scalar count only; C# string permutations and Java array-permutation enumeration are distinct variants.",
+    }
+    input_spec = {
+        "kind": "bounded_signed_i64_array",
+        "encoding": "[n, r]",
+        "exact_length": 2,
+        "first_rejected_length": 3,
+        "maximum_validation_array_length": PERMUTATION_COUNT_MAX_INPUT_LENGTH,
+        "n_range": [0, PERMUTATION_COUNT_MAX_N],
+        "r_range": [0, PERMUTATION_COUNT_MAX_R],
+        "invalid_input_result": PERMUTATION_COUNT_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "factorial(n) / factorial(n-r), preserving the pinned helper's empty negative-factorial range behavior.",
+        "invalid_input_result": PERMUTATION_COUNT_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    expected_case_ids = {
+        "zero_permutation", "zero_selected", "choose_one", "five_choose_two_ordered",
+        "ten_choose_three_ordered", "select_all", "r_exceeds_n_source_edge",
+        "maximum_factorial", "maximum_n_zero_selected", "invalid_negative_n",
+        "invalid_negative_r", "invalid_n_above_float_exact_bound", "invalid_r_above_bound",
+        "invalid_empty_input", "invalid_missing_r", "invalid_extra_value",
+        "invalid_signed_i64_minimum", "invalid_signed_i64_maximum",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-julia-permutation-count-i64-scalar-v1"
+            or workload.get("algorithm") != "permutation_count"
+            or workload.get("function_symbol") != "permutation_count"
+            or workload.get("description")
+                != "Return the bounded nPr count from the pinned Julia permutation routine."
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("measurement") != measurement
+            or "workspace" in workload
+            or "abi_cases" in workload
+            or (PERMUTATION_COUNT_MAX_N, PERMUTATION_COUNT_MAX_R,
+                PERMUTATION_COUNT_MAX_INPUT_LENGTH, PERMUTATION_COUNT_INVALID_RESULT)
+            != (18, 18, 3, -1)
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_case_ids):
+        raise ValueError("permutation_count metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "permutation_count" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "For `r > n` the denominator is 1" not in readme
+            or "exact integral value throughout the domain" not in readme):
+        raise ValueError("permutation_count README is missing its source or bounded edge rules")
+
+    for case in cases:
+        case_id = case.get("id")
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > PERMUTATION_COUNT_MAX_INPUT_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"permutation_count fixture framing is invalid: {case_id}")
+        result = permutation_count_expected(values)
+        if result != case["expected_result"]:
+            raise ValueError(f"permutation_count fixture differs from its Julia range oracle: {case_id}")
+
+
+def validate_shors_algorithm_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/JavaScript",
+        "commit": "5c39e87a9a31f279c60f830ad74a845e4788a517",
+        "path": "Maths/ShorsAlgorithm.js",
+        "symbol": "ShorsAlgorithm",
+        "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/ShorsAlgorithm.js",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Run the classical base gcd, multiplicative-order search, odd-order retry, and even-order factor extraction steps.",
+        "input_encoding": "[N,attempt_count,g0,g1,...]",
+        "modulus_range": [2, 255], "attempt_count_range": [1, 16],
+        "base_selection_source_expression": "floor(Math.random()*(N-1))+2",
+        "base_range": "2 through N inclusive",
+        "base_stream_rule": "Each supplied base represents the result of one source random selection; consume in order and stop on the first returned gcd.",
+        "order_rule": "Find the smallest p>=1 such that g^p mod N equals 1; retry the next base when p is odd.",
+        "factor_rule": "For even p, set y=g^(p/2) mod N; retry if y+1 or y-1 is divisible by N; otherwise return gcd(y+1,N) unless it is 1, then return gcd(y-1,N).",
+        "maximum_order_search": "N-1",
+        "power_reduction": "Use powers modulo N; divisibility and gcd results match the pinned BigInt power expressions.",
+        "exact_input_length": "2+attempt_count",
+        "maximum_valid_input_length": SHORS_ALGORITHM_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH,
+        "stream_exhaustion_result": SHORS_ALGORITHM_INVALID_RESULT,
+        "trivial_base_result": "N when a supplied base equals N, preserving the source gcd shortcut",
+        "output_encoding": "One signed 64-bit integer, either a returned source gcd or -1 for exhaustion/invalid input.",
+        "invalid_result": SHORS_ALGORITHM_INVALID_RESULT,
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[N, attempt_count, g0, g1, ...]",
+        "modulus_minimum": SHORS_ALGORITHM_MIN_MODULUS,
+        "modulus_maximum": SHORS_ALGORITHM_MAX_MODULUS,
+        "attempt_count_minimum": SHORS_ALGORITHM_MIN_ATTEMPTS,
+        "attempt_count_maximum": SHORS_ALGORITHM_MAX_ATTEMPTS,
+        "base_range": "2 <= g <= N",
+        "required_length": "2+attempt_count",
+        "maximum_valid_length": SHORS_ALGORITHM_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_length": SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH,
+        "null_input_length": 3,
+        "invalid_result": SHORS_ALGORITHM_INVALID_RESULT,
+        "null_input_result": SHORS_ALGORITHM_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "definition": "First gcd returned by the pinned classical order-finding sketch for the supplied base stream.",
+        "factor_range": "2 through N inclusive; N is possible when g=N",
+        "invalid_result": SHORS_ALGORITHM_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+        "warmup_rounds": 2, "repetitions_per_sample": 1000,
+    }
+    case_ids = {
+        "source_order_and_factor", "composite_with_order_six", "initial_nontrivial_gcd",
+        "odd_order_then_base_equal_to_modulus", "minus_one_root_retries_then_factors",
+        "source_trivial_return_modulus_two", "finite_prime_base_stream_exhausted",
+        "maximum_modulus_and_attempt_count", "modulus_below_range", "modulus_above_range",
+        "zero_attempts", "attempt_count_above_range", "base_below_source_range",
+        "base_above_source_range", "missing_base", "extra_base", "too_many_parseable_values",
+        "null_input_pointer",
+    }
+    cases = workload.get("cases")
+    actual_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                  if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-javascript-shors-classical-order-finding-i64-v1"
+            or workload.get("algorithm") != "shors_algorithm"
+            or workload.get("function_symbol") != "shors_algorithm"
+            or workload.get("description")
+                != "Bounded deterministic replay of the pinned JavaScript classical order-finding factor sketch."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != measurement
+            or workload.get("abi_cases") is not None
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)
+            or len(actual_ids) != len(case_ids)
+            or actual_ids != case_ids
+            or (SHORS_ALGORITHM_MIN_MODULUS, SHORS_ALGORITHM_MAX_MODULUS,
+                SHORS_ALGORITHM_MIN_ATTEMPTS, SHORS_ALGORITHM_MAX_ATTEMPTS,
+                SHORS_ALGORITHM_MAX_VALID_INPUT_LENGTH,
+                SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH,
+                SHORS_ALGORITHM_INVALID_RESULT) != (2, 255, 1, 16, 18, 19, -1)):
+        raise ValueError("shors_algorithm metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "shors_algorithm" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "The ABI is `i64_array_scalar`" not in readme
+            or "classical order-finding sketch" not in readme
+            or "The null-input probe declares length 3" not in readme):
+        raise ValueError("shors_algorithm README is missing its source, ABI, or contract details")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        allowed_keys = ({"id", "input_values", "input_length", "input_is_null", "expected_result"}
+                        if input_is_null else {"id", "input_values", "input_length", "expected_result"})
+        if (set(case) != allowed_keys
+                or not isinstance(values, list)
+                or len(values) > SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
+                or type(input_is_null) is not bool
+                or input_is_null and (values or case["input_length"] != 3)
+                or not input_is_null and case["input_length"] != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"shors_algorithm fixture framing is invalid: {case.get('id')}")
+        result = shors_algorithm_expected(values)
+        if result != case["expected_result"]:
+            raise ValueError(f"shors_algorithm fixture differs from its order-finding oracle: {case['id']}")
+
+
+def validate_simulated_annealing_workload(workload: dict) -> None:
+    source_url = "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/searches/simulated_annealing.py"
+    dependency_url = "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/searches/hill_climbing.py"
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "searches/simulated_annealing.py",
+        "symbol": "simulated_annealing",
+        "url": source_url,
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Replay the source's 2D neighbor-search loop with explicit list-rank and acceptance draws.",
+        "dependency": "TheAlgorithms/Python e1a2a8b016001309a73d5fec4818c35cca139795 searches/hill_climbing.py SearchProblem",
+        "input_encoding": "[x0,y0,step,min_x,max_x,min_y,max_y,find_max,start_temp_micro,rate_micro,threshold_temp_micro,selection_count,selection_indices...,acceptance_count,acceptance_micro...]",
+        "objective": "x*x+y*y",
+        "coordinate_range": [SIMULATED_ANNEALING_MIN_COORDINATE,
+                             SIMULATED_ANNEALING_MAX_COORDINATE],
+        "step_range": [SIMULATED_ANNEALING_MIN_STEP, SIMULATED_ANNEALING_MAX_STEP],
+        "find_max_encoding": "1 means maximize; 0 means minimize",
+        "initial_temperature_micro_range": [SIMULATED_ANNEALING_MIN_START_TEMP,
+                                             SIMULATED_ANNEALING_MAX_START_TEMP],
+        "rate_micro_range": [SIMULATED_ANNEALING_MIN_RATE, SIMULATED_ANNEALING_MAX_RATE],
+        "threshold_temperature_micro_range": [SIMULATED_ANNEALING_MIN_THRESHOLD,
+                                               SIMULATED_ANNEALING_MAX_THRESHOLD],
+        "temperature_update": "current_temp - current_temp*rate",
+        "neighbor_order": [[-1, -1], [-1, 0], [-1, 1], [0, -1],
+                           [0, 1], [1, -1], [1, 0], [1, 1]],
+        "selection_draw_rule": "Index into the current remaining-neighbor list; remove each selected neighbor before bounds and acceptance checks.",
+        "acceptance_draw_levels_micro": sorted(SIMULATED_ANNEALING_ACCEPTANCE_LEVELS),
+        "acceptance_rule": "For an in-bounds change <= 0, accept when acceptance_micro/1000000 < e^(change/current_temp).",
+        "bounds_rule": "Compute candidate score before inclusive bounds rejection; out-of-bounds candidates consume no acceptance draw.",
+        "best_state_rule": "Update best only at the start of each outer iteration when current score is greater, including find_max=0.",
+        "stop_rule": "After each iteration's temperature update, stop if temperature is below threshold or no neighbor was accepted; a threshold-crossing proposal is not adopted.",
+        "maximum_outer_iterations": SIMULATED_ANNEALING_MAX_OUTER_ITERATIONS,
+        "maximum_selection_draws": SIMULATED_ANNEALING_MAX_RANDOM_DRAWS,
+        "maximum_acceptance_draws": SIMULATED_ANNEALING_MAX_RANDOM_DRAWS,
+        "exact_input_length": "13+selection_count+acceptance_count",
+        "maximum_valid_input_length": SIMULATED_ANNEALING_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": SIMULATED_ANNEALING_MAX_PARSEABLE_INPUT_LENGTH,
+        "output_encoding": "(best_x+16)*33+(best_y+16), reversible x/y code",
+        "invalid_result": SIMULATED_ANNEALING_INVALID_RESULT,
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[x0,y0,step,min_x,max_x,min_y,max_y,find_max,start_temp_micro,rate_micro,threshold_temp_micro,selection_count,selection_indices...,acceptance_count,acceptance_micro...]",
+        "coordinate_minimum": SIMULATED_ANNEALING_MIN_COORDINATE,
+        "coordinate_maximum": SIMULATED_ANNEALING_MAX_COORDINATE,
+        "step_minimum": SIMULATED_ANNEALING_MIN_STEP,
+        "step_maximum": SIMULATED_ANNEALING_MAX_STEP,
+        "find_max_values": [0, 1],
+        "initial_temperature_micro_range": [SIMULATED_ANNEALING_MIN_START_TEMP,
+                                             SIMULATED_ANNEALING_MAX_START_TEMP],
+        "rate_micro_range": [SIMULATED_ANNEALING_MIN_RATE, SIMULATED_ANNEALING_MAX_RATE],
+        "threshold_temperature_micro_range": [SIMULATED_ANNEALING_MIN_THRESHOLD,
+                                               SIMULATED_ANNEALING_MAX_THRESHOLD],
+        "threshold_below_initial_temperature": True,
+        "selection_count_range": [0, SIMULATED_ANNEALING_MAX_RANDOM_DRAWS],
+        "selection_index_range": [0, 7],
+        "acceptance_count_range": [0, SIMULATED_ANNEALING_MAX_RANDOM_DRAWS],
+        "acceptance_draw_levels_micro": sorted(SIMULATED_ANNEALING_ACCEPTANCE_LEVELS),
+        "required_length": "13+selection_count+acceptance_count",
+        "minimum_parseable_length": 13,
+        "maximum_valid_length": SIMULATED_ANNEALING_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_length": SIMULATED_ANNEALING_MAX_PARSEABLE_INPUT_LENGTH,
+        "null_input_length": 13,
+        "invalid_result": SIMULATED_ANNEALING_INVALID_RESULT,
+        "null_input_result": SIMULATED_ANNEALING_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "definition": "Reversible encoding of the source's returned best SearchProblem coordinates.",
+        "encoding": "(x+16)*33+(y+16), with x/y decoded from the returned code",
+        "valid_range": [0, 1088],
+        "invalid_result": SIMULATED_ANNEALING_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    case_ids = frozenset({
+        "maximize_and_threshold_crossing", "minimize_mode_preserves_max_score_best_bug",
+        "rejected_neighbor_then_no_replacement_acceptance", "all_neighbors_rejected_by_bounds",
+        "missing_selection_stream", "missing_acceptance_stream",
+        "selection_index_out_of_range", "unsupported_acceptance_level",
+        "initial_state_outside_bounds", "threshold_not_below_start", "extra_stream_word",
+        "null_input_pointer",
+    })
+    cases = workload.get("cases")
+    actual_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                  if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-simulated-annealing-explicit-draws-i64-v1"
+            or workload.get("algorithm") != "simulated_annealing"
+            or workload.get("function_symbol") != "simulated_annealing"
+            or workload.get("description")
+                != "Deterministic replay of the pinned Python simulated annealing loop over the bounded SearchProblem state model."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != measurement
+            or workload.get("abi_cases") is not None
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)
+            or len(actual_ids) != len(case_ids)
+            or actual_ids != case_ids
+            or (SIMULATED_ANNEALING_ACCEPTANCE_LEVELS,
+                SIMULATED_ANNEALING_MIN_COORDINATE,
+                SIMULATED_ANNEALING_MAX_COORDINATE,
+                SIMULATED_ANNEALING_MIN_STEP, SIMULATED_ANNEALING_MAX_STEP,
+                SIMULATED_ANNEALING_MIN_START_TEMP, SIMULATED_ANNEALING_MAX_START_TEMP,
+                SIMULATED_ANNEALING_MIN_RATE, SIMULATED_ANNEALING_MAX_RATE,
+                SIMULATED_ANNEALING_MIN_THRESHOLD, SIMULATED_ANNEALING_MAX_THRESHOLD,
+                SIMULATED_ANNEALING_MAX_OUTER_ITERATIONS,
+                SIMULATED_ANNEALING_MAX_RANDOM_DRAWS,
+                SIMULATED_ANNEALING_MAX_VALID_INPUT_LENGTH,
+                SIMULATED_ANNEALING_MAX_PARSEABLE_INPUT_LENGTH,
+                SIMULATED_ANNEALING_SCALE,
+                SIMULATED_ANNEALING_STATE_CODE_WIDTH, SIMULATED_ANNEALING_STATE_OFFSET,
+                SIMULATED_ANNEALING_INVALID_RESULT)
+                != (frozenset((0, 999_999)), -16, 16, 1, 4,
+                    1_000_000, 10_000_000, 100_000, 500_000,
+                    1_000_000, 9_999_999, 22, 176, 365, 366, 1_000_000, 33, 16, -1):
+        raise ValueError("simulated_annealing metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "simulated_annealing" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme or dependency_url not in readme
+            or "Random calls are replaced with explicit neighbor-list ranks and acceptance draws" not in readme
+            or "This comparison remains greater-than even when `find_max` is 0" not in readme
+            or "Out-of-bounds neighbors are discarded without an acceptance draw" not in readme
+            or "maximum valid length is 365" not in readme
+            or "(best_x+16)*33 + (best_y+16)" not in readme):
+        raise ValueError("simulated_annealing README is missing its source or reviewed semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        allowed_keys = ({"id", "input_values", "input_length", "input_is_null", "expected_result"}
+                        if input_is_null else {"id", "input_values", "input_length", "expected_result"})
+        if (set(case) != allowed_keys
+                or not isinstance(values, list)
+                or len(values) > SIMULATED_ANNEALING_MAX_PARSEABLE_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
+                or not 0 <= case["input_length"] <= SIMULATED_ANNEALING_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or input_is_null and (values or case["input_length"] != 13)
+                or not input_is_null and case["input_length"] != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"simulated_annealing fixture framing is invalid: {case.get('id')}")
+        result = simulated_annealing_expected(values)
+        if (result != case["expected_result"]
+                or result != SIMULATED_ANNEALING_INVALID_RESULT
+                and not 0 <= result <= 1088):
+            raise ValueError(f"simulated_annealing fixture differs from its deterministic-draw oracle: {case['id']}")
+
+
+def validate_k_medoids_workload(workload: dict) -> None:
+    python_source_url = "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/k_medoids.py"
+    r_source_url = "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/machine_learning/k_medoids.r"
+    sources = [
+        {"repository": "TheAlgorithms/Python", "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+         "path": "machine_learning/k_medoids.py", "symbol": "apply_k_medoids",
+         "url": python_source_url, "role": "algorithm"},
+        {"repository": "TheAlgorithms/R", "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+         "path": "machine_learning/k_medoids.r", "symbol": "KMedoids",
+         "url": r_source_url, "role": "algorithm"},
+    ]
+    contract = {
+        "operation": "Assign points to ordered medoids, update each medoid to the first within-cluster point minimizing total Euclidean distance, and stop on unchanged medoids or at the iteration cap.",
+        "input_encoding": "[point_count,medoid_count,max_iter,initial_medoids[medoid_count]...,points[point_count]...]",
+        "point_count_range": [2, 8],
+        "medoid_count_range": [1, 4],
+        "medoid_count_at_most_point_count": True,
+        "max_iter_range": [1, 16],
+        "initial_medoid_indices": "Ordered, distinct, zero-based point indices; this list supplies the RNG-selected initial medoids.",
+        "point_value_range": [-16, 16],
+        "point_values_must_be_distinct": True,
+        "metric": "one-dimensional Euclidean distance (absolute difference)",
+        "assignment_tie_rule": "First medoid slot wins equal distances.",
+        "medoid_update_tie_rule": "First point in input order wins equal within-cluster distance sums.",
+        "empty_cluster_rule": "Excluded by requiring distinct point values and distinct initial medoids; every medoid owns its own point at distance zero.",
+        "iteration_rule": "Assign using current medoids, compute updated medoids, retain the assignments from that iteration, then stop if medoids are unchanged; otherwise adopt the update and continue until max_iter updates.",
+        "randomness": "The explicit initial_medoid_indices replace source-specific random selection; Python and R seeded streams are not equated.",
+        "exact_input_length": "3+medoid_count+point_count",
+        "minimum_parseable_input_length": 3,
+        "maximum_valid_input_length": K_MEDOIDS_MAX_VALID_LENGTH,
+        "maximum_parseable_input_length": K_MEDOIDS_MAX_PARSEABLE_LENGTH,
+        "null_input_length": 3,
+        "output_encoding": "Bits 0..11 store four 3-bit medoid indices by slot; bits 12..27 store eight 2-bit assignment slots by point input order.",
+        "maximum_valid_result": K_MEDOIDS_MAX_RESULT,
+        "invalid_result": K_MEDOIDS_INVALID_RESULT,
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[point_count,medoid_count,max_iter,initial_medoids[medoid_count]...,points[point_count]...]",
+        "point_count_range": [2, 8],
+        "medoid_count_range": [1, 4],
+        "max_iter_range": [1, 16],
+        "initial_medoid_index_range": "0..point_count-1",
+        "initial_medoid_indices_must_be_distinct": True,
+        "point_value_range": [-16, 16],
+        "point_values_must_be_distinct": True,
+        "required_length": "3+medoid_count+point_count",
+        "minimum_parseable_length": 3,
+        "maximum_valid_length": K_MEDOIDS_MAX_VALID_LENGTH,
+        "maximum_parseable_length": K_MEDOIDS_MAX_PARSEABLE_LENGTH,
+        "null_input_length": 3,
+        "invalid_result": K_MEDOIDS_INVALID_RESULT,
+        "null_input_result": K_MEDOIDS_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "definition": "Packed final medoid indices and last-iteration assignment slots.",
+        "medoid_slot_width_bits": 3,
+        "medoid_slot_offset_bits": 0,
+        "assignment_width_bits": 2,
+        "assignment_offset_bits": 12,
+        "valid_range": [0, K_MEDOIDS_MAX_RESULT],
+        "invalid_result": K_MEDOIDS_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    case_ids = frozenset({
+        "iteration_cap_keeps_last_assignment", "converges_after_two_medoid_updates",
+        "ordered_medoids_control_assignment_ties", "single_cluster_median_point",
+        "each_point_is_a_medoid", "duplicate_initial_medoids", "duplicate_point_values",
+        "medoid_index_out_of_range", "zero_iteration_limit", "extra_input_word",
+        "null_input_pointer",
+    })
+    cases = workload.get("cases")
+    actual_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                  if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-k-medoids-explicit-initialization-i64-v1"
+            or workload.get("algorithm") != "k_medoids"
+            or workload.get("function_symbol") != "k_medoids"
+            or workload.get("description")
+                != "Bounded one-dimensional k-medoids replay with explicit ordered initialization and packed medoid/assignment output."
+            or workload.get("pinned_sources") != sources
+            or workload.get("contract") != contract
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("workspace") is not None
+            or workload.get("measurement") != measurement
+            or workload.get("abi_cases") is not None
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)
+            or len(actual_ids) != len(case_ids)
+            or actual_ids != case_ids
+            or (K_MEDOIDS_MAX_VALID_LENGTH, K_MEDOIDS_MAX_PARSEABLE_LENGTH,
+                K_MEDOIDS_MAX_RESULT, K_MEDOIDS_INVALID_RESULT) != (15, 16, (1 << 28) - 1, -1)):
+        raise ValueError("k_medoids metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "k" / "k_medoids" / "README.md").read_text(
+        encoding="utf-8")
+    if (python_source_url not in readme or r_source_url not in readme
+            or "Initial medoids are ordered, distinct, zero-based point indices" not in readme
+            or "breaking equal-distance ties in favor of the earliest medoid slot" not in readme
+            or "first point in input order that minimizes the sum of distances" not in readme
+            or "assignments computed before the final medoid update" not in readme
+            or "Malformed input or a null input pointer returns `-1`" not in readme):
+        raise ValueError("k_medoids README is missing its pinned sources or reviewed semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        allowed_keys = ({"id", "input_values", "input_length", "input_is_null", "expected_result"}
+                        if input_is_null else {"id", "input_values", "input_length", "expected_result"})
+        if (set(case) != allowed_keys
+                or not isinstance(values, list)
+                or len(values) > K_MEDOIDS_MAX_PARSEABLE_LENGTH
+                or type(case.get("input_length")) is not int
+                or not 0 <= case["input_length"] <= K_MEDOIDS_MAX_PARSEABLE_LENGTH
+                or type(input_is_null) is not bool
+                or input_is_null and (values or case["input_length"] != 3)
+                or not input_is_null and case["input_length"] != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"k_medoids fixture framing is invalid: {case.get('id')}")
+        result = k_medoids_expected(values)
+        if (result != case["expected_result"]
+                or result != K_MEDOIDS_INVALID_RESULT
+                and not 0 <= result <= K_MEDOIDS_MAX_RESULT):
+            raise ValueError(f"k_medoids fixture differs from its assignment/medoid oracle: {case['id']}")
+
+
+def validate_k_means_scalar_workload(workload: dict, algorithm: str) -> None:
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    common_input = {"kind": "bounded_signed_i64_array"}
+    specifications = {
+        "k_means_julia": {
+            "id": "thealgorithms-julia-k-means-deterministic-i64-array-scalar-v1",
+            "description": "Bounded one-dimensional replay of Julia's deterministic two-center Lloyd iterations.",
+            "source": {"repository": "TheAlgorithms/Julia", "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+                       "path": "src/machine_learning/k_means.jl", "symbol": "cluster",
+                       "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/machine_learning/k_means.jl"},
+            "input": {**common_input, "encoding": "[n, x0, ..., x(n-1)]", "point_count_range": [3, 8],
+                      "coordinate_range": [-16, 16], "coordinates_strictly_increasing": True,
+                      "k": 2, "iteration_argument": 0, "exact_length": "n + 1",
+                      "maximum_valid_input_length": 9, "maximum_parseable_input_length": 10,
+                      "null_input_length": 0, "invalid_input_result": -1},
+            "output": {"kind": "signed_64_bit_integer",
+                       "meaning": "Two ordered final center coordinates, each truncated after multiplication by 256, biased by 4097, then packed in base 8194.",
+                       "center_scale": 256, "center_rounding": "truncate toward zero", "center_bias": 4097,
+                       "center_base": 8194, "valid_range": [8195, 67141635],
+                       "iteration_cap_result": -2, "invalid_input_result": -1},
+            "case_ids": {"evenly_spaced_centers", "larger_symmetric_groups", "odd_point_tie_goes_to_first_center",
+                         "too_few_points", "coordinates_not_increasing", "count_mismatch", "null_input_pointer"},
+            "readme": ("fixed `k = 2` and `iter = 0`", "A tie stays with the earlier center",
+                       "caps this at 64 moves"),
+            "oracle": k_means_julia_expected,
+            "max_parseable": K_MEANS_JULIA_MAX_PARSEABLE_INPUT_LENGTH,
+            "invalid": K_MEANS_JULIA_INVALID_RESULT,
+            "valid_range": (8195, 67141635),
+            "constants": (K_MEANS_JULIA_MIN_POINTS, K_MEANS_JULIA_MAX_POINTS,
+                          K_MEANS_JULIA_MIN_COORDINATE, K_MEANS_JULIA_MAX_COORDINATE,
+                          K_MEANS_JULIA_MAX_PARSEABLE_INPUT_LENGTH, K_MEANS_JULIA_MAX_MOVES,
+                          K_MEANS_JULIA_INVALID_RESULT, K_MEANS_JULIA_ITERATION_CAP_RESULT),
+            "expected_constants": (3, 8, -16, 16, 10, 64, -1, -2),
+        },
+        "k_means_rust": {
+            "id": "thealgorithms-rust-k-means-randomized-i64-array-scalar-v1",
+            "description": "Deterministic draw-stream replay of Rust's randomized two-dimensional k-means function.",
+            "source": {"repository": "TheAlgorithms/Rust", "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+                       "path": "src/machine_learning/k_means.rs", "symbol": "k_means",
+                       "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/k_means.rs"},
+            "input": {**common_input, "encoding": "[n, max_iter, x_draw0_u53, y_draw0_u53, x_draw1_u53, y_draw1_u53, x0, x1, x2, x3]",
+                      "point_count_range": [4, 4], "cluster_count": 2, "max_iter_range": [1, 16],
+                      "u53_draw_range": [0, 9007199254740991], "required_y_draws": [0, 0],
+                      "draw_conversion": "binary64(draw) / 9007199254740992.0", "x_draws_must_differ": True,
+                      "coordinate_range": [-16, 16], "coordinates_strictly_increasing": True,
+                      "first_two_coordinates_below_zero": True, "last_two_coordinates_above_one": True,
+                      "exact_length": 10, "maximum_valid_input_length": 10,
+                      "maximum_parseable_input_length": 11, "null_input_length": 0, "invalid_input_result": -1},
+            "output": {"kind": "signed_64_bit_integer",
+                       "meaning": "Point labels packed as one bit per input point, least-significant bit first.",
+                       "valid_range": [0, 15], "invalid_input_result": -1},
+            "case_ids": {"ascending_random_centers", "descending_random_centers", "repeated_passes_keep_labels",
+                         "zero_iteration_limit", "equal_random_x_centers", "nonzero_random_y_draw", "null_input_pointer"},
+            "readme": ("explicit deterministic draw stream", "ties going to the earlier center",
+                       "returns labels after exactly `max_iter` passes"),
+            "oracle": k_means_rust_expected,
+            "max_parseable": 11,
+            "invalid": K_MEANS_RUST_INVALID_RESULT,
+            "valid_range": (0, 15),
+            "constants": (K_MEANS_RUST_U53_MAX, K_MEANS_RUST_INVALID_RESULT),
+            "expected_constants": ((1 << 53) - 1, -1),
+        },
+        "k_means_clustering_c": {
+            "id": "thealgorithms-c-k-means-clustering-rand-label-replay-i64-array-scalar-v1",
+            "description": "Bounded replay of the C two-center algorithm with explicit rand()%2 initialization labels.",
+            "source": {"repository": "TheAlgorithms/C", "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+                       "path": "machine_learning/k_means_clustering.c", "symbol": "kMeans",
+                       "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/machine_learning/k_means_clustering.c"},
+            "input": {**common_input, "encoding": "[n, initial_group0, ..., initial_group(n-1), x0, ..., x(n-1)]",
+                      "point_count_range": [3, 8], "cluster_count": 2, "initial_group_range": [0, 1],
+                      "both_initial_groups_required": True,
+                      "empty_group_during_iteration": "invalid input; adapter returns -1 before source division by zero",
+                      "coordinate_range": [-16, 16], "coordinates_strictly_increasing": True,
+                      "y_coordinate": 0, "randomness": "initial_group words supply the successive rand()%2 results",
+                      "stop_threshold": "n / 10000; equals zero for every valid n", "exact_length": "1 + 2*n",
+                      "maximum_valid_input_length": 17, "maximum_parseable_input_length": 18,
+                      "null_input_length": 0, "invalid_input_result": -1},
+            "output": {"kind": "signed_64_bit_integer",
+                       "meaning": "Two ordered final center x coordinates, each truncated after multiplication by 256, biased by 4097, then packed in base 8194.",
+                       "center_scale": 256, "center_rounding": "truncate toward zero", "center_bias": 4097,
+                       "center_base": 8194, "valid_range": [8195, 67141635],
+                       "iteration_cap_result": -2, "invalid_input_result": -1},
+            "case_ids": {"already_converged_labels", "interleaved_initial_groups", "swapped_group_order_is_preserved",
+                         "later_empty_group_is_rejected", "empty_initial_group", "unsorted_coordinates",
+                         "extra_input_word", "null_input_pointer"},
+            "readme": ("explicitly", "successive `rand() % 2`", "threshold is `n / 10000`",
+                       "caps the loop at 64 passes"),
+            "oracle": k_means_clustering_c_expected,
+            "max_parseable": K_MEANS_CLUSTERING_C_MAX_PARSEABLE_INPUT_LENGTH,
+            "invalid": K_MEANS_CLUSTERING_C_INVALID_RESULT,
+            "valid_range": (8195, 67141635),
+            "constants": (K_MEANS_CLUSTERING_C_MIN_POINTS, K_MEANS_CLUSTERING_C_MAX_POINTS,
+                          K_MEANS_CLUSTERING_C_MIN_COORDINATE, K_MEANS_CLUSTERING_C_MAX_COORDINATE,
+                          K_MEANS_CLUSTERING_C_MAX_PARSEABLE_INPUT_LENGTH, K_MEANS_CLUSTERING_C_MAX_MOVES,
+                          K_MEANS_CLUSTERING_C_INVALID_RESULT, K_MEANS_CLUSTERING_C_ITERATION_CAP_RESULT),
+            "expected_constants": (3, 8, -16, 16, 18, 64, -1, -2),
+        },
+        "k_means_clustering_zig": {
+            "id": "thealgorithms-zig-k-means-clustering-first-points-i64-array-scalar-v1",
+            "description": "Bounded one-dimensional replay of Zig's f32 two-center clustering and exact center/count convergence.",
+            "source": {"repository": "TheAlgorithms/Zig", "commit": "86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3",
+                       "path": "machine_learning/k_means_clustering.zig", "symbol": "KMeans",
+                       "url": "https://github.com/TheAlgorithms/Zig/blob/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3/machine_learning/k_means_clustering.zig"},
+            "input": {**common_input, "encoding": "[n, x0, ..., x(n-1)]", "point_count_range": [2, 8],
+                      "cluster_count": 2, "coordinate_range": [-16, 16], "coordinates_strictly_increasing": True,
+                      "coordinate_type": "binary32", "y_coordinate": 0, "exact_length": "n + 1",
+                      "maximum_valid_input_length": 9, "maximum_parseable_input_length": 10,
+                      "null_input_length": 0, "invalid_input_result": -1},
+            "output": {"kind": "signed_64_bit_integer",
+                       "meaning": "Two ordered center x values quantized at scale 256 and biased by 4097, packed in base 8194, then multiplied by 81 and combined with base-9 cluster counts.",
+                       "center_scale": 256, "center_rounding": "truncate toward zero after binary32 multiplication",
+                       "center_bias": 4097, "center_base": 8194, "count_base": 9, "count_pair_base": 81,
+                       "valid_range": [8195, 5438472515], "iteration_cap_result": -2, "invalid_input_result": -1},
+            "case_ids": {"first_two_points_seed_centers", "singletons_remain_own_clusters", "one_point_is_not_enough",
+                         "coordinates_not_increasing", "coordinate_out_of_range", "extra_input_word", "null_input_pointer"},
+            "readme": ("converts x coordinates to `f32`", "Initial centers are the first two data points",
+                       "compares both center coordinates and counts exactly", "caps at 64 passes"),
+            "oracle": k_means_clustering_zig_expected,
+            "max_parseable": K_MEANS_CLUSTERING_ZIG_MAX_PARSEABLE_INPUT_LENGTH,
+            "invalid": K_MEANS_CLUSTERING_ZIG_INVALID_RESULT,
+            "valid_range": (8195, 5438472515),
+            "constants": (K_MEANS_CLUSTERING_ZIG_MIN_POINTS, K_MEANS_CLUSTERING_ZIG_MAX_POINTS,
+                          K_MEANS_CLUSTERING_ZIG_MIN_COORDINATE, K_MEANS_CLUSTERING_ZIG_MAX_COORDINATE,
+                          K_MEANS_CLUSTERING_ZIG_MAX_PARSEABLE_INPUT_LENGTH, K_MEANS_CLUSTERING_ZIG_MAX_MOVES,
+                          K_MEANS_CLUSTERING_ZIG_INVALID_RESULT, K_MEANS_CLUSTERING_ZIG_ITERATION_CAP_RESULT),
+            "expected_constants": (2, 8, -16, 16, 10, 64, -1, -2),
+        },
+        "kmeans_rust": {
+            "id": "thealgorithms-rust-kmeans-general-deterministic-i64-array-scalar-v1",
+            "description": "Bounded one-dimensional replay of Rust's deterministic arbitrary-dimensional k-means function.",
+            "source": {"repository": "TheAlgorithms/Rust", "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+                       "path": "src/general/kmeans.rs", "symbol": "f64::kmeans",
+                       "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/general/kmeans.rs"},
+            "input": {**common_input, "encoding": "[n, x0, ..., x(n-1)]", "point_count_range": [2, 8],
+                      "cluster_count": 2, "coordinate_range": [-16, 16], "coordinates_strictly_increasing": True,
+                      "dimension_count": 1, "exact_length": "n + 1", "maximum_valid_input_length": 9,
+                      "maximum_parseable_input_length": 10, "null_input_length": 0, "invalid_input_result": -1},
+            "output": {"kind": "signed_64_bit_integer",
+                       "meaning": "Point labels packed as one bit per input point, least-significant bit first.",
+                       "valid_range": [0, 255], "iteration_cap": 256,
+                       "iteration_cap_result": -2, "invalid_input_result": -1},
+            "case_ids": {"two_evenly_spaced_clusters", "odd_point_count", "two_points_each_seed_a_cluster",
+                         "one_point_is_not_enough", "coordinates_not_increasing", "extra_input_word", "null_input_pointer"},
+            "readme": ("deterministic evenly spaced initialization", "Initial centers are source points at indices",
+                       "caps this loop at 256 passes"),
+            "oracle": kmeans_rust_expected,
+            "max_parseable": KMEANS_RUST_MAX_PARSEABLE_INPUT_LENGTH,
+            "invalid": KMEANS_RUST_INVALID_RESULT,
+            "valid_range": (0, 255),
+            "constants": (KMEANS_RUST_MIN_POINTS, KMEANS_RUST_MAX_POINTS,
+                          KMEANS_RUST_MIN_COORDINATE, KMEANS_RUST_MAX_COORDINATE,
+                          KMEANS_RUST_MAX_PARSEABLE_INPUT_LENGTH, KMEANS_RUST_MAX_MOVES,
+                          KMEANS_RUST_INVALID_RESULT, KMEANS_RUST_ITERATION_CAP_RESULT),
+            "expected_constants": (2, 8, -16, 16, 10, 256, -1, -2),
+        },
+    }
+    spec = specifications.get(algorithm)
+    if spec is None:
+        raise ValueError(f"unknown k-means scalar variant: {algorithm}")
+    case_ids = spec["case_ids"]
+    cases = workload.get("cases")
+    actual_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                  if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_source", "input", "output", "cases", "measurement"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != spec["id"]
+            or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != algorithm
+            or workload.get("description") != spec["description"]
+            or workload.get("pinned_source") != spec["source"]
+            or workload.get("input") != spec["input"]
+            or workload.get("output") != spec["output"]
+            or workload.get("measurement") != measurement
+            or not isinstance(cases, list)
+            or len(cases) != len(case_ids)
+            or len(actual_ids) != len(case_ids)
+            or actual_ids != case_ids
+            or spec["constants"] != spec["expected_constants"]):
+        raise ValueError(f"{algorithm} metadata or fixture IDs differ from its pinned source contract")
+
+    readme_path = ROOT / "benchmarks" / "k" / algorithm / "README.md"
+    readme = readme_path.read_text(encoding="utf-8")
+    if (spec["source"]["url"] not in readme
+            or "See the [workload](workload.json)" not in readme
+            or any(fragment not in readme for fragment in spec["readme"])):
+        raise ValueError(f"{algorithm} README is missing its pinned source or reviewed semantics")
+
+    for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError(f"{algorithm} fixture must be an object")
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        allowed_keys = ({"id", "input_values", "input_length", "input_is_null", "expected_result"}
+                        if input_is_null else {"id", "input_values", "input_length", "expected_result"})
+        if (set(case) != allowed_keys
+                or not isinstance(values, list)
+                or len(values) > spec["max_parseable"]
+                or type(case.get("input_length")) is not int
+                or not 0 <= case["input_length"] <= spec["max_parseable"]
+                or type(input_is_null) is not bool
+                or input_is_null and (values or case["input_length"] != 0)
+                or not input_is_null and case["input_length"] != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"{algorithm} fixture framing is invalid: {case.get('id')}")
+        result = spec["oracle"](values)
+        if (result != case["expected_result"]
+                or result != spec["invalid"]
+                and result != spec.get("iteration_cap", -2)
+                and not spec["valid_range"][0] <= result <= spec["valid_range"][1]):
+            raise ValueError(f"{algorithm} fixture differs from its pinned source oracle: {case['id']}")
+
+
+def validate_rsa_scalar_workload(workload: dict, algorithm: str) -> None:
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 6,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1,
+    }
+    specifications = {
+        "rsa_explicit_key_transform": {
+            "id": "rsa_explicit_key_transform-v1",
+            "function_symbol": "encrypt_then_decrypt_each_value",
+            "sources": [
+                {"repository": "TheAlgorithms/Go", "commit": "5ba447ec5ff3d1213de65b92e726ee74c5d5cc19",
+                 "path": "cipher/rsa/rsa.go", "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/cipher/rsa/rsa.go"},
+                {"repository": "TheAlgorithms/Lua", "commit": "cedc141018ad48884318fe08a6db278664b17128",
+                 "path": "src/crypto/rsa.lua", "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/crypto/rsa.lua"},
+                {"repository": "TheAlgorithms/Go", "commit": "5ba447ec5ff3d1213de65b92e726ee74c5d5cc19",
+                 "path": "math/modular/exponentiation.go", "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/math/modular/exponentiation.go", "role": "helper"},
+                {"repository": "TheAlgorithms/Lua", "commit": "cedc141018ad48884318fe08a6db278664b17128",
+                 "path": "src/math/modpow.lua", "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/math/modpow.lua", "role": "helper"},
+            ],
+            "input": {"kind": "packed-explicit-key-integer-sequence",
+                      "encoding": "[modulus, public_exponent, private_exponent, message_length, ASCII_values...]",
+                      "modulus_range": [128, 55295], "exponent_range": [1, 1000000],
+                      "message_length_range": [1, 64], "message_value_range": [0, 127],
+                      "maximum_packed_values": 68, "maximum_parseable_values": 69, "invalid_result": -1},
+            "output": {"kind": "signed_64_bit_integer",
+                       "meaning": "low 63 bits of FNV-1a-64 over ciphertexts then recovered rune values, each encoded as a four-byte unsigned little-endian word",
+                       "invalid_result": -1},
+            "case_ids": {"single_zero_value", "single_ascii_value", "highest_ascii_value", "mixed_ascii_values",
+                         "maximum_message_length", "empty_message", "public_exponent_zero",
+                         "negative_private_exponent", "message_value_outside_ascii", "modulus_below_bound",
+                         "truncated_message_frame", "exponent_above_bound", "one_extra_value_at_parser_limit"},
+            "readme": ("The `i64_array_scalar` input", "does not test whether the supplied exponents form a valid RSA key pair",
+                       "parser admits 69 values to reject an extra value", "separate contracts"),
+            "oracle": rsa_explicit_key_transform_expected,
+            "max_parseable": RSA_EXPLICIT_KEY_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+            "invalid": RSA_EXPLICIT_KEY_TRANSFORM_INVALID_RESULT,
+            "constants": (RSA_EXPLICIT_KEY_TRANSFORM_MIN_MODULUS, RSA_EXPLICIT_KEY_TRANSFORM_MAX_MODULUS,
+                          RSA_EXPLICIT_KEY_TRANSFORM_MIN_EXPONENT, RSA_EXPLICIT_KEY_TRANSFORM_MAX_EXPONENT,
+                          RSA_EXPLICIT_KEY_TRANSFORM_MAX_MESSAGE_LENGTH,
+                          RSA_EXPLICIT_KEY_TRANSFORM_MAX_VALID_INPUT_LENGTH,
+                          RSA_EXPLICIT_KEY_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+                          RSA_EXPLICIT_KEY_TRANSFORM_INVALID_RESULT),
+            "expected_constants": (128, 55295, 1, 1_000_000, 64, 68, 69, -1),
+        },
+        "rsa_java_big_integer": {
+            "id": "rsa_java_big_integer-v1",
+            "function_symbol": "encrypt_decrypt_big_integer_values",
+            "sources": [
+                {"repository": "TheAlgorithms/Java", "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+                 "path": "src/main/java/com/thealgorithms/ciphers/RSA.java",
+                 "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/RSA.java"},
+            ],
+            "input": {"kind": "packed-explicit-key-integer-sequence",
+                      "encoding": "[modulus, public_exponent, private_exponent, message_length, values...]",
+                      "modulus_range": [128, 55295], "exponent_range": [1, 1000000],
+                      "message_length_range": [1, 64], "message_value_range": [0, 127],
+                      "maximum_packed_values": 68, "maximum_parseable_values": 69, "invalid_result": -1},
+            "output": {"kind": "signed_64_bit_integer",
+                       "meaning": "low 63 bits of FNV-1a-64 over ciphertexts then recovered BigInteger values, each encoded as a four-byte unsigned little-endian word",
+                       "invalid_result": -1},
+            "case_ids": {"single_zero_value", "single_big_integer_value", "highest_input_value", "mixed_integer_values",
+                         "maximum_message_length", "empty_message", "public_exponent_zero",
+                         "negative_private_exponent", "message_value_outside_bound", "modulus_below_bound",
+                         "truncated_message_frame", "exponent_above_bound", "one_extra_value_at_parser_limit"},
+            "readme": ("The `i64_array_scalar` input", "does not validate that the supplied exponents form an RSA key pair",
+                       "parser admits 69 values to reject an extra value", "String overloads are outside this contract"),
+            "oracle": rsa_java_big_integer_expected,
+            "max_parseable": RSA_JAVA_BIG_INTEGER_MAX_PARSEABLE_INPUT_LENGTH,
+            "invalid": RSA_JAVA_BIG_INTEGER_INVALID_RESULT,
+            "constants": (RSA_JAVA_BIG_INTEGER_MIN_MODULUS, RSA_JAVA_BIG_INTEGER_MAX_MODULUS,
+                          RSA_JAVA_BIG_INTEGER_MIN_EXPONENT, RSA_JAVA_BIG_INTEGER_MAX_EXPONENT,
+                          RSA_JAVA_BIG_INTEGER_MAX_MESSAGE_LENGTH,
+                          RSA_JAVA_BIG_INTEGER_MAX_VALID_INPUT_LENGTH,
+                          RSA_JAVA_BIG_INTEGER_MAX_PARSEABLE_INPUT_LENGTH,
+                          RSA_JAVA_BIG_INTEGER_INVALID_RESULT),
+            "expected_constants": (128, 55295, 1, 1_000_000, 64, 68, 69, -1),
+        },
+        "rsa_ruby_byte_chunk": {
+            "id": "rsa_ruby_byte_chunk-v1",
+            "function_symbol": "cipher_then_decipher_byte_chunks",
+            "sources": [
+                {"repository": "TheAlgorithms/Ruby", "commit": "bda11bdfd83b7958e1ca98247e5e43100ca88865",
+                 "path": "ciphers/rsa.rb", "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/ciphers/rsa.rb"},
+            ],
+            "input": {"kind": "packed-explicit-key-integer-sequence",
+                      "encoding": "[modulus, public_exponent, private_exponent, byte_length, byte_values...]",
+                      "modulus_fixed": 33, "exponent_range": [1, 7], "message_length_range": [1, 64],
+                      "message_value_range": [0, 32], "decimal_chunk_width": 2,
+                      "maximum_packed_values": 68, "maximum_parseable_values": 69, "invalid_result": -1},
+            "output": {"kind": "signed_64_bit_integer",
+                       "meaning": "low 63 bits of FNV-1a-64 over the concatenated zero-padded decimal ciphertext chunks as ASCII, then recovered bytes",
+                       "invalid_result": -1},
+            "case_ids": {"single_zero_byte", "single_byte", "highest_in_range_byte", "mixed_bytes",
+                         "maximum_message_length", "empty_message", "public_exponent_zero",
+                         "private_exponent_above_bound", "byte_equal_to_modulus", "wrong_modulus",
+                         "truncated_message_frame", "exponent_above_bound", "one_extra_value_at_parser_limit"},
+            "readme": ("The `i64_array_scalar` input", "fixes `modulus` at 33", "two-digit chunk width",
+                       "unconditionally"),
+            "oracle": rsa_ruby_byte_chunk_expected,
+            "max_parseable": RSA_RUBY_BYTE_CHUNK_MAX_PARSEABLE_INPUT_LENGTH,
+            "invalid": RSA_RUBY_BYTE_CHUNK_INVALID_RESULT,
+            "constants": (RSA_RUBY_BYTE_CHUNK_MODULUS, RSA_RUBY_BYTE_CHUNK_MIN_EXPONENT,
+                          RSA_RUBY_BYTE_CHUNK_MAX_EXPONENT, RSA_RUBY_BYTE_CHUNK_MAX_MESSAGE_LENGTH,
+                          RSA_RUBY_BYTE_CHUNK_MAX_VALID_INPUT_LENGTH,
+                          RSA_RUBY_BYTE_CHUNK_MAX_PARSEABLE_INPUT_LENGTH,
+                          RSA_RUBY_BYTE_CHUNK_WIDTH, RSA_RUBY_BYTE_CHUNK_INVALID_RESULT),
+            "expected_constants": (33, 1, 7, 64, 68, 69, 2, -1),
+        },
+    }
+    spec = specifications.get(algorithm)
+    if spec is None:
+        raise ValueError(f"unknown RSA scalar variant: {algorithm}")
+    cases = workload.get("cases")
+    expected_keys = {"schema_version", "id", "algorithm", "function_symbol", "input", "output",
+                     "pinned_sources", "measurement", "cases"}
+    actual_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                  if isinstance(cases, list) else set())
+    if (set(workload) != expected_keys
+            or workload.get("schema_version") != 1
+            or workload.get("id") != spec["id"]
+            or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != spec["function_symbol"]
+            or workload.get("description") is not None
+            or workload.get("pinned_source") is not None
+            or workload.get("contract") is not None
+            or workload.get("input") != spec["input"]
+            or workload.get("output") != spec["output"]
+            or workload.get("pinned_sources") != spec["sources"]
+            or workload.get("measurement") != measurement
+            or workload.get("workspace") is not None
+            or not isinstance(cases, list)
+            or len(cases) != len(spec["case_ids"])
+            or len(actual_ids) != len(spec["case_ids"])
+            or actual_ids != spec["case_ids"]
+            or spec["constants"] != spec["expected_constants"]):
+        raise ValueError(f"{algorithm} metadata or fixture IDs differ from its pinned source contract")
+
+    readme = (ROOT / "benchmarks" / "r" / algorithm / "README.md").read_text(encoding="utf-8")
+    if (any(source["url"] not in readme for source in spec["sources"])
+            or any(fragment not in readme for fragment in spec["readme"])):
+        raise ValueError(f"{algorithm} README is missing its pinned sources or reviewed semantics")
+
+    for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError(f"{algorithm} fixture must be an object")
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > spec["max_parseable"]
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"{algorithm} fixture framing is invalid: {case.get('id')}")
+        result = spec["oracle"](values)
+        if (result != case["expected_result"]
+                or result != spec["invalid"] and not 0 <= result < (1 << 63)):
+            raise ValueError(f"{algorithm} fixture differs from its bounded source oracle: {case['id']}")
+
+
+def validate_lamport_signature_workload(workload: dict) -> None:
+    source_url = "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/LamportSignature.java"
+    expected_input = {
+        "kind": "bounded_array_of_signed_64_bit_values",
+        "encoding": "[message_length, message_bytes..., verify_message_length, verify_message_bytes..., tamper_index, sign_twice, entropy_bytes...]",
+        "valid_input_length_formula": "4 + message_length + verify_message_length + 16384",
+        "maximum_valid_input_length": LAMPORT_SIGNATURE_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": LAMPORT_SIGNATURE_MAX_PARSEABLE_INPUT_LENGTH,
+        "message_length_range": [0, LAMPORT_SIGNATURE_MAX_MESSAGE_BYTES],
+        "message_byte_range": [0, 255],
+        "verification_message_length_range": [0, LAMPORT_SIGNATURE_MAX_MESSAGE_BYTES],
+        "verification_message_byte_range": [0, 255],
+        "tamper_index_range": [-1, LAMPORT_SIGNATURE_SIGNATURE_BYTES - 1],
+        "tamper_index_meaning": "-1 leaves the signature unchanged; otherwise XOR bit 0 at the selected byte in the verification copy.",
+        "sign_twice_range": [0, 1],
+        "entropy_length": LAMPORT_SIGNATURE_ENTROPY_BYTES,
+        "entropy_byte_range": [0, 255],
+        "entropy_order": "512 consecutive 32-byte secrets ordered by bit position, then value 0 and 1.",
+        "invalid_input_result": LAMPORT_SIGNATURE_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "low 63 bits of FNV-1a-64 over the public key bytes in bit/value order, the generated signature bytes, and one verification byte (1 or 0).",
+        "invalid_input_result": LAMPORT_SIGNATURE_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 10,
+    }
+    expected_case_ids = frozenset({
+        "empty_message_valid", "binary_message_valid", "abc_valid",
+        "different_verification_message", "tampered_first_signature_byte",
+        "tampered_last_signature_byte", "maximum_message_length",
+        "second_sign_rejected", "invalid_trailing_word", "invalid_mutation_index",
+        "truncated_entropy", "invalid_message_byte", "invalid_entropy_byte",
+    })
+    cases = workload.get("cases")
+    actual_case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                       if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "description", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-lamport-signature-supplied-entropy-v1"
+            or workload.get("algorithm") != "lamport_signature"
+            or workload.get("function_symbol") != "lamport_signature"
+            or workload.get("description")
+                != "Generate a supplied-entropy Lamport key pair, sign once, verify, and fingerprint the source-shaped outputs."
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_case_ids)
+            or len(actual_case_ids) != len(expected_case_ids)
+            or actual_case_ids != expected_case_ids
+            or (LAMPORT_SIGNATURE_MAX_MESSAGE_BYTES,
+                LAMPORT_SIGNATURE_ENTROPY_BYTES,
+                LAMPORT_SIGNATURE_SIGNATURE_BYTES,
+                LAMPORT_SIGNATURE_MAX_VALID_INPUT_LENGTH,
+                LAMPORT_SIGNATURE_MAX_PARSEABLE_INPUT_LENGTH,
+                LAMPORT_SIGNATURE_INVALID_RESULT) != (64, 16_384, 8_192, 16_516, 16_517, -1)):
+        raise ValueError("lamport_signature metadata or fixture IDs differ from its supplied-entropy contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "lamport_signature" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme
+            or "exact 512 random 32-byte blocks" not in readme
+            or "most-significant bit first" not in readme
+            or "tamper_index" not in readme
+            or "sign_twice" not in readme
+            or "low 63 bits of FNV-1a-64" not in readme
+            or "The packed input cannot represent Java `null` references" not in readme):
+        raise ValueError("lamport_signature README is missing its pinned source or reviewed ABI behavior")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > LAMPORT_SIGNATURE_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"lamport_signature fixture framing is invalid: {case.get('id')}")
+        result = lamport_signature_expected(values)
+        if (result != case["expected_result"]
+                or result != LAMPORT_SIGNATURE_INVALID_RESULT
+                and not 0 <= result <= (1 << 63) - 1):
+            raise ValueError(f"lamport_signature fixture differs from its supplied-entropy oracle: {case['id']}")
+
+
+POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH = 3
+
+
+def validate_pollard_rho_java_workload(workload: dict) -> None:
+    source_url = "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/PollardRho.java"
+    expected_input = {
+        "kind": "bounded_signed_i64_array",
+        "encoding": "[n, step_limit]",
+        "exact_length": 2,
+        "first_rejected_length": 3,
+        "maximum_validation_array_length": POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH,
+        "n_range": [2, 46340],
+        "step_limit_range": [1, 4096],
+        "polynomial": "g(v) = ((v*v)-1) with Java signed remainder modulo n",
+        "initial_x": 2,
+        "initial_y": 2,
+        "invalid_input_result": POLLARD_RHO_JAVA_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "first proper gcd factor; 0 for the source d==n failure; -2 when the bounded adapter step limit expires",
+        "invalid_input_result": POLLARD_RHO_JAVA_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    expected_case_ids = frozenset({
+        "first_step_factor_15", "negative_java_remainder_path_21",
+        "source_gcd_equals_modulus_9", "step_limit_guard", "invalid_empty_input",
+        "invalid_n_below_domain", "invalid_n_above_int_safe_bound",
+        "invalid_trailing_value", "invalid_i64_minimum", "invalid_i64_maximum",
+    })
+    cases = workload.get("cases")
+    actual_case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                       if isinstance(cases, list) else set())
+    pinned_source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/maths/PollardRho.java",
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "input", "output", "pinned_source", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-pollard-rho-v1"
+            or workload.get("algorithm") != "pollard_rho_java"
+            or workload.get("function_symbol") != "pollard_rho_java"
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("pinned_source") != pinned_source
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_case_ids)
+            or actual_case_ids != expected_case_ids
+            or POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH != 3):
+        raise ValueError("pollard_rho_java metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "pollard_rho_java" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme
+            or "Java's signed remainder" not in readme
+            or "step_limit" not in readme
+            or "Map the source exception on `d == n` to `0`" not in readme
+            or "return `-2`" not in readme):
+        raise ValueError("pollard_rho_java README is missing its pinned source or reviewed behavior")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"pollard_rho_java fixture framing is invalid: {case.get('id')}")
+        result = pollard_rho_java_expected(values)
+        if (result != case["expected_result"]
+                or result not in (POLLARD_RHO_JAVA_INVALID_RESULT,
+                                  POLLARD_RHO_JAVA_SOURCE_FAILURE_RESULT,
+                                  POLLARD_RHO_JAVA_STEP_LIMIT_RESULT)
+                and (len(values) != 2 or not 1 < result < values[0])):
+            raise ValueError(f"pollard_rho_java fixture differs from its Floyd oracle: {case['id']}")
+
+
+def validate_pollard_rho_python_workload(workload: dict) -> None:
+    source_url = "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/pollard_rho.py"
+    expected_input = {
+        "kind": "bounded_signed_i64_array",
+        "encoding": "[num, seed, step, attempts, step_limit]",
+        "exact_length": 5,
+        "first_rejected_length": 6,
+        "maximum_validation_array_length": POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH,
+        "num_range": [2, 1_000_000],
+        "seed_range": [0, "num-1"],
+        "step_range": [0, 1000],
+        "attempts_range": [1, 8],
+        "step_limit_range": [1, 64],
+        "polynomial": "f(x) = (x*x + step) mod num; step increments after a failed attempt",
+        "initial_tortoise": "seed",
+        "initial_hare": "seed",
+        "invalid_input_result": POLLARD_RHO_PYTHON_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "first proper gcd factor; 2 for even num greater than 2; 0 when no factor is found within the bounded attempts",
+        "invalid_input_result": POLLARD_RHO_PYTHON_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    expected_case_ids = frozenset({
+        "source_example_factor_105", "even_shortcut_100", "prime_exhausts_attempts",
+        "source_one_attempt_exhaustion", "invalid_empty_input", "invalid_num_below_domain",
+        "invalid_num_above_bound", "invalid_seed_outside_residue_range",
+        "invalid_trailing_value", "invalid_i64_extreme",
+    })
+    cases = workload.get("cases")
+    actual_case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                       if isinstance(cases, list) else set())
+    pinned_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "maths/pollard_rho.py",
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "input", "output", "pinned_source", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-pollard-rho-v1"
+            or workload.get("algorithm") != "pollard_rho_python"
+            or workload.get("function_symbol") != "pollard_rho_python"
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("pinned_source") != pinned_source
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_case_ids)
+            or actual_case_ids != expected_case_ids
+            or POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH != 6):
+        raise ValueError("pollard_rho_python metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "pollard_rho_python" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme
+            or "tortoise = hare = seed" not in readme
+            or "After a failed attempt, set `seed = hare` and increment `step`" not in readme
+            or "step_limit" not in readme):
+        raise ValueError("pollard_rho_python README is missing its pinned source or reviewed behavior")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"pollard_rho_python fixture framing is invalid: {case.get('id')}")
+        result = pollard_rho_python_expected(values)
+        if (result != case["expected_result"]
+                or result != POLLARD_RHO_PYTHON_INVALID_RESULT
+                and result != 0 and (len(values) != 5 or not 1 < result < values[0])):
+            raise ValueError(f"pollard_rho_python fixture differs from its attempt oracle: {case['id']}")
+
+
+def validate_pollard_rho_rust_workload(workload: dict) -> None:
+    source_url = "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/pollard_rho.rs"
+    expected_input = {
+        "kind": "bounded_signed_i64_array",
+        "encoding": "[number, seed, restart_limit]",
+        "exact_length": 3,
+        "first_rejected_length": 4,
+        "maximum_validation_array_length": POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH,
+        "number_range": [2, 1_000_000_000],
+        "seed_range": [0, 4_294_967_295],
+        "restart_limit_range": [1, 16],
+        "lcg": "state = (1103515245*state + 12345) mod 2^32; combine two consecutive states for each 64-bit draw",
+        "brent_batch_size": 32,
+        "brent_iteration_cutoff": 262144,
+        "primality_bases": [2, 3, 5, 7],
+        "invalid_input_result": POLLARD_RHO_RUST_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "first proper factor; number itself when the source Miller-Rabin check reports prime; 0 when the bounded restart limit finds no proper factor",
+        "invalid_input_result": POLLARD_RHO_RUST_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    expected_case_ids = frozenset({
+        "upstream_one_factor_1235_seed_pi", "upstream_one_factor_239874233_seed_pi",
+        "prime_returns_input", "alternate_seed_small_composite", "bounded_restart_exhaustion",
+        "invalid_empty_input", "invalid_number_below_domain", "invalid_number_above_bound",
+        "invalid_seed_outside_u32", "invalid_trailing_value", "invalid_i64_extreme",
+    })
+    cases = workload.get("cases")
+    actual_case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                       if isinstance(cases, list) else set())
+    pinned_source = {
+        "repository": "TheAlgorithms/Rust",
+        "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+        "path": "src/math/pollard_rho.rs",
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "input", "output", "pinned_source", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-rust-pollard-rho-v1"
+            or workload.get("algorithm") != "pollard_rho_rust"
+            or workload.get("function_symbol") != "pollard_rho_rust"
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("pinned_source") != pinned_source
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_case_ids)
+            or actual_case_ids != expected_case_ids
+            or POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH != 4):
+        raise ValueError("pollard_rho_rust metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "pollard_rho_rust" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme
+            or "1103515245" not in readme
+            or "Brent" not in readme
+            or "Miller–Rabin" not in readme
+            or "restart_limit" not in readme):
+        raise ValueError("pollard_rho_rust README is missing its pinned source or reviewed behavior")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"pollard_rho_rust fixture framing is invalid: {case.get('id')}")
+        result = pollard_rho_rust_expected(values)
+        if (result != case["expected_result"]
+                or result != POLLARD_RHO_RUST_INVALID_RESULT
+                and result != 0
+                and (len(values) != 3 or result < 2
+                     or result != values[0] and values[0] % result != 0)):
+            raise ValueError(f"pollard_rho_rust fixture differs from its seeded Brent oracle: {case['id']}")
+
+
+def validate_rsa_factorization_workload(workload: dict) -> None:
+    source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "ciphers/rsa_factorization.py",
+        "symbol": "rsafactor",
+        "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/rsa_factorization.py",
+        "role": "algorithm",
+    }
+    contract = {
+        "operation": "Recover and return a sorted nontrivial factor pair from d, e, n using explicit random-base attempts.",
+        "input_encoding": "[d,e,n,attempt_count,base_0,...,base_(attempt_count-1)]",
+        "d_range": [1, 1_000_000],
+        "e_range": [1, 1_000_000],
+        "modulus_range": [3, 65_535],
+        "modulus_must_be_odd": True,
+        "k_definition": "d*e-1",
+        "k_must_be_positive_and_even": True,
+        "attempt_count_range": [1, 16],
+        "base_range": "2..n-1, matching Python random.randint(2,n-1)",
+        "per_attempt_rule": "Set t=k. While t is even, halve it, compute x=base^t mod n, then y=gcd(x-1,n); return sorted(y,n/y) when x>1 and y>1. When t is odd, move to the next base.",
+        "modular_power": "Exact residue equivalent to Python arbitrary-precision base**t % n.",
+        "exact_input_length": "4+attempt_count",
+        "maximum_valid_input_length": 20,
+        "maximum_parseable_input_length": RSA_FACTORIZATION_MAX_PARSEABLE_LENGTH,
+        "null_input_length": 4,
+        "output_encoding": "p*65536+q for sorted p<=q; decode p=result/65536 and q=result%65536.",
+        "valid_result_range": [0, 4_294_967_295],
+        "invalid_result": RSA_FACTORIZATION_INVALID_RESULT,
+        "exhaustion_result": RSA_FACTORIZATION_INVALID_RESULT,
+    }
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[d,e,n,attempt_count,base_0,...,base_(attempt_count-1)]",
+        "d_range": [1, 1_000_000],
+        "e_range": [1, 1_000_000],
+        "modulus_range": [3, 65_535],
+        "odd_modulus_required": True,
+        "attempt_count_range": [1, 16],
+        "base_range": "2..n-1",
+        "k_positive_even_required": True,
+        "required_length": "4+attempt_count",
+        "maximum_valid_length": 20,
+        "maximum_parseable_length": RSA_FACTORIZATION_MAX_PARSEABLE_LENGTH,
+        "null_input_length": 4,
+        "invalid_result": RSA_FACTORIZATION_INVALID_RESULT,
+        "null_input_result": RSA_FACTORIZATION_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_integer",
+        "definition": "Sorted proper factor pair packed into low and high 16-bit halves.",
+        "encoding": "p*65536+q",
+        "valid_range": [0, RSA_FACTORIZATION_MAX_RESULT],
+        "invalid_result": RSA_FACTORIZATION_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1000,
+    }
+    expected_case_ids = frozenset({
+        "recovers_factors_after_halving", "retries_after_unsuccessful_base",
+        "factorizes_second_semiprime", "base_exhaustion_returns_sentinel",
+        "odd_k_is_invalid", "base_below_random_range", "missing_base_word",
+        "extra_base_word", "null_input_pointer",
+    })
+    cases = workload.get("cases")
+    actual_case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                       if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_source", "contract", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-python-rsa-factorization-explicit-bases-i64-v1"
+            or workload.get("algorithm") != "rsa_factorization"
+            or workload.get("function_symbol") != "rsa_factorization"
+            or workload.get("description")
+                != "Bounded replay of randomized RSA factor recovery using an explicit base-attempt stream."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_case_ids)
+            or actual_case_ids != expected_case_ids
+            or (RSA_FACTORIZATION_MAX_PARSEABLE_LENGTH,
+                RSA_FACTORIZATION_FACTOR_BASE, RSA_FACTORIZATION_MAX_RESULT,
+                RSA_FACTORIZATION_INVALID_RESULT) != (21, 65_536, (1 << 32) - 1, -1)):
+        raise ValueError("rsa_factorization metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "r" / "rsa_factorization" / "README.md").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme
+            or "The exact length is `4 + attempt_count`" not in readme
+            or "random.randint(2, n-1)" not in readme
+            or "packed into one scalar as `p*65,536 + q`" not in readme
+            or "unbounded random retry loop is thereby bounded" not in readme):
+        raise ValueError("rsa_factorization README is missing its source or reviewed input/output contract")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        allowed_keys = ({"id", "input_values", "input_length", "input_is_null", "expected_result"}
+                        if input_is_null else {"id", "input_values", "input_length", "expected_result"})
+        if (set(case) != allowed_keys
+                or not isinstance(values, list)
+                or len(values) > RSA_FACTORIZATION_MAX_PARSEABLE_LENGTH
+                or type(case.get("input_length")) is not int
+                or type(input_is_null) is not bool
+                or input_is_null and (values or case["input_length"] != 4)
+                or not input_is_null and case["input_length"] != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"rsa_factorization fixture framing is invalid: {case.get('id')}")
+        result = rsa_factorization_expected(None if input_is_null else values)
+        if (result != case["expected_result"]
+                or result != RSA_FACTORIZATION_INVALID_RESULT
+                and not 0 <= result <= RSA_FACTORIZATION_MAX_RESULT):
+            raise ValueError(f"rsa_factorization fixture differs from its bounded oracle: {case['id']}")
+
+
+def validate_rsa_key_generator_workload(workload: dict) -> None:
+    source_url = "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/rsa_key_generator.py"
+    expected_input = {
+        "kind": "packed-deterministic-random-draw-stream",
+        "encoding": "[key_size, draw_count, draws...]",
+        "key_size_range": [RSA_KEY_GENERATOR_MIN_KEY_SIZE, RSA_KEY_GENERATOR_MAX_KEY_SIZE],
+        "draw_count_range": [0, RSA_KEY_GENERATOR_MAX_DRAWS],
+        "draw_range": "2 <= draw < 2^key_size; consumed draws must also satisfy the exact random.randrange half-open range at that call site",
+        "maximum_packed_values": RSA_KEY_GENERATOR_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_values": RSA_KEY_GENERATOR_MAX_PARSEABLE_INPUT_LENGTH,
+        "unused_trailing_draws": "ignored after the key pair is constructed",
+        "invalid_or_exhausted_result": RSA_KEY_GENERATOR_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "low 63 bits of FNV-1a-64 over (n,e,n,d), each as 8-byte little-endian signed integer",
+        "invalid_result": RSA_KEY_GENERATOR_INVALID_RESULT,
+    }
+    pinned_source = {
+        "repository": "TheAlgorithms/Python",
+        "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+        "path": "ciphers/rsa_key_generator.py",
+        "url": source_url,
+        "helpers": [
+            "ciphers/rabin_miller.py", "ciphers/cryptomath_module.py",
+            "maths/greatest_common_divisor.py",
+        ],
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 6,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1,
+    }
+    expected_case_ids = frozenset({
+        "equal_small_primes_modulus_one_phi", "smallest_key_exponent_retries",
+        "trial_division_candidate_and_exponent_retries",
+        "miller_rabin_reject_then_five_round_prime_candidates",
+        "miller_rabin_stream_exhausts", "miller_rabin_base_at_exclusive_upper_bound",
+        "candidate_search_stream_exhausts", "empty_draw_stream",
+        "unused_draws_after_key_pair_are_ignored", "draw_count_length_mismatch",
+        "candidate_outside_its_requested_range", "draw_outside_global_domain",
+        "key_size_below_bound", "key_size_above_bound",
+        "maximum_draw_count_exhausts_on_trial_division",
+        "maximum_parseable_length_over_bound_draw_count",
+    })
+    cases = workload.get("cases")
+    actual_case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                       if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "input", "output", "pinned_source", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "python-rsa-key-generator-v1"
+            or workload.get("algorithm") != "rsa_key_generator"
+            or workload.get("function_symbol") != "generate_key"
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("pinned_source") != pinned_source
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_case_ids)
+            or actual_case_ids != expected_case_ids
+            or (RSA_KEY_GENERATOR_MIN_KEY_SIZE, RSA_KEY_GENERATOR_MAX_KEY_SIZE,
+                RSA_KEY_GENERATOR_MAX_DRAWS, RSA_KEY_GENERATOR_MAX_VALID_INPUT_LENGTH,
+                RSA_KEY_GENERATOR_MAX_PARSEABLE_INPUT_LENGTH,
+                RSA_KEY_GENERATOR_INVALID_RESULT) != (2, 20, 1024, 1026, 1027, -1)):
+        raise ValueError("rsa_key_generator metadata or fixture IDs differ from its pinned contract")
+
+    cases_by_id = {case["id"]: case for case in cases}
+    maximum_draw_case = cases_by_id["maximum_draw_count_exhausts_on_trial_division"]
+    maximum_parseable_case = cases_by_id["maximum_parseable_length_over_bound_draw_count"]
+    if (maximum_draw_case.get("input_length") != RSA_KEY_GENERATOR_MAX_VALID_INPUT_LENGTH
+            or len(maximum_draw_case.get("input_values", ())) != RSA_KEY_GENERATOR_MAX_VALID_INPUT_LENGTH
+            or maximum_draw_case.get("input_values", ())[1] != RSA_KEY_GENERATOR_MAX_DRAWS
+            or maximum_parseable_case.get("input_length") != RSA_KEY_GENERATOR_MAX_PARSEABLE_INPUT_LENGTH
+            or len(maximum_parseable_case.get("input_values", ()))
+                != RSA_KEY_GENERATOR_MAX_PARSEABLE_INPUT_LENGTH
+            or maximum_parseable_case.get("expected_result") != RSA_KEY_GENERATOR_INVALID_RESULT):
+        raise ValueError("rsa_key_generator workload is missing its valid and parser-cap boundaries")
+
+    readme = (ROOT / "benchmarks" / "r" / "rsa_key_generator" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme
+            or "[key_size, draw_count, draws...]" not in readme
+            or "random.randrange" not in readme
+            or "exact order requested by the source" not in readme
+            or "low 63 bits of FNV-1a-64" not in readme
+            or "Unused trailing draws are ignored" not in readme):
+        raise ValueError("rsa_key_generator README is missing its pinned sources or reviewed draw contract")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > RSA_KEY_GENERATOR_MAX_PARSEABLE_INPUT_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"rsa_key_generator fixture framing is invalid: {case.get('id')}")
+        result = rsa_key_generator_expected(values)
+        if (result != case["expected_result"]
+                or result != RSA_KEY_GENERATOR_INVALID_RESULT
+                and not 0 <= result < (1 << 63)):
+            raise ValueError(f"rsa_key_generator fixture differs from its deterministic draw oracle: {case['id']}")
+
+
+def validate_lwe_encryption_workload(workload: dict) -> None:
+    source_url = "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/LWEEncryption.java"
+    expected_input = {
+        "kind": "packed-explicit-random-draw-stream",
+        "encoding": "[message_length, message_bytes..., s[32], A[128*32], error_draws[128], subset_bits...]",
+        "message_length_range": [1, LWE_ENCRYPTION_MAX_MESSAGE_BYTES],
+        "message_byte_range": [0, 255],
+        "secret_values": {
+            "count": LWE_ENCRYPTION_DIMENSION,
+            "range": "[0, 3329)",
+            "source_call": "SecureRandom.nextInt(3329)",
+        },
+        "matrix_values": {
+            "count": LWE_ENCRYPTION_SAMPLES * LWE_ENCRYPTION_DIMENSION,
+            "range": "[0, 3329)",
+            "layout": "row-major, 128 rows by 32 columns",
+        },
+        "error_draws": {
+            "count": LWE_ENCRYPTION_SAMPLES,
+            "range": "[0, 7)",
+            "source_expression": "nextInt(7) - 3",
+        },
+        "subset_bits": {
+            "count": "message_length * 8 * 128",
+            "range": [0, 1],
+            "order": "message byte, MSB-first bit, sample row",
+        },
+        "valid_packed_length": "4257 + 1025 * message_length",
+        "maximum_packed_values": LWE_ENCRYPTION_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_values": LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": LWE_ENCRYPTION_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "low 63 bits of FNV-1a-64 over ciphertext (u[32],v) values as 2-byte unsigned little-endian words, then recovered message bytes",
+        "invalid_result": LWE_ENCRYPTION_INVALID_RESULT,
+    }
+    pinned_source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/ciphers/LWEEncryption.java",
+        "url": source_url,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 6,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1,
+    }
+    expected_case_ids = frozenset({
+        "all_zero_byte", "all_one_byte", "mixed_msb_lsb_bits", "maximum_message_length",
+        "empty_message", "truncated_frame", "message_byte_out_of_range",
+        "secret_value_below_range", "matrix_value_at_exclusive_bound",
+        "error_draw_above_range", "subset_value_not_boolean", "one_extra_value_at_parser_limit",
+    })
+    cases = workload.get("cases")
+    actual_case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                       if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "input", "output", "pinned_source", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "java-lwe-encryption-v1"
+            or workload.get("algorithm") != "lwe_encryption"
+            or workload.get("function_symbol") != "encrypt_and_decrypt"
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("pinned_source") != pinned_source
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_case_ids)
+            or actual_case_ids != expected_case_ids
+            or (LWE_ENCRYPTION_DIMENSION, LWE_ENCRYPTION_MODULUS,
+                LWE_ENCRYPTION_SAMPLES, LWE_ENCRYPTION_ERROR_BOUND,
+                LWE_ENCRYPTION_MAX_MESSAGE_BYTES, LWE_ENCRYPTION_MAX_VALID_INPUT_LENGTH,
+                LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH,
+                LWE_ENCRYPTION_INVALID_RESULT) != (32, 3329, 128, 3, 4, 8357, 8358, -1)):
+        raise ValueError("lwe_encryption metadata or fixture IDs differ from its pinned contract")
+
+    cases_by_id = {case["id"]: case for case in cases}
+    maximum_case = cases_by_id["maximum_message_length"]
+    trailing_case = cases_by_id["one_extra_value_at_parser_limit"]
+    if (maximum_case.get("input_length") != LWE_ENCRYPTION_MAX_VALID_INPUT_LENGTH
+            or len(maximum_case.get("input_values", ())) != LWE_ENCRYPTION_MAX_VALID_INPUT_LENGTH
+            or maximum_case.get("input_values", ())[0] != LWE_ENCRYPTION_MAX_MESSAGE_BYTES
+            or trailing_case.get("input_length") != LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH
+            or len(trailing_case.get("input_values", ())) != LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH
+            or trailing_case.get("expected_result") != LWE_ENCRYPTION_INVALID_RESULT):
+        raise ValueError("lwe_encryption workload is missing maximum-message and parser-cap coverage")
+
+    readme = (ROOT / "benchmarks" / "l" / "lwe_encryption" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme
+            or "`i64_array_scalar` input" not in readme
+            or "nextInt(3329)` results" not in readme
+            or "most-significant bit first" not in readme
+            or "A valid packed length is exactly `4257 + 1025*message_length`" not in readme
+            or "low 63 bits of FNV-1a-64" not in readme
+            or "Null references cannot be represented" not in readme):
+        raise ValueError("lwe_encryption README is missing its pinned source or reviewed ABI behavior")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"lwe_encryption fixture framing is invalid: {case.get('id')}")
+        result = lwe_encryption_expected(values)
+        if (result != case["expected_result"]
+                or result != LWE_ENCRYPTION_INVALID_RESULT
+                and not 0 <= result < (1 << 63)):
+            raise ValueError(f"lwe_encryption fixture differs from its encryption oracle: {case['id']}")
+
+
+def validate_smith_waterman_java_workload(workload: dict) -> None:
+    source_url = "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/SmithWaterman.java"
+    expected_source = [{
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/dynamicprogramming/SmithWaterman.java",
+        "symbol": "SmithWaterman.align",
+        "url": source_url,
+    }]
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[query_length, subject_length, match_score, mismatch_score, gap_score, query_ascii..., subject_ascii...]",
+        "sequence_length_range": [0, SMITH_WATERMAN_JAVA_MAX_SEQUENCE_LENGTH],
+        "character_values": "ASCII letters A-Z/a-z or hyphen (45)",
+        "match_score_range": [1, 5],
+        "mismatch_score_range": [-5, -1],
+        "gap_score_range": [-5, -1],
+        "exact_packed_length": "5+query_length+subject_length",
+        "maximum_valid_input_values": SMITH_WATERMAN_JAVA_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_values": SMITH_WATERMAN_JAVA_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_result": SMITH_WATERMAN_JAVA_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_scalar",
+        "meaning": "Greatest cell in the Java Smith-Waterman local-alignment score matrix",
+        "empty_sequence_result": 0,
+        "invalid_result": SMITH_WATERMAN_JAVA_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+    }
+    expected_case_ids = {
+        "empty_sequences", "longer_local_match", "case_sensitive_mismatch",
+        "hyphen_is_an_ordinary_character", "invalid_character", "invalid_packed_length",
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "pinned_sources", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-smith-waterman-scalar-v1"
+            or workload.get("algorithm") != "smith_waterman_java"
+            or workload.get("function_symbol") != "smith_waterman_java"
+            or workload.get("pinned_sources") != expected_source
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("measurement") != expected_measurement
+            or SMITH_WATERMAN_JAVA_MAX_SEQUENCE_LENGTH != 16
+            or SMITH_WATERMAN_JAVA_MAX_VALID_INPUT_LENGTH != 37
+            or SMITH_WATERMAN_JAVA_MAX_PARSEABLE_INPUT_LENGTH != 38
+            or SMITH_WATERMAN_JAVA_INVALID_RESULT != -1
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_case_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_case_ids):
+        raise ValueError("smith_waterman_java metadata or fixture IDs differ from its pinned scalar contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "smith_waterman_java" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme or "case-sensitive" not in readme
+            or "ordinary input character" not in readme
+            or "greatest cell value" not in readme):
+        raise ValueError("smith_waterman_java README is missing its source-specific semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > SMITH_WATERMAN_JAVA_MAX_PARSEABLE_INPUT_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"smith_waterman_java fixture framing is invalid: {case.get('id')}")
+        result = smith_waterman_java_expected(values, case["input_length"])
+        if (result != case["expected_result"]
+                or result != SMITH_WATERMAN_JAVA_INVALID_RESULT and not 0 <= result <= 80):
+            raise ValueError(f"smith_waterman_java fixture differs from its pinned score oracle: {case['id']}")
+
+
+def validate_traveling_salesman_workload(workload: dict) -> None:
+    source_url = "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/TravelingSalesman.java"
+    expected_source = {
+        "repository": "TheAlgorithms/Java",
+        "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+        "path": "src/main/java/com/thealgorithms/graph/TravelingSalesman.java",
+        "url": source_url,
+        "role": "algorithm",
+        "symbol": "TravelingSalesman.bruteForce(int[][])",
+    }
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "[n, row-major n-by-n directed distance matrix]",
+        "city_count_range": [0, TRAVELING_SALESMAN_MAX_CITIES],
+        "matrix_entry_source_range": [-(1 << 31), TRAVELING_SALESMAN_JAVA_INT_MAX],
+        "finite_off_diagonal_cost_range": [0, TRAVELING_SALESMAN_MAX_EDGE_COST],
+        "missing_edge_sentinel": TRAVELING_SALESMAN_JAVA_INT_MAX,
+        "diagonal_entries": "Any signed 32-bit integer; the source route calculation ignores diagonal entries.",
+        "exact_length": "1 + n*n",
+        "maximum_valid_input_length": 1 + TRAVELING_SALESMAN_MAX_CITIES ** 2,
+        "maximum_parseable_input_length": MAX_TRAVELING_SALESMAN_INPUT_LENGTH,
+        "invalid_result": TRAVELING_SALESMAN_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_integer",
+        "definition": "Minimum cost of a closed tour starting at city 0 and visiting each other city once; 0 for zero or one city and Java Integer.MAX_VALUE when every tour contains a missing edge",
+        "finite_tour_cost_range": [0, TRAVELING_SALESMAN_MAX_TOUR_COST],
+        "no_valid_tour_value": TRAVELING_SALESMAN_JAVA_INT_MAX,
+        "invalid_result": TRAVELING_SALESMAN_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1,
+    }
+    expected_case_ids = {
+        "empty_matrix_returns_zero", "one_city_source_early_return", "two_city_closed_tour",
+        "four_city_symmetric_tied_tours", "four_city_asymmetric_unique_optimum",
+        "sparse_graph_valid_tour", "no_valid_closed_tour_returns_java_sentinel",
+        "maximum_city_count", "truncated_matrix", "edge_cost_above_bound",
+        "nonzero_diagonal_is_ignored", "extra_value_at_parse_limit", "city_count_above_bound",
+    }
+    cases = workload.get("cases")
+    actual_case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                       if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "pinned_source", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "thealgorithms-java-traveling-salesman-brute-force-i64-array-scalar-v1"
+            or workload.get("algorithm") != "traveling_salesman"
+            or workload.get("function_symbol") != "traveling_salesman"
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("pinned_source") != expected_source
+            or workload.get("measurement") != expected_measurement
+            or (TRAVELING_SALESMAN_MIN_CITIES, TRAVELING_SALESMAN_MAX_CITIES,
+                TRAVELING_SALESMAN_MAX_EDGE_COST, TRAVELING_SALESMAN_MAX_TOUR_COST,
+                MAX_TRAVELING_SALESMAN_INPUT_LENGTH, TRAVELING_SALESMAN_JAVA_INT_MAX,
+                TRAVELING_SALESMAN_INVALID_RESULT) != (0, 8, 1000, 8000, 66, 2_147_483_647, -1)
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_case_ids)
+            or actual_case_ids != expected_case_ids):
+        raise ValueError("traveling_salesman metadata or fixture IDs differ from its reviewed Java contract")
+
+    readme = (ROOT / "benchmarks" / "t" / "traveling_salesman" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme
+            or "`n = 0` or `n = 1`" not in readme
+            or "`Integer.MAX_VALUE`" not in readme
+            or "separate algorithm from the Held–Karp" not in readme):
+        raise ValueError("traveling_salesman README is missing its pinned source or source-specific semantics")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result", "input_length"}
+                or not isinstance(values, list)
+                or len(values) > MAX_TRAVELING_SALESMAN_INPUT_LENGTH
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"traveling_salesman fixture framing is invalid: {case.get('id')}")
+        result = traveling_salesman_expected(values)
+        if (result != case["expected_result"]
+                or result != TRAVELING_SALESMAN_INVALID_RESULT
+                and result != TRAVELING_SALESMAN_JAVA_INT_MAX
+                and not 0 <= result <= TRAVELING_SALESMAN_MAX_TOUR_COST):
+            raise ValueError(f"traveling_salesman fixture differs from its brute-force oracle: {case['id']}")
+
+    maximum_case = next((case for case in cases if case["id"] == "maximum_city_count"), None)
+    parser_case = next((case for case in cases if case["id"] == "extra_value_at_parse_limit"), None)
+    if (maximum_case is None
+            or maximum_case["input_length"] != 1 + TRAVELING_SALESMAN_MAX_CITIES ** 2
+            or maximum_case["input_values"][0] != TRAVELING_SALESMAN_MAX_CITIES
+            or maximum_case["expected_result"] != TRAVELING_SALESMAN_MAX_CITIES
+            or parser_case is None
+            or parser_case["input_length"] != MAX_TRAVELING_SALESMAN_INPUT_LENGTH
+            or parser_case["expected_result"] != TRAVELING_SALESMAN_INVALID_RESULT):
+        raise ValueError("traveling_salesman workload is missing maximum-tour or parser-cap coverage")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -12000,6 +14328,41 @@ def main() -> int:
         validate_sparse_matrix_workload(workload)
     elif algorithm == "mrucache":
         validate_mrucache_workload(workload)
+    elif algorithm == "lww_element_set":
+        validate_lww_element_set_workload(workload)
+    elif algorithm == "smallest_prime_factor":
+        validate_smallest_prime_factor_workload(workload)
+    elif algorithm == "permutation_count":
+        validate_permutation_count_workload(workload)
+    elif algorithm == "shors_algorithm":
+        validate_shors_algorithm_workload(workload)
+    elif algorithm == "simulated_annealing":
+        validate_simulated_annealing_workload(workload)
+    elif algorithm == "k_medoids":
+        validate_k_medoids_workload(workload)
+    elif algorithm in {"rsa_explicit_key_transform", "rsa_java_big_integer", "rsa_ruby_byte_chunk"}:
+        validate_rsa_scalar_workload(workload, algorithm)
+    elif algorithm in {"k_means_julia", "k_means_rust", "k_means_clustering_c",
+                       "k_means_clustering_zig", "kmeans_rust"}:
+        validate_k_means_scalar_workload(workload, algorithm)
+    elif algorithm == "lamport_signature":
+        validate_lamport_signature_workload(workload)
+    elif algorithm == "pollard_rho_java":
+        validate_pollard_rho_java_workload(workload)
+    elif algorithm == "pollard_rho_python":
+        validate_pollard_rho_python_workload(workload)
+    elif algorithm == "pollard_rho_rust":
+        validate_pollard_rho_rust_workload(workload)
+    elif algorithm == "rsa_factorization":
+        validate_rsa_factorization_workload(workload)
+    elif algorithm == "rsa_key_generator":
+        validate_rsa_key_generator_workload(workload)
+    elif algorithm == "lwe_encryption":
+        validate_lwe_encryption_workload(workload)
+    elif algorithm == "traveling_salesman":
+        validate_traveling_salesman_workload(workload)
+    elif algorithm == "smith_waterman_java":
+        validate_smith_waterman_java_workload(workload)
     elif algorithm == "kruskal_mst":
         validate_kruskal_mst_workload(workload)
     elif algorithm == "mos_algorithm":

@@ -1,0 +1,51 @@
+const RSA_JAVA_INVALID_RESULT: i64 = -1
+const RSA_JAVA_MAX_INPUT_LENGTH: usize = 69
+const RSA_JAVA_FNV_OFFSET: u64 = 14695981039346656037.u64()
+const RSA_JAVA_FNV_PRIME: u64 = 1099511628211.u64()
+
+def rsa_java_mod_pow(base: i64, exponent_input: i64, modulus: i64) -> i64:
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    power: mutable i64 = base % modulus
+    while exponent > 0:
+        if (exponent & 1) != 0: result <- (result * power) % modulus
+        power <- (power * power) % modulus
+        exponent <- exponent / 2
+    result
+
+def rsa_java_hash_u32(hash_input: u64, value: i64) -> u64:
+    hash: mutable u64 = hash_input
+    bits: u64 = value.u64()
+    byte_index: mutable usize = 0
+    while byte_index < 4:
+        hash <- (hash ^ ((bits >> (byte_index * 8)) & 255.u64())) * RSA_JAVA_FNV_PRIME
+        byte_index <- byte_index + 1
+    hash
+
+def rsa_java_big_integer_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 5 or length > RSA_JAVA_MAX_INPUT_LENGTH: return RSA_JAVA_INVALID_RESULT
+    modulus: i64 = input[0]
+    public_exponent: i64 = input[1]
+    private_exponent: i64 = input[2]
+    message_length: i64 = input[3]
+    if modulus < 128 or modulus > 55295 or public_exponent < 1 or public_exponent > 1000000 or
+       private_exponent < 1 or private_exponent > 1000000 or message_length < 1 or message_length > 64 or
+       length != (4 + message_length).usize(): return RSA_JAVA_INVALID_RESULT
+    index: mutable usize = 0
+    while index < message_length.usize():
+        value: i64 = input[4 + index]
+        if value < 0 or value > 127 or value >= modulus: return RSA_JAVA_INVALID_RESULT
+        index <- index + 1
+    hash: mutable u64 = RSA_JAVA_FNV_OFFSET
+    index <- 0
+    while index < message_length.usize():
+        hash <- rsa_java_hash_u32(hash, rsa_java_mod_pow(input[4 + index], public_exponent, modulus))
+        index <- index + 1
+    index <- 0
+    while index < message_length.usize():
+        ciphertext: i64 = rsa_java_mod_pow(input[4 + index], public_exponent, modulus)
+        hash <- rsa_java_hash_u32(hash, rsa_java_mod_pow(ciphertext, private_exponent, modulus))
+        index <- index + 1
+    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+
+export fn rsa_java_big_integer(input: i64&, length: usize) -> i64 = rsa_java_big_integer_impl

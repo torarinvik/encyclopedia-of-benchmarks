@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-decision-tree-id3-bounded-float64-slice-io-v1",
+  "algorithm": "decision_tree_rust_id3",
+  "function_symbol": "decision_tree",
+  "description": "Fit the pinned Rust entropy decision tree and predict bounded query rows.",
+  "workspace": {
+    "elements": 61
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[max_depth, min_samples_split, sample_count, feature_count, row-major training rows (features..., label), query_count, row-major query features...]",
+    "max_depth_range": [0, 6],
+    "min_samples_split_range": [2, 8],
+    "sample_count_range": [2, 8],
+    "feature_count_range": [1, 4],
+    "query_count_range": [1, 4],
+    "feature_value_domain": "finite quarter-step values in [-4,4]",
+    "label_domain": [0, 1, 2],
+    "maximum_valid_array_length": 61,
+    "maximum_parseable_array_length": 62,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[query_count, predicted_labels in query order...]",
+    "maximum_elements": 5,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "short_capacity_writes_nothing": true,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "contract": {
+    "training": "Train a fresh tree for each call using the supplied rows in their input order; the demo data and printing are excluded.",
+    "stopping": "Create a leaf for a single unique label, when row count is below min_samples_split, when current_depth >= max_depth, when there are no features, or when no positive entropy gain exists.",
+    "split_search": "For each feature in index order, sort by that feature and consider the midpoint between every adjacent pair of distinct values. Use base-2 label entropy and retain only strict gain improvements, preserving the first feature/threshold on ties. Keep all features eligible in child nodes.",
+    "split_rule": "Values less than the threshold go left; values greater than or equal to it go right.",
+    "leaf_prediction": "Choose the most frequent label; if counts tie, choose the label first encountered in the node's input order.",
+    "errors": "Malformed framing, unsupported parameters, non-finite values, labels outside {0,1,2}, or feature values outside the quarter-step domain return -1. Null output and insufficient capacity return -2 without writes."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/machine_learning/decision_tree.rs",
+    "symbol": "decision_tree",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/decision_tree.rs",
+    "role": "algorithm",
+    "dependencies": []
+  },
+  "cases": [
+    {
+      "id": "simple_midpoint_split",
+      "input_values": [3, 2, 2, 1, 0, 0, 1, 1, 3, -0.25, 0.25, 0.75],
+      "input_length": 12,
+      "expected_result": 4,
+      "expected_output": [3, 0, 0, 1]
+    },
+    {
+      "id": "feature_order_breaks_equal_gain",
+      "input_values": [4, 2, 4, 2, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 2, 0, 0.5, 1, 0.5],
+      "input_length": 21,
+      "expected_result": 3,
+      "expected_output": [2, 0, 1]
+    },
+    {
+      "id": "depth_zero_majority_tie_first_seen",
+      "input_values": [0, 2, 4, 1, 0, 2, 1, 1, 2, 2, 3, 1, 2, 0, 3],
+      "input_length": 15,
+      "expected_result": 3,
+      "expected_output": [2, 2, 2]
+    },
+    {
+      "id": "minimum_split_size_root_leaf",
+      "input_values": [4, 4, 3, 1, 0, 1, 1, 0, 2, 0, 2, -1, 1],
+      "input_length": 13,
+      "expected_result": 3,
+      "expected_output": [2, 0, 0]
+    },
+    {
+      "id": "no_positive_gain_majority_leaf",
+      "input_values": [5, 2, 4, 1, 1, 0, 1, 1, 1, 0, 1, 1, 2, 0.5, 1],
+      "input_length": 15,
+      "expected_result": 3,
+      "expected_output": [2, 0, 0]
+    },
+    {
+      "id": "recursive_reuse_of_features",
+      "input_values": [
+        4, 2, 6, 2,
+        0, 0, 0,
+        0, 1, 0,
+        1, 0, 1,
+        1, 1, 1,
+        2, 0, 2,
+        2, 1, 2,
+        4,
+        0, 0,
+        1, 0,
+        1, 1,
+        2, 0
+      ],
+      "input_length": 31,
+      "expected_result": 5,
+      "expected_output": [4, 0, 1, 1, 2]
+    },
+    {
+      "id": "fractional_label_rejected",
+      "input_values": [2, 2, 2, 1, 0, 0.5, 1, 1, 1, 0],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [3, 2, 2, 1, 0, 0, 1, 1, 2, 0.25, 0.75],
+      "input_length": 11,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_output",
+      "input_values": [3, 2, 2, 1, 0, 0, 1, 1, 2, 0.25, 0.75],
+      "input_length": 11,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

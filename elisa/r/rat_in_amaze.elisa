@@ -1,0 +1,109 @@
+const MAX_DIMENSION: usize = 4
+const MAX_CELLS: usize = 16
+const MAX_PATH_LENGTH: usize = 15
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 19
+const MAX_OUTPUT_WORDS: usize = 2097
+const MAX_OUTPUT_BYTES: usize = 16776
+
+def rat_in_amaze_direction(variant: i64, move: usize) -> (i64, i64, i64):
+    if variant == 0:
+        if move == 0: return (1, 0, 0)
+        if move == 1: return (0, -1, 1)
+        if move == 2: return (0, 1, 2)
+        return (-1, 0, 3)
+    if move == 0: return (0, 1, 2)
+    if move == 1: return (1, 0, 0)
+    if move == 2: return (-1, 0, 3)
+    (0, -1, 1)
+
+def rat_in_amaze_collect(variant: i64, size: usize, cells: i64&,
+                        visited: mutable u8&, current: mutable u8&,
+                        path_length: usize, words: mutable i64&,
+                        word_count: mutable usize&, path_count: mutable usize&,
+                        row: i64, col: i64) -> bool:
+    if row == (size - 1).i64() and col == (size - 1).i64():
+        words[word_count] <- path_length.i64()
+        word_count <- word_count + 1
+        index: mutable usize = 0
+        while index < path_length:
+            words[word_count] <- current[index].i64()
+            word_count <- word_count + 1
+            index <- index + 1
+        path_count <- path_count + 1
+        words[0] <- path_count.i64()
+        return variant == 1
+
+    index: usize = row.usize() * size + col.usize()
+    visited[index] <- 1.u8()
+    move: mutable usize = 0
+    while move < 4:
+        (delta_row, delta_col, code): (i64, i64, i64) = rat_in_amaze_direction(variant, move)
+        next_row: i64 = row + delta_row
+        next_col: i64 = col + delta_col
+        if next_row >= 0 and next_col >= 0 and next_row < size.i64() and next_col < size.i64():
+            next_index: usize = next_row.usize() * size + next_col.usize()
+            if cells[next_index] == 1 and visited[next_index] == 0.u8():
+                current[path_length] <- code.u8()
+                if rat_in_amaze_collect(variant, size, cells, visited, current,
+                                        path_length + 1, words, word_count, path_count,
+                                        next_row, next_col):
+                    visited[index] <- 0.u8()
+                    return true
+        move <- move + 1
+    visited[index] <- 0.u8()
+    false
+
+def rat_in_amaze_write_i64_le(output: mutable u8&, offset: mutable usize&, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset] <- (bits & 255).u8()
+        bits <- bits >> 8
+        offset <- offset + 1
+        byte <- byte + 1
+
+def rat_in_amaze_impl(input: i64&, input_length: usize,
+                      output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    variant: i64 = input[0]
+    if (variant != 0 and variant != 1) or input_length < 2: return -1
+    if input[1] < 1 or input[1] > MAX_DIMENSION.i64(): return -1
+    size: usize = input[1].usize()
+    if input_length != 2 + size * size: return -1
+
+    cells: mutable i64[MAX_CELLS] = zeroed
+    index: mutable usize = 0
+    cells_count: usize = size * size
+    while index < cells_count:
+        value: i64 = input[2 + index]
+        if value != 0 and value != 1: return -1
+        cells[index] <- value
+        index <- index + 1
+
+    words: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    word_count: mutable usize = 1
+    path_count: mutable usize = 0
+    words[0] <- 0
+    if cells[0] == 1 and cells[cells_count - 1] == 1:
+        visited: mutable u8[MAX_CELLS] = zeroed
+        current: mutable u8[MAX_PATH_LENGTH] = zeroed
+        cells_ref: i64& = cells[0]
+        visited_ref: mutable u8& = visited[0]
+        current_ref: mutable u8& = current[0]
+        words_ref: mutable i64& = words[0]
+        rat_in_amaze_collect(variant, size, cells_ref, visited_ref, current_ref,
+                             0, words_ref, word_count&, path_count&, 0, 0)
+    if path_count == 0: return -3
+
+    output_bytes: usize = word_count * 8
+    if output_bytes > MAX_OUTPUT_BYTES: return -1
+    if output.is_null() or output_capacity < output_bytes: return -2
+    position: mutable usize = 0
+    index <- 0
+    while index < word_count:
+        rat_in_amaze_write_i64_le(output, position&, words[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn rat_in_amaze(input: i64&, input_length: usize,
+                       output: mutable u8&, output_capacity: usize) -> i64 = rat_in_amaze_impl

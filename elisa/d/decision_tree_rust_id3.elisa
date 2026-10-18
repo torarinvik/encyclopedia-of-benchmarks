@@ -1,0 +1,208 @@
+extern floor(value: f64) -> f64
+extern log2(value: f64) -> f64
+
+const ID3_MAX_ROWS: usize = 8
+const ID3_MAX_FEATURES: usize = 4
+const ID3_MAX_NODES: usize = 31
+
+struct Id3Node:
+    feature: i64
+    threshold: f64
+    label: i64
+    left: i64
+    right: i64
+    leaf: bool
+
+def decision_tree_rust_id3_entropy(rows: i64&, start: usize, count: usize, labels: i64&) -> f64:
+    if count == 0: return 0.0
+    classes: mutable i64[3] = zeroed
+    counts: mutable usize[3] = zeroed
+    class_count: mutable usize = 0
+    i: mutable usize = 0
+    while i < count:
+        label: i64 = labels[rows[start + i].usize()]
+        found: mutable usize = class_count
+        c: mutable usize = 0
+        while c < class_count:
+            if classes[c] == label: found <- c
+            c <- c + 1
+        if found == class_count:
+            classes[class_count] <- label
+            class_count <- class_count + 1
+        counts[found] <- counts[found] + 1
+        i <- i + 1
+    result: mutable f64 = 0.0
+    c <- 0
+    while c < class_count:
+        probability: f64 = counts[c].f64() / count.f64()
+        result <- result + probability * log2(probability)
+        c <- c + 1
+    -result
+
+def decision_tree_rust_id3_build(rows: i64&, row_count: usize, feature_count: usize,
+        max_depth: usize, min_samples: usize, depth: usize, data: f64&, labels: i64&,
+        nodes: mutable Id3Node&, node_count: mutable usize&) -> usize:
+    node_index: usize = node_count
+    node_count <- node_count + 1
+    node: Id3Node = zeroed
+    node.feature <- -1
+    node.left <- -1
+    node.right <- -1
+    node.leaf <- true
+    classes: mutable i64[3] = zeroed
+    counts: mutable usize[3] = zeroed
+    class_count: mutable usize = 0
+    i: mutable usize = 0
+    while i < row_count:
+        label: i64 = labels[rows[i].usize()]
+        found: mutable usize = class_count
+        c: mutable usize = 0
+        while c < class_count:
+            if classes[c] == label: found <- c
+            c <- c + 1
+        if found == class_count:
+            classes[class_count] <- label
+            class_count <- class_count + 1
+        counts[found] <- counts[found] + 1
+        i <- i + 1
+    best_class: mutable usize = 0
+    c <- 1
+    while c < class_count:
+        if counts[c] > counts[best_class]: best_class <- c
+        c <- c + 1
+    node.label <- classes[best_class]
+    nodes[node_index] <- node
+    if class_count == 1 or row_count < min_samples or depth >= max_depth or feature_count == 0:
+        return node_index
+    parent_entropy: f64 = decision_tree_rust_id3_entropy(rows, 0, row_count, labels)
+    best_gain: mutable f64 = 0.0
+    best_feature: mutable i64 = -1
+    best_threshold: mutable f64 = 0.0
+    feature: mutable usize = 0
+    while feature < feature_count:
+        sorted_rows: mutable i64[8] = zeroed
+        i <- 0
+        while i < row_count:
+            sorted_rows[i] <- rows[i]
+            i <- i + 1
+        i <- 1
+        while i < row_count:
+            row: i64 = sorted_rows[i]
+            j: mutable usize = i
+            while j > 0 and data[sorted_rows[j - 1].usize() * ID3_MAX_FEATURES + feature] > data[row.usize() * ID3_MAX_FEATURES + feature]:
+                sorted_rows[j] <- sorted_rows[j - 1]
+                j <- j - 1
+            sorted_rows[j] <- row
+            i <- i + 1
+        index: mutable usize = 1
+        while index < row_count:
+            left_value: f64 = data[sorted_rows[index - 1].usize() * ID3_MAX_FEATURES + feature]
+            right_value: f64 = data[sorted_rows[index].usize() * ID3_MAX_FEATURES + feature]
+            if left_value != right_value:
+                left_entropy: f64 = decision_tree_rust_id3_entropy(sorted_rows, 0, index, labels)
+                right_entropy: f64 = decision_tree_rust_id3_entropy(sorted_rows, index, row_count - index, labels)
+                gain: f64 = parent_entropy - (index.f64() / row_count.f64()) * left_entropy -
+                    ((row_count - index).f64() / row_count.f64()) * right_entropy
+                if gain > best_gain:
+                    best_gain <- gain
+                    best_feature <- feature.i64()
+                    best_threshold <- (left_value + right_value) / 2.0
+            index <- index + 1
+        feature <- feature + 1
+    if best_feature < 0: return node_index
+    left_rows: mutable i64[8] = zeroed
+    right_rows: mutable i64[8] = zeroed
+    left_count: mutable usize = 0
+    right_count: mutable usize = 0
+    i <- 0
+    while i < row_count:
+        row: i64 = rows[i]
+        if data[row.usize() * ID3_MAX_FEATURES + best_feature.usize()] < best_threshold:
+            left_rows[left_count] <- row
+            left_count <- left_count + 1
+        else:
+            right_rows[right_count] <- row
+            right_count <- right_count + 1
+        i <- i + 1
+    if left_count == 0 or right_count == 0: return node_index
+    nodes[node_index].feature <- best_feature
+    nodes[node_index].threshold <- best_threshold
+    nodes[node_index].leaf <- false
+    nodes[node_index].left <- decision_tree_rust_id3_build(left_rows, left_count, feature_count, max_depth, min_samples,
+        depth + 1, data, labels, nodes, node_count).i64()
+    nodes[node_index].right <- decision_tree_rust_id3_build(right_rows, right_count, feature_count, max_depth, min_samples,
+        depth + 1, data, labels, nodes, node_count).i64()
+    node_index
+
+def decision_tree_rust_id3_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 10 or input_length > 62: return -1
+    i: mutable usize = 0
+    while i < input_length:
+        if input[i] != input[i]: return -1
+        i <- i + 1
+    i <- 0
+    while i < 4:
+        if input[i] != floor(input[i]): return -1
+        i <- i + 1
+    if input[0] < 0.0 or input[0] > 6.0 or input[1] < 2.0 or input[1] > 8.0 or
+       input[2] < 2.0 or input[2] > 8.0 or input[3] < 1.0 or input[3] > 4.0: return -1
+    max_depth: usize = input[0].usize()
+    min_samples: usize = input[1].usize()
+    sample_count: usize = input[2].usize()
+    feature_count: usize = input[3].usize()
+    row_width: usize = feature_count + 1
+    query_index: usize = 4 + sample_count * row_width
+    if input_length <= query_index or input[query_index] != floor(input[query_index]) or
+        input[query_index] < 1.0 or input[query_index] > 4.0: return -1
+    query_count: usize = input[query_index].usize()
+    query_start: usize = query_index + 1
+    if input_length != query_start + query_count * feature_count or input_length > 61: return -1
+    data: mutable f64[32] = zeroed
+    labels: mutable i64[8] = zeroed
+    row: mutable usize = 0
+    while row < sample_count:
+        feature: mutable usize = 0
+        while feature < feature_count:
+            value: f64 = input[4 + row * row_width + feature]
+            if value < -4.0 or value > 4.0 or value * 4.0 != floor(value * 4.0): return -1
+            data[row * ID3_MAX_FEATURES + feature] <- value
+            feature <- feature + 1
+        label: f64 = input[4 + row * row_width + feature_count]
+        if label < 0.0 or label > 2.0 or label != floor(label): return -1
+        labels[row] <- label.i64()
+        row <- row + 1
+    i <- 0
+    while i < query_count * feature_count:
+        value: f64 = input[query_start + i]
+        if value < -4.0 or value > 4.0 or value * 4.0 != floor(value * 4.0): return -1
+        i <- i + 1
+    rows: mutable i64[8] = zeroed
+    i <- 0
+    while i < sample_count:
+        rows[i] <- i.i64()
+        i <- i + 1
+    nodes: mutable Id3Node[31] = zeroed
+    node_count: mutable usize = 0
+    root: usize = decision_tree_rust_id3_build(rows, sample_count, feature_count, max_depth, min_samples, 0,
+        data, labels, nodes, node_count)
+    staged: mutable f64[5] = zeroed
+    staged[0] <- query_count.f64()
+    q: mutable usize = 0
+    while q < query_count:
+        node_index: mutable usize = root
+        while not nodes[node_index].leaf:
+            feature: usize = nodes[node_index].feature.usize()
+            if input[query_start + q * feature_count + feature] < nodes[node_index].threshold:
+                node_index <- nodes[node_index].left.usize()
+            else:
+                node_index <- nodes[node_index].right.usize()
+        staged[q + 1] <- nodes[node_index].label.f64()
+        q <- q + 1
+    if output.is_null() or capacity < query_count + 1: return -2
+    i <- 0
+    while i < query_count + 1:
+        output[i] <- staged[i]
+        i <- i + 1
+    return (query_count + 1).i64()
+
+export fn decision_tree_rust_id3(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = decision_tree_rust_id3_impl

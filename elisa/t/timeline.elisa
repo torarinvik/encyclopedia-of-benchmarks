@@ -1,0 +1,210 @@
+def timeline_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 131: return -1
+    if input[0] < 0 or input[0] > 16: return -1
+    initial_count: usize = input[0].usize()
+    command_count_index: usize = 1 + 2 * initial_count
+    if command_count_index >= length: return -1
+    if input[command_count_index] < 0 or input[command_count_index] > 32: return -1
+    command_count: usize = input[command_count_index].usize()
+    if length != 2 + 2 * initial_count + 3 * command_count: return -1
+
+    event_times: mutable i64[48] = zeroed
+    event_values: mutable i64[48] = zeroed
+    operations: mutable i64[32] = zeroed
+    first_arguments: mutable i64[32] = zeroed
+    second_arguments: mutable i64[32] = zeroed
+    event_count: mutable usize = initial_count
+    index: mutable usize = 0
+    while index < initial_count:
+        time: i64 = input[1 + 2 * index]
+        value: i64 = input[2 + 2 * index]
+        if time < 0 or time > 1000000 or value < -32 or value > 32: return -1
+        event_times[index] <- time
+        event_values[index] <- value
+        index <- index + 1
+
+    # Stable insertion sort matches the constructor's OrderBy.
+    index <- 1
+    while index < initial_count:
+        time: i64 = event_times[index]
+        value: i64 = event_values[index]
+        position: mutable usize = index
+        while position > 0 and event_times[position - 1] > time:
+            event_times[position] <- event_times[position - 1]
+            event_values[position] <- event_values[position - 1]
+            position <- position - 1
+        event_times[position] <- time
+        event_values[position] <- value
+        index <- index + 1
+
+    offset: mutable usize = command_count_index + 1
+    index <- 0
+    while index < command_count:
+        opcode: i64 = input[offset]
+        first: i64 = input[offset + 1]
+        second: i64 = input[offset + 2]
+        if opcode < 0 or opcode > 14: return -1
+        if opcode <= 2:
+            if first < 0 or first > 1000000 or second < -32 or second > 32: return -1
+        elif opcode == 3 or opcode == 4 or opcode == 5 or opcode == 6 or opcode == 8:
+            if first < 0 or first > 1000000 or second != 0: return -1
+        elif opcode == 7 or opcode == 9:
+            if first < -32 or first > 32 or second != 0: return -1
+        elif first != 0 or second != 0:
+            return -1
+        operations[index] <- opcode
+        first_arguments[index] <- first
+        second_arguments[index] <- second
+        offset <- offset + 3
+        index <- index + 1
+
+    words: mutable i64[691] = zeroed
+    word_count: mutable usize = 0
+    command: mutable usize = 0
+    while command < command_count:
+        opcode: i64 = operations[command]
+        first: i64 = first_arguments[command]
+        second: i64 = second_arguments[command]
+        count_index: usize = word_count + 1
+        words[word_count] <- opcode
+        words[count_index] <- 0
+        word_count <- word_count + 2
+
+        if opcode == 0:
+            event_times[event_count] <- first
+            event_values[event_count] <- second
+            event_count <- event_count + 1
+        elif opcode == 1:
+            found: mutable i64 = 0
+            index <- 0
+            while index < event_count:
+                if event_times[index] == first and event_values[index] == second: found <- 1
+                index <- index + 1
+            words[word_count] <- found
+            word_count <- word_count + 1
+        elif opcode == 2:
+            found_index: mutable usize = event_count
+            index <- 0
+            while index < event_count:
+                if event_times[index] == first and event_values[index] == second:
+                    found_index <- index
+                    break
+                index <- index + 1
+            if found_index < event_count:
+                index <- found_index + 1
+                while index < event_count:
+                    event_times[index - 1] <- event_times[index]
+                    event_values[index - 1] <- event_values[index]
+                    index <- index + 1
+                event_count <- event_count - 1
+                words[word_count] <- 1
+            else:
+                words[word_count] <- 0
+            word_count <- word_count + 1
+        elif opcode == 3:
+            index <- 0
+            while index < event_count:
+                if event_times[index] == first:
+                    words[word_count] <- event_values[index]
+                    word_count <- word_count + 1
+                index <- index + 1
+        elif opcode == 4 or opcode == 5 or opcode == 10 or opcode == 12:
+            unique: mutable i64[48] = zeroed
+            unique_count: mutable usize = 0
+            index <- 0
+            while index < event_count:
+                seen: mutable bool = false
+                prior: mutable usize = 0
+                while prior < index:
+                    if event_times[prior] == event_times[index]: seen <- true
+                    prior <- prior + 1
+                include: bool = opcode == 10 or opcode == 12 or
+                    (opcode == 4 and event_times[index] < first) or
+                    (opcode == 5 and event_times[index] > first)
+                if not seen and include:
+                    unique[unique_count] <- event_times[index]
+                    unique_count <- unique_count + 1
+                index <- index + 1
+            if opcode == 4 or opcode == 5:
+                index <- 1
+                while index < unique_count:
+                    value: i64 = unique[index]
+                    position: mutable usize = index
+                    while position > 0 and unique[position - 1] > value:
+                        unique[position] <- unique[position - 1]
+                        position <- position - 1
+                    unique[position] <- value
+                    index <- index + 1
+            if opcode == 12:
+                words[word_count] <- unique_count.i64()
+                word_count <- word_count + 1
+            else:
+                index <- 0
+                while index < unique_count:
+                    words[word_count] <- unique[index]
+                    word_count <- word_count + 1
+                    index <- index + 1
+        elif opcode == 6 or opcode == 7:
+            by_time: bool = opcode == 6
+            existed: mutable i64 = 0
+            write: mutable usize = 0
+            index <- 0
+            while index < event_count:
+                matches: bool = (by_time and event_times[index] == first) or
+                    (not by_time and event_values[index] == first)
+                if matches:
+                    existed <- 1
+                else:
+                    event_times[write] <- event_times[index]
+                    event_values[write] <- event_values[index]
+                    write <- write + 1
+                index <- index + 1
+            event_count <- write
+            words[word_count] <- existed
+            word_count <- word_count + 1
+        elif opcode == 8 or opcode == 9:
+            found: mutable i64 = 0
+            index <- 0
+            while index < event_count:
+                if (opcode == 8 and event_times[index] == first) or
+                    (opcode == 9 and event_values[index] == first): found <- 1
+                index <- index + 1
+            words[word_count] <- found
+            word_count <- word_count + 1
+        elif opcode == 11:
+            index <- 0
+            while index < event_count:
+                words[word_count] <- event_values[index]
+                word_count <- word_count + 1
+                index <- index + 1
+        elif opcode == 13:
+            words[word_count] <- event_count.i64()
+            word_count <- word_count + 1
+        else:
+            event_count <- 0
+
+        words[count_index] <- (word_count - count_index - 1).i64()
+        command <- command + 1
+
+    words[word_count] <- -1
+    words[word_count + 1] <- event_count.i64()
+    word_count <- word_count + 2
+    index <- 0
+    while index < event_count:
+        words[word_count] <- event_times[index]
+        words[word_count + 1] <- event_values[index]
+        word_count <- word_count + 2
+        index <- index + 1
+    output_bytes: usize = word_count * 8
+    if output.is_null() or capacity < output_bytes or output_bytes > 5528: return -2
+    index <- 0
+    while index < word_count:
+        bits: u64 = words[index].u64()
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            output[index * 8 + byte_index] <- ((bits >> (byte_index * 8)) & 255).u8()
+            byte_index <- byte_index + 1
+        index <- index + 1
+    output_bytes.i64()
+
+export fn timeline(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = timeline_impl

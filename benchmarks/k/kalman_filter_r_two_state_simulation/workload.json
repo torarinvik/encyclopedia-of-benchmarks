@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-r-kalman-filter-two-state-float64-slice-io-v1",
+  "algorithm": "kalman_filter_r_two_state_simulation",
+  "function_symbol": "kalman_filter_r_two_state_simulation",
+  "description": "Bounded deterministic replay of the R two-state Kalman filter on explicit observed prices.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/R",
+    "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+    "path": "quantitative_finance/kalman_filter.r",
+    "symbol": "kalman_filter",
+    "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/quantitative_finance/kalman_filter.r",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Run the two-state filter on the supplied observed price vector.",
+    "initial_state": "[observed_prices[0], 0]",
+    "initial_covariance": "2x2 identity",
+    "transition_matrix": "[[1,0],[1,1]], matching R column-major matrix(c(1,1,0,1), nrow=2)",
+    "observation_matrix": "[1,0]",
+    "process_noise": "0.0001 times the 2x2 identity",
+    "measurement_noise": 0.1,
+    "covariance_update": "(ones(2,2) - K*H) %*% P_pred, preserving matrix(1, nrow=2, ncol=2)",
+    "output_order": "filtered state rows as [position, velocity] pairs, final state_pred vector, final P_pred in column-major order",
+    "excluded_demo_behavior": ["set.seed and rnorm data generation", "price construction", "plotting", "unused Metrics import"]
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[observed_price0, ..., observed_price(n-1)]",
+    "observation_count_range": [1, 12],
+    "observation_range": [-1000.0, 1000.0],
+    "maximum_parseable_length": 64,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "2*n filtered-state values, then two final predicted-state values, then four P_pred values in column-major order",
+    "maximum_elements": 30,
+    "success_result": "number of output float64 elements (2 * observation_count + 6)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {"elements": 30, "meaning": "Filtered state trace, final state prediction, and final predicted covariance."},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "single_zero_observation", "input_values": [0.0], "input_length": 1, "output_capacity": 30, "output_is_null": false, "expected_result": 8, "expected_output": [0.0, 0.0, 0.0, 0.0, 1.0001, 1.0, 1.0, 2.0001]},
+    {"id": "single_positive_observation", "input_values": [5.0], "input_length": 1, "output_capacity": 30, "output_is_null": false, "expected_result": 8, "expected_output": [5.0, 5.0, 5.0, 5.0, 1.0001, 1.0, 1.0, 2.0001]},
+    {"id": "single_negative_observation", "input_values": [-7.0], "input_length": 1, "output_capacity": 30, "output_is_null": false, "expected_result": 8, "expected_output": [-7.0, -7.0, -7.0, -7.0, 1.0001, 1.0, 1.0, 2.0001]},
+    {"id": "two_constant_observations", "input_values": [5.0, 5.0], "input_length": 2, "output_capacity": 30, "output_is_null": false, "expected_result": 10, "expected_output": [5.0, 5.0, 5.0, 10.0, 5.0, 10.0, 1.0910099172802472, 2.1819107444777748, 3.1819107444777748, 6.3641032997000275]},
+    {"id": "maximum_observation_count", "input_values": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "input_length": 12, "output_capacity": 30, "output_is_null": false, "expected_result": 30, "expected_output": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 185.39316510889017, 300.03623289166615, 2394.737752460603, 3875.594444285508]},
+    {"id": "empty_observation_vector", "input_values": [], "input_length": 0, "output_capacity": 30, "output_is_null": false, "expected_result": -1, "expected_output": []},
+    {"id": "observation_outside_bound", "input_values": [1000.1], "input_length": 1, "output_capacity": 30, "output_is_null": false, "expected_result": -1, "expected_output": []},
+    {"id": "too_many_observations", "input_values": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "input_length": 13, "output_capacity": 30, "output_is_null": false, "expected_result": -1, "expected_output": []}
+  ],
+  "abi_cases": [
+    {"id": "short_output_capacity", "input_values": [0.0], "input_length": 1, "output_capacity": 7, "output_is_null": false, "expected_result": -2, "expected_output": []},
+    {"id": "null_output", "input_values": [0.0], "input_length": 1, "output_capacity": 30, "output_is_null": true, "expected_result": -2, "expected_output": []},
+    {"id": "invalid_input_precedes_null_output", "input_values": [], "input_length": 0, "output_capacity": 0, "output_is_null": true, "expected_result": -1, "expected_output": []}
+  ]
+}

@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-random-scheduling-java-random-i64-array-bytes-output-v1",
+  "algorithm": "random_scheduling",
+  "function_symbol": "random_scheduling",
+  "description": "Bounded seeded shuffle matching the pinned Java RandomScheduling source.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/scheduling/RandomScheduling.java",
+    "symbol": "RandomScheduling.schedule",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/scheduling/RandomScheduling.java",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Return one seeded random permutation of the supplied task identifiers.",
+    "input_encoding": "[seed_i64, task_count, task_id_0, ..., task_id_(task_count-1)]",
+    "seed_domain": "signed 64-bit; Java Random consumes the transformed low 48-bit state",
+    "task_count_range": [
+      0,
+      32
+    ],
+    "task_id_domain": "signed 32-bit; duplicates are allowed and preserved",
+    "exact_input_length": "task_count + 2",
+    "maximum_valid_input_length": 34,
+    "maximum_parseable_input_length": 35,
+    "random_semantics": "Normative Java 48-bit Random LCG seeded by (seed XOR 0x5DEECE66D) AND ((1<<48)-1), with Java nextInt(bound) power-of-two path and signed-overflow rejection rule.",
+    "shuffle_semantics": "Backward Fisher–Yates: for i from task_count down to 2, swap i-1 with nextInt(i). Empty and singleton task lists consume no random values.",
+    "output_encoding": "Shuffled task identifiers as little-endian signed-i64 words, in execution order.",
+    "maximum_output_elements": 32,
+    "maximum_output_bytes": 256,
+    "success_result": "Number of output bytes written; empty task list succeeds with zero bytes when output is non-null.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed framing, count, or task IDs returns -1 before output checks. Null output or insufficient capacity returns -2 after input validation. Errors write no bytes.",
+    "reproducibility_note": "The Java random stream and shuffle sequence are normative benchmark behavior; this does not claim that Collections.shuffle guarantees identical permutations across all JDK implementations."
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[seed_i64, task_count, task IDs...]",
+    "maximum_valid_length": 34,
+    "maximum_parseable_length": 35,
+    "task_count_range": [
+      0,
+      32
+    ],
+    "seed_domain": "signed 64-bit",
+    "task_id_domain": "signed 32-bit",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_sequence",
+    "encoding": "Shuffled task IDs in execution order.",
+    "result": "number of bytes written",
+    "maximum_bytes": 256,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_tasks",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single_task",
+      "input_values": [
+        -1,
+        1,
+        42
+      ],
+      "input_length": 3,
+      "output_capacity": 256,
+      "expected_result": 8,
+      "expected_output_hex": "2a00000000000000"
+    },
+    {
+      "id": "power_of_two_shuffle",
+      "input_values": [
+        0,
+        4,
+        10,
+        20,
+        30,
+        40
+      ],
+      "input_length": 6,
+      "output_capacity": 256,
+      "expected_result": 32,
+      "expected_output_hex": "28000000000000000a0000000000000014000000000000001e00000000000000"
+    },
+    {
+      "id": "non_power_of_two_bounds",
+      "input_values": [
+        1,
+        5,
+        -5,
+        -1,
+        0,
+        1,
+        5
+      ],
+      "input_length": 7,
+      "output_capacity": 256,
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000100000000000000ffffffffffffffff0500000000000000fbffffffffffffff"
+    },
+    {
+      "id": "negative_seed_and_duplicate_ids",
+      "input_values": [
+        -7046029254386353131,
+        7,
+        9,
+        9,
+        -2,
+        4,
+        -2,
+        9,
+        0
+      ],
+      "input_length": 9,
+      "output_capacity": 256,
+      "expected_result": 56,
+      "expected_output_hex": "000000000000000004000000000000000900000000000000fefffffffffffffffeffffffffffffff09000000000000000900000000000000"
+    },
+    {
+      "id": "maximum_task_count",
+      "input_values": [
+        123456789,
+        32,
+        -16,
+        -15,
+        -14,
+        -13,
+        -12,
+        -11,
+        -10,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "input_length": 34,
+      "output_capacity": 256,
+      "expected_result": 256,
+      "expected_output_hex": "fbffffffffffffff0000000000000000f2ffffffffffffff0b00000000000000fdfffffffffffffffeffffffffffffff0a00000000000000ffffffffffffffff080000000000000001000000000000000c00000000000000f6fffffffffffffffcfffffffffffffff0ffffffffffffff03000000000000000d000000000000000f00000000000000f8fffffffffffffff3fffffffffffffff4ffffffffffffff0400000000000000f9fffffffffffffffaffffffffffffff0900000000000000f7ffffffffffffff0e0000000000000006000000000000000200000000000000f5ffffffffffffff0700000000000000f1ffffffffffffff0500000000000000"
+    },
+    {
+      "id": "trailing_word_invalid",
+      "input_values": [
+        123,
+        0,
+        7
+      ],
+      "input_length": 3,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_count_invalid",
+      "input_values": [
+        5,
+        -1
+      ],
+      "input_length": 2,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "task_id_out_of_i32_invalid",
+      "input_values": [
+        5,
+        1,
+        2147483648
+      ],
+      "input_length": 3,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        4,
+        2,
+        11,
+        12
+      ],
+      "input_length": 4,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_buffer",
+      "input_values": [
+        99,
+        2,
+        17,
+        18
+      ],
+      "input_length": 4,
+      "output_capacity": 256,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_for_empty_result",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

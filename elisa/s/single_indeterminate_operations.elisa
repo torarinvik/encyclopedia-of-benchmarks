@@ -1,0 +1,152 @@
+extern pow(base: f64, exponent: f64) -> f64
+
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 22
+const MAX_DEGREE: usize = 8
+const MAX_OUTPUT_ELEMENTS: usize = 17
+
+def sio_finite(value: f64) -> bool:
+    value == value and value < 1.7976931348623157e308 and value > -1.7976931348623157e308
+
+def sio_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if not sio_finite(value) or value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def single_indeterminate_operations_impl(input: f64&, input_length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    index: mutable usize = 0
+    while index < input_length:
+        if not sio_finite(input[index]): return -1
+        index <- index + 1
+    if not sio_exact_integer(input[0], 0, 5): return -1
+    operation: usize = input[0].usize()
+    cursor: mutable usize = 1
+    if not sio_exact_integer(input[cursor], 0, MAX_DEGREE.i64()): return -1
+    degree_a: usize = input[cursor].usize()
+    cursor <- cursor + 1
+    coefficients_a: mutable f64[MAX_DEGREE + 1] = zeroed
+    if cursor + degree_a + 1 > input_length: return -1
+    index <- 0
+    while index <= degree_a:
+        value: f64 = input[cursor + index]
+        if value < -10.0 or value > 10.0: return -1
+        coefficients_a[index] <- value
+        index <- index + 1
+    cursor <- cursor + degree_a + 1
+
+    degree_b: mutable usize = 0
+    coefficients_b: mutable f64[MAX_DEGREE + 1] = zeroed
+    parameter: mutable f64 = 0.0
+    if operation <= 2:
+        if cursor >= input_length or not sio_exact_integer(input[cursor], 0, MAX_DEGREE.i64()): return -1
+        degree_b <- input[cursor].usize()
+        cursor <- cursor + 1
+        if cursor + degree_b + 1 > input_length: return -1
+        index <- 0
+        while index <= degree_b:
+            value: f64 = input[cursor + index]
+            if value < -10.0 or value > 10.0: return -1
+            coefficients_b[index] <- value
+            index <- index + 1
+        cursor <- cursor + degree_b + 1
+        if cursor != input_length: return -1
+    else if operation == 3 or operation == 5:
+        if cursor + 1 != input_length: return -1
+        parameter <- input[cursor]
+        if operation == 3:
+            if parameter < -2.0 or parameter > 2.0: return -1
+        else:
+            if parameter < -10.0 or parameter > 10.0: return -1
+        cursor <- cursor + 1
+    else:
+        if cursor != input_length: return -1
+
+    staged: mutable f64[MAX_OUTPUT_ELEMENTS] = zeroed
+    result_length: mutable usize = 0
+    if operation == 0:
+        result_length <- if degree_a > degree_b: degree_a + 1 else: degree_b + 1
+        if degree_a > degree_b:
+            index <- 0
+            while index <= degree_a:
+                staged[index] <- coefficients_a[index]
+                index <- index + 1
+            index <- 0
+            while index <= degree_b:
+                staged[index] <- staged[index] + coefficients_b[index]
+                index <- index + 1
+        else:
+            index <- 0
+            while index <= degree_b:
+                staged[index] <- coefficients_b[index]
+                index <- index + 1
+            index <- 0
+            while index <= degree_a:
+                staged[index] <- staged[index] + coefficients_a[index]
+                index <- index + 1
+    else if operation == 1:
+        negated_b: mutable f64[MAX_DEGREE + 1] = zeroed
+        index <- 0
+        while index <= degree_b:
+            negated_b[index] <- coefficients_b[index] * -1.0
+            index <- index + 1
+        result_length <- if degree_a > degree_b: degree_a + 1 else: degree_b + 1
+        if degree_a > degree_b:
+            index <- 0
+            while index <= degree_a:
+                staged[index] <- coefficients_a[index]
+                index <- index + 1
+            index <- 0
+            while index <= degree_b:
+                staged[index] <- staged[index] + negated_b[index]
+                index <- index + 1
+        else:
+            index <- 0
+            while index <= degree_b:
+                staged[index] <- negated_b[index]
+                index <- index + 1
+            index <- 0
+            while index <= degree_a:
+                staged[index] <- staged[index] + coefficients_a[index]
+                index <- index + 1
+    else if operation == 2:
+        result_length <- degree_a + degree_b + 1
+        left: mutable usize = 0
+        while left <= degree_a:
+            right: mutable usize = 0
+            while right <= degree_b:
+                staged[left + right] <- staged[left + right] + coefficients_a[left] * coefficients_b[right]
+                right <- right + 1
+            left <- left + 1
+    else if operation == 3:
+        result_length <- 1
+        index <- 0
+        while index <= degree_a:
+            staged[0] <- staged[0] + coefficients_a[index] * pow(parameter, index.f64())
+            index <- index + 1
+    else if operation == 4:
+        result_length <- degree_a
+        index <- 0
+        while index < degree_a:
+            staged[index] <- coefficients_a[index + 1] * (index + 1).f64()
+            index <- index + 1
+    else:
+        result_length <- degree_a + 2
+        staged[0] <- parameter
+        index <- 0
+        while index <= degree_a:
+            staged[index + 1] <- coefficients_a[index] / (index + 1).f64()
+            index <- index + 1
+
+    index <- 0
+    while index < result_length:
+        if not sio_finite(staged[index]): return -1
+        index <- index + 1
+    if output.is_null() or capacity < result_length: return -2
+    index <- 0
+    while index < result_length:
+        output[index] <- staged[index]
+        index <- index + 1
+    result_length.i64()
+
+export fn single_indeterminate_operations(input: f64&, input_length: usize,
+        output: mutable f64&, capacity: usize) -> i64 = single_indeterminate_operations_impl

@@ -1,0 +1,48 @@
+const MAX_POINTS: usize = 8
+const MAX_INPUT_LENGTH: usize = 10
+const MAX_MOVES: usize = 64
+const CENTER_SCALE: f64 = 256.0
+const CENTER_BIAS: i64 = 4097
+const CENTER_BASE: i64 = 8194
+
+def k_means_julia_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value < 3 or n_value > MAX_POINTS.i64(): return -1
+    n: usize = n_value.usize()
+    if length != n + 1: return -1
+
+    points: mutable f64[8] = zeroed
+    for index in 0..<n:
+        coordinate: i64 = input[index + 1]
+        if coordinate < -16 or coordinate > 16 or (index > 0 and input[index] >= coordinate): return -1
+        points[index] <- coordinate.f64()
+
+    centers: mutable f64[2] = zeroed
+    centers[0] <- points[0]
+    centers[1] <- points[n / 2]
+    for move in 0..<MAX_MOVES:
+        sums: mutable f64[2] = zeroed
+        counts: mutable usize[2] = zeroed
+        for index in 0..<n:
+            d0: f64 = points[index] - centers[0]
+            d1: f64 = points[index] - centers[1]
+            cluster: usize = 0
+            if d1 * d1 < d0 * d0: cluster <- 1
+            sums[cluster] <- sums[cluster] + points[index]
+            counts[cluster] <- counts[cluster] + 1
+        if counts[0] == 0 or counts[1] == 0: return -1
+        moved: f64[2] = {
+            sums[0] / counts[0].f64(),
+            sums[1] / counts[1].f64(),
+        }
+        if moved[0] == centers[0] and moved[1] == centers[1]:
+            code0: i64 = (moved[0] * CENTER_SCALE).i64() + CENTER_BIAS
+            code1: i64 = (moved[1] * CENTER_SCALE).i64() + CENTER_BIAS
+            if code0 < 1 or code0 > 8193 or code1 < 1 or code1 > 8193: return -1
+            return code0 * CENTER_BASE + code1
+        centers[0] <- moved[0]
+        centers[1] <- moved[1]
+    return -2
+
+export fn k_means_julia(input: i64&, length: usize) -> i64 = k_means_julia_impl

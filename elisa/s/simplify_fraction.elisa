@@ -1,0 +1,46 @@
+const MAX_ABS_COMPONENT: i64 = 1000000
+const OUTPUT_BYTES: usize = 16
+
+def fraction_magnitude(value: i64) -> u64:
+    if value < 0: return (-value).u64()
+    return value.u64()
+
+def fraction_gcd(a: u64, b: u64) -> u64:
+    left: mutable u64 = a
+    right: mutable u64 = b
+    while right != 0:
+        remainder: u64 = left % right
+        left <- right
+        right <- remainder
+    return left
+
+def fraction_put_i64_le(output: mutable u8&, offset: usize, value: i64):
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def simplify_fraction_impl(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length != 2: return -1
+    numerator: i64 = input[0]
+    denominator: i64 = input[1]
+    if numerator < -MAX_ABS_COMPONENT or numerator > MAX_ABS_COMPONENT or
+       denominator < -MAX_ABS_COMPONENT or denominator > MAX_ABS_COMPONENT or denominator == 0: return -1
+    divisor: u64 = fraction_gcd(fraction_magnitude(numerator), fraction_magnitude(denominator))
+    reduced_numerator: i64 = numerator / divisor.i64()
+    reduced_denominator: i64 = denominator / divisor.i64()
+    staged: mutable u8[OUTPUT_BYTES] = zeroed
+    fraction_put_i64_le(staged[0], 0, reduced_numerator)
+    fraction_put_i64_le(staged[0], 8, reduced_denominator)
+    if output.is_null() or capacity < OUTPUT_BYTES: return -2
+    i: mutable usize = 0
+    while i < OUTPUT_BYTES:
+        output[i] <- staged[i]
+        i <- i + 1
+    return OUTPUT_BYTES.i64()
+
+export fn simplify_fraction(input: i64&, input_length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = simplify_fraction_impl

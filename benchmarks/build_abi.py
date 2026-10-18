@@ -218,6 +218,12 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         harness_object = directory / f"{name}.o"
         executable = directory / (name + (".exe" if os.name == "nt" else ""))
         workspace_flag = []
+        null_empty_input_flag = (
+            ["-DBENCHMARK_NULL_EMPTY_INPUT_MAY_WRITE"]
+            if (name == "i64_array_bytes_output_check"
+                and family == "i64_array_bytes_output"
+                and algorithm in {"shannon_fano", "shannon_fano_compressor"})
+            else [])
         if (name == "i64_array_bytes_output_check" and family == "i64_array_bytes_output"
                 and "workspace" in spec):
             workspace_bytes = spec["workspace"].get("bytes")
@@ -233,7 +239,8 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         harness_fp_flags = (["-ffp-contract=off"]
                             if algorithm == "pi_monte_carlo_estimation" else [])
         run([c_compiler, "-std=c11", "-O3", "-DNDEBUG", f"-DBENCHMARK_FUNCTION={function_symbol}",
-             *harness_fp_flags, *workspace_flag, "-c", str(harness), "-o", str(harness_object)])
+             *harness_fp_flags, *workspace_flag, *null_empty_input_flag,
+             "-c", str(harness), "-o", str(harness_object)])
         linker = compiler if language == "cpp" else c_compiler
         command = [linker, str(harness_object), str(artifact),
                    *(str(path) for path in extra_link_objects), "-o", str(executable), *native_link_flags]

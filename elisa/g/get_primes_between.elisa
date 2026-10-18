@@ -1,0 +1,73 @@
+# Primes strictly between bounded prime endpoints, encoded as ASCII.
+const MAX_PRIME_COUNT: usize = 256
+
+def is_prime_candidate(value: i64) -> bool:
+    if value < 2:
+        return false
+    divisor: i64 = 2
+    while divisor <= value / divisor:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 1
+    true
+
+def decimal_length(value: i64) -> usize:
+    if value >= 100:
+        return 3
+    if value >= 10:
+        return 2
+    1
+
+def write_decimal(value: i64, output: mutable u8&, offset: mutable usize&) -> void:
+    remaining: mutable i64 = value
+    if remaining >= 100:
+        output[offset] <- (48 + remaining / 100).u8()
+        offset <- offset + 1
+        remaining <- remaining % 100
+    if remaining >= 10:
+        output[offset] <- (48 + remaining / 10).u8()
+        offset <- offset + 1
+        remaining <- remaining % 10
+    output[offset] <- (48 + remaining).u8()
+    offset <- offset + 1
+
+def get_primes_between_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length != 2:
+        return -1
+    p1: i64 = values[0]
+    p2: i64 = values[1]
+    if p1 < 2 or p1 > 997 or p2 < 2 or p2 > 997 or p1 >= p2:
+        return -1
+    if not is_prime_candidate(p1) or not is_prime_candidate(p2):
+        return -1
+
+    primes: mutable i64[MAX_PRIME_COUNT] = zeroed
+    count: mutable usize = 0
+    candidate: mutable i64 = p1 + 1
+    while candidate < p2:
+        if is_prime_candidate(candidate):
+            primes[count] <- candidate
+            count <- count + 1
+        candidate <- candidate + 1
+    if count == 0:
+        return -1
+
+    required: mutable usize = count - 1
+    index: usize = 0
+    while index < count:
+        required <- required + decimal_length(primes[index])
+        index <- index + 1
+    if output.is_null() or output_capacity < required:
+        return -2
+
+    written: mutable usize = 0
+    index <- 0
+    while index < count:
+        if index != 0:
+            output[written] <- 44
+            written <- written + 1
+        write_decimal(primes[index], output, written)
+        index <- index + 1
+    written.i64()
+
+export fn get_primes_between(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = get_primes_between_impl

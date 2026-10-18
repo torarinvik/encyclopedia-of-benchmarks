@@ -26,6 +26,13 @@
       "path": "src/matrix/lu_decompose.jl",
       "symbol": "lu_decompose",
       "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/matrix/lu_decompose.jl"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "numerical_methods/lu_decomposition.h",
+      "symbol": "lu_decomposition",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/numerical_methods/lu_decomposition.h"
     }
   ],
   "contract": {
@@ -33,6 +40,7 @@
     "input_encoding": "[dimension, matrix_row_major...]",
     "matrix_shape": "dimension by dimension, row-major",
     "operation_order": "For row i, compute U[i,j] for j=i..n-1 as A[i,j] minus the increasing-index sum over k=0..i-1 of L[i,k]*U[k,j]. Then set L[i,i]=1 and compute L[j,i] for j=i+1..n-1 as (A[j,i] minus the increasing-index sum over k=0..i-1 of L[j,k]*U[k,i]) divided by U[i,i].",
+    "related_source_order_note": "Julia loops include the current index after the preceding nonzero terms; the corresponding zero-initialized factor slot contributes an extra zero term. The bounded outputs are equivalent, and the C/C++ loop order above is canonical for this workload.",
     "pivoting": "No pivoting or row permutation is performed. Every computed diagonal pivot U[i,i] must be nonzero.",
     "output_encoding": "The full lower-triangular L matrix in row-major order followed by the full upper-triangular U matrix in row-major order.",
     "errors": "Malformed input, unsupported bounds, nonintegral matrix entries, a zero or nonfinite computed pivot, or nonfinite output returns -1 before output checks. A null output or capacity below 2*dimension*dimension returns -2 without writes."

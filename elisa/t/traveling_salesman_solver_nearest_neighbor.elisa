@@ -1,0 +1,52 @@
+const TSS_NN_MAX_CITIES: usize = 8
+const TSS_NN_MAX_PARSEABLE_INPUT_LENGTH: usize = 68
+const TSS_NN_MAX_EDGE_COST: i64 = 1000
+
+def traveling_salesman_solver_nearest_neighbor_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 3 or length > TSS_NN_MAX_PARSEABLE_INPUT_LENGTH:
+        return -1.0e300
+    selector_value: i64 = input[0]
+    city_count_value: i64 = input[1]
+    start_value: i64 = input[2]
+    if city_count_value < 1 or city_count_value > TSS_NN_MAX_CITIES.i64(): return -1.0e300
+    if selector_value < 0 or selector_value > city_count_value + 1: return -1.0e300
+    if start_value < 0 or start_value >= city_count_value: return -1.0e300
+    city_count: usize = city_count_value.usize()
+    start: usize = start_value.usize()
+    if length != 3 + city_count * city_count: return -1.0e300
+
+    distances: mutable i64[64] = zeroed
+    for index in 0..<city_count * city_count:
+        cost: i64 = input[index + 3]
+        if cost < 0 or cost > TSS_NN_MAX_EDGE_COST: return -1.0e300
+        distances[index] <- cost
+
+    visited: mutable bool[8] = zeroed
+    route: mutable usize[9] = zeroed
+    route[0] <- start
+    visited[start] <- true
+    current: mutable usize = start
+    total_distance: mutable i64 = 0
+
+    for step in 1..<city_count:
+        minimum_distance: mutable i64 = TSS_NN_MAX_EDGE_COST + 1
+        next_city: mutable usize = city_count
+        for city in 0..<city_count:
+            if not visited[city]:
+                cost: i64 = distances[current * city_count + city]
+                if cost < minimum_distance:
+                    minimum_distance <- cost
+                    next_city <- city
+        if next_city == city_count: return -1.0e300
+        route[step] <- next_city
+        visited[next_city] <- true
+        total_distance <- total_distance + minimum_distance
+        current <- next_city
+
+    total_distance <- total_distance + distances[current * city_count + start]
+    route[city_count] <- start
+    if selector_value == 0:
+        return total_distance.f64()
+    route[(selector_value - 1).usize()].f64()
+
+export fn traveling_salesman_solver_nearest_neighbor(input: i64&, length: usize) -> f64 = traveling_salesman_solver_nearest_neighbor_impl

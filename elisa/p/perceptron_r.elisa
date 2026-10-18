@@ -1,0 +1,312 @@
+def perceptron_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 9 or input_length > 62: return -1
+    i: mutable usize = 0
+    while i < input_length:
+        if input[i] != input[i]: return -1
+        i <- i + 1
+    epochs_value: f64
+    rate: f64
+    if 2 == 3:
+        epochs_value = input[0]
+        rate = input[1]
+        if epochs_value < 0.0 or epochs_value > 12.0: return -1
+    else:
+        rate = input[0]
+        epochs_value = input[1]
+        if epochs_value < 1.0 or epochs_value > 12.0: return -1
+    if rate != 0.25 and rate != 0.5 and rate != 0.75 and rate != 1.0: return -1
+    if epochs_value != epochs_value.usize().f64(): return -1
+    epochs: usize = epochs_value.usize()
+    if input[2] < 2.0 or input[2] > 8.0 or input[2] != input[2].usize().f64(): return -1
+    if input[3] < 1.0 or input[3] > 4.0 or input[3] != input[3].usize().f64(): return -1
+    samples: usize = input[2].usize()
+    features: usize = input[3].usize()
+    feature_start: usize = 4
+    labels_start: usize = feature_start + samples * features
+    q_index: usize = labels_start + samples
+    if input_length <= q_index: return -1
+    if input[q_index] < 1.0 or input[q_index] > 4.0 or input[q_index] != input[q_index].usize().f64(): return -1
+    queries: usize = input[q_index].usize()
+    query_start: usize = q_index + 1
+    if input_length != query_start + queries * features or input_length > 61: return -1
+    i <- 0
+    while i < samples * features:
+        value: f64 = input[feature_start + i]
+        if value < -2.0 or value > 2.0 or value != value.usize().f64() and value != -((-value).usize().f64()): return -1
+        i <- i + 1
+    i <- 0
+    while i < queries * features:
+        value: f64 = input[query_start + i]
+        if value < -2.0 or value > 2.0 or value != value.usize().f64() and value != -((-value).usize().f64()): return -1
+        i <- i + 1
+    labels: mutable i64[8] = zeroed
+    classes: mutable i64[3] = zeroed
+    class_count: mutable usize = 0
+    i <- 0
+    while i < samples:
+        value: f64 = input[labels_start + i]
+        if value < -2.0 or value > 2.0 or value != value.usize().f64() and value != -((-value).usize().f64()): return -1
+        if 2 == 0 and value != 0.0 and value != 1.0: return -1
+        if (2 == 1 or 2 == 3) and value != -1.0 and value != 1.0: return -1
+        labels[i] <- value.i64()
+        if 2 == 2:
+            found: mutable bool = false
+            j: mutable usize = 0
+            while j < class_count:
+                if classes[j] == value.i64(): found <- true
+                j <- j + 1
+            if not found:
+                if class_count >= 3: return -1
+                classes[class_count] <- value.i64()
+                class_count <- class_count + 1
+        i <- i + 1
+    if 2 == 2:
+        if class_count < 2: return -1
+        i <- 0
+        while i < class_count:
+            j: mutable usize = i + 1
+            while j < class_count:
+                if classes[j] < classes[i]:
+                    temp: i64 = classes[i]
+                    classes[i] <- classes[j]
+                    classes[j] <- temp
+                j <- j + 1
+            i <- i + 1
+    else: class_count <- 2
+    epochs_run: mutable usize = 0
+    converged: mutable bool = false
+    weights: mutable f64[15] = zeroed
+    if 2 == 1:
+        weights[0] <- -1.0
+        seeded: f64[4] = [0.8444218515250481, 0.7579544029403025, 0.420571580830845, 0.25891675029296335]
+        i <- 0
+        while i < features:
+            weights[i + 1] <- seeded[i]
+            i <- i + 1
+    if 2 == 0 or 2 == 1:
+        epoch: mutable usize = 0
+        while epoch < epochs:
+            updated: mutable bool = false
+            row: mutable usize = 0
+            while row < samples:
+                score: mutable f64 = 0.0
+                if 2 == 0: score <- weights[features]
+                if 2 == 1: score <- weights[0] * -1.0
+                col: mutable usize = 0
+                while col < features:
+                    x: f64 = input[feature_start + row * features + col]
+                    if 2 == 1: score <- score + weights[col + 1] * x
+                    else: score <- score + weights[col] * x
+                    col <- col + 1
+                prediction: i64 = 0
+                if 2 == 0:
+                    if score >= 0.0: prediction <- 1
+                else:
+                    if score >= 0.0: prediction <- 1
+                    else: prediction <- -1
+                error: i64 = labels[row] - prediction
+                if error != 0:
+                    if 2 == 0:
+                        col <- 0
+                        while col < features:
+                            x <- input[feature_start + row * features + col]
+                            weights[col] <- weights[col] + rate * error.f64() * x
+                            col <- col + 1
+                        weights[features] <- weights[features] + rate * error.f64()
+                    else:
+                        weights[0] <- weights[0] + rate * error.f64() * -1.0
+                        col <- 0
+                        while col < features:
+                            weights[col + 1] <- weights[col + 1] + rate * error.f64() * input[feature_start + row * features + col]
+                            col <- col + 1
+                    updated <- true
+                row <- row + 1
+            epochs_run <- epoch + 1
+            if 2 == 0 and not updated:
+                converged <- true
+                break
+            if 2 == 1 and not updated: break
+            epoch <- epoch + 1
+    elif 2 == 3:
+        epoch: mutable usize = 0
+        while epoch < epochs:
+            misses: mutable usize = 0
+            row: mutable usize = 0
+            while row < samples:
+                score: mutable f64 = 0.0
+                col: mutable usize = 0
+                while col < features:
+                    score <- score + weights[col] * input[feature_start + row * features + col]
+                    col <- col + 1
+                score <- score + weights[features]
+                prediction: i64 = -1
+                if score >= 0.0: prediction <- 1
+                if prediction != labels[row]:
+                    misses <- misses + 1
+                    col <- 0
+                    while col < features:
+                        weights[col] <- weights[col] + rate * labels[row].f64() * input[feature_start + row * features + col]
+                        col <- col + 1
+                    weights[features] <- weights[features] + rate * labels[row].f64()
+                row <- row + 1
+            if misses == 0: break
+            epoch <- epoch + 1
+    else:
+        stride: usize = features + 1
+        epoch: mutable usize = 0
+        while epoch < epochs:
+            row: mutable usize = 0
+            while row < samples:
+                if class_count == 2:
+                    label: i64 = 1
+                    if labels[row] == classes[0]: label <- -1
+                    score: mutable f64 = weights[0]
+                    col: mutable usize = 0
+                    while col < features:
+                        score <- score + weights[col + 1] * input[feature_start + row * features + col]
+                        col <- col + 1
+                    if label.f64() * score <= 0.0:
+                        weights[0] <- weights[0] + rate * label.f64()
+                        col <- 0
+                        while col < features:
+                            weights[col + 1] <- weights[col + 1] + rate * label.f64() * input[feature_start + row * features + col]
+                            col <- col + 1
+                else:
+                    predicted: mutable usize = 0
+                    best: mutable f64 = 0.0
+                    c: mutable usize = 0
+                    while c < class_count:
+                        score: mutable f64 = weights[c * stride]
+                        col: mutable usize = 0
+                        while col < features:
+                            score <- score + weights[c * stride + col + 1] * input[feature_start + row * features + col]
+                            col <- col + 1
+                        if c == 0 or score > best:
+                            best <- score
+                            predicted <- c
+                        c <- c + 1
+                    target: mutable usize = 0
+                    c <- 0
+                    while c < class_count:
+                        if classes[c] == labels[row]: target <- c
+                        c <- c + 1
+                    if predicted != target:
+                        weights[target * stride] <- weights[target * stride] + rate
+                        weights[predicted * stride] <- weights[predicted * stride] - rate
+                        col <- 0
+                        while col < features:
+                            x: f64 = input[feature_start + row * features + col]
+                            weights[target * stride + col + 1] <- weights[target * stride + col + 1] + rate * x
+                            weights[predicted * stride + col + 1] <- weights[predicted * stride + col + 1] - rate * x
+                            col <- col + 1
+                row <- row + 1
+            epoch <- epoch + 1
+    staged: mutable f64[25] = zeroed
+    out_n: mutable usize = 0
+    if 2 == 0:
+        staged[0] <- features.f64()
+        i <- 0
+        while i < features:
+            staged[1 + i] <- weights[i]
+            i <- i + 1
+        staged[1 + features] <- weights[features]
+        staged[2 + features] <- epochs_run.f64()
+        staged[3 + features] <- converged.f64()
+        staged[4 + features] <- queries.f64()
+        out_n <- 5 + features
+    elif 2 == 1:
+        staged[0] <- epochs_run.f64()
+        staged[1] <- (features + 1).f64()
+        i <- 0
+        while i <= features:
+            staged[2 + i] <- weights[i]
+            i <- i + 1
+        staged[3 + features] <- queries.f64()
+        out_n <- 4 + features
+    elif 2 == 3:
+        staged[0] <- features.f64()
+        i <- 0
+        while i < features:
+            staged[1 + i] <- weights[i]
+            i <- i + 1
+        staged[1 + features] <- weights[features]
+        staged[2 + features] <- queries.f64()
+        out_n <- 3 + features
+    else:
+        staged[0] <- class_count.f64()
+        i <- 0
+        while i < class_count:
+            staged[1 + i] <- classes[i].f64()
+            i <- i + 1
+        stride: usize = features + 1
+        param_n: usize = stride
+        if class_count == 3: param_n <- class_count * stride
+        staged[1 + class_count] <- param_n.f64()
+        i <- 0
+        while i < param_n:
+            staged[2 + class_count + i] <- weights[i]
+            i <- i + 1
+        staged[2 + class_count + param_n] <- queries.f64()
+        out_n <- 3 + class_count + param_n
+    q: mutable usize = 0
+    while q < queries:
+        pred: mutable f64 = 0.0
+        if 2 == 0:
+            score: mutable f64 = weights[features]
+            col: mutable usize = 0
+            while col < features:
+                score <- score + weights[col] * input[query_start + q * features + col]
+                col <- col + 1
+            if score >= 0.0: pred <- 1.0
+        elif 2 == 1:
+            score: mutable f64 = weights[0] * -1.0
+            col: mutable usize = 0
+            while col < features:
+                score <- score + weights[col + 1] * input[query_start + q * features + col]
+                col <- col + 1
+            pred <- -1.0
+            if score >= 0.0: pred <- 1.0
+        elif 2 == 3:
+            score: mutable f64 = 0.0
+            col: mutable usize = 0
+            while col < features:
+                score <- score + weights[col] * input[query_start + q * features + col]
+                col <- col + 1
+            score <- score + weights[features]
+            pred <- -1.0
+            if score >= 0.0: pred <- 1.0
+        elif class_count == 2:
+            score: mutable f64 = weights[0]
+            col: mutable usize = 0
+            while col < features:
+                score <- score + weights[col + 1] * input[query_start + q * features + col]
+                col <- col + 1
+            pred <- classes[0].f64()
+            if score >= 0.0: pred <- classes[1].f64()
+        else:
+            best: mutable f64 = 0.0
+            chosen: mutable usize = 0
+            stride: usize = features + 1
+            c: mutable usize = 0
+            while c < class_count:
+                score: mutable f64 = weights[c * stride]
+                col: mutable usize = 0
+                while col < features:
+                    score <- score + weights[c * stride + col + 1] * input[query_start + q * features + col]
+                    col <- col + 1
+                if c == 0 or score > best:
+                    best <- score
+                    chosen <- c
+                c <- c + 1
+            pred <- classes[chosen].f64()
+        staged[out_n] <- pred
+        out_n <- out_n + 1
+        q <- q + 1
+    if output.is_null() or capacity < out_n: return -2
+    i <- 0
+    while i < out_n:
+        output[i] <- staged[i]
+        i <- i + 1
+    return out_n.i64()
+
+export fn perceptron_r(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = perceptron_impl

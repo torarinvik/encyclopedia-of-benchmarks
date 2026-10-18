@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-julia-monte-carlo-integration-independent-i64-v1",
+  "algorithm": "monte_carlo_integration_independent",
+  "function_symbol": "monte_carlo_integration_independent",
+  "description": "Deterministic replay of the pinned Julia Monte Carlo integration loop with independent sample draws.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Julia",
+    "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+    "path": "src/math/monte_carlo_integration.jl",
+    "symbol": "monte_carlo_integration",
+    "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/math/monte_carlo_integration.jl",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Replay Julia's independent-sample integration loop for f(x)=x*x with explicit uniform draws.",
+    "input_encoding": "[a_micro,b_micro,n,u0_micro,...]",
+    "scale": 1000000,
+    "bound_range_micro": [-10000000, 10000000],
+    "sample_count_range": [1, 16],
+    "uniform_draw_range_micro": [0, 999999],
+    "draw_count": "n",
+    "sample_rule": "For each draw in order, evaluate a+(b-a)*u and add its square.",
+    "integrand": "x*x",
+    "return_expression": "((b-a)/n)*total",
+    "exact_input_length": "3+n",
+    "maximum_valid_input_length": 19,
+    "maximum_parseable_input_length": 20,
+    "output_encoding": "One finite binary64 estimate.",
+    "invalid_result": -1e300
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[a_micro, b_micro, n, u0_micro, ...]",
+    "scale": 1000000,
+    "bound_range_micro": [-10000000, 10000000],
+    "bound_order": "a_micro < b_micro",
+    "sample_count_range": [1, 16],
+    "uniform_draw_range_micro": [0, 999999],
+    "required_length": "3+n",
+    "maximum_valid_length": 19,
+    "maximum_parseable_length": 20,
+    "invalid_input_result": -1e300,
+    "null_input_length": 3,
+    "null_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "Julia independent-draw Monte Carlo estimate for f(x)=x*x",
+    "invalid_input_result": -1e300
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id":"independent_draws_differ_from_antithetic","input_values":[0,1000000,2,250000,250000],"input_length":5,"expected_result":0.0625},
+    {"id":"single_sample","input_values":[0,1000000,1,500000],"input_length":4,"expected_result":0.25},
+    {"id":"three_independent_samples","input_values":[-1000000,1000000,3,250000,750000,500000],"input_length":6,"expected_result":0.3333333333333333},
+    {"id":"negative_domain_samples","input_values":[-1000000,0,3,0,500000,750000],"input_length":6,"expected_result":0.4375},
+    {"id":"maximum_sample_count","input_values":[0,1000000,16,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000],"input_length":19,"expected_result":0.25},
+    {"id":"zero_sample_count","input_values":[0,1000000,0],"input_length":3,"expected_result":-1e300},
+    {"id":"reversed_bounds","input_values":[1000000,0,1,500000],"input_length":4,"expected_result":-1e300},
+    {"id":"uniform_one_is_excluded","input_values":[0,1000000,1,1000000],"input_length":4,"expected_result":-1e300},
+    {"id":"missing_sample","input_values":[0,1000000,2,250000],"input_length":4,"expected_result":-1e300},
+    {"id":"too_many_parseable_values","input_values":[0,1000000,16,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,500000,0],"input_length":20,"expected_result":-1e300},
+    {"id":"bound_above_range","input_values":[10000001,10000002,1,500000],"input_length":4,"expected_result":-1e300},
+    {"id":"null_input_pointer","input_values":[],"input_length":3,"input_is_null":true,"expected_result":-1e300}
+  ]
+}

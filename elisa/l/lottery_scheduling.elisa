@@ -1,0 +1,99 @@
+def next_java_state(state: u64) -> u64:
+    low: u64 = state & 0xffffff
+    high: u64 = state >> 24
+    low_product: u64 = low * 0x5deece66d
+    high_product: u64 = (high * 0x5deece66d) & 0xffffff
+    (low_product + (high_product << 24) + 0xb) & ((1.u64 << 48) - 1)
+
+def java_next_int(state: mutable u64&, bound: u64) -> u64:
+    if (bound & (bound - 1)) == 0:
+        state <- next_java_state(state)
+        return (bound * (state >> 17)) >> 31
+    while true:
+        state <- next_java_state(state)
+        bits: u64 = state >> 17
+        value: u64 = bits % bound
+        if bits - value + (bound - 1) <= 0x7fffffff: return value
+    0
+
+def lottery_scheduling_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 51: return -1
+    if input[1] < 0 or input[1] > 16: return -1
+    process_count: usize = input[1].usize()
+    if length != 2 + 3 * process_count: return -1
+
+    process_ids: mutable i64[16] = zeroed
+    burst_times: mutable i64[16] = zeroed
+    ticket_counts: mutable i64[16] = zeroed
+    total_tickets: mutable i64 = 0
+    total_burst_time: mutable i64 = 0
+    index: mutable usize = 0
+    while index < process_count:
+        process_id: i64 = input[2 + 3 * index]
+        burst_time: i64 = input[3 + 3 * index]
+        tickets: i64 = input[4 + 3 * index]
+        if process_id < 0 or process_id > 32767 or burst_time < 1 or burst_time > 1000 or tickets < 1 or tickets > 1000: return -1
+        prior: mutable usize = 0
+        while prior < index:
+            if process_ids[prior] == process_id: return -1
+            prior <- prior + 1
+        process_ids[index] <- process_id
+        burst_times[index] <- burst_time
+        ticket_counts[index] <- tickets
+        total_tickets <- total_tickets + tickets
+        total_burst_time <- total_burst_time + burst_time
+        index <- index + 1
+    if total_tickets > 16000 or total_burst_time > 16000: return -1
+
+    random_state: mutable u64 = input[0].u64() ^ 0x5deece66d
+    random_state <- random_state & ((1.u64 << 48) - 1)
+    words: mutable i64[48] = zeroed
+    word_count: mutable usize = 0
+    current_time: mutable i64 = 0
+    remaining: mutable usize = process_count
+    while remaining > 0:
+        current_total_tickets: mutable i64 = 0
+        index <- 0
+        while index < remaining:
+            current_total_tickets <- current_total_tickets + ticket_counts[index]
+            index <- index + 1
+        winning_ticket: u64 = java_next_int(random_state, current_total_tickets.u64()) + 1
+        cumulative_tickets: mutable u64 = 0
+        selected: mutable usize = remaining
+        index <- 0
+        while index < remaining:
+            cumulative_tickets <- cumulative_tickets + ticket_counts[index].u64()
+            if cumulative_tickets >= winning_ticket:
+                selected <- index
+                break
+            index <- index + 1
+        if selected == remaining: return -1
+
+        waiting_time: i64 = current_time
+        turnaround_time: i64 = waiting_time + burst_times[selected]
+        words[word_count] <- process_ids[selected]
+        words[word_count + 1] <- waiting_time
+        words[word_count + 2] <- turnaround_time
+        word_count <- word_count + 3
+        current_time <- current_time + burst_times[selected]
+        index <- selected + 1
+        while index < remaining:
+            process_ids[index - 1] <- process_ids[index]
+            burst_times[index - 1] <- burst_times[index]
+            ticket_counts[index - 1] <- ticket_counts[index]
+            index <- index + 1
+        remaining <- remaining - 1
+
+    output_bytes: usize = word_count * 8
+    if output.is_null() or capacity < output_bytes or output_bytes > 384: return -2
+    index <- 0
+    while index < word_count:
+        bits: u64 = words[index].u64()
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            output[index * 8 + byte_index] <- ((bits >> (byte_index * 8)) & 255).u8()
+            byte_index <- byte_index + 1
+        index <- index + 1
+    output_bytes.i64()
+
+export fn lottery_scheduling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = lottery_scheduling_impl

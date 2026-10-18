@@ -1,0 +1,578 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-qr-decompose-float64-slice-io-v1",
+  "algorithm": "qr_decompose",
+  "function_symbol": "qr_decompose",
+  "description": "Compute a bounded square QR factorization using classical Gram-Schmidt.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C",
+    "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+    "path": "numerical_methods/qr_decompose.h",
+    "symbol": "qr_decompose",
+    "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/numerical_methods/qr_decompose.h",
+    "role": "algorithm"
+  },
+  "related_pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "numerical_methods/qr_decompose.h",
+      "symbol": "qr_algorithm::qr_decompose",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/numerical_methods/qr_decompose.h"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "numerical_methods/qr_decompose.h",
+      "symbol": "qr_algorithm::qr_decompose",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/numerical_methods/qr_decompose.h"
+    }
+  ],
+  "contract": {
+    "operation": "Factor a nonsingular square matrix using the pinned column-wise classical Gram-Schmidt algorithm.",
+    "input_encoding": "[dimension, A_row_major...]",
+    "exact_input_length": "1+dimension*dimension",
+    "matrix_shape": "dimension by dimension, row-major",
+    "matrix_domain": "Exact integer entries in [-4,4]; the exact determinant must be nonzero.",
+    "projection": "For each source column i and previous Q column j, project the original A[:,i] using dot(A[:,i],Q[:,j])/dot(Q[:,j],Q[:,j]), then subtract from the residual.",
+    "operation_order": "Process i and j in increasing order; normalize each residual to form Q[:,i], then compute R[i,k]=dot(Q[:,i],A[:,k]) for k>=i. Set R[i,k]=0 for k<i.",
+    "output_encoding": "Row-major Q followed by row-major R, each dimension by dimension.",
+    "properties": "For accepted inputs, A approximately equals Q*R, Q-transpose*Q approximately equals identity, and R is upper triangular.",
+    "errors": "Malformed framing, unsupported bounds, fractional entries, singular matrices, or nonfinite factors returns -1 before output checks. A null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[dimension, A_row_major...]",
+    "dimension_range": [
+      1,
+      4
+    ],
+    "matrix_value_range": [
+      -4,
+      4
+    ],
+    "matrix_values_must_be_integers": true,
+    "matrix_must_be_nonsingular": true,
+    "maximum_valid_input_length": 17,
+    "maximum_parseable_input_length": 18,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "dimension*dimension row-major Q values followed by dimension*dimension row-major R values.",
+    "element_count": "2*dimension*dimension",
+    "maximum_elements": 32,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing, bounds, integrality, and nonsingularity are checked before output pointer and capacity.",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 32,
+    "meaning": "Two row-major dimension by dimension output matrices, Q and R."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Exact-check integer nonsingularity, then preserve the pinned source's column-wise projection, residual subtraction, normalization, and upper-triangular dot-product order.",
+  "cases": [
+    {
+      "id": "one_by_one_negative",
+      "input_values": [
+        1,
+        -3
+      ],
+      "input_length": 2,
+      "expected_result": 2,
+      "expected_output": [
+        -1.0,
+        3.0
+      ]
+    },
+    {
+      "id": "two_by_two_identity",
+      "input_values": [
+        2,
+        1,
+        0,
+        0,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output": [
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "id": "two_by_two_nonorthogonal_columns",
+      "input_values": [
+        2,
+        2,
+        1,
+        1,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output": [
+        0.8944271909999159,
+        -0.447213595499958,
+        0.4472135954999579,
+        0.8944271909999159,
+        2.23606797749979,
+        1.7888543819998317,
+        0.0,
+        1.3416407864998736
+      ]
+    },
+    {
+      "id": "two_by_two_negative_determinant",
+      "input_values": [
+        2,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 8,
+      "expected_output": [
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "id": "three_by_three_upper_triangular",
+      "input_values": [
+        3,
+        3,
+        1,
+        -1,
+        0,
+        2,
+        1,
+        0,
+        0,
+        -2
+      ],
+      "input_length": 10,
+      "expected_result": 18,
+      "expected_output": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.0,
+        3.0,
+        1.0,
+        -1.0,
+        0.0,
+        2.0,
+        1.0,
+        0.0,
+        0.0,
+        2.0
+      ]
+    },
+    {
+      "id": "three_by_three_dense",
+      "input_values": [
+        3,
+        1,
+        2,
+        0,
+        1,
+        1,
+        3,
+        2,
+        0,
+        1
+      ],
+      "input_length": 10,
+      "expected_result": 18,
+      "expected_output": [
+        0.4082482904638631,
+        0.8017837257372732,
+        -0.43643578047198467,
+        0.4082482904638631,
+        0.2672612419124244,
+        0.8728715609439696,
+        0.8164965809277261,
+        -0.5345224838248488,
+        -0.2182178902359923,
+        2.4494897427831783,
+        1.2247448713915892,
+        2.041241452319315,
+        0.0,
+        1.8708286933869709,
+        0.2672612419124244,
+        0.0,
+        0.0,
+        2.4003967925959167
+      ]
+    },
+    {
+      "id": "four_by_four_upper_triangular",
+      "input_values": [
+        4,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "input_length": 17,
+      "expected_result": 32,
+      "expected_output": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "id": "four_by_four_negative_determinant",
+      "input_values": [
+        4,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        1,
+        0,
+        0,
+        1,
+        2
+      ],
+      "input_length": 17,
+      "expected_result": 32,
+      "expected_output": [
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.8944271909999159,
+        -0.447213595499958,
+        0.0,
+        0.0,
+        0.4472135954999579,
+        0.8944271909999159,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.23606797749979,
+        1.7888543819998317,
+        0.0,
+        0.0,
+        0.0,
+        1.3416407864998736
+      ]
+    },
+    {
+      "id": "maximum_shape",
+      "input_values": [
+        4,
+        4,
+        1,
+        -1,
+        0,
+        1,
+        4,
+        1,
+        -1,
+        0,
+        1,
+        4,
+        1,
+        -1,
+        0,
+        1,
+        4
+      ],
+      "input_length": 17,
+      "expected_result": 32,
+      "expected_output": [
+        0.9428090415820635,
+        -0.20464687117164013,
+        0.10114428893323422,
+        0.24290039532071506,
+        0.23570226039551587,
+        0.9355285539274978,
+        -0.26254474999690586,
+        -0.01735002823719398,
+        0.0,
+        0.2631174057921088,
+        0.9490347110543894,
+        -0.17350028237193932,
+        -0.23570226039551587,
+        0.11694106924093722,
+        0.14203240573603107,
+        0.9542515530456663,
+        4.242640687119286,
+        1.885618083164127,
+        -0.9428090415820635,
+        -1.1785113019775793,
+        0.0,
+        3.8005847503304597,
+        2.30958611750851,
+        -0.20464687117164004,
+        0.0,
+        0.0,
+        3.5744822110234487,
+        1.7797090839954195,
+        0.0,
+        0.0,
+        0.0,
+        3.66085595804792
+      ]
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [
+        2,
+        1,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        1,
+        1,
+        0
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dimension_zero",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dimension_above_maximum",
+      "input_values": [
+        5
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_dimension",
+      "input_values": [
+        1.5,
+        0
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_matrix_entry",
+      "input_values": [
+        1,
+        0.5
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "matrix_entry_out_of_range",
+      "input_values": [
+        1,
+        5
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "singular_matrix",
+      "input_values": [
+        2,
+        1,
+        2,
+        2,
+        4
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 32,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        1,
+        2
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        1,
+        -2
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        2,
+        1,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

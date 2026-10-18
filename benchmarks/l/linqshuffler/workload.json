@@ -1,0 +1,583 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-csharp-linqshuffler-i64-array-bytes-output-v1",
+  "algorithm": "linqshuffler",
+  "function_symbol": "linqshuffler",
+  "description": "Replay seeded LINQ random-key sorting with .NET 6.0.0 compatibility Random keys and stable ordering.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Sharp",
+      "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+      "path": "Algorithms/Shufflers/LINQShuffler.cs",
+      "symbol": "LinqShuffler<T>.Shuffle",
+      "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Shufflers/LINQShuffler.cs",
+      "role": "algorithm"
+    },
+    {
+      "repository": "dotnet/runtime",
+      "commit": "v6.0.0",
+      "path": "src/libraries/System.Private.CoreLib/src/System/Random.cs",
+      "symbol": "Random(int) constructor dispatch and Next()",
+      "url": "https://github.com/dotnet/runtime/blob/v6.0.0/src/libraries/System.Private.CoreLib/src/System/Random.cs",
+      "role": "random_key_compatibility_reference"
+    },
+    {
+      "repository": "dotnet/runtime",
+      "commit": "v6.0.0",
+      "path": "src/libraries/System.Private.CoreLib/src/System/Random.Net5CompatImpl.cs",
+      "symbol": "CompatPrng initialization and InternalSample",
+      "url": "https://github.com/dotnet/runtime/blob/v6.0.0/src/libraries/System.Private.CoreLib/src/System/Random.Net5CompatImpl.cs",
+      "role": "seeded_random_compatibility_implementation"
+    }
+  ],
+  "contract": {
+    "operation": "Generate one seeded .NET-compatible random key per value in input order and return values ordered by key with stable tie handling.",
+    "input_encoding": "[n, seed, n signed-i32 values]",
+    "n_range": [
+      0,
+      64
+    ],
+    "seed_domain": "signed-i32; Int32.MinValue initializes with magnitude Int32.MaxValue",
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "random_key_domain": "0 <= key < Int32.MaxValue",
+    "tie_order": "Original input order is preserved when random keys are equal.",
+    "maximum_valid_input_length": 66,
+    "maximum_parseable_input_length": 67,
+    "output_encoding": "[n, ordered values...] as little-endian signed-i64 words",
+    "maximum_output_words": 65,
+    "maximum_output_bytes": 520,
+    "capacity_unit": "bytes",
+    "success_result": "Number of output bytes written.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "error_precedence": "Input validity is checked before output pointer or capacity.",
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[n, seed, values...]",
+    "n_range": [
+      0,
+      64
+    ],
+    "seed_range": [
+      -2147483648,
+      2147483647
+    ],
+    "value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "exact_length": "n+2",
+    "maximum_valid_length": 66,
+    "maximum_parseable_length": 67,
+    "null_input_result": -1,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "[n, ordered values...]",
+    "maximum_words": 65,
+    "maximum_bytes": 520,
+    "capacity_unit": "bytes",
+    "success_result": "Number of output bytes written.",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 520
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "oracle_method": "Validate signed-i32 seed/value ranges and exact framing; generate keys with the documented .NET 6.0.0 seeded compatibility PRNG; sort by (key, original index); serialize count and values as little-endian signed-i64 words.",
+  "cases": [
+    {
+      "id": "empty_zero_seed",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "empty_minimum_seed",
+      "input_values": [
+        0,
+        -2147483648
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "singleton",
+      "input_values": [
+        1,
+        123,
+        17
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": 16,
+      "expected_output_hex": "01000000000000001100000000000000"
+    },
+    {
+      "id": "zero_seed_random_key_order",
+      "input_values": [
+        3,
+        0,
+        30,
+        10,
+        20
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": 32,
+      "expected_output_hex": "03000000000000001e0000000000000014000000000000000a00000000000000"
+    },
+    {
+      "id": "negative_seed",
+      "input_values": [
+        4,
+        -1234,
+        4,
+        3,
+        2,
+        1
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": 40,
+      "expected_output_hex": "04000000000000000200000000000000040000000000000003000000000000000100000000000000"
+    },
+    {
+      "id": "minimum_seed_edge",
+      "input_values": [
+        5,
+        -2147483648,
+        11,
+        22,
+        33,
+        44,
+        55
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": 48,
+      "expected_output_hex": "050000000000000037000000000000002c000000000000000b0000000000000021000000000000001600000000000000"
+    },
+    {
+      "id": "maximum_seed_edge",
+      "input_values": [
+        5,
+        2147483647,
+        11,
+        22,
+        33,
+        44,
+        55
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": 48,
+      "expected_output_hex": "050000000000000037000000000000002c000000000000000b0000000000000021000000000000001600000000000000"
+    },
+    {
+      "id": "duplicate_values_preserved",
+      "input_values": [
+        6,
+        0,
+        7,
+        7,
+        -2,
+        7,
+        0,
+        -2
+      ],
+      "input_length": 8,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": 56,
+      "expected_output_hex": "060000000000000000000000000000000700000000000000feffffffffffffff0700000000000000feffffffffffffff0700000000000000"
+    },
+    {
+      "id": "signed_i32_value_boundaries",
+      "input_values": [
+        4,
+        42,
+        -2147483648,
+        -1,
+        0,
+        2147483647
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": 40,
+      "expected_output_hex": "04000000000000000000000000000000ffffffffffffffffffffff7f0000000000000080ffffffff"
+    },
+    {
+      "id": "maximum_length",
+      "input_values": [
+        64,
+        13579,
+        -32,
+        -31,
+        -30,
+        -29,
+        -28,
+        -27,
+        -26,
+        -25,
+        -24,
+        -23,
+        -22,
+        -21,
+        -20,
+        -19,
+        -18,
+        -17,
+        -16,
+        -15,
+        -14,
+        -13,
+        -12,
+        -11,
+        -10,
+        -9,
+        -8,
+        -7,
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "input_length": 66,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": 520,
+      "expected_output_hex": "40000000000000000d000000000000001200000000000000edffffffffffffff0800000000000000fdfffffffffffffff4ffffffffffffffe6ffffffffffffff16000000000000000200000000000000e1ffffffffffffff0700000000000000f3ffffffffffffff0f0000000000000004000000000000000e00000000000000e5ffffffffffffff1800000000000000fcffffffffffffff0c000000000000000300000000000000feffffffffffffffffffffffffffffff1400000000000000f2fffffffffffffff5ffffffffffffff09000000000000000a00000000000000f9ffffffffffffffe2fffffffffffffffbffffffffffffffeaffffffffffffff1a00000000000000efffffffffffffff010000000000000005000000000000001700000000000000f8ffffffffffffff1900000000000000ecffffffffffffff1c00000000000000e9ffffffffffffff1e000000000000001b00000000000000faffffffffffffff1d0000000000000010000000000000000000000000000000e0ffffffffffffff06000000000000001300000000000000ebfffffffffffffff7ffffffffffffffe7ffffffffffffff1f000000000000001500000000000000e3ffffffffffffffeefffffffffffffff6fffffffffffffff0ffffffffffffffe8ffffffffffffff0b00000000000000e4ffffffffffffff1100000000000000f1ffffffffffffff"
+    },
+    {
+      "id": "too_few_values",
+      "input_values": [
+        3,
+        1,
+        8,
+        9
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_value",
+      "input_values": [
+        2,
+        1,
+        9,
+        8,
+        7
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_parseable_overlong",
+      "input_values": [
+        64,
+        0,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "input_length": 67,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_length",
+      "input_values": [
+        -1,
+        0
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length_above_bound",
+      "input_values": [
+        65,
+        0
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "seed_below_i32",
+      "input_values": [
+        0,
+        -2147483649
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "seed_above_i32",
+      "input_values": [
+        0,
+        2147483648
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "value_below_i32",
+      "input_values": [
+        1,
+        0,
+        -2147483649
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "value_above_i32",
+      "input_values": [
+        1,
+        0,
+        2147483648
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 520,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_short_output",
+      "input_values": [
+        0,
+        0
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        3,
+        7,
+        30,
+        10,
+        20
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        2,
+        5,
+        10,
+        20
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 520,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_output_error",
+      "input_values": [
+        1,
+        0,
+        2147483648
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_precedes_output_error",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

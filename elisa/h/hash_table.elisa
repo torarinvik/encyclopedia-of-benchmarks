@@ -1,0 +1,71 @@
+# Collision-free integer-set membership for the shared hash-table contract.
+const TABLE_CAPACITY: usize = 17
+const MAX_INSERT_COUNT: usize = 8
+const MAX_QUERY_COUNT: usize = 8
+const MAX_KEY: i64 = 1000
+const MAX_PARSEABLE_LENGTH: usize = 19
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    index: mutable usize = 0
+    while index < 8:
+        output[offset + index] <- ((bits >> (index * 8)) & 255).u8()
+        index <- index + 1
+
+def hash_table_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_PARSEABLE_LENGTH:
+        return -1
+    raw_insert_count: i64 = values[0]
+    if raw_insert_count < 0 or raw_insert_count > MAX_INSERT_COUNT.i64():
+        return -1
+    insert_count: usize = raw_insert_count.usize()
+    query_count_index: usize = 1 + insert_count
+    if query_count_index >= length:
+        return -1
+    raw_query_count: i64 = values[query_count_index]
+    if raw_query_count < 1 or raw_query_count > MAX_QUERY_COUNT.i64():
+        return -1
+    query_count: usize = raw_query_count.usize()
+    query_start: usize = query_count_index + 1
+    total_keys: usize = insert_count + query_count
+    if length != query_start + query_count:
+        return -1
+
+    index: usize = 0
+    while index < total_keys:
+        position: usize = if index < insert_count: 1 + index else: query_start + index - insert_count
+        key: i64 = values[position]
+        if key < 1 or key > MAX_KEY:
+            return -1
+        prior: usize = 0
+        while prior < index:
+            prior_position: usize = if prior < insert_count: 1 + prior else: query_start + prior - insert_count
+            other: i64 = values[prior_position]
+            same_group: bool = (index < insert_count) == (prior < insert_count)
+            if key == other:
+                if same_group:
+                    return -1
+            else if key % TABLE_CAPACITY.i64() == other % TABLE_CAPACITY.i64() or key % 3000 == other % 3000:
+                return -1
+            prior <- prior + 1
+        index <- index + 1
+
+    table: mutable i64[TABLE_CAPACITY] = zeroed
+    index <- 0
+    while index < insert_count:
+        key: i64 = values[1 + index]
+        table[(key % TABLE_CAPACITY.i64()).usize()] <- key
+        index <- index + 1
+
+    output_bytes: usize = 8 * query_count
+    if output.is_null() or output_capacity < output_bytes:
+        return -2
+    index <- 0
+    while index < query_count:
+        query: i64 = values[query_start + index]
+        found: i64 = if table[(query % TABLE_CAPACITY.i64()).usize()] == query: 1 else: 0
+        store_i64_le(found, output, 8 * index)
+        index <- index + 1
+    output_bytes.i64()
+
+export fn hash_table(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = hash_table_impl

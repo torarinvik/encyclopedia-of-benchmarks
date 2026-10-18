@@ -1,0 +1,135 @@
+extern sqrt(value: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 18
+const MAX_DIMENSION: usize = 4
+const MAX_MATRIX_ELEMENTS: usize = 16
+
+def qr_decompose_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+        return false
+    if value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def qr_decompose_impl(input: f64&, input_length: usize,
+                      output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if not qr_decompose_exact_integer(input[0], 1, MAX_DIMENSION.i64()): return -1
+    dimension: usize = input[0].usize()
+    matrix_elements: usize = dimension * dimension
+    if input_length != 1 + matrix_elements: return -1
+
+    matrix: mutable f64[MAX_MATRIX_ELEMENTS] = zeroed
+    bareiss: mutable i64[MAX_MATRIX_ELEMENTS] = zeroed
+    index: mutable usize = 0
+    while index < matrix_elements:
+        if not qr_decompose_exact_integer(input[index + 1], -4, 4): return -1
+        matrix[index] <- input[index + 1]
+        bareiss[index] <- input[index + 1].i64()
+        index <- index + 1
+
+    sign: mutable i64 = 1
+    previous_pivot: mutable i64 = 1
+    pivot_column: mutable usize = 0
+    while pivot_column + 1 < dimension:
+        pivot_row: mutable usize = pivot_column
+        while pivot_row < dimension and bareiss[pivot_row * dimension + pivot_column] == 0:
+            pivot_row <- pivot_row + 1
+        if pivot_row == dimension: return -1
+        if pivot_row != pivot_column:
+            swap_column: mutable usize = 0
+            while swap_column < dimension:
+                saved: i64 = bareiss[pivot_column * dimension + swap_column]
+                bareiss[pivot_column * dimension + swap_column] <- bareiss[pivot_row * dimension + swap_column]
+                bareiss[pivot_row * dimension + swap_column] <- saved
+                swap_column <- swap_column + 1
+            sign <- -sign
+        pivot_value: i64 = bareiss[pivot_column * dimension + pivot_column]
+        row: mutable usize = pivot_column + 1
+        while row < dimension:
+            column: mutable usize = pivot_column + 1
+            while column < dimension:
+                numerator: i64 = bareiss[row * dimension + column] * pivot_value -
+                    bareiss[row * dimension + pivot_column] * bareiss[pivot_column * dimension + column]
+                bareiss[row * dimension + column] <- numerator / previous_pivot
+                column <- column + 1
+            bareiss[row * dimension + pivot_column] <- 0
+            row <- row + 1
+        previous_pivot <- pivot_value
+        pivot_column <- pivot_column + 1
+    determinant: i64 = sign * bareiss[(dimension - 1) * dimension + dimension - 1]
+    if determinant == 0: return -1
+
+    q: mutable f64[MAX_MATRIX_ELEMENTS] = zeroed
+    r: mutable f64[MAX_MATRIX_ELEMENTS] = zeroed
+    column: mutable usize = 0
+    while column < dimension:
+        source: mutable f64[4] = zeroed
+        residual: mutable f64[4] = zeroed
+        row: mutable usize = 0
+        while row < dimension:
+            source[row] <- matrix[row * dimension + column]
+            residual[row] <- source[row]
+            row <- row + 1
+
+        previous: mutable usize = 0
+        while previous < column:
+            numerator: mutable f64 = 0.0
+            denominator: mutable f64 = 0.0
+            row <- 0
+            while row < dimension:
+                numerator <- numerator + source[row] * q[row * dimension + previous]
+                denominator <- denominator + q[row * dimension + previous] * q[row * dimension + previous]
+                row <- row + 1
+            if denominator == 0.0 or denominator != denominator or
+                denominator >= 1.7976931348623157e308 or denominator <= -1.7976931348623157e308:
+                return -1
+            scalar: f64 = numerator / denominator
+            row <- 0
+            while row < dimension:
+                residual[row] <- residual[row] - scalar * q[row * dimension + previous]
+                row <- row + 1
+            previous <- previous + 1
+
+        residual_squared: mutable f64 = 0.0
+        row <- 0
+        while row < dimension:
+            residual_squared <- residual_squared + residual[row] * residual[row]
+            row <- row + 1
+        magnitude: f64 = sqrt(residual_squared)
+        if magnitude == 0.0 or magnitude != magnitude or
+            magnitude >= 1.7976931348623157e308 or magnitude <= -1.7976931348623157e308:
+            return -1
+        row <- 0
+        while row < dimension:
+            q[row * dimension + column] <- residual[row] / magnitude
+            row <- row + 1
+
+        target_column: mutable usize = column
+        while target_column < dimension:
+            dot: mutable f64 = 0.0
+            row <- 0
+            while row < dimension:
+                dot <- dot + q[row * dimension + column] * matrix[row * dimension + target_column]
+                row <- row + 1
+            r[column * dimension + target_column] <- dot
+            target_column <- target_column + 1
+        column <- column + 1
+
+    index <- 0
+    while index < matrix_elements:
+        if q[index] != q[index] or r[index] != r[index] or
+            q[index] >= 1.7976931348623157e308 or q[index] <= -1.7976931348623157e308 or
+            r[index] >= 1.7976931348623157e308 or r[index] <= -1.7976931348623157e308:
+            return -1
+        index <- index + 1
+    output_length: usize = 2 * matrix_elements
+    if output.is_null() or capacity < output_length: return -2
+    index <- 0
+    while index < matrix_elements:
+        output[index] <- q[index]
+        output[matrix_elements + index] <- r[index]
+        index <- index + 1
+    output_length.i64()
+
+export fn qr_decompose(input: f64&, input_length: usize,
+                       output: mutable f64&, capacity: usize) -> i64 = qr_decompose_impl

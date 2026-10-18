@@ -51,6 +51,25 @@ from pollard_oracle import MAX_N as POLLARD_MAX_N
 from pollard_oracle import MIN_N as POLLARD_MIN_N
 from pollard_oracle import SOURCE_FAILURE_RESULT as POLLARD_SOURCE_FAILURE_RESULT
 from pollard_oracle import expected_result as pollard_oracle
+from pollard_rho_java_oracle import INVALID_RESULT as POLLARD_RHO_JAVA_INVALID_RESULT
+from pollard_rho_java_oracle import SOURCE_FAILURE_RESULT as POLLARD_RHO_JAVA_SOURCE_FAILURE_RESULT
+from pollard_rho_java_oracle import STEP_LIMIT_RESULT as POLLARD_RHO_JAVA_STEP_LIMIT_RESULT
+from pollard_rho_java_oracle import expected_result as pollard_rho_java_oracle
+from pollard_rho_python_oracle import INVALID_RESULT as POLLARD_RHO_PYTHON_INVALID_RESULT
+from pollard_rho_python_oracle import MAX_PARSEABLE_LENGTH as POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH
+from pollard_rho_python_oracle import expected_result as pollard_rho_python_oracle
+from pollard_rho_rust_oracle import INVALID_RESULT as POLLARD_RHO_RUST_INVALID_RESULT
+from pollard_rho_rust_oracle import MAX_PARSEABLE_LENGTH as POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH
+from pollard_rho_rust_oracle import expected_result as pollard_rho_rust_oracle
+from lwe_encryption_oracle import DIMENSION as LWE_ENCRYPTION_DIMENSION
+from lwe_encryption_oracle import ERROR_BOUND as LWE_ENCRYPTION_ERROR_BOUND
+from lwe_encryption_oracle import INVALID_RESULT as LWE_ENCRYPTION_INVALID_RESULT
+from lwe_encryption_oracle import MAX_MESSAGE_BYTES as LWE_ENCRYPTION_MAX_MESSAGE_BYTES
+from lwe_encryption_oracle import MAX_PARSEABLE_INPUT_LENGTH as LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH
+from lwe_encryption_oracle import MAX_VALID_INPUT_LENGTH as LWE_ENCRYPTION_MAX_VALID_INPUT_LENGTH
+from lwe_encryption_oracle import MODULUS as LWE_ENCRYPTION_MODULUS
+from lwe_encryption_oracle import SAMPLES as LWE_ENCRYPTION_SAMPLES
+from lwe_encryption_oracle import expected_result as lwe_encryption_oracle
 from polygon_points_oracle import INVALID_RESULT as POLYGON_POINTS_INVALID_RESULT
 from polygon_points_oracle import MAX_INPUT_LENGTH as MAX_POLYGON_POINTS_INPUT_LENGTH
 from polygon_points_oracle import MAX_VERTICES as POLYGON_POINTS_MAX_VERTICES
@@ -66,6 +85,19 @@ from traveling_salesman_bitmask_oracle import MAX_TOUR_COST as TRAVELING_SALESMA
 from traveling_salesman_bitmask_oracle import MIN_CITIES as TRAVELING_SALESMAN_BITMASK_MIN_CITIES
 from traveling_salesman_bitmask_oracle import MIN_DISTANCE as TRAVELING_SALESMAN_BITMASK_MIN_DISTANCE
 from traveling_salesman_bitmask_oracle import expected_result as traveling_salesman_bitmask_oracle
+from traveling_salesman_oracle import INVALID_RESULT as TRAVELING_SALESMAN_INVALID_RESULT
+from traveling_salesman_oracle import JAVA_INT_MAX as TRAVELING_SALESMAN_JAVA_INT_MAX
+from traveling_salesman_oracle import MAX_CITIES as TRAVELING_SALESMAN_MAX_CITIES
+from traveling_salesman_oracle import MAX_EDGE_COST as TRAVELING_SALESMAN_MAX_EDGE_COST
+from traveling_salesman_oracle import MAX_INPUT_LENGTH as MAX_TRAVELING_SALESMAN_INPUT_LENGTH
+from traveling_salesman_oracle import MAX_TOUR_COST as TRAVELING_SALESMAN_MAX_TOUR_COST
+from traveling_salesman_oracle import MIN_CITIES as TRAVELING_SALESMAN_MIN_CITIES
+from traveling_salesman_oracle import expected_result as traveling_salesman_oracle
+from smith_waterman_java_oracle import INVALID_RESULT as SMITH_WATERMAN_JAVA_INVALID_RESULT
+from smith_waterman_java_oracle import MAX_PARSEABLE_INPUT_LENGTH as SMITH_WATERMAN_JAVA_MAX_PARSEABLE_INPUT_LENGTH
+from smith_waterman_java_oracle import MAX_SEQUENCE_LENGTH as SMITH_WATERMAN_JAVA_MAX_SEQUENCE_LENGTH
+from smith_waterman_java_oracle import MAX_VALID_INPUT_LENGTH as SMITH_WATERMAN_JAVA_MAX_VALID_INPUT_LENGTH
+from smith_waterman_java_oracle import expected_result as smith_waterman_java_oracle
 from roulette_wheel_selection_oracle import I64_MAX as ROULETTE_WHEEL_SELECTION_I64_MAX
 from roulette_wheel_selection_oracle import I64_MIN as ROULETTE_WHEEL_SELECTION_I64_MIN
 from roulette_wheel_selection_oracle import INVALID_RESULT as ROULETTE_WHEEL_SELECTION_INVALID_RESULT
@@ -600,6 +632,8 @@ from run_i64_array_scalar import MAX_POWER_USING_RECURSION_PARSEABLE_INPUT_LENGT
 from run_i64_array_scalar import validate_power_using_recursion_workload
 from run_i64_array_scalar import validate_sparse_matrix_workload
 from run_i64_array_scalar import validate_mrucache_workload
+from run_i64_array_scalar import validate_lww_element_set_workload
+from run_i64_array_scalar import validate_smallest_prime_factor_workload
 from run_i64_array_scalar import validate_kruskal_mst_workload
 from run_i64_array_scalar import validate_mos_algorithm_workload
 from run_i64_array_scalar import validate_persistent_seg_tree_lazy_prop_workload
@@ -636,6 +670,25 @@ from run_i64_array_scalar import validate_rsa_cipher_workload
 from run_i64_array_scalar import validate_suffix_trie_workload
 from run_i64_array_scalar import validate_mcnaughton_yamada_thompson_workload
 from run_i64_array_scalar import validate_playfair_cipher_workload
+from run_i64_array_scalar import validate_permutation_count_workload
+from run_i64_array_scalar import validate_shors_algorithm_workload
+from run_i64_array_scalar import validate_simulated_annealing_workload
+from run_i64_array_scalar import validate_k_medoids_workload
+from run_i64_array_scalar import validate_rsa_scalar_workload
+from run_i64_array_scalar import validate_k_means_scalar_workload
+from run_i64_array_scalar import validate_lamport_signature_workload
+from run_i64_array_scalar import K_MEANS_JULIA_MAX_PARSEABLE_INPUT_LENGTH
+from run_i64_array_scalar import K_MEANS_CLUSTERING_C_MAX_PARSEABLE_INPUT_LENGTH
+from run_i64_array_scalar import K_MEANS_CLUSTERING_ZIG_MAX_PARSEABLE_INPUT_LENGTH
+from run_i64_array_scalar import KMEANS_RUST_MAX_PARSEABLE_INPUT_LENGTH
+from run_i64_array_scalar import POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH
+from run_i64_array_scalar import validate_pollard_rho_java_workload
+from run_i64_array_scalar import validate_pollard_rho_python_workload
+from run_i64_array_scalar import validate_pollard_rho_rust_workload
+from run_i64_array_scalar import validate_rsa_factorization_workload
+from run_i64_array_scalar import validate_rsa_key_generator_workload
+from run_i64_array_scalar import validate_lwe_encryption_workload
+from run_i64_array_scalar import validate_smith_waterman_java_workload
 from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_PATTERN_LENGTH
 from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH
@@ -1000,6 +1053,18 @@ from rsa_cipher_oracle import MAX_VALID_INPUT_VALUES as RSA_CIPHER_MAX_VALID_INP
 from rsa_cipher_oracle import MIN_ASCII_CODE as RSA_CIPHER_MIN_ASCII_CODE
 from rsa_cipher_oracle import MIN_MODULUS as RSA_CIPHER_MIN_MODULUS
 from rsa_cipher_oracle import expected_result as rsa_cipher_oracle
+from rsa_factorization_oracle import FACTOR_BASE as RSA_FACTORIZATION_FACTOR_BASE
+from rsa_factorization_oracle import INVALID_RESULT as RSA_FACTORIZATION_INVALID_RESULT
+from rsa_factorization_oracle import MAX_PARSEABLE_LENGTH as RSA_FACTORIZATION_MAX_PARSEABLE_LENGTH
+from rsa_factorization_oracle import MAX_RESULT as RSA_FACTORIZATION_MAX_RESULT
+from rsa_factorization_oracle import expected_result as rsa_factorization_oracle
+from rsa_key_generator_oracle import INVALID_RESULT as RSA_KEY_GENERATOR_INVALID_RESULT
+from rsa_key_generator_oracle import MAX_DRAWS as RSA_KEY_GENERATOR_MAX_DRAWS
+from rsa_key_generator_oracle import MAX_KEY_SIZE as RSA_KEY_GENERATOR_MAX_KEY_SIZE
+from rsa_key_generator_oracle import MAX_PARSEABLE_INPUT_LENGTH as RSA_KEY_GENERATOR_MAX_PARSEABLE_INPUT_LENGTH
+from rsa_key_generator_oracle import MAX_VALID_INPUT_LENGTH as RSA_KEY_GENERATOR_MAX_VALID_INPUT_LENGTH
+from rsa_key_generator_oracle import MIN_KEY_SIZE as RSA_KEY_GENERATOR_MIN_KEY_SIZE
+from rsa_key_generator_oracle import expected_result as rsa_key_generator_oracle
 from suffix_trie_oracle import INVALID_RESULT as SUFFIX_TRIE_INVALID_RESULT
 from suffix_trie_oracle import MAX_ASCII_CODE as SUFFIX_TRIE_MAX_ASCII_CODE
 from suffix_trie_oracle import MAX_PARSEABLE_INPUT_VALUES as SUFFIX_TRIE_MAX_PARSEABLE_INPUT_VALUES
@@ -1029,6 +1094,98 @@ from mrucache_oracle import MAX_INPUT_LENGTH as MRUCACHE_MAX_INPUT_LENGTH
 from mrucache_oracle import MAX_OPERATIONS as MRUCACHE_MAX_OPERATIONS
 from mrucache_oracle import MAX_VALUE as MRUCACHE_MAX_VALUE
 from mrucache_oracle import expected_result as mrucache_oracle
+from lww_element_set_oracle import I32_MAX as LWW_ELEMENT_SET_I32_MAX
+from lww_element_set_oracle import I32_MIN as LWW_ELEMENT_SET_I32_MIN
+from lww_element_set_oracle import I64_MAX as LWW_ELEMENT_SET_I64_MAX
+from lww_element_set_oracle import I64_MIN as LWW_ELEMENT_SET_I64_MIN
+from lww_element_set_oracle import INVALID_RESULT as LWW_ELEMENT_SET_INVALID_RESULT
+from lww_element_set_oracle import MAX_OPERATIONS as LWW_ELEMENT_SET_MAX_OPERATIONS
+from lww_element_set_oracle import MAX_PARSEABLE_INPUT_LENGTH as LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH
+from lww_element_set_oracle import MAX_VALID_INPUT_LENGTH as LWW_ELEMENT_SET_MAX_VALID_INPUT_LENGTH
+from lww_element_set_oracle import expected_result as lww_element_set_oracle
+from smallest_prime_factor_oracle import INVALID_RESULT as SMALLEST_PRIME_FACTOR_INVALID_RESULT
+from smallest_prime_factor_oracle import MAX_INPUT_LENGTH as SMALLEST_PRIME_FACTOR_MAX_INPUT_LENGTH
+from smallest_prime_factor_oracle import MAX_N as SMALLEST_PRIME_FACTOR_MAX_N
+from smallest_prime_factor_oracle import MIN_N as SMALLEST_PRIME_FACTOR_MIN_N
+from smallest_prime_factor_oracle import expected_result as smallest_prime_factor_oracle
+from permutation_count_oracle import (
+    INVALID_RESULT as PERMUTATION_COUNT_INVALID_RESULT,
+    MAX_INPUT_LENGTH as PERMUTATION_COUNT_MAX_INPUT_LENGTH,
+    MAX_N as PERMUTATION_COUNT_MAX_N,
+    MAX_R as PERMUTATION_COUNT_MAX_R,
+    expected_result as permutation_count_oracle,
+)
+from shors_algorithm_oracle import (
+    INVALID_RESULT as SHORS_ALGORITHM_INVALID_RESULT,
+    MAX_ATTEMPTS as SHORS_ALGORITHM_MAX_ATTEMPTS,
+    MAX_MODULUS as SHORS_ALGORITHM_MAX_MODULUS,
+    MAX_PARSEABLE_INPUT_LENGTH as SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SHORS_ALGORITHM_MAX_VALID_INPUT_LENGTH,
+    MIN_ATTEMPTS as SHORS_ALGORITHM_MIN_ATTEMPTS,
+    MIN_MODULUS as SHORS_ALGORITHM_MIN_MODULUS,
+    expected_result as shors_algorithm_oracle,
+)
+from simulated_annealing_oracle import (
+    INVALID_RESULT as SIMULATED_ANNEALING_INVALID_RESULT,
+    MAX_COORDINATE as SIMULATED_ANNEALING_MAX_COORDINATE,
+    MAX_PARSEABLE_INPUT_LENGTH as SIMULATED_ANNEALING_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RANDOM_DRAWS as SIMULATED_ANNEALING_MAX_RANDOM_DRAWS,
+    MAX_RATE as SIMULATED_ANNEALING_MAX_RATE,
+    MAX_START_TEMP as SIMULATED_ANNEALING_MAX_START_TEMP,
+    MAX_THRESHOLD as SIMULATED_ANNEALING_MAX_THRESHOLD,
+    MAX_VALID_INPUT_LENGTH as SIMULATED_ANNEALING_MAX_VALID_INPUT_LENGTH,
+    MIN_COORDINATE as SIMULATED_ANNEALING_MIN_COORDINATE,
+    MIN_RATE as SIMULATED_ANNEALING_MIN_RATE,
+    MIN_START_TEMP as SIMULATED_ANNEALING_MIN_START_TEMP,
+    MIN_STEP as SIMULATED_ANNEALING_MIN_STEP,
+    MAX_STEP as SIMULATED_ANNEALING_MAX_STEP,
+    MIN_THRESHOLD as SIMULATED_ANNEALING_MIN_THRESHOLD,
+    expected_result as simulated_annealing_oracle,
+)
+from k_medoids_oracle import (
+    INVALID_RESULT as K_MEDOIDS_INVALID_RESULT,
+    MAX_PARSEABLE_LENGTH as K_MEDOIDS_MAX_PARSEABLE_LENGTH,
+    MAX_RESULT as K_MEDOIDS_MAX_RESULT,
+    MAX_VALID_LENGTH as K_MEDOIDS_MAX_VALID_LENGTH,
+    expected_result as k_medoids_oracle,
+)
+from rsa_explicit_key_transform_oracle import (
+    INVALID_RESULT as RSA_EXPLICIT_KEY_TRANSFORM_INVALID_RESULT,
+    MAX_EXPONENT as RSA_EXPLICIT_KEY_TRANSFORM_MAX_EXPONENT,
+    MAX_MESSAGE_LENGTH as RSA_EXPLICIT_KEY_TRANSFORM_MAX_MESSAGE_LENGTH,
+    MAX_MODULUS as RSA_EXPLICIT_KEY_TRANSFORM_MAX_MODULUS,
+    MAX_PARSEABLE_INPUT_LENGTH as RSA_EXPLICIT_KEY_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+    MIN_EXPONENT as RSA_EXPLICIT_KEY_TRANSFORM_MIN_EXPONENT,
+    MIN_MODULUS as RSA_EXPLICIT_KEY_TRANSFORM_MIN_MODULUS,
+    expected_result as rsa_explicit_key_transform_oracle,
+)
+from rsa_java_big_integer_oracle import INVALID_RESULT as RSA_JAVA_BIG_INTEGER_INVALID_RESULT
+from rsa_java_big_integer_oracle import MAX_PARSEABLE_INPUT_LENGTH as RSA_JAVA_BIG_INTEGER_MAX_PARSEABLE_INPUT_LENGTH
+from rsa_java_big_integer_oracle import expected_result as rsa_java_big_integer_oracle
+from rsa_ruby_byte_chunk_oracle import (
+    INVALID_RESULT as RSA_RUBY_BYTE_CHUNK_INVALID_RESULT,
+    MAX_EXPONENT as RSA_RUBY_BYTE_CHUNK_MAX_EXPONENT,
+    MAX_MESSAGE_LENGTH as RSA_RUBY_BYTE_CHUNK_MAX_MESSAGE_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as RSA_RUBY_BYTE_CHUNK_MAX_PARSEABLE_INPUT_LENGTH,
+    MIN_EXPONENT as RSA_RUBY_BYTE_CHUNK_MIN_EXPONENT,
+    MODULUS as RSA_RUBY_BYTE_CHUNK_MODULUS,
+    expected_result as rsa_ruby_byte_chunk_oracle,
+)
+from k_means_julia_oracle import expected_result as k_means_julia_oracle
+from k_means_rust_oracle import U53_MAX as K_MEANS_RUST_U53_MAX
+from k_means_rust_oracle import expected_result as k_means_rust_oracle
+from k_means_clustering_c_oracle import expected_result as k_means_clustering_c_oracle
+from k_means_clustering_zig_oracle import expected_result as k_means_clustering_zig_oracle
+from kmeans_rust_oracle import expected_result as kmeans_rust_oracle
+from lamport_signature_oracle import (
+    ENTROPY_BYTES as LAMPORT_SIGNATURE_ENTROPY_BYTES,
+    INVALID_RESULT as LAMPORT_SIGNATURE_INVALID_RESULT,
+    MAX_MESSAGE_BYTES as LAMPORT_SIGNATURE_MAX_MESSAGE_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as LAMPORT_SIGNATURE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LAMPORT_SIGNATURE_MAX_VALID_INPUT_LENGTH,
+    SIGNATURE_BYTES as LAMPORT_SIGNATURE_SIGNATURE_BYTES,
+    expected_result as lamport_signature_oracle,
+)
 from kruskal_mst_oracle import MAX_EDGES as KRUSKAL_MST_MAX_EDGES
 from kruskal_mst_oracle import MAX_PARSEABLE_INPUT_LENGTH as KRUSKAL_MST_MAX_PARSEABLE_INPUT_LENGTH
 from kruskal_mst_oracle import MAX_VALID_INPUT_LENGTH as KRUSKAL_MST_MAX_VALID_INPUT_LENGTH
@@ -1268,11 +1425,16 @@ ALGORITHMS += ("stochastic_matrix",)
 ALGORITHMS += ("key_finder",)
 ALGORITHMS += ("subset_count",)
 ALGORITHMS += ("pollard",)
+ALGORITHMS += ("pollard_rho_java", "pollard_rho_python", "pollard_rho_rust")
+ALGORITHMS += ("rsa_factorization", "rsa_key_generator")
+ALGORITHMS += ("lwe_encryption",)
 ALGORITHMS += ("is_strong_password",)
 ALGORITHMS += ("rescale",)
 ALGORITHMS += ("search_singly_linked_list_recursion",)
 ALGORITHMS += ("polygon_points",)
 ALGORITHMS += ("traveling_salesman_bitmask",)
+ALGORITHMS += ("traveling_salesman",)
+ALGORITHMS += ("smith_waterman_java",)
 ALGORITHMS += ("roulette_wheel_selection",)
 ALGORITHMS += ("stoer_wagner",)
 ALGORITHMS += ("pushdown_automaton",)
@@ -1336,6 +1498,16 @@ ALGORITHMS += ("rsa_cipher",)
 ALGORITHMS += ("suffix_trie",)
 ALGORITHMS += ("mcnaughton_yamada_thompson",)
 ALGORITHMS += ("playfair_cipher",)
+ALGORITHMS += ("lww_element_set",)
+ALGORITHMS += ("smallest_prime_factor",)
+ALGORITHMS += ("permutation_count",)
+ALGORITHMS += ("shors_algorithm",)
+ALGORITHMS += ("simulated_annealing",)
+ALGORITHMS += ("k_medoids",)
+ALGORITHMS += ("rsa_explicit_key_transform", "rsa_java_big_integer", "rsa_ruby_byte_chunk")
+ALGORITHMS += ("k_means_julia", "k_means_rust", "k_means_clustering_c",
+               "k_means_clustering_zig", "kmeans_rust")
+ALGORITHMS += ("lamport_signature",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -1848,6 +2020,36 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return sparse_matrix_oracle(values)
     if algorithm == "mrucache":
         return mrucache_oracle(values)
+    if algorithm == "lww_element_set":
+        return lww_element_set_oracle(values)
+    if algorithm == "smallest_prime_factor":
+        return smallest_prime_factor_oracle(values)
+    if algorithm == "permutation_count":
+        return permutation_count_oracle(values)
+    if algorithm == "shors_algorithm":
+        return shors_algorithm_oracle(values)
+    if algorithm == "simulated_annealing":
+        return simulated_annealing_oracle(values)
+    if algorithm == "k_medoids":
+        return k_medoids_oracle(values)
+    if algorithm == "rsa_explicit_key_transform":
+        return rsa_explicit_key_transform_oracle(values)
+    if algorithm == "rsa_java_big_integer":
+        return rsa_java_big_integer_oracle(values)
+    if algorithm == "rsa_ruby_byte_chunk":
+        return rsa_ruby_byte_chunk_oracle(values)
+    if algorithm == "k_means_julia":
+        return k_means_julia_oracle(values)
+    if algorithm == "k_means_rust":
+        return k_means_rust_oracle(values)
+    if algorithm == "k_means_clustering_c":
+        return k_means_clustering_c_oracle(values)
+    if algorithm == "k_means_clustering_zig":
+        return k_means_clustering_zig_oracle(values)
+    if algorithm == "kmeans_rust":
+        return kmeans_rust_oracle(values)
+    if algorithm == "lamport_signature":
+        return lamport_signature_oracle(values)
     if algorithm == "kruskal_mst":
         return kruskal_mst_oracle(values)
     if algorithm == "mos_algorithm":
@@ -1922,6 +2124,12 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return k_nn_oracle(values)
     if algorithm == "rsa_cipher":
         return rsa_cipher_oracle(values)
+    if algorithm == "rsa_factorization":
+        return rsa_factorization_oracle(values)
+    if algorithm == "rsa_key_generator":
+        return rsa_key_generator_oracle(values)
+    if algorithm == "lwe_encryption":
+        return lwe_encryption_oracle(values)
     if algorithm == "suffix_trie":
         return suffix_trie_oracle(values)
     if algorithm == "string_hash_equality":
@@ -1938,10 +2146,20 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return subset_count_oracle(values)
     if algorithm == "pollard":
         return pollard_oracle(values)
+    if algorithm == "pollard_rho_java":
+        return pollard_rho_java_oracle(values)
+    if algorithm == "pollard_rho_python":
+        return pollard_rho_python_oracle(values)
+    if algorithm == "pollard_rho_rust":
+        return pollard_rho_rust_oracle(values)
     if algorithm == "polygon_points":
         return polygon_points_oracle(values)
     if algorithm == "traveling_salesman_bitmask":
         return traveling_salesman_bitmask_oracle(values)
+    if algorithm == "traveling_salesman":
+        return traveling_salesman_oracle(values)
+    if algorithm == "smith_waterman_java":
+        return smith_waterman_java_oracle(values)
     if algorithm == "roulette_wheel_selection":
         return roulette_wheel_selection_oracle(values)
     if algorithm == "pushdown_automaton":
@@ -2710,6 +2928,12 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_rotting_oranges_workload(workload)
     elif algorithm == "mrucache":
         validate_mrucache_workload(workload)
+    elif algorithm == "lww_element_set":
+        validate_lww_element_set_workload(workload)
+    elif algorithm == "smallest_prime_factor":
+        validate_smallest_prime_factor_workload(workload)
+    elif algorithm == "permutation_count":
+        validate_permutation_count_workload(workload)
     elif algorithm == "kruskal_mst":
         validate_kruskal_mst_workload(workload)
     elif algorithm == "mos_algorithm":
@@ -2764,6 +2988,33 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_mcnaughton_yamada_thompson_workload(workload)
     elif algorithm == "playfair_cipher":
         validate_playfair_cipher_workload(workload)
+    elif algorithm == "shors_algorithm":
+        validate_shors_algorithm_workload(workload)
+    elif algorithm == "simulated_annealing":
+        validate_simulated_annealing_workload(workload)
+    elif algorithm == "k_medoids":
+        validate_k_medoids_workload(workload)
+    elif algorithm in {"rsa_explicit_key_transform", "rsa_java_big_integer", "rsa_ruby_byte_chunk"}:
+        validate_rsa_scalar_workload(workload, algorithm)
+    elif algorithm in {"k_means_julia", "k_means_rust", "k_means_clustering_c",
+                       "k_means_clustering_zig", "kmeans_rust"}:
+        validate_k_means_scalar_workload(workload, algorithm)
+    elif algorithm == "lamport_signature":
+        validate_lamport_signature_workload(workload)
+    elif algorithm == "pollard_rho_java":
+        validate_pollard_rho_java_workload(workload)
+    elif algorithm == "pollard_rho_python":
+        validate_pollard_rho_python_workload(workload)
+    elif algorithm == "pollard_rho_rust":
+        validate_pollard_rho_rust_workload(workload)
+    elif algorithm == "rsa_factorization":
+        validate_rsa_factorization_workload(workload)
+    elif algorithm == "rsa_key_generator":
+        validate_rsa_key_generator_workload(workload)
+    elif algorithm == "lwe_encryption":
+        validate_lwe_encryption_workload(workload)
+    elif algorithm == "smith_waterman_java":
+        validate_smith_waterman_java_workload(workload)
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
     special_records: list[str] = []
@@ -2773,7 +3024,9 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         if case.get("input_is_null", False):
             input_length = case.get("input_length")
             minimum_null_length = 0 if algorithm in (
-                "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie") else 1
+                "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie",
+                "k_means_julia", "k_means_rust", "k_means_clustering_c",
+                "k_means_clustering_zig", "kmeans_rust") else 1
             if (values or type(input_length) is not int
                     or not minimum_null_length <= input_length <= 100002):
                 raise ValueError(f"null input case has an invalid declared length: {case.get('id')}")
@@ -5050,6 +5303,196 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                 cases[tuple(values)] = TRAVELING_SALESMAN_BITMASK_INVALID_RESULT
         special_records.append(
             f"NULL 1 {TRAVELING_SALESMAN_BITMASK_INVALID_RESULT}\n")
+    elif algorithm == "smith_waterman_java":
+        if (SMITH_WATERMAN_JAVA_MAX_SEQUENCE_LENGTH != 16
+                or SMITH_WATERMAN_JAVA_MAX_VALID_INPUT_LENGTH != 37
+                or SMITH_WATERMAN_JAVA_MAX_PARSEABLE_INPUT_LENGTH != 38
+                or SMITH_WATERMAN_JAVA_INVALID_RESULT != -1):
+            raise ValueError("smith_waterman_java oracle bounds differ from the reviewed scalar contract")
+
+        def add_smith_waterman_case(values: tuple[int, ...]) -> None:
+            if (len(values) > SMITH_WATERMAN_JAVA_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("smith_waterman_java generated input exceeds its signed-i64 parser bounds")
+            result = smith_waterman_java_oracle(list(values), len(values))
+            if (type(result) is not int
+                    or result != SMITH_WATERMAN_JAVA_INVALID_RESULT and not 0 <= result <= 80
+                    or len(values) > SMITH_WATERMAN_JAVA_MAX_VALID_INPUT_LENGTH
+                    and result != SMITH_WATERMAN_JAVA_INVALID_RESULT):
+                raise ValueError("smith_waterman_java oracle returned an invalid bounded score")
+            cases[values] = result
+
+        maximum_sequence = tuple([65] * SMITH_WATERMAN_JAVA_MAX_SEQUENCE_LENGTH)
+        maximum_input = (SMITH_WATERMAN_JAVA_MAX_SEQUENCE_LENGTH,
+                         SMITH_WATERMAN_JAVA_MAX_SEQUENCE_LENGTH, 5, -5, -5,
+                         *maximum_sequence, *maximum_sequence)
+        add_smith_waterman_case(maximum_input)
+        if smith_waterman_java_oracle(list(maximum_input)) != 80:
+            raise ValueError("smith_waterman_java maximum matching sequence did not reach its score bound")
+
+        rng_smith_waterman = random.Random(20261017)
+        alphabet = (45, *range(65, 91), *range(97, 123))
+        for _ in range(128):
+            query_length = rng_smith_waterman.randint(0, SMITH_WATERMAN_JAVA_MAX_SEQUENCE_LENGTH)
+            subject_length = rng_smith_waterman.randint(0, SMITH_WATERMAN_JAVA_MAX_SEQUENCE_LENGTH)
+            values = (
+                query_length, subject_length,
+                rng_smith_waterman.randint(1, 5),
+                rng_smith_waterman.randint(-5, -1),
+                rng_smith_waterman.randint(-5, -1),
+                *(rng_smith_waterman.choice(alphabet) for _ in range(query_length + subject_length)),
+            )
+            add_smith_waterman_case(values)
+
+        parser_cap = (*maximum_input, 65)
+        malformed = (
+            (), (0,), (0, 0, 0, -1, -1), (0, 0, 2, -6, -1), (0, 0, 2, -1, -6),
+            (-1, 0, 2, -1, -1), (17, 0, 2, -1, -1), (0, 17, 2, -1, -1),
+            (0, 0, 2, -1, -1, 65),
+            (1, 0, 2, -1, -1, 64), (0, 1, 2, -1, -1, 128),
+            (0, 0, 2, -1, -1, I64_MIN), (0, 0, 2, -1, -1, I64_MAX),
+            parser_cap, (*parser_cap, 65),
+        )
+        for values in malformed:
+            if len(values) <= SMITH_WATERMAN_JAVA_MAX_PARSEABLE_INPUT_LENGTH + 1:
+                add_smith_waterman_case(tuple(values))
+        special_records.append(f"NULL 1 {SMITH_WATERMAN_JAVA_INVALID_RESULT}\n")
+    elif algorithm == "traveling_salesman":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned_source = workload.get("pinned_source", {})
+        source_url = "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/TravelingSalesman.java"
+        required_case_ids = {
+            "empty_matrix_returns_zero", "one_city_source_early_return", "two_city_closed_tour",
+            "four_city_symmetric_tied_tours", "four_city_asymmetric_unique_optimum",
+            "sparse_graph_valid_tour", "no_valid_closed_tour_returns_java_sentinel",
+            "maximum_city_count", "truncated_matrix", "edge_cost_above_bound",
+            "nonzero_diagonal_is_ignored", "extra_value_at_parse_limit", "city_count_above_bound",
+        }
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                              "output", "pinned_source", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-java-traveling-salesman-brute-force-i64-array-scalar-v1"
+                or workload.get("algorithm") != "traveling_salesman"
+                or workload.get("function_symbol") != "traveling_salesman"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[n, row-major n-by-n directed distance matrix]"
+                or input_spec.get("city_count_range")
+                != [TRAVELING_SALESMAN_MIN_CITIES, TRAVELING_SALESMAN_MAX_CITIES]
+                or input_spec.get("matrix_entry_source_range") != [-(1 << 31), TRAVELING_SALESMAN_JAVA_INT_MAX]
+                or input_spec.get("finite_off_diagonal_cost_range")
+                != [0, TRAVELING_SALESMAN_MAX_EDGE_COST]
+                or input_spec.get("missing_edge_sentinel") != TRAVELING_SALESMAN_JAVA_INT_MAX
+                or input_spec.get("exact_length") != "1 + n*n"
+                or input_spec.get("maximum_valid_input_length")
+                != 1 + TRAVELING_SALESMAN_MAX_CITIES ** 2
+                or input_spec.get("maximum_parseable_input_length")
+                != MAX_TRAVELING_SALESMAN_INPUT_LENGTH
+                or input_spec.get("invalid_result") != TRAVELING_SALESMAN_INVALID_RESULT
+                or output_spec.get("kind") != "signed_64_bit_integer"
+                or output_spec.get("finite_tour_cost_range")
+                != [0, TRAVELING_SALESMAN_MAX_TOUR_COST]
+                or output_spec.get("no_valid_tour_value") != TRAVELING_SALESMAN_JAVA_INT_MAX
+                or output_spec.get("invalid_result") != TRAVELING_SALESMAN_INVALID_RESULT
+                or (TRAVELING_SALESMAN_MIN_CITIES, TRAVELING_SALESMAN_MAX_CITIES,
+                    TRAVELING_SALESMAN_MAX_EDGE_COST, TRAVELING_SALESMAN_MAX_TOUR_COST,
+                    MAX_TRAVELING_SALESMAN_INPUT_LENGTH, TRAVELING_SALESMAN_JAVA_INT_MAX,
+                    TRAVELING_SALESMAN_INVALID_RESULT)
+                != (0, 8, 1000, 8000, 66, 2_147_483_647, -1)
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+                or pinned_source != {
+                    "repository": "TheAlgorithms/Java",
+                    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+                    "path": "src/main/java/com/thealgorithms/graph/TravelingSalesman.java",
+                    "url": source_url,
+                    "role": "algorithm",
+                    "symbol": "TravelingSalesman.bruteForce(int[][])",
+                }
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)}
+                != required_case_ids
+                or len(workload.get("cases", [])) != len(required_case_ids)):
+            raise ValueError("traveling_salesman workload metadata does not match its reviewed Java contract")
+
+        readme = (ROOT / "benchmarks" / "t" / "traveling_salesman" / "README.md").read_text(
+            encoding="utf-8")
+        if (source_url not in readme
+                or "`n = 0` or `n = 1`" not in readme
+                or "`Integer.MAX_VALUE`" not in readme
+                or "separate algorithm from the Held–Karp" not in readme):
+            raise ValueError("traveling_salesman README is missing its source-specific behavior")
+
+        cases_by_id = {case["id"]: case for case in workload["cases"]}
+        maximum_case = cases_by_id["maximum_city_count"]
+        parser_case = cases_by_id["extra_value_at_parse_limit"]
+        no_tour_case = cases_by_id["no_valid_closed_tour_returns_java_sentinel"]
+        if (maximum_case.get("input_length") != 1 + TRAVELING_SALESMAN_MAX_CITIES ** 2
+                or len(maximum_case.get("input_values", ())) != 1 + TRAVELING_SALESMAN_MAX_CITIES ** 2
+                or maximum_case.get("input_values", ())[0] != TRAVELING_SALESMAN_MAX_CITIES
+                or maximum_case.get("expected_result") != TRAVELING_SALESMAN_MAX_CITIES
+                or parser_case.get("input_length") != MAX_TRAVELING_SALESMAN_INPUT_LENGTH
+                or len(parser_case.get("input_values", ())) != MAX_TRAVELING_SALESMAN_INPUT_LENGTH
+                or parser_case.get("expected_result") != TRAVELING_SALESMAN_INVALID_RESULT
+                or no_tour_case.get("expected_result") != TRAVELING_SALESMAN_JAVA_INT_MAX):
+            raise ValueError("traveling_salesman workload is missing maximum-tour or sentinel boundaries")
+
+        def add_traveling_salesman_case(values: tuple[int, ...]) -> None:
+            if (len(values) > MAX_TRAVELING_SALESMAN_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("traveling_salesman generated input exceeds signed-i64 parser bounds")
+            result = traveling_salesman_oracle(list(values))
+            if (type(result) is not int
+                    or result != TRAVELING_SALESMAN_INVALID_RESULT
+                    and result != TRAVELING_SALESMAN_JAVA_INT_MAX
+                    and not 0 <= result <= TRAVELING_SALESMAN_MAX_TOUR_COST):
+                raise ValueError("traveling_salesman oracle returned an invalid bounded result")
+            cases[values] = result
+
+        for city_count in range(TRAVELING_SALESMAN_MIN_CITIES,
+                                TRAVELING_SALESMAN_MAX_CITIES + 1):
+            if city_count == 0:
+                add_traveling_salesman_case((0,))
+                continue
+            diagonal = [-(1 << 31) if row % 2 == 0 else TRAVELING_SALESMAN_JAVA_INT_MAX
+                        for row in range(city_count)]
+            all_zero = [0 if row == column else 0
+                        for row in range(city_count) for column in range(city_count)]
+            all_costly = [diagonal[row] if row == column else TRAVELING_SALESMAN_MAX_EDGE_COST
+                          for row in range(city_count) for column in range(city_count)]
+            all_missing = [diagonal[row] if row == column else TRAVELING_SALESMAN_JAVA_INT_MAX
+                           for row in range(city_count) for column in range(city_count)]
+            add_traveling_salesman_case((city_count, *all_zero))
+            add_traveling_salesman_case((city_count, *all_costly))
+            if city_count >= 2:
+                add_traveling_salesman_case((city_count, *all_missing))
+
+        rng_traveling_salesman = random.Random(20261017)
+        for _ in range(64):
+            city_count = rng_traveling_salesman.randint(2, TRAVELING_SALESMAN_MAX_CITIES)
+            matrix = []
+            for row in range(city_count):
+                for column in range(city_count):
+                    if row == column:
+                        matrix.append(rng_traveling_salesman.randint(-(1 << 31),
+                                                                     TRAVELING_SALESMAN_JAVA_INT_MAX))
+                    elif rng_traveling_salesman.randrange(5) == 0:
+                        matrix.append(TRAVELING_SALESMAN_JAVA_INT_MAX)
+                    else:
+                        matrix.append(rng_traveling_salesman.randint(
+                            0, TRAVELING_SALESMAN_MAX_EDGE_COST))
+            add_traveling_salesman_case((city_count, *matrix))
+
+        malformed = (
+            (), (0, 0), (1,), (TRAVELING_SALESMAN_MIN_CITIES - 1,),
+            (TRAVELING_SALESMAN_MAX_CITIES + 1,), (3, 0, 1, 2),
+            (2, 0, -1, 1, 0), (2, 0, TRAVELING_SALESMAN_MAX_EDGE_COST + 1, 1, 0),
+            (2, 0, 1, 1 << 31, 0), (2, 0, 1, -(1 << 31) - 1, 0),
+            tuple([0] * MAX_TRAVELING_SALESMAN_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add_traveling_salesman_case(tuple(values))
+        special_records.append(f"NULL 1 {TRAVELING_SALESMAN_INVALID_RESULT}\n")
     elif algorithm == "problem016_power_digit_sum":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -13934,6 +14377,61 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         )
         for malformed in malformed_tim_sorter:
             add_tim_sorter_case(tuple(malformed))
+    if algorithm == "lww_element_set":
+        def add_lww_element_set_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int
+                           or not LWW_ELEMENT_SET_I64_MIN <= value <= LWW_ELEMENT_SET_I64_MAX
+                           for value in values)):
+                raise ValueError("lww_element_set generated input exceeds signed-i64 framing bounds")
+            result = lww_element_set_oracle(list(values))
+            if (result != LWW_ELEMENT_SET_INVALID_RESULT
+                    and not 0 <= result < (1 << LWW_ELEMENT_SET_MAX_OPERATIONS)):
+                raise ValueError("lww_element_set oracle returned a result outside its lookup bitmask")
+            cases[values] = result
+            return result
+
+        rng_lww = random.Random(20261017)
+        for _ in range(128):
+            operation_count = rng_lww.randint(0, LWW_ELEMENT_SET_MAX_OPERATIONS)
+            values_list = [operation_count]
+            for _operation in range(operation_count):
+                opcode = rng_lww.randrange(4)
+                replica = rng_lww.randrange(2)
+                key = rng_lww.randint(-8, 8)
+                if opcode in (0, 1):
+                    values_list.extend((opcode, replica, key, rng_lww.randint(-64, 64)))
+                elif opcode == 2:
+                    values_list.extend((opcode, replica, key, 0))
+                else:
+                    values_list.extend((opcode, replica, rng_lww.randrange(2), 0))
+            add_lww_element_set_case(tuple(values_list))
+
+        boundary_trace = (
+            6,
+            0, 0, -7, LWW_ELEMENT_SET_I32_MIN,
+            0, 0, -7, LWW_ELEMENT_SET_I32_MAX,
+            2, 0, -7, 0,
+            1, 0, -7, LWW_ELEMENT_SET_I32_MAX,
+            2, 0, -7, 0,
+            3, 1, 0, 0,
+        )
+        if len(boundary_trace) != 1 + 4 * 6:
+            raise ValueError("lww_element_set boundary trace has unexpected framing")
+        add_lww_element_set_case(boundary_trace)
+
+        malformed_lww = (
+            (), (-1,), (LWW_ELEMENT_SET_MAX_OPERATIONS + 1,), (1,),
+            (1, 4, 0, 0, 0), (1, 0, 2, 0, 0),
+            (1, 0, 0, LWW_ELEMENT_SET_I32_MIN - 1, 0),
+            (1, 0, 0, 0, LWW_ELEMENT_SET_I32_MAX + 1),
+            (1, 2, 0, 0, 1), (1, 3, 0, 2, 0),
+            (1, 3, 0, 1, 1),
+            tuple([0] * LWW_ELEMENT_SET_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed_lww:
+            add_lww_element_set_case(tuple(values))
     if algorithm == "mcoloring":
         rng_mcoloring = random.Random(20261017)
         for _ in range(96):
@@ -13950,6 +14448,684 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             if result not in (0, 1):
                 raise ValueError("mcoloring generated forest was rejected by its oracle")
             cases[values] = result
+    if algorithm == "smallest_prime_factor":
+        for number in range(SMALLEST_PRIME_FACTOR_MIN_N, 514):
+            values = (number,)
+            cases[values] = oracle(algorithm, list(values))
+
+        rng_smallest_prime_factor = random.Random(20261017)
+        for _ in range(128):
+            number = rng_smallest_prime_factor.randint(
+                SMALLEST_PRIME_FACTOR_MIN_N, SMALLEST_PRIME_FACTOR_MAX_N)
+            values = (number,)
+            cases[values] = oracle(algorithm, list(values))
+
+        boundary_values = (
+            (SMALLEST_PRIME_FACTOR_MIN_N,), (3,), (4,), (9,), (25,), (49,),
+            (999983,), (1000003,), (SMALLEST_PRIME_FACTOR_MAX_N,),
+        )
+        malformed_values = (
+            (), (0,), (1,), (-1,), (SMALLEST_PRIME_FACTOR_MAX_N + 1,),
+            (I64_MIN,), (I64_MAX,), (287, 0),
+        )
+        for values in (*boundary_values, *malformed_values):
+            if len(values) <= SMALLEST_PRIME_FACTOR_MAX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        if "NULL 1 -1\n" not in special_records:
+            special_records.append(f"NULL 1 {SMALLEST_PRIME_FACTOR_INVALID_RESULT}\n")
+    if algorithm == "permutation_count":
+        for n in range(PERMUTATION_COUNT_MAX_N + 1):
+            for r in range(PERMUTATION_COUNT_MAX_R + 1):
+                values = (n, r)
+                cases[values] = oracle(algorithm, list(values))
+
+        boundary_values = (
+            (), (0,), (0, 0, 0), (-1, 0), (0, -1),
+            (PERMUTATION_COUNT_MAX_N + 1, 0),
+            (0, PERMUTATION_COUNT_MAX_R + 1), (I64_MIN, 0), (0, I64_MAX),
+        )
+        for values in boundary_values:
+            if len(values) <= PERMUTATION_COUNT_MAX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        for input_length in (0, 1, 2, 3):
+            special_records.append(
+                f"NULL {input_length} {PERMUTATION_COUNT_INVALID_RESULT}\n")
+    if algorithm == "shors_algorithm":
+        def add_shors_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("shors_algorithm generated input exceeds signed-i64 framing bounds")
+            result = shors_algorithm_oracle(list(values))
+            if (type(result) is not int
+                    or result != SHORS_ALGORITHM_INVALID_RESULT
+                    and not SHORS_ALGORITHM_MIN_MODULUS <= result <= SHORS_ALGORITHM_MAX_MODULUS):
+                raise ValueError("shors_algorithm oracle returned a result outside its signed scalar contract")
+            cases[values] = result
+            return result
+
+        rng_shors = random.Random(20261017)
+        for modulus in range(SHORS_ALGORITHM_MIN_MODULUS,
+                             SHORS_ALGORITHM_MAX_MODULUS + 1):
+            attempts = SHORS_ALGORITHM_MIN_ATTEMPTS + (modulus - 2) % (
+                SHORS_ALGORITHM_MAX_ATTEMPTS - SHORS_ALGORITHM_MIN_ATTEMPTS + 1)
+            bases = tuple(rng_shors.randint(2, modulus) for _ in range(attempts))
+            add_shors_case((modulus, attempts, *bases))
+
+        for attempts in range(SHORS_ALGORITHM_MIN_ATTEMPTS,
+                              SHORS_ALGORITHM_MAX_ATTEMPTS + 1):
+            bases = tuple(2 + ((index * 37 + attempts * 11) % (SHORS_ALGORITHM_MAX_MODULUS - 1))
+                          for index in range(attempts))
+            add_shors_case((SHORS_ALGORITHM_MAX_MODULUS, attempts, *bases))
+
+        malformed_shors = (
+            (), (2,), (2, 0), (1, 1, 2),
+            (SHORS_ALGORITHM_MAX_MODULUS + 1, 1, 2),
+            (15, SHORS_ALGORITHM_MAX_ATTEMPTS + 1),
+            (15, 1, 1), (15, 1, 16), (15, 2, 2), (15, 1, 2, 3),
+            (15, SHORS_ALGORITHM_MAX_ATTEMPTS,
+             *([2] * (SHORS_ALGORITHM_MAX_ATTEMPTS - 1))),
+            (15, 1, 2, *([0] * (SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH - 3))),
+            (15, 1, 2, *([0] * (SHORS_ALGORITHM_MAX_PARSEABLE_INPUT_LENGTH - 2))),
+            (I64_MIN, 1, 2), (I64_MAX, 1, 2), (15, I64_MIN), (15, I64_MAX),
+        )
+        for values in malformed_shors:
+            if add_shors_case(tuple(values)) != SHORS_ALGORITHM_INVALID_RESULT:
+                raise ValueError("shors_algorithm oracle accepted malformed base-stream input")
+        if not special_records or "NULL 3 -1\n" not in special_records:
+            special_records.append("NULL 3 -1\n")
+
+    if algorithm == "simulated_annealing":
+        def add_simulated_annealing_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > SIMULATED_ANNEALING_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("simulated_annealing generated input exceeds signed-i64 framing bounds")
+            result = simulated_annealing_oracle(list(values))
+            if (type(result) is not int
+                    or result != SIMULATED_ANNEALING_INVALID_RESULT
+                    and not 0 <= result <= 1088):
+                raise ValueError("simulated_annealing oracle returned a result outside its scalar contract")
+            cases[values] = result
+            return result
+
+        rng_simulated_annealing = random.Random(20261030)
+        for _ in range(128):
+            x0 = rng_simulated_annealing.randint(
+                SIMULATED_ANNEALING_MIN_COORDINATE, SIMULATED_ANNEALING_MAX_COORDINATE)
+            y0 = rng_simulated_annealing.randint(
+                SIMULATED_ANNEALING_MIN_COORDINATE, SIMULATED_ANNEALING_MAX_COORDINATE)
+            min_x = rng_simulated_annealing.randint(SIMULATED_ANNEALING_MIN_COORDINATE, x0)
+            max_x = rng_simulated_annealing.randint(x0, SIMULATED_ANNEALING_MAX_COORDINATE)
+            min_y = rng_simulated_annealing.randint(SIMULATED_ANNEALING_MIN_COORDINATE, y0)
+            max_y = rng_simulated_annealing.randint(y0, SIMULATED_ANNEALING_MAX_COORDINATE)
+            step = rng_simulated_annealing.randint(
+                SIMULATED_ANNEALING_MIN_STEP, SIMULATED_ANNEALING_MAX_STEP)
+            find_max = rng_simulated_annealing.randrange(2)
+            start_temp = rng_simulated_annealing.randint(
+                2 * SIMULATED_ANNEALING_MIN_START_TEMP,
+                SIMULATED_ANNEALING_MAX_START_TEMP)
+            threshold = rng_simulated_annealing.randint(
+                SIMULATED_ANNEALING_MIN_THRESHOLD, start_temp - 1)
+            rate = rng_simulated_annealing.randint(
+                SIMULATED_ANNEALING_MIN_RATE, SIMULATED_ANNEALING_MAX_RATE)
+            selections = (0,) * SIMULATED_ANNEALING_MAX_RANDOM_DRAWS
+            acceptance_draws = tuple(
+                rng_simulated_annealing.choice(tuple(SIMULATED_ANNEALING_ACCEPTANCE_LEVELS))
+                for _ in range(SIMULATED_ANNEALING_MAX_RANDOM_DRAWS))
+            values = (x0, y0, step, min_x, max_x, min_y, max_y, find_max,
+                      start_temp, rate, threshold, len(selections), *selections,
+                      len(acceptance_draws), *acceptance_draws)
+            if len(values) != SIMULATED_ANNEALING_MAX_VALID_INPUT_LENGTH:
+                raise ValueError("simulated_annealing maximum valid framing length changed")
+            add_simulated_annealing_case(values)
+
+        max_draw_case = (
+            0, 0, 1, -16, 16, -16, 16, 1, 10_000_000, 100_000, 1_000_000,
+            SIMULATED_ANNEALING_MAX_RANDOM_DRAWS,
+            *([0] * SIMULATED_ANNEALING_MAX_RANDOM_DRAWS),
+            SIMULATED_ANNEALING_MAX_RANDOM_DRAWS,
+            *([999_999] * SIMULATED_ANNEALING_MAX_RANDOM_DRAWS),
+        )
+        add_simulated_annealing_case(max_draw_case)
+        add_simulated_annealing_case((*max_draw_case, 0))
+
+        out_of_bounds = (
+            0, 0, 1, 0, 0, 0, 0, 1, 2_000_000, 500_000, 1_000_000,
+            8, *([0] * 8), 0,
+        )
+        add_simulated_annealing_case(out_of_bounds)
+        add_simulated_annealing_case((
+            0, 0, 1, -16, 16, -16, 16, 0, 2_000_000, 500_000, 1_000_000,
+            2, 7, 7, 1, 999_999,
+        ))
+
+        malformed_simulated_annealing = (
+            (), (0,) * 12,
+            (0, 0, 1, -16, 16, -16, 16, 1, 2_000_000, 500_000, 1_000_000, 0, 0),
+            (0, 0, 1, -16, 16, -16, 16, 1, 2_000_000, 500_000, 1_000_000,
+             SIMULATED_ANNEALING_MAX_RANDOM_DRAWS + 1, 0),
+            (0, 0, 1, -16, 16, -16, 16, 1, 2_000_000, 500_000, 1_000_000, 0,
+             SIMULATED_ANNEALING_MAX_RANDOM_DRAWS + 1),
+            (0, 0, 1, -16, 16, -16, 16, 1, 2_000_000, 500_000, 1_000_000,
+             1, 8, 0),
+            (0, 0, 1, -16, 16, -16, 16, 0, 2_000_000, 500_000, 1_000_000,
+             1, 0, 1, 500_000),
+            (0, 0, 1, 2, 1, -1, 1, 1, 2_000_000, 500_000, 1_000_000, 0, 0),
+            (17, 0, 1, -16, 16, -16, 16, 1, 2_000_000, 500_000, 1_000_000, 0, 0),
+            (0, 0, 0, -16, 16, -16, 16, 1, 2_000_000, 500_000, 1_000_000, 0, 0),
+            (0, 0, 1, -16, 16, -16, 16, 1, 2_000_000, 500_000, 2_000_000, 0, 0),
+            (0, 0, 1, -16, 16, -16, 16, 2, 2_000_000, 500_000, 1_000_000, 0, 0),
+            (I64_MIN, 0, 1, -16, 16, -16, 16, 1, 2_000_000, 500_000, 1_000_000, 0, 0),
+            (0, 0, 1, -16, 16, -16, 16, 1, I64_MAX, 500_000, 1_000_000, 0, 0),
+        )
+        for values in malformed_simulated_annealing:
+            if add_simulated_annealing_case(tuple(values)) != SIMULATED_ANNEALING_INVALID_RESULT:
+                raise ValueError("simulated_annealing oracle accepted malformed draw-stream input")
+        if not special_records or "NULL 13 -1\n" not in special_records:
+            special_records.append(f"NULL 13 {SIMULATED_ANNEALING_INVALID_RESULT}\n")
+
+    if algorithm == "k_medoids":
+        def add_k_medoids_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > K_MEDOIDS_MAX_PARSEABLE_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("k_medoids generated input exceeds signed-i64 framing bounds")
+            result = k_medoids_oracle(list(values))
+            if (type(result) is not int
+                    or result != K_MEDOIDS_INVALID_RESULT
+                    and not 0 <= result <= K_MEDOIDS_MAX_RESULT):
+                raise ValueError("k_medoids oracle returned a result outside its packed scalar contract")
+            cases[values] = result
+            return result
+
+        for point_count in range(2, 9):
+            point_sets = (
+                tuple(range(-16, -16 + point_count)),
+                tuple(range(16, 16 - point_count, -1)),
+            )
+            for points in point_sets:
+                for medoid_count in range(1, min(4, point_count) + 1):
+                    initial_orders = (tuple(range(medoid_count)),
+                                     tuple(reversed(range(medoid_count))))
+                    for initial_medoids in dict.fromkeys(initial_orders):
+                        for max_iter in (1, 2, 16):
+                            values = (point_count, medoid_count, max_iter,
+                                      *initial_medoids, *points)
+                            if (len(values) != 3 + medoid_count + point_count
+                                    or len(values) > K_MEDOIDS_MAX_VALID_LENGTH):
+                                raise ValueError("k_medoids valid framing length changed")
+                            add_k_medoids_case(values)
+
+        malformed_k_medoids = (
+            (), (2,), (2, 1, 1),
+            (2, 2, 1, 0, 0, 0, 1),
+            (2, 1, 1, 0, 0, 1, 99),
+            (2, 1, 1, 0, I64_MIN, 0),
+        )
+        for values in malformed_k_medoids:
+            if add_k_medoids_case(values) != K_MEDOIDS_INVALID_RESULT:
+                raise ValueError("k_medoids oracle accepted malformed medoid or point input")
+
+    if algorithm in {"rsa_explicit_key_transform", "rsa_java_big_integer", "rsa_ruby_byte_chunk"}:
+        rsa_oracles = {
+            "rsa_explicit_key_transform": (RSA_EXPLICIT_KEY_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+                                           RSA_EXPLICIT_KEY_TRANSFORM_INVALID_RESULT,
+                                           rsa_explicit_key_transform_oracle),
+            "rsa_java_big_integer": (RSA_JAVA_BIG_INTEGER_MAX_PARSEABLE_INPUT_LENGTH,
+                                     RSA_JAVA_BIG_INTEGER_INVALID_RESULT,
+                                     rsa_java_big_integer_oracle),
+            "rsa_ruby_byte_chunk": (RSA_RUBY_BYTE_CHUNK_MAX_PARSEABLE_INPUT_LENGTH,
+                                    RSA_RUBY_BYTE_CHUNK_INVALID_RESULT,
+                                    rsa_ruby_byte_chunk_oracle),
+        }
+        max_parseable, invalid_result, oracle_function = rsa_oracles[algorithm]
+
+        def add_rsa_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > max_parseable
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError(f"{algorithm} generated input exceeds signed-i64 parseable bounds")
+            result = oracle_function(values)
+            if (type(result) is not int
+                    or result != invalid_result and not 0 <= result < (1 << 63)):
+                raise ValueError(f"{algorithm} oracle returned an invalid fingerprint")
+            cases[values] = result
+            return result
+
+        if algorithm == "rsa_ruby_byte_chunk":
+            for message_length in range(1, RSA_RUBY_BYTE_CHUNK_MAX_MESSAGE_LENGTH + 1):
+                message = tuple((index * 7 + message_length) % RSA_RUBY_BYTE_CHUNK_MODULUS
+                                for index in range(message_length))
+                for public_exponent, private_exponent in ((1, 7), (3, 7), (7, 1)):
+                    add_rsa_case((RSA_RUBY_BYTE_CHUNK_MODULUS, public_exponent,
+                                  private_exponent, message_length, *message))
+            malformed_rsa = (
+                (), (33, 3, 7), (33, 3, 7, 0), (33, 3, 7, 1),
+                (32, 3, 7, 1, 20), (33, 0, 7, 1, 20), (33, 3, 8, 1, 20),
+                (33, 3, 7, 1, 33), (33, 3, 7, 2, 20),
+                (33, 3, 7, 64, *tuple(index % 33 for index in range(64)), 0),
+                (I64_MIN, 3, 7, 1, 0),
+            )
+        else:
+            for message_length in range(1, RSA_EXPLICIT_KEY_TRANSFORM_MAX_MESSAGE_LENGTH + 1):
+                message = tuple((index * 37 + message_length) % 128
+                                for index in range(message_length))
+                key_sets = ((128, 1, 1_000_000), (323, 5, 173),
+                            (55_295, 1_000_000, 1))
+                for modulus, public_exponent, private_exponent in key_sets:
+                    add_rsa_case((modulus, public_exponent, private_exponent,
+                                  message_length, *message))
+            malformed_rsa = (
+                (), (323, 5, 173), (323, 5, 173, 0), (323, 5, 173, 1),
+                (127, 5, 173, 1, 65), (55_296, 5, 173, 1, 65),
+                (323, 0, 173, 1, 65), (323, 5, 1_000_001, 1, 65),
+                (323, 5, 173, 1, 128), (323, 5, 173, 2, 65),
+                (323, 5, 173, 64, *tuple(index % 128 for index in range(64)), 0),
+                (I64_MIN, 5, 173, 1, 0),
+            )
+        for values in malformed_rsa:
+            if add_rsa_case(values) != invalid_result:
+                raise ValueError(f"{algorithm} oracle accepted malformed framing or out-of-range values")
+        special_records.append(f"NULL {max_parseable} {invalid_result}\n")
+
+    if algorithm in {"k_means_julia", "k_means_rust", "k_means_clustering_c",
+                     "k_means_clustering_zig", "kmeans_rust"}:
+        kmeans_oracles = {
+            "k_means_julia": (K_MEANS_JULIA_MAX_PARSEABLE_INPUT_LENGTH, -1,
+                              k_means_julia_oracle, (8195, 67141635), True),
+            "k_means_rust": (11, -1, k_means_rust_oracle, (0, 15), False),
+            "k_means_clustering_c": (K_MEANS_CLUSTERING_C_MAX_PARSEABLE_INPUT_LENGTH, -1,
+                                     k_means_clustering_c_oracle, (8195, 67141635), True),
+            "k_means_clustering_zig": (K_MEANS_CLUSTERING_ZIG_MAX_PARSEABLE_INPUT_LENGTH, -1,
+                                       k_means_clustering_zig_oracle, (8195, 5438472515), True),
+            "kmeans_rust": (KMEANS_RUST_MAX_PARSEABLE_INPUT_LENGTH, -1,
+                            kmeans_rust_oracle, (0, 255), True),
+        }
+        max_parseable, invalid_result, oracle_function, valid_range, has_cap = kmeans_oracles[algorithm]
+
+        def add_k_means_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > max_parseable
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError(f"{algorithm} generated input exceeds signed-i64 parseable bounds")
+            result = oracle_function(list(values))
+            if (type(result) is not int
+                    or result != invalid_result and result != -2
+                    and not valid_range[0] <= result <= valid_range[1]
+                    or not has_cap and result == -2):
+                raise ValueError(f"{algorithm} oracle returned a result outside its packed scalar contract")
+            cases[values] = result
+            return result
+
+        if algorithm == "k_means_julia":
+            for point_count in range(3, 9):
+                point_sets = (
+                    tuple(range(-16, -16 + point_count)),
+                    tuple(range(17 - point_count, 17)),
+                    tuple(round(-16 + 32 * index / (point_count - 1))
+                          for index in range(point_count)),
+                )
+                for points in dict.fromkeys(point_sets):
+                    add_k_means_case((point_count, *points))
+            malformed = (
+                (), (2, -1, 1), (3, -1, 0), (3, -1, 0, 1),
+                (3, -17, 0, 1), (9, -16, -12, -8, -4, 0, 4, 8, 12),
+                tuple([0] * max_parseable),
+            )
+            for values in malformed:
+                if add_k_means_case(values) != invalid_result:
+                    raise ValueError("k_means_julia oracle accepted malformed coordinates or framing")
+
+        elif algorithm == "k_means_rust":
+            point_sets = ((-16, -8, 8, 16), (-8, -1, 2, 9), (-16, -2, 2, 16))
+            draws = ((0, K_MEANS_RUST_U53_MAX), (K_MEANS_RUST_U53_MAX, 0),
+                     ((1 << 52) - 1, (1 << 52) + 1))
+            for points in point_sets:
+                for x_draw0, x_draw1 in draws:
+                    for max_iter in (1, 2, 16):
+                        add_k_means_case((4, max_iter, x_draw0, 0, x_draw1, 0, *points))
+            malformed = (
+                (), (3, 1, 0, 0, 1, 0, -4, -2, 2, 4),
+                (4, 0, 0, 0, 1, 0, -4, -2, 2, 4),
+                (4, 1, 0, 1, 2, 0, -4, -2, 2, 4),
+                (4, 1, 2, 0, 2, 0, -4, -2, 2, 4),
+                (4, 1, 0, 0, 1, 0, -4, -2, 2, 4, 0),
+                (4, 1, 0, 0, 1, 0, -4, 2, -2, 4),
+            )
+            for values in malformed:
+                if add_k_means_case(values) != invalid_result:
+                    raise ValueError("k_means_rust oracle accepted malformed draws, coordinates, or framing")
+
+        elif algorithm == "k_means_clustering_c":
+            for point_count in range(3, 9):
+                point_sets = (
+                    tuple(range(-16, -16 + point_count)),
+                    tuple(round(-16 + 32 * index / (point_count - 1))
+                          for index in range(point_count)),
+                )
+                for points in dict.fromkeys(point_sets):
+                    for split in range(1, point_count):
+                        labels = (0,) * split + (1,) * (point_count - split)
+                        add_k_means_case((point_count, *labels, *points))
+                        add_k_means_case((point_count, *(1 - label for label in labels), *points))
+            interleaved_points = (-12, -8, -4, 4, 8, 12)
+            add_k_means_case((6, 0, 1, 0, 1, 0, 1, *interleaved_points))
+            malformed = (
+                (), (2, 0, 1, -1, 1), (3, 0, 0, 0, -1, 0, 1),
+                (3, 0, 2, 1, -1, 0, 1), (3, 0, 1, 1, -1, -1, 1),
+                (3, 0, 1, 1, 1, 0, -1), tuple([0] * max_parseable),
+            )
+            for values in malformed:
+                if add_k_means_case(values) != invalid_result:
+                    raise ValueError("k_means_clustering_c oracle accepted malformed groups or coordinates")
+
+        elif algorithm == "k_means_clustering_zig":
+            for point_count in range(2, 9):
+                point_sets = (
+                    tuple(range(-16, -16 + point_count)),
+                    tuple(range(17 - point_count, 17)),
+                    tuple(round(-16 + 32 * index / (point_count - 1))
+                          for index in range(point_count)),
+                )
+                for points in dict.fromkeys(point_sets):
+                    add_k_means_case((point_count, *points))
+            malformed = (
+                (), (1, 0), (2, -1), (2, -1, 1, 0), (3, -16, 0, 17),
+                (2, -16, 16, 0), tuple([0] * max_parseable),
+            )
+            for values in malformed:
+                if add_k_means_case(values) != invalid_result:
+                    raise ValueError("k_means_clustering_zig oracle accepted malformed coordinates or framing")
+
+        else:
+            for point_count in range(2, 9):
+                point_sets = (
+                    tuple(range(-16, -16 + point_count)),
+                    tuple(range(17 - point_count, 17)),
+                    tuple(round(-16 + 32 * index / (point_count - 1))
+                          for index in range(point_count)),
+                )
+                for points in dict.fromkeys(point_sets):
+                    add_k_means_case((point_count, *points))
+            malformed = (
+                (), (1, 0), (2, -1), (2, -1, 1, 0), (3, -16, 0, 17),
+                (2, -16, 16, 0), tuple([0] * max_parseable),
+            )
+            for values in malformed:
+                if add_k_means_case(values) != invalid_result:
+                    raise ValueError("kmeans_rust oracle accepted malformed coordinates or framing")
+
+    if algorithm == "lamport_signature":
+        def add_lamport_signature_case(
+                message: tuple[int, ...], verify_message: tuple[int, ...],
+                tamper_index: int, entropy_offset: int) -> int:
+            if (len(message) > LAMPORT_SIGNATURE_MAX_MESSAGE_BYTES
+                    or len(verify_message) > LAMPORT_SIGNATURE_MAX_MESSAGE_BYTES
+                    or any(type(value) is not int or not 0 <= value <= 255
+                           for value in (*message, *verify_message))
+                    or not -1 <= tamper_index < LAMPORT_SIGNATURE_SIGNATURE_BYTES
+                    or type(entropy_offset) is not int):
+                raise ValueError("lamport_signature generated message or tamper framing is out of range")
+            entropy = tuple((index * 73 + entropy_offset) % 256
+                            for index in range(LAMPORT_SIGNATURE_ENTROPY_BYTES))
+            values = (len(message), *message, len(verify_message), *verify_message,
+                      tamper_index, 0, *entropy)
+            if (len(values) != 4 + len(message) + len(verify_message)
+                    + LAMPORT_SIGNATURE_ENTROPY_BYTES
+                    or len(values) > LAMPORT_SIGNATURE_MAX_VALID_INPUT_LENGTH):
+                raise ValueError("lamport_signature valid framing length changed")
+            result = lamport_signature_oracle(list(values))
+            if (type(result) is not int
+                    or result == LAMPORT_SIGNATURE_INVALID_RESULT
+                    or not 0 <= result <= I64_MAX):
+                raise ValueError("lamport_signature oracle rejected a generated valid frame")
+            cases[values] = result
+            return result
+
+        maximum_message = tuple((index * 29 + 7) % 256
+                                for index in range(LAMPORT_SIGNATURE_MAX_MESSAGE_BYTES))
+        altered_message = (*maximum_message[:-1], maximum_message[-1] ^ 1)
+        add_lamport_signature_case((), (), -1, 17)
+        add_lamport_signature_case(maximum_message, maximum_message, 0, 31)
+        add_lamport_signature_case(maximum_message, altered_message, -1, 79)
+        add_lamport_signature_case((128,), (128,),
+                                   LAMPORT_SIGNATURE_SIGNATURE_BYTES - 1, 113)
+
+    if algorithm == "pollard_rho_java":
+        def add_pollard_rho_java_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("pollard_rho_java generated input exceeds signed-i64 parseable bounds")
+            result = pollard_rho_java_oracle(list(values))
+            if (type(result) is not int
+                    or result not in (POLLARD_RHO_JAVA_INVALID_RESULT,
+                                      POLLARD_RHO_JAVA_SOURCE_FAILURE_RESULT,
+                                      POLLARD_RHO_JAVA_STEP_LIMIT_RESULT)
+                    and (len(values) != 2 or not 1 < result < values[0])):
+                raise ValueError("pollard_rho_java oracle returned a result outside its factor/sentinel contract")
+            cases[values] = result
+            return result
+
+        for number in range(2, 130):
+            add_pollard_rho_java_case((number, 64))
+        for values in ((15, 1), (21, 1), (9, 64), (46340, 4096)):
+            add_pollard_rho_java_case(values)
+        malformed = (
+            (), (1,), (1, 1), (46_341, 64), (15, 0), (15, 4097),
+            (15, 64, 0), (I64_MIN, 64), (15, I64_MAX),
+            tuple([0] * POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if add_pollard_rho_java_case(tuple(values)) != POLLARD_RHO_JAVA_INVALID_RESULT:
+                raise ValueError("pollard_rho_java oracle accepted malformed input")
+        special_records.append(f"NULL 2 {POLLARD_RHO_JAVA_INVALID_RESULT}\n")
+
+    if algorithm == "pollard_rho_python":
+        def add_pollard_rho_python_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("pollard_rho_python generated input exceeds signed-i64 parseable bounds")
+            result = pollard_rho_python_oracle(list(values))
+            if (type(result) is not int
+                    or result != POLLARD_RHO_PYTHON_INVALID_RESULT
+                    and result != 0 and (len(values) != 5 or not 1 < result < values[0])):
+                raise ValueError("pollard_rho_python oracle returned a result outside its factor/sentinel contract")
+            cases[values] = result
+            return result
+
+        for number in range(2, 129):
+            add_pollard_rho_python_case((number, number // 2, number % 13, 4, 16))
+        rng_pollard_rho_python = random.Random(20261017)
+        for _ in range(64):
+            number = rng_pollard_rho_python.randint(2, 10_000)
+            add_pollard_rho_python_case((
+                number, rng_pollard_rho_python.randrange(number),
+                rng_pollard_rho_python.randint(0, 1000),
+                rng_pollard_rho_python.randint(1, 8),
+                rng_pollard_rho_python.randint(1, 64),
+            ))
+        malformed = (
+            (), (1, 0, 1, 1, 1), (2, -1, 0, 1, 1), (2, 2, 0, 1, 1),
+            (2, 0, -1, 1, 1), (2, 0, 1001, 1, 1),
+            (2, 0, 0, 0, 1), (2, 0, 0, 9, 1),
+            (2, 0, 0, 1, 0), (2, 0, 0, 1, 65),
+            (I64_MIN, 0, 0, 1, 1), (2, 0, 0, 1, I64_MAX),
+            (105, 2, 1, 3, 64, 0), tuple([0] * POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH),
+        )
+        for values in malformed:
+            if add_pollard_rho_python_case(tuple(values)) != POLLARD_RHO_PYTHON_INVALID_RESULT:
+                raise ValueError("pollard_rho_python oracle accepted malformed input")
+        special_records.append(f"NULL 5 {POLLARD_RHO_PYTHON_INVALID_RESULT}\n")
+
+    if algorithm == "pollard_rho_rust":
+        def add_pollard_rho_rust_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("pollard_rho_rust generated input exceeds signed-i64 parseable bounds")
+            result = pollard_rho_rust_oracle(list(values))
+            if (type(result) is not int
+                    or result != POLLARD_RHO_RUST_INVALID_RESULT
+                    and result != 0
+                    and (len(values) != 3 or result < 2
+                         or result != values[0] and values[0] % result != 0)):
+                raise ValueError("pollard_rho_rust oracle returned a result outside its factor/sentinel contract")
+            cases[values] = result
+            return result
+
+        for number in (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 101, 9973):
+            for seed in (0, 314159, (1 << 32) - 1):
+                add_pollard_rho_rust_case((number, seed, 1))
+        for number, seed in ((4, 0), (9, 0), (15, 314159), (21, 7),
+                             (35, 42), (77, 12345), (8051, 314159)):
+            add_pollard_rho_rust_case((number, seed, 1))
+        malformed = (
+            (), (2,), (1, 0, 1), (1_000_000_001, 0, 1),
+            (15, -1, 1), (15, 1 << 32, 1), (15, 0, 0), (15, 0, 17),
+            (15, 0, 1, 0), (I64_MIN, 0, 1), (15, 0, I64_MAX),
+            tuple([0] * POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH),
+        )
+        for values in malformed:
+            if add_pollard_rho_rust_case(tuple(values)) != POLLARD_RHO_RUST_INVALID_RESULT:
+                raise ValueError("pollard_rho_rust oracle accepted malformed input")
+        special_records.append(f"NULL 3 {POLLARD_RHO_RUST_INVALID_RESULT}\n")
+
+    if algorithm == "rsa_factorization":
+        def add_rsa_factorization_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > RSA_FACTORIZATION_MAX_PARSEABLE_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("rsa_factorization generated input exceeds signed-i64 parseable bounds")
+            result = rsa_factorization_oracle(list(values))
+            if (type(result) is not int
+                    or result != RSA_FACTORIZATION_INVALID_RESULT
+                    and not 0 <= result <= RSA_FACTORIZATION_MAX_RESULT):
+                raise ValueError("rsa_factorization oracle returned an out-of-contract packed pair")
+            cases[values] = result
+            return result
+
+        for exponent_pair, modulus in (((11, 3), 15), ((5, 5), 21),
+                                      ((17, 3), 35), ((19, 3), 77)):
+            d, e = exponent_pair
+            for base in range(2, modulus):
+                add_rsa_factorization_case((d, e, modulus, 1, base))
+        add_rsa_factorization_case((11, 3, 15, 16, *([2] * 16)))
+        malformed = (
+            (), (11, 3, 15), (0, 3, 15, 1, 2), (1, 2, 15, 1, 2),
+            (11, 3, 2, 1, 2), (11, 3, 15, 0, 2),
+            (11, 3, 15, 17, *([2] * 17)), (11, 3, 15, 1, 1),
+            (11, 3, 15, 1, 15), (11, 3, 15, 1),
+            (11, 3, 15, 1, 2, 4), (I64_MIN, 3, 15, 1, 2),
+            (11, 3, 15, 1, I64_MAX), tuple([0] * RSA_FACTORIZATION_MAX_PARSEABLE_LENGTH),
+        )
+        for values in malformed:
+            if add_rsa_factorization_case(tuple(values)) != RSA_FACTORIZATION_INVALID_RESULT:
+                raise ValueError("rsa_factorization oracle accepted malformed explicit-base input")
+
+    if algorithm == "rsa_key_generator":
+        def add_rsa_key_generator_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > RSA_KEY_GENERATOR_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("rsa_key_generator generated input exceeds signed-i64 parseable bounds")
+            result = rsa_key_generator_oracle(list(values))
+            if (type(result) is not int
+                    or result != RSA_KEY_GENERATOR_INVALID_RESULT and not 0 <= result < (1 << 63)):
+                raise ValueError("rsa_key_generator oracle returned a result outside its FNV scalar contract")
+            cases[values] = result
+            return result
+
+        add_rsa_key_generator_case((2, 3, 2, 2, 2))
+        add_rsa_key_generator_case((2, 5, 2, 3, 3, 2, 3))
+        add_rsa_key_generator_case((2, 4, 3, 2, 3, 2))
+        malformed = (
+            (), (2,), (1, 0), (RSA_KEY_GENERATOR_MAX_KEY_SIZE + 1, 0),
+            (2, -1), (2, 1), (2, 0, 2), (2, 1, 4),
+            (2, RSA_KEY_GENERATOR_MAX_DRAWS + 1),
+            (I64_MIN, 0), (2, I64_MAX), (2, 1, I64_MIN),
+            tuple([0] * RSA_KEY_GENERATOR_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if add_rsa_key_generator_case(tuple(values)) != RSA_KEY_GENERATOR_INVALID_RESULT:
+                raise ValueError("rsa_key_generator oracle accepted malformed draw-stream input")
+        special_records.append(f"NULL 2 {RSA_KEY_GENERATOR_INVALID_RESULT}\n")
+
+    if algorithm == "lwe_encryption":
+        def add_lwe_encryption_case(values: tuple[int, ...]) -> int:
+            values = tuple(values)
+            if (len(values) > LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("lwe_encryption generated input exceeds signed-i64 parseable bounds")
+            result = lwe_encryption_oracle(list(values))
+            if (type(result) is not int
+                    or result != LWE_ENCRYPTION_INVALID_RESULT and not 0 <= result < (1 << 63)):
+                raise ValueError("lwe_encryption oracle returned a result outside its FNV scalar contract")
+            cases[values] = result
+            return result
+
+        def valid_lwe_encryption_frame(message: tuple[int, ...], offset: int) -> tuple[int, ...]:
+            if (not 1 <= len(message) <= LWE_ENCRYPTION_MAX_MESSAGE_BYTES
+                    or any(type(value) is not int or not 0 <= value <= 255 for value in message)):
+                raise ValueError("lwe_encryption generated message is outside its byte and length bounds")
+            secret = tuple((column * 37 + offset) % LWE_ENCRYPTION_MODULUS
+                           for column in range(LWE_ENCRYPTION_DIMENSION))
+            matrix = tuple((index * 31 + (index // LWE_ENCRYPTION_DIMENSION) * 17 + offset)
+                           % LWE_ENCRYPTION_MODULUS
+                           for index in range(LWE_ENCRYPTION_SAMPLES * LWE_ENCRYPTION_DIMENSION))
+            error_draws = tuple((row * 5 + offset) % (2 * LWE_ENCRYPTION_ERROR_BOUND + 1)
+                                for row in range(LWE_ENCRYPTION_SAMPLES))
+            subset_count = len(message) * 8 * LWE_ENCRYPTION_SAMPLES
+            subset_bits = tuple((index * 7 + offset) % 2 for index in range(subset_count))
+            values = (len(message), *message, *secret, *matrix, *error_draws, *subset_bits)
+            expected_length = 1 + len(message) + LWE_ENCRYPTION_DIMENSION
+            expected_length += LWE_ENCRYPTION_SAMPLES * LWE_ENCRYPTION_DIMENSION
+            expected_length += LWE_ENCRYPTION_SAMPLES + subset_count
+            if (len(values) != expected_length
+                    or len(values) != 4257 + 1025 * len(message)
+                    or len(values) > LWE_ENCRYPTION_MAX_VALID_INPUT_LENGTH):
+                raise ValueError("lwe_encryption generated frame length differs from the packed contract")
+            return values
+
+        add_lwe_encryption_case(valid_lwe_encryption_frame((0,), 0))
+        add_lwe_encryption_case(valid_lwe_encryption_frame((128,), 19))
+        add_lwe_encryption_case(valid_lwe_encryption_frame((17, 128, 255, 0), 73))
+
+        baseline = valid_lwe_encryption_frame((0xA5,), 41)
+        message_byte_index = 1
+        secret_start = 1 + 1
+        matrix_start = secret_start + LWE_ENCRYPTION_DIMENSION
+        error_start = matrix_start + LWE_ENCRYPTION_SAMPLES * LWE_ENCRYPTION_DIMENSION
+        subset_start = error_start + LWE_ENCRYPTION_SAMPLES
+        malformed = (
+            (), (0,), (LWE_ENCRYPTION_MAX_MESSAGE_BYTES + 1,),
+            baseline[:-1], (*baseline[:message_byte_index], 256, *baseline[message_byte_index + 1:]),
+            (*baseline[:secret_start], -1, *baseline[secret_start + 1:]),
+            (*baseline[:matrix_start], LWE_ENCRYPTION_MODULUS, *baseline[matrix_start + 1:]),
+            (*baseline[:error_start], 2 * LWE_ENCRYPTION_ERROR_BOUND + 1,
+             *baseline[error_start + 1:]),
+            (*baseline[:subset_start], 2, *baseline[subset_start + 1:]),
+            (*valid_lwe_encryption_frame((1, 2, 3, 4), 11), 0),
+            tuple([0] * LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH),
+            (1, 0, I64_MIN),
+        )
+        for values in malformed:
+            if add_lwe_encryption_case(tuple(values)) != LWE_ENCRYPTION_INVALID_RESULT:
+                raise ValueError("lwe_encryption oracle accepted malformed or out-of-range input")
+
     case_count = len(cases) + len(special_records)
     lines = [str(case_count) + "\n"]
     for values, expected in sorted(cases.items()):

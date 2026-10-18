@@ -30,6 +30,13 @@
   },
   "cases": [
     {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "expected_result": -1
+    },
+    {
       "id": "zero",
       "input_values": [
         0

@@ -1,0 +1,115 @@
+const MAX_ELEMENTS: usize = 256
+const MAX_BLOCKS: usize = 17
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 258
+const MAX_OUTPUT_BYTES: usize = 2048
+
+struct HeapNode:
+    value: i64
+    block: usize
+    offset: usize
+
+def heap_less(left: HeapNode, right: HeapNode) -> bool:
+    if left.value != right.value: return left.value < right.value
+    if left.block != right.block: return left.block < right.block
+    left.offset < right.offset
+
+def heap_push(heap: mutable HeapNode[MAX_BLOCKS], length: mutable usize&, value: HeapNode) -> void:
+    position: mutable usize = length
+    length <- length + 1
+    while position > 0:
+        parent: usize = (position - 1) / 2
+        if not heap_less(value, heap[parent]): break
+        heap[position] <- heap[parent]
+        position <- parent
+    heap[position] <- value
+
+def heap_pop(heap: mutable HeapNode[MAX_BLOCKS], length: mutable usize&) -> HeapNode:
+    minimum: HeapNode = heap[0]
+    length <- length - 1
+    last: HeapNode = heap[length]
+    if length == 0: return minimum
+    position: mutable usize = 0
+    while position * 2 + 1 < length:
+        child: mutable usize = position * 2 + 1
+        if child + 1 < length and heap_less(heap[child + 1], heap[child]): child <- child + 1
+        if not heap_less(heap[child], last): break
+        heap[position] <- heap[child]
+        position <- child
+    heap[position] <- last
+    minimum
+
+def write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        shift: usize = byte * 8
+        output[offset + byte] <- ((bits >> shift) & 255).u8()
+        byte <- byte + 1
+
+def kirkpatrick_reisch_sort_impl(input: i64&, input_length: usize,
+                                output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input[0] < 0 or input[0] > MAX_ELEMENTS.i64(): return -1
+    count: usize = input[0].usize()
+    if input_length != count + 1: return -1
+
+    blocks: mutable i64[MAX_ELEMENTS] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        blocks[index] <- input[index + 1]
+        index <- index + 1
+
+    starts: mutable usize[MAX_BLOCKS] = zeroed
+    lengths: mutable usize[MAX_BLOCKS] = zeroed
+    block_count: mutable usize = 0
+    block_size: mutable usize = 1
+    if count > 1:
+        while (block_size + 1) * (block_size + 1) <= count: block_size <- block_size + 1
+        start: mutable usize = 0
+        while start < count:
+            length: usize = if count - start < block_size then count - start else block_size
+            starts[block_count] <- start
+            lengths[block_count] <- length
+            block_count <- block_count + 1
+            index <- 1
+            while index < length:
+                value: i64 = blocks[start + index]
+                position: mutable usize = index
+                while position > 0 and blocks[start + position - 1] > value:
+                    blocks[start + position] <- blocks[start + position - 1]
+                    position <- position - 1
+                blocks[start + position] <- value
+                index <- index + 1
+            start <- start + block_size
+    elif count == 1:
+        starts[0] <- 0
+        lengths[0] <- 1
+        block_count <- 1
+
+    sorted: mutable i64[MAX_ELEMENTS] = zeroed
+    sorted_count: mutable usize = 0
+    heap: mutable HeapNode[MAX_BLOCKS] = zeroed
+    heap_length: mutable usize = 0
+    index <- 0
+    while index < block_count:
+        heap_push(heap, heap_length, HeapNode(value: blocks[starts[index]], block: index, offset: 0))
+        index <- index + 1
+    while heap_length > 0:
+        current: HeapNode = heap_pop(heap, heap_length)
+        sorted[sorted_count] <- current.value
+        sorted_count <- sorted_count + 1
+        next: usize = current.offset + 1
+        if next < lengths[current.block]:
+            heap_push(heap, heap_length, HeapNode(value: blocks[starts[current.block] + next], block: current.block, offset: next))
+
+    output_bytes: usize = sorted_count * 8
+    if output_bytes > MAX_OUTPUT_BYTES: return -1
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < sorted_count:
+        write_i64_le(output, index * 8, sorted[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn kirkpatrick_reisch_sort(input: i64&, input_length: usize,
+                                  output: mutable u8&, capacity: usize) -> i64 = kirkpatrick_reisch_sort_impl

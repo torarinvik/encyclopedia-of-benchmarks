@@ -1,0 +1,124 @@
+const MAX_DIGITS: usize = 64
+const MAX_OUTPUT_DIGITS: usize = 1665
+
+struct UintBig:
+    digits: u32[MAX_OUTPUT_DIGITS]
+    len: usize
+
+def uint_trim(value: mutable UintBig&) -> void:
+    while value.len > 0 and value.digits[value.len - 1] == 0:
+        value.len <- value.len - 1
+
+def uint_from_small(value_input: u32, base: u32) -> UintBig:
+    value: mutable u32 = value_input
+    result: mutable UintBig = zeroed
+    while value > 0:
+        result.digits[result.len] <- value % base
+        result.len <- result.len + 1
+        value <- value / base
+    result
+
+def uint_add(left: mutable UintBig&, right: UintBig&, base: u32) -> void:
+    index: mutable usize = 0
+    carry: mutable u64 = 0
+    while index < right.len or carry > 0:
+        a: u64 = if index < left.len: left.digits[index].u64() else: 0
+        b: u64 = if index < right.len: right.digits[index].u64() else: 0
+        total: u64 = carry + a + b
+        if index == left.len: left.len <- left.len + 1
+        left.digits[index] <- (total % base.u64()).u32()
+        carry <- total / base.u64()
+        index <- index + 1
+    while left.len < right.len:
+        left.digits[left.len] <- right.digits[left.len]
+        left.len <- left.len + 1
+
+def uint_multiply(left: UintBig&, right: UintBig&, base: u32) -> UintBig:
+    result: mutable UintBig = zeroed
+    if left.len == 0 or right.len == 0: return result
+    result.len <- left.len + right.len
+    i: mutable usize = 0
+    while i < left.len:
+        carry: mutable u64 = 0
+        j: mutable usize = 0
+        while j < right.len:
+            at: usize = i + j
+            product: u64 = left.digits[i].u64() * right.digits[j].u64() + result.digits[at].u64() + carry
+            result.digits[at] <- (product % base.u64()).u32()
+            carry <- product / base.u64()
+            j <- j + 1
+        at: mutable usize = i + right.len
+        while carry > 0:
+            total: u64 = result.digits[at].u64() + carry
+            result.digits[at] <- (total % base.u64()).u32()
+            carry <- total / base.u64()
+            at <- at + 1
+            if at > result.len: result.len <- at
+        i <- i + 1
+    uint_trim(result&)
+    result
+
+def uint_power(factor_input: UintBig&, exponent_input: usize, base: u32) -> UintBig:
+    factor: mutable UintBig = factor_input
+    exponent: mutable usize = exponent_input
+    result: mutable UintBig = uint_from_small(1, base)
+    while exponent > 0:
+        if exponent % 2 == 1: result <- uint_multiply(result&, factor&, base)
+        exponent <- exponent / 2
+        if exponent > 0: factor <- uint_multiply(factor&, factor&, base)
+    result
+
+def uint_convert_recursive(digits: u32&, start: usize, count: usize, source_base: u32, target_base: u32) -> UintBig:
+    if count == 0:
+        empty: UintBig = zeroed
+        return empty
+    if source_base == target_base:
+        copy: mutable UintBig = zeroed
+        copy.len <- count
+        index: mutable usize = 0
+        while index < count:
+            copy.digits[index] <- digits[start + index]
+            index <- index + 1
+        return copy
+    if count == 1: return uint_from_small(digits[start], target_base)
+    middle: usize = count / 2
+    low: mutable UintBig = uint_convert_recursive(digits&, start, middle, source_base, target_base)
+    high: UintBig = uint_convert_recursive(digits&, start + middle, count - middle, source_base, target_base)
+    factor: UintBig = uint_from_small(source_base, target_base)
+    scale: UintBig = uint_power(factor&, middle, target_base)
+    shifted: UintBig = uint_multiply(high&, scale&, target_base)
+    uint_add(low&, shifted&, target_base)
+    low
+
+def uint_convert_base_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > MAX_DIGITS + 4: return -1
+    source_value: i64 = input[0]
+    target_value: i64 = input[1]
+    count_value: i64 = input[2]
+    if source_value < 2 or source_value > (1 << 26) or target_value < 2 or target_value > (1 << 26) or
+        count_value < 0 or count_value > 64 or length != count_value.usize() + 3: return -1
+    source_base: u32 = source_value.u32()
+    target_base: u32 = target_value.u32()
+    count: usize = count_value.usize()
+    digits: mutable u32[MAX_DIGITS] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        digit: i64 = input[index + 3]
+        if digit < 0 or digit >= source_value: return -1
+        digits[index] <- digit.u32()
+        index <- index + 1
+    if count > 0 and digits[count - 1] == 0: return -1
+    result: UintBig = uint_convert_recursive(digits&, 0, count, source_base, target_base)
+    if result.len > 1664: return -1
+    byte_count: usize = result.len * 4
+    if output.is_null() or capacity < byte_count: return -2
+    index <- 0
+    while index < result.len:
+        byte: mutable usize = 0
+        while byte < 4:
+            output[index * 4 + byte] <- (result.digits[index] >> (byte * 8)).u8()
+            byte <- byte + 1
+        index <- index + 1
+    byte_count.i64()
+
+export fn uint_convert_base(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = uint_convert_base_impl

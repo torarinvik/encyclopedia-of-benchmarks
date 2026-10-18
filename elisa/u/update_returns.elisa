@@ -1,0 +1,56 @@
+extern sqrt(value: f64) -> f64
+
+const UPDATE_RETURNS_MAX_INPUT_LENGTH: usize = 62
+const UPDATE_RETURNS_MAX_COUNT: usize = 60
+const UPDATE_RETURNS_MAX_OUTPUT_LENGTH: usize = 63
+const UPDATE_RETURNS_MAX_FINITE: f64 = 1.7976931348623157e308
+const UPDATE_RETURNS_Z_95: f64 = 1.6448536269514722
+
+def update_returns_finite(value: f64) -> bool:
+    value == value and value <= UPDATE_RETURNS_MAX_FINITE and value >= -UPDATE_RETURNS_MAX_FINITE
+
+def update_returns_impl(input: f64&, input_length: usize,
+                        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > UPDATE_RETURNS_MAX_INPUT_LENGTH:
+        return -1
+    for index in 0..<input_length:
+        if not update_returns_finite(input[index]): return -1
+
+    raw_count: f64 = input[0]
+    if raw_count < 2.0 or raw_count > UPDATE_RETURNS_MAX_COUNT.f64(): return -1
+    count: usize = raw_count.usize()
+    if raw_count != count.f64() or input_length != count + 1: return -1
+
+    returns: mutable f64[60] = zeroed
+    total: mutable f64 = 0.0
+    for index in 0..<count:
+        value: f64 = input[index + 1]
+        if value < -0.25 or value > 0.25: return -1
+        returns[index] <- value
+        total <- total + value
+
+    mean: f64 = total / count.f64()
+    if not update_returns_finite(mean): return -1
+    squared_deviations: mutable f64 = 0.0
+    for index in 0..<count:
+        difference: f64 = returns[index] - mean
+        squared_deviations <- squared_deviations + difference * difference
+    sample_sd: f64 = sqrt(squared_deviations / (count - 1).f64())
+    if not update_returns_finite(sample_sd) or sample_sd == 0.0: return -1
+    var_value: f64 = 100000.0 * (UPDATE_RETURNS_Z_95 * sample_sd - mean)
+    if not update_returns_finite(var_value): return -1
+
+    staged: mutable f64[UPDATE_RETURNS_MAX_OUTPUT_LENGTH] = zeroed
+    for index in 0..<count:
+        staged[index] <- returns[index]
+    staged[count] <- mean
+    staged[count + 1] <- sample_sd
+    staged[count + 2] <- var_value
+    result_length: usize = count + 3
+    if output.is_null() or output_capacity < result_length: return -2
+    for index in 0..<result_length:
+        output[index] <- staged[index]
+    result_length.i64()
+
+export fn update_returns(input: f64&, input_length: usize,
+                         output: mutable f64&, output_capacity: usize) -> i64 = update_returns_impl

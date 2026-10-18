@@ -1,0 +1,337 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-rust-ramer-douglas-peucker-f64-slice-v1",
+  "algorithm": "ramer_douglas_peucker",
+  "function_symbol": "ramer_douglas_peucker",
+  "description": "Simplify an ordered 2D polyline with the shared bounded Python/Rust Ramer\u2013Douglas\u2013Peucker contract.",
+  "workspace": {
+    "elements": 25
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "float64_slice",
+    "encoding": "[point_count, epsilon, x0, y0, x1, y1, ...]",
+    "point_count_range": [
+      0,
+      12
+    ],
+    "coordinate_range": [
+      -100,
+      100
+    ],
+    "epsilon_range": [
+      0,
+      100
+    ],
+    "maximum_valid_input_elements": 26,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_slice",
+    "encoding": "[result_count, retained x0, retained y0, ... in original order]",
+    "maximum_elements": 25,
+    "invalid_input_result": -1,
+    "invalid_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "distance": "Validate every original chord with both pinned formulas: Python clamped nearest-point coordinates plus hypot, and Rust line-equation numerator divided by endpoint distance. Accept only if every chord chooses the same first maximum and the same strict maximum>epsilon split decision; recursive subproblems are original chords.",
+    "recursion": "Choose the first interior point attaining the maximum distance. Split only when maximum distance is strictly greater than epsilon; recursively simplify left and right ranges and keep each split point once.",
+    "small_inputs": "For zero, one, or two points, return all points unchanged.",
+    "common_domain": "For 3+ points, coordinates are distinct and every ordered triple i<k<j projects onto its endpoint segment. All chord length-squared and endpoint-distance calculations must be finite and nonzero; source-formula maxima and split decisions must agree.",
+    "invalid_input": "Reject wrong framing, nonfinite values, out-of-range values, negative epsilon, repeated points for count >=3, zero/underflow/nonfinite chord lengths, out-of-segment projections, or any source-formula split/index disagreement."
+  },
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Python",
+      "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+      "path": "geometry/ramer_douglas_peucker.py",
+      "symbol": "ramer_douglas_peucker",
+      "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/geometry/ramer_douglas_peucker.py",
+      "role": "algorithm",
+      "dependencies": [
+        "math.hypot"
+      ]
+    },
+    {
+      "repository": "TheAlgorithms/Rust",
+      "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+      "path": "src/geometry/ramer_douglas_peucker.rs",
+      "symbol": "ramer_douglas_peucker",
+      "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/geometry/ramer_douglas_peucker.rs",
+      "role": "algorithm",
+      "dependencies": [
+        "geometry::Point::euclidean_distance"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "empty",
+      "input_values": [
+        0,
+        1.0
+      ],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "singleton",
+      "input_values": [
+        1,
+        1.0,
+        2,
+        3
+      ],
+      "input_length": 4,
+      "expected_result": 3,
+      "expected_output": [
+        1.0,
+        2.0,
+        3.0
+      ]
+    },
+    {
+      "id": "two_points",
+      "input_values": [
+        2,
+        0.5,
+        0,
+        0,
+        4,
+        3
+      ],
+      "input_length": 6,
+      "expected_result": 5,
+      "expected_output": [
+        2.0,
+        0.0,
+        0.0,
+        4.0,
+        3.0
+      ]
+    },
+    {
+      "id": "collinear_points_collapsed",
+      "input_values": [
+        4,
+        0.1,
+        0,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": 5,
+      "expected_output": [
+        2.0,
+        0.0,
+        0.0,
+        3.0,
+        0.0
+      ]
+    },
+    {
+      "id": "bend_over_tolerance",
+      "input_values": [
+        3,
+        0.5,
+        0,
+        0,
+        1,
+        1,
+        2,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": 7,
+      "expected_output": [
+        3.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        2.0,
+        0.0
+      ]
+    },
+    {
+      "id": "recursive_splits",
+      "input_values": [
+        5,
+        0.5,
+        0,
+        0,
+        1,
+        2,
+        2,
+        0,
+        3,
+        2,
+        4,
+        0
+      ],
+      "input_length": 12,
+      "expected_result": 11,
+      "expected_output": [
+        5.0,
+        0.0,
+        0.0,
+        1.0,
+        2.0,
+        2.0,
+        0.0,
+        3.0,
+        2.0,
+        4.0,
+        0.0
+      ]
+    },
+    {
+      "id": "below_tolerance",
+      "input_values": [
+        3,
+        1.0,
+        0,
+        0,
+        1,
+        0.5,
+        2,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": 5,
+      "expected_output": [
+        2.0,
+        0.0,
+        0.0,
+        2.0,
+        0.0
+      ]
+    },
+    {
+      "id": "tie_first_maximum",
+      "input_values": [
+        4,
+        0.8,
+        0,
+        0,
+        1,
+        1,
+        3,
+        1,
+        4,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": 7,
+      "expected_output": [
+        3.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        4.0,
+        0.0
+      ]
+    },
+    {
+      "id": "negative_epsilon",
+      "input_values": [
+        3,
+        -0.1,
+        0,
+        0,
+        1,
+        1,
+        2,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "repeated_points",
+      "input_values": [
+        3,
+        0.5,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "input_length": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "projection_outside_segment",
+      "input_values": [
+        3,
+        0.5,
+        0,
+        0,
+        11,
+        0,
+        10,
+        1
+      ],
+      "input_length": 8,
+      "expected_result": -1
+    },
+    {
+      "id": "coordinate_out_of_range",
+      "input_values": [
+        2,
+        0.5,
+        0,
+        0,
+        101,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_point_count",
+      "input_values": [
+        2,
+        0.5,
+        0,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "underflowed_chord_length",
+      "input_values": [
+        3,
+        0.5,
+        0.0,
+        0.0,
+        1e-200,
+        0.0,
+        2e-200,
+        0.0
+      ],
+      "input_length": 8,
+      "expected_result": -1
+    }
+  ]
+}

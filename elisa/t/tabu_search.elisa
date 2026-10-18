@@ -1,0 +1,182 @@
+def tabu_search_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[position + byte] <- (bits % 256.u64()).u8()
+        bits <- bits / 256.u64()
+        byte <- byte + 1
+
+def tabu_search_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > 19: return -1
+    if input[0] < 4 or input[0] > 6 or input[1] < 0 or input[1] > 8 or input[2] < 1 or input[2] > 3: return -1
+    if input[0] == 4 and input[1] >= 2 and input[2] >= 2: return -1
+    cities: usize = input[0].usize()
+    iterations: usize = input[1].usize()
+    tabu_size: usize = input[2].usize()
+    edge_count: usize = cities * (cities - 1) / 2
+    if input_length != 3 + edge_count: return -1
+    edge_cost: mutable i64[36] = zeroed
+    offset: mutable usize = 3
+    left: mutable usize = 0
+    while left < cities:
+        right: mutable usize = left + 1
+        while right < cities:
+            weight: i64 = input[offset]
+            if weight < 1 or weight > 99: return -1
+            edge_cost[left * 6 + right] <- weight
+            edge_cost[right * 6 + left] <- weight
+            offset <- offset + 1
+            right <- right + 1
+        left <- left + 1
+
+    solution: mutable i64[7] = zeroed
+    solution_length: mutable usize = 0
+    visited: mutable bool[6] = zeroed
+    current: mutable usize = 0
+    while not visited[current]:
+        minimum: mutable i64 = 10000
+        best_node: mutable usize = current
+        node: mutable usize = 0
+        while node < cities:
+            if node != current and not visited[node]:
+                weight: i64 = edge_cost[current * 6 + node]
+                if weight < minimum:
+                    minimum <- weight
+                    best_node <- node
+            node <- node + 1
+        visited[current] <- true
+        solution[solution_length] <- current.i64()
+        solution_length <- solution_length + 1
+        current <- best_node
+    solution[solution_length] <- 0
+    solution_length <- solution_length + 1
+    best_solution: mutable i64[7] = zeroed
+    i: mutable usize = 0
+    while i < solution_length:
+        best_solution[i] <- solution[i]
+        i <- i + 1
+    best_cost: mutable i64 = 0
+    i <- 0
+    while i + 1 < solution_length:
+        best_cost <- best_cost + edge_cost[solution[i].usize() * 6 + solution[i + 1].usize()]
+        i <- i + 1
+
+    tabu_new: mutable i64[3] = zeroed
+    tabu_old: mutable i64[3] = zeroed
+    tabu_count: mutable usize = 0
+    epoch: mutable usize = 0
+    while epoch < iterations:
+        candidates: mutable i64[224] = zeroed
+        candidate_costs: mutable i64[32] = zeroed
+        candidate_count: mutable usize = 0
+        first: mutable usize = 1
+        while first + 1 < solution_length:
+            second: mutable usize = 1
+            while second + 1 < solution_length:
+                if first != second:
+                    candidate: mutable i64[7] = zeroed
+                    i <- 0
+                    while i < solution_length:
+                        candidate[i] <- solution[i]
+                        i <- i + 1
+                    temp: i64 = candidate[first]
+                    candidate[first] <- candidate[second]
+                    candidate[second] <- temp
+                    duplicate: mutable bool = false
+                    prior: mutable usize = 0
+                    while prior < candidate_count:
+                        same: mutable bool = true
+                        i <- 0
+                        while i < solution_length:
+                            if candidates[prior * 7 + i] != candidate[i]: same <- false
+                            i <- i + 1
+                        if same: duplicate <- true
+                        prior <- prior + 1
+                    if not duplicate:
+                        i <- 0
+                        while i < solution_length:
+                            candidates[candidate_count * 7 + i] <- candidate[i]
+                            i <- i + 1
+                        cost: mutable i64 = 0
+                        i <- 0
+                        while i + 1 < solution_length:
+                            cost <- cost + edge_cost[candidate[i].usize() * 6 + candidate[i + 1].usize()]
+                            i <- i + 1
+                        candidate_costs[candidate_count] <- cost
+                        candidate_count <- candidate_count + 1
+                second <- second + 1
+            first <- first + 1
+        # Stable insertion sort by route cost.
+        i <- 1
+        while i < candidate_count:
+            j: mutable usize = i
+            while j > 0 and candidate_costs[j] < candidate_costs[j - 1]:
+                tmp_cost: i64 = candidate_costs[j]
+                candidate_costs[j] <- candidate_costs[j - 1]
+                candidate_costs[j - 1] <- tmp_cost
+                k: mutable usize = 0
+                while k < solution_length:
+                    tmp_city: i64 = candidates[j * 7 + k]
+                    candidates[j * 7 + k] <- candidates[(j - 1) * 7 + k]
+                    candidates[(j - 1) * 7 + k] <- tmp_city
+                    k <- k + 1
+                j <- j - 1
+            i <- i + 1
+        selected: mutable usize = 0
+        while selected < candidate_count:
+            difference: mutable usize = solution_length
+            i <- 0
+            while i < solution_length:
+                if candidates[selected * 7 + i] != solution[i]:
+                    difference <- i
+                    break
+                i <- i + 1
+            if difference < solution_length:
+                new_city: i64 = candidates[selected * 7 + difference]
+                old_city: i64 = solution[difference]
+                is_tabu: mutable bool = false
+                i <- 0
+                while i < tabu_count:
+                    if (tabu_new[i] == new_city and tabu_old[i] == old_city) or (tabu_new[i] == old_city and tabu_old[i] == new_city): is_tabu <- true
+                    i <- i + 1
+                if not is_tabu:
+                    tabu_new[tabu_count] <- new_city
+                    tabu_old[tabu_count] <- old_city
+                    tabu_count <- tabu_count + 1
+                    if tabu_count >= tabu_size:
+                        i <- 0
+                        while i + 1 < tabu_count:
+                            tabu_new[i] <- tabu_new[i + 1]
+                            tabu_old[i] <- tabu_old[i + 1]
+                            i <- i + 1
+                        tabu_count <- tabu_count - 1
+                    i <- 0
+                    while i < solution_length:
+                        solution[i] <- candidates[selected * 7 + i]
+                        i <- i + 1
+                    if candidate_costs[selected] < best_cost:
+                        best_cost <- candidate_costs[selected]
+                        i <- 0
+                        while i < solution_length:
+                            best_solution[i] <- solution[i]
+                            i <- i + 1
+                    break
+            selected <- selected + 1
+        epoch <- epoch + 1
+
+    staged: mutable u8[36] = zeroed
+    tabu_search_store_i32(solution_length.i64(), staged, 0)
+    i <- 0
+    while i < solution_length:
+        tabu_search_store_i32(best_solution[i], staged, 4 * (i + 1))
+        i <- i + 1
+    tabu_search_store_i32(best_cost, staged, 4 * (solution_length + 1))
+    output_bytes: usize = 4 * (solution_length + 2)
+    if output.is_null() or output_capacity < output_bytes: return -2
+    i <- 0
+    while i < output_bytes:
+        output[i] <- staged[i]
+        i <- i + 1
+    return output_bytes.i64()
+
+export fn tabu_search(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = tabu_search_impl

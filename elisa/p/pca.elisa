@@ -1,0 +1,97 @@
+extern sqrt(value: f64) -> f64
+
+def pca_impl(input: f64&, input_length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 9 or input_length > 19: return -1
+    if input[1] != 2.0 or input[2] != 1.0: return -1
+    n: mutable usize = 0
+    if input[0] == 3.0: n <- 3
+    elif input[0] == 4.0: n <- 4
+    elif input[0] == 5.0: n <- 5
+    elif input[0] == 6.0: n <- 6
+    elif input[0] == 7.0: n <- 7
+    elif input[0] == 8.0: n <- 8
+    else: return -1
+    if input_length != 3 + 2 * n: return -1
+    x: mutable f64[8] = zeroed
+    y: mutable f64[8] = zeroed
+    z0: mutable f64[8] = zeroed
+    z1: mutable f64[8] = zeroed
+    mean0: mutable f64 = 0.0
+    mean1: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < n:
+        x[i] <- input[3 + 2 * i]
+        y[i] <- input[4 + 2 * i]
+        if x[i] != x[i] or y[i] != y[i] or x[i] < -1000.0 or x[i] > 1000.0 or y[i] < -1000.0 or y[i] > 1000.0: return -1
+        mean0 <- mean0 + x[i]
+        mean1 <- mean1 + y[i]
+        i <- i + 1
+    mean0 <- mean0 / n.f64()
+    mean1 <- mean1 / n.f64()
+    sum0: mutable f64 = 0.0
+    sum1: mutable f64 = 0.0
+    i <- 0
+    while i < n:
+        dx: f64 = x[i] - mean0
+        dy: f64 = y[i] - mean1
+        sum0 <- sum0 + dx * dx
+        sum1 <- sum1 + dy * dy
+        i <- i + 1
+    denom: f64 = (n - 1).f64()
+    if sum0 <= 0.0 or sum1 <= 0.0: return -1
+    scale0: f64 = sqrt(sum0 / denom)
+    scale1: f64 = sqrt(sum1 / denom)
+    a: mutable f64 = 0.0
+    b: mutable f64 = 0.0
+    d: mutable f64 = 0.0
+    i <- 0
+    while i < n:
+        z0[i] <- (x[i] - mean0) / scale0
+        z1[i] <- (y[i] - mean1) / scale1
+        a <- a + z0[i] * z0[i]
+        b <- b + z0[i] * z1[i]
+        d <- d + z1[i] * z1[i]
+        i <- i + 1
+    a <- a / denom
+    b <- b / denom
+    d <- d / denom
+    root: f64 = sqrt((a - d) * (a - d) + 4.0 * b * b)
+    lambda0: f64 = 0.5 * (a + d + root)
+    lambda1: f64 = 0.5 * (a + d - root)
+    if lambda0 - lambda1 <= 1e-8: return -1
+    vx: mutable f64 = 0.0
+    vy: mutable f64 = 0.0
+    if b == 0.0:
+        if a >= d: vx <- 1.0
+        else: vy <- 1.0
+    else:
+        vx <- b
+        vy <- lambda0 - a
+        norm: f64 = sqrt(vx * vx + vy * vy)
+        if norm == 0.0: return -1
+        vx <- vx / norm
+        vy <- vy / norm
+    abs_vx: f64 = if vx < 0.0: -vx else: vx
+    abs_vy: f64 = if vy < 0.0: -vy else: vy
+    if ((abs_vx >= abs_vy and vx < 0.0) or (abs_vy > abs_vx and vy < 0.0)):
+        vx <- -vx
+        vy <- -vy
+    staged: mutable f64[12] = zeroed
+    i <- 0
+    while i < n:
+        staged[i] <- z0[i] * vx + z1[i] * vy
+        i <- i + 1
+    staged[n] <- vx
+    staged[n + 1] <- vy
+    staged[n + 2] <- lambda0
+    staged[n + 3] <- lambda1
+    output_size: usize = n + 4
+    if output.is_null() or capacity < output_size: return -2
+    i <- 0
+    while i < output_size:
+        output[i] <- staged[i]
+        i <- i + 1
+    return output_size.i64()
+
+export fn pca(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = pca_impl

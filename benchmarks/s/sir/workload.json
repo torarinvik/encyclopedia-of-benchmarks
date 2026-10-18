@@ -1,0 +1,508 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-julia-sir-rhs-f64-slice-io-v1",
+  "algorithm": "sir",
+  "function_symbol": "sir",
+  "description": "Evaluate one bounded SIR model derivative call from the pinned Julia notebook.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Julia",
+    "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+    "path": "pluto_notebooks/sir.jl",
+    "symbol": "SIR(du, u, p, t)",
+    "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/pluto_notebooks/sir.jl",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Evaluate one SIR derivative right-hand-side call and return [dS,dI,dR].",
+    "input_encoding": "[S, I, R, beta, k, t]",
+    "state": "S, I, and R are finite binary64 population values in [0,1000000].",
+    "parameters": "beta is in [0,0.001] and k is in [0,1].",
+    "time": "t is in [0,140]; the pinned RHS validates but does not read t.",
+    "source_evaluation_order": "dS = ((-beta)*S)*I; dI = ((beta*S)*I)-(k*I); dR = k*I. Preserve each multiplication and subtraction order from the Julia expressions.",
+    "unused_state": "R is unpacked from u but not read in any derivative expression.",
+    "output_encoding": "[du[1],du[2],du[3]] as binary64 values.",
+    "errors": "Null input, malformed input length, nonfinite or out-of-range input returns -1. Input checks happen before output checks. For valid input, null output or capacity below three returns -2 without writes. Success writes three elements and returns 3."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[S,I,R,beta,k,t]",
+    "exact_length": 6,
+    "maximum_valid_input_length": 6,
+    "maximum_parseable_input_length": 7,
+    "state_component_range": [
+      0.0,
+      1000000.0
+    ],
+    "beta_range": [
+      0.0,
+      0.001
+    ],
+    "k_range": [
+      0.0,
+      1.0
+    ],
+    "time_range": [
+      0.0,
+      140.0
+    ],
+    "all_values_must_be_finite": true,
+    "invalid_input_result": -1,
+    "null_input_result": -1,
+    "null_input_length_zero_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[dS,dI,dR]",
+    "element_count": 3,
+    "maximum_elements": 3,
+    "maximum_absolute_value": 1000000000.0,
+    "success_result": "output element count (3)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input validity is checked before output pointer and capacity.",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 3,
+    "meaning": "The [dS,dI,dR] result vector."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Validate the six finite bounded binary64 inputs, then evaluate the three Julia RHS expressions in their written multiplication and subtraction order.",
+  "cases": [
+    {
+      "id": "pinned_notebook_initial_conditions",
+      "input_values": [
+        790000.0,
+        10.0,
+        0.0,
+        6.329113924050633e-07,
+        0.33,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -5.0,
+        1.6999999999999997,
+        3.3000000000000003
+      ]
+    },
+    {
+      "id": "zero_infectious_population",
+      "input_values": [
+        100.0,
+        0.0,
+        0.0,
+        0.001,
+        0.33,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "recovery_only_beta_zero",
+      "input_values": [
+        100.0,
+        3.0,
+        500.0,
+        0.0,
+        0.5,
+        10.0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -0.0,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "id": "transmission_only_k_zero",
+      "input_values": [
+        100.0,
+        3.0,
+        0.0,
+        0.001,
+        0.0,
+        140.0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -0.30000000000000004,
+        0.30000000000000004,
+        0.0
+      ]
+    },
+    {
+      "id": "fractional_state_and_rates",
+      "input_values": [
+        1000.5,
+        4.25,
+        10.0,
+        0.0002,
+        0.125,
+        17.5
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -0.850425,
+        0.319175,
+        0.53125
+      ]
+    },
+    {
+      "id": "upper_domain_boundaries",
+      "input_values": [
+        1000000.0,
+        1000000.0,
+        1000000.0,
+        0.001,
+        1.0,
+        140.0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -1000000000.0,
+        999000000.0,
+        1000000.0
+      ]
+    },
+    {
+      "id": "unused_r_and_time_still_validated",
+      "input_values": [
+        11.5,
+        2.25,
+        1000000.0,
+        0.0001,
+        0.2,
+        140.0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -0.0025875,
+        -0.4474125,
+        0.45
+      ]
+    },
+    {
+      "id": "negative_susceptible_population",
+      "input_values": [
+        -0.5,
+        1.0,
+        0.0,
+        0.0001,
+        0.2,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "infectious_population_above_bound",
+      "input_values": [
+        0.0,
+        1000000.5,
+        0.0,
+        0.0001,
+        0.2,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "recovered_population_above_bound",
+      "input_values": [
+        0.0,
+        0.0,
+        1000001.0,
+        0.0001,
+        0.2,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "beta_above_bound",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        0.0010001,
+        0.2,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "k_above_bound",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        0.0001,
+        1.0001,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "time_above_bound",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        0.0001,
+        0.2,
+        140.0001
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "input_too_short",
+      "input_values": [
+        100.0,
+        1.0,
+        0.0,
+        0.0001,
+        0.2
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [
+        100.0,
+        1.0,
+        0.0,
+        0.0001,
+        0.2,
+        1.0,
+        0.0
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "input_beyond_parse_limit",
+      "input_values": [
+        100.0,
+        1.0,
+        0.0,
+        0.0001,
+        0.2,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "unused_r_and_time_at_zero",
+      "input_values": [
+        11.5,
+        2.25,
+        0.0,
+        0.0001,
+        0.2,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -0.0025875,
+        -0.4474125,
+        0.45
+      ]
+    },
+    {
+      "id": "negative_beta",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        -0.0001,
+        0.2,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_k",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        0.0001,
+        -0.2,
+        0.0
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "negative_time",
+      "input_values": [
+        1.0,
+        1.0,
+        1.0,
+        0.0001,
+        0.2,
+        -0.1
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_zero_length",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 6,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        1000.5,
+        4.25,
+        10.0,
+        0.0002,
+        0.125,
+        17.5
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 3,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_insufficient_capacity",
+      "input_values": [
+        1000.5,
+        4.25,
+        10.0,
+        0.0002,
+        0.125,
+        17.5
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        -0.5,
+        1.0,
+        0.0,
+        0.0001,
+        0.2,
+        0.0
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_capacity",
+      "input_values": [
+        -0.5,
+        1.0,
+        0.0,
+        0.0001,
+        0.2,
+        0.0
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_full_capacity",
+      "input_values": [
+        1000.5,
+        4.25,
+        10.0,
+        0.0002,
+        0.125,
+        17.5
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output": [
+        -0.850425,
+        0.319175,
+        0.53125
+      ]
+    }
+  ]
+}

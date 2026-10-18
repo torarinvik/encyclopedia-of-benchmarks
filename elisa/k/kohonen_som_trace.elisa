@@ -1,0 +1,83 @@
+const MAX_INPUT_LENGTH: usize = 41
+const MAX_NODE_COUNT: usize = 8
+const MAX_FEATURE_COUNT: usize = 4
+const MAX_WEIGHT_COUNT: usize = 32
+
+def kohonen_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+        return false
+    if value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def kohonen_som_trace_impl(input: f64&, input_length: usize,
+                           output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 4 or input_length > MAX_INPUT_LENGTH: return -1
+    if not kohonen_exact_integer(input[0], 1, MAX_NODE_COUNT.i64()) or
+        not kohonen_exact_integer(input[1], 1, MAX_FEATURE_COUNT.i64()) or
+        not kohonen_exact_integer(input[2], 0, 8) or
+        not kohonen_exact_integer(input[3], 1, 16): return -1
+    node_count: usize = input[0].usize()
+    feature_count: usize = input[1].usize()
+    radius: usize = input[2].usize()
+    alpha_code: usize = input[3].usize()
+    weight_count: usize = node_count * feature_count
+    if input_length != 4 + feature_count + weight_count: return -1
+
+    sample: mutable f64[MAX_FEATURE_COUNT] = zeroed
+    feature: mutable usize = 0
+    while feature < feature_count:
+        if not kohonen_exact_integer(input[4 + feature], -8, 8): return -1
+        sample[feature] <- input[4 + feature]
+        feature <- feature + 1
+
+    weights: mutable f64[MAX_WEIGHT_COUNT] = zeroed
+    index: mutable usize = 0
+    while index < weight_count:
+        if not kohonen_exact_integer(input[4 + feature_count + index], -8, 8): return -1
+        weights[index] <- input[4 + feature_count + index]
+        index <- index + 1
+
+    best_matching_unit: mutable usize = 0
+    best_distance: mutable f64 = 0.0
+    feature <- 0
+    while feature < feature_count:
+        difference: f64 = weights[feature] - sample[feature]
+        best_distance <- best_distance + difference * difference
+        feature <- feature + 1
+    node: mutable usize = 1
+    while node < node_count:
+        distance: mutable f64 = 0.0
+        feature <- 0
+        while feature < feature_count:
+            difference: f64 = weights[node * feature_count + feature] - sample[feature]
+            distance <- distance + difference * difference
+            feature <- feature + 1
+        if distance < best_distance:
+            best_distance <- distance
+            best_matching_unit <- node
+        node <- node + 1
+
+    first_node: usize = if best_matching_unit > radius then best_matching_unit - radius else 0
+    after_last_node: usize = if best_matching_unit + radius + 1 < node_count then best_matching_unit + radius + 1 else node_count
+    alpha: f64 = alpha_code.f64() / 16.0
+    node <- first_node
+    while node < after_last_node:
+        feature <- 0
+        while feature < feature_count:
+            index <- node * feature_count + feature
+            difference: f64 = sample[feature] - weights[index]
+            weights[index] <- weights[index] + alpha * difference
+            value: f64 = weights[index]
+            if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308: return -1
+            feature <- feature + 1
+        node <- node + 1
+
+    if output.is_null() or capacity < weight_count: return -2
+    index <- 0
+    while index < weight_count:
+        output[index] <- weights[index]
+        index <- index + 1
+    weight_count.i64()
+
+export fn kohonen_som_trace(input: f64&, input_length: usize,
+                            output: mutable f64&, capacity: usize) -> i64 = kohonen_som_trace_impl

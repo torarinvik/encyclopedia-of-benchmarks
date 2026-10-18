@@ -13,6 +13,149 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from run_float64_slice_io import (
+    _decode_linear_discriminant_analysis_abi_values,
+    validate_linear_discriminant_analysis_workload,
+    validate_kalman_filter_workload,
+    validate_kalman_filter_r_two_state_simulation_workload,
+    validate_muon_optimizer_workload,
+    validate_pseudo_inverse_workload,
+    validate_tdigest_workload,
+    TDIGEST_WORKSPACE_ELEMENTS,
+    validate_risk_metrics_workload,
+    validate_pca_workload,
+    validate_principal_component_analysis_workload,
+    validate_principle_component_analysis_workload,
+    validate_ramer_douglas_peucker_workload,
+    validate_sir_workload,
+)
+from pca_oracle import (
+    MAX_OUTPUT_ELEMENTS as PCA_MAX_OUTPUT_ELEMENTS,
+    MAX_SAMPLES as PCA_MAX_SAMPLES,
+    MIN_SAMPLES as PCA_MIN_SAMPLES,
+    expected_result as pca_verifier_oracle,
+)
+from principal_component_analysis_oracle import (
+    INVALID_RESULT as PRINCIPAL_COMPONENT_ANALYSIS_INVALID_RESULT,
+    MAX_ABS_VALUE as PRINCIPAL_COMPONENT_ANALYSIS_MAX_ABS_VALUE,
+    MAX_FEATURES as PRINCIPAL_COMPONENT_ANALYSIS_MAX_FEATURES,
+    MAX_INPUT_LENGTH as PRINCIPAL_COMPONENT_ANALYSIS_MAX_INPUT_LENGTH,
+    MAX_ITERATIONS as PRINCIPAL_COMPONENT_ANALYSIS_MAX_ITERATIONS,
+    MAX_OUTPUT_LENGTH as PRINCIPAL_COMPONENT_ANALYSIS_MAX_OUTPUT_LENGTH,
+    MAX_SAMPLES as PRINCIPAL_COMPONENT_ANALYSIS_MAX_SAMPLES,
+    MIN_FEATURES as PRINCIPAL_COMPONENT_ANALYSIS_MIN_FEATURES,
+    MIN_NORM as PRINCIPAL_COMPONENT_ANALYSIS_MIN_NORM,
+    MIN_SAMPLES as PRINCIPAL_COMPONENT_ANALYSIS_MIN_SAMPLES,
+    TOLERANCE as PRINCIPAL_COMPONENT_ANALYSIS_TOLERANCE,
+    expected_result as principal_component_analysis_verifier_oracle,
+)
+from principle_component_analysis_oracle import (
+    MAX_OUTPUT_LENGTH as PRINCIPLE_COMPONENT_ANALYSIS_MAX_OUTPUT_LENGTH,
+    expected_output as principle_component_analysis_abi_verifier_oracle,
+    expected_result as principle_component_analysis_verifier_oracle,
+)
+from ramer_douglas_peucker_oracle import (
+    INVALID_RESULT as RAMER_DOUGLAS_PEUCKER_INVALID_RESULT,
+    MAX_ABS_COORDINATE as RAMER_DOUGLAS_PEUCKER_MAX_ABS_COORDINATE,
+    MAX_EPSILON as RAMER_DOUGLAS_PEUCKER_MAX_EPSILON,
+    MAX_INPUT_LENGTH as RAMER_DOUGLAS_PEUCKER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_LENGTH as RAMER_DOUGLAS_PEUCKER_MAX_OUTPUT_LENGTH,
+    MAX_POINTS as RAMER_DOUGLAS_PEUCKER_MAX_POINTS,
+    expected_result as ramer_douglas_peucker_verifier_oracle,
+)
+from kalman_filter_oracle import (
+    MAX_OUTPUT_ELEMENTS as KALMAN_FILTER_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as KALMAN_FILTER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_STEPS as KALMAN_FILTER_MAX_STEPS,
+    MAX_STATE_MICRO as KALMAN_FILTER_MAX_STATE_MICRO,
+    MAX_VARIANCE_MICRO as KALMAN_FILTER_MAX_VARIANCE_MICRO,
+    MIN_MEASUREMENT_NOISE_MICRO as KALMAN_FILTER_MIN_MEASUREMENT_NOISE_MICRO,
+    MIN_STATE_MICRO as KALMAN_FILTER_MIN_STATE_MICRO,
+    MIN_VARIANCE_MICRO as KALMAN_FILTER_MIN_VARIANCE_MICRO,
+    expected_output as kalman_filter_abi_verifier_oracle,
+    expected_result as kalman_filter_verifier_oracle,
+)
+from kalman_filter_r_two_state_simulation_oracle import (
+    INVALID_OUTPUT_RESULT as KALMAN_FILTER_R_INVALID_OUTPUT_RESULT,
+    INVALID_RESULT as KALMAN_FILTER_R_INVALID_RESULT,
+    MAX_OBSERVATIONS as KALMAN_FILTER_R_MAX_OBSERVATIONS,
+    MAX_OUTPUT_ELEMENTS as KALMAN_FILTER_R_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as KALMAN_FILTER_R_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OBSERVATION as KALMAN_FILTER_R_MAX_OBSERVATION,
+    MIN_OBSERVATIONS as KALMAN_FILTER_R_MIN_OBSERVATIONS,
+    MIN_OBSERVATION as KALMAN_FILTER_R_MIN_OBSERVATION,
+    expected_output as kalman_filter_r_abi_verifier_oracle,
+)
+from risk_metrics_oracle import (
+    ALGORITHM_NAMES as RISK_METRICS_ALGORITHM_NAMES,
+    INVALID_RESULT as RISK_METRICS_INVALID_RESULT,
+    MAX_CONFIDENCE as RISK_METRICS_MAX_CONFIDENCE,
+    MAX_PORTFOLIO_VALUE as RISK_METRICS_MAX_PORTFOLIO_VALUE,
+    MAX_RETURN as RISK_METRICS_MAX_RETURN,
+    MAX_RETURN_COUNT as RISK_METRICS_MAX_RETURN_COUNT,
+    MAX_SIMULATION_COUNT as RISK_METRICS_MAX_SIMULATION_COUNT,
+    MAX_STANDARD_NORMAL as RISK_METRICS_MAX_STANDARD_NORMAL,
+    MAX_TIME_HORIZON as RISK_METRICS_MAX_TIME_HORIZON,
+    MAX_UPDATE_RETURN_COUNT as RISK_METRICS_MAX_UPDATE_RETURN_COUNT,
+    MIN_CONFIDENCE as RISK_METRICS_MIN_CONFIDENCE,
+    MIN_PORTFOLIO_VALUE as RISK_METRICS_MIN_PORTFOLIO_VALUE,
+    MIN_RETURN as RISK_METRICS_MIN_RETURN,
+    MIN_RETURN_COUNT as RISK_METRICS_MIN_RETURN_COUNT,
+    MIN_SIMULATION_COUNT as RISK_METRICS_MIN_SIMULATION_COUNT,
+    MIN_STANDARD_NORMAL as RISK_METRICS_MIN_STANDARD_NORMAL,
+    MIN_TIME_HORIZON as RISK_METRICS_MIN_TIME_HORIZON,
+    OUTPUT_ERROR as RISK_METRICS_OUTPUT_ERROR,
+    expected_output as risk_metrics_abi_verifier_oracle,
+    expected_result as risk_metrics_verifier_oracle,
+)
+from muon_optimizer_oracle import (
+    INVALID_RESULT as MUON_OPTIMIZER_INVALID_RESULT,
+    MAX_INPUT_LENGTH as MUON_OPTIMIZER_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as MUON_OPTIMIZER_MAX_OUTPUT_ELEMENTS,
+    OUTPUT_ERROR as MUON_OPTIMIZER_OUTPUT_ERROR,
+    expected_output as muon_optimizer_abi_verifier_oracle,
+)
+from pseudo_inverse_oracle import (
+    INVALID_RESULT as PSEUDO_INVERSE_INVALID_RESULT,
+    MAX_OUTPUT_LENGTH as PSEUDO_INVERSE_MAX_OUTPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PSEUDO_INVERSE_MAX_PARSEABLE_INPUT_LENGTH,
+    OUTPUT_ERROR as PSEUDO_INVERSE_OUTPUT_ERROR,
+    expected_output as pseudo_inverse_abi_verifier_oracle,
+)
+from tdigest_oracle import (
+    INVALID_RESULT as TDIGEST_INVALID_RESULT,
+    MAX_INPUT_LENGTH as TDIGEST_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_LENGTH as TDIGEST_MAX_OUTPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as TDIGEST_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERIES as TDIGEST_MAX_QUERIES,
+    MAX_SAMPLES as TDIGEST_MAX_SAMPLES,
+    MAX_COMPRESSION as TDIGEST_MAX_COMPRESSION,
+    MIN_COMPRESSION as TDIGEST_MIN_COMPRESSION,
+    OUTPUT_ERROR as TDIGEST_OUTPUT_ERROR,
+    expected_output as tdigest_abi_verifier_oracle,
+)
+from sir_oracle import (
+    INPUT_LENGTH as SIR_INPUT_LENGTH,
+    INVALID_RESULT as SIR_INVALID_RESULT,
+    MAX_BETA as SIR_MAX_BETA,
+    MAX_K as SIR_MAX_K,
+    MAX_OUTPUT_ELEMENTS as SIR_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as SIR_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POPULATION as SIR_MAX_POPULATION,
+    MAX_TIME as SIR_MAX_TIME,
+    OUTPUT_ERROR as SIR_OUTPUT_ERROR,
+    expected_output as sir_abi_oracle,
+)
+from linear_discriminant_analysis_oracle import (
+    INVALID_RESULT as LINEAR_DISCRIMINANT_ANALYSIS_INVALID_RESULT,
+    MAX_CLASSES as LINEAR_DISCRIMINANT_ANALYSIS_MAX_CLASSES,
+    MAX_OUTPUT_ELEMENTS as LINEAR_DISCRIMINANT_ANALYSIS_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as LINEAR_DISCRIMINANT_ANALYSIS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_TOTAL_SAMPLES as LINEAR_DISCRIMINANT_ANALYSIS_MAX_TOTAL_SAMPLES,
+    MAX_VALID_INPUT_LENGTH as LINEAR_DISCRIMINANT_ANALYSIS_MAX_VALID_INPUT_LENGTH,
+    OUTPUT_ERROR as LINEAR_DISCRIMINANT_ANALYSIS_OUTPUT_ERROR,
+    expected_output as linear_discriminant_analysis_abi_oracle,
+)
 from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   _format_output, _output_token, encode_case, tolerances,
                                   validate_joint_probability_distribution_workload,
@@ -33,16 +176,64 @@ from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   validate_median_of_running_array_double_workload,
                                   validate_median_of_running_array_float_workload,
                                   validate_mean_shift_workload,
+                                  validate_local_weighted_learning_workload,
                                   validate_k_means_clust_workload,
                                   validate_lu_decompose_workload,
+                                  validate_lu_elimination_workload,
                                   validate_lu_pivot_decomposition_workload,
+                                  validate_kohonen_som_trace_workload,
+                                  validate_kohonen_som_topology_workload,
+                                  validate_qr_decompose_workload,
+                                  validate_qr_decomposition_workload,
+                                  validate_qr_eigen_values_workload,
+                                  validate_shuffle_workload,
+                                  validate_spirograph_workload,
                                   validate_polynomial_regression_workload,
                                   validate_pi_monte_carlo_estimation_workload,
+                                  validate_montecarlopi_workload,
+                                  validate_monte_carlo_simulation_workload,
+                                  validate_mini_batch_gradient_descent_workload,
                                   validate_momentum_sgd_workload,
                                   validate_soboleva_modified_hyperbolic_tangent_workload,
                                   validate_rmsprop_workload,
                                   validate_sherman_morrison_workload,
                                   validate_linearregressionrawr_workload,
+                                  validate_q_learning_workload,
+                                  validate_single_indeterminate_operations_workload,
+                                  validate_decision_tree_python_regression_workload,
+                                  validate_perceptron_workload,
+                                  TRAVELLING_SALESMAN_PYTHON_ALGORITHMS,
+                                  TSP_BRUTEFORCE_COORDINATE_BOUND,
+                                  TSP_BRUTEFORCE_MAX_CITIES,
+                                  TSP_BRUTEFORCE_MAX_OUTPUT_ELEMENTS,
+                                  TSP_HELD_KARP_COORDINATE_BOUND,
+                                  TSP_HELD_KARP_MAX_CITIES,
+                                  TSP_HELD_KARP_MAX_OUTPUT_ELEMENTS,
+                                  validate_travelling_salesman_python_workload,
+                                  MONTECARLOPI_MAX_OUTPUT_ELEMENTS,
+                                  MONTECARLOPI_MAX_PARSEABLE_INPUT_LENGTH,
+                                  MONTECARLOPI_MAX_VALID_INPUT_LENGTH,
+                                  MONTECARLOPI_MAX_RANDOM_POINTS,
+                                  MONTECARLOPI_MIN_RANDOM_POINTS,
+                                  MONTECARLOPI_SAMPLE_COORDINATE_LEVELS,
+                                  montecarlopi_abi_oracle,
+                                  MONTE_CARLO_SIMULATION_MAX_OUTPUT_ELEMENTS,
+                                  MONTE_CARLO_SIMULATION_MAX_PARSEABLE_INPUT_LENGTH,
+                                  MONTE_CARLO_SIMULATION_MAX_VALID_INPUT_LENGTH,
+                                  MONTE_CARLO_SIMULATION_MAX_SIMULATIONS,
+                                  MONTE_CARLO_SIMULATION_MATURITIES,
+                                  MONTE_CARLO_SIMULATION_STEP_COUNTS,
+                                  MONTE_CARLO_SIMULATION_ABSOLUTE_TOLERANCE,
+                                  monte_carlo_simulation_abi_oracle,
+                                  MINI_BATCH_GRADIENT_DESCENT_MAX_EPOCHS,
+                                  MINI_BATCH_GRADIENT_DESCENT_MAX_FEATURES,
+                                  MINI_BATCH_GRADIENT_DESCENT_MAX_INPUT_LENGTH,
+                                  MINI_BATCH_GRADIENT_DESCENT_MAX_OUTPUT_LENGTH,
+                                  MINI_BATCH_GRADIENT_DESCENT_MAX_SAMPLES,
+                                  MINI_BATCH_GRADIENT_DESCENT_MIN_EPOCHS,
+                                  MINI_BATCH_GRADIENT_DESCENT_MIN_FEATURES,
+                                  MINI_BATCH_GRADIENT_DESCENT_MIN_SAMPLES,
+                                  mini_batch_gradient_descent_oracle,
                                   LINEARREGRESSIONRAWR_MAX_OUTPUT_ELEMENTS,
                                   LINEARREGRESSIONRAWR_MAX_PARSEABLE_INPUT_LENGTH,
                                   LINEARREGRESSIONRAWR_MAX_PREDICTOR,
@@ -69,6 +260,36 @@ from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   _same_float64_sequence,
                                   _decode_k_d_tree_abi_values,
                                   _decode_single_point_crossover_abi_values)
+from q_learning_oracle import (
+    MAX_NEXT_ACTIONS as Q_LEARNING_MAX_NEXT_ACTIONS,
+    MAX_OUTPUT_ELEMENTS as Q_LEARNING_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as Q_LEARNING_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RATE as Q_LEARNING_MAX_RATE,
+    MAX_SCALAR as Q_LEARNING_MAX_SCALAR,
+    MIN_NEXT_ACTIONS as Q_LEARNING_MIN_NEXT_ACTIONS,
+    MIN_RATE as Q_LEARNING_MIN_RATE,
+    MIN_SCALAR as Q_LEARNING_MIN_SCALAR,
+    expected_output as q_learning_abi_oracle,
+)
+from single_indeterminate_operations_oracle import (
+    MAX_COEFFICIENT as SINGLE_INDETERMINATE_OPERATIONS_MAX_COEFFICIENT,
+    MAX_DEGREE as SINGLE_INDETERMINATE_OPERATIONS_MAX_DEGREE,
+    MAX_EVALUATION_POINT as SINGLE_INDETERMINATE_OPERATIONS_MAX_EVALUATION_POINT,
+    MAX_INTEGRAL_CONSTANT as SINGLE_INDETERMINATE_OPERATIONS_MAX_INTEGRAL_CONSTANT,
+    MAX_OUTPUT_ELEMENTS as SINGLE_INDETERMINATE_OPERATIONS_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as SINGLE_INDETERMINATE_OPERATIONS_MAX_PARSEABLE_INPUT_LENGTH,
+    MIN_COEFFICIENT as SINGLE_INDETERMINATE_OPERATIONS_MIN_COEFFICIENT,
+    MIN_DEGREE as SINGLE_INDETERMINATE_OPERATIONS_MIN_DEGREE,
+    MIN_EVALUATION_POINT as SINGLE_INDETERMINATE_OPERATIONS_MIN_EVALUATION_POINT,
+    MIN_INTEGRAL_CONSTANT as SINGLE_INDETERMINATE_OPERATIONS_MIN_INTEGRAL_CONSTANT,
+    OP_ADD as SINGLE_INDETERMINATE_OPERATIONS_OP_ADD,
+    OP_DERIVATIVE as SINGLE_INDETERMINATE_OPERATIONS_OP_DERIVATIVE,
+    OP_EVALUATE as SINGLE_INDETERMINATE_OPERATIONS_OP_EVALUATE,
+    OP_INTEGRAL as SINGLE_INDETERMINATE_OPERATIONS_OP_INTEGRAL,
+    OP_MULTIPLY as SINGLE_INDETERMINATE_OPERATIONS_OP_MULTIPLY,
+    OP_SUBTRACT as SINGLE_INDETERMINATE_OPERATIONS_OP_SUBTRACT,
+    expected_output as single_indeterminate_operations_abi_oracle,
+)
 from shreedharacharya_oracle import MAX_COEFFICIENT as SHREEDHARACHARYA_MAX_COEFFICIENT
 from shreedharacharya_oracle import MIN_ABS_LEADING_COEFFICIENT as SHREEDHARACHARYA_MIN_ABS_A
 from linear_regression_vectorized_oracle import MAX_ALPHA as LINEAR_REGRESSION_MAX_ALPHA
@@ -100,6 +321,18 @@ from mean_shift_oracle import (
     WORKSPACE_ELEMENTS as MEAN_SHIFT_WORKSPACE_ELEMENTS,
     expected_output as mean_shift_oracle,
 )
+from local_weighted_learning_oracle import (
+    ABSOLUTE_TOLERANCE as LOCAL_WEIGHTED_LEARNING_ABSOLUTE_TOLERANCE,
+    INVALID_RESULT as LOCAL_WEIGHTED_LEARNING_INVALID_RESULT,
+    MAX_D as LOCAL_WEIGHTED_LEARNING_MAX_D,
+    MAX_N as LOCAL_WEIGHTED_LEARNING_MAX_N,
+    MAX_OUTPUT_ELEMENTS as LOCAL_WEIGHTED_LEARNING_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as LOCAL_WEIGHTED_LEARNING_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LOCAL_WEIGHTED_LEARNING_MAX_VALID_INPUT_LENGTH,
+    OUTPUT_ERROR as LOCAL_WEIGHTED_LEARNING_OUTPUT_ERROR,
+    RELATIVE_TOLERANCE as LOCAL_WEIGHTED_LEARNING_RELATIVE_TOLERANCE,
+    expected_output as local_weighted_learning_abi_oracle,
+)
 from k_means_clust_oracle import (
     MAX_CLUSTER_COUNT as K_MEANS_CLUST_MAX_CLUSTER_COUNT,
     MAX_DIMENSION as K_MEANS_CLUST_MAX_DIMENSION,
@@ -116,12 +349,86 @@ from lu_decompose_oracle import (
     MAX_VALID_INPUT_LENGTH as LU_DECOMPOSE_MAX_VALID_INPUT_LENGTH,
     expected_output as lu_decompose_abi_oracle,
 )
+from lu_elimination_oracle import (
+    MAX_DIMENSION as LU_ELIMINATION_MAX_DIMENSION,
+    MAX_OUTPUT_ELEMENTS as LU_ELIMINATION_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as LU_ELIMINATION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as LU_ELIMINATION_MAX_VALID_INPUT_LENGTH,
+    expected_output as lu_elimination_abi_oracle,
+)
 from lu_pivot_decomposition_oracle import (
     MAX_DIMENSION as LU_PIVOT_DECOMPOSITION_MAX_DIMENSION,
     MAX_OUTPUT_ELEMENTS as LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS,
     MAX_PARSEABLE_INPUT_LENGTH as LU_PIVOT_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH,
     MAX_VALID_INPUT_LENGTH as LU_PIVOT_DECOMPOSITION_MAX_VALID_INPUT_LENGTH,
     expected_output as lu_pivot_decomposition_abi_oracle,
+)
+from kohonen_som_trace_oracle import (
+    MAX_FEATURES as KOHONEN_SOM_TRACE_MAX_FEATURES,
+    MAX_NODES as KOHONEN_SOM_TRACE_MAX_NODES,
+    MAX_OUTPUT_ELEMENTS as KOHONEN_SOM_TRACE_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as KOHONEN_SOM_TRACE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RADIUS as KOHONEN_SOM_TRACE_MAX_RADIUS,
+    MAX_VALID_INPUT_LENGTH as KOHONEN_SOM_TRACE_MAX_VALID_INPUT_LENGTH,
+    expected_output as kohonen_som_trace_abi_oracle,
+)
+from kohonen_som_topology_oracle import (
+    MAX_FEATURES as KOHONEN_SOM_TOPOLOGY_MAX_FEATURES,
+    MAX_MAP_SIZE as KOHONEN_SOM_TOPOLOGY_MAX_MAP_SIZE,
+    MAX_OUTPUT_ELEMENTS as KOHONEN_SOM_TOPOLOGY_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as KOHONEN_SOM_TOPOLOGY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RADIUS as KOHONEN_SOM_TOPOLOGY_MAX_RADIUS,
+    MAX_VALID_INPUT_LENGTH as KOHONEN_SOM_TOPOLOGY_MAX_VALID_INPUT_LENGTH,
+    expected_output as kohonen_som_topology_abi_oracle,
+)
+from qr_decompose_oracle import (
+    MAX_DIMENSION as QR_DECOMPOSE_MAX_DIMENSION,
+    MAX_OUTPUT_ELEMENTS as QR_DECOMPOSE_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as QR_DECOMPOSE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as QR_DECOMPOSE_MAX_VALID_INPUT_LENGTH,
+    MAX_MATRIX_VALUE as QR_DECOMPOSE_MAX_MATRIX_VALUE,
+    MIN_MATRIX_VALUE as QR_DECOMPOSE_MIN_MATRIX_VALUE,
+    MIN_DIMENSION as QR_DECOMPOSE_MIN_DIMENSION,
+    expected_output as qr_decompose_abi_oracle,
+)
+from qr_eigen_values_oracle import expected_output as qr_eigen_values_abi_verifier_oracle
+from qr_decomposition_oracle import (
+    MAX_DIMENSION as QR_DECOMPOSITION_MAX_DIMENSION,
+    MAX_OUTPUT_ELEMENTS as QR_DECOMPOSITION_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as QR_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as QR_DECOMPOSITION_MAX_VALID_INPUT_LENGTH,
+    MAX_MATRIX_VALUE as QR_DECOMPOSITION_MAX_MATRIX_VALUE,
+    MIN_MATRIX_VALUE as QR_DECOMPOSITION_MIN_MATRIX_VALUE,
+    MIN_DIMENSION as QR_DECOMPOSITION_MIN_DIMENSION,
+    expected_output as qr_decomposition_abi_oracle,
+)
+from shuffle_oracle import (
+    MAX_LENGTH as SHUFFLE_MAX_LENGTH,
+    MAX_OUTPUT_ELEMENTS as SHUFFLE_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as SHUFFLE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_VALID_INPUT_LENGTH as SHUFFLE_MAX_VALID_INPUT_LENGTH,
+    MAX_VALUE as SHUFFLE_MAX_VALUE,
+    MIN_LENGTH as SHUFFLE_MIN_LENGTH,
+    MIN_VALUE as SHUFFLE_MIN_VALUE,
+    expected_output as shuffle_abi_oracle,
+)
+from spirograph_oracle import (
+    ABSOLUTE_TOLERANCE as SPIROGRAPH_ABSOLUTE_TOLERANCE,
+    INVALID_RESULT as SPIROGRAPH_INVALID_RESULT,
+    MAX_INNER_RATIO as SPIROGRAPH_MAX_INNER_RATIO,
+    MAX_MARKER_RATIO as SPIROGRAPH_MAX_MARKER_RATIO,
+    MAX_OUTPUT_ELEMENTS as SPIROGRAPH_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as SPIROGRAPH_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POINTS as SPIROGRAPH_MAX_POINTS,
+    MAX_ROTATIONS as SPIROGRAPH_MAX_ROTATIONS,
+    MAX_VALID_INPUT_LENGTH as SPIROGRAPH_MAX_VALID_INPUT_LENGTH,
+    MIN_INNER_RATIO as SPIROGRAPH_MIN_INNER_RATIO,
+    MIN_MARKER_RATIO as SPIROGRAPH_MIN_MARKER_RATIO,
+    MIN_POINTS as SPIROGRAPH_MIN_POINTS,
+    MIN_ROTATIONS as SPIROGRAPH_MIN_ROTATIONS,
+    OUTPUT_ERROR as SPIROGRAPH_OUTPUT_ERROR,
+    RELATIVE_TOLERANCE as SPIROGRAPH_RELATIVE_TOLERANCE,
+    expected_output as spirograph_abi_oracle,
 )
 from polynomial_regression_oracle import (
     MAX_ABSCISSA as POLYNOMIAL_REGRESSION_MAX_ABSCISSA,
@@ -160,12 +467,94 @@ from momentum_sgd_oracle import (
 )
 from sherman_morrison_oracle import expected_output as sherman_morrison_abi_oracle
 from linearregressionrawr_oracle import expected_output as linearregressionrawr_abi_oracle
+from decision_tree_python_regression_oracle import (
+    INVALID_RESULT as DECISION_TREE_INVALID_RESULT,
+    MAX_DEPTH as DECISION_TREE_MAX_DEPTH,
+    MAX_INPUT_LENGTH as DECISION_TREE_MAX_INPUT_LENGTH,
+    MAX_LEAF_SIZE as DECISION_TREE_MAX_LEAF_SIZE,
+    MAX_OUTPUT_LENGTH as DECISION_TREE_MAX_OUTPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DECISION_TREE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERY_COUNT as DECISION_TREE_MAX_QUERY_COUNT,
+    MAX_SAMPLE_COUNT as DECISION_TREE_MAX_SAMPLE_COUNT,
+    MAX_VALUE as DECISION_TREE_MAX_VALUE,
+    MIN_DEPTH as DECISION_TREE_MIN_DEPTH,
+    MIN_LEAF_SIZE as DECISION_TREE_MIN_LEAF_SIZE,
+    MIN_QUERY_COUNT as DECISION_TREE_MIN_QUERY_COUNT,
+    MIN_SAMPLE_COUNT as DECISION_TREE_MIN_SAMPLE_COUNT,
+    MIN_VALUE as DECISION_TREE_MIN_VALUE,
+    OUTPUT_ERROR as DECISION_TREE_OUTPUT_ERROR,
+    expected_output as decision_tree_python_regression_abi_verifier_oracle,
+)
+from perceptron_java_oracle import (
+    INVALID_RESULT as PERCEPTRON_JAVA_INVALID_RESULT,
+    MAX_FEATURES as PERCEPTRON_JAVA_MAX_FEATURES,
+    MAX_INPUT_LENGTH as PERCEPTRON_JAVA_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_LENGTH as PERCEPTRON_JAVA_MAX_OUTPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PERCEPTRON_JAVA_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERIES as PERCEPTRON_JAVA_MAX_QUERIES,
+    MAX_SAMPLES as PERCEPTRON_JAVA_MAX_SAMPLES,
+    OUTPUT_ERROR as PERCEPTRON_JAVA_OUTPUT_ERROR,
+    expected_output as perceptron_java_abi_verifier_oracle,
+)
+from perceptron_python_oracle import (
+    INVALID_RESULT as PERCEPTRON_PYTHON_INVALID_RESULT,
+    MAX_FEATURES as PERCEPTRON_PYTHON_MAX_FEATURES,
+    MAX_INPUT_LENGTH as PERCEPTRON_PYTHON_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_LENGTH as PERCEPTRON_PYTHON_MAX_OUTPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PERCEPTRON_PYTHON_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERIES as PERCEPTRON_PYTHON_MAX_QUERIES,
+    MAX_SAMPLES as PERCEPTRON_PYTHON_MAX_SAMPLES,
+    OUTPUT_ERROR as PERCEPTRON_PYTHON_OUTPUT_ERROR,
+    expected_output as perceptron_python_abi_verifier_oracle,
+)
+from perceptron_r_oracle import (
+    INVALID_RESULT as PERCEPTRON_R_INVALID_RESULT,
+    MAX_FEATURES as PERCEPTRON_R_MAX_FEATURES,
+    MAX_INPUT_LENGTH as PERCEPTRON_R_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_LENGTH as PERCEPTRON_R_MAX_OUTPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PERCEPTRON_R_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERIES as PERCEPTRON_R_MAX_QUERIES,
+    MAX_SAMPLES as PERCEPTRON_R_MAX_SAMPLES,
+    OUTPUT_ERROR as PERCEPTRON_R_OUTPUT_ERROR,
+    expected_output as perceptron_r_abi_verifier_oracle,
+)
+from perceptron_rust_oracle import (
+    INVALID_RESULT as PERCEPTRON_RUST_INVALID_RESULT,
+    MAX_FEATURES as PERCEPTRON_RUST_MAX_FEATURES,
+    MAX_INPUT_LENGTH as PERCEPTRON_RUST_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_LENGTH as PERCEPTRON_RUST_MAX_OUTPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PERCEPTRON_RUST_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERIES as PERCEPTRON_RUST_MAX_QUERIES,
+    MAX_SAMPLES as PERCEPTRON_RUST_MAX_SAMPLES,
+    OUTPUT_ERROR as PERCEPTRON_RUST_OUTPUT_ERROR,
+    expected_output as perceptron_rust_abi_verifier_oracle,
+)
 
 ALGORITHMS = tuple(ORACLES)
 
 
 def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "rhumb_distance":
+    if algorithm == "pca":
+        validate_pca_workload(workload)
+    elif algorithm == "principal_component_analysis":
+        validate_principal_component_analysis_workload(workload)
+    elif algorithm == "principle_component_analysis":
+        validate_principle_component_analysis_workload(workload)
+    elif algorithm == "ramer_douglas_peucker":
+        validate_ramer_douglas_peucker_workload(workload)
+    elif algorithm == "kalman_filter":
+        validate_kalman_filter_workload(workload)
+    elif algorithm == "kalman_filter_r_two_state_simulation":
+        validate_kalman_filter_r_two_state_simulation_workload(workload)
+    elif algorithm in RISK_METRICS_ALGORITHM_NAMES:
+        validate_risk_metrics_workload(workload, algorithm)
+    elif algorithm == "muon_optimizer":
+        validate_muon_optimizer_workload(workload)
+    elif algorithm == "pseudo_inverse":
+        validate_pseudo_inverse_workload(workload)
+    elif algorithm == "tdigest":
+        validate_tdigest_workload(workload)
+    elif algorithm == "rhumb_distance":
         validate_rhumb_distance_workload(workload)
     elif algorithm == "rhumb_bearing":
         validate_rhumb_bearing_workload(workload)
@@ -177,8 +566,20 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_median_of_running_array_float_workload(workload)
     elif algorithm == "mean_shift":
         validate_mean_shift_workload(workload)
+    elif algorithm == "local_weighted_learning":
+        validate_local_weighted_learning_workload(workload)
+    elif algorithm == "sir":
+        validate_sir_workload(workload)
+    elif algorithm == "linear_discriminant_analysis":
+        validate_linear_discriminant_analysis_workload(workload)
     elif algorithm == "pi_monte_carlo_estimation":
         validate_pi_monte_carlo_estimation_workload(workload)
+    elif algorithm == "montecarlopi":
+        validate_montecarlopi_workload(workload)
+    elif algorithm == "monte_carlo_simulation":
+        validate_monte_carlo_simulation_workload(workload)
+    elif algorithm == "mini_batch_gradient_descent":
+        validate_mini_batch_gradient_descent_workload(workload)
     elif algorithm == "soboleva_modified_hyperbolic_tangent":
         validate_soboleva_modified_hyperbolic_tangent_workload(workload)
     elif algorithm == "rmsprop":
@@ -189,18 +590,46 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_k_means_clust_workload(workload)
     elif algorithm == "lu_decompose":
         validate_lu_decompose_workload(workload)
+    elif algorithm == "lu_elimination":
+        validate_lu_elimination_workload(workload)
     elif algorithm == "lu_pivot_decomposition":
         validate_lu_pivot_decomposition_workload(workload)
+    elif algorithm == "kohonen_som_trace":
+        validate_kohonen_som_trace_workload(workload)
+    elif algorithm == "kohonen_som_topology":
+        validate_kohonen_som_topology_workload(workload)
+    elif algorithm == "qr_decompose":
+        validate_qr_decompose_workload(workload)
+    elif algorithm == "qr_decomposition":
+        validate_qr_decomposition_workload(workload)
+    elif algorithm == "qr_eigen_values":
+        validate_qr_eigen_values_workload(workload)
+    elif algorithm == "shuffle":
+        validate_shuffle_workload(workload)
+    elif algorithm == "spirograph":
+        validate_spirograph_workload(workload)
     elif algorithm == "polynomial_regression":
         validate_polynomial_regression_workload(workload)
     elif algorithm == "sherman_morrison":
         validate_sherman_morrison_workload(workload)
     elif algorithm == "linearregressionrawr":
         validate_linearregressionrawr_workload(workload)
+    elif algorithm == "q_learning":
+        validate_q_learning_workload(workload)
+    elif algorithm == "decision_tree_python_regression":
+        validate_decision_tree_python_regression_workload(workload)
+    elif algorithm in {"perceptron_java", "perceptron_python", "perceptron_r", "perceptron_rust"}:
+        validate_perceptron_workload(workload, algorithm)
+    elif algorithm in TRAVELLING_SALESMAN_PYTHON_ALGORITHMS:
+        validate_travelling_salesman_python_workload(workload, algorithm)
     absolute_tolerance, relative_tolerance = tolerances(workload)
     workspace = workload.get("workspace", {}).get("elements")
-    if type(workspace) is not int or not 1 <= workspace <= 64:
-        raise ValueError("workspace.elements must be an integer from 1 through 64")
+    if algorithm in RISK_METRICS_ALGORITHM_NAMES or algorithm in TRAVELLING_SALESMAN_PYTHON_ALGORITHMS:
+        workspace = workload.get("output", {}).get("maximum_elements")
+    maximum_workspace = (SHUFFLE_MAX_OUTPUT_ELEMENTS if algorithm == "shuffle" else 64)
+    if (type(workspace) is not int or not 1 <= workspace <= maximum_workspace):
+        raise ValueError(
+            f"workspace.elements must be an integer from 1 through {maximum_workspace}")
     records: list[tuple[list[float], int, list[float | str], int, int, int]] = []
     valid_case: tuple[list[float], int, list[float | str]] | None = None
     for case in workload.get("cases", []):
@@ -208,7 +637,10 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             case, algorithm, absolute_tolerance, relative_tolerance)
         if expected_result >= 0 and expected_result > workspace:
             raise ValueError(f"workspace is too small for {case.get('id')}")
-        records.append((values, expected_result, expected_output, workspace, 0, 0))
+        output_capacity = case.get("output_capacity", workspace)
+        output_is_null = bool(case.get("output_is_null", False))
+        records.append((values, expected_result, expected_output,
+                        output_capacity, 0, int(output_is_null)))
         if expected_result > 0 and valid_case is None:
             valid_case = (values, expected_result, expected_output)
 
@@ -227,14 +659,1541 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                                     "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                                     "median_of_running_array_double", "median_of_running_array_float",
                                     "mean_shift", "k_means_clust", "lu_decompose",
-                                    "lu_pivot_decomposition", "polynomial_regression",
-                                    "linearregressionrawr"}
+                                    "lu_elimination",
+                                    "lu_pivot_decomposition", "kohonen_som_trace",
+                                    "kohonen_som_topology",
+                                    "qr_decompose",
+                                    "qr_decomposition",
+                                    "shuffle",
+                                    "spirograph",
+                                    "polynomial_regression",
+                                    "linearregressionrawr", "q_learning",
+                                    "single_indeterminate_operations", "montecarlopi",
+                                    "local_weighted_learning", "pseudo_inverse", "tdigest",
+                                    *TRAVELLING_SALESMAN_PYTHON_ALGORITHMS}
                    else oracle_result is None)
         if invalid:
             records.append((invalid_input, -1, [], workspace, 0, 0))
     records.append((values, -1, [], workspace, 1, 0))
     if algorithm != "md2_digest":
         records.append(([], -1, [], workspace, 0, 0))
+
+    if algorithm in TRAVELLING_SALESMAN_PYTHON_ALGORITHMS:
+        tsp_oracle = ORACLES[algorithm]
+        tsp_rng = random.Random(20261017 + sorted(TRAVELLING_SALESMAN_PYTHON_ALGORITHMS).index(algorithm))
+
+        def add_tsp_case(inputs: list[float]) -> None:
+            result, output = tsp_oracle(inputs, workspace, False)
+            if (result <= 0 or result != len(output) or result > workspace
+                    or any(not math.isfinite(value) for value in output)):
+                raise ValueError(f"{algorithm} rejected a generated valid ABI case")
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
+
+        if algorithm == "travelling_salesman_python_genetic":
+            for _ in range(32):
+                population = 2 * tsp_rng.randint(1, 4)
+                iterations = tsp_rng.randint(0, 12)
+                crossover = tsp_rng.random()
+                mutation = tsp_rng.random()
+                first = (tsp_rng.randint(-16, 16), tsp_rng.randint(-16, 16))
+                second = first
+                while second == first:
+                    second = (tsp_rng.randint(-16, 16), tsp_rng.randint(-16, 16))
+                add_tsp_case([float(population), float(iterations), crossover, mutation,
+                              float(first[0]), float(first[1]), float(second[0]), float(second[1])])
+        else:
+            coordinate_bound = (TSP_BRUTEFORCE_COORDINATE_BOUND
+                                if algorithm == "travelling_salesman_python_bruteforce"
+                                else TSP_HELD_KARP_COORDINATE_BOUND)
+            maximum_cities = (TSP_BRUTEFORCE_MAX_CITIES
+                              if algorithm == "travelling_salesman_python_bruteforce"
+                              else TSP_HELD_KARP_MAX_CITIES)
+
+            def random_tsp_points(city_count: int) -> list[tuple[int, int]]:
+                points: list[tuple[int, int]] = []
+                while len(points) < city_count:
+                    point = (tsp_rng.randint(-coordinate_bound, coordinate_bound),
+                             tsp_rng.randint(-coordinate_bound, coordinate_bound))
+                    if point not in points:
+                        points.append(point)
+                return points
+
+            for city_count in range(2, maximum_cities + 1):
+                points = random_tsp_points(city_count)
+                add_tsp_case([float(city_count),
+                              *[float(coordinate) for point in points for coordinate in point]])
+            for _ in range(12):
+                city_count = tsp_rng.randint(2, maximum_cities)
+                points = random_tsp_points(city_count)
+                add_tsp_case([float(city_count),
+                              *[float(coordinate) for point in points for coordinate in point]])
+
+    if algorithm == "decision_tree_python_regression":
+        if (workspace != DECISION_TREE_MAX_OUTPUT_LENGTH
+                or absolute_tolerance != 1e-10 or relative_tolerance != 1e-10):
+            raise ValueError("decision_tree_python_regression requires a 13-element workspace and 1e-10 tolerances")
+
+        def add_decision_tree_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > DECISION_TREE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= DECISION_TREE_MAX_OUTPUT_LENGTH
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= DECISION_TREE_MAX_PARSEABLE_INPUT_LENGTH
+                    or input_is_null and inputs and input_length < len(inputs)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("decision_tree_python_regression generated ABI framing is invalid")
+            oracle_inputs = [] if input_is_null else inputs
+            result, output = decision_tree_python_regression_abi_verifier_oracle(
+                oracle_inputs, output_capacity=capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null, input_length=input_length)
+            if (result >= 0 and (result != len(output)
+                                 or result > DECISION_TREE_MAX_OUTPUT_LENGTH
+                                 or output_is_null
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (
+                        DECISION_TREE_INVALID_RESULT, DECISION_TREE_OUTPUT_ERROR) or output)):
+                raise ValueError("decision_tree_python_regression oracle returned inconsistent ABI framing")
+            checker_inputs = [0.0] * input_length if input_is_null else [float(value) for value in inputs]
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        maximum_input = [
+            float(DECISION_TREE_MAX_DEPTH), float(DECISION_TREE_MIN_LEAF_SIZE),
+            float(DECISION_TREE_MAX_SAMPLE_COUNT),
+            *[float(DECISION_TREE_MIN_VALUE + index)
+              for index in range(DECISION_TREE_MAX_SAMPLE_COUNT)],
+            *[float(DECISION_TREE_MAX_VALUE - index)
+              for index in range(DECISION_TREE_MAX_SAMPLE_COUNT)],
+            float(DECISION_TREE_MAX_QUERY_COUNT),
+            *[float(DECISION_TREE_MIN_VALUE + index)
+              for index in range(DECISION_TREE_MAX_QUERY_COUNT)],
+        ]
+        if len(maximum_input) != DECISION_TREE_MAX_INPUT_LENGTH:
+            raise ValueError("decision_tree_python_regression maximum shape has an unexpected length")
+        result, output = add_decision_tree_case(maximum_input)
+        if result != DECISION_TREE_MAX_OUTPUT_LENGTH or len(output) != result:
+            raise ValueError("decision_tree_python_regression oracle rejected its maximum valid shape")
+        for capacity in (0, result - 1, result):
+            add_decision_tree_case(maximum_input, capacity=capacity)
+        add_decision_tree_case(maximum_input, output_is_null=True)
+        add_decision_tree_case([], input_is_null=True, input_length=0)
+        add_decision_tree_case(maximum_input, input_is_null=True,
+                               input_length=DECISION_TREE_MAX_INPUT_LENGTH)
+        add_decision_tree_case(maximum_input + [0.0],
+                               input_length=DECISION_TREE_MAX_PARSEABLE_INPUT_LENGTH)
+        add_decision_tree_case([0.0, 1.0, 13.0])
+        add_decision_tree_case([1.0, 1.0, 2.0, 0.0, 1.0, 0.0, 1.0, 13.0])
+        add_decision_tree_case([1.5, 1.0, 2.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0])
+        add_decision_tree_case([2.0, 1.0, 2.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.0])
+        add_decision_tree_case([1.0, 1.0, 2.0, -9.0, 1.0, 0.0, 1.0, 1.0, 0.0])
+        add_decision_tree_case([1.0, 1.0, 2.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0])
+        add_decision_tree_case([0.0, 1.0, 2.0], capacity=0, output_is_null=True)
+
+        rng_decision_tree = random.Random(20261017)
+        for index in range(64):
+            sample_count = rng_decision_tree.randint(
+                DECISION_TREE_MIN_SAMPLE_COUNT, DECISION_TREE_MAX_SAMPLE_COUNT)
+            query_count = rng_decision_tree.randint(
+                DECISION_TREE_MIN_QUERY_COUNT, DECISION_TREE_MAX_QUERY_COUNT)
+            inputs = [
+                float(rng_decision_tree.randint(DECISION_TREE_MIN_DEPTH, DECISION_TREE_MAX_DEPTH)),
+                float(rng_decision_tree.randint(DECISION_TREE_MIN_LEAF_SIZE, DECISION_TREE_MAX_LEAF_SIZE)),
+                float(sample_count),
+                *[float(rng_decision_tree.randint(DECISION_TREE_MIN_VALUE, DECISION_TREE_MAX_VALUE))
+                  for _ in range(sample_count)],
+                *[float(rng_decision_tree.randint(DECISION_TREE_MIN_VALUE, DECISION_TREE_MAX_VALUE))
+                  for _ in range(sample_count)],
+                float(query_count),
+                *[float(rng_decision_tree.randint(DECISION_TREE_MIN_VALUE, DECISION_TREE_MAX_VALUE))
+                  for _ in range(query_count)],
+            ]
+            result, output = add_decision_tree_case(inputs)
+            if result != query_count + 1 or len(output) != result:
+                raise ValueError("decision_tree_python_regression oracle rejected a generated valid input")
+            if index % 16 == 0:
+                add_decision_tree_case(inputs, capacity=result - 1)
+                add_decision_tree_case(inputs, output_is_null=True)
+
+    if algorithm in {"perceptron_java", "perceptron_python", "perceptron_r", "perceptron_rust"}:
+        perceptron_specs = {
+            "perceptron_java": (
+                perceptron_java_abi_verifier_oracle, PERCEPTRON_JAVA_MAX_SAMPLES,
+                PERCEPTRON_JAVA_MAX_FEATURES, PERCEPTRON_JAVA_MAX_QUERIES,
+                PERCEPTRON_JAVA_MAX_INPUT_LENGTH, PERCEPTRON_JAVA_MAX_PARSEABLE_INPUT_LENGTH,
+                PERCEPTRON_JAVA_MAX_OUTPUT_LENGTH, PERCEPTRON_JAVA_INVALID_RESULT,
+                PERCEPTRON_JAVA_OUTPUT_ERROR),
+            "perceptron_python": (
+                perceptron_python_abi_verifier_oracle, PERCEPTRON_PYTHON_MAX_SAMPLES,
+                PERCEPTRON_PYTHON_MAX_FEATURES, PERCEPTRON_PYTHON_MAX_QUERIES,
+                PERCEPTRON_PYTHON_MAX_INPUT_LENGTH, PERCEPTRON_PYTHON_MAX_PARSEABLE_INPUT_LENGTH,
+                PERCEPTRON_PYTHON_MAX_OUTPUT_LENGTH, PERCEPTRON_PYTHON_INVALID_RESULT,
+                PERCEPTRON_PYTHON_OUTPUT_ERROR),
+            "perceptron_r": (
+                perceptron_r_abi_verifier_oracle, PERCEPTRON_R_MAX_SAMPLES,
+                PERCEPTRON_R_MAX_FEATURES, PERCEPTRON_R_MAX_QUERIES,
+                PERCEPTRON_R_MAX_INPUT_LENGTH, PERCEPTRON_R_MAX_PARSEABLE_INPUT_LENGTH,
+                PERCEPTRON_R_MAX_OUTPUT_LENGTH, PERCEPTRON_R_INVALID_RESULT,
+                PERCEPTRON_R_OUTPUT_ERROR),
+            "perceptron_rust": (
+                perceptron_rust_abi_verifier_oracle, PERCEPTRON_RUST_MAX_SAMPLES,
+                PERCEPTRON_RUST_MAX_FEATURES, PERCEPTRON_RUST_MAX_QUERIES,
+                PERCEPTRON_RUST_MAX_INPUT_LENGTH, PERCEPTRON_RUST_MAX_PARSEABLE_INPUT_LENGTH,
+                PERCEPTRON_RUST_MAX_OUTPUT_LENGTH, PERCEPTRON_RUST_INVALID_RESULT,
+                PERCEPTRON_RUST_OUTPUT_ERROR),
+        }
+        (oracle, max_samples, max_features, max_queries, max_input_length,
+         max_parseable_length, max_output_length, invalid_result, output_error) = perceptron_specs[algorithm]
+        if (workspace != max_output_length
+                or absolute_tolerance != 1e-10 or relative_tolerance != 1e-10
+                or max_samples != 8 or max_features != 4 or max_queries != 4
+                or max_input_length != 61 or max_parseable_length != 62):
+            raise ValueError(f"{algorithm} requires its reviewed output workspace and 1e-10 tolerances")
+
+        def add_perceptron_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > max_parseable_length
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in inputs)
+                    or type(capacity) is not int or not 0 <= capacity <= max_output_length
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(input_length) is not int or not 0 <= input_length <= max_parseable_length
+                    or input_is_null and inputs and input_length < len(inputs)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError(f"{algorithm} generated ABI framing is invalid")
+            result, output = oracle(
+                [] if input_is_null else inputs, input_length=input_length,
+                output_capacity=capacity, output_is_null=output_is_null,
+                input_is_null=input_is_null)
+            if (result >= 0 and (result != len(output) or result > max_output_length
+                                 or output_is_null
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (invalid_result, output_error) or output)):
+                raise ValueError(f"{algorithm} oracle returned inconsistent ABI framing")
+            checker_inputs = [0.0] * input_length if input_is_null else [float(value) for value in inputs]
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        max_feature_values = [float((index % 5) - 2)
+                              for index in range(max_samples * max_features)]
+        max_query_values = [float(((index + 2) % 5) - 2)
+                            for index in range(max_queries * max_features)]
+        if algorithm == "perceptron_java":
+            max_labels = [float(index % 2) for index in range(max_samples)]
+            max_input = [1.0, 12.0, float(max_samples), float(max_features),
+                         *max_feature_values, *max_labels, float(max_queries), *max_query_values]
+        elif algorithm == "perceptron_python":
+            max_labels = [1.0 if index % 2 else -1.0 for index in range(max_samples)]
+            max_input = [1.0, 12.0, float(max_samples), float(max_features),
+                         *max_feature_values, *max_labels, float(max_queries), *max_query_values]
+        elif algorithm == "perceptron_r":
+            max_labels = [float((-2, 0, 2)[index % 3]) for index in range(max_samples)]
+            max_input = [1.0, 12.0, float(max_samples), float(max_features),
+                         *max_feature_values, *max_labels, float(max_queries), *max_query_values]
+        else:
+            max_labels = [1.0 if index % 2 else -1.0 for index in range(max_samples)]
+            max_input = [12.0, 1.0, float(max_samples), float(max_features),
+                         *max_feature_values, *max_labels, float(max_queries), *max_query_values]
+        if len(max_input) != max_input_length:
+            raise ValueError(f"{algorithm} maximum input shape has an unexpected length")
+        result, output = add_perceptron_case(max_input)
+        if result != max_output_length or len(output) != result:
+            raise ValueError(f"{algorithm} oracle rejected its maximum valid shape")
+        for capacity in (0, result - 1, result):
+            add_perceptron_case(max_input, capacity=capacity)
+        add_perceptron_case(max_input, output_is_null=True)
+        add_perceptron_case([], input_is_null=True, input_length=0)
+        add_perceptron_case(max_input, input_is_null=True, input_length=max_input_length)
+        add_perceptron_case(max_input + [0.0], input_length=max_parseable_length)
+        bad_learning_rate = list(max_input)
+        bad_learning_rate[1 if algorithm == "perceptron_rust" else 0] = 0.125
+        add_perceptron_case(bad_learning_rate)
+        bad_sample_count = list(max_input)
+        bad_sample_count[2] = float(max_samples + 1)
+        add_perceptron_case(bad_sample_count)
+        fractional = list(max_input)
+        fractional[4] = 0.5
+        add_perceptron_case(fractional)
+        fractional_count = list(max_input)
+        fractional_count[2] = 2.5
+        add_perceptron_case(fractional_count)
+        out_of_range = list(max_input)
+        out_of_range[4] = -3.0
+        add_perceptron_case(out_of_range)
+        bad_query_count = list(max_input)
+        query_count_index = 4 + max_samples * max_features + max_samples
+        bad_query_count[query_count_index] = 0.0
+        add_perceptron_case(bad_query_count)
+        bad_labels = list(max_input)
+        label_start = 4 + max_samples * max_features
+        if algorithm == "perceptron_java":
+            bad_labels[label_start] = 2.0
+        elif algorithm == "perceptron_r":
+            bad_labels[label_start:label_start + max_samples] = [-2.0] * max_samples
+        else:
+            bad_labels[label_start] = 0.0
+        add_perceptron_case(bad_labels)
+        add_perceptron_case(bad_learning_rate, capacity=0, output_is_null=True)
+        if algorithm == "perceptron_rust":
+            zero_iteration_input = list(max_input)
+            zero_iteration_input[0] = 0.0
+            result, output = add_perceptron_case(zero_iteration_input)
+            if result != max_output_length or len(output) != result:
+                raise ValueError("perceptron_rust oracle rejected the zero-iteration boundary")
+
+        rng_perceptron = random.Random(20261017)
+        for index in range(48):
+            sample_count = rng_perceptron.randint(2, max_samples)
+            feature_count = rng_perceptron.randint(1, max_features)
+            query_count = rng_perceptron.randint(1, max_queries)
+            features = [float(rng_perceptron.randint(-2, 2))
+                        for _ in range(sample_count * feature_count)]
+            queries = [float(rng_perceptron.randint(-2, 2))
+                       for _ in range(query_count * feature_count)]
+            if algorithm == "perceptron_java":
+                labels = [float(rng_perceptron.randint(0, 1)) for _ in range(sample_count)]
+                inputs = [float(rng_perceptron.choice((0.25, 0.5, 0.75, 1.0))),
+                          float(rng_perceptron.randint(1, 12)), float(sample_count),
+                          float(feature_count), *features, *labels, float(query_count), *queries]
+            elif algorithm == "perceptron_python":
+                labels = [float(rng_perceptron.choice((-1, 1))) for _ in range(sample_count)]
+                inputs = [float(rng_perceptron.choice((0.25, 0.5, 0.75, 1.0))),
+                          float(rng_perceptron.randint(1, 12)), float(sample_count),
+                          float(feature_count), *features, *labels, float(query_count), *queries]
+            elif algorithm == "perceptron_r":
+                class_count = 2 if sample_count == 2 else rng_perceptron.randint(2, 3)
+                classes = (-2, 2) if class_count == 2 else (-2, 0, 2)
+                labels = [float(classes[row % class_count]) for row in range(sample_count)]
+                inputs = [float(rng_perceptron.choice((0.25, 0.5, 0.75, 1.0))),
+                          float(rng_perceptron.randint(1, 12)), float(sample_count),
+                          float(feature_count), *features, *labels, float(query_count), *queries]
+            else:
+                labels = [float(rng_perceptron.choice((-1, 1))) for _ in range(sample_count)]
+                inputs = [float(rng_perceptron.randint(0, 12)),
+                          float(rng_perceptron.choice((0.25, 0.5, 0.75, 1.0))),
+                          float(sample_count), float(feature_count), *features, *labels,
+                          float(query_count), *queries]
+            result, output = add_perceptron_case(inputs)
+            if result <= 0 or len(output) != result:
+                raise ValueError(f"{algorithm} oracle rejected a generated valid input")
+            if index % 12 == 0:
+                add_perceptron_case(inputs, capacity=result - 1)
+                add_perceptron_case(inputs, output_is_null=True)
+
+    if algorithm == "pca":
+        if workspace != PCA_MAX_OUTPUT_ELEMENTS:
+            raise ValueError("pca requires its reviewed 12-element output workspace")
+        rng_pca = random.Random(20261017)
+        for index in range(96):
+            sample_count = rng_pca.randint(PCA_MIN_SAMPLES, PCA_MAX_SAMPLES)
+            direction = -1.5 if index % 2 else 1.5
+            inputs = [float(sample_count), 2.0, 1.0]
+            for sample_index in range(sample_count):
+                x = sample_index - (sample_count - 1) / 2.0 + rng_pca.uniform(-0.1, 0.1)
+                y = direction * x + rng_pca.uniform(-0.2, 0.2)
+                inputs.extend((x, y))
+            output = pca_verifier_oracle(inputs)
+            if output is None or len(output) != sample_count + 4:
+                raise ValueError("pca oracle rejected a generated valid sample matrix")
+            records.append((inputs, len(output), [_output_token(value) for value in output],
+                            workspace, 0, 0))
+
+        invalid_matrices = (
+            [3.0, 2.0, 1.0, 1.0, 5.0, 2.0, 5.0, 3.0, 5.0],
+            [4.0, 2.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0],
+            [3.0, 2.0, 1.0, 1.0, 5.0, 2.0, 5.0, 3.0, 1001.0],
+        )
+        for inputs in invalid_matrices:
+            if pca_verifier_oracle(inputs) is not None:
+                raise ValueError("pca oracle accepted a degenerate or out-of-domain matrix")
+            records.append((inputs, -1, [], workspace, 0, 0))
+
+    if algorithm == "principle_component_analysis":
+        if (workspace != PRINCIPLE_COMPONENT_ANALYSIS_MAX_OUTPUT_LENGTH
+                or absolute_tolerance != 1e-8 or relative_tolerance != 1e-8):
+            raise ValueError("principle_component_analysis requires a 38-element workspace and 1e-8 tolerances")
+
+        def add_principle_component_analysis_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False) -> tuple[int, list[float]]:
+            result, output = principle_component_analysis_abi_verifier_oracle(
+                inputs, capacity, output_is_null, input_is_null)
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        valid_case = next((case for case in workload["cases"]
+                           if case["id"] == "maximum_shape_four_components"), None)
+        if valid_case is None:
+            raise ValueError("principle_component_analysis maximum fixture is missing")
+        maximum_input = [float(value) for value in valid_case["input_values"]]
+        maximum_result = valid_case["expected_result"]
+        if (len(maximum_input) != 35 or maximum_result != PRINCIPLE_COMPONENT_ANALYSIS_MAX_OUTPUT_LENGTH):
+            raise ValueError("principle_component_analysis maximum fixture does not fill its workspace")
+        for capacity in (0, maximum_result - 1, maximum_result):
+            add_principle_component_analysis_case(maximum_input, capacity)
+        add_principle_component_analysis_case(maximum_input, output_is_null=True)
+        add_principle_component_analysis_case([], input_is_null=True)
+        add_principle_component_analysis_case([], output_is_null=True, input_is_null=True)
+        add_principle_component_analysis_case(
+            [9.0, 2.0, 1.0, *([0.0] * 18)], 0, output_is_null=True)
+
+    if algorithm == "principal_component_analysis":
+        if workspace != PRINCIPAL_COMPONENT_ANALYSIS_MAX_OUTPUT_LENGTH:
+            raise ValueError("principal_component_analysis requires its reviewed 34-element output workspace")
+
+        def add_principal_component_analysis_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False) -> tuple[int, list[float]]:
+            if (len(inputs) > PRINCIPAL_COMPONENT_ANALYSIS_MAX_INPUT_LENGTH + 1
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= workspace
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool):
+                raise ValueError("principal_component_analysis generated ABI framing is invalid")
+            raw_output = (None if input_is_null else
+                          principal_component_analysis_verifier_oracle(inputs))
+            if raw_output is None or type(raw_output) is int:
+                result, output = PRINCIPAL_COMPONENT_ANALYSIS_INVALID_RESULT, []
+            elif output_is_null or capacity < len(raw_output):
+                result, output = -2, []
+            else:
+                result, output = len(raw_output), raw_output
+            if (result >= 0 and (result != len(output)
+                                 or result > PRINCIPAL_COMPONENT_ANALYSIS_MAX_OUTPUT_LENGTH
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (PRINCIPAL_COMPONENT_ANALYSIS_INVALID_RESULT, -2)
+                                       or output)):
+                raise ValueError("principal_component_analysis oracle returned inconsistent ABI framing")
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        def stable_principal_component_analysis_inputs(
+                sample_count: int, feature_count: int, component_count: int,
+                rng: random.Random, noise: float = 0.01) -> list[float]:
+            values = [float(sample_count), float(feature_count), float(component_count)]
+            for row in range(sample_count):
+                for feature in range(feature_count):
+                    basis = math.cos(math.pi * (row + 0.5) * (feature + 1) / sample_count)
+                    values.append(10.0 * (feature_count - feature) * basis
+                                  + rng.uniform(-noise, noise))
+            return values
+
+        rng_principal_component_analysis = random.Random(20261017)
+        for index in range(96):
+            feature_count = rng_principal_component_analysis.randint(
+                PRINCIPAL_COMPONENT_ANALYSIS_MIN_FEATURES,
+                PRINCIPAL_COMPONENT_ANALYSIS_MAX_FEATURES)
+            sample_count = rng_principal_component_analysis.randint(
+                feature_count + 1, PRINCIPAL_COMPONENT_ANALYSIS_MAX_SAMPLES)
+            component_count = rng_principal_component_analysis.randint(1, feature_count)
+            inputs = stable_principal_component_analysis_inputs(
+                sample_count, feature_count, component_count,
+                rng_principal_component_analysis)
+            result, output = add_principal_component_analysis_case(inputs)
+            if result != 2 + sample_count * component_count or len(output) != result:
+                raise ValueError("principal_component_analysis oracle rejected a generated stable matrix")
+            if index % 8 == 0:
+                add_principal_component_analysis_case(inputs, result - 1)
+            if index % 16 == 0:
+                add_principal_component_analysis_case(inputs, output_is_null=True)
+
+        maximum_input = stable_principal_component_analysis_inputs(
+            PRINCIPAL_COMPONENT_ANALYSIS_MAX_SAMPLES,
+            PRINCIPAL_COMPONENT_ANALYSIS_MAX_FEATURES,
+            PRINCIPAL_COMPONENT_ANALYSIS_MAX_FEATURES,
+            rng_principal_component_analysis, noise=0.0)
+        maximum_result, maximum_output = add_principal_component_analysis_case(maximum_input)
+        if (len(maximum_input) != PRINCIPAL_COMPONENT_ANALYSIS_MAX_INPUT_LENGTH
+                or maximum_result != PRINCIPAL_COMPONENT_ANALYSIS_MAX_OUTPUT_LENGTH
+                or len(maximum_output) != PRINCIPAL_COMPONENT_ANALYSIS_MAX_OUTPUT_LENGTH):
+            raise ValueError("principal_component_analysis maximum matrix does not fill its workspace")
+        for capacity in (0, maximum_result - 1, maximum_result):
+            add_principal_component_analysis_case(maximum_input, capacity)
+        add_principal_component_analysis_case(maximum_input, output_is_null=True)
+        add_principal_component_analysis_case([], input_is_null=True)
+        add_principal_component_analysis_case([], output_is_null=True, input_is_null=True)
+
+        invalid_matrices = (
+            [1.0, 2.0, 1.0, 0.0, 1.0],
+            [3.0, 2.0, 1.0, 0.0, 1.0, 1.0, 0.0],
+            [3.0, 2.0, 0.0, 0.0, 1.0, 1.0, 0.0, 2.0, 2.0],
+            [3.0, 2.0, 3.0, 0.0, 1.0, 1.0, 0.0, 2.0, 2.0],
+            [3.5, 2.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 2.0],
+            [3.0, 2.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 101.0],
+            [3.0, 2.0, 1.0, 0.0, 1.0, 1.0, 0.0, 2.0, float("nan")],
+            [float("nan")] * 9,
+            [9.0, 2.0, 1.0, *([0.0] * 18)],
+            [0.0] * (PRINCIPAL_COMPONENT_ANALYSIS_MAX_INPUT_LENGTH + 1),
+        )
+        for inputs in invalid_matrices:
+            result, output = add_principal_component_analysis_case(list(inputs))
+            if result != PRINCIPAL_COMPONENT_ANALYSIS_INVALID_RESULT or output:
+                raise ValueError("principal_component_analysis oracle accepted malformed or unstable input")
+        result, output = add_principal_component_analysis_case(
+            [0.0] * 9, 0, output_is_null=True)
+        if result != PRINCIPAL_COMPONENT_ANALYSIS_INVALID_RESULT or output:
+            raise ValueError("principal_component_analysis did not validate input before output checks")
+
+    if algorithm == "ramer_douglas_peucker":
+        if workspace != RAMER_DOUGLAS_PECKER_MAX_OUTPUT_LENGTH:
+            raise ValueError("ramer_douglas_peucker requires its reviewed 25-element output workspace")
+
+        def add_ramer_douglas_peucker_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False) -> tuple[int, list[float]]:
+            if (len(inputs) > RAMER_DOUGLAS_PEUCKER_MAX_INPUT_LENGTH
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= workspace
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool):
+                raise ValueError("ramer_douglas_peucker generated ABI framing is invalid")
+            raw_output = (None if input_is_null else
+                          ramer_douglas_peucker_verifier_oracle(inputs))
+            if raw_output is None or type(raw_output) is int:
+                result, output = RAMER_DOUGLAS_PEUCKER_INVALID_RESULT, []
+            elif output_is_null or capacity < len(raw_output):
+                result, output = -2, []
+            else:
+                result, output = len(raw_output), raw_output
+            if (result >= 0 and (result != len(output)
+                                 or result > RAMER_DOUGLAS_PEUCKER_MAX_OUTPUT_LENGTH
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (RAMER_DOUGLAS_PEUCKER_INVALID_RESULT, -2)
+                                       or output)):
+                raise ValueError("ramer_douglas_peucker oracle returned inconsistent ABI framing")
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        def curved_ramer_douglas_peucker_inputs(
+                point_count: int, epsilon: float, rng: random.Random,
+                noise: float = 0.005) -> list[float]:
+            values = [float(point_count), float(epsilon)]
+            for index in range(point_count):
+                x = 8.0 * index
+                y = 0.05 * index * index + 0.0007 * index * index * index
+                y += rng.uniform(-noise, noise)
+                values.extend((x, y))
+            return values
+
+        rng_ramer_douglas_peucker = random.Random(20261017)
+        for index in range(128):
+            point_count = rng_ramer_douglas_peucker.randint(3, RAMER_DOUGLAS_PECKER_MAX_POINTS)
+            epsilon = rng_ramer_douglas_peucker.choice((0.0, 0.05, 0.25, 0.75, 1.5))
+            inputs = curved_ramer_douglas_peucker_inputs(
+                point_count, epsilon, rng_ramer_douglas_peucker)
+            result, output = add_ramer_douglas_peucker_case(inputs)
+            if result <= 0 or len(output) != result:
+                raise ValueError("ramer_douglas_peucker oracle rejected a generated common-domain polyline")
+            if index % 8 == 0:
+                add_ramer_douglas_peucker_case(inputs, result - 1)
+            if index % 16 == 0:
+                add_ramer_douglas_peucker_case(inputs, output_is_null=True)
+
+        maximum_input = curved_ramer_douglas_peucker_inputs(
+            RAMER_DOUGLAS_PEUCKER_MAX_POINTS, 0.0,
+            rng_ramer_douglas_peucker, noise=0.003)
+        maximum_result, maximum_output = add_ramer_douglas_peucker_case(maximum_input)
+        if (len(maximum_input) != RAMER_DOUGLAS_PEUCKER_MAX_INPUT_LENGTH
+                or maximum_result != RAMER_DOUGLAS_PEUCKER_MAX_OUTPUT_LENGTH
+                or len(maximum_output) != RAMER_DOUGLAS_PEUCKER_MAX_OUTPUT_LENGTH):
+            raise ValueError("ramer_douglas_peucker maximum polyline does not fill its workspace")
+        for capacity in (0, maximum_result - 1, maximum_result):
+            add_ramer_douglas_peucker_case(maximum_input, capacity)
+        add_ramer_douglas_peucker_case(maximum_input, output_is_null=True)
+        add_ramer_douglas_peucker_case([], input_is_null=True)
+        add_ramer_douglas_peucker_case([], output_is_null=True, input_is_null=True)
+
+        invalid_polylines = (
+            [], [0.0, -0.1], [3.0, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+            [3.0, 0.5, 0.0, 0.0, 11.0, 0.0, 10.0, 1.0],
+            [2.0, 0.5, 0.0, 0.0, RAMER_DOUGLAS_PEUCKER_MAX_ABS_COORDINATE + 1.0, 1.0],
+            [2.0, 0.5, 0.0, 0.0], [3.0, 0.0, 0.0],
+            [3.0, 0.5, 0.0, 0.0, 1e-200, 0.0, 2e-200, 0.0],
+            [3.0, float("nan"), 0.0, 0.0, 1.0, 0.0, 2.0, 0.0],
+            [13.0, 0.0],
+        )
+        for inputs in invalid_polylines:
+            result, output = add_ramer_douglas_peucker_case(list(inputs))
+            if result != RAMER_DOUGLAS_PEUCKER_INVALID_RESULT or output:
+                raise ValueError("ramer_douglas_peucker oracle accepted malformed or out-of-domain input")
+        result, output = add_ramer_douglas_peucker_case(
+            [3.0, -0.1, 0.0, 0.0, 1.0, 1.0, 2.0, 0.0],
+            0, output_is_null=True)
+        if result != RAMER_DOUGLAS_PEUCKER_INVALID_RESULT or output:
+            raise ValueError("ramer_douglas_peucker did not validate input before output checks")
+
+    if algorithm == "kalman_filter":
+        if workspace != KALMAN_FILTER_MAX_OUTPUT_ELEMENTS:
+            raise ValueError("kalman_filter requires its reviewed 36-element output workspace")
+
+        def add_kalman_filter_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False) -> tuple[int, list[float]]:
+            if (len(inputs) > KALMAN_FILTER_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= workspace
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool):
+                raise ValueError("kalman_filter generated ABI framing is invalid")
+            oracle_inputs = [] if input_is_null else inputs
+            result, output = kalman_filter_abi_verifier_oracle(
+                oracle_inputs, capacity, output_is_null)
+            if (result >= 0 and (result != len(output)
+                                 or result > KALMAN_FILTER_MAX_OUTPUT_ELEMENTS
+                                 or output_is_null or capacity < result
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("kalman_filter oracle returned inconsistent ABI framing")
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        for case in workload["abi_cases"]:
+            inputs = [float(value) for value in case["input_values"]]
+            result, output = add_kalman_filter_case(
+                inputs, case["output_capacity"], case["output_is_null"])
+            if (result != case["expected_result"]
+                    or not _matches_output(case["expected_output"], output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"kalman_filter ABI fixture mismatch: {case['id']}")
+
+        rng_kalman_filter = random.Random(20261017)
+        for trace_index in range(128):
+            step_count = rng_kalman_filter.randint(1, KALMAN_FILTER_MAX_STEPS)
+            inputs = [
+                float(rng_kalman_filter.randint(KALMAN_FILTER_MIN_STATE_MICRO,
+                                                 KALMAN_FILTER_MAX_STATE_MICRO)),
+                float(rng_kalman_filter.randint(KALMAN_FILTER_MIN_VARIANCE_MICRO,
+                                                 KALMAN_FILTER_MAX_VARIANCE_MICRO)),
+                float(rng_kalman_filter.randint(KALMAN_FILTER_MIN_VARIANCE_MICRO,
+                                                 KALMAN_FILTER_MAX_VARIANCE_MICRO)),
+                float(rng_kalman_filter.randint(KALMAN_FILTER_MIN_MEASUREMENT_NOISE_MICRO,
+                                                 KALMAN_FILTER_MAX_VARIANCE_MICRO)),
+                float(step_count),
+            ]
+            inputs.extend(float(rng_kalman_filter.randint(
+                KALMAN_FILTER_MIN_STATE_MICRO, KALMAN_FILTER_MAX_STATE_MICRO))
+                          for _ in range(step_count))
+            result, output = add_kalman_filter_case(inputs)
+            if result != 3 * step_count or len(output) != result:
+                raise ValueError("kalman_filter oracle rejected a generated valid trace")
+            if trace_index % 8 == 0:
+                add_kalman_filter_case(inputs, result - 1)
+            if trace_index % 16 == 0:
+                add_kalman_filter_case(inputs, output_is_null=True)
+
+        maximum_case = next(case for case in workload["cases"]
+                            if case["id"] == "maximum_step_count")
+        maximum_input = [float(value) for value in maximum_case["input_values"]]
+        maximum_result, maximum_output = kalman_filter_abi_verifier_oracle(maximum_input)
+        if (maximum_result != KALMAN_FILTER_MAX_OUTPUT_ELEMENTS
+                or len(maximum_output) != KALMAN_FILTER_MAX_OUTPUT_ELEMENTS):
+            raise ValueError("kalman_filter maximum step count does not fill its workspace")
+        for capacity in (0, maximum_result - 1, maximum_result):
+            add_kalman_filter_case(maximum_input, capacity)
+        add_kalman_filter_case(maximum_input, output_is_null=True)
+
+        malformed_kalman_filter = (
+            [], [0.0, 1.0, 0.0, 1.0], [0.0, 1.0, 0.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0, 1.0, 13.0, 0.0],
+            [0.0, 1.0, 0.0, 1.0, 2.0, 0.0],
+            [0.0, -1.0, 0.0, 1.0, 1.0, 0.0],
+            [0.0, 1.0, -1.0, 1.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0, 1.0, 1.0, KALMAN_FILTER_MAX_STATE_MICRO + 1.0],
+            [0.0, 1.0, 0.0, 1.0, 1.0, 0.5],
+            [0.0] * (KALMAN_FILTER_MAX_PARSEABLE_INPUT_LENGTH + 1),
+        )
+        for inputs in malformed_kalman_filter:
+            result, output = add_kalman_filter_case(list(inputs))
+            if result != -1 or output:
+                raise ValueError("kalman_filter oracle accepted malformed or out-of-domain input")
+        invalid_precedence = [0.0, 1.0, 0.0, 0.0, 1.0, 0.0]
+        result, output = add_kalman_filter_case(
+            invalid_precedence, 0, output_is_null=True)
+        if result != -1 or output:
+            raise ValueError("kalman_filter did not validate input before output checks")
+        null_input_values = [float(value) for value in workload["cases"][0]["input_values"]]
+        result, output = add_kalman_filter_case(null_input_values, input_is_null=True)
+        if result != -1 or output:
+            raise ValueError("kalman_filter accepted a null input pointer")
+
+    if algorithm == "kalman_filter_r_two_state_simulation":
+        if workspace != KALMAN_FILTER_R_MAX_OUTPUT_ELEMENTS:
+            raise ValueError("kalman_filter_r_two_state_simulation requires its reviewed 30-element workspace")
+
+        def add_kalman_filter_r_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > KALMAN_FILTER_R_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= KALMAN_FILTER_R_MAX_OUTPUT_ELEMENTS
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= KALMAN_FILTER_R_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or input_is_null and inputs and input_length < len(inputs)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("kalman_filter_r_two_state_simulation generated ABI framing is invalid")
+            oracle_inputs = [] if input_is_null else inputs
+            result, output = kalman_filter_r_abi_verifier_oracle(
+                oracle_inputs, capacity, output_is_null)
+            if (result >= 0 and (result != len(output)
+                                 or result > KALMAN_FILTER_R_MAX_OUTPUT_ELEMENTS
+                                 or output_is_null or capacity < result
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (KALMAN_FILTER_R_INVALID_RESULT,
+                                                      KALMAN_FILTER_R_INVALID_OUTPUT_RESULT)
+                                       or output)):
+                raise ValueError("kalman_filter_r_two_state_simulation oracle returned inconsistent ABI framing")
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        for case in workload["abi_cases"]:
+            inputs = [float(value) for value in case["input_values"]]
+            result, output = add_kalman_filter_r_case(
+                inputs, case["output_capacity"], case["output_is_null"])
+            if (result != case["expected_result"]
+                    or not _matches_output(case["expected_output"], output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"kalman_filter_r_two_state_simulation ABI fixture mismatch: {case['id']}")
+
+        rng_kalman_filter_r = random.Random(20261017)
+        for trace_index in range(96):
+            observation_count = rng_kalman_filter_r.randint(
+                KALMAN_FILTER_R_MIN_OBSERVATIONS, KALMAN_FILTER_R_MAX_OBSERVATIONS)
+            inputs = [float(rng_kalman_filter_r.randint(-1_000_000, 1_000_000) / 1000)
+                      for _ in range(observation_count)]
+            result, output = add_kalman_filter_r_case(inputs)
+            if result != 2 * observation_count + 6 or len(output) != result:
+                raise ValueError("kalman_filter_r_two_state_simulation oracle rejected a valid trace")
+            if trace_index % 8 == 0:
+                add_kalman_filter_r_case(inputs, result - 1)
+            if trace_index % 16 == 0:
+                add_kalman_filter_r_case(inputs, output_is_null=True)
+
+        maximum_case = next(case for case in workload["cases"]
+                            if case["id"] == "maximum_observation_count")
+        maximum_input = [float(value) for value in maximum_case["input_values"]]
+        maximum_result, maximum_output = kalman_filter_r_abi_verifier_oracle(maximum_input)
+        if (maximum_result != KALMAN_FILTER_R_MAX_OUTPUT_ELEMENTS
+                or len(maximum_output) != KALMAN_FILTER_R_MAX_OUTPUT_ELEMENTS):
+            raise ValueError("kalman_filter_r_two_state_simulation maximum trace does not fill its workspace")
+        for capacity in (0, maximum_result - 1, maximum_result):
+            add_kalman_filter_r_case(maximum_input, capacity)
+        add_kalman_filter_r_case(maximum_input, output_is_null=True)
+
+        malformed_kalman_filter_r = (
+            [], [1000.1], [-1000.1], [float("nan")], [float("inf")], [float("-inf")],
+            [0.0] * (KALMAN_FILTER_R_MAX_PARSEABLE_INPUT_LENGTH + 1),
+        )
+        for inputs in malformed_kalman_filter_r:
+            result, output = add_kalman_filter_r_case(list(inputs))
+            if result != KALMAN_FILTER_R_INVALID_RESULT or output:
+                raise ValueError("kalman_filter_r_two_state_simulation oracle accepted invalid observations")
+        invalid_precedence = [1000.1]
+        result, output = add_kalman_filter_r_case(
+            invalid_precedence, 0, output_is_null=True)
+        if result != KALMAN_FILTER_R_INVALID_RESULT or output:
+            raise ValueError("kalman_filter_r_two_state_simulation did not validate inputs before output checks")
+        null_input_values = [0.0]
+        result, output = add_kalman_filter_r_case(null_input_values, input_is_null=True)
+        if result != KALMAN_FILTER_R_INVALID_RESULT or output:
+            raise ValueError("kalman_filter_r_two_state_simulation accepted a null input pointer")
+
+    if algorithm in RISK_METRICS_ALGORITHM_NAMES:
+        input_limit = workload["input"]["maximum_parseable_input_length"]
+        output_limit = workload["output"]["maximum_elements"]
+
+        def risk_returns(count: int) -> list[float]:
+            return [float((index - (count - 1) / 2) * 0.002) for index in range(count)]
+
+        def add_risk_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > input_limit + 1
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= output_limit
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= input_limit + 1
+                    or input_is_null and inputs and input_length < len(inputs)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError(f"{algorithm} generated ABI framing is invalid")
+            result, output = risk_metrics_abi_verifier_oracle(
+                algorithm, inputs, capacity, output_is_null, input_is_null, input_length)
+            if (result >= 0 and (result != len(output) or result > output_limit
+                                 or output_is_null or capacity < result
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (RISK_METRICS_INVALID_RESULT,
+                                                      RISK_METRICS_OUTPUT_ERROR)
+                                       or output)):
+                raise ValueError(f"{algorithm} oracle returned inconsistent ABI framing")
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        generated_valid: list[list[float]] = []
+        if algorithm in {"monte_carlo_var", "monte_carlo_expected_shortfall"}:
+            for simulation_count, return_count in ((20, 20), (40, 32), (128, 64)):
+                returns = risk_returns(return_count)
+                draws = [float((index % 9 - 4) * 0.25) for index in range(simulation_count)]
+                generated_valid.append([100_000.0, 0.95, 4.0, float(simulation_count),
+                                        float(return_count), *returns, *draws])
+        elif algorithm == "update_returns":
+            for return_count in (2, 20, 60):
+                generated_valid.append([float(return_count), *risk_returns(return_count)])
+        else:
+            for return_count, confidence, horizon in ((20, 0.95, 1.0), (32, 0.8, 4.0), (64, 0.5, 10.0)):
+                generated_valid.append([100_000.0, confidence, horizon,
+                                        float(return_count), *risk_returns(return_count)])
+            if algorithm in {"historical_var", "historical_expected_shortfall",
+                             "parametric_var", "parametric_expected_shortfall"}:
+                generated_valid.append([100_000.0, 0.95, 1.0, 20.0, *([0.01] * 20)])
+
+        for inputs in generated_valid:
+            result, output = add_risk_case(inputs)
+            if result <= 0 or len(output) != result:
+                raise ValueError(f"{algorithm} oracle rejected a generated valid risk trace")
+            for capacity, output_is_null in ((0, False), (result - 1, False), (workspace, True)):
+                boundary_result, boundary_output = add_risk_case(
+                    inputs, capacity, output_is_null=output_is_null)
+                if boundary_result != RISK_METRICS_OUTPUT_ERROR or boundary_output:
+                    raise ValueError(f"{algorithm} output boundary did not fail without writes")
+
+        maximum_case = max(
+            (case for case in workload["cases"] if case["expected_result"] > 0),
+            key=lambda case: len(case["input_values"]))
+        maximum_input = [float(value) for value in maximum_case["input_values"]]
+        maximum_result, maximum_output = risk_metrics_abi_verifier_oracle(algorithm, maximum_input)
+        if (maximum_result != len(maximum_output)
+                or maximum_result != maximum_case["expected_result"]
+                or maximum_result > output_limit):
+            raise ValueError(f"{algorithm} maximum workload case does not match its ABI output bounds")
+        add_risk_case(maximum_input, maximum_result)
+
+        if algorithm in {"monte_carlo_var", "monte_carlo_expected_shortfall"}:
+            invalid = [
+                [], [100_000.0, 0.96, 1.0, 20.0, 20.0, *risk_returns(20), *([0.0] * 20)],
+                [100_000.0, 0.95, 1.0, 19.0, 20.0, *risk_returns(20), *([0.0] * 19)],
+                [100_000.0, 0.95, 1.0, 20.0, 20.0, *([0.01] * 20), *([0.0] * 20)],
+                [100_000.0, 0.95, 1.0, 20.0, 20.0, *risk_returns(20), *([0.0] * 19)],
+                [100_000.0, 0.95, 1.0, 20.0, 20.0, *risk_returns(20), *([0.0] * 19), 3.1],
+                [100_000.0, 0.95, 1.0, 20.0, 20.0, 0.26, *risk_returns(19), *([0.0] * 20)],
+                [100_000.0, 0.95, 1.0, 20.0, 20.0, *risk_returns(20), *([0.0] * 20), 0.0],
+                [float("nan"), 0.95, 1.0, 20.0, 20.0, *risk_returns(20), *([0.0] * 20)],
+            ]
+            parser_overflow = [0.0] * (input_limit + 1)
+        elif algorithm == "update_returns":
+            invalid = [
+                [], [1.0, 0.01], [20.0, *([0.01] * 20)],
+                [20.0, 0.26, *risk_returns(19)],
+                [20.0, *risk_returns(19)], [61.0, *([0.01 * index for index in range(61)])],
+                [20.0, *risk_returns(20), 0.0], [float("nan"), *risk_returns(20)],
+            ]
+            parser_overflow = [62.0, *([0.001 * index for index in range(62)])]
+        else:
+            invalid = [
+                [], [100_000.0, 0.96, 1.0, 20.0, *risk_returns(20)],
+                [100_000.0, 0.95, 0.0, 20.0, *risk_returns(20)],
+                [100_000.0, 0.95, 1.0, 19.0, *risk_returns(19)],
+                [100_000.0, 0.95, 1.0, 20.0, *risk_returns(19)],
+                [100_000.0, 0.95, 1.0, 20.0, 0.26, *risk_returns(19)],
+                [100_000.0, 0.95, 1.0, 20.0, *risk_returns(20), 0.0],
+                [float("nan"), 0.95, 1.0, 20.0, *risk_returns(20)],
+            ]
+            if algorithm in {"historical_var", "historical_expected_shortfall", "generate_risk_report"}:
+                invalid.append([100_000.0, 0.96, 1.0, 20.0, *risk_returns(20)])
+            if algorithm == "generate_risk_report":
+                invalid.append([100_000.0, 0.95, 1.0, 20.0, *([0.01] * 20)])
+            parser_overflow = [0.0] * (input_limit + 1)
+        for inputs in invalid + [parser_overflow]:
+            result, output = add_risk_case(list(inputs))
+            if result != RISK_METRICS_INVALID_RESULT or output:
+                raise ValueError(f"{algorithm} oracle accepted malformed, nonfinite, or oversized input")
+        invalid_precedence = [float("nan")]
+        result, output = add_risk_case(invalid_precedence, 0, output_is_null=True)
+        if result != RISK_METRICS_INVALID_RESULT or output:
+            raise ValueError(f"{algorithm} did not validate input before output pointer/capacity")
+        valid_for_null = generated_valid[0]
+        result, output = add_risk_case(valid_for_null, input_is_null=True)
+        if result != RISK_METRICS_INVALID_RESULT or output:
+            raise ValueError(f"{algorithm} accepted a null input pointer")
+
+    if algorithm == "muon_optimizer":
+        input_limit = MUON_OPTIMIZER_MAX_PARSEABLE_INPUT_LENGTH
+        output_limit = MUON_OPTIMIZER_MAX_OUTPUT_ELEMENTS
+
+        def add_muon_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > input_limit + 1
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= output_limit
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= input_limit + 1
+                    or input_is_null and inputs and input_length < len(inputs)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("muon_optimizer generated ABI framing is invalid")
+            result, output = muon_optimizer_abi_verifier_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            if (result >= 0 and (result != len(output) or result > output_limit
+                                 or output_is_null or capacity < result
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (MUON_OPTIMIZER_INVALID_RESULT,
+                                                      MUON_OPTIMIZER_OUTPUT_ERROR)
+                                       or output)):
+                raise ValueError("muon_optimizer oracle returned inconsistent ABI framing")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        def muon_trace(group_count: int, rows: int, columns: int,
+                       call_count: int, ns_steps: int) -> list[float]:
+            matrix_elements = rows * columns
+            inputs = [float(group_count), float(rows), float(columns), float(call_count),
+                      float(ns_steps), 0.05, 0.8]
+            for call_index in range(call_count):
+                param_id = call_index % group_count
+                inputs.append(float(param_id))
+                inputs.extend(float((param_id * 10 + call_index + index) / 100.0)
+                              for index in range(matrix_elements))
+                inputs.extend(float(((index + call_index) % 5 - 2) * 0.001)
+                              for index in range(matrix_elements))
+            return inputs
+
+        for case in workload["abi_cases"]:
+            inputs = [float(value) for value in case["input_values"]]
+            result, output = add_muon_case(
+                inputs, case["output_capacity"], case["output_is_null"],
+                case["input_is_null"], case["input_length"])
+            if (result != case["expected_result"]
+                    or not _same_float64_sequence(output, case["expected_output"])):
+                raise ValueError(f"muon_optimizer ABI workload mismatch: {case['id']}")
+
+        for inputs in (muon_trace(1, 2, 3, 1, 0), muon_trace(2, 4, 4, 8, 5),
+                       muon_trace(4, 1, 4, 4, 2), muon_trace(1, 4, 1, 8, 5)):
+            result, output = add_muon_case(inputs)
+            if result <= 0 or len(output) != result:
+                raise ValueError("muon_optimizer oracle rejected a generated valid trace")
+            for capacity, output_is_null in ((result, False), (0, False),
+                                             (result - 1, False), (output_limit, True)):
+                boundary_result, boundary_output = add_muon_case(
+                    inputs, capacity, output_is_null=output_is_null)
+                if capacity == result and not output_is_null:
+                    if boundary_result != result or not _same_float64_sequence(boundary_output, output):
+                        raise ValueError("muon_optimizer exact output capacity changed the result")
+                elif boundary_result != MUON_OPTIMIZER_OUTPUT_ERROR or boundary_output:
+                    raise ValueError("muon_optimizer output boundary did not fail without writes")
+
+        malformed = [
+            [], [1.0, 1.0, 1.0, 1.0, 0.0, 0.1, 0.5],
+            [1.0, 1.5, 1.0, 1.0, 0.0, 0.1, 0.5, 0.0, 1.0, 0.0, 0.0, 0.0],
+            [float("nan")], [0.0] * (input_limit + 1),
+        ]
+        for inputs in malformed:
+            result, output = add_muon_case(inputs)
+            if result != MUON_OPTIMIZER_INVALID_RESULT or output:
+                raise ValueError("muon_optimizer oracle accepted malformed, nonfinite, or oversized input")
+        result, output = add_muon_case([float("nan")], 0, output_is_null=True)
+        if result != MUON_OPTIMIZER_INVALID_RESULT or output:
+            raise ValueError("muon_optimizer did not validate input before output checks")
+        result, output = add_muon_case([], input_is_null=True, input_length=7)
+        if result != MUON_OPTIMIZER_INVALID_RESULT or output:
+            raise ValueError("muon_optimizer accepted a null input pointer")
+
+    if algorithm == "pseudo_inverse":
+        if (workspace != PSEUDO_INVERSE_MAX_OUTPUT_LENGTH
+                or absolute_tolerance != 1e-10 or relative_tolerance != 1e-10
+                or PSEUDO_INVERSE_MAX_PARSEABLE_INPUT_LENGTH != 7):
+            raise ValueError("pseudo_inverse requires its reviewed six-element workspace and 1e-10 tolerances")
+
+        def add_pseudo_inverse_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > PSEUDO_INVERSE_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= PSEUDO_INVERSE_MAX_OUTPUT_LENGTH
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= PSEUDO_INVERSE_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or input_is_null and inputs and input_length < len(inputs)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("pseudo_inverse generated ABI framing is invalid")
+            oracle_values = [] if input_is_null else inputs
+            result, output = pseudo_inverse_abi_verifier_oracle(
+                oracle_values, input_length=input_length, output_capacity=capacity,
+                output_is_null=output_is_null, input_is_null=input_is_null)
+            if (result >= 0 and (result != len(output)
+                                 or result > PSEUDO_INVERSE_MAX_OUTPUT_LENGTH
+                                 or output_is_null or capacity < result
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (PSEUDO_INVERSE_INVALID_RESULT,
+                                                      PSEUDO_INVERSE_OUTPUT_ERROR)
+                                       or output)):
+                raise ValueError("pseudo_inverse oracle returned inconsistent ABI framing")
+            checker_inputs = ([0.0] * input_length if input_is_null
+                              else [float(value) for value in inputs])
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        valid_inputs = (
+            [1.0, 1.0, 2.0],
+            [2.0, 1.0, 3.0, 4.0],
+            [4.0, 1.0, 1.0, 2.0, -2.0, 1.0],
+            [4.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+        )
+        for inputs in valid_inputs:
+            result, output = add_pseudo_inverse_case(inputs)
+            if result != 2 + int(inputs[0]) or len(output) != result:
+                raise ValueError("pseudo_inverse oracle rejected a valid one-column input")
+            for capacity in (0, result - 1, result):
+                boundary_result, boundary_output = add_pseudo_inverse_case(inputs, capacity)
+                if capacity == result:
+                    if (boundary_result != result
+                            or not _matches_output(output, boundary_output,
+                                                   absolute_tolerance, relative_tolerance)):
+                        raise ValueError("pseudo_inverse exact output capacity changed the result")
+                elif boundary_result != PSEUDO_INVERSE_OUTPUT_ERROR or boundary_output:
+                    raise ValueError("pseudo_inverse short output capacity did not fail without writes")
+            null_result, null_output = add_pseudo_inverse_case(inputs, output_is_null=True)
+            if null_result != PSEUDO_INVERSE_OUTPUT_ERROR or null_output:
+                raise ValueError("pseudo_inverse null output did not fail without writes")
+
+        rng_pseudo_inverse = random.Random(20261017)
+        for index in range(64):
+            row_count = rng_pseudo_inverse.randint(1, 4)
+            column = [float(rng_pseudo_inverse.randint(-4, 4)) for _ in range(row_count)]
+            inputs = [float(row_count), 1.0, *column]
+            result, output = add_pseudo_inverse_case(inputs)
+            if result != row_count + 2 or len(output) != result:
+                raise ValueError("pseudo_inverse oracle rejected a generated valid column")
+            if index % 16 == 0:
+                add_pseudo_inverse_case(inputs, result - 1)
+                add_pseudo_inverse_case(inputs, output_is_null=True)
+
+        malformed = (
+            [], [1.0, 1.0], [0.0, 1.0, 0.0], [5.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+            [1.5, 1.0, 1.0], [2.0, 2.0, 1.0, 0.0, 0.0, 1.0],
+            [2.0, 1.0, 1.0], [2.0, 1.0, 1.5, 0.0],
+            [1.0, 1.0, 5.0], [float("nan"), 1.0, 0.0],
+            [1.0, 1.0, float("inf")], [1.0] * (PSEUDO_INVERSE_MAX_PARSEABLE_INPUT_LENGTH + 1),
+        )
+        for inputs in malformed:
+            result, output = add_pseudo_inverse_case(list(inputs))
+            if result != PSEUDO_INVERSE_INVALID_RESULT or output:
+                raise ValueError("pseudo_inverse oracle accepted malformed or oversized input")
+        result, output = add_pseudo_inverse_case(
+            [5.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0], capacity=0, output_is_null=True)
+        if result != PSEUDO_INVERSE_INVALID_RESULT or output:
+            raise ValueError("pseudo_inverse did not validate input before output checks")
+        result, output = add_pseudo_inverse_case([0.0] * 6, input_is_null=True, input_length=6)
+        if result != PSEUDO_INVERSE_INVALID_RESULT or output:
+            raise ValueError("pseudo_inverse accepted a null input pointer")
+
+    if algorithm == "tdigest":
+        if (workspace != TDIGEST_WORKSPACE_ELEMENTS
+                or absolute_tolerance != 1e-10 or relative_tolerance != 1e-10
+                or (TDIGEST_MIN_COMPRESSION, TDIGEST_MAX_COMPRESSION, TDIGEST_MAX_SAMPLES,
+                    TDIGEST_MAX_QUERIES, TDIGEST_MAX_INPUT_LENGTH,
+                    TDIGEST_MAX_PARSEABLE_INPUT_LENGTH, TDIGEST_MAX_OUTPUT_LENGTH)
+                != (10, 20, 32, 4, 44, 45, 10)):
+            raise ValueError("tdigest requires its reviewed ten-element output workspace and 1e-10 tolerances")
+
+        def add_tdigest_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > TDIGEST_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= workspace
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= TDIGEST_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or input_is_null and inputs and input_length < len(inputs)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("tdigest generated ABI framing is invalid")
+            oracle_values = [] if input_is_null else inputs
+            result, output = tdigest_abi_verifier_oracle(
+                oracle_values, input_length=input_length, output_capacity=capacity,
+                output_is_null=output_is_null, input_is_null=input_is_null)
+            if (result >= 0 and (result != len(output)
+                                 or result > TDIGEST_MAX_OUTPUT_LENGTH
+                                 or output_is_null or capacity < result
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (TDIGEST_INVALID_RESULT,
+                                                      TDIGEST_OUTPUT_ERROR)
+                                       or output)):
+                raise ValueError("tdigest oracle returned inconsistent ABI framing")
+            checker_inputs = ([0.0] * input_length if input_is_null
+                              else [float(value) for value in inputs])
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        def tdigest_input(compression: int, samples: list[int],
+                          probabilities: list[float], cdf_values: list[int]) -> list[float]:
+            return [float(compression), float(len(samples)), *map(float, samples),
+                    float(len(probabilities)), *probabilities,
+                    float(len(cdf_values)), *map(float, cdf_values)]
+
+        for case in workload["cases"]:
+            inputs = [float(value) for value in case["input_values"]]
+            result, output = add_tdigest_case(
+                inputs, case["output_capacity"], input_length=case["input_length"])
+            if (result != case["expected_result"]
+                    or not _matches_output(case["expected_output"], output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"tdigest workload ABI fixture mismatch: {case['id']}")
+
+        maximum_samples = list(range(-8, 8)) * 2
+        maximum_input = tdigest_input(10, maximum_samples, [0.0, 0.25, 0.5, 1.0],
+                                      [-8, 0, 7, 8])
+        if len(maximum_input) != TDIGEST_MAX_INPUT_LENGTH:
+            raise ValueError("tdigest maximum input has an unexpected packed length")
+        maximum_result, maximum_output = add_tdigest_case(maximum_input)
+        if (maximum_result != TDIGEST_MAX_OUTPUT_LENGTH
+                or len(maximum_output) != TDIGEST_MAX_OUTPUT_LENGTH):
+            raise ValueError("tdigest oracle rejected its maximum valid input")
+        for capacity in (0, maximum_result - 1, maximum_result):
+            result, output = add_tdigest_case(maximum_input, capacity)
+            if capacity == maximum_result:
+                if (result != maximum_result
+                        or not _matches_output(maximum_output, output,
+                                               absolute_tolerance, relative_tolerance)):
+                    raise ValueError("tdigest exact output capacity changed the result")
+            elif result != TDIGEST_OUTPUT_ERROR or output:
+                raise ValueError("tdigest output capacity boundary did not fail without writes")
+        result, output = add_tdigest_case(maximum_input, output_is_null=True)
+        if result != TDIGEST_OUTPUT_ERROR or output:
+            raise ValueError("tdigest null output did not fail without writes")
+
+        rng_tdigest = random.Random(20261017)
+        for index in range(96):
+            sample_count = rng_tdigest.randint(1, TDIGEST_MAX_SAMPLES)
+            quantile_count = rng_tdigest.randint(1, TDIGEST_MAX_QUERIES)
+            cdf_count = rng_tdigest.randint(1, TDIGEST_MAX_QUERIES)
+            samples = [rng_tdigest.randint(-8, 8) for _ in range(sample_count)]
+            probabilities = [rng_tdigest.randint(0, 4) / 4.0
+                             for _ in range(quantile_count)]
+            cdf_values = [rng_tdigest.randint(-8, 8) for _ in range(cdf_count)]
+            inputs = tdigest_input(rng_tdigest.randint(TDIGEST_MIN_COMPRESSION,
+                                                        TDIGEST_MAX_COMPRESSION),
+                                   samples, probabilities, cdf_values)
+            result, output = add_tdigest_case(inputs)
+            if result != quantile_count + cdf_count + 2 or len(output) != result:
+                raise ValueError("tdigest oracle rejected a generated valid stream")
+            if index % 16 == 0:
+                add_tdigest_case(inputs, result - 1)
+                add_tdigest_case(inputs, output_is_null=True)
+
+        malformed = (
+            [], [10.0, 1.0, 5.0, 1.0, 0.5, 1.0],
+            [9.0, 1.0, 5.0, 1.0, 0.5, 1.0, 5.0],
+            [21.0, 1.0, 5.0, 1.0, 0.5, 1.0, 5.0],
+            [10.0, 0.0, 1.0, 0.5, 1.0, 5.0],
+            [10.0, 33.0, *([0.0] * 33), 1.0, 0.5, 1.0, 0.0],
+            [10.0, 1.0, 9.0, 1.0, 0.5, 1.0, 5.0],
+            [10.0, 1.0, 0.5, 1.0, 0.5, 1.0, 5.0],
+            [10.0, 1.0, 5.0, 1.0, 0.3, 1.0, 5.0],
+            [10.0, 1.0, 5.0, 1.0, 0.5, 1.0, 8.5],
+            [10.0, 1.0, float("nan"), 1.0, 0.5, 1.0, 5.0],
+            maximum_input + [0.0], [0.0] * (TDIGEST_MAX_PARSEABLE_INPUT_LENGTH + 1),
+        )
+        for inputs in malformed:
+            result, output = add_tdigest_case(list(inputs))
+            if result != TDIGEST_INVALID_RESULT or output:
+                raise ValueError("tdigest oracle accepted malformed or oversized input")
+        result, output = add_tdigest_case(
+            [9.0, 1.0, 5.0, 1.0, 0.5, 1.0, 5.0], capacity=0, output_is_null=True)
+        if result != TDIGEST_INVALID_RESULT or output:
+            raise ValueError("tdigest did not validate input before output checks")
+        result, output = add_tdigest_case([0.0] * 7, input_is_null=True, input_length=7)
+        if result != TDIGEST_INVALID_RESULT or output:
+            raise ValueError("tdigest accepted a null input pointer")
+
+    if algorithm == "local_weighted_learning":
+        if workspace != LOCAL_WEIGHTED_LEARNING_MAX_OUTPUT_ELEMENTS:
+            raise ValueError("local_weighted_learning requires its reviewed 16-element workspace")
+
+        def add_local_weighted_learning_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > LOCAL_WEIGHTED_LEARNING_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= LOCAL_WEIGHTED_LEARNING_MAX_OUTPUT_ELEMENTS
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= LOCAL_WEIGHTED_LEARNING_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or input_is_null and inputs
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("local_weighted_learning generated ABI framing is invalid")
+            oracle_inputs = [] if input_is_null else inputs
+            result, output = local_weighted_learning_abi_oracle(
+                oracle_inputs, capacity, output_is_null, input_is_null, input_length)
+            if (result >= 0 and (
+                    result != len(output)
+                    or result > LOCAL_WEIGHTED_LEARNING_MAX_OUTPUT_ELEMENTS
+                    or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (
+                        LOCAL_WEIGHTED_LEARNING_INVALID_RESULT,
+                        LOCAL_WEIGHTED_LEARNING_OUTPUT_ERROR) or output)):
+                raise ValueError("local_weighted_learning oracle returned inconsistent ABI framing")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or any(type(value) not in (int, float)
+                           or not math.isfinite(float(value)) for value in raw_values)):
+                raise ValueError(
+                    f"local_weighted_learning ABI values are invalid: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null")
+            input_is_null = case.get("input_is_null")
+            input_length = case.get("input_length")
+            result, output = add_local_weighted_learning_case(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            if (result != case.get("expected_result")
+                    or not _matches_output(
+                        case.get("expected_output"), output,
+                        absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"local_weighted_learning ABI fixture mismatch: {case.get('id')}")
+
+        rng_local_weighted = random.Random(20261017)
+        for trace_index in range(128):
+            sample_count = 2 + trace_index % (LOCAL_WEIGHTED_LEARNING_MAX_N - 1)
+            dimension = 1 + trace_index % min(LOCAL_WEIGHTED_LEARNING_MAX_D, sample_count)
+            tau = (2.0 if trace_index % 3 == 0 else
+                   8.0 if trace_index % 3 == 1 else
+                   (32 + rng_local_weighted.randrange(97)) / 16.0)
+            matrix = []
+            for row_index in range(sample_count):
+                if row_index < dimension:
+                    row = [1.0 if feature_index == row_index else 0.0
+                           for feature_index in range(dimension)]
+                else:
+                    row = [rng_local_weighted.randrange(-64, 65) / 16.0
+                           for _ in range(dimension)]
+                matrix.extend(row)
+            responses = [rng_local_weighted.randrange(-128, 129) / 16.0
+                         for _ in range(sample_count)]
+            inputs = [float(sample_count), float(dimension), tau, *matrix, *responses]
+            result, output = add_local_weighted_learning_case(inputs)
+            if result != sample_count or len(output) != sample_count:
+                raise ValueError("local_weighted_learning oracle rejected a generated valid design")
+            if trace_index % 16 == 0:
+                add_local_weighted_learning_case(inputs, capacity=sample_count - 1)
+                add_local_weighted_learning_case(inputs, output_is_null=True)
+
+        maximum_case = next(
+            case for case in workload["cases"] if case["id"] == "maximum_sample_count")
+        maximum_input = [float(value) for value in maximum_case["input_values"]]
+        for capacity in (0, LOCAL_WEIGHTED_LEARNING_MAX_OUTPUT_ELEMENTS - 1,
+                         LOCAL_WEIGHTED_LEARNING_MAX_OUTPUT_ELEMENTS, workspace):
+            add_local_weighted_learning_case(maximum_input, capacity=capacity)
+        add_local_weighted_learning_case(maximum_input, output_is_null=True)
+        add_local_weighted_learning_case(maximum_input + [0.0])
+        add_local_weighted_learning_case(maximum_input + [0.0, 0.0])
+
+        valid_small = [2.0, 1.0, 2.0, 1.0, 0.0, 1.0, -1.0]
+        add_local_weighted_learning_case(valid_small, capacity=1)
+        add_local_weighted_learning_case(valid_small, output_is_null=True)
+        add_local_weighted_learning_case([], input_is_null=True, input_length=0)
+        add_local_weighted_learning_case([], input_is_null=True, output_is_null=True,
+                                         input_length=5)
+        malformed = (
+            [], [1.0, 1.0, 2.0], [2.5, 1.0, 2.0, 1.0, 0.0, 1.0, -1.0],
+            [2.0, 5.0, 2.0], [2.0, 3.0, 2.0],
+            [2.0, 1.0, 2.0, 0.0, 0.0, 0.0, 0.0],
+            [2.0, 1.0, 2.1, 1.0, 0.0, 1.0, -1.0],
+            [2.0, 1.0, 2.0, 4.1, 0.0, 1.0, -1.0],
+            [2.0, 1.0, 2.0, 1.0, 0.0, 8.1, -1.0],
+        )
+        for inputs in malformed:
+            add_local_weighted_learning_case(inputs)
+        add_local_weighted_learning_case(malformed[0], capacity=0, output_is_null=True)
+
+    if algorithm == "linear_discriminant_analysis":
+        if workspace != LINEAR_DISCRIMINANT_ANALYSIS_MAX_OUTPUT_ELEMENTS:
+            raise ValueError("linear_discriminant_analysis requires its reviewed 16-element workspace")
+
+        def add_linear_discriminant_analysis_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > LINEAR_DISCRIMINANT_ANALYSIS_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= LINEAR_DISCRIMINANT_ANALYSIS_MAX_OUTPUT_ELEMENTS
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= LINEAR_DISCRIMINANT_ANALYSIS_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or input_is_null and inputs
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("linear_discriminant_analysis generated ABI framing is invalid")
+            oracle_inputs = [] if input_is_null else inputs
+            result, output = linear_discriminant_analysis_abi_oracle(
+                oracle_inputs, capacity, output_is_null, input_is_null, input_length)
+            if (result >= 0 and (result != len(output)
+                                 or result > LINEAR_DISCRIMINANT_ANALYSIS_MAX_OUTPUT_ELEMENTS
+                                 or any(not math.isfinite(value) for value in output)
+                                 or output_is_null)
+                    or result < 0 and (result not in (
+                        LINEAR_DISCRIMINANT_ANALYSIS_INVALID_RESULT,
+                        LINEAR_DISCRIMINANT_ANALYSIS_OUTPUT_ERROR) or output)):
+                raise ValueError("linear_discriminant_analysis oracle returned inconsistent ABI framing")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            inputs = _decode_linear_discriminant_analysis_abi_values(raw_values)
+            capacity = case.get("output_capacity", workspace)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length")
+            result, output = add_linear_discriminant_analysis_case(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            if (result != case.get("expected_result")
+                    or not _matches_output(case.get("expected_output"), output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"linear_discriminant_analysis ABI fixture mismatch: {case.get('id')}")
+
+        rng_lda = random.Random(20261018)
+        for trace_index in range(128):
+            class_count = rng_lda.randint(2, LINEAR_DISCRIMINANT_ANALYSIS_MAX_CLASSES)
+            remaining = LINEAR_DISCRIMINANT_ANALYSIS_MAX_TOTAL_SAMPLES
+            counts = []
+            for class_index in range(class_count):
+                minimum_remaining = 2 * (class_count - class_index - 1)
+                maximum_count = min(6, remaining - minimum_remaining)
+                count = rng_lda.randint(2, maximum_count)
+                counts.append(count)
+                remaining -= count
+            samples = []
+            for class_index, count in enumerate(counts):
+                center = (class_index - (class_count - 1) / 2.0) * 14.0
+                samples.extend(center + 2 * index - (count - 1) for index in range(count))
+            inputs = [float(class_count), *(float(count) for count in counts),
+                      *(float(value) for value in samples)]
+            result, output = add_linear_discriminant_analysis_case(inputs)
+            if result <= 0 or result != len(output):
+                raise ValueError("linear_discriminant_analysis oracle rejected a generated valid design")
+            if trace_index % 16 == 0:
+                add_linear_discriminant_analysis_case(inputs, capacity=result - 1)
+                add_linear_discriminant_analysis_case(inputs, output_is_null=True)
+
+        maximum_case = next(case for case in workload["cases"]
+                            if case["id"] == "maximum_bounded_training_set")
+        maximum_input = [float(value) for value in maximum_case["input_values"]]
+        maximum_result, maximum_output = linear_discriminant_analysis_abi_oracle(maximum_input)
+        if (len(maximum_input) != LINEAR_DISCRIMINANT_ANALYSIS_MAX_VALID_INPUT_LENGTH
+                or maximum_result != LINEAR_DISCRIMINANT_ANALYSIS_MAX_OUTPUT_ELEMENTS
+                or len(maximum_output) != LINEAR_DISCRIMINANT_ANALYSIS_MAX_TOTAL_SAMPLES):
+            raise ValueError("linear_discriminant_analysis maximum workload shape is inconsistent")
+        for capacity in (0, maximum_result - 1, maximum_result, workspace):
+            add_linear_discriminant_analysis_case(maximum_input, capacity=capacity)
+        add_linear_discriminant_analysis_case(maximum_input, output_is_null=True)
+        add_linear_discriminant_analysis_case([], input_is_null=True, input_length=0)
+
+        malformed_lda = (
+            [], [2.0], [2.0, 2.0, 2.0],
+            [2.0, 2.0, 2.0, -1.0, 1.0],
+            [2.5, 2.0, 2.0, -1.0, 1.0, 1.0, 3.0],
+            [0.0] * (LINEAR_DISCRIMINANT_ANALYSIS_MAX_PARSEABLE_INPUT_LENGTH + 1),
+        )
+        for inputs in malformed_lda:
+            result, output = add_linear_discriminant_analysis_case(list(inputs))
+            if result != LINEAR_DISCRIMINANT_ANALYSIS_INVALID_RESULT or output:
+                raise ValueError("linear_discriminant_analysis oracle accepted malformed input")
+
+        valid_base = [float(value) for value in workload["cases"][0]["input_values"]]
+        for position in range(len(valid_base)):
+            for special in (math.nan, math.inf, -math.inf):
+                nonfinite = list(valid_base)
+                nonfinite[position] = special
+                result, output = add_linear_discriminant_analysis_case(nonfinite)
+                if result != LINEAR_DISCRIMINANT_ANALYSIS_INVALID_RESULT or output:
+                    raise ValueError("linear_discriminant_analysis oracle accepted a non-finite input")
+        invalid_nonfinite = list(valid_base)
+        invalid_nonfinite[0] = math.nan
+        for capacity, output_is_null in ((0, False), (workspace, True)):
+            result, output = add_linear_discriminant_analysis_case(
+                invalid_nonfinite, capacity=capacity, output_is_null=output_is_null)
+            if result != LINEAR_DISCRIMINANT_ANALYSIS_INVALID_RESULT or output:
+                raise ValueError("linear_discriminant_analysis did not reject non-finite input before output checks")
+
+    if algorithm == "sir":
+        if workspace != SIR_MAX_OUTPUT_ELEMENTS:
+            raise ValueError("sir requires its reviewed three-element workspace")
+
+        def add_sir_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > SIR_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SIR_MAX_OUTPUT_ELEMENTS
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SIR_MAX_PARSEABLE_INPUT_LENGTH + 1
+                    or input_is_null and inputs
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("sir generated ABI framing is invalid")
+            oracle_inputs = [] if input_is_null else inputs
+            result, output = sir_abi_oracle(
+                oracle_inputs, capacity, output_is_null, input_is_null, input_length)
+            if (result >= 0 and (result != len(output)
+                                 or result != SIR_MAX_OUTPUT_ELEMENTS
+                                 or any(not math.isfinite(value) for value in output)
+                                 or output_is_null)
+                    or result < 0 and (result not in (
+                        SIR_INVALID_RESULT, SIR_OUTPUT_ERROR) or output)):
+                raise ValueError("sir oracle returned inconsistent ABI framing")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, list(output)
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or any(type(value) not in (int, float)
+                           or not math.isfinite(float(value)) for value in raw_values)):
+                raise ValueError(f"sir ABI values are invalid: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            result, output = add_sir_case(
+                inputs, case.get("output_capacity"), case.get("output_is_null"),
+                case.get("input_is_null"), case.get("input_length"))
+            if (result != case.get("expected_result")
+                    or not _matches_output(case.get("expected_output"), output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"sir ABI fixture mismatch: {case.get('id')}")
+
+        rng_sir = random.Random(20261017)
+        for trace_index in range(128):
+            inputs = [rng_sir.uniform(0.0, SIR_MAX_POPULATION),
+                      rng_sir.uniform(0.0, SIR_MAX_POPULATION),
+                      rng_sir.uniform(0.0, SIR_MAX_POPULATION),
+                      rng_sir.uniform(0.0, SIR_MAX_BETA),
+                      rng_sir.uniform(0.0, SIR_MAX_K),
+                      rng_sir.uniform(0.0, SIR_MAX_TIME)]
+            result, output = add_sir_case(inputs)
+            if result != SIR_MAX_OUTPUT_ELEMENTS or len(output) != SIR_MAX_OUTPUT_ELEMENTS:
+                raise ValueError("sir oracle rejected a generated valid input")
+            if trace_index % 16 == 0:
+                add_sir_case(inputs, capacity=SIR_MAX_OUTPUT_ELEMENTS - 1)
+                add_sir_case(inputs, output_is_null=True)
+
+        maximum_input = [SIR_MAX_POPULATION, SIR_MAX_POPULATION,
+                         SIR_MAX_POPULATION, SIR_MAX_BETA, SIR_MAX_K, SIR_MAX_TIME]
+        for capacity in (0, SIR_MAX_OUTPUT_ELEMENTS - 1, SIR_MAX_OUTPUT_ELEMENTS):
+            add_sir_case(maximum_input, capacity=capacity)
+        add_sir_case(maximum_input, output_is_null=True)
+        add_sir_case([], input_is_null=True, input_length=0)
+        add_sir_case([], input_is_null=True, input_length=SIR_INPUT_LENGTH)
+        add_sir_case(maximum_input + [0.0])
+        add_sir_case(maximum_input + [0.0, 0.0])
+
+        malformed_sir = (
+            [], [0.0], [0.0] * (SIR_INPUT_LENGTH - 1),
+            [0.0] * (SIR_INPUT_LENGTH + 1),
+            [0.0] * (SIR_MAX_PARSEABLE_INPUT_LENGTH + 1),
+            [-0.5, 1.0, 0.0, 0.0001, 0.2, 0.0],
+            [100.0, 3.0, 5.0, SIR_MAX_BETA + 0.0001, 0.2, 10.0],
+            [100.0, 3.0, 5.0, 0.0001, SIR_MAX_K + 0.1, 10.0],
+            [100.0, 3.0, 5.0, 0.0001, 0.2, SIR_MAX_TIME + 1.0],
+        )
+        for inputs in malformed_sir:
+            result, output = add_sir_case(list(inputs))
+            if result != SIR_INVALID_RESULT or output:
+                raise ValueError("sir oracle accepted a malformed or out-of-domain input")
+
+        valid_base = [100.0, 3.0, 5.0, 0.0001, 0.2, 10.0]
+        for position in range(SIR_INPUT_LENGTH):
+            for special in (math.nan, math.inf, -math.inf):
+                nonfinite = list(valid_base)
+                nonfinite[position] = special
+                result, output = add_sir_case(nonfinite)
+                if result != SIR_INVALID_RESULT or output:
+                    raise ValueError("sir oracle accepted a non-finite input")
+        for special in (math.nan, math.inf, -math.inf):
+            nonfinite = list(valid_base)
+            nonfinite[0] = special
+            for capacity, output_is_null in ((0, False), (SIR_MAX_OUTPUT_ELEMENTS, True)):
+                result, output = add_sir_case(
+                    nonfinite, capacity, output_is_null=output_is_null)
+                if result != SIR_INVALID_RESULT or output:
+                    raise ValueError("sir did not reject non-finite input before output checks")
 
     if algorithm == "k_d_tree":
         for case in workload.get("abi_cases", []):
@@ -1660,6 +3619,111 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         add_lu_case([2.0, 1.0, 2.0, 2.0, 4.0], output_is_null=True)
         add_lu_case([], input_is_null=True, input_length=2)
 
+    if algorithm == "lu_elimination":
+        if (workspace != LU_ELIMINATION_MAX_OUTPUT_ELEMENTS
+                or absolute_tolerance != 1e-12 or relative_tolerance != 1e-12):
+            raise ValueError("lu_elimination requires a 4-element workspace and 1e-12 tolerances")
+
+        def add_lu_elimination_case(
+            inputs: list[float], capacity: int = workspace,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None, require_valid: bool = False,
+        ) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > LU_ELIMINATION_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(not math.isfinite(value) for value in inputs)):
+                raise ValueError("lu_elimination generated input exceeds its finite parseable bound")
+            result, output = lu_elimination_abi_oracle(
+                [] if input_is_null else inputs, capacity,
+                output_is_null, input_is_null, input_length)
+            if require_valid and (result < 0 or len(output) != result):
+                raise ValueError("lu_elimination oracle rejected a generated valid solve")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > LU_ELIMINATION_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid lu_elimination ABI values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            if capacity is None:
+                capacity = workspace
+            input_is_null = case.get("input_is_null")
+            output_is_null = case.get("output_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            output_is_null = False if output_is_null is None else output_is_null
+            input_length = case.get("input_length", len(inputs))
+            result, output = lu_elimination_abi_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (case.get("expected_result") != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(actual) not in (int, float) or not math.isfinite(float(actual))
+                           or abs(float(actual) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for actual, reference in zip(expected_output, output))):
+                raise ValueError(f"lu_elimination ABI fixture mismatch: {case.get('id')}")
+            add_lu_elimination_case(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+
+        rng_lu_elimination = random.Random(20261022)
+        maximum_valid: list[float] | None = None
+        for index in range(128):
+            dimension = (LU_ELIMINATION_MAX_DIMENSION if index == 0 else
+                         rng_lu_elimination.randint(1, LU_ELIMINATION_MAX_DIMENSION))
+            matrix = [[0] * dimension for _ in range(dimension)]
+            for row in range(dimension):
+                for column in range(row, dimension):
+                    matrix[row][column] = (
+                        rng_lu_elimination.choice((-1, 1)) if row == column
+                        else rng_lu_elimination.randint(-1, 1))
+            rhs = [rng_lu_elimination.randint(-8, 8) for _ in range(dimension)]
+            inputs = [float(dimension),
+                      *(float(value) for row in matrix for value in row),
+                      *(float(value) for value in rhs)]
+            if index == 0:
+                maximum_valid = inputs
+                if len(inputs) != LU_ELIMINATION_MAX_VALID_INPUT_LENGTH:
+                    raise ValueError("lu_elimination maximum-shape input is not 21 values")
+            result, output = add_lu_elimination_case(inputs, require_valid=True)
+            if result != dimension or len(output) != dimension:
+                raise ValueError("lu_elimination oracle returned an invalid solution shape")
+            if index == 0:
+                add_lu_elimination_case(inputs, capacity=result)
+                add_lu_elimination_case(inputs, capacity=result - 1)
+            if index % 16 == 0:
+                add_lu_elimination_case(inputs, output_is_null=True)
+
+        if maximum_valid is None or len(maximum_valid) + 1 != LU_ELIMINATION_MAX_PARSEABLE_INPUT_LENGTH:
+            raise ValueError("lu_elimination maximum parseable shape is not 22 values")
+        add_lu_elimination_case(maximum_valid + [0.0])
+        malformed = (
+            [], maximum_valid[:-1], [*maximum_valid, 0.0], [0.0, 0.0],
+            [1.5, 0.0, 0.0], [float(LU_ELIMINATION_MAX_DIMENSION + 1)],
+            [1.0, 0.5, 0.0], [1.0, 2.0, 0.0],
+            [1.0, 1.0, 0.5], [1.0, 1.0, 9.0],
+            [2.0, 0.0, 1.0, 1.0, 1.0, 1.0, 2.0],
+            [2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0],
+        )
+        for inputs in malformed:
+            add_lu_elimination_case(inputs)
+        add_lu_elimination_case([0.0], capacity=0, output_is_null=True)
+        add_lu_elimination_case([0.0], capacity=0)
+        add_lu_elimination_case([1.0, 1.0, 5.0], capacity=1, output_is_null=True)
+        add_lu_elimination_case([2.0, 1.0, 1.0, 1.0, 0.0, 1.0, 2.0], capacity=1)
+        add_lu_elimination_case([2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0],
+                                capacity=0, output_is_null=True)
+        add_lu_elimination_case([], input_is_null=True, input_length=1)
+
     if algorithm == "lu_pivot_decomposition":
         if (workspace != LU_PIVOT_DECOMPOSITION_MAX_OUTPUT_ELEMENTS
                 or absolute_tolerance != 1e-12 or relative_tolerance != 1e-12):
@@ -1762,6 +3826,689 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         add_lu_pivot_case([2.0, 0.0, 1.0, 0.0, 2.0],
                           output_is_null=True, capacity=7)
         add_lu_pivot_case([], input_is_null=True, input_length=2)
+
+    if algorithm == "kohonen_som_trace":
+        if (workspace != KOHONEN_SOM_TRACE_MAX_OUTPUT_ELEMENTS
+                or absolute_tolerance != 1e-12 or relative_tolerance != 1e-12):
+            raise ValueError("kohonen_som_trace requires a 32-element workspace and 1e-12 tolerances")
+
+        def add_kohonen_case(inputs: list[float], capacity: int = workspace,
+                             output_is_null: bool = False, input_is_null: bool = False,
+                             input_length: int | None = None,
+                             require_valid: bool = False) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > KOHONEN_SOM_TRACE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(not math.isfinite(value) for value in inputs)):
+                raise ValueError("kohonen_som_trace generated input exceeds its finite parseable bound")
+            result, output = kohonen_som_trace_abi_oracle(
+                [] if input_is_null else inputs, capacity,
+                output_is_null, input_is_null, input_length)
+            if require_valid and (result <= 0 or len(output) != result):
+                raise ValueError("kohonen_som_trace generated valid input was rejected")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > KOHONEN_SOM_TRACE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid kohonen_som_trace ABI values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            if capacity is None:
+                capacity = workspace
+            input_is_null = case.get("input_is_null")
+            output_is_null = case.get("output_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            output_is_null = False if output_is_null is None else output_is_null
+            input_length = case.get("input_length", len(inputs))
+            result, output = kohonen_som_trace_abi_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (case.get("expected_result") != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(actual) not in (int, float) or not math.isfinite(float(actual))
+                           or abs(float(actual) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for actual, reference in zip(expected_output, output))):
+                raise ValueError(f"kohonen_som_trace ABI fixture mismatch: {case.get('id')}")
+            add_kohonen_case(inputs, capacity, output_is_null,
+                             input_is_null, input_length)
+
+        rng_kohonen = random.Random(20261017)
+        for index in range(256):
+            node_count = (KOHONEN_SOM_TRACE_MAX_NODES if index == 0 else
+                          rng_kohonen.randint(1, KOHONEN_SOM_TRACE_MAX_NODES))
+            feature_count = (KOHONEN_SOM_TRACE_MAX_FEATURES if index == 0 else
+                             rng_kohonen.randint(1, KOHONEN_SOM_TRACE_MAX_FEATURES))
+            radius = (KOHONEN_SOM_TRACE_MAX_RADIUS if index == 0 else
+                      rng_kohonen.randint(0, KOHONEN_SOM_TRACE_MAX_RADIUS))
+            alpha_code = 16 if index == 0 else rng_kohonen.randint(1, 16)
+            sample = [rng_kohonen.randint(-8, 8) for _ in range(feature_count)]
+            weights = [rng_kohonen.randint(-8, 8)
+                       for _ in range(node_count * feature_count)]
+            inputs = [float(node_count), float(feature_count), float(radius),
+                      float(alpha_code), *(float(value) for value in sample),
+                      *(float(value) for value in weights)]
+            result, output = add_kohonen_case(inputs)
+            if result <= 0 or len(output) != result:
+                raise ValueError("kohonen_som_trace oracle rejected a generated valid update")
+            if index == 0:
+                if len(inputs) != KOHONEN_SOM_TRACE_MAX_VALID_INPUT_LENGTH:
+                    raise ValueError("kohonen_som_trace maximum-shape input is not 40 values")
+                add_kohonen_case(inputs, capacity=result)
+                add_kohonen_case(inputs, capacity=result - 1)
+            if index % 16 == 0:
+                add_kohonen_case(inputs, output_is_null=True)
+
+        maximum_valid = [
+            8.0, 4.0, 8.0, 16.0, -8.0, 8.0, -8.0, 8.0,
+            *([-8.0, 8.0] * (KOHONEN_SOM_TRACE_MAX_NODES
+                              * KOHONEN_SOM_TRACE_MAX_FEATURES // 2)),
+        ]
+        if (len(maximum_valid) != KOHONEN_SOM_TRACE_MAX_VALID_INPUT_LENGTH
+                or len(maximum_valid) + 1 != KOHONEN_SOM_TRACE_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError("kohonen_som_trace maximum and parseable shapes have unexpected lengths")
+        add_kohonen_case(maximum_valid, require_valid=True)
+        add_kohonen_case([*maximum_valid, 0.0])
+
+        malformed = (
+            [], maximum_valid[:-1], [*maximum_valid, 0.0],
+            [0.0, 1.0, 0.0, 8.0], [1.0, 0.0, 0.0, 8.0],
+            [9.0, 1.0, 0.0, 8.0], [1.0, 5.0, 0.0, 8.0],
+            [1.0, 1.0, -1.0, 8.0, 1.0, 0.0],
+            [1.0, 1.0, 0.0, 0.0, 1.0, 0.0],
+            [1.0, 1.0, 0.0, 17.0, 1.0, 0.0],
+            [1.0, 1.0, 0.0, 8.0, 0.5, 0.0],
+            [1.0, 1.0, 0.0, 8.0, 1.0, 9.0],
+            [1.0, 1.0, 0.0, 8.0, 1.0, 0.5],
+            [1.0, 1.0, 0.0, 8.0, 1.0, 0.0, 0.0],
+        )
+        for inputs in malformed:
+            add_kohonen_case(inputs)
+        add_kohonen_case([1.0, 1.0, 0.0, 8.0, 1.0, 0.0],
+                         output_is_null=True)
+        add_kohonen_case([2.0, 1.0, 0.0, 8.0, 0.0, -1.0, 1.0], capacity=1)
+        add_kohonen_case([1.0, 1.0, -1.0, 8.0, 1.0, 0.0],
+                         output_is_null=True, capacity=1)
+        add_kohonen_case([], input_is_null=True, input_length=6)
+
+    if algorithm == "kohonen_som_topology":
+        if (workspace != KOHONEN_SOM_TOPOLOGY_MAX_OUTPUT_ELEMENTS
+                or absolute_tolerance != 1e-12 or relative_tolerance != 1e-12):
+            raise ValueError("kohonen_som_topology requires a 49-element workspace and 1e-12 tolerances")
+
+        def add_kohonen_topology_case(inputs: list[float], capacity: int = workspace,
+                                     output_is_null: bool = False, input_is_null: bool = False,
+                                     input_length: int | None = None,
+                                     require_valid: bool = False) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > KOHONEN_SOM_TOPOLOGY_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(not math.isfinite(value) for value in inputs)):
+                raise ValueError("kohonen_som_topology generated input exceeds its finite parseable bound")
+            result, output = kohonen_som_topology_abi_oracle(
+                [] if input_is_null else inputs, capacity,
+                output_is_null, input_is_null, input_length)
+            if require_valid and (result <= 0 or len(output) != result):
+                raise ValueError("kohonen_som_topology generated valid update was rejected")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > KOHONEN_SOM_TOPOLOGY_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid kohonen_som_topology ABI values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            if capacity is None:
+                capacity = workspace
+            input_is_null = case.get("input_is_null")
+            output_is_null = case.get("output_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            output_is_null = False if output_is_null is None else output_is_null
+            input_length = case.get("input_length", len(inputs))
+            result, output = kohonen_som_topology_abi_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (case.get("expected_result") != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(actual) not in (int, float) or not math.isfinite(float(actual))
+                           or abs(float(actual) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for actual, reference in zip(expected_output, output))):
+                raise ValueError(f"kohonen_som_topology ABI fixture mismatch: {case.get('id')}")
+            add_kohonen_topology_case(inputs, capacity, output_is_null,
+                                      input_is_null, input_length)
+
+        rng_kohonen_topology = random.Random(20261018)
+        for index in range(256):
+            map_size = (KOHONEN_SOM_TOPOLOGY_MAX_MAP_SIZE if index == 0 else
+                        rng_kohonen_topology.randint(1, KOHONEN_SOM_TOPOLOGY_MAX_MAP_SIZE))
+            feature_count = (KOHONEN_SOM_TOPOLOGY_MAX_FEATURES if index == 0 else
+                             rng_kohonen_topology.randint(1, KOHONEN_SOM_TOPOLOGY_MAX_FEATURES))
+            radius = (KOHONEN_SOM_TOPOLOGY_MAX_RADIUS if index == 0 else
+                      rng_kohonen_topology.randint(0, KOHONEN_SOM_TOPOLOGY_MAX_RADIUS))
+            alpha_code = 16 if index == 0 else rng_kohonen_topology.randint(1, 16)
+            sample = [rng_kohonen_topology.randint(-8, 8) for _ in range(feature_count)]
+            weights = [rng_kohonen_topology.randint(-8, 8)
+                       for _ in range(map_size * map_size * feature_count)]
+            inputs = [float(map_size), float(feature_count), float(radius),
+                      float(alpha_code), *(float(value) for value in sample),
+                      *(float(value) for value in weights)]
+            result, output = add_kohonen_topology_case(inputs)
+            if result <= 0 or len(output) != result:
+                raise ValueError("kohonen_som_topology oracle rejected a generated valid update")
+            if index == 0:
+                if len(inputs) != KOHONEN_SOM_TOPOLOGY_MAX_VALID_INPUT_LENGTH:
+                    raise ValueError("kohonen_som_topology maximum-shape input is not 55 values")
+                add_kohonen_topology_case(inputs, capacity=result)
+                add_kohonen_topology_case(inputs, capacity=result - 1)
+            if index % 16 == 0:
+                add_kohonen_topology_case(inputs, output_is_null=True)
+
+        maximum_valid = [
+            4.0, 3.0, 8.0, 16.0, -8.0, 8.0, -8.0,
+            *([-8.0, 8.0] * (KOHONEN_SOM_TOPOLOGY_MAX_MAP_SIZE ** 2
+                              * KOHONEN_SOM_TOPOLOGY_MAX_FEATURES // 2)),
+        ]
+        if (len(maximum_valid) != KOHONEN_SOM_TOPOLOGY_MAX_VALID_INPUT_LENGTH
+                or len(maximum_valid) + 1
+                    != KOHONEN_SOM_TOPOLOGY_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError("kohonen_som_topology maximum and parseable shapes have unexpected lengths")
+        add_kohonen_topology_case(maximum_valid, require_valid=True)
+        add_kohonen_topology_case([*maximum_valid, 0.0])
+
+        malformed = (
+            [], maximum_valid[:-1], [*maximum_valid, 0.0],
+            [0.0, 1.0, 0.0, 8.0], [5.0, 1.0, 0.0, 8.0],
+            [1.0, 0.0, 0.0, 8.0], [1.0, 4.0, 0.0, 8.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [1.0, 1.0, -1.0, 8.0, 1.0, 0.0],
+            [1.0, 1.0, 9.0, 8.0, 1.0, 0.0],
+            [1.0, 1.0, 0.0, 0.0, 1.0, 0.0],
+            [1.0, 1.0, 0.0, 17.0, 1.0, 0.0],
+            [1.0, 1.0, 0.0, 8.0, 0.5, 0.0],
+            [1.0, 1.0, 0.0, 8.0, 1.0, 9.0],
+            [1.0, 1.0, 0.0, 8.0, 1.0, 0.5],
+        )
+        for inputs in malformed:
+            add_kohonen_topology_case(inputs)
+        add_kohonen_topology_case([1.0, 1.0, 0.0, 8.0, 1.0, 0.0],
+                                  output_is_null=True)
+        add_kohonen_topology_case([1.0, 1.0, 0.0, 8.0, 1.0, 0.0], capacity=1)
+        add_kohonen_topology_case([1.0, 1.0, 9.0, 8.0, 1.0, 0.0],
+                                  output_is_null=True, capacity=1)
+        add_kohonen_topology_case([], input_is_null=True, input_length=6)
+
+    if algorithm == "qr_decompose":
+        if (workspace != QR_DECOMPOSE_MAX_OUTPUT_ELEMENTS
+                or absolute_tolerance != 1e-12 or relative_tolerance != 1e-12):
+            raise ValueError("qr_decompose requires a 32-element workspace and 1e-12 tolerances")
+
+        def add_qr_decompose_case(inputs: list[float], capacity: int = workspace,
+                                  output_is_null: bool = False, input_is_null: bool = False,
+                                  input_length: int | None = None,
+                                  require_valid: bool = False) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > QR_DECOMPOSE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(not math.isfinite(value) for value in inputs)):
+                raise ValueError("qr_decompose generated input exceeds its finite parseable bound")
+            result, output = qr_decompose_abi_oracle(
+                [] if input_is_null else inputs, capacity,
+                output_is_null, input_is_null, input_length)
+            if require_valid and (result <= 0 or len(output) != result):
+                raise ValueError("qr_decompose generated nonsingular input was rejected")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > QR_DECOMPOSE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid qr_decompose ABI values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            if capacity is None:
+                capacity = workspace
+            input_is_null = case.get("input_is_null")
+            output_is_null = case.get("output_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            output_is_null = False if output_is_null is None else output_is_null
+            input_length = case.get("input_length", len(inputs))
+            result, output = qr_decompose_abi_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (case.get("expected_result") != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(actual) not in (int, float) or not math.isfinite(float(actual))
+                           or abs(float(actual) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for actual, reference in zip(expected_output, output))):
+                raise ValueError(f"qr_decompose ABI fixture mismatch: {case.get('id')}")
+            add_qr_decompose_case(inputs, capacity, output_is_null,
+                                  input_is_null, input_length)
+
+        rng_qr = random.Random(20261019)
+        for index in range(256):
+            dimension = (QR_DECOMPOSE_MAX_DIMENSION if index == 0 else
+                         rng_qr.randint(QR_DECOMPOSE_MIN_DIMENSION,
+                                        QR_DECOMPOSE_MAX_DIMENSION))
+            matrix = [[0] * dimension for _ in range(dimension)]
+            for row in range(dimension):
+                for col in range(row, dimension):
+                    if row == col:
+                        diagonal = rng_qr.randint(1, QR_DECOMPOSE_MAX_MATRIX_VALUE)
+                        matrix[row][col] = (diagonal if rng_qr.randrange(2)
+                                            else -diagonal)
+                    else:
+                        matrix[row][col] = rng_qr.randint(
+                            QR_DECOMPOSE_MIN_MATRIX_VALUE, QR_DECOMPOSE_MAX_MATRIX_VALUE)
+            inputs = [float(dimension),
+                      *(float(matrix[row][col])
+                        for row in range(dimension) for col in range(dimension))]
+            result, output = add_qr_decompose_case(inputs, require_valid=True)
+            if result <= 0 or len(output) != result:
+                raise ValueError("qr_decompose oracle rejected a generated nonsingular matrix")
+            if index == 0:
+                if len(inputs) != QR_DECOMPOSE_MAX_VALID_INPUT_LENGTH:
+                    raise ValueError("qr_decompose maximum-shape input is not 17 values")
+                add_qr_decompose_case(inputs, capacity=result)
+                add_qr_decompose_case(inputs, capacity=result - 1)
+            if index % 16 == 0:
+                add_qr_decompose_case(inputs, output_is_null=True)
+
+        maximum_valid = [
+            4.0, 4.0, 1.0, -1.0, 0.0,
+            0.0, 3.0, 1.0, -1.0,
+            0.0, 0.0, 2.0, 1.0,
+            0.0, 0.0, 0.0, 1.0,
+        ]
+        if (len(maximum_valid) != QR_DECOMPOSE_MAX_VALID_INPUT_LENGTH
+                or len(maximum_valid) + 1 != QR_DECOMPOSE_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError("qr_decompose maximum and parseable shapes have unexpected lengths")
+        add_qr_decompose_case(maximum_valid, require_valid=True)
+        add_qr_decompose_case([*maximum_valid, 0.0])
+
+        malformed = (
+            [], [1.0], [*maximum_valid, 0.0],
+            [0.0], [5.0], [1.5, 0.0], [1.0, 0.5], [1.0, 5.0],
+            [2.0, 1.0, 2.0, 2.0, 4.0],
+        )
+        for inputs in malformed:
+            add_qr_decompose_case(inputs)
+        add_qr_decompose_case([1.0, -3.0], output_is_null=True)
+        add_qr_decompose_case([1.0, -3.0], capacity=1)
+        add_qr_decompose_case([2.0, 1.0, 2.0, 2.0, 4.0],
+                              output_is_null=True, capacity=1)
+        add_qr_decompose_case([], input_is_null=True, input_length=1)
+
+    if algorithm == "qr_eigen_values":
+        if (workspace != 2
+                or absolute_tolerance != 1e-8 or relative_tolerance != 1e-8):
+            raise ValueError("qr_eigen_values requires a 2-element workspace and 1e-8 tolerances")
+        for case in workload.get("abi_cases", []):
+            inputs = [float(value) for value in case["input_values"]]
+            capacity = case.get("output_capacity", workspace)
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            input_length = case.get("input_length", len(inputs))
+            result, output = qr_eigen_values_abi_verifier_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+
+    if algorithm == "qr_decomposition":
+        if (workspace != QR_DECOMPOSITION_MAX_OUTPUT_ELEMENTS
+                or absolute_tolerance != 1e-8 or relative_tolerance != 1e-8):
+            raise ValueError("qr_decomposition requires a 3-element workspace and 1e-8 tolerances")
+
+        def add_qr_decomposition_case(
+            inputs: list[float], capacity: int = workspace,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None, require_valid: bool = False,
+        ) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > QR_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(not math.isfinite(value) for value in inputs)):
+                raise ValueError("qr_decomposition generated input exceeds its finite parseable bound")
+            result, output = qr_decomposition_abi_oracle(
+                [] if input_is_null else inputs, capacity,
+                output_is_null, input_is_null, input_length)
+            if require_valid and (result != QR_DECOMPOSITION_MAX_OUTPUT_ELEMENTS
+                                  or len(output) != result):
+                raise ValueError("qr_decomposition generated valid matrix was rejected")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > QR_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid qr_decomposition ABI values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            if capacity is None:
+                capacity = workspace
+            input_is_null = case.get("input_is_null")
+            output_is_null = case.get("output_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            output_is_null = False if output_is_null is None else output_is_null
+            input_length = case.get("input_length", len(inputs))
+            result, output = qr_decomposition_abi_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (case.get("expected_result") != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(actual) not in (int, float) or not math.isfinite(float(actual))
+                           or abs(float(actual) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for actual, reference in zip(expected_output, output))):
+                raise ValueError(f"qr_decomposition ABI fixture mismatch: {case.get('id')}")
+            add_qr_decomposition_case(inputs, capacity, output_is_null,
+                                      input_is_null, input_length)
+
+        rng_qr_properties = random.Random(20261020)
+        for index in range(256):
+            dimension = (QR_DECOMPOSITION_MAX_DIMENSION if index == 0 else
+                         rng_qr_properties.randint(QR_DECOMPOSITION_MIN_DIMENSION,
+                                                   QR_DECOMPOSITION_MAX_DIMENSION))
+            matrix = [[0] * dimension for _ in range(dimension)]
+            for row in range(dimension):
+                for col in range(dimension):
+                    if col < row:
+                        matrix[row][col] = 0
+                    elif row == col:
+                        diagonal = rng_qr_properties.randint(
+                            QR_DECOMPOSITION_MIN_MATRIX_VALUE,
+                            QR_DECOMPOSITION_MAX_MATRIX_VALUE)
+                        while diagonal == 0:
+                            diagonal = rng_qr_properties.randint(
+                                QR_DECOMPOSITION_MIN_MATRIX_VALUE,
+                                QR_DECOMPOSITION_MAX_MATRIX_VALUE)
+                        matrix[row][col] = diagonal
+                    else:
+                        matrix[row][col] = rng_qr_properties.randint(
+                            QR_DECOMPOSITION_MIN_MATRIX_VALUE,
+                            QR_DECOMPOSITION_MAX_MATRIX_VALUE)
+            inputs = [float(dimension),
+                      *(float(matrix[row][col])
+                        for row in range(dimension) for col in range(dimension))]
+            result, output = add_qr_decomposition_case(inputs, require_valid=True)
+            if result != QR_DECOMPOSITION_MAX_OUTPUT_ELEMENTS or len(output) != result:
+                raise ValueError("qr_decomposition oracle rejected an upper-triangular matrix with nonzero diagonal")
+            if index == 0:
+                if len(inputs) != QR_DECOMPOSITION_MAX_VALID_INPUT_LENGTH:
+                    raise ValueError("qr_decomposition maximum-shape input is not 17 values")
+                add_qr_decomposition_case(inputs, capacity=result)
+                add_qr_decomposition_case(inputs, capacity=result - 1)
+            if index % 16 == 0:
+                add_qr_decomposition_case(inputs, output_is_null=True)
+
+        maximum_valid = [
+            4.0, 1.0, 1.0, 0.0, 0.0,
+            1.0, 0.0, 1.0, 0.0,
+            0.0, 1.0, 1.0, 1.0,
+            1.0, 0.0, 0.0, 1.0,
+        ]
+        if (len(maximum_valid) != QR_DECOMPOSITION_MAX_VALID_INPUT_LENGTH
+                or len(maximum_valid) + 1
+                    != QR_DECOMPOSITION_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError("qr_decomposition maximum and parseable shapes have unexpected lengths")
+        add_qr_decomposition_case(maximum_valid, require_valid=True)
+        add_qr_decomposition_case([*maximum_valid, 0.0])
+
+        malformed = (
+            [], [1.0], [*maximum_valid, 0.0],
+            [0.0], [5.0], [1.5, 0.0], [1.0, 0.5], [1.0, 2.0],
+            [2.0, 1.0, 1.0, 1.0, 1.0],
+            [2.0, 0.0, 1.0, 1.0, 0.0],
+        )
+        for inputs in malformed:
+            add_qr_decomposition_case(inputs)
+        add_qr_decomposition_case([1.0, 1.0], output_is_null=True)
+        add_qr_decomposition_case([1.0, -1.0], capacity=2)
+        add_qr_decomposition_case([2.0, 0.0, 1.0, 1.0, 0.0],
+                                  output_is_null=True, capacity=2)
+        add_qr_decomposition_case([], input_is_null=True, input_length=1)
+
+    if algorithm == "shuffle":
+        if (workspace != SHUFFLE_MAX_OUTPUT_ELEMENTS
+                or absolute_tolerance != 0.0 or relative_tolerance != 0.0):
+            raise ValueError("shuffle requires a 256-element workspace and exact float64 comparisons")
+
+        def add_shuffle_case(
+            inputs: list[float], capacity: int = workspace,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None, require_valid: bool = False,
+        ) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > SHUFFLE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(not math.isfinite(value) for value in inputs)):
+                raise ValueError("shuffle generated input exceeds its finite parseable bound")
+            result, output = shuffle_abi_oracle(
+                [] if input_is_null else inputs, capacity,
+                output_is_null, input_is_null, input_length)
+            if require_valid and (result < 0 or len(output) != result):
+                raise ValueError("shuffle generated valid input was rejected")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > SHUFFLE_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid shuffle ABI values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            if capacity is None:
+                capacity = workspace
+            input_is_null = case.get("input_is_null")
+            output_is_null = case.get("output_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            output_is_null = False if output_is_null is None else output_is_null
+            input_length = case.get("input_length", len(inputs))
+            result, output = shuffle_abi_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (case.get("expected_result") != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(actual) not in (int, float) or not math.isfinite(float(actual))
+                           or float(actual) != reference
+                           for actual, reference in zip(expected_output, output))):
+                raise ValueError(f"shuffle ABI fixture mismatch: {case.get('id')}")
+            add_shuffle_case(inputs, capacity, output_is_null,
+                             input_is_null, input_length)
+
+        rng_shuffle = random.Random(20261021)
+        for index in range(256):
+            count = (SHUFFLE_MAX_LENGTH if index == 0 else
+                     rng_shuffle.randint(SHUFFLE_MIN_LENGTH, SHUFFLE_MAX_LENGTH))
+            items = [rng_shuffle.randint(SHUFFLE_MIN_VALUE, SHUFFLE_MAX_VALUE)
+                     for _ in range(count)]
+            offsets = [rng_shuffle.randint(0, count - 1 - swap_index)
+                       for swap_index in range(max(count - 1, 0))]
+            inputs = [float(count), *(float(value) for value in items),
+                      *(float(offset) for offset in offsets)]
+            result, output = add_shuffle_case(inputs, require_valid=True)
+            if result != count or len(output) != count:
+                raise ValueError("shuffle oracle returned an invalid generated permutation")
+            if index == 0:
+                if len(inputs) != SHUFFLE_MAX_VALID_INPUT_LENGTH:
+                    raise ValueError("shuffle maximum-shape input is not 512 values")
+                add_shuffle_case(inputs, capacity=result)
+                add_shuffle_case(inputs, capacity=result - 1)
+            if index % 16 == 0:
+                add_shuffle_case(inputs, output_is_null=True)
+
+        maximum_valid = [
+            float(SHUFFLE_MAX_LENGTH),
+            *(float(value) for value in range(-128, 128)),
+            *(float(offset) for offset in range(SHUFFLE_MAX_LENGTH - 1, 0, -1)),
+        ]
+        if (len(maximum_valid) != SHUFFLE_MAX_VALID_INPUT_LENGTH
+                or len(maximum_valid) + 1 != SHUFFLE_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError("shuffle maximum and parseable shapes have unexpected lengths")
+        add_shuffle_case(maximum_valid, require_valid=True)
+        add_shuffle_case([*maximum_valid, 0.0])
+
+        malformed = (
+            [], [0.0, 0.0], [2.0, 10.0, 20.0], [1.0, 7.0, 0.0],
+            [1.5, 0.0], [float(SHUFFLE_MAX_LENGTH + 1)],
+            [1.0, 0.5], [1.0, float(SHUFFLE_MAX_VALUE + 1)],
+            [2.0, 10.0, 20.0, 0.5], [2.0, 10.0, 20.0, -1.0],
+            [2.0, 10.0, 20.0, 2.0],
+        )
+        for inputs in malformed:
+            add_shuffle_case(inputs)
+        add_shuffle_case([0.0], capacity=0, output_is_null=True)
+        add_shuffle_case([0.0], capacity=0)
+        add_shuffle_case([1.0, 7.0], capacity=1, output_is_null=True)
+        add_shuffle_case([2.0, 10.0, 20.0, 0.0], capacity=1)
+        add_shuffle_case([2.0, 10.0, 20.0, 2.0], capacity=0,
+                         output_is_null=True)
+        add_shuffle_case([], input_is_null=True, input_length=1)
+
+    if algorithm == "spirograph":
+        if (workspace != SPIROGRAPH_MAX_OUTPUT_ELEMENTS
+                or absolute_tolerance != SPIROGRAPH_ABSOLUTE_TOLERANCE
+                or relative_tolerance != SPIROGRAPH_RELATIVE_TOLERANCE):
+            raise ValueError("spirograph requires a 64-element workspace and 1e-10 absolute tolerance")
+
+        def add_spirograph_case(
+            inputs: list[float], capacity: int = workspace,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None, require_valid: bool = False,
+        ) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > SPIROGRAPH_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(not math.isfinite(value) for value in inputs)):
+                raise ValueError("spirograph generated input exceeds its finite parseable bound")
+            result, output = spirograph_abi_oracle(
+                [] if input_is_null else inputs, capacity,
+                output_is_null, input_is_null, input_length)
+            if require_valid and (result < 0 or len(output) != result):
+                raise ValueError("spirograph oracle rejected a generated valid coordinate trace")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result,
+                            [_output_token(value) for value in output], capacity,
+                            int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or len(raw_values) > SPIROGRAPH_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"invalid spirograph ABI values: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            if capacity is None:
+                capacity = workspace
+            input_is_null = case.get("input_is_null")
+            output_is_null = case.get("output_is_null")
+            input_is_null = False if input_is_null is None else input_is_null
+            output_is_null = False if output_is_null is None else output_is_null
+            input_length = case.get("input_length", len(inputs))
+            result, output = spirograph_abi_oracle(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+            expected_output = case.get("expected_output")
+            if (case.get("expected_result") != result
+                    or not isinstance(expected_output, list)
+                    or len(expected_output) != len(output)
+                    or any(type(actual) not in (int, float) or not math.isfinite(float(actual))
+                           or abs(float(actual) - reference)
+                           > absolute_tolerance + relative_tolerance * abs(reference)
+                           for actual, reference in zip(expected_output, output))):
+                raise ValueError(f"spirograph ABI fixture mismatch: {case.get('id')}")
+            add_spirograph_case(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+
+        rng_spirograph = random.Random(20261023)
+        for index in range(128):
+            point_count = (index + 1 if index < SPIROGRAPH_MAX_POINTS else
+                           rng_spirograph.randint(SPIROGRAPH_MIN_POINTS, SPIROGRAPH_MAX_POINTS))
+            marker_ratio = rng_spirograph.uniform(
+                SPIROGRAPH_MIN_MARKER_RATIO, SPIROGRAPH_MAX_MARKER_RATIO)
+            inner_ratio = rng_spirograph.uniform(
+                SPIROGRAPH_MIN_INNER_RATIO, SPIROGRAPH_MAX_INNER_RATIO)
+            rotations = rng_spirograph.uniform(
+                SPIROGRAPH_MIN_ROTATIONS, SPIROGRAPH_MAX_ROTATIONS)
+            inputs = [float(point_count), marker_ratio, inner_ratio, rotations]
+            result, output = add_spirograph_case(inputs, require_valid=True)
+            if result != 2 * point_count or len(output) != result:
+                raise ValueError("spirograph oracle returned an invalid interleaved output shape")
+            if index == 0 or index % 16 == 0:
+                add_spirograph_case(inputs, output_is_null=True)
+            if index == 31:
+                if (len(inputs) != SPIROGRAPH_MAX_VALID_INPUT_LENGTH
+                        or len(output) != SPIROGRAPH_MAX_OUTPUT_ELEMENTS):
+                    raise ValueError("spirograph maximum-shape case does not produce 64 values")
+                add_spirograph_case(inputs, capacity=result)
+                add_spirograph_case(inputs, capacity=result - 1)
+
+        maximum_valid = [
+            float(SPIROGRAPH_MAX_POINTS), SPIROGRAPH_MAX_MARKER_RATIO,
+            SPIROGRAPH_MIN_INNER_RATIO, SPIROGRAPH_MAX_ROTATIONS,
+        ]
+        if (len(maximum_valid) != SPIROGRAPH_MAX_VALID_INPUT_LENGTH
+                or len(maximum_valid) + 1 != SPIROGRAPH_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError("spirograph maximum and parseable input lengths are unexpected")
+        add_spirograph_case(maximum_valid, require_valid=True)
+        add_spirograph_case([*maximum_valid, 0.0])
+        malformed = (
+            [], [1.0, 0.5, 0.5], [1.0, 0.5, 0.5, 1.0, 0.0],
+            [0.0, 0.5, 0.5, 1.0], [1.5, 0.5, 0.5, 1.0],
+            [float(SPIROGRAPH_MAX_POINTS + 1), 0.5, 0.5, 1.0],
+            [1.0, -0.01, 0.5, 1.0], [1.0, 1.01, 0.5, 1.0],
+            [1.0, 0.5, SPIROGRAPH_MIN_INNER_RATIO - 0.001, 1.0],
+            [1.0, 0.5, SPIROGRAPH_MAX_INNER_RATIO + 0.001, 1.0],
+            [1.0, 0.5, 0.5, -0.01], [1.0, 0.5, 0.5, SPIROGRAPH_MAX_ROTATIONS + 0.01],
+        )
+        for inputs in malformed:
+            add_spirograph_case(inputs)
+        add_spirograph_case([1.0, 0.0, 0.5, 1.0], capacity=2, output_is_null=True)
+        add_spirograph_case([1.0, 0.0, 0.5, 1.0], capacity=1)
+        add_spirograph_case([0.0, 0.5, 0.5, 1.0], capacity=0, output_is_null=True)
+        add_spirograph_case([], input_is_null=True, input_length=4)
 
     if algorithm == "polynomial_regression":
         if (workspace != 8 or absolute_tolerance != 1e-9 or relative_tolerance != 1e-9):
@@ -2033,6 +4780,585 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                 if position == 3:
                     add_momentum_case(inputs, output_is_null=True)
 
+    if algorithm == "q_learning":
+        oracle = q_learning_abi_oracle
+
+        def add_q_learning_case(inputs: list[float], capacity: int = workspace,
+                                output_is_null: bool = False, input_is_null: bool = False,
+                                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > Q_LEARNING_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= Q_LEARNING_MAX_OUTPUT_ELEMENTS
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= Q_LEARNING_MAX_PARSEABLE_INPUT_LENGTH
+                    or input_is_null and (inputs or input_length <= 0 or output_is_null)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("q_learning generated ABI framing is invalid")
+            if input_is_null:
+                result, output = oracle([], capacity, output_is_null, True, input_length)
+                checker_inputs = [0.0] * input_length
+            else:
+                result, output = oracle(inputs, capacity, output_is_null, False, input_length)
+                checker_inputs = inputs
+            if (result >= 0 and (result != Q_LEARNING_MAX_OUTPUT_ELEMENTS
+                                 or len(output) != result
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("q_learning oracle returned inconsistent output framing")
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"q_learning ABI input values are invalid: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null")
+            input_is_null = case.get("input_is_null")
+            input_length = case.get("input_length")
+            result, output = oracle(inputs, capacity, output_is_null, input_is_null, input_length)
+            if (case.get("expected_result") != result
+                    or not _matches_output(case.get("expected_output"), output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"q_learning ABI fixture mismatch: {case.get('id')}")
+            add_q_learning_case(inputs, capacity, output_is_null, input_is_null, input_length)
+
+        rng_q_learning = random.Random(20261017)
+        for _ in range(128):
+            next_count = rng_q_learning.randint(Q_LEARNING_MIN_NEXT_ACTIONS,
+                                                Q_LEARNING_MAX_NEXT_ACTIONS)
+            inputs = [
+                float(rng_q_learning.choice((0, 1))),
+                rng_q_learning.choice((Q_LEARNING_MIN_RATE, Q_LEARNING_MAX_RATE,
+                                       rng_q_learning.random())),
+                rng_q_learning.choice((Q_LEARNING_MIN_RATE, Q_LEARNING_MAX_RATE,
+                                       rng_q_learning.random())),
+                rng_q_learning.uniform(Q_LEARNING_MIN_SCALAR, Q_LEARNING_MAX_SCALAR),
+                rng_q_learning.uniform(Q_LEARNING_MIN_SCALAR, Q_LEARNING_MAX_SCALAR),
+                float(next_count),
+                *(rng_q_learning.uniform(Q_LEARNING_MIN_SCALAR, Q_LEARNING_MAX_SCALAR)
+                  for _ in range(next_count)),
+            ]
+            result, output = add_q_learning_case(inputs)
+            if result != Q_LEARNING_MAX_OUTPUT_ELEMENTS or len(output) != result:
+                raise ValueError("q_learning oracle rejected a generated valid update")
+
+        maximum_valid = [0.0, 1.0, 1.0, Q_LEARNING_MAX_SCALAR,
+                         Q_LEARNING_MIN_SCALAR, float(Q_LEARNING_MAX_NEXT_ACTIONS),
+                         Q_LEARNING_MIN_SCALAR, -1.0, 0.0, Q_LEARNING_MAX_SCALAR]
+        if (len(maximum_valid) != 10
+                or len(maximum_valid) + 1 != Q_LEARNING_MAX_PARSEABLE_INPUT_LENGTH):
+            raise ValueError("q_learning maximum and parseable shapes have unexpected lengths")
+        add_q_learning_case(maximum_valid)
+        add_q_learning_case([*maximum_valid, 0.0])
+        valid_input = [0.0, 0.5, 0.5, 1.0, 0.0, 0.0]
+        add_q_learning_case(valid_input, capacity=0)
+        add_q_learning_case(valid_input, capacity=1)
+        add_q_learning_case(valid_input, output_is_null=True)
+        add_q_learning_case([2.0, 0.5, 0.5, 0.0, 0.0, 0.0], capacity=0,
+                            output_is_null=True)
+
+        malformed = (
+            [], [0.0, 0.5], [2.0, 0.5, 0.5, 0.0, 0.0, 0.0],
+            [0.5, 0.5, 0.5, 0.0, 0.0, 0.0],
+            [0.0, -0.01, 0.5, 0.0, 0.0, 0.0],
+            [0.0, 0.5, 1.01, 0.0, 0.0, 0.0],
+            [0.0, 0.5, 0.5, 0.0, -100.01, 0.0],
+            [0.0, 0.5, 0.5, 0.0, 0.0, 5.0],
+            [0.0, 0.5, 0.5, 0.0, 0.0, 2.0, 1.0],
+            [0.0, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0],
+            [0.0, 0.5, 0.5, Q_LEARNING_MAX_SCALAR + 0.01, 0.0, 0.0],
+            [0.0, 0.5, 0.5, 0.0, 0.0, 1.0, Q_LEARNING_MIN_SCALAR - 0.01],
+        )
+        for inputs in malformed:
+            add_q_learning_case([float(value) for value in inputs])
+
+        finite_base = [0.0, 0.5, 0.5, 0.0, 0.0, 2.0, -1.0, 1.0]
+        for position in range(len(finite_base)):
+            for special in (math.nan, math.inf, -math.inf):
+                inputs = list(finite_base)
+                inputs[position] = special
+                result, output = add_q_learning_case(inputs)
+                if result != -1 or output:
+                    raise ValueError("q_learning oracle accepted a non-finite input")
+                if position == 3:
+                    add_q_learning_case(inputs, output_is_null=True)
+        add_q_learning_case([], input_is_null=True, input_length=6)
+
+    if algorithm == "single_indeterminate_operations":
+        oracle = single_indeterminate_operations_abi_oracle
+        if workspace != SINGLE_INDETERMINATE_OPERATIONS_MAX_OUTPUT_ELEMENTS:
+            raise ValueError("single_indeterminate_operations requires its reviewed 17-element workspace")
+
+        def add_single_indeterminate_operations_case(
+            inputs: list[float], capacity: int = workspace,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None,
+        ) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > SINGLE_INDETERMINATE_OPERATIONS_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= SINGLE_INDETERMINATE_OPERATIONS_MAX_OUTPUT_ELEMENTS
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= SINGLE_INDETERMINATE_OPERATIONS_MAX_PARSEABLE_INPUT_LENGTH
+                    or input_is_null and inputs
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("single_indeterminate_operations generated ABI framing is invalid")
+            if input_is_null:
+                result, output = oracle([], capacity, output_is_null, True, input_length)
+                checker_inputs = [0.0] * input_length
+            else:
+                result, output = oracle(inputs, capacity, output_is_null, False, input_length)
+                checker_inputs = inputs
+            if (result >= 0 and (result != len(output)
+                                 or result > SINGLE_INDETERMINATE_OPERATIONS_MAX_OUTPUT_ELEMENTS
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("single_indeterminate_operations oracle returned inconsistent framing")
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"single_indeterminate_operations ABI values are invalid: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null")
+            input_is_null = case.get("input_is_null")
+            input_length = case.get("input_length")
+            result, output = oracle(inputs, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not _matches_output(case.get("expected_output"), output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"single_indeterminate_operations ABI fixture mismatch: {case.get('id')}")
+            add_single_indeterminate_operations_case(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+
+        rng_polynomial = random.Random(20261022)
+        coefficient_choices = (
+            SINGLE_INDETERMINATE_OPERATIONS_MIN_COEFFICIENT, -3.5, -1.0, 0.0,
+            0.25, 2.0, SINGLE_INDETERMINATE_OPERATIONS_MAX_COEFFICIENT,
+        )
+        for index in range(128):
+            operation = index % 6 if index < 6 else rng_polynomial.randrange(6)
+            degree_a = rng_polynomial.randint(SINGLE_INDETERMINATE_OPERATIONS_MIN_DEGREE,
+                                              SINGLE_INDETERMINATE_OPERATIONS_MAX_DEGREE)
+            coefficients_a = [rng_polynomial.choice(coefficient_choices)
+                              for _ in range(degree_a + 1)]
+            inputs = [float(operation), float(degree_a), *coefficients_a]
+            if operation in (SINGLE_INDETERMINATE_OPERATIONS_OP_ADD,
+                             SINGLE_INDETERMINATE_OPERATIONS_OP_SUBTRACT,
+                             SINGLE_INDETERMINATE_OPERATIONS_OP_MULTIPLY):
+                degree_b = rng_polynomial.randint(SINGLE_INDETERMINATE_OPERATIONS_MIN_DEGREE,
+                                                  SINGLE_INDETERMINATE_OPERATIONS_MAX_DEGREE)
+                inputs.extend([float(degree_b), *(rng_polynomial.choice(coefficient_choices)
+                                                  for _ in range(degree_b + 1))])
+            elif operation in (SINGLE_INDETERMINATE_OPERATIONS_OP_EVALUATE,
+                               SINGLE_INDETERMINATE_OPERATIONS_OP_INTEGRAL):
+                lower = (SINGLE_INDETERMINATE_OPERATIONS_MIN_EVALUATION_POINT
+                         if operation == SINGLE_INDETERMINATE_OPERATIONS_OP_EVALUATE
+                         else SINGLE_INDETERMINATE_OPERATIONS_MIN_INTEGRAL_CONSTANT)
+                upper = (SINGLE_INDETERMINATE_OPERATIONS_MAX_EVALUATION_POINT
+                         if operation == SINGLE_INDETERMINATE_OPERATIONS_OP_EVALUATE
+                         else SINGLE_INDETERMINATE_OPERATIONS_MAX_INTEGRAL_CONSTANT)
+                inputs.append(rng_polynomial.uniform(lower, upper))
+            result, output = add_single_indeterminate_operations_case(inputs)
+            if result < 0:
+                raise ValueError("single_indeterminate_operations oracle rejected a generated valid operation")
+            if index == 0 and result > 0:
+                add_single_indeterminate_operations_case(inputs, capacity=result)
+                add_single_indeterminate_operations_case(inputs, capacity=result - 1)
+            if index % 24 == 0:
+                add_single_indeterminate_operations_case(inputs, output_is_null=True)
+
+        maximum_product = [float(SINGLE_INDETERMINATE_OPERATIONS_OP_MULTIPLY),
+                           float(SINGLE_INDETERMINATE_OPERATIONS_MAX_DEGREE),
+                           *([SINGLE_INDETERMINATE_OPERATIONS_MAX_COEFFICIENT]
+                             * (SINGLE_INDETERMINATE_OPERATIONS_MAX_DEGREE + 1)),
+                           float(SINGLE_INDETERMINATE_OPERATIONS_MAX_DEGREE),
+                           *([SINGLE_INDETERMINATE_OPERATIONS_MIN_COEFFICIENT]
+                             * (SINGLE_INDETERMINATE_OPERATIONS_MAX_DEGREE + 1))]
+        if len(maximum_product) != SINGLE_INDETERMINATE_OPERATIONS_MAX_PARSEABLE_INPUT_LENGTH - 1:
+            raise ValueError("single_indeterminate_operations maximum product has unexpected length")
+        add_single_indeterminate_operations_case(maximum_product)
+        add_single_indeterminate_operations_case([*maximum_product, 0.0])
+
+        malformed = (
+            [], [6.0, 0.0, 1.0], [0.0, 9.0, 1.0], [0.0, 1.0, 0.0],
+            [0.0, 0.0, 11.0, 0.0, 1.0], [0.5, 0.0, 1.0],
+            [3.0, 0.0, 1.0, 2.01], [5.0, 0.0, 1.0, 10.01],
+            [4.0, 0.0, 1.0, 0.0], [0.0, 0.0, 1.0, 0.0, 1.0, 0.0],
+        )
+        for inputs in malformed:
+            add_single_indeterminate_operations_case(inputs)
+        valid_evaluation = [3.0, 1.0, 1.0, 2.0, -0.5]
+        add_single_indeterminate_operations_case(valid_evaluation, capacity=0)
+        add_single_indeterminate_operations_case(valid_evaluation, output_is_null=True)
+        add_single_indeterminate_operations_case([4.0, 0.0, 0.0], capacity=0)
+        add_single_indeterminate_operations_case([4.0, 0.0, 0.0], capacity=0,
+                                                 output_is_null=True)
+        add_single_indeterminate_operations_case([], input_is_null=True, input_length=3)
+
+        finite_base = [3.0, 1.0, 1.0, 2.0, -0.5]
+        for position in range(len(finite_base)):
+            for special in (math.nan, math.inf, -math.inf):
+                inputs = list(finite_base)
+                inputs[position] = special
+                result, output = add_single_indeterminate_operations_case(inputs)
+                if result != -1 or output:
+                    raise ValueError("single_indeterminate_operations oracle accepted nonfinite input")
+                if position == 3:
+                    add_single_indeterminate_operations_case(inputs, output_is_null=True)
+
+    if algorithm == "montecarlopi":
+        oracle = montecarlopi_abi_oracle
+        if workspace != MONTECARLOPI_MAX_OUTPUT_ELEMENTS:
+            raise ValueError("montecarlopi requires its reviewed one-element workspace")
+
+        def add_montecarlopi_case(
+            inputs: list[float], capacity: int = workspace,
+            output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None,
+        ) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > MONTECARLOPI_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MONTECARLOPI_MAX_OUTPUT_ELEMENTS
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or input_is_null and output_is_null
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= MONTECARLOPI_MAX_PARSEABLE_INPUT_LENGTH
+                    or input_is_null and (inputs or input_length <= 0)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("montecarlopi generated ABI framing is invalid")
+            oracle_inputs = [] if input_is_null else inputs
+            result, output = oracle(
+                oracle_inputs, capacity, output_is_null, input_is_null, input_length)
+            if (result >= 0 and (result != len(output)
+                                 or result > MONTECARLOPI_MAX_OUTPUT_ELEMENTS
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("montecarlopi oracle returned inconsistent ABI framing")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                           for value in raw_values)):
+                raise ValueError(f"montecarlopi ABI input values are invalid: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null")
+            input_is_null = case.get("input_is_null")
+            input_length = case.get("input_length")
+            result, output = oracle(inputs, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not _matches_output(case.get("expected_output"), output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"montecarlopi ABI fixture mismatch: {case.get('id')}")
+            add_montecarlopi_case(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+
+        coordinate_levels = sorted(MONTECARLOPI_SAMPLE_COORDINATE_LEVELS)
+        for sample_count in range(MONTECARLOPI_MIN_RANDOM_POINTS,
+                                  MONTECARLOPI_MAX_RANDOM_POINTS + 1):
+            trace = [float(sample_count)]
+            for index in range(sample_count):
+                x = coordinate_levels[index % len(coordinate_levels)]
+                y = coordinate_levels[(index * 3 + sample_count) % len(coordinate_levels)]
+                trace.extend((x, y))
+            result, output = add_montecarlopi_case(trace)
+            if result != MONTECARLOPI_MAX_OUTPUT_ELEMENTS or len(output) != result:
+                raise ValueError("montecarlopi oracle rejected a generated valid sample trace")
+
+        maximum_valid = [float(MONTECARLOPI_MAX_RANDOM_POINTS),
+                         *([0.0, 0.25, 0.5, 0.75] * MONTECARLOPI_MAX_RANDOM_POINTS)[:
+                           2 * MONTECARLOPI_MAX_RANDOM_POINTS]]
+        if len(maximum_valid) != MONTECARLOPI_MAX_VALID_INPUT_LENGTH:
+            raise ValueError("montecarlopi maximum sample trace has an unexpected length")
+        add_montecarlopi_case(maximum_valid)
+        add_montecarlopi_case([*maximum_valid, 0.0])
+        add_montecarlopi_case([1.0, 0.0, 0.0], capacity=0)
+        add_montecarlopi_case([1.0, 0.0, 0.0], output_is_null=True)
+        add_montecarlopi_case([1.0, 1.0, 0.0], output_is_null=True)
+        add_montecarlopi_case([], input_is_null=True, input_length=3)
+
+        malformed = (
+            [], [1.0], [0.0, 0.0, 0.0], [1.0, 0.0],
+            [1.0, 0.0, 0.0, 0.0], [0.5, 0.0, 0.0],
+            [65.0, *([0.0, 0.0] * MONTECARLOPI_MAX_RANDOM_POINTS)],
+            [1.0, 0.125, 0.0], [1.0, 1.0, 0.0],
+        )
+        for inputs in malformed:
+            add_montecarlopi_case(inputs)
+
+        finite_base = [1.0, 0.0, 0.0]
+        for position in range(len(finite_base)):
+            for special in (math.nan, math.inf, -math.inf):
+                inputs = list(finite_base)
+                inputs[position] = special
+                result, output = add_montecarlopi_case(inputs)
+                if result != -1 or output:
+                    raise ValueError("montecarlopi oracle accepted a non-finite input")
+
+    if algorithm == "monte_carlo_simulation":
+        oracle = monte_carlo_simulation_abi_oracle
+        if workspace != MONTE_CARLO_SIMULATION_MAX_SIMULATIONS:
+            raise ValueError("monte_carlo_simulation requires its reviewed 32-element payoff workspace")
+
+        def add_monte_carlo_simulation_case(
+                inputs: list[float], capacity: int = MONTE_CARLO_SIMULATION_MAX_OUTPUT_ELEMENTS,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > MONTE_CARLO_SIMULATION_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MONTE_CARLO_SIMULATION_MAX_OUTPUT_ELEMENTS
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= MONTE_CARLO_SIMULATION_MAX_PARSEABLE_INPUT_LENGTH
+                    or input_is_null and (inputs or input_length <= 0)):
+                raise ValueError("monte_carlo_simulation generated ABI framing is invalid")
+            oracle_inputs = [] if input_is_null else inputs
+            result, output = oracle(
+                oracle_inputs, capacity, output_is_null, input_is_null, input_length)
+            if (result >= 0 and (result != len(output)
+                                 or result > MONTE_CARLO_SIMULATION_MAX_OUTPUT_ELEMENTS
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("monte_carlo_simulation oracle returned inconsistent ABI framing")
+            checker_inputs = ([0.0] * input_length if input_is_null else
+                              inputs[:input_length] if input_length <= len(inputs) else
+                              [*inputs, *([0.0] * (input_length - len(inputs)))])
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        for case in workload.get("abi_cases", []):
+            raw_values = case.get("input_values")
+            if (not isinstance(raw_values, list)
+                    or any(type(value) not in (int, float)
+                           or not math.isfinite(float(value)) for value in raw_values)):
+                raise ValueError(f"monte_carlo_simulation ABI inputs are invalid: {case.get('id')}")
+            inputs = [float(value) for value in raw_values]
+            capacity = case.get("output_capacity")
+            output_is_null = case.get("output_is_null")
+            input_is_null = case.get("input_is_null")
+            input_length = case.get("input_length")
+            result, output = oracle(inputs, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not _matches_output(case.get("expected_output"), output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"monte_carlo_simulation ABI fixture mismatch: {case.get('id')}")
+            add_monte_carlo_simulation_case(
+                inputs, capacity, output_is_null, input_is_null, input_length)
+
+        rng_monte_carlo_simulation = random.Random(20261017)
+        normal_levels = (-3.0, -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0, 3.0)
+        for index in range(96):
+            steps = MONTE_CARLO_SIMULATION_STEP_COUNTS[index % len(MONTE_CARLO_SIMULATION_STEP_COUNTS)]
+            simulations = 1 + (index * 11) % MONTE_CARLO_SIMULATION_MAX_SIMULATIONS
+            s0 = (1.0, 10.0, 100.0, 500.0, 1000.0)[index % 5]
+            strike = (0.0, 50.0, 100.0, 450.0, 1000.0, 2000.0)[(index // 2) % 6]
+            rate = (-0.25, -0.1, 0.0, 0.05, 0.25)[(index // 3) % 5]
+            volatility = (0.0, 0.05, 0.2, 0.35, 0.5)[(index // 4) % 5]
+            maturity = MONTE_CARLO_SIMULATION_MATURITIES[(index // 5) % len(
+                MONTE_CARLO_SIMULATION_MATURITIES)]
+            normals = [normal_levels[rng_monte_carlo_simulation.randrange(len(normal_levels))]
+                       for _ in range(steps * simulations)]
+            inputs = [s0, strike, rate, volatility, maturity, float(steps),
+                      float(simulations), *normals]
+            result, output = add_monte_carlo_simulation_case(inputs)
+            if result != MONTE_CARLO_SIMULATION_MAX_OUTPUT_ELEMENTS or len(output) != result:
+                raise ValueError("monte_carlo_simulation oracle rejected a generated valid trace")
+            if index % 8 == 0:
+                add_monte_carlo_simulation_case(inputs, capacity=0)
+            if index % 16 == 0:
+                add_monte_carlo_simulation_case(inputs, output_is_null=True)
+
+        maximum_inputs = [1000.0, 0.0, 0.25, 0.5, 2.0, 16.0, 32.0,
+                          *([3.0, -3.0, 2.0, -2.0, 1.0, -1.0, 0.0, 0.5,
+                             -0.5, 1.5, -1.5, 2.5, -2.5, 0.25, -0.25, 0.0] * 32)]
+        maximum_result, maximum_output = add_monte_carlo_simulation_case(maximum_inputs)
+        if (len(maximum_inputs) != MONTE_CARLO_SIMULATION_MAX_VALID_INPUT_LENGTH
+                or maximum_result != MONTE_CARLO_SIMULATION_MAX_OUTPUT_ELEMENTS
+                or len(maximum_output) != MONTE_CARLO_SIMULATION_MAX_OUTPUT_ELEMENTS):
+            raise ValueError("monte_carlo_simulation maximum trace has an unexpected shape")
+        add_monte_carlo_simulation_case(maximum_inputs, capacity=0)
+        add_monte_carlo_simulation_case(maximum_inputs, output_is_null=True)
+        add_monte_carlo_simulation_case([], input_is_null=True, input_length=8)
+        add_monte_carlo_simulation_case(
+            [100.0, 100.0, 0.05, 0.2, 1.0, 4.0, 1.0, *([0.0] * 4)],
+            0, output_is_null=True)
+
+        malformed = (
+            [], [100.0], [100.0, 100.0, 0.05, 0.2, 1.0, 4.0],
+            [0.0, 100.0, 0.05, 0.2, 1.0, 4.0, 1.0, *([0.0] * 4)],
+            [100.0, 100.0, 0.05, 0.2, 1.0, 4.0, 1.0, *([0.0] * 3)],
+            [100.0, 100.0, 0.05, 0.2, 1.0, 4.0, 1.0, *([0.0] * 5)],
+            [100.0, 100.0, 0.05, 0.2, 1.0, 4.0, 1.0, 3.5, 0.0, 0.0, 0.0],
+            [100.0, 100.0, 0.05, 0.2, 1.0, 4.0, 1.0, math.nan, 0.0, 0.0, 0.0],
+            [100.0, 100.0, 0.05, 0.2, 1.0, 16.0, 32.0, *([0.0] * 513)],
+        )
+        for inputs in malformed:
+            result, output = add_monte_carlo_simulation_case(inputs)
+            if result != -1 or output:
+                raise ValueError("monte_carlo_simulation oracle accepted malformed input")
+        invalid_precedence = [0.0, 100.0, 0.05, 0.2, 1.0, 4.0, 1.0, *([0.0] * 4)]
+        result, output = add_monte_carlo_simulation_case(
+            invalid_precedence, capacity=0, output_is_null=True)
+        if result != -1 or output:
+            raise ValueError("monte_carlo_simulation did not validate input before output")
+        for position in range(11):
+            inputs = [100.0, 100.0, 0.05, 0.2, 1.0, 4.0, 1.0, *([0.0] * 4)]
+            inputs[position] = math.inf
+            result, output = add_monte_carlo_simulation_case(inputs)
+            if result != -1 or output:
+                raise ValueError("monte_carlo_simulation oracle accepted nonfinite input")
+
+    if algorithm == "mini_batch_gradient_descent":
+        if workspace != MINI_BATCH_GRADIENT_DESCENT_MAX_OUTPUT_LENGTH:
+            raise ValueError("mini_batch_gradient_descent requires its reviewed four-element workspace")
+
+        def add_mini_batch_gradient_descent_case(
+                inputs: list[float], capacity: int = workspace,
+                output_is_null: bool = False, input_is_null: bool = False,
+                input_length: int | None = None) -> tuple[int, list[float]]:
+            if input_length is None:
+                input_length = len(inputs)
+            if (len(inputs) > MINI_BATCH_GRADIENT_DESCENT_MAX_INPUT_LENGTH + 1
+                    or any(type(value) not in (int, float) for value in inputs)
+                    or type(capacity) is not int
+                    or not 0 <= capacity <= MINI_BATCH_GRADIENT_DESCENT_MAX_OUTPUT_LENGTH
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or type(input_length) is not int
+                    or not 0 <= input_length <= MINI_BATCH_GRADIENT_DESCENT_MAX_INPUT_LENGTH + 1
+                    or input_is_null and (inputs or input_length <= 0)
+                    or not input_is_null and input_length != len(inputs)):
+                raise ValueError("mini_batch_gradient_descent generated ABI framing is invalid")
+            oracle_output = (None if input_is_null else
+                             mini_batch_gradient_descent_oracle(inputs))
+            if oracle_output is None:
+                result, output = -1, []
+            elif output_is_null or capacity < len(oracle_output):
+                result, output = -2, []
+            else:
+                result, output = len(oracle_output), oracle_output
+            if (result >= 0 and (result != len(output)
+                                 or result > MINI_BATCH_GRADIENT_DESCENT_MAX_OUTPUT_LENGTH
+                                 or any(not math.isfinite(value) for value in output))
+                    or result < 0 and (result not in (-1, -2) or output)):
+                raise ValueError("mini_batch_gradient_descent oracle returned inconsistent ABI framing")
+            checker_inputs = [0.0] * input_length if input_is_null else inputs
+            records.append((checker_inputs, result, [_output_token(value) for value in output],
+                            capacity, int(input_is_null), int(output_is_null)))
+            return result, output
+
+        rng_mini_batch_gradient_descent = random.Random(20261017)
+        for index in range(96):
+            samples = MINI_BATCH_GRADIENT_DESCENT_MIN_SAMPLES + index % (
+                MINI_BATCH_GRADIENT_DESCENT_MAX_SAMPLES - MINI_BATCH_GRADIENT_DESCENT_MIN_SAMPLES + 1)
+            features = MINI_BATCH_GRADIENT_DESCENT_MIN_FEATURES + (index // 2) % (
+                MINI_BATCH_GRADIENT_DESCENT_MAX_FEATURES - MINI_BATCH_GRADIENT_DESCENT_MIN_FEATURES + 1)
+            epochs = MINI_BATCH_GRADIENT_DESCENT_MIN_EPOCHS + (index // 3) % (
+                MINI_BATCH_GRADIENT_DESCENT_MAX_EPOCHS - MINI_BATCH_GRADIENT_DESCENT_MIN_EPOCHS + 1)
+            batch_size = 1 + (index // 5) % samples
+            learning_rate = (0.0, 0.01, 0.05, 0.125, 0.25)[index % 5]
+            matrix = [rng_mini_batch_gradient_descent.uniform(-2.0, 2.0)
+                      for _ in range(samples * features)]
+            targets = [rng_mini_batch_gradient_descent.uniform(-5.0, 5.0)
+                       for _ in range(samples)]
+            permutations: list[float] = []
+            for _ in range(epochs):
+                order = list(range(samples))
+                rng_mini_batch_gradient_descent.shuffle(order)
+                permutations.extend(float(sample) for sample in order)
+            inputs = [float(samples), float(features), float(batch_size), float(epochs),
+                      learning_rate, *matrix, *targets, *permutations]
+            result, output = add_mini_batch_gradient_descent_case(inputs)
+            if result != features + 1 or len(output) != result:
+                raise ValueError("mini_batch_gradient_descent oracle rejected a generated valid trace")
+            if index % 8 == 0:
+                add_mini_batch_gradient_descent_case(inputs, capacity=result - 1)
+            if index % 16 == 0:
+                add_mini_batch_gradient_descent_case(inputs, output_is_null=True)
+
+        maximum_samples = MINI_BATCH_GRADIENT_DESCENT_MAX_SAMPLES
+        maximum_features = MINI_BATCH_GRADIENT_DESCENT_MAX_FEATURES
+        maximum_epochs = MINI_BATCH_GRADIENT_DESCENT_MAX_EPOCHS
+        maximum_matrix = [((index % 7) - 3) * 0.25
+                          for index in range(maximum_samples * maximum_features)]
+        maximum_targets = [((index % 5) - 2) * 1.5 for index in range(maximum_samples)]
+        maximum_orders = [float(sample)
+                          for epoch in range(maximum_epochs)
+                          for sample in ((epoch + offset) % maximum_samples
+                                         for offset in range(maximum_samples))]
+        maximum_inputs = [float(maximum_samples), float(maximum_features), 1.0,
+                          float(maximum_epochs), 0.05, *maximum_matrix,
+                          *maximum_targets, *maximum_orders]
+        maximum_result, maximum_output = add_mini_batch_gradient_descent_case(maximum_inputs)
+        if (len(maximum_inputs) != MINI_BATCH_GRADIENT_DESCENT_MAX_INPUT_LENGTH
+                or maximum_result != MINI_BATCH_GRADIENT_DESCENT_MAX_OUTPUT_LENGTH
+                or len(maximum_output) != MINI_BATCH_GRADIENT_DESCENT_MAX_OUTPUT_LENGTH):
+            raise ValueError("mini_batch_gradient_descent maximum trace has an unexpected shape")
+        add_mini_batch_gradient_descent_case(maximum_inputs, capacity=0)
+        add_mini_batch_gradient_descent_case(maximum_inputs, capacity=3)
+        add_mini_batch_gradient_descent_case(maximum_inputs, output_is_null=True)
+        add_mini_batch_gradient_descent_case([], input_is_null=True, input_length=5)
+        add_mini_batch_gradient_descent_case(
+            [], 0, output_is_null=True, input_is_null=True, input_length=5)
+
+        malformed = (
+            [], [1.0], [1.0, 1.0, 1.0, 0.0, 0.1],
+            [2.0, 1.0, 1.0, 1.0, 0.1, 1.0, 2.0, 1.0, 2.0, 0.0, 0.0, 0.0],
+            [2.0, 1.0, 1.0, 1.0, 0.1, 1.0, 2.0, 1.0, 2.0, 0.0, 0.5],
+            [2.0, 1.0, 1.0, 1.0, 0.1, 1.0, 2.0, 1.0, 2.0, 0.0, 0.0, 0.0, 0.0],
+            [1.0, 1.0, 1.0, 0.0, math.nan, 0.0, 0.0],
+            [float(MINI_BATCH_GRADIENT_DESCENT_MAX_SAMPLES),
+             float(MINI_BATCH_GRADIENT_DESCENT_MAX_FEATURES), 1.0,
+             float(MINI_BATCH_GRADIENT_DESCENT_MAX_EPOCHS), 0.1,
+             *([0.0] * (MINI_BATCH_GRADIENT_DESCENT_MAX_INPUT_LENGTH - 5))],
+        )
+        for inputs in malformed:
+            result, output = add_mini_batch_gradient_descent_case(inputs)
+            if result != -1 or output:
+                raise ValueError("mini_batch_gradient_descent oracle accepted malformed input")
+        invalid_precedence = [1.0, 1.0, 1.0, 0.0, -0.1, 0.0, 0.0]
+        result, output = add_mini_batch_gradient_descent_case(
+            invalid_precedence, capacity=0, output_is_null=True)
+        if result != -1 or output:
+            raise ValueError("mini_batch_gradient_descent did not validate input before output")
+        valid_zero_epoch = [1.0, 1.0, 1.0, 0.0, 0.1, 0.0, 1.0]
+        if add_mini_batch_gradient_descent_case(valid_zero_epoch, capacity=0)[0] != -2:
+            raise ValueError("mini_batch_gradient_descent did not report insufficient capacity")
+
     lines = [f"{len(records)} {absolute_tolerance:.17g} {relative_tolerance:.17g} {workspace}\n"]
     for inputs, expected_result, expected_output, capacity, input_null, output_null in records:
         lines.append(f"{len(inputs)} {expected_result} {len(expected_output)} {capacity} "
@@ -2140,7 +5466,13 @@ def main() -> int:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if workload.get("algorithm") != algorithm:
         parser.error("workload algorithm does not match the requested algorithm")
-    if algorithm == "pid":
+    if algorithm == "pca":
+        validate_pca_workload(workload)
+    elif algorithm == "principal_component_analysis":
+        validate_principal_component_analysis_workload(workload)
+    elif algorithm == "ramer_douglas_peucker":
+        validate_ramer_douglas_peucker_workload(workload)
+    elif algorithm == "pid":
         validate_pid_workload(workload)
     elif algorithm == "joint_probability_distribution":
         validate_joint_probability_distribution_workload(workload)
@@ -2168,10 +5500,26 @@ def main() -> int:
         validate_k_means_clust_workload(workload)
     elif algorithm == "lu_decompose":
         validate_lu_decompose_workload(workload)
+    elif algorithm == "lu_elimination":
+        validate_lu_elimination_workload(workload)
+    elif algorithm == "spirograph":
+        validate_spirograph_workload(workload)
     elif algorithm == "sherman_morrison":
         validate_sherman_morrison_workload(workload)
     elif algorithm == "linearregressionrawr":
         validate_linearregressionrawr_workload(workload)
+    elif algorithm == "q_learning":
+        validate_q_learning_workload(workload)
+    elif algorithm == "single_indeterminate_operations":
+        validate_single_indeterminate_operations_workload(workload)
+    elif algorithm == "montecarlopi":
+        validate_montecarlopi_workload(workload)
+    elif algorithm == "monte_carlo_simulation":
+        validate_monte_carlo_simulation_workload(workload)
+    elif algorithm == "mini_batch_gradient_descent":
+        validate_mini_batch_gradient_descent_workload(workload)
+    elif algorithm in TRAVELLING_SALESMAN_PYTHON_ALGORITHMS:
+        validate_travelling_salesman_python_workload(workload, algorithm)
     data, count = checker_records(algorithm, workload)
     build_root = (args.build_dir or ROOT / "build" / "float64_slice_io" / algorithm).resolve()
     build_root.mkdir(parents=True, exist_ok=True)

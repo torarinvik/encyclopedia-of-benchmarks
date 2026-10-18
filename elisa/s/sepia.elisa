@@ -1,0 +1,45 @@
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 196
+const MAX_OUTPUT_BYTES: usize = 192
+
+def sepia_impl(input: i64&, input_length: usize,
+               output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    height: i64 = input[0]
+    width: i64 = input[1]
+    factor: i64 = input[2]
+    if height < 1 or height > 8 or width < 1 or width > 8 or factor < 0 or factor > 255: return -1
+    pixels: usize = (height * width).usize()
+    if input_length != 3 + 3 * pixels: return -1
+    index: mutable usize = 0
+    while index < 3 * pixels:
+        channel: i64 = input[3 + index]
+        if channel != 0 and channel != 64 and channel != 128 and channel != 255: return -1
+        index <- index + 1
+
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    pixel: mutable usize = 0
+    while pixel < pixels:
+        offset: usize = 3 + 3 * pixel
+        blue: f64 = input[offset].f64()
+        green: f64 = input[offset + 1].f64()
+        red: f64 = input[offset + 2].f64()
+        gray: i64 = (0.2126 * red + 0.587 * green + 0.114 * blue).i64()
+        staged[3 * pixel] <- gray.u8()
+        tinted_green: i64 = gray + factor
+        if tinted_green > 255: tinted_green <- 255
+        tinted_red: i64 = gray + 2 * factor
+        if tinted_red > 255: tinted_red <- 255
+        staged[3 * pixel + 1] <- tinted_green.u8()
+        staged[3 * pixel + 2] <- tinted_red.u8()
+        pixel <- pixel + 1
+
+    output_bytes: usize = 3 * pixels
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < output_bytes:
+        output[index] <- staged[index]
+        index <- index + 1
+    output_bytes.i64()
+
+export fn sepia(input: i64&, input_length: usize,
+                output: mutable u8&, capacity: usize) -> i64 = sepia_impl

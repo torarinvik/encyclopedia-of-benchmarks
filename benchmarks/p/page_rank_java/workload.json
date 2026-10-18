@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-page-rank-f64-slice-v1",
+  "algorithm": "page_rank_java",
+  "function_symbol": "page_rank_java",
+  "description": "Compute the Java PageRank variant with per-node teleport and no dangling redistribution.",
+  "workspace": {"elements": 4},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "input": {
+    "kind": "float64_slice",
+    "encoding": "[node_count, iteration_count, row-major binary adjacency matrix]",
+    "node_count_range": [1, 4],
+    "iteration_count_range": [1, 8],
+    "matrix_entry_values": [0, 1],
+    "matrix_rule": "Simple directed graph with zero diagonal; row i defines outgoing edges from node i.",
+    "fixed_damping_factor": 0.5,
+    "maximum_valid_input_elements": 18,
+    "maximum_parseable_input_elements": 19,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_slice",
+    "encoding": "First node_count PageRank slots in ascending node ID order",
+    "maximum_elements": 4,
+    "success_result": "number of rank values",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "initialization": "Set each rank to 1/node_count.",
+    "iteration": "Perform exactly iteration_count power iterations.",
+    "rank_update": "For each target in ascending node order, sum rank[source]/outdegree[source] over incoming edges in ascending source order; then set rank to (1-damping_factor)+damping_factor*incoming_sum.",
+    "dangling_nodes": "A source with no outgoing edges contributes no incoming rank share. The Java implementation does not redistribute dangling rank.",
+    "variant": "This package represents the Java source's per-target teleport term (1-d), which differs from Python/Rust's (1-d)/n.",
+    "bounds": "1..4 nodes, 1..8 iterations, binary simple directed graph with no self-loops; damping fixed at 0.5."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/others/PageRank.java",
+    "symbol": "PageRank.calculatePageRank",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/PageRank.java"
+  },
+  "cases": [
+    {
+      "id": "two_node_cycle",
+      "input_values": [2, 2, 0, 1, 1, 0],
+      "input_length": 6,
+      "output_capacity": 4,
+      "expected_result": 2,
+      "expected_output": [0.875, 0.875]
+    },
+    {
+      "id": "dangling_node_ignored",
+      "input_values": [3, 2, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+      "input_length": 11,
+      "output_capacity": 4,
+      "expected_result": 3,
+      "expected_output": [0.75, 0.8333333333333333, 0.5]
+    },
+    {
+      "id": "all_dangling",
+      "input_values": [2, 1, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 4,
+      "expected_result": 2,
+      "expected_output": [0.5, 0.5]
+    },
+    {
+      "id": "invalid_iteration_count",
+      "input_values": [2, 0, 0, 1, 1, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "self_loop_ignored_by_source_adapter",
+      "input_values": [2, 1, 1, 1, 0, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [2, 1, 0, 1, 1, 0],
+      "input_length": 6,
+      "output_capacity": 1,
+      "expected_result": -2
+    }
+  ]
+}

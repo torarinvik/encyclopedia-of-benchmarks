@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "dependency_versions": {
+    "scikit-learn": "1.4.2"
+  },
+  "id": "thealgorithms-python-principle-component-analysis-float64-slice-io-v1",
+  "algorithm": "principle_component_analysis",
+  "function_symbol": "apply_pca",
+  "description": "Standardize bounded samples, project them onto leading principal components, and return explained-variance ratios.",
+  "workspace": {
+    "elements": 38
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-08,
+    "relative_tolerance": 1e-08
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[sample_count, feature_count, component_count, row-major samples-by-features values...]",
+    "sample_count_range": [
+      3,
+      8
+    ],
+    "feature_count_range": [
+      2,
+      4
+    ],
+    "component_count_range": [
+      1,
+      4
+    ],
+    "sample_count_must_exceed_feature_count": true,
+    "sample_value_range": [
+      -9,
+      9
+    ],
+    "sample_values_must_be_integers": true,
+    "feature_columns_must_be_nonconstant": true,
+    "covariance_eigenvalues_must_be_positive_and_pairwise_separated_by": 1e-08,
+    "maximum_valid_input_length": 35,
+    "maximum_parseable_input_length": 36,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[sample_count, component_count, row-major projected scores..., selected explained-variance ratios...]",
+    "maximum_elements": 38,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "absolute_tolerance": 1e-08,
+    "relative_tolerance": 1e-08,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "operation": "Measure the reusable apply_pca(data_x, n_components) transform; the fixed Iris loader and printing main are excluded.",
+    "standardization": "Center each feature and divide by its population standard deviation, matching StandardScaler; reject constant feature columns.",
+    "pca": "Center the standardized matrix again and apply sklearn PCA with its default auto solver; on the bounded shapes the full SVD path is selected.",
+    "components": "Return the first component_count directions in decreasing explained variance order. Reject nonpositive or pairwise eigenvalue gaps at or below 1e-8.",
+    "sign_convention": "Pin scikit-learn 1.4.2 full-SVD svd_flip(U,Vt,u_based_decision=True): orient each left singular vector so its largest-magnitude entry is positive; the first sample wins ties.",
+    "dependency_version": "scikit-learn 1.4.2, fixing full-SVD sign behavior across library releases.",
+    "output": "Flatten projected scores in sample-major order, then append the selected explained_variance_ratio_ values; prefix the arrays with sample_count and component_count for framing.",
+    "bounds": "3..8 samples, 2..4 features, sample_count greater than feature_count, 1..min(sample_count, feature_count) components, exact integer data in [-9,9].",
+    "errors": "Malformed framing, unsupported bounds, constant columns, rank loss, tied spectrum, or nonfinite intermediates return -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/principle_component_analysis.py",
+    "symbol": "apply_pca",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/principle_component_analysis.py",
+    "role": "algorithm",
+    "dependencies": [
+      "sklearn.preprocessing.StandardScaler==1.4.2",
+      "sklearn.decomposition.PCA==1.4.2"
+    ]
+  },
+  "cases": [
+    {
+      "id": "four_samples_two_features",
+      "input_values": [
+        4,
+        2,
+        1,
+        -2,
+        0,
+        -1,
+        1,
+        1,
+        3,
+        2,
+        1
+      ],
+      "input_length": 11,
+      "expected_result": 7,
+      "expected_output": [
+        4.0,
+        1.0,
+        1.7055342966537286,
+        0.6094350166307205,
+        -1.5827635434152953,
+        -0.7322057698691535,
+        0.7901905000440047
+      ]
+    },
+    {
+      "id": "five_samples_three_features_two_components",
+      "input_values": [
+        5,
+        3,
+        2,
+        -3,
+        0,
+        1,
+        -1,
+        2,
+        -2,
+        0,
+        1,
+        0,
+        2,
+        -1,
+        3,
+        1,
+        -3,
+        2
+      ],
+      "input_length": 18,
+      "expected_result": 14,
+      "expected_output": [
+        5.0,
+        2.0,
+        0.813900022510403,
+        1.39586331546226,
+        2.013242917554797,
+        -0.6115573994573239,
+        0.6521016806636504,
+        -0.5215303864194556,
+        -1.7115896322806745,
+        -0.5223406566007853,
+        -1.7676549884481763,
+        0.2595651270153048,
+        0.7463306747445174,
+        0.19564297392958244
+      ]
+    },
+    {
+      "id": "maximum_shape_four_components",
+      "input_values": [
+        8,
+        4,
+        4,
+        -4,
+        -1,
+        2,
+        3,
+        -3,
+        2,
+        -2,
+        1,
+        -2,
+        -3,
+        4,
+        -1,
+        -1,
+        0,
+        -4,
+        2,
+        0,
+        1,
+        3,
+        -2,
+        1,
+        4,
+        2,
+        2,
+        -3,
+        1,
+        4,
+        -4,
+        -1,
+        0,
+        2,
+        -2
+      ],
+      "input_length": 35,
+      "expected_result": 38,
+      "expected_output": [
+        8.0,
+        4.0,
+        -0.20699227697373102,
+        1.8747265315494412,
+        0.009721623791518641,
+        1.0904372909658415,
+        1.1310766393395217,
+        0.8322432099163423,
+        1.0695259771641663,
+        -0.23626889626694708,
+        -1.7349606318986728,
+        0.5766497787602265,
+        -1.0364834644295944,
+        0.04123167212447179,
+        1.7147254778420657,
+        0.9559075613312964,
+        -0.5197458136427672,
+        -0.9673712038949294,
+        -0.3818612283328033,
+        -1.3675970597415832,
+        -0.30698014841169136,
+        -0.20042628797654738,
+        1.75042931339948,
+        -1.7316097776258244,
+        -0.20725192211123442,
+        0.9118027681159601,
+        -1.6733345012524672,
+        -0.5899461504105252,
+        1.187212485766762,
+        -0.15603758707834414,
+        -0.599082792123393,
+        -0.5503740937793729,
+        -0.19599873812715934,
+        -0.48336775598950515,
+        0.42629129216242195,
+        0.34291421265539546,
+        0.12729666159621447,
+        0.10349783358596806
+      ]
+    },
+    {
+      "id": "constant_feature",
+      "input_values": [
+        4,
+        2,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        2,
+        1,
+        3
+      ],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "repeated_eigenvalues",
+      "input_values": [
+        4,
+        2,
+        1,
+        1,
+        1,
+        1,
+        -1,
+        -1,
+        1,
+        -1,
+        -1
+      ],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_sample",
+      "input_values": [
+        4,
+        2,
+        1,
+        -2,
+        0,
+        -1,
+        1,
+        1.5,
+        3,
+        2,
+        1
+      ],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "sample_count_not_above_feature_count",
+      "input_values": [
+        3,
+        3,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        2,
+        0,
+        1
+      ],
+      "input_length": 12,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "wrong_matrix_length",
+      "input_values": [
+        4,
+        2,
+        1,
+        0,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

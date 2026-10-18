@@ -1,0 +1,54 @@
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 5
+const MAX_POINTS: usize = 32
+const MAX_OUTPUT_ELEMENTS: usize = 64
+
+def spirograph_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+        return false
+    if value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def spirograph_impl(input: f64&, input_length: usize,
+                    output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if input_length != 4 or not spirograph_exact_integer(input[0], 1, MAX_POINTS.i64()): return -1
+    points: usize = input[0].usize()
+    marker_ratio: f64 = input[1]
+    inner_ratio: f64 = input[2]
+    rotations: f64 = input[3]
+    if marker_ratio != marker_ratio or marker_ratio >= 1.7976931348623157e308 or marker_ratio <= -1.7976931348623157e308 or marker_ratio < 0.0 or marker_ratio > 1.0:
+        return -1
+    if inner_ratio != inner_ratio or inner_ratio >= 1.7976931348623157e308 or inner_ratio <= -1.7976931348623157e308 or inner_ratio < 0.25 or inner_ratio > 0.75:
+        return -1
+    if rotations != rotations or rotations >= 1.7976931348623157e308 or rotations <= -1.7976931348623157e308 or rotations < 0.0 or rotations > 10.0:
+        return -1
+
+    pi: f64 = 3.14159265358979323846
+    delta: f64 = rotations * 2.0 * pi / points.f64()
+    k1: f64 = 1.0 - inner_ratio
+    staged: mutable f64[MAX_OUTPUT_ELEMENTS] = zeroed
+    index: mutable usize = 0
+    while index < points:
+        t: f64 = index.f64() * delta
+        inner_angle: f64 = k1 * t / inner_ratio
+        x: f64 = k1 * cos(t) + marker_ratio * inner_ratio * cos(inner_angle)
+        y: f64 = k1 * sin(t) - marker_ratio * inner_ratio * sin(inner_angle)
+        if x != x or y != y or x >= 1.7976931348623157e308 or x <= -1.7976931348623157e308 or y >= 1.7976931348623157e308 or y <= -1.7976931348623157e308:
+            return -1
+        staged[2 * index] <- x
+        staged[2 * index + 1] <- y
+        index <- index + 1
+
+    output_length: usize = 2 * points
+    if output.is_null() or capacity < output_length: return -2
+    index <- 0
+    while index < output_length:
+        output[index] <- staged[index]
+        index <- index + 1
+    output_length.i64()
+
+export fn spirograph(input: f64&, input_length: usize,
+                     output: mutable f64&, capacity: usize) -> i64 = spirograph_impl

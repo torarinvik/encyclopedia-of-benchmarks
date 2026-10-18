@@ -1,0 +1,111 @@
+const MAX_NUM: i64 = 1000000000
+const U32_MOD: i64 = 4294967296
+const BATCH: i64 = 32
+const CUTOFF: i64 = 262144
+
+def gcd_nonnegative(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    while left != 0:
+        remainder: i64 = right % left
+        right <- left
+        left <- remainder
+    right
+
+def mod_power(base_value: i64, power_value: i64, modulus: i64) -> i64:
+    base: mutable i64 = base_value % modulus
+    power: mutable i64 = power_value
+    if base == 0: return 0
+    result: mutable i64 = 1
+    while power > 0:
+        if power % 2 != 0: result <- (result * base) % modulus
+        base <- (base * base) % modulus
+        power <- power / 2
+    result
+
+def passes_base(number: i64, base: i64) -> bool:
+    odd_power: mutable i64 = number - 1
+    two_power: mutable i64 = 0
+    while odd_power % 2 == 0:
+        odd_power <- odd_power / 2
+        two_power <- two_power + 1
+    value: mutable i64 = mod_power(base, odd_power, number)
+    if value == 1 or value == number - 1: return true
+    r: mutable i64 = 1
+    while r < two_power:
+        value <- (value * value) % number
+        if value == number - 1: return true
+        r <- r + 1
+    false
+
+def probable_prime(number: i64) -> bool:
+    if number <= 4: return number == 2 or number == 3
+    if number == 5 or number == 7: return true
+    passes_base(number, 2) and passes_base(number, 3) and passes_base(number, 5) and passes_base(number, 7)
+
+def advance(x: i64, c: i64, number: i64) -> i64:
+    (x * x + c) % number
+
+def brent_factor(number: i64, x0: i64, c: i64) -> i64:
+    x: mutable i64 = x0
+    x_start: mutable i64 = 0
+    y: mutable i64 = 0
+    remainder: mutable i64 = 1
+    current_gcd: mutable i64 = 1
+    max_iterations: mutable i64 = 1
+    while current_gcd == 1:
+        y <- x
+        i: mutable i64 = 1
+        while i < max_iterations:
+            x <- advance(x, c, number)
+            i <- i + 1
+        big_iteration: mutable i64 = 0
+        while big_iteration < max_iterations and current_gcd == 1:
+            x_start <- x
+            small_iteration: mutable i64 = 0
+            while small_iteration < BATCH and small_iteration < max_iterations - big_iteration:
+                small_iteration <- small_iteration + 1
+                x <- advance(x, c, number)
+                difference: mutable i64 = x - y
+                if difference < 0: difference <- -difference
+                remainder <- (remainder * difference) % number
+            current_gcd <- gcd_nonnegative(remainder, number)
+            big_iteration <- big_iteration + BATCH
+        max_iterations <- max_iterations * 2
+        if max_iterations > CUTOFF: break
+    if current_gcd == number:
+        while current_gcd == 1:
+            x_start <- advance(x_start, c, number)
+            difference: mutable i64 = x_start - y
+            if difference < 0: difference <- -difference
+            current_gcd <- gcd_nonnegative(difference, number)
+    current_gcd
+
+def pollard_rho_rust_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 3: return -1
+    number: i64 = input[0]
+    state: mutable i64 = input[1]
+    restart_limit: i64 = input[2]
+    if number < 2 or number > MAX_NUM or state < 0 or state >= U32_MOD or restart_limit < 1 or restart_limit > 16: return -1
+    if probable_prime(number): return number
+
+    restart: mutable i64 = 0
+    while restart < restart_limit:
+        state <- (1103515245 * state + 12345) % U32_MOD
+        high_x: i64 = state
+        state <- (1103515245 * state + 12345) % U32_MOD
+        low_x: i64 = state
+        xmod: i64 = number - 3
+        x0: i64 = ((high_x % xmod) * (U32_MOD % xmod) + low_x % xmod) % xmod + 2
+        state <- (1103515245 * state + 12345) % U32_MOD
+        high_c: i64 = state
+        state <- (1103515245 * state + 12345) % U32_MOD
+        low_c: i64 = state
+        cmod: i64 = number - 2
+        c: i64 = ((high_c % cmod) * (U32_MOD % cmod) + low_c % cmod) % cmod + 1
+        factor: i64 = brent_factor(number, x0, c)
+        if factor != 1 and factor != number: return factor
+        restart <- restart + 1
+    0
+
+export fn pollard_rho_rust(input: i64&, length: usize) -> i64 = pollard_rho_rust_impl

@@ -1,0 +1,98 @@
+const MAX_OPERATIONS: usize = 32
+const MAX_INPUT_LENGTH: usize = 3 + 3 * MAX_OPERATIONS
+const MAX_OUTPUT_BYTES: usize = 8 * MAX_OPERATIONS
+const JAVA_MULTIPLIER: u64 = 0x5DEECE66D.u64()
+const JAVA_ADDEND: u64 = 0xB.u64()
+const JAVA_MASK: u64 = (1.u64() << 48) - 1.u64()
+
+def rrcache_next_bits(state: mutable u64&, bits: usize) -> u64:
+    state <- (state * JAVA_MULTIPLIER + JAVA_ADDEND) & JAVA_MASK
+    shift: usize = 48 - bits
+    return state >> shift
+
+def rrcache_next_int(state: mutable u64&, bound: usize) -> usize:
+    if (bound & (bound - 1)) == 0:
+        return ((bound.u64() * rrcache_next_bits(state, 31)) >> 31).usize()
+    while true:
+        bits: u64 = rrcache_next_bits(state, 31)
+        value: u64 = bits % bound.u64()
+        if bits - value + (bound - 1).u64() <= 0x7FFFFFFF.u64():
+            return value.usize()
+    return 0
+
+def rrcache_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def rrcache_impl(input: i64&, input_length: usize,
+                 output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 1 or input[0] > 8 or input[2] < 0 or input[2] > MAX_OPERATIONS.i64(): return -1
+    cache_capacity: usize = input[0].usize()
+    operation_count: usize = input[2].usize()
+    if input_length != 3 + 3 * operation_count: return -1
+
+    keys: mutable i64[8] = zeroed
+    values: mutable i64[8] = zeroed
+    results: mutable i64[MAX_OPERATIONS] = zeroed
+    size: mutable usize = 0
+    random_state: mutable u64 = (input[1].u64() ^ JAVA_MULTIPLIER) & JAVA_MASK
+    operation: mutable usize = 0
+
+    while operation < operation_count:
+        offset: usize = 3 + 3 * operation
+        opcode: i64 = input[offset]
+        key: i64 = input[offset + 1]
+        value: i64 = input[offset + 2]
+        if opcode == 0:
+            if key < 1 or key > 1024 or value < 100 or value > 1000000: return -1
+            index: mutable usize = 0
+            while index < size and keys[index] != key: index <- index + 1
+            if index < size:
+                values[index] <- value
+            else:
+                if size == cache_capacity:
+                    evicted: usize = rrcache_next_int(random_state&, size)
+                    move: mutable usize = evicted
+                    while move + 1 < size:
+                        keys[move] <- keys[move + 1]
+                        values[move] <- values[move + 1]
+                        move <- move + 1
+                    size <- size - 1
+                keys[size] <- key
+                values[size] <- value
+                size <- size + 1
+            results[operation] <- -2
+        elif opcode == 1:
+            if key < 1 or key > 1024 or value != 0: return -1
+            index: mutable usize = 0
+            while index < size and keys[index] != key: index <- index + 1
+            if index < size: results[operation] <- values[index]
+            else: results[operation] <- -1
+        elif opcode == 2:
+            if key != 0 or value != 0: return -1
+            results[operation] <- size.i64()
+        else:
+            return -1
+        operation <- operation + 1
+
+    output_bytes: usize = operation_count * 8
+    if output.is_null() or output_capacity < output_bytes: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    position: mutable usize = 0
+    operation <- 0
+    while operation < operation_count:
+        rrcache_write_i64_le(staged[0]&, position&, results[operation])
+        operation <- operation + 1
+    byte: mutable usize = 0
+    while byte < output_bytes:
+        output[byte] <- staged[byte]
+        byte <- byte + 1
+    output_bytes.i64()
+
+export fn rrcache(input: i64&, input_length: usize,
+                  output: mutable u8&, output_capacity: usize) -> i64 = rrcache_impl

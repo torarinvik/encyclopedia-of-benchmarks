@@ -1,0 +1,57 @@
+def rsa_factorization_gcd(a_input: i64, b_input: i64) -> i64:
+    a: mutable i64 = a_input
+    b: mutable i64 = b_input
+    if a < 0: a <- -a
+    if b < 0: b <- -b
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def rsa_factorization_power_mod(base: i64, exponent_input: i64, modulus: i64) -> i64:
+    exponent: mutable i64 = exponent_input
+    result: mutable i64 = 1
+    power: mutable i64 = base % modulus
+    while exponent > 0:
+        if exponent % 2 == 1: result <- (result * power) % modulus
+        power <- (power * power) % modulus
+        exponent <- exponent / 2
+    result
+
+def rsa_factorization_impl(packed: i64&, length: usize) -> i64:
+    if packed.is_null() or length < 4 or length > 21: return -1
+    d: i64 = packed[0]
+    e: i64 = packed[1]
+    modulus: i64 = packed[2]
+    attempts: i64 = packed[3]
+    if d < 1 or d > 1000000 or e < 1 or e > 1000000 or modulus < 3 or modulus > 65535: return -1
+    if modulus % 2 == 0 or attempts < 1 or attempts > 16 or length != 4 + attempts.usize(): return -1
+    k: i64 = d * e - 1
+    if k <= 0 or k % 2 != 0: return -1
+    attempt: mutable usize = 0
+    while attempt < attempts.usize():
+        base: i64 = packed[4 + attempt]
+        if base < 2 or base > modulus - 1: return -1
+        attempt <- attempt + 1
+    attempt <- 0
+    while attempt < attempts.usize():
+        base: i64 = packed[4 + attempt]
+        t: mutable i64 = k
+        while t % 2 == 0:
+            t <- t / 2
+            x: i64 = rsa_factorization_power_mod(base, t, modulus)
+            factor: i64 = rsa_factorization_gcd(x - 1, modulus)
+            if x > 1 and factor > 1:
+                other: i64 = modulus / factor
+                p: i64 = factor
+                q: i64 = other
+                if p > q:
+                    temporary: i64 = p
+                    p <- q
+                    q <- temporary
+                return p * 65536 + q
+        attempt <- attempt + 1
+    -1
+
+export fn rsa_factorization(packed: i64&, length: usize) -> i64 = rsa_factorization_impl

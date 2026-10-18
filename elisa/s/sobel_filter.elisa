@@ -1,0 +1,115 @@
+extern sqrt(value: f64) -> f64
+extern atan2(y: f64, x: f64) -> f64
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const MIN_SIDE: usize = 3
+const MAX_SIDE: usize = 16
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 258
+const MAX_OUTPUT_ELEMENTS: usize = 512
+const MAX_OUTPUT_BYTES: usize = 4096
+
+def sobel_filter_write_f64_le(value: f64, output: mutable u8&, offset: usize):
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def sobel_filter_impl(input: i64&, input_length: usize,
+                       output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input[0] < MIN_SIDE.i64() or input[0] > MAX_SIDE.i64(): return -1
+    side: usize = input[0].usize()
+    pixel_count: usize = side * side
+    if input_length != pixel_count + 1: return -1
+
+    image: mutable i64[MAX_SIDE * MAX_SIDE] = zeroed
+    index: mutable usize = 0
+    while index < pixel_count:
+        pixel: i64 = input[index + 1]
+        if pixel < 0 or pixel > 255: return -1
+        image[index] <- pixel
+        index <- index + 1
+
+    gradient_x: mutable i64[MAX_SIDE * MAX_SIDE] = zeroed
+    gradient_y: mutable i64[MAX_SIDE * MAX_SIDE] = zeroed
+    max_x: mutable i64 = 0
+    max_y: mutable i64 = 0
+    y: mutable usize = 0
+    while y < side:
+        x: mutable usize = 0
+        while x < side:
+            gx: mutable i64 = 0
+            gy: mutable i64 = 0
+            ky: mutable usize = 0
+            while ky < 3:
+                sample_y: mutable usize = y
+                if ky == 0 and y > 0: sample_y <- y - 1
+                if ky == 2 and y + 1 < side: sample_y <- y + 1
+                kx: mutable usize = 0
+                while kx < 3:
+                    sample_x: mutable usize = x
+                    if kx == 0 and x > 0: sample_x <- x - 1
+                    if kx == 2 and x + 1 < side: sample_x <- x + 1
+                    pixel: i64 = image[sample_y * side + sample_x]
+                    kernel_index: usize = ky * 3 + kx
+                    kernel_x: i64 = 0
+                    kernel_y: i64 = 0
+                    if kernel_index == 0 or kernel_index == 6: kernel_x <- -1
+                    if kernel_index == 2 or kernel_index == 8: kernel_x <- 1
+                    if kernel_index == 3: kernel_x <- -2
+                    if kernel_index == 5: kernel_x <- 2
+                    if kernel_index == 0 or kernel_index == 2: kernel_y <- 1
+                    if kernel_index == 6 or kernel_index == 8: kernel_y <- -1
+                    if kernel_index == 1: kernel_y <- 2
+                    if kernel_index == 7: kernel_y <- -2
+                    gx <- gx + pixel * kernel_x
+                    gy <- gy + pixel * kernel_y
+                    kx <- kx + 1
+                ky <- ky + 1
+            if gx < 0: gx <- -gx
+            if gy < 0: gy <- -gy
+            position: usize = y * side + x
+            gradient_x[position] <- gx
+            gradient_y[position] <- gy
+            if gx > max_x: max_x <- gx
+            if gy > max_y: max_y <- gy
+            x <- x + 1
+        y <- y + 1
+    if max_x == 0 or max_y == 0: return -1
+
+    scaled_x: mutable f64[MAX_SIDE * MAX_SIDE] = zeroed
+    scaled_y: mutable f64[MAX_SIDE * MAX_SIDE] = zeroed
+    magnitude: mutable f64[MAX_SIDE * MAX_SIDE] = zeroed
+    theta: mutable f64[MAX_SIDE * MAX_SIDE] = zeroed
+    max_magnitude: mutable f64 = 0.0
+    index <- 0
+    while index < pixel_count:
+        scaled_x[index] <- (gradient_x[index].f64() * 255.0) / max_x.f64()
+        scaled_y[index] <- (gradient_y[index].f64() * 255.0) / max_y.f64()
+        magnitude[index] <- sqrt((scaled_x[index] * scaled_x[index]) + (scaled_y[index] * scaled_y[index]))
+        if magnitude[index] > max_magnitude: max_magnitude <- magnitude[index]
+        index <- index + 1
+    if max_magnitude == 0.0: return -1
+
+    index <- 0
+    while index < pixel_count:
+        normalized: f64 = (magnitude[index] * 255.0) / max_magnitude
+        magnitude[index] <- normalized.u8().f64()
+        theta[index] <- atan2(scaled_y[index], scaled_x[index])
+        index <- index + 1
+
+    output_elements: usize = 2 * pixel_count
+    output_bytes: usize = output_elements * 8
+    if output_elements > MAX_OUTPUT_ELEMENTS or output_bytes > MAX_OUTPUT_BYTES: return -1
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < pixel_count:
+        sobel_filter_write_f64_le(magnitude[index], output, index * 8)
+        sobel_filter_write_f64_le(theta[index], output, (pixel_count + index) * 8)
+        index <- index + 1
+    output_elements.i64()
+
+export fn sobel_filter(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = sobel_filter_impl

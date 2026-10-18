@@ -4,7 +4,7 @@ The pinned Lua `is` function returns true only for a number whose value is integ
 
 ## Contract
 
-Input is a one-element array `[n]` with any signed 64-bit integer. Output is 1 iff `0 <= n < 2^53`, otherwise 0. Invalid array shapes return -1.
+Input is a one-element array `[n]` with any signed 64-bit integer. Output is 1 iff `0 <= n < 2^53`, otherwise 0. A null input or invalid array shape returns -1.
 
 See [workload](workload.json), [independent oracle](../../is_oracle.py), and pinned [Lua source](https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/bit/uint53/is.lua).
 

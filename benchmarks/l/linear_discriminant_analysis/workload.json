@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-linear-discriminant-analysis-float64-slice-v1",
+  "algorithm": "linear_discriminant_analysis",
+  "function_symbol": "linear_discriminant_analysis",
+  "description": "Fit the pinned scalar Gaussian discriminant model and predict the grouped training samples.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "machine_learning/linear_discriminant_analysis.py",
+    "symbol": "calculate_mean, calculate_probabilities, calculate_variance, predict_y_values",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/linear_discriminant_analysis.py",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Compute scalar class means, priors, pooled within-class variance, then source-ordered discriminant scores and class-major predictions.",
+    "input_encoding": "[class_count, class_counts..., class-major samples...].",
+    "class_count_range": [
+      2,
+      4
+    ],
+    "per_class_sample_count_range": [
+      2,
+      6
+    ],
+    "total_sample_count_maximum": 16,
+    "sample_range": [
+      -32,
+      32
+    ],
+    "sample_values": "Finite exact integers; each class sample mean must be integral.",
+    "mean_and_probability_order": "Classes and each class's samples are processed in input order; means use sum(samples)/count and priors use count/total.",
+    "variance_formula": "1.0 / (N - K) * sum((sample - class_mean) ** 2), summing squared differences in class-major input order.",
+    "score_formula": "x * (mean / variance) - (mean ** 2 / (2 * variance)) + log(prior), evaluated left-to-right as written.",
+    "prediction_tie_rule": "First maximum score wins, matching list.index(max(scores)).",
+    "score_margin_guard": "Reject if any sample's best-minus-second-best score is less than 1e-8.",
+    "output_encoding": "One zero-based predicted class id per input sample, in class-major order; ids are float64 values.",
+    "excluded_source_behavior": "Random Gaussian data generation, interactive prompts/restart, and printed accuracy."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[class_count, class_counts[class_count], grouped_samples...]",
+    "class_count_range": [
+      2,
+      4
+    ],
+    "per_class_sample_count_range": [
+      2,
+      6
+    ],
+    "maximum_total_samples": 16,
+    "sample_range": [
+      -32,
+      32
+    ],
+    "exact_packed_shape": "Exactly 1 + class_count + sum(class_counts) values; metadata and samples must be exact integers.",
+    "maximum_valid_input_length": 21,
+    "maximum_parseable_input_length": 22,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "Predicted zero-based class ids in class-major sample order.",
+    "element_count": "Total number of input samples N.",
+    "maximum_elements": 16,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Validate input, variance, and score margins before output pointer/capacity checks.",
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "workspace": {
+    "elements": 16,
+    "meaning": "Predicted class ids for at most 16 training samples."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "unequal_class_priors",
+      "input_values": [
+        2,
+        2,
+        4,
+        -2,
+        2,
+        8,
+        9,
+        11,
+        12
+      ],
+      "input_length": 9,
+      "expected_result": 6,
+      "expected_output": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "three_classes_class_major_predictions",
+      "input_values": [
+        3,
+        2,
+        2,
+        2,
+        -8,
+        -6,
+        0,
+        2,
+        8,
+        10
+      ],
+      "input_length": 10,
+      "expected_result": 6,
+      "expected_output": [
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "id": "maximum_bounded_training_set",
+      "input_values": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        -24,
+        -23,
+        -21,
+        -20,
+        -8,
+        -7,
+        -5,
+        -4,
+        4,
+        5,
+        7,
+        8,
+        20,
+        21,
+        23,
+        24
+      ],
+      "input_length": 21,
+      "expected_result": 16,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0
+      ]
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "nonfinite_class_count_negative_infinity",
+      "input_values": [
+        "-Infinity",
+        2,
+        2,
+        -1,
+        1,
+        1,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonfinite_class_count_positive_infinity",
+      "input_values": [
+        "Infinity",
+        2,
+        2,
+        -1,
+        1,
+        1,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonfinite_class_count_nan",
+      "input_values": [
+        "NaN",
+        2,
+        2,
+        -1,
+        1,
+        1,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_class_count",
+      "input_values": [
+        2.5,
+        2,
+        2,
+        -1,
+        1,
+        1,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "nonintegral_class_mean",
+      "input_values": [
+        2,
+        2,
+        2,
+        -1,
+        0,
+        1,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_pooled_variance",
+      "input_values": [
+        2,
+        2,
+        2,
+        0,
+        0,
+        2,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_score_margin_rejected_below_threshold",
+      "input_values": [
+        2,
+        2,
+        2,
+        -1,
+        1,
+        1,
+        3
+      ],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_payload",
+      "input_values": [
+        2,
+        2,
+        2,
+        -1,
+        1
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        2,
+        2,
+        4,
+        -2,
+        2,
+        8,
+        9,
+        11,
+        12
+      ],
+      "input_length": 9,
+      "expected_result": -2,
+      "expected_output": [],
+      "output_is_null": false,
+      "output_capacity": 5
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        2,
+        2,
+        4,
+        -2,
+        2,
+        8,
+        9,
+        11,
+        12
+      ],
+      "input_length": 9,
+      "expected_result": -2,
+      "expected_output": [],
+      "output_is_null": true,
+      "output_capacity": 16
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output": [],
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 16
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        2.5,
+        2,
+        2,
+        -1,
+        1,
+        1,
+        3
+      ],
+      "input_length": 7,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_short_capacity",
+      "input_values": [
+        2,
+        2,
+        2,
+        0,
+        0,
+        2,
+        2
+      ],
+      "input_length": 7,
+      "output_capacity": 0,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

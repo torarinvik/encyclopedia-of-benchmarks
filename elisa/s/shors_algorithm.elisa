@@ -1,0 +1,57 @@
+def shors_algorithm_gcd(a: i64, b: i64) -> i64:
+    left: mutable i64 = a
+    right: mutable i64 = b
+    while right != 0:
+        remainder: i64 = left % right
+        left <- right
+        right <- remainder
+    left
+
+def shors_algorithm_impl(packed: i64&, length: usize) -> i64:
+    if packed == null or length < 3 or length > 19:
+        return -1
+    modulus: i64 = packed[0]
+    attempts: i64 = packed[1]
+    if modulus < 2 or modulus > 255 or attempts < 1 or attempts > 16 or length != (2 + attempts).usize():
+        return -1
+    index: mutable i64 = 0
+    while index < attempts:
+        base: i64 = packed[(2 + index).usize()]
+        if base < 2 or base > modulus:
+            return -1
+        index <- index + 1
+
+    index <- 0
+    while index < attempts:
+        base: i64 = packed[(2 + index).usize()]
+        common: i64 = shors_algorithm_gcd(base, modulus)
+        if common != 1:
+            return common
+        order: mutable i64 = 1
+        power: mutable i64 = base % modulus
+        while power != 1 and order < modulus - 1:
+            power <- (power * base) % modulus
+            order <- order + 1
+        if power != 1:
+            return -1
+        if order % 2 == 1:
+            index <- index + 1
+            continue
+
+        half_power: mutable i64 = 1
+        exponent: mutable i64 = 0
+        while exponent < order / 2:
+            half_power <- (half_power * base) % modulus
+            exponent <- exponent + 1
+        upper: i64 = half_power + 1
+        lower: i64 = half_power - 1
+        if upper % modulus == 0 or lower % modulus == 0:
+            index <- index + 1
+            continue
+        upper_gcd: i64 = shors_algorithm_gcd(upper, modulus)
+        if upper_gcd != 1:
+            return upper_gcd
+        return shors_algorithm_gcd(lower, modulus)
+    -1
+
+export fn shors_algorithm(packed: i64&, length: usize) -> i64 = shors_algorithm_impl

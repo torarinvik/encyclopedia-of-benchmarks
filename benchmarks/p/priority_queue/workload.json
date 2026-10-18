@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-csharp-dart-priority-queue-i64-bytes-v1",
+  "algorithm": "priority_queue",
+  "function_symbol": "priority_queue",
+  "description": "Run bounded enqueue, peek/front, and dequeue operations on a shared min-priority-queue subset.",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Sharp",
+      "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+      "path": "Algorithms/Search/AStar/PriorityQueue.cs",
+      "symbol": "PriorityQueue<T>.Enqueue, Peek, Dequeue",
+      "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Search/AStar/PriorityQueue.cs",
+      "role": "algorithm"
+    },
+    {
+      "repository": "TheAlgorithms/Dart",
+      "commit": "73da8ab4ea413eee9bf29aa2263157d86060f871",
+      "path": "data_structures/Queue/Priority_Queue.dart",
+      "symbol": "PriorityQueue<T>.enqueue, front, dequeue",
+      "url": "https://github.com/TheAlgorithms/Dart/blob/73da8ab4ea413eee9bf29aa2263157d86060f871/data_structures/Queue/Priority_Queue.dart",
+      "role": "algorithm"
+    }
+  ],
+  "contract": {
+    "operation": "Execute a flat command stream: 0 enqueue value, 1 peek/front, 2 dequeue; return priorities for retrieval operations.",
+    "input_encoding": "[operation_count, op, value-if-enqueue, ...]",
+    "operation_codes": {
+      "0": "enqueue the next value",
+      "1": "peek/front",
+      "2": "dequeue"
+    },
+    "operation_count_range": [
+      0,
+      64
+    ],
+    "priority_range": [
+      -2147483648,
+      2147483647
+    ],
+    "priority_uniqueness": "Each priority may be enqueued at most once in the entire trace.",
+    "preconditions": "Every peek/dequeue occurs while the queue is nonempty; consume exactly the packed input.",
+    "queue_order": "Return the smallest currently enqueued priority.",
+    "output_encoding": "Each peek/dequeue result as signed i32 little-endian, in operation order; enqueue emits no bytes.",
+    "tie_behavior": "Duplicate priorities are excluded, avoiding C# unspecified heap ties and Dart FIFO ties.",
+    "excluded_source_behavior": "C# descending mode, constructors, Clear, GetData; Dart end and clear."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[operation_count, encoded operations...]",
+    "operation_count_range": [
+      0,
+      64
+    ],
+    "priority_range": [
+      -2147483648,
+      2147483647
+    ],
+    "exact_shape": "Each enqueue consumes an op code and one priority; each peek/dequeue consumes one op code.",
+    "maximum_valid_input_values": 129,
+    "maximum_input_values_for_malformed_cases": 130,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "encoding": "Chronological signed i32 little-endian return values for peek/dequeue commands.",
+    "maximum_bytes": 256,
+    "success_result": "output byte count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Validate the complete operation trace before output pointer/capacity checks."
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "At most 64 returned signed i32 priorities."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "mixed_enqueue_peek_dequeue",
+      "input_values": [
+        10,
+        0,
+        8,
+        0,
+        3,
+        0,
+        5,
+        1,
+        2,
+        0,
+        -2,
+        1,
+        2,
+        2,
+        1
+      ],
+      "input_length": 15,
+      "expected_result": 24,
+      "expected_output_hex": "0300000003000000fefffffffeffffff0500000008000000"
+    },
+    {
+      "id": "negative_and_boundary_priorities",
+      "input_values": [
+        6,
+        0,
+        2147483647,
+        0,
+        -2147483648,
+        1,
+        2,
+        1,
+        2
+      ],
+      "input_length": 9,
+      "expected_result": 16,
+      "expected_output_hex": "0000008000000080ffffff7fffffff7f"
+    },
+    {
+      "id": "interleaved_minimum_updates",
+      "input_values": [
+        10,
+        0,
+        40,
+        0,
+        12,
+        2,
+        0,
+        7,
+        0,
+        31,
+        1,
+        2,
+        1,
+        2,
+        2
+      ],
+      "input_length": 15,
+      "expected_result": 24,
+      "expected_output_hex": "0c00000007000000070000001f0000001f00000028000000"
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "empty_peek",
+      "input_values": [
+        1,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_dequeue",
+      "input_values": [
+        1,
+        2
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "duplicate_priority",
+      "input_values": [
+        2,
+        0,
+        7,
+        0,
+        7
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_operation",
+      "input_values": [
+        1,
+        9
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "missing_enqueue_priority",
+      "input_values": [
+        1,
+        0
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_word",
+      "input_values": [
+        0,
+        7
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "priority_above_i32",
+      "input_values": [
+        1,
+        0,
+        2147483648
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "operation_count_above_bound",
+      "input_values": [
+        65
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        3,
+        0,
+        5,
+        1,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": false,
+      "output_capacity": 3
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        3,
+        0,
+        5,
+        1,
+        2
+      ],
+      "input_length": 5,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "output_capacity": 4
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 256
+    },
+    {
+      "id": "invalid_precedes_null_output",
+      "input_values": [
+        1,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "output_capacity": 0
+    }
+  ]
+}

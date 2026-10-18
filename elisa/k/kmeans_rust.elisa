@@ -1,0 +1,53 @@
+const MAX_POINTS: usize = 8
+const MAX_INPUT_LENGTH: usize = 10
+const MAX_MOVES: usize = 256
+
+def kmeans_rust_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    n_value: i64 = input[0]
+    if n_value < 2 or n_value > MAX_POINTS.i64(): return -1
+    n: usize = n_value.usize()
+    if length != n + 1: return -1
+
+    points: mutable f64[8] = zeroed
+    for index in 0..<n:
+        coordinate: i64 = input[index + 1]
+        if coordinate < -16 or coordinate > 16 or (index > 0 and input[index] >= coordinate): return -1
+        points[index] <- coordinate.f64()
+
+    centers: mutable f64[2] = zeroed
+    centers[0] <- points[0]
+    centers[1] <- points[n / 2]
+    labels: mutable i64[8] = zeroed
+    for index in 0..<n:
+        d0: f64 = points[index] - centers[0]
+        d1: f64 = points[index] - centers[1]
+        if d1 * d1 < d0 * d0: labels[index] <- 1
+
+    for move in 0..<MAX_MOVES:
+        sums: mutable f64[2] = zeroed
+        counts: mutable usize[2] = zeroed
+        for index in 0..<n:
+            cluster: usize = labels[index].usize()
+            sums[cluster] <- sums[cluster] + points[index]
+            counts[cluster] <- counts[cluster] + 1
+        if counts[0] == 0 or counts[1] == 0: return -1
+        centers[0] <- sums[0] / counts[0].f64()
+        centers[1] <- sums[1] / counts[1].f64()
+
+        next_labels: mutable i64[8] = zeroed
+        unchanged: mutable bool = true
+        for index in 0..<n:
+            d0: f64 = points[index] - centers[0]
+            d1: f64 = points[index] - centers[1]
+            if d1 * d1 < d0 * d0: next_labels[index] <- 1
+            if next_labels[index] != labels[index]: unchanged <- false
+        if unchanged:
+            packed: mutable i64 = 0
+            weights: i64[8] = {1, 2, 4, 8, 16, 32, 64, 128}
+            for index in 0..<n: packed <- packed + next_labels[index] * weights[index]
+            return packed
+        for index in 0..<n: labels[index] <- next_labels[index]
+    return -2
+
+export fn kmeans_rust(input: i64&, length: usize) -> i64 = kmeans_rust_impl

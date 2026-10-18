@@ -31,6 +31,8 @@ from gauss_easter_oracle import expected_result as gauss_easter_oracle
 from leap_year_oracle import expected_result as leap_year_oracle
 from liouville_oracle import MAX_INPUT as MAX_LIOUVILLE_INPUT
 from liouville_oracle import expected_result as liouville_oracle
+from greatest_prime_factor_oracle import MAX_INPUT as GREATEST_PRIME_FACTOR_MAX_INPUT
+from greatest_prime_factor_oracle import expected_result as greatest_prime_factor_oracle
 from parity_oracle import check_even as check_even_oracle
 from parity_oracle import is_odd as is_odd_oracle
 from scalar_sequence_oracles import MAX_CUBES_SEQUENCE_INDEX
@@ -91,6 +93,7 @@ ALGORITHMS += ("problem21_pair_sum",)
 ALGORITHMS += ("so1",)
 ALGORITHMS += ("pollards_rho_factorizing",)
 ALGORITHMS += ("multiple_of_3_or_5_term",)
+ALGORITHMS += ("greatest_prime_factor",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 PROBLEM79_KEYLOG = (319, 680, 180, 690, 129, 620, 762, 689, 762, 318,
@@ -2106,6 +2109,8 @@ def oracle(algorithm: str, n: int) -> int:
         return magic_square_oracle(n)
     if algorithm == "trial_division_factorizer":
         return trial_division_factorizer_oracle(n)
+    if algorithm == "greatest_prime_factor":
+        return greatest_prime_factor_oracle(n)
     if algorithm == "pollards_rho_factorizing":
         return pollards_rho_factorizing_oracle(n)
     if algorithm == "mersenne_primes":
@@ -4001,6 +4006,12 @@ def corpus(algorithm: str) -> tuple[str, dict]:
         inputs.update(rng.randrange(0, 2**31) for _ in range(128))
         inputs.update([I64_MIN, -2, -1, 0, 1, 2, 3, 4, 5, 9, 25, 49,
                        115248, 115249, 2147483646, 2147483647, 2147483648, I64_MAX])
+    elif algorithm == "greatest_prime_factor":
+        inputs.update(range(-32, 2049))
+        inputs.update(rng.randrange(0, GREATEST_PRIME_FACTOR_MAX_INPUT + 1) for _ in range(128))
+        inputs.update([I64_MIN, -2, -1, 0, 1, 2, 3, 4, 8, 97, 287,
+                       531441, 999919, GREATEST_PRIME_FACTOR_MAX_INPUT,
+                       GREATEST_PRIME_FACTOR_MAX_INPUT + 1, I64_MAX])
     elif algorithm == "perfect_number":
         inputs.update(range(-32, 10001))
         inputs.update(rng.randrange(2, 100_000_001) for _ in range(64))

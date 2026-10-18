@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-qr-eigen-values-float64-slice-io-v1",
+  "algorithm": "qr_eigen_values",
+  "function_symbol": "qr_eigen_values",
+  "description": "Compute the eigenvalues of a bounded symmetric 2 by 2 matrix using shifted QR iteration.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C",
+    "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+    "path": "numerical_methods/qr_eigen_values.c",
+    "symbol": "eigen_values",
+    "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/numerical_methods/qr_eigen_values.c",
+    "role": "algorithm"
+  },
+  "related_pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "numerical_methods/qr_eigen_values.cpp",
+      "symbol": "qr_algorithm::eigen_values",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/numerical_methods/qr_eigen_values.cpp"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "numerical_methods/qr_eigen_values.cpp",
+      "symbol": "qr_algorithm::eigen_values",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/numerical_methods/qr_eigen_values.cpp"
+    }
+  ],
+  "contract": {
+    "operation": "Compute approximate real eigenvalues by the pinned shifted QR iteration.",
+    "input_encoding": "[2, a00, a01, a10, a11]",
+    "matrix_shape": "2 by 2 row-major symmetric matrix",
+    "matrix_domain": "Exact integer entries in [-9,9]; a01 equals a10, a01 is nonzero, and a00 differs from a11.",
+    "shift": "At each iteration, use the active bottom-right matrix value as the shift and subtract it from all active diagonal entries.",
+    "iteration": "Factor the shifted matrix using column-wise classical Gram-Schmidt, compute R*Q in source loop order, and add the shift back to the active diagonal.",
+    "convergence": "Stop when the active bottom-left entry is at most 1e-10 in C or machine epsilon in C++.",
+    "deflation": "Save the last shift at its active index, shrink the active rows and columns, and finally store the remaining top-left diagonal value at index zero.",
+    "output_encoding": "Two binary64 eigenvalue approximations in source deflation order; do not sort.",
+    "errors": "Malformed framing, unsupported entries, nonsymmetric matrices, zero off-diagonal entries, equal diagonal entries, or nonfinite computations return -1. Null output or capacity below two returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[2, a00, a01, a10, a11]",
+    "dimension": 2,
+    "matrix_value_range": [-9, 9],
+    "matrix_values_must_be_integers": true,
+    "matrix_must_be_symmetric": true,
+    "off_diagonal_must_be_nonzero": true,
+    "diagonal_entries_must_differ": true,
+    "maximum_valid_input_length": 5,
+    "maximum_parseable_input_length": 6,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "Two eigenvalues in source deflation order.",
+    "maximum_elements": 2,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "absolute_tolerance": 1e-8,
+    "relative_tolerance": 1e-8,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "elements": 2,
+    "meaning": "Two binary64 eigenvalue approximations."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-8,
+    "relative_tolerance": 1e-8
+  },
+  "oracle_method": "Replay shifted QR using the pinned column-wise Gram-Schmidt operation order and C's 1e-10 stop threshold; the output tolerance includes the tighter C++ refinement.",
+  "cases": [
+    {
+      "id": "bottom_diagonal_above_top",
+      "input_values": [2, 5, 7, 7, 8],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [-0.6589105316381794, 13.65891053163816]
+    },
+    {
+      "id": "positive_distinct_diagonals",
+      "input_values": [2, 2, 1, 1, 3],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [1.381966011250105, 3.618033988738303]
+    },
+    {
+      "id": "negative_top_diagonal",
+      "input_values": [2, -4, 3, 3, 2],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [-5.242640687119285, 3.242640687119283]
+    },
+    {
+      "id": "source_order_not_sorted",
+      "input_values": [2, 5, 2, 2, 1],
+      "input_length": 5,
+      "expected_result": 2,
+      "expected_output": [5.82842712474619, 0.17157287525380957]
+    },
+    {
+      "id": "nonsymmetric_matrix",
+      "input_values": [2, 2, 1, 2, 3],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_off_diagonal",
+      "input_values": [2, 2, 0, 0, 3],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "equal_diagonal_entries",
+      "input_values": [2, 2, 1, 1, 2],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_entry",
+      "input_values": [2, 2, 0.5, 0.5, 3],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [2, 2, 1, 1, 3, 0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [2, 2, 1, 1, 3],
+      "input_length": 5,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [2, 2, 1, 1, 3],
+      "input_length": 5,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 2,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+const TRAVELING_SALESMAN_MAX_CITIES: usize = 8
+const TRAVELING_SALESMAN_MAX_INPUT_LENGTH: usize = 66
+const TRAVELING_SALESMAN_JAVA_INT_MIN: i64 = -2147483648
+const TRAVELING_SALESMAN_JAVA_INT_MAX: i64 = 2147483647
+const TRAVELING_SALESMAN_MAX_EDGE_COST: i64 = 1000
+
+def traveling_salesman_next_permutation(values: mutable usize&, length: usize) -> bool:
+    if length < 2: return false
+    pivot: mutable usize = length - 1
+    while pivot > 0 and values[pivot - 1] >= values[pivot]:
+        pivot <- pivot - 1
+    if pivot == 0: return false
+    pivot <- pivot - 1
+
+    successor: mutable usize = length - 1
+    while values[successor] <= values[pivot]:
+        successor <- successor - 1
+    temporary: mutable usize = values[pivot]
+    values[pivot] <- values[successor]
+    values[successor] <- temporary
+
+    left: mutable usize = pivot + 1
+    right: mutable usize = length - 1
+    while left < right:
+        temporary <- values[left]
+        values[left] <- values[right]
+        values[right] <- temporary
+        left <- left + 1
+        right <- right - 1
+    true
+
+def traveling_salesman_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > TRAVELING_SALESMAN_MAX_INPUT_LENGTH:
+        return -1
+    city_count_value: i64 = input[0]
+    if city_count_value < 0 or city_count_value > 8: return -1
+    city_count: usize = city_count_value.usize()
+    if length != 1 + city_count * city_count: return -1
+
+    distances: mutable i64[64] = zeroed
+    for index in 0..<city_count * city_count:
+        distance: i64 = input[index + 1]
+        if distance < TRAVELING_SALESMAN_JAVA_INT_MIN or
+           distance > TRAVELING_SALESMAN_JAVA_INT_MAX:
+            return -1
+        if city_count > 1:
+            row: usize = index / city_count
+            column: usize = index % city_count
+            if row != column and distance != TRAVELING_SALESMAN_JAVA_INT_MAX and
+               (distance < 0 or distance > TRAVELING_SALESMAN_MAX_EDGE_COST):
+                return -1
+        distances[index] <- distance
+    if city_count <= 1: return 0
+
+    permutation_length: usize = city_count - 1
+    permutation: mutable usize[7] = zeroed
+    for index in 0..<permutation_length:
+        permutation[index] <- index + 1
+
+    best: mutable i64 = TRAVELING_SALESMAN_JAVA_INT_MAX
+    while true:
+        route_cost: mutable i64 = 0
+        previous: mutable usize = 0
+        route_valid: mutable bool = true
+        for index in 0..<permutation_length:
+            city: usize = permutation[index]
+            edge: i64 = distances[previous * city_count + city]
+            if edge == TRAVELING_SALESMAN_JAVA_INT_MAX:
+                route_valid <- false
+                break
+            route_cost <- route_cost + edge
+            previous <- city
+
+        if route_valid:
+            return_edge: i64 = distances[previous * city_count]
+            if return_edge != TRAVELING_SALESMAN_JAVA_INT_MAX:
+                route_cost <- route_cost + return_edge
+                if route_cost < best: best <- route_cost
+
+        if not traveling_salesman_next_permutation(&permutation[0], permutation_length):
+            break
+    best
+
+export fn traveling_salesman(input: i64&, length: usize) -> i64 = traveling_salesman_impl

@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-csharp-permutation-unique-string-i64-bytes-v1",
+  "algorithm": "permutation_unique_string",
+  "function_symbol": "permutation_unique_string",
+  "description": "Enumerate the unique anagrams of a short ASCII string and encode them in canonical order.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/Strings/Permutation.cs",
+    "symbol": "Permutation.GetEveryUniquePermutation",
+    "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Strings/Permutation.cs",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Return each distinct permutation of the input word once.",
+    "input_encoding": "[length, ASCII character codes...]",
+    "length_range": [
+      0,
+      5
+    ],
+    "character_code_range": [
+      32,
+      126
+    ],
+    "duplicate_characters": "Allowed; equal strings are emitted once, matching the source HashSet deduplication.",
+    "output_encoding": "One unique-count byte followed by fixed-length permutation bytes in ascending ordinal lexicographic order.",
+    "output_order": "Canonical order for the set returned by the source; HashSet enumeration order is runtime-specific and not part of the portable contract.",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[length, char_code...]",
+    "maximum_valid_input_values": 6,
+    "maximum_input_values_for_malformed_cases": 7,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "encoding": "Count byte and concatenated fixed-length ASCII permutations.",
+    "maximum_bytes": 601,
+    "success_result": "output byte count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "error_precedence": "Validate input framing and character codes before output pointer/capacity checks."
+  },
+  "workspace": {
+    "bytes": 601,
+    "meaning": "One count byte plus at most 120 length-five permutations."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "empty_string",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 1,
+      "expected_output_hex": "01"
+    },
+    {
+      "id": "single_character",
+      "input_values": [
+        1,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": 2,
+      "expected_output_hex": "0141"
+    },
+    {
+      "id": "three_distinct_characters",
+      "input_values": [
+        3,
+        97,
+        98,
+        99
+      ],
+      "input_length": 4,
+      "expected_result": 19,
+      "expected_output_hex": "06616263616362626163626361636162636261"
+    },
+    {
+      "id": "duplicate_character_deduplication",
+      "input_values": [
+        3,
+        97,
+        97,
+        98
+      ],
+      "input_length": 4,
+      "expected_result": 10,
+      "expected_output_hex": "03616162616261626161"
+    },
+    {
+      "id": "five_distinct_characters",
+      "input_values": [
+        5,
+        97,
+        98,
+        99,
+        100,
+        101
+      ],
+      "input_length": 6,
+      "expected_result": 601,
+      "expected_output_hex": "78616263646561626365646162646365616264656361626563646162656463616362646561636265646163646265616364656261636562646163656462616462636561646265636164636265616463656261646562636164656362616562636461656264636165636264616563646261656462636165646362626163646562616365646261646365626164656362616563646261656463626361646562636165646263646165626364656162636561646263656461626461636562646165636264636165626463656162646561636264656361626561636462656164636265636164626563646162656461636265646361636162646563616265646361646265636164656263616562646361656462636261646563626165646362646165636264656163626561646362656461636461626563646165626364626165636462656163646561626364656261636561626463656164626365626164636562646163656461626365646261646162636564616265636461636265646163656264616562636461656362646261636564626165636462636165646263656164626561636462656361646361626564636165626463626165646362656164636561626463656261646561626364656163626465626163646562636164656361626465636261656162636465616264636561636264656163646265616462636561646362656261636465626164636562636164656263646165626461636562646361656361626465636164626563626164656362646165636461626563646261656461626365646163626564626163656462636165646361626564636261"
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "missing_character",
+      "input_values": [
+        3,
+        65,
+        66
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_character",
+      "input_values": [
+        2,
+        65,
+        66,
+        67
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "nonprintable_character",
+      "input_values": [
+        1,
+        31
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length_above_bound",
+      "input_values": [
+        6
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [
+        3,
+        97,
+        98,
+        99
+      ],
+      "input_length": 4,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": false,
+      "output_capacity": 18
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        1,
+        65
+      ],
+      "input_length": 2,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "output_capacity": 2
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        1,
+        31
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "output_is_null": true,
+      "output_capacity": 0
+    }
+  ]
+}

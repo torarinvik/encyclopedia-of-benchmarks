@@ -1,0 +1,107 @@
+def k_medoids_distance(a: i64, b: i64) -> i64:
+    if a >= b: a - b
+    else: b - a
+
+def k_medoids_impl(packed: i64&, length: usize) -> i64:
+    if packed.is_null() or length < 3 or length > 16: return -1
+    point_count: i64 = packed[0]
+    medoid_count: i64 = packed[1]
+    max_iter: i64 = packed[2]
+    if point_count < 2 or point_count > 8 or medoid_count < 1 or medoid_count > 4 or medoid_count > point_count: return -1
+    if max_iter < 1 or max_iter > 16 or length != (3 + point_count + medoid_count).usize(): return -1
+    n: usize = point_count.usize()
+    k: usize = medoid_count.usize()
+    medoids: mutable i64[4] = zeroed
+    points: mutable i64[8] = zeroed
+    labels: mutable i64[8] = zeroed
+    slot: mutable usize = 0
+    while slot < k:
+        medoids[slot] <- packed[3 + slot]
+        if medoids[slot] < 0 or medoids[slot] >= point_count: return -1
+        earlier: mutable usize = 0
+        while earlier < slot:
+            if medoids[earlier] == medoids[slot]: return -1
+            earlier <- earlier + 1
+        slot <- slot + 1
+    index: mutable usize = 0
+    while index < n:
+        points[index] <- packed[3 + k + index]
+        if points[index] < -16 or points[index] > 16: return -1
+        earlier: mutable usize = 0
+        while earlier < index:
+            if points[earlier] == points[index]: return -1
+            earlier <- earlier + 1
+        index <- index + 1
+
+    iteration: mutable i64 = 0
+    while iteration < max_iter:
+        index <- 0
+        while index < n:
+            best_slot: mutable usize = 0
+            best_distance: mutable i64 = k_medoids_distance(points[index], points[medoids[0].usize()])
+            slot <- 1
+            while slot < k:
+                distance: i64 = k_medoids_distance(points[index], points[medoids[slot].usize()])
+                if distance < best_distance:
+                    best_distance <- distance
+                    best_slot <- slot
+                slot <- slot + 1
+            labels[index] <- best_slot.i64()
+            index <- index + 1
+
+        updated: mutable i64[4] = zeroed
+        slot <- 0
+        while slot < k:
+            first: mutable usize = n
+            index <- 0
+            while index < n:
+                if labels[index] == slot.i64():
+                    first <- index
+                    break
+                index <- index + 1
+            if first == n: return -1
+            best_index: mutable usize = first
+            best_cost: mutable i64 = 0
+            index <- 0
+            while index < n:
+                if labels[index] == slot.i64(): best_cost <- best_cost + k_medoids_distance(points[first], points[index])
+                index <- index + 1
+            candidate: mutable usize = first + 1
+            while candidate < n:
+                if labels[candidate] == slot.i64():
+                    cost: mutable i64 = 0
+                    index <- 0
+                    while index < n:
+                        if labels[index] == slot.i64(): cost <- cost + k_medoids_distance(points[candidate], points[index])
+                        index <- index + 1
+                    if cost < best_cost:
+                        best_cost <- cost
+                        best_index <- candidate
+                candidate <- candidate + 1
+            updated[slot] <- best_index.i64()
+            slot <- slot + 1
+
+        changed: mutable bool = false
+        slot <- 0
+        while slot < k:
+            if updated[slot] != medoids[slot]: changed <- true
+            slot <- slot + 1
+        if not changed: break
+        slot <- 0
+        while slot < k:
+            medoids[slot] <- updated[slot]
+            slot <- slot + 1
+        iteration <- iteration + 1
+
+    result: mutable i64 = 0
+    slot <- 0
+    while slot < k:
+        result <- result | (medoids[slot] << (3 * slot).u32())
+        slot <- slot + 1
+    index <- 0
+    while index < n:
+        result <- result | (labels[index] << (12 + 2 * index).u32())
+        index <- index + 1
+    result
+
+export fn k_medoids(packed: i64&, length: usize) -> i64 = k_medoids_impl

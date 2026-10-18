@@ -1,0 +1,197 @@
+extern asin(value: f64) -> f64
+extern sin(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+const MAX_SAMPLES: usize = 32
+const MAX_QUERIES: usize = 4
+const MAX_INPUT_LENGTH: usize = 44
+const MAX_OUTPUT_LENGTH: usize = 10
+const TWO_PI: f64 = 6.283185307179586476925286766559
+
+def tdigest_quantile_limit(compression: f64, q: f64) -> f64:
+    bounded: f64 = q
+    if bounded < 0.0: bounded <- 0.0
+    if bounded > 1.0: bounded <- 1.0
+    k: f64 = compression / TWO_PI * asin(2.0 * bounded - 1.0) + 1.0
+    angle: f64 = k * TWO_PI / compression
+    if angle >= 1.5707963267948966192313216916398: return 1.0
+    if angle <= -1.5707963267948966192313216916398: return 0.0
+    (sin(angle) + 1.0) / 2.0
+
+def tdigest_interpolate(x0: f64, y0: f64, x1: f64, y1: f64, x: f64) -> f64:
+    if x1 <= x0: return y1
+    y0 + (x - x0) / (x1 - x0) * (y1 - y0)
+
+def tdigest_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_length < 7 or input_length > MAX_INPUT_LENGTH: return -1
+    compression_value: f64 = input[0]
+    sample_count_value: f64 = input[1]
+    if compression_value < 10.0 or compression_value > 20.0 or compression_value != floor(compression_value): return -1
+    if sample_count_value < 1.0 or sample_count_value > 32.0 or sample_count_value != floor(sample_count_value): return -1
+    compression: usize = compression_value.usize()
+    sample_count: usize = sample_count_value.usize()
+    quantile_count_index: usize = 2 + sample_count
+    if input_length <= quantile_count_index: return -1
+    quantile_count_value: f64 = input[quantile_count_index]
+    if quantile_count_value < 1.0 or quantile_count_value > 4.0 or quantile_count_value != floor(quantile_count_value): return -1
+    quantile_count: usize = quantile_count_value.usize()
+    quantile_start: usize = quantile_count_index + 1
+    cdf_count_index: usize = quantile_start + quantile_count
+    if input_length <= cdf_count_index: return -1
+    cdf_count_value: f64 = input[cdf_count_index]
+    if cdf_count_value < 1.0 or cdf_count_value > 4.0 or cdf_count_value != floor(cdf_count_value): return -1
+    cdf_count: usize = cdf_count_value.usize()
+    cdf_start: usize = cdf_count_index + 1
+    if input_length != cdf_start + cdf_count: return -1
+
+    samples: mutable f64[MAX_SAMPLES] = zeroed
+    index: mutable usize = 0
+    while index < sample_count:
+        value: f64 = input[2 + index]
+        if value < -8.0 or value > 8.0 or value != floor(value): return -1
+        samples[index] <- value
+        index <- index + 1
+    probabilities: mutable f64[MAX_QUERIES] = zeroed
+    index <- 0
+    while index < quantile_count:
+        value: f64 = input[quantile_start + index]
+        if value < 0.0 or value > 1.0 or value * 4.0 != floor(value * 4.0): return -1
+        probabilities[index] <- value
+        index <- index + 1
+    cdf_values: mutable f64[MAX_QUERIES] = zeroed
+    index <- 0
+    while index < cdf_count:
+        value: f64 = input[cdf_start + index]
+        if value < -8.0 or value > 8.0 or value != floor(value): return -1
+        cdf_values[index] <- value
+        index <- index + 1
+
+    sorted: mutable f64[MAX_SAMPLES] = zeroed
+    index <- 0
+    while index < sample_count:
+        sorted[index] <- samples[index]
+        index <- index + 1
+    index <- 1
+    while index < sample_count:
+        value: f64 = sorted[index]
+        position: mutable usize = index
+        while position > 0 and sorted[position - 1] > value:
+            sorted[position] <- sorted[position - 1]
+            position <- position - 1
+        sorted[position] <- value
+        index <- index + 1
+
+    means: mutable f64[MAX_SAMPLES] = zeroed
+    weights: mutable f64[MAX_SAMPLES] = zeroed
+    centroid_count: mutable usize = 1
+    means[0] <- sorted[0]
+    weights[0] <- 1.0
+    closed_weight: mutable f64 = 0.0
+    total_weight: f64 = sample_count.f64()
+    weight_limit: mutable f64 = total_weight * tdigest_quantile_limit(compression.f64(), 0.0)
+    centroid_capacity: usize = 2 * (compression + 2)
+    last: mutable usize = 0
+    index <- 1
+    while index < sample_count:
+        projected: f64 = weights[last] + 1.0
+        room_left: bool = closed_weight + projected <= weight_limit
+        if room_left or last == centroid_capacity - 1:
+            weights[last] <- projected
+            means[last] <- means[last] + (sorted[index] - means[last]) / projected
+        else:
+            closed_weight <- closed_weight + weights[last]
+            weight_limit <- total_weight * tdigest_quantile_limit(compression.f64(), closed_weight / total_weight)
+            last <- last + 1
+            means[last] <- sorted[index]
+            weights[last] <- 1.0
+            centroid_count <- centroid_count + 1
+        index <- index + 1
+
+    staged: mutable f64[MAX_OUTPUT_LENGTH] = zeroed
+    output_index: mutable usize = 0
+    staged[output_index] <- quantile_count.f64()
+    output_index <- output_index + 1
+    minimum: f64 = sorted[0]
+    maximum: f64 = sorted[sample_count - 1]
+    query: mutable usize = 0
+    while query < quantile_count:
+        q: f64 = probabilities[query]
+        result: mutable f64 = 0.0
+        if centroid_count == 1:
+            result <- means[0]
+        else:
+            rank: f64 = q * total_weight
+            if rank <= 0.0:
+                result <- minimum
+            elif rank >= total_weight:
+                result <- maximum
+            else:
+                previous_value: mutable f64 = minimum
+                previous_index: mutable f64 = 0.0
+                current_index: mutable f64 = 0.0
+                found: mutable bool = false
+                centroid: mutable usize = 0
+                while centroid < centroid_count:
+                    if centroid == 0:
+                        current_index <- current_index + weights[centroid] / 2.0
+                    else:
+                        current_index <- current_index + (weights[centroid - 1] + weights[centroid]) / 2.0
+                    if rank < current_index:
+                        result <- tdigest_interpolate(previous_index, previous_value, current_index, means[centroid], rank)
+                        found <- true
+                        break
+                    previous_value <- means[centroid]
+                    previous_index <- current_index
+                    centroid <- centroid + 1
+                if not found:
+                    result <- tdigest_interpolate(previous_index, previous_value, total_weight, maximum, rank)
+        staged[output_index] <- result
+        output_index <- output_index + 1
+        query <- query + 1
+
+    staged[output_index] <- cdf_count.f64()
+    output_index <- output_index + 1
+    query <- 0
+    while query < cdf_count:
+        value: f64 = cdf_values[query]
+        result: mutable f64 = 0.0
+        if value < minimum:
+            result <- 0.0
+        elif value > maximum:
+            result <- 1.0
+        elif maximum <= minimum:
+            result <- 0.5
+        else:
+            previous_value: mutable f64 = minimum
+            previous_index: mutable f64 = 0.0
+            current_index: mutable f64 = 0.0
+            found: mutable bool = false
+            centroid: mutable usize = 0
+            while centroid < centroid_count:
+                if centroid == 0:
+                    current_index <- current_index + weights[centroid] / 2.0
+                else:
+                    current_index <- current_index + (weights[centroid - 1] + weights[centroid]) / 2.0
+                if value < means[centroid]:
+                    result <- tdigest_interpolate(previous_value, previous_index, means[centroid], current_index, value) / total_weight
+                    found <- true
+                    break
+                previous_value <- means[centroid]
+                previous_index <- current_index
+                centroid <- centroid + 1
+            if not found:
+                result <- tdigest_interpolate(previous_value, previous_index, maximum, total_weight, value) / total_weight
+        staged[output_index] <- result
+        output_index <- output_index + 1
+        query <- query + 1
+
+    if output == null or output_capacity < output_index: return -2
+    index <- 0
+    while index < output_index:
+        output[index] <- staged[index]
+        index <- index + 1
+    output_index.i64()
+
+export fn tdigest(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = tdigest_impl

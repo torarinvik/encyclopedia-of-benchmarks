@@ -1,0 +1,138 @@
+extern log(value: f64) -> f64
+
+def multinomial_naive_bayes_classifier_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 1 or length > 360: return -1
+    fit_count_value: i64 = input[0]
+    if fit_count_value < 1 or fit_count_value > 2: return -1
+    fit_count: usize = fit_count_value.usize()
+    position: mutable usize = 1
+    feature_width: mutable usize = 0
+    training_rows: mutable i64 = 0
+    class_counts: mutable i64[8] = zeroed
+    feature_sums: mutable f64[64] = zeroed
+    class_totals: mutable f64[8] = zeroed
+    labels: mutable i64[16] = zeroed
+    training_features: mutable i64[128] = zeroed
+
+    fit: mutable usize = 0
+    while fit < fit_count:
+        if position + 2 > length: return -1
+        rows_value: i64 = input[position]
+        position <- position + 1
+        width_value: i64 = input[position]
+        position <- position + 1
+        if rows_value < 1 or rows_value > 16 or width_value < 1 or width_value > 8: return -1
+        rows: usize = rows_value.usize()
+        width: usize = width_value.usize()
+        if position + rows + rows * width > length: return -1
+        row: mutable usize = 0
+        while row < rows:
+            label: i64 = input[position]
+            position <- position + 1
+            if label < 0 or label > 7: return -1
+            labels[row] <- label
+            row <- row + 1
+        row <- 0
+        while row < rows:
+            column: mutable usize = 0
+            while column < width:
+                count: i64 = input[position]
+                position <- position + 1
+                if count < 0 or count > 100: return -1
+                training_features[row * 8 + column] <- count
+                column <- column + 1
+            row <- row + 1
+
+        label_index: mutable usize = 0
+        while label_index < 8:
+            class_counts[label_index] <- 0
+            class_totals[label_index] <- 0.0
+            label_index <- label_index + 1
+        index <- 0
+        while index < 64:
+            feature_sums[index] <- 0.0
+            index <- index + 1
+        training_rows <- rows_value
+        feature_width <- width
+        row <- 0
+        while row < rows:
+            label_index <- labels[row].usize()
+            class_counts[label_index] <- class_counts[label_index] + 1
+            column: mutable usize = 0
+            while column < width:
+                count_f: f64 = training_features[row * 8 + column].f64()
+                feature_sums[label_index * 8 + column] <- feature_sums[label_index * 8 + column] + count_f
+                class_totals[label_index] <- class_totals[label_index] + count_f
+                column <- column + 1
+            row <- row + 1
+        fit <- fit + 1
+
+    if position + 2 > length: return -1
+    prediction_count_value: i64 = input[position]
+    position <- position + 1
+    prediction_width_value: i64 = input[position]
+    position <- position + 1
+    if prediction_count_value < 1 or prediction_count_value > 8 or prediction_width_value < 1 or prediction_width_value > 8: return -1
+    prediction_count: usize = prediction_count_value.usize()
+    prediction_width: usize = prediction_width_value.usize()
+    if prediction_width != feature_width or position + prediction_count * prediction_width != length: return -1
+    prediction_features: mutable i64[64] = zeroed
+    row <- 0
+    while row < prediction_count:
+        column: mutable usize = 0
+        while column < prediction_width:
+            count: i64 = input[position]
+            position <- position + 1
+            if count < 0 or count > 100: return -1
+            prediction_features[row * 8 + column] <- count
+            column <- column + 1
+        row <- row + 1
+
+    predictions: mutable i64[8] = zeroed
+    row <- 0
+    while row < prediction_count:
+        best_score: mutable f64 = -1.0e300
+        second_score: mutable f64 = -1.0e300
+        best_label: mutable i64 = -1
+        label_index <- 0
+        while label_index < 8:
+            if class_counts[label_index] > 0:
+                score: mutable f64 = log(class_counts[label_index].f64() / training_rows.f64())
+                denominator: f64 = class_totals[label_index] + feature_width.f64()
+                column: mutable usize = 0
+                while column < feature_width:
+                    likelihood: f64 = (feature_sums[label_index * 8 + column] + 1.0) / denominator
+                    score <- score + prediction_features[row * 8 + column].f64() * log(likelihood)
+                    column <- column + 1
+                if score > best_score:
+                    second_score <- best_score
+                    best_score <- score
+                    best_label <- label_index.i64()
+                else if score > second_score:
+                    second_score <- score
+            label_index <- label_index + 1
+        if best_label < 0 or (second_score > -1.0e299 and best_score - second_score < 1e-8): return -1
+        predictions[row] <- best_label
+        row <- row + 1
+
+    output_words: usize = prediction_count + 1
+    output_bytes: usize = output_words * 8
+    if output.is_null() or output_capacity < output_bytes or output_bytes > 72: return -2
+    bits: u64 = prediction_count_value.u64()
+    byte_index: mutable usize = 0
+    while byte_index < 8:
+        output[byte_index] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte_index <- byte_index + 1
+    row <- 0
+    while row < prediction_count:
+        bits <- predictions[row].u64()
+        byte_index <- 0
+        while byte_index < 8:
+            output[(row + 1) * 8 + byte_index] <- (bits & 255).u8()
+            bits <- bits >> 8
+            byte_index <- byte_index + 1
+        row <- row + 1
+    output_bytes.i64()
+
+export fn multinomial_naive_bayes_classifier(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = multinomial_naive_bayes_classifier_impl

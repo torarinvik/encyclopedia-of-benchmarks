@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "greatest-prime-factor-v1",
+  "algorithm": "greatest_prime_factor",
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 1000000,
+    "out_of_range_result": -1,
+    "source_edge_results": {"0": 0, "1": 1}
+  },
+  "cases": [
+    {"id": "signed_minimum", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "zero", "input_value": 0, "expected_result": 0},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 2},
+    {"id": "source_example_power", "input_value": 8, "expected_result": 2},
+    {"id": "small_prime", "input_value": 97, "expected_result": 97},
+    {"id": "source_example_composite", "input_value": 287, "expected_result": 41},
+    {"id": "prime_power", "input_value": 531441, "expected_result": 3},
+    {"id": "large_semiprime", "input_value": 999919, "expected_result": 1009},
+    {"id": "maximum", "input_value": 1000000, "expected_result": 5},
+    {"id": "first_out_of_range", "input_value": 1000001, "expected_result": -1},
+    {"id": "signed_maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  }
+}

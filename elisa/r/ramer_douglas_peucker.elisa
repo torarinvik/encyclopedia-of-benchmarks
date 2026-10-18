@@ -1,0 +1,115 @@
+extern sqrt(value: f64) -> f64
+extern hypot(x: f64, y: f64) -> f64
+
+def ramer_douglas_peucker_impl(input: f64&, input_length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > 26: return -1
+    count_value: f64 = input[0]
+    epsilon: f64 = input[1]
+    if count_value != count_value or count_value < 0.0 or count_value > 12.0: return -1
+    count: usize = count_value.usize()
+    if count_value != count.f64() or input_length != 2 + 2 * count: return -1
+    if epsilon != epsilon or epsilon < 0.0 or epsilon > 100.0: return -1
+    points_x: mutable f64[12] = zeroed
+    points_y: mutable f64[12] = zeroed
+    i: mutable usize = 0
+    while i < count:
+        x: f64 = input[2 + 2 * i]
+        y: f64 = input[3 + 2 * i]
+        if x != x or y != y or x < -100.0 or x > 100.0 or y < -100.0 or y > 100.0: return -1
+        points_x[i] <- x
+        points_y[i] <- y
+        i <- i + 1
+    if count >= 3:
+        i <- 0
+        while i < count:
+            j: mutable usize = i + 1
+            while j < count:
+                if points_x[i] == points_x[j] and points_y[i] == points_y[j]: return -1
+                dx: f64 = points_x[j] - points_x[i]
+                dy: f64 = points_y[j] - points_y[i]
+                length_squared: f64 = dx * dx + dy * dy
+                line_length: f64 = sqrt(length_squared)
+                if length_squared != length_squared or length_squared <= 0.0 or line_length != line_length or line_length <= 0.0: return -1
+                max_clamped: mutable f64 = 0.0
+                max_line: mutable f64 = 0.0
+                index_clamped: mutable usize = i
+                index_line: mutable usize = i
+                k: mutable usize = i + 1
+                while k < j:
+                    px: f64 = points_x[k]
+                    py: f64 = points_y[k]
+                    t: f64 = ((px - points_x[i]) * dx + (py - points_y[i]) * dy) / length_squared
+                    if t < 0.0 or t > 1.0: return -1
+                    nearest_x: f64 = points_x[i] + t * dx
+                    nearest_y: f64 = points_y[i] + t * dy
+                    clamped_distance: f64 = hypot(px - nearest_x, py - nearest_y)
+                    numerator: f64 = dy * px - dx * py + points_x[j] * points_y[i] - points_y[j] * points_x[i]
+                    line_distance: f64 = (if numerator < 0.0: -numerator else: numerator) / line_length
+                    if clamped_distance != clamped_distance or line_distance != line_distance: return -1
+                    if clamped_distance > max_clamped:
+                        max_clamped <- clamped_distance
+                        index_clamped <- k
+                    if line_distance > max_line:
+                        max_line <- line_distance
+                        index_line <- k
+                    k <- k + 1
+                if index_clamped != index_line or ((max_clamped > epsilon) != (max_line > epsilon)): return -1
+                j <- j + 1
+            i <- i + 1
+    keep: mutable bool[12] = zeroed
+    if count > 0:
+        keep[0] <- true
+        if count > 1: keep[count - 1] <- true
+    if count >= 3:
+        starts: mutable usize[24] = zeroed
+        ends: mutable usize[24] = zeroed
+        top: mutable usize = 1
+        starts[0] <- 0
+        ends[0] <- count - 1
+        while top > 0:
+            top <- top - 1
+            start: usize = starts[top]
+            finish: usize = ends[top]
+            dx: f64 = points_x[finish] - points_x[start]
+            dy: f64 = points_y[finish] - points_y[start]
+            length_squared: f64 = dx * dx + dy * dy
+            max_distance: mutable f64 = 0.0
+            max_index: mutable usize = start
+            k <- start + 1
+            while k < finish:
+                t: f64 = ((points_x[k] - points_x[start]) * dx + (points_y[k] - points_y[start]) * dy) / length_squared
+                nearest_x: f64 = points_x[start] + t * dx
+                nearest_y: f64 = points_y[start] + t * dy
+                distance: f64 = hypot(points_x[k] - nearest_x, points_y[k] - nearest_y)
+                if distance > max_distance:
+                    max_distance <- distance
+                    max_index <- k
+                k <- k + 1
+            if max_distance > epsilon:
+                keep[max_index] <- true
+                starts[top] <- start
+                ends[top] <- max_index
+                top <- top + 1
+                starts[top] <- max_index
+                ends[top] <- finish
+                top <- top + 1
+    staged: mutable f64[25] = zeroed
+    result_count: mutable usize = 0
+    i <- 0
+    while i < count:
+        if keep[i]:
+            staged[1 + 2 * result_count] <- points_x[i]
+            staged[2 + 2 * result_count] <- points_y[i]
+            result_count <- result_count + 1
+        i <- i + 1
+    staged[0] <- result_count.f64()
+    output_size: usize = 1 + 2 * result_count
+    if output.is_null() or capacity < output_size: return -2
+    i <- 0
+    while i < output_size:
+        output[i] <- staged[i]
+        i <- i + 1
+    return output_size.i64()
+
+export fn ramer_douglas_peucker(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = ramer_douglas_peucker_impl

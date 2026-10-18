@@ -1,0 +1,78 @@
+extern sqrt(value: f64) -> f64
+
+const MAX_INPUT_LENGTH: usize = 36
+const MAX_SAMPLES: i64 = 32
+const INVALID_RESULT: f64 = -1e300
+
+def realtime_stats_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+        return INVALID_RESULT
+    if input[0] < 0 or input[0] > 2 or input[1] < 0 or input[1] > 2:
+        return INVALID_RESULT
+    if input[2] < 2 or input[2] > MAX_SAMPLES:
+        return INVALID_RESULT
+    variant: usize = input[0].usize()
+    statistic: usize = input[1].usize()
+    count: usize = input[2].usize()
+    if length != 3 + count:
+        return INVALID_RESULT
+    for index in 0..<count:
+        if input[3 + index] < -64 or input[3 + index] > 64:
+            return INVALID_RESULT
+
+    mean32: mutable f32 = 0.0.f32()
+    variance32: mutable f32 = 0.0.f32()
+    mean64: mutable f64 = 0.0
+    variance64: mutable f64 = 0.0
+    if variant == 0:
+        anchor: mutable f32 = 0.0.f32()
+        ex: mutable f32 = 0.0.f32()
+        ex2: mutable f32 = 0.0.f32()
+        n: mutable usize = 0
+        for index in 0..<count:
+            x: f32 = input[3 + index].f32() / 16.0.f32()
+            if n == 0:
+                anchor <- x
+            n <- n + 1
+            tmp: f32 = x - anchor
+            ex <- ex + tmp
+            ex2 <- ex2 + tmp * tmp
+        mean32 <- anchor + ex / n.f32()
+        variance32 <- (ex2 - (ex * ex) / n.f32()) / (n - 1).f32()
+    elif variant == 1:
+        mu: mutable f32 = 0.0.f32()
+        m: mutable f32 = 0.0.f32()
+        n: mutable usize = 0
+        for index in 0..<count:
+            x: f32 = input[3 + index].f32() / 16.0.f32()
+            n <- n + 1
+            delta: f32 = x - mu
+            mu <- mu + delta / n.f32()
+            delta2: f32 = x - mu
+            m <- m + delta * delta2
+        mean32 <- mu
+        variance32 <- m / n.f32()
+    else:
+        mu: mutable f64 = 0.0
+        m: mutable f64 = 0.0
+        n: mutable usize = 0
+        for index in 0..<count:
+            x32: f32 = input[3 + index].f32() / 16.0.f32()
+            x: f64 = x32.f64()
+            n <- n + 1
+            delta: f64 = x - mu
+            mu <- mu + delta / n.f64()
+            delta2: f64 = x - mu
+            m <- m + delta * delta2
+        mean64 <- mu
+        variance64 <- m / n.f64()
+
+    if variant < 2:
+        if statistic == 0: return mean32.f64()
+        if statistic == 1: return variance32.f64()
+        return sqrt(variance32.f64()).f32().f64()
+    if statistic == 0: return mean64
+    if statistic == 1: return variance64
+    sqrt(variance64)
+
+export fn realtime_stats(input: i64&, length: usize) -> f64 = realtime_stats_impl

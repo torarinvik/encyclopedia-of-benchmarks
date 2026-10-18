@@ -356,7 +356,7 @@
       "commit_url": "https://github.com/TheAlgorithms/Zig/commit/86c96a3fd0da17623ab5f6e3ced0d77ed8ce6cf3"
     }
   ],
-  "candidate_count": 3865,
+  "candidate_count": 3893,
   "source_file_count": 6158,
   "candidates": [
     {
@@ -24607,19 +24607,14 @@
       "review_notes": "The pinned Go source accumulates low bits with `num & 1`, shifts right, then reverses the digits; it returns 0 for zero and rejects negative inputs. This matches the prefix-free decimal_to_binary contract on nonnegative inputs. Its comment gives an ambiguously formatted 2^(31 -1) bound, so the alias is restricted to the documented bounded domain rather than inferring a wider source limit."
     },
     {
-      "candidate_id": "decision_tree",
-      "source_repository_count": 4,
+      "candidate_id": "decision_tree_jupyter",
+      "source_repository_count": 1,
       "source_repositories": [
-        "Jupyter",
-        "Python",
-        "R",
-        "Rust"
+        "Jupyter"
       ],
-      "local_source_folders": [
-        "rust"
-      ],
-      "review_status": "reviewed_algorithm_semantics",
-      "review_notes": "This filename match combines incompatible decision-tree algorithms and must be split before benchmarking. Python implements a one-dimensional regression tree with mean-squared-error splits, positional ordering of training samples, a depth limit, and minimum leaf size. The Jupyter notebook implements a multi-feature classification tree using Gini impurity and numeric >= / categorical equality questions; its example also loads scikit-learn's breast-cancer dataset. R is a short rpart classification demo that depends on external variables and a package. Rust implements a multi-feature ID3-style classifier using entropy/information gain, majority-class leaves, a maximum depth, and minimum split size. The regression and classification contracts differ in target/output type and split criterion; the Gini and entropy classifiers differ in split selection and threshold routing. No source group can be safely mapped to a single existing benchmark or shared workload. Track these as separate candidates if pursued: a bounded one-dimensional regression tree, a Gini classifier (Jupyter), and an entropy/ID3 classifier (Rust); R is an rpart demo with dependency and external-data setup. This record is reviewed for its semantic split, but no unified decision_tree benchmark is claimed.",
+      "local_source_folders": [],
+      "review_status": "reviewed_excluded_invalid_source",
+      "review_notes": "The pinned Jupyter notebook contains a malformed `def split(self, t, question)` line missing its required colon, so the classifier source is syntactically invalid. Its example also loads scikit-learn's breast-cancer dataset. This source is excluded from the portable benchmark catalog; the separate Rust entropy classifier and Python regression tree are tracked independently.",
       "implementations": [
         {
           "repository": "Jupyter",
@@ -24627,21 +24622,60 @@
           "path": "machine_learning/Decision tree/Decision_Tree.ipynb",
           "url": "https://github.com/TheAlgorithms/Jupyter/blob/ebf48b9d0373ae4caccd1d2fad54ad173dbac9e9/machine_learning/Decision%20tree/Decision_Tree.ipynb",
           "local_folder_source": null
-        },
+        }
+      ]
+    },
+    {
+      "candidate_id": "decision_tree_python_regression",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Python",
           "language": "Python",
           "path": "machine_learning/decision_tree.py",
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/decision_tree.py",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "decision_tree_python_regression",
+      "benchmark_contract": "benchmarks/d/decision_tree_python_regression/README.md",
+      "review_notes": "The pinned Python DecisionTree implements one-dimensional regression using feature-slice MSE splits, positional sample order, bounded depth, and minimum leaf size. Its source-specific bounded workload and all nine ports were statically cleared by 97b; the notebook Gini classifier, Rust ID3 classifier, and R rpart demo remain separate source candidates."
+    },
+    {
+      "candidate_id": "decision_tree_r_non_benchmarkable",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "R"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
+      "implementations": [
         {
           "repository": "R",
           "language": "R",
           "path": "classification_algorithms/decision_tree.r",
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/classification_algorithms/decision_tree.r",
           "local_folder_source": null
-        },
+        }
+      ],
+      "review_notes": "The pinned R script is a short `rpart` demo that relies on an external package and undefined `x_train`, `y_train`, and `x_test` objects. It does not provide a self-contained algorithm over an input contract for the benchmark ABI."
+    },
+    {
+      "candidate_id": "decision_tree_rust_id3",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Rust"
+      ],
+      "local_source_folders": [
+        "rust"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Rust",
           "language": "Rust",
@@ -24649,7 +24683,10 @@
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/decision_tree.rs",
           "local_folder_source": "rust"
         }
-      ]
+      ],
+      "benchmark_name": "decision_tree_rust_id3",
+      "benchmark_contract": "benchmarks/d/decision_tree_rust_id3/README.md",
+      "review_notes": "This source implements multi-feature classification by entropy and information gain with midpoint thresholds, majority-class leaves, and bounded depth/minimum split size. It remains separate from the Python regression tree and the notebook Gini classifier. 97b statically cleared the source-specific contract, workload, and oracle."
     },
     {
       "candidate_id": "decisions_convolutions",
@@ -25141,7 +25178,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_alias",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -47497,43 +47534,6 @@
       "review_notes": "The pinned R function has a deterministic isList=FALSE branch that labels original sample positions in consecutive blocks of ceiling(n/k), independent of the seeded shuffled permutation created earlier in the function. The benchmark preserves this branch for n,k in 1..12; the isList=TRUE branch's shuffled list output is outside this contract."
     },
     {
-      "candidate_id": "k_means",
-      "source_repository_count": 3,
-      "source_repositories": [
-        "Julia",
-        "R",
-        "Rust"
-      ],
-      "local_source_folders": [
-        "rust"
-      ],
-      "review_status": "reviewed_algorithm_semantics",
-      "implementations": [
-        {
-          "repository": "Julia",
-          "language": "Julia",
-          "path": "src/machine_learning/k_means.jl",
-          "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/machine_learning/k_means.jl",
-          "local_folder_source": null
-        },
-        {
-          "repository": "R",
-          "language": "R",
-          "path": "clustering_algorithms/k_means.r",
-          "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/clustering_algorithms/k_means.r",
-          "local_folder_source": null
-        },
-        {
-          "repository": "Rust",
-          "language": "Rust",
-          "path": "src/machine_learning/k_means.rs",
-          "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/k_means.rs",
-          "local_folder_source": "rust"
-        }
-      ],
-      "review_notes": "The pinned Julia source implements deterministic Lloyd iterations with evenly spaced initialization. The R source only calls `kmeans(X, 3)` on unspecified external X, and Rust initializes 2-D centroids randomly; these are not parity-equivalent variants. Keep stochastic initialization explicit in any future benchmark contract."
-    },
-    {
       "candidate_id": "k_means_clust",
       "source_repository_count": 1,
       "source_repositories": [
@@ -47565,15 +47565,13 @@
       "benchmark_contract": "benchmarks/k/k_means_clust/README.md"
     },
     {
-      "candidate_id": "k_means_clustering",
-      "source_repository_count": 2,
+      "candidate_id": "k_means_clustering_c",
+      "source_repository_count": 1,
       "source_repositories": [
-        "C",
-        "Zig"
+        "C"
       ],
       "local_source_folders": [
-        "c",
-        "zig"
+        "c"
       ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
@@ -47583,7 +47581,23 @@
           "path": "machine_learning/k_means_clustering.c",
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/machine_learning/k_means_clustering.c",
           "local_folder_source": "c"
-        },
+        }
+      ],
+      "benchmark_name": "k_means_clustering_c",
+      "benchmark_contract": "benchmarks/k/k_means_clustering_c/README.md",
+      "review_notes": "The pinned C source uses rand()%2 initial labels and repeats label reassignment while changed points exceed size/10000; the bounded size makes this threshold zero. The deterministic adapter supplies initial labels and returns -1 if an intermediate group empties. 97b CLEARed README/workload/oracle; nine ports pending."
+    },
+    {
+      "candidate_id": "k_means_clustering_zig",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Zig"
+      ],
+      "local_source_folders": [
+        "zig"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Zig",
           "language": "Zig",
@@ -47592,7 +47606,72 @@
           "local_folder_source": "zig"
         }
       ],
-      "review_notes": "Both pinned sources implement Lloyd-style clustering but differ observably: C uses rand()%k initialization and threshold-based stopping, while Zig starts from the first k points and stops on exact state equality. Preserve these per-language semantics in any future benchmark contract."
+      "benchmark_name": "k_means_clustering_zig",
+      "benchmark_contract": "benchmarks/k/k_means_clustering_zig/README.md",
+      "review_notes": "The pinned Zig source starts from the first two points, uses f32, and stops only when both centers and counts are unchanged. 97b CLEARed README/workload/oracle; nine ports pending."
+    },
+    {
+      "candidate_id": "k_means_julia",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Julia"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Julia",
+          "language": "Julia",
+          "path": "src/machine_learning/k_means.jl",
+          "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/machine_learning/k_means.jl",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_name": "k_means_julia",
+      "benchmark_contract": "benchmarks/k/k_means_julia/README.md",
+      "review_notes": "The pinned Julia source initializes centers at its evenly spaced source indices, assigns nearest centers with first-center tie priority, and iterates to exact center equality. The adapter converts bounded integer coordinates to binary64. 97b CLEARed README/workload/oracle; nine ports pending."
+    },
+    {
+      "candidate_id": "k_means_r_excluded",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "R"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
+      "implementations": [
+        {
+          "repository": "R",
+          "language": "R",
+          "path": "clustering_algorithms/k_means.r",
+          "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/clustering_algorithms/k_means.r",
+          "local_folder_source": null
+        }
+      ],
+      "review_notes": "The pinned R file only seeds the RNG and calls kmeans(X, 3) on an external, undefined X. It is a wrapper/demo with no source-defined bounded input or output contract."
+    },
+    {
+      "candidate_id": "k_means_rust",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Rust"
+      ],
+      "local_source_folders": [
+        "rust"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Rust",
+          "language": "Rust",
+          "path": "src/machine_learning/k_means.rs",
+          "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/k_means.rs",
+          "local_folder_source": "rust"
+        }
+      ],
+      "benchmark_name": "k_means_rust",
+      "benchmark_contract": "benchmarks/k/k_means_rust/README.md",
+      "review_notes": "The pinned Rust machine-learning source initializes random 2D centers and returns labels after exactly max_iter passes. Its explicit draw-stream replay remains distinct from deterministic general kmeans. 97b CLEARed README/workload/oracle; nine ports pending."
     },
     {
       "candidate_id": "k_medoids",
@@ -47619,7 +47698,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python and R sources implement k-medoids/PAM variants. Python initialization can be seeded through random_state; R uses its own seeded RNG/PAM behavior. A future workload must pin initialization, metric, and iteration options."
+      "benchmark_name": "k_medoids",
+      "benchmark_contract": "benchmarks/k/k_medoids/README.md",
+      "review_notes": "The pinned Python and R sources perform nearest-medoid assignment and within-cluster sum-of-Euclidean-distance updates, while their seeded random sequences differ and Python and R handle empty clusters differently. The deterministic contract supplies a shared ordered initial medoid list, fixes one-dimensional Euclidean distance, and requires unique coordinates so clusters cannot be empty. Their iteration order, first-minimum tie rules, final medoids, and last-iteration labels align on this domain. README/workload/oracle and nine ports are statically reviewed; scalar runner registration is pending."
     },
     {
       "candidate_id": "k_nearest_neighbors",
@@ -48018,10 +48099,9 @@
     },
     {
       "candidate_id": "kalman_filter",
-      "source_repository_count": 2,
+      "source_repository_count": 1,
       "source_repositories": [
-        "Java",
-        "R"
+        "Java"
       ],
       "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
@@ -48032,7 +48112,21 @@
           "path": "src/main/java/com/thealgorithms/streaming/KalmanFilter.java",
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/streaming/KalmanFilter.java",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "kalman_filter",
+      "benchmark_contract": "benchmarks/k/kalman_filter/README.md",
+      "review_notes": "The pinned Java scalar KalmanFilter validates finite estimates and variances, then `filter(measurement)` runs `predict()` with zero control followed by `update(measurement)` with the constructor default measurement noise. The update sets the gain to p/(p+r), adjusts the estimate, and updates covariance as p*r/(p+r), preserving the multiplication-before-division order. The bounded trace records estimate, covariance, and last gain after each cycle."
+    },
+    {
+      "candidate_id": "kalman_filter_r_two_state_simulation",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "R"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "R",
           "language": "R",
@@ -48041,7 +48135,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java source is a stateful scalar Kalman filter. The R file runs a randomized two-state simulation/filter and plotting workflow at top level. These do not share a single output model; any benchmark contract must choose and specify the model."
+      "review_notes": "The pinned R function is deterministic on explicit observed_prices; top-level seeded data generation and plots are excluded. It preserves the column-major transition matrix, the source all-ones covariance update, filtered states, and final predicted state/covariance. 97b CLEARed README/workload/oracle; nine ports pending.",
+      "benchmark_name": "kalman_filter_r_two_state_simulation",
+      "benchmark_contract": "benchmarks/k/kalman_filter_r_two_state_simulation/README.md"
     },
     {
       "candidate_id": "kaprekar_constant",
@@ -48336,6 +48432,8 @@
       ],
       "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
+      "benchmark_name": "kdtree",
+      "benchmark_contract": "benchmarks/k/kdtree/README.md",
       "implementations": [
         {
           "repository": "Java",
@@ -48345,7 +48443,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java source builds a deterministic median-split KD tree and supports insertion, search, and nearest-neighbor operations. A future callable contract must define dimension, duplicate, and nearest-distance tie behavior."
+      "review_notes": "The pinned Java source builds a deterministic two-dimensional median-split KD tree and supports insertion, exact search, coordinate extrema, and nearest-neighbor queries. The existing contract restricts stored x and y coordinates to distinct values, preserves traversal-order ties and the pinned nearest-search pruning quirk, and includes a regression fixture for the skipped-closer-point case."
     },
     {
       "candidate_id": "keith_number",
@@ -48573,7 +48671,7 @@
         "Python"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_alias",
+      "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
           "repository": "Python",
@@ -48583,8 +48681,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python source deterministically sorts sqrt-sized blocks and heap-merges them; random use is only in its main/demo. It is a sorting implementation and can share the general sorting contract.",
-      "alias_of": "sorting"
+      "review_notes": "The pinned Python source deterministically sorts contiguous blocks of floor(sqrt(n)) elements and min-heap merges them; random use is only in its main/demo. Preserve the signed-i64 array ABI and ascending output order.",
+      "benchmark_name": "kirkpatrick_reisch_sort",
+      "benchmark_contract": "benchmarks/k/kirkpatrick_reisch_sort/README.md"
     },
     {
       "candidate_id": "kl_divergence_loss",
@@ -48610,35 +48709,6 @@
       "benchmark_contract": "benchmarks/k/kl_divergence_loss/README.md"
     },
     {
-      "candidate_id": "kmeans",
-      "source_repository_count": 2,
-      "source_repositories": [
-        "MATLAB-Octave",
-        "Rust"
-      ],
-      "local_source_folders": [
-        "rust"
-      ],
-      "review_status": "reviewed_algorithm_semantics",
-      "implementations": [
-        {
-          "repository": "MATLAB-Octave",
-          "language": "MATLAB",
-          "path": "algorithms/machine_learning/kmeans/kmeans.m",
-          "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/kmeans/kmeans.m",
-          "local_folder_source": null
-        },
-        {
-          "repository": "Rust",
-          "language": "Rust",
-          "path": "src/general/kmeans.rs",
-          "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/general/kmeans.rs",
-          "local_folder_source": "rust"
-        }
-      ],
-      "review_notes": "The pinned Rust source implements Lloyd clustering with deterministic evenly spaced initial centers over arbitrary-dimensional vectors. Keep it distinct from `k_means`, whose Rust source uses random 2-D initialization and bounded iterations. The MATLAB source is an Iris-specific plotting script with fixed K and initial centers."
-    },
-    {
       "candidate_id": "kmeans_clustering",
       "source_repository_count": 1,
       "source_repositories": [
@@ -48658,6 +48728,25 @@
       "review_notes": "The pinned R file only calls base R kmeans on the built-in iris data and plots the result; it does not provide a reusable algorithm implementation."
     },
     {
+      "candidate_id": "kmeans_matlab_excluded",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "MATLAB-Octave"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
+      "implementations": [
+        {
+          "repository": "MATLAB-Octave",
+          "language": "MATLAB",
+          "path": "algorithms/machine_learning/kmeans/kmeans.m",
+          "url": "https://github.com/TheAlgorithms/MATLAB-Octave/blob/e150b77ad256de46c1ce3815c3d7945ac4fc28dc/algorithms/machine_learning/kmeans/kmeans.m",
+          "local_folder_source": null
+        }
+      ],
+      "review_notes": "The pinned MATLAB file is a fixed Iris plotting script that loads external irisdataset data. It does not expose a standalone bounded callable algorithm and its dataset dependency is absent from the workspace."
+    },
+    {
       "candidate_id": "kmeans_raw_r",
       "source_repository_count": 1,
       "source_repositories": [
@@ -48675,6 +48764,29 @@
         }
       ],
       "review_notes": "The pinned R source implements custom Lloyd clustering, sampling initial points with sample.int and returning centers, distances, and clusters. Initialization is stochastic; any future benchmark ABI must bind a portable deterministic initialization/RNG contract, or exclude it if that cannot be done."
+    },
+    {
+      "candidate_id": "kmeans_rust",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Rust"
+      ],
+      "local_source_folders": [
+        "rust"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Rust",
+          "language": "Rust",
+          "path": "src/general/kmeans.rs",
+          "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/general/kmeans.rs",
+          "local_folder_source": "rust"
+        }
+      ],
+      "benchmark_name": "kmeans_rust",
+      "benchmark_contract": "benchmarks/k/kmeans_rust/README.md",
+      "review_notes": "The pinned Rust general source uses deterministic evenly spaced initialization over arbitrary-dimensional points, recomputes means, and returns when labels stop changing. This remains separate from random 2D k_means. 97b CLEARed README/workload/oracle; nine ports pending."
     },
     {
       "candidate_id": "kmp",
@@ -50097,6 +50209,8 @@
           "local_folder_source": null
         }
       ],
+      "benchmark_name": "lamport_signature",
+      "benchmark_contract": "benchmarks/l/lamport_signature/README.md",
       "review_notes": "The pinned source implements Lamport one-time signatures. Its signing and verification behavior is retained as a distinct cryptographic algorithm candidate."
     },
     {
@@ -51538,7 +51652,8 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements a least-frequently-used cache policy; its cache behavior is distinct from LRU."
+      "review_notes": "The pinned Go LFU source's increaseFreq never increments item frequency, so all items stay in the frequency-one list. Successful Get operations and duplicate Put operations move an item to the front, making eviction LRU-like; duplicate Put also discards the attempted value update. Preserve these source quirks in the existing lfu contract rather than aliasing ordinary LRU.",
+      "benchmark_contract": "benchmarks/l/lfu/README.md"
     },
     {
       "candidate_id": "lfu_cache",
@@ -54850,7 +54965,7 @@
         "C-Sharp"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C-Sharp",
@@ -54860,15 +54975,15 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "lu_decomposition",
-      "benchmark_contract": "benchmarks/l/lu_decomposition/README.md",
+      "benchmark_contract": "benchmarks/l/lu_decompose/README.md",
       "additional_benchmark_names": [
         "lu_elimination"
       ],
       "additional_benchmark_contracts": [
         "benchmarks/l/lu_elimination/README.md"
       ],
-      "review_notes": "The pinned C# Lu class contains two distinct public workloads. lu_decomposition maps Lu.Decompose; lu_elimination maps Lu.Eliminate. Both require square n=1..6 matrices with fixed-point-milli entries, no pivot search, and reject zero pivots or nonfinite intermediates. Preserve Doolittle loop order. Decomposition emits L then U in row-major order; elimination accepts A and b and emits the source-order solution vector."
+      "review_notes": "The pinned C# Lu.Decompose implements no-pivot Doolittle, computing the U row before the corresponding L column and returning separate L/U matrices. It maps to lu_decompose on the bounded n=1..4, integer-entry [-8,8], nonzero-computed-pivot domain; shape and error behavior outside that domain is not shared. Lu.Eliminate remains the distinct additional benchmark lu_elimination.",
+      "alias_of": "lu_decompose"
     },
     {
       "candidate_id": "lu_decompose",
@@ -55242,16 +55357,12 @@
       "benchmark_contract": "benchmarks/l/lyndon_factorization/README.md"
     },
     {
-      "candidate_id": "lz77",
-      "source_repository_count": 3,
+      "candidate_id": "lz77_java",
+      "source_repository_count": 1,
       "source_repositories": [
-        "Java",
-        "Python",
-        "Rust"
+        "Java"
       ],
-      "local_source_folders": [
-        "rust"
-      ],
+      "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -55260,7 +55371,24 @@
           "path": "src/main/java/com/thealgorithms/compression/LZ77.java",
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/compression/LZ77.java",
           "local_folder_source": null
-        },
+        }
+      ],
+      "review_notes": "This mapping covers the pinned Java LZ77.compress(String) overload and its defaults: window 4096/lookahead 16, overlapping matches, first-longest tie selection, and (offset,length,nextChar) tokens with NUL as the end marker. The printable-ASCII contract excludes literal NUL and bounds input to 64 characters.",
+      "benchmark_name": "lz77_java",
+      "benchmark_contract": "benchmarks/l/lz77_java/README.md"
+    },
+    {
+      "candidate_id": "lz77_python_rust",
+      "source_repository_count": 2,
+      "source_repositories": [
+        "Python",
+        "Rust"
+      ],
+      "local_source_folders": [
+        "rust"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Python",
           "language": "Python",
@@ -55276,7 +55404,9 @@
           "local_folder_source": "rust"
         }
       ],
-      "review_notes": "The candidate aggregates materially different pinned variants. Java `LZ77.compress` defaults to window 4096/lookahead 16, emits `(offset,length,nextChar)` records, supports overlapping matches, chooses the first longest match, and uses NUL as an end marker (so literal NUL is ambiguous); null compress/decompress inputs map to empty results. Python `LZ77Compressor` defaults to window 13/lookahead 6, emits `(offset,length,indicator)` tokens, updates on equal match length so the later search-buffer position (smaller offset) wins, and advances by match length plus one; its decompressor uses token triples. Rust defaults to 13/6, emits the same token shape and tie behavior but clamps matches to leave one indicator, and asserts `lookahead < window`; its UTF-8 byte-length trimming mixed with character iteration makes non-ASCII behavior differ from Python. A benchmark must pin a source/variant rather than assume byte-for-byte equivalent token streams."
+      "review_notes": "This mapping covers the common printable-ASCII domain of the pinned Python and Rust LZ77 compressors. Their defaults yield a seven-character search buffer; overlapping matches can exceed the lookahead parameter, and later candidates replace equal-length matches. Both emit (offset,length,indicator) and consume length+1. Requiring the final character to be globally unique prevents Python's out-of-range indicator access and keeps Rust's final-character clamp inactive, so token outputs align.",
+      "benchmark_name": "lz77_python_rust",
+      "benchmark_contract": "benchmarks/l/lz77_python_rust/README.md"
     },
     {
       "candidate_id": "lz78",
@@ -58525,7 +58655,7 @@
       ],
       "benchmark_name": "memory_management_algorithms",
       "benchmark_contract": "benchmarks/memory_management_algorithms/README.md",
-      "review_notes": "The pinned Java family provides four distinct policies (FirstFitCPU, BestFitCPU, WorstFitCPU, NextFit) that process each request sequentially, mutate remaining block sizes, and emit a block index or -255. Require nonempty block arrays and positive bounded block/process sizes; use a fresh policy instance per benchmark case. NextFit persists a counter across its calls and its cursor resets to zero after failed allocation, a source-specific quirk to preserve. WorstFit fails on empty blocks."
+      "review_notes": "The pinned Java family provides four distinct policies (FirstFitCPU, BestFitCPU, WorstFitCPU, NextFit) that process each request sequentially, mutate remaining block sizes, and emit a block index or -255. Require nonempty block arrays and positive bounded block/process sizes; use a fresh policy instance per benchmark case. NextFit persists a counter across its calls; after a failed scan it adds the block count to the counter, and the next scan's wrap check may reset the effective cursor to zero. Preserve the exact source counter updates; failure does not unconditionally reset it. WorstFit fails on empty blocks."
     },
     {
       "candidate_id": "merge_find_set",
@@ -61004,8 +61134,8 @@
       ],
       "local_source_folders": [],
       "review_status": "reviewed_alias",
-      "alias_of": "k_means",
-      "review_notes": "The pinned Julia ML.jl is a namespace aggregator: it imports TheAlgorithms, exports KMeans, and includes the sibling k_means.jl implementation. It contains no additional algorithm; that exact Julia source is already recorded under the canonical k_means candidate, so this module filename aliases k_means.",
+      "alias_of": "k_means_julia",
+      "review_notes": "The pinned Julia ML.jl is a namespace aggregator: it imports TheAlgorithms, exports KMeans, and includes the sibling k_means.jl implementation. It contains no additional algorithm; that exact Julia source-specific candidate is `k_means_julia`, so this module filename aliases it.",
       "implementations": [
         {
           "repository": "Julia",
@@ -61799,10 +61929,9 @@
     },
     {
       "candidate_id": "monte_carlo_integration",
-      "source_repository_count": 2,
+      "source_repository_count": 1,
       "source_repositories": [
-        "Java",
-        "Julia"
+        "Java"
       ],
       "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
@@ -61813,7 +61942,21 @@
           "path": "src/main/java/com/thealgorithms/randomized/MonteCarloIntegration.java",
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/randomized/MonteCarloIntegration.java",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "monte_carlo_integration",
+      "benchmark_contract": "benchmarks/m/monte_carlo_integration/README.md",
+      "review_notes": "The pinned Java seeded overload calls `doApproximate`, which validates a nonnull function, a<b, and n>0. For each of floor(n/2) draws it evaluates `u` then `1-u`; an odd final sample consumes one additional draw. The deterministic adapter supplies those uniform draws explicitly, uses a bounded x^2 integrand, and preserves the source draw order and `(b-a)*total/n` return expression. Julia independent-draw sampling is tracked separately."
+    },
+    {
+      "candidate_id": "monte_carlo_integration_julia_independent_draws",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Julia"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Julia",
           "language": "Julia",
@@ -61822,7 +61965,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java and Julia routines estimate a 1D integral but are not sample-for-sample equivalent. Java validates nonnull function, a<b, n>0, has a seeded overload, and uses antithetic pairs u and 1-u plus one uniform draw for odd n; it returns (b-a)*sum(f(samples))/n. Julia uses global `rand()` for n independent uniform samples and returns ((b-a)/n)*sum, with no argument validation or seed parameter. Thus seeded reproducibility and estimator variance differ by implementation; select one variant for a canonical workload."
+      "review_notes": "The pinned Julia function uses global rand() once for each of n independent samples, accumulates f(x), then returns ((b-a)/n)*sum. It has no explicit seed argument. Its separate deterministic adapter supplies n uniform variates directly, preserving one independent sample per draw and the source multiplication order; it is not aliased to Java antithetic pairing.",
+      "benchmark_name": "monte_carlo_integration_independent",
+      "benchmark_contract": "benchmarks/m/monte_carlo_integration_independent/README.md"
     },
     {
       "candidate_id": "monte_carlo_simulation",
@@ -61850,7 +61995,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "Java",
@@ -61860,7 +62005,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java class is a fixed-time MCTS demonstration over a synthetic tree, not a game-state search. It adds ten root children, repeatedly selects by UCT (unvisited children first; otherwise mean score + 1.41*sqrt(log(parent visits)/child visits)), expands leaves by ten, and simulates a random win with probability 1/6 using a fresh unseeded Random. Backpropagation adds 10 to nodes aligned with the random winner flag; selection runs for 500 ms, then chooses the root child with maximum score and prints diagnostics. Output depends on wall-clock duration and randomness, and the simulation does not roll out an actual game state."
+      "review_notes": "The pinned Java class is a fixed-time MCTS demonstration over a synthetic tree, not a game-state search. It adds ten root children, repeatedly selects by UCT (unvisited children first; otherwise mean score + 1.41*sqrt(log(parent visits)/child visits)), expands leaves by ten, and simulates a random win with probability 1/6 using a fresh unseeded Random. Backpropagation adds 10 to nodes aligned with the random winner flag; selection runs for 500 ms, then chooses the root child with maximum score and prints diagnostics. It is excluded as non-benchmarkable because output depends on wall-clock duration and unseeded randomness; replacing the timer with fixed iterations or adding a seed changes the pinned source behavior."
     },
     {
       "candidate_id": "montecarlopi",
@@ -62384,7 +62529,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python source implements a stateful one-hidden-layer MLP with ReLU hidden activations, linear outputs, one-hot labels valued at 0.99, per-sample gradient updates, mean-squared loss, accuracy tracking, and per-epoch learning-rate decay. A module-global NumPy generator seeded once at import initializes weights, so repeated model constructions share RNG state. The toy `Dataloader` hard-codes three training rows and one test row, reports output dimension as the number of training labels rather than distinct classes, and its shuffle method is a no-op; `class_weights` is unused. `train()` stores test accuracy/loss histories and prints average accuracy but returns no predictions or trained weights. This is a multilayer model, distinct from the PHP single-layer perceptron classifier."
+      "review_notes": "The pinned Python source implements a stateful one-hidden-layer MLP with ReLU hidden activations, linear outputs, one-hot labels valued at 0.99, per-sample gradient updates, mean-squared loss, accuracy tracking, and per-epoch learning-rate decay. A module-global NumPy generator seeded once at import initializes weights, so repeated model constructions share RNG state. The toy `Dataloader` hard-codes three training rows and one test row, reports output dimension as the number of training labels rather than distinct classes, and its shuffle method is a no-op; `class_weights` is unused. `train()` stores test accuracy/loss histories and prints average accuracy but returns no predictions or trained weights. This is a multilayer model, distinct from the PHP single-layer perceptron classifier.",
+      "benchmark_name": "multilayer_perceptron_classifier",
+      "benchmark_contract": "benchmarks/m/multilayer_perceptron_classifier/README.md"
     },
     {
       "candidate_id": "multinomial_naive_bayes_classifier",
@@ -62403,7 +62550,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java class implements multinomial Naive Bayes with configurable alpha > 0 (default 1.0). fit requires nonempty features and one label per row, clears prior state, sets feature width from the first row, accumulates per-class feature sums and sample counts, then stores log priors log(classCount/sampleCount) and smoothed log likelihoods log((featureSum+alpha)/(classFeatureTotal+alpha*numFeatures)). Prediction sums the log prior plus sampleCount[j]*logLikelihood[j] and keeps the first class encountered on equal scores; iteration order comes from HashMap, so ties are not a portable result contract. The batch overload applies the same prediction to each sample. The source documents nonnegative counts but does not validate them or rectangular rows; a bounded port should require rectangular nonempty training rows, positive feature width, finite nonnegative counts, matching prediction width, and unique winning scores. This is distinct from the existing Gaussian Naive Bayes benchmark."
+      "review_notes": "The pinned Java class implements multinomial Naive Bayes with configurable alpha > 0 (default 1.0). fit requires nonempty features and one label per row, clears prior state, sets feature width from the first row, accumulates per-class feature sums and sample counts, then stores log priors log(classCount/sampleCount) and smoothed log likelihoods log((featureSum+alpha)/(classFeatureTotal+alpha*numFeatures)). Prediction sums the log prior plus sampleCount[j]*logLikelihood[j] and keeps the first class encountered on equal scores; iteration order comes from HashMap, so ties are not a portable result contract. The batch overload applies the same prediction to each sample. The source documents nonnegative counts but does not validate them or rectangular rows; a bounded port should require rectangular nonempty training rows, positive feature width, finite nonnegative counts, matching prediction width, and unique winning scores. This is distinct from the existing Gaussian Naive Bayes benchmark.",
+      "benchmark_name": "multinomial_naive_bayes_classifier",
+      "benchmark_contract": "benchmarks/m/multinomial_naive_bayes_classifier/README.md"
     },
     {
       "candidate_id": "multiple",
@@ -66838,9 +66987,8 @@
     },
     {
       "candidate_id": "page_rank",
-      "source_repository_count": 3,
+      "source_repository_count": 2,
       "source_repositories": [
-        "Java",
         "Python",
         "Rust"
       ],
@@ -66849,13 +66997,6 @@
       ],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
-        {
-          "repository": "Java",
-          "language": "Java",
-          "path": "src/main/java/com/thealgorithms/others/PageRank.java",
-          "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/PageRank.java",
-          "local_folder_source": null
-        },
         {
           "repository": "Python",
           "language": "Python",
@@ -66871,7 +67012,30 @@
           "local_folder_source": "rust"
         }
       ],
-      "review_notes": "The pinned Java, Python, and Rust sources implement materially different PageRank variants. Preserve Java’s omission of dangling-mass redistribution and its teleport term; Python/Rust redistribute dangling mass, and Rust deduplicates multi-edges."
+      "benchmark_name": "page_rank",
+      "benchmark_contract": "benchmarks/p/page_rank/README.md",
+      "review_notes": "The pinned Python and Rust implementations both redistribute dangling rank and use the normalized teleport share (1-d)/n. The benchmark uses a simple directed graph to match Rust's multiedge deduplication and fixes damping/tolerance to a bounded deterministic workload. Java's different per-node teleport term is represented by the separate page_rank_java candidate."
+    },
+    {
+      "candidate_id": "page_rank_java",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Java"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Java",
+          "language": "Java",
+          "path": "src/main/java/com/thealgorithms/others/PageRank.java",
+          "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/PageRank.java",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_name": "page_rank_java",
+      "benchmark_contract": "benchmarks/p/page_rank_java/README.md",
+      "review_notes": "The pinned Java PageRank implementation applies (1-d) to every target and omits dangling-mass redistribution. This materially differs from Python and Rust PageRank and is benchmarked separately."
     },
     {
       "candidate_id": "pairing_heap",
@@ -68603,17 +68767,12 @@
       "review_notes": "The pinned JavaScript source counts case-insensitive matches and returns floor(100*matches/text_length). The benchmark restricts inputs to ASCII, uses one ASCII-letter target, and excludes empty text and JavaScript UTF-16 edge cases."
     },
     {
-      "candidate_id": "perceptron",
-      "source_repository_count": 4,
+      "candidate_id": "perceptron_java",
+      "source_repository_count": 1,
       "source_repositories": [
-        "Java",
-        "Python",
-        "R",
-        "Rust"
+        "Java"
       ],
-      "local_source_folders": [
-        "rust"
-      ],
+      "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -68622,21 +68781,65 @@
           "path": "src/main/java/com/thealgorithms/machinelearning/Perceptron.java",
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/machinelearning/Perceptron.java",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "perceptron_java",
+      "benchmark_contract": "benchmarks/j/perceptron_java/README.md",
+      "review_notes": "The pinned Java source trains a binary 0/1 model from zero weights and zero bias, with ordered samples and an early stop after an unchanged epoch. 97b cleared the source-specific contract and all nine ports."
+    },
+    {
+      "candidate_id": "perceptron_python",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Python",
           "language": "Python",
           "path": "neural_network/perceptron.py",
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/neural_network/perceptron.py",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "perceptron_python",
+      "benchmark_contract": "benchmarks/p/perceptron_python/README.md",
+      "review_notes": "The pinned Python source trains a binary +/-1 model with `random.Random(0)` initialization, a fixed bias feature, ordered samples, and the source stopping rule. 97b cleared the source-specific contract and all nine ports."
+    },
+    {
+      "candidate_id": "perceptron_r",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "R"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "R",
           "language": "R",
           "path": "machine_learning/perceptron.r",
           "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/machine_learning/perceptron.r",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "perceptron_r",
+      "benchmark_contract": "benchmarks/r/perceptron_r/README.md",
+      "review_notes": "The pinned R source supports binary and three-class training, optional shuffle, and intercept handling. The contract fixes row order, seed behavior, and source label mapping. 97b cleared the source-specific contract and all nine ports."
+    },
+    {
+      "candidate_id": "perceptron_rust",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Rust"
+      ],
+      "local_source_folders": [
+        "rust"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Rust",
           "language": "Rust",
@@ -68645,7 +68848,9 @@
           "local_folder_source": "rust"
         }
       ],
-      "review_notes": "The pinned implementations differ in training semantics: Java is binary 0/1; Python is binary +/-1 with seeded randomized initialization; R supports multiclass and optional shuffle/seed; Rust is binary +/-1 with zero initialization. Preserve each source variant."
+      "benchmark_name": "perceptron_rust",
+      "benchmark_contract": "benchmarks/r/perceptron_rust/README.md",
+      "review_notes": "The pinned Rust source trains a binary +/-1 model from zero weights and bias, using its mistake update and early stopping rule. 97b cleared the source-specific contract and all nine ports."
     },
     {
       "candidate_id": "perfect_cube",
@@ -69103,12 +69308,10 @@
       "review_notes": "The pinned JavaScript permutate rejects an empty string, builds permutations by inserting each next character at every position, removes duplicate strings, and lexicographically sorts the result. The bounded benchmark uses distinct printable ASCII bytes of length 1..7, so deduplication is behavior-neutral and bytewise ordering matches JavaScript string ordering. The sorted list is serialized by appending a zero byte to each permutation and reduced to a 32-bit FNV-1a hash for the scalar-array ABI; ports enumerate that same lexicographic order with next-permutation steps."
     },
     {
-      "candidate_id": "permutation",
-      "source_repository_count": 3,
+      "candidate_id": "permutation_unique_string",
+      "source_repository_count": 1,
       "source_repositories": [
-        "C-Sharp",
-        "Java",
-        "Julia"
+        "C-Sharp"
       ],
       "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
@@ -69119,14 +69322,42 @@
           "path": "Algorithms/Strings/Permutation.cs",
           "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Strings/Permutation.cs",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "permutation_unique_string",
+      "benchmark_contract": "benchmarks/p/permutation_unique_string/README.md",
+      "review_notes": "The pinned C# GetEveryUniquePermutation recursively removes each character, prefixes it to each subpermutation, and unions the strings in a HashSet. It generates unique string permutations; HashSet enumeration order is unspecified. This is distinct from Java array enumeration and Julia nPr counting."
+    },
+    {
+      "candidate_id": "permutation_array",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Java"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Java",
           "language": "Java",
           "path": "src/main/java/com/thealgorithms/backtracking/Permutation.java",
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/backtracking/Permutation.java",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "permutation_array",
+      "benchmark_contract": "benchmarks/p/permutation_array/README.md",
+      "review_notes": "The pinned Java permutation clones the input and uses swap-based backtracking, appending a clone at each leaf. It preserves repeated rows when equal values occur at different positions and emits one empty row for an empty array. This is distinct from C# unique string enumeration and Julia nPr counting."
+    },
+    {
+      "candidate_id": "permutation_count",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Julia"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Julia",
           "language": "Julia",
@@ -69135,7 +69366,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned candidates are distinct variants: C# generates unique string permutations, Java enumerates array permutations including duplicates, and Julia computes nPr as a count. Keep these variants separate."
+      "benchmark_name": "permutation_count",
+      "benchmark_contract": "benchmarks/p/permutation_count/README.md",
+      "review_notes": "The pinned Julia permutation(n, r) returns factorial(n) / factorial(n - r) as an Int64 count. The benchmark preserves the source helper behavior for r > n, where factorial of the negative difference is the empty product 1. This is distinct from both enumeration variants."
     },
     {
       "candidate_id": "permutation_and_combination",
@@ -70159,16 +70392,12 @@
       "benchmark_contract": "benchmarks/p/pollard/README.md"
     },
     {
-      "candidate_id": "pollard_rho",
-      "source_repository_count": 3,
+      "candidate_id": "pollard_rho_java",
+      "source_repository_count": 1,
       "source_repositories": [
-        "Java",
-        "Python",
-        "Rust"
+        "Java"
       ],
-      "local_source_folders": [
-        "rust"
-      ],
+      "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -70177,14 +70406,44 @@
           "path": "src/main/java/com/thealgorithms/maths/PollardRho.java",
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/maths/PollardRho.java",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "pollard_rho_java",
+      "benchmark_contract": "benchmarks/p/pollard_rho_java/README.md",
+      "review_notes": "Preserve the pinned Java PollardRho implementation as its own source-specific variant: fixed x=y=2, Floyd updates, g(x)=((x*x)-1)%n with Java signed remainder, and failure when gcd reaches n. The bounded contract exposes an explicit step limit and maps source failure to 0. 97b CLEARed README/workload/oracle and all nine ports."
+    },
+    {
+      "candidate_id": "pollard_rho_python",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Python",
           "language": "Python",
           "path": "maths/pollard_rho.py",
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/pollard_rho.py",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "pollard_rho_python",
+      "benchmark_contract": "benchmarks/p/pollard_rho_python/README.md",
+      "review_notes": "Preserve the pinned Python variant with the even-number shortcut, Floyd updates under g(x)=(x*x+step)%num, finite attempt count, and failed-attempt seed=hare and step increment. The bounded contract limits iterations per attempt and maps None to 0. 97b CLEARed README/workload/oracle and all nine ports."
+    },
+    {
+      "candidate_id": "pollard_rho_rust",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Rust"
+      ],
+      "local_source_folders": [
+        "rust"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Rust",
           "language": "Rust",
@@ -70193,7 +70452,9 @@
           "local_folder_source": "rust"
         }
       ],
-      "review_notes": "The pinned Java, Python, and Rust sources are Pollard-Rho variants with different polynomials, cycle methods, parameters, and failure/output behavior. Preserve each language variant rather than assuming one shared result contract."
+      "benchmark_name": "pollard_rho_rust",
+      "benchmark_contract": "benchmarks/p/pollard_rho_rust/README.md",
+      "review_notes": "Preserve the pinned Rust variant's seeded u32 LCG, Miller–Rabin early return, Brent cycle detection with 32-item gcd batches and a 2^18 cutoff, source restart behavior, and return of number for probable primes. The bounded contract caps restarts. 97b CLEARed README/workload/oracle and all nine ports."
     },
     {
       "candidate_id": "pollards_rho_factorizing",
@@ -71741,27 +72002,19 @@
     },
     {
       "candidate_id": "prim_mst",
-      "source_repository_count": 3,
+      "source_repository_count": 2,
       "source_repositories": [
         "Java",
-        "JavaScript",
         "R"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Java",
           "language": "Java",
           "path": "src/main/java/com/thealgorithms/datastructures/graphs/PrimMST.java",
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/datastructures/graphs/PrimMST.java",
-          "local_folder_source": null
-        },
-        {
-          "repository": "JavaScript",
-          "language": "JavaScript",
-          "path": "Graphs/PrimMST.js",
-          "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Graphs/PrimMST.js",
           "local_folder_source": null
         },
         {
@@ -71772,7 +72025,28 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java, JavaScript, and R sources are not behavior-identical. Java is O(V^2) over an int adjacency matrix with V hard-coded to 5, zero as the no-edge sentinel, root 0, ascending strict-min scans, and a returned parent array rooted at -1; disconnected input makes `minKey` return -1 and indexing fails. R is a generic O(V^2) matrix implementation with one-based start vertex (default 1), zero/Inf no-edge sentinels, and returns edges, total weight, parent array, and edge count; disconnected graphs warn and return a partial tree. The JavaScript adjacency-list version is misnamed as Prim: it relaxes `distance[node] + edgeWeight`, accumulates path costs, and returns a parent graph, which is Dijkstra-style shortest-path-tree behavior rather than Prim edge-key behavior. Treat its output as a distinct source variant rather than a reference Prim MST."
+      "review_notes": "The pinned Java and R implementations are both Prim and alias to the existing `prim` contract on a restricted common domain: exactly five connected vertices, symmetric undirected adjacency, zero diagonal, and strictly positive integer edge weights in [1, INT32_MAX-1]. The adapter converts the shared edge-list input to each source matrix form and normalizes the result to total MST weight (sum the Java parent edges; R already returns total weight). Use root 0 for Java and start vertex 1 for R. Zero denotes no edge in both sources; exclude disconnected inputs and INT32_MAX, which Java cannot select because it is its initial key sentinel.",
+      "alias_of": "prim"
+    },
+    {
+      "candidate_id": "prim_mst_javascript",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "JavaScript"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_alias",
+      "implementations": [
+        {
+          "repository": "JavaScript",
+          "language": "JavaScript",
+          "path": "Graphs/PrimMST.js",
+          "url": "https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Graphs/PrimMST.js",
+          "local_folder_source": null
+        }
+      ],
+      "review_notes": "Despite its filename, the pinned JavaScript routine is Dijkstra-style: it relaxes distance[u] + weight over an undirected adjacency list and returns a parent-edge tree. Alias to the existing `dijkstra` contract only through an explicit adapter: build the source graph from the undirected edge list, run from the requested numeric start vertex, then accumulate parent-tree edge weights from the root to produce the contract distance vector. Restrict to connected graphs with numeric IDs 0..V-1, nonnegative weights, no parallel edges (addEdge overwrites), and shortest-path sums no greater than 2^53-1 so JavaScript Number arithmetic remains exact. Parent tie choices do not affect the returned distances.",
+      "alias_of": "dijkstra"
     },
     {
       "candidate_id": "prime",
@@ -72265,7 +72539,45 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python primelib.py is a bundle of independent math utilities, not one algorithm. It exposes primality/sieve/factorization and prime-factor helpers, parity, Goldbach, LCM, nth prime, primes between prime endpoints, divisors/perfect-number checks, fraction simplification, factorial, and Fibonacci. Notable source semantics include prime_factorization(0)=[0], prime_factorization(1)=[1], denominator sign preservation in simplification, fib(0)=1/fib(5)=8, and get_primes_between asserting prime endpoints then indexing the result (adjacent prime endpoints raise IndexError). Review/map individual methods separately; do not claim the entire file as one benchmark."
+      "review_notes": "The pinned Python primelib.py is a bundle of independent methods; map each method separately. is_even and is_odd match their signed-i64 contracts exactly. is_prime maps to prime_check on 0..2,147,483,647 (negative inputs assert in the source). sieve_er and get_prime_numbers both map to inclusive prime_numbers for limits 3..80. prime_factorization maps to prime_factors for 2..1,000,005 with repeated ascending factors; it also maps to prime_factorization for that same positive range by grouping equal adjacent factors into (prime, exponent) pairs. Its source results [0] and [1] are excluded. get_divisors maps to divisors for 1..62 using the contract's lossless bit-mask encoding of the returned list. is_perfect_number maps on 2..10,000, a practical subset for its linear divisor scan. kg_v maps to lcm when both operands are positive and the result fits signed 64-bit; zero is rejected by the source, so use bounded positive operands (up to 10,000). get_prime is zero-based and maps to one-based nthprime by calling get_prime(n-1), for n=1..100. goldbach maps to goldbach_conjecture for even inputs 8..4,096: the source requires distinct primes and fails for 4 and 6, while for this intersection its ascending prime-pair scan agrees with the benchmark. fib returns F(n+1) and maps to the existing F(n+2) fib contract by calling source fib(n+1), for target inputs 0..90. factorial matches factorial on 0..20. greatest_prime_factor, smallest_prime_factor (defined for n>=2), get_primes_between, and simplify_fraction remain separate named benchmark gaps. get_primes_between requires prime endpoints with p1<p2 and raises on adjacent prime endpoints because its final assertion indexes an empty result. simplify_fraction preserves denominator sign, including negative denominators. The module main/doctest block is not a benchmark.",
+      "benchmark_name": "is_even",
+      "benchmark_contract": "benchmarks/i/is_even/README.md",
+      "additional_benchmark_names": [
+        "is_odd",
+        "prime_check",
+        "prime_numbers",
+        "prime_factors",
+        "prime_factorization",
+        "greatest_prime_factor",
+        "smallest_prime_factor",
+        "goldbach_conjecture",
+        "lcm",
+        "nthprime",
+        "get_primes_between",
+        "divisors",
+        "perfect_number",
+        "simplify_fraction",
+        "factorial",
+        "fib"
+      ],
+      "additional_benchmark_contracts": [
+        "benchmarks/i/is_odd/README.md",
+        "benchmarks/p/prime_check/README.md",
+        "benchmarks/p/prime_numbers/README.md",
+        "benchmarks/p/prime_factors/README.md",
+        "benchmarks/p/prime_factorization/README.md",
+        "benchmarks/g/greatest_prime_factor/README.md",
+        "benchmarks/s/smallest_prime_factor/README.md",
+        "benchmarks/g/goldbach_conjecture/README.md",
+        "benchmarks/l/lcm/README.md",
+        "benchmarks/n/nthprime/README.md",
+        "benchmarks/g/get_primes_between/README.md",
+        "benchmarks/d/divisors/README.md",
+        "benchmarks/p/perfect_number/README.md",
+        "benchmarks/s/simplify_fraction/README.md",
+        "benchmarks/f/factorial/README.md",
+        "benchmarks/f/fib/README.md"
+      ]
     },
     {
       "candidate_id": "primes",
@@ -79544,7 +79856,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned C# PInv routine builds a Moore–Penrose pseudoinverse through ThinSvd.Decompose. It replaces singular values whose absolute value is strictly below 0.0001 with zero, reciprocates the rest, multiplies the returned U, diagonal reciprocal matrix, and V transpose, then transposes that product. The cutoff is an absolute strict threshold, not a relative tolerance; rectangular matrix shape and this cutoff must remain part of any contract."
+      "review_notes": "The pinned C# PInv routine builds a Moore–Penrose pseudoinverse through ThinSvd.Decompose. It replaces singular values whose absolute value is strictly below 0.0001 with zero, reciprocates the rest, multiplies the returned U, diagonal reciprocal matrix, and V transpose, then transposes that product. The cutoff is an absolute strict threshold, not a relative tolerance; rectangular matrix shape and this cutoff must remain part of any contract. The benchmark package limits inputs to a stable, deterministic one-column integer domain and maps this source to the closed-form projection.",
+      "benchmark_name": "pseudo_inverse",
+      "benchmark_contract": "benchmarks/p/pseudo_inverse/README.md"
     },
     {
       "candidate_id": "push_relabel",
@@ -79832,7 +80146,7 @@
       ],
       "benchmark_name": "qr_decomposition",
       "benchmark_contract": "benchmarks/q/qr_decomposition/README.md",
-      "review_notes": "The C/C++ wrappers call Gram-Schmidt while Python uses Householder. Use only square finite, bounded, nonsingular matrices for the normalized factorization-property contract; square inputs avoid the Python loop’s omitted final reflector on tall matrices and the C wrapper’s uninitialized extra R rows. Keep source methods distinct and do not require identical raw Q/R matrices."
+      "review_notes": "The C/C++ wrappers call Gram-Schmidt while Python uses Householder. Use square integer matrices in [-1,1] whose every leading principal minor is nonzero; full rank alone does not avoid Python's zero-sign Householder pivot case. Compare reconstruction, orthonormality, and triangularity property errors with 1e-8 tolerance rather than raw Q/R matrices. Square inputs avoid the Python loop’s omitted final reflector on tall matrices and the C wrapper’s uninitialized extra R rows."
     },
     {
       "candidate_id": "qr_eigen_values",
@@ -79891,9 +80205,9 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "qr_decompose",
-      "benchmark_contract": "benchmarks/q/qr_decompose/README.md",
-      "review_notes": "The pinned Java Gram-Schmidt source maps to the shared square full-rank stable QR factorization-property contract; require nonsingular inputs and compare reconstruction/orthonormality/triangularity with tolerance, not exact Q/R entries."
+      "alias_of": "qr_decomposition",
+      "benchmark_contract": "benchmarks/q/qr_decomposition/README.md",
+      "review_notes": "The pinned Java QRDecomposition.decompose uses modified Gram-Schmidt, while qr_decompose uses classical projections of the original column. Map this method only to the separate qr_decomposition property contract on square integer matrices in [-1,1] whose leading principal minors are all nonzero; compare reconstruction, orthonormality, and upper-triangular R with 1e-8 tolerance, not elementwise Q/R identity. Bounded raw Q/R compatibility with qr_decompose is not guaranteed at 1e-12."
     },
     {
       "candidate_id": "quad_tree",
@@ -80018,7 +80332,7 @@
       ],
       "benchmark_name": "quadratic_probing_hash_table",
       "benchmark_contract": "benchmarks/q/quadratic_probing_hash_table/README.md",
-      "review_notes": "The pinned C++ global-state table probes (hash+i^2)%size from i=0, uses tombstones, and rehashes at load factor >= 0.5. Require initial size > 0; exclude reserved keys 0 and -1, use unique inserts, remove only present keys, and reset global state per case."
+      "review_notes": "The pinned C++ global-state table uses std::hash<int> (modeled as identity on the pinned source runtime for positive keys 1..64), probes (hash+i^2)%size from i=0, reuses tombstones, and doubles/reinserts at load factor >=0.5 in old-slot order. Its find helper conflates returned index 0 with notPresent=0, so a stored key at slot 0 returns the default empty entry. Require initial size >0; reserve keys 0 and -1; use unique live inserts; remove only present keys; exclude insertions that exhaust the 100*capacity probe guard; reset global state per call."
     },
     {
       "candidate_id": "quadratic_residue",
@@ -82128,7 +82442,7 @@
       ],
       "benchmark_name": "random_graph_generator",
       "benchmark_contract": "benchmarks/r/random_graph_generator/README.md",
-      "review_notes": "The pinned source can be wrapped with deterministic seeding. Preserve source quirks: directed mode considers only i<j, and p>=1 yields an undirected complete graph. Bound n<=64 and p in [0,1]."
+      "review_notes": "The pinned source calls random.random once per unordered pair only when 0<p<1, in nested i<j order; p<=0 returns an empty graph and p>=1 returns a complete undirected graph regardless of directed. The benchmark supplies a 53-bit draw numerator per pair to replay those source decisions without a global RNG."
     },
     {
       "candidate_id": "random_node",
@@ -82456,6 +82770,8 @@
       ],
       "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
+      "benchmark_name": "rat_in_amaze",
+      "benchmark_contract": "benchmarks/r/rat_in_amaze/README.md",
       "implementations": [
         {
           "repository": "Java",
@@ -82729,6 +83045,8 @@
         "cpp"
       ],
       "review_status": "reviewed_algorithm_semantics",
+      "benchmark_name": "realtime_stats",
+      "benchmark_contract": "benchmarks/r/realtime_stats/README.md",
       "implementations": [
         {
           "repository": "C",
@@ -82752,7 +83070,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned C/C++ sources provide anchored-mean stats_computer1 and Welford stats_computer2; keep the methods separate. Method 1 divides by n-1 while method 2 uses M/n. C++ method-1 fields are uninitialized, so exclude that method from any deterministic contract; C static state persists across calls and must be reset/preserved exactly. Avoid n=1 for sample variance."
+      "review_notes": "The C source provides anchored-mean stats_computer1 (float32, sample variance) and Welford stats_computer2 (float32, population variance). The benchmark also uses C++ stats_computer2<float> (float32 samples with double Welford state); C++ method 1 is excluded because Ex and Ex2 are uninitialized. Each ABI call uses fresh local state initialized to source initial values, so C static state does not persist across benchmark calls. C-Plus-Plus-1 is a duplicate of the pinned C++ source."
     },
     {
       "candidate_id": "rearrangeways",
@@ -85902,55 +86220,13 @@
       "review_notes": "The pinned Java round-robin scheduler matches mode 5 on nonempty inputs with positive quantum/bursts, unique IDs, and arrivals nondecreasing in input order. Under this restriction its initial index, stable arrival scan, enqueue-before-requeue order, idle-gap handling, turnaround, and waiting match the shared mode-5 schedule. Project the benchmark schedule to the Java-observable turnaround/waiting fields; Java priority is ignored. Source: TheAlgorithms/Java e43ec3897e48f23843972d02cd05a5bb1b6864a2, src/main/java/com/thealgorithms/scheduling/RRScheduling.java and ProcessDetails.java."
     },
     {
-      "candidate_id": "rsa",
-      "source_repository_count": 4,
-      "source_repositories": [
-        "Go",
-        "Java",
-        "Lua",
-        "Ruby"
-      ],
-      "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
-      "implementations": [
-        {
-          "repository": "Go",
-          "language": "Go",
-          "path": "cipher/rsa/rsa.go",
-          "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/cipher/rsa/rsa.go",
-          "local_folder_source": null
-        },
-        {
-          "repository": "Java",
-          "language": "Java",
-          "path": "src/main/java/com/thealgorithms/ciphers/RSA.java",
-          "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/RSA.java",
-          "local_folder_source": null
-        },
-        {
-          "repository": "Lua",
-          "language": "Lua",
-          "path": "src/crypto/rsa.lua",
-          "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/crypto/rsa.lua",
-          "local_folder_source": null
-        },
-        {
-          "repository": "Ruby",
-          "language": "Ruby",
-          "path": "ciphers/rsa.rb",
-          "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/ciphers/rsa.rb",
-          "local_folder_source": null
-        }
-      ]
-    },
-    {
       "candidate_id": "rsa2",
       "source_repository_count": 1,
       "source_repositories": [
         "Go"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_alias",
+      "review_status": "reviewed_excluded_non_benchmarkable_source",
       "implementations": [
         {
           "repository": "Go",
@@ -85960,8 +86236,7 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "rsa",
-      "review_notes": "The pinned Go source implements textbook RSA, the same cryptosystem as the existing rsa candidate, but with randomized key generation from bounded sieve primes and a different ciphertext framing. Its New() randomness makes separate workload generation nondeterministic, so this is grouped as an RSA alias rather than a distinct benchmark. For any future shared decrypt contract, document its 8-byte big-endian ciphertext blocks and ignored trailing partial block."
+      "review_notes": "The pinned Go rsa2 source creates a random key in New() and processes plaintext/ciphertext in fixed eight-byte blocks, ignoring a trailing partial block. That stateful random-key API and block framing do not match the cleared explicit-key, per-value benchmark; no deterministic bounded contract is claimed."
     },
     {
       "candidate_id": "rsa_cipher",
@@ -85995,6 +86270,35 @@
       "benchmark_contract": "benchmarks/r/rsa_cipher/README.md"
     },
     {
+      "candidate_id": "rsa_explicit_key_transform",
+      "source_repository_count": 2,
+      "source_repositories": [
+        "Go",
+        "Lua"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Go",
+          "language": "Go",
+          "path": "cipher/rsa/rsa.go",
+          "url": "https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/cipher/rsa/rsa.go",
+          "local_folder_source": null
+        },
+        {
+          "repository": "Lua",
+          "language": "Lua",
+          "path": "src/crypto/rsa.lua",
+          "url": "https://github.com/TheAlgorithms/Lua/blob/cedc141018ad48884318fe08a6db278664b17128/src/crypto/rsa.lua",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_name": "rsa_explicit_key_transform",
+      "benchmark_contract": "benchmarks/r/rsa_explicit_key_transform/README.md",
+      "review_notes": "The pinned Go and Lua sources share a bounded explicit-key, per-value transform contract. Their modular exponentiation helpers are pinned in the package README/workload. Key generation and the sources’ differing key-generation routines are excluded. 97b CLEARed README/workload/oracle; nine ports pending."
+    },
+    {
       "candidate_id": "rsa_factorization",
       "source_repository_count": 1,
       "source_repositories": [
@@ -86014,6 +86318,27 @@
       ]
     },
     {
+      "candidate_id": "rsa_java_big_integer",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Java"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Java",
+          "language": "Java",
+          "path": "src/main/java/com/thealgorithms/ciphers/RSA.java",
+          "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/RSA.java",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_name": "rsa_java_big_integer",
+      "benchmark_contract": "benchmarks/r/rsa_java_big_integer/README.md",
+      "review_notes": "The pinned Java source uses BigInteger modPow on each supplied integer with explicit key state installed by the adapter. It remains distinct from Go/Lua rune transforms and Ruby decimal byte chunks. 97b CLEARed README/workload/oracle; nine ports pending."
+    },
+    {
       "candidate_id": "rsa_key_generator",
       "source_repository_count": 1,
       "source_repositories": [
@@ -86031,6 +86356,27 @@
           "local_folder_source": null
         }
       ]
+    },
+    {
+      "candidate_id": "rsa_ruby_byte_chunk",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Ruby"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Ruby",
+          "language": "Ruby",
+          "path": "ciphers/rsa.rb",
+          "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/ciphers/rsa.rb",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_name": "rsa_ruby_byte_chunk",
+      "benchmark_contract": "benchmarks/r/rsa_ruby_byte_chunk/README.md",
+      "review_notes": "The pinned Ruby source encrypts each byte separately, concatenates fixed-width decimal ciphertext chunks, then splits/decrypts those chunks. The adapter installs fixed key state and omits the unconditional interactive main call. 97b CLEARed README/workload/oracle; nine ports pending."
     },
     {
       "candidate_id": "rselect",
@@ -87919,7 +88265,7 @@
       ],
       "benchmark_name": "sepia",
       "benchmark_contract": "benchmarks/s/sepia/README.md",
-      "review_notes": "The pinned source performs in-place OpenCV BGR grayscale/tint operations. Preserve uint8-like pixel handling and a nonnegative tint factor."
+      "review_notes": "The pinned Python make_sepia mutates BGR pixels, computes int(0.2126*red + 0.587*green + 0.114*blue), then saturates the green and red tint additions at 255. The portable contract uses discrete channel levels that keep grayscale truncation stable, dimensions 1..8, and factor 0..255."
     },
     {
       "candidate_id": "sequence",
@@ -89098,7 +89444,7 @@
       ],
       "benchmark_name": "shuffle",
       "benchmark_contract": "benchmarks/s/shuffle/README.md",
-      "review_notes": "The pinned Lua source uses forward Fisher–Yates and the global RNG. Preserve its exact draw order with an explicit seed."
+      "review_notes": "The pinned Lua source uses forward Fisher–Yates and process-global math.random. Use explicit per-step bounded offsets to replay exactly one inclusive draw per iteration in source order; do not claim a Lua-version-independent seeded sequence."
     },
     {
       "candidate_id": "shuffle_array",
@@ -90156,7 +90502,9 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Python source searches a two-dimensional SearchProblem using the eight step-size neighbors: it repeatedly samples remaining neighbors without replacement, rejects out-of-bounds states, accepts improving moves, and accepts other moves with exp(change/current_temp). Temperature decreases by the configured rate each iteration; the search stops below threshold or when no neighbor is selected. It uses process-global randomness and depends on SearchProblem from hill_climbing.py, so a portable contract needs a fixed random stream and bounded termination parameters. In minimization mode the move direction is reversed, but best_state is still updated only when score increases, so the returned state is the maximum-scoring visited state rather than the minimum."
+      "benchmark_name": "simulated_annealing",
+      "benchmark_contract": "benchmarks/s/simulated_annealing/README.md",
+      "review_notes": "The pinned Python source searches a two-dimensional SearchProblem using the eight step-size neighbors: it repeatedly samples remaining neighbors without replacement, rejects out-of-bounds states, accepts improving moves, and accepts other moves with exp(change/current_temp). Temperature decreases by the configured rate each iteration; the search stops below threshold or when no neighbor is selected. It uses process-global randomness and depends on SearchProblem from hill_climbing.py, so the benchmark uses fixed draw streams and bounded termination parameters. In minimization mode the move direction is reversed, but best_state is still updated only when score increases, preserving the maximum-scoring visited state. README/workload/oracle and nine language ports have been statically reviewed; runner registration is in progress."
     },
     {
       "candidate_id": "simultaneous_linear_equation_solver",
@@ -90346,7 +90694,7 @@
       ],
       "benchmark_name": "single_indeterminate_operations",
       "benchmark_contract": "benchmarks/s/single_indeterminate_operations/README.md",
-      "review_notes": "The pinned MATLAB source exposes polynomial add, subtract, multiply, evaluate, derivative, and integral operations using low-degree-first coefficients. The derivative of a constant is the empty coefficient vector (degree -1). Keep each method’s operation defined over bounded coefficients and inputs."
+      "review_notes": "The pinned Python Polynomial class stores low-degree-first coefficients and exposes add, subtract, multiply, evaluate, derivative, and integral. Preserve the source's evaluation and convolution order; derivative of a constant returns degree -1 with an empty coefficient vector. The numeric contract excludes string formatting and equality."
     },
     {
       "candidate_id": "single_number",
@@ -91143,16 +91491,12 @@
       "benchmark_contract": "benchmarks/s/smith_number/README.md"
     },
     {
-      "candidate_id": "smith_waterman",
-      "source_repository_count": 3,
+      "candidate_id": "smith_waterman_java",
+      "source_repository_count": 1,
       "source_repositories": [
-        "Java",
-        "Python",
-        "Rust"
+        "Java"
       ],
-      "local_source_folders": [
-        "rust"
-      ],
+      "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -91161,14 +91505,44 @@
           "path": "src/main/java/com/thealgorithms/dynamicprogramming/SmithWaterman.java",
           "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/SmithWaterman.java",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "smith_waterman_java",
+      "benchmark_contract": "benchmarks/s/smith_waterman_java/README.md",
+      "review_notes": "The pinned Java SmithWaterman.align API returns only the case-sensitive best local-alignment score; uppercase/lowercase characters differ and '-' is an ordinary input character. It is mapped to its own scalar package, separate from Python/Rust matrix and traceback APIs."
+    },
+    {
+      "candidate_id": "smith_waterman_python",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Python",
           "language": "Python",
           "path": "dynamic_programming/smith_waterman.py",
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/dynamic_programming/smith_waterman.py",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "smith_waterman_python",
+      "benchmark_contract": "benchmarks/s/smith_waterman_python/README.md",
+      "review_notes": "The pinned Python implementation returns a case-insensitive full score matrix and traceback. Traceback uses the first row-major maximum, hardcodes default 1/-1/-2 scores, and continues while both indices are positive even after reaching score zero. This source-specific behavior is separate from Java's scalar API and Rust's traceback."
+    },
+    {
+      "candidate_id": "smith_waterman_rust",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Rust"
+      ],
+      "local_source_folders": [
+        "rust"
+      ],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Rust",
           "language": "Rust",
@@ -91177,9 +91551,9 @@
           "local_folder_source": "rust"
         }
       ],
-      "benchmark_name": "smith_waterman",
-      "benchmark_contract": "benchmarks/s/smith_waterman/README.md",
-      "review_notes": "Keep source APIs distinct: Java returns a case-sensitive scalar maximum; Python and Rust return full score matrices and compare case-insensitively. Python traceback hardcodes default scores and does not stop at score zero; Rust traceback honors supplied scores and stops at zero. Do not claim a shared scalar/matrix contract."
+      "benchmark_name": "smith_waterman_rust",
+      "benchmark_contract": "benchmarks/s/smith_waterman_rust/README.md",
+      "review_notes": "The pinned Rust implementation returns a case-insensitive full score matrix and a traceback that honors supplied match/mismatch/gap scores and stops at a zero score. It is separate from Java's scalar API and Python's traceback behavior."
     },
     {
       "candidate_id": "smooth_sort",
@@ -94882,7 +95256,7 @@
         }
       ],
       "alias_of": "generate_sub_sets",
-      "benchmark_contract": "benchmarks/g/generate_sub_sets/README.md",
+      "benchmark_contract": "benchmarks/s/generate_sub_sets/README.md",
       "review_notes": "The pinned Solidity SubsetGenerator enumerates bitmasks in ascending order and emits elements in input-position order, with the empty subset first. For n<=12 this matches the existing generate_sub_sets contract; restrict uint inputs to nonnegative i64 values."
     },
     {
@@ -98918,7 +99292,7 @@
         "Java"
       ],
       "local_source_folders": [],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "Java",
@@ -98929,8 +99303,8 @@
         }
       ],
       "alias_of": "trapped_rainwater2",
-      "review_notes": "The pinned Java implementation advances inward with two pointers and constant auxiliary space, matching the separate `trapped_rainwater_two_pointer` benchmark. It is distinct from prefix/suffix maxima.",
-      "benchmark_contract": "benchmarks/t/trapped_rainwater2/README.md"
+      "review_notes": "The pinned Java method uses two pointers, advances left when left < right and otherwise advances right (so right on ties), maintains side maxima, and accumulates water as each index is finalized. It aliases the `trapped_rainwater_two_pointer` benchmark on the Java-safe domain n<=2048 and heights in [0,1000000], where the maximum trapped volume is 2,046,000,000 and fits signed int. It is distinct from the prefix/suffix-maxima `trapped_rainwater` algorithm.",
+      "benchmark_contract": "benchmarks/t/trapped_rainwater_two_pointer/README.md"
     },
     {
       "candidate_id": "traprainwater",
@@ -98970,7 +99344,30 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned sources include multiple TSP variants; preserve distinct algorithms and record method-level variants rather than claiming one shared contract. The Java dynamicProgramming method is a Held-Karp variant matching `traveling_salesman_bitmask` under the same bounded inputs. Method-level crosswalk: Java TravelingSalesman.dynamicProgramming maps to canonical traveling_salesman_bitmask; it is not a separate algorithm. Other Java TSP methods remain distinct and require separate method-level coverage."
+      "review_notes": "This row covers only the pinned Java TravelingSalesman.bruteForce method, which enumerates all permutations after fixing city 0 and returns the least closed-tour cost. It is separate from the Held–Karp traveling_salesman_dynamic_programming alias to traveling_salesman_bitmask. The bounded brute-force contract supports n=0..8, finite edge costs 0..1000, and the source's Integer.MAX_VALUE missing-edge sentinel; if no tour exists the source returns that sentinel.",
+      "benchmark_name": "traveling_salesman",
+      "benchmark_contract": "benchmarks/t/traveling_salesman/README.md"
+    },
+    {
+      "candidate_id": "traveling_salesman_dynamic_programming",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Java"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_alias",
+      "implementations": [
+        {
+          "repository": "Java",
+          "language": "Java",
+          "path": "src/main/java/com/thealgorithms/graph/TravelingSalesman.java",
+          "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/graph/TravelingSalesman.java",
+          "local_folder_source": null
+        }
+      ],
+      "alias_of": "traveling_salesman_bitmask",
+      "benchmark_contract": "benchmarks/t/traveling_salesman_bitmask/README.md",
+      "review_notes": "This method-scoped candidate records only Java TravelingSalesman.dynamicProgramming. The pinned method is Held-Karp: initialize at city 0, extend visited-city masks, and close the full tour back to city 0. It returns the same minimum scalar as traveling_salesman_bitmask on complete directed matrices with n=2..10 and integer costs in [0,1000]. Empty/singleton inputs and Integer.MAX_VALUE missing-edge behavior are outside the shared contract; the source class is not wholly aliased because bruteForce remains a distinct method."
     },
     {
       "candidate_id": "traveling_salesman_bitmask",
@@ -98994,7 +99391,7 @@
       "benchmark_contract": "benchmarks/t/traveling_salesman_bitmask/README.md"
     },
     {
-      "candidate_id": "traveling_salesman_solver",
+      "candidate_id": "traveling_salesman_solver_brute_force",
       "source_repository_count": 1,
       "source_repositories": [
         "C-Sharp"
@@ -99010,20 +99407,42 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned candidate includes brute-force and nearest-neighbor solver variants; keep these split rather than treating their outputs as one algorithm contract."
+      "benchmark_name": "traveling_salesman_solver_brute_force",
+      "benchmark_contract": "benchmarks/t/traveling_salesman_solver_brute_force/README.md",
+      "review_notes": "This method-level candidate covers only C# TravelingSalesmanSolver.SolveBruteForce: it rejects n<2, fixes city 0, enumerates all other-city permutations, and returns the first minimum closed route plus its distance. The bounded package projects route positions and distance as scalar calls; its complete nonnegative integer matrix domain guarantees a route."
     },
     {
-      "candidate_id": "travelling_salesman_problem",
-      "source_repository_count": 3,
+      "candidate_id": "traveling_salesman_solver_nearest_neighbor",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "C-Sharp"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "C-Sharp",
+          "language": "C#",
+          "path": "Algorithms/Problems/TravelingSalesman/TravelingSalesmanSolver.cs",
+          "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Problems/TravelingSalesman/TravelingSalesmanSolver.cs",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_name": "traveling_salesman_solver_nearest_neighbor",
+      "benchmark_contract": "benchmarks/t/traveling_salesman_solver_nearest_neighbor/README.md",
+      "review_notes": "This method-level candidate covers only C# TravelingSalesmanSolver.SolveNearestNeighbor: it honors the caller's start city, picks the lowest-index city on equal outgoing costs, and closes the greedy route to its start. Unlike brute force, it accepts a one-city matrix and reads its diagonal as the closing edge."
+    },
+    {
+      "candidate_id": "travelling_salesman_problem_cpp",
+      "source_repository_count": 2,
       "source_repositories": [
         "C-Plus-Plus",
-        "C-Plus-Plus-1",
-        "Python"
+        "C-Plus-Plus-1"
       ],
       "local_source_folders": [
         "cpp"
       ],
-      "review_status": "reviewed_algorithm_semantics",
+      "review_status": "reviewed_alias",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -99038,14 +99457,43 @@
           "path": "graph/travelling_salesman_problem.cpp",
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/graph/travelling_salesman_problem.cpp",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "traveling_salesman",
+      "alias_of": "traveling_salesman",
+      "benchmark_contract": "benchmarks/t/traveling_salesman/README.md",
+      "review_notes": "Both pinned C++ copies use the same permutation search and return only the minimum closed-tour cost. They map to the existing fixed-city-0 scalar contract by constraining the C++ source parameter to city 0; this is the same exhaustive search over the bounded complete matrix domain."
+    },
+    {
+      "candidate_id": "travelling_salesman_python_genetic",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Python",
           "language": "Python",
           "path": "genetic_algorithm/travelling_salesman_problem.py",
           "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/genetic_algorithm/travelling_salesman_problem.py",
           "local_folder_source": null
-        },
+        }
+      ],
+      "benchmark_name": "travelling_salesman_python_genetic",
+      "benchmark_contract": "benchmarks/t/travelling_salesman_python_genetic/README.md",
+      "review_notes": "This method-scoped row preserves the pinned stochastic main method on its source-faithful two-city domain. Random draws still occur, but initialization, selection, crossover, and mutation cannot change the unique chromosome or distance."
+    },
+    {
+      "candidate_id": "travelling_salesman_python_bruteforce",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
         {
           "repository": "Python",
           "language": "Python",
@@ -99054,7 +99502,30 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned candidate contains mixed TSP approaches; retain distinct variant semantics instead of merging under a single implementation contract."
+      "benchmark_name": "travelling_salesman_python_bruteforce",
+      "benchmark_contract": "benchmarks/t/travelling_salesman_python_bruteforce/README.md",
+      "review_notes": "This method-scoped row covers only travelling_salesman_brute_force, which enumerates all permutations of insertion-ordered coordinate nodes and retains the first strict minimum route."
+    },
+    {
+      "candidate_id": "travelling_salesman_python_held_karp",
+      "source_repository_count": 1,
+      "source_repositories": [
+        "Python"
+      ],
+      "local_source_folders": [],
+      "review_status": "reviewed_algorithm_semantics",
+      "implementations": [
+        {
+          "repository": "Python",
+          "language": "Python",
+          "path": "graphs/travelling_salesman_problem.py",
+          "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/travelling_salesman_problem.py",
+          "local_folder_source": null
+        }
+      ],
+      "benchmark_name": "travelling_salesman_python_held_karp",
+      "benchmark_contract": "benchmarks/t/travelling_salesman_python_held_karp/README.md",
+      "review_notes": "This method-scoped row covers only travelling_salesman_dynamic_programming, preserving the Held-Karp subset table, lowest end-node tie, and ascending predecessor reconstruction."
     },
     {
       "candidate_id": "travelling_salesman_using_bit_manipulation",
@@ -99213,6 +99684,8 @@
         "cpp"
       ],
       "review_status": "reviewed_algorithm_semantics",
+      "benchmark_name": "tree_234",
+      "benchmark_contract": "benchmarks/t/tree_234/README.md",
       "implementations": [
         {
           "repository": "C-Plus-Plus",
@@ -99229,7 +99702,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned source implements a 2-3-4 tree and remains distinct from general tree structures."
+      "review_notes": "The pinned C++ and C++-1 sources implement the same degree-2 (2-3-4) B-tree. The contract exposes unique-key insertion, remove success results, and sorted final traversal; internal tree shape is not observable. All nine language ports are statically cleared, including an explicit Rust 2-3-4 tree rather than a standard ordered-set substitution; byte-output runner integration remains pending."
     },
     {
       "candidate_id": "tree_height",

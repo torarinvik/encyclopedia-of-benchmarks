@@ -1,0 +1,83 @@
+extern sqrt(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+const MIN_RETURNS: usize = 20
+const MAX_RETURNS: usize = 64
+const MIN_SIMULATIONS: usize = 20
+const MAX_SIMULATIONS: usize = 128
+const MAX_VALID_INPUT_LENGTH: usize = 197
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 198
+
+def finite_value(value: f64) -> bool:
+    value == value and value >= -1.7976931348623157e308 and value <= 1.7976931348623157e308
+
+export fn monte_carlo_var(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 45 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    index: mutable usize = 0
+    while index < input_length:
+        if not finite_value(input[index]): return -1
+        index <- index + 1
+
+    portfolio: f64 = input[0]
+    confidence: f64 = input[1]
+    horizon: f64 = input[2]
+    simulation_value: f64 = input[3]
+    return_count_value: f64 = input[4]
+    if portfolio < 100.0 or portfolio > 1000000.0 or confidence < 0.5 or confidence > 0.95 or
+            horizon < 1.0 or horizon > 10.0 or simulation_value < MIN_SIMULATIONS.f64() or
+            simulation_value > MAX_SIMULATIONS.f64() or return_count_value < MIN_RETURNS.f64() or
+            return_count_value > MAX_RETURNS.f64(): return -1
+    simulation_count: usize = simulation_value.usize()
+    return_count: usize = return_count_value.usize()
+    if simulation_value != simulation_count.f64() or return_count_value != return_count.f64(): return -1
+    if input_length != 5 + return_count + simulation_count or input_length > MAX_VALID_INPUT_LENGTH: return -1
+
+    returns: mutable [64]f64 = zeroed
+    simulated: mutable [128]f64 = zeroed
+    sum: mutable f64 = 0.0
+    index <- 0
+    while index < return_count:
+        value: f64 = input[5 + index]
+        if value < -0.25 or value > 0.25: return -1
+        returns[index] <- value
+        sum <- sum + value
+        index <- index + 1
+    index <- 0
+    while index < simulation_count:
+        z: f64 = input[5 + return_count + index]
+        if z < -3.0 or z > 3.0: return -1
+        simulated[index] <- z
+        index <- index + 1
+
+    mean: f64 = sum / return_count.f64()
+    squared_deviation: mutable f64 = 0.0
+    index <- 0
+    while index < return_count:
+        delta: f64 = returns[index] - mean
+        squared_deviation <- squared_deviation + delta * delta
+        index <- index + 1
+    volatility: f64 = sqrt(squared_deviation / (return_count - 1).f64())
+    if not finite_value(volatility) or volatility == 0.0: return -1
+    index <- 0
+    while index < simulation_count:
+        simulated[index] <- mean + volatility * simulated[index]
+        index <- index + 1
+    index <- 1
+    while index < simulation_count:
+        value: f64 = simulated[index]
+        position: mutable usize = index
+        while position > 0 and simulated[position - 1] > value:
+            simulated[position] <- simulated[position - 1]
+            position <- position - 1
+        simulated[position] <- value
+        index <- index + 1
+
+    tail_value: f64 = floor((1.0 - confidence) * simulation_count.f64())
+    if tail_value < 1.0 or tail_value > simulation_count.f64(): return -1
+    tail_count: usize = tail_value.usize()
+    metric: f64 = -simulated[tail_count - 1] * portfolio * sqrt(horizon)
+    if not finite_value(metric): return -1
+    if output.is_null() or output_capacity < 1: return -2
+    output[0] <- metric
+    return 1

@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-csharp-pseudo-inverse-one-column-float64-slice-io-v1",
+  "algorithm": "pseudo_inverse",
+  "function_symbol": "PseudoInverse.PInv",
+  "description": "Compute the pinned C# Moore-Penrose pseudoinverse for a bounded one-column matrix.",
+  "workspace": {
+    "elements": 6
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[row_count, column_count, row-major matrix entries...]",
+    "row_count_range": [1, 4],
+    "column_count_range": [1, 1],
+    "entry_range": [-4, 4],
+    "entry_domain": "integer-valued entries; the column is zero or has Euclidean norm at least 1",
+    "maximum_valid_array_length": 6,
+    "maximum_parseable_array_length": 7,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[output_rows, output_columns, row-major pseudoinverse entries...]",
+    "maximum_elements": 6,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "contract": {
+    "operation": "Call the pinned PseudoInverse.PInv for a matrix with one column and 1–4 rows; the return value is its transposed Moore-Penrose pseudoinverse.",
+    "source_dependency": "ThinSvd.Decompose starts power iteration from a random unit vector. With one column, that initial vector is only +1 or -1, and its sign cancels from the returned PInv product, making this projection deterministic.",
+    "singular_value": "For the input column x, s = sqrt(sum(x_i*x_i)).",
+    "cutoff": "PInv sets its reciprocal to zero only when abs(s) < 0.0001; at equality it uses 1/s. Accepted inputs have s=0 or s>=1, so this workload does not exercise the cutoff boundary. This avoids the helper's lower-magnitude iteration behavior: it scales A^T A times the iterate by 100 and normalizes only when that magnitude exceeds 1e-5.",
+    "projection": "Return dimensions [1,row_count], followed by x_i/(s*s) for each row when s >= 0.0001, otherwise zeros.",
+    "errors": "Malformed length, non-finite or fractional values, row counts outside 1–4, column count other than 1, or entries outside [-4,4] return -1. Null output and insufficient capacity return -2 without writes."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/Numeric/Pseudoinverse/PseudoInverse.cs",
+    "symbol": "PseudoInverse.PInv",
+    "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/Pseudoinverse/PseudoInverse.cs",
+    "role": "algorithm",
+    "dependencies": ["ThinSvd.Decompose"]
+  },
+  "additional_pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/Numeric/Decomposition/ThinSVD.cs",
+    "symbol": "ThinSvd.Decompose",
+    "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/Decomposition/ThinSVD.cs",
+    "role": "dependency",
+    "dependencies": []
+  },
+  "oracle_method": "Independent closed-form projection of the source PInv method over one-column matrices, where the source SVD's random sign cancels.",
+  "oracle_module": "benchmarks/pseudo_inverse_oracle.py",
+  "oracle_entry_point": "expected_result(input_values)",
+  "cases": [
+    {
+      "id": "scalar_inverse",
+      "input_values": [1, 1, 2],
+      "input_length": 3,
+      "output_capacity": 6,
+      "expected_result": 3,
+      "expected_output": [1, 1, 0.5]
+    },
+    {
+      "id": "tall_rectangular_column",
+      "input_values": [3, 1, 3, 4, 0],
+      "input_length": 5,
+      "output_capacity": 6,
+      "expected_result": 5,
+      "expected_output": [1, 3, 0.12, 0.16, 0]
+    },
+    {
+      "id": "negative_integer_column",
+      "input_values": [2, 1, -3, 4],
+      "input_length": 4,
+      "output_capacity": 6,
+      "expected_result": 4,
+      "expected_output": [1, 2, -0.12, 0.16]
+    },
+    {
+      "id": "zero_vector",
+      "input_values": [2, 1, 0, 0],
+      "input_length": 4,
+      "output_capacity": 6,
+      "expected_result": 4,
+      "expected_output": [1, 2, 0, 0]
+    },
+    {
+      "id": "multiple_nonzero_entries",
+      "input_values": [4, 1, 1, 2, -2, 1],
+      "input_length": 6,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output": [1, 4, 0.1, 0.2, -0.2, 0.1]
+    },
+    {
+      "id": "zero_matrix",
+      "input_values": [4, 1, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output": [1, 4, 0, 0, 0, 0]
+    },
+    {
+      "id": "column_count_rejected",
+      "input_values": [2, 2, 1, 0, 0, 1],
+      "input_length": 6,
+      "output_capacity": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "entry_outside_bound",
+      "input_values": [1, 1, 1.5],
+      "input_length": 3,
+      "output_capacity": 6,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient_output_capacity",
+      "input_values": [2, 1, 3, 4],
+      "input_length": 4,
+      "output_capacity": 3,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_output",
+      "input_values": [1, 1, 2],
+      "input_length": 3,
+      "output_capacity": 6,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

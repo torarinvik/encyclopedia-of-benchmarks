@@ -1,0 +1,30 @@
+def monte_carlo_integration_independent_impl(packed: i64&, length: usize) -> f64:
+    if packed == null or length < 3 or length > 20:
+        return -1.0e300
+    n: i64 = packed[2]
+    if n < 1 or n > 16 or length != (3 + n).usize():
+        return -1.0e300
+    a_raw: i64 = packed[0]
+    b_raw: i64 = packed[1]
+    if a_raw < -10000000 or a_raw > 10000000 or b_raw < -10000000 or b_raw > 10000000 or a_raw >= b_raw:
+        return -1.0e300
+    index: mutable usize = 3
+    while index < length:
+        if packed[index] < 0 or packed[index] > 999999:
+            return -1.0e300
+        index <- index + 1
+
+    a: f64 = a_raw.f64() / 1000000.0
+    b: f64 = b_raw.f64() / 1000000.0
+    interval: f64 = b - a
+    delta: f64 = interval / n.f64()
+    total: mutable f64 = 0.0
+    sample: mutable i64 = 0
+    while sample < n:
+        u: f64 = packed[(3 + sample).usize()].f64() / 1000000.0
+        x: f64 = a + interval * u
+        total <- total + x * x
+        sample <- sample + 1
+    delta * total
+
+export fn monte_carlo_integration_independent(packed: i64&, length: usize) -> f64 = monte_carlo_integration_independent_impl

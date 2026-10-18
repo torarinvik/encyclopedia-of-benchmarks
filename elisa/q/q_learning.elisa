@@ -1,0 +1,44 @@
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 11
+
+def q_learning_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+        return false
+    if value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def q_learning_update_impl(input: f64&, input_length: usize,
+                           output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 6 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if not q_learning_exact_integer(input[0], 0, 1) or not q_learning_exact_integer(input[5], 0, 4): return -1
+    done: bool = input[0] == 1.0
+    alpha: f64 = input[1]
+    gamma: f64 = input[2]
+    reward: f64 = input[3]
+    old_q: f64 = input[4]
+    next_action_count: usize = input[5].usize()
+    if input_length != 6 + next_action_count: return -1
+    if alpha != alpha or alpha >= 1.7976931348623157e308 or alpha <= -1.7976931348623157e308 or alpha < 0.0 or alpha > 1.0: return -1
+    if gamma != gamma or gamma >= 1.7976931348623157e308 or gamma <= -1.7976931348623157e308 or gamma < 0.0 or gamma > 1.0: return -1
+    if reward != reward or reward >= 1.7976931348623157e308 or reward <= -1.7976931348623157e308 or reward < -100.0 or reward > 100.0: return -1
+    if old_q != old_q or old_q >= 1.7976931348623157e308 or old_q <= -1.7976931348623157e308 or old_q < -100.0 or old_q > 100.0: return -1
+    index: mutable usize = 0
+    while index < next_action_count:
+        value: f64 = input[6 + index]
+        if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308 or value < -100.0 or value > 100.0: return -1
+        index <- index + 1
+
+    max_q_next: mutable f64 = 0.0
+    if not done and next_action_count > 0:
+        max_q_next <- input[6]
+        index <- 1
+        while index < next_action_count:
+            if input[6 + index] > max_q_next: max_q_next <- input[6 + index]
+            index <- index + 1
+    updated: f64 = (1.0 - alpha) * old_q + alpha * (reward + gamma * max_q_next)
+    if updated != updated or updated >= 1.7976931348623157e308 or updated <= -1.7976931348623157e308: return -1
+    if output.is_null() or capacity < 1: return -2
+    output[0] <- updated
+    1
+
+export fn q_learning_update(input: f64&, input_length: usize,
+                            output: mutable f64&, capacity: usize) -> i64 = q_learning_update_impl

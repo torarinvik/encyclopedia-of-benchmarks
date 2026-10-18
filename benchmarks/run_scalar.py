@@ -50,6 +50,7 @@ from partitions_oracle import expected_result as partitions_expected
 from pascal_triangle_ii_oracle import expected_result as pascal_triangle_ii_expected
 from pi_generator_oracle import expected_result as pi_generator_expected
 from mersenne_primes_oracle import expected_result as mersenne_primes_expected
+from greatest_prime_factor_oracle import expected_result as greatest_prime_factor_expected
 from magic_square_oracle import expected_result as magic_square_expected
 from trial_division_factorizer_oracle import expected_result as trial_division_factorizer_expected
 from pollards_rho_factorizing_oracle import MAX_INPUT as POLLARDS_RHO_MAX_INPUT
@@ -1868,6 +1869,10 @@ def validate_multiple_of_3_or_5_term_workload(workload: dict) -> None:
 
 
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
+    if algorithm == "greatest_prime_factor":
+        if expected_result != greatest_prime_factor_expected(input_value):
+            raise ValueError("greatest_prime_factor expected_result must match the bounded factorization oracle")
+        return
     if algorithm == "multiple_of_3_or_5_term":
         if expected_result != multiple_of_3_or_5_term_expected(input_value):
             raise ValueError("multiple_of_3_or_5_term expected_result must match the one-term divisibility filter")

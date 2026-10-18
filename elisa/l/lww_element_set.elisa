@@ -1,0 +1,90 @@
+const MAX_OPERATIONS: usize = 24
+const MAX_KEYS: usize = 24
+const MAP_COUNT: usize = 4
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 98
+const I32_MIN: i64 = -2147483648
+const I32_MAX: i64 = 2147483647
+
+def lww_element_set_impl(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    operation_count_value: i64 = input[0]
+    if operation_count_value < 0 or operation_count_value > MAX_OPERATIONS.i64(): return -1
+    operation_count: usize = operation_count_value.usize()
+    if input_length != 1 + 4 * operation_count: return -1
+
+    keys: mutable i64[MAP_COUNT * MAX_KEYS] = zeroed
+    timestamps: mutable i64[MAP_COUNT * MAX_KEYS] = zeroed
+    map_counts: mutable usize[MAP_COUNT] = zeroed
+    lookup_mask: mutable i64 = 0
+    lookup_index: mutable usize = 0
+
+    operation: mutable usize = 0
+    while operation < operation_count:
+        offset: usize = 1 + 4 * operation
+        opcode: i64 = input[offset]
+        first: i64 = input[offset + 1]
+        second: i64 = input[offset + 2]
+        third: i64 = input[offset + 3]
+        if opcode == 0 or opcode == 1:
+            if first < 0 or first > 1 or second < I32_MIN or second > I32_MAX or third < I32_MIN or third > I32_MAX:
+                return -1
+            map_index: usize = first.usize() * 2
+            if opcode == 1: map_index <- map_index + 1
+            base: usize = map_index * MAX_KEYS
+            position: mutable usize = 0
+            while position < map_counts[map_index] and keys[base + position] != second:
+                position <- position + 1
+            if position == map_counts[map_index]:
+                if map_counts[map_index] >= MAX_KEYS: return -1
+                keys[base + position] <- second
+                map_counts[map_index] <- map_counts[map_index] + 1
+            timestamps[base + position] <- third
+        elif opcode == 2:
+            if first < 0 or first > 1 or second < I32_MIN or second > I32_MAX or third != 0: return -1
+            add_map: usize = first.usize() * 2
+            add_base: usize = add_map * MAX_KEYS
+            remove_map: usize = add_map + 1
+            remove_base: usize = remove_map * MAX_KEYS
+            add_position: mutable usize = 0
+            remove_position: mutable usize = 0
+            while add_position < map_counts[add_map] and keys[add_base + add_position] != second:
+                add_position <- add_position + 1
+            while remove_position < map_counts[remove_map] and keys[remove_base + remove_position] != second:
+                remove_position <- remove_position + 1
+            if add_position < map_counts[add_map] and
+                (remove_position == map_counts[remove_map] or
+                 timestamps[add_base + add_position] > timestamps[remove_base + remove_position]):
+                lookup_mask <- lookup_mask | (1.i64() << lookup_index)
+            lookup_index <- lookup_index + 1
+        elif opcode == 3:
+            if first < 0 or first > 1 or second < 0 or second > 1 or third != 0: return -1
+            if first != second:
+                kind: mutable usize = 0
+                while kind < 2:
+                    target_map: usize = first.usize() * 2 + kind
+                    source_map: usize = second.usize() * 2 + kind
+                    target_base: usize = target_map * MAX_KEYS
+                    source_base: usize = source_map * MAX_KEYS
+                    source_position: mutable usize = 0
+                    while source_position < map_counts[source_map]:
+                        key: i64 = keys[source_base + source_position]
+                        timestamp: i64 = timestamps[source_base + source_position]
+                        target_position: mutable usize = 0
+                        while target_position < map_counts[target_map] and keys[target_base + target_position] != key:
+                            target_position <- target_position + 1
+                        if target_position == map_counts[target_map]:
+                            if map_counts[target_map] >= MAX_KEYS: return -1
+                            keys[target_base + target_position] <- key
+                            timestamps[target_base + target_position] <- timestamp
+                            map_counts[target_map] <- map_counts[target_map] + 1
+                        elif timestamp >= timestamps[target_base + target_position]:
+                            timestamps[target_base + target_position] <- timestamp
+                        source_position <- source_position + 1
+                    kind <- kind + 1
+
+        else:
+            return -1
+        operation <- operation + 1
+    lookup_mask
+
+export fn lww_element_set(input: i64&, input_length: usize) -> i64 = lww_element_set_impl

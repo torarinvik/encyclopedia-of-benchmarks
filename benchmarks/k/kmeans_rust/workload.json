@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-kmeans-general-deterministic-i64-array-scalar-v1",
+  "algorithm": "kmeans_rust",
+  "function_symbol": "kmeans_rust",
+  "description": "Bounded one-dimensional replay of Rust's deterministic arbitrary-dimensional k-means function.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/general/kmeans.rs",
+    "symbol": "f64::kmeans",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/general/kmeans.rs"
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[n, x0, ..., x(n-1)]",
+    "point_count_range": [2, 8],
+    "cluster_count": 2,
+    "coordinate_range": [-16, 16],
+    "coordinates_strictly_increasing": true,
+    "dimension_count": 1,
+    "exact_length": "n + 1",
+    "maximum_valid_input_length": 9,
+    "maximum_parseable_input_length": 10,
+    "null_input_length": 0,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Point labels packed as one bit per input point, least-significant bit first.",
+    "valid_range": [0, 255],
+    "iteration_cap": 256,
+    "iteration_cap_result": -2,
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id": "two_evenly_spaced_clusters", "input_values": [4, -12, -8, 8, 12], "input_length": 5, "expected_result": 12},
+    {"id": "odd_point_count", "input_values": [3, -9, -3, 9], "input_length": 4, "expected_result": 4},
+    {"id": "two_points_each_seed_a_cluster", "input_values": [2, -4, 4], "input_length": 3, "expected_result": 2},
+    {"id": "one_point_is_not_enough", "input_values": [1, 0], "input_length": 2, "expected_result": -1},
+    {"id": "coordinates_not_increasing", "input_values": [4, -12, 8, -8, 12], "input_length": 5, "expected_result": -1},
+    {"id": "extra_input_word", "input_values": [2, -4, 4, 0], "input_length": 4, "expected_result": -1},
+    {"id": "null_input_pointer", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ],
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 1000}
+}

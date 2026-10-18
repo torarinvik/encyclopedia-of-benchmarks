@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-perceptron-binary-float64-slice-io-v1",
+  "algorithm": "perceptron_java",
+  "function_symbol": "Perceptron.fit / Perceptron.predict",
+  "description": "Fit the pinned Java binary 0/1 perceptron and predict bounded rows.",
+  "workspace": {
+    "elements": 13
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[learning_rate, max_epochs, sample_count, feature_count, row-major training features, labels, query_count, row-major query features]",
+    "learning_rate_values": [
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "max_epochs_range": [
+      1,
+      12
+    ],
+    "sample_count_range": [
+      2,
+      8
+    ],
+    "feature_count_range": [
+      1,
+      4
+    ],
+    "query_count_range": [
+      1,
+      4
+    ],
+    "feature_value_range": [
+      -2,
+      2
+    ],
+    "feature_values_must_be_integers": true,
+    "labels": [
+      0,
+      1
+    ],
+    "maximum_valid_input_length": 61,
+    "maximum_parseable_input_length": 62,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[feature_count, weights, bias, epochs_run, converged_as_0_or_1, query_count, predictions]",
+    "maximum_elements": 13,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "initialization": "Set every feature weight and the bias to zero for each fit.",
+    "prediction": "Return 1 when bias plus the ordered feature-weight products is greater than or equal to zero; otherwise return 0.",
+    "updates": "Visit samples in input order. For a misclassification, error is label minus prediction; update each weight by learning_rate*error*feature and bias by learning_rate*error.",
+    "stopping": "Stop at the first epoch with no updates or after max_epochs. Report epochs_run and converged (1 iff an update-free epoch completed).",
+    "output": "Return feature_count, final weights in feature order, final bias, epochs_run, converged, query_count, and one 0/1 prediction per query.",
+    "errors": "Reject malformed framing, fractional/out-of-domain parameters or features, and labels outside {0,1} with -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/machinelearning/Perceptron.java",
+    "symbol": "Perceptron.fit / Perceptron.predict",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/machinelearning/Perceptron.java",
+    "role": "algorithm",
+    "dependencies": []
+  },
+  "cases": [
+    {
+      "id": "separable_1d_converges",
+      "input_values": [
+        0.5,
+        8,
+        4,
+        1,
+        -2,
+        -1,
+        1,
+        2,
+        0,
+        0,
+        1,
+        1,
+        4,
+        -2,
+        0,
+        1,
+        2
+      ],
+      "input_length": 17,
+      "expected_result": 10,
+      "expected_output": [
+        1.0,
+        1.0,
+        -0.5,
+        2.0,
+        1.0,
+        4.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "epoch_cap_before_convergence",
+      "input_values": [
+        0.5,
+        1,
+        4,
+        1,
+        -2,
+        -1,
+        1,
+        2,
+        0,
+        0,
+        1,
+        1,
+        4,
+        -2,
+        0,
+        1,
+        2
+      ],
+      "input_length": 17,
+      "expected_result": 10,
+      "expected_output": [
+        1.0,
+        1.0,
+        -0.5,
+        1.0,
+        0.0,
+        4.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "bias_only_updates",
+      "input_values": [
+        0.25,
+        4,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": 7,
+      "expected_output": [
+        1.0,
+        0.0,
+        -0.25,
+        2.0,
+        1.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "invalid_label",
+      "input_values": [
+        0.5,
+        1,
+        2,
+        1,
+        0,
+        1,
+        0,
+        2,
+        1,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

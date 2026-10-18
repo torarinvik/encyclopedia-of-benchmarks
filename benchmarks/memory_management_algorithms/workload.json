@@ -1,0 +1,435 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-memory-management-algorithms-i64-array-bytes-output-v1",
+  "algorithm": "memory_management_algorithms",
+  "function_symbol": "memory_management_algorithms",
+  "description": "Four bounded memory allocation policies with per-call fresh policy state.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/others/MemoryManagementAlgorithms.java",
+    "symbol": "FirstFitCPU.fitProcess, BestFitCPU.fitProcess, WorstFitCPU.fitProcess, NextFit.fitProcess",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/others/MemoryManagementAlgorithms.java",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Apply one selected memory allocation policy sequentially to ordered process sizes, mutating block capacities after successful allocations.",
+    "policy_selectors": {
+      "0": "FirstFitCPU",
+      "1": "BestFitCPU",
+      "2": "WorstFitCPU",
+      "3": "NextFit"
+    },
+    "input_encoding": "[policy, block_count, process_count, block_sizes..., process_sizes...]",
+    "exact_input_length": "3 + block_count + process_count",
+    "block_count_range": [
+      1,
+      16
+    ],
+    "process_count_range": [
+      0,
+      32
+    ],
+    "block_and_process_size_domain": "positive signed 32-bit integers in 1..10000",
+    "policy_lifetime": "A fresh policy instance and fresh block array are used for every call; NextFit counter persists only over processes in that call.",
+    "source_semantics": {
+      "FirstFitCPU": "Choose the first block with remaining size >= process size.",
+      "BestFitCPU": "Choose the feasible block with smallest remaining_size - process_size; strict comparison preserves first block on ties. Source initializes minDiff to max(block_sizes).",
+      "WorstFitCPU": "Choose the first largest block if it can fit the process; source requires nonempty blocks.",
+      "NextFit": "For each process scan offsets i=0..block_count-1; if counter+i >= block_count, set counter=-i before indexing blocks[i+counter]. On success add i to counter and return counter; after a full failed scan add block_count to counter. Preserve this update exactly; failure does not always reset immediately."
+    },
+    "no_allocation_value": -255,
+    "output_encoding": "One zero-based selected block index or -255 per process, as little-endian signed-i64 words in process order.",
+    "maximum_valid_input_length": 51,
+    "maximum_parseable_input_length": 52,
+    "maximum_output_elements": 32,
+    "maximum_output_bytes": 256,
+    "success_result": "Number of output bytes written; zero processes succeeds with zero bytes if output is non-null.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Null input, malformed framing, invalid policy, empty blocks, or out-of-range sizes returns -1 before output checks. Null output or insufficient capacity returns -2 after input validation. Errors write no bytes."
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[policy, block_count, process_count, block_sizes..., process_sizes...]",
+    "maximum_valid_length": 51,
+    "maximum_parseable_length": 52,
+    "block_count_range": [
+      1,
+      16
+    ],
+    "process_count_range": [
+      0,
+      32
+    ],
+    "size_domain": "positive signed 32-bit integers in 1..10000",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_sequence",
+    "encoding": "One selected block index or -255 per process.",
+    "result": "number of bytes written",
+    "maximum_bytes": 256,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "first_fit_ordered_mutation",
+      "input_values": [
+        0,
+        5,
+        4,
+        100,
+        500,
+        200,
+        300,
+        600,
+        212,
+        417,
+        112,
+        426
+      ],
+      "input_length": 12,
+      "output_capacity": 256,
+      "expected_result": 32,
+      "expected_output_hex": "01000000000000000400000000000000010000000000000001ffffffffffffff"
+    },
+    {
+      "id": "best_fit_sequential_smallest_remainder",
+      "input_values": [
+        1,
+        4,
+        4,
+        20,
+        14,
+        15,
+        40,
+        14,
+        6,
+        5,
+        11
+      ],
+      "input_length": 11,
+      "output_capacity": 256,
+      "expected_result": 32,
+      "expected_output_hex": "0100000000000000020000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "worst_fit_largest_feasible",
+      "input_values": [
+        2,
+        4,
+        4,
+        100,
+        500,
+        200,
+        300,
+        212,
+        417,
+        112,
+        426
+      ],
+      "input_length": 11,
+      "output_capacity": 256,
+      "expected_result": 32,
+      "expected_output_hex": "010000000000000001ffffffffffffff030000000000000001ffffffffffffff"
+    },
+    {
+      "id": "next_fit_cursor_persists_after_success",
+      "input_values": [
+        3,
+        3,
+        4,
+        10,
+        20,
+        30,
+        6,
+        15,
+        12,
+        5
+      ],
+      "input_length": 10,
+      "output_capacity": 256,
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000010000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "next_fit_failed_scan_deferred_wrap",
+      "input_values": [
+        3,
+        3,
+        2,
+        2,
+        4,
+        6,
+        7,
+        1
+      ],
+      "input_length": 8,
+      "output_capacity": 256,
+      "expected_result": 16,
+      "expected_output_hex": "01ffffffffffffff0000000000000000"
+    },
+    {
+      "id": "no_fit_sentinel_and_later_fit",
+      "input_values": [
+        0,
+        2,
+        3,
+        3,
+        8,
+        4,
+        9,
+        2
+      ],
+      "input_length": 8,
+      "output_capacity": 256,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001ffffffffffffff0000000000000000"
+    },
+    {
+      "id": "empty_process_list",
+      "input_values": [
+        2,
+        2,
+        0,
+        7,
+        9
+      ],
+      "input_length": 5,
+      "output_capacity": 256,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_process_count",
+      "input_values": [
+        0,
+        1,
+        32,
+        100,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 36,
+      "output_capacity": 256,
+      "expected_result": 256,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "invalid_empty_block_array",
+      "input_values": [
+        0,
+        0,
+        1,
+        5
+      ],
+      "input_length": 4,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_zero_process_size",
+      "input_values": [
+        0,
+        1,
+        1,
+        10,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_value_invalid",
+      "input_values": [
+        1,
+        1,
+        0,
+        5,
+        2,
+        9
+      ],
+      "input_length": 6,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        0,
+        2,
+        2,
+        8,
+        12,
+        3,
+        9
+      ],
+      "input_length": 7,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_pointer",
+      "input_values": [
+        0,
+        1,
+        1,
+        8,
+        3
+      ],
+      "input_length": 5,
+      "output_capacity": 256,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_pointer",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "best_fit_first_block_wins_tie",
+      "input_values": [
+        1,
+        2,
+        1,
+        8,
+        8,
+        4
+      ],
+      "input_length": 6,
+      "output_capacity": 256,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "worst_fit_first_largest_wins_tie",
+      "input_values": [
+        2,
+        3,
+        1,
+        20,
+        20,
+        10,
+        5
+      ],
+      "input_length": 7,
+      "output_capacity": 256,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "empty_processes_success_zero_bytes",
+      "input_values": [
+        3,
+        1,
+        0,
+        5
+      ],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_for_empty_result",
+      "input_values": [
+        0,
+        1,
+        0,
+        5
+      ],
+      "input_length": 4,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "next_fit_failed_scan_preserves_nonzero_counter",
+      "input_values": [
+        3,
+        3,
+        3,
+        1,
+        5,
+        1,
+        4,
+        6,
+        1
+      ],
+      "input_length": 9,
+      "output_capacity": 256,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001ffffffffffffff0100000000000000"
+    },
+    {
+      "id": "invalid_framing_precedes_null_output_error",
+      "input_values": [
+        0,
+        1,
+        2,
+        7,
+        3
+      ],
+      "input_length": 5,
+      "output_capacity": 256,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

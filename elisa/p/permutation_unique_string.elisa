@@ -1,0 +1,62 @@
+def permutation_unique_string_impl(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length == 0 or input_length > 7: return -1
+    if input[0] < 0 or input[0] > 5: return -1
+    length: usize = input[0].usize()
+    if input_length != length + 1: return -1
+    current: mutable u8[5] = zeroed
+    i: mutable usize = 0
+    while i < length:
+        if input[i + 1] < 32 or input[i + 1] > 126: return -1
+        current[i] <- input[i + 1].u8()
+        i <- i + 1
+    i <- 1
+    while i < length:
+        value: u8 = current[i]
+        j: mutable usize = i
+        while j > 0 and current[j - 1] > value:
+            current[j] <- current[j - 1]
+            j <- j - 1
+        current[j] <- value
+        i <- i + 1
+    staged: mutable u8[601] = zeroed
+    count: mutable usize = 0
+    running: mutable bool = true
+    while running:
+        i <- 0
+        while i < length:
+            staged[1 + count * length + i] <- current[i]
+            i <- i + 1
+        count <- count + 1
+        if length < 2:
+            running <- false
+        else:
+            pivot: mutable usize = length - 1
+            while pivot > 0 and current[pivot - 1] >= current[pivot]: pivot <- pivot - 1
+            if pivot == 0:
+                running <- false
+            else:
+                successor: mutable usize = length - 1
+                while current[successor] <= current[pivot - 1]: successor <- successor - 1
+                temp: u8 = current[pivot - 1]
+                current[pivot - 1] <- current[successor]
+                current[successor] <- temp
+                left: mutable usize = pivot
+                right: mutable usize = length - 1
+                while left < right:
+                    temp <- current[left]
+                    current[left] <- current[right]
+                    current[right] <- temp
+                    left <- left + 1
+                    right <- right - 1
+    staged[0] <- count.u8()
+    output_size: usize = 1 + count * length
+    if output.is_null() or capacity < output_size: return -2
+    i <- 0
+    while i < output_size:
+        output[i] <- staged[i]
+        i <- i + 1
+    return output_size.i64()
+
+export fn permutation_unique_string(input: i64&, input_length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = permutation_unique_string_impl

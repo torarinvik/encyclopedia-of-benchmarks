@@ -1,0 +1,182 @@
+extern exp(value: f64) -> f64
+
+const MAX_N: usize = 16
+const MAX_D: usize = 4
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 84
+const PIVOT_FLOOR: f64 = 0.000003814697265625
+
+def local_weighted_learning_finite(value: f64) -> bool:
+    value == value and value > -1.0e300 and value < 1.0e300
+
+def local_weighted_learning_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if not local_weighted_learning_finite(value) or value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def local_weighted_learning_grid(value: f64, minimum: f64, maximum: f64) -> bool:
+    if not local_weighted_learning_finite(value) or value < minimum or value > maximum: return false
+    scaled: f64 = value * 16.0
+    local_weighted_learning_finite(scaled) and scaled.i64().f64() == scaled
+
+def local_weighted_learning_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if not local_weighted_learning_integer(input[0], 2, MAX_N.i64()) or
+        not local_weighted_learning_integer(input[1], 1, MAX_D.i64()): return -1
+    n: usize = input[0].usize()
+    d: usize = input[1].usize()
+    if d > n: return -1
+    tau: f64 = input[2]
+    if not local_weighted_learning_grid(tau, 2.0, 8.0): return -1
+    expected_length: usize = 3 + n * d + n
+    if input_length != expected_length: return -1
+
+    x_train: mutable f64[MAX_N][MAX_D] = zeroed
+    y_train: mutable f64[MAX_N] = zeroed
+    cursor: mutable usize = 3
+    row: mutable usize = 0
+    while row < n:
+        feature: mutable usize = 0
+        while feature < d:
+            value: f64 = input[cursor]
+            cursor <- cursor + 1
+            if not local_weighted_learning_grid(value, -4.0, 4.0): return -1
+            x_train[row][feature] <- value
+            feature <- feature + 1
+        row <- row + 1
+    row <- 0
+    while row < n:
+        value: f64 = input[cursor]
+        cursor <- cursor + 1
+        if not local_weighted_learning_grid(value, -8.0, 8.0): return -1
+        y_train[row] <- value
+        row <- row + 1
+
+    staged: mutable f64[MAX_N] = zeroed
+    query: mutable usize = 0
+    while query < n:
+        weights: mutable f64[MAX_N] = zeroed
+        row <- 0
+        while row < n:
+            distance_squared: mutable f64 = 0.0
+            feature <- 0
+            while feature < d:
+                delta: f64 = x_train[query][feature] - x_train[row][feature]
+                squared_delta: f64 = delta * delta
+                distance_squared <- distance_squared + squared_delta
+                feature <- feature + 1
+            tau_squared: f64 = tau * tau
+            denominator: f64 = 0.0 - 2.0 * tau_squared
+            exponent: f64 = distance_squared / denominator
+            weights[row] <- exp(exponent)
+            if not local_weighted_learning_finite(weights[row]) or weights[row] <= 0.0: return -1
+            row <- row + 1
+
+        normal: mutable f64[MAX_D][MAX_D] = zeroed
+        rhs: mutable f64[MAX_D] = zeroed
+        row <- 0
+        while row < n:
+            weighted_x: mutable f64[MAX_D] = zeroed
+            feature <- 0
+            while feature < d:
+                weighted_x[feature] <- weights[row] * x_train[row][feature]
+                feature <- feature + 1
+            weighted_y: f64 = weights[row] * y_train[row]
+            p: mutable usize = 0
+            while p < d:
+                rhs_product: f64 = x_train[row][p] * weighted_y
+                rhs[p] <- rhs[p] + rhs_product
+                q: mutable usize = 0
+                while q < d:
+                    product: f64 = x_train[row][p] * weighted_x[q]
+                    normal[p][q] <- normal[p][q] + product
+                    q <- q + 1
+                p <- p + 1
+            row <- row + 1
+
+        scale: mutable f64 = 0.0
+        feature <- 0
+        while feature < d:
+            diagonal: mutable f64 = normal[feature][feature]
+            if not local_weighted_learning_finite(diagonal): return -1
+            if diagonal < 0.0: diagonal <- 0.0 - diagonal
+            if diagonal > scale: scale <- diagonal
+            feature <- feature + 1
+        if scale == 0.0 or not local_weighted_learning_finite(scale): return -1
+
+        pivot_column: mutable usize = 0
+        while pivot_column < d:
+            pivot_row: mutable usize = pivot_column
+            pivot_magnitude: mutable f64 = normal[pivot_row][pivot_column]
+            if pivot_magnitude < 0.0: pivot_magnitude <- 0.0 - pivot_magnitude
+            candidate: mutable usize = pivot_column + 1
+            while candidate < d:
+                candidate_magnitude: mutable f64 = normal[candidate][pivot_column]
+                if not local_weighted_learning_finite(candidate_magnitude): return -1
+                if candidate_magnitude < 0.0: candidate_magnitude <- 0.0 - candidate_magnitude
+                if candidate_magnitude > pivot_magnitude:
+                    pivot_row <- candidate
+                    pivot_magnitude <- candidate_magnitude
+                candidate <- candidate + 1
+            if not local_weighted_learning_finite(pivot_magnitude) or pivot_magnitude <= PIVOT_FLOOR * scale: return -1
+            if pivot_row != pivot_column:
+                feature <- 0
+                while feature < d:
+                    temporary: f64 = normal[pivot_column][feature]
+                    normal[pivot_column][feature] <- normal[pivot_row][feature]
+                    normal[pivot_row][feature] <- temporary
+                    feature <- feature + 1
+                temporary_rhs: f64 = rhs[pivot_column]
+                rhs[pivot_column] <- rhs[pivot_row]
+                rhs[pivot_row] <- temporary_rhs
+            pivot: f64 = normal[pivot_column][pivot_column]
+            row <- pivot_column + 1
+            while row < d:
+                factor: f64 = normal[row][pivot_column] / pivot
+                if not local_weighted_learning_finite(factor): return -1
+                normal[row][pivot_column] <- 0.0
+                feature <- pivot_column + 1
+                while feature < d:
+                    product: f64 = factor * normal[pivot_column][feature]
+                    normal[row][feature] <- normal[row][feature] - product
+                    if not local_weighted_learning_finite(normal[row][feature]): return -1
+                    feature <- feature + 1
+                product_rhs: f64 = factor * rhs[pivot_column]
+                rhs[row] <- rhs[row] - product_rhs
+                if not local_weighted_learning_finite(rhs[row]): return -1
+                row <- row + 1
+            pivot_column <- pivot_column + 1
+
+        coefficients: mutable f64[MAX_D] = zeroed
+        reverse_index: mutable usize = d
+        while reverse_index > 0:
+            reverse_index <- reverse_index - 1
+            residual: mutable f64 = rhs[reverse_index]
+            feature <- reverse_index + 1
+            while feature < d:
+                product: f64 = normal[reverse_index][feature] * coefficients[feature]
+                residual <- residual - product
+                feature <- feature + 1
+            diagonal: f64 = normal[reverse_index][reverse_index]
+            if not local_weighted_learning_finite(residual) or diagonal == 0.0 or not local_weighted_learning_finite(diagonal): return -1
+            coefficients[reverse_index] <- residual / diagonal
+            if not local_weighted_learning_finite(coefficients[reverse_index]): return -1
+
+        prediction: mutable f64 = 0.0
+        feature <- 0
+        while feature < d:
+            product: f64 = x_train[query][feature] * coefficients[feature]
+            prediction <- prediction + product
+            feature <- feature + 1
+        if not local_weighted_learning_finite(prediction): return -1
+        staged[query] <- prediction
+        query <- query + 1
+
+    if output.is_null() or output_capacity < n: return -2
+    index: mutable usize = 0
+    while index < n:
+        output[index] <- staged[index]
+        index <- index + 1
+    n.i64()
+
+export fn local_weighted_learning(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = local_weighted_learning_impl

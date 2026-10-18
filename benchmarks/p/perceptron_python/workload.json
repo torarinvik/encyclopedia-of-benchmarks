@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-perceptron-seeded-pm1-float64-slice-io-v1",
+  "algorithm": "perceptron_python",
+  "function_symbol": "Perceptron.training / Perceptron.sort",
+  "description": "Train the pinned seeded Python ±1 perceptron and classify bounded queries.",
+  "workspace": {
+    "elements": 12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[learning_rate, epoch_number, sample_count, feature_count, row-major training features, targets, query_count, row-major query features]",
+    "learning_rate_values": [
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "epoch_number_range": [
+      1,
+      12
+    ],
+    "sample_count_range": [
+      2,
+      8
+    ],
+    "feature_count_range": [
+      1,
+      4
+    ],
+    "query_count_range": [
+      1,
+      4
+    ],
+    "feature_value_range": [
+      -2,
+      2
+    ],
+    "feature_values_must_be_integers": true,
+    "targets": [
+      -1,
+      1
+    ],
+    "fixed_bias": -1,
+    "random_seed": 0,
+    "maximum_valid_input_length": 61,
+    "maximum_parseable_input_length": 62,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[epochs_run, weight_count, augmented_weights, query_count, predictions]",
+    "maximum_elements": 12,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "initialization": "Use bias=-1, seed=0, augmented weight vector [-1, random.Random(0).random() for each feature], and prepend -1 to each training/query row.",
+    "prediction": "The sign is 1 for a score greater than or equal to zero and -1 otherwise.",
+    "updates": "Visit training rows in input order. On a mistake, update each augmented weight by learning_rate*(target-prediction)*augmented_feature.",
+    "stopping": "Stop after an epoch with no misclassified rows or after epoch_number. Report completed epoch_count.",
+    "output": "Return epoch_count, weight_count, final augmented weights, query_count, and one ±1 prediction per query.",
+    "errors": "Reject malformed framing, fractional/out-of-range parameters or features, and targets outside {-1,1} with -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "neural_network/perceptron.py",
+    "symbol": "Perceptron.training / Perceptron.sort",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/neural_network/perceptron.py",
+    "role": "algorithm",
+    "dependencies": [
+      "Python random.Random seeded with 0"
+    ]
+  },
+  "cases": [
+    {
+      "id": "seeded_1d_training",
+      "input_values": [
+        0.25,
+        8,
+        4,
+        1,
+        -2,
+        -1,
+        1,
+        2,
+        -1,
+        -1,
+        1,
+        1,
+        4,
+        -2,
+        0,
+        1,
+        2
+      ],
+      "input_length": 17,
+      "expected_result": 9,
+      "expected_output": [
+        2.0,
+        2.0,
+        -0.5,
+        1.3444218515250481,
+        4.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "single_epoch_cap",
+      "input_values": [
+        0.25,
+        1,
+        4,
+        1,
+        -2,
+        -1,
+        1,
+        2,
+        -1,
+        -1,
+        1,
+        1,
+        4,
+        -2,
+        0,
+        1,
+        2
+      ],
+      "input_length": 17,
+      "expected_result": 9,
+      "expected_output": [
+        1.0,
+        2.0,
+        -0.5,
+        1.3444218515250481,
+        4.0,
+        -1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "invalid_target_zero",
+      "input_values": [
+        0.25,
+        1,
+        2,
+        1,
+        0,
+        1,
+        -1,
+        0,
+        1,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

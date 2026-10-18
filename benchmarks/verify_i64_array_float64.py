@@ -19,6 +19,7 @@ from hubble_parameter_oracle import INVALID_RESULT, expected_result as hubble_pa
 from light_aberration_oracle import INVALID_RESULT as LIGHT_ABERRATION_INVALID_RESULT
 from light_aberration_oracle import expected_result as light_aberration_oracle
 from run_i64_array_float64 import (
+    MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH,
     encode_case, resolve_tolerances, result_matches,
     validate_temperature_conversions_workload, validate_simpson_integration_workload,
     validate_secant_workload, validate_mean_bias_deviation_percent_workload,
@@ -26,8 +27,19 @@ from run_i64_array_float64 import (
     validate_moles_to_molecules_workload,
     validate_schur_complement_workload,
     validate_sharpe_ratio_workload,
+    validate_realtime_stats_workload,
     validate_maxwells_equations_workload,
     validate_shunting_yard_workload,
+    validate_kmeans_raw_r_workload,
+    validate_monte_carlo_integration_workload,
+    validate_traveling_salesman_solver_workload,
+)
+from traveling_salesman_solver_oracle import (
+    INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
+    MAX_CITIES as TRAVELING_SALESMAN_SOLVER_MAX_CITIES,
+    MAX_EDGE_COST as TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST,
+    expected_result_brute_force as traveling_salesman_solver_brute_force_oracle,
+    expected_result_nearest_neighbor as traveling_salesman_solver_nearest_neighbor_oracle,
 )
 from variance_oracle import INVALID_RESULT as VARIANCE_INVALID_RESULT
 from variance_oracle import MAX_INPUT_LENGTH as MAX_VARIANCE_INPUT_LENGTH
@@ -105,6 +117,12 @@ from temparature_conversion_oracle import MIN_NDIGITS as MIN_TEMPERATURE_ROUNDED
 from temparature_conversion_oracle import expected_result as temparature_conversion_oracle
 from temperature_conversions_oracle import INVALID_RESULT as TEMPERATURE_CONVERSIONS_INVALID_RESULT
 from temperature_conversions_oracle import expected_result as temperature_conversions_oracle
+from realtime_stats_oracle import INVALID_RESULT as REALTIME_STATS_INVALID_RESULT
+from realtime_stats_oracle import MAX_PARSEABLE_INPUT_LENGTH as REALTIME_STATS_MAX_PARSEABLE_INPUT_LENGTH
+from realtime_stats_oracle import MAX_SAMPLES as REALTIME_STATS_MAX_SAMPLES
+from realtime_stats_oracle import MAX_SAMPLE_Q as REALTIME_STATS_MAX_SAMPLE_Q
+from realtime_stats_oracle import MIN_SAMPLE_Q as REALTIME_STATS_MIN_SAMPLE_Q
+from realtime_stats_oracle import expected_result as realtime_stats_oracle
 from simpson_integration_oracle import INVALID_RESULT as SIMPSON_INTEGRATION_INVALID_RESULT
 from simpson_integration_oracle import MAX_INPUT_LENGTH as MAX_SIMPSON_INTEGRATION_INPUT_LENGTH
 from simpson_integration_oracle import MAX_INTERVALS as SIMPSON_INTEGRATION_MAX_INTERVALS
@@ -519,6 +537,35 @@ from maxwells_equations_oracle import expected_result as maxwells_equations_refe
 from shunting_yard_oracle import MAX_EXPRESSION_BYTES as SHUNTING_YARD_MAX_EXPRESSION_BYTES
 from shunting_yard_oracle import MAX_PARSEABLE_INPUT_LENGTH as SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH
 from shunting_yard_oracle import expected_result as shunting_yard_oracle
+from kmeans_raw_r_oracle import INVALID_RESULT as KMEANS_RAW_R_INVALID_RESULT
+from kmeans_raw_r_oracle import MAX_CLUSTERS as KMEANS_RAW_R_MAX_CLUSTERS
+from kmeans_raw_r_oracle import MAX_DIMENSIONS as KMEANS_RAW_R_MAX_DIMENSIONS
+from kmeans_raw_r_oracle import MAX_ITERATIONS as KMEANS_RAW_R_MAX_ITERATIONS
+from kmeans_raw_r_oracle import MAX_PARSEABLE_INPUT_LENGTH as KMEANS_RAW_R_MAX_PARSEABLE_INPUT_LENGTH
+from kmeans_raw_r_oracle import MAX_ROWS as KMEANS_RAW_R_MAX_ROWS
+from kmeans_raw_r_oracle import expected_result as kmeans_raw_r_oracle
+from monte_carlo_integration_oracle import (
+    INVALID_RESULT as MONTE_CARLO_INTEGRATION_INVALID_RESULT,
+    MAX_BOUND as MONTE_CARLO_INTEGRATION_MAX_BOUND,
+    MAX_PARSEABLE_INPUT_LENGTH as MONTE_CARLO_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_SAMPLES as MONTE_CARLO_INTEGRATION_MAX_SAMPLES,
+    MAX_UNIFORM as MONTE_CARLO_INTEGRATION_MAX_UNIFORM,
+    MIN_BOUND as MONTE_CARLO_INTEGRATION_MIN_BOUND,
+    MIN_SAMPLES as MONTE_CARLO_INTEGRATION_MIN_SAMPLES,
+    MIN_UNIFORM as MONTE_CARLO_INTEGRATION_MIN_UNIFORM,
+    expected_result as monte_carlo_integration_oracle,
+)
+from monte_carlo_integration_independent_oracle import (
+    INVALID_RESULT as MONTE_CARLO_INTEGRATION_INDEPENDENT_INVALID_RESULT,
+    MAX_BOUND as MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_BOUND,
+    MAX_PARSEABLE_INPUT_LENGTH as MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_SAMPLES as MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_SAMPLES,
+    MAX_UNIFORM as MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_UNIFORM,
+    MIN_BOUND as MONTE_CARLO_INTEGRATION_INDEPENDENT_MIN_BOUND,
+    MIN_SAMPLES as MONTE_CARLO_INTEGRATION_INDEPENDENT_MIN_SAMPLES,
+    MIN_UNIFORM as MONTE_CARLO_INTEGRATION_INDEPENDENT_MIN_UNIFORM,
+    expected_result as monte_carlo_integration_independent_oracle,
+)
 
 ALGORITHMS = ("hubble_parameter", "light_aberration", "variance", "dice_coefficient", "density", "hinge_loss", "collaborative_filtering", "collaborative_filtering_pearson_similarity", "quadratic_equation_solver_complex_roots", "durand_kerner_roots", "linear_regression_cost", "price_plus_tax", "macaulay_duration", "kelly_criterion", "ground_to_ground_projectile_motion", "huber_loss", "huber_loss_math", "exponential_dist", "expected_shortfall", "time_converter", "temperature_converter", "value_at_risk", "energy", "trapezoidal_integration", "midpoint_integral_method", "weddles_rule", "ternary_search_min_max_recursive", "cosine_similarity", "present_value", "present_value_rust", "resonant_frequency", "rms_speed_of_molecule", "newtons_second_law_of_motion", "speed_of_sound", "terminal_velocity", "newtons_law_of_gravitation", "ideal_gas_law", "capacitor_equivalence", "poisson_dist", "doppler_frequency", "secant_method", "newton_raphson_method", "newton_raphson", "reynolds_number", "interquartile_range", "apparent_power", "archimedes_principle_of_buoyant_force", "automatic_differentiation", "boyles_law", "butterworth_filter", "center_of_mass", "centripetal_force", "cohen_sutherland")
 ALGORITHMS += ("reverse_polish_notation",)
@@ -568,8 +615,12 @@ ALGORITHMS += ("mass_to_moles",)
 ALGORITHMS += ("moles_to_molecules",)
 ALGORITHMS += ("schur_complement",)
 ALGORITHMS += ("sharpe_ratio",)
+ALGORITHMS += ("realtime_stats",)
 ALGORITHMS += ("maxwells_equations",)
 ALGORITHMS += ("shunting_yard",)
+ALGORITHMS += ("kmeans_raw_r",)
+ALGORITHMS += ("monte_carlo_integration", "monte_carlo_integration_independent")
+ALGORITHMS += ("traveling_salesman_solver_brute_force", "traveling_salesman_solver_nearest_neighbor")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -753,6 +804,16 @@ def logistic_regression_csharp_binary_gd_oracle(values: list[int]) -> float:
 
 
 def oracle(algorithm: str, values: list[int]) -> float:
+    if algorithm == "traveling_salesman_solver_brute_force":
+        return traveling_salesman_solver_brute_force_oracle(values)
+    if algorithm == "traveling_salesman_solver_nearest_neighbor":
+        return traveling_salesman_solver_nearest_neighbor_oracle(values)
+    if algorithm == "kmeans_raw_r":
+        return kmeans_raw_r_oracle(values)
+    if algorithm == "monte_carlo_integration":
+        return monte_carlo_integration_oracle(values)
+    if algorithm == "monte_carlo_integration_independent":
+        return monte_carlo_integration_independent_oracle(values)
     if algorithm == "maxwells_equations":
         return maxwells_equations_reference(values)
     if algorithm == "mean_bias_deviation_percent":
@@ -765,6 +826,8 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return schur_complement_verifier_oracle(values)
     if algorithm == "sharpe_ratio":
         return sharpe_ratio_verifier_oracle(values)
+    if algorithm == "realtime_stats":
+        return realtime_stats_oracle(values)
     if algorithm == "logistic_regression_csharp_binary_gd":
         return logistic_regression_csharp_binary_gd_oracle(values)
     if algorithm == "sparsity":
@@ -981,10 +1044,19 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_schur_complement_workload(workload)
     elif algorithm == "sharpe_ratio":
         validate_sharpe_ratio_workload(workload)
+    elif algorithm == "realtime_stats":
+        validate_realtime_stats_workload(workload)
     elif algorithm == "maxwells_equations":
         validate_maxwells_equations_workload(workload)
     elif algorithm == "shunting_yard":
         validate_shunting_yard_workload(workload)
+    elif algorithm == "kmeans_raw_r":
+        validate_kmeans_raw_r_workload(workload)
+    elif algorithm in {"monte_carlo_integration", "monte_carlo_integration_independent"}:
+        validate_monte_carlo_integration_workload(workload, algorithm)
+    elif algorithm in {"traveling_salesman_solver_brute_force",
+                       "traveling_salesman_solver_nearest_neighbor"}:
+        validate_traveling_salesman_solver_workload(workload, algorithm)
     absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     if (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0
             or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
@@ -1002,7 +1074,152 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             continue
         cases[tuple(values)] = source_result
 
-    if algorithm == "maxwells_equations":
+    if algorithm in {"traveling_salesman_solver_brute_force",
+                     "traveling_salesman_solver_nearest_neighbor"}:
+        nearest = algorithm == "traveling_salesman_solver_nearest_neighbor"
+        header_length = 3 if nearest else 2
+        max_valid_length = header_length + TRAVELING_SALESMAN_SOLVER_MAX_CITIES ** 2
+        max_parseable_length = max_valid_length + 1
+
+        def add_traveling_salesman_solver_case(values: tuple[int, ...]) -> None:
+            if (len(values) > max_parseable_length + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError(f"{algorithm} generated input exceeds its signed-i64 parser bounds")
+            result = oracle(algorithm, list(values))
+            if (not math.isfinite(result)
+                    or result != TRAVELING_SALESMAN_SOLVER_INVALID_RESULT
+                    and (result != math.trunc(result) or not 0 <= result <= 8000)):
+                raise ValueError(f"{algorithm} oracle returned an invalid bounded route value")
+            if len(values) > max_valid_length and result != TRAVELING_SALESMAN_SOLVER_INVALID_RESULT:
+                raise ValueError(f"{algorithm} accepted input beyond its valid packed length")
+            cases[values] = result
+
+        def route_matrix(city_count: int, salt: int = 0) -> tuple[int, ...]:
+            return tuple(0 if row == column else
+                         (row * 137 + column * 71 + salt * 19) % (TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST + 1)
+                         for row in range(city_count) for column in range(city_count))
+
+        if nearest:
+            for city_count in range(1, TRAVELING_SALESMAN_SOLVER_MAX_CITIES + 1):
+                matrix = route_matrix(city_count, city_count)
+                for start in range(city_count):
+                    for selector in range(city_count + 2):
+                        add_traveling_salesman_solver_case(
+                            (selector, city_count, start, *matrix))
+            for city_count in range(3, TRAVELING_SALESMAN_SOLVER_MAX_CITIES + 1):
+                tied = tuple(0 if row == column else 1
+                             for row in range(city_count) for column in range(city_count))
+                for selector in range(city_count + 2):
+                    add_traveling_salesman_solver_case((selector, city_count, city_count - 1, *tied))
+        else:
+            for city_count in range(2, TRAVELING_SALESMAN_SOLVER_MAX_CITIES + 1):
+                matrix = route_matrix(city_count, city_count)
+                for selector in range(city_count + 2):
+                    add_traveling_salesman_solver_case((selector, city_count, *matrix))
+            tied = tuple(0 if row == column else 1
+                         for row in range(4) for column in range(4))
+            for selector in range(6):
+                add_traveling_salesman_solver_case((selector, 4, *tied))
+            rng_tsp_solver = random.Random(20261017)
+            for trial in range(8):
+                city_count = rng_tsp_solver.randint(2, 7)
+                matrix = tuple(rng_tsp_solver.randint(0, TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST)
+                               for _ in range(city_count * city_count))
+                for selector in range(city_count + 2):
+                    add_traveling_salesman_solver_case((selector, city_count, *matrix))
+
+        maximum_count = TRAVELING_SALESMAN_SOLVER_MAX_CITIES
+        maximum_matrix = tuple(0 if row == column else TRAVELING_SALESMAN_SOLVER_MAX_EDGE_COST
+                               for row in range(maximum_count) for column in range(maximum_count))
+        maximum_valid = ((0, maximum_count, *maximum_matrix) if not nearest else
+                         (0, maximum_count, 3, *maximum_matrix))
+        add_traveling_salesman_solver_case(maximum_valid)
+        malformed = (
+            (), (0,), (0, 0),
+            (-1, 2, 0, 1, 1, 0) if not nearest else (-1, 2, 0, 0, 1, 1, 0),
+            (4, 2, 0, 1, 1, 0) if not nearest else (4, 2, 0, 0, 1, 1, 0),
+            (0, 1, 0, 0) if not nearest else (0, 0, 0),
+            (0, 9) if not nearest else (0, 9, 0),
+            (0, 2, 0, 1, 0) if not nearest else (0, 2, 0, 0, 1, 0),
+            (0, 2, 0, 1, 1, 0, 0) if not nearest else (0, 1, 0, 7, 7),
+            (0, 2, 0, -1, 1, 0) if not nearest else (0, 2, 0, 0, -1, 1, 0),
+            (0, 2, 0, 1001, 1, 0) if not nearest else (0, 2, 0, 0, 1001, 1, 0),
+            (0, 2, 0, I64_MIN, 1, 0) if not nearest else (0, 2, 0, 0, I64_MIN, 1, 0),
+            (0, 2, 0, I64_MAX, 1, 0) if not nearest else (0, 2, 0, 0, I64_MAX, 1, 0),
+            (0, 2, 2, 0, 1, 1, 0) if nearest else (0, 2, 0, 1, 1, 0),
+            (*maximum_valid, 0), (*maximum_valid, 0, 0),
+        )
+        for values in malformed:
+            add_traveling_salesman_solver_case(tuple(values))
+
+    if algorithm in {"monte_carlo_integration", "monte_carlo_integration_independent"}:
+        antithetic = algorithm == "monte_carlo_integration"
+        maximum_length = (MONTE_CARLO_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH if antithetic else
+                          MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_PARSEABLE_INPUT_LENGTH)
+        minimum_bound = (MONTE_CARLO_INTEGRATION_MIN_BOUND if antithetic else
+                         MONTE_CARLO_INTEGRATION_INDEPENDENT_MIN_BOUND)
+        maximum_bound = (MONTE_CARLO_INTEGRATION_MAX_BOUND if antithetic else
+                         MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_BOUND)
+        minimum_samples = (MONTE_CARLO_INTEGRATION_MIN_SAMPLES if antithetic else
+                           MONTE_CARLO_INTEGRATION_INDEPENDENT_MIN_SAMPLES)
+        maximum_samples = (MONTE_CARLO_INTEGRATION_MAX_SAMPLES if antithetic else
+                           MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_SAMPLES)
+        minimum_uniform = (MONTE_CARLO_INTEGRATION_MIN_UNIFORM if antithetic else
+                           MONTE_CARLO_INTEGRATION_INDEPENDENT_MIN_UNIFORM)
+        maximum_uniform = (MONTE_CARLO_INTEGRATION_MAX_UNIFORM if antithetic else
+                           MONTE_CARLO_INTEGRATION_INDEPENDENT_MAX_UNIFORM)
+        invalid_result = (MONTE_CARLO_INTEGRATION_INVALID_RESULT if antithetic else
+                          MONTE_CARLO_INTEGRATION_INDEPENDENT_INVALID_RESULT)
+        rng_monte_carlo = random.Random(20261017 if antithetic else 20261018)
+
+        def add_monte_carlo_case(values: tuple[int, ...]) -> None:
+            if (len(values) > maximum_length
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError(f"{algorithm} generated input exceeds its signed-i64 parseable bound")
+            result = oracle(algorithm, list(values))
+            if result != invalid_result and not math.isfinite(result):
+                raise ValueError(f"{algorithm} oracle generated a non-finite result")
+            cases[values] = result
+
+        def draw_count(sample_count: int) -> int:
+            return (sample_count + 1) // 2 if antithetic else sample_count
+
+        for sample_count in range(minimum_samples, maximum_samples + 1):
+            count = draw_count(sample_count)
+            edge_draws = tuple(
+                minimum_uniform if index % 2 == 0 else maximum_uniform
+                for index in range(count))
+            add_monte_carlo_case((minimum_bound, maximum_bound, sample_count, *edge_draws))
+
+        for _ in range(128):
+            lower = rng_monte_carlo.randint(minimum_bound, maximum_bound - 1)
+            upper = rng_monte_carlo.randint(lower + 1, maximum_bound)
+            sample_count = rng_monte_carlo.randint(minimum_samples, maximum_samples)
+            draws = tuple(rng_monte_carlo.randint(minimum_uniform, maximum_uniform)
+                          for _ in range(draw_count(sample_count)))
+            add_monte_carlo_case((lower, upper, sample_count, *draws))
+
+        maximum_count = maximum_samples
+        required_draws = draw_count(maximum_count)
+        malformed = (
+            (), (0,), (0, 1_000_000), (0, 1_000_000, 0),
+            (0, 1_000_000, maximum_samples + 1, *([0] * draw_count(maximum_samples))),
+            (1_000_000, 0, 1, 0),
+            (minimum_bound - 1, maximum_bound, 1, 0),
+            (minimum_bound, maximum_bound + 1, 1, 0),
+            (0, 1_000_000, 1, minimum_uniform - 1),
+            (0, 1_000_000, 1, maximum_uniform + 1),
+            (0, 1_000_000, maximum_count, *([minimum_uniform] * (required_draws - 1))),
+            (0, 1_000_000, 1, minimum_uniform, minimum_uniform),
+            (0, 1_000_000, maximum_count,
+             *([minimum_uniform] * (maximum_length - 3))),
+            (I64_MIN, 0, 1, 0), (0, I64_MAX, 1, 0),
+        )
+        for values in malformed:
+            add_monte_carlo_case(tuple(values))
+    elif algorithm == "maxwells_equations":
         rng_maxwells = random.Random(20261017)
 
         def sampled_constant() -> int:
@@ -1205,6 +1422,57 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             add_sharpe_ratio_case(values)
+    elif algorithm == "realtime_stats":
+        def add_realtime_stats_case(values: tuple[int, ...]) -> None:
+            if (len(values) > REALTIME_STATS_MAX_PARSEABLE_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("realtime_stats generated input exceeds its parseable bound")
+            result = oracle(algorithm, list(values))
+            if result != REALTIME_STATS_INVALID_RESULT and not math.isfinite(result):
+                raise ValueError("realtime_stats oracle generated a non-finite result")
+            cases[values] = result
+
+        rng_realtime_stats = random.Random(20261017)
+        for trace_index in range(128):
+            variant = trace_index % 3
+            statistic = (trace_index // 3) % 3
+            count = rng_realtime_stats.randint(2, REALTIME_STATS_MAX_SAMPLES)
+            if trace_index % 4 == 0:
+                samples = [REALTIME_STATS_MIN_SAMPLE_Q if index % 2 == 0
+                           else REALTIME_STATS_MAX_SAMPLE_Q for index in range(count)]
+            elif trace_index % 4 == 1:
+                repeated = rng_realtime_stats.randint(
+                    REALTIME_STATS_MIN_SAMPLE_Q, REALTIME_STATS_MAX_SAMPLE_Q)
+                samples = [repeated] * count
+            else:
+                samples = [rng_realtime_stats.randint(
+                    REALTIME_STATS_MIN_SAMPLE_Q, REALTIME_STATS_MAX_SAMPLE_Q)
+                    for _ in range(count)]
+            add_realtime_stats_case((variant, statistic, count, *samples))
+
+        for variant in range(3):
+            for statistic in range(3):
+                for samples in ((REALTIME_STATS_MIN_SAMPLE_Q, REALTIME_STATS_MAX_SAMPLE_Q),
+                                (REALTIME_STATS_MAX_SAMPLE_Q,) * REALTIME_STATS_MAX_SAMPLES,
+                                (REALTIME_STATS_MIN_SAMPLE_Q, REALTIME_STATS_MAX_SAMPLE_Q)
+                                * (REALTIME_STATS_MAX_SAMPLES // 2)):
+                    count = len(samples)
+                    add_realtime_stats_case((variant, statistic, count, *samples))
+
+        parseable_trailing = (0, 0, REALTIME_STATS_MAX_SAMPLES,
+                              *([0] * REALTIME_STATS_MAX_SAMPLES), 0)
+        malformed = (
+            (), (0,), (0, 0), (-1, 0, 2, 0, 1), (3, 0, 2, 0, 1),
+            (0, -1, 2, 0, 1), (0, 3, 2, 0, 1), (0, 0, 1, 0),
+            (0, 0, REALTIME_STATS_MAX_SAMPLES + 1, *([0] * 33)),
+            (0, 0, 2, 0), (0, 0, 2, 0, 1, 99),
+            (0, 0, 2, REALTIME_STATS_MIN_SAMPLE_Q - 1, 0),
+            (0, 0, 2, 0, REALTIME_STATS_MAX_SAMPLE_Q + 1),
+            parseable_trailing, (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add_realtime_stats_case(tuple(values))
     elif algorithm == "sparsity":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -5430,6 +5698,61 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             if (len(values) <= SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH
                     and all(type(value) is int and I64_MIN <= value <= I64_MAX for value in values)):
                 cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "kmeans_raw_r":
+        rng_kmeans = random.Random(20261017)
+
+        def add_kmeans_case(values: tuple[int, ...], *, require_valid: bool = False) -> None:
+            if (len(values) > MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                           for value in values)):
+                raise ValueError("kmeans_raw_r generated input exceeds its signed-i64 workload bound")
+            result = oracle(algorithm, list(values))
+            if require_valid and result == KMEANS_RAW_R_INVALID_RESULT:
+                raise ValueError("kmeans_raw_r generated valid trace was rejected by the oracle")
+            cases[values] = result
+
+        for trace_index in range(128):
+            k = rng_kmeans.randint(1, min(4, KMEANS_RAW_R_MAX_CLUSTERS))
+            rows = rng_kmeans.randint(2 * k, KMEANS_RAW_R_MAX_ROWS)
+            dimensions = rng_kmeans.randint(2, KMEANS_RAW_R_MAX_DIMENSIONS)
+            iteration_limit = rng_kmeans.randint(2, min(8, KMEANS_RAW_R_MAX_ITERATIONS))
+            group_sizes = [2] * k
+            for _ in range(rows - 2 * k):
+                group_sizes[rng_kmeans.randrange(k)] += 1
+
+            initial_rows: list[int] = []
+            data: list[int] = []
+            row_index = 0
+            for cluster, group_size in enumerate(group_sizes):
+                initial_rows.append(row_index)
+                cluster_center = 24 * cluster - 12 * (k - 1)
+                for _ in range(group_size):
+                    data.extend(
+                        cluster_center + rng_kmeans.randint(-3, 3)
+                        for _ in range(dimensions)
+                    )
+                    row_index += 1
+
+            field = trace_index % 3
+            if field == 0:
+                selectors = (0, rng_kmeans.randrange(k), rng_kmeans.randrange(dimensions))
+            elif field == 1:
+                selectors = (1, rng_kmeans.randrange(rows), rng_kmeans.randrange(k))
+            else:
+                selectors = (2, rng_kmeans.randrange(rows), 0)
+            values = (rows, dimensions, k, iteration_limit,
+                      *initial_rows, *data, *selectors)
+            add_kmeans_case(values, require_valid=True)
+
+        malformed = (
+            (), (1,), (2, 1, 1, 1), (KMEANS_RAW_R_MAX_ROWS + 1, 2, 1, 2),
+            (2, 2, 0, 2), (2, 2, 1, KMEANS_RAW_R_MAX_ITERATIONS + 1),
+            (2, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            (0,) * (KMEANS_RAW_R_MAX_PARSEABLE_INPUT_LENGTH + 1),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            add_kmeans_case(tuple(values))
     else:
         raise ValueError(f"no corpus for {algorithm}")
 
@@ -5510,6 +5833,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "moles_to_molecules": 1,
                     "schur_complement": 6,
                     "sharpe_ratio": 0,
+                    "kmeans_raw_r": 4,
+                    "realtime_stats": 3,
                     "maxwells_equations": 0,
                     "shunting_yard": SHUNTING_YARD_MAX_PARSEABLE_INPUT_LENGTH,
                     "smooth_l1_loss": MAX_SMOOTH_L1_LOSS_INPUT_LENGTH,
@@ -5522,6 +5847,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "unscented_kalman_filter": 0,
                     "simplex": 4,
                     "simple_neural_network": 3,
+                    "monte_carlo_integration": 3,
+                    "monte_carlo_integration_independent": 3,
                     "sparsity": 0}
     null_lengths.update({"return_on_investment": 2, "debt_to_equity": 2,
                          "gross_profit_margin": 2, "earnings_per_sale": 3})
@@ -5532,11 +5859,17 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     null_length = null_lengths[algorithm]
     null_result = (MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
                    if algorithm == "mean_bias_deviation_percent" else
+                   MONTE_CARLO_INTEGRATION_INVALID_RESULT
+                   if algorithm == "monte_carlo_integration" else
+                   MONTE_CARLO_INTEGRATION_INDEPENDENT_INVALID_RESULT
+                   if algorithm == "monte_carlo_integration_independent" else
                    MASS_TO_MOLES_INVALID_RESULT if algorithm == "mass_to_moles" else
                    MOLES_TO_MOLECULES_INVALID_RESULT if algorithm == "moles_to_molecules" else
                    SCHUR_COMPLEMENT_INVALID_RESULT if algorithm == "schur_complement" else
                    SHARPE_RATIO_INVALID_RESULT if algorithm == "sharpe_ratio" else
+                   REALTIME_STATS_INVALID_RESULT if algorithm == "realtime_stats" else
                    MAXWELLS_EQUATIONS_INVALID_RESULT if algorithm == "maxwells_equations" else
+                   KMEANS_RAW_R_INVALID_RESULT if algorithm == "kmeans_raw_r" else
                    SPARSITY_INVALID_RESULT if algorithm == "sparsity" else
                    COLLABORATIVE_PREDICTION_INVALID_RESULT if algorithm == "collaborative_filtering" else
                    COLLABORATIVE_PEARSON_INVALID_RESULT if algorithm == "collaborative_filtering_pearson_similarity" else

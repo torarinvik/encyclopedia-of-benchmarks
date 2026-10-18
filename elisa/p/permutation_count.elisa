@@ -1,0 +1,19 @@
+def permutation_count_impl(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length != 2: return -1
+    n: i64 = input[0]
+    r: i64 = input[1]
+    if n < 0 or n > 18 or r < 0 or r > 18: return -1
+    result: mutable i64 = 1
+    if r > n:
+        factor: mutable i64 = 2
+        while factor <= n:
+            result <- result * factor
+            factor <- factor + 1
+    else:
+        i: mutable i64 = 0
+        while i < r:
+            result <- result * (n - i)
+            i <- i + 1
+    return result
+
+export fn permutation_count(input: i64&, input_length: usize) -> i64 = permutation_count_impl

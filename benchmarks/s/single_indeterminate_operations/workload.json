@@ -1,0 +1,670 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-single-indeterminate-operations-float64-slice-io-v1",
+  "algorithm": "single_indeterminate_operations",
+  "function_symbol": "single_indeterminate_operations",
+  "description": "Six bounded numeric operations from the pinned Python Polynomial class.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "maths/polynomials/single_indeterminate_operations.py",
+    "symbol": "Polynomial",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/maths/polynomials/single_indeterminate_operations.py",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Apply one of the pinned Polynomial class numeric operations to bounded coefficient vectors.",
+    "operation_selectors": {
+      "0": "add",
+      "1": "subtract",
+      "2": "multiply",
+      "3": "evaluate",
+      "4": "derivative",
+      "5": "integral"
+    },
+    "coefficient_order": "Low degree first; vectors are not trimmed when their highest coefficient is zero.",
+    "input_encoding": "[operation, degree_a, a_coefficients..., degree_b, b_coefficients...] for binary operations; [operation, degree, coefficients..., parameter] for evaluate and integral; [operation, degree, coefficients...] for derivative.",
+    "degree_range": [
+      0,
+      8
+    ],
+    "coefficient_range": [
+      -10.0,
+      10.0
+    ],
+    "evaluation_point_range": [
+      -2.0,
+      2.0
+    ],
+    "integral_constant_range": [
+      -10.0,
+      10.0
+    ],
+    "exact_input_length": "Operation-dependent; each polynomial has degree+1 coefficients.",
+    "maximum_valid_input_length": 21,
+    "maximum_parseable_input_length": 22,
+    "maximum_output_elements": 17,
+    "source_operation_details": "Addition preserves the source degree comparison and base-vector choice. Subtraction evaluates self + other * Polynomial(0, [-1]). Multiplication accumulates with the left coefficient loop outermost. Evaluation adds coefficient[i] * x**i in ascending i. Derivative of degree 0 returns an empty vector. Integral places the supplied constant first and divides coefficient[i] by i+1.",
+    "output_encoding": "Low-degree-first coefficients for polynomial operations; one float64 for evaluate; the derivative of a constant has an empty output vector.",
+    "success_result": "Number of output float64 elements.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed framing, invalid selector or degree, nonfinite values, or out-of-range values returns -1 before output checks. Null output returns -2, including for a valid zero-length derivative. Insufficient capacity returns -2 after input validation. A non-null output pointer with capacity zero succeeds for a zero-length result. Errors write no output values."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[operation selector followed by the operation-specific degree, coefficient vector(s), and parameter]",
+    "operation_selectors": {
+      "add": 0,
+      "subtract": 1,
+      "multiply": 2,
+      "evaluate": 3,
+      "derivative": 4,
+      "integral": 5
+    },
+    "minimum_valid_length": 3,
+    "maximum_valid_length": 21,
+    "maximum_parseable_length": 22,
+    "degree_range": [
+      0,
+      8
+    ],
+    "coefficient_range": [
+      -10.0,
+      10.0
+    ],
+    "evaluation_point_range": [
+      -2.0,
+      2.0
+    ],
+    "integral_constant_range": [
+      -10.0,
+      10.0
+    ],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "finite_float64_array",
+    "encoding": "Operation-dependent float64 result vector, low-degree first for polynomials.",
+    "elements": "Operation-dependent; maximum 17.",
+    "maximum_elements": 17,
+    "success_result": "Number of output elements.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "elements": 17,
+    "meaning": "Largest degree-16 product coefficient vector."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "add_equal_degree",
+      "input_values": [
+        0,
+        2,
+        1.5,
+        -2.0,
+        3.0,
+        2,
+        2.5,
+        4.0,
+        -1.0
+      ],
+      "input_length": 9,
+      "expected_result": 3,
+      "expected_output": [
+        4.0,
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "id": "add_right_higher_degree",
+      "input_values": [
+        0,
+        1,
+        1.0,
+        2.0,
+        3,
+        4.0,
+        5.0,
+        6.0,
+        7.0
+      ],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output": [
+        5.0,
+        7.0,
+        6.0,
+        7.0
+      ]
+    },
+    {
+      "id": "add_retains_leading_zero_degree",
+      "input_values": [
+        0,
+        2,
+        1.0,
+        -1.0,
+        0.0,
+        2,
+        -1.0,
+        1.0,
+        0.0
+      ],
+      "input_length": 9,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "subtract_left_higher_degree",
+      "input_values": [
+        1,
+        2,
+        3.0,
+        4.0,
+        5.0,
+        1,
+        2.0,
+        1.0
+      ],
+      "input_length": 8,
+      "expected_result": 3,
+      "expected_output": [
+        1.0,
+        3.0,
+        5.0
+      ]
+    },
+    {
+      "id": "subtract_right_higher_degree",
+      "input_values": [
+        1,
+        1,
+        1.0,
+        2.0,
+        3,
+        3.0,
+        4.0,
+        5.0,
+        6.0
+      ],
+      "input_length": 9,
+      "expected_result": 4,
+      "expected_output": [
+        -2.0,
+        -2.0,
+        -5.0,
+        -6.0
+      ]
+    },
+    {
+      "id": "multiply_convolution_order",
+      "input_values": [
+        2,
+        2,
+        1.0,
+        2.0,
+        3.0,
+        1,
+        -1.0,
+        2.0
+      ],
+      "input_length": 8,
+      "expected_result": 4,
+      "expected_output": [
+        -1.0,
+        0.0,
+        1.0,
+        6.0
+      ]
+    },
+    {
+      "id": "multiply_maximum_degree",
+      "input_values": [
+        2,
+        8,
+        1.0,
+        2.0,
+        0.0,
+        -1.0,
+        3.0,
+        -2.0,
+        4.0,
+        -3.0,
+        5.0,
+        8,
+        -1.0,
+        1.0,
+        2.0,
+        -2.0,
+        0.0,
+        3.0,
+        -3.0,
+        4.0,
+        -4.0
+      ],
+      "input_length": 21,
+      "expected_result": 17,
+      "expected_output": [
+        -1.0,
+        -1.0,
+        4.0,
+        3.0,
+        -8.0,
+        6.0,
+        5.0,
+        -5.0,
+        5.0,
+        -5.0,
+        -3.0,
+        24.0,
+        -41.0,
+        48.0,
+        -43.0,
+        32.0,
+        -20.0
+      ]
+    },
+    {
+      "id": "evaluate_negative_fractional_point",
+      "input_values": [
+        3,
+        3,
+        1.5,
+        -2.0,
+        0.5,
+        2.0,
+        -1.5
+      ],
+      "input_length": 7,
+      "expected_result": 1,
+      "expected_output": [
+        -1.125
+      ]
+    },
+    {
+      "id": "evaluate_at_zero",
+      "input_values": [
+        3,
+        5,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        0.0
+      ],
+      "input_length": 9,
+      "expected_result": 1,
+      "expected_output": [
+        1.0
+      ]
+    },
+    {
+      "id": "derivative_cubic",
+      "input_values": [
+        4,
+        3,
+        2.0,
+        -3.0,
+        0.5,
+        4.0
+      ],
+      "input_length": 6,
+      "expected_result": 3,
+      "expected_output": [
+        -3.0,
+        1.0,
+        12.0
+      ]
+    },
+    {
+      "id": "derivative_constant_empty",
+      "input_values": [
+        4,
+        0,
+        -7.5
+      ],
+      "input_length": 3,
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "integral_with_nonzero_constant",
+      "input_values": [
+        5,
+        2,
+        2.0,
+        -3.0,
+        6.0,
+        1.25
+      ],
+      "input_length": 6,
+      "expected_result": 4,
+      "expected_output": [
+        1.25,
+        2.0,
+        -1.5,
+        2.0
+      ]
+    },
+    {
+      "id": "integral_maximum_degree",
+      "input_values": [
+        5,
+        8,
+        -8.0,
+        7.0,
+        -6.0,
+        5.0,
+        -4.0,
+        3.0,
+        -2.0,
+        1.0,
+        0.5,
+        -2.5
+      ],
+      "input_length": 12,
+      "expected_result": 10,
+      "expected_output": [
+        -2.5,
+        -8.0,
+        3.5,
+        -2.0,
+        1.25,
+        -0.8,
+        0.5,
+        -0.2857142857142857,
+        0.125,
+        0.05555555555555555
+      ]
+    },
+    {
+      "id": "invalid_operation_selector",
+      "input_values": [
+        6,
+        0,
+        1.0
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_truncated_add",
+      "input_values": [
+        0,
+        2,
+        1.0,
+        2.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_nonintegral_degree",
+      "input_values": [
+        4,
+        1.5,
+        1.0,
+        2.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_coefficient_out_of_range",
+      "input_values": [
+        4,
+        1,
+        0.0,
+        10.5
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_evaluation_point_out_of_range",
+      "input_values": [
+        3,
+        1,
+        1.0,
+        2.0,
+        2.01
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_extra_derivative_value",
+      "input_values": [
+        4,
+        0,
+        1.0,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "output_capacity": 17,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": false,
+      "output_capacity": 17,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_selector",
+      "input_values": [
+        4.0
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 17,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_coefficients",
+      "input_values": [
+        4,
+        2,
+        1.0
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 17,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_polynomial_value",
+      "input_values": [
+        2,
+        0,
+        2.0,
+        0,
+        3.0,
+        9.0
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_capacity": 17,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "maximum_parseable_extra_value",
+      "input_values": [
+        2,
+        8,
+        1.0,
+        2.0,
+        0.0,
+        -1.0,
+        3.0,
+        -2.0,
+        4.0,
+        -3.0,
+        5.0,
+        8,
+        -1.0,
+        1.0,
+        2.0,
+        -2.0,
+        0.0,
+        3.0,
+        -3.0,
+        4.0,
+        -4.0,
+        0.0
+      ],
+      "input_length": 22,
+      "input_is_null": false,
+      "output_capacity": 17,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        3,
+        1,
+        0.0,
+        1.0,
+        2.01
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        3,
+        1,
+        1.0,
+        2.0,
+        1.0
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_capacity",
+      "input_values": [
+        2,
+        1,
+        1.0,
+        2.0,
+        1,
+        3.0,
+        4.0
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_exact_capacity",
+      "input_values": [
+        2,
+        1,
+        1.0,
+        2.0,
+        1,
+        3.0,
+        4.0
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 3,
+      "output_is_null": false,
+      "expected_result": 3,
+      "expected_output": [
+        3.0,
+        10.0,
+        8.0
+      ]
+    },
+    {
+      "id": "zero_result_exact_capacity",
+      "input_values": [
+        4,
+        0,
+        3.0
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": false,
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "zero_result_null_output",
+      "input_values": [
+        4,
+        0,
+        3.0
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+extern sqrt(value: f64) -> f64
+
+def qr_eigen_values_impl(input: f64&, input_length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length != 5: return -1
+    if input[0] != 2.0: return -1
+    entries: mutable f64[4] = zeroed
+    for index in 0..<4:
+        value: f64 = input[index + 1]
+        if value != value or value < -9.0 or value > 9.0: return -1
+        integer: i64 = value.i64()
+        if value != integer.f64(): return -1
+        entries[index] <- value
+    if entries[1] != entries[2] or entries[1] == 0.0 or entries[0] == entries[3]: return -1
+    matrix: mutable f64[4] = zeroed
+    for index in 0..<4: matrix[index] <- entries[index]
+    last_eigenvalue: mutable f64 = 0.0
+    iterations: mutable usize = 0
+    lower_left: f64 = matrix[2]
+    if lower_left < 0.0: lower_left <- -lower_left
+    while lower_left > 1e-10:
+        if iterations >= 256: return -1
+        last_eigenvalue <- matrix[3]
+        shifted: mutable f64[4] = zeroed
+        for index in 0..<4: shifted[index] <- matrix[index]
+        shifted[0] <- shifted[0] - last_eigenvalue
+        shifted[3] <- shifted[3] - last_eigenvalue
+        q: mutable f64[4] = zeroed
+        r: mutable f64[4] = zeroed
+        column: mutable usize = 0
+        while column < 2:
+            original: mutable f64[2] = zeroed
+            residual: mutable f64[2] = zeroed
+            row: mutable usize = 0
+            while row < 2:
+                original[row] <- shifted[row * 2 + column]
+                residual[row] <- original[row]
+                row <- row + 1
+            previous: mutable usize = 0
+            while previous < column:
+                basis: mutable f64[2] = zeroed
+                basis[0] <- q[previous]
+                basis[1] <- q[2 + previous]
+                denominator: mutable f64 = 0.0
+                denominator <- denominator + basis[0] * basis[0]
+                denominator <- denominator + basis[1] * basis[1]
+                if denominator == 0.0 or denominator != denominator: return -1
+                dot: mutable f64 = 0.0
+                dot <- dot + original[0] * basis[0]
+                dot <- dot + original[1] * basis[1]
+                scalar: f64 = dot / denominator
+                residual[0] <- residual[0] - scalar * basis[0]
+                residual[1] <- residual[1] - scalar * basis[1]
+                previous <- previous + 1
+            norm_squared: mutable f64 = 0.0
+            norm_squared <- norm_squared + residual[0] * residual[0]
+            norm_squared <- norm_squared + residual[1] * residual[1]
+            norm: f64 = sqrt(norm_squared)
+            if norm == 0.0 or norm != norm: return -1
+            q[column] <- residual[0] / norm
+            q[2 + column] <- residual[1] / norm
+            target: mutable usize = column
+            while target < 2:
+                dot_q: mutable f64 = 0.0
+                dot_q <- dot_q + q[column] * shifted[target]
+                dot_q <- dot_q + q[2 + column] * shifted[2 + target]
+                r[column * 2 + target] <- dot_q
+                target <- target + 1
+            column <- column + 1
+        updated: mutable f64[4] = zeroed
+        row <- 0
+        while row < 2:
+            column <- 0
+            while column < 2:
+                inner: mutable usize = 0
+                while inner < 2:
+                    updated[row * 2 + column] <- updated[row * 2 + column] + r[row * 2 + inner] * q[inner * 2 + column]
+                    inner <- inner + 1
+                column <- column + 1
+            row <- row + 1
+        updated[0] <- updated[0] + last_eigenvalue
+        updated[3] <- updated[3] + last_eigenvalue
+        for index in 0..<4:
+            if updated[index] != updated[index]: return -1
+            matrix[index] <- updated[index]
+        lower_left <- matrix[2]
+        if lower_left < 0.0: lower_left <- -lower_left
+        iterations <- iterations + 1
+    result0: f64 = matrix[0]
+    result1: f64 = last_eigenvalue
+    if result0 != result0 or result1 != result1: return -1
+    staged: mutable f64[2] = zeroed
+    staged[0] <- result0
+    staged[1] <- result1
+    if output.is_null() or capacity < 2: return -2
+    output[0] <- staged[0]
+    output[1] <- staged[1]
+    return 2
+
+export fn qr_eigen_values(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = qr_eigen_values_impl

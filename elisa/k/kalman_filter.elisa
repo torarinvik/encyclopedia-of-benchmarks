@@ -1,0 +1,55 @@
+extern floor(value: f64) -> f64
+
+const MAX_STEPS: usize = 12
+const MAX_PARSEABLE_LENGTH: usize = 64
+const SCALE: f64 = 1000000.0
+
+def kalman_filter_impl(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > MAX_PARSEABLE_LENGTH:
+        return -1
+    index: usize = 0
+    while index < length:
+        if input[index] != input[index] or floor(input[index]) != input[index]:
+            return -1
+        index <- index + 1
+    raw_steps: f64 = input[4]
+    if raw_steps < 1.0 or raw_steps > MAX_STEPS.f64():
+        return -1
+    steps: usize = raw_steps.usize()
+    if length != 5 + steps:
+        return -1
+    if input[0] < -1000000000.0 or input[0] > 1000000000.0 or
+        input[1] < 0.0 or input[1] > 1000000000000.0 or
+        input[2] < 0.0 or input[2] > 1000000000000.0 or
+        input[3] < 1.0 or input[3] > 1000000000000.0:
+        return -1
+    index <- 0
+    while index < steps:
+        measurement: f64 = input[5 + index]
+        if measurement < -1000000000.0 or measurement > 1000000000.0:
+            return -1
+        index <- index + 1
+
+    required: usize = 3 * steps
+    if output.is_null() or output_capacity < required:
+        return -2
+    estimate: f64 = input[0] / SCALE
+    covariance: f64 = input[1] / SCALE
+    process_noise: f64 = input[2] / SCALE
+    measurement_noise: f64 = input[3] / SCALE
+    step: mutable usize = 0
+    while step < steps:
+        measurement: f64 = input[5 + step] / SCALE
+        estimate <- estimate + 0.0
+        covariance <- covariance + process_noise
+        innovation_variance: f64 = covariance + measurement_noise
+        gain: f64 = covariance / innovation_variance
+        estimate <- estimate + gain * (measurement - estimate)
+        covariance <- covariance * measurement_noise / innovation_variance
+        output[3 * step] <- estimate
+        output[3 * step + 1] <- covariance
+        output[3 * step + 2] <- gain
+        step <- step + 1
+    required.i64()
+
+export fn kalman_filter(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64 = kalman_filter_impl

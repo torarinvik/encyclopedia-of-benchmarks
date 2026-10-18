@@ -1,0 +1,39 @@
+extern sqrt(value: f64) -> f64
+
+def historical_expected_shortfall_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 24 or input_length > 69: return -1
+    portfolio_value: f64 = input[0]
+    confidence_level: f64 = input[1]
+    time_horizon: f64 = input[2]
+    count_value: f64 = input[3]
+    if portfolio_value != portfolio_value or confidence_level != confidence_level or time_horizon != time_horizon or count_value != count_value: return -1
+    if count_value < 20.0 or count_value > 64.0: return -1
+    return_count: usize = count_value.usize()
+    if count_value != return_count.f64() or input_length != 4 + return_count: return -1
+    if portfolio_value < 100.0 or portfolio_value > 1000000.0 or confidence_level < 0.5 or confidence_level > 0.95 or time_horizon < 1.0 or time_horizon > 10.0: return -1
+
+    returns: mutable f64[64] = zeroed
+    i: mutable usize = 0
+    while i < return_count:
+        value: f64 = input[4 + i]
+        if value != value or value < -0.25 or value > 0.25: return -1
+        position: mutable usize = i
+        while position > 0 and returns[position - 1] > value:
+            returns[position] <- returns[position - 1]
+            position <- position - 1
+        returns[position] <- value
+        i <- i + 1
+    index: usize = ((1.0 - confidence_level) * return_count.f64()).usize()
+    if index < 1: return -1
+    tail_sum: mutable f64 = 0.0
+    i <- 0
+    while i < index:
+        tail_sum <- tail_sum + returns[i]
+        i <- i + 1
+    result: f64 = -(tail_sum / index.f64()) * portfolio_value
+    result <- result * sqrt(time_horizon)
+    if output.is_null() or capacity < 1: return -2
+    output[0] <- result
+    return 1
+
+export fn historical_expected_shortfall(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = historical_expected_shortfall_impl

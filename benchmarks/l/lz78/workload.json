@@ -1,0 +1,620 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-lz78-compress-i64-array-bytes-output-v1",
+  "algorithm": "lz78",
+  "function_symbol": "lz78_compress",
+  "description": "Bounded printable-ASCII compression with the pinned Java LZ78 trie token order.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Java",
+    "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+    "path": "src/main/java/com/thealgorithms/compression/LZ78.java",
+    "symbol": "LZ78.compress(String)",
+    "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/compression/LZ78.java",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Compress a bounded printable-ASCII string using the pinned Java LZ78 trie phrase construction.",
+    "input_encoding": "[n, character_code_0, ..., character_code_(n-1)]",
+    "exact_input_length": "1+n",
+    "maximum_valid_input_length": 65,
+    "maximum_parseable_input_length": 66,
+    "input_length_range": [
+      0,
+      64
+    ],
+    "character_code_range": [
+      32,
+      126
+    ],
+    "index_rule": "Index 0 denotes the empty prefix; assign indices from 1 in phrase-creation order.",
+    "token_rule": "On a missing trie edge emit (last_matched_index,current_character), create the phrase, and restart at root. If input ends at a nonroot node, emit (last_matched_index,0) as EOF; empty input emits no tokens.",
+    "output_encoding": "Little-endian signed-i64 pairs (dictionary_index, character_code), with no count prefix.",
+    "scope": "LZ78.compress only; the paired decompressor is outside this benchmark operation.",
+    "success_result": "16 * token_count bytes",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed framing, unsupported length, or character outside printable ASCII returns -1 before output checks. Null output or capacity below the encoded result length returns -2 after input validation. Errors write no bytes."
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[n, printable_ASCII_character_codes...]",
+    "length_range": [
+      0,
+      64
+    ],
+    "character_code_range": [
+      32,
+      126
+    ],
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 66,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_word_sequence",
+    "records": "(dictionary_index, character_code) pairs, no count prefix.",
+    "result": "number of bytes written",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "maximum_output_bytes": 1024
+  },
+  "workspace": {
+    "bytes": 1024
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty_input",
+      "input_values": [
+        0
+      ],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single_character",
+      "input_values": [
+        1,
+        65
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000004100000000000000"
+    },
+    {
+      "id": "distinct_characters",
+      "input_values": [
+        4,
+        65,
+        66,
+        67,
+        68
+      ],
+      "expected_result": 64,
+      "expected_output_hex": "00000000000000004100000000000000000000000000000042000000000000000000000000000000430000000000000000000000000000004400000000000000"
+    },
+    {
+      "id": "repeated_phrase",
+      "input_values": [
+        6,
+        65,
+        66,
+        65,
+        66,
+        65,
+        66
+      ],
+      "expected_result": 64,
+      "expected_output_hex": "00000000000000004100000000000000000000000000000042000000000000000100000000000000420000000000000003000000000000000000000000000000"
+    },
+    {
+      "id": "repeated_character",
+      "input_values": [
+        5,
+        65,
+        65,
+        65,
+        65,
+        65
+      ],
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000041000000000000000100000000000000410000000000000002000000000000000000000000000000"
+    },
+    {
+      "id": "final_partial_phrase",
+      "input_values": [
+        5,
+        65,
+        66,
+        65,
+        66,
+        65
+      ],
+      "expected_result": 64,
+      "expected_output_hex": "00000000000000004100000000000000000000000000000042000000000000000100000000000000420000000000000001000000000000000000000000000000"
+    },
+    {
+      "id": "printable_ascii_boundaries",
+      "input_values": [
+        2,
+        32,
+        126
+      ],
+      "expected_result": 32,
+      "expected_output_hex": "0000000000000000200000000000000000000000000000007e00000000000000"
+    },
+    {
+      "id": "maximum_output",
+      "input_values": [
+        64,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95
+      ],
+      "expected_result": 1024,
+      "expected_output_hex": "0000000000000000200000000000000000000000000000002100000000000000000000000000000022000000000000000000000000000000230000000000000000000000000000002400000000000000000000000000000025000000000000000000000000000000260000000000000000000000000000002700000000000000000000000000000028000000000000000000000000000000290000000000000000000000000000002a0000000000000000000000000000002b0000000000000000000000000000002c0000000000000000000000000000002d0000000000000000000000000000002e0000000000000000000000000000002f000000000000000000000000000000300000000000000000000000000000003100000000000000000000000000000032000000000000000000000000000000330000000000000000000000000000003400000000000000000000000000000035000000000000000000000000000000360000000000000000000000000000003700000000000000000000000000000038000000000000000000000000000000390000000000000000000000000000003a0000000000000000000000000000003b0000000000000000000000000000003c0000000000000000000000000000003d0000000000000000000000000000003e0000000000000000000000000000003f000000000000000000000000000000400000000000000000000000000000004100000000000000000000000000000042000000000000000000000000000000430000000000000000000000000000004400000000000000000000000000000045000000000000000000000000000000460000000000000000000000000000004700000000000000000000000000000048000000000000000000000000000000490000000000000000000000000000004a0000000000000000000000000000004b0000000000000000000000000000004c0000000000000000000000000000004d0000000000000000000000000000004e0000000000000000000000000000004f000000000000000000000000000000500000000000000000000000000000005100000000000000000000000000000052000000000000000000000000000000530000000000000000000000000000005400000000000000000000000000000055000000000000000000000000000000560000000000000000000000000000005700000000000000000000000000000058000000000000000000000000000000590000000000000000000000000000005a0000000000000000000000000000005b0000000000000000000000000000005c0000000000000000000000000000005d0000000000000000000000000000005e0000000000000000000000000000005f00000000000000"
+    },
+    {
+      "id": "invalid_negative_length",
+      "input_values": [
+        -1
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_truncated_input",
+      "input_values": [
+        2,
+        65
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_extra_character",
+      "input_values": [
+        1,
+        65,
+        66
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_character_below_printable_ascii",
+      "input_values": [
+        1,
+        31
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_nul_character",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_character_above_printable_ascii",
+      "input_values": [
+        1,
+        127
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 1024,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_input_malformed",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": false,
+      "output_capacity": 1024,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [
+        2,
+        65
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 1024,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_word",
+      "input_values": [
+        1,
+        65,
+        66
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 1024,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_parseable_extra_word",
+      "input_values": [
+        64,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        32
+      ],
+      "input_length": 66,
+      "input_is_null": false,
+      "output_capacity": 1024,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        1,
+        31
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_valid_null_output",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty_valid_nonnull_zero_capacity",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": false,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "one_token_short_capacity",
+      "input_values": [
+        1,
+        65
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 15,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "one_token_exact_capacity",
+      "input_values": [
+        1,
+        65
+      ],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_capacity": 16,
+      "output_is_null": false,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000004100000000000000"
+    },
+    {
+      "id": "maximum_output_short_capacity",
+      "input_values": [
+        64,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95
+      ],
+      "input_length": 65,
+      "input_is_null": false,
+      "output_capacity": 1023,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "maximum_output_exact_capacity",
+      "input_values": [
+        64,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95
+      ],
+      "input_length": 65,
+      "input_is_null": false,
+      "output_capacity": 1024,
+      "output_is_null": false,
+      "expected_result": 1024,
+      "expected_output_hex": "0000000000000000200000000000000000000000000000002100000000000000000000000000000022000000000000000000000000000000230000000000000000000000000000002400000000000000000000000000000025000000000000000000000000000000260000000000000000000000000000002700000000000000000000000000000028000000000000000000000000000000290000000000000000000000000000002a0000000000000000000000000000002b0000000000000000000000000000002c0000000000000000000000000000002d0000000000000000000000000000002e0000000000000000000000000000002f000000000000000000000000000000300000000000000000000000000000003100000000000000000000000000000032000000000000000000000000000000330000000000000000000000000000003400000000000000000000000000000035000000000000000000000000000000360000000000000000000000000000003700000000000000000000000000000038000000000000000000000000000000390000000000000000000000000000003a0000000000000000000000000000003b0000000000000000000000000000003c0000000000000000000000000000003d0000000000000000000000000000003e0000000000000000000000000000003f000000000000000000000000000000400000000000000000000000000000004100000000000000000000000000000042000000000000000000000000000000430000000000000000000000000000004400000000000000000000000000000045000000000000000000000000000000460000000000000000000000000000004700000000000000000000000000000048000000000000000000000000000000490000000000000000000000000000004a0000000000000000000000000000004b0000000000000000000000000000004c0000000000000000000000000000004d0000000000000000000000000000004e0000000000000000000000000000004f000000000000000000000000000000500000000000000000000000000000005100000000000000000000000000000052000000000000000000000000000000530000000000000000000000000000005400000000000000000000000000000055000000000000000000000000000000560000000000000000000000000000005700000000000000000000000000000058000000000000000000000000000000590000000000000000000000000000005a0000000000000000000000000000005b0000000000000000000000000000005c0000000000000000000000000000005d0000000000000000000000000000005e0000000000000000000000000000005f00000000000000"
+    }
+  ]
+}

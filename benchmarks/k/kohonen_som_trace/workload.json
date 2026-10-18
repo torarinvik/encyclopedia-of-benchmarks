@@ -37,7 +37,7 @@
     "best_matching_unit": "Choose the first node with the smallest squared distance.",
     "neighborhood": "Update nodes in [max(0,BMU-radius), min(node_count,BMU+radius+1)).",
     "weight_update": "For selected nodes and increasing feature indices, W[j][k] += alpha*(sample[k]-W[j][k]).",
-    "scratch": "The source D array contains per-node squared distances and is used as scratch; it is not returned by this bounded trainer operation.",
+    "scratch": "The source helper writes per-node squared distances into D; the benchmark supplies D for BMU selection but exposes only updated weights.",
     "output_encoding": "Updated node_count by feature_count weights in row-major order.",
     "errors": "Malformed framing, unsupported bounds, nonintegral values, or nonfinite output returns -1 before output checks. A null output or capacity below node_count*feature_count returns -2 without writes."
   },
@@ -87,7 +87,7 @@
   },
   "workspace": {
     "elements": 32,
-    "meaning": "Maximum row-major weight matrix; distance scratch is local and unobservable."
+    "meaning": "Maximum row-major weight matrix; the helper's D distance scratch is not exposed."
   },
   "measurement": {
     "comparison_model": "float64_slice_io_call",
@@ -308,7 +308,42 @@
         3,
         4
       ],
-      "input_length": 40
+      "input_length": 40,
+      "expected_result": 32,
+      "expected_output": [
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0,
+        -8.0,
+        8.0
+      ]
     }
   ],
   "abi_cases": [

@@ -1,0 +1,81 @@
+const MAX_INPUT_LENGTH: usize = 259
+const MAX_ARITY: usize = 4
+const MAX_CALLS: usize = 64
+const MAX_OUTPUT_BYTES: usize = 520
+
+def memoize_impl(input: i64&, input_length: usize,
+                 output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 0 or input[0] > 4 or input[1] < 0 or input[1] > 64: return -1
+    arity: usize = input[0].usize()
+    call_count: usize = input[1].usize()
+    if input_length != 2 + arity * call_count: return -1
+    index: mutable usize = 0
+    while index < arity * call_count:
+        value: i64 = input[2 + index]
+        if value < -100 or value > 100: return -1
+        index <- index + 1
+
+    keys: mutable i64[256] = zeroed
+    key_results: mutable i64[64] = zeroed
+    key_count: mutable usize = 0
+    results: mutable i64[65] = zeroed
+    call_index: mutable usize = 0
+    while call_index < call_count:
+        start: usize = 2 + call_index * arity
+        key: mutable i64[4] = zeroed
+        encoded: mutable i64 = 0
+        argument_index: mutable usize = 0
+        while argument_index < arity:
+            value: i64 = input[start + argument_index]
+            key[argument_index] <- value
+            encoded <- encoded * 201 + value + 100
+            argument_index <- argument_index + 1
+
+        found: mutable i64 = -1
+        previous: mutable usize = 0
+        while previous < key_count:
+            equal: mutable bool = true
+            argument_index <- 0
+            while argument_index < arity:
+                if keys[previous * MAX_ARITY + argument_index] != key[argument_index]:
+                    equal <- false
+                argument_index <- argument_index + 1
+            if equal:
+                found <- previous.i64()
+                break
+            previous <- previous + 1
+        if found >= 0:
+            results[call_index] <- key_results[found.usize()]
+        else:
+            argument_index <- 0
+            while argument_index < arity:
+                keys[key_count * MAX_ARITY + argument_index] <- key[argument_index]
+                argument_index <- argument_index + 1
+            key_results[key_count] <- encoded
+            key_count <- key_count + 1
+            results[call_index] <- encoded
+        call_index <- call_index + 1
+    results[call_count] <- key_count.i64()
+
+    output_bytes: usize = 8 * (call_count + 1)
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    index <- 0
+    while index <= call_count:
+        bits: u64 = results[index].u64()
+        byte_index: mutable usize = 0
+        while byte_index < 8:
+            shift: usize = byte_index * 8
+            staged[index * 8 + byte_index] <- ((bits >> shift) & 255).u8()
+            byte_index <- byte_index + 1
+        index <- index + 1
+
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < output_bytes:
+        output[index] <- staged[index]
+        index <- index + 1
+    output_bytes.i64()
+
+export fn memoize(input: i64&, input_length: usize,
+                  output: mutable u8&, capacity: usize) -> i64 = memoize_impl

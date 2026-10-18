@@ -1,0 +1,178 @@
+extern sqrt(value: f64) -> f64
+
+def principal_component_analysis_impl(input: f64&, input_length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > 35: return -1
+    if input[0] != input[0] or input[1] != input[1] or input[2] != input[2]: return -1
+    if input[0] < 2.0 or input[0] > 8.0 or input[1] < 2.0 or input[1] > 4.0: return -1
+    samples: usize = input[0].usize()
+    features: usize = input[1].usize()
+    if input[2] < 1.0 or input[2] > features.f64(): return -1
+    components: usize = input[2].usize()
+    if input[0] != samples.f64() or input[1] != features.f64() or input[2] != components.f64(): return -1
+    if components < 1 or components > features or input_length != 3 + samples * features: return -1
+
+    means: mutable f64[4] = zeroed
+    centered: mutable f64[32] = zeroed
+    row: mutable usize = 0
+    while row < samples:
+        column: mutable usize = 0
+        while column < features:
+            value: f64 = input[3 + row * features + column]
+            if value != value or value < -100.0 or value > 100.0: return -1
+            means[column] <- means[column] + value
+            if means[column] != means[column]: return -1
+            column <- column + 1
+        row <- row + 1
+    column: mutable usize = 0
+    while column < features:
+        means[column] <- means[column] / samples.f64()
+        if means[column] != means[column]: return -1
+        column <- column + 1
+    row <- 0
+    while row < samples:
+        column <- 0
+        while column < features:
+            value: f64 = input[3 + row * features + column] - means[column]
+            if value != value: return -1
+            centered[row * features + column] <- value
+            column <- column + 1
+        row <- row + 1
+
+    matrix: mutable f64[16] = zeroed
+    i: mutable usize = 0
+    while i < features:
+        j: mutable usize = i
+        while j < features:
+            covariance: mutable f64 = 0.0
+            row <- 0
+            while row < samples:
+                covariance <- covariance + centered[row * features + i] * centered[row * features + j]
+                if covariance != covariance: return -1
+                row <- row + 1
+            covariance <- covariance / samples.f64()
+            if covariance != covariance: return -1
+            matrix[i * features + j] <- covariance
+            matrix[j * features + i] <- covariance
+            j <- j + 1
+        i <- i + 1
+    deflated: mutable f64[16] = zeroed
+    i <- 0
+    while i < 16:
+        deflated[i] <- matrix[i]
+        i <- i + 1
+    eigenvectors: mutable f64[16] = zeroed
+    component: mutable usize = 0
+    while component < components:
+        vector: mutable f64[4] = zeroed
+        i <- 0
+        while i < features:
+            vector[i] <- 1.0
+            i <- i + 1
+        converged: mutable bool = false
+        iteration: mutable usize = 0
+        while iteration < 1000:
+            previous: mutable f64[4] = zeroed
+            next: mutable f64[4] = zeroed
+            i <- 0
+            while i < features:
+                previous[i] <- vector[i]
+                i <- i + 1
+            i <- 0
+            while i < features:
+                j <- 0
+                while j < features:
+                    next[i] <- next[i] + deflated[i * features + j] * vector[j]
+                    if next[i] != next[i]: return -1
+                    j <- j + 1
+                i <- i + 1
+            norm_squared: mutable f64 = 0.0
+            i <- 0
+            while i < features:
+                norm_squared <- norm_squared + next[i] * next[i]
+                if norm_squared != norm_squared: return -1
+                i <- i + 1
+            norm: f64 = sqrt(norm_squared)
+            if norm != norm or norm <= 1e-10: return -1
+            i <- 0
+            while i < features:
+                next[i] <- next[i] / norm
+                if next[i] != next[i]: return -1
+                i <- i + 1
+            difference: mutable f64 = 0.0
+            i <- 0
+            while i < features:
+                change: f64 = next[i] - previous[i]
+                if change < 0.0: change <- -change
+                if change != change: return -1
+                if change > difference: difference <- change
+                i <- i + 1
+            i <- 0
+            while i < features:
+                vector[i] <- next[i]
+                i <- i + 1
+            if difference < 1e-10:
+                converged <- true
+                break
+            iteration <- iteration + 1
+        if not converged: return -1
+        numerator: mutable f64 = 0.0
+        i <- 0
+        while i < features:
+            row_sum: mutable f64 = 0.0
+            j <- 0
+            while j < features:
+                row_sum <- row_sum + deflated[i * features + j] * vector[j]
+                if row_sum != row_sum: return -1
+                j <- j + 1
+            numerator <- numerator + row_sum * vector[i]
+            if numerator != numerator: return -1
+            i <- i + 1
+        denominator: mutable f64 = 0.0
+        i <- 0
+        while i < features:
+            denominator <- denominator + vector[i] * vector[i]
+            if denominator != denominator: return -1
+            i <- i + 1
+        if denominator == 0.0: return -1
+        eigenvalue: f64 = numerator / denominator
+        if eigenvalue != eigenvalue: return -1
+        i <- 0
+        while i < features:
+            eigenvectors[component * 4 + i] <- vector[i]
+            i <- i + 1
+        i <- 0
+        while i < features:
+            j <- 0
+            while j < features:
+                deflated[i * features + j] <- deflated[i * features + j] - eigenvalue * vector[i] * vector[j]
+                if deflated[i * features + j] != deflated[i * features + j]: return -1
+                j <- j + 1
+            i <- i + 1
+        component <- component + 1
+
+    staged: mutable f64[34] = zeroed
+    staged[0] <- samples.f64()
+    staged[1] <- components.f64()
+    row <- 0
+    while row < samples:
+        component <- 0
+        while component < components:
+            score: mutable f64 = 0.0
+            column <- 0
+            while column < features:
+                score <- score + eigenvectors[component * 4 + column] * centered[row * features + column]
+                if score != score: return -1
+                column <- column + 1
+            staged[2 + row * components + component] <- score
+            component <- component + 1
+        row <- row + 1
+    output_size: usize = 2 + samples * components
+    if output.is_null() or capacity < output_size: return -2
+    i <- 0
+    while i < output_size:
+        output[i] <- staged[i]
+        i <- i + 1
+    return output_size.i64()
+
+export fn principal_component_analysis(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = principal_component_analysis_impl

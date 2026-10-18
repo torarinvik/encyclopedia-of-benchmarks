@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "id": "rsa_java_big_integer-v1",
+  "algorithm": "rsa_java_big_integer",
+  "function_symbol": "encrypt_decrypt_big_integer_values",
+  "input": {
+    "kind": "packed-explicit-key-integer-sequence",
+    "encoding": "[modulus, public_exponent, private_exponent, message_length, values...]",
+    "modulus_range": [
+      128,
+      55295
+    ],
+    "exponent_range": [
+      1,
+      1000000
+    ],
+    "message_length_range": [
+      1,
+      64
+    ],
+    "message_value_range": [
+      0,
+      127
+    ],
+    "maximum_packed_values": 68,
+    "maximum_parseable_values": 69,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "low 63 bits of FNV-1a-64 over ciphertexts then recovered BigInteger values, each encoded as a four-byte unsigned little-endian word",
+    "invalid_result": -1
+  },
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/ciphers/RSA.java",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/ciphers/RSA.java"
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "single_zero_value",
+      "input_values": [
+        323,
+        5,
+        173,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 2938590176187398597
+    },
+    {
+      "id": "single_big_integer_value",
+      "input_values": [
+        323,
+        5,
+        173,
+        1,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": 244155780575578616
+    },
+    {
+      "id": "highest_input_value",
+      "input_values": [
+        323,
+        5,
+        173,
+        1,
+        127
+      ],
+      "input_length": 5,
+      "expected_result": 5216739826552371626
+    },
+    {
+      "id": "mixed_integer_values",
+      "input_values": [
+        323,
+        5,
+        173,
+        4,
+        0,
+        65,
+        90,
+        127
+      ],
+      "input_length": 8,
+      "expected_result": 5316520411386893373
+    },
+    {
+      "id": "maximum_message_length",
+      "input_values": [
+        323,
+        5,
+        173,
+        64,
+        0,
+        37,
+        74,
+        111,
+        20,
+        57,
+        94,
+        3,
+        40,
+        77,
+        114,
+        23,
+        60,
+        97,
+        6,
+        43,
+        80,
+        117,
+        26,
+        63,
+        100,
+        9,
+        46,
+        83,
+        120,
+        29,
+        66,
+        103,
+        12,
+        49,
+        86,
+        123,
+        32,
+        69,
+        106,
+        15,
+        52,
+        89,
+        126,
+        35,
+        72,
+        109,
+        18,
+        55,
+        92,
+        1,
+        38,
+        75,
+        112,
+        21,
+        58,
+        95,
+        4,
+        41,
+        78,
+        115,
+        24,
+        61,
+        98,
+        7,
+        44,
+        81,
+        118,
+        27
+      ],
+      "input_length": 68,
+      "expected_result": 9193752701964960303
+    },
+    {
+      "id": "empty_message",
+      "input_values": [
+        323,
+        5,
+        173,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "public_exponent_zero",
+      "input_values": [
+        323,
+        0,
+        173,
+        1,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "negative_private_exponent",
+      "input_values": [
+        323,
+        5,
+        -1,
+        1,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "message_value_outside_bound",
+      "input_values": [
+        323,
+        5,
+        173,
+        1,
+        128
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "modulus_below_bound",
+      "input_values": [
+        127,
+        5,
+        173,
+        1,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_message_frame",
+      "input_values": [
+        323,
+        5,
+        173,
+        2,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "exponent_above_bound",
+      "input_values": [
+        323,
+        1000001,
+        173,
+        1,
+        65
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "one_extra_value_at_parser_limit",
+      "input_values": [
+        323,
+        5,
+        173,
+        64,
+        0,
+        37,
+        74,
+        111,
+        20,
+        57,
+        94,
+        3,
+        40,
+        77,
+        114,
+        23,
+        60,
+        97,
+        6,
+        43,
+        80,
+        117,
+        26,
+        63,
+        100,
+        9,
+        46,
+        83,
+        120,
+        29,
+        66,
+        103,
+        12,
+        49,
+        86,
+        123,
+        32,
+        69,
+        106,
+        15,
+        52,
+        89,
+        126,
+        35,
+        72,
+        109,
+        18,
+        55,
+        92,
+        1,
+        38,
+        75,
+        112,
+        21,
+        58,
+        95,
+        4,
+        41,
+        78,
+        115,
+        24,
+        61,
+        98,
+        7,
+        44,
+        81,
+        118,
+        27,
+        0
+      ],
+      "input_length": 69,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-rsa-factorization-explicit-bases-i64-v1",
+  "algorithm": "rsa_factorization",
+  "function_symbol": "rsa_factorization",
+  "description": "Bounded replay of randomized RSA factor recovery using an explicit base-attempt stream.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "ciphers/rsa_factorization.py",
+    "symbol": "rsafactor",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/ciphers/rsa_factorization.py",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Recover and return a sorted nontrivial factor pair from d, e, n using explicit random-base attempts.",
+    "input_encoding": "[d,e,n,attempt_count,base_0,...,base_(attempt_count-1)]",
+    "d_range": [1, 1000000],
+    "e_range": [1, 1000000],
+    "modulus_range": [3, 65535],
+    "modulus_must_be_odd": true,
+    "k_definition": "d*e-1",
+    "k_must_be_positive_and_even": true,
+    "attempt_count_range": [1, 16],
+    "base_range": "2..n-1, matching Python random.randint(2,n-1)",
+    "per_attempt_rule": "Set t=k. While t is even, halve t, compute x=base^t mod n, then y=gcd(x-1,n); return sorted(y,n/y) when x>1 and y>1. When t is odd, move to the next base.",
+    "modular_power": "Exact residue equivalent to Python arbitrary-precision base**t % n.",
+    "exact_input_length": "4+attempt_count",
+    "maximum_valid_input_length": 20,
+    "maximum_parseable_input_length": 21,
+    "null_input_length": 4,
+    "output_encoding": "p*65536+q for sorted p<=q; decode p=result/65536 and q=result%65536.",
+    "valid_result_range": [0, 4294967295],
+    "invalid_result": -1,
+    "exhaustion_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[d,e,n,attempt_count,base_0,...,base_(attempt_count-1)]",
+    "d_range": [1, 1000000],
+    "e_range": [1, 1000000],
+    "modulus_range": [3, 65535],
+    "odd_modulus_required": true,
+    "attempt_count_range": [1, 16],
+    "base_range": "2..n-1",
+    "k_positive_even_required": true,
+    "required_length": "4+attempt_count",
+    "minimum_parseable_length": 4,
+    "maximum_valid_length": 20,
+    "maximum_parseable_length": 21,
+    "null_input_length": 4,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "Sorted proper factor pair packed into low and high 16-bit halves.",
+    "encoding": "p*65536+q",
+    "valid_range": [0, 4294967295],
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {"id":"recovers_factors_after_halving","input_values":[11,3,15,1,2],"input_length":5,"expected_result":196613},
+    {"id":"retries_after_unsuccessful_base","input_values":[11,3,15,2,14,2],"input_length":6,"expected_result":196613},
+    {"id":"factorizes_second_semiprime","input_values":[5,5,21,1,2],"input_length":5,"expected_result":196615},
+    {"id":"base_exhaustion_returns_sentinel","input_values":[11,3,15,1,14],"input_length":5,"expected_result":-1},
+    {"id":"odd_k_is_invalid","input_values":[1,2,15,1,2],"input_length":5,"expected_result":-1},
+    {"id":"base_below_random_range","input_values":[11,3,15,1,1],"input_length":5,"expected_result":-1},
+    {"id":"missing_base_word","input_values":[11,3,15,1],"input_length":4,"expected_result":-1},
+    {"id":"extra_base_word","input_values":[11,3,15,1,2,4],"input_length":6,"expected_result":-1},
+    {"id":"null_input_pointer","input_values":[],"input_length":4,"input_is_null":true,"expected_result":-1}
+  ]
+}

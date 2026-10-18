@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-r-pca-f64-slice-v1",
+  "algorithm": "pca",
+  "function_symbol": "pca",
+  "description": "Standardize two-feature samples, compute their leading covariance eigenpair, and project onto it.",
+  "workspace": {
+    "elements": 12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "float64_slice",
+    "encoding": "[sample_count, feature_count, component_count, row-major sample-by-feature data...]",
+    "feature_count": 2,
+    "component_count": 1,
+    "sample_count_range": [
+      3,
+      8
+    ],
+    "sample_value_range": [
+      -1000,
+      1000
+    ],
+    "maximum_valid_input_elements": 19,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_slice",
+    "encoding": "[projected scores in sample order, selected component in feature order, descending eigenvalues]",
+    "maximum_elements": 12,
+    "invalid_input_result": -1,
+    "invalid_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "standardization": "Center each feature column and divide by its sample standard deviation using divisor sample_count-1, as base R scale(X) does by default.",
+    "covariance": "Compute the sample covariance of the standardized columns using divisor sample_count-1.",
+    "eigen_order": "Return all two eigenvalues in descending order and use the first eigenvector as the single selected component.",
+    "sign_convention": "Canonicalize the selected component so its largest absolute coordinate is positive; ties select the first feature. Multiply projected scores by the same sign.",
+    "projection": "Project the standardized sample-by-feature matrix onto the selected component.",
+    "domain": "Finite values in [-1000,1000], two nonconstant features, 3..8 samples, and leading eigenvalue gap greater than 1e-8."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/R",
+    "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+    "path": "data_preprocessing/pca.r",
+    "symbol": "pca_algorithm",
+    "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/data_preprocessing/pca.r",
+    "role": "algorithm",
+    "dependencies": [
+      "base::scale",
+      "stats::cov",
+      "base::eigen"
+    ]
+  },
+  "cases": [
+    {
+      "id": "positive_correlation",
+      "input_values": [
+        4,
+        2,
+        1,
+        0,
+        0,
+        1,
+        1,
+        2,
+        3,
+        3,
+        4
+      ],
+      "input_length": 11,
+      "expected_result": 8,
+      "expected_output": [
+        -1.5961805054992326,
+        -0.6611596133733249,
+        0.6611596133733249,
+        1.5961805054992326,
+        0.7071067811865477,
+        0.7071067811865476,
+        1.9899494936611664,
+        0.01005050633883331
+      ]
+    },
+    {
+      "id": "negative_correlation_with_offsets",
+      "input_values": [
+        5,
+        2,
+        1,
+        10,
+        22,
+        11,
+        19,
+        12,
+        21,
+        13,
+        18,
+        14,
+        20
+      ],
+      "input_length": 13,
+      "expected_result": 9,
+      "expected_output": [
+        -1.7888543819998317,
+        0.0,
+        -0.4472135954999579,
+        1.3416407864998738,
+        0.8944271909999159,
+        0.7071067811865475,
+        -0.7071067811865475,
+        1.5,
+        0.5
+      ]
+    },
+    {
+      "id": "six_sample_projection",
+      "input_values": [
+        6,
+        2,
+        1,
+        -3,
+        2,
+        0,
+        -1,
+        2,
+        4,
+        5,
+        0,
+        8,
+        3,
+        10,
+        1
+      ],
+      "input_length": 15,
+      "expected_result": 10,
+      "expected_output": [
+        -0.7679665164340777,
+        -1.4712329966393478,
+        0.7056739942883948,
+        -0.37555695892610236,
+        1.18896339892399,
+        0.7201190787871432,
+        0.7071067811865478,
+        0.7071067811865472,
+        1.0651046735982357,
+        0.9348953264017643
+      ]
+    },
+    {
+      "id": "invalid_sample_count",
+      "input_values": [
+        2,
+        2,
+        1,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_component_count",
+      "input_values": [
+        3,
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        3,
+        4
+      ],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_variance_feature",
+      "input_values": [
+        3,
+        2,
+        1,
+        1,
+        5,
+        1,
+        7,
+        1,
+        9
+      ],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_extra_word",
+      "input_values": [
+        3,
+        2,
+        1,
+        1,
+        5,
+        2,
+        7,
+        3,
+        9,
+        10
+      ],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

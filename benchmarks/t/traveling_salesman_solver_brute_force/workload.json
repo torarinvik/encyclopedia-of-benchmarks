@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-csharp-traveling-salesman-brute-force-i64-array-float64-v1",
+  "algorithm": "traveling_salesman_solver_brute_force",
+  "function_symbol": "TravelingSalesmanSolver.SolveBruteForce",
+  "description": "Return a selected route city or total distance from the pinned C# brute-force TSP solver.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[selector,n,distance_row_major...]",
+    "selector": {
+      "0": "closed route distance",
+      "1_to_n_plus_1": "route position selector-1"
+    },
+    "city_count_range": [2, 8],
+    "edge_cost_range": [0, 1000],
+    "matrix": "complete directed square matrix; diagonal entries are validated but ignored",
+    "maximum_valid_array_length": 66,
+    "maximum_parseable_array_length": 67,
+    "invalid_input_result": -1e+300
+  },
+  "output": {
+    "kind": "binary64",
+    "unit": "route city index or total distance",
+    "invalid_input_result": -1e+300,
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 50,
+    "absolute_tolerance": 0,
+    "relative_tolerance": 0
+  },
+  "contract": {
+    "operation": "Fix city 0, enumerate permutations of cities 1..n-1, close each directed route back to 0, and return the first minimum route's selected scalar.",
+    "permutation_order": "The source recursively selects remaining cities in ascending array order. Tied minima keep the first lexicographic route because the source updates only for a strict distance decrease.",
+    "projection": "Selector 0 returns the total distance. Selectors 1..n+1 return route elements 0..n as binary64 integers.",
+    "error": "Invalid selector, length, city count, or edge cost returns -1e300. The bounded complete graph always has a route."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/Problems/TravelingSalesman/TravelingSalesmanSolver.cs",
+    "symbol": "TravelingSalesmanSolver.SolveBruteForce",
+    "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Problems/TravelingSalesman/TravelingSalesmanSolver.cs",
+    "role": "algorithm",
+    "dependencies": []
+  },
+  "oracle_method": "Enumerate the same fixed-city-0 route set, preserving lexicographic tie order, then project one route or distance scalar.",
+  "oracle_module": "benchmarks/traveling_salesman_solver_oracle.py",
+  "oracle_entry_point": "expected_result_brute_force(values)",
+  "cases": [
+    {"id": "two_city_distance", "input_values": [0, 2, 0, 4, 7, 0], "input_length": 6, "expected_result": 11},
+    {"id": "two_city_start", "input_values": [1, 2, 0, 4, 7, 0], "input_length": 6, "expected_result": 0},
+    {"id": "two_city_other_city", "input_values": [2, 2, 0, 4, 7, 0], "input_length": 6, "expected_result": 1},
+    {"id": "two_city_close", "input_values": [3, 2, 0, 4, 7, 0], "input_length": 6, "expected_result": 0},
+    {"id": "unique_optimum_distance", "input_values": [0, 4, 0, 50, 1, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 50, 0], "input_length": 18, "expected_result": 4},
+    {"id": "unique_optimum_route_start", "input_values": [1, 4, 0, 50, 1, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 50, 0], "input_length": 18, "expected_result": 0},
+    {"id": "unique_optimum_route_second", "input_values": [2, 4, 0, 50, 1, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 50, 0], "input_length": 18, "expected_result": 2},
+    {"id": "unique_optimum_route_third", "input_values": [3, 4, 0, 50, 1, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 50, 0], "input_length": 18, "expected_result": 1},
+    {"id": "unique_optimum_route_fourth", "input_values": [4, 4, 0, 50, 1, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 50, 0], "input_length": 18, "expected_result": 3},
+    {"id": "unique_optimum_route_close", "input_values": [5, 4, 0, 50, 1, 50, 50, 0, 50, 1, 50, 1, 0, 50, 1, 50, 50, 0], "input_length": 18, "expected_result": 0},
+    {"id": "tie_keeps_lexicographically_first_route", "input_values": [2, 4, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0], "input_length": 18, "expected_result": 1},
+    {"id": "maximum_city_count_distance", "input_values": [0, 8, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 0], "input_length": 66, "expected_result": 8000},
+    {"id": "minimum_city_count_rejected", "input_values": [0, 1], "input_length": 2, "expected_result": -1e+300},
+    {"id": "too_many_cities_rejected", "input_values": [0, 9], "input_length": 2, "expected_result": -1e+300},
+    {"id": "selector_out_of_range", "input_values": [4, 2, 0, 4, 7, 0], "input_length": 6, "expected_result": -1e+300},
+    {"id": "truncated_matrix", "input_values": [0, 2, 0, 4, 7], "input_length": 5, "expected_result": -1e+300},
+    {"id": "extra_matrix_value", "input_values": [0, 2, 0, 4, 7, 0, 0], "input_length": 7, "expected_result": -1e+300},
+    {"id": "edge_above_bound", "input_values": [0, 2, 0, 1001, 7, 0], "input_length": 6, "expected_result": -1e+300}
+  ]
+}

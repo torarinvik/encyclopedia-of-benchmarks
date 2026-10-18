@@ -1,0 +1,125 @@
+const MAX_INITIAL_COUNT: usize = 16
+const MAX_INPUT_LENGTH: usize = 20
+const MAX_OUTPUT_WORDS: usize = 18
+
+struct SllNode:
+    value: i64
+    next: i64
+
+def sll_put_i64_le(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def sorted_linked_list_impl(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > MAX_INPUT_LENGTH: return -1
+    if input[0] < 0 or input[0] > MAX_INITIAL_COUNT.i64(): return -1
+    count: usize = input[0].usize()
+    if input_length != count + 3: return -1
+
+    nodes: mutable SllNode[MAX_INITIAL_COUNT + 1] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: i64 = input[index + 1]
+        if value < -2147483648 or value > 2147483647: return -1
+        if index > 0 and input[index] >= value: return -1
+        nodes[index].value <- value
+        nodes[index].next <- if index + 1 < count: (index + 1).i64() else: -1
+        index <- index + 1
+    operation_value: i64 = input[count + 1]
+    key: i64 = input[count + 2]
+    if operation_value < 0 or operation_value > 2 or key < -2147483648 or key > 2147483647: return -1
+    operation: usize = operation_value.usize()
+    head: mutable i64 = if count == 0: -1 else: 0
+    tail: mutable i64 = if count == 0: -1 else: (count - 1).i64()
+
+    if operation == 0:
+        current: mutable i64 = head
+        while current >= 0:
+            if nodes[current.usize()].value == key: return -1
+            current <- nodes[current.usize()].next
+
+    staged: mutable i64[MAX_OUTPUT_WORDS] = zeroed
+    word_count: mutable usize = 0
+    if operation == 0:
+        new_node: usize = count
+        nodes[new_node].value <- key
+        nodes[new_node].next <- -1
+        if head < 0:
+            head <- new_node.i64()
+            tail <- new_node.i64()
+        else if key < nodes[head.usize()].value:
+            nodes[new_node].next <- head
+            head <- new_node.i64()
+        else if key > nodes[tail.usize()].value:
+            nodes[tail.usize()].next <- new_node.i64()
+            tail <- new_node.i64()
+        else:
+            previous: mutable i64 = head
+            while nodes[previous.usize()].next >= 0 and
+                    nodes[nodes[previous.usize()].next.usize()].value < key:
+                previous <- nodes[previous.usize()].next
+            nodes[new_node].next <- nodes[previous.usize()].next
+            nodes[previous.usize()].next <- new_node.i64()
+            if nodes[new_node].next < 0: tail <- new_node.i64()
+        staged[word_count] <- (count + 1).i64()
+        word_count <- word_count + 1
+        current <- head
+        while current >= 0:
+            staged[word_count] <- nodes[current.usize()].value
+            word_count <- word_count + 1
+            current <- nodes[current.usize()].next
+    else if operation == 1:
+        found: mutable i64 = 0
+        current: mutable i64 = head
+        while current >= 0:
+            if nodes[current.usize()].value == key:
+                found <- 1
+                break
+            current <- nodes[current.usize()].next
+        staged[word_count] <- found
+        word_count <- word_count + 1
+    else:
+        deleted: mutable i64 = 0
+        if head >= 0 and nodes[head.usize()].value == key:
+            head <- nodes[head.usize()].next
+            if head < 0: tail <- -1
+            deleted <- 1
+        else:
+            previous: mutable i64 = head
+            while previous >= 0 and nodes[previous.usize()].next >= 0:
+                candidate: i64 = nodes[previous.usize()].next
+                if nodes[candidate.usize()].value == key:
+                    nodes[previous.usize()].next <- nodes[candidate.usize()].next
+                    if tail == candidate: tail <- previous
+                    deleted <- 1
+                    break
+                previous <- candidate
+        staged[word_count] <- deleted
+        word_count <- word_count + 1
+        remaining: mutable usize = 0
+        current <- head
+        while current >= 0:
+            remaining <- remaining + 1
+            current <- nodes[current.usize()].next
+        staged[word_count] <- remaining.i64()
+        word_count <- word_count + 1
+        current <- head
+        while current >= 0:
+            staged[word_count] <- nodes[current.usize()].value
+            word_count <- word_count + 1
+            current <- nodes[current.usize()].next
+
+    output_bytes: usize = word_count * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    index <- 0
+    while index < word_count:
+        sll_put_i64_le(output, index * 8, staged[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn sorted_linked_list(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = sorted_linked_list_impl

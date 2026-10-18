@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-r-perceptron-binary-multiclass-float64-slice-io-v1",
+  "algorithm": "perceptron_r",
+  "function_symbol": "Perceptron$fit / Perceptron$predict",
+  "description": "Train the pinned R binary or direct-multiclass perceptron with deterministic row order.",
+  "workspace": {
+    "elements": 25
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[learning_rate, n_epochs, sample_count, feature_count, row-major training features, labels, query_count, row-major query features]",
+    "learning_rate_values": [
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "n_epochs_range": [
+      1,
+      12
+    ],
+    "sample_count_range": [
+      2,
+      8
+    ],
+    "feature_count_range": [
+      1,
+      4
+    ],
+    "query_count_range": [
+      1,
+      4
+    ],
+    "feature_value_range": [
+      -2,
+      2
+    ],
+    "feature_values_must_be_integers": true,
+    "label_value_range": [
+      -2,
+      2
+    ],
+    "label_values_must_be_integers": true,
+    "distinct_label_count": [
+      2,
+      3
+    ],
+    "shuffle": false,
+    "fit_intercept": true,
+    "random_state": null,
+    "maximum_valid_input_length": 61,
+    "maximum_parseable_input_length": 62,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[class_count, sorted_classes, parameter_count, binary_vector_or_class_major_weights, query_count, predictions]",
+    "maximum_elements": 25,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "initialization": "Initialize binary or class-major weight parameters to zero; prepend an intercept feature equal to one. Sort numeric classes ascending. Do not shuffle and do not seed an RNG.",
+    "binary_update": "Map the lower class to -1 and the higher class to +1. For each input-order row, update the one weight vector by learning_rate*encoded_label*augmented_row when encoded_label*score <= 0.",
+    "multiclass_update": "Choose the first maximum score. On a mistake, add learning_rate*augmented_row to the true class weights and subtract it from the predicted class weights.",
+    "stopping": "Run exactly n_epochs for both modes; the source does not stop early.",
+    "prediction": "Binary scores at least zero return the higher class; multiclass prediction returns the class with the first maximum score.",
+    "output": "Return class_count, sorted class values, parameter_count, the binary intercept-first vector or multiclass class-major matrix, query_count, and original class predictions.",
+    "errors": "Reject malformed framing, fractional/out-of-range values, labels with fewer than two or more than three distinct values, and invalid features with -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/R",
+    "commit": "f65344fabeea0ae33c1ca321af709447c1a8a4c2",
+    "path": "machine_learning/perceptron.r",
+    "symbol": "Perceptron$fit / Perceptron$predict",
+    "url": "https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/machine_learning/perceptron.r",
+    "role": "algorithm",
+    "dependencies": [
+      "R6"
+    ]
+  },
+  "cases": [
+    {
+      "id": "binary_separable",
+      "input_values": [
+        0.5,
+        2,
+        4,
+        1,
+        -2,
+        -1,
+        1,
+        2,
+        0,
+        0,
+        1,
+        1,
+        4,
+        -2,
+        0,
+        1,
+        2
+      ],
+      "input_length": 17,
+      "expected_result": 11,
+      "expected_output": [
+        2.0,
+        0.0,
+        1.0,
+        2.0,
+        -0.5,
+        1.0,
+        4.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "multiclass_first_maximum_tie",
+      "input_values": [
+        0.5,
+        1,
+        3,
+        1,
+        0,
+        1,
+        2,
+        0,
+        1,
+        2,
+        3,
+        0,
+        1,
+        2
+      ],
+      "input_length": 14,
+      "expected_result": 15,
+      "expected_output": [
+        3.0,
+        0.0,
+        1.0,
+        2.0,
+        6.0,
+        -0.5,
+        -0.5,
+        0.0,
+        -0.5,
+        0.5,
+        1.0,
+        3.0,
+        2.0,
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "id": "one_class_invalid",
+      "input_values": [
+        0.5,
+        2,
+        2,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

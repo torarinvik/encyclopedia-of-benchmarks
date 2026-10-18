@@ -1,0 +1,741 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-c-cpp-spirograph-float64-slice-io-v1",
+  "algorithm": "spirograph",
+  "function_symbol": "spirograph",
+  "description": "Generate bounded sampled spirograph coordinates with the pinned C and C++ point formula.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C",
+    "commit": "e5dad3fa8def3726ec850ca66a7f51521f8ad393",
+    "path": "graphics/spirograph.c",
+    "symbol": "spirograph",
+    "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/graphics/spirograph.c",
+    "role": "algorithm"
+  },
+  "related_pinned_sources": [
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus",
+      "commit": "fdcc29b0ac2848e9d1a8d926e171cc5b39f97759",
+      "path": "graphics/spirograph.cpp",
+      "symbol": "spirograph::spirograph",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/graphics/spirograph.cpp"
+    },
+    {
+      "repository": "TheAlgorithms/C-Plus-Plus-1",
+      "commit": "0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680",
+      "path": "graphics/spirograph.cpp",
+      "symbol": "spirograph::spirograph",
+      "url": "https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/graphics/spirograph.cpp"
+    }
+  ],
+  "contract": {
+    "operation": "Generate n spirograph sample points with unit outer radius.",
+    "input_encoding": "[n, l, k, rot]",
+    "exact_input_length": 4,
+    "maximum_valid_input_length": 4,
+    "maximum_parseable_input_length": 5,
+    "point_count_range": [
+      1,
+      32
+    ],
+    "marker_ratio_range": [
+      0.0,
+      1.0
+    ],
+    "inner_radius_ratio_range": [
+      0.25,
+      0.75
+    ],
+    "rotation_range": [
+      0.0,
+      10.0
+    ],
+    "angle_rule": "Set dt=rot*2*pi/n. For point index i, use t=i*dt; the C pin accumulates t by dt and the C++ pins compute i*dt directly.",
+    "point_formula": "k1=1-k; x=k1*cos(t)+l*k*cos(k1*t/k); y=k1*sin(t)-l*k*sin(k1*t/k).",
+    "output_encoding": "Interleaved float64 coordinates [x0,y0,x1,y1,...], exactly 2*n values.",
+    "success_result": "2*n",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed framing, values outside the bounded domain, or nonfinite coordinates return -1 before output checks. Null output or capacity below 2*n returns -2 after input validation. Errors write no output values."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n, l, k, rot]",
+    "exact_length": 4,
+    "maximum_parseable_length": 5,
+    "point_count_range": [
+      1,
+      32
+    ],
+    "marker_ratio_range": [
+      0.0,
+      1.0
+    ],
+    "inner_radius_ratio_range": [
+      0.25,
+      0.75
+    ],
+    "rotation_range": [
+      0.0,
+      10.0
+    ]
+  },
+  "output": {
+    "kind": "finite_float64_array",
+    "encoding": "Interleaved x/y coordinates.",
+    "elements": "2*n",
+    "maximum_elements": 64,
+    "success_result": "2*n",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "error_writes": 0
+  },
+  "workspace": {
+    "elements": 64,
+    "meaning": "Maximum interleaved x/y coordinate output for 32 points."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 0.0
+  },
+  "cases": [
+    {
+      "id": "single_point",
+      "input_values": [
+        1,
+        0.3,
+        0.75,
+        10.0
+      ],
+      "input_length": 4,
+      "expected_result": 2,
+      "expected_output": [
+        0.475,
+        0.0
+      ]
+    },
+    {
+      "id": "zero_rotation",
+      "input_values": [
+        5,
+        0.4,
+        0.5,
+        0.0
+      ],
+      "input_length": 4,
+      "expected_result": 10,
+      "expected_output": [
+        0.7,
+        0.0,
+        0.7,
+        0.0,
+        0.7,
+        0.0,
+        0.7,
+        0.0,
+        0.7,
+        0.0
+      ]
+    },
+    {
+      "id": "marker_at_inner_center",
+      "input_values": [
+        8,
+        0.0,
+        0.5,
+        1.0
+      ],
+      "input_length": 4,
+      "expected_result": 16,
+      "expected_output": [
+        0.5,
+        0.0,
+        0.3535533905932738,
+        0.35355339059327373,
+        3.061616997868383e-17,
+        0.5,
+        -0.35355339059327373,
+        0.3535533905932738,
+        -0.5,
+        6.123233995736766e-17,
+        -0.35355339059327384,
+        -0.35355339059327373,
+        -9.184850993605148e-17,
+        -0.5,
+        0.3535533905932737,
+        -0.35355339059327384
+      ]
+    },
+    {
+      "id": "marker_at_inner_edge",
+      "input_values": [
+        12,
+        1.0,
+        0.5,
+        3.0
+      ],
+      "input_length": 4,
+      "expected_result": 24,
+      "expected_output": [
+        1.0,
+        0.0,
+        6.123233995736766e-17,
+        0.0,
+        -1.0,
+        0.0,
+        -1.8369701987210297e-16,
+        0.0,
+        1.0,
+        0.0,
+        3.061616997868383e-16,
+        0.0,
+        -1.0,
+        0.0,
+        -4.286263797015736e-16,
+        0.0,
+        1.0,
+        0.0,
+        5.51091059616309e-16,
+        0.0,
+        -1.0,
+        0.0,
+        -2.4499125789312946e-15,
+        0.0
+      ]
+    },
+    {
+      "id": "fractional_rotations",
+      "input_values": [
+        7,
+        0.3,
+        0.625,
+        2.5
+      ],
+      "input_length": 4,
+      "expected_result": 14,
+      "expected_output": [
+        0.5625,
+        0.0,
+        -0.1920860005802161,
+        0.11038782239141928,
+        -0.25237701296532156,
+        -0.44695116815272606,
+        0.2209589876148947,
+        0.3092998051318398,
+        -0.22095898761489458,
+        0.30929980513184,
+        0.2523770129653212,
+        -0.4469511681527262,
+        0.19208600058021635,
+        0.11038782239141909
+      ]
+    },
+    {
+      "id": "lower_k_boundary",
+      "input_values": [
+        9,
+        0.8,
+        0.25,
+        1.5
+      ],
+      "input_length": 4,
+      "expected_result": 18,
+      "expected_output": [
+        0.95,
+        0.0,
+        0.1750000000000001,
+        0.649519052838329,
+        -0.17499999999999988,
+        0.649519052838329,
+        -0.95,
+        1.8369701987210294e-17,
+        -0.17500000000000032,
+        -0.6495190528383287,
+        0.1749999999999995,
+        -0.6495190528383297,
+        0.95,
+        -3.673940397442059e-17,
+        0.17500000000000043,
+        0.6495190528383286,
+        -0.17499999999999943,
+        0.6495190528383296
+      ]
+    },
+    {
+      "id": "upper_k_boundary",
+      "input_values": [
+        11,
+        0.25,
+        0.75,
+        2.75
+      ],
+      "input_length": 4,
+      "expected_result": 22,
+      "expected_output": [
+        0.4375,
+        0.0,
+        0.16237976320958233,
+        0.15625,
+        -0.15624999999999997,
+        -0.1623797632095821,
+        -2.1485443272760722e-16,
+        -0.4375,
+        0.15625000000000003,
+        -0.16237976320958253,
+        -0.16237976320958192,
+        0.15624999999999994,
+        -0.4375,
+        4.2970886545521445e-16,
+        -0.16237976320958286,
+        -0.1562500000000001,
+        0.15624999999999992,
+        0.16237976320958164,
+        3.8088532983434706e-16,
+        0.4375,
+        -0.1562500000000001,
+        0.16237976320958292
+      ]
+    },
+    {
+      "id": "maximum_points_and_rotation",
+      "input_values": [
+        32,
+        0.9,
+        0.25,
+        10.0
+      ],
+      "input_length": 4,
+      "expected_result": 64,
+      "expected_output": [
+        0.975,
+        0.0,
+        -0.07913967945877784,
+        0.7790134216656104,
+        -0.3712310601229377,
+        -0.37123106012293716,
+        0.7790134216656093,
+        -0.07913967945877792,
+        -3.7671816138104343e-16,
+        0.975,
+        -0.7790134216656105,
+        -0.07913967945877798,
+        0.3712310601229355,
+        -0.3712310601229394,
+        0.0791396794587785,
+        0.7790134216656102,
+        -0.975,
+        -7.534363227620869e-16,
+        0.0791396794587774,
+        -0.7790134216656097,
+        0.37123106012293794,
+        0.371231060122937,
+        -0.7790134216656115,
+        0.0791396794587779,
+        1.396608010053168e-15,
+        -0.975,
+        0.7790134216656123,
+        0.07913967945877678,
+        -0.3712310601229366,
+        0.37123106012293833,
+        -0.07913967945877848,
+        -0.7790134216656088,
+        0.975,
+        1.5068726455241737e-15,
+        -0.07913967945877748,
+        0.779013421665611,
+        -0.37123106012293683,
+        -0.37123106012293816,
+        0.7790134216656102,
+        -0.0791396794587779,
+        -1.61713728099518e-15,
+        0.975,
+        -0.7790134216656097,
+        -0.07913967945877809,
+        0.3712310601229396,
+        -0.3712310601229353,
+        0.0791396794587772,
+        0.7790134216656115,
+        -0.975,
+        -2.793216020106336e-15,
+        0.07913967945877498,
+        -0.7790134216656134,
+        0.37123106012294216,
+        0.3712310601229327,
+        -0.7790134216656048,
+        0.07913967945877909,
+        -3.49140396626356e-15,
+        -0.975,
+        0.779013421665612,
+        0.07913967945877565,
+        -0.37123106012293416,
+        0.3712310601229407,
+        -0.07913967945877845,
+        -0.7790134216656062
+      ]
+    },
+    {
+      "id": "invalid_zero_points",
+      "input_values": [
+        0,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_fractional_points",
+      "input_values": [
+        1.5,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_short_input",
+      "input_values": [
+        1,
+        0.5,
+        0.5
+      ],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_extra_input",
+      "input_values": [
+        1,
+        0.5,
+        0.5,
+        1.0,
+        0.0
+      ],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_marker_ratio_below_minimum",
+      "input_values": [
+        2,
+        -0.01,
+        0.5,
+        1.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_marker_ratio_above_maximum",
+      "input_values": [
+        2,
+        1.01,
+        0.5,
+        1.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_inner_ratio_below_minimum",
+      "input_values": [
+        2,
+        0.5,
+        0.249,
+        1.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_inner_ratio_above_maximum",
+      "input_values": [
+        2,
+        0.5,
+        0.751,
+        1.0
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_negative_rotations",
+      "input_values": [
+        2,
+        0.5,
+        0.5,
+        -0.01
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_rotations_above_maximum",
+      "input_values": [
+        2,
+        0.5,
+        0.5,
+        10.01
+      ],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 4,
+      "input_is_null": true,
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [
+        1,
+        0.5,
+        0.5
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        1,
+        0.5,
+        0.5,
+        1.0,
+        0.0
+      ],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_point_count",
+      "input_values": [
+        1.5,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "inner_ratio_below_minimum",
+      "input_values": [
+        1,
+        0.5,
+        0.249,
+        1.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        0,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        1,
+        0.0,
+        0.5,
+        1.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        1,
+        0.0,
+        0.5,
+        1.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_exact_output_capacity",
+      "input_values": [
+        1,
+        0.0,
+        0.5,
+        1.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 2,
+      "output_is_null": false,
+      "expected_result": 2,
+      "expected_output": [
+        0.5,
+        0.0
+      ]
+    },
+    {
+      "id": "maximum_output_short_capacity",
+      "input_values": [
+        32,
+        0.9,
+        0.25,
+        10.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 63,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "maximum_output_exact_capacity",
+      "input_values": [
+        32,
+        0.9,
+        0.25,
+        10.0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "output_is_null": false,
+      "expected_result": 64,
+      "expected_output": [
+        0.975,
+        0.0,
+        -0.07913967945877784,
+        0.7790134216656104,
+        -0.3712310601229377,
+        -0.37123106012293716,
+        0.7790134216656093,
+        -0.07913967945877792,
+        -3.7671816138104343e-16,
+        0.975,
+        -0.7790134216656105,
+        -0.07913967945877798,
+        0.3712310601229355,
+        -0.3712310601229394,
+        0.0791396794587785,
+        0.7790134216656102,
+        -0.975,
+        -7.534363227620869e-16,
+        0.0791396794587774,
+        -0.7790134216656097,
+        0.37123106012293794,
+        0.371231060122937,
+        -0.7790134216656115,
+        0.0791396794587779,
+        1.396608010053168e-15,
+        -0.975,
+        0.7790134216656123,
+        0.07913967945877678,
+        -0.3712310601229366,
+        0.37123106012293833,
+        -0.07913967945877848,
+        -0.7790134216656088,
+        0.975,
+        1.5068726455241737e-15,
+        -0.07913967945877748,
+        0.779013421665611,
+        -0.37123106012293683,
+        -0.37123106012293816,
+        0.7790134216656102,
+        -0.0791396794587779,
+        -1.61713728099518e-15,
+        0.975,
+        -0.7790134216656097,
+        -0.07913967945877809,
+        0.3712310601229396,
+        -0.3712310601229353,
+        0.0791396794587772,
+        0.7790134216656115,
+        -0.975,
+        -2.793216020106336e-15,
+        0.07913967945877498,
+        -0.7790134216656134,
+        0.37123106012294216,
+        0.3712310601229327,
+        -0.7790134216656048,
+        0.07913967945877909,
+        -3.49140396626356e-15,
+        -0.975,
+        0.779013421665612,
+        0.07913967945877565,
+        -0.37123106012293416,
+        0.3712310601229407,
+        -0.07913967945877845,
+        -0.7790134216656062
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+const MAX_N: i64 = 1000005
+
+def smallest_prime_factor_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    n: i64 = input[0]
+    if n < 2 or n > MAX_N: return -1
+    factor: mutable i64 = 2
+    while factor <= n / factor:
+        if n % factor == 0: return factor
+        factor <- factor + 1
+    return n
+
+export fn smallest_prime_factor(input: i64&, length: usize) -> i64 = smallest_prime_factor_impl

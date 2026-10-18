@@ -1,0 +1,110 @@
+def mini_batch_gradient_descent_impl(input: f64&, input_length: usize,
+        output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 5 or input_length > 101: return -1
+    sample_value: f64 = input[0]
+    feature_value: f64 = input[1]
+    batch_value: f64 = input[2]
+    epoch_value: f64 = input[3]
+    if sample_value != sample_value or feature_value != feature_value or batch_value != batch_value or epoch_value != epoch_value: return -1
+    if sample_value < 1.0 or sample_value > 8.0 or feature_value < 1.0 or feature_value > 3.0: return -1
+    samples: usize = sample_value.usize()
+    features: usize = feature_value.usize()
+    if sample_value != samples.f64() or feature_value != features.f64(): return -1
+    if batch_value < 1.0 or batch_value > samples.f64() or epoch_value < 0.0 or epoch_value > 8.0: return -1
+    batch_size: usize = batch_value.usize()
+    epochs: usize = epoch_value.usize()
+    if batch_value != batch_size.f64() or epoch_value != epochs.f64(): return -1
+    learning_rate: f64 = input[4]
+    if learning_rate != learning_rate or learning_rate < 0.0 or learning_rate > 0.25: return -1
+    matrix_start: usize = 5
+    targets_start: usize = matrix_start + samples * features
+    permutations_start: usize = targets_start + samples
+    if input_length != permutations_start + epochs * samples: return -1
+
+    matrix: mutable f64[24] = zeroed
+    targets: mutable f64[8] = zeroed
+    i: mutable usize = 0
+    while i < samples * features:
+        value: f64 = input[matrix_start + i]
+        if value != value or value < -10.0 or value > 10.0: return -1
+        matrix[i] <- value
+        i <- i + 1
+    i <- 0
+    while i < samples:
+        value: f64 = input[targets_start + i]
+        if value != value or value < -100.0 or value > 100.0: return -1
+        targets[i] <- value
+        i <- i + 1
+    permutations: mutable usize[64] = zeroed
+    epoch: mutable usize = 0
+    while epoch < epochs:
+        seen: mutable bool[8] = zeroed
+        position: mutable usize = 0
+        while position < samples:
+            raw: f64 = input[permutations_start + epoch * samples + position]
+            if raw != raw or raw < 0.0 or raw >= samples.f64(): return -1
+            sample: usize = raw.usize()
+            if raw != sample.f64() or seen[sample]: return -1
+            seen[sample] <- true
+            permutations[epoch * samples + position] <- sample
+            position <- position + 1
+        epoch <- epoch + 1
+
+    weights: mutable f64[3] = zeroed
+    bias: mutable f64 = 0.0
+    epoch <- 0
+    while epoch < epochs:
+        start: mutable usize = 0
+        while start < samples:
+            batch_length: usize = if samples - start < batch_size: samples - start else: batch_size
+            errors: mutable f64[8] = zeroed
+            position: mutable usize = 0
+            while position < batch_length:
+                sample: usize = permutations[epoch * samples + start + position]
+                prediction: mutable f64 = 0.0
+                feature: mutable usize = 0
+                while feature < features:
+                    prediction <- prediction + matrix[sample * features + feature] * weights[feature]
+                    feature <- feature + 1
+                prediction <- prediction + bias
+                error: f64 = prediction - targets[sample]
+                if prediction != prediction or error != error: return -1
+                errors[position] <- error
+                position <- position + 1
+            feature: mutable usize = 0
+            while feature < features:
+                gradient: mutable f64 = 0.0
+                position <- 0
+                while position < batch_length:
+                    sample: usize = permutations[epoch * samples + start + position]
+                    gradient <- gradient + matrix[sample * features + feature] * errors[position]
+                    position <- position + 1
+                update: f64 = (learning_rate * gradient) / batch_length.f64()
+                weights[feature] <- weights[feature] - update
+                if gradient != gradient or update != update or weights[feature] != weights[feature]: return -1
+                feature <- feature + 1
+            error_sum: mutable f64 = 0.0
+            position <- 0
+            while position < batch_length:
+                error_sum <- error_sum + errors[position]
+                position <- position + 1
+            mean_error: f64 = error_sum / batch_length.f64()
+            bias_update: f64 = learning_rate * mean_error
+            bias <- bias - bias_update
+            if error_sum != error_sum or mean_error != mean_error or bias_update != bias_update or bias != bias: return -1
+            start <- start + batch_length
+        epoch <- epoch + 1
+    staged: mutable f64[4] = zeroed
+    i <- 0
+    while i < features:
+        staged[i] <- weights[i]
+        i <- i + 1
+    staged[features] <- bias
+    if output.is_null() or capacity < features + 1: return -2
+    i <- 0
+    while i < features + 1:
+        output[i] <- staged[i]
+        i <- i + 1
+    return (features + 1).i64()
+
+export fn mini_batch_gradient_descent(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = mini_batch_gradient_descent_impl

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-julia-k-means-deterministic-i64-array-scalar-v1",
+  "algorithm": "k_means_julia",
+  "function_symbol": "k_means_julia",
+  "description": "Bounded one-dimensional replay of Julia's deterministic two-center Lloyd iterations.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/Julia",
+    "commit": "384424b762bbb40d43f31001beeca0c6ffda2f1f",
+    "path": "src/machine_learning/k_means.jl",
+    "symbol": "cluster",
+    "url": "https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/machine_learning/k_means.jl"
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[n, x0, ..., x(n-1)]",
+    "point_count_range": [3, 8],
+    "coordinate_range": [-16, 16],
+    "coordinates_strictly_increasing": true,
+    "k": 2,
+    "iteration_argument": 0,
+    "exact_length": "n + 1",
+    "maximum_valid_input_length": 9,
+    "maximum_parseable_input_length": 10,
+    "null_input_length": 0,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Two ordered final center coordinates, each truncated after multiplication by 256, biased by 4097, then packed in base 8194.",
+    "center_scale": 256,
+    "center_rounding": "truncate toward zero",
+    "center_bias": 4097,
+    "center_base": 8194,
+    "valid_range": [8195, 67141635],
+    "iteration_cap_result": -2,
+    "invalid_input_result": -1
+  },
+  "cases": [
+    {"id": "evenly_spaced_centers", "input_values": [4, -12, -8, 8, 12], "input_length": 5, "expected_result": 12600835},
+    {"id": "larger_symmetric_groups", "input_values": [4, -16, -12, 12, 16], "input_length": 5, "expected_result": 4211203},
+    {"id": "odd_point_tie_goes_to_first_center", "input_values": [3, -9, -3, 9], "input_length": 4, "expected_result": 20991235},
+    {"id": "too_few_points", "input_values": [2, -1, 1], "input_length": 3, "expected_result": -1},
+    {"id": "coordinates_not_increasing", "input_values": [4, -12, 8, -8, 12], "input_length": 5, "expected_result": -1},
+    {"id": "count_mismatch", "input_values": [3, -12, -8, 8, 12], "input_length": 5, "expected_result": -1},
+    {"id": "null_input_pointer", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1}
+  ],
+  "measurement": {"comparison_model": "i64_array_scalar_call", "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 1000}
+}

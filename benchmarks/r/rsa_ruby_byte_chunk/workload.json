@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "id": "rsa_ruby_byte_chunk-v1",
+  "algorithm": "rsa_ruby_byte_chunk",
+  "function_symbol": "cipher_then_decipher_byte_chunks",
+  "input": {
+    "kind": "packed-explicit-key-integer-sequence",
+    "encoding": "[modulus, public_exponent, private_exponent, byte_length, byte_values...]",
+    "modulus_fixed": 33,
+    "exponent_range": [
+      1,
+      7
+    ],
+    "message_length_range": [
+      1,
+      64
+    ],
+    "message_value_range": [
+      0,
+      32
+    ],
+    "decimal_chunk_width": 2,
+    "maximum_packed_values": 68,
+    "maximum_parseable_values": 69,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "low 63 bits of FNV-1a-64 over the concatenated zero-padded decimal ciphertext chunks as ASCII, then recovered bytes",
+    "invalid_result": -1
+  },
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Ruby",
+      "commit": "bda11bdfd83b7958e1ca98247e5e43100ca88865",
+      "path": "ciphers/rsa.rb",
+      "url": "https://github.com/TheAlgorithms/Ruby/blob/bda11bdfd83b7958e1ca98247e5e43100ca88865/ciphers/rsa.rb"
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 6,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "single_zero_byte",
+      "input_values": [
+        33,
+        3,
+        7,
+        1,
+        0
+      ],
+      "input_length": 5,
+      "expected_result": 5656241959596003959
+    },
+    {
+      "id": "single_byte",
+      "input_values": [
+        33,
+        3,
+        7,
+        1,
+        20
+      ],
+      "input_length": 5,
+      "expected_result": 4997626797887655332
+    },
+    {
+      "id": "highest_in_range_byte",
+      "input_values": [
+        33,
+        3,
+        7,
+        1,
+        32
+      ],
+      "input_length": 5,
+      "expected_result": 6278458888371246192
+    },
+    {
+      "id": "mixed_bytes",
+      "input_values": [
+        33,
+        3,
+        7,
+        5,
+        0,
+        1,
+        15,
+        31,
+        32
+      ],
+      "input_length": 9,
+      "expected_result": 1381651798722084812
+    },
+    {
+      "id": "maximum_message_length",
+      "input_values": [
+        33,
+        3,
+        7,
+        64,
+        0,
+        7,
+        14,
+        21,
+        28,
+        2,
+        9,
+        16,
+        23,
+        30,
+        4,
+        11,
+        18,
+        25,
+        32,
+        6,
+        13,
+        20,
+        27,
+        1,
+        8,
+        15,
+        22,
+        29,
+        3,
+        10,
+        17,
+        24,
+        31,
+        5,
+        12,
+        19,
+        26,
+        0,
+        7,
+        14,
+        21,
+        28,
+        2,
+        9,
+        16,
+        23,
+        30,
+        4,
+        11,
+        18,
+        25,
+        32,
+        6,
+        13,
+        20,
+        27,
+        1,
+        8,
+        15,
+        22,
+        29,
+        3,
+        10,
+        17,
+        24,
+        31,
+        5,
+        12
+      ],
+      "input_length": 68,
+      "expected_result": 7438714683919916784
+    },
+    {
+      "id": "empty_message",
+      "input_values": [
+        33,
+        3,
+        7,
+        0
+      ],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "public_exponent_zero",
+      "input_values": [
+        33,
+        0,
+        7,
+        1,
+        20
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "private_exponent_above_bound",
+      "input_values": [
+        33,
+        3,
+        8,
+        1,
+        20
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "byte_equal_to_modulus",
+      "input_values": [
+        33,
+        3,
+        7,
+        1,
+        33
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_modulus",
+      "input_values": [
+        32,
+        3,
+        7,
+        1,
+        20
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated_message_frame",
+      "input_values": [
+        33,
+        3,
+        7,
+        2,
+        20
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "exponent_above_bound",
+      "input_values": [
+        33,
+        8,
+        7,
+        1,
+        20
+      ],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "one_extra_value_at_parser_limit",
+      "input_values": [
+        33,
+        3,
+        7,
+        64,
+        0,
+        7,
+        14,
+        21,
+        28,
+        2,
+        9,
+        16,
+        23,
+        30,
+        4,
+        11,
+        18,
+        25,
+        32,
+        6,
+        13,
+        20,
+        27,
+        1,
+        8,
+        15,
+        22,
+        29,
+        3,
+        10,
+        17,
+        24,
+        31,
+        5,
+        12,
+        19,
+        26,
+        0,
+        7,
+        14,
+        21,
+        28,
+        2,
+        9,
+        16,
+        23,
+        30,
+        4,
+        11,
+        18,
+        25,
+        32,
+        6,
+        13,
+        20,
+        27,
+        1,
+        8,
+        15,
+        22,
+        29,
+        3,
+        10,
+        17,
+        24,
+        31,
+        5,
+        12,
+        0
+      ],
+      "input_length": 69,
+      "expected_result": -1
+    }
+  ]
+}

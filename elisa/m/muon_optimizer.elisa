@@ -1,0 +1,166 @@
+const MAX_GROUP_COUNT: usize = 4
+const MAX_MATRIX_ELEMENTS: usize = 16
+const MAX_GROUP_MATRIX_ELEMENTS: usize = 32
+const MAX_CALL_COUNT: usize = 8
+const MAX_VALID_INPUT_LENGTH: usize = 271
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 272
+
+def finite_value(value: f64) -> bool:
+    value == value and value >= -1.7976931348623157e308 and value <= 1.7976931348623157e308
+
+def orthogonalize(gradient: f64&, rows: usize, columns: usize, ns_steps: usize,
+        result: mutable f64&) -> void:
+    transposed: bool = rows < columns
+    working_rows: usize = if transposed then columns else rows
+    working_columns: usize = if transposed then rows else columns
+    matrix: mutable [16]f64 = zeroed
+    row: mutable usize = 0
+    while row < rows:
+        column: mutable usize = 0
+        while column < columns:
+            if transposed:
+                matrix[column * working_columns + row] <- gradient[row * columns + column]
+            else:
+                matrix[row * working_columns + column] <- gradient[row * columns + column]
+            column <- column + 1
+        row <- row + 1
+
+    step: mutable usize = 0
+    while step < ns_steps:
+        gram: mutable [16]f64 = zeroed
+        product: mutable [16]f64 = zeroed
+        left: mutable usize = 0
+        while left < working_columns:
+            right: mutable usize = 0
+            while right < working_columns:
+                sum: mutable f64 = 0.0
+                row <- 0
+                while row < working_rows:
+                    sum <- sum + matrix[row * working_columns + left] * matrix[row * working_columns + right]
+                    row <- row + 1
+                gram[left * working_columns + right] <- sum
+                right <- right + 1
+            left <- left + 1
+        row <- 0
+        while row < working_rows:
+            column <- 0
+            while column < working_columns:
+                sum <- 0.0
+                inner: mutable usize = 0
+                while inner < working_columns:
+                    sum <- sum + matrix[row * working_columns + inner] * gram[inner * working_columns + column]
+                    inner <- inner + 1
+                product[row * working_columns + column] <- sum
+                column <- column + 1
+            row <- row + 1
+        row <- 0
+        while row < working_rows:
+            column <- 0
+            while column < working_columns:
+                index: usize = row * working_columns + column
+                matrix[index] <- 1.5 * matrix[index] - 0.5 * product[index]
+                column <- column + 1
+            row <- row + 1
+        step <- step + 1
+
+    row <- 0
+    while row < rows:
+        column <- 0
+        while column < columns:
+            result[row * columns + column] <- if transposed:
+                matrix[column * working_columns + row]
+            else:
+                matrix[row * working_columns + column]
+            column <- column + 1
+        row <- row + 1
+
+export fn muon_optimizer(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 10 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    index: mutable usize = 0
+    while index < input_length:
+        if not finite_value(input[index]): return -1
+        index <- index + 1
+
+    group_value: f64 = input[0]
+    rows_value: f64 = input[1]
+    columns_value: f64 = input[2]
+    calls_value: f64 = input[3]
+    steps_value: f64 = input[4]
+    if group_value < 1.0 or group_value > 4.0 or rows_value < 1.0 or rows_value > 4.0 or
+            columns_value < 1.0 or columns_value > 4.0 or calls_value < 1.0 or calls_value > 8.0 or
+            steps_value < 0.0 or steps_value > 5.0: return -1
+    group_count: usize = group_value.usize()
+    rows: usize = rows_value.usize()
+    columns: usize = columns_value.usize()
+    call_count: usize = calls_value.usize()
+    ns_steps: usize = steps_value.usize()
+    if group_value != group_count.f64() or rows_value != rows.f64() or columns_value != columns.f64() or
+            calls_value != call_count.f64() or steps_value != ns_steps.f64(): return -1
+    matrix_elements: usize = rows * columns
+    if matrix_elements > MAX_MATRIX_ELEMENTS or group_count * matrix_elements > MAX_GROUP_MATRIX_ELEMENTS or
+            call_count < group_count: return -1
+    if input_length != 7 + call_count * (1 + 2 * matrix_elements) or input_length > MAX_VALID_INPUT_LENGTH: return -1
+    learning_rate: f64 = input[5]
+    momentum: f64 = input[6]
+    if learning_rate < 0.0 or learning_rate > 0.25 or momentum < 0.0 or momentum > 0.99: return -1
+
+    ids: mutable [8]usize = zeroed
+    event_params: mutable [128]f64 = zeroed
+    event_gradients: mutable [128]f64 = zeroed
+    seen: mutable [4]bool = zeroed
+    cursor: mutable usize = 7
+    event: mutable usize = 0
+    while event < call_count:
+        id_value: f64 = input[cursor]
+        if id_value < 0.0 or id_value >= group_count.f64(): return -1
+        id: usize = id_value.usize()
+        if id_value != id.f64(): return -1
+        ids[event] <- id
+        seen[id] <- true
+        cursor <- cursor + 1
+        index <- 0
+        while index < matrix_elements:
+            value: f64 = input[cursor + index]
+            if value < -10.0 or value > 10.0: return -1
+            event_params[event * matrix_elements + index] <- value
+            index <- index + 1
+        cursor <- cursor + matrix_elements
+        index <- 0
+        while index < matrix_elements:
+            value <- input[cursor + index]
+            if value < -0.01 or value > 0.01: return -1
+            event_gradients[event * matrix_elements + index] <- value
+            index <- index + 1
+        cursor <- cursor + matrix_elements
+        event <- event + 1
+    id_index: mutable usize = 0
+    while id_index < group_count:
+        if not seen[id_index]: return -1
+        id_index <- id_index + 1
+
+    group_elements: usize = group_count * matrix_elements
+    output_elements: usize = 2 * group_elements
+    if output.is_null() or output_capacity < output_elements: return -2
+    velocities: mutable [32]f64 = zeroed
+    last_params: mutable [32]f64 = zeroed
+    event <- 0
+    while event < call_count:
+        id: usize = ids[event]
+        state_offset: usize = id * matrix_elements
+        orthogonalized: mutable [16]f64 = zeroed
+        orthogonalize(&event_gradients[event * matrix_elements], rows, columns, ns_steps, &orthogonalized[0])
+        index <- 0
+        while index < matrix_elements:
+            state_index: usize = state_offset + index
+            event_index: usize = event * matrix_elements + index
+            velocities[state_index] <- momentum * velocities[state_index] + orthogonalized[index]
+            last_params[state_index] <- event_params[event_index] - learning_rate * velocities[state_index]
+            index <- index + 1
+        event <- event + 1
+    index <- 0
+    while index < group_elements:
+        output[index] <- last_params[index]
+        output[group_elements + index] <- velocities[index]
+        index <- index + 1
+    output_elements.i64()

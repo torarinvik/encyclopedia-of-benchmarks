@@ -1,0 +1,144 @@
+const MAX_SEQUENCE_LENGTH: usize = 16
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 38
+const SCORE_STRIDE: usize = 17
+const MAX_OUTPUT_BYTES: usize = 1233
+
+def sw_put_u32le(output: mutable u8&, position: mutable usize&, value: u32) -> void:
+    bits: mutable u32 = value
+    byte: mutable usize = 0
+    while byte < 4:
+        output[position] <- (bits & 255).u8()
+        bits <- bits >> 8
+        position <- position + 1
+        byte <- byte + 1
+
+def sw_put_i32le(output: mutable u8&, position: mutable usize&, value: i64) -> void:
+    sw_put_u32le(output, position, value.i32().u32())
+
+def smith_waterman_python_impl(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or input_length < 5 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    query_length_value: i64 = input[0]
+    subject_length_value: i64 = input[1]
+    match_score: i64 = input[2]
+    mismatch_score: i64 = input[3]
+    gap_score: i64 = input[4]
+    if query_length_value < 0 or query_length_value > 16 or subject_length_value < 0 or subject_length_value > 16 or
+            match_score < 1 or match_score > 5 or mismatch_score < -5 or mismatch_score > -1 or
+            gap_score < -5 or gap_score > -1: return -1
+    query_length: usize = query_length_value.usize()
+    subject_length: usize = subject_length_value.usize()
+    if input_length != 5 + query_length + subject_length: return -1
+
+    query: mutable u8[MAX_SEQUENCE_LENGTH] = zeroed
+    subject: mutable u8[MAX_SEQUENCE_LENGTH] = zeroed
+    index: mutable usize = 0
+    while index < query_length + subject_length:
+        value: i64 = input[5 + index]
+        if not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122) or value == 45): return -1
+        character: mutable i64 = value
+        if character >= 97 and character <= 122: character <- character - 32
+        if index < query_length: query[index] <- character.u8()
+        else: subject[index - query_length] <- character.u8()
+        index <- index + 1
+
+    scores: mutable i64[SCORE_STRIDE * SCORE_STRIDE] = zeroed
+    row: mutable usize = 1
+    while row <= query_length:
+        column: mutable usize = 1
+        while column <= subject_length:
+            query_char: u8 = query[row - 1]
+            subject_char: u8 = subject[column - 1]
+            pair_score: i64 = mismatch_score
+            if query_char == 45 or subject_char == 45: pair_score <- gap_score
+            elif query_char == subject_char: pair_score <- match_score
+            diagonal: i64 = scores[(row - 1) * SCORE_STRIDE + column - 1] + pair_score
+            above: i64 = scores[(row - 1) * SCORE_STRIDE + column] + gap_score
+            left: i64 = scores[row * SCORE_STRIDE + column - 1] + gap_score
+            value: mutable i64 = 0
+            if diagonal > value: value <- diagonal
+            if above > value: value <- above
+            if left > value: value <- left
+            scores[row * SCORE_STRIDE + column] <- value
+            column <- column + 1
+        row <- row + 1
+
+    maximum: mutable i64 = -1
+    maximum_row: mutable usize = 0
+    maximum_column: mutable usize = 0
+    row <- 0
+    while row <= query_length:
+        column <- 0
+        while column <= subject_length:
+            value: i64 = scores[row * SCORE_STRIDE + column]
+            if value > maximum:
+                maximum <- value
+                maximum_row <- row
+                maximum_column <- column
+            column <- column + 1
+        row <- row + 1
+
+    trace_query: mutable u8[32] = zeroed
+    trace_subject: mutable u8[32] = zeroed
+    trace_length: mutable usize = 0
+    row <- maximum_row
+    column <- maximum_column
+    while row > 0 and column > 0:
+        diagonal_score: i64 = scores[(row - 1) * SCORE_STRIDE + column - 1]
+        pair_score: i64 = -1
+        if query[row - 1] == 45 or subject[column - 1] == 45: pair_score <- -2
+        elif query[row - 1] == subject[column - 1]: pair_score <- 1
+        diagonal_score <- diagonal_score + pair_score
+        current_score: i64 = scores[row * SCORE_STRIDE + column]
+        if current_score == diagonal_score:
+            trace_query[trace_length] <- query[row - 1]
+            trace_subject[trace_length] <- subject[column - 1]
+            row <- row - 1
+            column <- column - 1
+        elif current_score == scores[(row - 1) * SCORE_STRIDE + column] - 2:
+            trace_query[trace_length] <- query[row - 1]
+            trace_subject[trace_length] <- 45
+            row <- row - 1
+        else:
+            trace_query[trace_length] <- 45
+            trace_subject[trace_length] <- subject[column - 1]
+            column <- column - 1
+        trace_length <- trace_length + 1
+
+    alignment_length: usize = 0
+    if trace_length > 0: alignment_length <- trace_length * 2 + 1
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    position: mutable usize = 0
+    sw_put_u32le(staged, position, (query_length + 1).u32())
+    sw_put_u32le(staged, position, (subject_length + 1).u32())
+    row <- 0
+    while row <= query_length:
+        column <- 0
+        while column <= subject_length:
+            sw_put_i32le(staged, position, scores[row * SCORE_STRIDE + column])
+            column <- column + 1
+        row <- row + 1
+    sw_put_u32le(staged, position, alignment_length.u32())
+    index <- 0
+    while index < trace_length:
+        staged[position] <- trace_query[trace_length - 1 - index]
+        position <- position + 1
+        index <- index + 1
+    if trace_length > 0:
+        staged[position] <- 10
+        position <- position + 1
+    index <- 0
+    while index < trace_length:
+        staged[position] <- trace_subject[trace_length - 1 - index]
+        position <- position + 1
+        index <- index + 1
+
+    if output == null or output_capacity < position: return -2
+    index <- 0
+    while index < position:
+        output[index] <- staged[index]
+        index <- index + 1
+    position.i64()
+
+export fn smith_waterman_python(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = smith_waterman_python_impl

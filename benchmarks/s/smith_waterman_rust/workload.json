@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-smith-waterman-matrix-traceback-v1",
+  "algorithm": "smith_waterman_rust",
+  "function_symbol": "smith_waterman_rust",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Rust",
+      "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+      "path": "src/dynamic_programming/smith_waterman.rs",
+      "symbols": ["smith_waterman", "traceback"],
+      "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/dynamic_programming/smith_waterman.rs"
+    }
+  ],
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[query_length, subject_length, match_score, mismatch_score, gap_score, query_ascii..., subject_ascii...]",
+    "sequence_length_range": [0, 16],
+    "character_values": "ASCII letters A-Z/a-z or hyphen (45)",
+    "match_score_range": [1, 5],
+    "mismatch_score_range": [-5, -1],
+    "gap_score_range": [-5, -1],
+    "matching": "ASCII case-insensitive",
+    "exact_packed_length": "5+query_length+subject_length",
+    "maximum_valid_input_values": 37,
+    "maximum_parseable_input_values": 38,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "bounded_binary_score_matrix_and_traceback",
+    "encoding": "rows:u32le, columns:u32le, row-major matrix scores:i32le, traceback byte length:u32le, traceback ASCII bytes",
+    "success_result": "output byte count",
+    "maximum_bytes": 1233,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "lowercase_case_insensitive_matrix",
+      "input_values": [4, 2, 1, -1, -2, 97, 99, 97, 99, 99, 97],
+      "input_length": 11,
+      "expected_result": 77,
+      "expected_output_hex": "0500000003000000000000000000000000000000000000000000000000000000000000000100000000000000010000000000000000000000020000000000000001000000000000000500000043410a4341"
+    },
+    {
+      "id": "traceback_stops_at_zero",
+      "input_values": [2, 2, 1, -1, -2, 67, 65, 84, 65],
+      "input_length": 9,
+      "expected_result": 51,
+      "expected_output_hex": "0300000003000000000000000000000000000000000000000000000000000000000000000100000003000000410a41"
+    },
+    {
+      "id": "custom_match_score",
+      "input_values": [2, 1, 2, -1, -2, 65, 65, 65],
+      "input_length": 8,
+      "expected_result": 39,
+      "expected_output_hex": "030000000200000000000000000000000000000002000000000000000200000003000000410a41"
+    },
+    {
+      "id": "empty_sequences",
+      "input_values": [0, 0, 1, -1, -2],
+      "input_length": 5,
+      "expected_result": 16,
+      "expected_output_hex": "01000000010000000000000000000000"
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [0, 0, 1, -1, -2],
+      "input_length": 5,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

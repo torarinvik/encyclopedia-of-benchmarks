@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-csharp-shannon-fano-compressor-i64-bytes-v1",
+  "algorithm": "shannon_fano_compressor",
+  "function_symbol": "shannon_fano_compressor",
+  "description": "Compress bounded ASCII text with the pinned C# ShannonFanoCompressor, its NaiveKnapsackSolver injection, and Translator behavior.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/DataCompression/ShannonFanoCompressor.cs",
+    "symbol": "ShannonFanoCompressor.Compress",
+    "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/DataCompression/ShannonFanoCompressor.cs",
+    "target_framework": "net8.0",
+    "dependencies": [
+      "Algorithms/Knapsack/NaiveKnapsackSolver.cs",
+      "Algorithms/DataCompression/Translator.cs"
+    ]
+  },
+  "contract": {
+    "operation": "Count symbols in first-occurrence order, recursively apply NaiveKnapsackSolver's greedy frequency subset at half the node frequency sum, then translate each character to its tree code.",
+    "input_encoding": "[text_length, ASCII codes...]",
+    "text_length_range": [0, 16],
+    "ascii_code_range": [0, 127],
+    "frequency_formula": "binary64 (1.0 * count) / text_length",
+    "symbol_order": "First occurrence order, matching the pinned .NET Dictionary enumeration behavior.",
+    "splitter": "Walk node symbols in order; include an item iff running_weight + frequency <= capacity; capacity is 0.5 times the node frequency sum; continue after nonfitting items. The value selector is ignored by NaiveKnapsackSolver.",
+    "split_tie_rule": "An item exactly filling remaining capacity is included. Equal symbol frequencies are resolved by first-occurrence order.",
+    "branch_bits": "left=0, right=1",
+    "empty_input": "Empty compressed text and empty decoding table.",
+    "single_symbol": "Compressed text is one ASCII '1' per input character; decoding key '1' maps to the symbol.",
+    "translator": "The source translator scans growing substrings, but every compression key is one ASCII character and therefore matches at length one.",
+    "output_serialization": "compressed_length byte, ASCII compressed bits, decoder_entry_count byte, then entries sorted by ascending symbol byte: symbol byte, code_length byte, ASCII code bytes.",
+    "null_input": "A null pointer with length zero represents null text and returns the same serialized result as empty text; null pointer with positive length is invalid.",
+    "errors": "Malformed framing, text length above 16, or ASCII values outside 0..127 return -1 before output checks. Null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[text_length, ASCII codes...]",
+    "text_length_range": [0, 16],
+    "ascii_code_range": [0, 127],
+    "exact_input_length": "1+text_length",
+    "maximum_valid_input_values": 17,
+    "maximum_input_values_for_malformed_cases": 18,
+    "null_input_zero_length_is_valid": true,
+    "invalid_input_result": -1,
+    "null_input_positive_length_result": -1
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "encoding": "compressed length, compressed ASCII bits, decoder entry count, ascending-symbol decoder entries",
+    "maximum_symbols": 16,
+    "maximum_code_length": 15,
+    "maximum_compressed_length": 240,
+    "maximum_bytes": 514,
+    "success_result": "output byte count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input validity and compression precede output pointer/capacity checks."
+  },
+  "workspace": {
+    "bytes": 514,
+    "meaning": "Maximum bounded compressed-text and canonical decoding-table serialization."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000
+  },
+  "oracle_method": "Mirror the pinned C# first-occurrence symbol order, binary64 count frequencies and node sums, NaiveKnapsackSolver's ordered <= greedy inclusion, original-order remainder, recursive branch bits, single-symbol special case, Translator's character replacements, and canonical decoder-table serialization.",
+  "cases": [
+    {
+      "id": "empty_text",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 2,
+      "expected_output_hex": "0000"
+    },
+    {
+      "id": "single_symbol_special_case",
+      "input_values": [4, 97, 97, 97, 97],
+      "input_length": 5,
+      "expected_result": 9,
+      "expected_output_hex": "043131313101610131"
+    },
+    {
+      "id": "equal_frequencies_first_occurrence_tie",
+      "input_values": [2, 97, 98],
+      "input_length": 3,
+      "expected_result": 10,
+      "expected_output_hex": "02303102610130620131"
+    },
+    {
+      "id": "first_occurrence_order_differs_from_symbol_sort",
+      "input_values": [4, 98, 98, 97, 97],
+      "input_length": 5,
+      "expected_result": 12,
+      "expected_output_hex": "043030313102610131620130"
+    },
+    {
+      "id": "recursive_exact_half_splits",
+      "input_values": [8, 97, 97, 97, 97, 98, 98, 99, 100],
+      "input_length": 9,
+      "expected_result": 33,
+      "expected_output_hex": "0e3030303031303130313130313131046101306202313063033131306403313131"
+    },
+    {
+      "id": "greedy_skips_heavy_symbol_and_keeps_scanning",
+      "input_values": [8, 99, 99, 99, 99, 99, 97, 97, 98],
+      "input_length": 9,
+      "expected_result": 24,
+      "expected_output_hex": "0b3131313131303130313030036102303162023030630131"
+    },
+    {
+      "id": "maximum_text_length_single_symbol",
+      "input_values": [16, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65],
+      "input_length": 17,
+      "expected_result": 21,
+      "expected_output_hex": "103131313131313131313131313131313101410131"
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_empty_result",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 514,
+      "expected_result": 2,
+      "expected_output_hex": "0000"
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 514,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_ascii_code",
+      "input_values": [1, -1],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 514,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "ascii_code_above_bound",
+      "input_values": [1, 128],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 514,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "length_above_bound",
+      "input_values": [17],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 514,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [2, 97],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 514,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [1, 97, 97],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 514,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "parseable_input_limit_trailing_word",
+      "input_values": [16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 18,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 514,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [1, 97],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 514,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_input_short_output",
+      "input_values": [0],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "valid_input_capacity_above_workspace_bound",
+      "input_values": [1, 97],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 600,
+      "expected_result": 6,
+      "expected_output_hex": "013101610131"
+    },
+    {
+      "id": "invalid_input_precedes_output_error",
+      "input_values": [1, 128],
+      "input_length": 2,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

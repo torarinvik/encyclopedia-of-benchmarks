@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-python-rust-page-rank-f64-slice-v1",
+  "algorithm": "page_rank",
+  "function_symbol": "page_rank",
+  "description": "Compute bounded PageRank with dangling-mass redistribution over a simple directed graph.",
+  "workspace": {"elements": 4},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "input": {
+    "kind": "float64_slice",
+    "encoding": "[node_count, iteration_count, row-major binary adjacency matrix]",
+    "node_count_range": [2, 4],
+    "iteration_count_range": [0, 8],
+    "matrix_entry_values": [0, 1],
+    "matrix_rule": "Simple directed graph with zero diagonal; each row defines one source node, even when it is dangling.",
+    "fixed_damping_factor": 0.5,
+    "fixed_convergence_threshold": 0.0,
+    "maximum_valid_input_elements": 18,
+    "maximum_parseable_input_elements": 19,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_slice",
+    "encoding": "PageRank values in ascending node ID order",
+    "maximum_elements": 4,
+    "success_result": "number of rank values",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "initialization": "Set each rank to 1/node_count.",
+    "iteration": "Perform exactly iteration_count power iterations. The fixed zero convergence threshold prevents early termination.",
+    "dangling_nodes": "A vertex with no outgoing edges contributes its current rank to dangling_sum. Add damping_factor*dangling_sum/node_count to every destination's baseline.",
+    "rank_update": "For each target in node order, sum rank[source]/outdegree[source] for each incoming edge in ascending source order, then add the baseline and multiply the incoming sum by damping_factor.",
+    "variant": "This is the Python/Rust variant: baseline is (1-damping_factor)/node_count and dangling mass is redistributed. Rust deduplicates multiedges, so input is a binary simple graph.",
+    "determinism": "Damping is fixed at 0.5 and tolerance at 0.0. Rust hash iteration may reorder sums; compare ranks with the stated floating tolerance.",
+    "bounds": "2..4 nodes, 0..8 iterations, simple directed graph, no self-loops."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Python",
+    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+    "path": "graphs/page_rank.py",
+    "symbol": "page_rank",
+    "url": "https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/graphs/page_rank.py"
+  },
+  "additional_pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/graph/page_rank.rs",
+    "symbol": "page_rank",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/graph/page_rank.rs"
+  },
+  "cases": [
+    {
+      "id": "zero_iterations",
+      "input_values": [2, 0, 0, 1, 1, 0],
+      "input_length": 6,
+      "output_capacity": 4,
+      "expected_result": 2,
+      "expected_output": [0.5, 0.5]
+    },
+    {
+      "id": "closed_cycle_no_dangling",
+      "input_values": [4, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+      "input_length": 18,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output": [0.25, 0.25, 0.25, 0.25]
+    },
+    {
+      "id": "dangling_mass_redistributed",
+      "input_values": [4, 2, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 18,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output": [0.1875, 0.28125, 0.34375, 0.1875]
+    },
+    {
+      "id": "nonbinary_edge",
+      "input_values": [2, 1, 0, 2, 1, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "self_loop",
+      "input_values": [2, 1, 1, 1, 0, 0],
+      "input_length": 6,
+      "expected_result": -1
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [2, 0, 0, 1, 1, 0],
+      "input_length": 6,
+      "output_capacity": 1,
+      "expected_result": -2
+    }
+  ]
+}

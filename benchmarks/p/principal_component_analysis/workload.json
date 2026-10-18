@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-principal-component-analysis-f64-slice-v1",
+  "algorithm": "principal_component_analysis",
+  "function_symbol": "principal_component_analysis",
+  "description": "Center bounded samples, extract components with the pinned all-ones power iteration and sequential deflation, and return projected scores.",
+  "workspace": {
+    "elements": 34
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "float64_slice",
+    "encoding": "[sample_count, feature_count, component_count, row-major samples-by-features values...]",
+    "sample_count_range": [
+      2,
+      8
+    ],
+    "feature_count_range": [
+      2,
+      4
+    ],
+    "component_count_range": [
+      1,
+      4
+    ],
+    "sample_value_range": [
+      -100,
+      100
+    ],
+    "maximum_valid_input_elements": 35,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_slice",
+    "encoding": "[sample_count, component_count, row-major projected score matrix...]",
+    "maximum_elements": 34,
+    "invalid_input_result": -1,
+    "invalid_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "centering": "Compute each feature mean in row order and subtract it from every sample.",
+    "covariance": "Build the symmetric feature-by-feature population covariance matrix from centered data using divisor sample_count.",
+    "components": "For each requested component in order, start from an all-ones vector, perform at most 1000 matrix-vector iterations, normalize when norm>1e-10, and stop when maximum coordinate change<1e-10. Compute the Rayleigh quotient and rank-one deflate the current covariance matrix before the next component.",
+    "projection": "For each centered sample, emit dot products with the component vectors in extraction order. No sign canonicalization is applied.",
+    "stability_domain": "Accept only if every iteration has finite intermediates, norm>1e-10 and reaches the source tolerance within 1000 rounds; every eigenvalue, deflated matrix value, and output score must be finite.",
+    "bounds": "2..8 samples, 2..4 features, 1..feature_count components, finite values in [-100,100]."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/machine_learning/principal_component_analysis.rs",
+    "symbol": "principal_component_analysis",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/principal_component_analysis.rs",
+    "role": "algorithm",
+    "dependencies": []
+  },
+  "cases": [
+    {
+      "id": "two_feature_one_component",
+      "input_values": [
+        4,
+        2,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        5,
+        4,
+        4
+      ],
+      "input_length": 11,
+      "expected_result": 6,
+      "expected_output": [
+        4.0,
+        1.0,
+        -2.1213203435596424,
+        -0.7071067811865475,
+        1.414213562373095,
+        1.414213562373095
+      ]
+    },
+    {
+      "id": "two_feature_two_components",
+      "input_values": [
+        5,
+        2,
+        2,
+        -2,
+        1,
+        -1,
+        -3,
+        0,
+        2,
+        1,
+        -1,
+        2,
+        1
+      ],
+      "input_length": 13,
+      "expected_result": 12,
+      "expected_output": [
+        5.0,
+        2.0,
+        0.37752372884684804,
+        -2.203968201746876,
+        -3.161060228166152,
+        -0.08773957975106517,
+        1.9141840529083292,
+        -0.5795682977842129,
+        -0.6673078776505064,
+        1.246876175319491,
+        1.5366603240614811,
+        1.6243999039626627
+      ]
+    },
+    {
+      "id": "three_feature_deflation",
+      "input_values": [
+        4,
+        3,
+        2,
+        3,
+        2,
+        1,
+        -3,
+        2,
+        -1,
+        3,
+        -2,
+        -1,
+        -3,
+        -2,
+        1
+      ],
+      "input_length": 15,
+      "expected_result": 10,
+      "expected_output": [
+        4.0,
+        2.0,
+        3.0000000001223874,
+        1.999999999601494,
+        -2.9999999998776126,
+        2.0000000003985057,
+        2.9999999998776126,
+        -2.0000000004276095,
+        -3.0000000001223874,
+        -1.9999999995723903
+      ]
+    },
+    {
+      "id": "four_feature_three_components",
+      "input_values": [
+        5,
+        4,
+        3,
+        4,
+        2,
+        1,
+        3,
+        -4,
+        2,
+        -1,
+        -3,
+        4,
+        -2,
+        -1,
+        3,
+        -4,
+        -2,
+        1,
+        -3,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 23,
+      "expected_result": 17,
+      "expected_output": [
+        5.0,
+        3.0,
+        5.000000000010294,
+        1.999999999853709,
+        0.9999999998835847,
+        -4.999999999989706,
+        2.000000000146291,
+        -1.0000000001164153,
+        4.999999999989706,
+        -2.000000000175395,
+        -0.9999999998835847,
+        -5.000000000010294,
+        -1.9999999998246052,
+        1.0000000001164153,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "zero_covariance",
+      "input_values": [
+        3,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_length": 9,
+      "expected_result": -1
+    },
+    {
+      "id": "zero_components",
+      "input_values": [
+        3,
+        2,
+        0,
+        0,
+        1,
+        1,
+        0,
+        2,
+        2
+      ],
+      "input_length": 9,
+      "expected_result": -1
+    },
+    {
+      "id": "too_many_components",
+      "input_values": [
+        3,
+        2,
+        3,
+        0,
+        1,
+        1,
+        0,
+        2,
+        2
+      ],
+      "input_length": 9,
+      "expected_result": -1
+    },
+    {
+      "id": "wrong_matrix_length",
+      "input_values": [
+        3,
+        2,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": -1
+    },
+    {
+      "id": "sample_out_of_range",
+      "input_values": [
+        9,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 21,
+      "expected_result": -1
+    }
+  ]
+}

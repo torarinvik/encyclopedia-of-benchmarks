@@ -154,8 +154,12 @@ def audit() -> dict:
         complete = (not excluded and reviewed and target["review_status"] == "reviewed_algorithm_semantics"
                     and all(not detail["missing_languages"] and detail["guide_present"]
                             and detail["workload_matches"] for detail in benchmark_details))
-        if complete:
-            complete_algorithms.update(benchmark_names)
+        if (not excluded and reviewed
+                and target["review_status"] == "reviewed_algorithm_semantics"):
+            complete_algorithms.update(
+                detail["algorithm"] for detail in benchmark_details
+                if not detail["missing_languages"] and detail["guide_present"]
+                and detail["workload_matches"])
         entries.append({"candidate_id": name, "reviewed": reviewed,
                         "source_excluded": excluded,
                         "alias_of": candidate.get("alias_of"),

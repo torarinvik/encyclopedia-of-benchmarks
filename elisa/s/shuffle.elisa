@@ -1,0 +1,52 @@
+const MAX_INPUT_LENGTH: usize = 513
+const MAX_LENGTH: usize = 256
+
+def shuffle_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+        return false
+    if value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def shuffle_impl(input: f64&, input_length: usize,
+                 output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if not shuffle_exact_integer(input[0], 0, MAX_LENGTH.i64()): return -1
+    count: usize = input[0].usize()
+    offset_count: usize = 0
+    if count > 0: offset_count <- count - 1
+    if input_length != 1 + count + offset_count: return -1
+
+    items: mutable i64[256] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        value: f64 = input[index + 1]
+        if not shuffle_exact_integer(value, -2147483648, 2147483647): return -1
+        items[index] <- value.i64()
+        index <- index + 1
+
+    offsets: mutable usize[256] = zeroed
+    index <- 0
+    while index < offset_count:
+        value: f64 = input[1 + count + index]
+        maximum_offset: i64 = (count - 1 - index).i64()
+        if not shuffle_exact_integer(value, 0, maximum_offset): return -1
+        offsets[index] <- value.usize()
+        index <- index + 1
+
+    index <- 0
+    while index < offset_count:
+        other: usize = index + offsets[index]
+        temporary: i64 = items[index]
+        items[index] <- items[other]
+        items[other] <- temporary
+        index <- index + 1
+
+    if output.is_null() or capacity < count: return -2
+    index <- 0
+    while index < count:
+        output[index] <- items[index].f64()
+        index <- index + 1
+    count.i64()
+
+export fn shuffle(input: f64&, input_length: usize,
+                  output: mutable f64&, capacity: usize) -> i64 = shuffle_impl

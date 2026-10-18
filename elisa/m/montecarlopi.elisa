@@ -1,0 +1,33 @@
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 130
+
+def mcpi_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
+    if value != value or value >= 1.7976931348623157e308 or value <= -1.7976931348623157e308:
+        return false
+    if value < minimum.f64() or value > maximum.f64(): return false
+    value.i64().f64() == value
+
+def mcpi_allowed_coordinate(value: f64) -> bool:
+    value == 0.0 or value == 0.25 or value == 0.5 or value == 0.75
+
+def montecarlopi_impl(input: f64&, input_length: usize,
+                      output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if not mcpi_exact_integer(input[0], 1, 64): return -1
+    point_count: usize = input[0].usize()
+    if input_length != 1 + 2 * point_count: return -1
+    inside: mutable usize = 0
+    point: mutable usize = 0
+    while point < point_count:
+        x: f64 = input[1 + 2 * point]
+        y: f64 = input[2 + 2 * point]
+        if not mcpi_allowed_coordinate(x) or not mcpi_allowed_coordinate(y): return -1
+        if x * x + y * y <= 1.0: inside <- inside + 1
+        point <- point + 1
+    estimate: f64 = inside.f64() / point_count.f64() * 4.0
+    if estimate != estimate or estimate >= 1.7976931348623157e308 or estimate <= -1.7976931348623157e308: return -1
+    if output.is_null() or capacity < 1: return -2
+    output[0] <- estimate
+    1
+
+export fn montecarlopi(input: f64&, input_length: usize,
+                       output: mutable f64&, capacity: usize) -> i64 = montecarlopi_impl

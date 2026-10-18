@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-rust-perceptron-minus-one-plus-one-float64-slice-io-v1",
+  "algorithm": "perceptron_rust",
+  "function_symbol": "perceptron / classify",
+  "description": "Train the pinned Rust zero-initialized ±1 perceptron and classify bounded rows.",
+  "workspace": {
+    "elements": 11
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[max_iterations, learning_rate, sample_count, feature_count, row-major training features, labels, query_count, row-major query features]",
+    "max_iterations_range": [
+      0,
+      12
+    ],
+    "learning_rate_values": [
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "sample_count_range": [
+      2,
+      8
+    ],
+    "feature_count_range": [
+      1,
+      4
+    ],
+    "query_count_range": [
+      1,
+      4
+    ],
+    "feature_value_range": [
+      -2,
+      2
+    ],
+    "feature_values_must_be_integers": true,
+    "labels": [
+      -1,
+      1
+    ],
+    "maximum_valid_input_length": 61,
+    "maximum_parseable_input_length": 62,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[feature_count, weights, bias, query_count, predictions]",
+    "maximum_elements": 11,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "initialization": "Initialize every feature weight and bias to zero. `max_iterations=0` returns that initial state.",
+    "prediction": "Return 1 when the ordered dot product plus bias is greater than or equal to zero; otherwise return -1.",
+    "updates": "Visit rows in input order. On a prediction/label mismatch, update each weight by learning_rate*label*feature and bias by learning_rate*label.",
+    "stopping": "Stop after an iteration with no misclassifications or after max_iterations; the source returns final parameters but no iteration count.",
+    "output": "Return feature_count, final weights in feature order, bias, query_count, and one ±1 prediction per query.",
+    "errors": "Reject malformed framing, fractional/out-of-domain parameters or features, and labels outside {-1,1} with -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "pinned_source": {
+    "repository": "TheAlgorithms/Rust",
+    "commit": "fed66cb0c74c4a939ec5163648458a8c2b46fd4c",
+    "path": "src/machine_learning/perceptron.rs",
+    "symbol": "perceptron / classify",
+    "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/machine_learning/perceptron.rs",
+    "role": "algorithm",
+    "dependencies": []
+  },
+  "cases": [
+    {
+      "id": "separable_1d_training",
+      "input_values": [
+        8,
+        0.5,
+        4,
+        1,
+        -2,
+        -1,
+        1,
+        2,
+        -1,
+        -1,
+        1,
+        1,
+        4,
+        -2,
+        0,
+        1,
+        2
+      ],
+      "input_length": 17,
+      "expected_result": 8,
+      "expected_output": [
+        1.0,
+        1.0,
+        -0.5,
+        4.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "zero_iterations",
+      "input_values": [
+        0,
+        0.5,
+        2,
+        1,
+        -1,
+        1,
+        -1,
+        1,
+        1,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": 5,
+      "expected_output": [
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "invalid_label_zero",
+      "input_values": [
+        1,
+        0.5,
+        2,
+        1,
+        0,
+        1,
+        -1,
+        0,
+        1,
+        0
+      ],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

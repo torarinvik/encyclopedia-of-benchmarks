@@ -1,0 +1,76 @@
+const MAX_OBSERVATIONS: usize = 12
+const MAX_OUTPUT_ELEMENTS: usize = 30
+
+def kalman_filter_r_two_state_simulation_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_length < 1 or input_length > MAX_OBSERVATIONS: return -1
+    index: mutable usize = 0
+    while index < input_length:
+        value: f64 = input[index]
+        if value != value or value < -1000.0 or value > 1000.0: return -1
+        index <- index + 1
+
+    required: usize = 2 * input_length + 6
+    if required > MAX_OUTPUT_ELEMENTS: return -1
+    trace: mutable f64[24] = zeroed
+    state_0: mutable f64 = input[0]
+    state_1: mutable f64 = 0.0
+    covariance_00: mutable f64 = 1.0
+    covariance_01: mutable f64 = 0.0
+    covariance_10: mutable f64 = 0.0
+    covariance_11: mutable f64 = 1.0
+    state_pred_0: mutable f64 = 0.0
+    state_pred_1: mutable f64 = 0.0
+    covariance_pred_00: mutable f64 = 0.0
+    covariance_pred_01: mutable f64 = 0.0
+    covariance_pred_10: mutable f64 = 0.0
+    covariance_pred_11: mutable f64 = 0.0
+    step: mutable usize = 0
+    while step < input_length:
+        state_pred_0 <- state_0
+        state_pred_1 <- state_0 + state_1
+
+        temp_00: f64 = covariance_00
+        temp_01: f64 = covariance_01
+        temp_10: f64 = covariance_00 + covariance_10
+        temp_11: f64 = covariance_01 + covariance_11
+        covariance_pred_00 <- temp_00 + 0.0001
+        covariance_pred_01 <- temp_00 + temp_01
+        covariance_pred_10 <- temp_10
+        covariance_pred_11 <- temp_10 + temp_11 + 0.0001
+
+        innovation: f64 = covariance_pred_00 + 0.1
+        gain_0: f64 = covariance_pred_00 / innovation
+        gain_1: f64 = covariance_pred_10 / innovation
+        residual: f64 = input[step] - state_pred_0
+        state_0 <- state_pred_0 + gain_0 * residual
+        state_1 <- state_pred_1 + gain_1 * residual
+        trace[2 * step] <- state_0
+        trace[2 * step + 1] <- state_1
+
+        covariance_00 <- (1.0 - gain_0) * covariance_pred_00 + covariance_pred_10
+        covariance_01 <- (1.0 - gain_0) * covariance_pred_01 + covariance_pred_11
+        covariance_10 <- (1.0 - gain_1) * covariance_pred_00 + covariance_pred_10
+        covariance_11 <- (1.0 - gain_1) * covariance_pred_01 + covariance_pred_11
+        step <- step + 1
+
+    staged: mutable f64[MAX_OUTPUT_ELEMENTS] = zeroed
+    index <- 0
+    while index < 2 * input_length:
+        staged[index] <- trace[index]
+        index <- index + 1
+    staged[index] <- state_pred_0
+    staged[index + 1] <- state_pred_1
+    staged[index + 2] <- covariance_pred_00
+    staged[index + 3] <- covariance_pred_10
+    staged[index + 4] <- covariance_pred_01
+    staged[index + 5] <- covariance_pred_11
+    if output == null or output_capacity < required: return -2
+    index <- 0
+    while index < required:
+        output[index] <- staged[index]
+        index <- index + 1
+    required.i64()
+
+export fn kalman_filter_r_two_state_simulation(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = kalman_filter_r_two_state_simulation_impl

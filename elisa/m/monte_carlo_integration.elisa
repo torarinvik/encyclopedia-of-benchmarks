@@ -1,0 +1,35 @@
+def monte_carlo_integration_impl(packed: i64&, length: usize) -> f64:
+    if packed == null or length < 3 or length > 12:
+        return -1.0e300
+    n: i64 = packed[2]
+    if n < 1 or n > 16 or length != (3 + (n + 1) / 2).usize():
+        return -1.0e300
+    a_raw: i64 = packed[0]
+    b_raw: i64 = packed[1]
+    if a_raw < -10000000 or a_raw > 10000000 or b_raw < -10000000 or b_raw > 10000000 or a_raw >= b_raw:
+        return -1.0e300
+    index: mutable usize = 3
+    while index < length:
+        if packed[index] < 0 or packed[index] > 999999:
+            return -1.0e300
+        index <- index + 1
+
+    a: f64 = a_raw.f64() / 1000000.0
+    b: f64 = b_raw.f64() / 1000000.0
+    interval: f64 = b - a
+    total: mutable f64 = 0.0
+    pair: mutable i64 = 0
+    while pair < n / 2:
+        u: f64 = packed[(3 + pair).usize()].f64() / 1000000.0
+        x1: f64 = a + u * interval
+        x2: f64 = a + (1.0 - u) * interval
+        total <- total + x1 * x1
+        total <- total + x2 * x2
+        pair <- pair + 1
+    if n % 2 == 1:
+        u: f64 = packed[(3 + n / 2).usize()].f64() / 1000000.0
+        x: f64 = a + u * interval
+        total <- total + x * x
+    interval * total / n.f64()
+
+export fn monte_carlo_integration(packed: i64&, length: usize) -> f64 = monte_carlo_integration_impl

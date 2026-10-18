@@ -1,0 +1,217 @@
+extern floor(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern rand() -> i32
+
+const MAX_POPULATION: usize = 8
+const OUTPUT_LENGTH: usize = 5
+
+def tsp_python_genetic_random_unit() -> f64:
+    rand().f64() / 2147483647.0
+
+def tsp_python_genetic_random_below(limit: usize) -> usize:
+    (rand().u32() % limit.u32()).usize()
+
+def tsp_python_genetic_distance(x0, y0, x1, y1: f64, city_a, city_b: i64) -> f64:
+    if city_a == city_b: return 0.0
+    delta_x: f64 = x0 - x1
+    delta_y: f64 = y0 - y1
+    sqrt(delta_x * delta_x + delta_y * delta_y)
+
+def tsp_python_genetic_fitness(chromosomes: i64&, population: usize,
+        x0, y0, x1, y1: f64, fitness: mutable f64&, best_path: mutable i64&,
+        best_distance: mutable f64&) -> void:
+    individual: mutable usize = 0
+    while individual < population:
+        total_distance: mutable f64 = 0.0
+        edge: mutable usize = 0
+        while edge < 2:
+            city_a: i64 = chromosomes[3 * individual + edge]
+            city_b: i64 = chromosomes[3 * individual + edge + 1]
+            total_distance <- total_distance + tsp_python_genetic_distance(x0, y0, x1, y1, city_a, city_b)
+            edge <- edge + 1
+        fitness[individual] <- 1.0 / total_distance
+        if total_distance < best_distance:
+            best_path[0] <- chromosomes[3 * individual]
+            best_path[1] <- chromosomes[3 * individual + 1]
+            best_path[2] <- chromosomes[3 * individual + 2]
+            best_distance <- total_distance
+        individual <- individual + 1
+
+def tsp_python_genetic_repair_child(child: mutable i64&, segment_start, segment_end: usize,
+        cities_list: i64&) -> void:
+    unique_count: mutable usize = 1
+    if child[1] != child[0]: unique_count <- unique_count + 1
+    if child[2] != child[0] and child[2] != child[1]: unique_count <- unique_count + 1
+    if unique_count == 3: return
+    segment_index: mutable usize = 0
+    while segment_index <= segment_end - segment_start:
+        target_index: mutable usize = 0
+        chromosome_index: mutable usize = 1
+        while chromosome_index < 2:
+            if chromosome_index != segment_start + segment_index and child[chromosome_index] == child[segment_start + segment_index]:
+                target_index <- chromosome_index
+                break
+            chromosome_index <- chromosome_index + 1
+        if target_index != 0:
+            cities_copy: mutable i64[1] = zeroed
+            cities_copy[0] <- cities_list[0]
+            available_count: mutable usize = 1
+            chromosome_index <- 0
+            while chromosome_index < 3:
+                if available_count > 0 and cities_copy[0] == child[chromosome_index]:
+                    cities_copy[0] <- -1
+                    available_count <- 0
+                chromosome_index <- chromosome_index + 1
+            if available_count > 0:
+                pick: usize = tsp_python_genetic_random_below(available_count)
+                child[target_index] <- cities_copy[pick]
+        segment_index <- segment_index + 1
+
+def travelling_salesman_python_genetic_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input == null or input_length != 8: return -1
+    population_value: f64 = input[0]
+    iterations_value: f64 = input[1]
+    crossover_probability: f64 = input[2]
+    mutation_probability: f64 = input[3]
+    if population_value < 2.0 or population_value > 8.0 or population_value != floor(population_value): return -1
+    population: usize = population_value.usize()
+    if population % 2 != 0: return -1
+    if iterations_value < 0.0 or iterations_value > 12.0 or iterations_value != floor(iterations_value): return -1
+    if crossover_probability != crossover_probability or mutation_probability != mutation_probability or
+            crossover_probability < 0.0 or crossover_probability > 1.0 or
+            mutation_probability < 0.0 or mutation_probability > 1.0: return -1
+    index: mutable usize = 4
+    while index < 8:
+        coordinate: f64 = input[index]
+        if coordinate < -16.0 or coordinate > 16.0 or coordinate != floor(coordinate): return -1
+        index <- index + 1
+    if input[4] == input[6] and input[5] == input[7]: return -1
+    iterations: usize = iterations_value.usize()
+    x0, y0, x1, y1: f64 = input[4], input[5], input[6], input[7]
+
+    # init(): random.sample([1], 1), repeated for each individual.
+    cities_list: mutable i64[1] = zeroed
+    cities_list[0] <- 1
+    chromosomes: mutable i64[MAX_POPULATION * 3] = zeroed
+    individual: mutable usize = 0
+    while individual < population:
+        sampled_index: usize = tsp_python_genetic_random_below(1)
+        chromosomes[3 * individual] <- 0
+        chromosomes[3 * individual + 1] <- cities_list[sampled_index]
+        chromosomes[3 * individual + 2] <- 0
+        individual <- individual + 1
+
+    fitness: mutable f64[MAX_POPULATION] = zeroed
+    best_path: mutable i64[3] = zeroed
+    best_distance: mutable f64 = 1.0e300
+    tsp_python_genetic_fitness(&chromosomes[0], population, x0, y0, x1, y1,
+            &fitness[0], &best_path[0], best_distance&)
+
+    generation: mutable usize = 0
+    while generation < iterations:
+        total_probability: mutable f64 = 0.0
+        individual <- 0
+        while individual < population:
+            total_probability <- total_probability + fitness[individual]
+            individual <- individual + 1
+        probabilities: mutable f64[MAX_POPULATION] = zeroed
+        individual <- 0
+        while individual < population:
+            probabilities[individual] <- fitness[individual] / total_probability
+            individual <- individual + 1
+
+        # chose_rws(): deep-copy first, then use roulette cumulative probability.
+        selected: mutable i64[MAX_POPULATION * 3] = zeroed
+        index <- 0
+        while index < 3 * population:
+            selected[index] <- chromosomes[index]
+            index <- index + 1
+        individual <- 0
+        while individual < population:
+            cumulative: mutable f64 = 0.0
+            roll: f64 = tsp_python_genetic_random_unit()
+            candidate: mutable usize = 0
+            while candidate < population:
+                cumulative <- cumulative + probabilities[candidate]
+                if roll <= cumulative:
+                    selected[3 * individual] <- chromosomes[3 * candidate]
+                    selected[3 * individual + 1] <- chromosomes[3 * candidate + 1]
+                    selected[3 * individual + 2] <- chromosomes[3 * candidate + 2]
+                    break
+                candidate <- candidate + 1
+            individual <- individual + 1
+        index <- 0
+        while index < 3 * population:
+            chromosomes[index] <- selected[index]
+            index <- index + 1
+
+        first: mutable usize = 0
+        while first < population / 2:
+            child_a: mutable i64[3] = zeroed
+            child_b: mutable i64[3] = zeroed
+            child_a[0] <- chromosomes[3 * first]
+            child_a[1] <- chromosomes[3 * first + 1]
+            child_a[2] <- chromosomes[3 * first + 2]
+            second: usize = first + population / 2
+            child_b[0] <- chromosomes[3 * second]
+            child_b[1] <- chromosomes[3 * second + 1]
+            child_b[2] <- chromosomes[3 * second + 2]
+            if tsp_python_genetic_random_unit() <= crossover_probability:
+                segment_a: usize = tsp_python_genetic_random_below(3)
+                segment_b: usize = tsp_python_genetic_random_below(3)
+                segment_start: usize = segment_a
+                segment_end: usize = segment_b
+                if segment_start > segment_end:
+                    segment_start <- segment_b
+                    segment_end <- segment_a
+                segment_index: mutable usize = segment_start
+                while segment_index <= segment_end:
+                    temporary: i64 = child_a[segment_index]
+                    child_a[segment_index] <- child_b[segment_index]
+                    child_b[segment_index] <- temporary
+                    segment_index <- segment_index + 1
+                tsp_python_genetic_repair_child(&child_a[0], segment_start, segment_end, &cities_list[0])
+                tsp_python_genetic_repair_child(&child_b[0], segment_start, segment_end, &cities_list[0])
+            index <- 0
+            while index < 3:
+                chromosomes[3 * first + index] <- child_a[index]
+                chromosomes[3 * second + index] <- child_b[index]
+                index <- index + 1
+            first <- first + 1
+
+        individual <- 0
+        while individual < population:
+            chromosome: mutable i64[3] = zeroed
+            chromosome[0] <- chromosomes[3 * individual]
+            chromosome[1] <- chromosomes[3 * individual + 1]
+            chromosome[2] <- chromosomes[3 * individual + 2]
+            if tsp_python_genetic_random_unit() <= mutation_probability:
+                location_a: usize = 1 + tsp_python_genetic_random_below(1)
+                location_b: usize = 1 + tsp_python_genetic_random_below(1)
+                temporary: i64 = chromosome[location_a]
+                chromosome[location_a] <- chromosome[location_b]
+                chromosome[location_b] <- temporary
+            chromosomes[3 * individual] <- chromosome[0]
+            chromosomes[3 * individual + 1] <- chromosome[1]
+            chromosomes[3 * individual + 2] <- chromosome[2]
+            individual <- individual + 1
+        tsp_python_genetic_fitness(&chromosomes[0], population, x0, y0, x1, y1,
+                &fitness[0], &best_path[0], best_distance&)
+        generation <- generation + 1
+
+    staged: mutable f64[OUTPUT_LENGTH] = zeroed
+    staged[0] <- 3.0
+    staged[1] <- best_path[0].f64()
+    staged[2] <- best_path[1].f64()
+    staged[3] <- best_path[2].f64()
+    staged[4] <- best_distance
+    if output == null or output_capacity < OUTPUT_LENGTH: return -2
+    index <- 0
+    while index < OUTPUT_LENGTH:
+        output[index] <- staged[index]
+        index <- index + 1
+    OUTPUT_LENGTH.i64()
+
+export fn travelling_salesman_python_genetic(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = travelling_salesman_python_genetic_impl

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-java-smith-waterman-scalar-v1",
+  "algorithm": "smith_waterman_java",
+  "function_symbol": "smith_waterman_java",
+  "pinned_sources": [
+    {
+      "repository": "TheAlgorithms/Java",
+      "commit": "e43ec3897e48f23843972d02cd05a5bb1b6864a2",
+      "path": "src/main/java/com/thealgorithms/dynamicprogramming/SmithWaterman.java",
+      "symbol": "SmithWaterman.align",
+      "url": "https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/dynamicprogramming/SmithWaterman.java"
+    }
+  ],
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[query_length, subject_length, match_score, mismatch_score, gap_score, query_ascii..., subject_ascii...]",
+    "sequence_length_range": [0, 16],
+    "character_values": "ASCII letters A-Z/a-z or hyphen (45)",
+    "match_score_range": [1, 5],
+    "mismatch_score_range": [-5, -1],
+    "gap_score_range": [-5, -1],
+    "exact_packed_length": "5+query_length+subject_length",
+    "maximum_valid_input_values": 37,
+    "maximum_parseable_input_values": 38,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "Greatest cell in the Java Smith-Waterman local-alignment score matrix",
+    "empty_sequence_result": 0,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "empty_sequences", "input_values": [0, 0, 2, -1, -1], "input_length": 5, "expected_result": 0},
+    {"id": "longer_local_match", "input_values": [3, 2, 2, -1, -1, 65, 66, 67, 66, 67], "input_length": 10, "expected_result": 4},
+    {"id": "case_sensitive_mismatch", "input_values": [1, 1, 3, -2, -1, 97, 65], "input_length": 7, "expected_result": 0},
+    {"id": "hyphen_is_an_ordinary_character", "input_values": [2, 2, 2, -1, -1, 65, 45, 65, 45], "input_length": 9, "expected_result": 4},
+    {"id": "invalid_character", "input_values": [1, 1, 2, -1, -1, 128, 65], "input_length": 7, "expected_result": -1},
+    {"id": "invalid_packed_length", "input_values": [1, 1, 2, -1, -1, 65], "input_length": 6, "expected_result": -1}
+  ]
+}

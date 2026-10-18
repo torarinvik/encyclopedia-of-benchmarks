@@ -1,0 +1,466 @@
+{
+  "schema_version": 1,
+  "id": "thealgorithms-csharp-lu-elimination-float64-slice-io-v1",
+  "algorithm": "lu_elimination",
+  "function_symbol": "lu_elimination",
+  "description": "Solve a bounded square linear system by no-pivot Doolittle LU factorization and substitution.",
+  "pinned_source": {
+    "repository": "TheAlgorithms/C-Sharp",
+    "commit": "96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c",
+    "path": "Algorithms/Numeric/Decomposition/LU.cs",
+    "symbol": "Lu.Eliminate",
+    "url": "https://github.com/TheAlgorithms/C-Sharp/blob/96e2905cab7bc6b33ac0a34ee5bb82ddccbcbb6c/Algorithms/Numeric/Decomposition/LU.cs",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "Solve A*x=b using the pinned no-pivot Doolittle factorization, forward substitution, and back substitution.",
+    "input_encoding": "[n, A_row_major..., b...]",
+    "exact_input_length": "1+n*n+n",
+    "maximum_valid_input_length": 21,
+    "maximum_parseable_input_length": 22,
+    "matrix_shape": "n by n, row-major",
+    "matrix_domain": "Exact integer entries in [-1,1].",
+    "rhs_domain": "Exactly n integer entries in [-8,8].",
+    "pivot_rule": "Every diagonal pivot computed by no-pivot Doolittle must be nonzero.",
+    "operation_order": "Factor rows in increasing order; forward solve rows in increasing order with lower indices increasing; backward solve rows in decreasing order with the source sum indices increasing from i through n-1.",
+    "output_encoding": "The solution vector x in row order.",
+    "errors": "Malformed framing, unsupported bounds, fractional values, zero/nonfinite computed pivot, or nonfinite solution returns -1 before output checks. Null output or capacity below n returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n, A_row_major..., b...]",
+    "dimension_range": [
+      0,
+      4
+    ],
+    "matrix_value_range": [
+      -1,
+      1
+    ],
+    "rhs_value_range": [
+      -8,
+      8
+    ],
+    "matrix_and_rhs_values_must_be_integers": true,
+    "all_computed_diagonal_pivots_must_be_nonzero": true,
+    "maximum_valid_input_length": 21,
+    "maximum_parseable_input_length": 22,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "The solution vector x in row order.",
+    "element_count": "n",
+    "maximum_elements": 4,
+    "success_result": "output element count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Input framing, values, pivots, and solution validity are checked before output pointer and capacity.",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 4,
+    "meaning": "The maximum solution vector."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "oracle_method": "Reproduce the pinned Doolittle factorization and substitution loops in binary64 order; reject any zero or nonfinite U diagonal pivot.",
+  "cases": [
+    {
+      "id": "empty_system",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "single_equation",
+      "input_values": [
+        1,
+        1,
+        5
+      ],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output": [
+        5.0
+      ]
+    },
+    {
+      "id": "two_by_two_fractional_solution",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        0,
+        1,
+        2
+      ],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [
+        2.0,
+        -1.0
+      ]
+    },
+    {
+      "id": "negative_second_pivot",
+      "input_values": [
+        2,
+        -1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "input_length": 7,
+      "expected_result": 2,
+      "expected_output": [
+        -0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "three_by_three_upper_triangular",
+      "input_values": [
+        3,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        2,
+        3
+      ],
+      "input_length": 13,
+      "expected_result": 3,
+      "expected_output": [
+        2.0,
+        -1.0,
+        3.0
+      ]
+    },
+    {
+      "id": "three_by_three_dense",
+      "input_values": [
+        3,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        2,
+        3
+      ],
+      "input_length": 13,
+      "expected_result": 3,
+      "expected_output": [
+        0.0,
+        1.0,
+        2.0
+      ]
+    },
+    {
+      "id": "maximum_shape",
+      "input_values": [
+        4,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        3,
+        2
+      ],
+      "input_length": 21,
+      "expected_result": 4,
+      "expected_output": [
+        0.0,
+        1.0,
+        0.0,
+        2.0
+      ]
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 1,
+      "input_is_null": true,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [
+        2,
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "extra_input_value",
+      "input_values": [
+        1,
+        1,
+        5,
+        0
+      ],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_dimension",
+      "input_values": [
+        1.5
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "dimension_above_maximum",
+      "input_values": [
+        5
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_matrix_value",
+      "input_values": [
+        1,
+        0.5,
+        1
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "matrix_value_out_of_range",
+      "input_values": [
+        1,
+        2,
+        1
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_rhs_value",
+      "input_values": [
+        1,
+        1,
+        1.5
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "rhs_value_out_of_range",
+      "input_values": [
+        1,
+        1,
+        9
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_first_pivot",
+      "input_values": [
+        2,
+        0,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_second_pivot",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 4,
+      "output_is_null": false,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "valid_empty_null_output",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_empty_zero_capacity",
+      "input_values": [
+        0
+      ],
+      "input_length": 1,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": false,
+      "expected_result": 0,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_null_output",
+      "input_values": [
+        1,
+        1,
+        5
+      ],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "valid_input_short_output_capacity",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        0,
+        1,
+        2
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 1,
+      "output_is_null": false,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 0,
+      "output_is_null": true,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}
