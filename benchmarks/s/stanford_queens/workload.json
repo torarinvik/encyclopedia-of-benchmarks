@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-stanford-queens-bounded-passes-v1",
+  "algorithm": "stanford_queens",
+  "function_symbol": "stanford_queens",
+  "description": "Bounded Stanford eight-queens benchmark that repeats the source first-solution search and prints pass ordinals.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Stanford/Queens/Queens.c",
+    "symbol": "Try, Doit, Queens, main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Queens/Queens.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Stanford/Queens/info.sh",
+    "bench_name": "Queens",
+    "source_files": [
+      "Queens.c"
+    ],
+    "compile_flags": [
+      "-lm"
+    ],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "Each Queens(run) invokes Doit 50 times, and each Doit initializes the eight-column and diagonal availability arrays before calling Try at row 1. Try tries columns 1 through 8 in ascending order, descends while marking both diagonals and backtracks failed branches. The source stops at the first solution, emits an error line only if no solution is found, then prints run+1. main invokes runs 0 through 99.",
+    "launcher_default_runs": 100,
+    "searches_per_pass": 50,
+    "board_size": 8,
+    "profile_minimum_runs": 1,
+    "profile_maximum_runs": 100,
+    "source_stdout_prefix": "For run count k, perform 50 full first-solution eight-queens searches per pass and print pass ordinals 1 through k, one decimal ordinal per line."
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "stanford_queens_runs",
+    "meaning": "Number of source Queens passes to perform, from the launcher's 100-pass loop.",
+    "minimum": 1,
+    "maximum": 100,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "stanford_queens_stdout_ascii",
+    "definition": "The source error line only if an eight-queens search fails, followed by one pass ordinal and LF per requested pass. The fixed search is solvable.",
+    "maximum_output_bytes": 292,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "one_pass",
+      "input_value": 1,
+      "expected_result": 2,
+      "expected_output": "1\n"
+    },
+    {
+      "id": "two_passes",
+      "input_value": 2,
+      "expected_result": 4,
+      "expected_output": "1\n2\n"
+    },
+    {
+      "id": "launcher_default",
+      "input_value": 100,
+      "expected_result": 292,
+      "expected_output": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59\n60\n61\n62\n63\n64\n65\n66\n67\n68\n69\n70\n71\n72\n73\n74\n75\n76\n77\n78\n79\n80\n81\n82\n83\n84\n85\n86\n87\n88\n89\n90\n91\n92\n93\n94\n95\n96\n97\n98\n99\n100\n"
+    },
+    {
+      "id": "zero_passes",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "negative_passes",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "passes_above_bound",
+      "input_value": 101,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "signed_64_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "signed_64_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_value": 1,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output": ""
+    },
+    {
+      "id": "null_output",
+      "input_value": 1,
+      "output_capacity": 292,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": ""
+    }
+  ]
+}

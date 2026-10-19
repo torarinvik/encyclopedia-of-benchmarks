@@ -1,0 +1,126 @@
+const DISK_COUNT: i32 = 14
+const MAX_CELLS: usize = 18
+const MAX_RUNS: i64 = 100
+const MAX_OUTPUT_BYTES: usize = 600
+const STAGING_BYTES: usize = 2400
+
+type Cell = object
+    disc_size: i32
+    next: i32
+
+type TowerState = object
+    stack: i32[4]
+    cells: Cell[MAX_CELLS + 1]
+    free_list: i32
+    moves_done: i32
+
+def get_element(state: mutable TowerState&) -> i32:
+    if state.free_list <= 0:
+        return 0
+    element: i32 = state.free_list
+    state.free_list <- state.cells[element.usize()].next
+    element
+
+def push(state: mutable TowerState&, disc_size: i32, peg: usize):
+    if state.stack[peg] > 0 and state.cells[state.stack[peg].usize()].disc_size <= disc_size:
+        return
+    element: i32 = get_element(state)
+    if element <= 0:
+        return
+    state.cells[element.usize()].next <- state.stack[peg]
+    state.stack[peg] <- element
+    state.cells[element.usize()].disc_size <- disc_size
+
+def initialize_peg(state: mutable TowerState&, peg: usize, disks: i32):
+    state.stack[peg] <- 0
+    disk: mutable i32 = disks
+    while disk >= 1:
+        push(state, disk, peg)
+        disk <- disk - 1
+
+def pop(state: mutable TowerState&, peg: usize) -> i32:
+    if state.stack[peg] <= 0:
+        return 0
+    element: i32 = state.stack[peg]
+    disc_size: i32 = state.cells[element.usize()].disc_size
+    state.stack[peg] <- state.cells[element.usize()].next
+    state.cells[element.usize()].next <- state.free_list
+    state.free_list <- element
+    disc_size
+
+def move(state: mutable TowerState&, source: usize, destination: usize):
+    disc_size: i32 = pop(state, source)
+    push(state, disc_size, destination)
+    state.moves_done <- state.moves_done + 1
+
+def tower(state: mutable TowerState&, source: usize, destination: usize, disks: i32):
+    if disks == 1:
+        move(state, source, destination)
+    else:
+        auxiliary: usize = 6 - source - destination
+        tower(state, source, auxiliary, disks - 1)
+        move(state, source, destination)
+        tower(state, auxiliary, destination, disks - 1)
+
+def run_towers() -> i32:
+    state: mutable TowerState = zeroed
+    index: mutable usize = 1
+    while index <= MAX_CELLS:
+        state.cells[index].next <- (index - 1).i32()
+        index <- index + 1
+    state.free_list <- MAX_CELLS.i32()
+    initialize_peg(state, 1, DISK_COUNT)
+    state.stack[2] <- 0
+    state.stack[3] <- 0
+    state.moves_done <- 0
+    tower(state, 1, 2, DISK_COUNT)
+    state.moves_done
+
+def append_text(buffer: mutable u8&, used: mutable usize&, text: string):
+    index: mutable usize = 0
+    while index < text.length():
+        buffer[used] <- text.byte_at(index)
+        used <- used + 1
+        index <- index + 1
+
+def append_integer(buffer: mutable u8&, used: mutable usize&, value: i32):
+    remaining: mutable i32 = value
+    if remaining < 0:
+        buffer[used] <- 45u8
+        used <- used + 1
+        remaining <- -remaining
+    reversed: mutable u8[12] = zeroed
+    count: mutable usize = 0
+    while true:
+        reversed[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+        if remaining == 0:
+            break
+    while count > 0:
+        count <- count - 1
+        buffer[used] <- reversed[count]
+        used <- used + 1
+
+def stanford_towers_impl(runs: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if runs < 1 or runs > MAX_RUNS:
+        return -1
+    if output.is_null():
+        return -2
+    staged: mutable u8[STAGING_BYTES] = zeroed
+    used: mutable usize = 0
+    for run in 0..<runs.usize():
+        moves_done: i32 = run_towers()
+        if moves_done != 16383:
+            append_text(staged, used, " Error in Towers.\n")
+        append_integer(staged, used, moves_done)
+        append_text(staged, used, "\n")
+    if used > MAX_OUTPUT_BYTES or output_capacity < used:
+        return -2
+    index: mutable usize = 0
+    while index < used:
+        output[index] <- staged[index]
+        index <- index + 1
+    used.i64()
+
+export fn stanford_towers(runs: i64, output: mutable u8&, output_capacity: usize) -> i64 = stanford_towers_impl

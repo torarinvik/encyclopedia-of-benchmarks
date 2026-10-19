@@ -4,7 +4,9 @@
 
 The pinned launcher compiles `almabench.c` with `-lm` and runs it without options. The source calculates daily positions for Mercury through Neptune using the Simon–Bretagnon orbital-element model, rotates each position into the J2000 equatorial frame, and prints right ascension, declination, and distance for each planet. The default profile computes 36525 days and repeats that pass 20 times; `SMALL_PROBLEM_SIZE` selects 3652 days and one pass. Both passes reset the date and produce identical final output.
 
-This suite accepts `days` in 1..36525. It performs one pass, calculates all eight planets for each date from J2000+1 through J2000+days, and returns the final day’s eight output lines. `days=36525` reproduces the launcher’s default final date. Each line follows the source format `RA DEC DIST` with six digits after each decimal point and LF.
+This suite accepts `days` in 1..36525. It performs one pass, calculates all eight planets for each date from J2000+1 through J2000+days, and returns the final day’s eight output lines. `days=36525` reproduces the launcher’s default final date. Each line follows the source format `RA DEC DIST` with six digits after each decimal point and LF. Each port computes the source’s orbital speed and three-dimensional velocity, including its equatorial-frame rotation, while emitting only the position-derived fields used by `radecdist`.
+
+The fixed-decimal writer rounds the exact binary64 value to six decimal places using round-to-nearest, ties-to-even, matching the launcher’s default C `%f` formatting for this bounded ephemeris output. It also preserves the floating-point sign bit when formatting zero.
 
 ## ABI and workload
 

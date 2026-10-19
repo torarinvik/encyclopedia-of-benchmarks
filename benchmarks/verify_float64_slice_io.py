@@ -29,6 +29,7 @@ from run_float64_slice_io import (
     validate_ramer_douglas_peucker_workload,
     validate_sir_workload,
     validate_syrk_workload,
+    validate_matmul_f64_4x4_workload,
 )
 from pca_oracle import (
     MAX_OUTPUT_ELEMENTS as PCA_MAX_OUTPUT_ELEMENTS,
@@ -535,7 +536,9 @@ ALGORITHMS = tuple(ORACLES)
 
 
 def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "syrk":
+    if algorithm == "matmul_f64_4x4":
+        validate_matmul_f64_4x4_workload(workload)
+    elif algorithm == "syrk":
         validate_syrk_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
@@ -5469,7 +5472,9 @@ def main() -> int:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if workload.get("algorithm") != algorithm:
         parser.error("workload algorithm does not match the requested algorithm")
-    if algorithm == "pca":
+    if algorithm == "matmul_f64_4x4":
+        validate_matmul_f64_4x4_workload(workload)
+    elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":
         validate_principal_component_analysis_workload(workload)

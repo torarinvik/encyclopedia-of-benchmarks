@@ -13,6 +13,8 @@ const r2d = 180.0 / pi
 const jmillenia = 365250.0
 const sineps = 0.3977771559319137
 const coseps = 0.9174820620691818
+const gaussk = 0.01720209895
+const amas = [8]f64{6023600.0, 408523.5, 328900.5, 3098710.0, 1047.355, 3498.5, 22869.0, 19314.0}
 const data = [600]f64{
     0.3870983098, 0.0, 0.0, 0.72332982, 0.0, 0.0,
     1.0000010178, 0.0, 0.0, 1.5236793419, 3e-10, 0.0,
@@ -118,9 +120,7 @@ const data = [600]f64{
 
 fn table_value(offset int, width int, planet int, term int) f64 { return data[offset + width * planet + term] }
 fn remainder_f64(value f64, divisor f64) f64 {
-	quotient := value / divisor
-	whole := if quotient < 0.0 { -math.floor(-quotient) } else { math.floor(quotient) }
-	return value - whole * divisor
+	return math.fmod(value, divisor)
 }
 fn normalize_angle(angle f64) f64 {
 	mut value := remainder_f64(angle, two_pi)
@@ -169,6 +169,17 @@ fn planet_position(planet int, day i64) [3]f64 {
 	x := radius * (longitude_cos - correction * node_sin)
 	ecliptic_y := radius * (longitude_sin + correction * node_cos)
 	ecliptic_z := radius * (-correction * inclination_cos)
+	speed := gaussk * math.sqrt_f64((1.0 + 1.0 / amas[planet]) / (semi_major * semi_major * semi_major))
+	xf := semi_major / math.sqrt_f64(1.0 - eccentricity * eccentricity)
+	xms := (eccentricity * math.sin(perihelion) + longitude_sin) * xf
+	xmc := (eccentricity * math.cos(perihelion) + longitude_cos) * xf
+	xpxq2 := 2.0 * node_sin * node_cos
+	velocity_x := speed * ((-1.0 + 2.0 * node_sin * node_sin) * xms + xpxq2 * xmc)
+	velocity_y := speed * ((1.0 - 2.0 * node_cos * node_cos) * xmc - xpxq2 * xms)
+	velocity_z := speed * (2.0 * inclination_cos * (node_sin * xms + node_cos * xmc))
+	equatorial_velocity_y := velocity_y * coseps - velocity_z * sineps
+	equatorial_velocity_z := velocity_y * sineps + velocity_z * coseps
+	_ = velocity_x; _ = equatorial_velocity_y; _ = equatorial_velocity_z
 	y := ecliptic_y * coseps - ecliptic_z * sineps
 	z := ecliptic_y * sineps + ecliptic_z * coseps
 	distance := math.sqrt(x*x + y*y + z*z)
@@ -191,9 +202,44 @@ fn append_integer(mut buffer [max_output_bytes]u8, mut used int, value i64) {
 	}
 	for count > 0 { count--; buffer[used] = reversed[count]; used++ }
 }
+fn rounded_micro_units(bits u64) u64 {
+	exponent := int((bits >> 52) & u64(0x7ff))
+	if exponent == 0 { return 0 }
+	significand := (bits & u64(0x000f_ffff_ffff_ffff)) | (u64(1) << 52)
+	shift := 1075 - exponent
+	if shift >= 74 { return 0 }
+	low_product := (significand & u64(0xffff_ffff)) * 1_000_000
+	high_product := (significand >> 32) * 1_000_000
+	middle := (low_product >> 32) + (high_product & u64(0xffff_ffff))
+	limb0 := low_product & u64(0xffff_ffff)
+	limb1 := middle & u64(0xffff_ffff)
+	limb2 := (high_product >> 32) + (middle >> 32)
+	mut quotient := u64(0)
+	mut half_bit := u64(0)
+	mut lower_nonzero := false
+	if shift < 64 {
+		part := shift - 32
+		quotient = (limb1 >> u64(part)) | (limb2 << u64(32 - part))
+		half_bit = (limb1 >> u64(part - 1)) & u64(1)
+		lower_nonzero = limb0 != 0 || (limb1 & ((u64(1) << u64(part - 1)) - u64(1))) != 0
+	} else if shift == 64 {
+		quotient = limb2
+		half_bit = limb1 >> 31
+		lower_nonzero = limb0 != 0 || (limb1 & u64(0x7fff_ffff)) != 0
+	} else {
+		part := shift - 64
+		quotient = limb2 >> u64(part)
+		half_bit = (limb2 >> u64(part - 1)) & u64(1)
+		lower_nonzero = limb0 != 0 || limb1 != 0 || (limb2 & ((u64(1) << u64(part - 1)) - u64(1))) != 0
+	}
+	if half_bit != 0 && (lower_nonzero || (quotient & u64(1)) != 0) { quotient++ }
+	return quotient
+}
+
 fn append_fixed(mut buffer [max_output_bytes]u8, mut used int, value f64) {
-	negative := value < 0.0
-	scaled := i64(math.floor(math.abs(value) * 1000000.0 + 0.5))
+	bits := math.f64_bits(value)
+	negative := (bits >> 63) != 0
+	scaled := i64(rounded_micro_units(bits & u64(0x7fff_ffff_ffff_ffff)))
 	if negative { buffer[used] = u8(`-`); used++ }
 	append_integer(mut buffer, mut used, scaled / 1000000)
 	buffer[used] = u8(`.`); used++

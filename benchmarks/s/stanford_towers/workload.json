@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-stanford-towers-bounded-passes-v1",
+  "algorithm": "stanford_towers",
+  "function_symbol": "stanford_towers",
+  "description": "Bounded port of Stanford's 14-disk, free-list-backed Towers of Hanoi benchmark.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Stanford/Towers/Towers.c",
+    "symbol": "Getelement, Push, Init, Pop, Move, tower, Towers, main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Towers/Towers.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Stanford/Towers/info.sh",
+    "bench_name": "Towers",
+    "source_files": [
+      "Towers.c"
+    ],
+    "compile_flags": [
+      "-lm"
+    ],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "Each pass initializes the source's 18-cell free-list pool, loads 14 disks on peg 1, and recursively transfers them to peg 2 with peg 3 as auxiliary. The source checks for 16383 moves and then prints the move count; no diagnostic occurs for the valid pass. The launcher repeats this pass 100 times.",
+    "upstream_default_runs": 100,
+    "disks_per_run": 14,
+    "cell_pool_capacity": 18,
+    "profile_minimum_runs": 1,
+    "profile_maximum_runs": 100,
+    "expected_moves_per_run": 16383,
+    "source_output_format": "printf(\"%d\\n\", movesdone), preceded by \" Error in Towers.\\n\" only if movesdone != 16383",
+    "invalid_suite_case": "The suite rejects run counts outside 1..100; the launcher accepts no runtime input."
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "stanford_towers_runs",
+    "meaning": "Number of complete source-style Towers passes to perform.",
+    "minimum": 1,
+    "maximum": 100,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "stanford_towers_stdout_ascii",
+    "definition": "One decimal move count and LF per pass. Every valid pass emits 16383 followed by LF.",
+    "maximum_output_bytes": 600,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "one_run",
+      "input_value": 1,
+      "expected_result": 6,
+      "expected_output_hex": "31363338330a"
+    },
+    {
+      "id": "two_runs",
+      "input_value": 2,
+      "expected_result": 12,
+      "expected_output_hex": "31363338330a31363338330a"
+    },
+    {
+      "id": "launcher_default",
+      "input_value": 100,
+      "expected_result": 600,
+      "expected_output_hex": "31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a31363338330a"
+    },
+    {
+      "id": "zero_runs_invalid",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_runs_invalid",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "above_profile_invalid",
+      "input_value": 101,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed_64_minimum_invalid",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "signed_64_maximum_invalid",
+      "input_value": 9223372036854775807,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_value": 1,
+      "output_capacity": 5,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_value": 1,
+      "output_capacity": 600,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}
+

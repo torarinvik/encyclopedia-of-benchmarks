@@ -1,0 +1,39 @@
+const MAX_ITERATIONS: i64 = 256
+const VECTOR_LENGTH: usize = 2048
+
+def misc_fp_convert_impl(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length != 1: return -1
+    requested: f64 = input[0]
+    if requested != requested or requested < 1.0 or requested > 256.0 or requested.i64().f64() != requested: return -1
+    if output.is_null() or output_capacity < 1: return -2
+
+    iterations: i64 = requested.i64()
+    x: mutable f32[VECTOR_LENGTH] = zeroed
+    y: mutable f32[VECTOR_LENGTH] = zeroed
+    a: mutable f32 = 0.0.f32()
+    b: mutable f32 = 1.0.f32()
+    total: mutable f64 = 0.0
+    iteration: mutable i64 = 0
+    while iteration < iterations:
+        if iteration % 10 != 0:
+            a <- 0.0.f32()
+            b <- 1.0.f32()
+        else:
+            a <- a + 0.1.f32()
+            b <- b + 0.2.f32()
+        index: mutable usize = 0
+        while index < VECTOR_LENGTH:
+            x[index] <- a + index.f32()
+            y[index] <- b + index.f32()
+            index <- index + 1
+        accumulator: mutable f64 = 0.0
+        index <- 0
+        while index < VECTOR_LENGTH:
+            accumulator <- accumulator + x[index].f64() * y[index].f64()
+            index <- index + 1
+        total <- total + accumulator
+        iteration <- iteration + 1
+    output[0] <- total
+    1
+
+export fn misc_fp_convert(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = misc_fp_convert_impl

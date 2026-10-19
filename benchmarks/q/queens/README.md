@@ -22,4 +22,4 @@ The source supports dimensions through 100, but its no-argument launcher default
 | V | [`v/q/queens.v`](../../../v/q/queens.v) |
 | Zig | [`zig/q/queens.zig`](../../../zig/q/queens.zig) |
 
-The shared scalar-bytes build and runner wiring will use algorithm name `queens` and function symbol `queens`.
+The shared scalar-bytes build, runner, and verifier use algorithm name `queens` and function symbol `queens`.

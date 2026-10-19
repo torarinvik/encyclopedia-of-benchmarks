@@ -54,16 +54,6 @@ fn decimalWidth(value_input: u32) usize {
     return width;
 }
 
-fn requiredOutputBytes(pass_count: u32) usize {
-    var required: usize = 0;
-    for (1..@as(usize, pass_count) + 1) |iteration_usize| {
-        const iteration: u32 = @intCast(iteration_usize);
-        for (0..5) |test| required += decimalWidth(expectedRank(test, iteration));
-        required += 5; // Four commas and LF.
-    }
-    return required + decimalWidth(5 * pass_count + 1) + 1;
-}
-
 fn appendDecimal(value_input: u32, output: [*]u8, position_input: usize) usize {
     var value = value_input;
     var position = position_input;
@@ -122,10 +112,10 @@ fn fullVerify() bool {
 export fn npb_is(pass_count: i64, output_opt: ?[*]u8, output_capacity: usize) i64 {
     if (pass_count < 1 or pass_count > MAX_PASSES) return -1;
     const passes: u32 = @intCast(pass_count);
-    const required = requiredOutputBytes(passes);
-    if (output_opt == null or output_capacity < required) return -2;
+    if (output_opt == null) return -2;
     const output = output_opt.?;
 
+    var staged: [353]u8 = @splat(0);
     generateKeys();
     var partials: [5]u32 = @splat(0);
     rankPass(1, &partials); // Untimed source warm-up.
@@ -134,21 +124,27 @@ export fn npb_is(pass_count: i64, output_opt: ?[*]u8, output_capacity: usize) i6
     for (1..@as(usize, passes) + 1) |iteration_usize| {
         const iteration: u32 = @intCast(iteration_usize);
         rankPass(iteration, &partials);
+        var row_required: usize = 5;
+        for (0..5) |test| row_required += decimalWidth(partials[test]);
+        if (position + row_required > staged.len) return -2;
         for (0..5) |test| {
             if (partials[test] == expectedRank(test, iteration)) passed_verification += 1;
-            position = appendDecimal(partials[test], output, position);
+            position = appendDecimal(partials[test], staged[0..].ptr, position);
             if (test + 1 < 5) {
-                output[position] = ',';
+                staged[position] = ',';
                 position += 1;
             }
         }
-        output[position] = '\n';
+        staged[position] = '\n';
         position += 1;
     }
     if (fullVerify()) passed_verification += 1;
     if (passed_verification != 5 * passes + 1) passed_verification = 0;
-    position = appendDecimal(passed_verification, output, position);
-    output[position] = '\n';
+    if (position + decimalWidth(passed_verification) + 1 > staged.len) return -2;
+    position = appendDecimal(passed_verification, staged[0..].ptr, position);
+    staged[position] = '\n';
     position += 1;
+    if (output_capacity < position) return -2;
+    for (0..position) |index| output[index] = staged[index];
     return @intCast(position);
 }

@@ -1,6 +1,7 @@
 /* Integer Sort class-W port from NAS NPB-serial/is. */
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 
 namespace {
 constexpr std::size_t TOTAL_KEYS = 1u << 20;
@@ -72,17 +73,6 @@ std::size_t append_decimal(std::uint32_t value, std::uint8_t *output, std::size_
     return position;
 }
 
-std::size_t required_output_bytes(std::uint32_t pass_count)
-{
-    std::size_t required = 0;
-    for (std::uint32_t iteration = 1; iteration <= pass_count; ++iteration) {
-        for (std::size_t index = 0; index < TEST_COUNT; ++index)
-            required += decimal_width(expected_rank(index, iteration));
-        required += TEST_COUNT;
-    }
-    return required + decimal_width(5 * pass_count + 1) + 1;
-}
-
 void rank_pass(std::uint32_t iteration, std::uint32_t partials[TEST_COUNT])
 {
     key_array[iteration] = iteration;
@@ -122,9 +112,9 @@ extern "C" std::int64_t npb_is(std::int64_t pass_count, std::uint8_t *output,
 {
     if (pass_count < 1 || pass_count > MAX_PASSES) return -1;
     const auto passes = static_cast<std::uint32_t>(pass_count);
-    const std::size_t required = required_output_bytes(passes);
-    if (output == nullptr || output_capacity < required) return -2;
+    if (output == nullptr) return -2;
 
+    std::uint8_t staged[353];
     generate_keys();
     std::uint32_t partials[TEST_COUNT];
     rank_pass(1, partials);
@@ -132,16 +122,23 @@ extern "C" std::int64_t npb_is(std::int64_t pass_count, std::uint8_t *output,
     std::size_t position = 0;
     for (std::uint32_t iteration = 1; iteration <= passes; ++iteration) {
         rank_pass(iteration, partials);
+        std::size_t row_required = TEST_COUNT;
+        for (std::size_t test = 0; test < TEST_COUNT; ++test)
+            row_required += decimal_width(partials[test]);
+        if (position + row_required > sizeof(staged)) return -2;
         for (std::size_t test = 0; test < TEST_COUNT; ++test) {
             if (partials[test] == expected_rank(test, iteration)) ++passed_verification;
-            position = append_decimal(partials[test], output, position);
-            if (test + 1 < TEST_COUNT) output[position++] = ',';
+            position = append_decimal(partials[test], staged, position);
+            if (test + 1 < TEST_COUNT) staged[position++] = ',';
         }
-        output[position++] = '\n';
+        staged[position++] = '\n';
     }
     if (full_verify()) ++passed_verification;
     if (passed_verification != 5 * passes + 1) passed_verification = 0;
-    position = append_decimal(passed_verification, output, position);
-    output[position++] = '\n';
+    if (position + decimal_width(passed_verification) + 1 > sizeof(staged)) return -2;
+    position = append_decimal(passed_verification, staged, position);
+    staged[position++] = '\n';
+    if (output_capacity < position) return -2;
+    std::memcpy(output, staged, position);
     return static_cast<std::int64_t>(position);
 }

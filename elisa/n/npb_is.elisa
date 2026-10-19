@@ -31,19 +31,6 @@ def npb_is_decimal_width(value: u32) -> usize:
         width <- width + 1
     width
 
-def npb_is_required_output_bytes(pass_count: u32) -> usize:
-    required: mutable usize = 0
-    iteration: mutable u32 = 1
-    while iteration <= pass_count:
-        test: mutable usize = 0
-        while test < 5:
-            required <- required + npb_is_decimal_width(npb_is_expected_rank(test, iteration))
-            test <- test + 1
-        required <- required + 5
-        iteration <- iteration + 1
-    required <- required + npb_is_decimal_width((5 * pass_count + 1).u32()) + 1
-    required
-
 def npb_is_append_decimal(value: u32, output: mutable u8&, position: mutable usize&) -> void:
     digits: mutable u8[10] = zeroed
     count: mutable usize = 0
@@ -139,9 +126,9 @@ def npb_is_full_verify() -> bool:
 def npb_is_impl(pass_count: i64, output: mutable u8&, output_capacity: usize) -> i64:
     if pass_count < 1 or pass_count > 10: return -1
     passes: u32 = pass_count.u32()
-    required: usize = npb_is_required_output_bytes(passes)
-    if output.is_null() or output_capacity < required: return -2
+    if output.is_null(): return -2
 
+    staged: mutable u8[353] = zeroed
     npb_is_generate_keys()
     partials: mutable u32[5] = zeroed
     npb_is_rank_pass(1u32, partials&)
@@ -150,24 +137,36 @@ def npb_is_impl(pass_count: i64, output: mutable u8&, output_capacity: usize) ->
     iteration: mutable u32 = 1u32
     while iteration <= passes:
         npb_is_rank_pass(iteration, partials&)
+        row_required: mutable usize = 5
+        row_test: mutable usize = 0
+        while row_test < 5:
+            row_required <- row_required + npb_is_decimal_width(partials[row_test])
+            row_test <- row_test + 1
+        if position + row_required > 353: return -2
         test: mutable usize = 0
         while test < 5:
             if partials[test] == npb_is_expected_rank(test, iteration):
                 passed_verification <- passed_verification + 1u32
-            npb_is_append_decimal(partials[test], output, position&)
+            npb_is_append_decimal(partials[test], staged&, position&)
             if test + 1 < 5:
-                output[position] <- 44u8
+                staged[position] <- 44u8
                 position <- position + 1
             test <- test + 1
-        output[position] <- 10u8
+        staged[position] <- 10u8
         position <- position + 1
         iteration <- iteration + 1u32
 
     if npb_is_full_verify(): passed_verification <- passed_verification + 1u32
     if passed_verification != 5u32 * passes + 1u32: passed_verification <- 0u32
-    npb_is_append_decimal(passed_verification, output, position&)
-    output[position] <- 10u8
+    if position + npb_is_decimal_width(passed_verification) + 1 > 353: return -2
+    npb_is_append_decimal(passed_verification, staged&, position&)
+    staged[position] <- 10u8
     position <- position + 1
+    if output_capacity < position: return -2
+    index: mutable usize = 0
+    while index < position:
+        output[index] <- staged[index]
+        index <- index + 1
     position.i64()
 
 export fn npb_is(pass_count: i64, output: mutable u8&, output_capacity: usize) -> i64 = npb_is_impl

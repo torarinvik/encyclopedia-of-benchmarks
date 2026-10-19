@@ -1,0 +1,105 @@
+const MIN_RUNS: i64 = 1
+const MAX_RUNS: i64 = 100
+const ELEMENT_COUNT: usize = 5000
+const MAX_OUTPUT_BYTES: usize = 700
+
+type TreeNode = object
+    value: i32
+    left: i32
+    right: i32
+
+def next_random(seed: mutable i64&) -> i32:
+    seed <- (seed * 1309 + 13849) & 65535
+    seed.i32()
+
+def validate_tree(nodes: TreeNode&, root: usize) -> bool:
+    if nodes[root].left != -1:
+        child: usize = nodes[root].left.usize()
+        if nodes[child].value <= nodes[root].value or not validate_tree(nodes, child):
+            return false
+    if nodes[root].right != -1:
+        child: usize = nodes[root].right.usize()
+        if nodes[child].value >= nodes[root].value or not validate_tree(nodes, child):
+            return false
+    true
+
+def build_and_check_pass(selected_run: usize, selected_value: mutable i32&) -> bool:
+    values: mutable i32[ELEMENT_COUNT] = zeroed
+    nodes: mutable TreeNode[ELEMENT_COUNT] = zeroed
+    seed: mutable i64 = 74755
+    for index in 0..<ELEMENT_COUNT:
+        temp: i32 = next_random(seed)
+        values[index] <- temp - (temp / 100000) * 100000 - 50000
+
+    nodes[0].value <- values[0]
+    nodes[0].left <- -1
+    nodes[0].right <- -1
+    used: mutable usize = 1
+    for index in 1..<ELEMENT_COUNT:
+        current: mutable usize = 0
+        while true:
+            if values[index] > nodes[current].value:
+                if nodes[current].left == -1:
+                    nodes[current].left <- used.i32()
+                    nodes[used].value <- values[index]
+                    nodes[used].left <- -1
+                    nodes[used].right <- -1
+                    used <- used + 1
+                    break
+                current <- nodes[current].left.usize()
+            elif values[index] < nodes[current].value:
+                if nodes[current].right == -1:
+                    nodes[current].right <- used.i32()
+                    nodes[used].value <- values[index]
+                    nodes[used].left <- -1
+                    nodes[used].right <- -1
+                    used <- used + 1
+                    break
+                current <- nodes[current].right.usize()
+            else:
+                break
+    selected_value <- values[selected_run + 1]
+    validate_tree(nodes, 0)
+
+def append_text(buffer: mutable u8&, used: mutable usize&, text: string) -> void:
+    for index in 0..<text.length():
+        buffer[used] <- text[index].u8()
+        used <- used + 1
+
+def append_integer(buffer: mutable u8&, used: mutable usize&, value: i32) -> void:
+    remaining: mutable i32 = value
+    if remaining < 0:
+        buffer[used] <- 45u8
+        used <- used + 1
+        remaining <- -remaining
+    reverse: mutable u8[12] = zeroed
+    count: mutable usize = 0
+    while true:
+        reverse[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+        if remaining == 0: break
+    while count > 0:
+        count <- count - 1
+        buffer[used] <- reverse[count]
+        used <- used + 1
+
+def stanford_treesort_impl(runs: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if runs < MIN_RUNS or runs > MAX_RUNS: return -1
+    if output.is_null(): return -2
+
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    used: mutable usize = 0
+    for run in 0..<runs.usize():
+        selected_value: mutable i32 = 0
+        valid: bool = build_and_check_pass(run, selected_value)
+        append_integer(staged, used, selected_value)
+        append_text(staged, used, "\n")
+        if not valid:
+            append_text(staged, used, " Error in Tree.\n")
+    if output_capacity < used: return -2
+    for index in 0..<used:
+        output[index] <- staged[index]
+    used.i64()
+
+export fn stanford_treesort(runs: i64, output: mutable u8&, output_capacity: usize) -> i64 = stanford_treesort_impl

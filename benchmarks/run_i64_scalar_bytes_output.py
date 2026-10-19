@@ -23,8 +23,23 @@ from prime_factorial_oracle import expected_output as prime_factorial_expected_o
 from stream_sieve_oracle import expected_output as stream_sieve_expected_output
 from shootout_sieve_oracle import expected_output as shootout_sieve_expected_output
 from shootout_random_oracle import expected_output as shootout_random_expected_output
+from shootout_hello_oracle import expected_output as shootout_hello_expected_output
+from shootout_lists_oracle import expected_output as shootout_lists_expected_output
+from shootout_strcat_oracle import expected_output as shootout_strcat_expected_output
+from shootout_matrix_oracle import expected_output as shootout_matrix_expected_output
+from shootout_methcall_oracle import expected_output as shootout_methcall_expected_output
+from shootout_objinst_oracle import expected_output as shootout_objinst_expected_output
 from shootout_heapsort_oracle import expected_output as shootout_heapsort_expected_output
 from benchmarkgame_recursive_oracle import expected_output as benchmarkgame_recursive_expected_output
+from stanford_quicksort_oracle import expected_output as stanford_quicksort_expected_output
+from almabench_oracle import expected_output as almabench_expected_output
+from queens_oracle import expected_output as queens_expected_output
+from npb_is_oracle import expected_output as npb_is_expected_output
+from stanford_treesort_oracle import expected_output as stanford_treesort_expected_output
+from stanford_bubblesort_oracle import expected_output as stanford_bubblesort_expected_output
+from stanford_towers_oracle import expected_output as stanford_towers_expected_output
+from stanford_queens_oracle import expected_output as stanford_queens_expected_output
+from stanford_realmm_oracle import expected_output as stanford_realmm_expected_output
 
 MAX_OUTPUT_BYTES = 8192
 
@@ -42,10 +57,40 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
         return shootout_sieve_expected_output(value)
     if encoding == "shootout_random_ascii":
         return shootout_random_expected_output(value)
+    if encoding == "shootout_hello_stdout_ascii":
+        return shootout_hello_expected_output(value)
+    if encoding == "shootout_lists_stdout_ascii":
+        return shootout_lists_expected_output(value)
+    if encoding == "shootout_strcat_stdout_ascii":
+        return shootout_strcat_expected_output(value)
+    if encoding == "shootout_matrix_decimal_stdout":
+        return shootout_matrix_expected_output(value)
+    if encoding == "shootout_methcall_stdout_ascii":
+        return shootout_methcall_expected_output(value)
+    if encoding == "shootout_objinst_stdout_ascii":
+        return shootout_objinst_expected_output(value)
     if encoding == "shootout_heapsort_ascii":
         return shootout_heapsort_expected_output(value)
     if encoding == "benchmarkgame_recursive_ascii":
         return benchmarkgame_recursive_expected_output(value)
+    if encoding == "stanford_quicksort_ranks_ascii":
+        return stanford_quicksort_expected_output(value)
+    if encoding == "almabench_ephemeris_ascii":
+        return almabench_expected_output(value)
+    if encoding == "mcgill_queens_count_ascii":
+        return queens_expected_output(value)
+    if encoding == "npb_is_class_w_ascii":
+        return npb_is_expected_output(value)
+    if encoding == "stanford_treesort_runs":
+        return stanford_treesort_expected_output(value)
+    if encoding == "stanford_bubblesort_runs":
+        return stanford_bubblesort_expected_output(value)
+    if encoding == "stanford_towers_runs":
+        return stanford_towers_expected_output(value)
+    if encoding == "stanford_queens_runs":
+        return stanford_queens_expected_output(value)
+    if encoding == "stanford_realmm_decimal_stdout":
+        return stanford_realmm_expected_output(value)
     if encoding == "prime_factorial_unique_u32le":
         return prime_factorial_expected_output(value)
     if encoding == "magicdiamondpattern":

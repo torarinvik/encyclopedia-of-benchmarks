@@ -45,15 +45,6 @@ fn decimal_width(value u32) int {
 	return width
 }
 
-fn required_output_bytes(pass_count u32) int {
-	mut required := 0
-	for iteration in u32(1) .. pass_count + 1 {
-		for test in 0 .. 5 { required += decimal_width(expected_rank(test, iteration)) }
-		required += 5
-	}
-	return required + decimal_width(5 * pass_count + 1) + 1
-}
-
 fn append_decimal(value u32, mut output &u8, mut position int) {
 	mut reversed := [10]u8{}
 	mut count := 0
@@ -122,9 +113,9 @@ fn full_verify() bool {
 pub fn npb_is(pass_count i64, mut output &u8, output_capacity usize) i64 {
 	if pass_count < 1 || pass_count > max_passes { return -1 }
 	passes := u32(pass_count)
-	required := required_output_bytes(passes)
-	if output == nil || output_capacity < usize(required) { return -2 }
+	if output == nil { return -2 }
 
+	mut staged := [353]u8{}
 	generate_keys()
 	mut partials := [5]u32{}
 	rank_pass(1, mut partials) // Untimed source warm-up.
@@ -132,21 +123,29 @@ pub fn npb_is(pass_count i64, mut output &u8, output_capacity usize) i64 {
 	mut position := 0
 	for iteration in u32(1) .. passes + 1 {
 		rank_pass(iteration, mut partials)
+		mut row_required := 5
+		for test in 0 .. 5 { row_required += decimal_width(partials[test]) }
+		if position + row_required > staged.len { return -2 }
 		for test in 0 .. 5 {
 			if partials[test] == expected_rank(test, iteration) { passed_verification++ }
-			append_decimal(partials[test], mut output, mut position)
+			append_decimal(partials[test], mut staged[0], mut position)
 			if test + 1 < 5 {
-				unsafe { output[position] = u8(',') }
+				staged[position] = u8(',')
 				position++
 			}
 		}
-		unsafe { output[position] = 10 }
+		staged[position] = 10
 		position++
 	}
 	if full_verify() { passed_verification++ }
 	if passed_verification != 5 * passes + 1 { passed_verification = 0 }
-	append_decimal(passed_verification, mut output, mut position)
-	unsafe { output[position] = 10 }
+	if position + decimal_width(passed_verification) + 1 > staged.len { return -2 }
+	append_decimal(passed_verification, mut staged[0], mut position)
+	staged[position] = 10
 	position++
+	if output_capacity < usize(position) { return -2 }
+	for index in 0 .. position {
+		unsafe { output[index] = staged[index] }
+	}
 	return i64(position)
 }

@@ -46,13 +46,6 @@ proc decimalWidth(value: uint32): int =
     remaining = remaining div 10'u32
     inc result
 
-proc requiredOutputBytes(passCount: uint32): int =
-  for iteration in 1'u32 .. passCount:
-    for test in 0 ..< 5:
-      result += decimalWidth(expectedRank(test, iteration))
-    result += 5 # Four commas and LF.
-  result += decimalWidth(5'u32 * passCount + 1'u32) + 1
-
 proc appendDecimal(value: uint32, output: ptr UncheckedArray[uint8], position: var int) =
   var reversed: array[10, uint8]
   var count = 0
@@ -100,9 +93,9 @@ proc npb_is*(passCount: int64, output: ptr UncheckedArray[uint8],
              outputCapacity: csize_t): int64 {.cdecl, exportc: "npb_is".} =
   if passCount < 1 or passCount > MaxPasses: return -1
   let passes = uint32(passCount)
-  let required = requiredOutputBytes(passes)
-  if output.isNil or outputCapacity < csize_t(required): return -2
+  if output.isNil: return -2
 
+  var staged: array[353, uint8]
   generateKeys()
   var partials: array[5, uint32]
   rankPass(1'u32, partials) # Untimed source warm-up.
@@ -110,17 +103,23 @@ proc npb_is*(passCount: int64, output: ptr UncheckedArray[uint8],
   var position = 0
   for iteration in 1'u32 .. passes:
     rankPass(iteration, partials)
+    var rowRequired = 5
+    for test in 0 ..< 5: rowRequired += decimalWidth(partials[test])
+    if position + rowRequired > staged.len: return -2
     for test in 0 ..< 5:
       if partials[test] == expectedRank(test, iteration): inc passedVerification
-      appendDecimal(partials[test], output, position)
+      appendDecimal(partials[test], cast[ptr UncheckedArray[uint8]](addr staged[0]), position)
       if test + 1 < 5:
-        output[position] = uint8(ord(','))
+        staged[position] = uint8(ord(','))
         inc position
-    output[position] = uint8(ord('\n'))
+    staged[position] = uint8(ord('\n'))
     inc position
   if fullVerify(): inc passedVerification
   if passedVerification != 5'u32 * passes + 1'u32: passedVerification = 0
-  appendDecimal(passedVerification, output, position)
-  output[position] = uint8(ord('\n'))
+  if position + decimalWidth(passedVerification) + 1 > staged.len: return -2
+  appendDecimal(passedVerification, cast[ptr UncheckedArray[uint8]](addr staged[0]), position)
+  staged[position] = uint8(ord('\n'))
   inc position
+  if outputCapacity < csize_t(position): return -2
+  for index in 0 ..< position: output[index] = staged[index]
   int64(position)

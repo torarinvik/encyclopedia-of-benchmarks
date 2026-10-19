@@ -2670,6 +2670,7 @@ ALGORITHMS = (*ALGORITHMS, "sha2")
 ALGORITHMS = (*ALGORITHMS, "linqshuffler")
 ALGORITHMS = (*ALGORITHMS, "tree_234")
 ALGORITHMS = (*ALGORITHMS, "length", "job_sequencing")
+ALGORITHMS = (*ALGORITHMS, "misc_lowercase")
 WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_unique_key_ops",
                         "complex_arithmetic",
                         "weight_conversions", "brainfuck", "p_series", "logarithmic_series",
@@ -3018,7 +3019,37 @@ WORKSPACE_ALGORITHMS.update({"smith_waterman_python", "smith_waterman_rust",
 WORKSPACE_ALGORITHMS.add("revert_bits")
 WORKSPACE_ALGORITHMS.add("uuencode")
 WORKSPACE_ALGORITHMS.add("uudecode")
+WORKSPACE_ALGORITHMS.add("misc_lowercase")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
+
+MISC_LOWERCASE_MAX_CHARACTERS = 31
+MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH = MISC_LOWERCASE_MAX_CHARACTERS + 2
+MISC_LOWERCASE_MAX_OUTPUT_BYTES = 1 + 2 * MISC_LOWERCASE_MAX_CHARACTERS
+
+
+def misc_lowercase_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (input_is_null or not isinstance(values, (tuple, list))
+            or not 1 <= len(values) <= MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int for value in values)
+            or (input_length is not None and input_length != len(values))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    count = values[0]
+    if not 0 <= count <= MISC_LOWERCASE_MAX_CHARACTERS or len(values) != count + 1:
+        return -1, b""
+    units = values[1:]
+    if any(not 0 <= unit <= 0xFFFF for unit in units):
+        return -1, b""
+    ascii_flag = int(all(unit <= 0x7F for unit in units))
+    mapped = (unit + 0x20 if 0x41 <= unit <= 0x5A else unit for unit in units)
+    output = bytes((ascii_flag,)) + b"".join(unit.to_bytes(2, "little") for unit in mapped)
+    if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, b""
+    return len(output), output
+
 
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "smith_waterman_python": smith_waterman_python_oracle,
@@ -3028,6 +3059,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "uint256_t": uint256_t_oracle,
     "uuencode": uuencode_verifier_oracle,
     "uudecode": uudecode_verifier_oracle,
+    "misc_lowercase": misc_lowercase_verifier_oracle,
 }
 
 
@@ -4546,6 +4578,54 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("uudecode metadata differs from its pinned bounded source contract")
+    elif algorithm == "misc_lowercase":
+        max_input, max_output = (MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH,
+                                 MISC_LOWERCASE_MAX_OUTPUT_BYTES)
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        expected_ids = {
+            "empty_source_length", "one_source_character", "source_ascii_prefix_12",
+            "full_source_pattern", "source_repeated_pattern_boundary",
+            "source_driver_maximum_length", "mixed_ascii_boundary",
+            "non_ascii_and_surrogate_preserved", "negative_count", "count_above_profile",
+            "short_frame", "extra_frame_value", "negative_code_unit", "code_unit_above_u16",
+            "short_output_capacity", "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-misc-lowercase-u16-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "Misc/lowercase/lowercase.c"
+                or source.get("symbol") != "lower_StringImpl"
+                or launcher.get("repository") != "lac-dcc/Benchmarks"
+                or launcher.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or launcher.get("path") != "Misc/lowercase/info.sh"
+                or launcher.get("bench_name") != "lowercase"
+                or launcher.get("source_files") != ["lowercase.c"]
+                or launcher.get("compile_flags") != ["-lm"]
+                or launcher.get("run_options") != []
+                or input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[character_count, unsigned_16_bit_code_units...]"
+                or input_spec.get("character_count_range") != [0, MISC_LOWERCASE_MAX_CHARACTERS]
+                or input_spec.get("code_unit_range") != [0, 65535]
+                or input_spec.get("exact_length") != "1 + character_count"
+                or input_spec.get("maximum_valid_array_length") != MISC_LOWERCASE_MAX_CHARACTERS + 1
+                or input_spec.get("maximum_parseable_array_length") != max_input
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("encoding") != "one byte ASCII flag followed by mapped unsigned 16-bit code units in little-endian order"
+                or output_spec.get("ascii_flag") != "1 iff every original code unit is <= 127; otherwise 0"
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("short_capacity_writes_nothing") is not True
+                or workspace_bytes != max_output
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("misc_lowercase metadata differs from its pinned bounded contract")
     elif algorithm == "uint":
         max_input, max_output = UINT_MAX_PARSEABLE_INPUT_LENGTH, UINT_MAX_OUTPUT_BYTES
         if (workload.get("schema_version") != 1
@@ -4758,6 +4838,23 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add(malformed)
         add((-1,))
         add((256,))
+    elif algorithm == "misc_lowercase":
+        values = (MISC_LOWERCASE_MAX_CHARACTERS,
+                  *([65, 90, 97, 122, 48, 127, 128, 0xD800, 0xFFFF]
+                    * 3 + [65, 90, 97, 122]))
+        maximum_result, maximum_output = add(values)
+        if (len(values) != MISC_LOWERCASE_MAX_CHARACTERS + 1
+                or maximum_result != max_output or len(maximum_output) != max_output):
+            raise ValueError("misc_lowercase maximum input does not fill its output bound")
+        for capacity in (0, maximum_result - 1, maximum_result, workspace_bytes):
+            add(values, capacity)
+        add(values, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        for sample in ((0,), (1, 65), (2, 65, 90), (4, 65, 128, 0xD800, 0xFFFF)):
+            add(sample)
+        for malformed in ((), (-1,), (MISC_LOWERCASE_MAX_CHARACTERS + 1,),
+                          (2, 65), (1, 65, 66), (1, -1), (1, 0x10000)):
+            add(malformed)
     elif algorithm == "uint":
         rng = random.Random(20261017)
         for index in range(128):

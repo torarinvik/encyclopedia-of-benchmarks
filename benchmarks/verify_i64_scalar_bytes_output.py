@@ -40,6 +40,36 @@ from shootout_random_oracle import MAX_CALL_COUNT as SHOOTOUT_RANDOM_MAX_CALL_CO
 from shootout_random_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_RANDOM_MAX_OUTPUT_BYTES
 from shootout_random_oracle import MIN_CALL_COUNT as SHOOTOUT_RANDOM_MIN_CALL_COUNT
 from shootout_random_oracle import OUTPUT_ERROR as SHOOTOUT_RANDOM_OUTPUT_ERROR
+from shootout_hello_oracle import INVALID_RESULT as SHOOTOUT_HELLO_INVALID_RESULT
+from shootout_hello_oracle import MAX_CALLS as SHOOTOUT_HELLO_MAX_CALLS
+from shootout_hello_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_HELLO_MAX_OUTPUT_BYTES
+from shootout_hello_oracle import MIN_CALLS as SHOOTOUT_HELLO_MIN_CALLS
+from shootout_hello_oracle import OUTPUT_ERROR as SHOOTOUT_HELLO_OUTPUT_ERROR
+from shootout_lists_oracle import INVALID_RESULT as SHOOTOUT_LISTS_INVALID_RESULT
+from shootout_lists_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_LISTS_MAX_OUTPUT_BYTES
+from shootout_lists_oracle import MAX_RUNS as SHOOTOUT_LISTS_MAX_RUNS
+from shootout_lists_oracle import MIN_RUNS as SHOOTOUT_LISTS_MIN_RUNS
+from shootout_lists_oracle import OUTPUT_ERROR as SHOOTOUT_LISTS_OUTPUT_ERROR
+from shootout_strcat_oracle import INVALID_RESULT as SHOOTOUT_STRCAT_INVALID_RESULT
+from shootout_strcat_oracle import MAX_APPEND_COUNT as SHOOTOUT_STRCAT_MAX_APPEND_COUNT
+from shootout_strcat_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_STRCAT_MAX_OUTPUT_BYTES
+from shootout_strcat_oracle import MIN_APPEND_COUNT as SHOOTOUT_STRCAT_MIN_APPEND_COUNT
+from shootout_strcat_oracle import OUTPUT_ERROR as SHOOTOUT_STRCAT_OUTPUT_ERROR
+from shootout_matrix_oracle import INVALID_RESULT as SHOOTOUT_MATRIX_INVALID_RESULT
+from shootout_matrix_oracle import MAX_ITERATIONS as SHOOTOUT_MATRIX_MAX_ITERATIONS
+from shootout_matrix_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_MATRIX_MAX_OUTPUT_BYTES
+from shootout_matrix_oracle import MIN_ITERATIONS as SHOOTOUT_MATRIX_MIN_ITERATIONS
+from shootout_matrix_oracle import OUTPUT_ERROR as SHOOTOUT_MATRIX_OUTPUT_ERROR
+from shootout_methcall_oracle import INVALID_RESULT as SHOOTOUT_METHCALL_INVALID_RESULT
+from shootout_methcall_oracle import MAX_CALLS as SHOOTOUT_METHCALL_MAX_CALLS
+from shootout_methcall_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_METHCALL_MAX_OUTPUT_BYTES
+from shootout_methcall_oracle import MIN_CALLS as SHOOTOUT_METHCALL_MIN_CALLS
+from shootout_methcall_oracle import OUTPUT_ERROR as SHOOTOUT_METHCALL_OUTPUT_ERROR
+from shootout_objinst_oracle import INVALID_RESULT as SHOOTOUT_OBJINST_INVALID_RESULT
+from shootout_objinst_oracle import MAX_N as SHOOTOUT_OBJINST_MAX_N
+from shootout_objinst_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_OBJINST_MAX_OUTPUT_BYTES
+from shootout_objinst_oracle import MIN_N as SHOOTOUT_OBJINST_MIN_N
+from shootout_objinst_oracle import OUTPUT_ERROR as SHOOTOUT_OBJINST_OUTPUT_ERROR
 from shootout_heapsort_oracle import INVALID_RESULT as SHOOTOUT_HEAPSORT_INVALID_RESULT
 from shootout_heapsort_oracle import MAX_LENGTH as SHOOTOUT_HEAPSORT_MAX_LENGTH
 from shootout_heapsort_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_HEAPSORT_MAX_OUTPUT_BYTES
@@ -50,11 +80,57 @@ from benchmarkgame_recursive_oracle import MAX_N as BENCHMARKGAME_RECURSIVE_MAX_
 from benchmarkgame_recursive_oracle import MAX_OUTPUT_BYTES as BENCHMARKGAME_RECURSIVE_MAX_OUTPUT_BYTES
 from benchmarkgame_recursive_oracle import MIN_N as BENCHMARKGAME_RECURSIVE_MIN_N
 from benchmarkgame_recursive_oracle import OUTPUT_ERROR as BENCHMARKGAME_RECURSIVE_OUTPUT_ERROR
+from stanford_quicksort_oracle import INVALID_RESULT as STANFORD_QUICKSORT_INVALID_RESULT
+from stanford_quicksort_oracle import MAX_OUTPUT_BYTES as STANFORD_QUICKSORT_MAX_OUTPUT_BYTES
+from stanford_quicksort_oracle import MAX_PREFIX_COUNT as STANFORD_QUICKSORT_MAX_PREFIX_COUNT
+from stanford_quicksort_oracle import MIN_PREFIX_COUNT as STANFORD_QUICKSORT_MIN_PREFIX_COUNT
+from stanford_quicksort_oracle import OUTPUT_ERROR as STANFORD_QUICKSORT_OUTPUT_ERROR
+from almabench_oracle import INVALID_RESULT as ALMABENCH_INVALID_RESULT
+from almabench_oracle import MAX_DAYS as ALMABENCH_MAX_DAYS
+from almabench_oracle import MAX_OUTPUT_BYTES as ALMABENCH_MAX_OUTPUT_BYTES
+from almabench_oracle import MIN_DAYS as ALMABENCH_MIN_DAYS
+from almabench_oracle import OUTPUT_ERROR as ALMABENCH_OUTPUT_ERROR
+from queens_oracle import INVALID_RESULT as QUEENS_INVALID_RESULT
+from queens_oracle import MAX_N as QUEENS_MAX_N
+from queens_oracle import MAX_OUTPUT_BYTES as QUEENS_MAX_OUTPUT_BYTES
+from queens_oracle import OUTPUT_ERROR as QUEENS_OUTPUT_ERROR
+from npb_is_oracle import INVALID_RESULT as NPB_IS_INVALID_RESULT
+from npb_is_oracle import MAX_OUTPUT_BYTES as NPB_IS_MAX_OUTPUT_BYTES
+from npb_is_oracle import MAX_PASSES as NPB_IS_MAX_PASSES
+from npb_is_oracle import OUTPUT_ERROR as NPB_IS_OUTPUT_ERROR
+from stanford_treesort_oracle import INVALID_RESULT as STANFORD_TREESORT_INVALID_RESULT
+from stanford_treesort_oracle import MAX_OUTPUT_BYTES as STANFORD_TREESORT_MAX_OUTPUT_BYTES
+from stanford_treesort_oracle import MAX_RUNS as STANFORD_TREESORT_MAX_RUNS
+from stanford_treesort_oracle import MIN_RUNS as STANFORD_TREESORT_MIN_RUNS
+from stanford_treesort_oracle import OUTPUT_ERROR as STANFORD_TREESORT_OUTPUT_ERROR
+from stanford_bubblesort_oracle import INVALID_RESULT as STANFORD_BUBBLESORT_INVALID_RESULT
+from stanford_bubblesort_oracle import MAX_OUTPUT_BYTES as STANFORD_BUBBLESORT_MAX_OUTPUT_BYTES
+from stanford_bubblesort_oracle import MAX_RUNS as STANFORD_BUBBLESORT_MAX_RUNS
+from stanford_bubblesort_oracle import MIN_RUNS as STANFORD_BUBBLESORT_MIN_RUNS
+from stanford_bubblesort_oracle import OUTPUT_ERROR as STANFORD_BUBBLESORT_OUTPUT_ERROR
+from stanford_towers_oracle import INVALID_RESULT as STANFORD_TOWERS_INVALID_RESULT
+from stanford_towers_oracle import MAX_OUTPUT_BYTES as STANFORD_TOWERS_MAX_OUTPUT_BYTES
+from stanford_towers_oracle import MAX_RUNS as STANFORD_TOWERS_MAX_RUNS
+from stanford_towers_oracle import MIN_RUNS as STANFORD_TOWERS_MIN_RUNS
+from stanford_towers_oracle import OUTPUT_ERROR as STANFORD_TOWERS_OUTPUT_ERROR
+from stanford_queens_oracle import INVALID_RESULT as STANFORD_QUEENS_INVALID_RESULT
+from stanford_queens_oracle import MAX_OUTPUT_BYTES as STANFORD_QUEENS_MAX_OUTPUT_BYTES
+from stanford_queens_oracle import MAX_RUNS as STANFORD_QUEENS_MAX_RUNS
+from stanford_queens_oracle import MIN_RUNS as STANFORD_QUEENS_MIN_RUNS
+from stanford_queens_oracle import OUTPUT_ERROR as STANFORD_QUEENS_OUTPUT_ERROR
+from stanford_realmm_oracle import INVALID_RESULT as STANFORD_REALMM_INVALID_RESULT
+from stanford_realmm_oracle import MAX_OUTPUT_BYTES as STANFORD_REALMM_MAX_OUTPUT_BYTES
+from stanford_realmm_oracle import MAX_PASSES as STANFORD_REALMM_MAX_PASSES
+from stanford_realmm_oracle import OUTPUT_ERROR as STANFORD_REALMM_OUTPUT_ERROR
 
 ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal", "integer_to_roman",
               "pascal_triangle_row", "floyd_triangle", "harmonic_series", "butterfly_pattern",
               "magicdiamondpattern", "prime_factorial", "stream_sieve", "ary3", "sieve", "floatmm",
-              "stanford_intmm", "shootout_random", "shootout_heapsort", "benchmarkgame_recursive")
+              "stanford_intmm", "shootout_random", "shootout_heapsort", "benchmarkgame_recursive",
+              "stanford_quicksort", "almabench", "queens", "npb_is", "stanford_treesort",
+              "stanford_bubblesort", "stanford_towers", "stanford_queens", "shootout_hello",
+              "stanford_realmm", "shootout_lists", "shootout_strcat", "shootout_matrix",
+              "shootout_methcall", "shootout_objinst")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -301,6 +377,121 @@ def corpus(workload: dict) -> tuple[str, int]:
                 or fixtures["signed_64_minimum_invalid"].get("input_value") != I64_MIN
                 or fixtures["signed_64_maximum_invalid"].get("input_value") != I64_MAX):
             raise ValueError("stanford_intmm workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "stanford_realmm_decimal_stdout":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/RealMM/RealMM.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/RealMM/info.sh"
+        )
+        required_case_ids = {
+            "one_pass", "three_passes", "upstream_ten_pass_profile",
+            "zero_passes_invalid", "above_profile_invalid", "signed_64_minimum_invalid",
+            "signed_64_maximum_invalid", "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-stanford-realmm-bounded-decimal-v1"
+                or workload.get("algorithm") != "stanford_realmm"
+                or workload.get("function_symbol") != "stanford_realmm"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/RealMM/RealMM.c",
+                    "symbol": "main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/RealMM/info.sh",
+                    "bench_name": "RealMM",
+                    "source_files": ["RealMM.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "The no-option launcher invokes Mm for run indices 0 through 9. Each pass resets seed 74755, regenerates two 40x40 double matrices in row-major order from the 16-bit LCG, computes the complete product in row/column/inner order, and prints product[run+1][run+1] with printf(\"%f\\n\").",
+                    "upstream_default_passes": 10,
+                    "rows": 40,
+                    "columns": 40,
+                    "seed_initial_value": 74755,
+                    "lcg_multiplier": 1309,
+                    "lcg_increment": 13849,
+                    "lcg_mask": 65535,
+                    "matrix_residue_range": [-60, 59],
+                    "matrix_value_expression": "(temp % 120 - 60) / 3.0 using integer remainder before double conversion",
+                    "profile_minimum_passes": 1,
+                    "profile_maximum_passes": STANFORD_REALMM_MAX_PASSES,
+                    "upstream_default_stdout": "\n".join(("-776.000000", "636.888889", "961.777778", "-239.555556", "-337.777778", "-298.222222", "-962.666667", "94.666667", "62.222222", "33.333333")) + "\n",
+                    "invalid_source_case": "The suite wrapper returns -1 for pass counts outside 1 through 10; the launcher itself supplies no input and performs ten passes.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "stanford_realmm_decimal_stdout",
+                    "meaning": "Number of complete source-equivalent RealMM passes; each pass emits its matching diagonal product cell.",
+                    "minimum": 1,
+                    "maximum": STANFORD_REALMM_MAX_PASSES,
+                    "invalid_result": STANFORD_REALMM_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": 'printf("%f\\n"): six fractional digits and LF per pass, with default C round-to-nearest formatting',
+                    "definition": "For pass index r, the line formats the full 40x40 product's cell [r][r] in the source's one-based indexing. Each pass regenerates the same A and B matrices because the source resets its LCG seed.",
+                    "maximum_output_bytes": STANFORD_REALMM_MAX_OUTPUT_BYTES,
+                    "invalid_result": STANFORD_REALMM_INVALID_RESULT,
+                    "null_output_result": STANFORD_REALMM_OUTPUT_ERROR,
+                    "insufficient_capacity_result": STANFORD_REALMM_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or STANFORD_REALMM_MAX_PASSES != 10
+                or STANFORD_REALMM_MAX_OUTPUT_BYTES != 140
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("stanford_realmm workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "stanford_realmm" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("stanford_realmm README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, passes in (("one_pass", 1), ("three_passes", 3),
+                                ("upstream_ten_pass_profile", STANFORD_REALMM_MAX_PASSES)):
+            expected_result, expected = expected_output(passes, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != passes
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output_hex", "").lower() != expected.hex()):
+                raise ValueError(f"stanford_realmm fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["zero_passes_invalid"].get("input_value") != 0
+                or fixtures["zero_passes_invalid"].get("expected_result") != STANFORD_REALMM_INVALID_RESULT
+                or fixtures["above_profile_invalid"].get("input_value") != STANFORD_REALMM_MAX_PASSES + 1
+                or fixtures["above_profile_invalid"].get("expected_result") != STANFORD_REALMM_INVALID_RESULT
+                or fixtures["signed_64_minimum_invalid"].get("input_value") != I64_MIN
+                or fixtures["signed_64_minimum_invalid"].get("expected_result") != STANFORD_REALMM_INVALID_RESULT
+                or fixtures["signed_64_maximum_invalid"].get("input_value") != I64_MAX
+                or fixtures["signed_64_maximum_invalid"].get("expected_result") != STANFORD_REALMM_INVALID_RESULT
+                or capacity_case.get("input_value") != STANFORD_REALMM_MAX_PASSES
+                or capacity_case.get("output_capacity") != len(expected_output(
+                    STANFORD_REALMM_MAX_PASSES, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != STANFORD_REALMM_OUTPUT_ERROR
+                or null_case.get("input_value") != STANFORD_REALMM_MAX_PASSES
+                or null_case.get("output_capacity") != STANFORD_REALMM_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != STANFORD_REALMM_OUTPUT_ERROR):
+            raise ValueError("stanford_realmm workload is missing its reviewed boundary/output fixtures")
     elif encoding == "shootout_random_ascii":
         source_url = (
             "https://github.com/lac-dcc/Benchmarks/blob/"
@@ -505,6 +696,1545 @@ def corpus(workload: dict) -> tuple[str, int]:
                 or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
                 or fixtures["signed_64_maximum"].get("input_value") != I64_MAX):
             raise ValueError("benchmarkgame_recursive workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "npb_is_class_w_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/NPB-serial/is/is.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/NPB-serial/is/info.sh"
+        )
+        required_case_ids = {
+            "one_pass", "two_passes", "class_w_ten_pass_profile", "zero_passes_invalid",
+            "above_profile_invalid", "signed_64_minimum_invalid", "signed_64_maximum_invalid",
+            "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-npb-is-class-w-bounded-v1"
+                or workload.get("algorithm") != "npb_is"
+                or workload.get("function_symbol") != "npb_is"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "NPB-serial/is/is.c",
+                    "symbol": "main",
+                    "url": source_url,
+                    "license_note": "The source grants permission to use, copy, distribute, and modify for any purpose, requests derived work to reference NAS Parallel Benchmarks 3.3, and includes an as-is warranty disclaimer; ports are independently written.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "NPB-serial/is/info.sh",
+                    "bench_name": "is",
+                    "source_files": ["is.c"],
+                    "default_compile_flags": [],
+                    "class_w_compile_flag": "-DSMALL_PROBLEM_SIZE",
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "profile": "class W selected by SMALL_PROBLEM_SIZE",
+                    "total_keys": 1048576,
+                    "max_key_exclusive": 65536,
+                    "num_buckets": 1024,
+                    "iterations": 10,
+                    "seed": 314159265,
+                    "lcg_multiplier": 1220703125,
+                    "lcg_modulus": 70368744177664,
+                    "random_draws_per_key": 4,
+                    "key_indices": [357773, 934767, 875723, 898999, 404505],
+                    "baseline_ranks": [1249, 11698, 1039987, 1043896, 1048018],
+                    "profile_minimum_passes": 1,
+                    "profile_maximum_passes": NPB_IS_MAX_PASSES,
+                    "verification": "Each pass checks five class-W partial ranks; a full sorted-order check contributes one more verification. A successful prefix run reports 5*pass_count+1.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "npb_is_class_w_ascii",
+                    "meaning": "Number of class-W rank passes to execute after the source-equivalent rank(1) warm-up.",
+                    "minimum": 1,
+                    "maximum": NPB_IS_MAX_PASSES,
+                    "invalid_result": NPB_IS_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "npb_is_partial_ranks_csv_ascii",
+                    "format": "five comma-separated decimal partial ranks and LF per pass, then decimal verification count and LF",
+                    "definition": "Each pass emits the count of keys strictly less than each of the five source-selected key values, in source index order. The final line is the total successful partial and full verification count.",
+                    "maximum_output_bytes": NPB_IS_MAX_OUTPUT_BYTES,
+                    "invalid_result": NPB_IS_INVALID_RESULT,
+                    "null_output_result": NPB_IS_OUTPUT_ERROR,
+                    "insufficient_capacity_result": NPB_IS_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or NPB_IS_MAX_PASSES != 10
+                or NPB_IS_MAX_OUTPUT_BYTES != 353
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("npb_is workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "n" / "npb_is" / "README.md").read_text(encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("npb_is README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, passes in (("one_pass", 1), ("two_passes", 2),
+                                ("class_w_ten_pass_profile", NPB_IS_MAX_PASSES)):
+            expected_result, expected = expected_output(passes, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != passes
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output_hex", "").lower() != expected.hex()):
+                raise ValueError(f"npb_is fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["zero_passes_invalid"].get("input_value") != 0
+                or fixtures["above_profile_invalid"].get("input_value") != NPB_IS_MAX_PASSES + 1
+                or fixtures["signed_64_minimum_invalid"].get("input_value") != I64_MIN
+                or fixtures["signed_64_maximum_invalid"].get("input_value") != I64_MAX
+                or capacity_case.get("input_value") != 1
+                or capacity_case.get("output_capacity") != len(expected_output(1, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != NPB_IS_OUTPUT_ERROR
+                or null_case.get("input_value") != NPB_IS_MAX_PASSES
+                or null_case.get("output_capacity") != NPB_IS_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != NPB_IS_OUTPUT_ERROR):
+            raise ValueError("npb_is workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "stanford_bubblesort_runs":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Bubblesort/Bubblesort.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Bubblesort/info.sh"
+        )
+        required_case_ids = {
+            "one_run", "two_runs", "launcher_default", "zero_runs", "negative_runs",
+            "runs_above_bound", "signed_64_minimum", "signed_64_maximum",
+            "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-stanford-bubblesort-bounded-runs-v1"
+                or workload.get("algorithm") != "stanford_bubblesort"
+                or workload.get("function_symbol") != "stanford_bubblesort"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/Bubblesort/Bubblesort.c",
+                    "symbol": "Initrand, Rand, bInitarr, Bubble, main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/Bubblesort/info.sh",
+                    "bench_name": "Bubblesort",
+                    "source_files": ["Bubblesort.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "Each Bubble(run) resets the 16-bit affine generator to 74755 and fills 500 values using temp-(temp/100000)*100000-50000. It tracks extrema from zero, performs all bubble passes with no early exit and swaps only left values strictly greater than their right neighbors, checks endpoints, then prints rank run+1 using the source 1-based index. main invokes runs 0 through 99.",
+                    "launcher_default_runs": 100,
+                    "elements_per_run": 500,
+                    "seed": 74755,
+                    "lcg_multiplier": 1309,
+                    "lcg_increment": 13849,
+                    "lcg_mask": 65535,
+                    "profile_minimum_runs": STANFORD_BUBBLESORT_MIN_RUNS,
+                    "profile_maximum_runs": STANFORD_BUBBLESORT_MAX_RUNS,
+                    "source_stdout_prefix": "For run count k, regenerate and fully bubble-sort the fixed 500-value array k times, printing sorted ranks 1 through k, one decimal value per line.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "stanford_bubblesort_runs",
+                    "meaning": "Number of source Bubble passes to perform, from the launcher's 100-pass loop.",
+                    "minimum": STANFORD_BUBBLESORT_MIN_RUNS,
+                    "maximum": STANFORD_BUBBLESORT_MAX_RUNS,
+                    "invalid_result": STANFORD_BUBBLESORT_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "stanford_bubblesort_stdout_ascii",
+                    "definition": "One selected sorted integer per pass with LF, preceded by the source endpoint error line only if that check fails.",
+                    "maximum_output_bytes": STANFORD_BUBBLESORT_MAX_OUTPUT_BYTES,
+                    "invalid_result": STANFORD_BUBBLESORT_INVALID_RESULT,
+                    "null_output_result": STANFORD_BUBBLESORT_OUTPUT_ERROR,
+                    "insufficient_capacity_result": STANFORD_BUBBLESORT_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or STANFORD_BUBBLESORT_MIN_RUNS != 1
+                or STANFORD_BUBBLESORT_MAX_RUNS != 100
+                or STANFORD_BUBBLESORT_MAX_OUTPUT_BYTES != 700
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("stanford_bubblesort workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "stanford_bubblesort" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("stanford_bubblesort README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, runs in (("one_run", 1), ("two_runs", 2),
+                              ("launcher_default", STANFORD_BUBBLESORT_MAX_RUNS)):
+            expected_result, expected = expected_output(runs, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != runs
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output", "").encode("ascii") != expected):
+                raise ValueError(f"stanford_bubblesort fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["zero_runs"].get("input_value") != 0
+                or fixtures["zero_runs"].get("expected_result") != STANFORD_BUBBLESORT_INVALID_RESULT
+                or fixtures["negative_runs"].get("input_value") != -1
+                or fixtures["negative_runs"].get("expected_result") != STANFORD_BUBBLESORT_INVALID_RESULT
+                or fixtures["runs_above_bound"].get("input_value") != STANFORD_BUBBLESORT_MAX_RUNS + 1
+                or fixtures["runs_above_bound"].get("expected_result") != STANFORD_BUBBLESORT_INVALID_RESULT
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_minimum"].get("expected_result") != STANFORD_BUBBLESORT_INVALID_RESULT
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX
+                or fixtures["signed_64_maximum"].get("expected_result") != STANFORD_BUBBLESORT_INVALID_RESULT
+                or capacity_case.get("input_value") != 1
+                or capacity_case.get("output_capacity") != len(expected_output(1, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != STANFORD_BUBBLESORT_OUTPUT_ERROR
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != STANFORD_BUBBLESORT_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != STANFORD_BUBBLESORT_OUTPUT_ERROR):
+            raise ValueError("stanford_bubblesort workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "shootout_hello_stdout_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hello/hello.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hello/info.sh"
+        )
+        required_case_ids = {
+            "source_single_call", "zero_calls", "negative_calls", "extra_call_not_in_source",
+            "signed_64_minimum", "signed_64_maximum", "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-shootout-hello-single-call-v1"
+                or workload.get("algorithm") != "shootout_hello"
+                or workload.get("function_symbol") != "shootout_hello"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/hello/hello.c",
+                    "symbol": "main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/hello/info.sh",
+                    "bench_name": "hello",
+                    "source_files": ["hello.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "main executes puts(\"hello world\\n\") exactly once; puts appends a second LF after the newline already in the string.",
+                    "launcher_default_calls": 1,
+                    "profile_minimum_calls": SHOOTOUT_HELLO_MIN_CALLS,
+                    "profile_maximum_calls": SHOOTOUT_HELLO_MAX_CALLS,
+                    "source_stdout": "hello world\n\n",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "shootout_hello_calls",
+                    "meaning": "One-valued selector representing the source's single puts call.",
+                    "minimum": SHOOTOUT_HELLO_MIN_CALLS,
+                    "maximum": SHOOTOUT_HELLO_MAX_CALLS,
+                    "invalid_result": SHOOTOUT_HELLO_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "shootout_hello_stdout_ascii",
+                    "definition": "The exact bytes hello world followed by two LF bytes.",
+                    "maximum_output_bytes": SHOOTOUT_HELLO_MAX_OUTPUT_BYTES,
+                    "invalid_result": SHOOTOUT_HELLO_INVALID_RESULT,
+                    "null_output_result": SHOOTOUT_HELLO_OUTPUT_ERROR,
+                    "insufficient_capacity_result": SHOOTOUT_HELLO_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or SHOOTOUT_HELLO_MIN_CALLS != 1
+                or SHOOTOUT_HELLO_MAX_CALLS != 1
+                or SHOOTOUT_HELLO_MAX_OUTPUT_BYTES != 13
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("shootout_hello workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "shootout_hello" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("shootout_hello README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        expected_result, expected = expected_output(1, encoding)
+        fixture = fixtures["source_single_call"]
+        if (fixture.get("input_value") != 1
+                or fixture.get("expected_result") != expected_result
+                or fixture.get("expected_output", "").encode("ascii") != expected):
+            raise ValueError("shootout_hello source fixture does not match its oracle")
+        for case_id, value in (("zero_calls", 0), ("negative_calls", -1),
+                               ("extra_call_not_in_source", 2),
+                               ("signed_64_minimum", I64_MIN),
+                               ("signed_64_maximum", I64_MAX)):
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != value
+                    or fixture.get("expected_result") != SHOOTOUT_HELLO_INVALID_RESULT
+                    or fixture.get("expected_output") != ""):
+                raise ValueError(f"shootout_hello invalid fixture {case_id} is incorrect")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (capacity_case.get("input_value") != 1
+                or capacity_case.get("output_capacity") != SHOOTOUT_HELLO_MAX_OUTPUT_BYTES - 1
+                or capacity_case.get("expected_result") != SHOOTOUT_HELLO_OUTPUT_ERROR
+                or capacity_case.get("expected_output") != ""
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != SHOOTOUT_HELLO_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != SHOOTOUT_HELLO_OUTPUT_ERROR
+                or null_case.get("expected_output") != ""):
+            raise ValueError("shootout_hello workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "shootout_lists_stdout_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/lists/lists.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/lists/info.sh"
+        )
+        required_case_ids = {
+            "zero_passes", "one_pass", "two_passes", "maximum_profile_runs",
+            "negative_runs", "above_profile_runs", "signed_64_minimum",
+            "signed_64_maximum", "short_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-shootout-lists-bounded-v1"
+                or workload.get("algorithm") != "shootout_lists"
+                or workload.get("function_symbol") != "shootout_lists"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/lists/lists.c",
+                    "symbol": "main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/lists/info.sh",
+                    "bench_name": "lists",
+                    "source_files": ["lists.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "Each pass creates a 100-element list and copy, verifies equality, drains the copy through a third list in both directions, reverses the original, and verifies equality and endpoints. The C main repeats this pass n times and prints the last result, or zero when n is zero.",
+                    "list_size": 100,
+                    "launcher_default_runs": 3000000,
+                    "small_problem_size_runs": 300000,
+                    "profile_minimum_runs": SHOOTOUT_LISTS_MIN_RUNS,
+                    "profile_maximum_runs": SHOOTOUT_LISTS_MAX_RUNS,
+                    "zero_run_stdout": "0\n",
+                    "positive_run_stdout": "100\n",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "shootout_lists_runs",
+                    "meaning": "Number of complete source list-test passes; the suite bounds this to avoid the launcher’s multi-million-pass default.",
+                    "minimum": SHOOTOUT_LISTS_MIN_RUNS,
+                    "maximum": SHOOTOUT_LISTS_MAX_RUNS,
+                    "invalid_result": SHOOTOUT_LISTS_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "shootout_lists_stdout_ascii",
+                    "definition": "ASCII 0 followed by LF for zero passes, or ASCII 100 followed by LF for one or more passes.",
+                    "maximum_output_bytes": SHOOTOUT_LISTS_MAX_OUTPUT_BYTES,
+                    "invalid_result": SHOOTOUT_LISTS_INVALID_RESULT,
+                    "null_output_result": SHOOTOUT_LISTS_OUTPUT_ERROR,
+                    "insufficient_capacity_result": SHOOTOUT_LISTS_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or SHOOTOUT_LISTS_MIN_RUNS != 0
+                or SHOOTOUT_LISTS_MAX_RUNS != 10000
+                or SHOOTOUT_LISTS_MAX_OUTPUT_BYTES != 4
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("shootout_lists workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "shootout_lists" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("shootout_lists README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, runs in (("zero_passes", 0), ("one_pass", 1), ("two_passes", 2),
+                              ("maximum_profile_runs", SHOOTOUT_LISTS_MAX_RUNS)):
+            expected_result, expected = expected_output(runs, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != runs
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output") != expected.decode("ascii")):
+                raise ValueError(f"shootout_lists fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["short_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["negative_runs"].get("input_value") != -1
+                or fixtures["negative_runs"].get("expected_result") != SHOOTOUT_LISTS_INVALID_RESULT
+                or fixtures["above_profile_runs"].get("input_value") != SHOOTOUT_LISTS_MAX_RUNS + 1
+                or fixtures["above_profile_runs"].get("expected_result") != SHOOTOUT_LISTS_INVALID_RESULT
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_minimum"].get("expected_result") != SHOOTOUT_LISTS_INVALID_RESULT
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX
+                or fixtures["signed_64_maximum"].get("expected_result") != SHOOTOUT_LISTS_INVALID_RESULT
+                or capacity_case.get("input_value") != 1
+                or capacity_case.get("output_capacity") != 3
+                or capacity_case.get("expected_result") != SHOOTOUT_LISTS_OUTPUT_ERROR
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != SHOOTOUT_LISTS_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != SHOOTOUT_LISTS_OUTPUT_ERROR):
+            raise ValueError("shootout_lists workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "shootout_strcat_stdout_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/strcat/strcat.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/strcat/info.sh"
+        )
+        required_case_ids = {
+            "zero_appends", "one_append", "five_before_first_growth", "six_growth_boundary",
+            "ten_before_next_growth", "eleven_growth_boundary", "maximum_profile",
+            "negative_count", "count_above_profile", "signed_64_minimum", "signed_64_maximum",
+            "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-shootout-strcat-bounded-v1"
+                or workload.get("algorithm") != "shootout_strcat"
+                or workload.get("function_symbol") != "shootout_strcat"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/strcat/strcat.c",
+                    "symbol": "main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/strcat/info.sh",
+                    "bench_name": "strcat",
+                    "source_files": ["strcat.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "Each loop appends the six bytes hello followed by LF; after all appends, main prints strlen as decimal ASCII followed by LF. Buffer capacity starts at 32 and doubles when fewer than seven bytes remain.",
+                    "launcher_default_calls": 10000000,
+                    "profile_minimum_calls": SHOOTOUT_STRCAT_MIN_APPEND_COUNT,
+                    "profile_maximum_calls": SHOOTOUT_STRCAT_MAX_APPEND_COUNT,
+                    "source_stdout_formula": "decimal(6 * append_count) followed by LF",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "shootout_strcat_append_count",
+                    "meaning": "Number of six-byte hello-newline appends.",
+                    "minimum": SHOOTOUT_STRCAT_MIN_APPEND_COUNT,
+                    "maximum": SHOOTOUT_STRCAT_MAX_APPEND_COUNT,
+                    "invalid_result": SHOOTOUT_STRCAT_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "shootout_strcat_stdout_ascii",
+                    "definition": "Decimal representation of six times append_count, followed by one LF byte.",
+                    "maximum_output_bytes": SHOOTOUT_STRCAT_MAX_OUTPUT_BYTES,
+                    "invalid_result": SHOOTOUT_STRCAT_INVALID_RESULT,
+                    "null_output_result": SHOOTOUT_STRCAT_OUTPUT_ERROR,
+                    "insufficient_capacity_result": SHOOTOUT_STRCAT_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or SHOOTOUT_STRCAT_MIN_APPEND_COUNT != 0
+                or SHOOTOUT_STRCAT_MAX_APPEND_COUNT != 4096
+                or SHOOTOUT_STRCAT_MAX_OUTPUT_BYTES != 6
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("shootout_strcat workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "shootout_strcat" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("shootout_strcat README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, appends in (("zero_appends", 0), ("one_append", 1),
+                                 ("five_before_first_growth", 5), ("six_growth_boundary", 6),
+                                 ("ten_before_next_growth", 10), ("eleven_growth_boundary", 11),
+                                 ("maximum_profile", SHOOTOUT_STRCAT_MAX_APPEND_COUNT)):
+            expected_result, expected = expected_output(appends, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != appends
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output") != expected.decode("ascii")):
+                raise ValueError(f"shootout_strcat fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["negative_count"].get("input_value") != -1
+                or fixtures["negative_count"].get("expected_result") != SHOOTOUT_STRCAT_INVALID_RESULT
+                or fixtures["count_above_profile"].get("input_value") != SHOOTOUT_STRCAT_MAX_APPEND_COUNT + 1
+                or fixtures["count_above_profile"].get("expected_result") != SHOOTOUT_STRCAT_INVALID_RESULT
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_minimum"].get("expected_result") != SHOOTOUT_STRCAT_INVALID_RESULT
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX
+                or fixtures["signed_64_maximum"].get("expected_result") != SHOOTOUT_STRCAT_INVALID_RESULT
+                or capacity_case.get("input_value") != 2
+                or capacity_case.get("output_capacity") != 2
+                or capacity_case.get("expected_result") != SHOOTOUT_STRCAT_OUTPUT_ERROR
+                or null_case.get("input_value") != 2
+                or null_case.get("output_capacity") != 3
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != SHOOTOUT_STRCAT_OUTPUT_ERROR):
+            raise ValueError("shootout_strcat workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "shootout_matrix_decimal_stdout":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/matrix/matrix.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/matrix/info.sh"
+        )
+        required_case_ids = {
+            "zero_iterations", "one_iteration", "two_iterations", "maximum_bounded_iterations",
+            "negative_iterations", "iterations_above_bound", "signed_64_minimum",
+            "signed_64_maximum", "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-shootout-matrix-bounded-decimal-v1"
+                or workload.get("algorithm") != "shootout_matrix"
+                or workload.get("function_symbol") != "shootout_matrix"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/matrix/matrix.c",
+                    "symbol": "mkmatrix, mmult, main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/matrix/info.sh",
+                    "bench_name": "matrix",
+                    "source_files": ["matrix.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "The source initializes three 10x10 matrices row-major with the values 1 through 100. It multiplies the first two matrices into the third for n iterations, then prints cells [0][0], [2][3], [3][2], and [4][4]. The inputs are unchanged, so every positive iteration count has the same output; n=0 prints the untouched destination matrix.",
+                    "upstream_default_iterations": 3000000,
+                    "small_problem_size_default_iterations": 300000,
+                    "rows": 10,
+                    "columns": 10,
+                    "profile_minimum_iterations": SHOOTOUT_MATRIX_MIN_ITERATIONS,
+                    "profile_maximum_iterations": SHOOTOUT_MATRIX_MAX_ITERATIONS,
+                    "source_output_format": "printf(\"%d %d %d %d\\n\", mm[0][0], mm[2][3], mm[3][2], mm[4][4])",
+                    "invalid_suite_case": "The bounded suite profile rejects negative counts and counts above 4096.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "shootout_matrix_decimal_stdout",
+                    "meaning": "Number of complete 10x10 matrix multiplication passes.",
+                    "minimum": SHOOTOUT_MATRIX_MIN_ITERATIONS,
+                    "maximum": SHOOTOUT_MATRIX_MAX_ITERATIONS,
+                    "invalid_result": SHOOTOUT_MATRIX_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "Four base-10 integers separated by one ASCII space, followed by LF.",
+                    "definition": "For zero iterations, return selected cells from the initial destination matrix. For positive iterations, return selected cells of the product of the fixed source matrices.",
+                    "maximum_output_bytes": SHOOTOUT_MATRIX_MAX_OUTPUT_BYTES,
+                    "invalid_result": SHOOTOUT_MATRIX_INVALID_RESULT,
+                    "null_output_result": SHOOTOUT_MATRIX_OUTPUT_ERROR,
+                    "insufficient_capacity_result": SHOOTOUT_MATRIX_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or SHOOTOUT_MATRIX_MIN_ITERATIONS != 0
+                or SHOOTOUT_MATRIX_MAX_ITERATIONS != 4096
+                or SHOOTOUT_MATRIX_MAX_OUTPUT_BYTES != 23
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("shootout_matrix workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "shootout_matrix" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("shootout_matrix README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, iterations in (("zero_iterations", 0), ("one_iteration", 1),
+                                    ("two_iterations", 2),
+                                    ("maximum_bounded_iterations", SHOOTOUT_MATRIX_MAX_ITERATIONS)):
+            expected_result, expected = expected_output(iterations, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != iterations
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output_hex", "").lower() != expected.hex()):
+                raise ValueError(f"shootout_matrix fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["negative_iterations"].get("input_value") != -1
+                or fixtures["negative_iterations"].get("expected_result") != SHOOTOUT_MATRIX_INVALID_RESULT
+                or fixtures["iterations_above_bound"].get("input_value") != SHOOTOUT_MATRIX_MAX_ITERATIONS + 1
+                or fixtures["iterations_above_bound"].get("expected_result") != SHOOTOUT_MATRIX_INVALID_RESULT
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_minimum"].get("expected_result") != SHOOTOUT_MATRIX_INVALID_RESULT
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX
+                or fixtures["signed_64_maximum"].get("expected_result") != SHOOTOUT_MATRIX_INVALID_RESULT
+                or capacity_case.get("input_value") != 1
+                or capacity_case.get("output_capacity") != SHOOTOUT_MATRIX_MAX_OUTPUT_BYTES - 1
+                or capacity_case.get("expected_result") != SHOOTOUT_MATRIX_OUTPUT_ERROR
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != SHOOTOUT_MATRIX_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != SHOOTOUT_MATRIX_OUTPUT_ERROR):
+            raise ValueError("shootout_matrix workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "shootout_methcall_stdout_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/methcall/methcall.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/methcall/info.sh"
+        )
+        required_case_ids = {
+            "zero_calls", "one_call", "two_calls", "nth_toggle_first_flip",
+            "nth_toggle_after_reset", "two_nth_toggle_flips", "negative_call_count_zero_iterations",
+            "maximum_profile_calls", "below_profile_minimum", "above_profile_maximum",
+            "signed_64_minimum", "signed_64_maximum", "short_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-shootout-methcall-bounded-v1"
+                or workload.get("algorithm") != "shootout_methcall"
+                or workload.get("function_symbol") != "shootout_methcall"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/methcall/methcall.c",
+                    "symbol": "Toggle, NthToggle, main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/methcall/info.sh",
+                    "bench_name": "methcall",
+                    "source_files": ["methcall.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "The first Toggle starts true and flips on every activation. The second NthToggle starts true, increments its counter on each activation, flips at count_max=3, and resets its counter to zero. The source prints the final value of each loop using puts on strings that already end in LF.",
+                    "launcher_default_calls": 500000000,
+                    "small_problem_size_calls": 50000000,
+                    "profile_minimum_calls": SHOOTOUT_METHCALL_MIN_CALLS,
+                    "profile_maximum_calls": SHOOTOUT_METHCALL_MAX_CALLS,
+                    "negative_calls_perform_zero_iterations": True,
+                    "toggle_flip_period": 1,
+                    "nth_toggle_flip_period": 3,
+                    "puts_appends_lf_after_embedded_lf": True,
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "shootout_methcall_calls",
+                    "meaning": "Call count supplied to each source loop; negative values also execute zero iterations, as in the C loop condition.",
+                    "minimum": SHOOTOUT_METHCALL_MIN_CALLS,
+                    "maximum": SHOOTOUT_METHCALL_MAX_CALLS,
+                    "invalid_result": SHOOTOUT_METHCALL_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "shootout_methcall_stdout_ascii",
+                    "definition": "Two final state words in source order, each followed by two LF bytes because puts appends a newline to a string that already contains one.",
+                    "maximum_output_bytes": SHOOTOUT_METHCALL_MAX_OUTPUT_BYTES,
+                    "invalid_result": SHOOTOUT_METHCALL_INVALID_RESULT,
+                    "null_output_result": SHOOTOUT_METHCALL_OUTPUT_ERROR,
+                    "insufficient_capacity_result": SHOOTOUT_METHCALL_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or SHOOTOUT_METHCALL_MIN_CALLS != -100000
+                or SHOOTOUT_METHCALL_MAX_CALLS != 100000
+                or SHOOTOUT_METHCALL_MAX_OUTPUT_BYTES != 14
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("shootout_methcall workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "shootout_methcall" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("shootout_methcall README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, calls in (("zero_calls", 0), ("one_call", 1), ("two_calls", 2),
+                               ("nth_toggle_first_flip", 3), ("nth_toggle_after_reset", 4),
+                               ("two_nth_toggle_flips", 6),
+                               ("negative_call_count_zero_iterations", -1),
+                               ("maximum_profile_calls", SHOOTOUT_METHCALL_MAX_CALLS)):
+            expected_result, expected = expected_output(calls, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != calls
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output") != expected.decode("ascii")):
+                raise ValueError(f"shootout_methcall fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["short_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["below_profile_minimum"].get("input_value") != SHOOTOUT_METHCALL_MIN_CALLS - 1
+                or fixtures["below_profile_minimum"].get("expected_result") != SHOOTOUT_METHCALL_INVALID_RESULT
+                or fixtures["above_profile_maximum"].get("input_value") != SHOOTOUT_METHCALL_MAX_CALLS + 1
+                or fixtures["above_profile_maximum"].get("expected_result") != SHOOTOUT_METHCALL_INVALID_RESULT
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_minimum"].get("expected_result") != SHOOTOUT_METHCALL_INVALID_RESULT
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX
+                or fixtures["signed_64_maximum"].get("expected_result") != SHOOTOUT_METHCALL_INVALID_RESULT
+                or capacity_case.get("input_value") != 3
+                or capacity_case.get("output_capacity") != SHOOTOUT_METHCALL_MAX_OUTPUT_BYTES - 1
+                or capacity_case.get("expected_result") != SHOOTOUT_METHCALL_OUTPUT_ERROR
+                or null_case.get("input_value") != 0
+                or null_case.get("output_capacity") != SHOOTOUT_METHCALL_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != SHOOTOUT_METHCALL_OUTPUT_ERROR):
+            raise ValueError("shootout_methcall workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "shootout_objinst_stdout_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/objinst/objinst.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/objinst/info.sh"
+        )
+        required_case_ids = {
+            "negative_n_skips_constructor_loops", "zero_n_fixed_dispatch_output",
+            "one_additional_object_of_each_type", "maximum_profile_constructor_count",
+            "below_profile", "above_profile", "signed_64_minimum", "signed_64_maximum",
+            "short_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-shootout-objinst-bounded-v1"
+                or workload.get("algorithm") != "shootout_objinst"
+                or workload.get("function_symbol") != "shootout_objinst"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/objinst/objinst.c",
+                    "symbol": "main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/objinst/info.sh",
+                    "bench_name": "objinst",
+                    "source_files": ["objinst.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "Construct and destroy one initial Toggle, make five stored-callback activation/value calls, construct/destroy n more Toggles, emit a blank line, construct and destroy one NthToggle, make eight callback calls, then construct/destroy n more NthToggles. Negative n naturally skips both for-loops.",
+                    "launcher_default_constructions_per_type": 70000000,
+                    "small_problem_size_constructions_per_type": 7000000,
+                    "profile_minimum_n": SHOOTOUT_OBJINST_MIN_N,
+                    "profile_maximum_n": SHOOTOUT_OBJINST_MAX_N,
+                    "source_stdout": "false\ntrue\nfalse\ntrue\nfalse\n\ntrue\ntrue\nfalse\nfalse\nfalse\ntrue\ntrue\ntrue\n",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "shootout_objinst_n",
+                    "meaning": "Number of additional Toggle constructions and, separately, additional NthToggle constructions; negative values execute zero iterations in each source loop.",
+                    "minimum": SHOOTOUT_OBJINST_MIN_N,
+                    "maximum": SHOOTOUT_OBJINST_MAX_N,
+                    "invalid_result": SHOOTOUT_OBJINST_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "shootout_objinst_stdout_ascii",
+                    "definition": "Five Toggle state lines, one blank line, then eight NthToggle state lines, each ending in LF.",
+                    "maximum_output_bytes": SHOOTOUT_OBJINST_MAX_OUTPUT_BYTES,
+                    "invalid_result": SHOOTOUT_OBJINST_INVALID_RESULT,
+                    "null_output_result": SHOOTOUT_OBJINST_OUTPUT_ERROR,
+                    "insufficient_capacity_result": SHOOTOUT_OBJINST_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or SHOOTOUT_OBJINST_MIN_N != -100000
+                or SHOOTOUT_OBJINST_MAX_N != 100000
+                or SHOOTOUT_OBJINST_MAX_OUTPUT_BYTES != 72
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("shootout_objinst workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "shootout_objinst" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("shootout_objinst README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, n in (("negative_n_skips_constructor_loops", SHOOTOUT_OBJINST_MIN_N),
+                           ("zero_n_fixed_dispatch_output", 0),
+                           ("one_additional_object_of_each_type", 1),
+                           ("maximum_profile_constructor_count", SHOOTOUT_OBJINST_MAX_N)):
+            expected_result, expected = expected_output(n, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != n
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output") != expected.decode("ascii")):
+                raise ValueError(f"shootout_objinst fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["short_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["below_profile"].get("input_value") != SHOOTOUT_OBJINST_MIN_N - 1
+                or fixtures["below_profile"].get("expected_result") != SHOOTOUT_OBJINST_INVALID_RESULT
+                or fixtures["above_profile"].get("input_value") != SHOOTOUT_OBJINST_MAX_N + 1
+                or fixtures["above_profile"].get("expected_result") != SHOOTOUT_OBJINST_INVALID_RESULT
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_minimum"].get("expected_result") != SHOOTOUT_OBJINST_INVALID_RESULT
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX
+                or fixtures["signed_64_maximum"].get("expected_result") != SHOOTOUT_OBJINST_INVALID_RESULT
+                or capacity_case.get("input_value") != 1
+                or capacity_case.get("output_capacity") != SHOOTOUT_OBJINST_MAX_OUTPUT_BYTES - 1
+                or capacity_case.get("expected_result") != SHOOTOUT_OBJINST_OUTPUT_ERROR
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != SHOOTOUT_OBJINST_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != SHOOTOUT_OBJINST_OUTPUT_ERROR):
+            raise ValueError("shootout_objinst workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "stanford_queens_runs":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Queens/Queens.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Queens/info.sh"
+        )
+        required_case_ids = {
+            "one_pass", "two_passes", "launcher_default", "zero_passes",
+            "negative_passes", "passes_above_bound", "signed_64_minimum",
+            "signed_64_maximum", "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-stanford-queens-bounded-passes-v1"
+                or workload.get("algorithm") != "stanford_queens"
+                or workload.get("function_symbol") != "stanford_queens"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/Queens/Queens.c",
+                    "symbol": "Try, Doit, Queens, main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/Queens/info.sh",
+                    "bench_name": "Queens",
+                    "source_files": ["Queens.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "Each Queens(run) invokes Doit 50 times, and each Doit initializes the eight-column and diagonal availability arrays before calling Try at row 1. Try tries columns 1 through 8 in ascending order, descends while marking both diagonals and backtracks failed branches. The source stops at the first solution, emits an error line only if no solution is found, then prints run+1. main invokes runs 0 through 99.",
+                    "launcher_default_runs": 100,
+                    "searches_per_pass": 50,
+                    "board_size": 8,
+                    "profile_minimum_runs": STANFORD_QUEENS_MIN_RUNS,
+                    "profile_maximum_runs": STANFORD_QUEENS_MAX_RUNS,
+                    "source_stdout_prefix": "For run count k, perform 50 full first-solution eight-queens searches per pass and print pass ordinals 1 through k, one decimal ordinal per line.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "stanford_queens_runs",
+                    "meaning": "Number of source Queens passes to perform, from the launcher's 100-pass loop.",
+                    "minimum": STANFORD_QUEENS_MIN_RUNS,
+                    "maximum": STANFORD_QUEENS_MAX_RUNS,
+                    "invalid_result": STANFORD_QUEENS_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "stanford_queens_stdout_ascii",
+                    "definition": "The source error line only if an eight-queens search fails, followed by one pass ordinal and LF per requested pass. The fixed search is solvable.",
+                    "maximum_output_bytes": STANFORD_QUEENS_MAX_OUTPUT_BYTES,
+                    "invalid_result": STANFORD_QUEENS_INVALID_RESULT,
+                    "null_output_result": STANFORD_QUEENS_OUTPUT_ERROR,
+                    "insufficient_capacity_result": STANFORD_QUEENS_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or STANFORD_QUEENS_MIN_RUNS != 1
+                or STANFORD_QUEENS_MAX_RUNS != 100
+                or STANFORD_QUEENS_MAX_OUTPUT_BYTES != 292
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("stanford_queens workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "stanford_queens" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("stanford_queens README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, runs in (("one_pass", 1), ("two_passes", 2),
+                              ("launcher_default", STANFORD_QUEENS_MAX_RUNS)):
+            expected_result, expected = expected_output(runs, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != runs
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output", "").encode("ascii") != expected):
+                raise ValueError(f"stanford_queens fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["zero_passes"].get("input_value") != 0
+                or fixtures["zero_passes"].get("expected_result") != STANFORD_QUEENS_INVALID_RESULT
+                or fixtures["negative_passes"].get("input_value") != -1
+                or fixtures["negative_passes"].get("expected_result") != STANFORD_QUEENS_INVALID_RESULT
+                or fixtures["passes_above_bound"].get("input_value") != STANFORD_QUEENS_MAX_RUNS + 1
+                or fixtures["passes_above_bound"].get("expected_result") != STANFORD_QUEENS_INVALID_RESULT
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_minimum"].get("expected_result") != STANFORD_QUEENS_INVALID_RESULT
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX
+                or fixtures["signed_64_maximum"].get("expected_result") != STANFORD_QUEENS_INVALID_RESULT
+                or capacity_case.get("input_value") != 1
+                or capacity_case.get("output_capacity") != len(expected_output(1, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != STANFORD_QUEENS_OUTPUT_ERROR
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != STANFORD_QUEENS_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != STANFORD_QUEENS_OUTPUT_ERROR):
+            raise ValueError("stanford_queens workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "stanford_towers_runs":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Towers/Towers.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Towers/info.sh"
+        )
+        required_case_ids = {
+            "one_run", "two_runs", "launcher_default", "zero_runs_invalid",
+            "negative_runs_invalid", "above_profile_invalid", "signed_64_minimum_invalid",
+            "signed_64_maximum_invalid", "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-stanford-towers-bounded-passes-v1"
+                or workload.get("algorithm") != "stanford_towers"
+                or workload.get("function_symbol") != "stanford_towers"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/Towers/Towers.c",
+                    "symbol": "Getelement, Push, Init, Pop, Move, tower, Towers, main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/Towers/info.sh",
+                    "bench_name": "Towers",
+                    "source_files": ["Towers.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "Each pass initializes the source's 18-cell free-list pool, loads 14 disks on peg 1, and recursively transfers them to peg 2 with peg 3 as auxiliary. The source checks for 16383 moves and then prints the move count; no diagnostic occurs for the valid pass. The launcher repeats this pass 100 times.",
+                    "upstream_default_runs": 100,
+                    "disks_per_run": 14,
+                    "cell_pool_capacity": 18,
+                    "profile_minimum_runs": STANFORD_TOWERS_MIN_RUNS,
+                    "profile_maximum_runs": STANFORD_TOWERS_MAX_RUNS,
+                    "expected_moves_per_run": 16383,
+                    "source_output_format": 'printf("%d\\n", movesdone), preceded by " Error in Towers.\\n" only if movesdone != 16383',
+                    "invalid_suite_case": "The suite rejects run counts outside 1..100; the launcher accepts no runtime input.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "stanford_towers_runs",
+                    "meaning": "Number of complete source-style Towers passes to perform.",
+                    "minimum": STANFORD_TOWERS_MIN_RUNS,
+                    "maximum": STANFORD_TOWERS_MAX_RUNS,
+                    "invalid_result": STANFORD_TOWERS_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "stanford_towers_stdout_ascii",
+                    "definition": "One decimal move count and LF per pass. Every valid pass emits 16383 followed by LF.",
+                    "maximum_output_bytes": STANFORD_TOWERS_MAX_OUTPUT_BYTES,
+                    "invalid_result": STANFORD_TOWERS_INVALID_RESULT,
+                    "null_output_result": STANFORD_TOWERS_OUTPUT_ERROR,
+                    "insufficient_capacity_result": STANFORD_TOWERS_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or STANFORD_TOWERS_MIN_RUNS != 1
+                or STANFORD_TOWERS_MAX_RUNS != 100
+                or STANFORD_TOWERS_MAX_OUTPUT_BYTES != 600
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("stanford_towers workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "stanford_towers" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("stanford_towers README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, runs in (("one_run", 1), ("two_runs", 2),
+                              ("launcher_default", STANFORD_TOWERS_MAX_RUNS)):
+            expected_result, expected = expected_output(runs, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != runs
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output_hex", "").lower() != expected.hex()):
+                raise ValueError(f"stanford_towers fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["zero_runs_invalid"].get("input_value") != 0
+                or fixtures["zero_runs_invalid"].get("expected_result") != STANFORD_TOWERS_INVALID_RESULT
+                or fixtures["negative_runs_invalid"].get("input_value") != -1
+                or fixtures["negative_runs_invalid"].get("expected_result") != STANFORD_TOWERS_INVALID_RESULT
+                or fixtures["above_profile_invalid"].get("input_value") != STANFORD_TOWERS_MAX_RUNS + 1
+                or fixtures["above_profile_invalid"].get("expected_result") != STANFORD_TOWERS_INVALID_RESULT
+                or fixtures["signed_64_minimum_invalid"].get("input_value") != I64_MIN
+                or fixtures["signed_64_minimum_invalid"].get("expected_result") != STANFORD_TOWERS_INVALID_RESULT
+                or fixtures["signed_64_maximum_invalid"].get("input_value") != I64_MAX
+                or fixtures["signed_64_maximum_invalid"].get("expected_result") != STANFORD_TOWERS_INVALID_RESULT
+                or capacity_case.get("input_value") != 1
+                or capacity_case.get("output_capacity") != len(expected_output(1, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != STANFORD_TOWERS_OUTPUT_ERROR
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != STANFORD_TOWERS_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != STANFORD_TOWERS_OUTPUT_ERROR):
+            raise ValueError("stanford_towers workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "stanford_treesort_runs":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Treesort/Treesort.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Treesort/info.sh"
+        )
+        required_case_ids = {
+            "one_run", "two_runs", "launcher_default", "zero_runs", "negative_runs",
+            "runs_above_bound", "signed_64_minimum", "signed_64_maximum",
+            "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-stanford-treesort-bounded-runs-v1"
+                or workload.get("algorithm") != "stanford_treesort"
+                or workload.get("function_symbol") != "stanford_treesort"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/Treesort/Treesort.c",
+                    "symbol": "Initrand, Rand, tInitarr, Insert, Checktree, Trees, main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/Treesort/info.sh",
+                    "bench_name": "Treesort",
+                    "source_files": ["Treesort.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "Each Trees(run) resets the seed to 74755, generates 5000 keys with the 16-bit affine recurrence, and maps them to temp-(temp/100000)*100000-50000. Insert sends greater keys left and smaller keys right; equal keys are ignored. Checktree verifies those strict reversed-order comparisons. The benchmark prints sortlist[2+run] using the original 1-based source indexing, then prints an error line only if the tree check fails. The launcher calls Trees for 0..99, so the bounded profile accepts runs 1..100 and returns the corresponding deterministic output prefix.",
+                    "launcher_default_runs": 100,
+                    "elements_per_run": 5000,
+                    "seed": 74755,
+                    "lcg_multiplier": 1309,
+                    "lcg_increment": 13849,
+                    "lcg_mask": 65535,
+                    "profile_minimum_runs": STANFORD_TREESORT_MIN_RUNS,
+                    "profile_maximum_runs": STANFORD_TREESORT_MAX_RUNS,
+                    "source_stdout_prefix": "For run count k, print generated key indices 1 through k (zero-based; source indices 2 through k+1), one decimal key per line, and an error line after a result only if Checktree fails.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "stanford_treesort_runs",
+                    "meaning": "Number of full Trees passes to perform, from the source’s 100-pass loop. Each pass regenerates 5000 keys and builds/checks the duplicate-dropping reversed BST.",
+                    "minimum": STANFORD_TREESORT_MIN_RUNS,
+                    "maximum": STANFORD_TREESORT_MAX_RUNS,
+                    "invalid_result": STANFORD_TREESORT_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "stanford_treesort_stdout_ascii",
+                    "definition": "One source-printed key per pass, in run order, with LF; append the exact source error line after a printed key only if the upstream Checktree condition fails.",
+                    "maximum_output_bytes": STANFORD_TREESORT_MAX_OUTPUT_BYTES,
+                    "invalid_result": STANFORD_TREESORT_INVALID_RESULT,
+                    "null_output_result": STANFORD_TREESORT_OUTPUT_ERROR,
+                    "insufficient_capacity_result": STANFORD_TREESORT_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or STANFORD_TREESORT_MIN_RUNS != 1
+                or STANFORD_TREESORT_MAX_RUNS != 100
+                or STANFORD_TREESORT_MAX_OUTPUT_BYTES != 700
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("stanford_treesort workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "stanford_treesort" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("stanford_treesort README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, runs in (("one_run", 1), ("two_runs", 2),
+                              ("launcher_default", STANFORD_TREESORT_MAX_RUNS)):
+            expected_result, expected = expected_output(runs, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != runs
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output", "").encode("ascii") != expected):
+                raise ValueError(f"stanford_treesort fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["zero_runs"].get("input_value") != 0
+                or fixtures["negative_runs"].get("input_value") != -1
+                or fixtures["runs_above_bound"].get("input_value") != STANFORD_TREESORT_MAX_RUNS + 1
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX
+                or capacity_case.get("input_value") != 1
+                or capacity_case.get("output_capacity") != len(expected_output(1, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != STANFORD_TREESORT_OUTPUT_ERROR
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != STANFORD_TREESORT_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != STANFORD_TREESORT_OUTPUT_ERROR):
+            raise ValueError("stanford_treesort workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "mcgill_queens_count_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/queens/queens.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/queens/info.sh"
+        )
+        required_case_ids = {
+            "one_queen_singular_count", "two_queens_no_solutions", "four_queens_two_solutions",
+            "eight_queens_standard_count", "launcher_default_fourteen_queens",
+            "insufficient_capacity", "null_output_positive", "zero_invalid",
+            "above_profile_invalid", "int64_min_invalid", "int64_max_invalid",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mcgill-queens-count-only-ascii-v1"
+                or workload.get("algorithm") != "queens"
+                or workload.get("function_symbol") != "queens"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "McGill/queens/queens.c",
+                    "symbol": "main/find",
+                    "url": source_url,
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "McGill/queens/info.sh",
+                    "bench_name": "queens",
+                    "source_files": ["queens.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "The launcher runs queens.c without options. main defaults to n=14, sets printing=0 and findall=1, searches every placement without symmetry pruning, and emits a board-size heading followed by the total solution count. The suite accepts n=1..14, preserving the launcher's default workload at the upper bound while limiting the source's broader 1..100 domain.",
+                    "source_default_n": 14,
+                    "source_input_range": [1, 100],
+                    "suite_input_range": [1, 14],
+                    "search_order": "Place one queen per rank; try files left-to-right; recurse immediately when file and diagonal owner entries are not occupied by an earlier rank.",
+                    "symmetry_reduction": False,
+                    "printing": False,
+                    "find_all_solutions": True,
+                    "stdout_format": [
+                        "printf(\"%d queen%s on a %dx%d board...\\n\")",
+                        "...there is 1 solution\\n when the count is one; otherwise ...there are %ld solutions\\n",
+                    ],
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "mcgill_queens_count_ascii",
+                    "meaning": "Board dimension n for the count-only queens search.",
+                    "minimum": 1,
+                    "maximum": QUEENS_MAX_N,
+                    "invalid_result": QUEENS_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "mcgill_queens_count_stdout_ascii",
+                    "definition": "The source header line followed by its singular or plural total-solution line; no board layout is printed.",
+                    "maximum_output_bytes": QUEENS_MAX_OUTPUT_BYTES,
+                    "invalid_result": QUEENS_INVALID_RESULT,
+                    "null_output_result": QUEENS_OUTPUT_ERROR,
+                    "insufficient_capacity_result": QUEENS_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or QUEENS_MAX_N != 14
+                or QUEENS_MAX_OUTPUT_BYTES != 80
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("queens workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "q" / "queens" / "README.md").read_text(encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("queens README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, n in (("one_queen_singular_count", 1), ("two_queens_no_solutions", 2),
+                           ("four_queens_two_solutions", 4), ("eight_queens_standard_count", 8),
+                           ("launcher_default_fourteen_queens", 14)):
+            expected_result, expected = expected_output(n, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != n
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output_hex", "").lower() != expected.hex()):
+                raise ValueError(f"queens fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output_positive"]
+        if (fixtures["zero_invalid"].get("input_value") != 0
+                or fixtures["above_profile_invalid"].get("input_value") != QUEENS_MAX_N + 1
+                or fixtures["int64_min_invalid"].get("input_value") != I64_MIN
+                or fixtures["int64_max_invalid"].get("input_value") != I64_MAX
+                or capacity_case.get("input_value") != 4
+                or capacity_case.get("output_capacity") != len(expected_output(4, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != QUEENS_OUTPUT_ERROR
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != len(expected_output(1, encoding)[1])
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != QUEENS_OUTPUT_ERROR):
+            raise ValueError("queens workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "almabench_ephemeris_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/almabench/almabench.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/almabench/info.sh"
+        )
+        required_case_ids = {
+            "first_day", "second_day", "small_problem_size_default", "launcher_default",
+            "zero_days", "negative_days", "days_above_bound", "signed_64_minimum",
+            "signed_64_maximum", "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-coyotebench-almabench-bounded-ephemeris-v1"
+                or workload.get("algorithm") != "almabench"
+                or workload.get("function_symbol") != "almabench"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "CoyoteBench/almabench/almabench.c",
+                    "symbol": "planetpv, radecdist, main",
+                    "url": source_url,
+                    "license_note": "The referenced C source is public domain (No rights reserved); these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "CoyoteBench/almabench/info.sh",
+                    "bench_name": "almabench",
+                    "source_files": ["almabench.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "The launcher has no runtime options. The source defaults to 20 passes and 36525 daily dates; SMALL_PROBLEM_SIZE selects one pass and 3652 dates. Every pass resets the date and computes the same ephemeris, so the suite performs one bounded pass and returns the final date output. It calculates all eight planets for each date from J2000+1 through J2000+days and prints only the final date, with three %f fields per planet.",
+                    "upstream_default_passes": 20,
+                    "small_problem_size_passes": 1,
+                    "upstream_default_days": 36525,
+                    "small_problem_size_default_days": 3652,
+                    "profile_minimum_days": ALMABENCH_MIN_DAYS,
+                    "profile_maximum_days": ALMABENCH_MAX_DAYS,
+                    "launcher_default_final_julian_day": 2488070.0,
+                    "source_output_format": "printf(\"%f %f %f\\n\", right_ascension_hours, declination_degrees, distance_au)",
+                    "invalid_suite_case": "The suite rejects day counts outside 1..36525; the pinned launcher does not parse a runtime day count.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "almabench_ephemeris_ascii",
+                    "meaning": "Number of daily ephemeris calculations from J2000+1 through J2000+days; the final day’s eight planet rows are returned.",
+                    "minimum": ALMABENCH_MIN_DAYS,
+                    "maximum": ALMABENCH_MAX_DAYS,
+                    "invalid_result": ALMABENCH_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "Eight lines in planet order Mercury through Neptune, each containing right ascension hours, declination degrees, and distance AU at six fractional digits, separated by one ASCII space and terminated by LF.",
+                    "definition": "The final day’s ephemeris for all eight planets, formatted as three six-decimal values per source printf line.",
+                    "maximum_output_bytes": ALMABENCH_MAX_OUTPUT_BYTES,
+                    "invalid_result": ALMABENCH_INVALID_RESULT,
+                    "null_output_result": ALMABENCH_OUTPUT_ERROR,
+                    "insufficient_capacity_result": ALMABENCH_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or ALMABENCH_MIN_DAYS != 1
+                or ALMABENCH_MAX_DAYS != 36525
+                or ALMABENCH_MAX_OUTPUT_BYTES != 248
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("almabench workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "a" / "almabench" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("almabench README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, days in (("first_day", 1), ("second_day", 2),
+                              ("small_problem_size_default", 3652), ("launcher_default", 36525)):
+            expected_result, expected = expected_output(days, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != days
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output") != expected.decode("ascii")):
+                raise ValueError(f"almabench fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["zero_days"].get("input_value") != 0
+                or fixtures["negative_days"].get("input_value") != -1
+                or fixtures["days_above_bound"].get("input_value") != ALMABENCH_MAX_DAYS + 1
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX
+                or capacity_case.get("input_value") != ALMABENCH_MIN_DAYS
+                or capacity_case.get("output_capacity") != len(expected_output(
+                    ALMABENCH_MIN_DAYS, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != ALMABENCH_OUTPUT_ERROR
+                or null_case.get("input_value") != ALMABENCH_MIN_DAYS
+                or null_case.get("output_capacity") != ALMABENCH_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != ALMABENCH_OUTPUT_ERROR):
+            raise ValueError("almabench workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "stanford_quicksort_ranks_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Quicksort/Quicksort.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Quicksort/info.sh"
+        )
+        required_case_ids = {
+            "first_rank", "two_rank_prefix", "ten_rank_prefix", "launcher_default",
+            "zero_invalid", "above_profile_invalid", "signed_64_minimum_invalid",
+            "signed_64_maximum_invalid", "insufficient_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-stanford-quicksort-bounded-rank-prefix-v1"
+                or workload.get("algorithm") != "stanford_quicksort"
+                or workload.get("function_symbol") != "stanford_quicksort"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/Quicksort/Quicksort.c",
+                    "symbol": "Initrand, Rand, Initarr, Quicksort, Quick, main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/Quicksort/info.sh",
+                    "bench_name": "Quicksort",
+                    "source_files": ["Quicksort.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "The launcher supplies no options. The source runs Quick(run) for run=0..99. Each call resets the 16-bit LCG seed to 74755, regenerates 5,000 values using (state*1309+13849)&65535, subtracts 50,000, sorts with the midpoint-pivot two-pointer partition, and prints sorted index run+1. The suite exposes a prefix count from 1 through 100; each requested line performs its own source-equivalent generation and sort.",
+                    "upstream_sort_element_count": 5000,
+                    "upstream_default_prefix_count": 100,
+                    "lcg_initial_state": 74755,
+                    "lcg_multiplier": 1309,
+                    "lcg_increment": 13849,
+                    "lcg_mask": 65535,
+                    "profile_minimum_prefix_count": STANFORD_QUICKSORT_MIN_PREFIX_COUNT,
+                    "profile_maximum_prefix_count": STANFORD_QUICKSORT_MAX_PREFIX_COUNT,
+                    "source_output_format": "printf(\"%d\\n\", sortlist[run + 1])",
+                    "invalid_source_case": "The suite returns -1 outside 1..100; the launcher itself accepts no input arguments.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "stanford_quicksort_ranks_ascii",
+                    "meaning": "Number of the source's lowest sorted ranks to print, from the first value through the requested prefix.",
+                    "minimum": STANFORD_QUICKSORT_MIN_PREFIX_COUNT,
+                    "maximum": STANFORD_QUICKSORT_MAX_PREFIX_COUNT,
+                    "invalid_result": STANFORD_QUICKSORT_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "Signed decimal order statistics, one per LF-terminated line.",
+                    "definition": "The first prefix_count values of the independently regenerated and source-sorted 5,000-element array; each printed value corresponds to source sortlist[run+1].",
+                    "maximum_output_bytes": STANFORD_QUICKSORT_MAX_OUTPUT_BYTES,
+                    "invalid_result": STANFORD_QUICKSORT_INVALID_RESULT,
+                    "null_output_result": STANFORD_QUICKSORT_OUTPUT_ERROR,
+                    "insufficient_capacity_result": STANFORD_QUICKSORT_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or STANFORD_QUICKSORT_MIN_PREFIX_COUNT != 1
+                or STANFORD_QUICKSORT_MAX_PREFIX_COUNT != 100
+                or STANFORD_QUICKSORT_MAX_OUTPUT_BYTES != 700
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("stanford_quicksort workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "stanford_quicksort" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("stanford_quicksort README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, count in (("first_rank", 1), ("two_rank_prefix", 2),
+                               ("ten_rank_prefix", 10), ("launcher_default", 100)):
+            expected_result, expected = expected_output(count, encoding)
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != count
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output_hex", "").lower() != expected.hex()):
+                raise ValueError(f"stanford_quicksort fixture {case_id} does not match its oracle")
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["zero_invalid"].get("input_value") != 0
+                or fixtures["above_profile_invalid"].get("input_value") != STANFORD_QUICKSORT_MAX_PREFIX_COUNT + 1
+                or fixtures["signed_64_minimum_invalid"].get("input_value") != I64_MIN
+                or fixtures["signed_64_maximum_invalid"].get("input_value") != I64_MAX
+                or capacity_case.get("input_value") != STANFORD_QUICKSORT_MIN_PREFIX_COUNT
+                or capacity_case.get("output_capacity") != len(expected_output(
+                    STANFORD_QUICKSORT_MIN_PREFIX_COUNT, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != STANFORD_QUICKSORT_OUTPUT_ERROR
+                or null_case.get("input_value") != STANFORD_QUICKSORT_MIN_PREFIX_COUNT
+                or null_case.get("output_capacity") != STANFORD_QUICKSORT_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != STANFORD_QUICKSORT_OUTPUT_ERROR):
+            raise ValueError("stanford_quicksort workload is missing its reviewed boundary/output fixtures")
     elif encoding == "shootout_heapsort_ascii":
         source_url = (
             "https://github.com/lac-dcc/Benchmarks/blob/"
@@ -930,6 +2660,63 @@ def corpus(workload: dict) -> tuple[str, int]:
             required, _ = expected_output(value, encoding)
             add(value, required - 1)
             add(value, STANFORD_INTMM_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "stanford_realmm_decimal_stdout":
+        for value in range(1, STANFORD_REALMM_MAX_PASSES + 1):
+            add(value)
+        for value in (0, -1, STANFORD_REALMM_MAX_PASSES + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (1, 3, STANFORD_REALMM_MAX_PASSES):
+            required, _ = expected_output(value, encoding)
+            add(value, required - 1)
+            add(value, STANFORD_REALMM_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "shootout_lists_stdout_ascii":
+        for value in (SHOOTOUT_LISTS_MIN_RUNS, 1, 2, SHOOTOUT_LISTS_MAX_RUNS):
+            add(value)
+        for value in (-1, SHOOTOUT_LISTS_MAX_RUNS + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (1, SHOOTOUT_LISTS_MAX_RUNS):
+            add(value, 3)
+            add(value, SHOOTOUT_LISTS_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "shootout_strcat_stdout_ascii":
+        for value in (SHOOTOUT_STRCAT_MIN_APPEND_COUNT, 1, 5, 6, 10, 11,
+                      SHOOTOUT_STRCAT_MAX_APPEND_COUNT):
+            add(value)
+        for value in (-1, SHOOTOUT_STRCAT_MAX_APPEND_COUNT + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (1, 6, 11, SHOOTOUT_STRCAT_MAX_APPEND_COUNT):
+            required, _ = expected_output(value, encoding)
+            add(value, required - 1)
+            add(value, SHOOTOUT_STRCAT_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "shootout_matrix_decimal_stdout":
+        for value in (SHOOTOUT_MATRIX_MIN_ITERATIONS, 1, 2, SHOOTOUT_MATRIX_MAX_ITERATIONS):
+            add(value)
+        for value in (-1, SHOOTOUT_MATRIX_MAX_ITERATIONS + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (1, SHOOTOUT_MATRIX_MAX_ITERATIONS):
+            required, _ = expected_output(value, encoding)
+            add(value, required - 1)
+            add(value, SHOOTOUT_MATRIX_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "shootout_methcall_stdout_ascii":
+        for value in (SHOOTOUT_METHCALL_MIN_CALLS, -1, 0, 1, 2, 3, 4, 6,
+                      SHOOTOUT_METHCALL_MAX_CALLS):
+            add(value)
+        for value in (SHOOTOUT_METHCALL_MIN_CALLS - 1,
+                      SHOOTOUT_METHCALL_MAX_CALLS + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (3, 6, SHOOTOUT_METHCALL_MAX_CALLS):
+            required, _ = expected_output(value, encoding)
+            add(value, required - 1)
+            add(value, SHOOTOUT_METHCALL_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "shootout_objinst_stdout_ascii":
+        for value in (SHOOTOUT_OBJINST_MIN_N, -1, 0, 1, 2, SHOOTOUT_OBJINST_MAX_N):
+            add(value)
+        for value in (SHOOTOUT_OBJINST_MIN_N - 1,
+                      SHOOTOUT_OBJINST_MAX_N + 1, I64_MIN, I64_MAX):
+            add(value)
+        required, _ = expected_output(1, encoding)
+        add(1, required - 1)
+        add(1, SHOOTOUT_OBJINST_MAX_OUTPUT_BYTES, output_is_null=True)
+        add(SHOOTOUT_OBJINST_MIN_N, SHOOTOUT_OBJINST_MAX_OUTPUT_BYTES, output_is_null=True)
     elif encoding == "shootout_random_ascii":
         for value in (SHOOTOUT_RANDOM_MIN_CALL_COUNT, 2, 10, 1000,
                       SHOOTOUT_RANDOM_MAX_CALL_COUNT, 0, -1,

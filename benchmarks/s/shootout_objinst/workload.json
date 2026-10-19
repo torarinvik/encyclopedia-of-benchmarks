@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-shootout-objinst-bounded-v1",
+  "algorithm": "shootout_objinst",
+  "function_symbol": "shootout_objinst",
+  "description": "Bounded Shootout Toggle/NthToggle object construction, indirect dispatch, and exact stdout bytes.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/objinst/objinst.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/objinst/objinst.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/objinst/info.sh",
+    "bench_name": "objinst",
+    "source_files": ["objinst.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "Construct and destroy one initial Toggle, make five stored-callback activation/value calls, construct/destroy n more Toggles, emit a blank line, construct and destroy one NthToggle, make eight stored-callback activation/value calls, then construct/destroy n more NthToggles. Negative n naturally skips both for-loops.",
+    "launcher_default_constructions_per_type": 70000000,
+    "small_problem_size_constructions_per_type": 7000000,
+    "profile_minimum_n": -100000,
+    "profile_maximum_n": 100000,
+    "source_stdout": "false\ntrue\nfalse\ntrue\nfalse\n\ntrue\ntrue\nfalse\nfalse\nfalse\ntrue\ntrue\ntrue\n"
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "shootout_objinst_n",
+    "meaning": "Number of additional Toggle constructions and, separately, additional NthToggle constructions; negative values execute zero iterations in each source loop.",
+    "minimum": -100000,
+    "maximum": 100000,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "shootout_objinst_stdout_ascii",
+    "definition": "Five Toggle state lines, one blank line, then eight NthToggle state lines, each ending in LF.",
+    "maximum_output_bytes": 72,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "negative_n_skips_constructor_loops", "input_value": -100000, "expected_result": 72, "expected_output": "false\ntrue\nfalse\ntrue\nfalse\n\ntrue\ntrue\nfalse\nfalse\nfalse\ntrue\ntrue\ntrue\n"},
+    {"id": "zero_n_fixed_dispatch_output", "input_value": 0, "expected_result": 72, "expected_output": "false\ntrue\nfalse\ntrue\nfalse\n\ntrue\ntrue\nfalse\nfalse\nfalse\ntrue\ntrue\ntrue\n"},
+    {"id": "one_additional_object_of_each_type", "input_value": 1, "expected_result": 72, "expected_output": "false\ntrue\nfalse\ntrue\nfalse\n\ntrue\ntrue\nfalse\nfalse\nfalse\ntrue\ntrue\ntrue\n"},
+    {"id": "maximum_profile_constructor_count", "input_value": 100000, "expected_result": 72, "expected_output": "false\ntrue\nfalse\ntrue\nfalse\n\ntrue\ntrue\nfalse\nfalse\nfalse\ntrue\ntrue\ntrue\n"},
+    {"id": "below_profile", "input_value": -100001, "expected_result": -1, "expected_output": ""},
+    {"id": "above_profile", "input_value": 100001, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_minimum", "input_value": -9223372036854775808, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_maximum", "input_value": 9223372036854775807, "expected_result": -1, "expected_output": ""},
+    {"id": "short_capacity", "input_value": 1, "output_capacity": 71, "expected_result": -2, "expected_output": ""},
+    {"id": "null_output", "input_value": 1, "output_capacity": 72, "output_is_null": true, "expected_result": -2, "expected_output": ""}
+  ]
+}

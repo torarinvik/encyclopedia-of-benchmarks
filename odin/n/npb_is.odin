@@ -57,17 +57,6 @@ decimal_width :: proc(value: u32) -> int {
 	return width
 }
 
-required_output_bytes :: proc(pass_count: u32) -> int {
-	required := 0
-	for iteration: u32 = 1; iteration <= pass_count; iteration += 1 {
-		for test := 0; test < TEST_COUNT; test += 1 {
-			required += decimal_width(expected_rank(test, iteration))
-		}
-		required += TEST_COUNT // Four commas and LF.
-	}
-	return required + decimal_width(5*pass_count+1) + 1
-}
-
 append_decimal :: proc(value: u32, output: [^]u8, position: int) -> int {
 	mut cursor := position
 	reversed: [10]u8
@@ -128,9 +117,10 @@ npb_is :: proc "c" (pass_count: i64, output: [^]u8,
 		output_capacity: c.size_t) -> i64 {
 	if pass_count < 1 || pass_count > MAX_PASSES do return -1
 	passes := u32(pass_count)
-	required := required_output_bytes(passes)
-	if output == nil || output_capacity < c.size_t(required) do return -2
+	if output == nil do return -2
 
+	staged: [353]u8
+	staged_output := &staged[0]
 	generate_keys()
 	partials: [TEST_COUNT]u32
 	rank_pass(1, &partials) // Untimed source warm-up.
@@ -138,21 +128,29 @@ npb_is :: proc "c" (pass_count: i64, output: [^]u8,
 	position := 0
 	for iteration: u32 = 1; iteration <= passes; iteration += 1 {
 		rank_pass(iteration, &partials)
+		row_required := 5
+		for test := 0; test < TEST_COUNT; test += 1 {
+			row_required += decimal_width(partials[test])
+		}
+		if position + row_required > 353 do return -2
 		for test := 0; test < TEST_COUNT; test += 1 {
 			if partials[test] == expected_rank(test, iteration) do passed_verification += 1
-			position = append_decimal(partials[test], output, position)
+			position = append_decimal(partials[test], staged_output, position)
 			if test+1 < TEST_COUNT {
-				output[position] = u8(',')
+				staged_output[position] = u8(',')
 				position += 1
 			}
 		}
-		output[position] = u8('\n')
+		staged_output[position] = u8('\n')
 		position += 1
 	}
 	if full_verify() do passed_verification += 1
 	if passed_verification != 5*passes+1 do passed_verification = 0
-	position = append_decimal(passed_verification, output, position)
-	output[position] = u8('\n')
+	if position + decimal_width(passed_verification) + 1 > 353 do return -2
+	position = append_decimal(passed_verification, staged_output, position)
+	staged_output[position] = u8('\n')
 	position += 1
+	if output_capacity < c.size_t(position) do return -2
+	for index := 0; index < position; index += 1 do output[index] = staged[index]
 	return i64(position)
 }

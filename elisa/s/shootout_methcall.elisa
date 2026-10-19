@@ -1,0 +1,89 @@
+const MIN_CALLS: i64 = -100000
+const MAX_CALLS: i64 = 100000
+const MAX_OUTPUT_BYTES: usize = 14
+
+struct Toggle:
+    state: bool
+    activate: fn(mutable Toggle&) -> void
+    value: fn(Toggle&) -> bool
+
+struct NthToggle:
+    state: bool
+    count_max: i32
+    counter: i32
+    activate: fn(mutable NthToggle&) -> void
+    value: fn(NthToggle&) -> bool
+
+def toggle_activate(toggle: mutable Toggle&) -> void:
+    toggle.state <- not toggle.state
+
+def toggle_value(toggle: Toggle&) -> bool:
+    toggle.state
+
+def nth_toggle_activate(toggle: mutable NthToggle&) -> void:
+    toggle.counter <- toggle.counter + 1
+    if toggle.counter >= toggle.count_max:
+        toggle.state <- not toggle.state
+        toggle.counter <- 0
+
+def nth_toggle_value(toggle: NthToggle&) -> bool:
+    toggle.state
+
+def append_state(staged: mutable u8&, used: mutable usize&, state: bool) -> void:
+    if state:
+        staged[used] <- 116u8
+        used <- used + 1
+        staged[used] <- 114u8
+        used <- used + 1
+        staged[used] <- 117u8
+        used <- used + 1
+        staged[used] <- 101u8
+        used <- used + 1
+    else:
+        staged[used] <- 102u8
+        used <- used + 1
+        staged[used] <- 97u8
+        used <- used + 1
+        staged[used] <- 108u8
+        used <- used + 1
+        staged[used] <- 115u8
+        used <- used + 1
+        staged[used] <- 101u8
+        used <- used + 1
+    staged[used] <- 10u8
+    used <- used + 1
+    staged[used] <- 10u8
+    used <- used + 1
+
+def shootout_methcall_impl(calls: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if calls < MIN_CALLS or calls > MAX_CALLS: return -1
+    if output.is_null(): return -2
+    toggle: mutable Toggle = Toggle(state = true, activate = toggle_activate, value = toggle_value)
+    nth_toggle: mutable NthToggle = NthToggle(
+        state = true, count_max = 3, counter = 0,
+        activate = nth_toggle_activate, value = nth_toggle_value
+    )
+    toggle_result: mutable bool = true
+    nth_result: mutable bool = true
+    iterations: usize = 0
+    if calls > 0: iterations <- calls.usize()
+    for _ in 0..<iterations:
+        toggle_activate_fn: fn(mutable Toggle&) -> void = toggle.activate
+        toggle_activate_fn(toggle)
+        toggle_value_fn: fn(Toggle&) -> bool = toggle.value
+        toggle_result <- toggle_value_fn(toggle)
+    for _ in 0..<iterations:
+        nth_toggle_activate_fn: fn(mutable NthToggle&) -> void = nth_toggle.activate
+        nth_toggle_activate_fn(nth_toggle)
+        nth_toggle_value_fn: fn(NthToggle&) -> bool = nth_toggle.value
+        nth_result <- nth_toggle_value_fn(nth_toggle)
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    used: mutable usize = 0
+    append_state(staged[0], used, toggle_result)
+    append_state(staged[0], used, nth_result)
+    if output_capacity < used: return -2
+    for index in 0..<used:
+        output[index] <- staged[index]
+    used.i64()
+
+export fn shootout_methcall(calls: i64, output: mutable u8&, output_capacity: usize) -> i64 = shootout_methcall_impl

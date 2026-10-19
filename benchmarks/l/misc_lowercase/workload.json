@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-misc-lowercase-u16-bounded-v1",
+  "algorithm": "misc_lowercase",
+  "function_symbol": "misc_lowercase",
+  "description": "Bounded source-compatible ASCII lowercase mapping over unsigned 16-bit code units.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/lowercase/lowercase.c",
+    "symbol": "lower_StringImpl",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/lowercase/lowercase.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/lowercase/info.sh",
+    "bench_name": "lowercase",
+    "source_files": ["lowercase.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "The helper maps each UChar with c | ((c >= 'A' && c <= 'Z') << 5) and returns true iff all original units are ASCII. The driver constructs a repeated 16-unit test string and invokes the helper for lengths 0 through 31.",
+    "profile_minimum_characters": 0,
+    "profile_maximum_characters": 31,
+    "source_static_data": [72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 33, 72, 69, 76, 76],
+    "source_repeat_count": 10000000
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "encoding": "[character_count, unsigned_16_bit_code_units...]",
+    "character_count_range": [0, 31],
+    "code_unit_range": [0, 65535],
+    "exact_length": "1 + character_count",
+    "maximum_valid_array_length": 32,
+    "maximum_parseable_array_length": 33,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one byte ASCII flag followed by mapped unsigned 16-bit code units in little-endian order",
+    "ascii_flag": "1 iff every original code unit is <= 127; otherwise 0",
+    "maximum_output_bytes": 63,
+    "result": "number of output bytes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "short_capacity_writes_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "empty_source_length", "input_values": [0], "input_length": 1, "expected_result": 1, "expected_output_hex": "01"},
+    {"id": "one_source_character", "input_values": [1, 72], "input_length": 2, "expected_result": 3, "expected_output_hex": "016800"},
+    {"id": "source_ascii_prefix_12", "input_values": [12, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 33], "input_length": 13, "expected_result": 25, "expected_output_hex": "01680065006c006c006f00200077006f0072006c0064002100"},
+    {"id": "full_source_pattern", "input_values": [16, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 33, 72, 69, 76, 76], "input_length": 17, "expected_result": 33, "expected_output_hex": "01680065006c006c006f00200077006f0072006c0064002100680065006c006c00"},
+    {"id": "source_repeated_pattern_boundary", "input_values": [17, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 33, 72, 69, 76, 76, 72], "input_length": 18, "expected_result": 35, "expected_output_hex": "01680065006c006c006f00200077006f0072006c0064002100680065006c006c006800"},
+    {"id": "source_driver_maximum_length", "input_values": [31, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 33, 72, 69, 76, 76, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 33, 72, 69, 76], "input_length": 32, "expected_result": 63, "expected_output_hex": "01680065006c006c006f00200077006f0072006c0064002100680065006c006c00680065006c006c006f00200077006f0072006c0064002100680065006c00"},
+    {"id": "mixed_ascii_boundary", "input_values": [6, 65, 90, 97, 122, 48, 127], "input_length": 7, "expected_result": 13, "expected_output_hex": "0161007a0061007a0030007f00"},
+    {"id": "non_ascii_and_surrogate_preserved", "input_values": [4, 65, 128, 55296, 65535], "input_length": 5, "expected_result": 9, "expected_output_hex": "006100800000d8ffff"},
+    {"id": "negative_count", "input_values": [-1], "input_length": 1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "count_above_profile", "input_values": [32], "input_length": 1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_frame", "input_values": [2, 65], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "extra_frame_value", "input_values": [1, 65, 66], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "negative_code_unit", "input_values": [1, -1], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "code_unit_above_u16", "input_values": [1, 65536], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_output_capacity", "input_values": [1, 65], "input_length": 2, "output_capacity": 2, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [1, 65], "input_length": 2, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

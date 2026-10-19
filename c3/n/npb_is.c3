@@ -62,16 +62,6 @@ fn usz append_decimal(uint value, char* output, usz position) {
     return position;
 }
 
-fn usz required_output_bytes(uint pass_count) {
-    usz required = 0;
-    for (uint iteration = 1; iteration <= pass_count; iteration++) {
-        for (usz index = 0; index < TEST_COUNT; index++)
-            required += decimal_width(expected_rank(index, iteration));
-        required += TEST_COUNT;
-    }
-    return required + decimal_width(5 * pass_count + 1) + 1;
-}
-
 fn void rank_pass(uint iteration, uint[5]* partials) {
     key_array[iteration] = iteration;
     key_array[iteration + MAX_ITERATIONS] = (uint)MAX_KEY - iteration;
@@ -106,9 +96,10 @@ fn bool full_verify() {
 fn long npb_is(long pass_count, char* output, usz output_capacity) @export("npb_is") {
     if (pass_count < 1 || pass_count > MAX_PASSES) return -1;
     uint passes = (uint)pass_count;
-    usz required = required_output_bytes(passes);
-    if (output == null || output_capacity < required) return -2;
+    if (output == null) return -2;
 
+    char[353] staged;
+    char* staged_output = &staged[0];
     generate_keys();
     uint[5] partials;
     rank_pass(1, &partials);
@@ -116,16 +107,23 @@ fn long npb_is(long pass_count, char* output, usz output_capacity) @export("npb_
     usz position = 0;
     for (uint iteration = 1; iteration <= passes; iteration++) {
         rank_pass(iteration, &partials);
+        usz row_required = TEST_COUNT;
+        for (usz test = 0; test < TEST_COUNT; test++)
+            row_required += decimal_width(partials[test]);
+        if (position + row_required > 353) return -2;
         for (usz test = 0; test < TEST_COUNT; test++) {
             if (partials[test] == expected_rank(test, iteration)) passed_verification++;
-            position = append_decimal(partials[test], output, position);
-            if (test + 1 < TEST_COUNT) output[position++] = ',';
+            position = append_decimal(partials[test], staged_output, position);
+            if (test + 1 < TEST_COUNT) staged_output[position++] = ',';
         }
-        output[position++] = '\n';
+        staged_output[position++] = '\n';
     }
     if (full_verify()) passed_verification++;
     if (passed_verification != 5 * passes + 1) passed_verification = 0;
-    position = append_decimal(passed_verification, output, position);
-    output[position++] = '\n';
+    if (position + decimal_width(passed_verification) + 1 > 353) return -2;
+    position = append_decimal(passed_verification, staged_output, position);
+    staged_output[position++] = '\n';
+    if (output_capacity < c.size_t(position)) return -2;
+    for (usz index = 0; index < position; index++) output[index] = staged_output[index];
     return (long)position;
 }

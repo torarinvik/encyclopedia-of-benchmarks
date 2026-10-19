@@ -28,6 +28,15 @@ from syrk_oracle import (
     MAX_OUTPUT_ELEMENTS as SYRK_MAX_OUTPUT_ELEMENTS,
     expected_output as syrk_oracle,
 )
+from matmul_f64_4x4_oracle import (
+    INVALID_RESULT as MATMUL_F64_4X4_INVALID_RESULT,
+    MATRIX_ELEMENTS as MATMUL_F64_4X4_MATRIX_ELEMENTS,
+    MAX_ITERATIONS as MATMUL_F64_4X4_MAX_ITERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as MATMUL_F64_4X4_MAX_PARSEABLE_INPUT_LENGTH,
+    MIN_ITERATIONS as MATMUL_F64_4X4_MIN_ITERATIONS,
+    OUTPUT_ERROR as MATMUL_F64_4X4_OUTPUT_ERROR,
+    expected_output as matmul_f64_4x4_expected_output,
+)
 from dimensionality_reduction_pca_oracle import expected_result as dimensionality_reduction_pca_oracle
 from principal_component_analysis_oracle import (
     INVALID_RESULT as PRINCIPAL_COMPONENT_ANALYSIS_INVALID_RESULT,
@@ -956,10 +965,28 @@ def risk_metrics_oracle_for(algorithm):
     return oracle
 
 
+def matmul_f64_4x4_oracle(values):
+    result, output = matmul_f64_4x4_expected_output(values)
+    return output if result >= 0 else None
+
+
+def matmul_f64_4x4_abi_oracle(values, output_capacity=None, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    if input_is_null or (input_length is not None and input_length != len(values)):
+        return MATMUL_F64_4X4_INVALID_RESULT, []
+    result, output = matmul_f64_4x4_expected_output(values)
+    if result < 0:
+        return result, []
+    if output_is_null or (output_capacity is not None and output_capacity < result):
+        return MATMUL_F64_4X4_OUTPUT_ERROR, []
+    return result, output
+
+
 ORACLES = {
     "partialsums": partialsums_oracle,
     "durbin": durbin_oracle,
     "syrk": syrk_oracle,
+    "matmul_f64_4x4": matmul_f64_4x4_oracle,
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
     "vector3_perspective_projection": vector3_perspective_projection_oracle,
     "vector2": vector2_oracle,
@@ -3462,7 +3489,9 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         raise ValueError("ABI token decoding is only defined for linear_discriminant_analysis")
     if allow_nonfinite:
         raw_values = _decode_linear_discriminant_analysis_abi_values(raw_values)
-    max_input_length = (SIR_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sir" else
+    max_input_length = (MATMUL_F64_4X4_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "matmul_f64_4x4" else
+                        SIR_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sir" else
                         DECISION_TREE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "decision_tree_python_regression" else
                         PERCEPTRON_JAVA_MAX_PARSEABLE_INPUT_LENGTH
@@ -3581,7 +3610,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
     if algorithm in RISK_METRICS_ALGORITHM_NAMES:
         max_input_length = RISK_METRICS_MAX_PARSEABLE_INPUT_LENGTH_BY_ALGORITHM[algorithm]
     if (not isinstance(raw_values, list) or case.get("input_length") != len(raw_values)
-            or (not raw_values and algorithm not in {"md2_digest", "kalman_filter_r_two_state_simulation"}
+            or (not raw_values and algorithm not in {"md2_digest", "kalman_filter_r_two_state_simulation",
+                                                      "matmul_f64_4x4"}
                 and not (allow_nonfinite and case.get("input_is_null") is True
                          and case.get("input_length") == 0))
             or len(raw_values) > max_input_length
@@ -3590,7 +3620,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+    if algorithm in {"matmul_f64_4x4", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
                      "mean_shift", "k_means_clust", "lu_decompose", "lu_elimination",
@@ -3606,7 +3636,14 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                      "single_indeterminate_operations", "montecarlopi",
                      "local_weighted_learning", "muon_optimizer", "pseudo_inverse", "tdigest",
                      *RISK_METRICS_ALGORITHM_NAMES, *TRAVELLING_SALESMAN_PYTHON_ALGORITHMS}:
-        if algorithm == "pseudo_inverse":
+        if algorithm == "matmul_f64_4x4":
+            expected_result, oracle_values = matmul_f64_4x4_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "pseudo_inverse":
             expected_result, oracle_values = pseudo_inverse_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
@@ -3668,6 +3705,132 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         if abs(actual_number - expected_number) > allowed:
             raise ValueError(f"{case.get('id')}: expected_output disagrees with the independent oracle")
     return values, expected_result, actual_output
+
+
+def validate_matmul_f64_4x4_workload(workload: dict) -> None:
+    """Validate the pinned bounded 4x4 matrix multiplication workload."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "Misc/matmul_f64_4x4/matmul_f64_4x4.c"
+    )
+    launcher_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "Misc/matmul_f64_4x4/info.sh"
+    )
+    source_bound = {
+        "description": "The source computes the fixed A×B product in a loop, then prints the 16 final cells row-major with %8.2f formatting.",
+        "launcher_default_iterations": 50000000,
+        "profile_minimum_iterations": MATMUL_F64_4X4_MIN_ITERATIONS,
+        "profile_maximum_iterations": MATMUL_F64_4X4_MAX_ITERATIONS,
+        "source_matrix_a_row_major": [
+            4.5, 1.3, 6.0, 4.1, 2.5, 7.2, 7.7, 1.7,
+            6.7, 1.3, 9.4, 1.3, 1.1, 2.2, 3.0, 2.1,
+        ],
+        "source_matrix_b_row_major": [
+            1.0, 7.9, 5.1, 3.4, 6.6, 2.8, 5.4, 9.2,
+            5.0, 4.1, 4.1, 9.9, 8.4, 3.7, 9.5, 6.4,
+        ],
+        "sum_order": "four products added left-to-right for each output cell",
+    }
+    expected_input = {
+        "kind": "finite_float64_array",
+        "encoding": "one exact integer iteration count",
+        "valid_length_range": [1, 1],
+        "maximum_valid_length": 1,
+        "maximum_parseable_length": MATMUL_F64_4X4_MAX_PARSEABLE_INPUT_LENGTH,
+        "minimum_iterations": MATMUL_F64_4X4_MIN_ITERATIONS,
+        "maximum_iterations": MATMUL_F64_4X4_MAX_ITERATIONS,
+        "invalid_input_result": MATMUL_F64_4X4_INVALID_RESULT,
+    }
+    expected_output_spec = {
+        "kind": "float64_array",
+        "encoding": "final 4x4 matrix in row-major order",
+        "maximum_elements": MATMUL_F64_4X4_MATRIX_ELEMENTS,
+        "success_result": MATMUL_F64_4X4_MATRIX_ELEMENTS,
+        "invalid_input_result": MATMUL_F64_4X4_INVALID_RESULT,
+        "invalid_output_buffer_result": MATMUL_F64_4X4_OUTPUT_ERROR,
+        "null_output_result": MATMUL_F64_4X4_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    expected_contract = {
+        "operation": "Repeat the pinned 4x4 double matrix product and return the final matrix as numeric values.",
+        "output_order": "row-major 16 float64 values",
+        "source_display_omission": "The ABI returns numeric cells and does not reproduce the source's %8.2f text formatting.",
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 1,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks",
+        "commit": commit,
+        "path": "Misc/matmul_f64_4x4/matmul_f64_4x4.c",
+        "symbol": "main",
+        "url": source_url,
+        "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+    }
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks",
+        "commit": commit,
+        "path": "Misc/matmul_f64_4x4/info.sh",
+        "bench_name": "matmul_f64_4x4",
+        "source_files": ["matmul_f64_4x4.c"],
+        "compile_flags": ["-lm"],
+        "run_options": [],
+    }
+    required_case_ids = {
+        "single_iteration", "repeated_product", "maximum_profile", "zero_iterations",
+        "fractional_iterations", "above_profile", "short_input", "extra_input_value",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    required_fields = {
+        "schema_version", "id", "algorithm", "function_symbol", "description",
+        "pinned_source", "pinned_launcher", "source_bound", "contract", "workspace",
+        "input", "output", "measurement", "cases",
+    }
+    if (set(workload) != required_fields
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-matmul-f64-4x4-bounded-v1"
+            or workload.get("algorithm") != "matmul_f64_4x4"
+            or workload.get("function_symbol") != "matmul_f64_4x4"
+            or workload.get("description") != "Bounded repeated unrolled double-precision 4x4 matrix multiplication with numeric row-major output."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("source_bound") != source_bound
+            or workload.get("contract") != expected_contract
+            or workload.get("workspace") != {"elements": MATMUL_F64_4X4_MATRIX_ELEMENTS}
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output_spec
+            or workload.get("measurement") != expected_measurement
+            or MATMUL_F64_4X4_MIN_ITERATIONS != 1
+            or MATMUL_F64_4X4_MAX_ITERATIONS != 10000
+            or MATMUL_F64_4X4_MAX_PARSEABLE_INPUT_LENGTH != 2
+            or MATMUL_F64_4X4_MATRIX_ELEMENTS != 16
+            or not isinstance(cases, list)
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids):
+        raise ValueError("matmul_f64_4x4 metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "matmul_f64_4x4" / "README.md").read_text(
+        encoding="utf-8")
+    if source_url not in readme or launcher_url not in readme or "left-associative" not in readme:
+        raise ValueError("matmul_f64_4x4 README is missing its source or operation-order contract")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if (absolute_tolerance != 1e-12 or relative_tolerance != 1e-12
+            or any(encode_case(case, "matmul_f64_4x4", absolute_tolerance,
+                               relative_tolerance)[1] != case.get("expected_result")
+                   for case in cases)):
+        raise ValueError("matmul_f64_4x4 fixtures differ from the independent oracle")
 
 
 def validate_syrk_workload(workload: dict) -> None:
@@ -10748,7 +10911,9 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"):
         parser.error("workload does not match the float64_slice_io algorithm")
-    if algorithm == "syrk":
+    if algorithm == "matmul_f64_4x4":
+        validate_matmul_f64_4x4_workload(workload)
+    elif algorithm == "syrk":
         validate_syrk_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)

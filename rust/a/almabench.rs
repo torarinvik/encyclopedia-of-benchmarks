@@ -9,6 +9,8 @@ const R2D: f64 = 180.0 / PI;
 const JMILLENIA: f64 = 365250.0;
 const SINEPS: f64 = 0.3977771559319137;
 const COSEPS: f64 = 0.9174820620691818;
+const GAUSSK: f64 = 0.01720209895;
+const AMAS: [f64; 8] = [6023600.0, 408523.5, 328900.5, 3098710.0, 1047.355, 3498.5, 22869.0, 19314.0];
 const DATA: [f64; 600] = [
     0.3870983098, 0.0, 0.0, 0.72332982, 0.0, 0.0,
     1.0000010178, 0.0, 0.0, 1.5236793419, 3e-10, 0.0,
@@ -150,6 +152,7 @@ fn planet_position(planet: usize, day: i64) -> [f64; 3] {
     }
     let true_anomaly = 2.0 * (((1.0 + eccentricity) / (1.0 - eccentricity)).sqrt() * (eccentric_anomaly / 2.0).sin()).atan2((eccentric_anomaly / 2.0).cos());
     let radius = semi_major * (1.0 - eccentricity * eccentric_anomaly.cos());
+    let speed = GAUSSK * ((1.0 + 1.0 / AMAS[planet]) / (semi_major * semi_major * semi_major)).sqrt();
     let half_sin = (inclination / 2.0).sin();
     let node_cos = half_sin * node.cos();
     let node_sin = half_sin * node.sin();
@@ -158,6 +161,15 @@ fn planet_position(planet: usize, day: i64) -> [f64; 3] {
     let longitude_cos = longitude.cos();
     let correction = 2.0 * (node_sin * longitude_cos - node_cos * longitude_sin);
     let inclination_cos = (inclination / 2.0).cos();
+    let xf = semi_major / (1.0 - eccentricity * eccentricity).sqrt();
+    let xms = (eccentricity * perihelion.sin() + longitude_sin) * xf;
+    let xmc = (eccentricity * perihelion.cos() + longitude_cos) * xf;
+    let xpxq2 = 2.0 * node_sin * node_cos;
+    let _velocity_x = speed * ((-1.0 + 2.0 * node_sin * node_sin) * xms + xpxq2 * xmc);
+    let velocity_y = speed * ((1.0 - 2.0 * node_cos * node_cos) * xmc - xpxq2 * xms);
+    let velocity_z = speed * (2.0 * inclination_cos * (node_sin * xms + node_cos * xmc));
+    let _equatorial_velocity_y = velocity_y * COSEPS - velocity_z * SINEPS;
+    let _equatorial_velocity_z = velocity_y * SINEPS + velocity_z * COSEPS;
     let x = radius * (longitude_cos - correction * node_sin);
     let ecliptic_y = radius * (longitude_sin + correction * node_cos);
     let ecliptic_z = radius * (-correction * inclination_cos);
@@ -177,13 +189,41 @@ fn append_integer(buffer: &mut [u8; MAX_OUTPUT_BYTES], used: &mut usize, mut val
     while count > 0 { count -= 1; buffer[*used] = reverse[count]; *used += 1; }
 }
 fn append_fixed(buffer: &mut [u8; MAX_OUTPUT_BYTES], used: &mut usize, value: f64) {
-    let negative = value.is_sign_negative();
-    let scaled = (value.abs() * 1_000_000.0 + 0.5).floor() as i64;
+    let bits = value.to_bits();
+    let negative = bits >> 63 != 0;
+    let scaled = rounded_micro_units(bits & 0x7fff_ffff_ffff_ffff) as i64;
     if negative { buffer[*used] = b'-'; *used += 1; }
     append_integer(buffer, used, scaled / 1_000_000);
     buffer[*used] = b'.'; *used += 1;
     let mut fraction = scaled % 1_000_000; let mut place = 100_000;
     while place > 0 { buffer[*used] = b'0' + (fraction / place) as u8; *used += 1; fraction %= place; place /= 10; }
+}
+
+fn rounded_micro_units(bits: u64) -> u64 {
+    let exponent = (bits >> 52) & 0x7ff;
+    let mut significand = bits & ((1_u64 << 52) - 1);
+    if exponent == 0 { return 0; }
+    significand |= 1_u64 << 52;
+    let shift = 1075 - exponent;
+    if shift >= 74 { return 0; }
+    let low_product = (significand & 0xffff_ffff) * 1_000_000;
+    let high_product = (significand >> 32) * 1_000_000;
+    let middle = (low_product >> 32) + (high_product & 0xffff_ffff);
+    let limb0 = low_product & 0xffff_ffff;
+    let limb1 = middle & 0xffff_ffff;
+    let limb2 = (high_product >> 32) + (middle >> 32);
+    let (quotient, half_bit, lower_nonzero) = if shift < 64 {
+        let part = shift - 32;
+        ((limb1 >> part) | (limb2 << (32 - part)), (limb1 >> (part - 1)) & 1,
+         limb0 != 0 || (limb1 & ((1_u64 << (part - 1)) - 1)) != 0)
+    } else if shift == 64 {
+        (limb2, limb1 >> 31, limb0 != 0 || (limb1 & 0x7fff_ffff) != 0)
+    } else {
+        let part = shift - 64;
+        (limb2 >> part, (limb2 >> (part - 1)) & 1,
+         limb0 != 0 || limb1 != 0 || (limb2 & ((1_u64 << (part - 1)) - 1)) != 0)
+    };
+    quotient + if half_bit != 0 && (lower_nonzero || quotient & 1 != 0) { 1 } else { 0 }
 }
 
 #[no_mangle]

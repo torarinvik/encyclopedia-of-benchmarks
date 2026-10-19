@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-shootout-strcat-bounded-v1",
+  "algorithm": "shootout_strcat",
+  "function_symbol": "shootout_strcat",
+  "description": "Bounded Shootout strcat output length and exact source stdout through scalar-bytes-output ABI.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/strcat/strcat.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/strcat/strcat.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/strcat/info.sh",
+    "bench_name": "strcat",
+    "source_files": ["strcat.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "Each loop appends the six bytes hello followed by LF; after all appends, main prints strlen as decimal ASCII followed by LF. Buffer capacity starts at 32 and doubles when fewer than seven bytes remain.",
+    "launcher_default_calls": 10000000,
+    "profile_minimum_calls": 0,
+    "profile_maximum_calls": 4096,
+    "source_stdout_formula": "decimal(6 * append_count) followed by LF"
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "shootout_strcat_append_count",
+    "meaning": "Number of six-byte hello-newline appends.",
+    "minimum": 0,
+    "maximum": 4096,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "shootout_strcat_stdout_ascii",
+    "definition": "Decimal representation of six times append_count, followed by one LF byte.",
+    "maximum_output_bytes": 6,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero_appends", "input_value": 0, "expected_result": 2, "expected_output": "0\n"},
+    {"id": "one_append", "input_value": 1, "expected_result": 2, "expected_output": "6\n"},
+    {"id": "five_before_first_growth", "input_value": 5, "expected_result": 3, "expected_output": "30\n"},
+    {"id": "six_growth_boundary", "input_value": 6, "expected_result": 3, "expected_output": "36\n"},
+    {"id": "ten_before_next_growth", "input_value": 10, "expected_result": 3, "expected_output": "60\n"},
+    {"id": "eleven_growth_boundary", "input_value": 11, "expected_result": 3, "expected_output": "66\n"},
+    {"id": "maximum_profile", "input_value": 4096, "expected_result": 6, "expected_output": "24576\n"},
+    {"id": "negative_count", "input_value": -1, "expected_result": -1, "expected_output": ""},
+    {"id": "count_above_profile", "input_value": 4097, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_minimum", "input_value": -9223372036854775808, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_maximum", "input_value": 9223372036854775807, "expected_result": -1, "expected_output": ""},
+    {"id": "insufficient_capacity", "input_value": 2, "output_capacity": 2, "expected_result": -2, "expected_output": ""},
+    {"id": "null_output", "input_value": 2, "output_capacity": 3, "output_is_null": true, "expected_result": -2, "expected_output": ""}
+  ]
+}

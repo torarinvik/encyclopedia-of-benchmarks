@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-misc-fp-convert-bounded-v1",
+  "algorithm": "misc_fp_convert",
+  "function_symbol": "misc_fp_convert",
+  "description": "Bounded float32-vector conversion and float64 dot-product accumulation benchmark.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/fp-convert/fp-convert.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/fp-convert/fp-convert.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/fp-convert/info.sh",
+    "bench_name": "fp-convert",
+    "source_files": ["fp-convert.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "For each outer iteration, float arrays are filled from a and b plus the element index; the product sum is accumulated in double. a,b reset except at each tenth outer iteration, when float32 constants are added.",
+    "launcher_default_iterations": 500000,
+    "small_problem_size_iterations": 100000,
+    "profile_minimum_iterations": 1,
+    "profile_maximum_iterations": 256,
+    "vector_length": 2048,
+    "offset_update_interval": 10,
+    "offset_reset_condition": "iteration % 10 != 0",
+    "offset_update_values_float32": [0.1, 0.2]
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "one exact integer outer-iteration count",
+    "valid_length_range": [1, 1],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "minimum_iterations": 1,
+    "maximum_iterations": 256,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "single double-precision accumulated dot-product total",
+    "maximum_elements": 1,
+    "success_result": 1,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-7,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "absolute_tolerance": 1e-7,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "single_outer_iteration", "input_values": [1.0], "input_length": 1, "expected_result": 1, "expected_output": [2863939813.9391575]},
+    {"id": "two_outer_iterations", "input_values": [2.0], "input_length": 1, "expected_result": 1, "expected_output": [5727250661.9391575]},
+    {"id": "ten_iteration_boundary", "input_values": [10.0], "input_length": 1, "expected_result": 1, "expected_output": [28633737445.939156]},
+    {"id": "eleven_iteration_boundary", "input_values": [11.0], "input_length": 1, "expected_result": 1, "expected_output": [31497677259.87831]},
+    {"id": "maximum_profile", "input_values": [256.0], "input_length": 1, "expected_result": 1, "expected_output": [733023930202.4182]},
+    {"id": "zero_iterations", "input_values": [0.0], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "fractional_iterations", "input_values": [1.5], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "above_profile", "input_values": [257.0], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "short_input", "input_values": [], "input_length": 0, "expected_result": -1, "expected_output": []},
+    {"id": "extra_input_value", "input_values": [1.0, 2.0], "input_length": 2, "expected_result": -1, "expected_output": []}
+  ]
+}

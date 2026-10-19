@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-shootout-methcall-bounded-v1",
+  "algorithm": "shootout_methcall",
+  "function_symbol": "shootout_methcall",
+  "description": "Bounded method-call state toggles with exact Shootout stdout framing.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/methcall/methcall.c",
+    "symbol": "Toggle, NthToggle, main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/methcall/methcall.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/methcall/info.sh",
+    "bench_name": "methcall",
+    "source_files": ["methcall.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "The first Toggle starts true and flips on every activation. The second NthToggle starts true, increments its counter on each activation, flips at count_max=3, and resets its counter to zero. The source prints the final value of each loop using puts on strings that already end in LF.",
+    "launcher_default_calls": 500000000,
+    "small_problem_size_calls": 50000000,
+    "profile_minimum_calls": -100000,
+    "profile_maximum_calls": 100000,
+    "negative_calls_perform_zero_iterations": true,
+    "toggle_flip_period": 1,
+    "nth_toggle_flip_period": 3,
+    "puts_appends_lf_after_embedded_lf": true
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "shootout_methcall_calls",
+    "meaning": "Call count supplied to each source loop; negative values also execute zero iterations, as in the C loop condition.",
+    "minimum": -100000,
+    "maximum": 100000,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "shootout_methcall_stdout_ascii",
+    "definition": "Two final state words in source order, each followed by two LF bytes because puts appends a newline to a string that already contains one.",
+    "maximum_output_bytes": 14,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero_calls", "input_value": 0, "expected_result": 12, "expected_output": "true\n\ntrue\n\n"},
+    {"id": "one_call", "input_value": 1, "expected_result": 13, "expected_output": "false\n\ntrue\n\n"},
+    {"id": "two_calls", "input_value": 2, "expected_result": 12, "expected_output": "true\n\ntrue\n\n"},
+    {"id": "nth_toggle_first_flip", "input_value": 3, "expected_result": 14, "expected_output": "false\n\nfalse\n\n"},
+    {"id": "nth_toggle_after_reset", "input_value": 4, "expected_result": 13, "expected_output": "true\n\nfalse\n\n"},
+    {"id": "two_nth_toggle_flips", "input_value": 6, "expected_result": 12, "expected_output": "true\n\ntrue\n\n"},
+    {"id": "negative_call_count_zero_iterations", "input_value": -1, "expected_result": 12, "expected_output": "true\n\ntrue\n\n"},
+    {"id": "maximum_profile_calls", "input_value": 100000, "expected_result": 13, "expected_output": "true\n\nfalse\n\n"},
+    {"id": "below_profile_minimum", "input_value": -100001, "expected_result": -1, "expected_output": ""},
+    {"id": "above_profile_maximum", "input_value": 100001, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_minimum", "input_value": -9223372036854775808, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_maximum", "input_value": 9223372036854775807, "expected_result": -1, "expected_output": ""},
+    {"id": "short_capacity", "input_value": 3, "output_capacity": 13, "expected_result": -2, "expected_output": ""},
+    {"id": "null_output", "input_value": 0, "output_capacity": 14, "output_is_null": true, "expected_result": -2, "expected_output": ""}
+  ]
+}

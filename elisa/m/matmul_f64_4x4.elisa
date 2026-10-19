@@ -1,0 +1,36 @@
+const MATMUL_MAX_ITERATIONS: i64 = 10000
+const MATMUL_ELEMENTS: usize = 16
+const MATMUL_A: f64[16] = [4.5, 1.3, 6.0, 4.1, 2.5, 7.2, 7.7, 1.7, 6.7, 1.3, 9.4, 1.3, 1.1, 2.2, 3.0, 2.1]
+const MATMUL_B: f64[16] = [1.0, 7.9, 5.1, 3.4, 6.6, 2.8, 5.4, 9.2, 5.0, 4.1, 4.1, 9.9, 8.4, 3.7, 9.5, 6.4]
+
+def matmul_f64_4x4_impl(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length != 1: return -1
+    requested: f64 = input[0]
+    if requested != requested or requested < 1.0 or requested > 10000.0 or requested.i64().f64() != requested: return -1
+    iterations: i64 = requested.i64()
+
+    staged: mutable f64[MATMUL_ELEMENTS] = zeroed
+    iteration: mutable i64 = 0
+    while iteration < iterations:
+        row: mutable usize = 0
+        while row < 4:
+            column: mutable usize = 0
+            while column < 4:
+                index: usize = row * 4 + column
+                sum: mutable f64 = MATMUL_A[row * 4] * MATMUL_B[column]
+                sum <- sum + MATMUL_A[row * 4 + 1] * MATMUL_B[4 + column]
+                sum <- sum + MATMUL_A[row * 4 + 2] * MATMUL_B[8 + column]
+                sum <- sum + MATMUL_A[row * 4 + 3] * MATMUL_B[12 + column]
+                staged[index] <- sum
+                column <- column + 1
+            row <- row + 1
+        iteration <- iteration + 1
+
+    if output.is_null() or output_capacity < MATMUL_ELEMENTS: return -2
+    index: mutable usize = 0
+    while index < MATMUL_ELEMENTS:
+        output[index] <- staged[index]
+        index <- index + 1
+    MATMUL_ELEMENTS.i64()
+
+export fn matmul_f64_4x4(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = matmul_f64_4x4_impl

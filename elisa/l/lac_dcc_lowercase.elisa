@@ -1,0 +1,34 @@
+const MAX_CHARACTERS: usize = 31
+const MAX_OUTPUT_BYTES: usize = 63
+
+def misc_lowercase_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_CHARACTERS + 2: return -1
+    raw_length: i64 = input[0]
+    if raw_length < 0 or raw_length > 31 or input_length != raw_length.usize() + 1: return -1
+    length: usize = raw_length.usize()
+    lowered: mutable i64[MAX_CHARACTERS] = zeroed
+    ascii_flag: mutable i64 = 1
+    index: mutable usize = 0
+    while index < length:
+        value: i64 = input[index + 1]
+        if value < 0 or value > 65535: return -1
+        if value > 127: ascii_flag <- 0
+        if value >= 65 and value <= 90: value <- value + 32
+        lowered[index] <- value
+        index <- index + 1
+    required: usize = 1 + 2 * length
+    if output.is_null() or output_capacity < required: return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    staged[0] <- ascii_flag.u8()
+    index <- 0
+    while index < length:
+        staged[1 + 2 * index] <- (lowered[index] % 256).u8()
+        staged[2 + 2 * index] <- (lowered[index] / 256).u8()
+        index <- index + 1
+    index <- 0
+    while index < required:
+        output[index] <- staged[index]
+        index <- index + 1
+    required.i64()
+
+export fn misc_lowercase(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = misc_lowercase_impl

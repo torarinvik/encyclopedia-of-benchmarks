@@ -19,6 +19,7 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | `BitBench/uuencode/info.sh` | `uuencode` | Newly implemented in this batch | [`uuencode`](u/uuencode/README.md): bounded source-order uuencoding with the fixed header, 45-byte lines, and exact output framing. |
 | `BitBench/uudecode/info.sh` | `uudecode` | Newly implemented in this batch | [`uudecode`](u/uudecode/README.md): bounded fixed-header stream decoder with source-order line groups and exact terminator. |
 | `BitBench/five11/info.sh` | `five11` | Newly implemented in this batch | [`five11`](f/five11/README.md): bounded MSB-first packet parsing, 11-bit channel sum, and source repetition count. |
+| `CoyoteBench/almabench/info.sh` | `almabench` | Newly implemented in this batch | [`almabench`](a/almabench/README.md): bounded eight-planet ephemeris output with source-compatible `fmod` angle normalization and six-decimal formatting. |
 | `PolyBench/linear-algebra/blas/gesummv/info.sh` | `gesummv` | Newly implemented in this batch | [`gesummv`](g/gesummv/README.md): source-ordered matrix-vector combination and output reduction. |
 | `PolyBench/linear-algebra/blas/gemm/info.sh` | `gemm` | Newly implemented in this batch | [`gemm`](g/gemm/README.md): bounded source-ordered alpha/beta matrix multiplication and row-major reduction. |
 | `PolyBench/linear-algebra/blas/gemver/info.sh` | `gemver` | Newly implemented in this batch | [`gemver`](g/gemver/README.md): four ordered matrix/vector update passes and final vector reduction. |
@@ -33,6 +34,7 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | `PolyBench/medley/deriche/info.sh` | `deriche` | Newly implemented in this batch | [`deriche`](d/deriche/README.md): bounded recursive f32 image filter with row-major checksum output. |
 | `PolyBench/linear-algebra/kernels/mvt/info.sh` | `mvt` | Newly implemented in this batch | [`mvt`](m/mvt/README.md): source-ordered matrix-vector and transposed matrix-vector updates. |
 | `Misc/revertBits/info.sh` | `revertBits` | Newly implemented in this batch | [`revert_bits`](r/revert_bits/README.md): paired 32-bit and 64-bit bit-reversal operations with little-endian byte output. |
+| `Misc/matmul_f64_4x4/info.sh` | `matmul_f64_4x4` | Newly implemented in this batch | [`matmul_f64_4x4`](m/matmul_f64_4x4/README.md): bounded unrolled 4×4 double-precision matrix product. |
 | `PolyBench/linear-algebra/solvers/gramschmidt/info.sh` | `gramschmidt` | Partial/related | [`gram_schmidt`](g/gram_schmidt/README.md): same method, but matrix and output contracts differ. |
 | `PolyBench/medley/floyd-warshall/info.sh` | `floyd-warshall` | Partial/related | [`floyd_warshall`](f/floyd_warshall/README.md): same recurrence, local contract returns a requested source row. |
 | `PolyBench/medley/nussinov/info.sh` | `nussinov` | Newly implemented in this batch | [`nussinov`](n/nussinov/README.md): bounded dynamic-programming RNA folding recurrence. |
@@ -40,6 +42,11 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | `MiBench/automotive-bitcount/info.sh` | `automotive-bitcount` | Newly implemented in this batch | [`automotive_bitcount`](a/automotive_bitcount/README.md): seven source-selected bit-count kernels over deterministic streams. |
 | `cBench/automotive_bitcount/src/info.sh` | `automotive_bitcount` | Newly implemented in this batch | [`cbench_automotive_bitcount`](c/cbench_automotive_bitcount/README.md): all seven counting kernels with cBench's per-kernel seed `1` and dataset-1 iteration profile. |
 | `Shootout/ackermann/info.sh` | `ackermann` | Newly implemented in this batch | [`ackermann`](a/ackermann/README.md): direct recursive source recurrence, including the launcher default `Ack(3,8)`. |
+| `Shootout/hello/info.sh` | `hello` | Newly implemented in this batch | [`shootout_hello`](s/shootout_hello/README.md): exact single `puts("hello world\\n")` call, including its second newline. |
+| `Shootout/lists/info.sh` | `lists` | Newly implemented in this batch | [`shootout_lists`](s/shootout_lists/README.md): full circular doubly linked-list transformations and source stdout for zero or positive pass counts. |
+| `Shootout/strcat/info.sh` | `strcat` | Newly implemented in this batch | [`shootout_strcat`](s/shootout_strcat/README.md): bounded repeated `hello\n` appends with the exact decimal final length output. |
+| `Shootout/matrix/info.sh` | `matrix` | Newly implemented in this batch | [`shootout_matrix`](s/shootout_matrix/README.md): bounded repeated 10×10 integer products and four selected stdout cells. |
+| `Shootout/methcall/info.sh` | `methcall` | Newly implemented in this batch | [`shootout_methcall`](s/shootout_methcall/README.md): bounded Toggle/NthToggle calls with exact `puts` newline framing. |
 | `Shootout/hash/info.sh` | `hash` | Newly implemented in this batch | [`shootout_hash`](s/shootout_hash/README.md): bounded source-compatible chained hash inserts and descending decimal lookups. |
 | `Shootout/sieve/info.sh` | `sieve` | Newly implemented in this batch | [`sieve`](s/sieve/README.md): bounded repeated byte-flag sieve over 2..8192 with exact source stdout framing. |
 | `Shootout/random/info.sh` | `random` | Newly implemented in this batch | [`shootout_random`](s/shootout_random/README.md): bounded source LCG sequence with exact nine-place final-value output. |
@@ -49,10 +56,14 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | `Shootout/ary3/info.sh` | `ary3` | Newly implemented in this batch | [`ary3`](a/ary3/README.md): bounded reverse-index array accumulation with exact two-value output framing. |
 | `Stanford/FloatMM/info.sh` | `FloatMM` | Newly implemented in this batch | [`floatmm`](f/floatmm/README.md): bounded source-order binary32 matrix multiplication with the 40 printed diagonal lines. |
 | `Stanford/IntMM/info.sh` | `IntMM` | Newly implemented in this batch | [`stanford_intmm`](s/stanford_intmm/README.md): bounded source-order 40×40 integer matrix product and diagonal stdout prefix. |
-| `Stanford/Bubblesort/info.sh` | `Bubblesort` | Partial/related | [`bubble_sort`](b/bubble_sort/README.md): same adjacent-swap family; upstream runs a fixed generated workload and prints selected ranks. |
-| `Stanford/Quicksort/info.sh` | `Quicksort` | Partial/related | [`quick_sort`](q/quick_sort/README.md): same sort family, different pivot and partition scheme. |
-| `Stanford/Treesort/info.sh` | `Treesort` | Partial/related | [`tree_sort`](t/tree_sort/README.md): same BST-sort family, but upstream drops duplicate keys while local preserves them. |
-| `NPB-serial/is/info.sh` | `is` | Pending semantic review/implementation | Same-name collision: local [`is`](i/is/README.md) is a uint53 predicate, not NPB integer sort. |
+| `Stanford/RealMM/info.sh` | `RealMM` | Newly implemented in this batch | [`stanford_realmm`](s/stanford_realmm/README.md): bounded source-order 40×40 double matrix product and exact six-decimal diagonal stdout prefix. |
+| `Stanford/Bubblesort/info.sh` | `Bubblesort` | Newly implemented in this batch | [`stanford_bubblesort`](s/stanford_bubblesort/README.md): the 500-value generated input, complete fixed-pass bubble sort, and selected-rank stdout. |
+| `Stanford/Queens/info.sh` | `Queens` | Newly implemented in this batch | [`stanford_queens`](s/stanford_queens/README.md): 50 repeated first-solution eight-queens searches per pass and exact ordinal stdout. |
+| `Stanford/Quicksort/info.sh` | `Quicksort` | Newly implemented in this batch | [`stanford_quicksort`](s/stanford_quicksort/README.md): source-generated 5,000-value input, midpoint-pivot partition, and the launcher’s 100 printed ranks. |
+| `Stanford/Treesort/info.sh` | `Treesort` | Newly implemented in this batch | [`stanford_treesort`](s/stanford_treesort/README.md): source-seeded 5,000-key reversed BST, with duplicate-dropping insertion and selected-key output. |
+| `Stanford/Towers/info.sh` | `Towers` | Newly implemented in this batch | [`stanford_towers`](s/stanford_towers/README.md): source-style 14-disk Hanoi using the 18-cell free-list pool. |
+| `McGill/queens/info.sh` | `queens` | Newly implemented in this batch | [`queens`](q/queens/README.md): launcher’s count-only 14-queens search and exact two-line output. |
+| `NPB-serial/is/info.sh` | `is` | Newly implemented in this batch | [`npb_is`](n/npb_is/README.md): class-W integer sort with partial-rank checks and final full-order verification. |
 | `Olden/perimeter/info.sh` | `perimeter` | Pending semantic review/implementation | Same-name collision: local [`perimeter`](p/perimeter/README.md) computes regular-polygon perimeter. |
 | `PolyBench/datamining/correlation/info.sh` | `correlation` | Pending semantic review/implementation | Same-name collision: local [`correlation`](c/correlation/README.md) is a scalar Java-specific formula, not the matrix kernel. |
 
@@ -101,7 +112,7 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
-| [`CoyoteBench/almabench/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/almabench/info.sh) | `almabench` | Pending semantic review/implementation |
+| [`CoyoteBench/almabench/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/almabench/info.sh) | `almabench` | Newly implemented in this batch |
 | [`CoyoteBench/huffbench/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/huffbench/info.sh) | `huffbench` | Pending semantic review/implementation |
 | [`CoyoteBench/lpbench/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/lpbench/info.sh) | `lpbench` | Pending semantic review/implementation |
 
@@ -183,7 +194,7 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | [`McGill/chomp/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/chomp/info.sh) | `chomp` | Pending semantic review/implementation |
 | [`McGill/exptree/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/exptree/info.sh) | `exptree` | Pending semantic review/implementation |
 | [`McGill/misr/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/misr/info.sh) | `misr` | Pending semantic review/implementation |
-| [`McGill/queens/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/queens/info.sh) | `queens` | Pending semantic review/implementation |
+| [`McGill/queens/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/queens/info.sh) | `queens` | Newly implemented in this batch |
 
 ### MiBench
 
@@ -221,12 +232,12 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | [`Misc/flops-7/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/flops-7/info.sh) | `flops-7` | Pending semantic review/implementation |
 | [`Misc/flops-8/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/flops-8/info.sh) | `flops-8` | Pending semantic review/implementation |
 | [`Misc/flops/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/flops/info.sh) | `flops` | Pending semantic review/implementation |
-| [`Misc/fp-convert/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/fp-convert/info.sh) | `fp-convert` | Pending semantic review/implementation |
+| [`Misc/fp-convert/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/fp-convert/info.sh) | `fp-convert` | Reserved for `misc_fp_convert` package implementation |
 | [`Misc/himenobmtxpa/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/himenobmtxpa/info.sh) | `himenobmtxpa` | Pending semantic review/implementation |
-| [`Misc/lowercase/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/lowercase/info.sh) | `lowercase` | Pending semantic review/implementation |
+| [`Misc/lowercase/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/lowercase/info.sh) | `lowercase` | Newly implemented in this batch: [`misc_lowercase`](l/misc_lowercase/README.md) |
 | [`Misc/mandel-2/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/mandel-2/info.sh) | `mandel-2` | Pending semantic review/implementation |
 | [`Misc/mandel/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/mandel/info.sh) | `mandel` | Pending semantic review/implementation |
-| [`Misc/matmul_f64_4x4/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/matmul_f64_4x4/info.sh) | `matmul_f64_4x4` | Pending semantic review/implementation |
+| [`Misc/matmul_f64_4x4/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/matmul_f64_4x4/info.sh) | `matmul_f64_4x4` | Newly implemented in this batch |
 | [`Misc/oourafft/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/oourafft/info.sh) | `oourafft` | Pending semantic review/implementation |
 | [`Misc/perlin/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/perlin/info.sh) | `perlin` | Pending semantic review/implementation |
 | [`Misc/pi/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/pi/info.sh) | `pi` | Pending semantic review/implementation |
@@ -240,7 +251,7 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
 | [`NPB-serial/dc/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/NPB-serial/dc/info.sh) | `dc` | Pending semantic review/implementation |
-| [`NPB-serial/is/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/NPB-serial/is/info.sh) | `is` | Pending semantic review/implementation |
+| [`NPB-serial/is/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/NPB-serial/is/info.sh) | `is` | Newly implemented in this batch |
 
 ### Olden
 
@@ -344,30 +355,30 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | [`Shootout/fib2/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/fib2/info.sh) | `fib2` | Newly implemented in this batch |
 | [`Shootout/hash/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hash/info.sh) | `hash` | Newly implemented in this batch |
 | [`Shootout/heapsort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/heapsort/info.sh) | `heapsort` | Newly implemented in this batch |
-| [`Shootout/hello/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hello/info.sh) | `hello` | Pending semantic review/implementation |
-| [`Shootout/lists/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/lists/info.sh) | `lists` | Pending semantic review/implementation |
-| [`Shootout/matrix/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/matrix/info.sh) | `matrix` | Pending semantic review/implementation |
-| [`Shootout/methcall/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/methcall/info.sh) | `methcall` | Pending semantic review/implementation |
+| [`Shootout/hello/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hello/info.sh) | `hello` | Newly implemented in this batch |
+| [`Shootout/lists/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/lists/info.sh) | `lists` | Newly implemented in this batch |
+| [`Shootout/matrix/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/matrix/info.sh) | `matrix` | Newly implemented in this batch |
+| [`Shootout/methcall/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/methcall/info.sh) | `methcall` | Newly implemented in this batch |
 | [`Shootout/nestedloop/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/nestedloop/info.sh) | `nestedloop` | Exact local semantic match |
-| [`Shootout/objinst/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/objinst/info.sh) | `objinst` | Pending semantic review/implementation |
+| [`Shootout/objinst/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/objinst/info.sh) | `objinst` | Newly implemented in this batch: [`shootout_objinst`](s/shootout_objinst/README.md) |
 | [`Shootout/random/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/random/info.sh) | `random` | Newly implemented in this batch |
 | [`Shootout/sieve/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/sieve/info.sh) | `sieve` | Newly implemented in this batch |
-| [`Shootout/strcat/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/strcat/info.sh) | `strcat` | Pending semantic review/implementation |
+| [`Shootout/strcat/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/strcat/info.sh) | `strcat` | Newly implemented in this batch |
 
 ### Stanford
 
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
-| [`Stanford/Bubblesort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Bubblesort/info.sh) | `Bubblesort` | Partial/related |
+| [`Stanford/Bubblesort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Bubblesort/info.sh) | `Bubblesort` | Newly implemented in this batch |
 | [`Stanford/FloatMM/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/FloatMM/info.sh) | `FloatMM` | Newly implemented in this batch |
 | [`Stanford/IntMM/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/IntMM/info.sh) | `IntMM` | Newly implemented in this batch |
 | [`Stanford/Oscar/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Oscar/info.sh) | `Oscar` | Pending semantic review/implementation |
 | [`Stanford/Puzzle/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Puzzle/info.sh) | `Puzzle` | Pending semantic review/implementation |
-| [`Stanford/Queens/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Queens/info.sh) | `Queens` | Pending semantic review/implementation |
-| [`Stanford/Quicksort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Quicksort/info.sh) | `Quicksort` | Partial/related |
-| [`Stanford/RealMM/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/RealMM/info.sh) | `RealMM` | Pending semantic review/implementation |
-| [`Stanford/Towers/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Towers/info.sh) | `Towers` | Pending semantic review/implementation |
-| [`Stanford/Treesort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Treesort/info.sh) | `Treesort` | Partial/related |
+| [`Stanford/Queens/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Queens/info.sh) | `Queens` | Newly implemented in this batch |
+| [`Stanford/Quicksort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Quicksort/info.sh) | `Quicksort` | Newly implemented in this batch |
+| [`Stanford/RealMM/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/RealMM/info.sh) | `RealMM` | Newly implemented in this batch |
+| [`Stanford/Towers/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Towers/info.sh) | `Towers` | Newly implemented in this batch |
+| [`Stanford/Treesort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Treesort/info.sh) | `Treesort` | Newly implemented in this batch |
 
 ### TSVC
 

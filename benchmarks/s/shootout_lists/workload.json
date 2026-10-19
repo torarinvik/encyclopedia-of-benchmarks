@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-shootout-lists-bounded-v1",
+  "algorithm": "shootout_lists",
+  "function_symbol": "shootout_lists",
+  "description": "Bounded full-pass execution of the Shootout circular doubly linked-list test.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/lists/lists.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/lists/lists.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/lists/info.sh",
+    "bench_name": "lists",
+    "source_files": ["lists.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "Each pass creates a 100-element list and copy, verifies equality, drains the copy through a third list in both directions, reverses the original, and verifies equality and endpoints. The C main repeats this pass n times and prints the last result, or zero when n is zero.",
+    "list_size": 100,
+    "launcher_default_runs": 3000000,
+    "small_problem_size_runs": 300000,
+    "profile_minimum_runs": 0,
+    "profile_maximum_runs": 10000,
+    "zero_run_stdout": "0\n",
+    "positive_run_stdout": "100\n"
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "shootout_lists_runs",
+    "meaning": "Number of complete source list-test passes; the suite bounds this to avoid the launcher’s multi-million-pass default.",
+    "minimum": 0,
+    "maximum": 10000,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "shootout_lists_stdout_ascii",
+    "definition": "ASCII 0 followed by LF for zero passes, or ASCII 100 followed by LF for one or more passes.",
+    "maximum_output_bytes": 4,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero_passes", "input_value": 0, "expected_result": 2, "expected_output": "0\n"},
+    {"id": "one_pass", "input_value": 1, "expected_result": 4, "expected_output": "100\n"},
+    {"id": "two_passes", "input_value": 2, "expected_result": 4, "expected_output": "100\n"},
+    {"id": "maximum_profile_runs", "input_value": 10000, "expected_result": 4, "expected_output": "100\n"},
+    {"id": "negative_runs", "input_value": -1, "expected_result": -1, "expected_output": ""},
+    {"id": "above_profile_runs", "input_value": 10001, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_minimum", "input_value": -9223372036854775808, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_maximum", "input_value": 9223372036854775807, "expected_result": -1, "expected_output": ""},
+    {"id": "short_capacity", "input_value": 1, "output_capacity": 3, "expected_result": -2, "expected_output": ""},
+    {"id": "null_output", "input_value": 1, "output_capacity": 4, "output_is_null": true, "expected_result": -2, "expected_output": ""}
+  ]
+}

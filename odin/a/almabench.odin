@@ -1,6 +1,7 @@
 package almabench
 
 import "core:c"
+import "core:c/libc"
 import "core:math"
 
 MIN_DAYS :: 1
@@ -14,6 +15,8 @@ R2D :: 180.0 / PI
 JMILLENIA :: 365250.0
 SINEPS :: 0.3977771559319137
 COSEPS :: 0.9174820620691818
+GAUSSK :: 0.01720209895
+AMAS: [8]f64 = {6023600.0, 408523.5, 328900.5, 3098710.0, 1047.355, 3498.5, 22869.0, 19314.0}
 DATA: [600]f64 = {
 	0.3870983098, 0.0, 0.0, 0.72332982, 0.0, 0.0,
 	1.0000010178, 0.0, 0.0, 1.5236793419, 3e-10, 0.0,
@@ -119,9 +122,7 @@ DATA: [600]f64 = {
 
 table_value :: proc(offset, width, planet, term: int) -> f64 { return DATA[offset + width * planet + term] }
 remainder_f64 :: proc(value, divisor: f64) -> f64 {
-	q := value / divisor
-	whole := if q < 0.0 { -math.floor_f64(-q) } else { math.floor_f64(q) }
-	return value - whole * divisor
+	return libc.fmod(value, divisor)
 }
 normalize_angle :: proc(angle: f64) -> f64 {
 	value := remainder_f64(angle, TWOPI)
@@ -170,6 +171,17 @@ planet_position :: proc(planet: int, day: i64) -> [3]f64 {
 	x := radius * (longitude_cos - correction * node_sin)
 	ecliptic_y := radius * (longitude_sin + correction * node_cos)
 	ecliptic_z := radius * (-correction * inclination_cos)
+	speed := GAUSSK * math.sqrt_f64((1.0 + 1.0 / AMAS[planet]) / (semi_major * semi_major * semi_major))
+	xf := semi_major / math.sqrt_f64(1.0 - eccentricity * eccentricity)
+	xms := (eccentricity * math.sin(perihelion) + longitude_sin) * xf
+	xmc := (eccentricity * math.cos(perihelion) + longitude_cos) * xf
+	xpxq2 := 2.0 * node_sin * node_cos
+	velocity_x := speed * ((-1.0 + 2.0 * node_sin * node_sin) * xms + xpxq2 * xmc)
+	velocity_y := speed * ((1.0 - 2.0 * node_cos * node_cos) * xmc - xpxq2 * xms)
+	velocity_z := speed * (2.0 * inclination_cos * (node_sin * xms + node_cos * xmc))
+	equatorial_velocity_y := velocity_y * COSEPS - velocity_z * SINEPS
+	equatorial_velocity_z := velocity_y * SINEPS + velocity_z * COSEPS
+	_ = velocity_x; _ = equatorial_velocity_y; _ = equatorial_velocity_z
 	y := ecliptic_y * COSEPS - ecliptic_z * SINEPS
 	z := ecliptic_y * SINEPS + ecliptic_z * COSEPS
 	distance := math.sqrt_f64(x*x + y*y + z*z)
@@ -191,9 +203,44 @@ append_integer :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: i64) {
 	}
 	for count > 0 { count -= 1; buffer[used^] = reverse[count]; used^ += 1 }
 }
+rounded_micro_units :: proc(bits: u64) -> u64 {
+	exponent := int((bits >> 52) & 0x7ff)
+	if exponent == 0 do return 0
+	significand := (bits & 0x000f_ffff_ffff_ffff) | (u64(1) << 52)
+	shift := 1075 - exponent
+	if shift >= 74 do return 0
+	low_product := (significand & 0xffff_ffff) * 1_000_000
+	high_product := (significand >> 32) * 1_000_000
+	middle := (low_product >> 32) + (high_product & 0xffff_ffff)
+	limb0 := low_product & 0xffff_ffff
+	limb1 := middle & 0xffff_ffff
+	limb2 := (high_product >> 32) + (middle >> 32)
+	quotient: u64
+	half_bit: u64
+	lower_nonzero: bool
+	if shift < 64 {
+		part := shift - 32
+		quotient = (limb1 >> u64(part)) | (limb2 << u64(32 - part))
+		half_bit = (limb1 >> u64(part - 1)) & 1
+		lower_nonzero = limb0 != 0 || (limb1 & ((u64(1) << u64(part - 1)) - 1)) != 0
+	} else if shift == 64 {
+		quotient = limb2
+		half_bit = limb1 >> 31
+		lower_nonzero = limb0 != 0 || (limb1 & 0x7fff_ffff) != 0
+	} else {
+		part := shift - 64
+		quotient = limb2 >> u64(part)
+		half_bit = (limb2 >> u64(part - 1)) & 1
+		lower_nonzero = limb0 != 0 || limb1 != 0 || (limb2 & ((u64(1) << u64(part - 1)) - 1)) != 0
+	}
+	if half_bit != 0 && (lower_nonzero || (quotient & 1) != 0) { quotient += 1 }
+	return quotient
+}
+
 append_fixed :: proc(buffer: ^[MAX_OUTPUT_BYTES]u8, used: ^int, value: f64) {
-	negative := value < 0.0
-	scaled := i64(math.floor_f64(math.abs(value) * 1000000.0 + 0.5))
+	bits := transmute(u64)value
+	negative := (bits >> 63) != 0
+	scaled := i64(rounded_micro_units(bits & 0x7fff_ffff_ffff_ffff))
 	if negative { buffer[used^] = u8('-'); used^ += 1 }
 	append_integer(buffer, used, scaled / 1000000)
 	buffer[used^] = u8('.'); used^ += 1

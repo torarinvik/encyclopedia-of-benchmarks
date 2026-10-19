@@ -1,6 +1,7 @@
 /* Integer Sort class-W port from NAS NPB-serial/is. */
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 enum {
     TOTAL_KEYS = 1 << 20,
@@ -79,18 +80,6 @@ static size_t append_decimal(uint32_t value, uint8_t *output, size_t position)
     return position;
 }
 
-static size_t required_output_bytes(uint32_t pass_count)
-{
-    size_t required = 0;
-    for (uint32_t iteration = 1; iteration <= pass_count; ++iteration) {
-        for (size_t index = 0; index < TEST_COUNT; ++index)
-            required += decimal_width(expected_rank(index, iteration));
-        required += TEST_COUNT - 1 + 1;
-    }
-    required += decimal_width(5 * pass_count + 1) + 1;
-    return required;
-}
-
 static void rank_pass(uint32_t iteration, uint32_t partials[TEST_COUNT])
 {
     key_array[iteration] = iteration;
@@ -132,9 +121,9 @@ static int full_verify(void)
 int64_t npb_is(int64_t pass_count, uint8_t *output, size_t output_capacity)
 {
     if (pass_count < 1 || pass_count > MAX_PASSES) return -1;
-    const size_t required = required_output_bytes((uint32_t)pass_count);
-    if (output == NULL || output_capacity < required) return -2;
+    if (output == NULL) return -2;
 
+    uint8_t staged[353];
     generate_keys();
     uint32_t partials[TEST_COUNT];
     rank_pass(1, partials); /* Untimed source warm-up. */
@@ -143,16 +132,23 @@ int64_t npb_is(int64_t pass_count, uint8_t *output, size_t output_capacity)
     size_t position = 0;
     for (uint32_t iteration = 1; iteration <= (uint32_t)pass_count; ++iteration) {
         rank_pass(iteration, partials);
+        size_t row_required = TEST_COUNT;
+        for (size_t test = 0; test < TEST_COUNT; ++test)
+            row_required += decimal_width(partials[test]);
+        if (position + row_required > sizeof(staged)) return -2;
         for (size_t test = 0; test < TEST_COUNT; ++test) {
             if (partials[test] == expected_rank(test, iteration)) ++passed_verification;
-            position = append_decimal(partials[test], output, position);
-            if (test + 1 < TEST_COUNT) output[position++] = ',';
+            position = append_decimal(partials[test], staged, position);
+            if (test + 1 < TEST_COUNT) staged[position++] = ',';
         }
-        output[position++] = '\n';
+        staged[position++] = '\n';
     }
     if (full_verify()) ++passed_verification;
     if (passed_verification != 5 * (uint32_t)pass_count + 1) passed_verification = 0;
-    position = append_decimal(passed_verification, output, position);
-    output[position++] = '\n';
+    if (position + decimal_width(passed_verification) + 1 > sizeof(staged)) return -2;
+    position = append_decimal(passed_verification, staged, position);
+    staged[position++] = '\n';
+    if (output_capacity < position) return -2;
+    memcpy(output, staged, position);
     return (int64_t)position;
 }

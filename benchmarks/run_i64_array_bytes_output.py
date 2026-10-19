@@ -1610,6 +1610,10 @@ from stream_vector_kernels_oracle import expected_output as stream_vector_kernel
 from idea_encrypt_decrypt_oracle import MAX_PARSEABLE_INPUT_LENGTH as IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH
 from idea_encrypt_decrypt_oracle import MAX_OUTPUT_BYTES as IDEA_ENCRYPT_DECRYPT_MAX_OUTPUT_BYTES
 from idea_encrypt_decrypt_oracle import expected_output as idea_encrypt_decrypt_expected_output
+from misc_lowercase_oracle import MAX_CHARACTERS as MISC_LOWERCASE_MAX_CHARACTERS
+from misc_lowercase_oracle import MAX_OUTPUT_BYTES as MISC_LOWERCASE_MAX_OUTPUT_BYTES
+from misc_lowercase_oracle import MAX_PARSEABLE_INPUT_LENGTH as MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH
+from misc_lowercase_oracle import expected_output as misc_lowercase_expected_output
 from tripforce_tripcode_oracle import MAX_PARSEABLE_INPUT_LENGTH as TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH
 from tripforce_tripcode_oracle import MAX_OUTPUT_BYTES as TRIPFORCE_TRIPCODE_MAX_OUTPUT_BYTES
 from tripforce_tripcode_oracle import expected_output as tripforce_tripcode_expected_output
@@ -1646,6 +1650,21 @@ from coremark_matrix_manipulation_oracle import INVALID_RESULT as COREMARK_MATRI
 from coremark_matrix_manipulation_oracle import MAX_OUTPUT_BYTES as COREMARK_MATRIX_MANIPULATION_MAX_OUTPUT_BYTES
 from coremark_matrix_manipulation_oracle import MAX_PARSEABLE_INPUT_LENGTH as COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH
 from coremark_matrix_manipulation_oracle import expected_output as coremark_matrix_manipulation_expected_output
+
+
+def misc_lowercase_suite_oracle(
+        values: list[int], capacity: int | None = None, output_is_null: bool = False,
+        input_is_null: bool = False, input_length: int | None = None) -> tuple[int, bytes]:
+    if input_is_null or not isinstance(values, list):
+        return -1, b""
+    if input_length is not None and input_length != len(values):
+        return -1, b""
+    result, output = misc_lowercase_expected_output(values)
+    if result < 0:
+        return result, output
+    if output_is_null or (capacity is not None and capacity < result):
+        return -2, b""
+    return result, output
 from reverse_k_group_oracle import MAX_N as REVERSE_K_GROUP_MAX_N
 from reverse_k_group_oracle import expected_output as reverse_k_group_expected_output
 from permute_string_oracle import MAX_INPUT_LENGTH as PERMUTE_STRING_MAX_INPUT_LENGTH
@@ -3198,6 +3217,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "nbench_neural_network": nbench_neural_network_expected_output,
     "ansibench_dhrystone": ansibench_dhrystone_expected_output,
     "coremark_matrix_manipulation": coremark_matrix_manipulation_expected_output,
+    "misc_lowercase": misc_lowercase_suite_oracle,
     "benchmarkgame_nsieve_bits": nsieve_bits_oracle,
     "benchmarkgame_puzzle": benchmarkgame_puzzle_oracle,
     "revert_bits": revert_bits_oracle,
@@ -33583,6 +33603,57 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("repetitions_per_sample") != 100
                 or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
             raise ValueError("uudecode metadata differs from its pinned bounded source contract")
+    elif algorithm == "misc_lowercase":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        expected_ids = {
+            "empty_source_length", "one_source_character", "source_ascii_prefix_12",
+            "full_source_pattern", "source_repeated_pattern_boundary",
+            "source_driver_maximum_length", "mixed_ascii_boundary",
+            "non_ascii_and_surrogate_preserved", "negative_count", "count_above_profile",
+            "short_frame", "extra_frame_value", "negative_code_unit", "code_unit_above_u16",
+            "short_output_capacity", "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-misc-lowercase-u16-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "Misc/lowercase/lowercase.c"
+                or source.get("symbol") != "lower_StringImpl"
+                or launcher.get("repository") != "lac-dcc/Benchmarks"
+                or launcher.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or launcher.get("path") != "Misc/lowercase/info.sh"
+                or launcher.get("bench_name") != "lowercase"
+                or launcher.get("source_files") != ["lowercase.c"]
+                or launcher.get("compile_flags") != ["-lm"]
+                or launcher.get("run_options") != []
+                or input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[character_count, unsigned_16_bit_code_units...]"
+                or input_spec.get("character_count_range") != [0, MISC_LOWERCASE_MAX_CHARACTERS]
+                or input_spec.get("code_unit_range") != [0, 65535]
+                or input_spec.get("exact_length") != "1 + character_count"
+                or input_spec.get("maximum_valid_array_length") != MISC_LOWERCASE_MAX_CHARACTERS + 1
+                or input_spec.get("maximum_parseable_array_length") != MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("encoding") != "one byte ASCII flag followed by mapped unsigned 16-bit code units in little-endian order"
+                or output_spec.get("ascii_flag") != "1 iff every original code unit is <= 127; otherwise 0"
+                or output_spec.get("maximum_output_bytes") != MISC_LOWERCASE_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("short_capacity_writes_nothing") is not True
+                or workload.get("workspace", {}).get("bytes") != MISC_LOWERCASE_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("sample_count") != 5
+                or workload.get("measurement", {}).get("warmup_rounds") != 1
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 1
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
+            raise ValueError("misc_lowercase metadata differs from its pinned bounded source contract")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
@@ -33612,6 +33683,8 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "ansibench_dhrystone" else
                      COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "coremark_matrix_manipulation" else
+                     MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "misc_lowercase" else
                      NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "benchmarkgame_nsieve_bits" else
                      BENCHMARKGAME_PUZZLE_MAX_INPUT_LENGTH
@@ -34203,6 +34276,8 @@ def main() -> int:
                             if algorithm == "ansibench_dhrystone" else
                             COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "coremark_matrix_manipulation" else
+                            MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "misc_lowercase" else
                             REVERSE_K_GROUP_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_k_group" else
                             REVERSE_A_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_a_linked_list" else
                             REVERSE_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_linked_list" else
@@ -34513,6 +34588,7 @@ def main() -> int:
                             PRINT_REVERSE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "print_reverse" else
                             ROTATE_TO_THE_RIGHT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "rotate_to_the_right" else
                             SKYTALE_CIPHER_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "skytale_cipher" else
+                            MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "misc_lowercase" else
                             UUENCODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uuencode" else
                             UUDECODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uudecode" else
                             MAX_INPUT_LENGTH)

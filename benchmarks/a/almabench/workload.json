@@ -119,7 +119,7 @@
     {
       "id": "insufficient_capacity",
       "input_value": 1,
-      "output_capacity": 247,
+      "output_capacity": 231,
       "expected_result": -2,
       "expected_output": ""
     },

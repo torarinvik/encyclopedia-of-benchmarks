@@ -11,6 +11,8 @@ const R2D = 180.0 / Pi
 const JMillenia = 365250.0
 const Sineps = 0.3977771559319137
 const Coseps = 0.9174820620691818
+const GaussK = 0.01720209895
+const Amas: array[8, float64] = [6023600.0, 408523.5, 328900.5, 3098710.0, 1047.355, 3498.5, 22869.0, 19314.0]
 const Data: array[600, float64] = [
     0.3870983098, 0.0, 0.0, 0.72332982, 0.0, 0.0,
     1.0000010178, 0.0, 0.0, 1.5236793419, 3e-10, 0.0,
@@ -115,7 +117,7 @@ const Data: array[600, float64] = [
 ]
 
 proc table(offset, width, planet, term: int): float64 = Data[offset + width * planet + term]
-proc remainder(value, divisor: float64): float64 = value - trunc(value / divisor) * divisor
+proc remainder(value, divisor: float64): float64 = value mod divisor
 proc normalizeAngle(angle: float64): float64 =
   var value = remainder(angle, TwoPi)
   if abs(value) >= Pi: value -= (if angle < 0.0: -TwoPi else: TwoPi)
@@ -159,6 +161,19 @@ proc planetPosition(planet: int, day: int64): array[3, float64] =
   let x = radius * (longitudeCos - correction * nodeSin)
   let eclipticY = radius * (longitudeSin + correction * nodeCos)
   let eclipticZ = radius * (-correction * inclinationCos)
+  let speed = GaussK * sqrt((1.0 + 1.0 / Amas[planet]) / (semiMajor * semiMajor * semiMajor))
+  let xf = semiMajor / sqrt(1.0 - eccentricity * eccentricity)
+  let xms = (eccentricity * sin(perihelion) + longitudeSin) * xf
+  let xmc = (eccentricity * cos(perihelion) + longitudeCos) * xf
+  let xpxq2 = 2.0 * nodeSin * nodeCos
+  let velocityX = speed * ((-1.0 + 2.0 * nodeSin * nodeSin) * xms + xpxq2 * xmc)
+  let velocityY = speed * ((1.0 - 2.0 * nodeCos * nodeCos) * xmc - xpxq2 * xms)
+  let velocityZ = speed * (2.0 * inclinationCos * (nodeSin * xms + nodeCos * xmc))
+  let equatorialVelocityY = velocityY * Coseps - velocityZ * Sineps
+  let equatorialVelocityZ = velocityY * Sineps + velocityZ * Coseps
+  discard velocityX
+  discard equatorialVelocityY
+  discard equatorialVelocityZ
   let y = eclipticY * Coseps - eclipticZ * Sineps
   let z = eclipticY * Sineps + eclipticZ * Coseps
   let distance = sqrt(x*x + y*y + z*z)
@@ -179,9 +194,42 @@ proc appendInteger(buffer: var array[MaxOutputBytes, uint8], used: var int, valu
     if remaining == 0: break
   while count > 0:
     dec count; buffer[used] = reversed[count]; inc used
+proc roundedMicroUnits(bits: uint64): uint64 =
+  let exponent = int((bits shr 52) and 0x7ff'u64)
+  if exponent == 0: return 0
+  let significand = (bits and 0x000f_ffff_ffff_ffff'u64) or (1'u64 shl 52)
+  let shift = 1075 - exponent
+  if shift >= 74: return 0
+  let lowProduct = (significand and 0xffff_ffff'u64) * 1_000_000'u64
+  let highProduct = (significand shr 32) * 1_000_000'u64
+  let middle = (lowProduct shr 32) + (highProduct and 0xffff_ffff'u64)
+  let limb0 = lowProduct and 0xffff_ffff'u64
+  let limb1 = middle and 0xffff_ffff'u64
+  let limb2 = (highProduct shr 32) + (middle shr 32)
+  var quotient: uint64
+  var halfBit: uint64
+  var lowerNonzero: bool
+  if shift < 64:
+    let part = shift - 32
+    quotient = (limb1 shr part) or (limb2 shl (32 - part))
+    halfBit = (limb1 shr (part - 1)) and 1'u64
+    lowerNonzero = limb0 != 0 or (limb1 and ((1'u64 shl (part - 1)) - 1'u64)) != 0
+  elif shift == 64:
+    quotient = limb2
+    halfBit = limb1 shr 31
+    lowerNonzero = limb0 != 0 or (limb1 and 0x7fff_ffff'u64) != 0
+  else:
+    let part = shift - 64
+    quotient = limb2 shr part
+    halfBit = (limb2 shr (part - 1)) and 1'u64
+    lowerNonzero = limb0 != 0 or limb1 != 0 or (limb2 and ((1'u64 shl (part - 1)) - 1'u64)) != 0
+  if halfBit != 0 and (lowerNonzero or (quotient and 1'u64) != 0): inc quotient
+  quotient
+
 proc appendFixed(buffer: var array[MaxOutputBytes, uint8], used: var int, value: float64) =
-  let negative = value < 0.0
-  let scaled = int64(floor(abs(value) * 1_000_000.0 + 0.5))
+  let bits = cast[uint64](value)
+  let negative = (bits shr 63) != 0
+  let scaled = int64(roundedMicroUnits(bits and 0x7fff_ffff_ffff_ffff'u64))
   if negative: buffer[used] = uint8(ord('-')); inc used
   appendInteger(buffer, used, scaled div 1_000_000)
   buffer[used] = uint8(ord('.')); inc used

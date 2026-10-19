@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-stanford-bubblesort-bounded-runs-v1",
+  "algorithm": "stanford_bubblesort",
+  "function_symbol": "stanford_bubblesort",
+  "description": "Bounded Stanford benchmark that regenerates 500 deterministic integers and runs the source fixed-pass bubble sort for each selected rank.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Stanford/Bubblesort/Bubblesort.c",
+    "symbol": "Initrand, Rand, bInitarr, Bubble, main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Bubblesort/Bubblesort.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Stanford/Bubblesort/info.sh",
+    "bench_name": "Bubblesort",
+    "source_files": [
+      "Bubblesort.c"
+    ],
+    "compile_flags": [
+      "-lm"
+    ],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "Each Bubble(run) resets the 16-bit affine generator to 74755 and fills 500 values using temp-(temp/100000)*100000-50000. It tracks extrema from zero, performs all bubble passes with no early exit and swaps only left values strictly greater than their right neighbors, checks endpoints, then prints rank run+1 using the source 1-based index. main invokes runs 0 through 99.",
+    "launcher_default_runs": 100,
+    "elements_per_run": 500,
+    "seed": 74755,
+    "lcg_multiplier": 1309,
+    "lcg_increment": 13849,
+    "lcg_mask": 65535,
+    "profile_minimum_runs": 1,
+    "profile_maximum_runs": 100,
+    "source_stdout_prefix": "For run count k, regenerate and fully bubble-sort the fixed 500-value array k times, printing sorted ranks 1 through k, one decimal value per line."
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "stanford_bubblesort_runs",
+    "meaning": "Number of source Bubble passes to perform, from the launcher's 100-pass loop.",
+    "minimum": 1,
+    "maximum": 100,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "stanford_bubblesort_stdout_ascii",
+    "definition": "One selected sorted integer per pass with LF, preceded by the source endpoint error line only if that check fails.",
+    "maximum_output_bytes": 700,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "one_run",
+      "input_value": 1,
+      "expected_result": 7,
+      "expected_output": "-50000\n"
+    },
+    {
+      "id": "two_runs",
+      "input_value": 2,
+      "expected_result": 14,
+      "expected_output": "-50000\n-49783\n"
+    },
+    {
+      "id": "launcher_default",
+      "input_value": 100,
+      "expected_result": 700,
+      "expected_output": "-50000\n-49783\n-49692\n-49678\n-49470\n-49442\n-49423\n-49393\n-49388\n-49184\n-48907\n-48821\n-48807\n-48750\n-48705\n-48704\n-48454\n-48432\n-47989\n-47757\n-47642\n-47607\n-47503\n-47378\n-47284\n-47206\n-47156\n-47152\n-46907\n-46856\n-46737\n-46734\n-46323\n-46122\n-45996\n-45765\n-45583\n-45547\n-45431\n-45322\n-45290\n-44932\n-44759\n-44411\n-44378\n-44344\n-44163\n-44089\n-44053\n-43907\n-43809\n-43671\n-43623\n-43588\n-43400\n-43373\n-43255\n-43129\n-42918\n-42791\n-42427\n-42191\n-42101\n-42057\n-41994\n-41976\n-41632\n-41313\n-40933\n-40713\n-40665\n-40503\n-40392\n-40014\n-39944\n-39905\n-39878\n-39872\n-39853\n-39848\n-39788\n-39774\n-39455\n-39398\n-39387\n-38809\n-38547\n-38351\n-38347\n-38333\n-38309\n-38301\n-38259\n-38193\n-38015\n-37987\n-37795\n-37786\n-37434\n-37366\n"
+    },
+    {
+      "id": "zero_runs",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "negative_runs",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "runs_above_bound",
+      "input_value": 101,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "signed_64_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "signed_64_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_value": 1,
+      "output_capacity": 6,
+      "expected_result": -2,
+      "expected_output": ""
+    },
+    {
+      "id": "null_output",
+      "input_value": 1,
+      "output_capacity": 700,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": ""
+    }
+  ]
+}

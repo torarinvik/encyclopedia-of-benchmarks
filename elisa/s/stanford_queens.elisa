@@ -1,0 +1,76 @@
+const MIN_RUNS: i64 = 1
+const MAX_RUNS: i64 = 100
+const SOLVE_REPETITIONS: usize = 50
+const MAX_OUTPUT_BYTES: usize = 292
+
+def try_queens(row: usize, columns: mutable bool&, diagonal_sum: mutable bool&,
+               diagonal_diff: mutable bool&, positions: mutable usize&) -> bool:
+    j: mutable usize = 0
+    found: mutable bool = false
+    while not found and j != 8:
+        j <- j + 1
+        found <- false
+        if columns[j] and diagonal_sum[row + j] and diagonal_diff[row + 7 - j]:
+            positions[row] <- j
+            columns[j] <- false
+            diagonal_sum[row + j] <- false
+            diagonal_diff[row + 7 - j] <- false
+            if row < 8:
+                found <- try_queens(row + 1, columns, diagonal_sum, diagonal_diff, positions)
+                if not found:
+                    columns[j] <- true
+                    diagonal_sum[row + j] <- true
+                    diagonal_diff[row + 7 - j] <- true
+            else:
+                found <- true
+    found
+
+def doit() -> bool:
+    a: mutable bool[9] = zeroed
+    b: mutable bool[17] = zeroed
+    c: mutable bool[15] = zeroed
+    x: mutable usize[9] = zeroed
+    i: mutable i64 = -7
+    while i <= 16:
+        if i >= 1 and i <= 8: a[i.usize()] <- true
+        if i >= 2: b[i.usize()] <- true
+        if i <= 7: c[(i + 7).usize()] <- true
+        i <- i + 1
+    try_queens(1, a, b, c, x)
+
+def append_text(buffer: mutable u8&, used: mutable usize&, text: string) -> void:
+    for index in 0..<text.length():
+        buffer[used] <- text[index].u8()
+        used <- used + 1
+
+def append_integer(buffer: mutable u8&, used: mutable usize&, value: usize) -> void:
+    remaining: mutable usize = value
+    reverse: mutable u8[12] = zeroed
+    count: mutable usize = 0
+    while true:
+        reverse[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+        if remaining == 0: break
+    while count > 0:
+        count <- count - 1
+        buffer[used] <- reverse[count]
+        used <- used + 1
+
+def stanford_queens_impl(runs: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if runs < MIN_RUNS or runs > MAX_RUNS: return -1
+    if output.is_null(): return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    used: mutable usize = 0
+    for run in 0..<runs.usize():
+        repetition: mutable usize = 0
+        while repetition < SOLVE_REPETITIONS:
+            if not doit(): append_text(staged, used, " Error in Queens.\n")
+            repetition <- repetition + 1
+        append_integer(staged, used, run + 1)
+        append_text(staged, used, "\n")
+    if output_capacity < used: return -2
+    for index in 0..<used: output[index] <- staged[index]
+    used.i64()
+
+export fn stanford_queens(runs: i64, output: mutable u8&, output_capacity: usize) -> i64 = stanford_queens_impl

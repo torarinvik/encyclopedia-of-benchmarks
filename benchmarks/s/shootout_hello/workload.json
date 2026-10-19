@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-shootout-hello-single-call-v1",
+  "algorithm": "shootout_hello",
+  "function_symbol": "shootout_hello",
+  "description": "Exact single-call Shootout hello output through the bounded scalar-bytes-output ABI.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/hello/hello.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hello/hello.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/hello/info.sh",
+    "bench_name": "hello",
+    "source_files": [
+      "hello.c"
+    ],
+    "compile_flags": [
+      "-lm"
+    ],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "main executes puts(\"hello world\\n\") exactly once; puts appends a second LF after the newline already in the string.",
+    "launcher_default_calls": 1,
+    "profile_minimum_calls": 1,
+    "profile_maximum_calls": 1,
+    "source_stdout": "hello world\n\n"
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "shootout_hello_calls",
+    "meaning": "One-valued selector representing the source's single puts call.",
+    "minimum": 1,
+    "maximum": 1,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "shootout_hello_stdout_ascii",
+    "definition": "The exact bytes hello world followed by two LF bytes.",
+    "maximum_output_bytes": 13,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "source_single_call",
+      "input_value": 1,
+      "expected_result": 13,
+      "expected_output": "hello world\n\n"
+    },
+    {
+      "id": "zero_calls",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "negative_calls",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "extra_call_not_in_source",
+      "input_value": 2,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "signed_64_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "signed_64_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_value": 1,
+      "output_capacity": 12,
+      "expected_result": -2,
+      "expected_output": ""
+    },
+    {
+      "id": "null_output",
+      "input_value": 1,
+      "output_capacity": 13,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": ""
+    }
+  ]
+}

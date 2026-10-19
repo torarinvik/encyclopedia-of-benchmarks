@@ -1,0 +1,74 @@
+const MIN_RUNS: i64 = 1
+const MAX_RUNS: i64 = 100
+const ELEMENT_COUNT: usize = 500
+const MAX_OUTPUT_BYTES: usize = 700
+
+def build_and_sort_pass(run: usize, selected_value: mutable i32&) -> bool:
+    sortlist: mutable i32[ELEMENT_COUNT + 1] = zeroed
+    biggest: mutable i32 = 0
+    littlest: mutable i32 = 0
+    seed: mutable i64 = 74755
+    for index in 1..<ELEMENT_COUNT + 1:
+        seed <- (seed * 1309 + 13849) & 65535
+        temp: i64 = seed
+        value: i32 = (temp - (temp / 100000) * 100000 - 50000).i32()
+        sortlist[index] <- value
+        if value > biggest:
+            biggest <- value
+        elif value < littlest:
+            littlest <- value
+
+    top: mutable usize = ELEMENT_COUNT
+    while top > 1:
+        index: mutable usize = 1
+        while index < top:
+            if sortlist[index] > sortlist[index + 1]:
+                temp_value: i32 = sortlist[index]
+                sortlist[index] <- sortlist[index + 1]
+                sortlist[index + 1] <- temp_value
+            index <- index + 1
+        top <- top - 1
+    selected_value <- sortlist[run + 1]
+    sortlist[1] != littlest or sortlist[ELEMENT_COUNT] != biggest
+
+def append_text(buffer: mutable u8&, used: mutable usize&, text: string) -> void:
+    for index in 0..<text.length():
+        buffer[used] <- text[index].u8()
+        used <- used + 1
+
+def append_integer(buffer: mutable u8&, used: mutable usize&, value: i32) -> void:
+    remaining: mutable i32 = value
+    if remaining < 0:
+        buffer[used] <- 45u8
+        used <- used + 1
+        remaining <- -remaining
+    reverse: mutable u8[12] = zeroed
+    count: mutable usize = 0
+    while true:
+        reverse[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+        if remaining == 0: break
+    while count > 0:
+        count <- count - 1
+        buffer[used] <- reverse[count]
+        used <- used + 1
+
+def stanford_bubblesort_impl(runs: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if runs < MIN_RUNS or runs > MAX_RUNS: return -1
+    if output.is_null(): return -2
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    used: mutable usize = 0
+    for run in 0..<runs.usize():
+        selected_value: mutable i32 = 0
+        endpoint_error: bool = build_and_sort_pass(run, selected_value)
+        if endpoint_error:
+            append_text(staged, used, "Error3 in Bubble.\n")
+        append_integer(staged, used, selected_value)
+        append_text(staged, used, "\n")
+    if output_capacity < used: return -2
+    for index in 0..<used:
+        output[index] <- staged[index]
+    used.i64()
+
+export fn stanford_bubblesort(runs: i64, output: mutable u8&, output_capacity: usize) -> i64 = stanford_bubblesort_impl

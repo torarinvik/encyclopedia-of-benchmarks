@@ -9,6 +9,8 @@ const R2D: f64 = 180.0 / PI;
 const JMILLENIA: f64 = 365250.0;
 const SINEPS: f64 = 0.3977771559319137;
 const COSEPS: f64 = 0.9174820620691818;
+const GAUSSK: f64 = 0.01720209895;
+const AMAS = [_]f64{6023600.0, 408523.5, 328900.5, 3098710.0, 1047.355, 3498.5, 22869.0, 19314.0};
 const DATA = [_]f64{
     0.3870983098, 0.0, 0.0, 0.72332982, 0.0, 0.0,
     1.0000010178, 0.0, 0.0, 1.5236793419, 3e-10, 0.0,
@@ -112,7 +114,7 @@ const DATA = [_]f64{
     679.0, 0.0, -244.0, -419.0, -2531.0, 48.0
 };
 fn table(offset: usize, width: usize, planet: usize, term: usize) f64 { return DATA[offset + width * planet + term]; }
-fn remainder(value: f64, divisor: f64) f64 { return value - @trunc(value / divisor) * divisor; }
+fn remainder(value: f64, divisor: f64) f64 { return @rem(value, divisor); }
 fn normalizeAngle(angle: f64) f64 {
     var value = remainder(angle, TWOPI);
     if (@abs(value) >= PI) value -= if (angle < 0.0) -TWOPI else TWOPI;
@@ -160,6 +162,19 @@ fn planetPosition(planet: usize, day: i64) [3]f64 {
     const x = radius * (longitude_cos - correction * node_sin);
     const ecliptic_y = radius * (longitude_sin + correction * node_cos);
     const ecliptic_z = radius * (-correction * inclination_cos);
+    const speed = GAUSSK * @sqrt((1.0 + 1.0 / AMAS[planet]) / (semi_major * semi_major * semi_major));
+    const xf = semi_major / @sqrt(1.0 - eccentricity * eccentricity);
+    const xms = (eccentricity * @sin(perihelion) + longitude_sin) * xf;
+    const xmc = (eccentricity * @cos(perihelion) + longitude_cos) * xf;
+    const xpxq2 = 2.0 * node_sin * node_cos;
+    const velocity_x = speed * ((-1.0 + 2.0 * node_sin * node_sin) * xms + xpxq2 * xmc);
+    const velocity_y = speed * ((1.0 - 2.0 * node_cos * node_cos) * xmc - xpxq2 * xms);
+    const velocity_z = speed * (2.0 * inclination_cos * (node_sin * xms + node_cos * xmc));
+    const equatorial_velocity_y = velocity_y * COSEPS - velocity_z * SINEPS;
+    const equatorial_velocity_z = velocity_y * SINEPS + velocity_z * COSEPS;
+    _ = velocity_x;
+    _ = equatorial_velocity_y;
+    _ = equatorial_velocity_z;
     const y = ecliptic_y * COSEPS - ecliptic_z * SINEPS;
     const z = ecliptic_y * SINEPS + ecliptic_z * COSEPS;
     const distance = @sqrt(x*x + y*y + z*z);
@@ -175,9 +190,44 @@ fn appendInteger(buffer: *[MAX_OUTPUT_BYTES]u8, used: *usize, value: i64) void {
     while (true) { reversed[count] = @intCast(48 + @mod(remaining, 10)); count += 1; remaining = @divTrunc(remaining, 10); if (remaining == 0) break; }
     while (count > 0) { count -= 1; buffer[used.*] = reversed[count]; used.* += 1; }
 }
+fn roundedMicroUnits(bits: u64) u64 {
+    const exponent: i32 = @intCast((bits >> 52) & 0x7ff);
+    if (exponent == 0) return 0;
+    const significand = (bits & 0x000f_ffff_ffff_ffff) | (@as(u64, 1) << 52);
+    const shift = 1075 - exponent;
+    if (shift >= 74) return 0;
+    const low_product = (significand & 0xffff_ffff) * 1_000_000;
+    const high_product = (significand >> 32) * 1_000_000;
+    const middle = (low_product >> 32) + (high_product & 0xffff_ffff);
+    const limb0 = low_product & 0xffff_ffff;
+    const limb1 = middle & 0xffff_ffff;
+    const limb2 = (high_product >> 32) + (middle >> 32);
+    var quotient: u64 = undefined;
+    var half_bit: u64 = undefined;
+    var lower_nonzero: bool = undefined;
+    if (shift < 64) {
+        const part = shift - 32;
+        quotient = (limb1 >> @intCast(part)) | (limb2 << @intCast(32 - part));
+        half_bit = (limb1 >> @intCast(part - 1)) & 1;
+        lower_nonzero = limb0 != 0 or (limb1 & ((@as(u64, 1) << @intCast(part - 1)) - 1)) != 0;
+    } else if (shift == 64) {
+        quotient = limb2;
+        half_bit = limb1 >> 31;
+        lower_nonzero = limb0 != 0 or (limb1 & 0x7fff_ffff) != 0;
+    } else {
+        const part = shift - 64;
+        quotient = limb2 >> @intCast(part);
+        half_bit = (limb2 >> @intCast(part - 1)) & 1;
+        lower_nonzero = limb0 != 0 or limb1 != 0 or (limb2 & ((@as(u64, 1) << @intCast(part - 1)) - 1)) != 0;
+    }
+    if (half_bit != 0 and (lower_nonzero or (quotient & 1) != 0)) quotient += 1;
+    return quotient;
+}
+
 fn appendFixed(buffer: *[MAX_OUTPUT_BYTES]u8, used: *usize, value: f64) void {
-    const negative = value < 0.0;
-    const scaled: i64 = @intFromFloat(@floor(@abs(value) * 1_000_000.0 + 0.5));
+    const bits: u64 = @bitCast(value);
+    const negative = (bits >> 63) != 0;
+    const scaled: i64 = @intCast(roundedMicroUnits(bits & 0x7fff_ffff_ffff_ffff));
     if (negative) { buffer[used.*] = '-'; used.* += 1; }
     appendInteger(buffer, used, @divTrunc(scaled, 1_000_000));
     buffer[used.*] = '.'; used.* += 1;

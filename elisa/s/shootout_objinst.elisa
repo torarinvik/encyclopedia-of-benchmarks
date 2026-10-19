@@ -1,0 +1,122 @@
+extern calloc(count: usize, size: usize) -> mutable u32&
+extern free(memory: mutable u32&) -> void
+
+const MIN_N: i64 = -100000
+const MAX_N: i64 = 100000
+const OUTPUT_BYTES: usize = 72
+
+struct Toggle:
+    state: bool
+    activate: fn(mutable Toggle&) -> void
+    value: fn(Toggle&) -> bool
+
+struct NthToggle:
+    state: bool
+    count_max: i32
+    counter: i32
+    activate: fn(mutable NthToggle&) -> void
+    value: fn(NthToggle&) -> bool
+
+def toggle_activate(toggle: mutable Toggle&) -> void:
+    toggle.state <- not toggle.state
+
+def toggle_value(toggle: Toggle&) -> bool:
+    toggle.state
+
+def nth_toggle_activate(toggle: mutable NthToggle&) -> void:
+    toggle.counter <- toggle.counter + 1
+    if toggle.counter >= toggle.count_max:
+        toggle.state <- not toggle.state
+        toggle.counter <- 0
+
+def nth_toggle_value(toggle: NthToggle&) -> bool:
+    toggle.state
+
+def append_state(staged: mutable u8&, used: mutable usize&, state: bool) -> void:
+    if state:
+        staged[used] <- 116u8
+        used <- used + 1
+        staged[used] <- 114u8
+        used <- used + 1
+        staged[used] <- 117u8
+        used <- used + 1
+        staged[used] <- 101u8
+        used <- used + 1
+    else:
+        staged[used] <- 102u8
+        used <- used + 1
+        staged[used] <- 97u8
+        used <- used + 1
+        staged[used] <- 108u8
+        used <- used + 1
+        staged[used] <- 115u8
+        used <- used + 1
+        staged[used] <- 101u8
+        used <- used + 1
+    staged[used] <- 10u8
+    used <- used + 1
+
+def shootout_objinst_impl(n: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if n < MIN_N || n > MAX_N: return -1
+    if output.is_null() || output_capacity < OUTPUT_BYTES: return -2
+
+    staged: mutable u8[OUTPUT_BYTES] = zeroed
+    used: mutable usize = 0
+    toggle_raw: mutable u32& = calloc(1, 64)
+    if toggle_raw.is_null(): return -1
+    toggle: mutable Toggle& = toggle_raw.cast[mutable Toggle&]
+    toggle.state <- true
+    toggle.activate <- toggle_activate
+    toggle.value <- toggle_value
+    for _ in 0..<5:
+        toggle_activate_fn: fn(mutable Toggle&) -> void = toggle.activate
+        toggle_activate_fn(toggle)
+        toggle_value_fn: fn(Toggle&) -> bool = toggle.value
+        append_state(staged[0], used, toggle_value_fn(toggle))
+    free(toggle_raw)
+
+    iterations: usize = 0
+    if n > 0: iterations <- n.usize()
+    for _ in 0..<iterations:
+        extra_raw: mutable u32& = calloc(1, 64)
+        if extra_raw.is_null(): return -1
+        extra: mutable Toggle& = extra_raw.cast[mutable Toggle&]
+        extra.state <- true
+        extra.activate <- toggle_activate
+        extra.value <- toggle_value
+        free(extra_raw)
+
+    staged[used] <- 10u8
+    used <- used + 1
+    nth_raw: mutable u32& = calloc(1, 64)
+    if nth_raw.is_null(): return -1
+    nth_toggle: mutable NthToggle& = nth_raw.cast[mutable NthToggle&]
+    nth_toggle.state <- true
+    nth_toggle.count_max <- 3
+    nth_toggle.counter <- 0
+    nth_toggle.activate <- nth_toggle_activate
+    nth_toggle.value <- nth_toggle_value
+    for _ in 0..<8:
+        nth_toggle_activate_fn: fn(mutable NthToggle&) -> void = nth_toggle.activate
+        nth_toggle_activate_fn(nth_toggle)
+        nth_toggle_value_fn: fn(NthToggle&) -> bool = nth_toggle.value
+        append_state(staged[0], used, nth_toggle_value_fn(nth_toggle))
+    free(nth_raw)
+
+    for _ in 0..<iterations:
+        extra_raw: mutable u32& = calloc(1, 64)
+        if extra_raw.is_null(): return -1
+        extra: mutable NthToggle& = extra_raw.cast[mutable NthToggle&]
+        extra.state <- true
+        extra.count_max <- 3
+        extra.counter <- 0
+        extra.activate <- nth_toggle_activate
+        extra.value <- nth_toggle_value
+        free(extra_raw)
+
+    if used != OUTPUT_BYTES: return -1
+    for index in 0..<used:
+        output[index] <- staged[index]
+    used.i64()
+
+export fn shootout_objinst(n: i64, output: mutable u8&, output_capacity: usize) -> i64 = shootout_objinst_impl

@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-matmul-f64-4x4-bounded-v1",
+  "algorithm": "matmul_f64_4x4",
+  "function_symbol": "matmul_f64_4x4",
+  "description": "Bounded repeated unrolled double-precision 4x4 matrix multiplication with numeric row-major output.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/matmul_f64_4x4/matmul_f64_4x4.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/matmul_f64_4x4/matmul_f64_4x4.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/matmul_f64_4x4/info.sh",
+    "bench_name": "matmul_f64_4x4",
+    "source_files": ["matmul_f64_4x4.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "The source computes the fixed A×B product in a loop, then prints the 16 final cells row-major with %8.2f formatting.",
+    "launcher_default_iterations": 50000000,
+    "profile_minimum_iterations": 1,
+    "profile_maximum_iterations": 10000,
+    "source_matrix_a_row_major": [4.5, 1.3, 6.0, 4.1, 2.5, 7.2, 7.7, 1.7, 6.7, 1.3, 9.4, 1.3, 1.1, 2.2, 3.0, 2.1],
+    "source_matrix_b_row_major": [1.0, 7.9, 5.1, 3.4, 6.6, 2.8, 5.4, 9.2, 5.0, 4.1, 4.1, 9.9, 8.4, 3.7, 9.5, 6.4],
+    "sum_order": "four products added left-to-right for each output cell"
+  },
+  "contract": {
+    "operation": "Repeat the pinned 4x4 double matrix product and return the final matrix as numeric values.",
+    "output_order": "row-major 16 float64 values",
+    "source_display_omission": "The ABI returns numeric cells and does not reproduce the source's %8.2f text formatting."
+  },
+  "workspace": {"elements": 16},
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "one exact integer iteration count",
+    "valid_length_range": [1, 1],
+    "maximum_valid_length": 1,
+    "maximum_parseable_length": 2,
+    "minimum_iterations": 1,
+    "maximum_iterations": 10000,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "final 4x4 matrix in row-major order",
+    "maximum_elements": 16,
+    "success_result": 16,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "single_iteration", "input_values": [1.0], "input_length": 1, "expected_result": 16, "expected_output": [77.52, 78.96000000000001, 93.51999999999998, 112.89999999999999, 102.8, 77.77, 99.35, 161.85, 73.2, 99.92000000000002, 92.08, 136.12, 48.26, 34.92, 49.739999999999995, 67.12]},
+    {"id": "repeated_product", "input_values": [17.0], "input_length": 1, "expected_result": 16, "expected_output": [77.52, 78.96000000000001, 93.51999999999998, 112.89999999999999, 102.8, 77.77, 99.35, 161.85, 73.2, 99.92000000000002, 92.08, 136.12, 48.26, 34.92, 49.739999999999995, 67.12]},
+    {"id": "maximum_profile", "input_values": [10000.0], "input_length": 1, "expected_result": 16, "expected_output": [77.52, 78.96000000000001, 93.51999999999998, 112.89999999999999, 102.8, 77.77, 99.35, 161.85, 73.2, 99.92000000000002, 92.08, 136.12, 48.26, 34.92, 49.739999999999995, 67.12]},
+    {"id": "zero_iterations", "input_values": [0.0], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "fractional_iterations", "input_values": [1.5], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "above_profile", "input_values": [10001.0], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "short_input", "input_values": [], "input_length": 0, "expected_result": -1, "expected_output": []},
+    {"id": "extra_input_value", "input_values": [1.0, 2.0], "input_length": 2, "expected_result": -1, "expected_output": []}
+  ]
+}

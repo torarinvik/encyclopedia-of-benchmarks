@@ -58,15 +58,6 @@ fn decimal_width(mut value: u32) -> usize {
     width
 }
 
-fn required_output_bytes(pass_count: u32) -> usize {
-    let mut required = 0;
-    for iteration in 1..=pass_count {
-        for test in 0..5 { required += decimal_width(expected_rank(test, iteration)); }
-        required += 5; // Four commas and LF.
-    }
-    required + decimal_width(5 * pass_count + 1) + 1
-}
-
 fn generate_keys(work: &mut Work) {
     let mut state = 314159265_u64;
     for index in 0..TOTAL_KEYS {
@@ -139,9 +130,9 @@ unsafe fn append_decimal(value: u32, output: *mut u8, position: &mut usize) {
 pub extern "C" fn npb_is(pass_count: i64, output: *mut u8, output_capacity: usize) -> i64 {
     if !(1..=MAX_PASSES).contains(&pass_count) { return -1; }
     let passes = pass_count as u32;
-    let required = required_output_bytes(passes);
-    if output.is_null() || output_capacity < required { return -2; }
+    if output.is_null() { return -2; }
 
+    let mut staged = [0_u8; 353];
     let mut work = WORK.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
     generate_keys(&mut work);
     let mut partials = [0_u32; 5];
@@ -150,21 +141,26 @@ pub extern "C" fn npb_is(pass_count: i64, output: *mut u8, output_capacity: usiz
     let mut position = 0_usize;
     for iteration in 1..=passes {
         rank_pass(&mut work, iteration, &mut partials);
+        let row_required = partials.iter().map(|value| decimal_width(*value)).sum::<usize>() + 5;
+        if position + row_required > staged.len() { return -2; }
         for test in 0..5 {
             if partials[test] == expected_rank(test, iteration) { passed_verification += 1; }
-            unsafe { append_decimal(partials[test], output, &mut position); }
+            unsafe { append_decimal(partials[test], staged.as_mut_ptr(), &mut position); }
             if test + 1 < 5 {
-                unsafe { output.add(position).write(b','); }
+                staged[position] = b',';
                 position += 1;
             }
         }
-        unsafe { output.add(position).write(b'\n'); }
+        staged[position] = b'\n';
         position += 1;
     }
     if full_verify(&mut work) { passed_verification += 1; }
     if passed_verification != 5 * passes + 1 { passed_verification = 0; }
-    unsafe { append_decimal(passed_verification, output, &mut position); }
-    unsafe { output.add(position).write(b'\n'); }
+    if position + decimal_width(passed_verification) + 1 > staged.len() { return -2; }
+    unsafe { append_decimal(passed_verification, staged.as_mut_ptr(), &mut position); }
+    staged[position] = b'\n';
     position += 1;
+    if output_capacity < position { return -2; }
+    for index in 0..position { unsafe { output.add(index).write(staged[index]); } }
     position as i64
 }
