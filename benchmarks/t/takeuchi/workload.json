@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-benchmarkgame-integer-takeuchi-i64-triple-v1",
+  "algorithm": "takeuchi",
+  "function_symbol": "takeuchi",
+  "description": "Evaluate the bounded integer Takeuchi recurrence from BenchmarkGame/recursive/recursive.c.",
+  "pinned_sources": [
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "BenchmarkGame/recursive/recursive.c",
+      "symbol": "tak",
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/recursive/recursive.c",
+      "role": "algorithm"
+    }
+  ],
+  "input": {
+    "kind": "three_signed_64_bit_integers",
+    "range": [
+      0,
+      12
+    ],
+    "invalid_input_result": -1,
+    "definition": "Each external argument x, y, and z must be an integer in 0..12. Recursive internal arguments may be negative and are evaluated by the recurrence without reapplying the external input bound."
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "definition": "The returned z value of the exact nested Takeuchi recurrence.",
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "recurrence": "if y < x then tak(tak(x-1,y,z), tak(y-1,z,x), tak(z-1,x,y)) else z",
+    "source_evaluation": "Evaluate the three nested recursive arguments and then recursively apply tak to their returned values, with no memoization in benchmark implementations.",
+    "bounds": "Validate only the three external arguments against 0..12 before entering the recurrence."
+  },
+  "measurement": {
+    "comparison_model": "i64_triple_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "all_zero",
+      "input_values": [
+        0,
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "base_case",
+      "input_values": [
+        2,
+        4,
+        1
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "single_recursive_step",
+      "input_values": [
+        1,
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "classic_small",
+      "input_values": [
+        3,
+        2,
+        1
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "nested",
+      "input_values": [
+        5,
+        3,
+        1
+      ],
+      "expected_result": 2
+    },
+    {
+      "id": "close_inputs",
+      "input_values": [
+        7,
+        6,
+        5
+      ],
+      "expected_result": 6
+    },
+    {
+      "id": "bounded_workload",
+      "input_values": [
+        10,
+        5,
+        0
+      ],
+      "expected_result": 5
+    },
+    {
+      "id": "upper_x",
+      "input_values": [
+        12,
+        6,
+        0
+      ],
+      "expected_result": 1
+    },
+    {
+      "id": "upper_near_diagonal",
+      "input_values": [
+        12,
+        11,
+        10
+      ],
+      "expected_result": 11
+    },
+    {
+      "id": "diagonal_base_case",
+      "input_values": [
+        12,
+        12,
+        12
+      ],
+      "expected_result": 12
+    },
+    {
+      "id": "negative_x",
+      "input_values": [
+        -1,
+        0,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_y",
+      "input_values": [
+        0,
+        -1,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_z",
+      "input_values": [
+        0,
+        0,
+        -1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "x_above_bound",
+      "input_values": [
+        13,
+        0,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "y_above_bound",
+      "input_values": [
+        0,
+        13,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "z_above_bound",
+      "input_values": [
+        0,
+        0,
+        13
+      ],
+      "expected_result": -1
+    }
+  ]
+}

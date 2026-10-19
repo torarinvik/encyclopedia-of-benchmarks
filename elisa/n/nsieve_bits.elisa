@@ -1,0 +1,44 @@
+const MAX_LIMIT: i64 = 1000000
+const MAX_WORDS: usize = 15626
+
+def count_primes(limit: i64) -> i64:
+    bits: mutable u64[MAX_WORDS] = zeroed
+    word: mutable usize = 0
+    while word < MAX_WORDS:
+        bits[word] <- 18446744073709551615
+        word <- word + 1
+    count: mutable i64 = 0
+    value: mutable i64 = 2
+    while value <= limit:
+        index: usize = (value / 64).usize()
+        mask: u64 = 1.u64() << (value % 64).u32()
+        if (bits[index] & mask) != 0:
+            count <- count + 1
+            multiple: mutable i64 = value + value
+            while multiple <= limit:
+                multiple_index: usize = (multiple / 64).usize()
+                multiple_mask: u64 = 1.u64() << (multiple % 64).u32()
+                if (bits[multiple_index] & multiple_mask) != 0:
+                    bits[multiple_index] <- bits[multiple_index] ^ multiple_mask
+                multiple <- multiple + value
+        value <- value + 1
+    count
+
+def put_u64_le(output: mutable u8&, offset: usize, value: u64):
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (value >> (byte * 8)).u8()
+        byte <- byte + 1
+
+def benchmarkgame_nsieve_bits_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length != 1 or input[0] < 0 or input[0] > MAX_LIMIT:
+        return -1
+    if output == null or capacity < 24:
+        return -2
+    pass: mutable usize = 0
+    while pass < 3:
+        put_u64_le(output, pass * 8, count_primes(input[0] >> pass.i64()).u64())
+        pass <- pass + 1
+    24
+
+export fn benchmarkgame_nsieve_bits(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = benchmarkgame_nsieve_bits_impl

@@ -14,8 +14,9 @@ import shlex
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from takeuchi_oracle import expected_result as takeuchi_expected_result
 
-SUPPORTED_ALGORITHMS = {"problem188"}
+SUPPORTED_ALGORITHMS = {"problem188", "takeuchi"}
 
 
 @lru_cache(maxsize=512)
@@ -53,6 +54,10 @@ def encode_case(case: dict, algorithm: str) -> tuple[int, int, int, int]:
         source_result = problem188_source_result(first, second, third)
         if expected != source_result:
             raise ValueError("problem188 expected result must match the pinned modular tetration recurrence")
+    elif algorithm == "takeuchi":
+        source_result = takeuchi_expected_result(first, second, third)
+        if expected != source_result:
+            raise ValueError("takeuchi expected result must match the bounded integer recurrence")
     else:
         raise ValueError(f"unsupported i64_triple algorithm: {algorithm}")
     return first, second, third, expected

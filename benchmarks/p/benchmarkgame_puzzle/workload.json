@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "id": "benchmarkgame-puzzle-deterministic-duplicate-xor-v1",
+  "algorithm": "benchmarkgame_puzzle",
+  "function_symbol": "benchmarkgame_puzzle",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[array_size, arrays_to_generate, scans_per_array]",
+    "maximum_valid_input_length": 3,
+    "maximum_parseable_input_length": 4,
+    "array_size_range": [1, 100000],
+    "arrays_to_generate_range": [1, 8],
+    "scans_per_array_range": [1, 64],
+    "seed": 1,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i32_array",
+    "values": "one duplicate value per generated array, in generation order",
+    "byte_order": "little_endian",
+    "bytes_per_value": 4,
+    "maximum_output_bytes": 32,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "BenchmarkGame/puzzle/puzzle.c",
+    "blob_sha": "b86d38a55c3a1719e43771929030429f75da9ab5",
+    "symbols": ["rand", "randInt", "shuffle", "createRandomArray", "findDuplicate"]
+  },
+  "contract": [
+    "The source's private RNG starts at 1 once per call and continues across array generations.",
+    "Each generated array contains 0..array_size with element 0 replaced by a deterministic value in 1..array_size, then uses the source's descending Fisher-Yates shuffle.",
+    "Each array is scanned scans_per_array times with the source XOR expression; all repeated scans return the same duplicate.",
+    "The source defaults of 500000 elements, five arrays, and 200 scans are scaled to bounded configurable inputs.",
+    "The RNG reproduces unsigned 64-bit state wrap, the source's u32 truncation after shifting by 16, and rand's 1..32767 range."
+  ],
+  "cases": [
+    {
+      "id": "minimum-size-two-arrays",
+      "input_values": [1, 2, 1],
+      "input_length": 3,
+      "expected_result": 8,
+      "expected_output_hex": "0100000001000000"
+    },
+    {
+      "id": "deterministic-first-draw",
+      "input_values": [10, 1, 1],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "06000000"
+    },
+    {
+      "id": "repeated-identical-xor-scans",
+      "input_values": [10, 1, 7],
+      "input_length": 3,
+      "expected_result": 4,
+      "expected_output_hex": "06000000"
+    },
+    {
+      "id": "zero-array-size",
+      "input_values": [0, 1, 1],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "array-size-over-limit",
+      "input_values": [100001, 1, 1],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero-array-count",
+      "input_values": [10, 0, 1],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing-value",
+      "input_values": [10, 1, 1, 99],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [10, 2, 1],
+      "input_length": 3,
+      "output_capacity": 4,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [10, 1, 1],
+      "input_length": 3,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 3,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

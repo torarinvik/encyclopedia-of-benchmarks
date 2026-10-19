@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-benchmarkgame-spectral-norm-i64-array-f64-v1",
+  "algorithm": "spectral_norm",
+  "function_symbol": "spectral_norm",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n] where n is the dimension of the implicit spectral-norm matrix",
+    "input_length": 1,
+    "dimension_range": [1, 64],
+    "maximum_input_length": 1
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "10 rounds of the source's paired A-transpose-A power iteration, starting from an all-ones vector, followed by sqrt((u dot v)/(v dot v))",
+    "invalid_input_result": -1e300
+  },
+  "source_bound": {
+    "description": "The lac-dcc BenchmarkGame spectral-norm C source uses the implicit matrix A(i,j)=1/(((i+j)*(i+j+1))/2+i+1), starts with u[i]=1, and performs ten pairs of A-transpose-A products. The original default dimension 2000 is reduced to 1..64 for bounded suite calls; the algorithm and loop order are preserved.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "BenchmarkGame/spectral-norm/spectral-norm.c",
+    "original_contributor": "Sebastien Loisel",
+    "license_note": "The source file has no explicit license notice; this package is an independently written algorithm port."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "dimension_one", "input_values": [1], "input_length": 1, "expected_result": 1.0},
+    {"id": "dimension_two", "input_values": [2], "input_length": 1, "expected_result": 1.1833501765516568},
+    {"id": "dimension_three", "input_values": [3], "input_length": 1, "expected_result": 1.2336445009884911},
+    {"id": "dimension_eight", "input_values": [8], "input_length": 1, "expected_result": 1.2700463058540765},
+    {"id": "dimension_thirty_two", "input_values": [32], "input_length": 1, "expected_result": 1.2741181443691534},
+    {"id": "maximum_dimension", "input_values": [64], "input_length": 1, "expected_result": 1.2742091312976631},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "zero_dimension", "input_values": [0], "input_length": 1, "expected_result": -1e300},
+    {"id": "first_unsupported_dimension", "input_values": [65], "input_length": 1, "expected_result": -1e300}
+  ]
+}

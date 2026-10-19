@@ -1,0 +1,54 @@
+# Bounded port of the Benchmark Game fannkuch counter traversal.
+def fannkuch_impl(values: i64&, length: usize) -> i64:
+    if values == null or length != 1:
+        return -1
+    n64: i64 = values[0]
+    if n64 < 1 or n64 > 8:
+        return -1
+    n: usize = n64.usize()
+    perm: mutable [8]i64 = [0; 8]
+    perm1: mutable [8]i64 = [0; 8]
+    count: mutable [8]i64 = [0; 8]
+    for i in 0..<n:
+        perm1[i] <- i.i64()
+    r: mutable usize = n
+    flips_max: mutable i64 = 0
+    while true:
+        while r != 1:
+            count[r - 1] <- r.i64()
+            r <- r - 1
+        if perm1[0] != 0 and perm1[n - 1] != n.i64() - 1:
+            for i in 1..<n:
+                perm[i] <- perm1[i]
+            k: mutable usize = perm1[0].usize()
+            flips: mutable i64 = 0
+            while true:
+                i: mutable usize = 1
+                j: mutable usize = k - 1
+                while i < j:
+                    tmp: i64 = perm[i]
+                    perm[i] <- perm[j]
+                    perm[j] <- tmp
+                    i <- i + 1
+                    j <- j - 1
+                flips <- flips + 1
+                j <- perm[k].usize()
+                perm[k] <- k.i64()
+                k <- j
+                if k == 0:
+                    break
+            if flips_max < flips:
+                flips_max <- flips
+        while true:
+            if r == n:
+                return flips_max
+            first: i64 = perm1[0]
+            for i in 0..<r:
+                perm1[i] <- perm1[i + 1]
+            perm1[r] <- first
+            count[r] <- count[r] - 1
+            if count[r] > 0:
+                break
+            r <- r + 1
+
+export fn fannkuch(values: i64&, length: usize) -> i64 = fannkuch_impl

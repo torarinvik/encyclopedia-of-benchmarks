@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-shootout-nestedloop-scalar-v1",
+  "algorithm": "nestedloop",
+  "function_symbol": "nestedloop",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/nestedloop/nestedloop.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/nestedloop/nestedloop.c"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "The common upper bound n used by each of six nested loops.",
+    "range": [0, 15],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "The number of innermost loop iterations, n raised to the sixth power.",
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "loop_structure": "Six nested loops a, b, c, d, e, f, each starting at zero and continuing while the loop variable is less than n.",
+    "count_behavior": "Increment a signed integer counter exactly once for each innermost iteration. The bound 15 keeps the maximum count within the source int range.",
+    "result": "n^6 for n in 0..15; invalid inputs return -1."
+  },
+  "cases": [
+    {"id": "zero_iterations", "input_value": 0, "expected_result": 0},
+    {"id": "one_iteration", "input_value": 1, "expected_result": 1},
+    {"id": "two_per_loop", "input_value": 2, "expected_result": 64},
+    {"id": "small_count", "input_value": 3, "expected_result": 729},
+    {"id": "moderate_count", "input_value": 5, "expected_result": 15625},
+    {"id": "upper_typical", "input_value": 10, "expected_result": 1000000},
+    {"id": "maximum_safe_bound", "input_value": 15, "expected_result": 11390625},
+    {"id": "negative_input", "input_value": -1, "expected_result": -1},
+    {"id": "above_bound", "input_value": 16, "expected_result": -1},
+    {"id": "large_input", "input_value": 9223372036854775807, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  }
+}

@@ -1,0 +1,17 @@
+const MAX_N: i64 = 15
+
+def nestedloop_impl(input: i64) -> i64:
+    if input < 0 or input > MAX_N:
+        return -1
+    n: i64 = input
+    count: mutable i64 = 0
+    for a in 0..<n:
+        for b in 0..<n:
+            for c in 0..<n:
+                for d in 0..<n:
+                    for e in 0..<n:
+                        for f in 0..<n:
+                            count <- count + 1
+    count
+
+export fn nestedloop(input: i64) -> i64 = nestedloop_impl

@@ -24,6 +24,9 @@ from build_abi import ROOT, sha256_file
 from coremark_crc_oracle import INVALID_RESULT as COREMARK_CRC_INVALID_RESULT
 from coremark_crc_oracle import MAX_INPUT_LENGTH as COREMARK_CRC_MAX_INPUT_LENGTH
 from coremark_crc_oracle import expected_result as coremark_crc_expected
+from fannkuch_oracle import INVALID_RESULT as FANNKUCH_INVALID_RESULT
+from fannkuch_oracle import MAX_PARSEABLE_INPUT_LENGTH as FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH
+from fannkuch_oracle import expected_result as fannkuch_expected
 from decremental_connectivity_oracle import MAX_INPUT_LENGTH as MAX_DECREMENTAL_CONNECTIVITY_INPUT_LENGTH
 from decremental_connectivity_oracle import expected_result as decremental_connectivity_expected
 from frequent_pattern_growth_oracle import expected_result as frequent_pattern_growth_expected
@@ -6094,6 +6097,7 @@ def validate_solution42_workload(workload: dict) -> None:
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (COREMARK_CRC_MAX_INPUT_LENGTH if algorithm == "coremark_crc" else
+                        FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "fannkuch" else
                         LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "lwe_encryption" else
                         POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "pollard_rho_java" else
                         POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH if algorithm == "pollard_rho_python" else
@@ -6614,7 +6618,11 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "coremark_crc":
+    if algorithm == "fannkuch":
+        expected_from_source = fannkuch_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("fannkuch expected_result must match the bounded source-order prefix-reversal maximum")
+    elif algorithm == "coremark_crc":
         input_is_null = case.get("input_is_null", False)
         expected_from_source = coremark_crc_expected(
             None if input_is_null else values,
@@ -14288,6 +14296,51 @@ def validate_traveling_salesman_workload(workload: dict) -> None:
         raise ValueError("traveling_salesman workload is missing maximum-tour or parser-cap coverage")
 
 
+def validate_fannkuch_workload(workload: dict) -> None:
+    expected_ids = {
+        "n-1", "n-2", "n-3", "n-4", "n-5", "n-6", "n-7",
+        "bounded-maximum-n-8", "invalid-zero", "invalid-over-bound",
+        "invalid-trailing-value", "invalid-empty",
+    }
+    source = workload.get("pinned_source")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "measurement", "pinned_source", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "fannkuch-prefix-reversal-maximum-i64-scalar-v1"
+            or workload.get("algorithm") != "fannkuch"
+            or workload.get("function_symbol") != "fannkuch"
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "layout": "[n]", "n_range": [1, 8],
+                "maximum_valid_input_length": 1,
+                "maximum_parseable_input_length": FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": FANNKUCH_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "maximum prefix-reversal count over the source counter-order permutation traversal",
+                "valid_result_range": [0, 22], "invalid_result": FANNKUCH_INVALID_RESULT,
+            }
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(source, dict)
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("path") != "BenchmarkGame/fannkuch/fannkuch.c"
+            or source.get("original_contributor") != "Heiner Marxen"
+            or source.get("license_note") != "The referenced C file has no explicit license notice; this package is an independently written algorithm port."
+            or not isinstance(workload.get("cases"), list)
+            or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids
+            or len(workload["cases"]) != len(expected_ids)):
+        raise ValueError("fannkuch metadata or fixture IDs differ from its bounded source contract")
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != fannkuch_expected(values)):
+            raise ValueError(f"fannkuch fixture differs from its source-order recurrence: {case.get('id')}")
+
+
 def validate_coremark_crc_workload(workload: dict) -> None:
     expected_ids = {
         "all-four-helpers", "zero-values", "width-boundaries", "invalid-zero-operation-count",
@@ -14500,6 +14553,8 @@ def main() -> int:
         validate_mcoloring_workload(workload)
     elif algorithm == "solution42":
         validate_solution42_workload(workload)
+    elif algorithm == "fannkuch":
+        validate_fannkuch_workload(workload)
     elif algorithm == "coremark_crc":
         validate_coremark_crc_workload(workload)
     elif algorithm == "graph_enumeration":

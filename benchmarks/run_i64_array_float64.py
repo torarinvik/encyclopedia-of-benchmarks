@@ -108,6 +108,9 @@ from pyramid_oracle import expected_result as pyramid_expected
 from power_iteration_oracle import INVALID_RESULT as POWER_ITERATION_INVALID_RESULT
 from power_iteration_oracle import MAX_INPUT_LENGTH as MAX_POWER_ITERATION_INPUT_LENGTH
 from power_iteration_oracle import expected_result as power_iteration_expected
+from spectral_norm_oracle import INVALID_RESULT as SPECTRAL_NORM_INVALID_RESULT
+from spectral_norm_oracle import MAX_INPUT_LENGTH as MAX_SPECTRAL_NORM_INPUT_LENGTH
+from spectral_norm_oracle import expected_result as spectral_norm_expected
 from kinetic_energy_oracle import INVALID_RESULT as KINETIC_ENERGY_INVALID_RESULT
 from kinetic_energy_oracle import expected_result as kinetic_energy_expected
 from potential_energy_oracle import INVALID_RESULT as POTENTIAL_ENERGY_INVALID_RESULT
@@ -2261,6 +2264,7 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_REVERSE_POLISH_NOTATION_PARSEABLE_INPUT_LENGTH
                         if algorithm == "reverse_polish_notation" else
                         MAX_POWER_ITERATION_INPUT_LENGTH if algorithm == "power_iteration" else
+                        MAX_SPECTRAL_NORM_INPUT_LENGTH if algorithm == "spectral_norm" else
                         MAX_PYRAMID_INPUT_LENGTH if algorithm == "pyramid" else
                         MAX_P2_QUANTILE_INPUT_LENGTH if algorithm == "p2_quantile_estimator" else
                         MAX_LAPLACIAN_FILTER_INPUT_LENGTH + 1 if algorithm == "laplacian_filter" else
@@ -2942,6 +2946,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == POWER_ITERATION_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("power_iteration expected_result must match the bounded Python Rayleigh quotient iteration")
+    elif algorithm == "spectral_norm":
+        source_result = spectral_norm_expected(values)
+        if source_result == SPECTRAL_NORM_INVALID_RESULT:
+            if expected != SPECTRAL_NORM_INVALID_RESULT:
+                raise ValueError("invalid spectral_norm inputs must use the -1e300 result sentinel")
+        elif expected == SPECTRAL_NORM_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("spectral_norm expected_result must match the bounded BenchmarkGame iteration")
     elif algorithm == "pyramid":
         source_result = pyramid_expected(values)
         if source_result == PYRAMID_INVALID_RESULT:

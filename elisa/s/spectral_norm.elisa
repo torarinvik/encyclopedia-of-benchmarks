@@ -1,0 +1,62 @@
+extern sqrt(value: f64) -> f64
+
+const MAX_DIMENSION: usize = 64
+const INVALID_RESULT: f64 = -1e300
+
+def spectral_norm_matrix_entry(i: usize, j: usize) -> f64:
+    triangular: usize = (i + j) * (i + j + 1) / 2
+    1.0 / (triangular + i + 1).f64()
+
+def spectral_norm_multiply_a(n: usize, input: f64&, output: mutable f64&) -> void:
+    i: mutable usize = 0
+    while i < n:
+        total: mutable f64 = 0.0
+        j: mutable usize = 0
+        while j < n:
+            total <- total + spectral_norm_matrix_entry(i, j) * input[j]
+            j <- j + 1
+        output[i] <- total
+        i <- i + 1
+
+def spectral_norm_multiply_at(n: usize, input: f64&, output: mutable f64&) -> void:
+    i: mutable usize = 0
+    while i < n:
+        total: mutable f64 = 0.0
+        j: mutable usize = 0
+        while j < n:
+            total <- total + spectral_norm_matrix_entry(j, i) * input[j]
+            j <- j + 1
+        output[i] <- total
+        i <- i + 1
+
+def spectral_norm_multiply_ata(n: usize, input: f64&, output: mutable f64&,
+        temporary: mutable f64&) -> void:
+    spectral_norm_multiply_a(n, input, temporary)
+    spectral_norm_multiply_at(n, temporary, output)
+
+def spectral_norm_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 1 or values[0] < 1 or values[0] > MAX_DIMENSION.i64():
+        return INVALID_RESULT
+    n: usize = values[0].usize()
+    u: mutable f64[MAX_DIMENSION] = zeroed
+    v: mutable f64[MAX_DIMENSION] = zeroed
+    temporary: mutable f64[MAX_DIMENSION] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        u[i] <- 1.0
+        i <- i + 1
+    iteration: mutable usize = 0
+    while iteration < 10:
+        spectral_norm_multiply_ata(n, &u[0], &v[0], &temporary[0])
+        spectral_norm_multiply_ata(n, &v[0], &u[0], &temporary[0])
+        iteration <- iteration + 1
+    v_b_v: mutable f64 = 0.0
+    v_v: mutable f64 = 0.0
+    i <- 0
+    while i < n:
+        v_b_v <- v_b_v + u[i] * v[i]
+        v_v <- v_v + v[i] * v[i]
+        i <- i + 1
+    sqrt(v_b_v / v_v)
+
+export fn spectral_norm(values: i64&, length: usize) -> f64 = spectral_norm_impl

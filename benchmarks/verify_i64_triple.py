@@ -15,8 +15,10 @@ import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from run_i64_triple import encode_case
+from takeuchi_oracle import expected_result as takeuchi_oracle
 
-ALGORITHM = "problem188"
+ALGORITHMS = ("problem188", "takeuchi")
+DEFAULT_ALGORITHM = "problem188"
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -33,7 +35,20 @@ def oracle(base: int, height: int, digits: int) -> int:
     return result
 
 
-def corpus(workload: dict) -> tuple[str, int]:
+def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
+    if algorithm == "takeuchi":
+        triples = {tuple(case["input_values"]) for case in workload["cases"]}
+        triples.update((x, y, z) for x in range(5) for y in range(5) for z in range(5))
+        triples.update(((-1, 0, 0), (13, 0, 0), (0, -1, 0), (0, 13, 0),
+                        (0, 0, -1), (0, 0, 13), (I64_MIN, 0, 0), (0, I64_MAX, 0)))
+        lines = [f"{len(triples)}\n"]
+        for x, y, z in sorted(triples):
+            result = takeuchi_oracle(x, y, z)
+            lines.append(f"{x} {y} {z} {result}\n")
+        for case in workload["cases"]:
+            encode_case(case, algorithm)
+        return "".join(lines), len(triples)
+
     triples = {tuple(case["input_values"]) for case in workload["cases"]}
     bases = [1, 2, 3, 9, 10, 11, 25, 123, 999_999_999, 1_000_000_000]
     heights = [1, 2, 3, 4, 10, 100, 10_000]
@@ -50,7 +65,7 @@ def corpus(workload: dict) -> tuple[str, int]:
                     (3, 10_001, 8), (3, 3, 0), (3, 3, 9), (10, 3, 8)))
 
     for case in workload["cases"]:
-        first, second, third, expected = encode_case(case, ALGORITHM)
+        first, second, third, expected = encode_case(case, algorithm)
         if expected != oracle(first, second, third):
             raise ValueError(f"published workload disagrees with independent oracle: {case['id']}")
     lines = [f"{len(triples)}\n"]
@@ -60,9 +75,9 @@ def corpus(workload: dict) -> tuple[str, int]:
     return "".join(lines), len(triples)
 
 
-def verify(language: str, directory: Path, elisa_compiler: str | None,
+def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str | None,
            data: str, case_count: int, workload: dict) -> dict:
-    manifest = build(ALGORITHM, language, directory,
+    manifest = build(algorithm, language, directory,
                      compiler=elisa_compiler if language == "elisa" else None,
                      with_checker=True, family="i64_triple")
     checker = manifest["binaries"]["i64_triple_check"]["path"]
@@ -85,8 +100,8 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     for case, record in zip(workload["cases"], records):
-        first, second, third, expected = encode_case(case, ALGORITHM)
-        if (record["algorithm"] != ALGORITHM
+        first, second, third, expected = encode_case(case, algorithm)
+        if (record["algorithm"] != algorithm
                 or record["implementation"]["language"] != language
                 or record["implementation"]["source_sha256"] != manifest["source_sha256"]
                 or record["workload"]["input_values"] != [first, second, third]
@@ -95,7 +110,7 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
                 or record["measurement"]["observed_result"] != expected
                 or len(record["measurement"]["samples_ns"]) != 1):
             raise RuntimeError(f"recorded result/provenance mismatch: {case['id']}")
-    return {"algorithm": ALGORITHM, "language": language, "status": "passed",
+    return {"algorithm": algorithm, "language": language, "status": "passed",
             "oracle_cases": case_count, "source_sha256": manifest["source_sha256"],
             "workload_records": len(records), "build_manifest": str(directory / "build.json"),
             "build_manifest_sha256": sha256_file(directory / "build.json"),
@@ -104,22 +119,25 @@ def verify(language: str, directory: Path, elisa_compiler: str | None,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--algorithm", choices=ALGORITHMS, default=DEFAULT_ALGORITHM)
     parser.add_argument("--languages", nargs="+", choices=EXTENSIONS, default=list(EXTENSIONS))
     parser.add_argument("--elisa-compiler")
     parser.add_argument("--jobs", type=int, default=3)
-    parser.add_argument("--build-dir", type=Path, default=ROOT / "build/i64_triple/problem188")
+    parser.add_argument("--build-dir", type=Path)
     args = parser.parse_args()
     if args.jobs < 1 or len(set(args.languages)) != len(args.languages):
         parser.error("jobs must be positive and languages must not repeat")
-    workload = json.loads((ROOT / "benchmarks/p/problem188/workload.json").read_text(encoding="utf-8"))
-    if workload.get("algorithm") != ALGORITHM or workload.get("measurement", {}).get("comparison_model") != "i64_triple_call":
-        parser.error("Problem 188 workload does not declare the i64 triple contract")
-    data, case_count = corpus(workload)
-    args.build_dir.mkdir(parents=True, exist_ok=True)
+    algorithm = args.algorithm
+    workload = json.loads((ROOT / "benchmarks" / algorithm[0] / algorithm / "workload.json").read_text(encoding="utf-8"))
+    if workload.get("algorithm") != algorithm or workload.get("measurement", {}).get("comparison_model") != "i64_triple_call":
+        parser.error(f"{algorithm} workload does not declare the i64 triple contract")
+    data, case_count = corpus(workload, algorithm)
+    build_dir = (args.build_dir or ROOT / "build" / "i64_triple" / algorithm).resolve()
+    build_dir.mkdir(parents=True, exist_ok=True)
     results = []
     failures = []
     with ThreadPoolExecutor(max_workers=min(args.jobs, len(args.languages))) as pool:
-        futures = {pool.submit(verify, language, args.build_dir / language,
+        futures = {pool.submit(verify, algorithm, language, build_dir / language,
                                args.elisa_compiler if language == "elisa" else None,
                                data, case_count, workload): language
                    for language in args.languages}
@@ -128,13 +146,13 @@ def main() -> int:
             try:
                 results.append(future.result())
             except Exception as error:
-                failures.append({"algorithm": ALGORITHM, "language": language,
+                failures.append({"algorithm": algorithm, "language": language,
                                  "status": "failed", "error": str(error)})
     results.extend(failures)
     results.sort(key=lambda result: result["language"])
-    report = {"schema_version": 1, "algorithm": ALGORITHM, "oracle_cases": case_count,
+    report = {"schema_version": 1, "algorithm": algorithm, "oracle_cases": case_count,
               "results": results, "failures": len(failures)}
-    report_path = args.build_dir / "verification-report.json"
+    report_path = build_dir / "verification-report.json"
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 1 if failures else 0

@@ -538,6 +538,13 @@ from nearest_neighbour_search_oracle import MAX_INPUT_LENGTH as MAX_NEAREST_NEIG
 from nearest_neighbour_search_oracle import expected_output as nearest_neighbour_search_expected_output
 from n_body_simulation_oracle import MAX_INPUT_LENGTH as MAX_N_BODY_SIMULATION_INPUT_LENGTH
 from n_body_simulation_oracle import expected_output as n_body_simulation_expected_output
+from benchmarkgame_nbody_oracle import MAX_INPUT_LENGTH as BENCHMARKGAME_NBODY_MAX_INPUT_LENGTH
+from benchmarkgame_nbody_oracle import MAX_STEPS as BENCHMARKGAME_NBODY_MAX_STEPS
+from benchmarkgame_nbody_oracle import expected_output as benchmarkgame_nbody_oracle
+from nsieve_bits_oracle import MAX_LIMIT as NSIEVE_BITS_MAX_LIMIT
+from nsieve_bits_oracle import MAX_PARSEABLE_INPUT_LENGTH as NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
+from nsieve_bits_oracle import MAX_OUTPUT_BYTES as NSIEVE_BITS_MAX_OUTPUT_BYTES
+from nsieve_bits_oracle import expected_output as nsieve_bits_oracle
 from non_preemptive_priority_scheduling_oracle import MAX_INPUT_LENGTH as MAX_NON_PREEMPTIVE_PRIORITY_SCHEDULING_INPUT_LENGTH
 from non_preemptive_priority_scheduling_oracle import expected_output as non_preemptive_priority_scheduling_expected_output
 from nesterov_accelerated_sgd_oracle import MAX_INPUT_LENGTH as MAX_NESTEROV_ACCELERATED_SGD_INPUT_LENGTH
@@ -3176,6 +3183,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "nbench_neural_network": nbench_neural_network_expected_output,
     "ansibench_dhrystone": ansibench_dhrystone_expected_output,
     "coremark_matrix_manipulation": coremark_matrix_manipulation_expected_output,
+    "benchmarkgame_nsieve_bits": nsieve_bits_oracle,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
@@ -3883,6 +3891,8 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return nearest_neighbour_search_expected_output(values)
     if algorithm == "n_body_simulation":
         return n_body_simulation_expected_output(values)
+    if algorithm == "benchmarkgame_nbody":
+        return benchmarkgame_nbody_oracle(values)
     if algorithm == "nesterov_accelerated_sgd":
         return nesterov_accelerated_sgd_expected_output(values)
     if algorithm == "neural_network_perceptron_classifier":
@@ -33312,6 +33322,42 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("coremark_matrix_manipulation metadata differs from its pinned byte-output contract")
+    elif algorithm == "benchmarkgame_nsieve_bits":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {
+            "zero-limit-empty-passes", "limit-one-empty-passes", "limit-two-small-pass",
+            "limit-ten-three-counts", "limit-fifty", "negative-limit-invalid",
+            "limit-over-bound-invalid", "trailing-value-invalid", "short-output-capacity",
+            "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "benchmarkgame-nsieve-bits-three-pass-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("layout") != "[limit]"
+                or input_spec.get("limit_range") != [0, NSIEVE_BITS_MAX_LIMIT]
+                or input_spec.get("maximum_valid_input_values") != 1
+                or input_spec.get("maximum_parseable_input_values") != NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("kind") != "three_unsigned_64_bit_prime_counts"
+                or output_spec.get("layout") != "[pi(limit), pi(limit >> 1), pi(limit >> 2)]"
+                or output_spec.get("byte_order") != "little_endian"
+                or output_spec.get("maximum_output_bytes") != NSIEVE_BITS_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != NSIEVE_BITS_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "BenchmarkGame/nsieve-bits/nsieve-bits.c"
+                or source.get("symbol") != "main"
+                or not isinstance(workload.get("cases"), list)
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+            raise ValueError("benchmarkgame_nsieve_bits metadata differs from its bounded pinned-source contract")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
@@ -33341,6 +33387,8 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "ansibench_dhrystone" else
                      COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "coremark_matrix_manipulation" else
+                     NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "benchmarkgame_nsieve_bits" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
                      2 + 2 * (128 if algorithm == "uint128_t" else 256) // 32)
     oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
@@ -33373,6 +33421,44 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or case["expected_result"] != result
                 or expected_hex.lower() != output.hex()):
             raise ValueError(f"{algorithm} fixture differs from its pinned oracle: {case_id}")
+
+
+def validate_benchmarkgame_nbody_workload(workload: dict) -> None:
+    expected_ids = {
+        "zero-steps", "source-checkpoint-1000", "invalid-negative-steps",
+        "invalid-over-bound", "invalid-trailing-value", "short-output-capacity", "null-output",
+    }
+    source = workload.get("pinned_source", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "measurement", "pinned_source", "contract", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "benchmarkgame-classic-five-body-energy-i64-bytes-output-v1"
+            or workload.get("algorithm") != "benchmarkgame_nbody"
+            or workload.get("function_symbol") != "benchmarkgame_nbody"
+            or input_spec.get("kind") != "signed_i64_array"
+            or input_spec.get("layout") != "[step_count]"
+            or input_spec.get("step_count_range") != [0, BENCHMARKGAME_NBODY_MAX_STEPS]
+            or input_spec.get("maximum_valid_input_length") != 1
+            or input_spec.get("maximum_parseable_input_length") != BENCHMARKGAME_NBODY_MAX_INPUT_LENGTH
+            or input_spec.get("invalid_result") != -1
+            or output_spec.get("kind") != "float64_vector"
+            or output_spec.get("values") != "initial and final total energy after momentum offset, in source order"
+            or output_spec.get("byte_order") != "little_endian"
+            or output_spec.get("maximum_output_bytes") != 16
+            or output_spec.get("invalid_result") != -1
+            or output_spec.get("null_output_result") != -2
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "BenchmarkGame/n-body/n-body.c"
+            or source.get("symbol") != "advance, energy, offset_momentum"
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("benchmarkgame_nbody metadata or fixture IDs differ from its bounded source contract")
 
 
 def main() -> int:
@@ -33664,6 +33750,8 @@ def main() -> int:
         validate_tabu_search_workload(workload)
     elif algorithm == "skyline_algorithm":
         validate_skyline_algorithm_workload(workload)
+    elif algorithm == "benchmarkgame_nbody":
+        validate_benchmarkgame_nbody_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
         parser.error("workload does not match the built byte-output algorithm")
@@ -33963,6 +34051,7 @@ def main() -> int:
                             MAX_ONE_DIMENSIONAL_INPUT_LENGTH if algorithm == "one_dimensional" else
                             MAX_NAGEL_SCHREKENBERG_INPUT_LENGTH if algorithm == "nagel_schrekenberg" else
                             MAX_NEAREST_NEIGHBOUR_SEARCH_INPUT_LENGTH if algorithm == "nearest_neighbour_search" else
+                            BENCHMARKGAME_NBODY_MAX_INPUT_LENGTH if algorithm == "benchmarkgame_nbody" else
                             MAX_N_BODY_SIMULATION_INPUT_LENGTH if algorithm == "n_body_simulation" else
                             MAX_NESTEROV_ACCELERATED_SGD_INPUT_LENGTH if algorithm == "nesterov_accelerated_sgd" else
                             MAX_NEURAL_NETWORK_INPUT_LENGTH if algorithm == "neural_network" else
@@ -34250,7 +34339,7 @@ def main() -> int:
                 "procentual_proximity",
                 "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2",
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft", "median_finder", "mfcc",
-                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work", "inverse_of_matrix"}:
+                "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "benchmarkgame_nbody", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work", "inverse_of_matrix"}:
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft", "median_finder", "mfcc",
                 "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work", "inverse_of_matrix", "sobel_filter"}:
             raise ValueError(f"unsupported float64 vector algorithm {algorithm}")

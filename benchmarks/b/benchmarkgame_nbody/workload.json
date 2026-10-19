@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "benchmarkgame-classic-five-body-energy-i64-bytes-output-v1",
+  "algorithm": "benchmarkgame_nbody",
+  "function_symbol": "benchmarkgame_nbody",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[step_count]",
+    "step_count_range": [0, 1000],
+    "body_count": 5,
+    "body_constants": "fixed source solar-system constants in Sun, Jupiter, Saturn, Uranus, Neptune order",
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "values": "initial and final total energy after momentum offset, in source order",
+    "byte_order": "little_endian",
+    "absolute_tolerance": 5.1e-10,
+    "relative_tolerance": 1e-12,
+    "maximum_output_bytes": 16,
+    "invalid_result": -1,
+    "null_output_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 20,
+    "absolute_tolerance": 5.1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "BenchmarkGame/n-body/n-body.c",
+    "symbol": "advance, energy, offset_momentum",
+    "original_contributor": "Christoph Bauer",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/n-body/n-body.c",
+    "license_note": "The referenced C file has no explicit license notice; this package is an independently written algorithm port."
+  },
+  "contract": {
+    "initialization": "Copy the five fixed source body constants, then run offset_momentum before calculating initial energy.",
+    "step": "For each step, visit each unordered body pair in ascending i then j order; update both bodies' velocities immediately, then update all positions in body order using dt=0.01.",
+    "energy": "Sum kinetic energy and then each body's later pairwise potential terms in source order.",
+    "output": "Return the initial and final energy as two little-endian binary64 values. The step count is bounded at 1000 to keep this classic pairwise kernel practical."
+  },
+  "cases": [
+    {"id": "zero-steps", "input_values": [0], "expected_result": 16, "expected_output": [-0.169075164, -0.169075164]},
+    {"id": "source-checkpoint-1000", "input_values": [1000], "expected_result": 16, "expected_output": [-0.169075164, -0.169087605]},
+    {"id": "invalid-negative-steps", "input_values": [-1], "expected_result": -1, "expected_output": []},
+    {"id": "invalid-over-bound", "input_values": [1001], "expected_result": -1, "expected_output": []},
+    {"id": "invalid-trailing-value", "input_values": [2, 0], "expected_result": -1, "expected_output": []},
+    {"id": "short-output-capacity", "input_values": [0], "output_capacity": 15, "expected_result": -2, "expected_output": []},
+    {"id": "null-output", "input_values": [0], "output_is_null": true, "expected_result": -2, "expected_output": []}
+  ]
+}
