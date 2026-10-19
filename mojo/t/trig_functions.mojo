@@ -1,6 +1,6 @@
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, MutAnyOrigin, UnsafePointer
-from std.math import isfinite
+from std.math import floor, isfinite
 comptime TRIG_PI = 3.14159265358979323846
 fn trig_rounded(x:Float64,tol:Float64,kind:Int)->Float64:
     var value=x

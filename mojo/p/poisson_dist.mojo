@@ -1,5 +1,6 @@
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin, UnsafePointer
+from std.math import exp
 
 fn poisson_point(mean: Float64, k: Int64) -> Float64:
     var power = 1.0
@@ -7,13 +8,7 @@ fn poisson_point(mean: Float64, k: Int64) -> Float64:
     for i in range(Int(k)):
         power *= mean
         fact *= Float64(i + 1)
-    var e = 1.0
-    var term = 1.0
-    for i in range(1, 100):
-        term *= -mean / Float64(i)
-        e += term
-        if term > -1.0e-17 and term < 1.0e-17: break
-    return power * e / fact
+    return power * exp(-mean) / fact
 
 @export("poisson_dist")
 fn poisson_dist(v: UnsafePointer[Int64, ImmutAnyOrigin], n: c_size_t) abi("C") -> Float64:

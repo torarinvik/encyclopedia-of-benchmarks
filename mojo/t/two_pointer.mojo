@@ -4,7 +4,7 @@ from std.memory import ImmutAnyOrigin, UnsafePointer
 fn two_pointer(a:UnsafePointer[Int64,ImmutAnyOrigin],n:c_size_t) abi("C")->Int64:
     if a==UnsafePointer[Int64,ImmutAnyOrigin]() or n<2 or n>258:return -2
     let count=a[0];let target=a[1]
-    if count<0 or count>256 or n!=c_size_t(count+2):return -2
+    if count<0 or count>256 or target< -2147483648 or target>2147483647 or n!=c_size_t(count+2):return -2
     var previous:Int64= -2147483649
     for i in range(Int(count)):
         let x=a[i+2]
