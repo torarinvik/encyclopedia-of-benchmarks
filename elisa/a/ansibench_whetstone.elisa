@@ -1,0 +1,186 @@
+/*
+ * C Converted Whetstone Double Precision Benchmark
+ *		Version 1.2	22 March 1998
+ *
+ *		(c) Copyright 1998 Painter Engineering, Inc.
+ *		All Rights Reserved.
+ *
+ *		Permission is granted to use, duplicate, and
+ *		publish this text and program as long as it
+ *		includes this entire comment block and limited
+ *		rights reference.
+ *
+ * Converted by Rich Painter, Painter Engineering, Inc. based on the
+ * www.netlib.org benchmark/whetstoned version obtained 16 March 1998.
+ *
+ * A novel approach was used here to keep the look and feel of the
+ * FORTRAN version.  Altering the FORTRAN-based array indices,
+ * starting at element 1, to start at element 0 for C, would require
+ * numerous changes, including decrementing the variable indices by 1.
+ * Instead, the array E1[] was declared 1 element larger in C.  This
+ * allows the FORTRAN index range to function without any literal or
+ * variable indices changes.  The array element E1[0] is simply never
+ * used and does not alter the benchmark results.
+ *
+ * The major FORTRAN comment blocks were retained to minimize
+ * differences between versions.  Modules N5 and N12, like in the
+ * FORTRAN version, have been eliminated here.
+ *
+ * An optional command-line argument has been provided [-c] to
+ * offer continuous repetition of the entire benchmark.
+ * An optional argument for setting an alternate LOOP count is also
+ * provided.  Define PRINTOUT to cause the POUT() function to print
+ * outputs at various stages.  Final timing measurements should be
+ * made with the PRINTOUT undefined.
+ *
+ * Questions and comments may be directed to the author at
+ *			r.painter@ieee.org
+ */
+
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern atan(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern exp(value: f64) -> f64
+extern log(value: f64) -> f64
+
+const INVALID_RESULT: f64 = -1e300
+
+def ansibench_whetstone_pa(e: f64&, t: f64):
+    j: mutable i64 = 0
+    while true:
+        e[1] <- (e[1] + e[2] + e[3] - e[4]) * t
+        e[2] <- (e[1] + e[2] - e[3] + e[4]) * t
+        e[3] <- (e[1] - e[2] + e[3] + e[4]) * t
+        e[4] <- (-e[1] + e[2] + e[3] + e[4]) / 2.0
+        j <- j + 1
+        if j >= 6:
+            break
+
+def ansibench_whetstone_p3(x: f64, y: f64) -> f64:
+    x1: mutable f64 = x
+    y1: mutable f64 = y
+    x1 <- 0.499975 * (x1 + y1)
+    y1 <- 0.499975 * (x1 + y1)
+    (x1 + y1) / 2.0
+
+def ansibench_whetstone_add(sum: f64&, index: f64&, value: f64):
+    sum[0] <- sum[0] + index[0] * value
+    index[0] <- index[0] + 1.0
+
+def ansibench_whetstone_pass() -> f64:
+    t: f64 = 0.499975
+    t1: f64 = 0.50025
+    t2: f64 = 2.0
+    sum: mutable f64 = 0.0
+    index: mutable f64 = 1.0
+    ansibench_whetstone_add(sum, index, 1.0)
+    ansibench_whetstone_add(sum, index, -1.0)
+    ansibench_whetstone_add(sum, index, -1.0)
+    ansibench_whetstone_add(sum, index, -1.0)
+
+    e: mutable f64[5] = [0.0, 1.0, -1.0, -1.0, -1.0]
+    i: mutable usize = 0
+    while i < 12:
+        e[1] <- (e[1] + e[2] + e[3] - e[4]) * t
+        e[2] <- (e[1] + e[2] - e[3] + e[4]) * t
+        e[3] <- (e[1] - e[2] + e[3] + e[4]) * t
+        e[4] <- (-e[1] + e[2] + e[3] + e[4]) * t
+        i <- i + 1
+    for j in 1..<5: ansibench_whetstone_add(sum, index, e[j])
+    i <- 0
+    while i < 14:
+        ansibench_whetstone_pa(e, t)
+        i <- i + 1
+    for j in 1..<5: ansibench_whetstone_add(sum, index, e[j])
+
+    j: mutable i64 = 1
+    i <- 0
+    while i < 345:
+        if j == 1: j <- 2
+        else: j <- 3
+        if j > 2: j <- 0
+        else: j <- 1
+        if j < 1: j <- 1
+        else: j <- 0
+        i <- i + 1
+    ansibench_whetstone_add(sum, index, j.f64())
+
+    j <- 1
+    k: mutable i64 = 2
+    ell: mutable i64 = 3
+    i <- 0
+    while i < 210:
+        j <- j * (k - j) * (ell - k)
+        k <- ell * k - (ell - j) * k
+        ell <- (ell - k) * (k + j)
+        e[(ell - 1).usize()] <- (j + k + ell).f64()
+        e[(k - 1).usize()] <- (j * k * ell).f64()
+        i <- i + 1
+    ansibench_whetstone_add(sum, index, j.f64())
+    ansibench_whetstone_add(sum, index, k.f64())
+    ansibench_whetstone_add(sum, index, ell.f64())
+    for j in 1..<5: ansibench_whetstone_add(sum, index, e[j])
+
+    x: mutable f64 = 0.5
+    y: mutable f64 = 0.5
+    i <- 0
+    while i < 32:
+        x <- t * atan(t2 * sin(x) * cos(x) / (cos(x + y) + cos(x - y) - 1.0))
+        y <- t * atan(t2 * sin(y) * cos(y) / (cos(x + y) + cos(x - y) - 1.0))
+        i <- i + 1
+    ansibench_whetstone_add(sum, index, x)
+    ansibench_whetstone_add(sum, index, y)
+
+    x <- 1.0
+    y <- 1.0
+    z: mutable f64 = 1.0
+    i <- 0
+    while i < 899:
+        z <- ansibench_whetstone_p3(x, y)
+        i <- i + 1
+    ansibench_whetstone_add(sum, index, x)
+    ansibench_whetstone_add(sum, index, y)
+    ansibench_whetstone_add(sum, index, z)
+
+    j <- 1
+    k <- 2
+    ell <- 3
+    e[1] <- 1.0
+    e[2] <- 2.0
+    e[3] <- 3.0
+    i <- 0
+    while i < 616:
+        e[j.usize()] <- e[k.usize()]
+        e[k.usize()] <- e[ell.usize()]
+        e[ell.usize()] <- e[j.usize()]
+        i <- i + 1
+    ansibench_whetstone_add(sum, index, j.f64())
+    ansibench_whetstone_add(sum, index, k.f64())
+    ansibench_whetstone_add(sum, index, ell.f64())
+    for j in 1..<5: ansibench_whetstone_add(sum, index, e[j])
+
+    j <- 2
+    k <- 3
+    ansibench_whetstone_add(sum, index, j.f64())
+    ansibench_whetstone_add(sum, index, k.f64())
+    x <- 0.75
+    i <- 0
+    while i < 93:
+        x <- sqrt(exp(log(x) / t1))
+        i <- i + 1
+    ansibench_whetstone_add(sum, index, x)
+    sum
+
+def ansibench_whetstone_impl(values: i64&, length: usize) -> f64:
+    if length != 1: return INVALID_RESULT
+    passes: i64 = values[0]
+    if passes < 1 or passes > 3: return INVALID_RESULT
+    total: mutable f64 = 0.0
+    p: mutable i64 = 0
+    while p < passes:
+        total <- total + (p + 1).f64() * ansibench_whetstone_pass()
+        p <- p + 1
+    total
+
+export fn ansibench_whetstone(values: i64&, length: usize) -> f64 = ansibench_whetstone_impl

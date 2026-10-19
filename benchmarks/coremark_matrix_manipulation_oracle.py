@@ -50,15 +50,14 @@ def _run(values: Sequence[int]) -> list[int]:
     val = values[0]
     a = list(values[1:10])
     b = list(values[10:19])
-    original_a = a.copy()
     for i in range(9):
         a[i] += val
-    clipval = 0xF000 | val
+    clip_bits = (0xF000 | val) & 0xFFFF
+    clipval = clip_bits if clip_bits < 0x8000 else clip_bits - 0x10000
 
     c = [x * val for x in a]
     sums = [_matrix_sum(c, clipval)]
 
-    c = [0] * 9
     for i in range(N):
         total = 0
         for j in range(N):
@@ -66,7 +65,6 @@ def _run(values: Sequence[int]) -> list[int]:
         c[i] = total
     sums.append(_matrix_sum(c, clipval))
 
-    c = [0] * 9
     for i in range(N):
         for j in range(N):
             total = 0
@@ -81,7 +79,7 @@ def _run(values: Sequence[int]) -> list[int]:
             total = 0
             for k in range(N):
                 product = a[i * N + k] * b[k * N + j]
-                total += ((product >> 2) & 0xF) * ((product >> 5) & 0x3)
+                total += ((product >> 2) & 0xF) * ((product >> 5) & 0x7F)
             c[i * N + j] = total
     sums.append(_matrix_sum(c, clipval))
 

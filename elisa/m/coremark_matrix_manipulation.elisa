@@ -1,0 +1,85 @@
+def mm_crc_byte(value0: u8, crc0: u16) -> u16:
+    value: mutable u8 = value0
+    crc: mutable u16 = crc0
+    for bit in 0..8:
+        mix: u8 = (value & 1) ^ (crc & 1).u8()
+        value <- value >> 1
+        if mix != 0: crc <- crc ^ 0x4002.u16()
+        crc <- crc >> 1
+        if mix != 0: crc <- crc | 0x8000.u16()
+        else: crc <- crc & 0x7fff.u16()
+    crc
+
+def mm_crc16(value: i16, crc: u16) -> u16:
+    bits: u16 = value.u16()
+    mm_crc_byte((bits >> 8).u8(), mm_crc_byte(bits.u8(), crc))
+
+def mm_matrix_sum(c: mutable i32[9]&, clip: i16) -> i16:
+    tmp: mutable i32 = 0
+    prev: mutable i32 = 0
+    ret: mutable i16 = 0
+    for i in 0..9:
+        cur: i32 = c[i]
+        tmp <- tmp + cur
+        if tmp > clip.i32():
+            ret <- ret + 10
+            tmp <- 0
+        elif cur > prev: ret <- ret + 1
+        prev <- cur
+    ret
+
+def mm_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for b in 0..8:
+        output[offset+b] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def coremark_matrix_manipulation_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 19: return -1
+    raw: i64 = input[0]
+    if raw < 0 or raw > 15: return -1
+    a: mutable i16[9] = zeroed
+    b: mutable i16[9] = zeroed
+    for i in 0..9:
+        av: i64 = input[1+i]
+        bv: i64 = input[10+i]
+        if av < 0 or av > 127 or bv < 0 or bv > 127: return -1
+        a[i] <- av.i16()
+        b[i] <- bv.i16()
+    if output.is_null() or capacity < 112: return -2
+    value: i16 = raw.i16()
+    clip: i16 = value - 4096
+    c: mutable i32[9] = zeroed
+    sums: mutable i16[4] = zeroed
+    for i in 0..9:
+        a[i] <- a[i] + value
+        c[i] <- a[i].i32() * value.i32()
+    sums[0] <- mm_matrix_sum(c, clip)
+    for i in 0..3:
+        c[i] <- 0
+        for j in 0..3: c[i] <- c[i] + a[i*3+j].i32() * b[j].i32()
+    sums[1] <- mm_matrix_sum(c, clip)
+    for i in 0..3:
+        for j in 0..3:
+            c[i*3+j] <- 0
+            for k in 0..3: c[i*3+j] <- c[i*3+j] + a[i*3+k].i32() * b[k*3+j].i32()
+    sums[2] <- mm_matrix_sum(c, clip)
+    for i in 0..3:
+        for j in 0..3:
+            c[i*3+j] <- 0
+            for k in 0..3:
+                product: i32 = a[i*3+k].i32() * b[k*3+j].i32()
+                c[i*3+j] <- c[i*3+j] + ((product >> 2) & 0xf) * ((product >> 5) & 0x7f)
+    sums[3] <- mm_matrix_sum(c, clip)
+    crc: mutable u16 = 0
+    for i in 0..4: crc <- mm_crc16(sums[i], crc)
+    for i in 0..9: a[i] <- a[i] - value
+    result: mutable i64[14] = zeroed
+    result[0] <- crc.i64()
+    for i in 0..4:
+        result[i+1] <- sums[i].i64()
+    for i in 0..9: result[i+5] <- a[i].i64()
+    for i in 0..14: mm_put_i64(output, i*8, result[i])
+    112
+
+export fn coremark_matrix_manipulation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = coremark_matrix_manipulation_impl

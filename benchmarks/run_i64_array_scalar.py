@@ -21,6 +21,9 @@ from functools import lru_cache
 from fractions import Fraction
 
 from build_abi import ROOT, sha256_file
+from coremark_crc_oracle import INVALID_RESULT as COREMARK_CRC_INVALID_RESULT
+from coremark_crc_oracle import MAX_INPUT_LENGTH as COREMARK_CRC_MAX_INPUT_LENGTH
+from coremark_crc_oracle import expected_result as coremark_crc_expected
 from decremental_connectivity_oracle import MAX_INPUT_LENGTH as MAX_DECREMENTAL_CONNECTIVITY_INPUT_LENGTH
 from decremental_connectivity_oracle import expected_result as decremental_connectivity_expected
 from frequent_pattern_growth_oracle import expected_result as frequent_pattern_growth_expected
@@ -6090,7 +6093,8 @@ def validate_solution42_workload(workload: dict) -> None:
 
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "lwe_encryption" else
+    max_input_length = (COREMARK_CRC_MAX_INPUT_LENGTH if algorithm == "coremark_crc" else
+                        LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "lwe_encryption" else
                         POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "pollard_rho_java" else
                         POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH if algorithm == "pollard_rho_python" else
                         POLLARD_RHO_RUST_MAX_PARSEABLE_LENGTH if algorithm == "pollard_rho_rust" else
@@ -6610,7 +6614,11 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "msd_radix_string_sorter":
+    if algorithm == "coremark_crc":
+        expected_from_source = coremark_crc_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("coremark_crc expected_result must match the bounded CoreMark helper recurrence")
+    elif algorithm == "msd_radix_string_sorter":
         source_result = msd_radix_string_sorter_expected(values)
         expected_from_source = (MSD_RADIX_STRING_SORTER_INVALID_RESULT
                                if source_result is None else source_result)
@@ -14275,6 +14283,73 @@ def validate_traveling_salesman_workload(workload: dict) -> None:
         raise ValueError("traveling_salesman workload is missing maximum-tour or parser-cap coverage")
 
 
+def validate_coremark_crc_workload(workload: dict) -> None:
+    expected_ids = {
+        "all-four-helpers", "zero-values", "width-boundaries", "invalid-zero-operation-count",
+        "invalid-seed", "invalid-u8", "invalid-u16", "invalid-u32", "invalid-s16", "trailing-value",
+    }
+    expected_source = {
+        "repository": "eembc/coremark",
+        "commit": "1f483d5b8316753a742cbf5590caf5bd0a4e4777",
+        "path": "core_util.c",
+        "symbols": ["crcu8", "crcu16", "crcu32", "crc16"],
+        "license": "Apache-2.0",
+        "copyright": "Copyright 2018 Embedded Microprocessor Benchmark Consortium (EEMBC)",
+        "original_author": "Shay Gal-on",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[operation_count, tag_0, seed_0, value_0, ...]",
+        "operation_count_range": [1, 16],
+        "exact_length": "1 + 3 * operation_count",
+        "tags": {
+            "0": {"helper": "crcu8", "value_range": [0, 255]},
+            "1": {"helper": "crcu16", "value_range": [0, 65535]},
+            "2": {"helper": "crcu32", "value_range": [0, 4294967295]},
+            "3": {"helper": "crc16", "value_range": [-32768, 32767]},
+        },
+        "seed_range": [0, 65535],
+        "maximum_input_length": COREMARK_CRC_MAX_INPUT_LENGTH,
+        "invalid_result": COREMARK_CRC_INVALID_RESULT,
+        "input_mutation": "none",
+    }
+    cases = workload.get("cases")
+    actual_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                  if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "measurement", "pinned_source", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "coremark-crc-helper-stream-i64-scalar-v1"
+            or workload.get("algorithm") != "coremark_crc"
+            or workload.get("function_symbol") != "coremark_crc"
+            or workload.get("input") != input_spec
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "sum((record_index + 1) * helper_crc(record))",
+                "valid_result_range": [0, 8912760],
+                "invalid_result": COREMARK_CRC_INVALID_RESULT,
+            }
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or workload.get("pinned_source") != expected_source
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_ids)
+            or actual_ids != expected_ids):
+        raise ValueError("coremark_crc metadata or fixture IDs differ from its pinned scalar contract")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > COREMARK_CRC_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"coremark_crc fixture framing is invalid: {case.get('id')}")
+        expected = coremark_crc_expected(values)
+        if expected != case["expected_result"]:
+            raise ValueError(f"coremark_crc fixture differs from its source recurrence: {case['id']}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -14407,6 +14482,8 @@ def main() -> int:
         validate_mcoloring_workload(workload)
     elif algorithm == "solution42":
         validate_solution42_workload(workload)
+    elif algorithm == "coremark_crc":
+        validate_coremark_crc_workload(workload)
     elif algorithm == "graph_enumeration":
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":

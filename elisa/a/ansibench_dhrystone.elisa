@@ -1,0 +1,185 @@
+const I1: i64 = 0
+const I2: i64 = 1
+const I3: i64 = 2
+const I4: i64 = 3
+const I5: i64 = 4
+
+struct DRecord:
+    ptr: i64
+    discr: i64
+    enum_comp: i64
+    int_comp: i64
+    text: u8[31]
+
+struct DState:
+    int_glob: i64
+    bool_glob: i64
+    ch1: i64
+    ch2: i64
+    arr1: i64[50]
+    arr2: i64[50][50]
+    rec: DRecord[2]
+
+def dhrystone_copy_text(destination: mutable u8&, text: &str) -> void:
+    index: mutable usize = 0
+    while index < 31:
+        if index < text.len(): destination[index] <- text[index].u8()
+        else: destination[index] <- 0
+        if index >= text.len(): break
+        index <- index + 1
+
+def dhrystone_compare_text(a: u8&, b: u8&) -> i64:
+    index: mutable usize = 0
+    while index < 31:
+        left: i64 = a[index].i64()
+        right: i64 = b[index].i64()
+        if left != right:
+            if left < right: return -1
+            return 1
+        if left == 0: return 0
+        index <- index + 1
+    0
+
+def dhrystone_func1(state: mutable DState&, a: i64, b: i64) -> i64:
+    if a != b: return I1
+    state.ch1 <- a
+    I2
+
+def dhrystone_func3(value: i64) -> bool:
+    value == I3
+
+def dhrystone_proc7(a: i64, b: i64) -> i64:
+    b + (a + 2)
+
+def dhrystone_proc6(state: DState, value: i64) -> i64:
+    result: mutable i64 = value
+    if !dhrystone_func3(value): result <- I4
+    if value == I1: return I1
+    if value == I2:
+        if state.int_glob > 100: return I1
+        return I4
+    if value == I3: return I2
+    if value == I5: return I3
+    result
+
+def dhrystone_proc3(state: mutable DState&, reference_index: usize) -> void:
+    if state.rec[0].ptr >= 0: state.rec[reference_index].ptr <- state.rec[0].ptr
+    state.rec[0].int_comp <- dhrystone_proc7(10, state.int_glob)
+
+def dhrystone_proc1(state: mutable DState&) -> void:
+    next_index: usize = state.rec[0].ptr.usize()
+    state.rec[next_index] <- state.rec[0]
+    state.rec[0].int_comp <- 5
+    state.rec[next_index].int_comp <- state.rec[0].int_comp
+    state.rec[next_index].ptr <- state.rec[0].ptr
+    dhrystone_proc3(state, next_index)
+    if state.rec[next_index].discr == I1:
+        state.rec[next_index].int_comp <- 6
+        state.rec[next_index].enum_comp <- dhrystone_proc6(state, state.rec[0].enum_comp)
+        state.rec[next_index].ptr <- state.rec[0].ptr
+        state.rec[next_index].int_comp <- dhrystone_proc7(state.rec[next_index].int_comp, 10)
+    else: state.rec[0] <- state.rec[next_index]
+
+def dhrystone_proc2(state: DState, value: mutable i64&) -> void:
+    local: mutable i64 = value + 10
+    enum_local: mutable i64 = I2
+    while true:
+        if state.ch1 == 65:
+            local <- local - 1
+            value <- local - state.int_glob
+            enum_local <- I1
+        else: enum_local <- I2
+        if enum_local == I1: break
+
+def dhrystone_proc4(state: mutable DState&) -> void:
+    local: i64 = if state.ch1 == 65: 1 else: 0
+    state.bool_glob <- local | state.bool_glob
+    state.ch2 <- 66
+
+def dhrystone_proc5(state: mutable DState&) -> void:
+    state.ch1 <- 65
+    state.bool_glob <- 0
+
+def dhrystone_proc8(state: mutable DState&, a: i64, b: i64) -> void:
+    local: usize = (a + 5).usize()
+    state.arr1[local] <- b
+    state.arr1[local + 1] <- state.arr1[local]
+    state.arr1[local + 30] <- local.i64()
+    index: mutable usize = local
+    while index <= local + 1:
+        state.arr2[local][index] <- local.i64()
+        index <- index + 1
+    state.arr2[local][local - 1] <- state.arr2[local][local - 1] + 1
+    state.arr2[local + 20][local] <- state.arr1[local]
+    state.int_glob <- 5
+
+def dhrystone_func2(state: mutable DState&, a: u8&, b: u8&) -> bool:
+    local: mutable usize = 2
+    character: mutable i64 = 0
+    while local <= 2:
+        if dhrystone_func1(state, a[local].i64(), b[local + 1].i64()) == I1:
+            character <- 65
+            local <- local + 1
+    if character >= 87 && character < 90: local <- 7
+    if character == 82: return true
+    if dhrystone_compare_text(a, b) > 0:
+        state.int_glob <- local.i64() + 7
+        return true
+    false
+
+def ansibench_dhrystone_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length != 1: return -1
+    if input[0] < 1 || input[0] > 8: return -1
+    state: mutable DState = zeroed
+    state.rec[0].ptr <- 1
+    state.rec[0].discr <- I1
+    state.rec[0].enum_comp <- I3
+    state.rec[0].int_comp <- 40
+    dhrystone_copy_text(state.rec[0].text, "DHRYSTONE PROGRAM, SOME STRING")
+    str1: mutable u8[31] = zeroed
+    str2: mutable u8[31] = zeroed
+    dhrystone_copy_text(str1, "DHRYSTONE PROGRAM, 1'ST STRING")
+    state.arr2[8][7] <- 10
+    int1: mutable i64 = 0
+    int2: mutable i64 = 0
+    int3: mutable i64 = 0
+    enum_loc: mutable i64 = 0
+    func2_false: mutable i64 = 0
+    run: mutable i64 = 1
+    while run <= input[0]:
+        dhrystone_proc5(state)
+        dhrystone_proc4(state)
+        int1 <- 2
+        int2 <- 3
+        dhrystone_copy_text(str2, "DHRYSTONE PROGRAM, 2'ND STRING")
+        enum_loc <- I2
+        if dhrystone_func2(state, str1, str2): func2_false <- 0
+        else: func2_false <- 1
+        while int1 < int2:
+            int3 <- 5 * int1 - int2
+            int3 <- dhrystone_proc7(int1, int2)
+            int1 <- int1 + 1
+        dhrystone_proc8(state, int1, int3)
+        dhrystone_proc1(state)
+        ch_index: mutable i64 = 65
+        while ch_index <= state.ch2:
+            if enum_loc == dhrystone_func1(state, ch_index, 67):
+                enum_loc <- dhrystone_proc6(state, I1)
+                dhrystone_copy_text(str2, "DHRYSTONE PROGRAM, 3'RD STRING")
+                int2 <- run
+                state.int_glob <- run
+            ch_index <- ch_index + 1
+        int2 <- int2 * int1
+        int1 <- int2 / int3
+        int2 <- 7 * (int2 - int3) - int1
+        dhrystone_proc2(state, int1)
+        run <- run + 1
+    if output == null || capacity < 19: return -2
+    values: i64[19] = [state.int_glob,state.bool_glob,state.ch1,state.ch2,state.arr1[8],state.arr2[8][7],state.rec[0].discr,state.rec[0].enum_comp,state.rec[0].int_comp,state.rec[0].ptr,state.rec[1].discr,state.rec[1].enum_comp,state.rec[1].int_comp,state.rec[1].ptr,int1,int2,int3,enum_loc,func2_false]
+    index: mutable usize = 0
+    while index < 19:
+        output[index] <- values[index].u8()
+        index <- index + 1
+    19
+
+export fn ansibench_dhrystone(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ansibench_dhrystone_impl
