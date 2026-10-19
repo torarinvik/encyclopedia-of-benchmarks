@@ -25,6 +25,8 @@
     "kind": "signed_64_bit_integer_array",
     "encoding": "exactly eight ASCII password bytes",
     "password_length": 8,
+    "maximum_valid_input_values": 8,
+    "maximum_parseable_input_values": 8,
     "password_byte_domain": "one of tripforce's 92 source candidate characters: space, !, \", $, %, &, apostrophe, parentheses, * + , - . / digits : ; < = > ? @ uppercase letters [ ] ^ _ ` lowercase letters { | }",
     "invalid_input_result": -1
   },
@@ -32,10 +34,13 @@
     "kind": "raw_ascii_bytes",
     "encoding": "the ten bytes at DES_fcrypt output offsets 3 through 12",
     "length": 10,
+    "maximum_output_bytes": 10,
     "success_result": 10,
     "invalid_input_result": -1,
     "null_output_result": -2,
     "insufficient_capacity_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "short_capacity_writes_nothing": true,
     "no_write_on_error": true
   },
   "contract": {
@@ -56,6 +61,9 @@
     {"id": "salt-punctuation-normalization", "input_values": [120,58,59,65,66,67,68,69], "input_length": 8, "expected_result": 10, "expected_output_hex": "4d58737a4b5944786f77"},
     {"id": "salt-bracket-normalization", "input_values": [120,91,96,65,66,67,68,69], "input_length": 8, "expected_result": 10, "expected_output_hex": "2f374e2e486149586849"},
     {"id": "invalid-character", "input_values": [35,97,98,99,100,101,102,103], "input_length": 8, "expected_result": -1, "expected_output_hex": ""},
-    {"id": "short-output", "input_values": [112,97,115,115,119,111,114,100], "input_length": 8, "workspace_bytes": 9, "expected_result": -2, "expected_output_hex": ""}
+    {"id": "wrong-length", "input_values": [112,97,115,115,119,111,114], "input_length": 7, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short-output", "input_values": [112,97,115,115,119,111,114,100], "input_length": 8, "output_capacity": 9, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [112,97,115,115,119,111,114,100], "input_length": 8, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""}
   ]
 }

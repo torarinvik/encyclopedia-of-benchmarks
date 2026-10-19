@@ -6,6 +6,7 @@ import struct
 from typing import Sequence
 
 MAX_PARSEABLE_INPUT_LENGTH = 2
+MAX_VALID_INPUT_LENGTH = 1
 MAX_OUTPUT_BYTES = 88
 INVALID_RESULT = -1
 OUTPUT_ERROR = -2

@@ -36,6 +36,7 @@
   "output": {
     "kind": "eleven_signed_i64_values_as_little_endian_bytes",
     "layout": "[passes, output_0..output_7, mid_weight_sum, output_weight_sum]",
+    "activation_timing": "from final forward pass before its weight updates; weight sums from post-update weights",
     "activation_and_weight_sum_scale": 1000000,
     "quantization": "truncate toward zero after multiplying by scale",
     "exact_bytes": 88,

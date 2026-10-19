@@ -16,12 +16,12 @@ pub fn nbench_neural_network(input &i64, length usize, mut output &u8, capacity 
 		if output == nil || capacity < 88 { return -2 }
 		pattern := [35]f64{0,1,1,1,0,1,0,0,0,1,1,0,0,0,1,1,0,0,0,1,1,0,0,0,1,1,0,0,0,0,0,1,1,1,0}
 		target := [8]f64{0,1,0,0,1,1,1,1}
-		mut mw := [][]f64{len: 8, init: []f64{len: 35, init: 0}}
-		mut ow := [][]f64{len: 8, init: []f64{len: 8, init: 0}}
-		mut mc := [][]f64{len: 8, init: []f64{len: 35, init: 0}}
-		mut oc := [][]f64{len: 8, init: []f64{len: 8, init: 0}}
-		mut mm := [][]f64{len: 8, init: []f64{len: 35, init: 0}}
-		mut om := [][]f64{len: 8, init: []f64{len: 8, init: 0}}
+		mut mw := [8][35]f64{}
+		mut ow := [8][8]f64{}
+		mut mc := [8][35]f64{}
+		mut oc := [8][8]f64{}
+		mut mm := [8][35]f64{}
+		mut om := [8][8]f64{}
 		mut mout := [8]f64{}
 		mut oout := [8]f64{}
 		for n := 0; n < 8; n++ { for w := 0; w < 35; w++ { mw[n][w] = f64((n*17+w*7)%101-50)/1000.0 } }

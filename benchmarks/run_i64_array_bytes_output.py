@@ -1598,6 +1598,9 @@ from stream_vector_kernels_oracle import expected_output as stream_vector_kernel
 from idea_encrypt_decrypt_oracle import MAX_PARSEABLE_INPUT_LENGTH as IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH
 from idea_encrypt_decrypt_oracle import MAX_OUTPUT_BYTES as IDEA_ENCRYPT_DECRYPT_MAX_OUTPUT_BYTES
 from idea_encrypt_decrypt_oracle import expected_output as idea_encrypt_decrypt_expected_output
+from tripforce_tripcode_oracle import MAX_PARSEABLE_INPUT_LENGTH as TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH
+from tripforce_tripcode_oracle import MAX_OUTPUT_BYTES as TRIPFORCE_TRIPCODE_MAX_OUTPUT_BYTES
+from tripforce_tripcode_oracle import expected_output as tripforce_tripcode_expected_output
 from embedded_list_stress_oracle import MAX_OUTPUT_BYTES as EMBEDDED_LIST_STRESS_MAX_OUTPUT_BYTES
 from embedded_list_stress_oracle import MAX_PARSEABLE_INPUT_LENGTH as EMBEDDED_LIST_STRESS_MAX_PARSEABLE_INPUT_LENGTH
 from embedded_list_stress_oracle import expected_output as embedded_list_stress_expected_output
@@ -1619,6 +1622,10 @@ from nbench_resource_assignment_oracle import expected_output as nbench_resource
 from nbench_emulated_float_arithmetic_oracle import MAX_OUTPUT_BYTES as NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_OUTPUT_BYTES
 from nbench_emulated_float_arithmetic_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_PARSEABLE_INPUT_LENGTH
 from nbench_emulated_float_arithmetic_oracle import expected_output as nbench_emulated_float_arithmetic_expected_output
+from nbench_neural_network_oracle import INVALID_RESULT as NBENCH_NEURAL_NETWORK_INVALID_RESULT
+from nbench_neural_network_oracle import MAX_OUTPUT_BYTES as NBENCH_NEURAL_NETWORK_MAX_OUTPUT_BYTES
+from nbench_neural_network_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_NEURAL_NETWORK_MAX_PARSEABLE_INPUT_LENGTH
+from nbench_neural_network_oracle import expected_output as nbench_neural_network_expected_output
 from reverse_k_group_oracle import MAX_N as REVERSE_K_GROUP_MAX_N
 from reverse_k_group_oracle import expected_output as reverse_k_group_expected_output
 from permute_string_oracle import MAX_INPUT_LENGTH as PERMUTE_STRING_MAX_INPUT_LENGTH
@@ -3151,12 +3158,14 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "uint128_t": uint128_t_oracle,
     "uint256_t": uint256_t_oracle,
     "idea_encrypt_decrypt": idea_encrypt_decrypt_expected_output,
+    "tripforce_tripcode": tripforce_tripcode_expected_output,
     "embedded_list_stress": embedded_list_stress_expected_output,
     "numeric_token_state_machine": numeric_token_state_machine_expected_output,
     "hint_area_bound_refinement": hint_area_bound_refinement_expected_output,
     "nbench_huffman_compression": nbench_huffman_compression_expected_output,
     "nbench_resource_assignment": nbench_resource_assignment_expected_output,
     "nbench_emulated_float_arithmetic": nbench_emulated_float_arithmetic_expected_output,
+    "nbench_neural_network": nbench_neural_network_expected_output,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
@@ -32977,6 +32986,48 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("idea_encrypt_decrypt metadata differs from its pinned byte-output contract")
+    elif algorithm == "tripforce_tripcode":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {"letters", "all-lowercase", "salt-punctuation-normalization",
+                        "salt-bracket-normalization", "invalid-character", "wrong-length",
+                        "null-input", "short-output", "null-output"}
+        pinned_sources = workload.get("pinned_sources", [])
+        source_paths = {(source.get("path"), source.get("role"))
+                        for source in pinned_sources if isinstance(source, dict)}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "tripforce-fixed-candidate-des-fcrypt-tripcode-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or len(pinned_sources) != 2
+                or any(source.get("repository") != "nfinit/ansibench"
+                       or source.get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+                       for source in pinned_sources if isinstance(source, dict))
+                or source_paths != {("tripforce/src/tripforce.c", "algorithm"),
+                                    ("tripforce/LICENSE", "license")}
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "exactly eight ASCII password bytes"
+                or input_spec.get("password_length") != 8
+                or input_spec.get("maximum_valid_input_values") != 8
+                or input_spec.get("maximum_parseable_input_values") != TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or "92 source candidate characters" not in input_spec.get("password_byte_domain", "")
+                or output_spec.get("kind") != "raw_ascii_bytes"
+                or output_spec.get("length") != TRIPFORCE_TRIPCODE_MAX_OUTPUT_BYTES
+                or output_spec.get("maximum_output_bytes") != TRIPFORCE_TRIPCODE_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != TRIPFORCE_TRIPCODE_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or output_spec.get("short_capacity_writes_nothing") is not True
+                or workload.get("contract", {}).get("salt") != "[password[1], password[2], 'H', '.']; clamp each byte outside '.'..'z' to '.', then add six to ':'..'@' and '['..'`'. DES_fcrypt consumes the first two bytes."
+                or workload.get("contract", {}).get("des") != "Each password byte becomes key byte (byte << 1); standard DES PC-1/PC-2 schedule and salt-modified E expansion; encrypt the all-zero block 25 times."
+                or workload.get("workspace", {}).get("bytes") != TRIPFORCE_TRIPCODE_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("tripforce_tripcode metadata differs from its pinned byte-output contract")
     elif algorithm == "embedded_list_stress":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -33129,6 +33180,32 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("nbench_emulated_float_arithmetic metadata differs from its pinned byte-output contract")
+    elif algorithm == "nbench_neural_network":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {"one-pass-profile", "three-pass-profile", "zero-passes",
+                        "passes-over-bound", "trailing-input", "short-output",
+                        "null-output", "null-input"}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "nbench-neural-network-fixed-pattern-kernel-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+                or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+                or workload.get("pinned_source", {}).get("path") != "nbench/src/nbench1.c"
+                or input_spec.get("layout") != "[passes]"
+                or input_spec.get("passes_range") != [1, 8]
+                or input_spec.get("maximum_parseable_input_length") != NBENCH_NEURAL_NETWORK_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_result") != NBENCH_NEURAL_NETWORK_INVALID_RESULT
+                or output_spec.get("exact_bytes") != NBENCH_NEURAL_NETWORK_MAX_OUTPUT_BYTES
+                or output_spec.get("maximum_output_bytes") != NBENCH_NEURAL_NETWORK_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != NBENCH_NEURAL_NETWORK_INVALID_RESULT
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != NBENCH_NEURAL_NETWORK_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("nbench_neural_network metadata differs from its pinned byte-output contract")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
@@ -33138,6 +33215,8 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "smith_waterman_rust" else
                      IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "idea_encrypt_decrypt" else
+                     TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "tripforce_tripcode" else
                      EMBEDDED_LIST_STRESS_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "embedded_list_stress" else
                      NUMERIC_TOKEN_STATE_MACHINE_MAX_PARSEABLE_INPUT_LENGTH
@@ -33150,6 +33229,8 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "nbench_resource_assignment" else
                      NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "nbench_emulated_float_arithmetic" else
+                     NBENCH_NEURAL_NETWORK_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "nbench_neural_network" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
                      2 + 2 * (128 if algorithm == "uint128_t" else 256) // 32)
     oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
@@ -33677,6 +33758,7 @@ def main() -> int:
                             BITMAP_BLOCK_ALLOCATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "bitmap_block_allocation" else
                             STREAM_VECTOR_KERNELS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "stream_vector_kernels" else
                             IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "idea_encrypt_decrypt" else
+                            TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "tripforce_tripcode" else
                             EMBEDDED_LIST_STRESS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "embedded_list_stress" else
                             NUMERIC_TOKEN_STATE_MACHINE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "numeric_token_state_machine" else
                             HINT_AREA_BOUND_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
@@ -33687,6 +33769,8 @@ def main() -> int:
                             if algorithm == "nbench_resource_assignment" else
                             NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "nbench_emulated_float_arithmetic" else
+                            NBENCH_NEURAL_NETWORK_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "nbench_neural_network" else
                             REVERSE_K_GROUP_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_k_group" else
                             REVERSE_A_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_a_linked_list" else
                             REVERSE_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_linked_list" else

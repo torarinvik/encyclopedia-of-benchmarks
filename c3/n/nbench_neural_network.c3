@@ -1,6 +1,6 @@
 module nbench_neural_network;
 
-extern fn double exp(double value);
+import "math";
 
 fn void put_i64(char* out, usz offset, long value) {
     ulong bits = (ulong)value;
@@ -28,7 +28,7 @@ fn long nbench_neural_network(long* input, usz length, char* output, usz capacit
         for (usz n=0;n<8;n++) for (usz w=0;w<8;w++) { double d=0.09*oe[n]*mout[w]; d+=0.09*oc[n][w]; ow[n][w]+=d; om[n][w]+=d; }
         for (usz n=0;n<8;n++) for (usz w=0;w<35;w++) { double d=0.09*me[n]*pattern[w]; d+=0.09*mc[n][w]; mw[n][w]+=d; mm[n][w]+=d; }
     }
-    long[11] result={input[0]};
+    long[11] result={}; result[0]=input[0];
     for (usz n=0;n<8;n++) result[n+1]=(long)(oout[n]*1000000.0);
     double ms=0.0, os=0.0;
     for (usz n=0;n<8;n++) for (usz w=0;w<35;w++) ms+=mw[n][w];

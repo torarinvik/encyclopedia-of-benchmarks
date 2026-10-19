@@ -22,9 +22,13 @@ proc nbench_neural_network*(input: ptr UncheckedArray[int64], length: csize_t,
     for w in 0..<8: ow[n][w] = float64((n*13+w*5) mod 71 - 35) / 1000.0
   for pass in 0..<int(passes):
     for n in 0..<8:
-      for w in 0..<35: mc[n][w] = mm[n][w]; mm[n][w] = 0.0
+      for w in 0..<35:
+        mc[n][w] = mm[n][w]
+        mm[n][w] = 0.0
     for n in 0..<8:
-      for w in 0..<8: oc[n][w] = om[n][w]; om[n][w] = 0.0
+      for w in 0..<8:
+        oc[n][w] = om[n][w]
+        om[n][w] = 0.0
     for forward in 0..<2:
       for n in 0..<8:
         var total = 0.0
@@ -42,19 +46,24 @@ proc nbench_neural_network*(input: ptr UncheckedArray[int64], length: csize_t,
       me[n] = mout[n] * (1.0 - mout[n]) * total
     for n in 0..<8:
       for w in 0..<8:
-        var delta = 0.09 * oe[n] * mout[w]; delta += 0.09 * oc[n][w]
-        ow[n][w] += delta; om[n][w] += delta
+        var delta = 0.09 * oe[n] * mout[w]
+        delta += 0.09 * oc[n][w]
+        ow[n][w] += delta
+        om[n][w] += delta
     for n in 0..<8:
       for w in 0..<35:
-        var delta = 0.09 * me[n] * pattern[w]; delta += 0.09 * mc[n][w]
-        mw[n][w] += delta; mm[n][w] += delta
-  var result: array[11,int64]; result[0] = passes
-  for n in 0..<8: result[n+1] = int64(oout[n] * 1_000_000.0)
+        var delta = 0.09 * me[n] * pattern[w]
+        delta += 0.09 * mc[n][w]
+        mw[n][w] += delta
+        mm[n][w] += delta
+  var encoded: array[11,int64]; encoded[0] = passes
+  for n in 0..<8: encoded[n+1] = int64(oout[n] * 1_000_000.0)
   var ms, os = 0.0
   for n in 0..<8:
     for w in 0..<35: ms += mw[n][w]
   for n in 0..<8:
     for w in 0..<8: os += ow[n][w]
-  result[9] = int64(ms * 1_000_000.0); result[10] = int64(os * 1_000_000.0)
-  for i in 0..<11: putI64(output, i*8, result[i])
+  encoded[9] = int64(ms * 1_000_000.0)
+  encoded[10] = int64(os * 1_000_000.0)
+  for i in 0..<11: putI64(output, i*8, encoded[i])
   88

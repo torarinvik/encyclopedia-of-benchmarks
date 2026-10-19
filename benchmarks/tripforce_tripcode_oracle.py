@@ -65,6 +65,10 @@ def _encrypt_block(block: int, keys: tuple[int, ...], salt: int = 0) -> int:
 
 CANDIDATES = b" !\"$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}"
 CRYPT_ALPHABET = b"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+MAX_PARSEABLE_INPUT_LENGTH = 8
+MAX_OUTPUT_BYTES = 10
+INVALID_RESULT = -1
+OUTPUT_ERROR = -2
 
 
 def _salt_code(ch: int) -> int:
@@ -81,20 +85,34 @@ def _normalize_salt(ch: int) -> int:
     return ch
 
 
-def expected_output(values: tuple[int, ...] | list[int], output_capacity: int | None = None) -> tuple[int, bytes]:
-    if not isinstance(values, (tuple, list)) or len(values) != 8:
-        return -1, b""
+def expected_output(
+    values: tuple[int, ...] | list[int] | None,
+    output_capacity: int | None = None,
+    output_is_null: bool = False,
+    input_is_null: bool = False,
+    input_length: int | None = None,
+) -> tuple[int, bytes]:
+    if input_is_null:
+        return INVALID_RESULT, b""
+    if not isinstance(values, (tuple, list)) or len(values) != MAX_PARSEABLE_INPUT_LENGTH:
+        return INVALID_RESULT, b""
+    if input_length is None:
+        input_length = len(values)
+    if type(input_length) is not int or input_length != MAX_PARSEABLE_INPUT_LENGTH:
+        return INVALID_RESULT, b""
     if any(type(v) is not int or v < 0 or v > 127 or v not in CANDIDATES for v in values):
-        return -1, b""
+        return INVALID_RESULT, b""
+    if output_is_null:
+        return OUTPUT_ERROR, b""
     if output_capacity is not None and (type(output_capacity) is not int or output_capacity < 0):
-        return -1, b""
+        return INVALID_RESULT, b""
     if output_capacity is not None and output_capacity < 10:
-        return -2, b""
+        return OUTPUT_ERROR, b""
     password = bytes(values)
     salt0, salt1 = _normalize_salt(password[1]), _normalize_salt(password[2])
     c0, c1 = _salt_code(salt0), _salt_code(salt1)
     if c0 < 0 or c1 < 0:
-        return -1, b""
+        return INVALID_RESULT, b""
     salt = c0 | (c1 << 6)
     key_bytes = bytes((ch << 1) & 255 for ch in password)
     key = int.from_bytes(key_bytes, "big")
@@ -113,4 +131,4 @@ def expected_output(values: tuple[int, ...] | list[int], output_capacity: int | 
             if bit < 64:
                 value |= (raw[bit // 8] >> (7 - bit % 8)) & 1
         encoded.append(CRYPT_ALPHABET[value])
-    return 10, bytes(encoded[1:11])
+    return MAX_OUTPUT_BYTES, bytes(encoded[1:11])

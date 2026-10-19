@@ -8,7 +8,7 @@ The network keeps the source's 35 input, 8 middle-neuron, and 8 output-neuron di
 
 The kernel preserves source operation order for momentum transfer and zeroing, both calls to `do_mid_forward` in `do_forward_pass`, output forward propagation, output errors, middle-layer errors using pre-update output weights, output weight updates, then middle weight updates. It uses `BETA = 0.09` and `ALPHA = 0.09`. The unbounded train-until-learned loop, convergence/error checks, file parser, random generator, and benchmark timing are omitted; the fixed pass count is the bound.
 
-Output is eleven little-endian signed 64-bit values: `[passes, output_0..output_7, mid_weight_sum, output_weight_sum]`. The eight activations and two weight sums are truncated after multiplication by 1,000,000. Success returns 88 bytes; invalid input returns `-1`; null or short output returns `-2`; errors leave output untouched.
+Output is eleven little-endian signed 64-bit values: `[passes, output_0..output_7, mid_weight_sum, output_weight_sum]`. Activations are from the last forward pass before that pass's weight updates; weight sums are from the resulting post-update weights. The eight activations and two weight sums are truncated after multiplication by 1,000,000. Success returns 88 bytes; invalid input returns `-1`; null or short output returns `-2`; errors leave output untouched.
 
 ## Source and notice
 
