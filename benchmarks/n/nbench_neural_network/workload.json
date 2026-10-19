@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "nbench-neural-network-fixed-pattern-kernel-v1",
+  "algorithm": "nbench_neural_network",
+  "function_symbol": "nbench_neural_network",
+  "pinned_source": {
+    "repository": "nfinit/ansibench",
+    "commit": "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe",
+    "path": "nbench/src/nbench1.c",
+    "supporting_paths": ["nbench/include/nbench1.h", "nbench/LICENSE"],
+    "authors": ["Rick Grehan", "Maureen Caudill"],
+    "license_notice": "BYTEmark as-is notice and disclaimer; preserve attribution and notice"
+  },
+  "profile": {
+    "official_benchmark_score": false,
+    "network_dimensions": [35, 8, 8],
+    "patterns": 1,
+    "pattern_name": "O",
+    "pattern_bits_row_major": "011101000110001100011000110001000001110",
+    "target_bits": "01001111",
+    "mid_weight_initialization": "(((17*n + 7*w) mod 101) - 50) / 1000",
+    "output_weight_initialization": "(((13*n + 5*w) mod 71) - 35) / 1000",
+    "beta": 0.09,
+    "alpha": 0.09,
+    "preserved_source_operation_order": ["move_wt_changes", "do_mid_forward twice", "do_out_forward", "do_out_error", "do_mid_error", "adjust_out_wts", "adjust_mid_wts"],
+    "bounded_variant_omits": ["file parsing", "random initialization", "train-until-learned loop", "convergence/error checks", "timing driver"]
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[passes]",
+    "exact_length": 1,
+    "passes_range": [1, 8],
+    "maximum_parseable_input_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "eleven_signed_i64_values_as_little_endian_bytes",
+    "layout": "[passes, output_0..output_7, mid_weight_sum, output_weight_sum]",
+    "activation_and_weight_sum_scale": 1000000,
+    "quantization": "truncate toward zero after multiplying by scale",
+    "exact_bytes": 88,
+    "success_result": 88,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true,
+    "maximum_output_bytes": 88
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-pass-profile", "input_values":[1], "input_length":1, "expected_result":88, "expected_output_hex":"0100000000000000a65d07000000000017900700000000008ec207000000000031d2070000000000759c070000000000cb88070000000000cd7807000000000044ab070000000000953efbffffffffff2da3030000000000"},
+    {"id":"three-pass-profile", "input_values":[3], "input_length":1, "expected_result":88, "expected_output_hex":"030000000000000083b0060000000000a9440800000000004c0c070000000000531a0700000000007d50080000000000923e080000000000652f0800000000006c5d080000000000c00005000000000079080f0000000000"},
+    {"id":"zero-passes", "input_values":[0], "input_length":1, "expected_result":-1, "expected_output_hex":""},
+    {"id":"passes-over-bound", "input_values":[9], "input_length":1, "expected_result":-1, "expected_output_hex":""},
+    {"id":"trailing-input", "input_values":[1,0], "input_length":2, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short-output", "input_values":[1], "input_length":1, "output_capacity":87, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[1], "input_length":1, "output_capacity":88, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_length":0, "input_is_null":true, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

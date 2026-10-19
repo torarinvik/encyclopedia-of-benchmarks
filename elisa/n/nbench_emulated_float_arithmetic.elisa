@@ -1,0 +1,170 @@
+const MAX_OPS: usize = 8
+const MAX_INPUT: usize = 105
+
+def fp_sticky_right(mant: mutable u64&, count: usize) -> void:
+    index: usize = 0
+    while index < count:
+        lost: u64 = mant[0] & 1.u64()
+        mant[0] <- mant[0] >> 1
+        if lost != 0.u64(): mant[0] <- mant[0] | 1.u64()
+        index <- index+1
+
+def fp_normalize(mant: mutable u64&, exponent: mutable i64&) -> void:
+    while (mant[0] >> 63) == 0.u64():
+        mant[0] <- mant[0] << 1
+        exponent[0] <- exponent[0]-1
+
+def fp_addsub(sx0: u8, ex0: i64, mx0: u64, sy0: u8, ey0: i64, my0: u64, operation: u8, typ_out: mutable u8&, sign_out: mutable u8&, exp_out: mutable i64&, mant_out: mutable u64&) -> void:
+    sx: u8 = sx0
+    sy: u8 = sy0
+    ex: mutable i64 = ex0
+    ey: mutable i64 = ey0
+    mx: mutable u64 = mx0
+    my: mutable u64 = my0
+    typ_out[0] <- 2
+    sign_out[0] <- sx
+    exp_out[0] <- ex
+    mant_out[0] <- 0.u64()
+    difference: i64 = ex-ey
+    if difference > 0:
+        fp_sticky_right(my, difference.usize())
+    elif difference < 0:
+        fp_sticky_right(mx, (-difference).usize())
+        sign_out[0] <- sy ^ operation
+        exp_out[0] <- ey
+    if (sx ^ sy ^ operation) != 0:
+        if mx[0] < my[0]:
+            sign_out[0] <- sy ^ operation
+            mant_out[0] <- my[0]-mx[0]
+        else:
+            mant_out[0] <- mx[0]-my[0]
+        if mant_out[0] == 0.u64():
+            typ_out[0] <- 0
+            sign_out[0] <- 0
+        else:
+            fp_normalize(mant_out, exp_out)
+    else:
+        maximum: u64 = 0xffffffffffffffff.u64()
+        if mx[0] > maximum-my[0]:
+            mant_out[0] <- mx[0]-(maximum-my[0])-1.u64()
+            exp_out[0] <- exp_out[0]+1
+            mant_out[0] <- (mant_out[0] >> 1) | 0x8000000000000000.u64()
+        else:
+            mant_out[0] <- mx[0]+my[0]
+    if typ_out[0] == 2: mant_out[0] <- mant_out[0] & 0xfffffffffffffff8.u64()
+
+def fp_multiply(sx: u8, ex: i64, mx: u64, sy: u8, ey: i64, my: u64, sign_out: mutable u8&, exp_out: mutable i64&, mant_out: mutable u64&) -> void:
+    sign_out[0] <- sx ^ sy
+    exp_out[0] <- ex+ey
+    high: mutable u64 = 0.u64()
+    low: mutable u64 = 0.u64()
+    multiplier: mutable u64 = my
+    index: usize = 0
+    while index < 64:
+        carry: mutable u64 = 0.u64()
+        if (multiplier[0] & 1.u64()) != 0.u64():
+            maximum: u64 = 0xffffffffffffffff.u64()
+            if high[0] > maximum-mx:
+                carry <- 1.u64()
+                high[0] <- high[0]-(maximum-mx)-1.u64()
+            else:
+                high[0] <- high[0]+mx
+        multiplier[0] <- multiplier[0] >> 1
+        outgoing: u64 = high[0] & 1.u64()
+        high[0] <- (high[0] >> 1) | (carry[0] << 63)
+        low[0] <- (low[0] >> 1) | (outgoing << 63)
+        index <- index+1
+    while (high[0] >> 63) == 0.u64():
+        carry: u64 = low[0] >> 63
+        low[0] <- low[0] << 1
+        high[0] <- (high[0] << 1) | carry
+        exp_out[0] <- exp_out[0]-1
+    if low[0] == 0.u64(): high[0] <- high[0] | 1.u64()
+    mant_out[0] <- high[0] & 0xfffffffffffffff8.u64()
+
+def fp_divide(sx: u8, ex: i64, mx: u64, sy: u8, ey: i64, my: u64, sign_out: mutable u8&, exp_out: mutable i64&, mant_out: mutable u64&) -> void:
+    sign_out[0] <- sx ^ sy
+    exp_out[0] <- ex-ey+128
+    dividend: mutable u64 = mx
+    remainder: mutable u64 = 0.u64()
+    mant_out[0] <- 0.u64()
+    while (mant_out[0] >> 63) == 0.u64():
+        carry: u64 = dividend[0] >> 63
+        dividend[0] <- dividend[0] << 1
+        overflow: u64 = remainder[0] >> 63
+        remainder[0] <- (remainder[0] << 1) | carry
+        bit: mutable u64 = 0.u64()
+        if overflow != 0.u64():
+            maximum: u64 = 0xffffffffffffffff.u64()
+            remainder[0] <- remainder[0]+(maximum-my)+1.u64()
+            bit <- 1.u64()
+        elif remainder[0] >= my:
+            remainder[0] <- remainder[0]-my
+            bit <- 1.u64()
+        mant_out[0] <- (mant_out[0] << 1) | bit[0]
+        exp_out[0] <- exp_out[0]-1
+    mant_out[0] <- mant_out[0] & 0xfffffffffffffff8.u64()
+
+def nbench_emulated_float_arithmetic_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 14 or length > MAX_INPUT+1: return -1
+    raw: i64 = input[0]
+    if raw < 1 or raw > 8: return -1
+    n: usize = raw.usize()
+    if length != 1+13*n: return -1
+    types: mutable u8[MAX_OPS] = zeroed
+    signs: mutable u8[MAX_OPS] = zeroed
+    exponents: mutable i64[MAX_OPS] = zeroed
+    mantissas: mutable u64[MAX_OPS] = zeroed
+    i: usize = 0
+    while i < n:
+        p: usize = 1+13*i
+        op: i64 = input[p]
+        sx: i64 = input[p+1]
+        ex: i64 = input[p+2]
+        sy: i64 = input[p+7]
+        ey: i64 = input[p+8]
+        if op < 0 or op > 3 or sx < 0 or sx > 1 or sy < 0 or sy > 1 or ex < -8 or ex > 8 or ey < -8 or ey > 8: return -1
+        mx: mutable u64 = 0.u64()
+        my: mutable u64 = 0.u64()
+        j: usize = 0
+        while j < 4:
+            a: i64 = input[p+3+j]
+            b: i64 = input[p+9+j]
+            if a < 0 or a > 65535 or b < 0 or b > 65535: return -1
+            mx <- (mx[0] << 16) | a.u64()
+            my <- (my[0] << 16) | b.u64()
+            j <- j+1
+        if (mx[0] >> 63) == 0.u64() or (my[0] >> 63) == 0.u64(): return -1
+        op_u8: u8 = op.u8()
+        if op == 0:
+            fp_addsub(sx.u8(), ex, mx[0], sy.u8(), ey, my[0], 0, types[i], signs[i], exponents[i], mantissas[i])
+        elif op == 1:
+            fp_addsub(sx.u8(), ex, mx[0], sy.u8(), ey, my[0], 1, types[i], signs[i], exponents[i], mantissas[i])
+        elif op == 2:
+            fp_multiply(sx.u8(), ex, mx[0], sy.u8(), ey, my[0], signs[i], exponents[i], mantissas[i])
+            types[i] <- 2
+        else:
+            fp_divide(sx.u8(), ex, mx[0], sy.u8(), ey, my[0], signs[i], exponents[i], mantissas[i])
+            types[i] <- 2
+        if types[i] == 2 and (exponents[i] < -80 or exponents[i] > 32 or (mantissas[i] >> 63) == 0.u64()): return -1
+        i <- i+1
+    bytes: usize = n*12
+    if output.is_null() or capacity < bytes: return -2
+    i <- 0
+    while i < n:
+        p: usize = i*12
+        output[p] <- types[i]
+        output[p+1] <- signs[i]
+        exp_u16: u16 = exponents[i].u16()
+        output[p+2] <- exp_u16.u8()
+        output[p+3] <- (exp_u16 >> 8).u8()
+        word_index: usize = 0
+        while word_index < 4:
+            word: u16 = (mantissas[i] >> (48-16*word_index)).u16()
+            output[p+4+2*word_index] <- word.u8()
+            output[p+5+2*word_index] <- (word >> 8).u8()
+            word_index <- word_index+1
+        i <- i+1
+    bytes.i64()
+
+export fn nbench_emulated_float_arithmetic(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = nbench_emulated_float_arithmetic_impl

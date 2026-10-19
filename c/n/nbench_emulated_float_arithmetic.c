@@ -4,7 +4,6 @@
 #define MAX_OPS 8
 #define MAX_INPUT (1 + 13 * MAX_OPS)
 #define MAX_OUTPUT (12 * MAX_OPS)
-#define MIN_EXP (-32767)
 
 typedef struct { uint8_t type, sign; int16_t exp; uint64_t mant; } IFPF;
 
@@ -29,7 +28,7 @@ static IFPF add_sub(IFPF x, IFPF y, unsigned operation) {
     if (x.sign ^ y.sign ^ operation) {
         z.mant = x.mant - y.mant;
         if (x.mant < y.mant) { z.sign = y.sign ^ operation; z.mant = y.mant - x.mant; }
-        if (z.mant == 0) { z.type = 0; z.sign = 0; z.exp = MIN_EXP; }
+        if (z.mant == 0) { z.type = 0; z.sign = 0; }
         else normalize(&z);
     } else {
         z.mant = x.mant + y.mant;
@@ -94,7 +93,7 @@ int64_t nbench_emulated_float_arithmetic(const int64_t *input, size_t length, ui
         else if(op==1)result[i]=add_sub(x,y,1);
         else if(op==2)result[i]=multiply(x,y);
         else result[i]=divide_emulated(x,y);
-        if(result[i].type==2&&(result[i].exp < -32 || result[i].exp > 32 || (result[i].mant>>63)==0))return -1;
+        if(result[i].type==2&&(result[i].exp < -80 || result[i].exp > 32 || (result[i].mant>>63)==0))return -1;
     }
     size_t bytes=(size_t)count*12;
     if(!output||capacity<bytes)return -2;

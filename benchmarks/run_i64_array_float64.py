@@ -2205,15 +2205,15 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         if source_result == SHUNTING_YARD_INVALID_RESULT:
             if expected != SHUNTING_YARD_INVALID_RESULT:
                 raise ValueError("invalid shunting_yard inputs must use the -1e300 result sentinel")
-    if algorithm == "nbench_fourier_coefficients":
-        source_result = nbench_fourier_coefficients_expected(values)
-        if expected != source_result:
-            raise ValueError("nbench_fourier_coefficients expected_result must match the pinned coefficient projection")
         elif expected == SHUNTING_YARD_INVALID_RESULT or not math.isclose(
                 expected, source_result,
                 rel_tol=SHUNTING_YARD_RELATIVE_TOLERANCE,
                 abs_tol=SHUNTING_YARD_ABSOLUTE_TOLERANCE):
             raise ValueError("shunting_yard expected_result must match the bounded expression oracle")
+    if algorithm == "nbench_fourier_coefficients":
+        source_result = nbench_fourier_coefficients_expected(values)
+        if expected != source_result:
+            raise ValueError("nbench_fourier_coefficients expected_result must match the pinned coefficient projection")
     if algorithm == "kmeans_raw_r":
         source_result = kmeans_raw_r_expected(values)
         if source_result == KMEANS_RAW_R_INVALID_RESULT:

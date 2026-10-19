@@ -1,0 +1,76 @@
+extern exp(value: f64) -> f64
+
+def nn_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for b in 0..8: output[offset+b] <- ((bits >> (b*8)) & 255).u8()
+
+def nbench_neural_network_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    passes: i64 = input[0]
+    if passes < 1 or passes > 8: return -1
+    if output.is_null() or capacity < 88: return -2
+    pattern: f64[35] = {0.0,1.0,1.0,1.0,0.0,1.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0}
+    target: f64[8] = {0.0,1.0,0.0,0.0,1.0,1.0,1.0,1.0}
+    mw: mutable f64[280] = zeroed
+    ow: mutable f64[64] = zeroed
+    mc: mutable f64[280] = zeroed
+    oc: mutable f64[64] = zeroed
+    mm: mutable f64[280] = zeroed
+    om: mutable f64[64] = zeroed
+    mout: mutable f64[8] = zeroed
+    oout: mutable f64[8] = zeroed
+    for n in 0..8:
+        for w in 0..35: mw[n*35+w] <- ((n*17+w*7)%101-50).f64()/1000.0
+        for w in 0..8: ow[n*8+w] <- ((n*13+w*5)%71-35).f64()/1000.0
+    pass: mutable i64 = 0
+    while pass < passes:
+        for n in 0..8:
+            for w in 0..35:
+                mc[n*35+w] <- mm[n*35+w]
+                mm[n*35+w] <- 0.0
+            for w in 0..8:
+                oc[n*8+w] <- om[n*8+w]
+                om[n*8+w] <- 0.0
+        for forward in 0..2:
+            for n in 0..8:
+                total: mutable f64 = 0.0
+                for w in 0..35: total <- total + mw[n*35+w]*pattern[w]
+                mout[n] <- 1.0/(1.0+exp(-total))
+        for n in 0..8:
+            total: mutable f64 = 0.0
+            for w in 0..8: total <- total + ow[n*8+w]*mout[w]
+            oout[n] <- 1.0/(1.0+exp(-total))
+        oe: mutable f64[8] = zeroed
+        me: mutable f64[8] = zeroed
+        for n in 0..8: oe[n] <- target[n]-oout[n]
+        for n in 0..8:
+            total: mutable f64 = 0.0
+            for i in 0..8: total <- total + ow[i*8+n]*oe[i]
+            me[n] <- mout[n]*(1.0-mout[n])*total
+        for n in 0..8:
+            for w in 0..8:
+                delta: mutable f64 = 0.09*oe[n]*mout[w]
+                delta <- delta + 0.09*oc[n*8+w]
+                ow[n*8+w] <- ow[n*8+w]+delta
+                om[n*8+w] <- om[n*8+w]+delta
+        for n in 0..8:
+            for w in 0..35:
+                delta: mutable f64 = 0.09*me[n]*pattern[w]
+                delta <- delta + 0.09*mc[n*35+w]
+                mw[n*35+w] <- mw[n*35+w]+delta
+                mm[n*35+w] <- mm[n*35+w]+delta
+        pass <- pass+1
+    result: mutable i64[11] = zeroed
+    result[0] <- passes
+    for n in 0..8: result[n+1] <- (oout[n]*1000000.0).i64()
+    ms: mutable f64 = 0.0
+    os: mutable f64 = 0.0
+    for n in 0..8:
+        for w in 0..35: ms <- ms+mw[n*35+w]
+        for w in 0..8: os <- os+ow[n*8+w]
+    result[9] <- (ms*1000000.0).i64()
+    result[10] <- (os*1000000.0).i64()
+    for i in 0..11: nn_put_i64(output, i*8, result[i])
+    88
+
+export fn nbench_neural_network(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = nbench_neural_network_impl

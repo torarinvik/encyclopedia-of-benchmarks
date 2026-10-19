@@ -21,13 +21,16 @@ proc addSub(x0,y0:IFPF,op:uint8):IFPF=
   if d>0:stickyRight(y,d)
   elif d<0:stickyRight(x,-d);z.sign=y.sign xor op;z.exp=y.exp
   if (x.sign xor y.sign xor op)!=0:
-    z.mant=x.mant-y.mant
     if x.mant<y.mant:z.sign=y.sign xor op;z.mant=y.mant-x.mant
-    if z.mant==0:z.typ=0;z.sign=0;z.exp= -32767
+    else:z.mant=x.mant-y.mant
+    if z.mant==0:z.typ=0;z.sign=0
     else:normalize(z)
   else:
-    z.mant=x.mant+y.mant
-    if z.mant<x.mant:inc z.exp;z.mant=(z.mant shr 1) or 0x8000000000000000'u64
+    if x.mant>0xffffffffffffffff'u64-y.mant:
+      z.mant=x.mant-(0xffffffffffffffff'u64-y.mant)-1
+      inc z.exp
+      z.mant=(z.mant shr 1) or 0x8000000000000000'u64
+    else:z.mant=x.mant+y.mant
   roundResult(z);z
 proc multiply(x,y:IFPF):IFPF=
   var z=IFPF(typ:2,sign:x.sign xor y.sign,exp:x.exp+y.exp,mant:0)
@@ -35,8 +38,8 @@ proc multiply(x,y:IFPF):IFPF=
   for _ in 0..<64:
     var carry=0'u64
     if (mult and 1)!=0:
-      let old=high;high=high+x.mant
-      if high<old:carry=1
+      if high>0xffffffffffffffff'u64-x.mant:carry=1;high=high-(0xffffffffffffffff'u64-x.mant)-1
+      else:high=high+x.mant
     mult=mult shr 1
     let outgoing=high and 1
     high=(high shr 1) or (carry shl 63)
@@ -52,7 +55,10 @@ proc divideEmulated(x,y:IFPF):IFPF=
     let carry=dividend shr 63;dividend=dividend shl 1
     let overflow=rem shr 63;rem=(rem shl 1) or carry
     var bit=0'u64
-    if overflow!=0 or rem>=y.mant:rem=rem-y.mant;bit=1
+    if overflow!=0:
+      rem=rem+(0xffffffffffffffff'u64-y.mant)+1
+      bit=1
+    elif rem>=y.mant:rem=rem-y.mant;bit=1
     z.mant=(z.mant shl 1) or bit;dec z.exp
   roundResult(z);z
 proc nbench_emulated_float_arithmetic*(input:ptr UncheckedArray[int64],length:csize_t,output:ptr UncheckedArray[uint8],capacity:csize_t):int64 {.cdecl,exportc:"nbench_emulated_float_arithmetic".}=
@@ -78,7 +84,7 @@ proc nbench_emulated_float_arithmetic*(input:ptr UncheckedArray[int64],length:cs
     of 1:results[i]=addSub(x,y,1)
     of 2:results[i]=multiply(x,y)
     else:results[i]=divideEmulated(x,y)
-    if results[i].typ==2 and (results[i].exp< -32 or results[i].exp>32 or (results[i].mant shr 63)==0):return -1
+    if results[i].typ==2 and (results[i].exp< -80 or results[i].exp>32 or (results[i].mant shr 63)==0):return -1
   let bytes=n*12
   if output==nil or capacity<csize_t(bytes):return -2
   for i in 0..<n:

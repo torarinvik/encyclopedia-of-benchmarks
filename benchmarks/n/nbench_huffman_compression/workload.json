@@ -93,7 +93,7 @@
     {
       "id": "equal-frequency-ties",
       "input_values": [
-        8,
+        7,
         32,
         33,
         32,
@@ -104,8 +104,8 @@
       ],
       "input_length": 8,
       "output_capacity": 262,
-      "expected_result": -1,
-      "expected_output_hex": ""
+      "expected_result": 6,
+      "expected_output_hex": "10000000bb1d"
     },
     {
       "id": "skewed-frequency",

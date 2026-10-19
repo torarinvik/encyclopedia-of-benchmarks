@@ -7,7 +7,6 @@ MAX_OPS = 8
 MAX_INPUT_LENGTH = 1 + 13 * MAX_OPS
 MAX_PARSEABLE_INPUT_LENGTH = MAX_INPUT_LENGTH + 1
 MAX_OUTPUT_BYTES = 12 * MAX_OPS
-MIN_EXP = -32767
 MASK64 = (1 << 64) - 1
 
 
@@ -35,7 +34,7 @@ def _addsub(x: tuple[int, int, int], y: tuple[int, int, int], op: int) -> tuple[
         if mx < my:
             zsign, mant = sy ^ op, (my - mx) & MASK64
         if mant == 0:
-            typ, zsign, zexp = 0, 0, MIN_EXP
+            typ, zsign = 0, 0
         else:
             typ = 2
             while (mant >> 63) == 0:
@@ -143,7 +142,7 @@ def expected_output(values: Sequence[int] | None, output_capacity: int = MAX_OUT
             result = _multiply(x, y)
         else:
             result = _divide(x, y)
-        if result[0] == 2 and (not -32 <= result[2] <= 32 or result[3] >> 63 == 0):
+        if result[0] == 2 and (not -80 <= result[2] <= 32 or result[3] >> 63 == 0):
             return -1, b""
         results.append(_record(result))
     payload = b"".join(results)

@@ -1616,6 +1616,9 @@ from nbench_resource_assignment_oracle import INVALID_RESULT as NBENCH_RESOURCE_
 from nbench_resource_assignment_oracle import MAX_OUTPUT_BYTES as NBENCH_RESOURCE_ASSIGNMENT_MAX_OUTPUT_BYTES
 from nbench_resource_assignment_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_RESOURCE_ASSIGNMENT_MAX_PARSEABLE_INPUT_LENGTH
 from nbench_resource_assignment_oracle import expected_output as nbench_resource_assignment_expected_output
+from nbench_emulated_float_arithmetic_oracle import MAX_OUTPUT_BYTES as NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_OUTPUT_BYTES
+from nbench_emulated_float_arithmetic_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_PARSEABLE_INPUT_LENGTH
+from nbench_emulated_float_arithmetic_oracle import expected_output as nbench_emulated_float_arithmetic_expected_output
 from reverse_k_group_oracle import MAX_N as REVERSE_K_GROUP_MAX_N
 from reverse_k_group_oracle import expected_output as reverse_k_group_expected_output
 from permute_string_oracle import MAX_INPUT_LENGTH as PERMUTE_STRING_MAX_INPUT_LENGTH
@@ -3153,6 +3156,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "hint_area_bound_refinement": hint_area_bound_refinement_expected_output,
     "nbench_huffman_compression": nbench_huffman_compression_expected_output,
     "nbench_resource_assignment": nbench_resource_assignment_expected_output,
+    "nbench_emulated_float_arithmetic": nbench_emulated_float_arithmetic_expected_output,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
@@ -33101,6 +33105,30 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("nbench_resource_assignment metadata differs from its pinned byte-output contract")
+    elif algorithm == "nbench_emulated_float_arithmetic":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {"all-four-operations", "invalid-operation", "unnormalized-operand",
+                        "extra-input", "short-output", "null-output"}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "nbench-emulated-float-arithmetic-internalfpf-i64-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+                or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+                or workload.get("pinned_source", {}).get("path") != "nbench/src/emfloat.c"
+                or input_spec.get("layout") != "[operation_count, 13-integer operation records]"
+                or input_spec.get("operation_count_range") != [1, 8]
+                or input_spec.get("maximum_valid_input_length") != 105
+                or input_spec.get("maximum_parseable_input_length") != NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("record_size_bytes") != 12
+                or output_spec.get("maximum_output_bytes") != NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_OUTPUT_BYTES
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("short_capacity_writes_nothing") is not True
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("nbench_emulated_float_arithmetic metadata differs from its pinned byte-output contract")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
@@ -33120,6 +33148,8 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "nbench_huffman_compression" else
                      NBENCH_RESOURCE_ASSIGNMENT_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "nbench_resource_assignment" else
+                     NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "nbench_emulated_float_arithmetic" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
                      2 + 2 * (128 if algorithm == "uint128_t" else 256) // 32)
     oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
@@ -33655,6 +33685,8 @@ def main() -> int:
                             if algorithm == "nbench_huffman_compression" else
                             NBENCH_RESOURCE_ASSIGNMENT_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "nbench_resource_assignment" else
+                            NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "nbench_emulated_float_arithmetic" else
                             REVERSE_K_GROUP_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_k_group" else
                             REVERSE_A_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_a_linked_list" else
                             REVERSE_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_linked_list" else

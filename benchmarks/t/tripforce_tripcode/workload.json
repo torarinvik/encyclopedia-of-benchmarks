@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "tripforce-fixed-candidate-des-fcrypt-tripcode-i64-array-bytes-v1",
+  "algorithm": "tripforce_tripcode",
+  "function_symbol": "tripforce_tripcode",
+  "description": "Compute one tripforce-format tripcode from a fixed eight-byte password candidate.",
+  "pinned_sources": [
+    {
+      "repository": "nfinit/ansibench",
+      "commit": "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe",
+      "path": "tripforce/src/tripforce.c",
+      "symbols": ["generate_salt", "strip_outliers", "replace_punctuation", "truncate_tripcode"],
+      "url": "https://github.com/nfinit/ansibench/blob/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/tripforce/src/tripforce.c",
+      "role": "algorithm"
+    },
+    {
+      "repository": "nfinit/ansibench",
+      "commit": "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe",
+      "path": "tripforce/LICENSE",
+      "url": "https://github.com/nfinit/ansibench/blob/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/tripforce/LICENSE",
+      "role": "license"
+    }
+  ],
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "exactly eight ASCII password bytes",
+    "password_length": 8,
+    "password_byte_domain": "one of tripforce's 92 source candidate characters: space, !, \", $, %, &, apostrophe, parentheses, * + , - . / digits : ; < = > ? @ uppercase letters [ ] ^ _ ` lowercase letters { | }",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "raw_ascii_bytes",
+    "encoding": "the ten bytes at DES_fcrypt output offsets 3 through 12",
+    "length": 10,
+    "success_result": 10,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "contract": {
+    "salt": "[password[1], password[2], 'H', '.']; clamp each byte outside '.'..'z' to '.', then add six to ':'..'@' and '['..'`'. DES_fcrypt consumes the first two bytes.",
+    "des": "Each password byte becomes key byte (byte << 1); standard DES PC-1/PC-2 schedule and salt-modified E expansion; encrypt the all-zero block 25 times.",
+    "salt_encoding": "Traditional DES crypt six-bit alphabet values, including OpenSSL DES_fcrypt's mapping of '@' to 11.",
+    "attribution": "GPL-3.0 tripforce kernel semantics by microsounds; fixed candidate only, not a bruteforce workload or official tripforce throughput result."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "letters", "input_values": [112,97,115,115,119,111,114,100], "input_length": 8, "expected_result": 10, "expected_output_hex": "526444316c4170577055"},
+    {"id": "all-lowercase", "input_values": [97,98,99,100,101,102,103,104], "input_length": 8, "expected_result": 10, "expected_output_hex": "79514b7837334f6f5236"},
+    {"id": "salt-punctuation-normalization", "input_values": [120,58,59,65,66,67,68,69], "input_length": 8, "expected_result": 10, "expected_output_hex": "4d58737a4b5944786f77"},
+    {"id": "salt-bracket-normalization", "input_values": [120,91,96,65,66,67,68,69], "input_length": 8, "expected_result": 10, "expected_output_hex": "2f374e2e486149586849"},
+    {"id": "invalid-character", "input_values": [35,97,98,99,100,101,102,103], "input_length": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short-output", "input_values": [112,97,115,115,119,111,114,100], "input_length": 8, "workspace_bytes": 9, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}
