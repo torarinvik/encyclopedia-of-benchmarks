@@ -1,0 +1,106 @@
+# Based on Don Cross <dcross@intersrv.com>'s public-domain fft_float (intersrv.com/~dcross/fft.html).
+# Modified for the bounded float64-slice ABI; binary32 work-array semantics retained.
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern trunc(value: f64) -> f64
+
+def transform(real: mutable f32&, imag: mutable f32&, n: usize, inverse: bool) -> void:
+    bits: usize = 0
+    value: mutable usize = n
+    while value > 1:
+        bits <- bits + 1
+        value <- value >> 1
+    i: usize = 0
+    while i < n:
+        source: mutable usize = i
+        reverse: mutable usize = 0
+        b: usize = 0
+        while b < bits:
+            reverse <- (reverse << 1) | (source & 1)
+            source <- source >> 1
+            b <- b + 1
+        if i < reverse:
+            temporary: mutable f32 = real[i]
+            real[i] <- real[reverse]
+            real[reverse] <- temporary
+            temporary <- imag[i]
+            imag[i] <- imag[reverse]
+            imag[reverse] <- temporary
+        i <- i + 1
+    angle_num: f64 = (if inverse: -2.0 else: 2.0) * 3.14159265358979323846
+    block_end: mutable usize = 1
+    block: mutable usize = 2
+    while block <= n:
+        delta: f64 = angle_num / block.f64()
+        sm2: f64 = sin(-2.0 * delta)
+        sm1: f64 = sin(-delta)
+        cm2: f64 = cos(-2.0 * delta)
+        cm1: f64 = cos(-delta)
+        w: f64 = 2.0 * cm1
+        start: mutable usize = 0
+        while start < n:
+            ar2: mutable f64 = cm2
+            ar1: mutable f64 = cm1
+            ai2: mutable f64 = sm2
+            ai1: mutable f64 = sm1
+            offset: mutable usize = 0
+            while offset < block_end:
+                ar0: f64 = w * ar1 - ar2
+                ar2 <- ar1
+                ar1 <- ar0
+                ai0: f64 = w * ai1 - ai2
+                ai2 <- ai1
+                ai1 <- ai0
+                first: usize = start + offset
+                second: usize = first + block_end
+                tr: f64 = ar0 * real[second].f64() - ai0 * imag[second].f64()
+                ti: f64 = ar0 * imag[second].f64() + ai0 * real[second].f64()
+                real[second] <- (real[first].f64() - tr).f32()
+                imag[second] <- (imag[first].f64() - ti).f32()
+                real[first] <- (real[first].f64() + tr).f32()
+                imag[first] <- (imag[first].f64() + ti).f32()
+                offset <- offset + 1
+            start <- start + block
+        block_end <- block
+        block <- block * 2
+    if inverse:
+        i <- 0
+        while i < n:
+            real[i] <- (real[i].f64() / n.f64()).f32()
+            imag[i] <- (imag[i].f64() / n.f64()).f32()
+            i <- i + 1
+
+def mibench_telecomm_fft_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > 34: return -1
+    nd: f64 = input[0]
+    inv: f64 = input[1]
+    if nd != nd or inv != inv or trunc(nd) != nd or trunc(inv) != inv or nd < 2.0 or nd > 16.0 or (inv != 0.0 and inv != 1.0): return -1
+    n: usize = nd.usize()
+    if (n & (n - 1)) != 0 or length != 2 + 2 * n: return -1
+    i: usize = 2
+    while i < length:
+        if input[i] != input[i] or input[i] < -8.0 or input[i] > 8.0: return -1
+        i <- i + 1
+    required: usize = 2 * n
+    if output.is_null() or capacity < required: return -2
+    real: mutable f32[16] = zeroed
+    imag: mutable f32[16] = zeroed
+    i <- 0
+    while i < n:
+        real[i] <- input[2 + i].f32()
+        imag[i] <- input[2 + n + i].f32()
+        i <- i + 1
+    transform(real, imag, n, inv != 0.0)
+    staged: mutable f64[32] = zeroed
+    i <- 0
+    while i < n:
+        staged[2 * i] <- real[i].f64()
+        staged[2 * i + 1] <- imag[i].f64()
+        i <- i + 1
+    i <- 0
+    while i < required:
+        output[i] <- staged[i]
+        i <- i + 1
+    required.i64()
+
+export fn mibench_telecomm_fft(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = mibench_telecomm_fft_impl

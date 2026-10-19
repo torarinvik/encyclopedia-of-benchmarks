@@ -3234,6 +3234,51 @@ from uudecode_oracle import (
     MAX_PARSEABLE_INPUT_VALUES as UUDECODE_MAX_PARSEABLE_INPUT_VALUES,
     expected_output as uudecode_oracle,
 )
+from mibench_office_stringsearch_bmh_oracle import (
+    expected_output as mibench_office_stringsearch_bmh_expected_output,
+)
+from mibench_security_rijndael_oracle import (
+    expected_output as mibench_security_rijndael_oracle,
+)
+from misc_reed_solomon_oracle import (
+    expected_output as misc_reed_solomon_expected_output,
+)
+
+
+def mibench_office_stringsearch_bmh_suite_oracle(
+        values: list[int] | tuple[int, ...], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (input_is_null or type(output_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    result, output = mibench_office_stringsearch_bmh_expected_output(values)
+    if result < 0:
+        return result, output
+    if output_is_null or (capacity is not None and capacity < result):
+        return -2, b""
+    return result, output
+
+
+def misc_reed_solomon_suite_oracle(
+        values: list[int] | tuple[int, ...], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (input_is_null or type(output_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    result, output = misc_reed_solomon_expected_output(values)
+    if result < 0:
+        return result, output
+    if output_is_null or (capacity is not None and capacity < result):
+        return -2, b""
+    return result, output
 
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "smith_waterman_python": smith_waterman_python_oracle,
@@ -3264,6 +3309,9 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "polybench_adi": polybench_adi_oracle,
     "uuencode": uuencode_oracle,
     "uudecode": uudecode_oracle,
+    "mibench_office_stringsearch_bmh": mibench_office_stringsearch_bmh_suite_oracle,
+    "mibench_security_rijndael": mibench_security_rijndael_oracle,
+    "misc_reed_solomon": misc_reed_solomon_suite_oracle,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
@@ -32968,7 +33016,252 @@ def validate_tabu_search_workload(workload: dict) -> None:
 def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
-    if algorithm == "polybench_adi":
+    if algorithm == "misc_reed_solomon":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        source_bound = workload.get("source_bound", {})
+        expected_ids = {
+            "zero_payload", "ascending_payload", "single_payload_symbol_error",
+            "single_parity_symbol_error", "all_ones_with_error", "short_payload",
+            "payload_symbol_below_byte_range", "unsupported_error_count",
+            "wrong_length_for_error_count", "error_position_out_of_range",
+            "replacement_above_byte_range", "short_output_capacity", "null_output",
+            "null_input",
+        }
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-misc-reed-solomon-shortened-204-188-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "Misc/ReedSolomon/ReedSolomon.c",
+                    "symbols": ["rsenc_204", "rsdec_204", "encode_rs", "decode_rs"],
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/Misc/ReedSolomon/ReedSolomon.c",
+                    "license_note": "The source permits free modification and redistribution if Simon Rockliff's contribution remains acknowledged in the program comments; the complete original notice is in LICENSE.txt.",
+                }
+                or launcher != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "Misc/ReedSolomon/info.sh", "bench_name": "ReedSolomon",
+                    "source_files": ["ReedSolomon.c"], "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or source_bound != {
+                    "description": "The launcher repeatedly calls rsenc_204, overwrites up to 127 random bytes in the 204-byte frame, then calls rsdec_204. The profile replaces libc randomness with an explicit byte payload and at most one changed symbol, which is inside the source's eight-symbol correction capability. Each call performs one shortened RS(204,188) encode and correction and returns the corrected full frame.",
+                    "source_field_bits": 8, "source_field_primitive_polynomial": "0x11d",
+                    "source_codeword_symbols": 255, "source_message_symbols": 239,
+                    "source_correctable_symbol_errors": 8, "shortened_frame_symbols": 204,
+                    "shortened_payload_symbols": 188, "shortening_zero_symbols": 51,
+                    "parity_symbols": 16, "profile_maximum_errors": 1,
+                    "launcher_default_messages": 150000,
+                    "small_problem_size_messages": 15000,
+                    "profile_messages_per_call": 1,
+                }
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "188 payload bytes, followed by error_count (0 or 1); for one error, append codeword_position and replacement_byte"
+                or input_spec.get("valid_length_rules") != {"error_count_0": 189, "error_count_1": 191}
+                or input_spec.get("maximum_valid_input_values") != 191
+                or input_spec.get("maximum_parseable_input_values") != 191
+                or input_spec.get("maximum_valid_input_length") != 191
+                or input_spec.get("payload_byte_range") != [0, 255]
+                or input_spec.get("error_count_range") != [0, 1]
+                or input_spec.get("error_position_range") != [0, 203]
+                or input_spec.get("replacement_byte_range") != [0, 255]
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("null_input_result") != -1
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("encoding") != "204 raw bytes: corrected 188-byte payload followed by its 16 parity bytes"
+                or output_spec.get("success_result") != 204
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("invalid_output_buffer_result") != -2
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or output_spec.get("maximum_output_bytes") != 204
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("sample_count") != 5
+                or workload.get("measurement", {}).get("warmup_rounds") != 1
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 1
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("misc_reed_solomon metadata differs from its pinned shortened RS contract")
+        readme = (ROOT / "benchmarks/m/misc_reed_solomon/README.md").read_text(
+            encoding="utf-8")
+        license_text = (ROOT / "benchmarks/m/misc_reed_solomon/LICENSE.txt").read_text(
+            encoding="utf-8")
+        if (source["url"] not in readme or "Simon Rockliff" not in readme
+                or "Simon Rockliff" not in license_text
+                or "may be freely modified" not in license_text
+                or "acknowledged by his name" not in license_text
+                or "no responsibility is accepted" not in license_text):
+            raise ValueError("misc_reed_solomon README or bundled permission notice is incomplete")
+    elif algorithm == "mibench_security_rijndael":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        contract = workload.get("contract", {})
+        source_configuration = contract.get("source_configuration", {})
+        expected_ids = {
+            "aes256_nist_known_answer", "aes256_zero_key_zero_block",
+            "aes256_short_output_capacity", "aes256_out_of_range_byte",
+            "aes256_malformed_short_key_and_block",
+        }
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mibench-security-rijndael-aes256-block-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "MiBench/security-rijndael/aes.c",
+                    "related_paths": ["MiBench/security-rijndael/aes.h", "MiBench/security-rijndael/aesxam.c"],
+                    "symbol": "set_key and encrypt",
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/security-rijndael/aes.c",
+                    "license": "Brian Gladman two-condition redistribution terms; see LICENSE.txt.",
+                }
+                or launcher != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "MiBench/security-rijndael/info.sh",
+                    "bench_name": "security-rijndael",
+                    "source_files": ["aes.c", "aesxam.c"], "compile_flags": ["-lm"],
+                    "run_options": ["input_large.asc", "large.enc", "e",
+                                    "1234567890abcdeffedcba09876543211234567890abcdeffedcba0987654321"],
+                }
+                or input_spec.get("kind") != "signed_i64_array_of_bytes"
+                or input_spec.get("encoding") != "32 key bytes followed by one 16-byte block; one unsigned byte per i64 element"
+                or input_spec.get("exact_length") != 48
+                or input_spec.get("maximum_input_length") != 48
+                or input_spec.get("valid_value_range") != [0, 255]
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("null_input_result") != -1
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("encoding") != "Raw 16-byte AES-256 ciphertext"
+                or output_spec.get("maximum_bytes") != 16
+                or output_spec.get("success_result") != "Bytes written, exactly 16"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace") != {
+                    "bytes": 16, "meaning": "Capacity for one AES ciphertext block."
+                }
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("sample_count") != 5
+                or workload.get("measurement", {}).get("warmup_rounds") != 1
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 100
+                or contract.get("operation") != "Set the pinned AES key for encryption and encrypt one 16-byte block."
+                or contract.get("input_layout") != "[32 key bytes, 16 block bytes]"
+                or contract.get("maximum_input_length") != 48
+                or contract.get("output_encoding") != "16 raw AES ciphertext bytes"
+                or contract.get("output_bytes") != 16
+                or contract.get("invalid_result") != -1
+                or contract.get("output_error_result") != -2
+                or source_configuration.get("block_bytes") != 16
+                or source_configuration.get("key_bytes_supported_upstream") != [16, 24, 32]
+                or source_configuration.get("suite_key_bytes") != 32
+                or source_configuration.get("suite_mode") != "encryption"
+                or source_configuration.get("launcher_key_hex")
+                != "1234567890abcdeffedcba09876543211234567890abcdeffedcba0987654321"
+                or source_configuration.get("external_byte_order")
+                != "AES little-endian interface bytes; byte-array block results follow AES standard byte order"
+                or "CBC chaining" not in contract.get("source_wrapper", "")
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("mibench_security_rijndael metadata differs from its pinned AES-256 contract")
+        readme = (ROOT / "benchmarks/m/mibench_security_rijndael/README.md").read_text(
+            encoding="utf-8")
+        license_text = (ROOT / "benchmarks/m/mibench_security_rijndael/LICENSE.txt").read_text(
+            encoding="utf-8")
+        if (source["url"] not in readme or "aesxam" not in readme
+                or "Brian Gladman" not in readme
+                or "Brian Gladman" not in license_text
+                or "Redistribution and use in source and binary forms" not in license_text
+                or "must retain the above copyright" not in license_text
+                or "must reproduce the above copyright" not in license_text
+                or "provided 'as is'" not in license_text):
+            raise ValueError("mibench_security_rijndael README or bundled license is incomplete")
+    elif algorithm == "mibench_office_stringsearch_bmh":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        launcher = workload.get("pinned_launcher", {})
+        sources = workload.get("pinned_sources", [])
+        source_bound = workload.get("source_bound", {})
+        expected_ids = {
+            "match_middle", "match_at_start", "overlapping_prefixes", "no_match",
+            "pattern_longer_than_text", "empty_text", "empty_pattern_invalid",
+            "truncated_record_invalid", "non_printable_byte_invalid", "short_output",
+        }
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "mibench-office-stringsearch-bmh-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[text_length, pattern_length, text byte values..., pattern byte values...]"
+                or input_spec.get("text_length_range") != [0, 128]
+                or input_spec.get("pattern_length_range") != [1, 32]
+                or input_spec.get("byte_range") != [32, 126]
+                or input_spec.get("exact_length") != "2 + text_length + pattern_length"
+                or input_spec.get("maximum_input_length") != 162
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "little_endian_signed_i64_vector"
+                or output_spec.get("encoding") != "one signed i64 match offset; -1 means no match"
+                or output_spec.get("maximum_elements") != 1
+                or output_spec.get("success_result") != 8
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace") != {
+                    "elements": 416,
+                    "meaning": "128-byte text buffer, 32-byte pattern buffer, and 256-entry shift table.",
+                }
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or launcher != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "MiBench/office-stringsearch/info.sh",
+                    "bench_name": "office-stringsearch",
+                    "source_selection": ["bmhasrch.c", "bmhisrch.c", "bmhsrch.c", "pbmsrch.c"],
+                    "compile_flags": ["-lm"], "run_options": [],
+                }
+                or len(sources) != 2
+                or sources[0] != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "MiBench/office-stringsearch/bmhsrch.c",
+                    "symbols": ["bmh_init", "bmh_search"],
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/office-stringsearch/bmhsrch.c",
+                    "role": "algorithm",
+                }
+                or sources[1] != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "MiBench/office-stringsearch/info.sh",
+                    "symbols": ["bench_name", "source_files"],
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/office-stringsearch/info.sh",
+                    "role": "launcher",
+                }
+                or source_bound != {
+                    "source_variant": "bmhsrch.c case-sensitive Boyer-Moore-Horspool; initialization sets rightmost-prefix bad-character shifts and the fixed final-character shift; search scans candidate windows in increasing order and compares right-to-left.",
+                    "scope": "Standalone bmh_init/bmh_search semantics only. The launcher also includes case-insensitive and accented-character variants plus Pratt-Boyer-Moore; those routines and their demo workload are excluded.",
+                    "license": "The pinned bmhsrch.c header places this implementation in the public domain and attributes it to Raymond Gardner (7/92).",
+                }
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("mibench_office_stringsearch_bmh metadata differs from its pinned bounded contract")
+        readme = (ROOT / "benchmarks/o/mibench_office_stringsearch_bmh/README.md").read_text(
+            encoding="utf-8")
+        license_text = (ROOT / "benchmarks/o/mibench_office_stringsearch_bmh/LICENSE.txt").read_text(
+            encoding="utf-8")
+        if (sources[0]["url"] not in readme
+                or "partial/related" not in readme
+                or "Raymond Gardner" not in readme
+                or "public domain" not in license_text.lower()
+                or "Raymond Gardner" not in license_text):
+            raise ValueError("mibench_office_stringsearch_bmh is missing pinned-source or license attribution")
+    elif algorithm == "polybench_adi":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
         source = workload.get("source_bound", {})
@@ -34054,7 +34347,10 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
-    max_parseable = (SMITH_WATERMAN_PYTHON_MAX_PARSEABLE_INPUT_LENGTH
+    max_parseable = (191 if algorithm == "misc_reed_solomon" else
+                     49 if algorithm == "mibench_security_rijndael" else
+                     162 if algorithm == "mibench_office_stringsearch_bmh" else
+                     SMITH_WATERMAN_PYTHON_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "smith_waterman_python" else
                      SMITH_WATERMAN_RUST_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "smith_waterman_rust" else
@@ -34105,7 +34401,8 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         input_length = case.get("input_length")
         default_capacity = workload.get("workspace", {}).get(
             "bytes", workload.get("output", {}).get(
-                "maximum_bytes", workload.get("output", {}).get("maximum_output_bytes")))
+                "maximum_bytes", workload.get("output", {}).get(
+                    "maximum_output_bytes", workload.get("output", {}).get("success_result"))))
         capacity = case.get("output_capacity", default_capacity)
         output_is_null = case.get("output_is_null", False)
         input_is_null = case.get("input_is_null", False)
@@ -34191,6 +34488,8 @@ def main() -> int:
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     workload_path = args.workload or (
+        ROOT / "benchmarks/o/mibench_office_stringsearch_bmh/workload.json"
+        if algorithm == "mibench_office_stringsearch_bmh" else
         ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
         if algorithm == "merge_sort_linked_list" else
         ROOT / "benchmarks" / "merge_ksorted_linked_list" / "workload.json"
@@ -35084,6 +35383,9 @@ def main() -> int:
             raise ValueError(f"input and output cannot both be null in {case['id']}")
         if algorithm == "simple_proof_of_work":
             expected_count, expected = simple_proof_of_work_expected_output(
+                values, output_capacity, output_is_null, input_is_null, input_length)
+        elif algorithm == "mibench_office_stringsearch_bmh":
+            expected_count, expected = mibench_office_stringsearch_bmh_suite_oracle(
                 values, output_capacity, output_is_null, input_is_null, input_length)
         elif algorithm == "print_reverse":
             if input_is_null and input_length > 0:

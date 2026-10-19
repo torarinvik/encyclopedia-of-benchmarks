@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "mibench-telecomm-fft-float64-slice-io-v1",
+  "algorithm": "mibench_telecomm_fft",
+  "function_symbol": "mibench_telecomm_fft",
+  "description": "Run the bounded source-order radix-2 complex float FFT kernel from MiBench telecomm-FFT.",
+  "pinned_sources": [
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/telecomm-FFT/fourierf.c","symbols":["fft_float"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-FFT/fourierf.c","role":"algorithm"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/telecomm-FFT/fftmisc.c","symbols":["IsPowerOfTwo","NumberOfBitsNeeded","ReverseBits"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-FFT/fftmisc.c","role":"helpers"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/telecomm-FFT/fourier.h","symbols":["fft_float"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-FFT/fourier.h","role":"interface"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/telecomm-FFT/ddcmath.h","symbols":["DDC_PI"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-FFT/ddcmath.h","role":"constant"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/telecomm-FFT/main.c","symbols":["main","deterministic-waveform-generation"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-FFT/main.c","role":"launcher-workload"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/telecomm-FFT/info.sh","symbols":["bench_name","source_files","RUN_OPTIONS"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-FFT/info.sh","role":"launcher"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/telecomm-FFT/README","symbols":["public-domain-and-redistribution-conditions"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-FFT/README","role":"license"}
+  ],
+  "pinned_launcher":{"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/telecomm-FFT/info.sh","bench_name":"telecomm-FFT","source_selection":["fftmisc.c","fourierf.c","main.c"],"compile_flags":["-lm"],"run_options":["8","32768","-i"]},
+  "source_bound":{"launcher_profile":{"waves":8,"samples":32768,"inverse":true},"kernel":"fft_float: radix-2 complex float FFT; bit-reversal copy; source-order butterfly twiddle recurrence; inverse divides final real and imaginary samples by n.","suite_bounds":{"n":[2,16],"n_domain":"powers of two","input_component_abs_max":8,"inverse_values":[0,1]},"precision":"Input and work/output arrays use IEEE binary32; trigonometric recurrence intermediates use binary64; output converts binary32 samples to binary64 ABI values.","standalone_scope":"The benchmark isolates fft_float. The launcher's deterministic sine/cosine signal construction, CLI parsing, and printf output are excluded."},
+  "input":{"kind":"finite_float64_array","encoding":"[n,inverse,real[0..n),imag[0..n)]","maximum_input_length":34,"length_rule":"2+2*n","invalid_input_result":-1},
+  "contract":{"operation":"Transform the interleaved complex input with the pinned radix-2 single-precision FFT, returning natural-order frequency samples.","source_order":["copy inputs to outputs in bit-reversed index order","for each block size 2,4,...,n, generate twiddle recurrence with source sin/cos initialization","apply butterflies in increasing block and offset order, rounding each stored array result to binary32","if inverse is nonzero, divide each output component by n and round to binary32"],"inverse_flag":"Exact integer 0 selects forward transform; exact integer 1 selects inverse transform.","invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "output":{"kind":"float64_array","encoding":"[real_0,imag_0,...,real_(n-1),imag_(n-1)] as exact binary32 values widened to binary64","maximum_elements":32,"success_result":"2*n output elements","absolute_tolerance":1e-6,"relative_tolerance":1e-6,"no_write_on_error":true},
+  "workspace":{"elements":96,"meaning":"Two 16-element binary32 input vectors, two 16-element binary32 output vectors, and staged 32-element widened result."},
+  "measurement":{"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100,"absolute_tolerance":1e-6,"relative_tolerance":1e-6},
+  "cases":[
+    {"id":"two_point_forward","input_values":[2,0,1,2,0,0],"input_length":6,"output_capacity":4,"expected_result":4,"expected_output":[3,0,-1,0]},
+    {"id":"two_point_inverse","input_values":[2,1,3,1,-1,1],"input_length":6,"output_capacity":4,"expected_result":4,"expected_output":[2,0,1,1]},
+    {"id":"sixteen_zero_samples","input_values":[16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":34,"output_capacity":32,"expected_result":32,"expected_output":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+    {"id":"empty_invalid","input_values":[],"input_length":0,"expected_result":-1,"expected_output":[]},
+    {"id":"one_sample_unsupported","input_values":[1,0,1,0],"input_length":4,"expected_result":-1,"expected_output":[]},
+    {"id":"non_power_of_two","input_values":[3,0,1,2,3,0,0,0],"input_length":8,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid_inverse_flag","input_values":[2,2,1,2,0,0],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"short_output","input_values":[2,0,1,2,0,0],"input_length":6,"output_capacity":3,"expected_result":-2,"expected_output":[]}
+  ]
+}

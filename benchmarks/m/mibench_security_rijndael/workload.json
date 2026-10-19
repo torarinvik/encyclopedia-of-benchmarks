@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mibench-security-rijndael-aes256-block-i64-array-bytes-output-v1",
+  "algorithm": "mibench_security_rijndael",
+  "function_symbol": "mibench_security_rijndael",
+  "description": "AES-256 encryption of one 128-bit block through the pinned MiBench Rijndael primitive.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/security-rijndael/aes.c",
+    "related_paths": ["MiBench/security-rijndael/aes.h", "MiBench/security-rijndael/aesxam.c"],
+    "symbol": "set_key and encrypt",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/security-rijndael/aes.c",
+    "license": "Brian Gladman two-condition redistribution terms; see LICENSE.txt."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/security-rijndael/info.sh",
+    "bench_name": "security-rijndael",
+    "source_files": ["aes.c", "aesxam.c"],
+    "compile_flags": ["-lm"],
+    "run_options": ["input_large.asc", "large.enc", "e", "1234567890abcdeffedcba09876543211234567890abcdeffedcba0987654321"]
+  },
+  "contract": {
+    "operation": "Set the pinned AES key for encryption and encrypt one 16-byte block.",
+    "source_configuration": {
+      "block_bytes": 16,
+      "key_bytes_supported_upstream": [16, 24, 32],
+      "suite_key_bytes": 32,
+      "suite_mode": "encryption",
+      "launcher_key_hex": "1234567890abcdeffedcba09876543211234567890abcdeffedcba0987654321",
+      "external_byte_order": "AES little-endian interface bytes; byte-array block results follow AES standard byte order"
+    },
+    "source_wrapper": "aesxam performs CBC chaining by XORing a plaintext block with the prior ciphertext or IV before calling encrypt. The suite supplies this post-XOR block directly.",
+    "input_layout": "[32 key bytes, 16 block bytes]",
+    "maximum_input_length": 48,
+    "output_encoding": "16 raw AES ciphertext bytes",
+    "output_bytes": 16,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed input or any value outside 0..255 returns -1 before output checks. Null output or capacity below 16 returns -2 and writes nothing."
+  },
+  "input": {
+    "kind": "signed_i64_array_of_bytes",
+    "encoding": "32 key bytes followed by one 16-byte block; one unsigned byte per i64 element",
+    "exact_length": 48,
+    "maximum_input_length": 48,
+    "valid_value_range": [0, 255],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Raw 16-byte AES-256 ciphertext",
+    "maximum_bytes": 16,
+    "success_result": "Bytes written, exactly 16",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "Capacity for one AES ciphertext block."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "aes256_nist_known_answer",
+      "input_values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 0, 17, 34, 51, 68, 85, 102, 119, 136, 153, 170, 187, 204, 221, 238, 255],
+      "input_length": 48,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "8ea2b7ca516745bfeafc49904b496089"
+    },
+    {
+      "id": "aes256_zero_key_zero_block",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 48,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "dc95c078a2408989ad48a21492842087"
+    },
+    {
+      "id": "aes256_short_output_capacity",
+      "input_values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 0, 17, 34, 51, 68, 85, 102, 119, 136, 153, 170, 187, 204, 221, 238, 255],
+      "input_length": 48,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "aes256_out_of_range_byte",
+      "input_values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 0, 17, 34, 51, 68, 85, 102, 119, 136, 153, 170, 187, 204, 221, 238, 256],
+      "input_length": 48,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "aes256_malformed_short_key_and_block",
+      "input_values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 0, 17, 34, 51, 68, 85, 102, 119, 136, 153, 170, 187, 204, 221, 238],
+      "input_length": 47,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

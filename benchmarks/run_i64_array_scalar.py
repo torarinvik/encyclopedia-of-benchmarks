@@ -27,6 +27,8 @@ from coremark_crc_oracle import expected_result as coremark_crc_expected
 from netbench_crc_oracle import INVALID_RESULT as NETBENCH_CRC_INVALID_RESULT
 from netbench_crc_oracle import MAX_LENGTH as NETBENCH_CRC_MAX_LENGTH
 from netbench_crc_oracle import expected_result as netbench_crc_expected
+from mibench_telecomm_crc32_oracle import MAX_LENGTH as MIBENCH_TELECOMM_CRC32_MAX_LENGTH
+from mibench_telecomm_crc32_oracle import mibench_telecomm_crc32 as mibench_telecomm_crc32_expected
 from drop3_oracle import INVALID_RESULT as DROP3_INVALID_RESULT
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected
@@ -6115,6 +6117,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (COREMARK_CRC_MAX_INPUT_LENGTH if algorithm == "coremark_crc" else
                         NETBENCH_CRC_MAX_LENGTH if algorithm == "netbench_crc" else
+                        MIBENCH_TELECOMM_CRC32_MAX_LENGTH
+                        if algorithm == "mibench_telecomm_crc32" else
                         DROP3_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "drop3" else
                         FIVE11_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "five11" else
                         FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "fannkuch" else
@@ -6668,6 +6672,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = netbench_crc_expected(values)
         if expected != expected_from_source:
             raise ValueError("netbench_crc expected_result must match the pinned low-32-bit update_crc result")
+    elif algorithm == "mibench_telecomm_crc32":
+        expected_from_source = mibench_telecomm_crc32_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mibench_telecomm_crc32 expected_result must match the bounded IEEE CRC-32 byte update")
     elif algorithm == "msd_radix_string_sorter":
         source_result = msd_radix_string_sorter_expected(values)
         expected_from_source = (MSD_RADIX_STRING_SORTER_INVALID_RESULT
@@ -14721,6 +14729,109 @@ def validate_netbench_crc_workload(workload: dict) -> None:
             raise ValueError(f"netbench_crc fixture differs from its pinned bounded oracle: {case.get('id')}")
 
 
+def validate_mibench_telecomm_crc32_workload(workload: dict) -> None:
+    expected_ids = {
+        "empty", "single_zero", "single_max_byte", "ascii_123456789", "binary_mixed",
+        "repeat_a5", "bytes_0_through_31", "invalid_negative_byte", "invalid_byte_above_range",
+    }
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks",
+        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+        "path": "MiBench/telecomm-CRC32/crc_32.c",
+        "symbol": "crc32buf",
+        "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-CRC32/crc_32.c",
+        "license_note": "The bundled LICENSE states that the code is free with no restrictions. The source attributes the CRC-32 code to Gary S. Brown (1986); see NOTICE.txt.",
+    }
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks",
+        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+        "path": "MiBench/telecomm-CRC32/info.sh",
+        "bench_name": "telecomm-CRC32",
+        "source_files": ["crc_32.c"],
+        "compile_flags": ["-lm"],
+        "run_options": ["large.pcm"],
+    }
+    if (MIBENCH_TELECOMM_CRC32_MAX_LENGTH != 100_001
+            or set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                                "pinned_source", "pinned_launcher", "source_bound", "input",
+                                "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-mibench-telecomm-crc32-bounded-v1"
+            or workload.get("algorithm") != "mibench_telecomm_crc32"
+            or workload.get("function_symbol") != "mibench_telecomm_crc32"
+            or workload.get("pinned_source") != expected_source
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("source_bound") != {
+                "default_input_file": "large.pcm",
+                "source_kernel": "crc32buf(char *buf, size_t len)",
+                "maximum_input_bytes": MIBENCH_TELECOMM_CRC32_MAX_LENGTH,
+                "table_entries": 256,
+                "polynomial_reflected": "0xEDB88320",
+                "initial_state": "0xFFFFFFFF",
+                "final_xor": "0xFFFFFFFF",
+                "profile_note": "The launcher reads a file of implementation-defined size; the suite uses a byte-array profile capped at 100001 bytes.",
+            }
+            or workload.get("input") != {
+                "kind": "array_of_unsigned_bytes",
+                "encoding": "mibench_telecomm_crc32_bytes",
+                "range": [0, 255],
+                "length_range": [0, MIBENCH_TELECOMM_CRC32_MAX_LENGTH],
+                "invalid_result": -1,
+                "input_mutation": "none",
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_scalar",
+                "encoding": "crc32_ieee_unsigned_value_i64",
+                "definition": "The reflected IEEE CRC-32 value, in the unsigned 32-bit range represented as a nonnegative signed 64-bit integer.",
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call",
+                "sample_count": 7,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 1000,
+            }):
+        raise ValueError("mibench_telecomm_crc32 metadata differs from its pinned bounded byte-array contract")
+
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (not isinstance(cases, list)
+            or len(cases) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_ids):
+        raise ValueError("mibench_telecomm_crc32 fixture IDs differ from the reviewed byte corpus")
+
+    package_dir = ROOT / "benchmarks" / "m" / "mibench_telecomm_crc32"
+    readme = (package_dir / "README.md").read_text(encoding="utf-8")
+    license_text = (package_dir / "LICENSE.txt").read_text(encoding="utf-8")
+    notice = (package_dir / "NOTICE.txt").read_text(encoding="utf-8")
+    if (expected_source["url"] not in readme
+            or "telecomm-CRC32/info.sh" not in readme
+            or "crc32buf" not in readme
+            or "large.pcm" not in readme
+            or "100,001 bytes" not in readme
+            or "workload.json" not in readme
+            or "LICENSE.txt" not in readme
+            or "NOTICE.txt" not in readme
+            or "free with no restrictions" not in readme
+            or license_text != "From http://www.snippets.org/.\n\nThis code is FREE with no restrictions.\n"
+            or "Copyright (C) 1986 Gary S. Brown." not in notice
+            or "without restriction" not in notice):
+        raise ValueError("mibench_telecomm_crc32 README or license attribution is incomplete")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or set(case) != {"id", "input_values", "expected_result"}
+                or len(values) > MIBENCH_TELECOMM_CRC32_MAX_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != mibench_telecomm_crc32_expected(values)):
+            raise ValueError(f"mibench_telecomm_crc32 fixture differs from its pinned bounded oracle: {case.get('id')}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -14865,6 +14976,8 @@ def main() -> int:
         validate_coremark_crc_workload(workload)
     elif algorithm == "netbench_crc":
         validate_netbench_crc_workload(workload)
+    elif algorithm == "mibench_telecomm_crc32":
+        validate_mibench_telecomm_crc32_workload(workload)
     elif algorithm == "graph_enumeration":
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":

@@ -1,0 +1,121 @@
+const KEY_BYTES: usize = 32
+const BLOCK_BYTES: usize = 16
+const INPUT_BYTES: usize = 48
+
+def rijndael_gf_mul(left_value: u8, right_value: u8) -> u8:
+    left: mutable u8 = left_value
+    right: mutable u8 = right_value
+    result: mutable u8 = 0
+    while right != 0:
+        if (right & 1) != 0:
+            result <- result ^ left
+        doubled: u16 = left.u16() << 1
+        if (left & 0x80) != 0:
+            doubled <- doubled ^ 0x11B
+        left <- (doubled & 255).u8()
+        right <- right >> 1
+    result
+
+def rijndael_gf_pow(value_value: u8, exponent_value: u32) -> u8:
+    value: mutable u8 = value_value
+    exponent: mutable u32 = exponent_value
+    result: mutable u8 = 1
+    while exponent != 0:
+        if (exponent & 1) != 0:
+            result <- rijndael_gf_mul(result, value)
+        value <- rijndael_gf_mul(value, value)
+        exponent <- exponent >> 1
+    result
+
+def rijndael_rotl8(value: u8, amount: usize) -> u8:
+    (((value.u16() << amount) | (value.u16() >> (8 - amount))) & 255).u8()
+
+def rijndael_make_sbox() -> u8[256]:
+    sbox: mutable u8[256] = zeroed
+    for value in 0..<256:
+        inverse: u8 = if value == 0: 0 else: rijndael_gf_pow(value.u8(), 254)
+        sbox[value] <- inverse ^ rijndael_rotl8(inverse, 1) ^ rijndael_rotl8(inverse, 2) ^
+            rijndael_rotl8(inverse, 3) ^ rijndael_rotl8(inverse, 4) ^ 0x63
+    sbox
+
+def rijndael_encrypt_block(key: u8&, block: u8&) -> u8[16]:
+    sbox: u8[256] = rijndael_make_sbox()
+    round_constants: u8[7] = [1, 2, 4, 8, 16, 32, 64]
+    round_keys: mutable u8[240] = zeroed
+    for index in 0..<KEY_BYTES:
+        round_keys[index] <- key[index]
+    written: mutable usize = KEY_BYTES
+    while written < 240:
+        word: usize = written / 4
+        temporary: mutable u8[4] = zeroed
+        for index in 0..<4:
+            temporary[index] <- round_keys[written - 4 + index]
+        if word % 8 == 0:
+            first: u8 = temporary[0]
+            temporary[0] <- sbox[temporary[1]] ^ round_constants[word / 8 - 1]
+            temporary[1] <- sbox[temporary[2]]
+            temporary[2] <- sbox[temporary[3]]
+            temporary[3] <- sbox[first]
+        else if word % 8 == 4:
+            for index in 0..<4:
+                temporary[index] <- sbox[temporary[index]]
+        for index in 0..<4:
+            round_keys[written] <- round_keys[written - KEY_BYTES] ^ temporary[index]
+            written <- written + 1
+
+    state: mutable u8[16] = zeroed
+    for index in 0..<BLOCK_BYTES:
+        state[index] <- block[index] ^ round_keys[index]
+    for round in 1..<14:
+        for index in 0..<BLOCK_BYTES:
+            state[index] <- sbox[state[index]]
+        previous: u8[16] = state
+        for column in 0..<4:
+            for row in 0..<4:
+                state[row + 4 * column] <- previous[row + 4 * ((column + row) % 4)]
+        for column in 0..<4:
+            offset: usize = 4 * column
+            a: u8 = state[offset]
+            b: u8 = state[offset + 1]
+            c: u8 = state[offset + 2]
+            d: u8 = state[offset + 3]
+            total: u8 = a ^ b ^ c ^ d
+            state[offset] <- a ^ total ^ rijndael_gf_mul(a ^ b, 2)
+            state[offset + 1] <- b ^ total ^ rijndael_gf_mul(b ^ c, 2)
+            state[offset + 2] <- c ^ total ^ rijndael_gf_mul(c ^ d, 2)
+            state[offset + 3] <- d ^ total ^ rijndael_gf_mul(d ^ a, 2)
+        key_offset: usize = round * BLOCK_BYTES
+        for index in 0..<BLOCK_BYTES:
+            state[index] <- state[index] ^ round_keys[key_offset + index]
+    for index in 0..<BLOCK_BYTES:
+        state[index] <- sbox[state[index]]
+    previous: u8[16] = state
+    for column in 0..<4:
+        for row in 0..<4:
+            state[row + 4 * column] <- previous[row + 4 * ((column + row) % 4)]
+    for index in 0..<BLOCK_BYTES:
+        state[index] <- state[index] ^ round_keys[224 + index]
+    state
+
+def mibench_security_rijndael_impl(input: i64&, input_length: usize,
+                                   output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length != INPUT_BYTES:
+        return -1
+    for index in 0..<INPUT_BYTES:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+    if output.is_null() or output_capacity < BLOCK_BYTES:
+        return -2
+    key: mutable u8[32] = zeroed
+    block: mutable u8[16] = zeroed
+    for index in 0..<KEY_BYTES:
+        key[index] <- input[index].u8()
+    for index in 0..<BLOCK_BYTES:
+        block[index] <- input[KEY_BYTES + index].u8()
+    ciphertext: u8[16] = rijndael_encrypt_block(key[0], block[0])
+    for index in 0..<BLOCK_BYTES:
+        output[index] <- ciphertext[index]
+    BLOCK_BYTES.i64()
+
+export fn mibench_security_rijndael(input: i64&, input_length: usize,
+               output: mutable u8&, output_capacity: usize) -> i64 = mibench_security_rijndael_impl

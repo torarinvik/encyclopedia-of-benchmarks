@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "mibench-office-stringsearch-bmh-i64-array-bytes-output-v1",
+  "algorithm": "mibench_office_stringsearch_bmh",
+  "function_symbol": "mibench_office_stringsearch_bmh",
+  "description": "Search bounded printable-byte text for the first exact occurrence of a pattern using MiBench's case-sensitive Boyer-Moore-Horspool stage.",
+  "pinned_sources": [
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/office-stringsearch/bmhsrch.c","symbols":["bmh_init","bmh_search"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/office-stringsearch/bmhsrch.c","role":"algorithm"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/office-stringsearch/info.sh","symbols":["bench_name","source_files"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/office-stringsearch/info.sh","role":"launcher"}
+  ],
+  "pinned_launcher": {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"MiBench/office-stringsearch/info.sh","bench_name":"office-stringsearch","source_selection":["bmhasrch.c","bmhisrch.c","bmhsrch.c","pbmsrch.c"],"compile_flags":["-lm"],"run_options":[]},
+  "source_bound": {
+    "source_variant":"bmhsrch.c case-sensitive Boyer-Moore-Horspool; initialization sets rightmost-prefix bad-character shifts and the fixed final-character shift; search scans candidate windows in increasing order and compares right-to-left.",
+    "scope":"Standalone bmh_init/bmh_search semantics only. The launcher also includes case-insensitive and accented-character variants plus Pratt-Boyer-Moore; those routines and their demo workload are excluded.",
+    "license":"The pinned bmhsrch.c header places this implementation in the public domain and attributes it to Raymond Gardner (7/92)."
+  },
+  "input": {
+    "kind":"packed_signed_64_bit_integer_array",
+    "encoding":"[text_length, pattern_length, text byte values..., pattern byte values...]",
+    "text_length_range":[0,128],
+    "pattern_length_range":[1,32],
+    "byte_range":[32,126],
+    "exact_length":"2 + text_length + pattern_length",
+    "maximum_input_length":162,
+    "invalid_input_result":-1
+  },
+  "output": {
+    "kind":"little_endian_signed_i64_vector",
+    "encoding":"one signed i64 match offset; -1 means no match",
+    "maximum_elements":1,
+    "success_result":8,
+    "null_output_result":-2,
+    "insufficient_capacity_result":-2,
+    "no_write_on_error":true
+  },
+  "workspace":{"elements":416,"meaning":"128-byte text buffer, 32-byte pattern buffer, and 256-entry shift table."},
+  "measurement":{"comparison_model":"i64_array_bytes_output_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100},
+  "cases":[
+    {"id":"match_middle","input_values":[11,4,97,98,114,97,99,97,100,97,98,114,97,99,97,100,97],"input_length":17,"expected_result":8,"expected_output_hex":"0400000000000000"},
+    {"id":"match_at_start","input_values":[6,3,97,98,99,100,101,102,97,98,99],"input_length":11,"expected_result":8,"expected_output_hex":"0000000000000000"},
+    {"id":"overlapping_prefixes","input_values":[5,4,97,97,97,97,98,97,97,97,98],"input_length":11,"expected_result":8,"expected_output_hex":"0100000000000000"},
+    {"id":"no_match","input_values":[8,3,97,98,114,97,99,97,100,120,121,122],"input_length":12,"expected_result":8,"expected_output_hex":"ffffffffffffffff"},
+    {"id":"pattern_longer_than_text","input_values":[2,3,97,98,97,98,99],"input_length":7,"expected_result":8,"expected_output_hex":"ffffffffffffffff"},
+    {"id":"empty_text","input_values":[0,1,120],"input_length":3,"expected_result":8,"expected_output_hex":"ffffffffffffffff"},
+    {"id":"empty_pattern_invalid","input_values":[3,0,97,98,99],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"truncated_record_invalid","input_values":[3,2,97,98],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"non_printable_byte_invalid","input_values":[1,1,0,97],"input_length":4,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output","input_values":[11,4,97,98,114,97,99,97,100,97,98,114,97,99,97,100,97],"input_length":17,"output_capacity":7,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

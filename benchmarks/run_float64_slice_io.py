@@ -20,6 +20,12 @@ from vector2_oracle import expected_result as vector2_oracle
 from vectors_3d_oracle import expected_result as vectors_3d_oracle
 from partialsums_oracle import expected_output as partialsums_oracle
 from durbin_oracle import expected_output as durbin_oracle
+from mibench_telecomm_fft_oracle import (
+    MAX_INPUT_LENGTH as MIBENCH_TELECOMM_FFT_MAX_INPUT_LENGTH,
+    MAX_N as MIBENCH_TELECOMM_FFT_MAX_N,
+    MAX_OUTPUT_ELEMENTS as MIBENCH_TELECOMM_FFT_MAX_OUTPUT_ELEMENTS,
+    expected_output as mibench_telecomm_fft_expected_output,
+)
 from versabench_beamformer_oracle import (
     CHANNELS as VERSABENCH_BEAMFORMER_CHANNELS,
     INPUT_LENGTH as VERSABENCH_BEAMFORMER_INPUT_LENGTH,
@@ -1298,9 +1304,42 @@ def polybench_seidel_2d_oracle(values):
     return output if result >= 0 else None
 
 
+MIBENCH_TELECOMM_FFT_INVALID_RESULT = -1
+MIBENCH_TELECOMM_FFT_OUTPUT_ERROR = -2
+
+
+def mibench_telecomm_fft_abi_oracle(values, output_capacity=None, output_is_null=False,
+                                    input_is_null=False, input_length=None):
+    if (not isinstance(values, (list, tuple))
+            or len(values) > MIBENCH_TELECOMM_FFT_MAX_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and (values or input_length not in (None, 0)))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (output_capacity is not None
+                and (type(output_capacity) is not int or output_capacity < 0))):
+        return MIBENCH_TELECOMM_FFT_INVALID_RESULT, []
+    if input_is_null:
+        return MIBENCH_TELECOMM_FFT_INVALID_RESULT, []
+    output = mibench_telecomm_fft_expected_output(values)
+    if output is None:
+        return MIBENCH_TELECOMM_FFT_INVALID_RESULT, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return MIBENCH_TELECOMM_FFT_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def mibench_telecomm_fft_oracle(values):
+    result, output = mibench_telecomm_fft_abi_oracle(values)
+    return output if result >= 0 else None
+
+
 ORACLES = {
     "partialsums": partialsums_oracle,
     "durbin": durbin_oracle,
+    "mibench_telecomm_fft": mibench_telecomm_fft_oracle,
     "versabench_beamformer": versabench_beamformer_abi_oracle,
     "syrk": syrk_oracle,
     "matmul_f64_4x4": matmul_f64_4x4_oracle,
@@ -3837,6 +3876,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         POLYBENCH_LU_MAX_INPUT_LENGTH if algorithm == "polybench_lu" else
                         POLYBENCH_CORRELATION_MAX_INPUT_LENGTH if algorithm == "polybench_correlation" else
                         POLYBENCH_SEIDEL_2D_MAX_INPUT_LENGTH if algorithm == "polybench_seidel_2d" else
+                        MIBENCH_TELECOMM_FFT_MAX_INPUT_LENGTH if algorithm == "mibench_telecomm_fft" else
                         SIR_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sir" else
                         DECISION_TREE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "decision_tree_python_regression" else
@@ -3960,7 +4000,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                                                       "matmul_f64_4x4", "misc_fp_convert", "trisolv",
                                                       "jacobi_1d", "jacobi_2d", "fdtd_2d", "heat_3d",
                                                       "polybench_lu", "polybench_correlation",
-                                                      "polybench_seidel_2d"}
+                                                      "polybench_seidel_2d", "mibench_telecomm_fft"}
                 and not (allow_nonfinite and case.get("input_is_null") is True
                          and case.get("input_length") == 0))
             or len(raw_values) > max_input_length
@@ -3969,7 +4009,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_telecomm_fft", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
                      "mean_shift", "k_means_clust", "lu_decompose", "lu_elimination",
@@ -4071,6 +4111,13 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "polybench_seidel_2d":
             expected_result, oracle_values = polybench_seidel_2d_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "mibench_telecomm_fft":
+            expected_result, oracle_values = mibench_telecomm_fft_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
@@ -5773,6 +5820,135 @@ def validate_polybench_correlation_workload(workload: dict) -> None:
 
 def validate_polybench_seidel_2d_workload(workload: dict) -> None:
     _validate_polybench_simple_matrix_workload(workload, "polybench_seidel_2d")
+
+
+def validate_mibench_telecomm_fft_workload(workload: dict) -> None:
+    """Validate pinned MiBench FFT provenance, attribution, and bounded fixtures."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    root = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/MiBench/telecomm-FFT/"
+    expected_sources = [
+        ("fourierf.c", ["fft_float"], "algorithm"),
+        ("fftmisc.c", ["IsPowerOfTwo", "NumberOfBitsNeeded", "ReverseBits"], "helpers"),
+        ("fourier.h", ["fft_float"], "interface"),
+        ("ddcmath.h", ["DDC_PI"], "constant"),
+        ("main.c", ["main", "deterministic-waveform-generation"], "launcher-workload"),
+        ("info.sh", ["bench_name", "source_files", "RUN_OPTIONS"], "launcher"),
+        ("README", ["public-domain-and-redistribution-conditions"], "license"),
+    ]
+    pinned = workload.get("pinned_sources")
+    if not isinstance(pinned, list) or len(pinned) != len(expected_sources):
+        raise ValueError("mibench_telecomm_fft pinned source inventory changed")
+    for source, (path, symbols, role) in zip(pinned, expected_sources):
+        expected = {"repository": "lac-dcc/Benchmarks", "commit": commit,
+                    "path": f"MiBench/telecomm-FFT/{path}", "symbols": symbols,
+                    "url": root + path, "role": role}
+        if source != expected:
+            raise ValueError(f"mibench_telecomm_fft pinned source changed: {path}")
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "MiBench/telecomm-FFT/info.sh", "bench_name": "telecomm-FFT",
+        "source_selection": ["fftmisc.c", "fourierf.c", "main.c"],
+        "compile_flags": ["-lm"], "run_options": ["8", "32768", "-i"],
+    }
+    expected_top_level = {"schema_version", "id", "algorithm", "function_symbol",
+                          "description", "pinned_sources", "pinned_launcher",
+                          "source_bound", "input", "contract", "output", "workspace",
+                          "measurement", "cases"}
+    if (set(workload) != expected_top_level
+            or workload.get("description") != "Run the bounded source-order radix-2 complex float FFT kernel from MiBench telecomm-FFT."
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("id") != "mibench-telecomm-fft-float64-slice-io-v1"
+            or workload.get("schema_version") != 1
+            or workload.get("algorithm") != "mibench_telecomm_fft"
+            or workload.get("function_symbol") != "mibench_telecomm_fft"):
+        raise ValueError("mibench_telecomm_fft identity or pinned launcher metadata changed")
+    expected_source_bound = {
+        "launcher_profile": {"waves": 8, "samples": 32768, "inverse": True},
+        "kernel": "fft_float: radix-2 complex float FFT; bit-reversal copy; source-order butterfly twiddle recurrence; inverse divides final real and imaginary samples by n.",
+        "suite_bounds": {"n": [2, 16], "n_domain": "powers of two",
+                         "input_component_abs_max": 8, "inverse_values": [0, 1]},
+        "precision": "Input and work/output arrays use IEEE binary32; trigonometric recurrence intermediates use binary64; output converts binary32 samples to binary64 ABI values.",
+        "standalone_scope": "The benchmark isolates fft_float. The launcher's deterministic sine/cosine signal construction, CLI parsing, and printf output are excluded.",
+    }
+    expected_input = {"kind": "finite_float64_array",
+                      "encoding": "[n,inverse,real[0..n),imag[0..n)]",
+                      "maximum_input_length": 34, "length_rule": "2+2*n",
+                      "invalid_input_result": -1}
+    expected_contract = {
+        "operation": "Transform the interleaved complex input with the pinned radix-2 single-precision FFT, returning natural-order frequency samples.",
+        "source_order": [
+            "copy inputs to outputs in bit-reversed index order",
+            "for each block size 2,4,...,n, generate twiddle recurrence with source sin/cos initialization",
+            "apply butterflies in increasing block and offset order, rounding each stored array result to binary32",
+            "if inverse is nonzero, divide each output component by n and round to binary32",
+        ],
+        "inverse_flag": "Exact integer 0 selects forward transform; exact integer 1 selects inverse transform.",
+        "invalid_input_result": -1, "null_output_result": -2,
+        "insufficient_capacity_result": -2, "no_write_on_error": True,
+    }
+    expected_output = {
+        "kind": "float64_array",
+        "encoding": "[real_0,imag_0,...,real_(n-1),imag_(n-1)] as exact binary32 values widened to binary64",
+        "maximum_elements": MIBENCH_TELECOMM_FFT_MAX_OUTPUT_ELEMENTS,
+        "success_result": "2*n output elements", "absolute_tolerance": 1e-6,
+        "relative_tolerance": 1e-6, "no_write_on_error": True,
+    }
+    expected_workspace = {"elements": 96,
+                          "meaning": "Two 16-element binary32 input vectors, two 16-element binary32 output vectors, and staged 32-element widened result."}
+    expected_measurement = {"comparison_model": "float64_slice_io_call",
+                            "sample_count": 5, "warmup_rounds": 1,
+                            "repetitions_per_sample": 100,
+                            "absolute_tolerance": 1e-6, "relative_tolerance": 1e-6}
+    if (workload.get("source_bound") != expected_source_bound
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("output") != expected_output
+            or workload.get("workspace") != expected_workspace
+            or workload.get("measurement") != expected_measurement):
+        raise ValueError("mibench_telecomm_fft contract or measurement metadata changed")
+
+    readme_path = ROOT / "benchmarks/m/mibench_telecomm_fft/README.md"
+    license_path = ROOT / "benchmarks/m/mibench_telecomm_fft/LICENSE.txt"
+    readme = readme_path.read_text(encoding="utf-8")
+    notice = license_path.read_text(encoding="utf-8")
+    required_notice = (
+        "Don Cross", "dcross@intersrv.com", "http://www.intersrv.com/~dcross/fft.html",
+        "public domain", "Do not charge any money for this source code",
+        "Do not remove my name", "Please keep this readme.txt file",
+        "If you make any modifications to the source code",
+    )
+    if (any(term not in notice for term in required_notice)
+            or root + "fourierf.c" not in readme
+            or commit not in readme
+            or "Don Cross" not in readme
+            or "modification" not in readme.lower()
+            or "public domain" not in readme.lower()):
+        raise ValueError("mibench_telecomm_fft README or bundled redistribution notice is incomplete")
+
+    cases = workload.get("cases")
+    expected_case_ids = {"two_point_forward", "two_point_inverse", "sixteen_zero_samples",
+                         "empty_invalid", "one_sample_unsupported", "non_power_of_two",
+                         "invalid_inverse_flag", "short_output"}
+    if (not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_case_ids
+            or len(cases) != len(expected_case_ids)):
+        raise ValueError("mibench_telecomm_fft fixture inventory changed")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if absolute_tolerance != 1e-6 or relative_tolerance != 1e-6:
+        raise ValueError("mibench_telecomm_fft requires the reviewed float64 tolerances")
+    for case in cases:
+        if (not isinstance(case, dict)
+                or set(case) - {"id", "input_values", "input_length", "output_capacity",
+                                "expected_result", "expected_output"}
+                or not {"id", "input_values", "input_length", "expected_result",
+                        "expected_output"}.issubset(case)):
+            raise ValueError("mibench_telecomm_fft fixture framing changed")
+        if case["id"] in {"two_point_forward", "two_point_inverse", "sixteen_zero_samples", "short_output"}:
+            if type(case.get("output_capacity")) is not int:
+                raise ValueError(f"mibench_telecomm_fft capacity fixture missing: {case['id']}")
+        elif "output_capacity" in case:
+            raise ValueError(f"unexpected mibench_telecomm_fft capacity: {case['id']}")
+        encode_case(case, "mibench_telecomm_fft", absolute_tolerance, relative_tolerance)
 
 
 def _decode_k_d_tree_abi_values(raw_values: object) -> list[float]:
@@ -12721,7 +12897,8 @@ def main() -> int:
             or sha256_file(runner_source) != runner_binary["harness_sha256"]):
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
 
-    letter = algorithm[0]
+    letter = {"polybench_lu": "l", "polybench_correlation": "c",
+              "polybench_seidel_2d": "s"}.get(algorithm, algorithm[0])
     workload_path = args.workload or ROOT / "benchmarks" / letter / algorithm / "workload.json"
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if (workload.get("algorithm") != algorithm
@@ -12753,6 +12930,8 @@ def main() -> int:
         validate_polybench_correlation_workload(workload)
     elif algorithm == "polybench_seidel_2d":
         validate_polybench_seidel_2d_workload(workload)
+    elif algorithm == "mibench_telecomm_fft":
+        validate_mibench_telecomm_fft_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":

@@ -9,6 +9,7 @@ import json
 import math
 from pathlib import Path
 import random
+import struct
 import subprocess
 import sys
 
@@ -64,6 +65,9 @@ from run_float64_slice_io import (
     validate_fdtd_2d_workload,
     validate_heat_3d_workload,
     validate_polybench_lu_workload,
+    validate_polybench_correlation_workload,
+    validate_polybench_seidel_2d_workload,
+    validate_mibench_telecomm_fft_workload,
 )
 from pca_oracle import (
     MAX_OUTPUT_ELEMENTS as PCA_MAX_OUTPUT_ELEMENTS,
@@ -762,6 +766,171 @@ def polybench_lu_verifier_oracle(values, capacity=None, output_is_null=False,
     return len(output), output
 
 
+def polybench_correlation_verifier_oracle(values, capacity=None, output_is_null=False,
+                                          input_is_null=False, input_length=None):
+    """Independent source-order model for bounded PolyBench correlation."""
+    if (not isinstance(values, (list, tuple)) or len(values) > 2
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and values)
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != 2:
+        return -1, []
+    n_value, m_value = (float(value) for value in values)
+    if (n_value != math.trunc(n_value) or m_value != math.trunc(m_value)
+            or not 1 <= n_value <= 6 or not 1 <= m_value <= 6):
+        return -1, []
+    n, m = int(n_value), int(m_value)
+    matrix = [[float(i * j) / float(m) + float(i) for j in range(m)] for i in range(n)]
+    means = [0.0] * m
+    deviations = [0.0] * m
+    for column in range(m):
+        for row in range(n):
+            means[column] += matrix[row][column]
+        means[column] /= float(n)
+    for column in range(m):
+        for row in range(n):
+            difference = matrix[row][column] - means[column]
+            deviations[column] += difference * difference
+        deviations[column] /= float(n)
+        deviations[column] = math.sqrt(deviations[column])
+        if deviations[column] <= 0.1:
+            deviations[column] = 1.0
+    normalization = [math.sqrt(float(n)) * deviations[col] for col in range(m)]
+    for row in range(n):
+        for column in range(m):
+            matrix[row][column] = (matrix[row][column] - means[column]) / normalization[column]
+    result = [[0.0] * m for _ in range(m)]
+    for left in range(m):
+        result[left][left] = 1.0
+        for right in range(left + 1, m):
+            value = 0.0
+            for row in range(n):
+                value += matrix[row][left] * matrix[row][right]
+            result[left][right] = value
+            result[right][left] = value
+    output = [result[row][column] for row in range(m) for column in range(m)]
+    if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, []
+    return len(output), output
+
+
+def polybench_seidel_2d_verifier_oracle(values, capacity=None, output_is_null=False,
+                                        input_is_null=False, input_length=None):
+    """Independent source-order model for bounded PolyBench Seidel 2D."""
+    if (not isinstance(values, (list, tuple)) or len(values) > 2
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and values)
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != 2:
+        return -1, []
+    n_value, steps_value = (float(value) for value in values)
+    if (n_value != math.trunc(n_value) or steps_value != math.trunc(steps_value)
+            or not 1 <= n_value <= 6 or not 0 <= steps_value <= 4):
+        return -1, []
+    n, steps = int(n_value), int(steps_value)
+    matrix = [[(float(i) * float(j + 2) + 2.0) / float(n)
+               for j in range(n)] for i in range(n)]
+    for _ in range(steps):
+        for i in range(1, n - 1):
+            for j in range(1, n - 1):
+                total = 0.0
+                for row in range(i - 1, i + 2):
+                    for column in range(j - 1, j + 2):
+                        total += matrix[row][column]
+                matrix[i][j] = total / 9.0
+    output = [matrix[i][j] for i in range(n) for j in range(n)]
+    if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, []
+    return len(output), output
+
+
+def mibench_telecomm_fft_verifier_oracle(values, capacity=None, output_is_null=False,
+                                         input_is_null=False, input_length=None):
+    """Independent bounded source-order model of MiBench's single precision FFT."""
+    if (not isinstance(values, (list, tuple)) or len(values) > 34
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and (values or input_length not in (None, 0)))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) < 2:
+        return -1, []
+    n_value, direction = float(values[0]), float(values[1])
+    if (n_value != math.trunc(n_value) or direction != math.trunc(direction)
+            or direction not in (0.0, 1.0) or not 2 <= n_value <= 16):
+        return -1, []
+    n = int(n_value)
+    if n & (n - 1) or len(values) != 2 + 2 * n:
+        return -1, []
+    real = [float(value) for value in values[2:2 + n]]
+    imag = [float(value) for value in values[2 + n:]]
+    if any(abs(value) > 8.0 for value in real + imag):
+        return -1, []
+
+    def binary32(value):
+        return struct.unpack("<f", struct.pack("<f", value))[0]
+
+    # Build the bit-reversed working vectors with explicit binary32 stores.
+    stages_real = [0.0] * n
+    stages_imag = [0.0] * n
+    bit_count = n.bit_length() - 1
+    for source in range(n):
+        target = 0
+        cursor = source
+        for _ in range(bit_count):
+            target = (target << 1) | (cursor & 1)
+            cursor >>= 1
+        stages_real[target] = binary32(real[source])
+        stages_imag[target] = binary32(imag[source])
+
+    # Each stage uses the pinned second-order twiddle recurrence, then writes
+    # both butterfly results through binary32 temporaries.
+    block = 2
+    while block <= n:
+        half = block // 2
+        delta = (-2.0 if direction == 1.0 else 2.0) * math.pi / float(block)
+        sin_2, sin_1 = math.sin(-2.0 * delta), math.sin(-delta)
+        cos_2, cos_1 = math.cos(-2.0 * delta), math.cos(-delta)
+        recurrence = 2.0 * cos_1
+        for base in range(0, n, block):
+            ar2, ar1, ai2, ai1 = cos_2, cos_1, sin_2, sin_1
+            for offset in range(half):
+                ar0 = recurrence * ar1 - ar2
+                ar2, ar1 = ar1, ar0
+                ai0 = recurrence * ai1 - ai2
+                ai2, ai1 = ai1, ai0
+                left, right = base + offset, base + offset + half
+                tr = ar0 * stages_real[right] - ai0 * stages_imag[right]
+                ti = ar0 * stages_imag[right] + ai0 * stages_real[right]
+                second_real = binary32(stages_real[left] - tr)
+                second_imag = binary32(stages_imag[left] - ti)
+                first_real = binary32(stages_real[left] + tr)
+                first_imag = binary32(stages_imag[left] + ti)
+                stages_real[right], stages_imag[right] = second_real, second_imag
+                stages_real[left], stages_imag[left] = first_real, first_imag
+        block *= 2
+    if direction == 1.0:
+        stages_real = [binary32(value / float(n)) for value in stages_real]
+        stages_imag = [binary32(value / float(n)) for value in stages_imag]
+    output = [component for pair in zip(stages_real, stages_imag) for component in pair]
+    if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, []
+    return len(output), output
+
+
 def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     if algorithm == "versabench_beamformer":
         validate_versabench_beamformer_workload(workload)
@@ -785,6 +954,12 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_heat_3d_workload(workload)
     elif algorithm == "polybench_lu":
         validate_polybench_lu_workload(workload)
+    elif algorithm == "polybench_correlation":
+        validate_polybench_correlation_workload(workload)
+    elif algorithm == "polybench_seidel_2d":
+        validate_polybench_seidel_2d_workload(workload)
+    elif algorithm == "mibench_telecomm_fft":
+        validate_mibench_telecomm_fft_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":
@@ -930,6 +1105,39 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                            + relative_tolerance * abs(expected)
                            for actual, expected in zip(independent_output, expected_output))):
                 raise ValueError(f"{case.get('id')}: polybench_lu fixture differs from the independent verifier oracle")
+        elif algorithm == "polybench_correlation":
+            independent_result, independent_output = polybench_correlation_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or len(independent_output) != len(expected_output)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(independent_output, expected_output))):
+                raise ValueError(f"{case.get('id')}: correlation fixture differs from independent verifier oracle")
+        elif algorithm == "polybench_seidel_2d":
+            independent_result, independent_output = polybench_seidel_2d_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or len(independent_output) != len(expected_output)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(independent_output, expected_output))):
+                raise ValueError(f"{case.get('id')}: Seidel 2D fixture differs from independent verifier oracle")
+        elif algorithm == "mibench_telecomm_fft":
+            independent_result, independent_output = mibench_telecomm_fft_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or len(independent_output) != len(expected_output)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(independent_output, expected_output))):
+                raise ValueError(f"{case.get('id')}: MiBench FFT fixture differs from independent verifier oracle")
         if expected_result >= 0 and expected_result > workspace:
             raise ValueError(f"workspace is too small for {case.get('id')}")
         output_capacity = case.get("output_capacity", workspace)
@@ -1043,6 +1251,70 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             maximum_input, result, output_is_null=True)
         if null_result != -2 or null_output:
             raise ValueError("polybench_lu null-output oracle returned an invalid result")
+        records.append((maximum_input, null_result, [], result, 0, 1))
+    elif algorithm == "polybench_correlation":
+        maximum_input = [6.0, 6.0]
+        result, output = polybench_correlation_verifier_oracle(maximum_input, workspace)
+        if (result != 36 or len(output) != result
+                or any(not math.isfinite(value) for value in output)):
+            raise ValueError("correlation independent verifier returned an invalid maximum matrix")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        result, 0, 0))
+        for capacity in (0, result - 1):
+            error_result, error_output = polybench_correlation_verifier_oracle(maximum_input, capacity)
+            if error_result != -2 or error_output:
+                raise ValueError("correlation capacity oracle returned an invalid boundary result")
+            records.append((maximum_input, error_result, [], capacity, 0, 0))
+        null_result, null_output = polybench_correlation_verifier_oracle(
+            maximum_input, result, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("correlation null-output oracle returned an invalid result")
+        records.append((maximum_input, null_result, [], result, 0, 1))
+    elif algorithm == "polybench_seidel_2d":
+        maximum_input = [6.0, 4.0]
+        result, output = polybench_seidel_2d_verifier_oracle(maximum_input, workspace)
+        if (result != 36 or len(output) != result
+                or any(not math.isfinite(value) for value in output)):
+            raise ValueError("Seidel 2D independent verifier returned an invalid maximum matrix")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        result, 0, 0))
+        for capacity in (0, result - 1):
+            error_result, error_output = polybench_seidel_2d_verifier_oracle(maximum_input, capacity)
+            if error_result != -2 or error_output:
+                raise ValueError("Seidel 2D capacity oracle returned an invalid boundary result")
+            records.append((maximum_input, error_result, [], capacity, 0, 0))
+        null_result, null_output = polybench_seidel_2d_verifier_oracle(
+            maximum_input, result, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("Seidel 2D null-output oracle returned an invalid result")
+        records.append((maximum_input, null_result, [], result, 0, 1))
+    elif algorithm == "mibench_telecomm_fft":
+        for n in (2, 4, 8, 16):
+            # A single real impulse is valid at every supported radix-2 size.
+            generated_input = [float(n), 0.0] + [1.0] + [0.0] * (n - 1) + [0.0] * n
+            result, output = mibench_telecomm_fft_verifier_oracle(
+                generated_input, 2 * n)
+            if (result != 2 * n or len(output) != result
+                    or any(not math.isfinite(value) for value in output)):
+                raise ValueError("MiBench FFT independent verifier rejected a supported dimension")
+            records.append((generated_input, result, [_output_token(value) for value in output],
+                            result, 0, 0))
+        maximum_input = [16.0, 1.0] + [0.0] * 32
+        result, output = mibench_telecomm_fft_verifier_oracle(maximum_input, 32)
+        if result != 32 or len(output) != 32:
+            raise ValueError("MiBench FFT verifier failed maximum-size inverse boundary")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        result, 0, 0))
+        for capacity in (0, result - 1):
+            error_result, error_output = mibench_telecomm_fft_verifier_oracle(
+                maximum_input, capacity)
+            if error_result != -2 or error_output:
+                raise ValueError("MiBench FFT capacity oracle returned an invalid boundary result")
+            records.append((maximum_input, error_result, [], capacity, 0, 0))
+        null_result, null_output = mibench_telecomm_fft_verifier_oracle(
+            maximum_input, result, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("MiBench FFT null-output oracle returned an invalid result")
         records.append((maximum_input, null_result, [], result, 0, 1))
     records.append((values, -1, [], workspace, 1, 0))
     if algorithm != "md2_digest":
@@ -5832,7 +6104,9 @@ def main() -> int:
     if args.jobs < 1 or len(set(args.languages)) != len(args.languages):
         parser.error("jobs must be positive and language selections must be unique")
     algorithm = args.algorithm
-    workload_path = ROOT / "benchmarks" / algorithm[0] / algorithm / "workload.json"
+    package_dir = {"polybench_lu": "l", "polybench_correlation": "c",
+                   "polybench_seidel_2d": "s"}.get(algorithm, algorithm[0])
+    workload_path = ROOT / "benchmarks" / package_dir / algorithm / "workload.json"
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if workload.get("algorithm") != algorithm:
         parser.error("workload algorithm does not match the requested algorithm")

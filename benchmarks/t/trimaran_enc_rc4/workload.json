@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-trimaran-enc-rc4-bounded-v1",
+  "algorithm": "trimaran_enc_rc4",
+  "function_symbol": "trimaran_enc_rc4",
+  "description": "Run the six fixed Trimaran ARC4 validation vectors for a bounded number of source-style setup/encrypt passes.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Trimaran/enc-rc4/rc4.c",
+    "symbols": ["rc4_setup", "rc4_crypt"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/enc-rc4/rc4.c",
+    "license": "GPL-2.0-or-later",
+    "license_notice": "LICENSE_NOTICE.txt"
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Trimaran/enc-rc4/info.sh",
+    "bench_name": "enc-rc4",
+    "source_files": ["rc4.c"],
+    "small_problem_run_options": ["2000"],
+    "default_run_options": ["1000000"]
+  },
+  "source_bound": {
+    "description": "The source iterates over its six fixed tests in order; for each test it restores the initial data, initializes a fresh 256-entry RC4 state from the fixed key, and encrypts for the requested number of passes. The bounded profile uses the launcher's 2,000-pass small-mode count as its maximum.",
+    "minimum_passes": 1,
+    "maximum_passes": 2000,
+    "source_tests_per_pass": 6,
+    "ciphertext_lengths": [8, 8, 8, 20, 28, 10],
+    "maximum_output_bytes": 82
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[passes]",
+    "passes_range": [1, 2000],
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "82 raw ciphertext bytes concatenated in the source's six-vector order",
+    "success_result": 82,
+    "maximum_output_bytes": 82,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "one_source_pass",
+      "description": "All six fixed source vectors, each setup and encrypted once.",
+      "input_values": [1],
+      "input_length": 1,
+      "expected_result": 82,
+      "expected_output_hex": "75b7878099e0c5967494c2e7104b0879de188941a3375d3ad6a141a7ec3c38dfbd615a1162e1c7ba36b6785866a0949f8af7d6891f7f832ba833c00c892ebe30143ce28740011ecfd6a141a7ec3c38dfbd61"
+    },
+    {
+      "id": "small_launcher_pass_bound",
+      "description": "The bounded upper pass count matches the source small-mode launcher count.",
+      "input_values": [2000],
+      "input_length": 1,
+      "expected_result": 82,
+      "expected_output_hex": "75b7878099e0c5967494c2e7104b0879de188941a3375d3ad6a141a7ec3c38dfbd615a1162e1c7ba36b6785866a0949f8af7d6891f7f832ba833c00c892ebe30143ce28740011ecfd6a141a7ec3c38dfbd61"
+    },
+    {
+      "id": "zero_passes",
+      "description": "At least one pass is required because the source harness would otherwise leave its test buffer uninitialized.",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "passes_above_bound",
+      "input_values": [2001],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input_value",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [1],
+      "input_length": 1,
+      "output_capacity": 81,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [1],
+      "input_length": 1,
+      "output_capacity": 82,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

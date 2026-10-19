@@ -1,0 +1,8 @@
+The pinned source file cubic.c identifies this solver as:
+
+    CUBIC.C - Solve a cubic polynomial
+    public domain by Ross Cottrell
+
+The source states that the solver is public domain. No additional conditions
+or disclaimer appear in that source file. The implementation package retains
+the author attribution.

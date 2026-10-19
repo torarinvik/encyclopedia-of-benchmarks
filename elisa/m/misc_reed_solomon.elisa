@@ -1,0 +1,164 @@
+# Derived from the Reed-Solomon program by Simon Rockliff, 26 June 1991.
+# See benchmarks/m/misc_reed_solomon/LICENSE.txt for the complete permission notice.
+const MESSAGE_BYTES: usize = 188
+const PARITY_BYTES: usize = 16
+const CODEWORD_BYTES: usize = 204
+const FULL_BYTES: usize = 255
+
+def rs_make_tables(alpha: mutable i32[255]&, index_of: mutable i32[256]&) -> void:
+    polynomial: i32[8] = [1, 0, 1, 1, 1, 0, 0, 0]
+    for index in 0..<256:
+        index_of[index] <- -1
+    mask: mutable i32 = 1
+    alpha_8: mutable i32 = 0
+    for index in 0..<8:
+        alpha[index] <- mask
+        index_of[alpha[index].usize()] <- index.i32()
+        if polynomial[index] != 0:
+            alpha_8 <- alpha_8 ^ mask
+        mask <- mask << 1
+    alpha[8] <- alpha_8
+    index_of[alpha_8.usize()] <- 8
+    mask <- mask >> 1
+    for index in 9..<FULL_BYTES:
+        if alpha[index - 1] >= mask:
+            alpha[index] <- alpha_8 ^ ((alpha[index - 1] ^ mask) << 1)
+        else:
+            alpha[index] <- alpha[index - 1] << 1
+        index_of[alpha[index].usize()] <- index.i32()
+    index_of[0] <- -1
+
+def rs_make_generator(alpha: i32[255]&, index_of: i32[256]&, generator: mutable i32[17]&) -> void:
+    generator[0] <- 2
+    generator[1] <- 1
+    for root in 2..<17:
+        generator[root] <- 1
+        index: mutable i32 = (root - 1).i32()
+        while index > 0:
+            if generator[index.usize()] != 0:
+                generator[index.usize()] <- generator[(index - 1).usize()] ^
+                    alpha[((index_of[generator[index.usize()].usize()] + root.i32()) % FULL_BYTES.i32()).usize()]
+            else:
+                generator[index.usize()] <- generator[(index - 1).usize()]
+            index <- index - 1
+        generator[0] <- alpha[((index_of[generator[0].usize()] + root.i32()) % FULL_BYTES.i32()).usize()]
+    for index in 0..<17:
+        generator[index] <- index_of[generator[index].usize()]
+
+def rs_encode(values: i64&, alpha: i32[255]&, index_of: i32[256]&, generator: i32[17]&,
+              codeword: mutable i32[204]&) -> void:
+    data: mutable i32[239] = zeroed
+    parity: mutable i32[16] = zeroed
+    for index in 0..<MESSAGE_BYTES:
+        data[51 + index] <- values[index].i32()
+    data_index: mutable i32 = 238
+    while data_index >= 0:
+        feedback: i32 = index_of[(data[(data_index).usize()] ^ parity[15]).usize()]
+        if feedback != -1:
+            parity_index: mutable i32 = 15
+            while parity_index > 0:
+                if generator[parity_index.usize()] != -1:
+                    parity[parity_index.usize()] <- parity[(parity_index - 1).usize()] ^
+                        alpha[((generator[parity_index.usize()] + feedback) % FULL_BYTES.i32()).usize()]
+                else:
+                    parity[parity_index.usize()] <- parity[(parity_index - 1).usize()]
+                parity_index <- parity_index - 1
+            parity[0] <- alpha[((generator[0] + feedback) % FULL_BYTES.i32()).usize()]
+        else:
+            parity_index: mutable i32 = 15
+            while parity_index > 0:
+                parity[parity_index.usize()] <- parity[(parity_index - 1).usize()]
+                parity_index <- parity_index - 1
+            parity[0] <- 0
+        data_index <- data_index - 1
+    for index in 0..<MESSAGE_BYTES:
+        codeword[index] <- values[index].i32()
+    for index in 0..<PARITY_BYTES:
+        codeword[MESSAGE_BYTES + index] <- parity[index]
+
+def rs_multiply(left: i32, right: i32, alpha: i32[255]&, index_of: i32[256]&) -> i32:
+    if left == 0 or right == 0:
+        return 0
+    exponent: mutable i32 = index_of[left.usize()] + index_of[right.usize()]
+    if exponent >= FULL_BYTES.i32():
+        exponent <- exponent - FULL_BYTES.i32()
+    alpha[exponent.usize()]
+
+def rs_divide(left: i32, right: i32, alpha: i32[255]&, index_of: i32[256]&) -> i32:
+    if left == 0:
+        return 0
+    exponent: mutable i32 = index_of[left.usize()] - index_of[right.usize()]
+    if exponent < 0:
+        exponent <- exponent + FULL_BYTES.i32()
+    alpha[exponent.usize()]
+
+def rs_correct_one(codeword: mutable i32[204]&, expected_position: i32,
+                   alpha: i32[255]&, index_of: i32[256]&) -> bool:
+    syndrome_1: mutable i32 = 0
+    syndrome_2: mutable i32 = 0
+    for full_position in 0..<FULL_BYTES:
+        symbol: mutable i32 = 0
+        if full_position < PARITY_BYTES:
+            symbol <- codeword[MESSAGE_BYTES + full_position]
+        elif full_position >= 67:
+            symbol <- codeword[full_position - 67]
+        syndrome_1 <- syndrome_1 ^ rs_multiply(symbol, alpha[full_position % FULL_BYTES], alpha&, index_of&)
+        syndrome_2 <- syndrome_2 ^ rs_multiply(symbol, alpha[(2 * full_position) % FULL_BYTES], alpha&, index_of&)
+    if syndrome_1 == 0 and syndrome_2 == 0:
+        return true
+    if syndrome_1 == 0:
+        return false
+    location: i32 = rs_divide(syndrome_2, syndrome_1, alpha&, index_of&)
+    full_position: mutable i32 = -1
+    for index in 0..<FULL_BYTES:
+        if alpha[index] == location:
+            full_position <- index.i32()
+            break
+    if full_position < 0:
+        return false
+    transmitted_position: mutable i32 = -1
+    if full_position < PARITY_BYTES.i32():
+        transmitted_position <- MESSAGE_BYTES.i32() + full_position
+    elif full_position >= 67:
+        transmitted_position <- full_position - 67
+    if transmitted_position < 0 or transmitted_position != expected_position:
+        return false
+    magnitude: i32 = rs_divide(syndrome_1, alpha[full_position.usize()], alpha&, index_of&)
+    codeword[transmitted_position.usize()] <- codeword[transmitted_position.usize()] ^ magnitude
+    true
+
+def misc_reed_solomon_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or (length != MESSAGE_BYTES + 1 and length != MESSAGE_BYTES + 3):
+        return -1
+    for index in 0..<MESSAGE_BYTES:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+    error_count: i64 = input[MESSAGE_BYTES]
+    if (error_count == 0 and length != MESSAGE_BYTES + 1) or
+       (error_count == 1 and length != MESSAGE_BYTES + 3) or
+       (error_count != 0 and error_count != 1):
+        return -1
+    error_position: mutable i32 = -1
+    if error_count == 1:
+        if input[189] < 0 or input[189] >= CODEWORD_BYTES.i64() or input[190] < 0 or input[190] > 255:
+            return -1
+        error_position <- input[189].i32()
+    if output.is_null() or output_capacity < CODEWORD_BYTES:
+        return -2
+
+    alpha: mutable i32[255] = zeroed
+    index_of: mutable i32[256] = zeroed
+    generator: mutable i32[17] = zeroed
+    staged: mutable i32[204] = zeroed
+    rs_make_tables(alpha&, index_of&)
+    rs_make_generator(alpha&, index_of&, generator&)
+    rs_encode(input, alpha&, index_of&, generator&, staged&)
+    if error_count == 1:
+        staged[error_position.usize()] <- input[190].i32()
+    if not rs_correct_one(staged&, error_position, alpha&, index_of&):
+        return -1
+    for index in 0..<CODEWORD_BYTES:
+        output[index] <- staged[index].u8()
+    CODEWORD_BYTES.i64()
+
+export fn misc_reed_solomon(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = misc_reed_solomon_impl

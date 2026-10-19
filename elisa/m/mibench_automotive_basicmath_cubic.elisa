@@ -1,0 +1,57 @@
+const INPUT_COUNT: usize = 4
+const MAX_ROOTS: usize = 3
+
+extern acos(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+extern pow(value: f64, exponent: f64) -> f64
+extern fabs(value: f64) -> f64
+
+def solve_cubic(input: f64&, roots: mutable f64&) -> i64:
+    a: f64 = input[0]
+    b: f64 = input[1]
+    c: f64 = input[2]
+    d: f64 = input[3]
+    a1: f64 = b / a
+    a2: f64 = c / a
+    a3: f64 = d / a
+    q: f64 = (a1 * a1 - 3.0 * a2) / 9.0
+    r: f64 = (2.0 * a1 * a1 * a1 - 9.0 * a1 * a2 + 27.0 * a3) / 54.0
+    discriminant: f64 = r * r - q * q * q
+    if discriminant == 0.0:
+        return -1
+    if discriminant <= 0.0:
+        pi: f64 = acos(-1.0)
+        theta: f64 = acos(r / sqrt(q * q * q))
+        roots[0] <- -2.0 * sqrt(q) * cos(theta / 3.0) - a1 / 3.0
+        roots[1] <- -2.0 * sqrt(q) * cos((theta + 2.0 * pi) / 3.0) - a1 / 3.0
+        roots[2] <- -2.0 * sqrt(q) * cos((theta + 4.0 * pi) / 3.0) - a1 / 3.0
+        return 3
+    root: mutable f64 = pow(sqrt(discriminant) + fabs(r), 1.0 / 3.0)
+    root <- root + q / root
+    root <- root * (if r < 0.0: 1.0 else: -1.0)
+    roots[0] <- root - a1 / 3.0
+    1
+
+def mibench_automotive_basicmath_cubic_impl(input: f64&, input_length: usize,
+    output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length != INPUT_COUNT:
+        return -1
+    for index in 0..<INPUT_COUNT:
+        if not (input[index] >= -100.0 and input[index] <= 100.0):
+            return -1
+    if input[0] > -1.0 and input[0] < 1.0:
+        return -1
+    roots: mutable f64[3] = zeroed
+    count: i64 = solve_cubic(input, roots[0])
+    if count < 0:
+        return -1
+    if output.is_null() or output_capacity < count.usize():
+        return -2
+    for index in 0..<count.usize():
+        output[index] <- roots[index]
+    count
+
+export fn mibench_automotive_basicmath_cubic(input: f64&, input_length: usize,
+    output: mutable f64&, output_capacity: usize) -> i64 =
+    mibench_automotive_basicmath_cubic_impl

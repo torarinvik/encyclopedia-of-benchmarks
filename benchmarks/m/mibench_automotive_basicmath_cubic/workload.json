@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mibench-automotive-basicmath-cubic-float64-slice-io-v1",
+  "algorithm": "mibench_automotive_basicmath_cubic",
+  "function_symbol": "mibench_automotive_basicmath_cubic",
+  "description": "Bounded SolveCubic kernel from MiBench automotive-basicmath.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/automotive-basicmath/cubic.c",
+    "related_paths": ["MiBench/automotive-basicmath/basicmath.c"],
+    "symbol": "SolveCubic",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/automotive-basicmath/cubic.c",
+    "license": "Public domain by Ross Cottrell, as stated in cubic.c."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/automotive-basicmath/info.sh",
+    "bench_name": "automotive-basicmath",
+    "source_files": ["basicmath.c", "cubic.c", "isqrt.c", "rad2deg.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[a, b, c, d] coefficients of ax^3 + bx^2 + cx + d",
+    "exact_length": 4,
+    "maximum_input_length": 4,
+    "coefficient_absolute_bound": 100.0,
+    "leading_coefficient_absolute_minimum": 1.0,
+    "repeated_roots": "Excluded from this bounded profile.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "operation": "Apply the pinned SolveCubic formula to one bounded cubic polynomial.",
+    "output_order": "For one real root, return that root. For three real roots, preserve SolveCubic order: smallest, largest, middle.",
+    "maximum_output_elements": 3,
+    "success_result": "Number of real roots written (1 or 3).",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "invalid_output_precedes_capacity_check": true,
+    "output_encoding": "One or three binary64 real roots."
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "One real root, or the source-ordered three real roots.",
+    "maximum_elements": 3,
+    "success_result": "Output element count (1 or 3).",
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "workspace": {
+    "elements": 3,
+    "meaning": "Maximum roots returned for one cubic."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "cases": [
+    {
+      "id": "source_default_three_real_roots",
+      "input_values": [1.0, -10.5, 32.0, -30.0],
+      "input_length": 4,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output": [2.0, 6.0, 2.5]
+    },
+    {
+      "id": "source_default_one_real_root",
+      "input_values": [1.0, -4.5, 17.0, -30.0],
+      "input_length": 4,
+      "output_capacity": 3,
+      "expected_result": 1,
+      "expected_output": [2.5]
+    },
+    {
+      "id": "three_distinct_integer_roots",
+      "input_values": [1.0, -6.0, 11.0, -6.0],
+      "input_length": 4,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output": [1.0, 3.0, 2.0]
+    },
+    {
+      "id": "single_cube_root",
+      "input_values": [1.0, 0.0, 0.0, -2.0],
+      "input_length": 4,
+      "output_capacity": 3,
+      "expected_result": 1,
+      "expected_output": [1.2599210498948732]
+    },
+    {
+      "id": "negative_leading_coefficient",
+      "input_values": [-1.0, 6.0, -11.0, 6.0],
+      "input_length": 4,
+      "output_capacity": 3,
+      "expected_result": 3,
+      "expected_output": [1.0, 3.0, 2.0]
+    },
+    {
+      "id": "three_root_short_capacity",
+      "input_values": [1.0, -6.0, 11.0, -6.0],
+      "input_length": 4,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "one_root_short_capacity",
+      "input_values": [1.0, 0.0, 0.0, -2.0],
+      "input_length": 4,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "zero_leading_coefficient",
+      "input_values": [0.0, 1.0, 1.0, 1.0],
+      "input_length": 4,
+      "output_capacity": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "repeated_roots_outside_profile",
+      "input_values": [1.0, 0.0, -3.0, 2.0],
+      "input_length": 4,
+      "output_capacity": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "malformed_coefficient_count",
+      "input_values": [1.0, 2.0, 1.0],
+      "input_length": 3,
+      "output_capacity": 3,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}
