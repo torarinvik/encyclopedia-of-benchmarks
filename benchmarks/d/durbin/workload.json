@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-polybench-durbin-float64-slice-io-v1",
+  "algorithm": "durbin",
+  "function_symbol": "durbin",
+  "description": "Compute the PolyBench Durbin recurrence over the deterministic source-initialized sequence.",
+  "pinned_sources": [
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/linear-algebra/solvers/durbin/durbin.c",
+      "symbols": ["init_array", "kernel_durbin"],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/durbin/durbin.c",
+      "role": "algorithm"
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/linear-algebra/solvers/durbin/durbin.h",
+      "symbols": ["MINI_DATASET", "DATA_TYPE_IS_DOUBLE"],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/durbin/durbin.h",
+      "role": "dataset-and-type"
+    }
+  ],
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n]",
+    "n_range": [1, 40],
+    "n_must_be_exact_integer": true,
+    "maximum_input_length": 1,
+    "initialization": "r[i] = n + 1 - i for i in 0..n-1, matching init_array; 40 is PolyBench MINI_DATASET.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "operation": "Return the coefficient vector y produced by kernel_durbin, retaining the source's initialization, update equations, and loop order.",
+    "source_order": [
+      "initialize y[0] = -r[0], beta = 1, alpha = -r[0]",
+      "for k from 1 through n-1, update beta and accumulate sum over i ascending",
+      "compute alpha, then write temporary z in ascending i order",
+      "copy z to y in ascending i order, then assign y[k] = alpha"
+    ],
+    "invalid_output_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "n binary64 coefficients y[0..n-1] in source order.",
+    "maximum_elements": 40,
+    "success_result": "output element count (n)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 120,
+    "meaning": "Fixed bounded arrays for r, y, and z at MAX_N=40."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "n_1", "input_values": [1], "input_length": 1, "expected_result": 1, "expected_output": [-2.0]},
+    {"id": "n_2", "input_values": [2], "input_length": 1, "expected_result": 2, "expected_output": [-0.375, -0.875]},
+    {"id": "n_3", "input_values": [3], "input_length": 1, "expected_result": 3, "expected_output": [0.17857142857142858, -0.42857142857142855, -0.8214285714285714]}
+  ]
+}

@@ -1,0 +1,30 @@
+const MAX_DIMENSION: usize = 64
+const INVALID_RESULT: f64 = -1e300
+
+def gesummv_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 1 or values[0] < 1 or values[0] > MAX_DIMENSION.i64():
+        return INVALID_RESULT
+    n: usize = values[0].usize()
+    x: mutable f64[MAX_DIMENSION] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        x[i] <- (i % n).f64() / n.f64()
+        i <- i + 1
+    result: mutable f64 = 0.0
+    i <- 0
+    while i < n:
+        temporary: mutable f64 = 0.0
+        y: mutable f64 = 0.0
+        j: mutable usize = 0
+        while j < n:
+            a: f64 = ((i * j + 1) % n).f64() / n.f64()
+            b: f64 = ((i * j + 2) % n).f64() / n.f64()
+            temporary <- a * x[j] + temporary
+            y <- b * x[j] + y
+            j <- j + 1
+        y <- 1.5 * temporary + 1.2 * y
+        result <- result + y
+        i <- i + 1
+    result
+
+export fn gesummv(values: i64&, length: usize) -> f64 = gesummv_impl

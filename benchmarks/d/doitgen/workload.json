@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "polybench-doitgen-i64-array-f64-v1",
+  "algorithm": "doitgen",
+  "function_symbol": "doitgen",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[nr, nq, np] for A[nr][nq][np] and C4[np][np]",
+    "input_length": 3,
+    "dimension_range": [1, 16],
+    "maximum_input_length": 3
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "sum of final A elements in row-major r, q, p order",
+    "invalid_input_result": -1e300
+  },
+  "source_bound": {
+    "description": "PolyBench/C defaults to binary64. It initializes A[r][q][p]=((r*q+p) mod np)/np and C4[i][j]=(i*j mod np)/np. For each r and q ascending, it computes sum[p] with p ascending and s ascending as A[r][q][s]*C4[s][p], then copies sum into A[r][q][p] in ascending p. The scalar suite output reduces the completed A array in row-major r,q,p order. The launcher selects EXTRALARGE_DATASET (nr=250,nq=220,np=270); suite dimensions are bounded to 1..16.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/linear-algebra/kernels/doitgen/doitgen.c",
+    "launcher_path": "PolyBench/linear-algebra/kernels/doitgen/info.sh",
+    "launcher": {
+      "benchmark_name": "doitgen",
+      "source_selection": "*.c",
+      "compile_flags": ["-I.", "-DPOLYBENCH_DUMP_ARRAYS", "-DEXTRALARGE_DATASET"],
+      "run_options": []
+    },
+    "original_contributor": "PolyBench/C (Louis-Noel Pouchet and Tomofumi Yuki)",
+    "license_note": "The source file has no explicit license notice; this package contains independently written ports of the published kernel."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "unit_dimensions", "input_values": [1, 1, 1], "input_length": 3, "expected_result": 0.0},
+    {"id": "one_slice_two_terms", "input_values": [1, 1, 2], "input_length": 3, "expected_result": 0.25},
+    {"id": "one_slice_three_terms", "input_values": [1, 1, 3], "input_length": 3, "expected_result": 1.0},
+    {"id": "two_rows_one_slice", "input_values": [2, 1, 2], "input_length": 3, "expected_result": 0.5},
+    {"id": "two_by_two_slices", "input_values": [2, 2, 2], "input_length": 3, "expected_result": 0.75},
+    {"id": "three_rows_two_slices", "input_values": [3, 2, 2], "input_length": 3, "expected_result": 1.25},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "short_input_invalid", "input_values": [2, 2], "input_length": 2, "expected_result": -1e300},
+    {"id": "zero_dimension_invalid", "input_values": [2, 0, 2], "input_length": 3, "expected_result": -1e300},
+    {"id": "first_unsupported_dimension_invalid", "input_values": [17, 2, 2], "input_length": 3, "expected_result": -1e300}
+  ]
+}

@@ -1,0 +1,67 @@
+const DOITGEN_MAX_DIMENSION: usize = 16
+const DOITGEN_MAX_A_CELLS: usize = DOITGEN_MAX_DIMENSION * DOITGEN_MAX_DIMENSION * DOITGEN_MAX_DIMENSION
+const DOITGEN_MAX_C4_CELLS: usize = DOITGEN_MAX_DIMENSION * DOITGEN_MAX_DIMENSION
+const DOITGEN_INVALID_RESULT: f64 = -1e300
+
+def doitgen_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 3:
+        return DOITGEN_INVALID_RESULT
+    if values[0] < 1 or values[0] > DOITGEN_MAX_DIMENSION.i64() or
+       values[1] < 1 or values[1] > DOITGEN_MAX_DIMENSION.i64() or
+       values[2] < 1 or values[2] > DOITGEN_MAX_DIMENSION.i64():
+        return DOITGEN_INVALID_RESULT
+    nr: usize = values[0].usize()
+    nq: usize = values[1].usize()
+    np: usize = values[2].usize()
+    a: mutable f64[DOITGEN_MAX_A_CELLS] = zeroed
+    c4: mutable f64[DOITGEN_MAX_C4_CELLS] = zeroed
+    sum: mutable f64[DOITGEN_MAX_DIMENSION] = zeroed
+    r: mutable usize = 0
+    while r < nr:
+        q: mutable usize = 0
+        while q < nq:
+            p: mutable usize = 0
+            while p < np:
+                a[(r * nq + q) * np + p] <- ((r * q + p) % np).f64() / np.f64()
+                p <- p + 1
+            q <- q + 1
+        r <- r + 1
+    i: mutable usize = 0
+    while i < np:
+        j: mutable usize = 0
+        while j < np:
+            c4[i * np + j] <- (i * j % np).f64() / np.f64()
+            j <- j + 1
+        i <- i + 1
+    r <- 0
+    while r < nr:
+        q <- 0
+        while q < nq:
+            p: mutable usize = 0
+            while p < np:
+                sum[p] <- 0.0
+                s: mutable usize = 0
+                while s < np:
+                    sum[p] <- sum[p] + a[(r * nq + q) * np + s] * c4[s * np + p]
+                    s <- s + 1
+                p <- p + 1
+            p <- 0
+            while p < np:
+                a[(r * nq + q) * np + p] <- sum[p]
+                p <- p + 1
+            q <- q + 1
+        r <- r + 1
+    checksum: mutable f64 = 0.0
+    r <- 0
+    while r < nr:
+        q <- 0
+        while q < nq:
+            p: mutable usize = 0
+            while p < np:
+                checksum <- checksum + a[(r * nq + q) * np + p]
+                p <- p + 1
+            q <- q + 1
+        r <- r + 1
+    checksum
+
+export fn doitgen(values: i64&, length: usize) -> f64 = doitgen_impl

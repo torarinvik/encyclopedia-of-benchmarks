@@ -16,17 +16,17 @@ Build and record using the `i64_array_bytes_output` ABI family:
 
 ```sh
 python3 benchmarks/build_abi.py --family i64_array_bytes_output --algorithm benchmarkgame_puzzle --language rust
-python3 benchmarks/run_i64_array_bytes_output.py --algorithm benchmarkgame_puzzle
+python3 benchmarks/run_i64_array_bytes_output.py --build-manifest build/i64_array_bytes_output/b/benchmarkgame_puzzle/rust/build.json
 ```
 
 | Language | Source |
 | --- | --- |
-| C | [`c/p/benchmarkgame_puzzle.c`](../../../c/p/benchmarkgame_puzzle.c) |
-| C3 | [`c3/p/benchmarkgame_puzzle.c3`](../../../c3/p/benchmarkgame_puzzle.c3) |
-| C++ | [`cpp/p/benchmarkgame_puzzle.cpp`](../../../cpp/p/benchmarkgame_puzzle.cpp) |
-| Elisa | [`elisa/p/benchmarkgame_puzzle.elisa`](../../../elisa/p/benchmarkgame_puzzle.elisa) |
-| Nim | [`nim/p/benchmarkgame_puzzle.nim`](../../../nim/p/benchmarkgame_puzzle.nim) |
-| Odin | [`odin/p/benchmarkgame_puzzle.odin`](../../../odin/p/benchmarkgame_puzzle.odin) |
-| Rust | [`rust/p/benchmarkgame_puzzle.rs`](../../../rust/p/benchmarkgame_puzzle.rs) |
-| V | [`v/p/benchmarkgame_puzzle.v`](../../../v/p/benchmarkgame_puzzle.v) |
-| Zig | [`zig/p/benchmarkgame_puzzle.zig`](../../../zig/p/benchmarkgame_puzzle.zig) |
+| C | [`c/b/benchmarkgame_puzzle.c`](../../../c/b/benchmarkgame_puzzle.c) |
+| C3 | [`c3/b/benchmarkgame_puzzle.c3`](../../../c3/b/benchmarkgame_puzzle.c3) |
+| C++ | [`cpp/b/benchmarkgame_puzzle.cpp`](../../../cpp/b/benchmarkgame_puzzle.cpp) |
+| Elisa | [`elisa/b/benchmarkgame_puzzle.elisa`](../../../elisa/b/benchmarkgame_puzzle.elisa) |
+| Nim | [`nim/b/benchmarkgame_puzzle.nim`](../../../nim/b/benchmarkgame_puzzle.nim) |
+| Odin | [`odin/b/benchmarkgame_puzzle.odin`](../../../odin/b/benchmarkgame_puzzle.odin) |
+| Rust | [`rust/b/benchmarkgame_puzzle.rs`](../../../rust/b/benchmarkgame_puzzle.rs) |
+| V | [`v/b/benchmarkgame_puzzle.v`](../../../v/b/benchmarkgame_puzzle.v) |
+| Zig | [`zig/b/benchmarkgame_puzzle.zig`](../../../zig/b/benchmarkgame_puzzle.zig) |

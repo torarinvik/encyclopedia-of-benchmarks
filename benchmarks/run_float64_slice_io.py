@@ -19,6 +19,7 @@ from vector3_perspective_projection_oracle import expected_result as vector3_per
 from vector2_oracle import expected_result as vector2_oracle
 from vectors_3d_oracle import expected_result as vectors_3d_oracle
 from partialsums_oracle import expected_output as partialsums_oracle
+from durbin_oracle import expected_output as durbin_oracle
 from dimensionality_reduction_pca_oracle import expected_result as dimensionality_reduction_pca_oracle
 from principal_component_analysis_oracle import (
     INVALID_RESULT as PRINCIPAL_COMPONENT_ANALYSIS_INVALID_RESULT,
@@ -949,6 +950,7 @@ def risk_metrics_oracle_for(algorithm):
 
 ORACLES = {
     "partialsums": partialsums_oracle,
+    "durbin": durbin_oracle,
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
     "vector3_perspective_projection": vector3_perspective_projection_oracle,
     "vector2": vector2_oracle,

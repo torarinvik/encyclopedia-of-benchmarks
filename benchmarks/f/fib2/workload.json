@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-shootout-fib2-scalar-v1",
+  "algorithm": "fib2",
+  "function_symbol": "fib2",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/fib2/fib2.c",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/fib2/fib2.c"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "minimum": 0,
+    "maximum": 30,
+    "meaning": "n passed to the uncached recursive fib function",
+    "out_of_range_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "fib(n), where fib(0)=fib(1)=1 and fib(n)=fib(n-2)+fib(n-1)",
+    "maximum_result": 2178309
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero", "input_value": 0, "expected_result": 1},
+    {"id": "one", "input_value": 1, "expected_result": 1},
+    {"id": "two", "input_value": 2, "expected_result": 2},
+    {"id": "three", "input_value": 3, "expected_result": 3},
+    {"id": "five", "input_value": 5, "expected_result": 8},
+    {"id": "ten", "input_value": 10, "expected_result": 89},
+    {"id": "twenty", "input_value": 20, "expected_result": 10946},
+    {"id": "maximum", "input_value": 30, "expected_result": 2178309},
+    {"id": "negative", "input_value": -1, "expected_result": -1},
+    {"id": "above_bound", "input_value": 31, "expected_result": -1}
+  ]
+}

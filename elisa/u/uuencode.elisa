@@ -1,0 +1,81 @@
+const MAX_INPUT_BYTES: usize = 4096
+const MAX_OUTPUT_BYTES: usize = 5675
+
+def uuencode_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length > MAX_INPUT_BYTES:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+        index <- index + 1
+    required: usize = 22 + 4 * ((length + 2) / 3) + 2 * ((length + 44) / 45) + 5
+    if output.is_null() or capacity < required:
+        return -2
+
+    output[0] <- 98.u8()
+    output[1] <- 101.u8()
+    output[2] <- 103.u8()
+    output[3] <- 105.u8()
+    output[4] <- 110.u8()
+    output[5] <- 32.u8()
+    output[6] <- 54.u8()
+    output[7] <- 52.u8()
+    output[8] <- 48.u8()
+    output[9] <- 32.u8()
+    output[10] <- 117.u8()
+    output[11] <- 117.u8()
+    output[12] <- 101.u8()
+    output[13] <- 110.u8()
+    output[14] <- 99.u8()
+    output[15] <- 111.u8()
+    output[16] <- 100.u8()
+    output[17] <- 101.u8()
+    output[18] <- 46.u8()
+    output[19] <- 99.u8()
+    output[20] <- 32.u8()
+    output[21] <- 10.u8()
+
+    written: mutable usize = 22
+    start: mutable usize = 0
+    while start < length:
+        line_length: mutable usize = length - start
+        if line_length > 45:
+            line_length <- 45
+        stop: usize = start + line_length
+        output[written] <- (32 + line_length).u8()
+        written <- written + 1
+        index <- start
+        while index < stop:
+            first: u32 = input[index].u32()
+            has_second: bool = index + 1 < stop
+            has_third: bool = index + 2 < stop
+            second: u32 = if has_second: input[index + 1].u32() else: 0.u32()
+            third: u32 = if has_third: input[index + 2].u32() else: 0.u32()
+            output[written] <- (32.u32() + (first >> 2)).u8()
+            written <- written + 1
+            output[written] <- (32.u32() + (((first << 4) | (second >> 4)) & 63.u32())).u8()
+            written <- written + 1
+            if has_second:
+                output[written] <- (32.u32() + (((second << 2) | (third >> 6)) & 63.u32())).u8()
+            else:
+                output[written] <- 61.u8()
+            written <- written + 1
+            if has_third:
+                output[written] <- (32.u32() + (third & 63.u32())).u8()
+            else:
+                output[written] <- 61.u8()
+            written <- written + 1
+            index <- index + 3
+        output[written] <- 10.u8()
+        written <- written + 1
+        start <- stop
+    output[written] <- 32.u8()
+    output[written + 1] <- 10.u8()
+    output[written + 2] <- 101.u8()
+    output[written + 3] <- 110.u8()
+    output[written + 4] <- 100.u8()
+    written <- written + 5
+    written.i64()
+
+export fn uuencode(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = uuencode_impl

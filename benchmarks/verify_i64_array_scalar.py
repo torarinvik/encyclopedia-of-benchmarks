@@ -19,6 +19,8 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
+from drop3_oracle import expected_result as drop3_expected_result
 from deep_clone_graph_oracle import expected_result as deep_clone_graph_oracle
 from frequent_pattern_growth_oracle import expected_result as frequent_pattern_growth_oracle
 from decremental_connectivity_oracle import expected_result as decremental_connectivity_oracle
@@ -1385,6 +1387,7 @@ ALGORITHMS += ("jaro_winkler_distance",)
 ALGORITHMS += ("smallest_range",)
 ALGORITHMS += ("lazy_segment_tree_range_set_max",)
 ALGORITHMS += ("lazy_segment_tree_range_add_sum",)
+ALGORITHMS += ("drop3",)
 ALGORITHMS += ("queue_using_array",)
 ALGORITHMS += ("queue_using_array2",)
 ALGORITHMS += ("heap_generic",)
@@ -2007,6 +2010,8 @@ def monotonic_array_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "drop3":
+        return drop3_expected_result(values)
     if algorithm == "msd_radix_string_sorter":
         result = msd_radix_string_sorter_oracle(values)
         return -1 if result is None else result
@@ -3038,6 +3043,18 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             continue
         if oracle(algorithm, values) != expected:
             raise ValueError(f"published workload disagrees with {algorithm} oracle")
+    if algorithm == "drop3":
+        for length in (0, 1, 2, 3, 4, 7, 8, 9, 31, 128):
+            patterned = tuple((index * 73 + 29) & 255 for index in range(length))
+            cases[patterned] = oracle(algorithm, list(patterned))
+            high_bits = tuple([255] * length)
+            cases[high_bits] = oracle(algorithm, list(high_bits))
+            zeros = tuple([0] * length)
+            cases[zeros] = oracle(algorithm, list(zeros))
+        malformed = ((-1,), (256,), tuple([0] * DROP3_MAX_PARSEABLE_INPUT_LENGTH))
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 1 -1\n")
     if algorithm == "mcnaughton_yamada_thompson":
         def add_mcnaughton_case(values: tuple[int, ...]) -> None:
             if (len(values) > MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH

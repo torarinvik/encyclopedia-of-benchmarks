@@ -1,0 +1,52 @@
+const MVT_MAX_DIMENSION: usize = 64
+const MVT_MAX_CELLS: usize = MVT_MAX_DIMENSION * MVT_MAX_DIMENSION
+const MVT_INVALID_RESULT: f64 = -1e300
+
+def mvt_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 1:
+        return MVT_INVALID_RESULT
+    if values[0] < 1 or values[0] > MVT_MAX_DIMENSION.i64():
+        return MVT_INVALID_RESULT
+    n: usize = values[0].usize()
+    x1: mutable f64[MVT_MAX_DIMENSION] = zeroed
+    x2: mutable f64[MVT_MAX_DIMENSION] = zeroed
+    y1: mutable f64[MVT_MAX_DIMENSION] = zeroed
+    y2: mutable f64[MVT_MAX_DIMENSION] = zeroed
+    matrix: mutable f64[MVT_MAX_CELLS] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        x1[i] <- (i % n).f64() / n.f64()
+        x2[i] <- ((i + 1) % n).f64() / n.f64()
+        y1[i] <- ((i + 3) % n).f64() / n.f64()
+        y2[i] <- ((i + 4) % n).f64() / n.f64()
+        j: mutable usize = 0
+        while j < n:
+            matrix[i * n + j] <- ((i * j) % n).f64() / n.f64()
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            x1[i] <- x1[i] + matrix[i * n + j] * y1[j]
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            x2[i] <- x2[i] + matrix[j * n + i] * y2[j]
+            j <- j + 1
+        i <- i + 1
+    checksum: mutable f64 = 0.0
+    i <- 0
+    while i < n:
+        checksum <- checksum + x1[i]
+        i <- i + 1
+    i <- 0
+    while i < n:
+        checksum <- checksum + x2[i]
+        i <- i + 1
+    checksum
+
+export fn mvt(values: i64&, length: usize) -> f64 = mvt_impl

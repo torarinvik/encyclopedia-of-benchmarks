@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "polybench-deriche-i64-array-f64-v1",
+  "algorithm": "deriche",
+  "function_symbol": "deriche",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[width, height, passes] for the bounded recursive Deriche image filter",
+    "input_length": 3,
+    "width_range": [1, 32],
+    "height_range": [1, 32],
+    "passes_range": [1, 4],
+    "maximum_input_length": 3
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "row-major binary64 sum of all pixels in the final binary32 filtered image",
+    "invalid_input_result": -1e300
+  },
+  "source_bound": {
+    "description": "The PolyBench/C Deriche kernel uses alpha=0.25, initializes grayscale input as ((313*i+991*j) mod 65536)/65535, performs forward and reverse recurrences along both image axes, and writes the final f32 image. The bounded wrapper accepts width and height 1..32 and repeats the complete filter 1..4 times, feeding each output image into the next pass.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/medley/deriche/deriche.c",
+    "original_contributor": "Gael Deest; PolyBench/C maintained by Louis-Noel Pouchet and Tomofumi Yuki",
+    "license_note": "The source file has no explicit license notice; this package contains independently written ports of the published kernel."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-6,
+    "relative_tolerance": 1e-5
+  },
+  "cases": [
+    {"id": "single_pixel", "input_values": [1, 1, 1], "input_length": 3, "expected_result": 0.0},
+    {"id": "small_rectangular_one_pass", "input_values": [2, 3, 1], "input_length": 3, "expected_result": 0.013252461678348482},
+    {"id": "small_rectangle_two_passes", "input_values": [4, 3, 2], "input_length": 3, "expected_result": 0.0038373624556697905},
+    {"id": "square_eight_three_passes", "input_values": [8, 8, 3], "input_length": 3, "expected_result": 0.000433697717198811},
+    {"id": "medium_rectangle", "input_values": [16, 12, 2], "input_length": 3, "expected_result": 0.05996438861893694},
+    {"id": "maximum_dimensions_and_passes", "input_values": [32, 32, 4], "input_length": 3, "expected_result": 0.0008438511823669614},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "short_input_invalid", "input_values": [1, 1], "input_length": 2, "expected_result": -1e300},
+    {"id": "zero_width_invalid", "input_values": [0, 1, 1], "input_length": 3, "expected_result": -1e300},
+    {"id": "width_above_bound_invalid", "input_values": [33, 8, 1], "input_length": 3, "expected_result": -1e300},
+    {"id": "height_above_bound_invalid", "input_values": [8, 33, 1], "input_length": 3, "expected_result": -1e300},
+    {"id": "first_unsupported_pass_count_invalid", "input_values": [8, 8, 5], "input_length": 3, "expected_result": -1e300}
+  ]
+}

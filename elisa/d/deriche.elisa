@@ -1,0 +1,147 @@
+extern exp(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+const DERiche_MAX_WIDTH: usize = 32
+const DERiche_MAX_HEIGHT: usize = 32
+const DERiche_MAX_PIXELS: usize = DERiche_MAX_WIDTH * DERiche_MAX_HEIGHT
+const DERiche_INVALID_RESULT: f64 = -1e300
+
+def deriche_filter_once(width: usize, height: usize, image: f32&, output: mutable f32&,
+                        y1: mutable f32&, y2: mutable f32&) -> void:
+    alpha: f32 = 0.25.f32()
+    exp_neg_alpha: f32 = exp((-alpha).f64()).f32()
+    difference: f32 = 1.0.f32() - exp_neg_alpha
+    numerator: f32 = difference * difference
+    denominator_left: f32 = 1.0.f32() + 2.0.f32() * alpha * exp_neg_alpha
+    k: f32 = numerator / (denominator_left - exp((2.0.f32() * alpha).f64()).f32())
+    a1: f32 = k
+    a2: f32 = k * exp_neg_alpha * (alpha - 1.0.f32())
+    a3: f32 = k * exp_neg_alpha * (alpha + 1.0.f32())
+    a4: f32 = -k * exp((-2.0.f32() * alpha).f64()).f32()
+    a5: f32 = k
+    a6: f32 = a2
+    a7: f32 = a3
+    a8: f32 = a4
+    b1: f32 = pow(2.0, (-alpha).f64()).f32()
+    b2: f32 = -exp((-2.0.f32() * alpha).f64()).f32()
+    i: mutable usize = 0
+    while i < width:
+        ym1: mutable f32 = 0.0.f32()
+        ym2: mutable f32 = 0.0.f32()
+        xm1: mutable f32 = 0.0.f32()
+        j: mutable usize = 0
+        while j < height:
+            at: usize = i * height + j
+            value: mutable f32 = a1 * image[at] + a2 * xm1
+            value <- value + b1 * ym1
+            value <- value + b2 * ym2
+            y1[at] <- value
+            xm1 <- image[at]
+            ym2 <- ym1
+            ym1 <- value
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < width:
+        yp1: mutable f32 = 0.0.f32()
+        yp2: mutable f32 = 0.0.f32()
+        xp1: mutable f32 = 0.0.f32()
+        xp2: mutable f32 = 0.0.f32()
+        j: mutable usize = height
+        while j > 0:
+            j <- j - 1
+            at: usize = i * height + j
+            value: mutable f32 = a3 * xp1 + a4 * xp2
+            value <- value + b1 * yp1
+            value <- value + b2 * yp2
+            y2[at] <- value
+            xp2 <- xp1
+            xp1 <- image[at]
+            yp2 <- yp1
+            yp1 <- value
+        i <- i + 1
+    i <- 0
+    while i < width:
+        j: mutable usize = 0
+        while j < height:
+            at: usize = i * height + j
+            output[at] <- 1.0.f32() * (y1[at] + y2[at])
+            j <- j + 1
+        i <- i + 1
+    j <- 0
+    while j < height:
+        tm1: mutable f32 = 0.0.f32()
+        ym1: mutable f32 = 0.0.f32()
+        ym2: mutable f32 = 0.0.f32()
+        i <- 0
+        while i < width:
+            at: usize = i * height + j
+            value: mutable f32 = a5 * output[at] + a6 * tm1
+            value <- value + b1 * ym1
+            value <- value + b2 * ym2
+            y1[at] <- value
+            tm1 <- output[at]
+            ym2 <- ym1
+            ym1 <- value
+            i <- i + 1
+        j <- j + 1
+    j <- 0
+    while j < height:
+        tp1: mutable f32 = 0.0.f32()
+        tp2: mutable f32 = 0.0.f32()
+        yp1: mutable f32 = 0.0.f32()
+        yp2: mutable f32 = 0.0.f32()
+        i <- width
+        while i > 0:
+            i <- i - 1
+            at: usize = i * height + j
+            value: mutable f32 = a7 * tp1 + a8 * tp2
+            value <- value + b1 * yp1
+            value <- value + b2 * yp2
+            y2[at] <- value
+            tp2 <- tp1
+            tp1 <- output[at]
+            yp2 <- yp1
+            yp1 <- value
+        j <- j + 1
+    at: mutable usize = 0
+    while at < width * height:
+        output[at] <- 1.0.f32() * (y1[at] + y2[at])
+        at <- at + 1
+
+def deriche_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 3:
+        return DERiche_INVALID_RESULT
+    if values[0] < 1 or values[0] > DERiche_MAX_WIDTH.i64() or
+       values[1] < 1 or values[1] > DERiche_MAX_HEIGHT.i64() or values[2] < 1 or values[2] > 4:
+        return DERiche_INVALID_RESULT
+    width: usize = values[0].usize()
+    height: usize = values[1].usize()
+    iterations: usize = values[2].usize()
+    image: mutable f32[DERiche_MAX_PIXELS] = zeroed
+    output: mutable f32[DERiche_MAX_PIXELS] = zeroed
+    y1: mutable f32[DERiche_MAX_PIXELS] = zeroed
+    y2: mutable f32[DERiche_MAX_PIXELS] = zeroed
+    i: mutable usize = 0
+    while i < width:
+        j: mutable usize = 0
+        while j < height:
+            image[i * height + j] <- ((313 * i + 991 * j) % 65536).f32() / 65535.0.f32()
+            j <- j + 1
+        i <- i + 1
+    pass: mutable usize = 0
+    while pass < iterations:
+        deriche_filter_once(width, height, image, output, y1, y2)
+        at: mutable usize = 0
+        while at < width * height:
+            image[at] <- output[at]
+            at <- at + 1
+        pass <- pass + 1
+    checksum: mutable f64 = 0.0
+    at: mutable usize = 0
+    while at < width * height:
+        checksum <- checksum + output[at].f64()
+        at <- at + 1
+    checksum
+
+export fn deriche(values: i64&, length: usize) -> f64 = deriche_impl

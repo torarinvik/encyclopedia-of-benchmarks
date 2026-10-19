@@ -1,0 +1,90 @@
+const MAX_INPUT_BYTES: usize = 4096
+const MAX_OUTPUT_BYTES: usize = 2949
+
+def scan_input(input: i64&, length: usize) -> i64:
+    if input.is_null() or length > MAX_INPUT_BYTES:
+        return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 255:
+            return -1
+        index <- index + 1
+    if length < 29.usize():
+        return -1
+
+    if input[0] != 98 or input[1] != 101 or input[2] != 103 or input[3] != 105 or
+       input[4] != 110 or input[5] != 32 or input[6] != 55 or input[7] != 53 or
+       input[8] != 53 or input[9] != 32 or input[10] != 117 or input[11] != 117 or
+       input[12] != 115 or input[13] != 116 or input[14] != 97 or input[15] != 114 or
+       input[16] != 116 or input[17] != 46 or input[18] != 102 or input[19] != 105 or
+       input[20] != 108 or input[21] != 101 or input[22] != 32 or input[23] != 10:
+        return -1
+
+    cursor: mutable usize = 24
+    total: mutable usize = 0
+    while cursor < length:
+        marker: i64 = input[cursor]
+        cursor <- cursor + 1
+        if marker == 32:
+            if cursor + 4 != length or input[cursor] != 10 or input[cursor + 1] != 101 or
+               input[cursor + 2] != 110 or input[cursor + 3] != 100:
+                return -1
+            if total > MAX_OUTPUT_BYTES:
+                return -1
+            return total.i64()
+        count: i64 = marker - 32
+        if count < 1 or count > 45:
+            return -1
+        encoded: usize = 4.usize() * ((count.usize() + 2.usize()) / 3.usize())
+        if cursor + encoded >= length or input[cursor + encoded] != 10:
+            return -1
+        index <- 0
+        while index < encoded:
+            if input[cursor + index] < 32 or input[cursor + index] > 95:
+                return -1
+            index <- index + 1
+        total <- total + count.usize()
+        if total > MAX_OUTPUT_BYTES:
+            return -1
+        cursor <- cursor + encoded + 1
+    return -1
+
+def uudecode_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    decoded_length: i64 = scan_input(input, length)
+    if decoded_length < 0:
+        return -1
+    if output.is_null() or capacity < decoded_length.usize():
+        return -2
+
+    cursor: mutable usize = 24
+    written: mutable usize = 0
+    while true:
+        count: usize = (input[cursor] - 32).usize()
+        cursor <- cursor + 1
+        if count == 0:
+            break
+        encoded: usize = 4.usize() * ((count + 2.usize()) / 3.usize())
+        emitted: mutable usize = 0
+        group: mutable usize = 0
+        while group < encoded:
+            a: u32 = (input[cursor] - 32).u32()
+            b: u32 = (input[cursor + 1] - 32).u32()
+            c: u32 = (input[cursor + 2] - 32).u32()
+            d: u32 = (input[cursor + 3] - 32).u32()
+            cursor <- cursor + 4
+            output[written] <- (((a << 2) | (b >> 4)) & 255.u32()).u8()
+            written <- written + 1
+            emitted <- emitted + 1
+            if emitted < count:
+                output[written] <- (((b << 4) | (c >> 2)) & 255.u32()).u8()
+                written <- written + 1
+                emitted <- emitted + 1
+            if emitted < count:
+                output[written] <- (((c << 6) | d) & 255.u32()).u8()
+                written <- written + 1
+                emitted <- emitted + 1
+            group <- group + 4
+        cursor <- cursor + 1
+    written.i64()
+
+export fn uudecode(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = uudecode_impl

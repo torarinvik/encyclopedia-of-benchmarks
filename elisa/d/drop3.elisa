@@ -1,0 +1,37 @@
+# Bounded port of BitBench drop3: discard 3-bit codes below 4.
+const MAX_INPUT: usize = 4096
+const OFFSETS: usize[8] = [0, 5, 2, 7, 4, 1, 6, 3]
+
+def drop3_impl(values: i64&, length: usize) -> i64:
+    if length > MAX_INPUT + 1: return -1
+    if length > 0 and values == null: return -1
+    i: mutable usize = 0
+    while i < length:
+        if values[i] < 0 or values[i] > 255: return -1
+        i <- i + 1
+    if length > MAX_INPUT: return -1
+
+    output_size: mutable i64 = 0
+    iteration: mutable usize = 0
+    while iteration < 20:
+        input_index: mutable usize = 0
+        remaining_bits: mutable usize = length * 8
+        phase: mutable usize = 0
+        bit_buffer: mutable u16 = 0
+        output_bits: mutable usize = 0
+        while remaining_bits >= 3:
+            remaining_bits <- remaining_bits - 3
+            offset: usize = OFFSETS[phase]
+            if offset < 3:
+                shifted: u32 = values[input_index].u32() << (8 - offset)
+                bit_buffer <- (bit_buffer.u32() | shifted).u16()
+                input_index <- input_index + 1
+            code: u32 = (bit_buffer.u32() >> 13) & 7
+            if code >= 4: output_bits <- output_bits + 3
+            bit_buffer <- (bit_buffer.u32() << 3).u16()
+            phase <- (phase + 1) & 7
+        output_size <- (output_bits >> 3).i64()
+        iteration <- iteration + 1
+    return output_size
+
+export fn drop3(values: i64&, length: usize) -> i64 = drop3_impl

@@ -1,0 +1,86 @@
+const MAX_ARRAY_SIZE: usize = 100000
+const MAX_ROUNDS: usize = 8
+const MAX_SCANS_PER_ARRAY: usize = 64
+
+def benchmarkgame_puzzle_rand(state: mutable u64&) -> u32:
+    mask: u64 = 4294967295
+    low_product: u64 = (state & mask) * 1103515245
+    high_product: u64 = ((state >> 32) * 1103515245) & mask
+    low_sum: u64 = (low_product & mask) + 12345
+    high_word: u64 = ((low_product >> 32) + high_product + (low_sum >> 32)) & mask
+    state <- (high_word << 32) | (low_sum & mask)
+    shifted: u32 = (state >> 16).u32()
+    shifted % 32767u32 + 1u32
+
+def benchmarkgame_puzzle_rand_int(minimum: usize, maximum: usize,
+        state: mutable u64&) -> usize:
+    range: usize = maximum - minimum + 1
+    draw: u32 = benchmarkgame_puzzle_rand(state)
+    offset: usize = (range.f64() * (draw.f64() / 32768.0)).usize()
+    if offset == range: offset + minimum - 1 else: offset + minimum
+
+def benchmarkgame_puzzle_shuffle(items: mutable i32&, length: usize,
+        state: mutable u64&) -> void:
+    index: mutable usize = length - 1
+    while index > 0:
+        range: usize = index + 1
+        draw: u32 = benchmarkgame_puzzle_rand(state)
+        k: usize = (range.f64() * (draw.f64() / 32768.0)).usize()
+        chosen: usize = k
+        if k == range: chosen <- k - 1
+        temporary: i32 = items[index]
+        items[index] <- items[chosen]
+        items[chosen] <- temporary
+        index <- index - 1
+
+def benchmarkgame_puzzle_find_duplicate(data: i32&, length: usize) -> i32:
+    result: mutable u32 = 0
+    index: mutable usize = 0
+    while index < length:
+        result <- result xor (index + 1).u32() xor data[index].u32()
+        index <- index + 1
+    result <- result xor length.u32()
+    result.i32()
+
+def benchmarkgame_puzzle_store_i32_le(output: mutable u8&, offset: usize, value: i32) -> void:
+    bits: mutable u32 = value.u32()
+    byte: mutable usize = 0
+    while byte < 4:
+        output[offset + byte] <- (bits & 255u32).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def benchmarkgame_puzzle_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 3: return -1
+    raw_size: i64 = input[0]
+    raw_rounds: i64 = input[1]
+    raw_scans: i64 = input[2]
+    if raw_size < 1 or raw_size > MAX_ARRAY_SIZE.i64() or raw_rounds < 1 or raw_rounds > MAX_ROUNDS.i64() or raw_scans < 1 or raw_scans > MAX_SCANS_PER_ARRAY.i64(): return -1
+    size: usize = raw_size.usize()
+    rounds: usize = raw_rounds.usize()
+    scans: usize = raw_scans.usize()
+    output_bytes: usize = rounds * 4
+    if output.is_null() or capacity < output_bytes: return -2
+
+    random_state: mutable u64 = 1
+    round: mutable usize = 0
+    while round < rounds:
+        data: mutable i32[MAX_ARRAY_SIZE + 1] = zeroed
+        index: mutable usize = 0
+        while index <= size:
+            data[index] <- index.i32()
+            index <- index + 1
+        data[0] <- benchmarkgame_puzzle_rand_int(1, size, random_state).i32()
+        benchmarkgame_puzzle_shuffle(data, size + 1, random_state)
+        duplicate: mutable i32 = 0
+        scan: mutable usize = 0
+        while scan < scans:
+            duplicate <- benchmarkgame_puzzle_find_duplicate(data, size + 1)
+            scan <- scan + 1
+        benchmarkgame_puzzle_store_i32_le(output, round * 4, duplicate)
+        round <- round + 1
+    output_bytes.i64()
+
+export fn benchmarkgame_puzzle(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = benchmarkgame_puzzle_impl

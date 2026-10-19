@@ -14,19 +14,19 @@ This package ports the classic packed-bit prime sieve, preserving the upstream t
 
 Pinned upstream: [Benchmark Game `nsieve-bits.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/nsieve-bits/nsieve-bits.c), contributed by Mike Pall. The referenced file has no explicit license notice; these are independently written algorithm ports.
 
-[`workload.json`](workload.json) covers empty and small sieve limits, three-pass outputs, invalid bounds and framing, and output errors. `benchmarks/nsieve_bits_oracle.py` supplies the byte-output oracle. All nine ports use the existing `i64_array_bytes_output` ABI.
+[`workload.json`](workload.json) covers empty and small sieve limits, three-pass outputs, invalid bounds and framing, and output errors. `benchmarks/benchmarkgame_nsieve_bits_oracle.py` supplies the byte-output oracle. All nine ports use the existing `i64_array_bytes_output` ABI.
 
 | Language | Source |
 | --- | --- |
-| C | [`c/n/nsieve_bits.c`](../../../c/n/nsieve_bits.c) |
-| C3 | [`c3/n/nsieve_bits.c3`](../../../c3/n/nsieve_bits.c3) |
-| C++ | [`cpp/n/nsieve_bits.cpp`](../../../cpp/n/nsieve_bits.cpp) |
-| Elisa | [`elisa/n/nsieve_bits.elisa`](../../../elisa/n/nsieve_bits.elisa) |
-| Nim | [`nim/n/nsieve_bits.nim`](../../../nim/n/nsieve_bits.nim) |
-| Odin | [`odin/n/nsieve_bits.odin`](../../../odin/n/nsieve_bits.odin) |
-| Rust | [`rust/n/nsieve_bits.rs`](../../../rust/n/nsieve_bits.rs) |
-| V | [`v/n/nsieve_bits.v`](../../../v/n/nsieve_bits.v) |
-| Zig | [`zig/n/nsieve_bits.zig`](../../../zig/n/nsieve_bits.zig) |
+| C | [`c/b/benchmarkgame_nsieve_bits.c`](../../../c/b/benchmarkgame_nsieve_bits.c) |
+| C3 | [`c3/b/benchmarkgame_nsieve_bits.c3`](../../../c3/b/benchmarkgame_nsieve_bits.c3) |
+| C++ | [`cpp/b/benchmarkgame_nsieve_bits.cpp`](../../../cpp/b/benchmarkgame_nsieve_bits.cpp) |
+| Elisa | [`elisa/b/benchmarkgame_nsieve_bits.elisa`](../../../elisa/b/benchmarkgame_nsieve_bits.elisa) |
+| Nim | [`nim/b/benchmarkgame_nsieve_bits.nim`](../../../nim/b/benchmarkgame_nsieve_bits.nim) |
+| Odin | [`odin/b/benchmarkgame_nsieve_bits.odin`](../../../odin/b/benchmarkgame_nsieve_bits.odin) |
+| Rust | [`rust/b/benchmarkgame_nsieve_bits.rs`](../../../rust/b/benchmarkgame_nsieve_bits.rs) |
+| V | [`v/b/benchmarkgame_nsieve_bits.v`](../../../v/b/benchmarkgame_nsieve_bits.v) |
+| Zig | [`zig/b/benchmarkgame_nsieve_bits.zig`](../../../zig/b/benchmarkgame_nsieve_bits.zig) |
 
 Build and run one implementation with:
 

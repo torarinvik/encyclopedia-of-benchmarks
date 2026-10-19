@@ -17,5 +17,5 @@ export fn nestedloop(input: i64) i64 {
             }
         }
     }
-    return x;
+    return @intCast(x);
 }

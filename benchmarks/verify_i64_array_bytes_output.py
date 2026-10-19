@@ -1193,6 +1193,9 @@ from proper_fractions_oracle import expected_output as proper_fractions_oracle
 from sumset_oracle import expected_output as sumset_oracle
 from run_i64_array_bytes_output import MAX_OUTPUT_CAPACITY
 from run_i64_array_bytes_output import RECORDER_WORKSPACE_ALGORITHMS
+from revert_bits_oracle import MAX_PARSEABLE_INPUT_LENGTH as REVERT_BITS_MAX_PARSEABLE_INPUT_LENGTH
+from revert_bits_oracle import MAX_VALID_INPUT_LENGTH as REVERT_BITS_MAX_VALID_INPUT_LENGTH
+from revert_bits_oracle import OUTPUT_BYTES as REVERT_BITS_OUTPUT_BYTES
 from run_i64_array_bytes_output import expected_output as recorder_expected_output
 from run_i64_array_bytes_output import validate_pkcs7_padding_workload
 from run_i64_array_bytes_output import validate_soundex_encoder_workload
@@ -2412,6 +2415,17 @@ from uint_oracle import (
 )
 from uint128_t_oracle import expected_output as uint128_t_oracle
 from uint256_t_oracle import expected_output as uint256_t_oracle
+from uuencode_verifier_oracle import (
+    MAX_OUTPUT_BYTES as UUENCODE_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_VALUES as UUENCODE_MAX_PARSEABLE_INPUT_VALUES,
+    expected_output as uuencode_verifier_oracle,
+)
+from uudecode_verifier_oracle import (
+    MAX_INPUT_BYTES as UUDECODE_MAX_INPUT_BYTES,
+    MAX_OUTPUT_BYTES as UUDECODE_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_VALUES as UUDECODE_MAX_PARSEABLE_INPUT_VALUES,
+    expected_output as uudecode_verifier_oracle,
+)
 from uint_fixed_width_oracle import U32_MAX as UINT_FIXED_WIDTH_U32_MAX
 from uint_fixed_width_oracle import INVALID_RESULT as UINT_FIXED_WIDTH_INVALID_RESULT
 from uint_fixed_width_oracle import OUTPUT_ERROR as UINT_FIXED_WIDTH_OUTPUT_ERROR
@@ -2467,6 +2481,7 @@ ALGORITHMS = (*ALGORITHMS, "simple_blockchain")
 ALGORITHMS = (*ALGORITHMS, "min_cost_string_conversion")
 ALGORITHMS = (*ALGORITHMS, "merkle_hellman_cryptosystem")
 ALGORITHMS = (*ALGORITHMS, "merkle_signature_scheme")
+ALGORITHMS = (*ALGORITHMS, "revert_bits")
 ALGORITHMS = (*ALGORITHMS, "simultaneous_linear_equation_solver")
 ALGORITHMS = (*ALGORITHMS, "julia_sets")
 ALGORITHMS = (*ALGORITHMS, "min_palindromic_insert")
@@ -2953,6 +2968,8 @@ ALGORITHMS = (*ALGORITHMS, "scapegoat_tree")
 ALGORITHMS = (*ALGORITHMS, "tabu_search")
 ALGORITHMS = (*ALGORITHMS, "smith_waterman_python", "smith_waterman_rust",
               "uint", "uint128_t", "uint256_t")
+ALGORITHMS = (*ALGORITHMS, "uuencode")
+ALGORITHMS = (*ALGORITHMS, "uudecode")
 WORKSPACE_ALGORITHMS.add("lru_cache2")
 WORKSPACE_ALGORITHMS.add("memoize")
 WORKSPACE_ALGORITHMS.add("lz78")
@@ -2998,6 +3015,9 @@ WORKSPACE_ALGORITHMS.add("shannon_fano")
 WORKSPACE_ALGORITHMS.add("skyline_algorithm")
 WORKSPACE_ALGORITHMS.update({"smith_waterman_python", "smith_waterman_rust",
                              "uint", "uint128_t", "uint256_t"})
+WORKSPACE_ALGORITHMS.add("revert_bits")
+WORKSPACE_ALGORITHMS.add("uuencode")
+WORKSPACE_ALGORITHMS.add("uudecode")
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
@@ -3006,6 +3026,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "uint": uint_oracle,
     "uint128_t": uint128_t_oracle,
     "uint256_t": uint256_t_oracle,
+    "uuencode": uuencode_verifier_oracle,
+    "uudecode": uudecode_verifier_oracle,
 }
 
 
@@ -4350,6 +4372,180 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError(f"{algorithm} metadata differs from its pinned matrix-output contract")
+    elif algorithm == "revert_bits":
+        max_input, max_output = (REVERT_BITS_MAX_PARSEABLE_INPUT_LENGTH,
+                                 REVERT_BITS_OUTPUT_BYTES)
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        expected_ids = {
+            "upstream_sample", "zero_words", "low_single_bits", "high_single_bits",
+            "all_ones", "u32_negative", "u32_above_range", "trailing_input",
+            "short_output", "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-misc-revertbits-paired-32-64-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("layout") != "[uint32_word, signed_i64 carrying the uint64 word's raw two's-complement bits]"
+                or input_spec.get("maximum_valid_input_length") != REVERT_BITS_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or input_spec.get("uint32_word_range") != [0, (1 << 32) - 1]
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("kind") != "uint32_then_uint64_little_endian_bytes"
+                or output_spec.get("layout") != "4-byte ReverseBits32 result followed by 8-byte ReverseBits64 result"
+                or output_spec.get("byte_order") != "little_endian"
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("success_result") != max_output
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or workspace_bytes != max_output
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "Misc/revertBits/revertBits.c"
+                or source.get("blob_sha") != "b56d775ce75a6bc9a684485157ea1db902197688"
+                or source.get("symbols") != ["ReverseBits32", "ReverseBits64", "main"]
+                or launcher.get("repository") != "lac-dcc/Benchmarks"
+                or launcher.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or launcher.get("path") != "Misc/revertBits/info.sh"
+                or launcher.get("blob_sha") != "56e152f011962d4783f682e0318188fc91da2286"
+                or launcher.get("bench_name") != "revertBits"
+                or launcher.get("source_files") != ["revertBits.c"]
+                or launcher.get("compile_flags") != ["-lm"]
+                or launcher.get("run_options") != []
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("revert_bits metadata differs from its pinned paired-width contract")
+    elif algorithm == "uuencode":
+        max_input, max_output = UUENCODE_MAX_PARSEABLE_INPUT_VALUES, UUENCODE_MAX_OUTPUT_BYTES
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        reference = workload.get("pinned_reference_output", {})
+        input_source = workload.get("additional_pinned_source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "empty_input", "one_zero_byte", "one_high_byte", "two_byte_tail",
+            "three_byte_group", "all_byte_values", "source_prefix_one_line",
+            "source_prefix_crosses_line", "pinned_source_prefix_4096",
+            "invalid_negative_byte", "invalid_byte_over_255", "oversized_input",
+            "short_output_capacity", "null_output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "bitbench-uuencode-fixed-header-bounded-byte-stream-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "BitBench/uuencode/uuencode.c"
+                or launcher.get("repository") != "lac-dcc/Benchmarks"
+                or launcher.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or launcher.get("path") != "BitBench/uuencode/info.sh"
+                or launcher.get("bench_name") != "uuencode"
+                or launcher.get("source_files") != ["uuencode.c"]
+                or reference.get("repository") != "lac-dcc/Benchmarks"
+                or reference.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or reference.get("path") != "BitBench/uuencode/uuencode.reference_output"
+                or reference.get("text") != "1030121\n"
+                or input_source.get("repository") != "lac-dcc/Benchmarks"
+                or input_source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or input_source.get("path") != "BitBench/uuencode/input"
+                or input_source.get("byte_length") != 747648
+                or input_source.get("sha256") != "7b79ae32d4071c1dc949787c822efc00517a43bc7dcb29093df94f7cb80295c8"
+                or input_source.get("fixture_prefix_length") != 4096
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "raw input bytes in source order"
+                or input_spec.get("byte_range") != [0, 255]
+                or input_spec.get("maximum_valid_input_values") != 4096
+                or input_spec.get("maximum_parseable_input_values") != max_input
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "uuencoded_ascii_byte_stream"
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or workspace_bytes != max_output
+                or contract.get("header_hex") != b"begin 640 uuencode.c \n".hex()
+                or contract.get("data_line_input_limit") != 45
+                or contract.get("partial_group_padding") != "one input byte => ==; two input bytes => ="
+                or contract.get("stream_terminator_hex") != b" \nend".hex()
+                or contract.get("final_newline_after_end") is not False
+                or contract.get("upstream_repeat_count") != 1000
+                or contract.get("source_printed_encoded_length") != 1030121
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 1000
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("uuencode metadata differs from its pinned bounded source contract")
+    elif algorithm == "uudecode":
+        max_input, max_output = UUDECODE_MAX_PARSEABLE_INPUT_VALUES, UUDECODE_MAX_OUTPUT_BYTES
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        reference = workload.get("pinned_reference_output", {})
+        input_source = workload.get("additional_pinned_source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "empty_file", "one_byte_zero", "two_byte_tail", "three_byte_group",
+            "full_45_byte_line", "line_crossing_45_bytes", "pinned_source_prefix_65_lines",
+            "maximum_output_2949_bytes", "invalid_header", "invalid_short_line",
+            "invalid_symbol_range", "invalid_trailer", "invalid_negative_input",
+            "invalid_byte_above_255", "oversized_input", "short_output_capacity",
+            "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "bitbench-uudecode-fixed-header-bounded-byte-stream-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "BitBench/uudecode/uudecode.c"
+                or launcher.get("repository") != "lac-dcc/Benchmarks"
+                or launcher.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or launcher.get("path") != "BitBench/uudecode/info.sh"
+                or launcher.get("bench_name") != "uudecode"
+                or launcher.get("source_files") != ["uudecode.c"]
+                or launcher.get("compile_flags") != ["-lm"]
+                or launcher.get("run_options") != ["input-file"]
+                or reference.get("repository") != "lac-dcc/Benchmarks"
+                or reference.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or reference.get("path") != "BitBench/uudecode/uudecode.reference_output"
+                or reference.get("text") != "542623\n"
+                or input_source.get("repository") != "lac-dcc/Benchmarks"
+                or input_source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or input_source.get("path") != "BitBench/uudecode/input-file"
+                or input_source.get("byte_length") != 747647
+                or input_source.get("sha256") != "edaae03adc515963d493a40e8a648eb165dcb23261e5e81a4154ab66305ddea7"
+                or input_source.get("fixture_prefix_length") != 4054
+                or input_source.get("complete_data_lines") != 65
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "one input byte per integer in original file order"
+                or input_spec.get("byte_range") != [0, 255]
+                or input_spec.get("maximum_valid_input_values") != 4096
+                or input_spec.get("maximum_parseable_input_values") != max_input
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "decoded_file_bytes"
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or workspace_bytes != max_output
+                or contract.get("header_hex") != b"begin 755 uustart.file \n".hex()
+                or contract.get("header_filename") != "uustart.file"
+                or contract.get("header_mode_octal") != "755"
+                or contract.get("maximum_decoded_bytes_per_line") != 45
+                or contract.get("encoded_symbol_ascii_range") != [32, 95]
+                or contract.get("data_line_terminator_hex") != b"\n".hex()
+                or contract.get("stream_terminator_hex") != b" \nend".hex()
+                or contract.get("final_newline_after_end") is not False
+                or contract.get("upstream_repeat_count") != 100
+                or contract.get("source_printed_decoded_length") != 542623
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 100
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("uudecode metadata differs from its pinned bounded source contract")
     elif algorithm == "uint":
         max_input, max_output = UINT_MAX_PARSEABLE_INPUT_LENGTH, UINT_MAX_OUTPUT_BYTES
         if (workload.get("schema_version") != 1
@@ -4476,6 +4672,92 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add(tuple(values))
         valid_probe = (2, 2, 1, -1, -2, 65, 67, 65, 67)
         add(valid_probe, 0, output_is_null=True)
+    elif algorithm == "revert_bits":
+        for bit in range(32):
+            add((1 << bit, 0))
+        for bit in range(64):
+            raw_word = 1 << bit
+            signed_word = raw_word if bit < 63 else -(1 << 63)
+            add((0, signed_word))
+        sample = (0x12345678, 0x0123456789012345)
+        for capacity in (0, 11, 12, workspace_bytes):
+            add(sample, capacity)
+        add(sample, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=1)
+        for values in ((), (0,), (0, 0, 0), (-1, 0), (1 << 32, 0),
+                       (0, 0, 0)):
+            add(values)
+    elif algorithm == "uuencode":
+        for length in (0, 1, 2, 3, 44, 45, 46, 90, 91, 4095, 4096):
+            values = tuple((index * 37 + 11) & 255 for index in range(length))
+            result, _ = add(values)
+            if result > 0:
+                add(values, result - 1)
+                add(values, result)
+        add((), 26)
+        add((0,), output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((0,) * 4097)
+        add((-1,))
+        add((256,))
+    elif algorithm == "uudecode":
+        header = bytes.fromhex("626567696e2037353520757573746172742e66696c65200a")
+        trailer = bytes.fromhex("200a656e64")
+
+        def encode_stream(payload: tuple[int, ...]) -> tuple[int, ...]:
+            stream = bytearray(header)
+            for start in range(0, len(payload), 45):
+                chunk = payload[start:start + 45]
+                stream.append(32 + len(chunk))
+                for offset in range(0, len(chunk), 3):
+                    first = chunk[offset]
+                    second_present = offset + 1 < len(chunk)
+                    third_present = offset + 2 < len(chunk)
+                    second = chunk[offset + 1] if second_present else 0
+                    third = chunk[offset + 2] if third_present else 0
+                    stream.extend((
+                        32 + (first >> 2),
+                        32 + (((first << 4) | (second >> 4)) & 63),
+                        32 + (((second << 2) | (third >> 6)) & 63),
+                        32 + (third & 63),
+                    ))
+                stream.append(10)
+            stream.extend(trailer)
+            return tuple(stream)
+
+        for length in (0, 1, 2, 3, 4, 44, 45, 46, 90, 91):
+            payload = tuple((index * 37 + length * 11) & 255 for index in range(length))
+            encoded = encode_stream(payload)
+            result, _ = add(encoded)
+            if result > 0:
+                add(encoded, result - 1)
+                add(encoded, result)
+
+        maximum_input = next(
+            tuple(case["input_values"]) for case in workload["cases"]
+            if case["id"] == "maximum_output_2949_bytes")
+        maximum_result, maximum_output = add(maximum_input)
+        if (maximum_result != max_output or len(maximum_output) != max_output
+                or len(maximum_input) > UUDECODE_MAX_INPUT_BYTES):
+            raise ValueError("uudecode maximum fixture does not fill the bounded output size")
+        for capacity in (0, maximum_result - 1, maximum_result, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+
+        one_byte = encode_stream((173,))
+        add(one_byte, 0)
+        add(one_byte, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        for malformed in (
+                (), (0,), tuple([32] * 4097),
+                tuple([ord(ch) for ch in "begin 755 wrong.file \n"] + list(trailer)),
+                tuple([ord(ch) for ch in "begin 755 uustart.file \n!"] + [10] + list(trailer)),
+                tuple([ord(ch) for ch in "begin 755 uustart.file \n!"] + [96, 32, 32, 32, 10] + list(trailer)),
+                tuple([ord(ch) for ch in "begin 755 uustart.file \n \nend\n"])):
+            add(malformed)
+        add((-1,))
+        add((256,))
     elif algorithm == "uint":
         rng = random.Random(20261017)
         for index in range(128):

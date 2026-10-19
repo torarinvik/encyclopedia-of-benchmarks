@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "polybench-atax-i64-array-f64-v1",
+  "algorithm": "atax",
+  "function_symbol": "atax",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[m, n] where m is the number of matrix rows and n is the number of columns",
+    "input_length": 2,
+    "row_range": [1, 64],
+    "column_range": [1, 64],
+    "maximum_input_length": 2
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "sum of the final y vector in ascending column order after the A*x temporary and A-transpose contribution passes",
+    "invalid_input_result": -1e300
+  },
+  "source_bound": {
+    "description": "The PolyBench/C ATAX source defaults to binary64. It initializes x[i]=1+i/n and A[i][j]=((i+j) mod n)/(5*m), sets y to zero, and for each row i computes tmp[i] by increasing j before adding that row's A[i][j]*tmp[i] contribution into y in increasing j order. Rows are processed in increasing order. The original default dimensions are reduced to m,n in 1..64.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/linear-algebra/kernels/atax/atax.c",
+    "original_contributor": "PolyBench/C (Louis-Noel Pouchet and Tomofumi Yuki)",
+    "license_note": "The source file has no explicit license notice; this package contains independently written ports of the published kernel."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "one_cell", "input_values": [1, 1], "input_length": 2, "expected_result": 0.0},
+    {"id": "two_rows_three_columns", "input_values": [2, 3], "input_length": 2, "expected_result": 0.25000000000000006},
+    {"id": "three_rows_two_columns", "input_values": [3, 2], "input_length": 2, "expected_result": 0.017777777777777778},
+    {"id": "square_eight", "input_values": [8, 8], "input_length": 2, "expected_result": 5.635000000000001},
+    {"id": "rectangular_medium", "input_values": [16, 12], "input_length": 2, "expected_result": 16.073749999999997},
+    {"id": "polybench_mini_shape", "input_values": [38, 42], "input_length": 2, "expected_result": 1151.8518421052634},
+    {"id": "maximum_dimensions", "input_values": [64, 64], "input_length": 2, "expected_result": 3790.395},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "short_input_invalid", "input_values": [8], "input_length": 1, "expected_result": -1e300},
+    {"id": "zero_rows_invalid", "input_values": [0, 8], "input_length": 2, "expected_result": -1e300},
+    {"id": "zero_columns_invalid", "input_values": [8, 0], "input_length": 2, "expected_result": -1e300},
+    {"id": "first_unsupported_dimension_invalid", "input_values": [65, 8], "input_length": 2, "expected_result": -1e300}
+  ]
+}

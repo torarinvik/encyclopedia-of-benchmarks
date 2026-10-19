@@ -1,0 +1,36 @@
+const OUTPUT_BYTES: usize = 12
+const MASK32_1: u32 = 0x55555555.u32()
+const MASK32_2: u32 = 0x33333333.u32()
+const MASK32_4: u32 = 0x0f0f0f0f.u32()
+const MASK64_1: u64 = 0x5555555555555555.u64()
+const MASK64_2: u64 = 0x3333333333333333.u64()
+const MASK64_4: u64 = 0x0f0f0f0f0f0f0f0f.u64()
+
+def reverse_bits32(value: u32) -> u32:
+    n: mutable u32 = value
+    n <- ((n >> 1) & MASK32_1) | ((n & MASK32_1) << 1)
+    n <- ((n >> 2) & MASK32_2) | ((n & MASK32_2) << 2)
+    n <- ((n >> 4) & MASK32_4) | ((n & MASK32_4) << 4)
+    ((n & 0xff000000.u32()) >> 24) | ((n & 0x00ff0000.u32()) >> 8) | ((n & 0x0000ff00.u32()) << 8) | ((n & 0x000000ff.u32()) << 24)
+
+def reverse_bits64(value: u64) -> u64:
+    n: mutable u64 = value
+    n <- ((n >> 1) & MASK64_1) | ((n & MASK64_1) << 1)
+    n <- ((n >> 2) & MASK64_2) | ((n & MASK64_2) << 2)
+    n <- ((n >> 4) & MASK64_4) | ((n & MASK64_4) << 4)
+    ((n & 0xff00000000000000.u64()) >> 56) | ((n & 0x00ff000000000000.u64()) >> 40) | ((n & 0x0000ff0000000000.u64()) >> 24) | ((n & 0x000000ff00000000.u64()) >> 8) | ((n & 0x00000000ff000000.u64()) << 8) | ((n & 0x0000000000ff0000.u64()) << 24) | ((n & 0x000000000000ff00.u64()) << 40) | ((n & 0x00000000000000ff.u64()) << 56)
+
+def revert_bits_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 2 or input[0] < 0 or input[0].u64() > 4294967295.u64():
+        return -1
+    if output.is_null() or capacity < OUTPUT_BYTES:
+        return -2
+    reversed32: u32 = reverse_bits32(input[0].u32())
+    reversed64: u64 = reverse_bits64(input[1].u64())
+    for byte in 0..4:
+        output[byte] <- ((reversed32 >> (8 * byte)) & 255.u32()).u8()
+    for byte in 0..8:
+        output[4 + byte] <- ((reversed64 >> (8 * byte)) & 255.u64()).u8()
+    OUTPUT_BYTES.i64()
+
+export fn revert_bits(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = revert_bits_impl

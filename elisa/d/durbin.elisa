@@ -1,0 +1,38 @@
+const MAX_N: usize = 40
+
+extern trunc(value: f64) -> f64
+
+def durbin_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length != 1:
+        return -1
+    n_value: f64 = input[0]
+    if trunc(n_value) != n_value or n_value < 1.0 or n_value > MAX_N.f64():
+        return -1
+    n: usize = n_value.usize()
+    if output.is_null() or capacity < n:
+        return -2
+
+    r: mutable f64[MAX_N] = zeroed
+    y: mutable f64[MAX_N] = zeroed
+    z: mutable f64[MAX_N] = zeroed
+    for i in 0..n:
+        r[i] <- (n + 1 - i).f64()
+    y[0] <- -r[0]
+    beta: mutable f64 = 1.0
+    alpha: mutable f64 = -r[0]
+    for k in 1..n:
+        beta <- (1.0 - alpha * alpha) * beta
+        sum: mutable f64 = 0.0
+        for i in 0..k:
+            sum <- sum + r[k-i-1] * y[i]
+        alpha <- -(r[k] + sum) / beta
+        for i in 0..k:
+            z[i] <- y[i] + alpha * y[k-i-1]
+        for i in 0..k:
+            y[i] <- z[i]
+        y[k] <- alpha
+    for i in 0..n:
+        output[i] <- y[i]
+    n.i64()
+
+export fn durbin(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = durbin_impl

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "polybench-mvt-i64-array-f64-v1",
+  "algorithm": "mvt",
+  "function_symbol": "mvt",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n] where n is the square matrix dimension",
+    "input_length": 1,
+    "dimension_range": [1, 64],
+    "maximum_input_length": 1
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "binary64 checksum formed by summing updated x1 in ascending index order, then updated x2 in ascending index order",
+    "invalid_input_result": -1e300
+  },
+  "source_bound": {
+    "description": "The PolyBench/C MVT source defaults to binary64. It initializes x1[i]=(i mod n)/n, x2[i]=((i+1) mod n)/n, y1[i]=((i+3) mod n)/n, y2[i]=((i+4) mod n)/n, and A[i][j]=((i*j) mod n)/n. It then updates x1 in increasing i,j order with A[i][j]*y1[j], followed by x2 in increasing i,j order with A[j][i]*y2[j]. The original default n=2000 is reduced to 1..64.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/linear-algebra/kernels/mvt/mvt.c",
+    "original_contributor": "PolyBench/C (Louis-Noel Pouchet and Tomofumi Yuki)",
+    "license_note": "The source file has no explicit license notice; this package contains independently written ports of the published kernel."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "dimension_one", "input_values": [1], "input_length": 1, "expected_result": 0.0},
+    {"id": "dimension_two", "input_values": [2], "input_length": 1, "expected_result": 1.25},
+    {"id": "dimension_three", "input_values": [3], "input_length": 1, "expected_result": 3.666666666666667},
+    {"id": "dimension_eight", "input_values": [8], "input_length": 1, "expected_result": 26.25},
+    {"id": "dimension_sixteen", "input_values": [16], "input_length": 1, "expected_result": 114.5},
+    {"id": "maximum_dimension", "input_values": [64], "input_length": 1, "expected_result": 1975.0},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "zero_dimension_invalid", "input_values": [0], "input_length": 1, "expected_result": -1e300},
+    {"id": "negative_dimension_invalid", "input_values": [-1], "input_length": 1, "expected_result": -1e300},
+    {"id": "first_unsupported_dimension_invalid", "input_values": [65], "input_length": 1, "expected_result": -1e300}
+  ]
+}

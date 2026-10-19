@@ -9,16 +9,32 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | Upstream launcher path | Executable | Status | Local package / reason |
 |---|---|---|---|
 | `BenchmarkGame/fannkuch/info.sh` | `fannkuch` | Newly implemented in this batch | [`fannkuch`](f/fannkuch/README.md): bounded counter-driven prefix-reversal maximum. |
-| `BenchmarkGame/n-body/info.sh` | `nbody` | Partial/related | [`n_body_simulation`](n/n_body_simulation/README.md) is 2D and softened; upstream is fixed 3D solar-system integration. |
-| `BenchmarkGame/nsieve-bits/info.sh` | `nsieve-bits` | Partial/related | [`sieve_of_eratosthenes`](s/sieve_of_eratosthenes/README.md) uses a boolean sieve and one small limit; upstream uses packed bits and three large limits. |
+| `BenchmarkGame/n-body/info.sh` | `nbody` | Newly implemented in this batch | [`benchmarkgame_nbody`](b/benchmarkgame_nbody/README.md): bounded classic five-body 3D integration and initial/final energy outputs. |
+| `BenchmarkGame/nsieve-bits/info.sh` | `nsieve-bits` | Newly implemented in this batch | [`benchmarkgame_nsieve_bits`](b/benchmarkgame_nsieve_bits/README.md): three packed-bit sieve passes and prime counts. |
 | `BenchmarkGame/partialsums/info.sh` | `partialsums` | Newly implemented in this batch | [`partialsums`](p/partialsums/README.md): nine sums in source order, bounded to `n<=10000`. |
-| `BenchmarkGame/puzzle/info.sh` | `puzzle` | Partial/related | [`find_duplicate_number`](f/find_duplicate_number/README.md) returns the same kind of result, but uses Floyd cycle entry; upstream uses deterministic array generation and XOR cancellation. |
-| `BenchmarkGame/recursive/info.sh` | `recursive` | Partial/related | [`ackermann`](a/ackermann/README.md) and [`fibonacci_recursive`](f/fibonacci_recursive/README.md) cover only some components, with different bounds/recurrences; Takeuchi is missing. |
+| `BenchmarkGame/puzzle/info.sh` | `puzzle` | Newly implemented in this batch | [`benchmarkgame_puzzle`](b/benchmarkgame_puzzle/README.md): deterministic array generation, shuffle, and XOR cancellation. |
+| `BenchmarkGame/recursive/info.sh` | `recursive` | Partial/related | [`ackermann`](a/ackermann/README.md), [`fibonacci_recursive`](f/fibonacci_recursive/README.md), and [`takeuchi`](t/takeuchi/README.md) cover related recurrences; the upstream combined workload also includes distinct floating-point Fibonacci calls. |
 | `BenchmarkGame/spectral-norm/info.sh` | `spectral-norm` | Newly implemented in this batch | [`spectral_norm`](s/spectral_norm/README.md): ten paired `AᵀA` multiplications on the implicit source matrix. |
+| `BitBench/drop3/info.sh` | `drop3` | Newly implemented in this batch | [`drop3`](d/drop3/README.md): bounded 3-bit stream filtering with the source offset schedule and 20 passes. |
+| `BitBench/uuencode/info.sh` | `uuencode` | Newly implemented in this batch | [`uuencode`](u/uuencode/README.md): bounded source-order uuencoding with the fixed header, 45-byte lines, and exact output framing. |
+| `PolyBench/linear-algebra/blas/gesummv/info.sh` | `gesummv` | Newly implemented in this batch | [`gesummv`](g/gesummv/README.md): source-ordered matrix-vector combination and output reduction. |
+| `PolyBench/linear-algebra/blas/gemm/info.sh` | `gemm` | Newly implemented in this batch | [`gemm`](g/gemm/README.md): bounded source-ordered alpha/beta matrix multiplication and row-major reduction. |
+| `PolyBench/linear-algebra/kernels/atax/info.sh` | `atax` | Newly implemented in this batch | [`atax`](a/atax/README.md): bounded source-ordered ATAX matrix-vector and transpose accumulation. |
+| `PolyBench/linear-algebra/kernels/bicg/info.sh` | `bicg` | Newly implemented in this batch | [`bicg`](b/bicg/README.md): source-ordered biconjugate-gradient matrix-vector reductions with both live-out vectors. |
+| `PolyBench/datamining/covariance/info.sh` | `covariance` | Newly implemented in this batch | [`covariance`](c/covariance/README.md): bounded source-ordered mean, centering, symmetric covariance, and matrix reduction. |
+| `PolyBench/linear-algebra/kernels/doitgen/info.sh` | `doitgen` | Newly implemented in this batch | [`doitgen`](d/doitgen/README.md): bounded source-ordered 3D tensor transform with slice buffering and row-major reduction. |
+| `PolyBench/linear-algebra/solvers/durbin/info.sh` | `durbin` | Newly implemented in this batch | [`durbin`](d/durbin/README.md): bounded source-ordered Durbin coefficient recurrence. |
+| `PolyBench/medley/deriche/info.sh` | `deriche` | Newly implemented in this batch | [`deriche`](d/deriche/README.md): bounded recursive f32 image filter with row-major checksum output. |
+| `PolyBench/linear-algebra/kernels/mvt/info.sh` | `mvt` | Newly implemented in this batch | [`mvt`](m/mvt/README.md): source-ordered matrix-vector and transposed matrix-vector updates. |
+| `Misc/revertBits/info.sh` | `revertBits` | Newly implemented in this batch | [`revert_bits`](r/revert_bits/README.md): paired 32-bit and 64-bit bit-reversal operations with little-endian byte output. |
 | `PolyBench/linear-algebra/solvers/gramschmidt/info.sh` | `gramschmidt` | Partial/related | [`gram_schmidt`](g/gram_schmidt/README.md): same method, but matrix and output contracts differ. |
 | `PolyBench/medley/floyd-warshall/info.sh` | `floyd-warshall` | Partial/related | [`floyd_warshall`](f/floyd_warshall/README.md): same recurrence, local contract returns a requested source row. |
+| `PolyBench/medley/nussinov/info.sh` | `nussinov` | Newly implemented in this batch | [`nussinov`](n/nussinov/README.md): bounded dynamic-programming RNA folding recurrence. |
+| `Olden/treeadd/info.sh` | `treeadd` | Newly implemented in this batch | [`treeadd`](t/treeadd/README.md): full value-one binary tree construction and repeated recursive sum. |
 | `Shootout/ackermann/info.sh` | `ackermann` | Partial/related | [`ackermann`](a/ackermann/README.md): same recurrence, but upstream calls `A(3,11)`, outside the local bound. |
 | `Shootout/heapsort/info.sh` | `heapsort` | Partial/related | [`heap_sort`](h/heap_sort/README.md): same heap-sort operation; upstream sorts generated doubles and prints only the maximum. |
+| `Shootout/nestedloop/info.sh` | `nestedloop` | Exact local semantic match | [`nestedloop`](n/nestedloop/README.md) preserves the six nested loops and counter semantics. |
+| `Shootout/fib2/info.sh` | `fib2` | Newly implemented in this batch | [`fib2`](f/fib2/README.md): uncached recursive Fibonacci variant with source base values `fib(0)=fib(1)=1`. |
 | `Stanford/Bubblesort/info.sh` | `Bubblesort` | Partial/related | [`bubble_sort`](b/bubble_sort/README.md): same adjacent-swap family; upstream runs a fixed generated workload and prints selected ranks. |
 | `Stanford/Quicksort/info.sh` | `Quicksort` | Partial/related | [`quick_sort`](q/quick_sort/README.md): same sort family, different pivot and partition scheme. |
 | `Stanford/Treesort/info.sh` | `Treesort` | Partial/related | [`tree_sort`](t/tree_sort/README.md): same BST-sort family, but upstream drops duplicate keys while local preserves them. |
@@ -51,10 +67,10 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
 | [`BenchmarkGame/fannkuch/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/fannkuch/info.sh) | `fannkuch` | Newly implemented in this batch |
-| [`BenchmarkGame/n-body/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/n-body/info.sh) | `nbody` | Partial/related |
-| [`BenchmarkGame/nsieve-bits/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/nsieve-bits/info.sh) | `nsieve-bits` | Partial/related |
+| [`BenchmarkGame/n-body/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/n-body/info.sh) | `nbody` | Newly implemented in this batch |
+| [`BenchmarkGame/nsieve-bits/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/nsieve-bits/info.sh) | `nsieve-bits` | Newly implemented in this batch |
 | [`BenchmarkGame/partialsums/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/partialsums/info.sh) | `partialsums` | Newly implemented in this batch |
-| [`BenchmarkGame/puzzle/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/puzzle/info.sh) | `puzzle` | Partial/related |
+| [`BenchmarkGame/puzzle/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/puzzle/info.sh) | `puzzle` | Newly implemented in this batch |
 | [`BenchmarkGame/recursive/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/recursive/info.sh) | `recursive` | Partial/related |
 | [`BenchmarkGame/spectral-norm/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/spectral-norm/info.sh) | `spectral-norm` | Newly implemented in this batch |
 
@@ -62,10 +78,10 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
-| [`BitBench/drop3/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BitBench/drop3/info.sh) | `drop3` | Pending semantic review/implementation |
+| [`BitBench/drop3/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BitBench/drop3/info.sh) | `drop3` | Newly implemented in this batch |
 | [`BitBench/five11/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BitBench/five11/info.sh) | `five11` | Pending semantic review/implementation |
 | [`BitBench/uudecode/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BitBench/uudecode/info.sh) | `uudecode` | Pending semantic review/implementation |
-| [`BitBench/uuencode/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BitBench/uuencode/info.sh) | `uuencode` | Pending semantic review/implementation |
+| [`BitBench/uuencode/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BitBench/uuencode/info.sh) | `uuencode` | Newly implemented in this batch |
 
 ### CoyoteBench
 
@@ -200,7 +216,7 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | [`Misc/oourafft/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/oourafft/info.sh) | `oourafft` | Pending semantic review/implementation |
 | [`Misc/perlin/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/perlin/info.sh) | `perlin` | Pending semantic review/implementation |
 | [`Misc/pi/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/pi/info.sh) | `pi` | Pending semantic review/implementation |
-| [`Misc/revertBits/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/revertBits/info.sh) | `revertBits` | Pending semantic review/implementation |
+| [`Misc/revertBits/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/revertBits/info.sh) | `revertBits` | Newly implemented in this batch |
 | [`Misc/richards_benchmark/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/richards_benchmark/info.sh) | `richards_benchmark` | Pending semantic review/implementation |
 | [`Misc/salsa20/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/salsa20/info.sh) | `salsa20` | Pending semantic review/implementation |
 | [`Misc/whetstone/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/whetstone/info.sh) | `whetstone` | Pending semantic review/implementation |
@@ -223,7 +239,7 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | [`Olden/mst/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/mst/info.sh) | `mst` | Pending semantic review/implementation |
 | [`Olden/perimeter/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/perimeter/info.sh) | `perimeter` | Pending semantic review/implementation |
 | [`Olden/power/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/power/info.sh) | `power` | Pending semantic review/implementation |
-| [`Olden/treeadd/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/treeadd/info.sh) | `treeadd` | Pending semantic review/implementation |
+| [`Olden/treeadd/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/treeadd/info.sh) | `treeadd` | Newly implemented in this batch |
 | [`Olden/tsp/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/tsp/info.sh) | `tsp` | Pending semantic review/implementation |
 | [`Olden/voronoi/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/voronoi/info.sh) | `voronoi` | Pending semantic review/implementation |
 
@@ -238,29 +254,29 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
 | [`PolyBench/datamining/correlation/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/datamining/correlation/info.sh) | `correlation` | Pending semantic review/implementation |
-| [`PolyBench/datamining/covariance/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/datamining/covariance/info.sh) | `covariance` | Pending semantic review/implementation |
-| [`PolyBench/linear-algebra/blas/gemm/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/gemm/info.sh) | `gemm` | Pending semantic review/implementation |
+| [`PolyBench/datamining/covariance/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/datamining/covariance/info.sh) | `covariance` | Newly implemented in this batch |
+| [`PolyBench/linear-algebra/blas/gemm/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/gemm/info.sh) | `gemm` | Newly implemented in this batch |
 | [`PolyBench/linear-algebra/blas/gemver/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/gemver/info.sh) | `gemver` | Pending semantic review/implementation |
-| [`PolyBench/linear-algebra/blas/gesummv/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/gesummv/info.sh) | `gesummv` | Pending semantic review/implementation |
+| [`PolyBench/linear-algebra/blas/gesummv/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/gesummv/info.sh) | `gesummv` | Newly implemented in this batch |
 | [`PolyBench/linear-algebra/blas/symm/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/symm/info.sh) | `symm` | Pending semantic review/implementation |
 | [`PolyBench/linear-algebra/blas/syr2k/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/syr2k/info.sh) | `syr2k` | Pending semantic review/implementation |
 | [`PolyBench/linear-algebra/blas/syrk/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/syrk/info.sh) | `syrk` | Pending semantic review/implementation |
 | [`PolyBench/linear-algebra/blas/trmm/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/trmm/info.sh) | `trmm` | Pending semantic review/implementation |
 | [`PolyBench/linear-algebra/kernels/2mm/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/2mm/info.sh) | `2mm` | Pending semantic review/implementation |
 | [`PolyBench/linear-algebra/kernels/3mm/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/3mm/info.sh) | `3mm` | Pending semantic review/implementation |
-| [`PolyBench/linear-algebra/kernels/atax/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/atax/info.sh) | `atax` | Pending semantic review/implementation |
-| [`PolyBench/linear-algebra/kernels/bicg/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/bicg/info.sh) | `bicg` | Pending semantic review/implementation |
-| [`PolyBench/linear-algebra/kernels/doitgen/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/doitgen/info.sh) | `doitgen` | Pending semantic review/implementation |
-| [`PolyBench/linear-algebra/kernels/mvt/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/mvt/info.sh) | `mvt` | Pending semantic review/implementation |
+| [`PolyBench/linear-algebra/kernels/atax/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/atax/info.sh) | `atax` | Newly implemented in this batch |
+| [`PolyBench/linear-algebra/kernels/bicg/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/bicg/info.sh) | `bicg` | Newly implemented in this batch |
+| [`PolyBench/linear-algebra/kernels/doitgen/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/doitgen/info.sh) | `doitgen` | Newly implemented in this batch |
+| [`PolyBench/linear-algebra/kernels/mvt/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/kernels/mvt/info.sh) | `mvt` | Newly implemented in this batch |
 | [`PolyBench/linear-algebra/solvers/cholesky/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/cholesky/info.sh) | `cholesky` | Pending semantic review/implementation |
-| [`PolyBench/linear-algebra/solvers/durbin/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/durbin/info.sh) | `durbin` | Pending semantic review/implementation |
+| [`PolyBench/linear-algebra/solvers/durbin/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/durbin/info.sh) | `durbin` | Newly implemented in this batch |
 | [`PolyBench/linear-algebra/solvers/gramschmidt/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/gramschmidt/info.sh) | `gramschmidt` | Partial/related |
 | [`PolyBench/linear-algebra/solvers/lu/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/lu/info.sh) | `lu` | Pending semantic review/implementation |
 | [`PolyBench/linear-algebra/solvers/ludcmp/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/ludcmp/info.sh) | `ludcmp` | Pending semantic review/implementation |
 | [`PolyBench/linear-algebra/solvers/trisolv/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/trisolv/info.sh) | `trisolv` | Pending semantic review/implementation |
-| [`PolyBench/medley/deriche/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/medley/deriche/info.sh) | `deriche` | Pending semantic review/implementation |
+| [`PolyBench/medley/deriche/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/medley/deriche/info.sh) | `deriche` | Newly implemented in this batch |
 | [`PolyBench/medley/floyd-warshall/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/medley/floyd-warshall/info.sh) | `floyd-warshall` | Partial/related |
-| [`PolyBench/medley/nussinov/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/medley/nussinov/info.sh) | `nussinov` | Pending semantic review/implementation |
+| [`PolyBench/medley/nussinov/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/medley/nussinov/info.sh) | `nussinov` | Newly implemented in this batch |
 | [`PolyBench/stencils/adi/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/adi/info.sh) | `adi` | Pending semantic review/implementation |
 | [`PolyBench/stencils/fdtd-2d/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/fdtd-2d/info.sh) | `fdtd-2d` | Pending semantic review/implementation |
 | [`PolyBench/stencils/heat-3d/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/heat-3d/info.sh) | `heat-3d` | Pending semantic review/implementation |
@@ -311,14 +327,14 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 |---|---|---|
 | [`Shootout/ackermann/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/ackermann/info.sh) | `ackermann` | Partial/related |
 | [`Shootout/ary3/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/ary3/info.sh) | `ary3` | Pending semantic review/implementation |
-| [`Shootout/fib2/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/fib2/info.sh) | `fib2` | Pending semantic review/implementation |
+| [`Shootout/fib2/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/fib2/info.sh) | `fib2` | Newly implemented in this batch |
 | [`Shootout/hash/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hash/info.sh) | `hash` | Pending semantic review/implementation |
 | [`Shootout/heapsort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/heapsort/info.sh) | `heapsort` | Partial/related |
 | [`Shootout/hello/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hello/info.sh) | `hello` | Pending semantic review/implementation |
 | [`Shootout/lists/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/lists/info.sh) | `lists` | Pending semantic review/implementation |
 | [`Shootout/matrix/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/matrix/info.sh) | `matrix` | Pending semantic review/implementation |
 | [`Shootout/methcall/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/methcall/info.sh) | `methcall` | Pending semantic review/implementation |
-| [`Shootout/nestedloop/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/nestedloop/info.sh) | `nestedloop` | Pending semantic review/implementation |
+| [`Shootout/nestedloop/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/nestedloop/info.sh) | `nestedloop` | Exact local semantic match |
 | [`Shootout/objinst/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/objinst/info.sh) | `objinst` | Pending semantic review/implementation |
 | [`Shootout/random/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/random/info.sh) | `random` | Pending semantic review/implementation |
 | [`Shootout/sieve/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/sieve/info.sh) | `sieve` | Pending semantic review/implementation |

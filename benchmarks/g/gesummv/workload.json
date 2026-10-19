@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "polybench-gesummv-i64-array-f64-v1",
+  "algorithm": "gesummv",
+  "function_symbol": "gesummv",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n] where n is the square matrix dimension",
+    "input_length": 1,
+    "dimension_range": [1, 64],
+    "maximum_input_length": 1
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "sum of the final y vector, accumulated in increasing row order after the PolyBench gesummv kernel",
+    "invalid_input_result": -1e300
+  },
+  "source_bound": {
+    "description": "The PolyBench/C gesummv kernel initializes alpha=1.5, beta=1.2, x[i]=(i mod n)/n, A[i][j]=((i*j+1) mod n)/n, and B[i][j]=((i*j+2) mod n)/n. For each row it accumulates tmp[i]=A[i][j]*x[j]+tmp[i] and y[i]=B[i][j]*x[j]+y[i], then assigns y[i]=alpha*tmp[i]+beta*y[i]. The scalar suite output is a source-order sum of that final y vector. The original dataset size is reduced to 1..64 for bounded suite calls.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/linear-algebra/blas/gesummv/gesummv.c",
+    "original_contributor": "PolyBench/C (Louis-Noel Pouchet and Tomofumi Yuki)",
+    "license_note": "The source file contains no explicit license notice; this package contains independently written ports of the published kernel."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "dimension_one", "input_values": [1], "input_length": 1, "expected_result": 0.0},
+    {"id": "dimension_two", "input_values": [2], "input_length": 1, "expected_result": 0.675},
+    {"id": "dimension_three", "input_values": [3], "input_length": 1, "expected_result": 2.6999999999999997},
+    {"id": "dimension_eight", "input_values": [8], "input_length": 1, "expected_result": 33.15},
+    {"id": "dimension_sixty_four", "input_values": [64], "input_length": 1, "expected_result": 2633.250000000001},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "zero_dimension", "input_values": [0], "input_length": 1, "expected_result": -1e300},
+    {"id": "first_unsupported_dimension", "input_values": [65], "input_length": 1, "expected_result": -1e300}
+  ]
+}

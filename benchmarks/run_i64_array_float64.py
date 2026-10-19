@@ -111,6 +111,30 @@ from power_iteration_oracle import expected_result as power_iteration_expected
 from spectral_norm_oracle import INVALID_RESULT as SPECTRAL_NORM_INVALID_RESULT
 from spectral_norm_oracle import MAX_INPUT_LENGTH as MAX_SPECTRAL_NORM_INPUT_LENGTH
 from spectral_norm_oracle import expected_result as spectral_norm_expected
+from gesummv_oracle import INVALID_RESULT as GESUMMV_INVALID_RESULT
+from gesummv_oracle import MAX_INPUT_LENGTH as MAX_GESUMMV_INPUT_LENGTH
+from gesummv_oracle import expected_result as gesummv_expected
+from deriche_oracle import INVALID_RESULT as DERICHE_INVALID_RESULT
+from deriche_oracle import MAX_INPUT_LENGTH as MAX_DERICHE_INPUT_LENGTH
+from deriche_oracle import expected_result as deriche_expected
+from mvt_oracle import INVALID_RESULT as MVT_INVALID_RESULT
+from mvt_oracle import MAX_INPUT_LENGTH as MAX_MVT_INPUT_LENGTH
+from mvt_oracle import expected_result as mvt_expected
+from atax_oracle import INVALID_RESULT as ATAX_INVALID_RESULT
+from atax_oracle import MAX_INPUT_LENGTH as MAX_ATAX_INPUT_LENGTH
+from atax_oracle import expected_result as atax_expected
+from bicg_oracle import INVALID_RESULT as BICG_INVALID_RESULT
+from bicg_oracle import MAX_INPUT_LENGTH as MAX_BICG_INPUT_LENGTH
+from bicg_oracle import expected_result as bicg_expected
+from gemm_oracle import INVALID_RESULT as GEMM_INVALID_RESULT
+from gemm_oracle import MAX_INPUT_LENGTH as MAX_GEMM_INPUT_LENGTH
+from gemm_oracle import expected_result as gemm_expected
+from covariance_oracle import INVALID_RESULT as COVARIANCE_INVALID_RESULT
+from covariance_oracle import MAX_INPUT_LENGTH as MAX_COVARIANCE_INPUT_LENGTH
+from covariance_oracle import expected_result as covariance_expected
+from doitgen_oracle import INVALID_RESULT as DOITGEN_INVALID_RESULT
+from doitgen_oracle import MAX_INPUT_LENGTH as MAX_DOITGEN_INPUT_LENGTH
+from doitgen_oracle import expected_result as doitgen_expected
 from kinetic_energy_oracle import INVALID_RESULT as KINETIC_ENERGY_INVALID_RESULT
 from kinetic_energy_oracle import expected_result as kinetic_energy_expected
 from potential_energy_oracle import INVALID_RESULT as POTENTIAL_ENERGY_INVALID_RESULT
@@ -2265,6 +2289,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "reverse_polish_notation" else
                         MAX_POWER_ITERATION_INPUT_LENGTH if algorithm == "power_iteration" else
                         MAX_SPECTRAL_NORM_INPUT_LENGTH if algorithm == "spectral_norm" else
+                        MAX_GESUMMV_INPUT_LENGTH if algorithm == "gesummv" else
+                        MAX_DERICHE_INPUT_LENGTH if algorithm == "deriche" else
+                        MAX_MVT_INPUT_LENGTH if algorithm == "mvt" else
+                        MAX_ATAX_INPUT_LENGTH if algorithm == "atax" else
+                        MAX_BICG_INPUT_LENGTH if algorithm == "bicg" else
+                        MAX_GEMM_INPUT_LENGTH if algorithm == "gemm" else
+                        MAX_COVARIANCE_INPUT_LENGTH if algorithm == "covariance" else
+                        MAX_DOITGEN_INPUT_LENGTH if algorithm == "doitgen" else
                         MAX_PYRAMID_INPUT_LENGTH if algorithm == "pyramid" else
                         MAX_P2_QUANTILE_INPUT_LENGTH if algorithm == "p2_quantile_estimator" else
                         MAX_LAPLACIAN_FILTER_INPUT_LENGTH + 1 if algorithm == "laplacian_filter" else
@@ -2954,6 +2986,70 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == SPECTRAL_NORM_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("spectral_norm expected_result must match the bounded BenchmarkGame iteration")
+    elif algorithm == "gesummv":
+        source_result = gesummv_expected(values)
+        if source_result == GESUMMV_INVALID_RESULT:
+            if expected != GESUMMV_INVALID_RESULT:
+                raise ValueError("invalid gesummv inputs must use the -1e300 result sentinel")
+        elif expected == GESUMMV_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("gesummv expected_result must match the bounded PolyBench kernel and source-order output reduction")
+    elif algorithm == "deriche":
+        source_result = deriche_expected(values)
+        if source_result == DERICHE_INVALID_RESULT:
+            if expected != DERICHE_INVALID_RESULT:
+                raise ValueError("invalid deriche inputs must use the -1e300 result sentinel")
+        elif expected == DERICHE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-5, abs_tol=1e-6):
+            raise ValueError("deriche expected_result must match the bounded PolyBench f32 recursive filter and final image checksum")
+    elif algorithm == "mvt":
+        source_result = mvt_expected(values)
+        if source_result == MVT_INVALID_RESULT:
+            if expected != MVT_INVALID_RESULT:
+                raise ValueError("invalid mvt inputs must use the -1e300 result sentinel")
+        elif expected == MVT_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("mvt expected_result must match the bounded PolyBench matrix-vector updates and source-order checksum")
+    elif algorithm == "atax":
+        source_result = atax_expected(values)
+        if source_result == ATAX_INVALID_RESULT:
+            if expected != ATAX_INVALID_RESULT:
+                raise ValueError("invalid atax inputs must use the -1e300 result sentinel")
+        elif expected == ATAX_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("atax expected_result must match the bounded PolyBench kernel and source-order y checksum")
+    elif algorithm == "bicg":
+        source_result = bicg_expected(values)
+        if source_result == BICG_INVALID_RESULT:
+            if expected != BICG_INVALID_RESULT:
+                raise ValueError("invalid bicg inputs must use the -1e300 result sentinel")
+        elif expected == BICG_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("bicg expected_result must match the bounded PolyBench kernel and printed-array-order checksum")
+    elif algorithm == "gemm":
+        source_result = gemm_expected(values)
+        if source_result == GEMM_INVALID_RESULT:
+            if expected != GEMM_INVALID_RESULT:
+                raise ValueError("invalid gemm inputs must use the -1e300 result sentinel")
+        elif expected == GEMM_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("gemm expected_result must match the bounded PolyBench alpha/beta update and row-major checksum")
+    elif algorithm == "covariance":
+        source_result = covariance_expected(values)
+        if source_result == COVARIANCE_INVALID_RESULT:
+            if expected != COVARIANCE_INVALID_RESULT:
+                raise ValueError("invalid covariance inputs must use the -1e300 result sentinel")
+        elif expected == COVARIANCE_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("covariance expected_result must match the bounded PolyBench mean, centering, symmetric covariance, and row-major checksum")
+    elif algorithm == "doitgen":
+        source_result = doitgen_expected(values)
+        if source_result == DOITGEN_INVALID_RESULT:
+            if expected != DOITGEN_INVALID_RESULT:
+                raise ValueError("invalid doitgen inputs must use the -1e300 result sentinel")
+        elif expected == DOITGEN_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("doitgen expected_result must match the bounded PolyBench 3D transform and row-major checksum")
     elif algorithm == "pyramid":
         source_result = pyramid_expected(values)
         if source_result == PYRAMID_INVALID_RESULT:

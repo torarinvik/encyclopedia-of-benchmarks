@@ -541,10 +541,15 @@ from n_body_simulation_oracle import expected_output as n_body_simulation_expect
 from benchmarkgame_nbody_oracle import MAX_INPUT_LENGTH as BENCHMARKGAME_NBODY_MAX_INPUT_LENGTH
 from benchmarkgame_nbody_oracle import MAX_STEPS as BENCHMARKGAME_NBODY_MAX_STEPS
 from benchmarkgame_nbody_oracle import expected_output as benchmarkgame_nbody_oracle
-from nsieve_bits_oracle import MAX_LIMIT as NSIEVE_BITS_MAX_LIMIT
-from nsieve_bits_oracle import MAX_PARSEABLE_INPUT_LENGTH as NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
-from nsieve_bits_oracle import MAX_OUTPUT_BYTES as NSIEVE_BITS_MAX_OUTPUT_BYTES
-from nsieve_bits_oracle import expected_output as nsieve_bits_oracle
+from benchmarkgame_nsieve_bits_oracle import MAX_LIMIT as NSIEVE_BITS_MAX_LIMIT
+from benchmarkgame_nsieve_bits_oracle import MAX_PARSEABLE_INPUT_LENGTH as NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
+from benchmarkgame_nsieve_bits_oracle import MAX_OUTPUT_BYTES as NSIEVE_BITS_MAX_OUTPUT_BYTES
+from benchmarkgame_nsieve_bits_oracle import expected_output as nsieve_bits_oracle
+from benchmarkgame_puzzle_oracle import MAX_INPUT_LENGTH as BENCHMARKGAME_PUZZLE_MAX_INPUT_LENGTH
+from benchmarkgame_puzzle_oracle import expected_output as benchmarkgame_puzzle_oracle
+from revert_bits_oracle import MAX_PARSEABLE_INPUT_LENGTH as REVERT_BITS_MAX_PARSEABLE_INPUT_LENGTH
+from revert_bits_oracle import OUTPUT_BYTES as REVERT_BITS_OUTPUT_BYTES
+from revert_bits_oracle import expected_output as revert_bits_oracle
 from non_preemptive_priority_scheduling_oracle import MAX_INPUT_LENGTH as MAX_NON_PREEMPTIVE_PRIORITY_SCHEDULING_INPUT_LENGTH
 from non_preemptive_priority_scheduling_oracle import expected_output as non_preemptive_priority_scheduling_expected_output
 from nesterov_accelerated_sgd_oracle import MAX_INPUT_LENGTH as MAX_NESTEROV_ACCELERATED_SGD_INPUT_LENGTH
@@ -3165,6 +3170,16 @@ from uint_oracle import (
 )
 from uint128_t_oracle import expected_output as uint128_t_oracle
 from uint256_t_oracle import expected_output as uint256_t_oracle
+from uuencode_oracle import (
+    MAX_OUTPUT_BYTES as UUENCODE_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_VALUES as UUENCODE_MAX_PARSEABLE_INPUT_VALUES,
+    expected_output as uuencode_oracle,
+)
+from uudecode_oracle import (
+    MAX_OUTPUT_BYTES as UUDECODE_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_VALUES as UUDECODE_MAX_PARSEABLE_INPUT_VALUES,
+    expected_output as uudecode_oracle,
+)
 
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "smith_waterman_python": smith_waterman_python_oracle,
@@ -3184,6 +3199,10 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "ansibench_dhrystone": ansibench_dhrystone_expected_output,
     "coremark_matrix_manipulation": coremark_matrix_manipulation_expected_output,
     "benchmarkgame_nsieve_bits": nsieve_bits_oracle,
+    "benchmarkgame_puzzle": benchmarkgame_puzzle_oracle,
+    "revert_bits": revert_bits_oracle,
+    "uuencode": uuencode_oracle,
+    "uudecode": uudecode_oracle,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
@@ -33358,6 +33377,212 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or not isinstance(workload.get("cases"), list)
                 or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
             raise ValueError("benchmarkgame_nsieve_bits metadata differs from its bounded pinned-source contract")
+    elif algorithm == "benchmarkgame_puzzle":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        expected_ids = {
+            "minimum-size-two-arrays", "deterministic-first-draw", "repeated-identical-xor-scans",
+            "zero-array-size", "array-size-over-limit", "zero-array-count", "trailing-value",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "benchmarkgame-puzzle-deterministic-duplicate-xor-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("layout") != "[array_size, arrays_to_generate, scans_per_array]"
+                or input_spec.get("maximum_valid_input_length") != 3
+                or input_spec.get("maximum_parseable_input_length") != BENCHMARKGAME_PUZZLE_MAX_INPUT_LENGTH
+                or input_spec.get("array_size_range") != [1, 100_000]
+                or input_spec.get("arrays_to_generate_range") != [1, 8]
+                or input_spec.get("scans_per_array_range") != [1, 64]
+                or input_spec.get("seed") != 1
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("kind") != "signed_i32_array"
+                or output_spec.get("values") != "one duplicate value per generated array, in generation order"
+                or output_spec.get("byte_order") != "little_endian"
+                or output_spec.get("bytes_per_value") != 4
+                or output_spec.get("maximum_output_bytes") != 32
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "BenchmarkGame/puzzle/puzzle.c"
+                or source.get("blob_sha") != "b86d38a55c3a1719e43771929030429f75da9ab5"
+                or source.get("symbols") != ["rand", "randInt", "shuffle", "createRandomArray", "findDuplicate"]
+                or not isinstance(workload.get("cases"), list)
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+            raise ValueError("benchmarkgame_puzzle metadata differs from its bounded pinned-source contract")
+    elif algorithm == "revert_bits":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        expected_ids = {
+            "upstream_sample", "zero_words", "low_single_bits", "high_single_bits",
+            "all_ones", "u32_negative", "u32_above_range", "trailing_input",
+            "short_output", "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-misc-revertbits-paired-32-64-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("layout") != "[uint32_word, signed_i64 carrying the uint64 word's raw two's-complement bits]"
+                or input_spec.get("maximum_valid_input_length") != 2
+                or input_spec.get("maximum_parseable_input_length") != REVERT_BITS_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("uint32_word_range") != [0, 4294967295]
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("kind") != "uint32_then_uint64_little_endian_bytes"
+                or output_spec.get("maximum_output_bytes") != REVERT_BITS_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or workload.get("workspace", {}).get("bytes") != REVERT_BITS_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "Misc/revertBits/revertBits.c"
+                or source.get("blob_sha") != "b56d775ce75a6bc9a684485157ea1db902197688"
+                or source.get("symbols") != ["ReverseBits32", "ReverseBits64", "main"]
+                or launcher.get("path") != "Misc/revertBits/info.sh"
+                or launcher.get("bench_name") != "revertBits"
+                or launcher.get("source_files") != ["revertBits.c"]
+                or not isinstance(workload.get("cases"), list)
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+            raise ValueError("revert_bits metadata differs from its pinned paired-width contract")
+    elif algorithm == "uuencode":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        reference = workload.get("pinned_reference_output", {})
+        input_source = workload.get("additional_pinned_source", {})
+        expected_ids = {
+            "empty_input", "one_zero_byte", "one_high_byte", "two_byte_tail",
+            "three_byte_group", "all_byte_values", "source_prefix_one_line",
+            "source_prefix_crosses_line", "pinned_source_prefix_4096",
+            "invalid_negative_byte", "invalid_byte_over_255", "oversized_input",
+            "short_output_capacity", "null_output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "bitbench-uuencode-fixed-header-bounded-byte-stream-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "BitBench/uuencode/uuencode.c"
+                or launcher.get("repository") != "lac-dcc/Benchmarks"
+                or launcher.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or launcher.get("path") != "BitBench/uuencode/info.sh"
+                or launcher.get("bench_name") != "uuencode"
+                or launcher.get("source_files") != ["uuencode.c"]
+                or reference.get("repository") != "lac-dcc/Benchmarks"
+                or reference.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or reference.get("path") != "BitBench/uuencode/uuencode.reference_output"
+                or reference.get("text") != "1030121\n"
+                or input_source.get("repository") != "lac-dcc/Benchmarks"
+                or input_source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or input_source.get("path") != "BitBench/uuencode/input"
+                or input_source.get("byte_length") != 747648
+                or input_source.get("sha256") != "7b79ae32d4071c1dc949787c822efc00517a43bc7dcb29093df94f7cb80295c8"
+                or input_source.get("fixture_prefix_length") != 4096
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "raw input bytes in source order"
+                or input_spec.get("byte_range") != [0, 255]
+                or input_spec.get("maximum_valid_input_values") != 4096
+                or input_spec.get("maximum_parseable_input_values") != UUENCODE_MAX_PARSEABLE_INPUT_VALUES
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "uuencoded_ascii_byte_stream"
+                or output_spec.get("maximum_output_bytes") != UUENCODE_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or workload.get("workspace", {}).get("bytes") != UUENCODE_MAX_OUTPUT_BYTES
+                or workload.get("contract", {}).get("header_hex") != b"begin 640 uuencode.c \n".hex()
+                or workload.get("contract", {}).get("data_line_input_limit") != 45
+                or workload.get("contract", {}).get("partial_group_padding") != "one input byte => ==; two input bytes => ="
+                or workload.get("contract", {}).get("stream_terminator_hex") != b" \nend".hex()
+                or workload.get("contract", {}).get("final_newline_after_end") is not False
+                or workload.get("contract", {}).get("upstream_repeat_count") != 1000
+                or workload.get("contract", {}).get("source_printed_encoded_length") != 1030121
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 1000
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
+            raise ValueError("uuencode metadata differs from its pinned bounded source contract")
+    elif algorithm == "uudecode":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        reference = workload.get("pinned_reference_output", {})
+        input_source = workload.get("additional_pinned_source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "empty_file", "one_byte_zero", "two_byte_tail", "three_byte_group",
+            "full_45_byte_line", "line_crossing_45_bytes", "pinned_source_prefix_65_lines",
+            "maximum_output_2949_bytes", "invalid_header", "invalid_short_line",
+            "invalid_symbol_range", "invalid_trailer", "invalid_negative_input",
+            "invalid_byte_above_255", "oversized_input", "short_output_capacity",
+            "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "bitbench-uudecode-fixed-header-bounded-byte-stream-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "BitBench/uudecode/uudecode.c"
+                or launcher.get("repository") != "lac-dcc/Benchmarks"
+                or launcher.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or launcher.get("path") != "BitBench/uudecode/info.sh"
+                or launcher.get("bench_name") != "uudecode"
+                or launcher.get("source_files") != ["uudecode.c"]
+                or launcher.get("compile_flags") != ["-lm"]
+                or launcher.get("run_options") != ["input-file"]
+                or reference.get("repository") != "lac-dcc/Benchmarks"
+                or reference.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or reference.get("path") != "BitBench/uudecode/uudecode.reference_output"
+                or reference.get("text") != "542623\n"
+                or input_source.get("repository") != "lac-dcc/Benchmarks"
+                or input_source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or input_source.get("path") != "BitBench/uudecode/input-file"
+                or input_source.get("byte_length") != 747647
+                or input_source.get("sha256") != "edaae03adc515963d493a40e8a648eb165dcb23261e5e81a4154ab66305ddea7"
+                or input_source.get("fixture_prefix_length") != 4054
+                or input_source.get("complete_data_lines") != 65
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "one input byte per integer in original file order"
+                or input_spec.get("byte_range") != [0, 255]
+                or input_spec.get("maximum_valid_input_values") != 4096
+                or input_spec.get("maximum_parseable_input_values") != UUDECODE_MAX_PARSEABLE_INPUT_VALUES
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "decoded_file_bytes"
+                or output_spec.get("maximum_output_bytes") != UUDECODE_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or workload.get("workspace", {}).get("bytes") != UUDECODE_MAX_OUTPUT_BYTES
+                or contract.get("header_hex") != b"begin 755 uustart.file \n".hex()
+                or contract.get("header_filename") != "uustart.file"
+                or contract.get("header_mode_octal") != "755"
+                or contract.get("maximum_decoded_bytes_per_line") != 45
+                or contract.get("encoded_symbol_ascii_range") != [32, 95]
+                or contract.get("data_line_terminator_hex") != b"\n".hex()
+                or contract.get("stream_terminator_hex") != b" \nend".hex()
+                or contract.get("final_newline_after_end") is not False
+                or contract.get("upstream_repeat_count") != 100
+                or contract.get("source_printed_decoded_length") != 542623
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 100
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
+            raise ValueError("uudecode metadata differs from its pinned bounded source contract")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
@@ -33389,6 +33614,11 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "coremark_matrix_manipulation" else
                      NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "benchmarkgame_nsieve_bits" else
+                     BENCHMARKGAME_PUZZLE_MAX_INPUT_LENGTH
+                     if algorithm == "benchmarkgame_puzzle" else
+                     REVERT_BITS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "revert_bits" else
+                     UUENCODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uuencode" else
+                     UUDECODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uudecode" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
                      2 + 2 * (128 if algorithm == "uint128_t" else 256) // 32)
     oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
@@ -34052,6 +34282,7 @@ def main() -> int:
                             MAX_NAGEL_SCHREKENBERG_INPUT_LENGTH if algorithm == "nagel_schrekenberg" else
                             MAX_NEAREST_NEIGHBOUR_SEARCH_INPUT_LENGTH if algorithm == "nearest_neighbour_search" else
                             BENCHMARKGAME_NBODY_MAX_INPUT_LENGTH if algorithm == "benchmarkgame_nbody" else
+                            BENCHMARKGAME_PUZZLE_MAX_INPUT_LENGTH if algorithm == "benchmarkgame_puzzle" else
                             MAX_N_BODY_SIMULATION_INPUT_LENGTH if algorithm == "n_body_simulation" else
                             MAX_NESTEROV_ACCELERATED_SGD_INPUT_LENGTH if algorithm == "nesterov_accelerated_sgd" else
                             MAX_NEURAL_NETWORK_INPUT_LENGTH if algorithm == "neural_network" else
@@ -34282,6 +34513,8 @@ def main() -> int:
                             PRINT_REVERSE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "print_reverse" else
                             ROTATE_TO_THE_RIGHT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "rotate_to_the_right" else
                             SKYTALE_CIPHER_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "skytale_cipher" else
+                            UUENCODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uuencode" else
+                            UUDECODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uudecode" else
                             MAX_INPUT_LENGTH)
         if (not isinstance(values, list) or len(values) > max_input_length
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):

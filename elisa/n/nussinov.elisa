@@ -1,0 +1,44 @@
+const MAX_N: usize = 128
+
+def nussinov_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 1: return -1
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > MAX_N.i64(): return -1
+    n: usize = n_value.usize()
+    bases: mutable i64[MAX_N] = zeroed
+    table: mutable i64[MAX_N][MAX_N] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        bases[i] <- ((i + 1) % 4).i64()
+        i <- i + 1
+
+    i <- n
+    while i > 0:
+        i <- i - 1
+        j: mutable usize = i + 1
+        while j < n:
+            score: mutable i64 = table[i][j-1]
+            if i + 1 < n:
+                if table[i+1][j] > score: score <- table[i+1][j]
+                inside: mutable i64 = table[i+1][j-1]
+                if i < j - 1 and bases[i] + bases[j] == 3: inside <- inside + 1
+                if inside > score: score <- inside
+            k: mutable usize = i + 1
+            while k < j:
+                split: i64 = table[i][k] + table[k+1][j]
+                if split > score: score <- split
+                k <- k + 1
+            table[i][j] <- score
+            j <- j + 1
+
+    checksum: mutable i64 = 0
+    row: mutable usize = 0
+    while row < n:
+        col: mutable usize = row
+        while col < n:
+            checksum <- checksum + table[row][col]
+            col <- col + 1
+        row <- row + 1
+    return checksum
+
+export fn nussinov(values: i64&, length: usize) -> i64 = nussinov_impl

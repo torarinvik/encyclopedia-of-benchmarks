@@ -1,0 +1,65 @@
+const GEMM_MAX_DIMENSION: usize = 64
+const GEMM_MAX_CELLS: usize = GEMM_MAX_DIMENSION * GEMM_MAX_DIMENSION
+const GEMM_INVALID_RESULT: f64 = -1e300
+
+def gemm_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 3:
+        return GEMM_INVALID_RESULT
+    if values[0] < 1 or values[0] > GEMM_MAX_DIMENSION.i64() or
+       values[1] < 1 or values[1] > GEMM_MAX_DIMENSION.i64() or
+       values[2] < 1 or values[2] > GEMM_MAX_DIMENSION.i64():
+        return GEMM_INVALID_RESULT
+    ni: usize = values[0].usize()
+    nj: usize = values[1].usize()
+    nk: usize = values[2].usize()
+    alpha: f64 = 1.5
+    beta: f64 = 1.2
+    c: mutable f64[GEMM_MAX_CELLS] = zeroed
+    a: mutable f64[GEMM_MAX_CELLS] = zeroed
+    b: mutable f64[GEMM_MAX_CELLS] = zeroed
+    i: mutable usize = 0
+    while i < ni:
+        j: mutable usize = 0
+        while j < nj:
+            c[i * nj + j] <- ((i * j + 1) % ni).f64() / ni.f64()
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < ni:
+        k: mutable usize = 0
+        while k < nk:
+            a[i * nk + k] <- (i * (k + 1) % nk).f64() / nk.f64()
+            k <- k + 1
+        i <- i + 1
+    k: mutable usize = 0
+    while k < nk:
+        j: mutable usize = 0
+        while j < nj:
+            b[k * nj + j] <- (k * (j + 2) % nj).f64() / nj.f64()
+            j <- j + 1
+        k <- k + 1
+    i <- 0
+    while i < ni:
+        j <- 0
+        while j < nj:
+            c[i * nj + j] <- c[i * nj + j] * beta
+            j <- j + 1
+        k <- 0
+        while k < nk:
+            j <- 0
+            while j < nj:
+                c[i * nj + j] <- c[i * nj + j] + alpha * a[i * nk + k] * b[k * nj + j]
+                j <- j + 1
+            k <- k + 1
+        i <- i + 1
+    checksum: mutable f64 = 0.0
+    i <- 0
+    while i < ni:
+        j <- 0
+        while j < nj:
+            checksum <- checksum + c[i * nj + j]
+            j <- j + 1
+        i <- i + 1
+    checksum
+
+export fn gemm(values: i64&, length: usize) -> f64 = gemm_impl

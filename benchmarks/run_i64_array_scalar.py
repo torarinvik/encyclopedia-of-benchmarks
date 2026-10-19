@@ -24,9 +24,16 @@ from build_abi import ROOT, sha256_file
 from coremark_crc_oracle import INVALID_RESULT as COREMARK_CRC_INVALID_RESULT
 from coremark_crc_oracle import MAX_INPUT_LENGTH as COREMARK_CRC_MAX_INPUT_LENGTH
 from coremark_crc_oracle import expected_result as coremark_crc_expected
+from drop3_oracle import INVALID_RESULT as DROP3_INVALID_RESULT
+from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
+from drop3_oracle import expected_result as drop3_expected
 from fannkuch_oracle import INVALID_RESULT as FANNKUCH_INVALID_RESULT
 from fannkuch_oracle import MAX_PARSEABLE_INPUT_LENGTH as FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH
 from fannkuch_oracle import expected_result as fannkuch_expected
+from nussinov_oracle import INVALID_RESULT as NUSSINOV_INVALID_RESULT
+from nussinov_oracle import MAX_INPUT_LENGTH as NUSSINOV_MAX_INPUT_LENGTH
+from nussinov_oracle import MAX_N as NUSSINOV_MAX_N
+from nussinov_oracle import expected_result as nussinov_expected
 from decremental_connectivity_oracle import MAX_INPUT_LENGTH as MAX_DECREMENTAL_CONNECTIVITY_INPUT_LENGTH
 from decremental_connectivity_oracle import expected_result as decremental_connectivity_expected
 from frequent_pattern_growth_oracle import expected_result as frequent_pattern_growth_expected
@@ -6097,7 +6104,9 @@ def validate_solution42_workload(workload: dict) -> None:
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (COREMARK_CRC_MAX_INPUT_LENGTH if algorithm == "coremark_crc" else
+                        DROP3_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "drop3" else
                         FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "fannkuch" else
+                        NUSSINOV_MAX_INPUT_LENGTH if algorithm == "nussinov" else
                         LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "lwe_encryption" else
                         POLLARD_RHO_JAVA_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "pollard_rho_java" else
                         POLLARD_RHO_PYTHON_MAX_PARSEABLE_LENGTH if algorithm == "pollard_rho_python" else
@@ -6618,10 +6627,18 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
-    if algorithm == "fannkuch":
+    if algorithm == "drop3":
+        expected_from_source = drop3_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("drop3 expected_result must match the bounded source-order bitstream filter")
+    elif algorithm == "fannkuch":
         expected_from_source = fannkuch_expected(values)
         if expected != expected_from_source:
             raise ValueError("fannkuch expected_result must match the bounded source-order prefix-reversal maximum")
+    elif algorithm == "nussinov":
+        expected_from_source = nussinov_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("nussinov expected_result must match the source-order upper-triangle table checksum")
     elif algorithm == "coremark_crc":
         input_is_null = case.get("input_is_null", False)
         expected_from_source = coremark_crc_expected(
@@ -14296,6 +14313,50 @@ def validate_traveling_salesman_workload(workload: dict) -> None:
         raise ValueError("traveling_salesman workload is missing maximum-tour or parser-cap coverage")
 
 
+def validate_drop3_workload(workload: dict) -> None:
+    expected_ids = {
+        "empty-input", "all-dropped", "all-retained", "source-offset-schedule",
+        "maximum-valid-input", "invalid-negative-byte", "invalid-byte-over-255",
+        "invalid-over-bound",
+    }
+    source = workload.get("pinned_source")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "measurement", "pinned_source", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "bitbench-drop3-3bit-filter-i64-array-scalar-v1"
+            or workload.get("algorithm") != "drop3"
+            or workload.get("function_symbol") != "drop3"
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "layout": "[byte_0, byte_1, ...]",
+                "byte_range": [0, 255], "maximum_valid_input_length": 4096,
+                "maximum_parseable_input_length": DROP3_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": DROP3_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "number of complete output bytes after retaining source-order 3-bit codes >= 4",
+                "valid_result_range": [0, 4095], "invalid_result": DROP3_INVALID_RESULT,
+            }
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(source, dict)
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("path") != "BitBench/drop3/drop3.c"
+            or source.get("revision") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or not isinstance(workload.get("cases"), list)
+            or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids
+            or len(workload["cases"]) != len(expected_ids)):
+        raise ValueError("drop3 metadata or fixture IDs differ from its bounded source contract")
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > DROP3_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != drop3_expected(values)):
+            raise ValueError(f"drop3 fixture differs from its bounded source-order oracle: {case.get('id')}")
+
+
 def validate_fannkuch_workload(workload: dict) -> None:
     expected_ids = {
         "n-1", "n-2", "n-3", "n-4", "n-5", "n-6", "n-7",
@@ -14339,6 +14400,49 @@ def validate_fannkuch_workload(workload: dict) -> None:
                 or type(case.get("expected_result")) is not int
                 or case["expected_result"] != fannkuch_expected(values)):
             raise ValueError(f"fannkuch fixture differs from its source-order recurrence: {case.get('id')}")
+
+
+def validate_nussinov_workload(workload: dict) -> None:
+    expected_ids = {
+        "n-1", "n-2", "n-3", "n-4", "n-5-first-nonzero-table",
+        "invalid-zero", "invalid-over-bound", "invalid-trailing-value", "invalid-empty",
+    }
+    source = workload.get("pinned_source")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "measurement", "pinned_source", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "polybench-nussinov-upper-triangle-sum-i64-scalar-v1"
+            or workload.get("algorithm") != "nussinov"
+            or workload.get("function_symbol") != "nussinov"
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "layout": "[n]", "n_range": [1, NUSSINOV_MAX_N],
+                "maximum_valid_input_length": 1,
+                "maximum_parseable_input_length": NUSSINOV_MAX_INPUT_LENGTH,
+                "invalid_result": NUSSINOV_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "sum of the upper-triangle entries in the source Nussinov dynamic-programming table",
+                "invalid_result": NUSSINOV_INVALID_RESULT,
+            }
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(source, dict)
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("path") != "PolyBench/medley/nussinov/nussinov.c"
+            or source.get("revision") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or not isinstance(workload.get("cases"), list)
+            or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids
+            or len(workload["cases"]) != len(expected_ids)):
+        raise ValueError("nussinov metadata or fixture IDs differ from its bounded source contract")
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > NUSSINOV_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != nussinov_expected(values)):
+            raise ValueError(f"nussinov fixture differs from its source-order recurrence: {case.get('id')}")
 
 
 def validate_coremark_crc_workload(workload: dict) -> None:
@@ -14553,8 +14657,12 @@ def main() -> int:
         validate_mcoloring_workload(workload)
     elif algorithm == "solution42":
         validate_solution42_workload(workload)
+    elif algorithm == "drop3":
+        validate_drop3_workload(workload)
     elif algorithm == "fannkuch":
         validate_fannkuch_workload(workload)
+    elif algorithm == "nussinov":
+        validate_nussinov_workload(workload)
     elif algorithm == "coremark_crc":
         validate_coremark_crc_workload(workload)
     elif algorithm == "graph_enumeration":

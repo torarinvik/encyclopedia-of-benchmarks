@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mibench-automotive-bitcount-bounded-scalar-v1",
+  "algorithm": "automotive_bitcount",
+  "function_symbol": "automotive_bitcount",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/automotive-bitcount/bitcnts.c",
+    "symbols": ["main", "bit_shifter", "bit_count", "bitcount", "ntbl_bitcnt", "ntbl_bitcount", "BW_btbl_bitcount", "AR_btbl_bitcount"],
+    "files": [
+      {"path": "MiBench/automotive-bitcount/bitarray.c", "blob_sha": "b21e8facccb8eb3d5f96bbb0878b89e0f8d87c15", "symbols": ["alloc_bit_array", "getbit", "setbit", "flipbit"]},
+      {"path": "MiBench/automotive-bitcount/bitcnt_1.c", "blob_sha": "d41f57f1b348a4c9484c881495c9274a3e3f9fd2", "symbols": ["bit_count"]},
+      {"path": "MiBench/automotive-bitcount/bitcnt_2.c", "blob_sha": "e34e119e32df6c04bdb910a9cdb0d7c3bb66a5f2", "symbols": ["bitcount"]},
+      {"path": "MiBench/automotive-bitcount/bitcnt_3.c", "blob_sha": "9fe3025fdaaea83a5e5ed54f59a449435837b85f", "symbols": ["ntbl_bitcount", "BW_btbl_bitcount", "AR_btbl_bitcount"]},
+      {"path": "MiBench/automotive-bitcount/bitcnt_4.c", "blob_sha": "9f76cd0f30a1a126e318ecb83d6899fd65d29f04", "symbols": ["ntbl_bitcnt", "btbl_bitcnt"]},
+      {"path": "MiBench/automotive-bitcount/bitcnts.c", "blob_sha": "36fc7bc495034e718a92a69e4eedcf47d2356a37", "symbols": ["main", "bit_shifter"]},
+      {"path": "MiBench/automotive-bitcount/bitfiles.c", "blob_sha": "504d4833f52a17c4a9b24345615e05eb98b139b9", "symbols": ["bfopen", "bfread", "bfwrite", "bfclose"]},
+      {"path": "MiBench/automotive-bitcount/bitstrng.c", "blob_sha": "c9f326abb0e751da877553543dd5914f490cacef", "symbols": ["bitstring"]},
+      {"path": "MiBench/automotive-bitcount/bstr_i.c", "blob_sha": "b4bfc733b1ab94a4500f3e3a70cbf63d4a896bf4", "symbols": ["bstr_i"]}
+    ],
+    "reference_output": {"path": "MiBench/automotive-bitcount/automotive-bitcount.reference_output", "blob_sha": "fef12507f13fd607ccb60f2431a979847a5058f1"},
+    "source_license_file": {"path": "MiBench/automotive-bitcount/LICENSE", "blob_sha": "59bf08a00b01d8064c8be35deeb48571b4c43601"},
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/automotive-bitcount"
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/automotive-bitcount/info.sh",
+    "blob_sha": "78b6a90f1266925ee834faa8906eb4d40208b684",
+    "bench_name": "automotive-bitcount",
+    "source_files": ["bitarray.c", "bitcnt_1.c", "bitcnt_2.c", "bitcnt_3.c", "bitcnt_4.c", "bitcnts.c", "bitfiles.c", "bitstrng.c", "bstr_i.c"],
+    "compile_flags": ["-lm"],
+    "run_options": {"iterations": "1125000"},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/automotive-bitcount/info.sh"
+  },
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Number of generated values counted by each of the seven source algorithms.",
+    "range": [0, 1125000],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Sum of the seven source-order bit totals weighted by their one-based algorithm positions.",
+    "maximum_result": 1008000000,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "source_algorithms": ["Optimized 1 bit/loop counter", "Ratko's mystery algorithm", "Recursive bit count by nybbles", "Non-recursive bit count by nybbles", "Non-recursive bit count by bytes (BW)", "Non-recursive bit count by bytes (AR)", "Shift and count bits"],
+    "source_seed_sequence": [16839, 18985, 21520, 3905, 10113, 8672, 21285],
+    "seed_generation": "These are the first seven results of the pinned local rand() after srand(1); the source draws one start value per algorithm, then adds 13 before each subsequent value.",
+    "counting": "Preserve the seven selected kernels: Kernighan bit clearing, parallel 32-bit bit summation, recursive nybble table, fixed eight-nybble table, BW four-byte table, AR four-byte table, and shift/test.",
+    "result": "Each kernel accumulates its bit counts over the requested iteration count. Return the sum of each total multiplied by its one-based position in source order.",
+    "bounded_profile": "Accept 0 through the launcher's 1125000 iterations. The generated seeds remain positive and below 2^31 throughout this profile."
+  },
+  "cases": [
+    {"id": "zero_iterations", "input_value": 0, "expected_result": 0, "algorithm_checksums": [0, 0, 0, 0, 0, 0, 0]},
+    {"id": "launcher_reference_profile", "input_value": 1125000, "expected_result": 371070824, "algorithm_checksums": [13254056, 13255501, 13257159, 13246703, 13250340, 13249450, 13257011]},
+    {"id": "negative_iterations", "input_value": -1, "expected_result": -1},
+    {"id": "above_launcher_bound", "input_value": 1125001, "expected_result": -1},
+    {"id": "signed_i64_minimum", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "signed_i64_maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  }
+}

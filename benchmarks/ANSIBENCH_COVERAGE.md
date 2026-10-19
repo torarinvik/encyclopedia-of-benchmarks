@@ -2,6 +2,8 @@
 
 The source inventory is pinned to [nfinit/ansibench commit `ef90abd09d7b7bb1f2809f896d6f67fb9724bebe`](https://github.com/nfinit/ansibench/tree/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe). This crosswalk covers its benchmarkable algorithm kernels and synthetic benchmark cores. Each newly added package documents its bounded contract, workload, oracle, source attribution, and implementations in C, C3, C++, Elisa, Nim, Odin, Rust, V, and Zig.
 
+The pinned revision has no remaining unrepresented benchmarkable kernel: every algorithm family in this inventory maps to a local suite package below.
+
 The local contracts are portable algorithm workloads; they do not claim comparable ANSIbench scores. Upstream timers, makefiles, platform presets, and reporting code are not part of an algorithm kernel.
 
 ## Classic benchmarks

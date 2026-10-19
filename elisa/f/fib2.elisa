@@ -1,0 +1,12 @@
+# Shootout fib2: uncached recursion with fib(0) = fib(1) = 1.
+def fib2_value(n: i64) -> i64:
+    if n < 2:
+        return 1
+    fib2_value(n - 2) + fib2_value(n - 1)
+
+def fib2_impl(n: i64) -> i64:
+    if n < 0 or n > 30:
+        return -1
+    fib2_value(n)
+
+export fn fib2(n: i64) -> i64 = fib2_impl

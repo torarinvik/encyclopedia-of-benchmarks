@@ -15,6 +15,12 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from atax_oracle import expected_result as atax_oracle
+from bicg_oracle import expected_result as bicg_oracle
+from mvt_oracle import expected_result as mvt_oracle
+from gemm_oracle import expected_result as gemm_oracle
+from covariance_oracle import expected_result as covariance_oracle
+from doitgen_oracle import expected_result as doitgen_oracle
 from hubble_parameter_oracle import INVALID_RESULT, expected_result as hubble_parameter_oracle
 from light_aberration_oracle import INVALID_RESULT as LIGHT_ABERRATION_INVALID_RESULT
 from light_aberration_oracle import expected_result as light_aberration_oracle
@@ -621,6 +627,7 @@ ALGORITHMS += ("shunting_yard",)
 ALGORITHMS += ("kmeans_raw_r",)
 ALGORITHMS += ("monte_carlo_integration", "monte_carlo_integration_independent")
 ALGORITHMS += ("traveling_salesman_solver_brute_force", "traveling_salesman_solver_nearest_neighbor")
+ALGORITHMS += ("mvt", "atax", "bicg", "gemm", "covariance", "doitgen")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -804,6 +811,18 @@ def logistic_regression_csharp_binary_gd_oracle(values: list[int]) -> float:
 
 
 def oracle(algorithm: str, values: list[int]) -> float:
+    if algorithm == "mvt":
+        return mvt_oracle(values)
+    if algorithm == "atax":
+        return atax_oracle(values)
+    if algorithm == "bicg":
+        return bicg_oracle(values)
+    if algorithm == "gemm":
+        return gemm_oracle(values)
+    if algorithm == "covariance":
+        return covariance_oracle(values)
+    if algorithm == "doitgen":
+        return doitgen_oracle(values)
     if algorithm == "traveling_salesman_solver_brute_force":
         return traveling_salesman_solver_brute_force_oracle(values)
     if algorithm == "traveling_salesman_solver_nearest_neighbor":
@@ -5753,6 +5772,46 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             add_kmeans_case(tuple(values))
+    elif algorithm in {"mvt", "atax", "bicg"}:
+        for first in (1, 2, 3, 8):
+            for second in (1, 2, 3, 8):
+                values = (first, second)
+                cases[values] = oracle(algorithm, list(values))
+        for values in ((1, 64), (64, 1), (63, 64), (64, 63), (64, 64),
+                       (0, 1), (1, 0), (65, 1), (1, 65),
+                       (I64_MIN, 1), (1, I64_MAX)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "gemm":
+        for ni in (1, 2, 3, 8):
+            for nj in (1, 2, 3, 8):
+                for nk in (1, 2, 3, 8):
+                    values = (ni, nj, nk)
+                    cases[values] = oracle(algorithm, list(values))
+        for values in ((1, 64, 1), (64, 1, 64), (63, 64, 2), (64, 64, 64),
+                       (0, 1, 1), (1, 0, 1), (1, 1, 0), (65, 1, 1),
+                       (1, 65, 1), (1, 1, 65), (I64_MIN, 1, 1), (1, 1, I64_MAX),
+                       (1, 1), (1, 1, 1, 1)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "covariance":
+        for observations in (2, 3, 4, 8):
+            for variables in (1, 2, 3, 8):
+                values = (observations, variables)
+                cases[values] = oracle(algorithm, list(values))
+        for values in ((2, 64), (64, 1), (64, 63), (64, 64),
+                       (1, 1), (0, 1), (2, 0), (65, 1), (2, 65),
+                       (I64_MIN, 1), (2, I64_MAX), (2,), (2, 2, 2)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "doitgen":
+        for nr in (1, 2, 3, 8):
+            for nq in (1, 2, 3, 8):
+                for np in (1, 2, 3, 8):
+                    values = (nr, nq, np)
+                    cases[values] = oracle(algorithm, list(values))
+        for values in ((1, 16, 1), (16, 1, 16), (15, 16, 2), (16, 16, 16),
+                       (0, 1, 1), (1, 0, 1), (1, 1, 0), (17, 1, 1),
+                       (1, 17, 1), (1, 1, 17), (I64_MIN, 1, 1), (1, 1, I64_MAX),
+                       (1, 1), (1, 1, 1, 1)):
+            cases[values] = oracle(algorithm, list(values))
     else:
         raise ValueError(f"no corpus for {algorithm}")
 
@@ -5849,7 +5908,10 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "simple_neural_network": 3,
                     "monte_carlo_integration": 3,
                     "monte_carlo_integration_independent": 3,
-                    "sparsity": 0}
+                    "sparsity": 0,
+                    "mvt": 2, "atax": 2, "bicg": 2, "gemm": 3,
+                    "covariance": 2}
+    null_lengths["doitgen"] = 3
     null_lengths.update({"return_on_investment": 2, "debt_to_equity": 2,
                          "gross_profit_margin": 2, "earnings_per_sale": 3})
     null_lengths["prefix_evaluation"] = 1

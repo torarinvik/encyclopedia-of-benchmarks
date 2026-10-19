@@ -1,0 +1,63 @@
+const COVARIANCE_MAX_DIMENSION: usize = 64
+const COVARIANCE_MAX_CELLS: usize = COVARIANCE_MAX_DIMENSION * COVARIANCE_MAX_DIMENSION
+const COVARIANCE_INVALID_RESULT: f64 = -1e300
+
+def covariance_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 2:
+        return COVARIANCE_INVALID_RESULT
+    if values[0] < 2 or values[0] > COVARIANCE_MAX_DIMENSION.i64() or
+       values[1] < 1 or values[1] > COVARIANCE_MAX_DIMENSION.i64():
+        return COVARIANCE_INVALID_RESULT
+    n: usize = values[0].usize()
+    m: usize = values[1].usize()
+    float_n: f64 = n.f64()
+    data: mutable f64[COVARIANCE_MAX_CELLS] = zeroed
+    cov: mutable f64[COVARIANCE_MAX_CELLS] = zeroed
+    mean: mutable f64[COVARIANCE_MAX_DIMENSION] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        j: mutable usize = 0
+        while j < m:
+            data[i * m + j] <- (i.f64() * j.f64()) / m.f64()
+            j <- j + 1
+        i <- i + 1
+    j: mutable usize = 0
+    while j < m:
+        mean[j] <- 0.0
+        i <- 0
+        while i < n:
+            mean[j] <- mean[j] + data[i * m + j]
+            i <- i + 1
+        mean[j] <- mean[j] / float_n
+        j <- j + 1
+    i <- 0
+    while i < n:
+        j <- 0
+        while j < m:
+            data[i * m + j] <- data[i * m + j] - mean[j]
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < m:
+        j <- i
+        while j < m:
+            cov[i * m + j] <- 0.0
+            k: mutable usize = 0
+            while k < n:
+                cov[i * m + j] <- cov[i * m + j] + data[k * m + i] * data[k * m + j]
+                k <- k + 1
+            cov[i * m + j] <- cov[i * m + j] / (float_n - 1.0)
+            cov[j * m + i] <- cov[i * m + j]
+            j <- j + 1
+        i <- i + 1
+    checksum: mutable f64 = 0.0
+    i <- 0
+    while i < m:
+        j <- 0
+        while j < m:
+            checksum <- checksum + cov[i * m + j]
+            j <- j + 1
+        i <- i + 1
+    checksum
+
+export fn covariance(values: i64&, length: usize) -> f64 = covariance_impl

@@ -1,0 +1,54 @@
+const BICG_MAX_DIMENSION: usize = 64
+const BICG_MAX_CELLS: usize = BICG_MAX_DIMENSION * BICG_MAX_DIMENSION
+const BICG_INVALID_RESULT: f64 = -1e300
+
+def bicg_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 2:
+        return BICG_INVALID_RESULT
+    if values[0] < 1 or values[0] > BICG_MAX_DIMENSION.i64() or
+       values[1] < 1 or values[1] > BICG_MAX_DIMENSION.i64():
+        return BICG_INVALID_RESULT
+    m: usize = values[0].usize()
+    n: usize = values[1].usize()
+    matrix: mutable f64[BICG_MAX_CELLS] = zeroed
+    p: mutable f64[BICG_MAX_DIMENSION] = zeroed
+    r: mutable f64[BICG_MAX_DIMENSION] = zeroed
+    s: mutable f64[BICG_MAX_DIMENSION] = zeroed
+    q: mutable f64[BICG_MAX_DIMENSION] = zeroed
+    i: mutable usize = 0
+    while i < m:
+        p[i] <- i.f64() / m.f64()
+        i <- i + 1
+    i <- 0
+    while i < n:
+        r[i] <- i.f64() / n.f64()
+        j: mutable usize = 0
+        while j < m:
+            matrix[i * m + j] <- (i * (j + 1) % n).f64() / n.f64()
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < m:
+        s[i] <- 0.0
+        i <- i + 1
+    i <- 0
+    while i < n:
+        q[i] <- 0.0
+        j: mutable usize = 0
+        while j < m:
+            s[j] <- s[j] + r[i] * matrix[i * m + j]
+            q[i] <- q[i] + matrix[i * m + j] * p[j]
+            j <- j + 1
+        i <- i + 1
+    checksum: mutable f64 = 0.0
+    j: mutable usize = 0
+    while j < m:
+        checksum <- checksum + s[j]
+        j <- j + 1
+    i <- 0
+    while i < n:
+        checksum <- checksum + q[i]
+        i <- i + 1
+    checksum
+
+export fn bicg(values: i64&, length: usize) -> f64 = bicg_impl

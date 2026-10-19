@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-misc-revertbits-paired-32-64-v1",
+  "algorithm": "revert_bits",
+  "function_symbol": "revert_bits",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/revertBits/revertBits.c",
+    "blob_sha": "b56d775ce75a6bc9a684485157ea1db902197688",
+    "symbols": ["ReverseBits32", "ReverseBits64", "main"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/revertBits/revertBits.c"
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/revertBits/info.sh",
+    "blob_sha": "56e152f011962d4783f682e0318188fc91da2286",
+    "bench_name": "revertBits",
+    "source_files": ["revertBits.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[uint32_word, signed_i64 carrying the uint64 word's raw two's-complement bits]",
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "uint32_word_range": [0, 4294967295],
+    "uint64_word_encoding": "Any signed i64 value; its two's-complement bit pattern is interpreted as uint64.",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "uint32_then_uint64_little_endian_bytes",
+    "layout": "4-byte ReverseBits32 result followed by 8-byte ReverseBits64 result",
+    "byte_order": "little_endian",
+    "maximum_output_bytes": 12,
+    "success_result": 12,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "contract": {
+    "operation": "Apply the pinned source's staged adjacent-bit, pair, nibble, and byte reversal to the 32-bit and 64-bit input words, respectively.",
+    "32_bit_word": "Input value 0 is an unsigned 32-bit word.",
+    "64_bit_word": "Input value 1 is interpreted as an unsigned 64-bit word using its raw signed-i64 bit pattern.",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 12,
+    "meaning": "Four bytes for the 32-bit reversal and eight bytes for the 64-bit reversal."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10000
+  },
+  "cases": [
+    {"id": "upstream_sample", "input_values": [305419896, 81985529205302085], "input_length": 2, "expected_result": 12, "expected_output_hex": "482c6a1e80c4a2e69180c4a2"},
+    {"id": "zero_words", "input_values": [0, 0], "input_length": 2, "expected_result": 12, "expected_output_hex": "000000000000000000000000"},
+    {"id": "low_single_bits", "input_values": [1, 1], "input_length": 2, "expected_result": 12, "expected_output_hex": "000000800000000000000080"},
+    {"id": "high_single_bits", "input_values": [2147483648, -9223372036854775808], "input_length": 2, "expected_result": 12, "expected_output_hex": "010000000100000000000000"},
+    {"id": "all_ones", "input_values": [4294967295, -1], "input_length": 2, "expected_result": 12, "expected_output_hex": "ffffffffffffffffffffffff"},
+    {"id": "u32_negative", "input_values": [-1, 0], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "u32_above_range", "input_values": [4294967296, 0], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "trailing_input", "input_values": [1, 1, 0], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_output", "input_values": [1, 1], "input_length": 2, "output_capacity": 11, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [1, 1], "input_length": 2, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

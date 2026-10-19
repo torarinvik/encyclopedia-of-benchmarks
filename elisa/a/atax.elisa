@@ -1,0 +1,52 @@
+const ATAX_MAX_DIMENSION: usize = 64
+const ATAX_MAX_CELLS: usize = ATAX_MAX_DIMENSION * ATAX_MAX_DIMENSION
+const ATAX_INVALID_RESULT: f64 = -1e300
+
+def atax_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 2:
+        return ATAX_INVALID_RESULT
+    if values[0] < 1 or values[0] > ATAX_MAX_DIMENSION.i64() or
+       values[1] < 1 or values[1] > ATAX_MAX_DIMENSION.i64():
+        return ATAX_INVALID_RESULT
+    m: usize = values[0].usize()
+    n: usize = values[1].usize()
+    matrix: mutable f64[ATAX_MAX_CELLS] = zeroed
+    x: mutable f64[ATAX_MAX_DIMENSION] = zeroed
+    y: mutable f64[ATAX_MAX_DIMENSION] = zeroed
+    temporary: mutable f64[ATAX_MAX_DIMENSION] = zeroed
+    fn_value: f64 = n.f64()
+    i: mutable usize = 0
+    while i < n:
+        x[i] <- 1.0 + i.f64() / fn_value
+        i <- i + 1
+    i <- 0
+    while i < m:
+        j: mutable usize = 0
+        while j < n:
+            matrix[i * n + j] <- ((i + j) % n).f64() / (5 * m).f64()
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        y[i] <- 0.0
+        i <- i + 1
+    i <- 0
+    while i < m:
+        temporary[i] <- 0.0
+        j: mutable usize = 0
+        while j < n:
+            temporary[i] <- temporary[i] + matrix[i * n + j] * x[j]
+            j <- j + 1
+        j <- 0
+        while j < n:
+            y[j] <- y[j] + matrix[i * n + j] * temporary[i]
+            j <- j + 1
+        i <- i + 1
+    checksum: mutable f64 = 0.0
+    j: mutable usize = 0
+    while j < n:
+        checksum <- checksum + y[j]
+        j <- j + 1
+    checksum
+
+export fn atax(values: i64&, length: usize) -> f64 = atax_impl
