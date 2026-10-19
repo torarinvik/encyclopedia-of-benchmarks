@@ -46,6 +46,8 @@ def _crcu32(value: int, crc: int) -> int:
 
 def expected_result(values: Sequence[int] | None, *, input_is_null: bool = False,
                     input_length: int | None = None) -> int:
+    if type(input_is_null) is not bool:
+        return INVALID_RESULT
     if input_is_null or values is None or not isinstance(values, (list, tuple)):
         return INVALID_RESULT
     if not 1 <= len(values) <= MAX_INPUT_LENGTH:

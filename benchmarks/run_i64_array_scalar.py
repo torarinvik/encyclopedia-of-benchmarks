@@ -6615,7 +6615,12 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
             or type(expected) is not int):
         raise ValueError(f"array scalar cases require up to {max_input_length} signed 64-bit values")
     if algorithm == "coremark_crc":
-        expected_from_source = coremark_crc_expected(values)
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = coremark_crc_expected(
+            None if input_is_null else values,
+            input_is_null=input_is_null,
+            input_length=case.get("input_length", len(values)),
+        )
         if expected != expected_from_source:
             raise ValueError("coremark_crc expected_result must match the bounded CoreMark helper recurrence")
     elif algorithm == "msd_radix_string_sorter":
@@ -14287,6 +14292,7 @@ def validate_coremark_crc_workload(workload: dict) -> None:
     expected_ids = {
         "all-four-helpers", "zero-values", "width-boundaries", "invalid-zero-operation-count",
         "invalid-seed", "invalid-u8", "invalid-u16", "invalid-u32", "invalid-s16", "trailing-value",
+        "null-input",
     }
     expected_source = {
         "repository": "eembc/coremark",
@@ -14338,14 +14344,26 @@ def validate_coremark_crc_workload(workload: dict) -> None:
 
     for case in cases:
         values = case.get("input_values")
-        if (set(case) != {"id", "input_values", "expected_result"}
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        allowed_case_fields = ({"id", "input_values", "input_length", "input_is_null", "expected_result"}
+                               if input_is_null else {"id", "input_values", "expected_result"})
+        if (set(case) != allowed_case_fields
                 or not isinstance(values, list)
                 or len(values) > COREMARK_CRC_MAX_INPUT_LENGTH
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or (input_is_null and (values or input_length != 1))
+                or (not input_is_null and input_length != len(values))
                 or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
                        for value in values)
                 or type(case.get("expected_result")) is not int):
             raise ValueError(f"coremark_crc fixture framing is invalid: {case.get('id')}")
-        expected = coremark_crc_expected(values)
+        expected = coremark_crc_expected(
+            None if input_is_null else values,
+            input_is_null=input_is_null,
+            input_length=input_length,
+        )
         if expected != case["expected_result"]:
             raise ValueError(f"coremark_crc fixture differs from its source recurrence: {case['id']}")
 

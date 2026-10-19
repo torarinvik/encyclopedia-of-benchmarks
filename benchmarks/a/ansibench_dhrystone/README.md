@@ -11,3 +11,10 @@ This profile excludes the timing and reporting wrapper and fixes the pass count 
 Pinned source: [`nfinit/ansibench` Dhrystone 2.1 core at commit `ef90abd09d7b7bb1f2809f896d6f67fb9724bebe`](https://github.com/nfinit/ansibench/tree/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/dhrystone). The source credits Reinhold P. Weicker (1988); the repository's Dhrystone license note states that the original benchmark and its ANSI C modifications are public domain. See [the upstream notice](https://github.com/nfinit/ansibench/blob/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/dhrystone/LICENSE) and the included [LICENSE](LICENSE).
 
 The implementations here are independent translations of the documented core operations. They do not include the original timing/reporting harness.
+
+## Workload, oracle, and ports
+
+- Workload: [`workload.json`](workload.json)
+- Oracle: [`ansibench_dhrystone_oracle.py`](../../ansibench_dhrystone_oracle.py)
+
+The nine implementations are [C](../../../c/a/ansibench_dhrystone.c), [C3](../../../c3/a/ansibench_dhrystone.c3), [C++](../../../cpp/a/ansibench_dhrystone.cpp), [Elisa](../../../elisa/a/ansibench_dhrystone.elisa), [Nim](../../../nim/a/ansibench_dhrystone.nim), [Odin](../../../odin/a/ansibench_dhrystone.odin), [Rust](../../../rust/a/ansibench_dhrystone.rs), [V](../../../v/a/ansibench_dhrystone.v), and [Zig](../../../zig/a/ansibench_dhrystone.zig).

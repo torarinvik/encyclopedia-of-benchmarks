@@ -103,8 +103,6 @@ def expected_output(
         return -1, b""
     if type(output_is_null) is not bool:
         return -1, b""
-    if capacity is not None and (type(capacity) is not int or capacity < 0):
-        return INVALID_RESULT, b""
     result = struct.pack("<5q", *_run(x_bits, y_bits, requested))
     if output_is_null or (output_capacity is not None and output_capacity < len(result)):
         return OUTPUT_ERROR, b""

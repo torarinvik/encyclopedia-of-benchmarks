@@ -150,6 +150,8 @@ def _func2(s: State, a: bytearray, b: bytearray) -> bool:
 
 def expected_output(values, output_capacity=None, output_is_null=False,
                     input_is_null=False, input_length=None):
+    if type(output_is_null) is not bool or type(input_is_null) is not bool:
+        return INVALID_RESULT, b""
     if input_is_null or not isinstance(values, (list, tuple)):
         return INVALID_RESULT, b""
     if len(values) != 1 or input_length is not None and (type(input_length) is not int or input_length != 1):

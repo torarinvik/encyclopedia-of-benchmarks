@@ -17,6 +17,16 @@ import struct
 import sys
 
 from build_abi import ROOT, sha256_file
+from ansibench_whetstone_oracle import (
+    INVALID_RESULT as ANSIBENCH_WHETSTONE_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as ANSIBENCH_WHETSTONE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as ansibench_whetstone_expected,
+)
+from linpack_lu_solve_oracle import (
+    INVALID_RESULT as LINPACK_LU_SOLVE_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as LINPACK_LU_SOLVE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as linpack_lu_solve_expected,
+)
 from nbench_fourier_coefficients_oracle import (
     INVALID_RESULT as NBENCH_FOURIER_COEFFICIENTS_INVALID_RESULT,
     MAX_PARSEABLE_INPUT_LENGTH as NBENCH_FOURIER_COEFFICIENTS_MAX_PARSEABLE_INPUT_LENGTH,
@@ -2040,6 +2050,108 @@ def validate_nbench_fourier_coefficients_workload(workload: dict) -> None:
             raise ValueError(f"nbench_fourier_coefficients fixture differs from its oracle: {case.get('id')}")
 
 
+def validate_ansibench_whetstone_workload(workload: dict) -> None:
+    expected_ids = {"one-complete-pass", "two-complete-passes", "three-complete-passes",
+                    "invalid-zero-passes", "invalid-too-many-passes", "invalid-trailing-value",
+                    "null-input"}
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "ansibench-whetstone-fixed-loop1-core-i64-f64-v1"
+            or workload.get("algorithm") != "ansibench_whetstone"
+            or workload.get("function_symbol") != "ansibench_whetstone"
+            or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+            or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+            or workload.get("pinned_source", {}).get("path") != "whetstone/src/whetstone.c"
+            or input_spec.get("layout") != "[complete_major_loop_passes]"
+            or input_spec.get("passes_range") != [1, 3]
+            or input_spec.get("maximum_parseable_input_length") != ANSIBENCH_WHETSTONE_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("invalid_result") != ANSIBENCH_WHETSTONE_INVALID_RESULT
+            or output_spec.get("kind") != "float64_scalar"
+            or output_spec.get("absolute_tolerance") != 1e-9
+            or output_spec.get("relative_tolerance") != 1e-12
+            or output_spec.get("invalid_result") != ANSIBENCH_WHETSTONE_INVALID_RESULT
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"
+            or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+        raise ValueError("ansibench_whetstone metadata differs from its bounded float64 contract")
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or (input_is_null and (values or input_length != 1))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"ansibench_whetstone fixture framing is invalid: {case.get('id')}")
+        expected = ansibench_whetstone_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-9)):
+            raise ValueError(f"ansibench_whetstone fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_linpack_lu_solve_workload(workload: dict) -> None:
+    expected_ids = {
+        "two-by-two-row-pivot", "three-by-three-symmetric", "first-pivot-wins-tie",
+        "singular-matrix", "invalid-matrix-entry", "invalid-rhs-entry",
+        "invalid-dimension", "trailing-data", "null-input",
+    }
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    expected_profile = {
+        "factorization": "ANSIbench dgefa rolled path with lda=n and partial pivoting",
+        "solve": "ANSIbench dgesl rolled path with job=0 (A*x=b)",
+        "pivot_ties": "first maximum absolute value, matching strict-greater idamax",
+        "timing_and_score_calculation": False,
+    }
+    expected_symbols = ["dgefa", "dgesl", "daxpy_r", "dscal_r", "idamax"]
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "ansibench-linpack-rolled-dgefa-dgesl-i64-f64-v1"
+            or workload.get("algorithm") != "linpack_lu_solve"
+            or workload.get("function_symbol") != "linpack_lu_solve"
+            or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+            or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+            or workload.get("pinned_source", {}).get("path") != "linpack/src/linpack.c"
+            or workload.get("pinned_source", {}).get("symbols") != expected_symbols
+            or input_spec.get("kind") != "signed_i64_array"
+            or input_spec.get("layout") != "[n, A_column_major_0_to_n_squared_minus_1, b_0_to_n_minus_1]"
+            or input_spec.get("n_range") != [2, 4]
+            or input_spec.get("matrix_entry_range") != [-8, 8]
+            or input_spec.get("rhs_entry_range") != [-32, 32]
+            or input_spec.get("exact_length") != "1 + n*n + n"
+            or input_spec.get("maximum_parseable_input_length") != LINPACK_LU_SOLVE_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("singular_matrix") != "invalid when rolled dgefa reports nonzero info or a zero pivot"
+            or input_spec.get("invalid_result") != LINPACK_LU_SOLVE_INVALID_RESULT
+            or input_spec.get("input_mutation") != "none"
+            or output_spec.get("meaning") != "sum((solution_index + 1) * x[solution_index]) for dgesl job=0 solution"
+            or output_spec.get("kind") != "float64_scalar"
+            or output_spec.get("absolute_tolerance") != 1e-10
+            or output_spec.get("relative_tolerance") != 1e-12
+            or output_spec.get("invalid_result") != LINPACK_LU_SOLVE_INVALID_RESULT
+            or workload.get("profile") != expected_profile
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"
+            or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+        raise ValueError("linpack_lu_solve metadata differs from its bounded source contract")
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list) or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or (input_is_null and (case.get("id") != "null-input"
+                                       or values or input_length != 1))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"linpack_lu_solve fixture framing is invalid: {case.get('id')}")
+        expected = linpack_lu_solve_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or actual != expected):
+            raise ValueError(f"linpack_lu_solve fixture differs from its oracle: {case.get('id')}")
+
+
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MONTE_CARLO_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "monte_carlo_integration" else
@@ -2188,6 +2300,10 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "traveling_salesman_solver_nearest_neighbor" else
                         NBENCH_FOURIER_COEFFICIENTS_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "nbench_fourier_coefficients" else
+                        ANSIBENCH_WHETSTONE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "ansibench_whetstone" else
+                        LINPACK_LU_SOLVE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "linpack_lu_solve" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
@@ -2214,6 +2330,20 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         source_result = nbench_fourier_coefficients_expected(values)
         if expected != source_result:
             raise ValueError("nbench_fourier_coefficients expected_result must match the pinned coefficient projection")
+    if algorithm == "ansibench_whetstone":
+        source_result = ansibench_whetstone_expected(
+            values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != source_result:
+            raise ValueError("ansibench_whetstone expected_result must match the bounded operation-mix oracle")
+    if algorithm == "linpack_lu_solve":
+        source_result = linpack_lu_solve_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if expected != source_result:
+            raise ValueError("linpack_lu_solve expected_result must match the rolled LU solve oracle")
     if algorithm == "kmeans_raw_r":
         source_result = kmeans_raw_r_expected(values)
         if source_result == KMEANS_RAW_R_INVALID_RESULT:
@@ -4490,6 +4620,10 @@ def main() -> int:
         validate_traveling_salesman_solver_workload(workload, algorithm)
     elif algorithm == "nbench_fourier_coefficients":
         validate_nbench_fourier_coefficients_workload(workload)
+    elif algorithm == "ansibench_whetstone":
+        validate_ansibench_whetstone_workload(workload)
+    elif algorithm == "linpack_lu_solve":
+        validate_linpack_lu_solve_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")
@@ -4526,6 +4660,8 @@ def main() -> int:
                 or algorithm == "sharpe_ratio" and input_length == 0
                 or algorithm == "kmeans_raw_r" and input_length in (0, 4)
                 or algorithm == "nbench_fourier_coefficients" and input_length == 0
+                or algorithm == "ansibench_whetstone" and input_length == 1
+                or algorithm == "linpack_lu_solve" and input_length == 1
                 or algorithm in {"monte_carlo_integration",
                                  "monte_carlo_integration_independent"} and input_length == 3)
             if not supported_null_input or values:

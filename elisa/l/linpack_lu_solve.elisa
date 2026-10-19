@@ -1,0 +1,58 @@
+// ANSIbench LINPACK dgefa/dgesl profile; upstream source and stated modifications are public domain.
+const INVALID_RESULT:f64 = -1e300
+
+def dgefa(a:f64[16]&,n:i64,pivots:i64[4]&)->i64:
+    info:i64=0
+    for k in 0..(n-1):
+        l=k; maximum=abs(a[n*k+k])
+        for i in 1..(n-k):
+            candidate=abs(a[n*k+k+i])
+            if candidate>maximum:l=k+i;maximum=candidate
+        pivots[k]=l
+        if a[n*k+l]!=0.0:
+            if l!=k:swap(a[n*k+l],a[n*k+k])
+            factor= -1.0/a[n*k+k]
+            for i in 0..(n-k-1):a[n*k+k+1+i]=factor*a[n*k+k+1+i]
+            for j in (k+1)..(n-1):
+                t=a[n*j+l]
+                if l!=k:a[n*j+l]=a[n*j+k];a[n*j+k]=t
+                if t!=0.0:
+                    for i in 0..(n-k-1):a[n*j+k+1+i]=a[n*j+k+1+i]+t*a[n*k+k+1+i]
+        else:info=k
+    pivots[n-1]=n-1
+    if a[n*(n-1)+n-1]==0.0:info=n-1
+    info
+
+def dgesl(a:f64[16]&,n:i64,pivots:i64[4]&,b:f64[4]&):
+    for k in 0..(n-1):
+        l=pivots[k];t=b[l]
+        if l!=k:swap(b[l],b[k])
+        if t!=0.0:
+            for i in 0..(n-k-1):b[k+1+i]=b[k+1+i]+t*a[n*k+k+1+i]
+    for kb in 0..n:
+        k=n-(kb+1);b[k]=b[k]/a[n*k+k];t= -b[k]
+        if t!=0.0:
+            for i in 0..k:b[i]=b[i]+t*a[n*k+i]
+
+def linpack_lu_solve_impl(input:i64&,length:usize)->f64:
+    if input==null or length<1 or length>22:return INVALID_RESULT
+    raw_n=input[0]
+    if raw_n<2 or raw_n>4:return INVALID_RESULT
+    n=raw_n
+    if length!=1+n*n+n:return INVALID_RESULT
+    a:f64[16];b:f64[4];pivots:i64[4]
+    for i in 0..(n*n):
+        value=input[1+i]
+        if value < -8 or value>8:return INVALID_RESULT
+        a[i]=value.f64()
+    for i in 0..n:
+        value=input[1+n*n+i]
+        if value < -32 or value>32:return INVALID_RESULT
+        b[i]=value.f64()
+    if dgefa(a,n,pivots)!=0:return INVALID_RESULT
+    dgesl(a,n,pivots,b)
+    result:f64=0.0
+    for i in 0..n:result=result+(i+1).f64()*b[i]
+    if not result.is_finite():return INVALID_RESULT
+    result
+export fn linpack_lu_solve(input:i64&,length:usize)->f64=linpack_lu_solve_impl

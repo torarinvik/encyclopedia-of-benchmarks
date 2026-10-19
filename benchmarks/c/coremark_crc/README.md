@@ -4,7 +4,7 @@ This package exercises CoreMark's four 16-bit CRC helper entry points over a sma
 
 ## Contract
 
-Input is `[count, tag, seed, value, ...]`, with 1–16 records and exact length `1 + 3*count`. Tags 0, 1, 2, and 3 invoke `crcu8`, `crcu16`, `crcu32`, and `crc16`, respectively. Seeds are unsigned 16-bit values. The corresponding value domains are unsigned 8-bit, unsigned 16-bit, unsigned 32-bit, and signed 16-bit. Invalid input returns `-1`.
+Input is `[count, tag, seed, value, ...]`, with 1–16 records and exact length `1 + 3*count`. Tags 0, 1, 2, and 3 invoke `crcu8`, `crcu16`, `crcu32`, and `crc16`, respectively. Seeds are unsigned 16-bit values. The corresponding value domains are unsigned 8-bit, unsigned 16-bit, unsigned 32-bit, and signed 16-bit. Invalid or null input returns `-1`.
 
 The implementation follows CoreMark `core_util.c`: `crcu8` processes data least-significant bit first with the source's `0x4002` feedback mask and 16-bit carry handling. `crcu16` feeds the low byte then high byte. `crcu32` feeds the low 16-bit half then the high half through `crc16`; `crc16` converts its signed 16-bit input to unsigned 16-bit and delegates to `crcu16`.
 

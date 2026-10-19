@@ -49,6 +49,6 @@
     {"id": "invalid-zero-passes", "input_values": [0], "expected_result": -1e300},
     {"id": "invalid-too-many-passes", "input_values": [4], "expected_result": -1e300},
     {"id": "invalid-trailing-value", "input_values": [1, 2], "expected_result": -1e300},
-    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1e300}
+    {"id": "null-input", "input_values": [], "input_length": 1, "input_is_null": true, "expected_result": -1e300}
   ]
 }

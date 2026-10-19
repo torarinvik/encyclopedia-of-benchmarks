@@ -1626,6 +1626,14 @@ from nbench_neural_network_oracle import INVALID_RESULT as NBENCH_NEURAL_NETWORK
 from nbench_neural_network_oracle import MAX_OUTPUT_BYTES as NBENCH_NEURAL_NETWORK_MAX_OUTPUT_BYTES
 from nbench_neural_network_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_NEURAL_NETWORK_MAX_PARSEABLE_INPUT_LENGTH
 from nbench_neural_network_oracle import expected_output as nbench_neural_network_expected_output
+from ansibench_dhrystone_oracle import INVALID_RESULT as ANSIBENCH_DHRYSTONE_INVALID_RESULT
+from ansibench_dhrystone_oracle import MAX_OUTPUT_BYTES as ANSIBENCH_DHRYSTONE_MAX_OUTPUT_BYTES
+from ansibench_dhrystone_oracle import MAX_PARSEABLE_INPUT_LENGTH as ANSIBENCH_DHRYSTONE_MAX_PARSEABLE_INPUT_LENGTH
+from ansibench_dhrystone_oracle import expected_output as ansibench_dhrystone_expected_output
+from coremark_matrix_manipulation_oracle import INVALID_RESULT as COREMARK_MATRIX_MANIPULATION_INVALID_RESULT
+from coremark_matrix_manipulation_oracle import MAX_OUTPUT_BYTES as COREMARK_MATRIX_MANIPULATION_MAX_OUTPUT_BYTES
+from coremark_matrix_manipulation_oracle import MAX_PARSEABLE_INPUT_LENGTH as COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH
+from coremark_matrix_manipulation_oracle import expected_output as coremark_matrix_manipulation_expected_output
 from reverse_k_group_oracle import MAX_N as REVERSE_K_GROUP_MAX_N
 from reverse_k_group_oracle import expected_output as reverse_k_group_expected_output
 from permute_string_oracle import MAX_INPUT_LENGTH as PERMUTE_STRING_MAX_INPUT_LENGTH
@@ -3166,6 +3174,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "nbench_resource_assignment": nbench_resource_assignment_expected_output,
     "nbench_emulated_float_arithmetic": nbench_emulated_float_arithmetic_expected_output,
     "nbench_neural_network": nbench_neural_network_expected_output,
+    "ansibench_dhrystone": ansibench_dhrystone_expected_output,
+    "coremark_matrix_manipulation": coremark_matrix_manipulation_expected_output,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
@@ -33206,6 +33216,102 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("nbench_neural_network metadata differs from its pinned byte-output contract")
+    elif algorithm == "ansibench_dhrystone":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {"one-pass", "four-passes", "zero-passes-invalid", "too-many-passes",
+                        "wrong-length", "short-output", "null-output", "null-input"}
+        pinned_sources = workload.get("pinned_sources", [])
+        expected_sources = [
+            {"repository": "nfinit/ansibench", "commit": "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe",
+             "path": "dhrystone/src/dhry_1.c", "symbols": ["main", "Proc_1", "Proc_2", "Proc_3", "Proc_4", "Proc_5"],
+             "role": "algorithm"},
+            {"repository": "nfinit/ansibench", "commit": "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe",
+             "path": "dhrystone/src/dhry_2.c", "symbols": ["Proc_6", "Proc_7", "Proc_8", "Func_1", "Func_2", "Func_3"],
+             "role": "algorithm"},
+            {"repository": "nfinit/ansibench", "commit": "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe",
+             "path": "dhrystone/include/dhry.h", "role": "definitions"},
+            {"repository": "nfinit/ansibench", "commit": "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe",
+             "path": "dhrystone/LICENSE", "role": "license"},
+        ]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "ansibench-dhrystone-21-bounded-core-profile-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or pinned_sources != expected_sources
+                or input_spec.get("layout") != "[pass_count]"
+                or input_spec.get("pass_count_range") != [1, 8]
+                or input_spec.get("maximum_valid_input_values") != 1
+                or input_spec.get("maximum_parseable_input_values") != ANSIBENCH_DHRYSTONE_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != ANSIBENCH_DHRYSTONE_INVALID_RESULT
+                or output_spec.get("kind") != "dhrystone_state_summary_byte_array"
+                or output_spec.get("maximum_output_bytes") != ANSIBENCH_DHRYSTONE_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != ANSIBENCH_DHRYSTONE_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != ANSIBENCH_DHRYSTONE_INVALID_RESULT
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or workload.get("workspace", {}).get("bytes") != ANSIBENCH_DHRYSTONE_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("ansibench_dhrystone metadata differs from its pinned byte-output contract")
+    elif algorithm == "coremark_matrix_manipulation":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_profile = {
+            "official_benchmark_score": False,
+            "dimension": 3,
+            "matrix_dat": "signed 16-bit",
+            "matrix_result": "signed 32-bit",
+            "clipval": "signed-16-bit conversion of (0xf000 | value)",
+            "pipeline": [
+                "add_const(A,value)",
+                "mul_const(A,value)",
+                "matrix_sum",
+                "mul_vect(A,B[0..2])",
+                "matrix_sum",
+                "mul_matrix(A,B)",
+                "matrix_sum",
+                "bitextract_mul_matrix(A,B)",
+                "matrix_sum",
+                "add_const(A,-value)",
+            ],
+            "bit_extract_expression": "((x >> from) & (~(0xffffffff << to)))",
+            "sum_clip_condition": "tmp > clipval; add 10 and reset tmp; otherwise increment iff cur > prev",
+            "crc_update": "source CRC16 over each of the four signed 16-bit matrix sums in order",
+        }
+        expected_ids = {"pipeline-clipping", "zero-constant", "value-above-range",
+                        "matrix-value-above-range", "trailing-input", "short-output",
+                        "null-output", "null-input"}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "coremark-matrix-manipulation-fixed-3x3-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+                or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+                or workload.get("pinned_source", {}).get("path") != "coremark/src/core_matrix.c"
+                or workload.get("profile") != expected_profile
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("layout") != "[value, A row-major 9 values, B row-major 9 values]"
+                or input_spec.get("exact_length") != 19
+                or input_spec.get("maximum_valid_input_length") != 19
+                or input_spec.get("maximum_parseable_input_length") != COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("value_range") != [0, 15]
+                or input_spec.get("matrix_value_range") != [0, 127]
+                or input_spec.get("invalid_result") != COREMARK_MATRIX_MANIPULATION_INVALID_RESULT
+                or output_spec.get("kind") != "fourteen_signed_i64_values_as_little_endian_bytes"
+                or output_spec.get("layout") != "[crc16, matrix_sum[4], restored_A[9]]"
+                or output_spec.get("exact_bytes") != COREMARK_MATRIX_MANIPULATION_MAX_OUTPUT_BYTES
+                or output_spec.get("maximum_output_bytes") != COREMARK_MATRIX_MANIPULATION_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != COREMARK_MATRIX_MANIPULATION_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != COREMARK_MATRIX_MANIPULATION_INVALID_RESULT
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or workload.get("workspace", {}).get("bytes") != COREMARK_MATRIX_MANIPULATION_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("coremark_matrix_manipulation metadata differs from its pinned byte-output contract")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
@@ -33231,6 +33337,10 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "nbench_emulated_float_arithmetic" else
                      NBENCH_NEURAL_NETWORK_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "nbench_neural_network" else
+                     ANSIBENCH_DHRYSTONE_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "ansibench_dhrystone" else
+                     COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "coremark_matrix_manipulation" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
                      2 + 2 * (128 if algorithm == "uint128_t" else 256) // 32)
     oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
@@ -33771,6 +33881,10 @@ def main() -> int:
                             if algorithm == "nbench_emulated_float_arithmetic" else
                             NBENCH_NEURAL_NETWORK_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "nbench_neural_network" else
+                            ANSIBENCH_DHRYSTONE_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "ansibench_dhrystone" else
+                            COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "coremark_matrix_manipulation" else
                             REVERSE_K_GROUP_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_k_group" else
                             REVERSE_A_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_a_linked_list" else
                             REVERSE_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_linked_list" else
