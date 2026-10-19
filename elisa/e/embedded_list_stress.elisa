@@ -1,0 +1,169 @@
+# Copyright 2018 Embedded Microprocessor Benchmark Consortium (EEMBC).
+# Apache-2.0 licensed upstream kernel, bounded variant; modifications made.
+const MAX_ITEMS: usize = 32
+struct ListNode:
+    data: u16
+    idx: i32
+    next: i32
+
+def list_crc_byte(value_in: u16, crc_in: u16) -> u16:
+    value: mutable u16 = value_in
+    crc: mutable u16 = crc_in
+    bit: usize = 0
+    while bit < 8:
+        mix: u16 = (value & 1) ^ (crc & 1)
+        value <- value >> 1
+        if mix != 0: crc <- crc ^ 0x4002
+        crc <- crc >> 1
+        if mix != 0: crc <- crc | 0x8000
+        else: crc <- crc & 0x7fff
+        bit <- bit + 1
+    crc
+def list_crc16(value: u16, crc: u16) -> u16:
+    list_crc_byte(value >> 8, list_crc_byte(value & 255, crc))
+def list_compare(nodes: mutable ListNode&, x: usize, y: usize, complex: bool, seed: u16) -> i32:
+    if complex:
+        if (nodes[x].data & 0x80) == 0: nodes[x].data <- (nodes[x].data & 0xff00) | 0x80 | ((nodes[x].data ^ (nodes[x].data >> 8) ^ seed) & 0x7f)
+        if (nodes[y].data & 0x80) == 0: nodes[y].data <- (nodes[y].data & 0xff00) | 0x80 | ((nodes[y].data ^ (nodes[y].data >> 8) ^ seed) & 0x7f)
+        return (nodes[x].data & 127).i32() - (nodes[y].data & 127).i32()
+    nodes[x].data <- (nodes[x].data & 0xff00) | ((nodes[x].data >> 8) & 255)
+    nodes[y].data <- (nodes[y].data & 0xff00) | ((nodes[y].data >> 8) & 255)
+    nodes[x].idx - nodes[y].idx
+def list_sort(nodes: mutable ListNode&, head_in: i32, complex: bool, seed: u16) -> i32:
+    head: mutable i32 = head_in
+    width: mutable i32 = 1
+    while true:
+        p: mutable i32 = head
+        new_head: mutable i32 = -1
+        tail: mutable i32 = -1
+        merges: mutable i32 = 0
+        while p >= 0:
+            merges <- merges + 1
+            q: mutable i32 = p
+            psize: mutable i32 = 0
+            i: usize = 0
+            while i < width.usize():
+                psize <- psize + 1
+                q <- nodes[q.usize()].next
+                if q < 0: break
+                i <- i + 1
+            qsize: mutable i32 = width
+            while psize > 0 or (qsize > 0 and q >= 0):
+                e: mutable i32 = 0
+                if psize == 0: e <- q; q <- nodes[q.usize()].next; qsize <- qsize - 1
+                elif qsize == 0 or q < 0: e <- p; p <- nodes[p.usize()].next; psize <- psize - 1
+                elif list_compare(nodes, p.usize(), q.usize(), complex, seed) <= 0: e <- p; p <- nodes[p.usize()].next; psize <- psize - 1
+                else: e <- q; q <- nodes[q.usize()].next; qsize <- qsize - 1
+                if tail >= 0: nodes[tail.usize()].next <- e
+                else: new_head <- e
+                tail <- e
+            p <- q
+        nodes[tail.usize()].next <- -1
+        head <- new_head
+        if merges <= 1: return head
+        width <- width * 2
+def list_find(nodes: ListNode&, head_in: i32, target_idx: i32, target_data: i32) -> i32:
+    p: mutable i32 = head_in
+    while p >= 0:
+        if (target_idx >= 0 and nodes[p.usize()].idx == target_idx) or (target_idx < 0 and (nodes[p.usize()].data & 255).i32() == target_data): return p
+        p <- nodes[p.usize()].next
+    -1
+def list_reverse(nodes: mutable ListNode&, head: mutable i32&) -> void:
+    prev: mutable i32 = -1
+    cur: mutable i32 = head
+    while cur >= 0:
+        next: i32 = nodes[cur.usize()].next
+        nodes[cur.usize()].next <- prev
+        prev <- cur
+        cur <- next
+    head <- prev
+
+def embedded_list_stress_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length != 4: return -1
+    n_raw: i64 = values[0]
+    seed_raw: i64 = values[1]
+    find_count: i64 = values[2]
+    mode: i64 = values[3]
+    if n_raw < 4 or n_raw > 32 or seed_raw < 1 or seed_raw > 255 or find_count < 0 or find_count > 32 or (mode != -1 and mode != 1): return -1
+    n: usize = n_raw.usize()
+    tail: usize = n + 1
+    nodes: mutable ListNode[MAX_ITEMS + 2] = zeroed
+    nodes[0] = ListNode(data: 0x8080, idx: 0, next: 1)
+    nodes[tail] = ListNode(data: 0xffff, idx: 0x7fff, next: -1)
+    i: usize = 0
+    while i < n:
+        dat: u16 = (((((seed_raw ^ i.i64()) & 15) << 3) | (i & 7).i64())).u16()
+        nodes[i + 1] = ListNode(data: (dat << 8) | dat, idx: 0, next: (i + 2).i32())
+        i <- i + 1
+    nodes[n].next <- tail.i32()
+    idx: mutable i32 = 1
+    p: mutable i32 = nodes[0].next
+    while p != tail.i32():
+        if idx < (n / 5).i32(): nodes[p.usize()].idx <- idx; idx <- idx + 1
+        else:
+            pat: i32 = idx ^ seed_raw.i32()
+            idx <- idx + 1
+            nodes[p.usize()].idx <- (((idx & 7) << 8) | pat) & 0x3fff
+        p <- nodes[p.usize()].next
+    head: mutable i32 = list_sort(nodes, 0, false, seed_raw.u16())
+    info_idx: mutable i32 = mode.i32()
+    info_data: mutable i32 = 0
+    result: mutable u16 = 0
+    found: mutable u32 = 0
+    missed: mutable u32 = 0
+    k: usize = 0
+    while k < find_count.usize():
+        info_data <- (k & 255).i32()
+        got: i32 = list_find(nodes, head, info_idx, info_data)
+        list_reverse(nodes, head)
+        if got < 0:
+            missed <- missed + 1
+            first: i32 = nodes[head.usize()].next
+            if first >= 0: result <- result + ((nodes[first.usize()].data >> 8) & 1)
+        else:
+            found <- found + 1
+            if (nodes[got.usize()].data & 1) != 0: result <- result + ((nodes[got.usize()].data >> 9) & 1)
+            next: i32 = nodes[got.usize()].next
+            if next >= 0:
+                nodes[got.usize()].next <- nodes[next.usize()].next
+                nodes[next.usize()].next <- nodes[head.usize()].next
+                nodes[head.usize()].next <- next
+        if info_idx >= 0: info_idx <- info_idx + 1
+        k <- k + 1
+    result <- (result + (found * 4 - missed).u16())
+    if mode > 0: head <- list_sort(nodes, head, true, seed_raw.u16())
+    at: i32 = nodes[head.usize()].next
+    if at >= 0:
+        removed: i32 = nodes[at.usize()].next
+        temp: u16 = nodes[at.usize()].data
+        nodes[at.usize()].data <- nodes[removed.usize()].data
+        nodes[removed.usize()].data <- temp
+        ti: i32 = nodes[at.usize()].idx
+        nodes[at.usize()].idx <- nodes[removed.usize()].idx
+        nodes[removed.usize()].idx <- ti
+        nodes[at.usize()].next <- nodes[removed.usize()].next
+        nodes[removed.usize()].next <- -1
+        f: mutable i32 = list_find(nodes, head, info_idx, info_data)
+        if f < 0: f <- nodes[head.usize()].next
+        while f >= 0:
+            result <- list_crc16(nodes[head.usize()].data, result)
+            f <- nodes[f.usize()].next
+        temp <- nodes[removed.usize()].data
+        nodes[removed.usize()].data <- nodes[at.usize()].data
+        nodes[at.usize()].data <- temp
+        ti <- nodes[removed.usize()].idx
+        nodes[removed.usize()].idx <- nodes[at.usize()].idx
+        nodes[at.usize()].idx <- ti
+        nodes[removed.usize()].next <- nodes[at.usize()].next
+        nodes[at.usize()].next <- removed
+    head <- list_sort(nodes, head, false, seed_raw.u16())
+    f: mutable i32 = nodes[head.usize()].next
+    while f >= 0:
+        result <- list_crc16(nodes[head.usize()].data, result)
+        f <- nodes[f.usize()].next
+    if output.is_null() or capacity < 2: return -2
+    output[0] <- (result & 255).u8()
+    output[1] <- (result >> 8).u8()
+    2.i64()
+
+export fn embedded_list_stress(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = embedded_list_stress_impl

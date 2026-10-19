@@ -1,0 +1,67 @@
+def hint_write_i64(out: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8: out[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def hint_area_bound_refinement_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 3: return -1
+    xb: i64 = input[0]; yb: i64 = input[1]; requested: i64 = input[2]
+    if xb < 1 or xb > 8 or yb < 1 or yb > 8 or xb + yb > 16: return -1
+    scx: i64 = (1.i64() << xb.usize()); scy: i64 = (1.i64() << yb.usize())
+    if requested < 0 or requested > 64 or requested > scx - 1: return -1
+    if output.is_null() or capacity < 40: return -2
+
+    mcnt: usize = requested.usize() + 1
+    dmax: i64 = scx * scy - 1
+    ahi: mutable i64[65] = zeroed; alo: mutable i64[65] = zeroed
+    dx: mutable i64[65] = zeroed; flh: mutable i64[65] = zeroed
+    fll: mutable i64[65] = zeroed; frh: mutable i64[65] = zeroed
+    frl: mutable i64[65] = zeroed; xl: mutable i64[65] = zeroed
+    xr: mutable i64[65] = zeroed
+    errs: mutable i64[130] = zeroed; ixes: mutable usize[130] = zeroed
+    ahi[0] <- dmax; dx[0] <- scx; flh[0] <- scy; fll[0] <- scy; xr[0] <- scx
+    errs[0] <- dmax
+    iq: mutable usize = 0; it: mutable usize = 0
+    upper: mutable i64 = dmax; lower: mutable i64 = 0
+    while it < mcnt - 1 and it <= iq:
+        io: usize = ixes[it]; ma: usize = io; jo: usize = it + 1
+        parent_ahi: i64 = ahi[ma]; parent_alo: i64 = alo[ma]
+        parent_dx: i64 = dx[ma]; parent_xr: i64 = xr[ma]
+        parent_frl: i64 = frl[ma]; parent_frh: i64 = frh[ma]
+        dx_child: i64 = parent_dx / 2
+        dx[io] <- dx_child; dx[jo] <- dx_child
+        xr[jo] <- parent_xr; xr[io] <- xl[io] + dx_child; xl[jo] <- xr[io]
+        frl[jo] <- parent_frl; frh[jo] <- parent_frh
+        numerator: i64 = scy * (scx - xr[io]); denominator: i64 = scx + xr[io]
+        floor_value: i64 = numerator / denominator
+        ceil_value: i64 = floor_value
+        if denominator * floor_value != numerator: ceil_value <- ceil_value + 1
+        frl[io] <- floor_value; frh[io] <- ceil_value
+        fll[jo] <- floor_value; flh[jo] <- ceil_value
+        tm: mutable i64 = (fll[io] - frh[io]) * (dx[io] - 2)
+        if tm < 0: tm <- 0
+        errio: i64 = (flh[io] - frh[io] + fll[io] - frl[io]) * (dx[io] - 1) - tm
+        tm <- (fll[jo] - frh[jo]) * (dx[jo] - 2)
+        if tm < 0: tm <- 0
+        errjo: i64 = (flh[jo] - frh[jo] + fll[jo] - frl[jo]) * (dx[jo] - 1) - tm
+        inc: usize = 1; jnc: usize = 2
+        if errio < errjo: inc <- 2; jnc <- 1
+        errs[iq + inc] <- errio; ixes[iq + inc] <- io
+        errs[iq + jnc] <- errjo; ixes[iq + jnc] <- jo
+        if errs[iq + 2] != 0: iq <- iq + 2 else: iq <- iq + 1
+        lower <- lower - parent_alo
+        alo[io] <- frl[io] * dx[io]; alo[jo] <- frl[jo] * dx[jo]
+        lower <- lower + alo[io] + alo[jo]
+        upper <- upper - parent_ahi
+        ahi[io] <- flh[io] * dx[io]; ahi[jo] <- flh[jo] * dx[jo]
+        upper <- upper + ahi[io] + ahi[jo]
+        it <- it + 1
+    result_status: i64 = 0
+    if it > iq: result_status <- 1
+    hint_write_i64(output, 0, result_status)
+    hint_write_i64(output, 8, it.i64())
+    hint_write_i64(output, 16, lower)
+    hint_write_i64(output, 24, upper)
+    hint_write_i64(output, 32, upper - lower)
+    40
+
+export fn hint_area_bound_refinement(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = hint_area_bound_refinement_impl

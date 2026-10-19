@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "nbench-string-heapsort-fixed-ascii-keys-v1",
+  "algorithm": "string_heap_sort",
+  "function_symbol": "string_heap_sort",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[key_count, four unsigned ASCII byte values per key]",
+    "key_count_range": [0, 64],
+    "key_width_bytes": 4,
+    "byte_range": [0, 127],
+    "exact_length": "1 + 4 * key_count",
+    "maximum_valid_input_length": 257,
+    "maximum_parseable_input_length": 258,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "sorted keys concatenated as four raw bytes each, unsigned lexicographic order",
+    "maximum_output_bytes": 256,
+    "success_result": "output byte count",
+    "null_output_result": -2,
+    "short_capacity_writes_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "pinned_source": {
+    "repository": "nfinit/ansibench",
+    "commit": "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe",
+    "path": "nbench/src/nbench1.c",
+    "operations": ["StrHeapSort", "str_is_less"]
+  },
+  "cases": [
+    {"id":"empty","input_values":[0],"input_length":1,"output_capacity":0,"expected_result":0,"expected_output_hex":""},
+    {"id":"lexicographic-unsorted","input_values":[3,100,111,103,33,97,110,116,33,98,101,101,33],"input_length":13,"output_capacity":256,"expected_result":12,"expected_output_hex":"616e742162656521646f6721"},
+    {"id":"duplicate-keys","input_values":[3,97,97,97,97,97,97,98,97,97,97,97,97],"input_length":13,"output_capacity":256,"expected_result":12,"expected_output_hex":"616161616161616161616261"},
+    {"id":"non_ascii_byte","input_values":[1,128,0,0,0],"input_length":5,"expected_result":-1,"expected_output_hex":""},
+    {"id":"trailing_value","input_values":[0,1],"input_length":2,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short_output","input_values":[1,97,98,99,100],"input_length":5,"output_capacity":3,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null_output","input_values":[0],"input_length":1,"output_is_null":true,"output_capacity":0,"expected_result":-2,"expected_output_hex":""}
+  ]
+}

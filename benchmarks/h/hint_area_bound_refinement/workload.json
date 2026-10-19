@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "id": "bounded-integer-hint-area-refinement-v1",
+  "algorithm": "hint_area_bound_refinement",
+  "function_symbol": "hint_area_bound_refinement",
+  "pinned_source": {
+    "repository": "nfinit/ansibench",
+    "commit": "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe",
+    "path": "hint/src/hkernel.c",
+    "supporting_paths": ["hint/include/hint.h", "hint/include/typedefs.h"],
+    "authors": ["John Gustafson", "Quinn Snell"],
+    "copyright": "1994 Iowa State University Research Foundation, Inc.",
+    "license": "GPL-2.0"
+  },
+  "input": {
+    "kind": "packed_signed_64_bit_integer_array",
+    "layout": "[x_bits, y_bits, requested_splits]",
+    "exact_length": 3,
+    "x_bits_range": [1, 8],
+    "y_bits_range": [1, 8],
+    "sum_of_bits_maximum": 16,
+    "requested_splits_range": "0..min(64, 2^x_bits-1)",
+    "scale_mapping": "scx=2^x_bits, scy=2^y_bits, dmax=scx*scy-1",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "five_signed_i64_values_as_little_endian_bytes",
+    "layout": "[kernel_status, actual_splits, lower_area, upper_area, upper_minus_lower]",
+    "kernel_status_values": {"NOERROR": 0, "DISCRET": 1},
+    "exact_bytes": 40,
+    "success_result": 40,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "null_output_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 40,
+    "meaning": "Five little-endian signed 64-bit result fields."
+  },
+  "integer_semantics": {
+    "function_value": "floor(scy*(scx-x)/(scx+x)) and its exact integer ceiling; numerators are nonnegative and denominators positive",
+    "queue": "Maintain the source's descending error order by inserting the larger child error first; equal errors place the left child first",
+    "refinement": "Each source loop pass splits the queued interval at its dyadic midpoint and replaces its area-bound contribution with the two child contributions",
+    "overflow": "x_scale,y_scale <=256 and product <=65536; all intermediate products and sums fit signed i64"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "unrefined_small_grid",
+      "input_values": [1, 1, 0],
+      "input_length": 3,
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000003000000000000000300000000000000"
+    },
+    {
+      "id": "one_split_2_by_2_grid",
+      "input_values": [2, 2, 1],
+      "input_length": 3,
+      "expected_result": 40,
+      "expected_output_hex": "0000000000000000010000000000000002000000000000000c000000000000000a00000000000000"
+    },
+    {
+      "id": "maximum_valid_splits_smallest_grid",
+      "input_values": [1, 1, 1],
+      "input_length": 3,
+      "expected_result": 40,
+      "expected_output_hex": "00000000000000000100000000000000000000000000000003000000000000000300000000000000"
+    },
+    {
+      "id": "x_exponent_too_small",
+      "input_values": [0, 2, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input_word",
+      "input_values": [2, 2, 1, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "scale_product_too_large",
+      "input_values": [8, 9, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "too_many_requested_splits",
+      "input_values": [2, 2, 4],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [1, 1, 0],
+      "input_length": 3,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [1, 1, 0],
+      "input_length": 3,
+      "output_capacity": 40,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+def stream_vector_kernels_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
+
+def stream_vector_kernels_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 259:
+        return -1
+    mode: i64 = input[0]
+    count_value: i64 = input[1]
+    if mode < 0 or mode > 3 or count_value < 0 or count_value > 128:
+        return -1
+    count: usize = count_value.usize()
+    has_alpha: bool = mode == 1 or mode == 3
+    array_count: mutable usize = 1
+    if mode == 2 or mode == 3:
+        array_count <- 2
+    expected_length: usize = 2 + count * array_count
+    if has_alpha:
+        expected_length <- expected_length + 1
+    if length != expected_length:
+        return -1
+
+    a_start: mutable usize = 2
+    alpha: mutable i64 = 0
+    if has_alpha:
+        alpha <- input[2]
+        if alpha < -1000 or alpha > 1000:
+            return -1
+        a_start <- 3
+    b_start: usize = a_start + count
+    index: mutable usize = 0
+    while index < array_count * count:
+        value: i64 = input[a_start + index]
+        if value < -1000 or value > 1000:
+            return -1
+        index <- index + 1
+
+    staged: mutable i64[128]
+    index <- 0
+    while index < count:
+        a: i64 = input[a_start + index]
+        value: mutable i64 = a
+        if mode == 1:
+            value <- alpha * a
+        elif mode == 2:
+            value <- a + input[b_start + index]
+        elif mode == 3:
+            value <- a + alpha * input[b_start + index]
+        staged[index] <- value
+        index <- index + 1
+
+    output_bytes: usize = count * 8
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    index <- 0
+    while index < count:
+        stream_vector_kernels_write_i64_le(output, index * 8, staged[index])
+        index <- index + 1
+    output_bytes.i64()
+
+export fn stream_vector_kernels(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = stream_vector_kernels_impl

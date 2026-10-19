@@ -1,0 +1,116 @@
+# Copyright 2018 Embedded Microprocessor Benchmark Consortium (EEMBC).
+# Apache-2.0 licensed upstream kernel, bounded variant; modifications made.
+const MAX_TEXT: usize = 96
+
+def scan_text(text: mutable u8&, n: usize, finals: mutable u32&, transitions: mutable u32&) -> void:
+    pos: mutable usize = 0
+    while pos < n:
+        state: mutable usize = 0
+        while pos < n and state != 1:
+            ch: u8 = text[pos]
+            if ch == ','.u8():
+                pos <- pos + 1
+                break
+            digit: bool = ch >= '0'.u8() and ch <= '9'.u8()
+            if state == 0:
+                if digit: state <- 4
+                elif ch == '+'.u8() or ch == '-'.u8(): state <- 2
+                elif ch == '.'.u8(): state <- 5
+                else:
+                    state <- 1
+                    transitions[1] <- transitions[1] + 1
+                transitions[0] <- transitions[0] + 1
+            elif state == 2:
+                if digit: state <- 4
+                elif ch == '.'.u8(): state <- 5
+                else: state <- 1
+                transitions[2] <- transitions[2] + 1
+            elif state == 4:
+                if ch == '.'.u8():
+                    state <- 5
+                    transitions[4] <- transitions[4] + 1
+                elif not digit:
+                    state <- 1
+                    transitions[4] <- transitions[4] + 1
+            elif state == 5:
+                if ch == 'e'.u8() or ch == 'E'.u8():
+                    state <- 3
+                    transitions[5] <- transitions[5] + 1
+                elif not digit:
+                    state <- 1
+                    transitions[5] <- transitions[5] + 1
+            elif state == 3:
+                if ch == '+'.u8() or ch == '-'.u8(): state <- 6
+                else: state <- 1
+                transitions[3] <- transitions[3] + 1
+            elif state == 6:
+                if digit: state <- 7
+                else: state <- 1
+                transitions[6] <- transitions[6] + 1
+            elif state == 7 and not digit:
+                state <- 1
+                transitions[1] <- transitions[1] + 1
+            pos <- pos + 1
+        finals[state] <- finals[state] + 1
+
+def numeric_token_state_machine_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 4 or length > MAX_TEXT + 3:
+        return -1
+    raw_n: i64 = values[0]
+    step: i64 = values[1]
+    seed: i64 = values[2]
+    if raw_n < 1 or raw_n > MAX_TEXT.i64() or length != 3 + raw_n.usize() or step < 1 or step > 16 or seed < 1 or seed > 255:
+        return -1
+    n: usize = raw_n.usize()
+    text: mutable u8[MAX_TEXT] = zeroed
+    original: mutable u8[MAX_TEXT] = zeroed
+    i: usize = 0
+    while i < n:
+        ch: i64 = values[3 + i]
+        if ch < 32 or ch > 126:
+            return -1
+        text[i] <- ch.u8()
+        original[i] <- ch.u8()
+        i <- i + 1
+    if text[0] == ','.u8() or text[n - 1] == ','.u8():
+        return -1
+    i <- 1
+    while i < n:
+        if text[i] == ','.u8() and text[i - 1] == ','.u8():
+            return -1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        if text[i] != ','.u8() and ((text[i] ^ seed.u8()) == ','.u8() or (text[i] ^ seed.u8()) == 0):
+            return -1
+        i <- i + step.usize()
+
+    finals: mutable u32[8] = zeroed
+    transitions: mutable u32[8] = zeroed
+    scan_text(text, n, finals, transitions)
+    i <- 0
+    while i < n:
+        if text[i] != ','.u8(): text[i] <- text[i] ^ seed.u8()
+        i <- i + step.usize()
+    scan_text(text, n, finals, transitions)
+    i <- 0
+    while i < n:
+        if text[i] != ','.u8(): text[i] <- text[i] ^ seed.u8()
+        i <- i + step.usize()
+    i <- 0
+    while i < n:
+        if text[i] != original[i]: return -1
+        i <- i + 1
+    if output.is_null() or capacity < 64:
+        return -2
+    i <- 0
+    while i < 8:
+        b: usize = 0
+        while b < 4:
+            output[i * 8 + b] <- ((finals[i] >> (8 * b)) & 255).u8()
+            output[i * 8 + 4 + b] <- ((transitions[i] >> (8 * b)) & 255).u8()
+            b <- b + 1
+        i <- i + 1
+    64.i64()
+
+export fn numeric_token_state_machine(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = numeric_token_state_machine_impl

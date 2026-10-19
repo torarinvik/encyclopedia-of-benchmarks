@@ -1,0 +1,53 @@
+extern pow(base: f64, exponent: f64) -> f64
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+const MAX_N: usize = 16
+const INVALID_RESULT: f64 = -1.0e300
+
+def nbench_fourier_term(x: f64, omega: f64, select: usize) -> f64:
+    base: f64 = pow(x + 1.0, x)
+    if select == 0: return base
+    if select == 1: return base * cos(omega * x)
+    base * sin(omega * x)
+
+def nbench_fourier_integrate(omega: f64, select: usize) -> f64:
+    x: mutable f64 = 0.0
+    dx: f64 = (2.0 - 0.0) / 200.0
+    value: mutable f64 = nbench_fourier_term(0.0, omega, select) / 2.0
+    steps: mutable usize = 200
+    if steps != 1:
+        steps <- steps - 1
+        while true:
+            steps <- steps - 1
+            if steps == 0: break
+            x <- x + dx
+            value <- value + nbench_fourier_term(x, omega, select)
+    (value + nbench_fourier_term(2.0, omega, select) / 2.0) * dx
+
+def nbench_fourier_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 1 or length > 2: return INVALID_RESULT
+    raw: i64 = input[0]
+    if raw < 1 or raw > 16 or length != 1: return INVALID_RESULT
+    n: usize = raw.usize()
+    a: mutable f64[MAX_N] = zeroed
+    b: mutable f64[MAX_N] = zeroed
+    a[0] <- nbench_fourier_integrate(0.0, 0) / 2.0
+    index: usize = 1
+    while index < n:
+        omega: f64 = 3.1415926535897932 * index.f64()
+        a[index] <- nbench_fourier_integrate(omega, 1)
+        b[index] <- nbench_fourier_integrate(omega, 2)
+        index <- index + 1
+    checksum: mutable f64 = 0.0
+    index <- 0
+    while index < n:
+        checksum <- checksum + (index + 1).f64() * a[index]
+        index <- index + 1
+    index <- 1
+    while index < n:
+        checksum <- checksum + index.f64() * b[index]
+        index <- index + 1
+    if checksum != checksum or checksum >= 1.7976931348623157e308 or checksum <= -1.7976931348623157e308: return INVALID_RESULT
+    checksum
+
+export fn nbench_fourier_coefficients(input: i64&, length: usize) -> f64 = nbench_fourier_impl

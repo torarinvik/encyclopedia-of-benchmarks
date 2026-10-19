@@ -1,0 +1,155 @@
+# BYTEmark (tm), BYTE's Native Mode Benchmarks; Rick Grehan, BYTE Magazine.
+# Unix port: Uwe F. Mayer. Source notice/disclaimer is in package LICENSE.
+const MAX_TEXT: usize = 128
+const MAX_STREAM_BYTES: usize = 258
+const EXCLUDED: i32 = 32000
+struct HuffNode:
+    c: u8
+    freq: f32
+    parent: i32
+    left: i32
+    right: i32
+
+def nbench_huffman_put_u32(value: u32, output: mutable u8&, offset: usize) -> void:
+    b: usize = 0
+    while b < 4:
+        output[offset + b] <- ((value >> (8 * b)) & 255).u8()
+        b <- b + 1
+
+def nbench_huffman_compression_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > MAX_TEXT + 1: return -1
+    raw_n: i64 = values[0]
+    if raw_n < 1 or raw_n > 128 or length != raw_n.usize() + 1: return -1
+    n: usize = raw_n.usize()
+    arraysize: usize = n + 1
+    text: mutable u8[MAX_TEXT + 1] = zeroed
+    seen: mutable bool[256] = zeroed
+    distinct: mutable usize = 0
+    i: usize = 0
+    while i < n:
+        ch: i64 = values[i + 1]
+        if ch < 32 or ch > 47: return -1
+        text[i] <- ch.u8()
+        if not seen[text[i].usize()]:
+            seen[text[i].usize()] <- true
+            distinct <- distinct + 1
+        i <- i + 1
+    text[n] <- 0
+    if not seen[0]: distinct <- distinct + 1
+    if distinct < 2: return -1
+
+    tree: mutable HuffNode[512] = zeroed
+    i <- 0
+    while i < 256:
+        tree[i].c <- i.u8()
+        tree[i].freq <- 0.0f
+        tree[i].parent <- -1
+        tree[i].left <- -1
+        tree[i].right <- -1
+        i <- i + 1
+    i <- 0
+    while i < arraysize:
+        tree[text[i].usize()].freq <- tree[text[i].usize()].freq + 1.0f
+        i <- i + 1
+    i <- 0
+    while i < 256:
+        if tree[i].freq != 0.0f: tree[i].freq <- tree[i].freq / arraysize.f32()
+        i <- i + 1
+    i <- 256
+    while i < 512:
+        tree[i].c <- 0
+        tree[i].freq <- 0.0f
+        tree[i].parent <- EXCLUDED
+        tree[i].left <- 0
+        tree[i].right <- 0
+        i <- i + 1
+    i <- 0
+    while i < 512:
+        if tree[i].freq == 0.0f: tree[i].parent <- EXCLUDED
+        else:
+            tree[i].parent <- -1
+            tree[i].left <- -1
+            tree[i].right <- -1
+        i <- i + 1
+
+    root: mutable i32 = 255
+    while true:
+        low1: mutable f32 = 2.0f
+        low2: mutable f32 = 2.0f
+        idx1: mutable i32 = -1
+        idx2: mutable i32 = -1
+        i <- 0
+        while i <= root.usize():
+            if tree[i].parent < 0 and tree[i].freq < low1:
+                low1 <- tree[i].freq
+                idx1 <- i.i32()
+            i <- i + 1
+        if idx1 < 0: break
+        i <- 0
+        while i <= root.usize():
+            if tree[i].parent < 0 and i.i32() != idx1 and tree[i].freq < low2:
+                low2 <- tree[i].freq
+                idx2 <- i.i32()
+            i <- i + 1
+        if idx2 < 0: break
+        root <- root + 1
+        tree[idx1.usize()].parent <- root
+        tree[idx2.usize()].parent <- root
+        tree[root.usize()].freq <- low1 + low2
+        tree[root.usize()].left <- idx1
+        tree[root.usize()].right <- idx2
+        tree[root.usize()].parent <- -2
+    if root < 256 or tree[root.usize()].left < 0: return -1
+
+    stream: mutable u8[MAX_STREAM_BYTES] = zeroed
+    bit_count: mutable usize = 0
+    i <- 0
+    while i < arraysize:
+        path: mutable i32[30] = zeroed
+        path_len: mutable usize = 0
+        node: mutable i32 = text[i].i32()
+        while tree[node.usize()].parent != -2:
+            parent: i32 = tree[node.usize()].parent
+            if parent < 0 or parent >= 512 or path_len >= 30: return -1
+            if tree[parent.usize()].left == node: path[path_len] <- 0
+            else: path[path_len] <- 1
+            path_len <- path_len + 1
+            node <- parent
+        while path_len > 0:
+            path_len <- path_len - 1
+            if path[path_len] != 0:
+                stream[bit_count / 8] <- stream[bit_count / 8] | (1.u8() << (bit_count % 8))
+            bit_count <- bit_count + 1
+        i <- i + 1
+
+    decoded: mutable u8[MAX_TEXT + 1] = zeroed
+    bit: mutable usize = 0
+    pos: mutable usize = 0
+    while bit < bit_count:
+        node <- root
+        while tree[node.usize()].left != -1:
+            bit_value: u8 = (stream[bit / 8] >> (bit % 8)) & 1
+            if bit_value == 0: node <- tree[node.usize()].left
+            else: node <- tree[node.usize()].right
+            bit <- bit + 1
+            if bit > bit_count: return -1
+        if pos >= arraysize: return -1
+        decoded[pos] <- tree[node.usize()].c
+        pos <- pos + 1
+    if pos != arraysize: return -1
+    i <- 0
+    while i < arraysize:
+        if decoded[i] != text[i]: return -1
+        i <- i + 1
+
+    stream_bytes: usize = (bit_count + 7) / 8
+    total: usize = 4 + stream_bytes
+    if output.is_null() or capacity < total: return -2
+    nbench_huffman_put_u32(bit_count.u32(), output, 0)
+    i <- 0
+    while i < stream_bytes:
+        output[4 + i] <- stream[i]
+        i <- i + 1
+    total.i64()
+
+export fn nbench_huffman_compression(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = nbench_huffman_compression_impl

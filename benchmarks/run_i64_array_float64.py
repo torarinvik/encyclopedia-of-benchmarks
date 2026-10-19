@@ -17,6 +17,11 @@ import struct
 import sys
 
 from build_abi import ROOT, sha256_file
+from nbench_fourier_coefficients_oracle import (
+    INVALID_RESULT as NBENCH_FOURIER_COEFFICIENTS_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as NBENCH_FOURIER_COEFFICIENTS_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as nbench_fourier_coefficients_expected,
+)
 from traveling_salesman_solver_oracle import (
     INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
     MAX_BRUTE_FORCE_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_INPUT_LENGTH,
@@ -1995,6 +2000,46 @@ def validate_traveling_salesman_solver_workload(workload: dict, algorithm: str) 
         raise ValueError(f"{algorithm} workload is missing its maximum city-count route")
 
 
+def validate_nbench_fourier_coefficients_workload(workload: dict) -> None:
+    expected_ids = {"a0-only", "first-harmonic", "four-coefficients",
+                    "maximum-harmonics", "zero-count", "too-many-coefficients",
+                    "trailing-input", "null-input"}
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "nbench-fourier-coefficients-trapezoid-i64-f64-v1"
+            or workload.get("algorithm") != "nbench_fourier_coefficients"
+            or workload.get("function_symbol") != "nbench_fourier_coefficients"
+            or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+            or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+            or workload.get("pinned_source", {}).get("path") != "nbench/src/nbench1.c"
+            or input_spec.get("layout") != "[coefficient_count]"
+            or input_spec.get("coefficient_count_range") != [1, 16]
+            or input_spec.get("maximum_parseable_input_length") != NBENCH_FOURIER_COEFFICIENTS_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("invalid_input_result") != NBENCH_FOURIER_COEFFICIENTS_INVALID_RESULT
+            or output_spec.get("kind") != "float64_scalar"
+            or output_spec.get("absolute_tolerance") != 1e-10
+            or output_spec.get("relative_tolerance") != 1e-12
+            or output_spec.get("invalid_result") != NBENCH_FOURIER_COEFFICIENTS_INVALID_RESULT
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"
+            or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+        raise ValueError("nbench_fourier_coefficients metadata differs from its pinned scalar contract")
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length")
+        if (not isinstance(values, list)
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))):
+            raise ValueError(f"nbench_fourier_coefficients fixture framing is invalid: {case.get('id')}")
+        expected = nbench_fourier_coefficients_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if case.get("expected_result") != expected:
+            raise ValueError(f"nbench_fourier_coefficients fixture differs from its oracle: {case.get('id')}")
+
+
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MONTE_CARLO_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "monte_carlo_integration" else
@@ -2141,6 +2186,8 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "traveling_salesman_solver_brute_force" else
                         TRAVELING_SALESMAN_SOLVER_NEAREST_NEIGHBOR_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "traveling_salesman_solver_nearest_neighbor" else
+                        NBENCH_FOURIER_COEFFICIENTS_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "nbench_fourier_coefficients" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
@@ -2158,6 +2205,10 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         if source_result == SHUNTING_YARD_INVALID_RESULT:
             if expected != SHUNTING_YARD_INVALID_RESULT:
                 raise ValueError("invalid shunting_yard inputs must use the -1e300 result sentinel")
+    if algorithm == "nbench_fourier_coefficients":
+        source_result = nbench_fourier_coefficients_expected(values)
+        if expected != source_result:
+            raise ValueError("nbench_fourier_coefficients expected_result must match the pinned coefficient projection")
         elif expected == SHUNTING_YARD_INVALID_RESULT or not math.isclose(
                 expected, source_result,
                 rel_tol=SHUNTING_YARD_RELATIVE_TOLERANCE,
@@ -4437,6 +4488,8 @@ def main() -> int:
     elif algorithm in {"traveling_salesman_solver_brute_force",
                        "traveling_salesman_solver_nearest_neighbor"}:
         validate_traveling_salesman_solver_workload(workload, algorithm)
+    elif algorithm == "nbench_fourier_coefficients":
+        validate_nbench_fourier_coefficients_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")
@@ -4472,6 +4525,7 @@ def main() -> int:
                 algorithm == "temperature_conversions" and input_length == 2
                 or algorithm == "sharpe_ratio" and input_length == 0
                 or algorithm == "kmeans_raw_r" and input_length in (0, 4)
+                or algorithm == "nbench_fourier_coefficients" and input_length == 0
                 or algorithm in {"monte_carlo_integration",
                                  "monte_carlo_integration_independent"} and input_length == 3)
             if not supported_null_input or values:

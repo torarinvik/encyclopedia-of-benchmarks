@@ -1589,6 +1589,33 @@ from strassen_matrix_multiplication_oracle import SUPPORTED_N as STRASSEN_MATRIX
 from strassen_matrix_multiplication_oracle import expected_output as strassen_matrix_multiplication_expected_output
 from merge_intervals_oracle import MAX_PARSEABLE_INPUT_LENGTH as MERGE_INTERVALS_MAX_PARSEABLE_INPUT_LENGTH
 from merge_intervals_oracle import expected_output as merge_intervals_expected_output
+from string_heap_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as STRING_HEAP_SORT_MAX_PARSEABLE_INPUT_LENGTH
+from string_heap_sort_oracle import expected_output as string_heap_sort_expected_output
+from bitmap_block_allocation_oracle import MAX_PARSEABLE_INPUT_LENGTH as BITMAP_BLOCK_ALLOCATION_MAX_PARSEABLE_INPUT_LENGTH
+from bitmap_block_allocation_oracle import expected_output as bitmap_block_allocation_expected_output
+from stream_vector_kernels_oracle import MAX_PARSEABLE_INPUT_LENGTH as STREAM_VECTOR_KERNELS_MAX_PARSEABLE_INPUT_LENGTH
+from stream_vector_kernels_oracle import expected_output as stream_vector_kernels_expected_output
+from idea_encrypt_decrypt_oracle import MAX_PARSEABLE_INPUT_LENGTH as IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH
+from idea_encrypt_decrypt_oracle import MAX_OUTPUT_BYTES as IDEA_ENCRYPT_DECRYPT_MAX_OUTPUT_BYTES
+from idea_encrypt_decrypt_oracle import expected_output as idea_encrypt_decrypt_expected_output
+from embedded_list_stress_oracle import MAX_OUTPUT_BYTES as EMBEDDED_LIST_STRESS_MAX_OUTPUT_BYTES
+from embedded_list_stress_oracle import MAX_PARSEABLE_INPUT_LENGTH as EMBEDDED_LIST_STRESS_MAX_PARSEABLE_INPUT_LENGTH
+from embedded_list_stress_oracle import expected_output as embedded_list_stress_expected_output
+from numeric_token_state_machine_oracle import MAX_OUTPUT_BYTES as NUMERIC_TOKEN_STATE_MACHINE_MAX_OUTPUT_BYTES
+from numeric_token_state_machine_oracle import MAX_PARSEABLE_INPUT_LENGTH as NUMERIC_TOKEN_STATE_MACHINE_MAX_PARSEABLE_INPUT_LENGTH
+from numeric_token_state_machine_oracle import expected_output as numeric_token_state_machine_expected_output
+from hint_area_bound_refinement_oracle import INVALID_RESULT as HINT_AREA_BOUND_REFINEMENT_INVALID_RESULT
+from hint_area_bound_refinement_oracle import MAX_OUTPUT_BYTES as HINT_AREA_BOUND_REFINEMENT_MAX_OUTPUT_BYTES
+from hint_area_bound_refinement_oracle import MAX_PARSEABLE_INPUT_LENGTH as HINT_AREA_BOUND_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+from hint_area_bound_refinement_oracle import expected_output as hint_area_bound_refinement_expected_output
+from nbench_huffman_compression_oracle import INVALID_RESULT as NBENCH_HUFFMAN_COMPRESSION_INVALID_RESULT
+from nbench_huffman_compression_oracle import MAX_OUTPUT_BYTES as NBENCH_HUFFMAN_COMPRESSION_MAX_OUTPUT_BYTES
+from nbench_huffman_compression_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_HUFFMAN_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH
+from nbench_huffman_compression_oracle import expected_output as nbench_huffman_compression_expected_output
+from nbench_resource_assignment_oracle import INVALID_RESULT as NBENCH_RESOURCE_ASSIGNMENT_INVALID_RESULT
+from nbench_resource_assignment_oracle import MAX_OUTPUT_BYTES as NBENCH_RESOURCE_ASSIGNMENT_MAX_OUTPUT_BYTES
+from nbench_resource_assignment_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_RESOURCE_ASSIGNMENT_MAX_PARSEABLE_INPUT_LENGTH
+from nbench_resource_assignment_oracle import expected_output as nbench_resource_assignment_expected_output
 from reverse_k_group_oracle import MAX_N as REVERSE_K_GROUP_MAX_N
 from reverse_k_group_oracle import expected_output as reverse_k_group_expected_output
 from permute_string_oracle import MAX_INPUT_LENGTH as PERMUTE_STRING_MAX_INPUT_LENGTH
@@ -2945,6 +2972,9 @@ RECORDER_WORKSPACE_ALGORITHMS.add('kmp_all_occurrences')
 RECORDER_WORKSPACE_ALGORITHMS.add('suffix_array')
 RECORDER_WORKSPACE_ALGORITHMS.add('strassen_matrix_multiplication')
 RECORDER_WORKSPACE_ALGORITHMS.add('merge_intervals')
+RECORDER_WORKSPACE_ALGORITHMS.add('string_heap_sort')
+RECORDER_WORKSPACE_ALGORITHMS.add('bitmap_block_allocation')
+RECORDER_WORKSPACE_ALGORITHMS.add('stream_vector_kernels')
 RECORDER_WORKSPACE_ALGORITHMS.add('reverse_k_group')
 RECORDER_WORKSPACE_ALGORITHMS.add('reverse_a_linked_list')
 RECORDER_WORKSPACE_ALGORITHMS.add('reverse_linked_list')
@@ -3117,6 +3147,12 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "uint": uint_oracle,
     "uint128_t": uint128_t_oracle,
     "uint256_t": uint256_t_oracle,
+    "idea_encrypt_decrypt": idea_encrypt_decrypt_expected_output,
+    "embedded_list_stress": embedded_list_stress_expected_output,
+    "numeric_token_state_machine": numeric_token_state_machine_expected_output,
+    "hint_area_bound_refinement": hint_area_bound_refinement_expected_output,
+    "nbench_huffman_compression": nbench_huffman_compression_expected_output,
+    "nbench_resource_assignment": nbench_resource_assignment_expected_output,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
@@ -3341,6 +3377,12 @@ def expected_output(values: list[int], algorithm: str = "letter_combinations_of_
         return reverse_k_group_expected_output(values)
     if algorithm == "merge_intervals":
         return merge_intervals_expected_output(values)
+    if algorithm == "string_heap_sort":
+        return string_heap_sort_expected_output(values)
+    if algorithm == "bitmap_block_allocation":
+        return bitmap_block_allocation_expected_output(values)
+    if algorithm == "stream_vector_kernels":
+        return stream_vector_kernels_expected_output(values)
     if algorithm == "strassen_matrix_multiplication":
         return strassen_matrix_multiplication_expected_output(values)
     if algorithm == "suffix_array":
@@ -32900,6 +32942,165 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("workspace", {}).get("bytes") != bits // 8
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"):
             raise ValueError(f"{algorithm} metadata differs from its pinned byte-output contract")
+    elif algorithm == "idea_encrypt_decrypt":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {
+            "published_idea_known_vector", "short_input", "word_above_u16",
+            "negative_plaintext_word", "short_output", "null_output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "idea-encrypt-decrypt-fixed-block-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+                or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+                or workload.get("pinned_source", {}).get("path") != "nbench/src/nbench1.c"
+                or input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("layout") != "[K0..K7, P0..P3]"
+                or input_spec.get("exact_length") != 12
+                or input_spec.get("word_range") != [0, 65535]
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("word_encoding") != "unsigned 16-bit little-endian"
+                or output_spec.get("exact_bytes") != IDEA_ENCRYPT_DECRYPT_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != IDEA_ENCRYPT_DECRYPT_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or workload.get("workspace", {}).get("bytes") != IDEA_ENCRYPT_DECRYPT_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("idea_encrypt_decrypt metadata differs from its pinned byte-output contract")
+    elif algorithm == "embedded_list_stress":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {"small-index", "small-data", "zero-search", "short-output",
+                        "null-output", "invalid-mode", "invalid-count"}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "embedded-list-stress-bounded-list-kernel-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+                or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+                or workload.get("pinned_source", {}).get("path") != "coremark/src/core_list_join.c"
+                or workload.get("additional_pinned_source", {}).get("path") != "coremark/src/core_util.c"
+                or input_spec.get("layout") != "[item_count, seed, find_count, finder_index_mode]"
+                or input_spec.get("exact_length") != 4
+                or input_spec.get("item_count_range") != [4, 32]
+                or input_spec.get("finder_index_mode") != [-1, 1]
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("maximum_output_bytes") != EMBEDDED_LIST_STRESS_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != EMBEDDED_LIST_STRESS_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("embedded_list_stress metadata differs from its pinned byte-output contract")
+    elif algorithm == "numeric_token_state_machine":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {"simple", "bad-token", "mixed", "edge-step", "short-capacity",
+                        "null-output", "bad-count"}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "numeric-token-state-machine-bounded-ascii-fsm-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+                or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+                or workload.get("pinned_source", {}).get("path") != "coremark/src/core_state.c"
+                or workload.get("additional_pinned_source", {}).get("path") != "coremark/include/coremark.h"
+                or input_spec.get("layout") != "[byte_count, corruption_step, seed, printable ASCII bytes...]"
+                or input_spec.get("byte_count_range") != [1, 96]
+                or input_spec.get("corruption_step_range") != [1, 16]
+                or input_spec.get("maximum_valid_array_length") != NUMERIC_TOKEN_STATE_MACHINE_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("maximum_output_bytes") != NUMERIC_TOKEN_STATE_MACHINE_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != NUMERIC_TOKEN_STATE_MACHINE_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("numeric_token_state_machine metadata differs from its pinned byte-output contract")
+    elif algorithm == "hint_area_bound_refinement":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {"unrefined_small_grid", "one_split_2_by_2_grid",
+                        "maximum_valid_splits_smallest_grid", "x_exponent_too_small",
+                        "trailing_input_word", "scale_product_too_large",
+                        "too_many_requested_splits", "short_output_capacity", "null_output"}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "bounded-integer-hint-area-refinement-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+                or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+                or workload.get("pinned_source", {}).get("path") != "hint/src/hkernel.c"
+                or input_spec.get("layout") != "[x_bits, y_bits, requested_splits]"
+                or input_spec.get("exact_length") != 3
+                or input_spec.get("sum_of_bits_maximum") != 16
+                or input_spec.get("invalid_result") != HINT_AREA_BOUND_REFINEMENT_INVALID_RESULT
+                or output_spec.get("kind") != "five_signed_i64_values_as_little_endian_bytes"
+                or output_spec.get("exact_bytes") != HINT_AREA_BOUND_REFINEMENT_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != HINT_AREA_BOUND_REFINEMENT_INVALID_RESULT
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("null_output_result") != -2
+                or workload.get("workspace", {}).get("bytes") != HINT_AREA_BOUND_REFINEMENT_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("hint_area_bound_refinement metadata differs from its pinned byte-output contract")
+    elif algorithm == "nbench_huffman_compression":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {"minimal", "single-payload-symbol", "equal-frequency-ties",
+                        "skewed-frequency", "alphabet-boundary", "max-text", "short-capacity",
+                        "null-output", "bad-byte", "length-mismatch", "count-over-limit", "null-input"}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "nbench-huffman-compression-bounded-binary-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+                or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+                or workload.get("pinned_source", {}).get("path") != "nbench/src/nbench1.c"
+                or workload.get("pinned_source", {}).get("symbol") != "DoHuffIteration"
+                or input_spec.get("layout") != "[text_length, printable byte values...]"
+                or input_spec.get("maximum_valid_array_length") != 129
+                or input_spec.get("maximum_parseable_array_length") != NBENCH_HUFFMAN_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != NBENCH_HUFFMAN_COMPRESSION_INVALID_RESULT
+                or output_spec.get("maximum_output_bytes") != NBENCH_HUFFMAN_COMPRESSION_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != NBENCH_HUFFMAN_COMPRESSION_INVALID_RESULT
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workload.get("workspace", {}).get("bytes") != NBENCH_HUFFMAN_COMPRESSION_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("nbench_huffman_compression metadata differs from its pinned byte-output contract")
+    elif algorithm == "nbench_resource_assignment":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {"single-resource", "two-resource-diagonal", "equal-cost-stable-first-choice",
+                        "invalid-dimension", "negative-cost", "trailing-input", "short-output", "null-output"}
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "nbench-resource-assignment-hungarian-i64-i32le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source", {}).get("repository") != "nfinit/ansibench"
+                or workload.get("pinned_source", {}).get("commit") != "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+                or workload.get("pinned_source", {}).get("path") != "nbench/src/nbench1.c"
+                or input_spec.get("layout") != "[n, n*n row-major nonnegative costs]"
+                or input_spec.get("n_range") != [1, 8]
+                or input_spec.get("maximum_parseable_input_length") != NBENCH_RESOURCE_ASSIGNMENT_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != NBENCH_RESOURCE_ASSIGNMENT_INVALID_RESULT
+                or output_spec.get("maximum_output_bytes") != NBENCH_RESOURCE_ASSIGNMENT_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != NBENCH_RESOURCE_ASSIGNMENT_INVALID_RESULT
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("nbench_resource_assignment metadata differs from its pinned byte-output contract")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
@@ -32907,6 +33108,18 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "smith_waterman_python" else
                      SMITH_WATERMAN_RUST_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "smith_waterman_rust" else
+                     IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "idea_encrypt_decrypt" else
+                     EMBEDDED_LIST_STRESS_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "embedded_list_stress" else
+                     NUMERIC_TOKEN_STATE_MACHINE_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "numeric_token_state_machine" else
+                     HINT_AREA_BOUND_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "hint_area_bound_refinement" else
+                     NBENCH_HUFFMAN_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "nbench_huffman_compression" else
+                     NBENCH_RESOURCE_ASSIGNMENT_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "nbench_resource_assignment" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
                      2 + 2 * (128 if algorithm == "uint128_t" else 256) // 32)
     oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
@@ -33430,6 +33643,18 @@ def main() -> int:
                             SUFFIX_ARRAY_MAX_INPUT_LENGTH if algorithm == "suffix_array" else
                             STRASSEN_MATRIX_MULTIPLICATION_MAX_INPUT_LENGTH if algorithm == "strassen_matrix_multiplication" else
                             MERGE_INTERVALS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "merge_intervals" else
+                            STRING_HEAP_SORT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "string_heap_sort" else
+                            BITMAP_BLOCK_ALLOCATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "bitmap_block_allocation" else
+                            STREAM_VECTOR_KERNELS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "stream_vector_kernels" else
+                            IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "idea_encrypt_decrypt" else
+                            EMBEDDED_LIST_STRESS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "embedded_list_stress" else
+                            NUMERIC_TOKEN_STATE_MACHINE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "numeric_token_state_machine" else
+                            HINT_AREA_BOUND_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "hint_area_bound_refinement" else
+                            NBENCH_HUFFMAN_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "nbench_huffman_compression" else
+                            NBENCH_RESOURCE_ASSIGNMENT_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "nbench_resource_assignment" else
                             REVERSE_K_GROUP_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_k_group" else
                             REVERSE_A_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_a_linked_list" else
                             REVERSE_LINKED_LIST_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "reverse_linked_list" else
