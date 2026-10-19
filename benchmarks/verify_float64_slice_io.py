@@ -68,6 +68,7 @@ from run_float64_slice_io import (
     validate_polybench_correlation_workload,
     validate_polybench_seidel_2d_workload,
     validate_mibench_telecomm_fft_workload,
+    validate_mibench_automotive_basicmath_cubic_workload,
 )
 from pca_oracle import (
     MAX_OUTPUT_ELEMENTS as PCA_MAX_OUTPUT_ELEMENTS,
@@ -931,6 +932,56 @@ def mibench_telecomm_fft_verifier_oracle(values, capacity=None, output_is_null=F
     return len(output), output
 
 
+def mibench_automotive_basicmath_cubic_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independent Cardano reference for bounded MiBench cubic fixtures."""
+    if (not isinstance(values, (list, tuple)) or len(values) > 4
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   or abs(float(value)) > 100.0 for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and (values or input_length not in (None, 0)))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != 4:
+        return -1, []
+    a, b, c, d = (float(value) for value in values)
+    if abs(a) < 1.0:
+        return -1, []
+    shift = b / (3.0 * a)
+    p = (3.0 * a * c - b * b) / (3.0 * a * a)
+    q = (2.0 * b * b * b - 9.0 * a * b * c + 27.0 * a * a * d) / (27.0 * a * a * a)
+    discriminant = (q / 2.0) ** 2 + (p / 3.0) ** 3
+    if discriminant == 0.0:
+        return -1, []
+    if discriminant > 0.0:
+        root = math.sqrt(discriminant)
+
+        def cbrt(number):
+            return math.copysign(abs(number) ** (1.0 / 3.0), number)
+
+        roots = [cbrt(-q / 2.0 + root) + cbrt(-q / 2.0 - root) - shift]
+    else:
+        if p >= 0.0:
+            return -1, []
+        radius = 2.0 * math.sqrt(-p / 3.0)
+        argument = -q / (2.0 * math.sqrt(-(p / 3.0) ** 3))
+        argument = min(1.0, max(-1.0, argument))
+        angle = math.acos(argument)
+        roots = [radius * math.cos((angle + 2.0 * math.pi * index) / 3.0) - shift
+                 for index in range(3)]
+        roots.sort()
+        roots = [roots[0], roots[2], roots[1]]
+    if (len(roots) not in (1, 3)
+            or any(not math.isfinite(value) for value in roots)):
+        return -1, []
+    if output_is_null or (capacity is not None and capacity < len(roots)):
+        return -2, []
+    return len(roots), roots
+
+
 def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     if algorithm == "versabench_beamformer":
         validate_versabench_beamformer_workload(workload)
@@ -960,6 +1011,8 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_polybench_seidel_2d_workload(workload)
     elif algorithm == "mibench_telecomm_fft":
         validate_mibench_telecomm_fft_workload(workload)
+    elif algorithm == "mibench_automotive_basicmath_cubic":
+        validate_mibench_automotive_basicmath_cubic_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":
@@ -1138,12 +1191,26 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                            + relative_tolerance * abs(expected)
                            for actual, expected in zip(independent_output, expected_output))):
                 raise ValueError(f"{case.get('id')}: MiBench FFT fixture differs from independent verifier oracle")
+        elif algorithm == "mibench_automotive_basicmath_cubic":
+            independent_result, independent_output = mibench_automotive_basicmath_cubic_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or len(independent_output) != len(expected_output)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(independent_output, expected_output))):
+                raise ValueError(
+                    f"{case.get('id')}: MiBench cubic fixture differs from the independent verifier oracle"
+                )
         if expected_result >= 0 and expected_result > workspace:
             raise ValueError(f"workspace is too small for {case.get('id')}")
         output_capacity = case.get("output_capacity", workspace)
         output_is_null = bool(case.get("output_is_null", False))
         records.append((values, expected_result, expected_output,
-                        output_capacity, 0, int(output_is_null)))
+                        output_capacity, int(bool(case.get("input_is_null", False))),
+                        int(output_is_null)))
         if expected_result > 0 and valid_case is None:
             valid_case = (values, expected_result, expected_output)
 
@@ -1315,6 +1382,38 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             maximum_input, result, output_is_null=True)
         if null_result != -2 or null_output:
             raise ValueError("MiBench FFT null-output oracle returned an invalid result")
+        records.append((maximum_input, null_result, [], result, 0, 1))
+    elif algorithm == "mibench_automotive_basicmath_cubic":
+        generated_inputs = (
+            [1.0, -6.0, 11.0, -6.0],
+            [1.0, -10.5, 32.0, -30.0],
+            [1.0, -4.5, 17.0, -30.0],
+            [1.0, 0.0, 0.0, -2.0],
+            [-1.0, 6.0, -11.0, 6.0],
+        )
+        for generated_input in generated_inputs:
+            result, output = mibench_automotive_basicmath_cubic_verifier_oracle(
+                generated_input, workspace)
+            if (result not in (1, 3) or len(output) != result
+                    or any(not math.isfinite(value) for value in output)):
+                raise ValueError("MiBench cubic verifier rejected a supported bounded polynomial")
+            records.append((generated_input, result,
+                            [_output_token(value) for value in output], result, 0, 0))
+        maximum_input = [1.0, -6.0, 11.0, -6.0]
+        result, output = mibench_automotive_basicmath_cubic_verifier_oracle(
+            maximum_input, workspace)
+        if result != 3 or len(output) != result:
+            raise ValueError("MiBench cubic verifier failed the three-root output boundary")
+        for capacity in (0, result - 1):
+            error_result, error_output = mibench_automotive_basicmath_cubic_verifier_oracle(
+                maximum_input, capacity)
+            if error_result != -2 or error_output:
+                raise ValueError("MiBench cubic capacity oracle returned an invalid boundary result")
+            records.append((maximum_input, error_result, [], capacity, 0, 0))
+        null_result, null_output = mibench_automotive_basicmath_cubic_verifier_oracle(
+            maximum_input, result, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("MiBench cubic null-output oracle returned an invalid result")
         records.append((maximum_input, null_result, [], result, 0, 1))
     records.append((values, -1, [], workspace, 1, 0))
     if algorithm != "md2_digest":

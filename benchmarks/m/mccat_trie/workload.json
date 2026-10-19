@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "mccat-trie-token-order-byte-output-v1",
+  "algorithm": "mccat_trie",
+  "function_symbol": "mccat_trie",
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[word_count, word_length_0, ASCII_token_byte_0, ..., word_length_n, ASCII_token_byte_n, ...]",
+    "word_count_range": [0, 64],
+    "word_length_range": [1, 32],
+    "token_byte_range": [33, 126],
+    "maximum_input_values": 2113,
+    "token_semantics": "visible non-whitespace ASCII bytes; tokens are case-sensitive; duplicate insertions are idempotent",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "raw_ASCII_bytes",
+    "encoding": "Each distinct word followed by LF, emitted in trie traversal order: terminal node, continuation subtree, then same-position alternative subtree. Alternative characters retain first-inserted order. No NUL terminator.",
+    "successful_result": "Exact output byte length",
+    "maximum_output_bytes": 2112,
+    "insufficient_capacity_result": -2,
+    "failure_writes": false
+  },
+  "workspace": {
+    "bytes": 2112,
+    "meaning": "Maximum output buffer capacity. Internal trie storage is bounded by at most 2,048 token characters."
+  },
+  "cases": [
+    {
+      "id": "empty_input",
+      "input_values": [0],
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "source_traversal_and_prefixes",
+      "input_values": [4, 3, 99, 97, 114, 3, 99, 97, 116, 2, 99, 97, 3, 98, 97, 116],
+      "expected_result": 15,
+      "expected_output_hex": "63610a6361720a6361740a6261740a"
+    },
+    {
+      "id": "duplicate_and_case_sensitive_tokens",
+      "input_values": [3, 3, 68, 111, 103, 3, 100, 111, 103, 3, 68, 111, 103],
+      "expected_result": 8,
+      "expected_output_hex": "446f670a646f670a"
+    },
+    {
+      "id": "ordered_sibling_branches",
+      "input_values": [5, 3, 97, 110, 116, 2, 97, 110, 1, 97, 3, 97, 112, 116, 3, 98, 97, 116],
+      "expected_result": 17,
+      "expected_output_hex": "610a616e0a616e740a6170740a6261740a"
+    },
+    {
+      "id": "visible_punctuation_and_insert_order",
+      "input_values": [2, 1, 126, 1, 33],
+      "expected_result": 4,
+      "expected_output_hex": "7e0a210a"
+    },
+    {
+      "id": "maximum_word_length",
+      "input_values": [1, 32, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90],
+      "expected_result": 33,
+      "expected_output_hex": "5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a0a"
+    },
+    {
+      "id": "missing_count",
+      "input_values": [],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "negative_word_count",
+      "input_values": [-1],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count_over_limit",
+      "input_values": [65],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "zero_length_token",
+      "input_values": [1, 0],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated_token",
+      "input_values": [1, 2, 65],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "token_contains_whitespace",
+      "input_values": [1, 1, 32],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_value",
+      "input_values": [1, 1, 65, 66],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 200
+  }
+}

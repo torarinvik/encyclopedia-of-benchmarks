@@ -1,7 +1,7 @@
 const INPUT_COUNT: usize = 4;
 const MAX_ROOTS: usize = 3;
 
-fn solveCubic(input: *const [INPUT_COUNT]f64, roots: *[MAX_ROOTS]f64) i64 {
+fn solveCubic(input: [*]const f64, roots: *[MAX_ROOTS]f64) i64 {
     const a = input[0];
     const b = input[1];
     const c = input[2];
@@ -41,8 +41,7 @@ pub export fn mibench_automotive_basicmath_cubic(
     }
     if (input[0] > -1.0 and input[0] < 1.0) return -1;
     var roots: [MAX_ROOTS]f64 = undefined;
-    const coefficients: *const [INPUT_COUNT]f64 = @ptrCast(input);
-    const count = solveCubic(coefficients, &roots);
+    const count = solveCubic(input, &roots);
     if (count < 0) return -1;
     const output = output_opt orelse return -2;
     if (output_capacity < @as(usize, @intCast(count))) return -2;

@@ -1,0 +1,17 @@
+Huffbench source attribution and license notice
+
+The pinned source is CoyoteBench/huffbench/huffbench.c from
+lac-dcc/Benchmarks commit 5d7b75df749241efa7a6e6f5be613d3fcc5cce38.
+The source identifies Scott Robert Ladd as its author and includes this
+license statement:
+
+    No rights reserved. This is public domain software, for use by anyone.
+
+The source also includes the following request:
+
+    Please do not use this information or algorithm in any way that might
+    upset the balance of the universe or otherwise cause the creation of
+    singularities.
+
+These language ports are independent implementations of the public-domain
+algorithm. The attribution and source notice are retained here for provenance.

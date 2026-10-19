@@ -19,7 +19,7 @@ The local contracts are portable algorithm workloads; they do not claim comparab
 
 | NBench kernel | Local coverage |
 | --- | --- |
-| Numeric sort | [Heap sort](h/heap_sort/README.md) |
+| Numeric sort (heapsort core) | [Heap sort](h/heap_sort/README.md) |
 | String sort | [NBench string heap sort](s/string_heap_sort/README.md) |
 | Bitfield | [Bitmap block allocation](b/bitmap_block_allocation/README.md) |
 | Emulated floating point | [NBench emulated floating-point arithmetic](n/nbench_emulated_float_arithmetic/README.md) |

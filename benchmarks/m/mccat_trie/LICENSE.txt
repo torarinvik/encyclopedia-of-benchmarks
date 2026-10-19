@@ -1,0 +1,14 @@
+Copyright (C) 1996 McGill University.
+Copyright (C) 1996 McCAT System Group.
+Copyright (C) 1996 ACAPS Benchmark Administrator
+                   benadmin@acaps.cs.mcgill.ca
+
+This program is free software; you can redistribute it and/or modify
+it provided this copyright notice is maintained.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Original implementation authors: Lars Hjorth Nielsen and Jacob Winstrup Schmidt.
+Pinned source: McCat/15-trie/trie.c at lac-dcc/Benchmarks commit
+5d7b75df749241efa7a6e6f5be613d3fcc5cce38.

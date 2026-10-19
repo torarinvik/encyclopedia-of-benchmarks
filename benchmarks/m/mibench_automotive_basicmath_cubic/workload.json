@@ -141,10 +141,27 @@
       "expected_output": []
     },
     {
+      "id": "coefficient_outside_bound",
+      "input_values": [1.0, 101.0, 0.0, 0.0],
+      "input_length": 4,
+      "output_capacity": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
       "id": "malformed_coefficient_count",
       "input_values": [1.0, 2.0, 1.0],
       "input_length": 3,
       "output_capacity": 3,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "output_capacity": 3,
+      "input_is_null": true,
       "expected_result": -1,
       "expected_output": []
     }

@@ -23,6 +23,10 @@ from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT
 from drop3_oracle import expected_result as drop3_expected_result
 from netbench_crc_oracle import MAX_LENGTH as NETBENCH_CRC_MAX_LENGTH
 from mibench_telecomm_crc32_oracle import MAX_LENGTH as MIBENCH_TELECOMM_CRC32_MAX_LENGTH
+from coremark_crc_oracle import INVALID_RESULT as COREMARK_CRC_INVALID_RESULT
+from coremark_crc_oracle import MAX_INPUT_LENGTH as COREMARK_CRC_MAX_INPUT_LENGTH
+from coremark_crc_oracle import MAX_OPERATIONS as COREMARK_CRC_MAX_OPERATIONS
+from coremark_crc_oracle import expected_result as coremark_crc_oracle
 from five11_oracle import expected_result as five11_expected_result
 from deep_clone_graph_oracle import expected_result as deep_clone_graph_oracle
 from frequent_pattern_growth_oracle import expected_result as frequent_pattern_growth_oracle
@@ -626,6 +630,7 @@ from run_i64_array_scalar import encode_case
 from run_i64_array_scalar import MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_mono_alphabetic_workload
 from run_i64_array_scalar import validate_netbench_crc_workload
+from run_i64_array_scalar import validate_coremark_crc_workload
 from run_i64_array_scalar import validate_mibench_telecomm_crc32_workload
 from run_i64_array_scalar import MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_mono_alphabetic_cipher_workload
@@ -1344,6 +1349,7 @@ from knapsack_zero_one_tabulation_oracle import MAX_WEIGHT as KNAPSACK_ZERO_ONE_
 from knapsack_zero_one_tabulation_oracle import expected_result as knapsack_zero_one_tabulation_oracle
 
 ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
+ALGORITHMS += ("trimaran_netbench_url_internet_checksum",)
 ALGORITHMS += ("sort_the_odd",)
 ALGORITHMS += ("depth_first_search_tic_tac_toe",)
 ALGORITHMS += ("dynamic_coin_change_solver",)
@@ -1519,6 +1525,7 @@ ALGORITHMS += ("k_means_julia", "k_means_rust", "k_means_clustering_c",
 ALGORITHMS += ("lamport_signature",)
 ALGORITHMS += ("netbench_crc",)
 ALGORITHMS += ("mibench_telecomm_crc32",)
+ALGORITHMS += ("coremark_crc",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -2018,6 +2025,29 @@ def monotonic_array_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "trimaran_netbench_url_internet_checksum":
+        if (len(values) < 2 or len(values) > 66
+                or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                       for value in values)):
+            return -1
+        mode, count = values[:2]
+        if (mode not in (0, 1) or count < 0 or count > 64
+                or len(values) != count + 2
+                or any(value < 0 or value > 255 for value in values[2:])):
+            return -1
+        # Independent reduction: the pinned C expression contributes each
+        # complemented little-endian word modulo 2^64, then the odd byte.
+        total = 0
+        for index in range(2, len(values) - 1, 2):
+            word = values[index] + 256 * values[index + 1]
+            total = (total + ((1 << 64) - word - 1)) % (1 << 64)
+        if count & 1:
+            total = (total + values[-1]) % (1 << 64)
+        while total > 0xffff:
+            total = (total & 0xffff) + (total >> 16)
+        if mode == 1:
+            total = ((total & 0xff) << 8) | (total >> 8)
+        return total
     if algorithm == "mibench_telecomm_crc32":
         if len(values) > MIBENCH_TELECOMM_CRC32_MAX_LENGTH or any(
                 type(value) is not int or value < 0 or value > 255 for value in values):
@@ -2042,6 +2072,8 @@ def oracle(algorithm: str, values: list[int]) -> int:
                 else:
                     crc = (crc << 1) & mask
         return crc
+    if algorithm == "coremark_crc":
+        return coremark_crc_oracle(values)
     if algorithm == "drop3":
         return drop3_expected_result(values)
     if algorithm == "five11":
@@ -2941,10 +2973,80 @@ def oracle(algorithm: str, values: list[int]) -> int:
 
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "netbench_crc":
+    if algorithm == "trimaran_netbench_url_internet_checksum":
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        expected_ids = {
+            "empty_without_swap", "empty_with_swap", "one_byte_without_swap",
+            "one_byte_with_swap", "even_words", "odd_trailing_byte", "maximum_bytes",
+            "invalid_mode", "length_mismatch", "byte_out_of_range", "negative_byte",
+            "signed_i64_extreme",
+        }
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-trimaran-netbench-url-internet-checksum-i64-array-scalar-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "Trimaran/netbench-url/url.c", "symbol": "internet_checksum",
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/Trimaran/netbench-url/url.c",
+                    "license_note": "NetBench source explicitly permits copying, modification, and redistribution if copyright, permission, and nonwarranty notices remain and recipients retain redistribution rights; exact notice bundled.",
+                }
+                or launcher != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "Trimaran/netbench-url/info.sh", "bench_name": "netbench-url",
+                    "source_files": ["packet.c", "search.c", "url.c", "utils.c"],
+                    "compile_flags": [],
+                    "run_options": ["medium_inputs 100 with SMALL_PROBLEM_SIZE; otherwise 1400"],
+                }
+                or workload.get("source_bound") != {
+                    "description": "Ports only internet_checksum from url.c. Input mode explicitly selects the conditional LITTLE_ENDIAN final byte swap; source native 16-bit loads are represented as little-endian and unsigned long as 64-bit. Routing database, packet stream, BMH search, and launcher output are excluded.",
+                    "maximum_bytes": 64, "native_word_order": "little_endian", "unsigned_long_bits": 64,
+                    "mode_0": "LITTLE_ENDIAN is not defined; no final byte swap",
+                    "mode_1": "LITTLE_ENDIAN is defined; swap the final 16-bit word",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "encoding": "[mode, byte_count, byte_0, ..., byte_(byte_count-1)]",
+                    "mode_range": [0, 1], "byte_count_range": [0, 64],
+                    "maximum_valid_input_length": 66, "maximum_parseable_input_length": 67,
+                    "byte_range": [0, 255], "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "signed_64_bit_scalar",
+                    "meaning": "source internet_checksum return value after 64-bit accumulation and 16-bit carry folding",
+                    "valid_result_range": [0, 65535], "invalid_input_result": -1,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("trimaran_netbench_url_internet_checksum workload differs from its pinned helper contract")
+        package = ROOT / "benchmarks" / "t" / "trimaran_netbench_url_internet_checksum"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "LICENSE_NOTICE.txt").read_text(encoding="utf-8")
+        if (source.get("url") not in readme or "helper" not in readme
+                or "not implement routing rules" not in readme
+                or "Everyone is granted permission to copy, modify and redistribute" not in notice
+                or "written offer" not in notice):
+            raise ValueError("trimaran_netbench_url_internet_checksum provenance or permission notice is incomplete")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            if (set(case) != {"id", "input_values", "expected_result"}
+                    or not isinstance(values, list) or len(values) > 67
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                    or type(case.get("expected_result")) is not int
+                    or case["expected_result"] != oracle(algorithm, values)):
+                raise ValueError(f"trimaran_netbench_url_internet_checksum fixture mismatch: {case.get('id')}")
+    elif algorithm == "netbench_crc":
         validate_netbench_crc_workload(workload)
     elif algorithm == "mibench_telecomm_crc32":
         validate_mibench_telecomm_crc32_workload(workload)
+    elif algorithm == "coremark_crc":
+        validate_coremark_crc_workload(workload)
     elif algorithm == "msd_radix_string_sorter":
         validate_msd_radix_string_sorter_workload(workload)
     elif algorithm == "mono_alphabetic_cipher":
@@ -3105,6 +3207,18 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in ((-1,), (256,), (0,) * (NETBENCH_CRC_MAX_LENGTH + 1),
                        (I64_MIN,), (I64_MAX,)):
             cases[values] = oracle(algorithm, list(values))
+    if algorithm == "trimaran_netbench_url_internet_checksum":
+        for count in (0, 1, 2, 3, 15, 16, 63, 64):
+            for mode in (0, 1):
+                for pattern in (tuple(0 for _ in range(count)),
+                                tuple(255 for _ in range(count)),
+                                tuple((index * 73 + 29) & 255 for index in range(count))):
+                    values = (mode, count, *pattern)
+                    cases[values] = oracle(algorithm, list(values))
+        for values in ((2, 0), (0, 65, *([0] * 65)), (0, 1, -1),
+                       (1, 1, 256), (0, 1, 0, 0), (-(1 << 63),)):
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append("NULL 2 -1\n")
     if algorithm == "mibench_telecomm_crc32":
         for length in (0, 1, 2, 7, 8, 31, 64, 255, 256):
             patterns = (
@@ -3121,6 +3235,34 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                        (0,) * (MIBENCH_TELECOMM_CRC32_MAX_LENGTH + 1),
                        (I64_MIN,), (I64_MAX,)):
             cases[values] = oracle(algorithm, list(values))
+    if algorithm == "coremark_crc":
+        rng = random.Random(20261019)
+        value_limits = {0: 0xFF, 1: 0xFFFF, 2: 0xFFFFFFFF, 3: (1 << 15) - 1}
+        for tag in range(4):
+            boundary_values = (-(1 << 15), -1, 0, 1, (1 << 15) - 1) if tag == 3 else (
+                -1, 0, 1, value_limits[tag])
+            for value in boundary_values:
+                seed = 0 if value == 0 else 0xFFFF
+                values = (1, tag, seed, value)
+                cases[values] = oracle(algorithm, list(values))
+        for index in range(128):
+            count = rng.randint(1, COREMARK_CRC_MAX_OPERATIONS)
+            operations = []
+            for _ in range(count):
+                tag = rng.randrange(4)
+                value = (rng.randint(-(1 << 15), (1 << 15) - 1) if tag == 3
+                         else rng.randint(0, value_limits[tag]))
+                operations.extend((tag, rng.randint(0, 0xFFFF), value))
+            values = (count, *operations)
+            cases[values] = oracle(algorithm, list(values))
+        for values in (
+                (), (0,), (COREMARK_CRC_MAX_OPERATIONS + 1,), (1, 0, -1, 0),
+                (1, 0, 0, 256), (1, 1, 0, 65536), (1, 2, 0, 1 << 32),
+                (1, 3, 0, 1 << 15), (1, 4, 0, 0), (1, 0, 0, 0, 0),
+                (I64_MIN,), (I64_MAX,),
+                tuple([1] + [0] * COREMARK_CRC_MAX_INPUT_LENGTH)):
+            cases[values] = oracle(algorithm, list(values))
+        special_records.append(f"NULL 1 {COREMARK_CRC_INVALID_RESULT}\n")
     if algorithm == "five11":
         # Exercise the null pointer contract in addition to the checked workload corpus.
         special_records.append("NULL 2 -1\n")

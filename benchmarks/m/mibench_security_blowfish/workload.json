@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mibench-security-blowfish-ecb-block-i64-array-bytes-output-v1",
+  "algorithm": "mibench_security_blowfish",
+  "function_symbol": "mibench_security_blowfish",
+  "description": "One Blowfish ECB block encryption or decryption using either of the two source test keys.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/security-blowfish/bf_enc.c",
+    "related_paths": [
+      "MiBench/security-blowfish/bf_skey.c",
+      "MiBench/security-blowfish/bf_ecb.c",
+      "MiBench/security-blowfish/bf_pi.h",
+      "MiBench/security-blowfish/bftest.c"
+    ],
+    "symbol": "BF_set_key, BF_encrypt, BF_ecb_encrypt",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/security-blowfish/bf_enc.c",
+    "license": "Eric Young source license, reproduced verbatim in LICENSE.txt; attribution and advertising acknowledgment apply; terms may not be changed."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/security-blowfish/info.sh",
+    "bench_name": "security-blowfish",
+    "source_files": [
+      "bf_cbc.c",
+      "bf_cfb64.c",
+      "bf_ecb.c",
+      "bf_enc.c",
+      "bf_ofb64.c",
+      "bf_skey.c",
+      "bftest.c"
+    ],
+    "compile_flags": [
+      "-lm"
+    ],
+    "run_options": [
+      "d",
+      "output_large.enc",
+      "output_large.asc",
+      "1234567890abcdeffedcba0987654321"
+    ]
+  },
+  "contract": {
+    "operation": "Initialize Blowfish with one of the two published bftest keys, then apply one ECB block encryption or decryption.",
+    "source_configuration": {
+      "block_bytes": 8,
+      "key_strings": [
+        "abcdefghijklmnopqrstuvwxyz",
+        "Who is John Galt?"
+      ],
+      "direction_encoding": {
+        "0": "encrypt",
+        "1": "decrypt"
+      },
+      "block_byte_order": "big-endian, as in BF_ecb_encrypt"
+    },
+    "source_wrapper": "The bftest source checks BF_encrypt ECB vectors; BF_ecb_encrypt uses the same two-word block primitive with big-endian bytes. Launcher file handling and its CBC/CFB/OFB stages are excluded.",
+    "input_layout": "[direction, key_selector, 8 block bytes]",
+    "maximum_input_length": 10,
+    "output_encoding": "8 raw Blowfish block bytes, big-endian",
+    "output_bytes": 8,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed input, selector, direction, or byte values return -1 before output checks. Null output or capacity below 8 returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array_of_bytes",
+    "encoding": "direction (0 encrypt, 1 decrypt), key selector (0 or 1), then 8 big-endian block bytes",
+    "exact_length": 10,
+    "maximum_input_length": 10,
+    "valid_value_range": [
+      0,
+      255
+    ],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one raw 8-byte Blowfish result block in big-endian byte order",
+    "maximum_bytes": 8,
+    "success_result": "Bytes written, exactly 8",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 8,
+    "meaning": "One output block."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "upstream_key_abcdefghijklmnopqrstuvwxyz_encrypt",
+      "input_values": [
+        0,
+        0,
+        66,
+        76,
+        79,
+        87,
+        70,
+        73,
+        83,
+        72
+      ],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "324ed0fef413a203"
+    },
+    {
+      "id": "upstream_key_who_is_john_galt_encrypt",
+      "input_values": [
+        0,
+        1,
+        254,
+        220,
+        186,
+        152,
+        118,
+        84,
+        50,
+        16
+      ],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "cc91732b8022f684"
+    },
+    {
+      "id": "upstream_key_abcdefghijklmnopqrstuvwxyz_decrypt",
+      "input_values": [
+        1,
+        0,
+        50,
+        78,
+        208,
+        254,
+        244,
+        19,
+        162,
+        3
+      ],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "424c4f5746495348"
+    },
+    {
+      "id": "upstream_key_who_is_john_galt_decrypt",
+      "input_values": [
+        1,
+        1,
+        204,
+        145,
+        115,
+        43,
+        128,
+        34,
+        246,
+        132
+      ],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "fedcba9876543210"
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        0,
+        0,
+        66,
+        76,
+        79,
+        87,
+        70,
+        73,
+        83,
+        72
+      ],
+      "input_length": 10,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "bad_direction",
+      "input_values": [
+        2,
+        0,
+        66,
+        76,
+        79,
+        87,
+        70,
+        73,
+        83,
+        72
+      ],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "bad_key_selector",
+      "input_values": [
+        0,
+        2,
+        66,
+        76,
+        79,
+        87,
+        70,
+        73,
+        83,
+        72
+      ],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "bad_block_byte",
+      "input_values": [
+        0,
+        0,
+        66,
+        76,
+        79,
+        87,
+        70,
+        73,
+        83,
+        256
+      ],
+      "input_length": 10,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_input",
+      "input_values": [
+        0,
+        0,
+        66,
+        76,
+        79,
+        87,
+        70,
+        73,
+        83
+      ],
+      "input_length": 9,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

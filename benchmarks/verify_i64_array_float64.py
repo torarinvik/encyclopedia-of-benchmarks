@@ -32,6 +32,12 @@ from three_mm_oracle import expected_result as three_mm_oracle
 from hubble_parameter_oracle import INVALID_RESULT, expected_result as hubble_parameter_oracle
 from light_aberration_oracle import INVALID_RESULT as LIGHT_ABERRATION_INVALID_RESULT
 from light_aberration_oracle import expected_result as light_aberration_oracle
+from ansibench_whetstone_oracle import INVALID_RESULT as ANSIBENCH_WHETSTONE_INVALID_RESULT
+from ansibench_whetstone_oracle import expected_result as ansibench_whetstone_oracle
+from linpack_lu_solve_oracle import INVALID_RESULT as LINPACK_LU_SOLVE_INVALID_RESULT
+from linpack_lu_solve_oracle import expected_result as linpack_lu_solve_oracle
+from nbench_fourier_coefficients_oracle import INVALID_RESULT as NBENCH_FOURIER_INVALID_RESULT
+from nbench_fourier_coefficients_oracle import expected_result as nbench_fourier_coefficients_oracle
 from run_i64_array_float64 import (
     MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH,
     encode_case, resolve_tolerances, result_matches,
@@ -51,6 +57,9 @@ from run_i64_array_float64 import (
     validate_polybench_symm_workload,
     validate_polybench_cholesky_workload,
     validate_polybench_ludcmp_workload,
+    validate_ansibench_whetstone_workload,
+    validate_linpack_lu_solve_workload,
+    validate_nbench_fourier_coefficients_workload,
 )
 from traveling_salesman_solver_oracle import (
     INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
@@ -643,6 +652,7 @@ ALGORITHMS += ("mvt", "atax", "bicg", "gemm", "gemver", "covariance", "doitgen",
 ALGORITHMS += ("polybench_symm",)
 ALGORITHMS += ("polybench_cholesky",)
 ALGORITHMS += ("polybench_ludcmp",)
+ALGORITHMS += ("ansibench_whetstone", "linpack_lu_solve", "nbench_fourier_coefficients")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -925,7 +935,17 @@ def logistic_regression_csharp_binary_gd_oracle(values: list[int]) -> float:
     return 1.0 / (1.0 + math.exp(-query_score))
 
 
-def oracle(algorithm: str, values: list[int]) -> float:
+def oracle(algorithm: str, values: list[int], *, input_is_null: bool = False,
+           input_length: int | None = None) -> float:
+    if algorithm == "ansibench_whetstone":
+        return ansibench_whetstone_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "linpack_lu_solve":
+        return linpack_lu_solve_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "nbench_fourier_coefficients":
+        return nbench_fourier_coefficients_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
     if algorithm == "mvt":
         return mvt_oracle(values)
     if algorithm == "atax":
@@ -1211,6 +1231,12 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_polybench_cholesky_workload(workload)
     elif algorithm == "polybench_ludcmp":
         validate_polybench_ludcmp_workload(workload)
+    elif algorithm == "ansibench_whetstone":
+        validate_ansibench_whetstone_workload(workload)
+    elif algorithm == "linpack_lu_solve":
+        validate_linpack_lu_solve_workload(workload)
+    elif algorithm == "nbench_fourier_coefficients":
+        validate_nbench_fourier_coefficients_workload(workload)
     absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     if (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0
             or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
@@ -1220,7 +1246,11 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     explicit_null_cases: list[tuple[int, float]] = []
     for case in workload["cases"]:
         values, expected = encode_case(case, algorithm)
-        source_result = oracle(algorithm, values)
+        source_result = oracle(
+            algorithm, values,
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)),
+        )
         if not result_matches(expected, source_result, absolute_tolerance, relative_tolerance):
             raise ValueError(f"published workload disagrees with the oracle: {case['id']}")
         if case.get("input_is_null") is True:
@@ -5921,6 +5951,27 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in ((), (0,), (POLYBENCH_LUDCMP_MAX_DIMENSION + 1,),
                        (I64_MIN,), (I64_MAX,), (2, 2)):
             cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "ansibench_whetstone":
+        for passes in (1, 2, 3):
+            values = (passes,)
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (4,), (1, 2), (I64_MIN,), (I64_MAX,)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "nbench_fourier_coefficients":
+        for count in (1, 2, 4, 16):
+            values = (count,)
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (17,), (1, 2), (I64_MIN,), (I64_MAX,)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "linpack_lu_solve":
+        for n in (2, 3, 4):
+            matrix = tuple(1 if row == column else 0
+                           for column in range(n) for row in range(n))
+            rhs = tuple(index - 1 for index in range(n))
+            values = (n, *matrix, *rhs)
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (5,), (2,), (2, 1), (I64_MIN,), (I64_MAX,)):
+            cases[values] = oracle(algorithm, list(values))
     elif algorithm in {"mvt", "atax", "bicg", "polybench_symm"}:
         for first in (1, 2, 3, 8):
             for second in (1, 2, 3, 8):
@@ -6091,7 +6142,10 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "sparsity": 0,
                     "mvt": 2, "atax": 2, "bicg": 2, "polybench_symm": 2,
                     "gemm": 3, "gemver": 1,
-                    "covariance": 2}
+                    "covariance": 2,
+                    "ansibench_whetstone": 1,
+                    "linpack_lu_solve": 1,
+                    "nbench_fourier_coefficients": 0}
     null_lengths["doitgen"] = 3
     null_lengths["2mm"] = 4
     null_lengths["3mm"] = 5
@@ -6104,6 +6158,11 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     null_length = null_lengths[algorithm]
     null_result = (MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
                    if algorithm == "mean_bias_deviation_percent" else
+                   ANSIBENCH_WHETSTONE_INVALID_RESULT
+                   if algorithm == "ansibench_whetstone" else
+                   LINPACK_LU_SOLVE_INVALID_RESULT if algorithm == "linpack_lu_solve" else
+                   NBENCH_FOURIER_INVALID_RESULT
+                   if algorithm == "nbench_fourier_coefficients" else
                    MONTE_CARLO_INTEGRATION_INVALID_RESULT
                    if algorithm == "monte_carlo_integration" else
                    MONTE_CARLO_INTEGRATION_INDEPENDENT_INVALID_RESULT

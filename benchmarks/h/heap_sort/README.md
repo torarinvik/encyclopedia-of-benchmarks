@@ -10,11 +10,15 @@ The C ABI entry point is:
 void heap_sort(int64_t *values, size_t length);
 ```
 
+## ANSIbench relation
+
+ANSIbench's NBench numeric-sort kernel is `NumHeapSort`/`NumSift` in [`nbench/src/nbench1.c`](https://github.com/nfinit/ansibench/blob/ef90abd09d7b7bb1f2809f896d6f67fb9724bebe/nbench/src/nbench1.c). This package covers its in-place integer heapsort core. It uses a fixed modular-affine input and does not reproduce NBench's random array generation, repeated batches, self-adjustment, or score calculation.
+
 ## Workload
 
 [`workload.json`](workload.json) uses a deterministic modular-affine input `values[index] = ((index * 48,271) mod 2,000,003) - 1,000,001` at lengths `0`, `16`, `256`, and `1,024`. The shared sort runner builds a sorted reference outside timing, restores input before each timed call, and checks the full result afterward.
 
-Use [`benchmarks/harness/sort_runner.c`](../../harness/sort_runner.c) and [`benchmarks/run_sort.py`](../../run_sort.py). Sort result records set search-only target and comparison fields to null.
+Use [`benchmarks/harness/sort_runner.c`](../../harness/sort_runner.c) and [`benchmarks/run_sort.py`](../../run_sort.py). Run `python3 benchmarks/verify_heap_sort.py` to check all nine ports against exhaustive short arrays, signed 64-bit boundaries, seeded random arrays, and each published workload length. Sort result records set search-only target and comparison fields to null.
 
 ## Implementations
 

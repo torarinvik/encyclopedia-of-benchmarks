@@ -1233,6 +1233,49 @@ from run_i64_array_bytes_output import validate_round_robin_workload
 from run_i64_array_bytes_output import validate_shortest_job_first_workload
 from run_i64_array_bytes_output import MAX_SLACK_TIME_SCHEDULING_INPUT_LENGTH
 from run_i64_array_bytes_output import validate_slack_time_scheduling_workload
+from run_i64_array_bytes_output import validate_new_byte_output_workload
+from ansibench_dhrystone_oracle import MAX_PARSEABLE_INPUT_LENGTH as ANSIBENCH_DHRYSTONE_MAX_PARSEABLE_INPUT_LENGTH
+from ansibench_dhrystone_oracle import MAX_OUTPUT_BYTES as ANSIBENCH_DHRYSTONE_MAX_OUTPUT_BYTES
+from ansibench_dhrystone_oracle import expected_output as ansibench_dhrystone_oracle
+from stream_vector_kernels_oracle import MAX_N as STREAM_VECTOR_KERNELS_MAX_N
+from stream_vector_kernels_oracle import MAX_PARSEABLE_INPUT_LENGTH as STREAM_VECTOR_KERNELS_MAX_PARSEABLE_INPUT_LENGTH
+from stream_vector_kernels_oracle import expected_output as stream_vector_kernels_oracle
+from string_heap_sort_oracle import MAX_OUTPUT_BYTES as STRING_HEAP_SORT_MAX_OUTPUT_BYTES
+from string_heap_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as STRING_HEAP_SORT_MAX_PARSEABLE_INPUT_LENGTH
+from string_heap_sort_oracle import expected_output as string_heap_sort_oracle
+from bitmap_block_allocation_oracle import MAX_OUTPUT_BYTES as BITMAP_BLOCK_ALLOCATION_MAX_OUTPUT_BYTES
+from bitmap_block_allocation_oracle import MAX_PARSEABLE_INPUT_LENGTH as BITMAP_BLOCK_ALLOCATION_MAX_PARSEABLE_INPUT_LENGTH
+from bitmap_block_allocation_oracle import expected_output as bitmap_block_allocation_oracle
+from tripforce_tripcode_oracle import MAX_OUTPUT_BYTES as TRIPFORCE_TRIPCODE_MAX_OUTPUT_BYTES
+from tripforce_tripcode_oracle import MAX_PARSEABLE_INPUT_LENGTH as TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH
+from tripforce_tripcode_oracle import expected_output as tripforce_tripcode_oracle
+from hint_area_bound_refinement_oracle import MAX_OUTPUT_BYTES as HINT_AREA_BOUND_REFINEMENT_MAX_OUTPUT_BYTES
+from hint_area_bound_refinement_oracle import MAX_PARSEABLE_INPUT_LENGTH as HINT_AREA_BOUND_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+from hint_area_bound_refinement_oracle import expected_output as hint_area_bound_refinement_oracle
+from idea_encrypt_decrypt_oracle import MAX_OUTPUT_BYTES as IDEA_ENCRYPT_DECRYPT_MAX_OUTPUT_BYTES
+from idea_encrypt_decrypt_oracle import MAX_PARSEABLE_INPUT_LENGTH as IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH
+from idea_encrypt_decrypt_oracle import expected_output as idea_encrypt_decrypt_oracle
+from embedded_list_stress_oracle import MAX_OUTPUT_BYTES as EMBEDDED_LIST_STRESS_MAX_OUTPUT_BYTES
+from embedded_list_stress_oracle import MAX_PARSEABLE_INPUT_LENGTH as EMBEDDED_LIST_STRESS_MAX_PARSEABLE_INPUT_LENGTH
+from embedded_list_stress_oracle import expected_output as embedded_list_stress_oracle
+from numeric_token_state_machine_oracle import MAX_OUTPUT_BYTES as NUMERIC_TOKEN_STATE_MACHINE_MAX_OUTPUT_BYTES
+from numeric_token_state_machine_oracle import MAX_PARSEABLE_INPUT_LENGTH as NUMERIC_TOKEN_STATE_MACHINE_MAX_PARSEABLE_INPUT_LENGTH
+from numeric_token_state_machine_oracle import expected_output as numeric_token_state_machine_oracle
+from nbench_huffman_compression_oracle import MAX_OUTPUT_BYTES as NBENCH_HUFFMAN_COMPRESSION_MAX_OUTPUT_BYTES
+from nbench_huffman_compression_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_HUFFMAN_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH
+from nbench_huffman_compression_oracle import expected_output as nbench_huffman_compression_oracle
+from nbench_resource_assignment_oracle import MAX_OUTPUT_BYTES as NBENCH_RESOURCE_ASSIGNMENT_MAX_OUTPUT_BYTES
+from nbench_resource_assignment_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_RESOURCE_ASSIGNMENT_MAX_PARSEABLE_INPUT_LENGTH
+from nbench_resource_assignment_oracle import expected_output as nbench_resource_assignment_oracle
+from nbench_emulated_float_arithmetic_oracle import MAX_OUTPUT_BYTES as NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_OUTPUT_BYTES
+from nbench_emulated_float_arithmetic_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_PARSEABLE_INPUT_LENGTH
+from nbench_emulated_float_arithmetic_oracle import expected_output as nbench_emulated_float_arithmetic_oracle
+from nbench_neural_network_oracle import MAX_OUTPUT_BYTES as NBENCH_NEURAL_NETWORK_MAX_OUTPUT_BYTES
+from nbench_neural_network_oracle import MAX_PARSEABLE_INPUT_LENGTH as NBENCH_NEURAL_NETWORK_MAX_PARSEABLE_INPUT_LENGTH
+from nbench_neural_network_oracle import expected_output as nbench_neural_network_oracle
+from coremark_matrix_manipulation_oracle import MAX_OUTPUT_BYTES as COREMARK_MATRIX_MANIPULATION_MAX_OUTPUT_BYTES
+from coremark_matrix_manipulation_oracle import MAX_PARSEABLE_INPUT_LENGTH as COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH
+from coremark_matrix_manipulation_oracle import expected_output as coremark_matrix_manipulation_oracle
 from run_i64_array_bytes_output import validate_merge_linked_lists_workload
 from run_i64_array_bytes_output import validate_singly_link_list_deletion_workload
 from run_i64_array_bytes_output import validate_iddfs_workload
@@ -2979,6 +3022,15 @@ ALGORITHMS = (*ALGORITHMS, "8b10b")
 ALGORITHMS = (*ALGORITHMS, "uudecode")
 ALGORITHMS = (*ALGORITHMS, "cbench_automotive_qsort1")
 ALGORITHMS = (*ALGORITHMS, "polybench_adi")
+ALGORITHMS = (*ALGORITHMS, "trimaran_enc_rc4")
+ALGORITHMS = (*ALGORITHMS, "trimaran_enc_3des")
+ALGORITHMS = (*ALGORITHMS, "ansibench_dhrystone", "stream_vector_kernels",
+              "string_heap_sort", "bitmap_block_allocation", "idea_encrypt_decrypt",
+              "hint_area_bound_refinement", "tripforce_tripcode",
+              "embedded_list_stress", "numeric_token_state_machine",
+              "nbench_huffman_compression", "nbench_resource_assignment",
+              "nbench_emulated_float_arithmetic", "nbench_neural_network",
+              "coremark_matrix_manipulation")
 WORKSPACE_ALGORITHMS.add("lru_cache2")
 WORKSPACE_ALGORITHMS.add("memoize")
 WORKSPACE_ALGORITHMS.add("lz78")
@@ -3033,6 +3085,16 @@ WORKSPACE_ALGORITHMS.update({"bmm", "mccat_bisect"})
 WORKSPACE_ALGORITHMS.add("8b10b")
 WORKSPACE_ALGORITHMS.add("cbench_automotive_qsort1")
 WORKSPACE_ALGORITHMS.add("polybench_adi")
+WORKSPACE_ALGORITHMS.add("trimaran_enc_rc4")
+WORKSPACE_ALGORITHMS.add("trimaran_enc_3des")
+WORKSPACE_ALGORITHMS.update({
+    "ansibench_dhrystone", "stream_vector_kernels", "string_heap_sort",
+    "bitmap_block_allocation", "idea_encrypt_decrypt", "hint_area_bound_refinement",
+    "tripforce_tripcode", "embedded_list_stress",
+    "numeric_token_state_machine", "nbench_huffman_compression",
+    "nbench_resource_assignment", "nbench_emulated_float_arithmetic",
+    "nbench_neural_network", "coremark_matrix_manipulation",
+})
 DEFAULT_ALGORITHM = "letter_combinations_of_phone_number"
 
 MISC_LOWERCASE_MAX_CHARACTERS = 31
@@ -3056,6 +3118,170 @@ MCCAT_BISECT_EPSILON = 2.2204460492503131e-16
 CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS = 128
 CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES = 1 + 3 * CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS
 CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES = 12 * CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS
+TRIMARAN_ENC_RC4_MIN_PASSES = 1
+TRIMARAN_ENC_RC4_MAX_PASSES = 2000
+TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES = 2
+TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES = 82
+TRIMARAN_ENC_RC4_INVALID_RESULT = -1
+TRIMARAN_ENC_RC4_OUTPUT_ERROR = -2
+TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH = 9
+TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES = 10
+TRIMARAN_ENC_3DES_OUTPUT_BYTES = 8
+TRIMARAN_ENC_3DES_INVALID_RESULT = -1
+TRIMARAN_ENC_3DES_OUTPUT_ERROR = -2
+_TRIMARAN_ENC_3DES_KEYS = (0x0123456789ABCDEF, 0x23456789ABCDEF01,
+                             0x456789ABCDEF0123)
+_DES3_IP = (58,50,42,34,26,18,10,2,60,52,44,36,28,20,12,4,62,54,46,38,30,22,14,6,64,56,48,40,32,24,16,8,57,49,41,33,25,17,9,1,59,51,43,35,27,19,11,3,61,53,45,37,29,21,13,5,63,55,47,39,31,23,15,7)
+_DES3_IP_INV = (40,8,48,16,56,24,64,32,39,7,47,15,55,23,63,31,38,6,46,14,54,22,62,30,37,5,45,13,53,21,61,29,36,4,44,12,52,20,60,28,35,3,43,11,51,19,59,27,34,2,42,10,50,18,58,26,33,1,41,9,49,17,57,25)
+_DES3_E = (32,1,2,3,4,5,4,5,6,7,8,9,8,9,10,11,12,13,12,13,14,15,16,17,16,17,18,19,20,21,20,21,22,23,24,25,24,25,26,27,28,29,28,29,30,31,32,1)
+_DES3_P = (16,7,20,21,29,12,28,17,1,15,23,26,5,18,31,10,2,8,24,14,32,27,3,9,19,13,30,6,22,11,4,25)
+_DES3_PC1 = (57,49,41,33,25,17,9,1,58,50,42,34,26,18,10,2,59,51,43,35,27,19,11,3,60,52,44,36,63,55,47,39,31,23,15,7,62,54,46,38,30,22,14,6,61,53,45,37,29,21,13,5,28,20,12,4)
+_DES3_PC2 = (14,17,11,24,1,5,3,28,15,6,21,10,23,19,12,4,26,8,16,7,27,20,13,2,41,52,31,37,47,55,30,40,51,45,33,48,44,49,39,56,34,53,46,42,50,36,29,32)
+_DES3_SHIFTS = (1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1)
+_DES3_SBOX = (
+    ((14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7),(0,15,7,4,14,2,13,1,10,6,12,11,9,5,3,8),(4,1,14,8,13,6,2,11,15,12,9,7,3,10,5,0),(15,12,8,2,4,9,1,7,5,11,3,14,10,0,6,13)),
+    ((15,1,8,14,6,11,3,4,9,7,2,13,12,0,5,10),(3,13,4,7,15,2,8,14,12,0,1,10,6,9,11,5),(0,14,7,11,10,4,13,1,5,8,12,6,9,3,2,15),(13,8,10,1,3,15,4,2,11,6,7,12,0,5,14,9)),
+    ((10,0,9,14,6,3,15,5,1,13,12,7,11,4,2,8),(13,7,0,9,3,4,6,10,2,8,5,14,12,11,15,1),(13,6,4,9,8,15,3,0,11,1,2,12,5,10,14,7),(1,10,13,0,6,9,8,7,4,15,14,3,11,5,2,12)),
+    ((7,13,14,3,0,6,9,10,1,2,8,5,11,12,4,15),(13,8,11,5,6,15,0,3,4,7,2,12,1,10,14,9),(10,6,9,0,12,11,7,13,15,1,3,14,5,2,8,4),(3,15,0,6,10,1,13,8,9,4,5,11,12,7,2,14)),
+    ((2,12,4,1,7,10,11,6,8,5,3,15,13,0,14,9),(14,11,2,12,4,7,13,1,5,0,15,10,3,9,8,6),(4,2,1,11,10,13,7,8,15,9,12,5,6,3,0,14),(11,8,12,7,1,14,2,13,6,15,0,9,10,4,5,3)),
+    ((12,1,10,15,9,2,6,8,0,13,3,4,14,7,5,11),(10,15,4,2,7,12,9,5,6,1,13,14,0,11,3,8),(9,14,15,5,2,8,12,3,7,0,4,10,1,13,11,6),(4,3,2,12,9,5,15,10,11,14,1,7,6,0,8,13)),
+    ((4,11,2,14,15,0,8,13,3,12,9,7,5,10,6,1),(13,0,11,7,4,9,1,10,14,3,5,12,2,15,8,6),(1,4,11,13,12,3,7,14,10,15,6,8,0,5,9,2),(6,11,13,8,1,4,10,7,9,5,0,15,14,2,3,12)),
+    ((13,2,8,4,6,15,11,1,10,9,3,14,5,0,12,7),(1,15,13,8,10,3,7,4,12,5,6,11,0,14,9,2),(7,11,4,1,9,12,14,2,0,6,10,13,15,3,5,8),(2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11)))
+
+
+def _des3_permute(value: int, table: tuple[int, ...], width: int) -> int:
+    result = 0
+    for position in table:
+        result = (result << 1) | ((value >> (width - position)) & 1)
+    return result
+
+
+def _des3_subkeys(key: int) -> tuple[int, ...]:
+    selected = _des3_permute(key, _DES3_PC1, 64)
+    left, right = selected >> 28, selected & ((1 << 28) - 1)
+    result = []
+    for shift in _DES3_SHIFTS:
+        left = ((left << shift) | (left >> (28 - shift))) & ((1 << 28) - 1)
+        right = ((right << shift) | (right >> (28 - shift))) & ((1 << 28) - 1)
+        result.append(_des3_permute((left << 28) | right, _DES3_PC2, 56))
+    return tuple(result)
+
+
+def _des3_round_function(right: int, key: int) -> int:
+    mixed = _des3_permute(right, _DES3_E, 32) ^ key
+    substituted = 0
+    for box in range(8):
+        six = (mixed >> (42 - 6 * box)) & 63
+        row = ((six & 32) >> 4) | (six & 1)
+        column = (six >> 1) & 15
+        substituted = (substituted << 4) | _DES3_SBOX[box][row][column]
+    return _des3_permute(substituted, _DES3_P, 32)
+
+
+def _des3_block(block: int, key: int, decrypt: bool) -> int:
+    keys = _des3_subkeys(key)
+    state = _des3_permute(block, _DES3_IP, 64)
+    left, right = state >> 32, state & 0xFFFFFFFF
+    for subkey in (reversed(keys) if decrypt else keys):
+        left, right = right, left ^ _des3_round_function(right, subkey)
+    return _des3_permute((right << 32) | left, _DES3_IP_INV, 64)
+
+
+def trimaran_enc_3des_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (input_is_null or type(output_is_null) is not bool
+            or not isinstance(values, (tuple, list))
+            or len(values) > TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return TRIMARAN_ENC_3DES_INVALID_RESULT, b""
+    if len(values) != TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH:
+        return TRIMARAN_ENC_3DES_INVALID_RESULT, b""
+    direction, *raw_block = values
+    if direction not in (0, 1) or any(not 0 <= byte <= 255 for byte in raw_block):
+        return TRIMARAN_ENC_3DES_INVALID_RESULT, b""
+    if output_is_null or (capacity is not None and capacity < TRIMARAN_ENC_3DES_OUTPUT_BYTES):
+        return TRIMARAN_ENC_3DES_OUTPUT_ERROR, b""
+    block = int.from_bytes(bytes(raw_block), "big")
+    key1, key2, key3 = _TRIMARAN_ENC_3DES_KEYS
+    if direction == 0:
+        block = _des3_block(block, key1, False)
+        block = _des3_block(block, key2, True)
+        block = _des3_block(block, key3, False)
+    else:
+        block = _des3_block(block, key3, True)
+        block = _des3_block(block, key2, False)
+        block = _des3_block(block, key1, True)
+    return TRIMARAN_ENC_3DES_OUTPUT_BYTES, block.to_bytes(TRIMARAN_ENC_3DES_OUTPUT_BYTES, "big")
+
+
+_TRIMARAN_ENC_RC4_VECTORS = (
+    (bytes.fromhex("0123456789abcdef"), bytes.fromhex("0123456789abcdef")),
+    (bytes.fromhex("0123456789abcdef"), bytes(8)),
+    (bytes(8), bytes(8)),
+    (bytes.fromhex("ef012345"), bytes(20)),
+    (bytes.fromhex("0123456789abcdef"), bytes.fromhex("123456789abcdef0" * 3 + "12345678")),
+    (bytes.fromhex("ef012345"), bytes(10)),
+)
+
+
+def _trimaran_enc_rc4_reference_crypt(key: bytes, plaintext: bytes) -> bytes:
+    state = list(range(256))
+    cursor = 0
+    for index in range(256):
+        cursor = (cursor + state[index] + key[index % len(key)]) & 255
+        state[index], state[cursor] = state[cursor], state[index]
+
+    output = bytearray(plaintext)
+    x = y = 0
+    for offset, original in enumerate(plaintext):
+        x = (x + 1) & 255
+        y = (y + state[x]) & 255
+        state[x], state[y] = state[y], state[x]
+        output[offset] = original ^ state[(state[x] + state[y]) & 255]
+    return bytes(output)
+
+
+def trimaran_enc_rc4_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (tuple, list))
+            or len(values) > TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES))):
+        return TRIMARAN_ENC_RC4_INVALID_RESULT, b""
+    if input_is_null:
+        return TRIMARAN_ENC_RC4_INVALID_RESULT, b""
+    if input_length is not None and input_length != len(values):
+        return TRIMARAN_ENC_RC4_INVALID_RESULT, b""
+    if (len(values) != 1
+            or not TRIMARAN_ENC_RC4_MIN_PASSES <= values[0] <= TRIMARAN_ENC_RC4_MAX_PASSES):
+        return TRIMARAN_ENC_RC4_INVALID_RESULT, b""
+    if output_is_null or (capacity is not None and capacity < TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES):
+        return TRIMARAN_ENC_RC4_OUTPUT_ERROR, b""
+
+    passes = values[0]
+    ciphertexts = []
+    for key, plaintext in _TRIMARAN_ENC_RC4_VECTORS:
+        ciphertext = b""
+        for _ in range(passes):
+            ciphertext = _trimaran_enc_rc4_reference_crypt(key, plaintext)
+        ciphertexts.append(ciphertext)
+    output = b"".join(ciphertexts)
+    if len(output) != TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES:
+        raise ValueError("independent Trimaran ARC4 model produced the wrong byte count")
+    return TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES, output
 
 
 def misc_lowercase_verifier_oracle(
@@ -3657,6 +3883,20 @@ def misc_reed_solomon_verifier_oracle(
 
 
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "ansibench_dhrystone": ansibench_dhrystone_oracle,
+    "stream_vector_kernels": stream_vector_kernels_oracle,
+    "string_heap_sort": string_heap_sort_oracle,
+    "bitmap_block_allocation": bitmap_block_allocation_oracle,
+    "idea_encrypt_decrypt": idea_encrypt_decrypt_oracle,
+    "hint_area_bound_refinement": hint_area_bound_refinement_oracle,
+    "tripforce_tripcode": tripforce_tripcode_oracle,
+    "embedded_list_stress": embedded_list_stress_oracle,
+    "numeric_token_state_machine": numeric_token_state_machine_oracle,
+    "nbench_huffman_compression": nbench_huffman_compression_oracle,
+    "nbench_resource_assignment": nbench_resource_assignment_oracle,
+    "nbench_emulated_float_arithmetic": nbench_emulated_float_arithmetic_oracle,
+    "nbench_neural_network": nbench_neural_network_oracle,
+    "coremark_matrix_manipulation": coremark_matrix_manipulation_oracle,
     "smith_waterman_python": smith_waterman_python_oracle,
     "smith_waterman_rust": smith_waterman_rust_oracle,
     "uint": uint_oracle,
@@ -3670,9 +3910,43 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mccat_bisect": mccat_bisect_verifier_oracle,
     "cbench_automotive_qsort1": cbench_automotive_qsort1_verifier_oracle,
     "8b10b": versabench_8b10b_verifier_oracle,
+    "trimaran_enc_rc4": trimaran_enc_rc4_verifier_oracle,
+    "trimaran_enc_3des": trimaran_enc_3des_verifier_oracle,
     "mibench_office_stringsearch_bmh": mibench_office_stringsearch_bmh_verifier_oracle,
     "mibench_security_rijndael": mibench_security_rijndael_verifier_oracle,
     "misc_reed_solomon": misc_reed_solomon_verifier_oracle,
+}
+
+ANSIBENCH_BYTE_OUTPUT_BOUNDS = {
+    "ansibench_dhrystone": (ANSIBENCH_DHRYSTONE_MAX_PARSEABLE_INPUT_LENGTH,
+                             ANSIBENCH_DHRYSTONE_MAX_OUTPUT_BYTES),
+    "stream_vector_kernels": (STREAM_VECTOR_KERNELS_MAX_PARSEABLE_INPUT_LENGTH,
+                               8 * STREAM_VECTOR_KERNELS_MAX_N),
+    "string_heap_sort": (STRING_HEAP_SORT_MAX_PARSEABLE_INPUT_LENGTH,
+                         STRING_HEAP_SORT_MAX_OUTPUT_BYTES),
+    "bitmap_block_allocation": (BITMAP_BLOCK_ALLOCATION_MAX_PARSEABLE_INPUT_LENGTH,
+                                 BITMAP_BLOCK_ALLOCATION_MAX_OUTPUT_BYTES),
+    "idea_encrypt_decrypt": (IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH,
+                             IDEA_ENCRYPT_DECRYPT_MAX_OUTPUT_BYTES),
+    "hint_area_bound_refinement": (HINT_AREA_BOUND_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH,
+                                   HINT_AREA_BOUND_REFINEMENT_MAX_OUTPUT_BYTES),
+    "tripforce_tripcode": (TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH,
+                            TRIPFORCE_TRIPCODE_MAX_OUTPUT_BYTES),
+    "embedded_list_stress": (EMBEDDED_LIST_STRESS_MAX_PARSEABLE_INPUT_LENGTH,
+                              EMBEDDED_LIST_STRESS_MAX_OUTPUT_BYTES),
+    "numeric_token_state_machine": (NUMERIC_TOKEN_STATE_MACHINE_MAX_PARSEABLE_INPUT_LENGTH,
+                                    NUMERIC_TOKEN_STATE_MACHINE_MAX_OUTPUT_BYTES),
+    "nbench_huffman_compression": (NBENCH_HUFFMAN_COMPRESSION_MAX_PARSEABLE_INPUT_LENGTH,
+                                   NBENCH_HUFFMAN_COMPRESSION_MAX_OUTPUT_BYTES),
+    "nbench_resource_assignment": (NBENCH_RESOURCE_ASSIGNMENT_MAX_PARSEABLE_INPUT_LENGTH,
+                                   NBENCH_RESOURCE_ASSIGNMENT_MAX_OUTPUT_BYTES),
+    "nbench_emulated_float_arithmetic": (
+        NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_PARSEABLE_INPUT_LENGTH,
+        NBENCH_EMULATED_FLOAT_ARITHMETIC_MAX_OUTPUT_BYTES),
+    "nbench_neural_network": (NBENCH_NEURAL_NETWORK_MAX_PARSEABLE_INPUT_LENGTH,
+                              NBENCH_NEURAL_NETWORK_MAX_OUTPUT_BYTES),
+    "coremark_matrix_manipulation": (COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH,
+                                     COREMARK_MATRIX_MANIPULATION_MAX_OUTPUT_BYTES),
 }
 
 
@@ -5059,7 +5333,79 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     workspace_bytes = (workload.get("workspace") or {}).get(
         "bytes", output_spec.get("maximum_bytes", output_spec.get(
             "maximum_output_bytes", output_spec.get("success_result"))))
-    if algorithm == "misc_reed_solomon":
+    if algorithm == "trimaran_enc_3des":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "source_initial_block_three_key_encrypt_once",
+            "source_initial_block_three_key_decrypt_once", "invalid_direction",
+            "invalid_byte", "short_frame", "short_output_capacity",
+        }
+        source = workload.get("source", {})
+        expected_keys = ["0123456789abcdef", "23456789abcdef01", "456789abcdef0123"]
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "abi_family",
+                    "source", "input", "output", "fixed_keys_hex", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "trimaran-enc-3des-fixed-three-key-block-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != "trimaran_enc_3des"
+                or workload.get("abi_family") != "i64_array_bytes_output"
+                or source != {
+                    "repository": "https://github.com/lac-dcc/Benchmarks",
+                    "commit": pinned,
+                    "launcher": "Trimaran/enc-3des/info.sh",
+                    "source_path": "Trimaran/enc-3des/des.c",
+                    "license": "GPL-2.0-or-later",
+                    "copyright": "Copyright (C) 2001-2003 Christophe Devine",
+                }
+                or input_spec != {
+                    "kind": "signed_i64_word_array",
+                    "length_exact": TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH,
+                    "encoding": "direction 0=encrypt or 1=decrypt, followed by eight big-endian block bytes",
+                    "byte_range": [0, 255],
+                    "invalid_result": TRIMARAN_ENC_3DES_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "raw_bytes",
+                    "length_bytes": TRIMARAN_ENC_3DES_OUTPUT_BYTES,
+                    "encoding": "big-endian DES block",
+                    "success_result": TRIMARAN_ENC_3DES_OUTPUT_BYTES,
+                    "invalid_result": TRIMARAN_ENC_3DES_INVALID_RESULT,
+                    "insufficient_output_capacity_result": TRIMARAN_ENC_3DES_OUTPUT_ERROR,
+                    "null_output_result": TRIMARAN_ENC_3DES_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("fixed_keys_hex") != expected_keys
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("trimaran_enc_3des metadata differs from its pinned fixed-key block contract")
+        package = ROOT / "benchmarks" / "t" / "trimaran_enc_3des"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "LICENSE_NOTICE.txt").read_text(encoding="utf-8")
+        gpl = (package / "LICENSE-GPL-2.0-or-later.txt").read_text(encoding="utf-8")
+        if ("Trimaran/enc-3des/des.c" not in readme
+                or "Trimaran/enc-3des/info.sh" not in readme
+                or pinned not in readme
+                or "single-key DES" not in readme
+                or "two-key" not in readme
+                or "Copyright (C) 2001-2003  Christophe Devine" not in notice
+                or "you can redistribute it and/or modify" not in notice
+                or "either version 2 of the License, or" not in notice
+                or "GNU GENERAL PUBLIC LICENSE" not in gpl
+                or "TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION" not in gpl
+                or "END OF TERMS AND CONDITIONS" not in gpl):
+            raise ValueError("trimaran_enc_3des README or GPL notice is incomplete")
+        max_input, max_output = (TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES,
+                                 TRIMARAN_ENC_3DES_OUTPUT_BYTES)
+    elif algorithm == "trimaran_enc_rc4":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = (TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES,
+                                 TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES)
+    elif algorithm == "misc_reed_solomon":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         source = workload.get("pinned_source", {})
         launcher = workload.get("pinned_launcher", {})
@@ -5832,6 +6178,9 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or workload.get("measurement", {}).get("repetitions_per_sample") != 1
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("8b10b metadata differs from its pinned bounded state-machine contract")
+    elif algorithm in ANSIBENCH_BYTE_OUTPUT_BOUNDS:
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = ANSIBENCH_BYTE_OUTPUT_BOUNDS[algorithm]
     elif algorithm == "uint":
         max_input, max_output = UINT_MAX_PARSEABLE_INPUT_LENGTH, UINT_MAX_OUTPUT_BYTES
         if (workload.get("schema_version") != 1
@@ -6325,6 +6674,72 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         for values in (
                 (512,), (-1,), tuple([0] * VERSABENCH_8B10B_MAX_PARSEABLE_WORDS),
                 (-(1 << 63),), ((1 << 63) - 1,)):
+            add(values)
+    elif algorithm == "trimaran_enc_rc4":
+        for passes in (1, 2, 17, 499, 1999, TRIMARAN_ENC_RC4_MAX_PASSES):
+            add((passes,))
+
+        maximum_input = (TRIMARAN_ENC_RC4_MAX_PASSES,)
+        maximum_result, maximum_output = add(maximum_input)
+        if (maximum_result != TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES
+                or len(maximum_output) != TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES):
+            raise ValueError("trimaran_enc_rc4 maximum-pass result does not fill the output bound")
+        for capacity in (0, TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES - 1,
+                         TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES,
+                         TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES + 1):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((TRIMARAN_ENC_RC4_MIN_PASSES,), 0, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=1)
+        add((), input_is_null=True, input_length=2)
+        for values in ((), (0,), (-1,), (TRIMARAN_ENC_RC4_MAX_PASSES + 1,),
+                       (1, 0), (-(1 << 63),), ((1 << 63) - 1,)):
+            add(values)
+    elif algorithm == "trimaran_enc_3des":
+        source_block = (78, 111, 119, 32, 105, 115, 32, 116)
+        add((0, *source_block))
+        add((1, *source_block))
+        rng_3des = random.Random(20261019)
+        for index in range(32):
+            direction = index % 2
+            block = tuple(rng_3des.randrange(256) for _ in range(8))
+            add((direction, *block))
+
+        maximum_input = (0, *(255 for _ in range(8)))
+        maximum_result, maximum_output = add(maximum_input)
+        if (maximum_result != TRIMARAN_ENC_3DES_OUTPUT_BYTES
+                or len(maximum_output) != TRIMARAN_ENC_3DES_OUTPUT_BYTES):
+            raise ValueError("trimaran_enc_3des maximum block does not fill its output bound")
+        for capacity in (0, TRIMARAN_ENC_3DES_OUTPUT_BYTES - 1,
+                         TRIMARAN_ENC_3DES_OUTPUT_BYTES,
+                         TRIMARAN_ENC_3DES_OUTPUT_BYTES + 1):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH)
+        for values in (
+                (), (0,), (0, *source_block[:-1]), (0, *source_block, 0),
+                (2, *source_block), (-1, *source_block),
+                (0, -1, *source_block[1:]), (0, 256, *source_block[1:]),
+                (0, -(1 << 63), *source_block[1:]),
+                tuple([0] * TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES),
+                (-(1 << 63),), ((1 << 63) - 1,),
+        ):
+            add(values)
+    elif algorithm in ANSIBENCH_BYTE_OUTPUT_BOUNDS:
+        for case in workload["cases"]:
+            values = tuple(case["input_values"])
+            if case["expected_result"] >= 0:
+                result, _ = add(values)
+                if result > 0:
+                    add(values, 0)
+                    add(values, result - 1)
+                add(values, output_is_null=True)
+        add((), 0, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for values in ((), (UINT_I64_MIN,), (UINT_I64_MAX,), tuple([0] * max_input)):
             add(values)
     else:
         bits = 128 if algorithm == "uint128_t" else 256
@@ -41457,6 +41872,10 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
             "bytes", PRIORITY_QUEUES_MAX_OUTPUT_BYTES
             if algorithm == "priority_queues" else expected_output_length)
             if algorithm in RECORDER_WORKSPACE_ALGORITHMS else expected_output_length)
+        if algorithm in BYTE_OUTPUT_ALGORITHM_ORACLES and not workload.get("workspace"):
+            default_output_capacity = workload.get("output", {}).get(
+                "maximum_bytes", workload.get("output", {}).get(
+                    "maximum_output_bytes", expected_output_length))
         output_capacity = (
             case.get("workspace_bytes", case.get("output_capacity", default_output_capacity))
             if algorithm in WORKSPACE_ALGORITHMS else None

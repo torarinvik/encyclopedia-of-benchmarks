@@ -20,6 +20,11 @@ const u8[168] PLAINTEXTS = {
     0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
     0x12,0x34,0x56,0x78,0x9a,0xbc,0xde,0xf0,
     0x12,0x34,0x56,0x78,0x9a,0xbc,0xde,0xf0,
     0x12,0x34,0x56,0x78,0x9a,0xbc,0xde,0xf0,
@@ -51,9 +56,9 @@ long trimaran_enc_rc4(long* input, usz length, char* output, usz output_capacity
     if (input == null || length != 1 || input[0] < 1 || input[0] > (long)MAX_PASSES) return -1;
     if (output == null || output_capacity < OUTPUT_BYTES) return -2;
     u8[OUTPUT_BYTES] staged = {};
-    for (usz pass = 0; pass < (usz)input[0]; pass++) {
-        for (usz vector = 0; vector < 6; vector++) {
-            usz offset = OFFSETS[vector];
+    for (usz vector = 0; vector < 6; vector++) {
+        usz offset = OFFSETS[vector];
+        for (usz pass = 0; pass < (usz)input[0]; pass++) {
             for (usz byte = 0; byte < DATA_LENGTHS[vector]; byte++)
                 staged[offset + byte] = PLAINTEXTS[vector * 28 + byte];
             crypt_one(&KEYS[vector * 8], KEY_LENGTHS[vector], &staged[offset], DATA_LENGTHS[vector]);

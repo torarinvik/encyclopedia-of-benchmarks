@@ -1634,6 +1634,17 @@ from versabench_8b10b_oracle import MAX_OUTPUT_BYTES as VERSABENCH_8B10B_MAX_OUT
 from versabench_8b10b_oracle import MAX_PARSEABLE_WORDS as VERSABENCH_8B10B_MAX_PARSEABLE_WORDS
 from versabench_8b10b_oracle import MAX_WORDS as VERSABENCH_8B10B_MAX_WORDS
 from versabench_8b10b_oracle import expected_output as versabench_8b10b_oracle
+from trimaran_enc_rc4_oracle import INVALID_RESULT as TRIMARAN_ENC_RC4_INVALID_RESULT
+from trimaran_enc_rc4_oracle import MAX_OUTPUT_BYTES as TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES
+from trimaran_enc_rc4_oracle import MAX_PARSEABLE_INPUT_VALUES as TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
+from trimaran_enc_rc4_oracle import MAX_PASSES as TRIMARAN_ENC_RC4_MAX_PASSES
+from trimaran_enc_rc4_oracle import MIN_PASSES as TRIMARAN_ENC_RC4_MIN_PASSES
+from trimaran_enc_rc4_oracle import OUTPUT_ERROR as TRIMARAN_ENC_RC4_OUTPUT_ERROR
+from trimaran_enc_rc4_oracle import expected_output as trimaran_enc_rc4_expected_output
+from trimaran_enc_3des_oracle import INVALID_RESULT as TRIMARAN_ENC_3DES_INVALID_RESULT
+from trimaran_enc_3des_oracle import MAX_INPUT_LENGTH as TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH
+from trimaran_enc_3des_oracle import OUTPUT_BYTES as TRIMARAN_ENC_3DES_OUTPUT_BYTES
+from trimaran_enc_3des_oracle import expected_output as trimaran_enc_3des_expected_output
 from tripforce_tripcode_oracle import MAX_PARSEABLE_INPUT_LENGTH as TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH
 from tripforce_tripcode_oracle import MAX_OUTPUT_BYTES as TRIPFORCE_TRIPCODE_MAX_OUTPUT_BYTES
 from tripforce_tripcode_oracle import expected_output as tripforce_tripcode_expected_output
@@ -3240,6 +3251,7 @@ from mibench_office_stringsearch_bmh_oracle import (
 from mibench_security_rijndael_oracle import (
     expected_output as mibench_security_rijndael_oracle,
 )
+TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES = TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH + 1
 from misc_reed_solomon_oracle import (
     expected_output as misc_reed_solomon_expected_output,
 )
@@ -3280,7 +3292,52 @@ def misc_reed_solomon_suite_oracle(
         return -2, b""
     return result, output
 
+
+def trimaran_enc_rc4_suite_oracle(
+        values: list[int] | tuple[int, ...], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (input_is_null or type(output_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return TRIMARAN_ENC_RC4_INVALID_RESULT, b""
+    result, output = trimaran_enc_rc4_expected_output(values)
+    if result < 0:
+        return result, output
+    if output_is_null or (capacity is not None and capacity < result):
+        return TRIMARAN_ENC_RC4_OUTPUT_ERROR, b""
+    return result, output
+
+
+def trimaran_enc_3des_suite_oracle(
+        values: list[int] | tuple[int, ...], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (input_is_null or type(output_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return TRIMARAN_ENC_3DES_INVALID_RESULT, b""
+    result, output = trimaran_enc_3des_expected_output(values)
+    if result < 0:
+        return result, output
+    if output_is_null or (capacity is not None and capacity < result):
+        return -2, b""
+    return result, output
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
+    "string_heap_sort": string_heap_sort_expected_output,
+    "bitmap_block_allocation": bitmap_block_allocation_expected_output,
+    "stream_vector_kernels": stream_vector_kernels_expected_output,
     "smith_waterman_python": smith_waterman_python_oracle,
     "smith_waterman_rust": smith_waterman_rust_oracle,
     "uint": uint_oracle,
@@ -3306,6 +3363,8 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mccat_bisect": mccat_bisect_oracle,
     "cbench_automotive_qsort1": cbench_automotive_qsort1_suite_oracle,
     "8b10b": versabench_8b10b_oracle,
+    "trimaran_enc_rc4": trimaran_enc_rc4_suite_oracle,
+    "trimaran_enc_3des": trimaran_enc_3des_suite_oracle,
     "polybench_adi": polybench_adi_oracle,
     "uuencode": uuencode_oracle,
     "uudecode": uudecode_oracle,
@@ -34344,12 +34403,242 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("repetitions_per_sample") != 1
                 or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
             raise ValueError("8b10b metadata differs from its pinned bounded state-machine contract")
+    elif algorithm == "trimaran_enc_rc4":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        source_bound = workload.get("source_bound", {})
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_case_ids = {
+            "one_source_pass", "small_launcher_pass_bound", "zero_passes",
+            "passes_above_bound", "trailing_input_value", "short_output_capacity",
+            "null_output", "null_input",
+        }
+        cases = workload.get("cases")
+        case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                    if isinstance(cases, list) else [])
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "description",
+                    "pinned_source", "pinned_launcher", "source_bound", "input", "output",
+                    "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-trimaran-enc-rc4-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != "trimaran_enc_rc4"
+                or workload.get("description") != "Run the six fixed Trimaran ARC4 validation vectors for a bounded number of source-style setup/encrypt passes."
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "Trimaran/enc-rc4/rc4.c",
+                    "symbols": ["rc4_setup", "rc4_crypt"],
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/Trimaran/enc-rc4/rc4.c",
+                    "license": "GPL-2.0-or-later", "license_notice": "LICENSE_NOTICE.txt",
+                }
+                or launcher != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "Trimaran/enc-rc4/info.sh", "bench_name": "enc-rc4",
+                    "source_files": ["rc4.c"],
+                    "small_problem_run_options": ["2000"],
+                    "default_run_options": ["1000000"],
+                }
+                or source_bound != {
+                    "description": "The source iterates over its six fixed tests in order; for each test it restores the initial data, initializes a fresh 256-entry RC4 state from the fixed key, and encrypts for the requested number of passes. The bounded profile uses the launcher's 2,000-pass small-mode count as its maximum.",
+                    "minimum_passes": TRIMARAN_ENC_RC4_MIN_PASSES,
+                    "maximum_passes": TRIMARAN_ENC_RC4_MAX_PASSES,
+                    "source_tests_per_pass": 6,
+                    "ciphertext_lengths": [8, 8, 8, 20, 28, 10],
+                    "maximum_output_bytes": TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES,
+                }
+                or input_spec != {
+                    "kind": "signed_i64_array", "encoding": "[passes]",
+                    "passes_range": [TRIMARAN_ENC_RC4_MIN_PASSES,
+                                     TRIMARAN_ENC_RC4_MAX_PASSES],
+                    "maximum_valid_input_length": 1,
+                    "maximum_parseable_input_length": TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES,
+                    "invalid_input_result": TRIMARAN_ENC_RC4_INVALID_RESULT,
+                    "null_input_result": TRIMARAN_ENC_RC4_INVALID_RESULT,
+                }
+                or output_spec != {
+                    "kind": "byte_array",
+                    "encoding": "82 raw ciphertext bytes concatenated in the source's six-vector order",
+                    "success_result": TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES,
+                    "maximum_output_bytes": TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": TRIMARAN_ENC_RC4_INVALID_RESULT,
+                    "invalid_output_buffer_result": TRIMARAN_ENC_RC4_OUTPUT_ERROR,
+                    "null_output_result": TRIMARAN_ENC_RC4_OUTPUT_ERROR,
+                    "no_write_on_error": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or not isinstance(cases, list)
+                or len(case_ids) != len(expected_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != expected_case_ids):
+            raise ValueError("trimaran_enc_rc4 metadata differs from its pinned launcher contract")
+
+        package = ROOT / "benchmarks" / "t" / "trimaran_enc_rc4"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "LICENSE_NOTICE.txt").read_text(encoding="utf-8")
+        gpl = (package / "LICENSE-GPL-2.0-or-later.txt").read_text(encoding="utf-8")
+        required_readme = (
+            "Trimaran/enc-rc4/rc4.c", pinned, "2,000 repetitions in small mode",
+            "1,000,000 repetitions otherwise", "LICENSE_NOTICE.txt",
+            "LICENSE-GPL-2.0-or-later.txt", "generic [`rc4`]",
+        )
+        if (any(text not in readme for text in required_readme)
+                or "Copyright (C) 2001-2003  Christophe Devine" not in notice
+                or "you can redistribute it and/or modify" not in notice
+                or "either version 2 of the License, or" not in notice
+                or "GNU GENERAL PUBLIC LICENSE" not in gpl
+                or "TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION" not in gpl
+                or "END OF TERMS AND CONDITIONS" not in gpl):
+            raise ValueError("trimaran_enc_rc4 README or GPL notice is incomplete")
+    elif algorithm == "trimaran_enc_3des":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        source = workload.get("source", {})
+        expected_ids = {
+            "source_initial_block_three_key_encrypt_once",
+            "source_initial_block_three_key_decrypt_once", "invalid_direction",
+            "invalid_byte", "short_frame", "short_output_capacity",
+        }
+        cases = workload.get("cases")
+        case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                    if isinstance(cases, list) else [])
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "abi_family",
+                    "source", "input", "output", "fixed_keys_hex", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "trimaran-enc-3des-fixed-three-key-block-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != "trimaran_enc_3des"
+                or workload.get("abi_family") != "i64_array_bytes_output"
+                or source != {
+                    "repository": "https://github.com/lac-dcc/Benchmarks",
+                    "commit": pinned,
+                    "launcher": "Trimaran/enc-3des/info.sh",
+                    "source_path": "Trimaran/enc-3des/des.c",
+                    "license": "GPL-2.0-or-later",
+                    "copyright": "Copyright (C) 2001-2003 Christophe Devine",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_word_array",
+                    "length_exact": TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH,
+                    "encoding": "direction 0=encrypt or 1=decrypt, followed by eight big-endian block bytes",
+                    "byte_range": [0, 255],
+                    "invalid_result": TRIMARAN_ENC_3DES_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "raw_bytes",
+                    "length_bytes": TRIMARAN_ENC_3DES_OUTPUT_BYTES,
+                    "encoding": "big-endian DES block",
+                    "success_result": TRIMARAN_ENC_3DES_OUTPUT_BYTES,
+                    "invalid_result": TRIMARAN_ENC_3DES_INVALID_RESULT,
+                    "insufficient_output_capacity_result": -2,
+                    "null_output_result": -2,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("fixed_keys_hex") != [
+                    "0123456789abcdef", "23456789abcdef01", "456789abcdef0123"]
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 2, "repetitions_per_sample": 100,
+                }
+                or not isinstance(cases, list)
+                or len(case_ids) != len(expected_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != expected_ids):
+            raise ValueError("trimaran_enc_3des metadata differs from its pinned fixed-key block contract")
+        package = ROOT / "benchmarks" / "t" / "trimaran_enc_3des"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "LICENSE_NOTICE.txt").read_text(encoding="utf-8")
+        gpl = (package / "LICENSE-GPL-2.0-or-later.txt").read_text(encoding="utf-8")
+        if ("Trimaran/enc-3des/des.c" not in readme
+                or "Trimaran/enc-3des/info.sh" not in readme
+                or pinned not in readme
+                or "single-key DES" not in readme
+                or "two-key" not in readme
+                or "Copyright (C) 2001-2003  Christophe Devine" not in notice
+                or "you can redistribute it and/or modify" not in notice
+                or "either version 2 of the License, or" not in notice
+                or "GNU GENERAL PUBLIC LICENSE" not in gpl
+                or "TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION" not in gpl
+                or "END OF TERMS AND CONDITIONS" not in gpl):
+            raise ValueError("trimaran_enc_3des README or GPL notice is incomplete")
+    elif algorithm in {"stream_vector_kernels", "string_heap_sort", "bitmap_block_allocation"}:
+        pinned = "ef90abd09d7b7bb1f2809f896d6f67fb9724bebe"
+        source = workload.get("pinned_source", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        measurement = workload.get("measurement", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "nfinit/ansibench"
+                or source.get("commit") != pinned
+                or measurement.get("comparison_model") != "i64_array_bytes_output_call"
+                or output_spec.get("kind") not in {"byte_array", "signed_i64_vector_bytes"}
+                or (algorithm == "stream_vector_kernels"
+                    and output_spec.get("invalid_result") != -1)
+                or (algorithm != "stream_vector_kernels"
+                    and input_spec.get("invalid_input_result") != -1)
+                or output_spec.get("null_output_result") != -2
+                or not isinstance(workload.get("cases"), list)):
+            raise ValueError(f"{algorithm} metadata differs from its pinned ANSIbench workload")
+        if algorithm == "stream_vector_kernels":
+            expected_ids = {
+                "copy_preserves_values", "scale_by_negative_scalar", "elementwise_add",
+                "triad_a_plus_alpha_b", "empty_copy", "empty_scale", "empty_add",
+                "empty_triad", "maximum_vector_count", "unsupported_mode", "negative_count",
+                "count_above_limit", "short_copy_layout", "trailing_add_value",
+                "alpha_above_bound", "element_below_bound", "null_output_nonempty",
+                "short_output_capacity", "null_output_empty",
+            }
+            if (source.get("path") != "stream/src/stream.c"
+                    or input_spec.get("count_range") != [0, STREAM_VECTOR_KERNELS_MAX_N]
+                    or input_spec.get("maximum_packed_input_length")
+                    != STREAM_VECTOR_KERNELS_MAX_PARSEABLE_INPUT_LENGTH
+                    or output_spec.get("maximum_output_bytes") != 8 * STREAM_VECTOR_KERNELS_MAX_N
+                    or output_spec.get("zero_length_requires_nonnull_output") is not True
+                    or output_spec.get("error_cases_write_nothing") is not True):
+                raise ValueError("stream_vector_kernels metadata differs from its bounded vector contract")
+        elif algorithm == "string_heap_sort":
+            expected_ids = {"empty", "lexicographic-unsorted", "duplicate-keys", "non_ascii_byte",
+                            "trailing_value", "short_output", "null_output"}
+            if (source.get("path") != "nbench/src/nbench1.c"
+                    or input_spec.get("key_count_range") != [0, 64]
+                    or input_spec.get("key_width_bytes") != 4
+                    or input_spec.get("maximum_parseable_input_length")
+                    != STRING_HEAP_SORT_MAX_PARSEABLE_INPUT_LENGTH
+                    or output_spec.get("maximum_output_bytes") != 256
+                    or output_spec.get("short_capacity_writes_nothing") is not True):
+                raise ValueError("string_heap_sort metadata differs from its bounded key contract")
+        else:
+            expected_ids = {"source-alternating-seed", "set-clear-complement-runs",
+                            "partial-final-byte", "run-past-end", "trailing-value",
+                            "short-output", "null-output"}
+            if (source.get("path") != "nbench/src/nbench1.c"
+                    or input_spec.get("bit_count_range") != [1, 4096]
+                    or input_spec.get("operation_count_range") != [0, 32]
+                    or input_spec.get("maximum_parseable_input_length")
+                    != BITMAP_BLOCK_ALLOCATION_MAX_PARSEABLE_INPUT_LENGTH
+                    or output_spec.get("maximum_output_bytes") != 512
+                    or output_spec.get("short_capacity_writes_nothing") is not True):
+                raise ValueError("bitmap_block_allocation metadata differs from its bounded bitmap contract")
+        if ({case.get("id") for case in workload["cases"] if isinstance(case, dict)}
+                != expected_ids or len(workload["cases"]) != len(expected_ids)):
+            raise ValueError(f"{algorithm} fixture IDs differ from its pinned workload")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
-    max_parseable = (191 if algorithm == "misc_reed_solomon" else
+    max_parseable = (TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES
+                     if algorithm == "trimaran_enc_3des" else
+                     191 if algorithm == "misc_reed_solomon" else
                      49 if algorithm == "mibench_security_rijndael" else
                      162 if algorithm == "mibench_office_stringsearch_bmh" else
+                     TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
+                     if algorithm == "trimaran_enc_rc4" else
                      SMITH_WATERMAN_PYTHON_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "smith_waterman_python" else
                      SMITH_WATERMAN_RUST_MAX_PARSEABLE_INPUT_LENGTH
@@ -34377,6 +34666,12 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "ansibench_dhrystone" else
                      COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "coremark_matrix_manipulation" else
+                     STRING_HEAP_SORT_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "string_heap_sort" else
+                     BITMAP_BLOCK_ALLOCATION_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "bitmap_block_allocation" else
+                     STREAM_VECTOR_KERNELS_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "stream_vector_kernels" else
                      MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "misc_lowercase" else
                      NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
@@ -35297,6 +35592,10 @@ def main() -> int:
                             MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "mccat_bisect" else
                             CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES if algorithm == "cbench_automotive_qsort1" else
                             VERSABENCH_8B10B_MAX_PARSEABLE_WORDS if algorithm == "8b10b" else
+                            TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES
+                            if algorithm == "trimaran_enc_3des" else
+                            TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
+                            if algorithm == "trimaran_enc_rc4" else
                             UUENCODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uuencode" else
                             UUDECODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uudecode" else
                             MAX_INPUT_LENGTH)

@@ -26,6 +26,13 @@ from mibench_telecomm_fft_oracle import (
     MAX_OUTPUT_ELEMENTS as MIBENCH_TELECOMM_FFT_MAX_OUTPUT_ELEMENTS,
     expected_output as mibench_telecomm_fft_expected_output,
 )
+from mibench_automotive_basicmath_cubic_oracle import (
+    COEFFICIENT_COUNT as MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_INPUT_LENGTH,
+    INVALID_RESULT as MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_INVALID_RESULT,
+    MAX_OUTPUT_ELEMENTS as MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_OUTPUT_ELEMENTS,
+    OUTPUT_ERROR as MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_OUTPUT_ERROR,
+    expected_output as mibench_automotive_basicmath_cubic_expected_output,
+)
 from versabench_beamformer_oracle import (
     CHANNELS as VERSABENCH_BEAMFORMER_CHANNELS,
     INPUT_LENGTH as VERSABENCH_BEAMFORMER_INPUT_LENGTH,
@@ -1336,10 +1343,24 @@ def mibench_telecomm_fft_oracle(values):
     return output if result >= 0 else None
 
 
+def mibench_automotive_basicmath_cubic_abi_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    return mibench_automotive_basicmath_cubic_expected_output(
+        values, output_capacity=output_capacity, output_is_null=output_is_null,
+        input_is_null=input_is_null, input_length=input_length)
+
+
+def mibench_automotive_basicmath_cubic_oracle(values):
+    result, output = mibench_automotive_basicmath_cubic_abi_oracle(values)
+    return output if result >= 0 else None
+
+
 ORACLES = {
     "partialsums": partialsums_oracle,
     "durbin": durbin_oracle,
     "mibench_telecomm_fft": mibench_telecomm_fft_oracle,
+    "mibench_automotive_basicmath_cubic": mibench_automotive_basicmath_cubic_oracle,
     "versabench_beamformer": versabench_beamformer_abi_oracle,
     "syrk": syrk_oracle,
     "matmul_f64_4x4": matmul_f64_4x4_oracle,
@@ -3877,6 +3898,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         POLYBENCH_CORRELATION_MAX_INPUT_LENGTH if algorithm == "polybench_correlation" else
                         POLYBENCH_SEIDEL_2D_MAX_INPUT_LENGTH if algorithm == "polybench_seidel_2d" else
                         MIBENCH_TELECOMM_FFT_MAX_INPUT_LENGTH if algorithm == "mibench_telecomm_fft" else
+                        MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_INPUT_LENGTH
+                        if algorithm == "mibench_automotive_basicmath_cubic" else
                         SIR_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sir" else
                         DECISION_TREE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "decision_tree_python_regression" else
@@ -4000,7 +4023,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                                                       "matmul_f64_4x4", "misc_fp_convert", "trisolv",
                                                       "jacobi_1d", "jacobi_2d", "fdtd_2d", "heat_3d",
                                                       "polybench_lu", "polybench_correlation",
-                                                      "polybench_seidel_2d", "mibench_telecomm_fft"}
+                                                      "polybench_seidel_2d", "mibench_telecomm_fft",
+                                                      "mibench_automotive_basicmath_cubic"}
                 and not (allow_nonfinite and case.get("input_is_null") is True
                          and case.get("input_length") == 0))
             or len(raw_values) > max_input_length
@@ -4009,7 +4033,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_telecomm_fft", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_telecomm_fft", "mibench_automotive_basicmath_cubic", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
                      "mean_shift", "k_means_clust", "lu_decompose", "lu_elimination",
@@ -4118,6 +4142,13 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "mibench_telecomm_fft":
             expected_result, oracle_values = mibench_telecomm_fft_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "mibench_automotive_basicmath_cubic":
+            expected_result, oracle_values = mibench_automotive_basicmath_cubic_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
@@ -5949,6 +5980,133 @@ def validate_mibench_telecomm_fft_workload(workload: dict) -> None:
         elif "output_capacity" in case:
             raise ValueError(f"unexpected mibench_telecomm_fft capacity: {case['id']}")
         encode_case(case, "mibench_telecomm_fft", absolute_tolerance, relative_tolerance)
+
+
+def validate_mibench_automotive_basicmath_cubic_workload(workload: dict) -> None:
+    """Validate the pinned bounded MiBench SolveCubic source profile."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "MiBench/automotive-basicmath/cubic.c"
+    )
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "MiBench/automotive-basicmath/cubic.c",
+        "related_paths": ["MiBench/automotive-basicmath/basicmath.c"],
+        "symbol": "SolveCubic", "url": source_url,
+        "license": "Public domain by Ross Cottrell, as stated in cubic.c.",
+    }
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "MiBench/automotive-basicmath/info.sh",
+        "bench_name": "automotive-basicmath",
+        "source_files": ["basicmath.c", "cubic.c", "isqrt.c", "rad2deg.c"],
+        "compile_flags": ["-lm"], "run_options": [],
+    }
+    expected_input = {
+        "kind": "finite_float64_array",
+        "encoding": "[a, b, c, d] coefficients of ax^3 + bx^2 + cx + d",
+        "exact_length": 4, "maximum_input_length": 4,
+        "coefficient_absolute_bound": 100.0,
+        "leading_coefficient_absolute_minimum": 1.0,
+        "repeated_roots": "Excluded from this bounded profile.",
+        "invalid_input_result": MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_INVALID_RESULT,
+        "null_input_result": MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_INVALID_RESULT,
+    }
+    expected_contract = {
+        "operation": "Apply the pinned SolveCubic formula to one bounded cubic polynomial.",
+        "output_order": "For one real root, return that root. For three real roots, preserve SolveCubic order: smallest, largest, middle.",
+        "maximum_output_elements": MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_OUTPUT_ELEMENTS,
+        "success_result": "Number of real roots written (1 or 3).",
+        "invalid_result": MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_INVALID_RESULT,
+        "output_error_result": MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "invalid_output_precedes_capacity_check": True,
+        "output_encoding": "One or three binary64 real roots.",
+    }
+    expected_output = {
+        "kind": "float64_array",
+        "encoding": "One real root, or the source-ordered three real roots.",
+        "maximum_elements": MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_OUTPUT_ELEMENTS,
+        "success_result": "Output element count (1 or 3)",
+        "invalid_output_buffer_result": MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_OUTPUT_ERROR,
+        "null_output_result": MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "absolute_tolerance": 1e-9, "relative_tolerance": 1e-9,
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-9, "relative_tolerance": 1e-9,
+    }
+    expected_cases = {
+        "source_default_three_real_roots", "source_default_one_real_root",
+        "three_distinct_integer_roots", "single_cube_root",
+        "negative_leading_coefficient", "three_root_short_capacity",
+        "one_root_short_capacity", "zero_leading_coefficient",
+        "repeated_roots_outside_profile", "coefficient_outside_bound",
+        "malformed_coefficient_count", "null_input",
+    }
+    expected_top_level = {
+        "schema_version", "id", "algorithm", "function_symbol", "description",
+        "pinned_source", "pinned_launcher", "input", "contract", "output",
+        "workspace", "measurement", "cases",
+    }
+    if (set(workload) != expected_top_level
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-mibench-automotive-basicmath-cubic-float64-slice-io-v1"
+            or workload.get("algorithm") != "mibench_automotive_basicmath_cubic"
+            or workload.get("function_symbol") != "mibench_automotive_basicmath_cubic"
+            or workload.get("description") != "Bounded SolveCubic kernel from MiBench automotive-basicmath."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("output") != expected_output
+            or workload.get("workspace") != {"elements": 3, "meaning": "Maximum roots returned for one cubic."}
+            or workload.get("measurement") != expected_measurement):
+        raise ValueError("mibench_automotive_basicmath_cubic pinned contract metadata changed")
+
+    readme_path = ROOT / "benchmarks/m/mibench_automotive_basicmath_cubic/README.md"
+    license_path = ROOT / "benchmarks/m/mibench_automotive_basicmath_cubic/LICENSE.txt"
+    readme = readme_path.read_text(encoding="utf-8")
+    notice = license_path.read_text(encoding="utf-8")
+    if (source_url not in readme or commit not in readme
+            or "public domain" not in readme.lower()
+            or "Ross Cottrell" not in readme
+            or "public domain by Ross Cottrell" not in notice):
+        raise ValueError("mibench_automotive_basicmath_cubic attribution is incomplete")
+
+    cases = workload.get("cases")
+    if (not isinstance(cases, list) or len(cases) != len(expected_cases)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_cases):
+        raise ValueError("mibench_automotive_basicmath_cubic fixture inventory changed")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if (absolute_tolerance != 1e-9 or relative_tolerance != 1e-9
+            or MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_OUTPUT_ELEMENTS != 3):
+        raise ValueError("mibench_automotive_basicmath_cubic tolerances or bounds changed")
+    for case in cases:
+        if (not isinstance(case, dict)
+                or set(case) - {"id", "input_values", "input_length", "output_capacity",
+                                "expected_result", "expected_output", "input_is_null"}
+                or not {"id", "input_values", "input_length", "output_capacity",
+                        "expected_result", "expected_output"}.issubset(case)
+                or type(case.get("output_capacity")) is not int
+                or type(case.get("input_is_null", False)) is not bool
+                or case.get("input_is_null", False) != (case["id"] == "null_input")):
+            raise ValueError("mibench_automotive_basicmath_cubic fixture framing changed")
+        values, result, output = encode_case(
+            case, "mibench_automotive_basicmath_cubic",
+            absolute_tolerance, relative_tolerance)
+        expected = case["expected_output"]
+        if (type(case["expected_result"]) is not int or result != case["expected_result"]
+                or not isinstance(expected, list) or len(output) != len(expected)
+                or any(abs(actual - target) > absolute_tolerance
+                       + relative_tolerance * abs(target)
+                       for actual, target in zip(output, expected))):
+            raise ValueError(
+                f"mibench_automotive_basicmath_cubic fixture differs from its oracle: {case['id']}"
+            )
 
 
 def _decode_k_d_tree_abi_values(raw_values: object) -> list[float]:
@@ -12932,6 +13090,8 @@ def main() -> int:
         validate_polybench_seidel_2d_workload(workload)
     elif algorithm == "mibench_telecomm_fft":
         validate_mibench_telecomm_fft_workload(workload)
+    elif algorithm == "mibench_automotive_basicmath_cubic":
+        validate_mibench_automotive_basicmath_cubic_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":

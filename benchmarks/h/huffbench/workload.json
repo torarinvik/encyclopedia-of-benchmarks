@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-coyote-huffbench-bounded-v1",
+  "algorithm": "huffbench",
+  "function_symbol": "coyote_huffbench",
+  "description": "Bounded repetitions of the pinned Park-Miller data generator and Huffman compression/decompression kernel.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "CoyoteBench/huffbench/huffbench.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/huffbench/huffbench.c",
+    "license_note": "The source header says: ‘No rights reserved. This is public domain software, for use by anyone.’ Attribution and the original notice are retained in LICENSE.txt."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "CoyoteBench/huffbench/info.sh",
+    "bench_name": "huffbench",
+    "source_files": ["huffbench.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "Generate uppercase letters and digits from the source Park-Miller generator seeded at 1325, build the source-style frequency heap and Huffman code table, encode the data MSB-first, then decode it back into the original buffer. The pinned default runs 30 rounds over 10,000,000 bytes. The suite profile fixes the bounded input at 4,096 bytes and accepts 1 through 30 rounds.",
+    "source_default_data_bytes": 10000000,
+    "source_default_rounds": 30,
+    "profile_data_bytes": 4096,
+    "profile_minimum_rounds": 1,
+    "profile_maximum_rounds": 30,
+    "generator_seed": 1325,
+    "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZ012345",
+    "summary_format": "Huffbench passes=<rounds> compressed=<byte_count> checksum=<sum of decoded bytes modulo 2^32>\\n"
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "huffbench_round_count",
+    "meaning": "Number of complete source compression/decompression rounds over the fixed 4,096-byte generated data buffer.",
+    "minimum": 1,
+    "maximum": 30,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_kernel_summary_ascii",
+    "encoding": "huffbench_summary_ascii",
+    "definition": "The pass count, compressed byte count from the final round, and modulo-2^32 sum of decoded bytes, formatted as ASCII with a final LF.",
+    "maximum_output_bytes": 52,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "one_round", "input_value": 1, "expected_result": 51, "expected_output": "Huffbench passes=1 compressed=2560 checksum=298365\n"},
+    {"id": "two_rounds", "input_value": 2, "expected_result": 51, "expected_output": "Huffbench passes=2 compressed=2560 checksum=298365\n"},
+    {"id": "pinned_launcher_round_count", "input_value": 30, "expected_result": 52, "expected_output": "Huffbench passes=30 compressed=2560 checksum=298365\n"},
+    {"id": "below_profile", "input_value": 0, "expected_result": -1, "expected_output": ""},
+    {"id": "above_profile", "input_value": 31, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_minimum", "input_value": -9223372036854775808, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_maximum", "input_value": 9223372036854775807, "expected_result": -1, "expected_output": ""},
+    {"id": "exact_capacity", "input_value": 30, "output_capacity": 52, "expected_result": 52, "expected_output": "Huffbench passes=30 compressed=2560 checksum=298365\n"},
+    {"id": "one_byte_short_capacity", "input_value": 30, "output_capacity": 51, "expected_result": -2, "expected_output": ""},
+    {"id": "null_output", "input_value": 1, "output_capacity": 52, "output_is_null": true, "expected_result": -2, "expected_output": ""}
+  ]
+}

@@ -1,0 +1,112 @@
+const MCCAT_TRIE_MAX_WORDS: usize = 64
+const MCCAT_TRIE_MAX_WORD_LENGTH: usize = 32
+const MCCAT_TRIE_MAX_INPUT_VALUES: usize = 1 + MCCAT_TRIE_MAX_WORDS * (1 + MCCAT_TRIE_MAX_WORD_LENGTH)
+const MCCAT_TRIE_MAX_NODES: usize = MCCAT_TRIE_MAX_WORDS * MCCAT_TRIE_MAX_WORD_LENGTH
+const MCCAT_TRIE_MAX_OUTPUT_BYTES: usize = MCCAT_TRIE_MAX_WORDS * (MCCAT_TRIE_MAX_WORD_LENGTH + 1)
+
+struct McCatTrieNode:
+    value: u8
+    terminal: bool
+    postfix: usize
+    other_char: usize
+
+def mccat_trie_new_node(nodes: mutable McCatTrieNode&, used: mutable usize&, value: u8) -> usize:
+    used <- used + 1
+    nodes[used].value <- value
+    used
+
+def mccat_trie_new_suffix(nodes: mutable McCatTrieNode&, used: mutable usize&,
+                          input: i64&, start: usize, word_length: usize) -> usize:
+    root: usize = mccat_trie_new_node(nodes, used, input[start].u8())
+    current: mutable usize = root
+    offset: mutable usize = 1
+    while offset < word_length:
+        child: usize = mccat_trie_new_node(nodes, used, input[start + offset].u8())
+        nodes[current].postfix <- child
+        current <- child
+        offset <- offset + 1
+    nodes[current].terminal <- true
+    root
+
+def mccat_trie_insert_word(nodes: mutable McCatTrieNode&, used: mutable usize&, current: usize,
+                           input: i64&, start: usize, word_length: usize, offset: usize) -> void:
+    if nodes[current].value == input[start + offset].u8():
+        if offset + 1 == word_length:
+            nodes[current].terminal <- true
+        elif nodes[current].postfix == 0:
+            nodes[current].postfix <- mccat_trie_new_suffix(nodes, used, input, start + offset + 1, word_length - offset - 1)
+        else:
+            mccat_trie_insert_word(nodes, used, nodes[current].postfix, input, start, word_length, offset + 1)
+    elif nodes[current].other_char == 0:
+        nodes[current].other_char <- mccat_trie_new_suffix(nodes, used, input, start + offset, word_length - offset)
+    else:
+        mccat_trie_insert_word(nodes, used, nodes[current].other_char, input, start, word_length, offset)
+
+def mccat_trie_measure(nodes: McCatTrieNode&, current: usize, depth: usize,
+                       output_length: mutable usize&) -> void:
+    if current == 0: return
+    if nodes[current].terminal: output_length <- output_length + depth + 2
+    mccat_trie_measure(nodes, nodes[current].postfix, depth + 1, output_length)
+    mccat_trie_measure(nodes, nodes[current].other_char, depth, output_length)
+
+def mccat_trie_emit(nodes: McCatTrieNode&, current: usize, depth: usize,
+                    prefix: mutable u8&, output: mutable u8&, position: mutable usize&) -> void:
+    if current == 0: return
+    prefix[depth] <- nodes[current].value
+    if nodes[current].terminal:
+        index: mutable usize = 0
+        while index <= depth:
+            output[position] <- prefix[index]
+            position <- position + 1
+            index <- index + 1
+        output[position] <- 10u8
+        position <- position + 1
+    mccat_trie_emit(nodes, nodes[current].postfix, depth + 1, prefix, output, position)
+    mccat_trie_emit(nodes, nodes[current].other_char, depth, prefix, output, position)
+
+def mccat_trie_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MCCAT_TRIE_MAX_INPUT_VALUES: return -1
+    if input[0] < 0 or input[0] > MCCAT_TRIE_MAX_WORDS.i64(): return -1
+    word_count: usize = input[0].usize()
+    starts: mutable usize[MCCAT_TRIE_MAX_WORDS] = zeroed
+    lengths: mutable usize[MCCAT_TRIE_MAX_WORDS] = zeroed
+    position: mutable usize = 1
+    index: mutable usize = 0
+    while index < word_count:
+        if position >= length: return -1
+        word_length_value: i64 = input[position]
+        position <- position + 1
+        if word_length_value < 1 or word_length_value > MCCAT_TRIE_MAX_WORD_LENGTH.i64(): return -1
+        word_length: usize = word_length_value.usize()
+        if word_length > length - position: return -1
+        starts[index] <- position
+        lengths[index] <- word_length
+        char_index: mutable usize = 0
+        while char_index < word_length:
+            if input[position + char_index] < 33 or input[position + char_index] > 126: return -1
+            char_index <- char_index + 1
+        position <- position + word_length
+        index <- index + 1
+    if position != length: return -1
+
+    nodes: mutable McCatTrieNode[MCCAT_TRIE_MAX_NODES + 1] = zeroed
+    used: mutable usize = 0
+    root: mutable usize = 0
+    index <- 0
+    while index < word_count:
+        if root == 0:
+            root <- mccat_trie_new_suffix(nodes, used, input, starts[index], lengths[index])
+        else:
+            mccat_trie_insert_word(nodes, used, root, input, starts[index], lengths[index], 0)
+        index <- index + 1
+    output_length: mutable usize = 0
+    mccat_trie_measure(nodes, root, 0, output_length)
+    if output_length > MCCAT_TRIE_MAX_OUTPUT_BYTES: return -1
+    if output_length > 0 and (output == null or capacity < output_length): return -2
+    if output_length == 0: return 0
+    prefix: mutable u8[MCCAT_TRIE_MAX_WORD_LENGTH] = zeroed
+    position <- 0
+    mccat_trie_emit(nodes, root, 0, prefix, output, position)
+    position.i64()
+
+export fn mccat_trie(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = mccat_trie_impl

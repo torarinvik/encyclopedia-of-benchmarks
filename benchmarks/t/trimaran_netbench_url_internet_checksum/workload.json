@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-trimaran-netbench-url-internet-checksum-i64-array-scalar-v1",
+  "algorithm": "trimaran_netbench_url_internet_checksum",
+  "function_symbol": "trimaran_netbench_url_internet_checksum",
+  "description": "Bounded standalone source helper profile; full URL routing launcher is partial/related.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Trimaran/netbench-url/url.c",
+    "symbol": "internet_checksum",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/netbench-url/url.c",
+    "license_note": "NetBench source explicitly permits copying, modification, and redistribution if copyright, permission, and nonwarranty notices remain and recipients retain redistribution rights; exact notice bundled."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Trimaran/netbench-url/info.sh",
+    "bench_name": "netbench-url",
+    "source_files": [
+      "packet.c",
+      "search.c",
+      "url.c",
+      "utils.c"
+    ],
+    "compile_flags": [],
+    "run_options": [
+      "medium_inputs 100 with SMALL_PROBLEM_SIZE; otherwise 1400"
+    ]
+  },
+  "source_bound": {
+    "description": "Ports only internet_checksum from url.c. Input mode explicitly selects the conditional LITTLE_ENDIAN final byte swap; source native 16-bit loads are represented as little-endian and unsigned long as 64-bit. Routing database, packet stream, BMH search, and launcher output are excluded.",
+    "maximum_bytes": 64,
+    "native_word_order": "little_endian",
+    "unsigned_long_bits": 64,
+    "mode_0": "LITTLE_ENDIAN is not defined; no final byte swap",
+    "mode_1": "LITTLE_ENDIAN is defined; swap the final 16-bit word"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[mode, byte_count, byte_0, ..., byte_(byte_count-1)]",
+    "mode_range": [
+      0,
+      1
+    ],
+    "byte_count_range": [
+      0,
+      64
+    ],
+    "maximum_valid_input_length": 66,
+    "maximum_parseable_input_length": 67,
+    "byte_range": [
+      0,
+      255
+    ],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "source internet_checksum return value after 64-bit accumulation and 16-bit carry folding",
+    "valid_result_range": [
+      0,
+      65535
+    ],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "empty_without_swap",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "empty_with_swap",
+      "input_values": [
+        1,
+        0
+      ],
+      "expected_result": 0
+    },
+    {
+      "id": "one_byte_without_swap",
+      "input_values": [
+        0,
+        1,
+        18
+      ],
+      "expected_result": 18
+    },
+    {
+      "id": "one_byte_with_swap",
+      "input_values": [
+        1,
+        1,
+        18
+      ],
+      "expected_result": 4608
+    },
+    {
+      "id": "even_words",
+      "input_values": [
+        1,
+        8,
+        0,
+        1,
+        35,
+        69,
+        103,
+        137,
+        171,
+        205
+      ],
+      "expected_result": 50786
+    },
+    {
+      "id": "odd_trailing_byte",
+      "input_values": [
+        1,
+        5,
+        18,
+        52,
+        86,
+        120,
+        154
+      ],
+      "expected_result": 12372
+    },
+    {
+      "id": "maximum_bytes",
+      "input_values": [
+        0,
+        64,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+      ],
+      "expected_result": 64508
+    },
+    {
+      "id": "invalid_mode",
+      "input_values": [
+        2,
+        0
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "length_mismatch",
+      "input_values": [
+        0,
+        2,
+        1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "byte_out_of_range",
+      "input_values": [
+        1,
+        1,
+        256
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "negative_byte",
+      "input_values": [
+        0,
+        1,
+        -1
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "signed_i64_extreme",
+      "input_values": [
+        -9223372036854775808
+      ],
+      "expected_result": -1
+    }
+  ]
+}

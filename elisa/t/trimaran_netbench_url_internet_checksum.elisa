@@ -1,0 +1,28 @@
+# Modified source-related port of NetBench url.c; see bundled LICENSE_NOTICE.txt.
+def trimaran_netbench_url_internet_checksum_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > 66:
+        return -1
+    mode: i64 = values[0]
+    count_value: i64 = values[1]
+    if (mode != 0 and mode != 1) or count_value < 0 or count_value > 64 or length != count_value.usize() + 2:
+        return -1
+    count: usize = count_value.usize()
+    for i in 0..<count:
+        if values[i + 2] < 0 or values[i + 2] > 255:
+            return -1
+    sum: mutable u64 = 0
+    i: mutable usize = 0
+    while i + 1 < count:
+        word: u64 = values[i + 2].u64() or (values[i + 3].u64() << 8)
+        sum <- sum -% (word +% 1.u64())
+        i <- i + 2
+    if i < count:
+        sum <- sum +% values[i + 2].u64()
+    while (sum >> 16) != 0:
+        sum <- (sum and 0xffff) + (sum >> 16)
+    if mode == 1:
+        sum <- ((sum >> 8) or ((sum << 8) and 0xff00)) and 0xffff
+    return sum.i64()
+
+export fn trimaran_netbench_url_internet_checksum(values: i64&, length: usize) -> i64 =
+    trimaran_netbench_url_internet_checksum_impl(values, length)

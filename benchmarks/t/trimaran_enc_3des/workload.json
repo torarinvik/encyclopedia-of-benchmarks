@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "trimaran-enc-3des-fixed-three-key-block-v1",
+  "algorithm": "trimaran_enc_3des",
+  "function_symbol": "trimaran_enc_3des",
+  "abi_family": "i64_array_bytes_output",
+  "source": {
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "launcher": "Trimaran/enc-3des/info.sh",
+    "source_path": "Trimaran/enc-3des/des.c",
+    "license": "GPL-2.0-or-later",
+    "copyright": "Copyright (C) 2001-2003 Christophe Devine"
+  },
+  "input": {
+    "kind": "signed_i64_word_array",
+    "length_exact": 9,
+    "encoding": "direction 0=encrypt or 1=decrypt, followed by eight big-endian block bytes",
+    "byte_range": [
+      0,
+      255
+    ],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "length_bytes": 8,
+    "encoding": "big-endian DES block",
+    "success_result": 8,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_result": -2,
+    "errors_write_nothing": true
+  },
+  "fixed_keys_hex": [
+    "0123456789abcdef",
+    "23456789abcdef01",
+    "456789abcdef0123"
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "source_initial_block_three_key_encrypt_once",
+      "input_values": [
+        0,
+        78,
+        111,
+        119,
+        32,
+        105,
+        115,
+        32,
+        116
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "314f8327fa7a09a8"
+    },
+    {
+      "id": "source_initial_block_three_key_decrypt_once",
+      "input_values": [
+        1,
+        78,
+        111,
+        119,
+        32,
+        105,
+        115,
+        32,
+        116
+      ],
+      "expected_result": 8,
+      "expected_output_hex": "0cd059704298716c"
+    },
+    {
+      "id": "invalid_direction",
+      "input_values": [
+        2,
+        78,
+        111,
+        119,
+        32,
+        105,
+        115,
+        32,
+        116
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_byte",
+      "input_values": [
+        0,
+        256,
+        111,
+        119,
+        32,
+        105,
+        115,
+        32,
+        116
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_frame",
+      "input_values": [
+        0,
+        78,
+        111,
+        119,
+        32,
+        105,
+        115,
+        32
+      ],
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        0,
+        78,
+        111,
+        119,
+        32,
+        105,
+        115,
+        32,
+        116
+      ],
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "workspace_bytes": 7
+    }
+  ]
+}

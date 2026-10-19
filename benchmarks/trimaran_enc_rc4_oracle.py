@@ -45,7 +45,11 @@ def expected_output(values: list[int] | tuple[int, ...]) -> tuple[int, bytes]:
     if type(passes) is not int or not MIN_PASSES <= passes <= MAX_PASSES:
         return INVALID_RESULT, b""
 
-    output = b""
-    for _ in range(passes):
-        output = b"".join(_crypt(key, data) for key, data in _VECTORS)
+    ciphertexts = []
+    for key, data in _VECTORS:
+        ciphertext = b""
+        for _ in range(passes):
+            ciphertext = _crypt(key, data)
+        ciphertexts.append(ciphertext)
+    output = b"".join(ciphertexts)
     return len(output), output

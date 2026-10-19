@@ -42,6 +42,9 @@ from stanford_queens_oracle import expected_output as stanford_queens_expected_o
 from stanford_realmm_oracle import expected_output as stanford_realmm_expected_output
 from evalloop_oracle import expected_output as evalloop_expected_output
 from mcgill_misr_oracle import expected_output as mcgill_misr_expected_output
+from huffbench_oracle import MAX_PASSES as HUFFBENCH_MAX_PASSES
+from huffbench_oracle import MIN_PASSES as HUFFBENCH_MIN_PASSES
+from huffbench_oracle import expected_output as huffbench_expected_output
 
 MAX_OUTPUT_BYTES = 8192
 
@@ -97,6 +100,13 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
         return evalloop_expected_output(value)
     if encoding == "mcgill_misr_report_ascii":
         return mcgill_misr_expected_output(value)
+    if encoding == "huffbench_summary_ascii":
+        if not HUFFBENCH_MIN_PASSES <= value <= HUFFBENCH_MAX_PASSES:
+            return -1, b""
+        output = huffbench_expected_output(value)
+        if output is None:
+            return -1, b""
+        return len(output), output
     if encoding == "prime_factorial_unique_u32le":
         return prime_factorial_expected_output(value)
     if encoding == "magicdiamondpattern":
@@ -562,7 +572,7 @@ def main() -> int:
                                           "n_queens_backtracking_csharp",
                                           "faster_perfect_numbers", "fizz_buzz", "magicdiamondpattern"}
                 else workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2)))
-    if algorithm == "evalloop":
+    if algorithm in {"evalloop", "huffbench"}:
         encoding = workload.get("output", {}).get("encoding")
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]

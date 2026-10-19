@@ -46,8 +46,8 @@ pub unsafe extern "C" fn mibench_automotive_basicmath_cubic(
     if values[0] > -1.0 && values[0] < 1.0 {
         return -1;
     }
-    let coefficients: &[f64; INPUT_COUNT] = values.try_into().unwrap();
-    let Some((roots, count)) = solve_cubic(coefficients) else {
+    let coefficients = [values[0], values[1], values[2], values[3]];
+    let Some((roots, count)) = solve_cubic(&coefficients) else {
         return -1;
     };
     if output.is_null() || output_capacity < count {

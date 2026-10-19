@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import datetime as dt
+import heapq
 import json
 from pathlib import Path
 import platform
@@ -14,7 +15,8 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
-from run_i64_scalar_bytes_output import MAX_OUTPUT_BYTES, expected_output
+from run_i64_scalar_bytes_output import MAX_OUTPUT_BYTES
+from run_i64_scalar_bytes_output import expected_output as _runner_expected_output
 from ary3_oracle import INVALID_RESULT as ARY3_INVALID_RESULT
 from ary3_oracle import MAX_LENGTH as ARY3_MAX_LENGTH
 from ary3_oracle import MAX_OUTPUT_BYTES as ARY3_MAX_OUTPUT_BYTES
@@ -139,8 +141,49 @@ ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal",
               "stanford_quicksort", "almabench", "queens", "npb_is", "stanford_treesort",
               "stanford_bubblesort", "stanford_towers", "stanford_queens", "shootout_hello",
               "stanford_realmm", "shootout_lists", "shootout_strcat", "shootout_matrix",
-              "shootout_methcall", "shootout_objinst", "evalloop", "mcgill_misr")
+              "shootout_methcall", "shootout_objinst", "evalloop", "mcgill_misr", "huffbench")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
+HUFFBENCH_MIN_PASSES = 1
+HUFFBENCH_MAX_PASSES = 30
+HUFFBENCH_MAX_OUTPUT_BYTES = 52
+
+
+def _huffbench_verifier_expected_output(passes: int) -> tuple[int, bytes]:
+    if not HUFFBENCH_MIN_PASSES <= passes <= HUFFBENCH_MAX_PASSES:
+        return -1, b""
+    seed = 1325
+    alphabet = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
+    data = bytearray()
+    for _ in range(4096):
+        seed ^= 123459876
+        quotient = seed // 127773
+        seed = 16807 * (seed - quotient * 127773) - 2836 * quotient
+        if seed < 0:
+            seed += 2147483647
+        data.append(alphabet[seed % 32])
+        seed ^= 123459876
+
+    frequencies: dict[int, int] = {}
+    for byte in data:
+        frequencies[byte] = frequencies.get(byte, 0) + 1
+    forest = list(frequencies.values())
+    heapq.heapify(forest)
+    encoded_bits = 0
+    while len(forest) > 1:
+        merged = heapq.heappop(forest) + heapq.heappop(forest)
+        encoded_bits += merged
+        heapq.heappush(forest, merged)
+    compressed_length = (encoded_bits + 7) // 8
+    checksum = sum(data) & 0xFFFFFFFF
+    output = (f"Huffbench passes={passes} compressed={compressed_length} "
+              f"checksum={checksum}\n").encode("ascii")
+    return len(output), output
+
+
+def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "huffbench_summary_ascii":
+        return _huffbench_verifier_expected_output(value)
+    return _runner_expected_output(value, encoding)
 
 
 def expected_call(value: int, encoding: int | str, output_capacity: int,
@@ -173,7 +216,7 @@ def expected_call(value: int, encoding: int | str, output_capacity: int,
 
 def corpus(workload: dict) -> tuple[str, int]:
     encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
-    if workload.get("algorithm") == "evalloop":
+    if workload.get("algorithm") in {"evalloop", "huffbench"}:
         encoding = workload.get("output", {}).get("encoding")
     capacity_error_result = workload.get("output", {}).get(
         "capacity_error_result", workload.get("output", {}).get("insufficient_capacity_result", -2))
@@ -2814,6 +2857,123 @@ def corpus(workload: dict) -> tuple[str, int]:
                 or fixtures["null_output"].get("output_is_null") is not True
                 or fixtures["null_output"].get("expected_result") != SHOOTOUT_SIEVE_OUTPUT_ERROR):
             raise ValueError("sieve workload is missing its reviewed boundary or output-error fixtures")
+    elif encoding == "huffbench_summary_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/huffbench/huffbench.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/huffbench/info.sh"
+        )
+        required_case_ids = {
+            "one_round", "two_rounds", "pinned_launcher_round_count", "below_profile",
+            "above_profile", "signed_64_minimum", "signed_64_maximum", "exact_capacity",
+            "one_byte_short_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-coyote-huffbench-bounded-v1"
+                or workload.get("algorithm") != "huffbench"
+                or workload.get("function_symbol") != "coyote_huffbench"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "CoyoteBench/huffbench/huffbench.c",
+                    "symbol": "main",
+                    "url": source_url,
+                    "license_note": "The source header says: ‘No rights reserved. This is public domain software, for use by anyone.’ Attribution and the original notice are retained in LICENSE.txt.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "CoyoteBench/huffbench/info.sh",
+                    "bench_name": "huffbench",
+                    "source_files": ["huffbench.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "Generate uppercase letters and digits from the source Park-Miller generator seeded at 1325, build the source-style frequency heap and Huffman code table, encode the data MSB-first, then decode it back into the original buffer. The pinned default runs 30 rounds over 10,000,000 bytes. The suite profile fixes the bounded input at 4,096 bytes and accepts 1 through 30 rounds.",
+                    "source_default_data_bytes": 10000000,
+                    "source_default_rounds": 30,
+                    "profile_data_bytes": 4096,
+                    "profile_minimum_rounds": HUFFBENCH_MIN_PASSES,
+                    "profile_maximum_rounds": HUFFBENCH_MAX_PASSES,
+                    "generator_seed": 1325,
+                    "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZ012345",
+                    "summary_format": r"Huffbench passes=<rounds> compressed=<byte_count> checksum=<sum of decoded bytes modulo 2^32>\n",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "huffbench_round_count",
+                    "meaning": "Number of complete source compression/decompression rounds over the fixed 4,096-byte generated data buffer.",
+                    "minimum": HUFFBENCH_MIN_PASSES,
+                    "maximum": HUFFBENCH_MAX_PASSES,
+                    "invalid_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "source_kernel_summary_ascii",
+                    "encoding": "huffbench_summary_ascii",
+                    "definition": "The pass count, compressed byte count from the final round, and modulo-2^32 sum of decoded bytes, formatted as ASCII with a final LF.",
+                    "maximum_output_bytes": HUFFBENCH_MAX_OUTPUT_BYTES,
+                    "invalid_result": -1,
+                    "null_output_result": -2,
+                    "insufficient_capacity_result": -2,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or HUFFBENCH_MIN_PASSES != 1
+                or HUFFBENCH_MAX_PASSES != 30
+                or HUFFBENCH_MAX_OUTPUT_BYTES != 52
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("huffbench workload metadata does not match its pinned bounded contract")
+        package = ROOT / "benchmarks" / "h" / "huffbench"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source_url not in readme or launcher_url not in readme
+                or "elisa/h/huffbench.elisa" not in readme
+                or "zig/h/huffbench.zig" not in readme
+                or "No rights reserved. This is public domain software, for use by anyone." not in license_text
+                or "Scott Robert Ladd" not in license_text):
+            raise ValueError("huffbench README or public-domain attribution is incomplete")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, passes in (("one_round", 1), ("two_rounds", 2),
+                                ("pinned_launcher_round_count", HUFFBENCH_MAX_PASSES),
+                                ("exact_capacity", HUFFBENCH_MAX_PASSES)):
+            fixture = fixtures[case_id]
+            expected_result, expected = expected_output(passes, encoding)
+            if (fixture.get("input_value") != passes
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output", "").encode("ascii") != expected):
+                raise ValueError(f"huffbench valid fixture {case_id} does not match the independent verifier")
+        for case_id, value in (("below_profile", 0),
+                               ("above_profile", HUFFBENCH_MAX_PASSES + 1),
+                               ("signed_64_minimum", I64_MIN),
+                               ("signed_64_maximum", I64_MAX)):
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != value
+                    or fixture.get("expected_result") != -1
+                    or fixture.get("expected_output") != ""):
+                raise ValueError(f"huffbench invalid fixture {case_id} is incorrect")
+        if (fixtures["one_byte_short_capacity"].get("input_value") != HUFFBENCH_MAX_PASSES
+                or fixtures["one_byte_short_capacity"].get("output_capacity") != HUFFBENCH_MAX_OUTPUT_BYTES - 1
+                or fixtures["one_byte_short_capacity"].get("expected_result") != -2
+                or fixtures["one_byte_short_capacity"].get("expected_output") != ""
+                or fixtures["null_output"].get("input_value") != HUFFBENCH_MIN_PASSES
+                or fixtures["null_output"].get("output_capacity") != HUFFBENCH_MAX_OUTPUT_BYTES
+                or fixtures["null_output"].get("output_is_null") is not True
+                or fixtures["null_output"].get("expected_result") != -2
+                or fixtures["exact_capacity"].get("output_capacity") != HUFFBENCH_MAX_OUTPUT_BYTES):
+            raise ValueError("huffbench workload is missing its reviewed output-boundary fixtures")
 
     cases: dict[tuple[int, int, bool], tuple[int, bytes]] = {}
 
@@ -3041,6 +3201,16 @@ def corpus(workload: dict) -> tuple[str, int]:
                                  SHOOTOUT_SIEVE_MAX_OUTPUT_BYTES)):
             add(value, capacity)
         add(1, SHOOTOUT_SIEVE_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "huffbench_summary_ascii":
+        for value in (HUFFBENCH_MIN_PASSES, 2, 3, 17, 29, HUFFBENCH_MAX_PASSES,
+                      0, -1, HUFFBENCH_MAX_PASSES + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (HUFFBENCH_MIN_PASSES, 2, HUFFBENCH_MAX_PASSES):
+            required, _ = expected_output(value, encoding)
+            for capacity in sorted({0, required - 1, required,
+                                    min(HUFFBENCH_MAX_OUTPUT_BYTES, required + 1)}):
+                add(value, capacity)
+            add(value, HUFFBENCH_MAX_OUTPUT_BYTES, output_is_null=True)
     else:
         for value in range(4097):
             add(value)
@@ -3092,7 +3262,7 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
-    if algorithm == "evalloop":
+    if algorithm in {"evalloop", "huffbench"}:
         encoding = workload.get("output", {}).get("encoding")
     capacity_error_result = workload.get("output", {}).get(
         "capacity_error_result", workload.get("output", {}).get("insufficient_capacity_result", -2))

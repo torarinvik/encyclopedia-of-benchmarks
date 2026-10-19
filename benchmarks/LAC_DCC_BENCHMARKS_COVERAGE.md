@@ -20,6 +20,7 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | `BitBench/uudecode/info.sh` | `uudecode` | Newly implemented in this batch | [`uudecode`](u/uudecode/README.md): bounded fixed-header stream decoder with source-order line groups and exact terminator. |
 | `BitBench/five11/info.sh` | `five11` | Newly implemented in this batch | [`five11`](f/five11/README.md): bounded MSB-first packet parsing, 11-bit channel sum, and source repetition count. |
 | `CoyoteBench/almabench/info.sh` | `almabench` | Newly implemented in this batch | [`almabench`](a/almabench/README.md): bounded eight-planet ephemeris output with source-compatible `fmod` angle normalization and six-decimal formatting. |
+| `CoyoteBench/huffbench/info.sh` | `huffbench` | Newly implemented in this batch | [`huffbench`](h/huffbench/README.md): bounded source-seeded Huffman compression and round-trip decompression with packed-size and decoded-checksum output; source declares the implementation public domain. |
 | `PolyBench/linear-algebra/blas/gesummv/info.sh` | `gesummv` | Newly implemented in this batch | [`gesummv`](g/gesummv/README.md): source-ordered matrix-vector combination and output reduction. |
 | `PolyBench/linear-algebra/blas/gemm/info.sh` | `gemm` | Newly implemented in this batch | [`gemm`](g/gemm/README.md): bounded source-ordered alpha/beta matrix multiplication and row-major reduction. |
 | `PolyBench/linear-algebra/blas/gemver/info.sh` | `gemver` | Newly implemented in this batch | [`gemver`](g/gemver/README.md): four ordered matrix/vector update passes and final vector reduction. |
@@ -78,6 +79,9 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | `Stanford/Towers/info.sh` | `Towers` | Newly implemented in this batch | [`stanford_towers`](s/stanford_towers/README.md): source-style 14-disk Hanoi using the 18-cell free-list pool. |
 | `McGill/queens/info.sh` | `queens` | Newly implemented in this batch | [`queens`](q/queens/README.md): launcher’s count-only 14-queens search and exact two-line output. |
 | `Trimaran/netbench-crc/info.sh` | `netbench-crc` | Newly implemented in this batch | [`netbench_crc`](n/netbench_crc/README.md): bounded NetBench CRC table generation and byte-update kernel with its redistribution notice preserved. |
+| `Trimaran/netbench-url/info.sh` | `netbench-url` | Partial/related | [`trimaran_netbench_url_internet_checksum`](t/trimaran_netbench_url_internet_checksum/README.md): standalone `internet_checksum` helper with the pinned NetBench redistribution terms retained; routing rules, packet generation, Boyer–Moore search, and launcher report are excluded. |
+| `Trimaran/enc-rc4/info.sh` | `enc-rc4` | Newly implemented in this batch | [`trimaran_enc_rc4`](t/trimaran_enc_rc4/README.md): six fixed ARC4 validation vectors with the 2,000-pass small-launcher bound and GPL-2.0-or-later notice. |
+| `Trimaran/enc-3des/info.sh` | `enc-3des` | Partial/related | [`trimaran_enc_3des`](t/trimaran_enc_3des/README.md): bounded fixed-key, three-key 3DES ECB single-block encrypt/decrypt stage. Single-DES and two-key variants, the 10,000-transform Monte Carlo loop, launcher repeats, and CLI report are excluded. |
 | `NPB-serial/is/info.sh` | `is` | Newly implemented in this batch | [`npb_is`](n/npb_is/README.md): class-W integer sort with partial-rank checks and final full-order verification. |
 | `Olden/perimeter/info.sh` | `perimeter` | Pending semantic review/implementation | Same-name collision: local [`perimeter`](p/perimeter/README.md) computes regular-polygon perimeter. |
 | `PolyBench/datamining/correlation/info.sh` | `correlation` | Newly implemented in this batch | [`polybench_correlation`](c/polybench_correlation/README.md): bounded initialized matrix correlation kernel; distinct from local scalar `correlation`. |
@@ -128,7 +132,7 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
 | [`CoyoteBench/almabench/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/almabench/info.sh) | `almabench` | Newly implemented in this batch |
-| [`CoyoteBench/huffbench/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/huffbench/info.sh) | `huffbench` | Pending semantic review/implementation |
+| [`CoyoteBench/huffbench/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/huffbench/info.sh) | `huffbench` | Newly implemented in this batch |
 | [`CoyoteBench/lpbench/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/lpbench/info.sh) | `lpbench` | Pending semantic review/implementation |
 
 ### DOE_ProxyApps_C
@@ -440,12 +444,12 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
-| [`Trimaran/enc-3des/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/enc-3des/info.sh) | `enc-3des` | Pending semantic review/implementation |
-| [`Trimaran/enc-md5/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/enc-md5/info.sh) | `enc-md5` | Pending semantic review/implementation |
+| [`Trimaran/enc-3des/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/enc-3des/info.sh) | `enc-3des` | Partial/related: [`trimaran_enc_3des`](t/trimaran_enc_3des/README.md) covers the source's fixed three-key EDE block stage with one transform; the single-DES and two-key variants, repeated Monte Carlo profile, and CLI output are not represented. |
+| [`Trimaran/enc-md5/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/enc-md5/info.sh) | `enc-md5` | Partial/related: [`md5`](m/md5/README.md) implements the same MD5 digest operation in all nine languages; the launcher-specific deterministic 100,000-byte buffer, 512 incremental updates per digest, repeat-count profile, and hexadecimal printing are outside the local one-shot raw-byte digest contract. |
 | [`Trimaran/enc-pc1/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/enc-pc1/info.sh) | `enc-pc1` | Pending semantic review/implementation |
-| [`Trimaran/enc-rc4/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/enc-rc4/info.sh) | `enc-rc4` | Pending semantic review/implementation |
+| [`Trimaran/enc-rc4/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/enc-rc4/info.sh) | `enc-rc4` | Newly implemented in this batch |
 | [`Trimaran/netbench-crc/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/netbench-crc/info.sh) | `netbench-crc` | Newly implemented in this batch |
-| [`Trimaran/netbench-url/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/netbench-url/info.sh) | `netbench-url` | Pending semantic review/implementation |
+| [`Trimaran/netbench-url/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/netbench-url/info.sh) | `netbench-url` | Partial/related: [`trimaran_netbench_url_internet_checksum`](t/trimaran_netbench_url_internet_checksum/README.md) ports only `internet_checksum` from `url.c`; URL routing rules, packet generation, Boyer–Moore search, and launcher output remain outside the profile. |
 
 ### VersaBench
 
