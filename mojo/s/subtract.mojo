@@ -21,7 +21,9 @@ fn subtract(v: UnsafePointer[Int64, ImmutAnyOrigin], n: c_size_t, out: UnsafePoi
     if out == UnsafePointer[UInt8, MutAnyOrigin]() or cap < c_size_t(acells*4): return -3
     var temp=InlineArray[UInt32,1024](fill=0)
     for i in range(acells):
-        temp[i]=bitcast[UInt32](Int32(v[2+i]))-bitcast[UInt32](Int32(v[bd+2+i]))
+        var difference=v[2+i]-v[bd+2+i]
+        if difference<0:difference+=4294967296
+        temp[i]=UInt32(difference)
     for i in range(acells):
         for b in range(4): out[i*4+b]=UInt8((temp[i] >> UInt(8*b)) & 255)
     return Int64(acells)

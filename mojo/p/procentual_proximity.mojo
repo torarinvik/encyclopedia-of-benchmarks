@@ -20,9 +20,12 @@ fn procentual_proximity(input:UnsafePointer[Int64,ImmutAnyOrigin],length:c_size_
     for r in range(Int(rows)):
         var score=Float64(0.0)
         for c in range(Int(cols)):
-            let span=maxima[c]-minima[c];var normalized=Float64(0.5)
-            if span!=0:normalized=(data[r*Int(cols)+c]-Float64(minima[c]))/Float64(span)
-            if input[2+c]==1:normalized=1.0-normalized
+            let span=maxima[c]-minima[c];var normalized=Float64(0.0)
+            if span==0:
+                normalized=1.0 if input[2+c]==0 else 0.0
+            else:
+                normalized=(data[r*Int(cols)+c]-Float64(minima[c]))/Float64(span)
+                if input[2+c]==0:normalized=1.0-normalized
             score+=normalized
         for c in range(Int(cols)+1):
             let value=data[r*Int(cols)+c] if c<Int(cols) else score

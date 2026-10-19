@@ -1,4 +1,4 @@
-from std.math import isfinite
+from std.math import isfinite, pow
 @export("sum_of_geometric_progression")
 fn sum_of_geometric_progression(first: Float64, ratio: Float64, terms: Float64) abi("C") -> Float64:
     if not isfinite(first) or not isfinite(ratio) or not isfinite(terms): return -1.0e300

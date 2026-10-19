@@ -14,7 +14,7 @@ fn pseudo_inverse(input:UnsafePointer[Float64,ImmutAnyOrigin],input_length:c_siz
         if v< -4 or v>4 or v!=trunc(v):return -1
         col[r]=v;norm+=v*v
     let singular=sqrt(norm);var staged=InlineArray[Float64,6](fill=0);staged[0]=1;staged[1]=Float64(rows)
-    for r in range(rows):staged[2+r]=fabs(singular*col[r]/norm) if singular>=1e-4 and norm!=0 else 0.0
+    for r in range(rows):staged[2+r]=col[r]/norm if fabs(singular)>=1e-4 and norm!=0 else 0.0
     if output==UnsafePointer[Float64,MutAnyOrigin]() or capacity<c_size_t(rows+2):return -2
     for i in range(rows+2):output[i]=staged[i]
     return Int64(rows+2)
