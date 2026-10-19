@@ -1,6 +1,7 @@
 from std.ffi import c_size_t
 from std.memory import ImmutAnyOrigin,UnsafePointer
 from std.collections import InlineArray
+from std.math import abs
 
 @export("max_ancestor_diff")
 fn max_ancestor_diff(nodes:UnsafePointer[Int64,ImmutAnyOrigin],count:c_size_t,root:Int64) abi("C")->Int64:

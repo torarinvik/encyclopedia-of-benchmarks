@@ -1,5 +1,5 @@
 from std.ffi import c_size_t
-from std.memory import ImmutAnyOrigin,UnsafePointer
+from std.memory import ImmutAnyOrigin,MutAnyOrigin,UnsafePointer
 fn seg_orient(ax:Int64,ay:Int64,bx:Int64,by:Int64,cx:Int64,cy:Int64)->Int64:return (bx-ax)*(cy-ay)-(by-ay)*(cx-ax)
 fn seg_on(ax:Int64,ay:Int64,bx:Int64,by:Int64,x:Int64,y:Int64)->Bool:
     return x>=min(ax,bx) and x<=max(ax,bx) and y>=min(ay,by) and y<=max(ay,by)
