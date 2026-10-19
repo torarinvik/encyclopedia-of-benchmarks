@@ -30,6 +30,15 @@ from automotive_bitcount_oracle import MAX_ITERATIONS as AUTOMOTIVE_BITCOUNT_MAX
 from automotive_bitcount_oracle import REFERENCE_CHECKSUMS as AUTOMOTIVE_BITCOUNT_REFERENCE_CHECKSUMS
 from automotive_bitcount_oracle import algorithm_checksums as automotive_bitcount_checksums
 from automotive_bitcount_oracle import expected_result as automotive_bitcount_expected
+from cbench_automotive_bitcount_oracle import ALGORITHM_NAMES as CBENCH_AUTOMOTIVE_BITCOUNT_ALGORITHM_NAMES
+from cbench_automotive_bitcount_oracle import MAX_ITERATIONS as CBENCH_AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS
+from cbench_automotive_bitcount_oracle import REFERENCE_CHECKSUMS as CBENCH_AUTOMOTIVE_BITCOUNT_REFERENCE_CHECKSUMS
+from cbench_automotive_bitcount_oracle import REFERENCE_RESULT as CBENCH_AUTOMOTIVE_BITCOUNT_REFERENCE_RESULT
+from cbench_automotive_bitcount_oracle import algorithm_checksums as cbench_automotive_bitcount_checksums
+from cbench_automotive_bitcount_oracle import expected_result as cbench_automotive_bitcount_expected
+from shootout_hash_oracle import MAX_N as SHOOTOUT_HASH_MAX_N
+from shootout_hash_oracle import REFERENCE_RESULT as SHOOTOUT_HASH_REFERENCE_RESULT
+from shootout_hash_oracle import expected_result as shootout_hash_expected
 from twos_complement_of_binary_oracle import expected_result as twos_complement_of_binary_expected
 from binary_length_oracle import expected_result as binary_length_expected
 from liouville_oracle import expected_result as liouville_expected
@@ -2069,6 +2078,183 @@ def validate_automotive_bitcount_workload(workload: dict) -> None:
         raise ValueError("automotive_bitcount oracle does not reproduce the pinned launcher reference checksums")
 
 
+CBENCH_AUTOMOTIVE_BITCOUNT_CASE_IDS = frozenset({
+    "zero_iterations", "one_iteration", "two_iterations", "dataset_1_profile",
+    "negative_iterations", "above_profile_bound", "signed_i64_minimum", "signed_i64_maximum",
+})
+
+
+def validate_cbench_automotive_bitcount_workload(workload: dict) -> None:
+    source_files = [
+        {"path": "cBench/automotive_bitcount/src/bitarray.c", "blob_sha": "b21e8facccb8eb3d5f96bbb0878b89e0f8d87c15", "symbols": ["alloc_bit_array", "getbit", "setbit", "flipbit"]},
+        {"path": "cBench/automotive_bitcount/src/bitcnt_1.c", "blob_sha": "d41f57f1b348a4c9484c881495c9274a3e3f9fd2", "symbols": ["bit_count"]},
+        {"path": "cBench/automotive_bitcount/src/bitcnt_2.c", "blob_sha": "e34e119e32df6c04bdb910a9cdb0d7c3bb66a5f2", "symbols": ["bitcount"]},
+        {"path": "cBench/automotive_bitcount/src/bitcnt_3.c", "blob_sha": "f3d6088600f70c93a17b852818b2d8addd3e2c3f", "symbols": ["ntbl_bitcount", "BW_btbl_bitcount", "AR_btbl_bitcount"]},
+        {"path": "cBench/automotive_bitcount/src/bitcnt_4.c", "blob_sha": "9f76cd0f30a1a126e318ecb83d6899fd65d29f04", "symbols": ["ntbl_bitcnt", "btbl_bitcnt"]},
+        {"path": "cBench/automotive_bitcount/src/bitcnts.c", "blob_sha": "5fa739af8781cfea2ad43c888a08a39f1bf66785", "symbols": ["main1", "bit_shifter"]},
+        {"path": "cBench/automotive_bitcount/src/bitfiles.c", "blob_sha": "504d4833f52a17c4a9b24345615e05eb98b139b9", "symbols": ["bfopen", "bfread", "bfwrite", "bfclose"]},
+        {"path": "cBench/automotive_bitcount/src/bitstrng.c", "blob_sha": "c9f326abb0e751da877553543dd5914f490cacef", "symbols": ["bitstring"]},
+        {"path": "cBench/automotive_bitcount/src/bstr_i.c", "blob_sha": "b4bfc733b1ab94a4500f3e3a70cbf63d4a896bf4", "symbols": ["bstr_i"]},
+        {"path": "cBench/automotive_bitcount/src/loop-wrap.c", "blob_sha": "b439f1a034a200f4d515c43baf4b0c7dc089a327", "symbols": ["main"]},
+        {"path": "cBench/automotive_bitcount/src/bitops.h", "blob_sha": "ae8e0ea8362c3f4240bd483e2e480f92dc7ce0f8", "symbols": ["BitSet", "BitClr", "BitFlp", "BitTst", "BitOff", "BitOn", "BitFlip", "IsBit"]},
+        {"path": "cBench/automotive_bitcount/src/conio.h", "blob_sha": "dba7d926eb9ba19eee21728b5f03cf57432492b0", "symbols": []},
+        {"path": "cBench/automotive_bitcount/src/extkword.h", "blob_sha": "ca0e2b997ff60ea0a7003a22bddca9e6291d9bef", "symbols": ["CDECL"]},
+        {"path": "cBench/automotive_bitcount/src/sniptype.h", "blob_sha": "399935d3a1c98544523310bf493db4d758ba751f", "symbols": ["TOBOOL"]},
+    ]
+    pinned_source = {
+        "repository": "lac-dcc/Benchmarks",
+        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+        "path": "cBench/automotive_bitcount/src/bitcnts.c",
+        "symbols": ["main1", "bit_shifter", "bit_count", "bitcount", "ntbl_bitcnt", "ntbl_bitcount", "BW_btbl_bitcount", "AR_btbl_bitcount"],
+        "files": source_files,
+        "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/automotive_bitcount/src",
+    }
+    pinned_launcher = {
+        "repository": "lac-dcc/Benchmarks",
+        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+        "path": "cBench/automotive_bitcount/src/info.sh",
+        "blob_sha": "458156daf193b3276c022fd7ad4bd26ae9d5bd96",
+        "bench_name": "automotive_bitcount",
+        "source_files": ["bitarray.c", "bitcnt_1.c", "bitcnt_2.c", "bitcnt_3.c", "bitcnt_4.c", "bitcnts.c", "bitfiles.c", "bitstrng.c", "bstr_i.c", "loop-wrap.c"],
+        "compile_flags": ["-lm"],
+        "run_options": "",
+        "stdin": "",
+        "dataset_file": {"path": "cBench/automotive_bitcount/src/_ccc_info_datasets", "blob_sha": "a2db6a652c763db87d073776effc866f027dd9cd"},
+        "dataset_index": 1,
+        "dataset_command": "1125000 > ftmp_out",
+        "loop_wrap_repetitions": 80,
+    }
+    input_spec = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "Number of generated values counted by each of the seven source algorithms.",
+        "range": [0, CBENCH_AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS],
+        "invalid_input_result": -1,
+    }
+    output_spec = {
+        "kind": "signed_64_bit_integer",
+        "meaning": "Sum of the seven source-order bit totals weighted by their one-based algorithm positions.",
+        "maximum_result": 756_000_000,
+        "invalid_input_result": -1,
+    }
+    contract = {
+        "source_algorithms": list(CBENCH_AUTOMOTIVE_BITCOUNT_ALGORITHM_NAMES),
+        "source_seed_per_algorithm": 1,
+        "seed_generation": "Each source algorithm resets its local seed to 1, counts it, then adds 13 before the next value. The seven streams are identical.",
+        "counting": "Preserve the seven selected kernels: Kernighan bit clearing, parallel 32-bit bit summation, recursive nybble table, fixed eight-nybble table, BW four-byte table, AR four-byte table, and shift/test.",
+        "result": "The original driver prints one bit total per selected algorithm. The scalar ABI returns the sum of those totals weighted by their one-based source positions.",
+        "bounded_profile": "Accept 0 through dataset 1's 1125000 iterations. The source has no intrinsic maximum; the cBench launcher dataset supplies this bounded profile.",
+        "outer_loop": "Dataset 1 repeats main1 80 times and enables printing only on the final pass. The suite callable models one deterministic main1 pass.",
+    }
+    cases = workload.get("cases")
+    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-automotive-bitcount-bounded-scalar-v1"
+            or workload.get("algorithm") != "cbench_automotive_bitcount"
+            or workload.get("function_symbol") != "cbench_automotive_bitcount"
+            or workload.get("pinned_source") != pinned_source
+            or workload.get("pinned_launcher") != pinned_launcher
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("contract") != contract
+            or workload.get("measurement") != {
+                "comparison_model": "scalar_call",
+                "sample_count": 3,
+                "warmup_rounds": 0,
+                "repetitions_per_sample": 1,
+            }
+            or not isinstance(cases, list)
+            or len(case_ids) != len(CBENCH_AUTOMOTIVE_BITCOUNT_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != CBENCH_AUTOMOTIVE_BITCOUNT_CASE_IDS):
+        raise ValueError("cbench_automotive_bitcount workload metadata does not match its pinned bounded scalar contract")
+    readme = (ROOT / "benchmarks" / "c" / "cbench_automotive_bitcount" / "README.md").read_text(encoding="utf-8")
+    source_url = "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/automotive_bitcount/src"
+    if source_url not in readme or "repeats the driver 80 times" not in readme or "starts its own stream at `1`" not in readme:
+        raise ValueError("cbench_automotive_bitcount README is missing its pinned source or benchmark-level distinction")
+    for case in cases:
+        input_value = case.get("input_value")
+        expected = case.get("expected_result")
+        if (type(input_value) is not int or not I64_MIN <= input_value < (1 << 63)
+                or type(expected) is not int or expected != cbench_automotive_bitcount_expected(input_value)):
+            raise ValueError(f"cbench_automotive_bitcount workload mismatch: {case.get('id')}")
+        totals = cbench_automotive_bitcount_checksums(input_value)
+        checksums = case.get("algorithm_checksums")
+        if totals is None:
+            if checksums is not None:
+                raise ValueError(f"cbench_automotive_bitcount invalid case must not include checksums: {case.get('id')}")
+        elif (not isinstance(checksums, list)
+                or any(type(value) is not int for value in checksums)
+                or tuple(checksums) != totals):
+            raise ValueError(f"cbench_automotive_bitcount source checksums mismatch: {case.get('id')}")
+    if (cbench_automotive_bitcount_checksums(CBENCH_AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS)
+            != CBENCH_AUTOMOTIVE_BITCOUNT_REFERENCE_CHECKSUMS
+            or cbench_automotive_bitcount_expected(CBENCH_AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS)
+            != CBENCH_AUTOMOTIVE_BITCOUNT_REFERENCE_RESULT):
+        raise ValueError("cbench_automotive_bitcount oracle does not reproduce the dataset 1 profile checksum")
+
+
+def validate_shootout_hash_workload(workload: dict) -> None:
+    source_url = "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hash"
+    source_files = [
+        {"path": "Shootout/hash/hash.c", "blob_sha": "3ee3529e981fca431ce3c0584cdb1024d5e4a598", "symbols": ["main"]},
+        {"path": "Shootout/hash/simple_hash.h", "blob_sha": "3ba7dd7e36d18b8a7eba881351f90134dcce7ff0", "symbols": ["ht_create", "ht_destroy", "ht_hashcode", "ht_find_new", "ht_find", "ht_node_create"]},
+    ]
+    expected_cases = {
+        0: 0, 1: 1, 9: 9, 10: 9, 16: 10, 17: 11,
+        SHOOTOUT_HASH_MAX_N: SHOOTOUT_HASH_REFERENCE_RESULT,
+        -1: -1, SHOOTOUT_HASH_MAX_N + 1: -1,
+        -(2**63): -1, 2**63 - 1: -1,
+    }
+    pinned_source = workload.get("pinned_source", {})
+    launcher = workload.get("pinned_launcher", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("algorithm") != "shootout_hash"
+            or workload.get("function_symbol") != "shootout_hash"
+            or pinned_source.get("repository") != "lac-dcc/Benchmarks"
+            or pinned_source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or pinned_source.get("path") != "Shootout/hash/hash.c"
+            or pinned_source.get("files") != source_files
+            or pinned_source.get("url") != source_url
+            or pinned_source.get("reference_output") != {
+                "path": "Shootout/hash/hash.reference_output",
+                "blob_sha": "d6bed147f9365a5322742006fd6da88ea1bfa26e",
+            }
+            or launcher.get("repository") != "lac-dcc/Benchmarks"
+            or launcher.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or launcher.get("path") != "Shootout/hash/info.sh"
+            or launcher.get("blob_sha") != "7cf426f7ff349d279491d83657a086f530a008a3"
+            or launcher.get("bench_name") != "hash"
+            or launcher.get("source_files") != ["hash.c"]
+            or launcher.get("compile_flags") != ["-lm"]
+            or launcher.get("run_options") != ""
+            or launcher.get("default_problem_size") != SHOOTOUT_HASH_MAX_N
+            or launcher.get("small_problem_size_define_enabled") is not False
+            or workload.get("input", {}).get("kind") != "signed_64_bit_integer"
+            or workload.get("input", {}).get("range") != [0, SHOOTOUT_HASH_MAX_N]
+            or workload.get("output", {}).get("kind") != "signed_64_bit_integer"
+            or workload.get("measurement", {}).get("comparison_model") != "scalar_call"):
+        raise ValueError("shootout_hash workload metadata does not match its pinned bounded scalar contract")
+    readme = (ROOT / "benchmarks" / "s" / "shootout_hash" / "README.md").read_text(encoding="utf-8")
+    if source_url not in readme or "3,500,000" not in readme or "6,291,469" not in readme:
+        raise ValueError("shootout_hash README is missing its pinned source or launcher profile")
+    cases = workload.get("cases")
+    if not isinstance(cases, list) or len(cases) != len(expected_cases):
+        raise ValueError("shootout_hash workload must include its complete bounded edge-case set")
+    observed = set()
+    for case in cases:
+        input_value = case.get("input_value")
+        if (type(input_value) is not int or input_value not in expected_cases
+                or input_value in observed or type(case.get("expected_result")) is not int
+                or case["expected_result"] != expected_cases[input_value]
+                or case["expected_result"] != shootout_hash_expected(input_value)):
+            raise ValueError(f"shootout_hash workload mismatch: {case.get('id')}")
+        observed.add(input_value)
+    if observed != set(expected_cases):
+        raise ValueError("shootout_hash workload is missing required boundary cases")
+    if shootout_hash_expected(SHOOTOUT_HASH_MAX_N) != SHOOTOUT_HASH_REFERENCE_RESULT:
+        raise ValueError("shootout_hash oracle does not reproduce the pinned launcher reference output")
+
+
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
     if algorithm == "fib2":
         if expected_result != fib2_expected(input_value):
@@ -2085,6 +2271,14 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
     if algorithm == "automotive_bitcount":
         if expected_result != automotive_bitcount_expected(input_value):
             raise ValueError("automotive_bitcount expected_result must match the weighted seven-kernel checksum")
+        return
+    if algorithm == "cbench_automotive_bitcount":
+        if expected_result != cbench_automotive_bitcount_expected(input_value):
+            raise ValueError("cbench_automotive_bitcount expected_result must match the weighted seven-kernel checksum")
+        return
+    if algorithm == "shootout_hash":
+        if expected_result != shootout_hash_expected(input_value):
+            raise ValueError("shootout_hash expected_result must match the bounded decimal lookup count")
         return
     if algorithm == "greatest_prime_factor":
         if expected_result != greatest_prime_factor_expected(input_value):
@@ -3692,6 +3886,10 @@ def main() -> int:
         validate_treeadd_workload(workload)
     elif algorithm == "automotive_bitcount":
         validate_automotive_bitcount_workload(workload)
+    elif algorithm == "cbench_automotive_bitcount":
+        validate_cbench_automotive_bitcount_workload(workload)
+    elif algorithm == "shootout_hash":
+        validate_shootout_hash_workload(workload)
     timing = workload["measurement"]
     sample_count = args.samples if args.samples is not None else int(timing["sample_count"])
     warmup_rounds = args.warmups if args.warmups is not None else int(timing["warmup_rounds"])

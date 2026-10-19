@@ -1,0 +1,53 @@
+const MAX_CALL_COUNT: i64 = 1000000
+const MODULUS: i64 = 139968
+const FRACTION_SCALE: i64 = 1000000000
+const MAX_OUTPUT_BYTES: usize = 13
+
+def shootout_random_impl(call_count: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if call_count < 1 or call_count > MAX_CALL_COUNT:
+        return -1
+
+    state: mutable i64 = 42
+    call: mutable i64 = 0
+    while call < call_count:
+        state <- (state * 3877 + 29573) % MODULUS
+        call <- call + 1
+
+    scaled: i64 = (100 * state * FRACTION_SCALE + MODULUS / 2) / MODULUS
+    whole: mutable i64 = scaled / FRACTION_SCALE
+    fraction: mutable i64 = scaled % FRACTION_SCALE
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    reversed_digits: mutable u8[3] = zeroed
+    digit_count: mutable usize = 0
+    while true:
+        reversed_digits[digit_count] <- (48 + whole % 10).u8()
+        digit_count <- digit_count + 1
+        whole <- whole / 10
+        if whole == 0:
+            break
+
+    used: mutable usize = 0
+    while digit_count > 0:
+        digit_count <- digit_count - 1
+        staged[used] <- reversed_digits[digit_count]
+        used <- used + 1
+    staged[used] <- 46u8
+    used <- used + 1
+    place: mutable i64 = 100000000
+    while place > 0:
+        staged[used] <- (48 + fraction / place).u8()
+        used <- used + 1
+        fraction <- fraction % place
+        place <- place / 10
+    staged[used] <- 10u8
+    used <- used + 1
+
+    if output.is_null() or output_capacity < used:
+        return -2
+    index: mutable usize = 0
+    while index < used:
+        output[index] <- staged[index]
+        index <- index + 1
+    used.i64()
+
+export fn shootout_random(call_count: i64, output: mutable u8&, output_capacity: usize) -> i64 = shootout_random_impl

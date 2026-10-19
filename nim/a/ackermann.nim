@@ -5,5 +5,5 @@ proc ackermannValue(m, n: int64): int64 =
   ackermannValue(m - 1, ackermannValue(m, n - 1))
 
 proc ackermann*(m, n: int64): int64 {.cdecl, exportc: "ackermann".} =
-  if m < 0 or m > 3 or n < 0 or n > 5: return -1
+  if m < 0 or m > 3 or n < 0 or n > 8: return -1
   ackermannValue(m, n)

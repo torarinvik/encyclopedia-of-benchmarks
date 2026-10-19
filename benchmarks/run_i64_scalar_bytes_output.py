@@ -16,15 +16,24 @@ import struct
 import subprocess
 
 from build_abi import ROOT, sha256_file
+from ary3_oracle import expected_output as ary3_expected_output
+from floatmm_oracle import expected_output as floatmm_expected_output
 from prime_factorial_oracle import expected_output as prime_factorial_expected_output
 from stream_sieve_oracle import expected_output as stream_sieve_expected_output
+from shootout_sieve_oracle import expected_output as shootout_sieve_expected_output
 
 MAX_OUTPUT_BYTES = 8192
 
 
 def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
+    if encoding == "stanford_floatmm_diagonal_ascii":
+        return floatmm_expected_output(value)
+    if encoding == "shootout_ary3_ascii":
+        return ary3_expected_output(value)
     if encoding == "stream_sieve_primes_i32le":
         return stream_sieve_expected_output(value)
+    if encoding == "shootout_sieve_ascii":
+        return shootout_sieve_expected_output(value)
     if encoding == "prime_factorial_unique_u32le":
         return prime_factorial_expected_output(value)
     if encoding == "magicdiamondpattern":

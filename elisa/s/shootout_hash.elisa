@@ -1,0 +1,90 @@
+extern calloc(count: usize, size: usize) -> mutable u32&
+extern free(memory: mutable u32&) -> void
+
+const SHOOTOUT_HASH_MAX_N: i64 = 3500000
+const SHOOTOUT_HASH_BUCKET_PRIMES: u32[28] = [
+    53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593,
+    49157, 98317, 196613, 393241, 786433, 1572869, 3145739,
+    6291469, 12582917, 25165843, 50331653, 100663319, 201326611,
+    402653189, 805306457, 1610612741, 3221225473, 4294967291
+]
+
+def shootout_hash_bucket_count(n: u32) -> usize:
+    index: mutable usize = 0
+    while SHOOTOUT_HASH_BUCKET_PRIMES[index] < n:
+        index <- index + 1
+    SHOOTOUT_HASH_BUCKET_PRIMES[index].usize()
+
+def shootout_hash_key(value_input: u32, base: u32, bucket_count: usize) -> usize:
+    value: mutable u32 = value_input
+    reverse: mutable u8[16] = zeroed
+    length: mutable usize = 0
+    while true:
+        digit: u32 = value % base
+        reverse[length] <- (if digit < 10: 48 + digit else 87 + digit).u8()
+        length <- length + 1
+        value <- value / base
+        if value == 0:
+            break
+    hash: mutable u64 = 0
+    while length > 0:
+        length <- length - 1
+        hash <- 5 * hash + reverse[length].u64()
+    (hash % bucket_count.u64()).usize()
+
+def shootout_hash_key_matches_decimal(hex_value_input: u32, decimal_value_input: u32) -> bool:
+    hex_value: mutable u32 = hex_value_input
+    decimal_value: mutable u32 = decimal_value_input
+    while hex_value != 0 && decimal_value != 0:
+        digit: u32 = hex_value & 15
+        if digit >= 10 || digit != decimal_value % 10:
+            return false
+        hex_value <- hex_value >> 4
+        decimal_value <- decimal_value / 10
+    hex_value == 0 && decimal_value == 0
+
+def shootout_hash_impl(n: i64) -> i64:
+    if n < 0 || n > SHOOTOUT_HASH_MAX_N:
+        return -1
+    bound: u32 = n.u32()
+    bucket_count: usize = shootout_hash_bucket_count(bound)
+    heads: mutable u32& = calloc(bucket_count, 4)
+    next: mutable u32& = calloc((bound + 1).usize(), 4)
+    if heads.is_null() || next.is_null():
+        free(heads)
+        free(next)
+        return -1
+
+    value: mutable u32 = 1
+    while value <= bound:
+        bucket: usize = shootout_hash_key(value, 16, bucket_count)
+        node: mutable u32 = heads[bucket]
+        previous: mutable u32 = 0
+        while node != 0:
+            if node == value:
+                break
+            previous <- node
+            node <- next[node.usize()]
+        if node == 0:
+            if previous == 0:
+                heads[bucket] <- value
+            else:
+                next[previous.usize()] <- value
+        value <- value + 1
+
+    found: mutable i64 = 0
+    value <- bound
+    while value > 0:
+        bucket: usize = shootout_hash_key(value, 10, bucket_count)
+        node: mutable u32 = heads[bucket]
+        while node != 0:
+            if shootout_hash_key_matches_decimal(node, value):
+                found <- found + 1
+                break
+            node <- next[node.usize()]
+        value <- value - 1
+    free(heads)
+    free(next)
+    found
+
+export fn shootout_hash(n: i64) -> i64 = shootout_hash_impl

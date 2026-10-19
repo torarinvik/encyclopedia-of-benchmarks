@@ -10,6 +10,6 @@ std::int64_t ackermann_value(std::int64_t m, std::int64_t n) noexcept {
 }
 
 extern "C" std::int64_t ackermann(std::int64_t m, std::int64_t n) noexcept {
-    if (m < 0 || m > 3 || n < 0 || n > 5) return -1;
+    if (m < 0 || m > 3 || n < 0 || n > 8) return -1;
     return ackermann_value(m, n);
 }

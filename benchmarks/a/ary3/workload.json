@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-shootout-ary3-repeated-array-addition-ascii-v1",
+  "algorithm": "ary3",
+  "function_symbol": "ary3",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/ary3/ary3.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/ary3/ary3.c"
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/ary3/info.sh",
+    "bench_name": "ary3",
+    "source_files": ["ary3.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "The program accepts n as its sole command-line argument, allocates zeroed int arrays x and y, assigns x[i]=i+1, then performs 1000 passes adding x[i] into y[i] while traversing i from n-1 down to zero. It prints y[0] and y[n-1] with printf(\"%d %d\\n\"). Without an argument, ary3.c selects LENGTH 1500000 (or 150000 under SMALL_PROBLEM_SIZE); this suite profile uses explicit bounded n. The largest y value at n=4096 is 4096000, which fits a signed 32-bit int.",
+    "profile_minimum": 1,
+    "profile_maximum": 4096,
+    "invalid_source_case": "n=0 indexes y[-1], so the suite rejects nonpositive n instead of preserving undefined behavior."
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "shootout_ary3_ascii",
+    "meaning": "Positive array length n; x[i] is initialized to i+1.",
+    "minimum": 1,
+    "maximum": 4096,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "printf(\"%d %d\\n\"): final y[0], one space, final y[n-1], newline",
+    "definition": "Exact ASCII bytes produced by the 1000 reverse-index passes; for the bounded profile, y[0]=1000 and y[n-1]=1000*n.",
+    "maximum_output_bytes": 13,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {"id": "one_element", "input_value": 1, "expected_result": 10, "expected_output": "1000 1000\n"},
+    {"id": "two_elements", "input_value": 2, "expected_result": 10, "expected_output": "1000 2000\n"},
+    {"id": "ten_elements", "input_value": 10, "expected_result": 11, "expected_output": "1000 10000\n"},
+    {"id": "large_representative", "input_value": 999, "expected_result": 12, "expected_output": "1000 999000\n"},
+    {"id": "maximum_length", "input_value": 4096, "expected_result": 13, "expected_output": "1000 4096000\n"},
+    {"id": "zero_length_invalid", "input_value": 0, "expected_result": -1, "expected_output": ""},
+    {"id": "negative_length_invalid", "input_value": -1, "expected_result": -1, "expected_output": ""},
+    {"id": "above_bound_invalid", "input_value": 4097, "expected_result": -1, "expected_output": ""},
+    {"id": "int64_min_invalid", "input_value": -9223372036854775808, "expected_result": -1, "expected_output": ""},
+    {"id": "insufficient_capacity", "input_value": 10, "output_capacity": 10, "expected_result": -2, "expected_output": ""},
+    {"id": "null_output", "input_value": 1, "output_capacity": 10, "output_is_null": true, "expected_result": -2, "expected_output": ""}
+  ]
+}

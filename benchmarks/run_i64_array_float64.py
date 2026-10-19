@@ -129,12 +129,21 @@ from bicg_oracle import expected_result as bicg_expected
 from gemm_oracle import INVALID_RESULT as GEMM_INVALID_RESULT
 from gemm_oracle import MAX_INPUT_LENGTH as MAX_GEMM_INPUT_LENGTH
 from gemm_oracle import expected_result as gemm_expected
+from gemver_oracle import INVALID_RESULT as GEMVER_INVALID_RESULT
+from gemver_oracle import MAX_INPUT_LENGTH as MAX_GEMVER_INPUT_LENGTH
+from gemver_oracle import expected_result as gemver_expected
 from covariance_oracle import INVALID_RESULT as COVARIANCE_INVALID_RESULT
 from covariance_oracle import MAX_INPUT_LENGTH as MAX_COVARIANCE_INPUT_LENGTH
 from covariance_oracle import expected_result as covariance_expected
 from doitgen_oracle import INVALID_RESULT as DOITGEN_INVALID_RESULT
 from doitgen_oracle import MAX_INPUT_LENGTH as MAX_DOITGEN_INPUT_LENGTH
 from doitgen_oracle import expected_result as doitgen_expected
+from two_mm_oracle import INVALID_RESULT as TWO_MM_INVALID_RESULT
+from two_mm_oracle import MAX_INPUT_LENGTH as MAX_TWO_MM_INPUT_LENGTH
+from two_mm_oracle import expected_result as two_mm_expected
+from three_mm_oracle import INVALID_RESULT as THREE_MM_INVALID_RESULT
+from three_mm_oracle import MAX_INPUT_LENGTH as MAX_THREE_MM_INPUT_LENGTH
+from three_mm_oracle import expected_result as three_mm_expected
 from kinetic_energy_oracle import INVALID_RESULT as KINETIC_ENERGY_INVALID_RESULT
 from kinetic_energy_oracle import expected_result as kinetic_energy_expected
 from potential_energy_oracle import INVALID_RESULT as POTENTIAL_ENERGY_INVALID_RESULT
@@ -2295,8 +2304,11 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_ATAX_INPUT_LENGTH if algorithm == "atax" else
                         MAX_BICG_INPUT_LENGTH if algorithm == "bicg" else
                         MAX_GEMM_INPUT_LENGTH if algorithm == "gemm" else
+                        MAX_GEMVER_INPUT_LENGTH if algorithm == "gemver" else
                         MAX_COVARIANCE_INPUT_LENGTH if algorithm == "covariance" else
                         MAX_DOITGEN_INPUT_LENGTH if algorithm == "doitgen" else
+                        MAX_TWO_MM_INPUT_LENGTH if algorithm == "2mm" else
+                        MAX_THREE_MM_INPUT_LENGTH if algorithm == "3mm" else
                         MAX_PYRAMID_INPUT_LENGTH if algorithm == "pyramid" else
                         MAX_P2_QUANTILE_INPUT_LENGTH if algorithm == "p2_quantile_estimator" else
                         MAX_LAPLACIAN_FILTER_INPUT_LENGTH + 1 if algorithm == "laplacian_filter" else
@@ -3034,6 +3046,14 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == GEMM_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("gemm expected_result must match the bounded PolyBench alpha/beta update and row-major checksum")
+    elif algorithm == "gemver":
+        source_result = gemver_expected(values)
+        if source_result == GEMVER_INVALID_RESULT:
+            if expected != GEMVER_INVALID_RESULT:
+                raise ValueError("invalid gemver inputs must use the -1e300 result sentinel")
+        elif expected == GEMVER_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("gemver expected_result must match the bounded PolyBench four-pass update and w checksum")
     elif algorithm == "covariance":
         source_result = covariance_expected(values)
         if source_result == COVARIANCE_INVALID_RESULT:
@@ -3050,6 +3070,22 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == DOITGEN_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("doitgen expected_result must match the bounded PolyBench 3D transform and row-major checksum")
+    elif algorithm == "2mm":
+        source_result = two_mm_expected(values)
+        if source_result == TWO_MM_INVALID_RESULT:
+            if expected != TWO_MM_INVALID_RESULT:
+                raise ValueError("invalid 2mm inputs must use the -1e300 result sentinel")
+        elif expected == TWO_MM_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("2mm expected_result must match the bounded PolyBench two-stage matrix update and row-major D checksum")
+    elif algorithm == "3mm":
+        source_result = three_mm_expected(values)
+        if source_result == THREE_MM_INVALID_RESULT:
+            if expected != THREE_MM_INVALID_RESULT:
+                raise ValueError("invalid 3mm inputs must use the -1e300 result sentinel")
+        elif expected == THREE_MM_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("3mm expected_result must match the bounded PolyBench three matrix products and row-major G checksum")
     elif algorithm == "pyramid":
         source_result = pyramid_expected(values)
         if source_result == PYRAMID_INVALID_RESULT:

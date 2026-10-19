@@ -1,0 +1,56 @@
+# Bounded port of BitBench five11's MSB-first packet decoder and channel sum.
+const MAX_INPUT: usize = 13523
+const MAX_PARSEABLE_INPUT: usize = 13524
+const MAX_PACKETS: i64 = 451
+
+def read_bits(values: i64&, length: usize, bit_offset: usize, width: usize) -> i64:
+    bit_length: usize = length * 8
+    if bit_offset > bit_length or width > bit_length - bit_offset:
+        return -1
+    byte_offset: usize = bit_offset >> 3
+    start: usize = bit_offset & 7
+    byte_count: usize = (start + width + 7) >> 3
+    window: mutable u32 = 0
+    for index in 0..<byte_count:
+        window <- (window << 8) | values[byte_offset + index].u32()
+    shift: usize = byte_count * 8 - start - width
+    mask: u32 = (1.u32() << width.u32()) - 1
+    ((window >> shift) & mask).i64()
+
+def decode_sum(values: i64&, length: usize) -> i64:
+    packet_count: i64 = read_bits(values, length, 0, 16)
+    if packet_count < 0 or packet_count > MAX_PACKETS:
+        return -1
+    bit_offset: mutable usize = 16
+    total: mutable i64 = 0
+    for _ in 0..<packet_count.usize():
+        channels: i64 = read_bits(values, length, bit_offset, 5)
+        if channels < 0:
+            return -1
+        bit_offset <- bit_offset + 5
+        for _ in 0..<channels.usize():
+            channel: i64 = read_bits(values, length, bit_offset, 11)
+            if channel < 0:
+                return -1
+            total <- total + channel
+            bit_offset <- bit_offset + 11
+        packet_bits: usize = 5 + 11 * channels.usize()
+        bit_offset <- bit_offset + ((8 - (packet_bits & 7)) & 7)
+        if bit_offset > length * 8:
+            return -1
+    total
+
+def five11_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 2 or length > MAX_PARSEABLE_INPUT or length > MAX_INPUT:
+        return -1
+    for index in 0..<length:
+        if values[index] < 0 or values[index] > 255:
+            return -1
+    result: mutable i64 = 0
+    for _ in 0..<10000:
+        result <- decode_sum(values, length)
+        if result < 0:
+            return -1
+    result
+
+export fn five11(values: i64&, length: usize) -> i64 = five11_impl

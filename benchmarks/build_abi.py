@@ -147,7 +147,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
     if language in {"c", "cpp"}:
         standard = "-std=c11" if language == "c" else "-std=c++17"
         flags = [standard, "-O3", "-DNDEBUG", "-c"]
-        if algorithm in {"pid", "pi_monte_carlo_estimation", "shunting_yard", "mandelbrot"}:
+        if algorithm in {"pid", "pi_monte_carlo_estimation", "shunting_yard", "mandelbrot", "floatmm"}:
             flags.append("-ffp-contract=off")
         if algorithm == "mandelbrot":
             flags.append("-fno-fast-math")
@@ -161,7 +161,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         run([compiler, *flags, "-o", str(artifact), str(source)])
     elif language == "nim":
         flags = ["--app:staticlib", "--noMain", "--mm:none", "-d:release"]
-        if algorithm in {"pi_monte_carlo_estimation", "shunting_yard", "mandelbrot"}:
+        if algorithm in {"pi_monte_carlo_estimation", "shunting_yard", "mandelbrot", "floatmm"}:
             flags.append("--passC:-ffp-contract=off")
         if algorithm == "mandelbrot":
             flags.append("--passC:-fno-fast-math")
@@ -186,7 +186,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         native_link_flags = shlex.split(libraries[0])
     elif language == "v":
         flags = ["-prod", "-is_o", "-gc", "none", "-no-skip-unused", "-cc", c_compiler]
-        if algorithm in {"shunting_yard", "mandelbrot"}:
+        if algorithm in {"shunting_yard", "mandelbrot", "floatmm"}:
             flags.extend(["-cflags", "-ffp-contract=off"])
         if algorithm == "mandelbrot":
             flags.extend(["-cflags", "-fno-fast-math"])

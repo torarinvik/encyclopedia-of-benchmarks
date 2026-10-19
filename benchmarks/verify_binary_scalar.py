@@ -22,6 +22,7 @@ from trinomial_triangle_oracle import expected_result as trinomial_triangle_orac
 from fermat_prime_checker_oracle import expected_result as fermat_prime_checker_oracle
 from exponentiation_oracle import expected_result as exponentiation_oracle
 from run_binary_scalar import encode_values
+from ackermann_oracle import expected_result as ackermann_oracle
 
 U64_MAX = 2**64 - 1
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
@@ -170,23 +171,6 @@ def amicable_number_oracle(left: int, right: int) -> int:
         return 0
     return int(proper_divisor_sum_oracle(left) == right
                and proper_divisor_sum_oracle(right) == left)
-
-
-@lru_cache(maxsize=None)
-def _ackermann_value(m: int, n: int) -> int:
-    if m == 0:
-        return n + 1
-    if n == 0:
-        return _ackermann_value(m - 1, 1)
-    return _ackermann_value(m - 1, _ackermann_value(m, n - 1))
-
-
-def ackermann_oracle(m: int, n: int) -> int:
-    if (type(m) is not int or type(n) is not int
-            or not I64_MIN <= m <= I64_MAX or not I64_MIN <= n <= I64_MAX
-            or not 0 <= m <= 3 or not 0 <= n <= 5):
-        return -1
-    return _ackermann_value(m, n)
 
 
 def problem56_digit_sum_oracle(a: int, b: int) -> int:
@@ -675,12 +659,12 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         rng = random.Random(20261015)
         pairs.update((rng.getrandbits(64), rng.getrandbits(64)) for _ in range(512))
     elif algorithm == "ackermann":
-        pairs.update((m, n) for m in range(4) for n in range(6))
+        pairs.update((m, n) for m in range(4) for n in range(9))
         left_edges = [I64_MIN, -1, 0, 1, 3, 4, I64_MAX]
-        right_edges = [I64_MIN, -1, 0, 1, 5, 6, I64_MAX]
+        right_edges = [I64_MIN, -1, 0, 1, 7, 8, 9, I64_MAX]
         pairs.update((left, right) for left in left_edges for right in right_edges)
         rng = random.Random(20261014)
-        pairs.update((rng.randrange(-1, 5), rng.randrange(-1, 7)) for _ in range(512))
+        pairs.update((rng.randrange(-1, 5), rng.randrange(-1, 10)) for _ in range(64))
     elif algorithm == "range_bitwise_and":
         pairs.update((left, right) for left in range(256) for right in range(256))
         edge_values = sorted({0, 1, 2, 3, 7, 8, 15, 16, 31, 32, 63, 64,

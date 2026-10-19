@@ -27,6 +27,13 @@ from coremark_crc_oracle import expected_result as coremark_crc_expected
 from drop3_oracle import INVALID_RESULT as DROP3_INVALID_RESULT
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected
+from five11_oracle import INVALID_RESULT as FIVE11_INVALID_RESULT
+from five11_oracle import MAX_PACKETS as FIVE11_MAX_PACKETS
+from five11_oracle import MAX_PARSEABLE_INPUT_LENGTH as FIVE11_MAX_PARSEABLE_INPUT_LENGTH
+from five11_oracle import MAX_RESULT as FIVE11_MAX_RESULT
+from five11_oracle import MAX_VALID_INPUT_LENGTH as FIVE11_MAX_VALID_INPUT_LENGTH
+from five11_oracle import REPETITIONS as FIVE11_REPETITIONS
+from five11_oracle import expected_result as five11_expected
 from fannkuch_oracle import INVALID_RESULT as FANNKUCH_INVALID_RESULT
 from fannkuch_oracle import MAX_PARSEABLE_INPUT_LENGTH as FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH
 from fannkuch_oracle import expected_result as fannkuch_expected
@@ -6105,6 +6112,7 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (COREMARK_CRC_MAX_INPUT_LENGTH if algorithm == "coremark_crc" else
                         DROP3_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "drop3" else
+                        FIVE11_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "five11" else
                         FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "fannkuch" else
                         NUSSINOV_MAX_INPUT_LENGTH if algorithm == "nussinov" else
                         LWE_ENCRYPTION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "lwe_encryption" else
@@ -6631,6 +6639,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = drop3_expected(values)
         if expected != expected_from_source:
             raise ValueError("drop3 expected_result must match the bounded source-order bitstream filter")
+    elif algorithm == "five11":
+        expected_from_source = five11_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("five11 expected_result must match the bounded MSB-first packet decoder")
     elif algorithm == "fannkuch":
         expected_from_source = fannkuch_expected(values)
         if expected != expected_from_source:
@@ -14357,6 +14369,127 @@ def validate_drop3_workload(workload: dict) -> None:
             raise ValueError(f"drop3 fixture differs from its bounded source-order oracle: {case.get('id')}")
 
 
+FIVE11_CASE_IDS = {
+    "empty_packet_stream", "one_empty_packet_nonzero_padding", "one_maximum_channel",
+    "mixed_packet_channel_counts", "maximum_channels_in_one_packet", "trailing_bytes_ignored",
+    "maximum_bounded_packet_count", "pinned_input_file", "missing_header_empty",
+    "truncated_header_one_byte", "truncated_packet_channel_count", "truncated_channel_value",
+    "packet_count_over_bound", "invalid_negative_byte", "invalid_byte_over_255",
+    "invalid_over_length_bound",
+}
+
+
+def validate_five11_workload(workload: dict) -> None:
+    source_url = (
+        "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/"
+        "BitBench/five11/five11.c"
+    )
+    launcher_url = (
+        "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/"
+        "BitBench/five11/info.sh"
+    )
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[byte_0, byte_1, ...]",
+        "byte_range": [0, 255],
+        "packet_count_encoding": "unsigned 16-bit, most-significant-bit first",
+        "packet_count_range": [0, FIVE11_MAX_PACKETS],
+        "packet_encoding": "5-bit channel count followed by that many unsigned 11-bit channel values, with pad bits to the next byte boundary",
+        "bit_order": "most-significant bit first within each byte",
+        "maximum_valid_input_length": FIVE11_MAX_VALID_INPUT_LENGTH,
+        "maximum_parseable_input_length": FIVE11_MAX_PARSEABLE_INPUT_LENGTH,
+        "trailing_input_behavior": "bytes after the final padded packet are ignored",
+        "invalid_result": FIVE11_INVALID_RESULT,
+    }
+    output_spec = {
+        "kind": "signed_i64_scalar",
+        "meaning": "sum of all decoded unsigned 11-bit channel values",
+        "valid_result_range": [0, FIVE11_MAX_RESULT],
+        "invalid_result": FIVE11_INVALID_RESULT,
+    }
+    measurement = {
+        "comparison_model": "i64_array_scalar_call",
+        "sample_count": 7,
+        "warmup_rounds": 2,
+        "repetitions_per_sample": 1,
+        "internal_source_repetitions": FIVE11_REPETITIONS,
+    }
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks",
+        "path": "BitBench/five11/five11.c",
+        "revision": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+        "symbol": "five11",
+        "upstream_reference": source_url,
+        "launcher_path": "BitBench/five11/info.sh",
+        "launcher_reference": launcher_url,
+        "run_options": ["input-file"],
+        "dataset_note": (
+            "The launcher fixture is 13,523 bytes, declares 451 packets, and yields 2,003,051. "
+            "Those records consume 6,392 bytes; the source ignores the remaining bytes. The bounded "
+            "ports retain the source’s 10,000 repeated decode-and-sum passes."
+        ),
+        "license_note": "The pinned source has no explicit license notice; the language implementations are independent ports.",
+    }
+    expected_fixture = {
+        "local_path": "benchmarks/f/five11/input-file",
+        "byte_length": FIVE11_MAX_VALID_INPUT_LENGTH,
+        "sha256": "a545784128c093df0b4d22b143021548f1052f8af6a59bcf5c4d124ed42d39ff",
+        "packet_count": FIVE11_MAX_PACKETS,
+        "decoded_prefix_length": 6392,
+        "source_result": 2003051,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "input", "output", "measurement", "pinned_source", "fixture", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "bitbench-five11-msb-packet-channel-sum-i64-array-scalar-v1"
+            or workload.get("algorithm") != "five11"
+            or workload.get("function_symbol") != "five11"
+            or workload.get("description") != "Decode bounded BitBench five11 packets and sum their 11-bit channel values."
+            or workload.get("input") != input_spec
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or workload.get("pinned_source") != expected_source
+            or workload.get("fixture") != expected_fixture
+            or not isinstance(cases, list)
+            or len(case_ids) != len(FIVE11_CASE_IDS)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != FIVE11_CASE_IDS):
+        raise ValueError("five11 metadata or fixture IDs differ from its bounded source contract")
+
+    fixture_path = ROOT / expected_fixture["local_path"]
+    readme = (ROOT / "benchmarks" / "f" / "five11" / "README.md").read_text(encoding="utf-8")
+    normalized_readme = " ".join(readme.split())
+    if (not fixture_path.is_file()
+            or fixture_path.stat().st_size != expected_fixture["byte_length"]
+            or sha256_file(fixture_path) != expected_fixture["sha256"]
+            or source_url not in readme
+            or launcher_url not in readme
+            or "13,523 bytes" not in normalized_readme
+            or "6,392 bytes" not in normalized_readme
+            or "10,000 passes" not in normalized_readme):
+        raise ValueError("five11 README or pinned launcher fixture differs from its reviewed source")
+    if (fixture_path.stat().st_size != 13523
+            or (int.from_bytes(fixture_path.read_bytes()[:2], "big")) != FIVE11_MAX_PACKETS):
+        raise ValueError("five11 launcher fixture packet header or byte bound changed")
+    fixture_case = next(case for case in cases if case["id"] == "pinned_input_file")
+    if (fixture_case.get("input_values") != list(fixture_path.read_bytes())
+            or fixture_case.get("expected_result") != expected_fixture["source_result"]):
+        raise ValueError("five11 embedded input-file differs from the pinned fixture")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > FIVE11_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != five11_expected(values)):
+            raise ValueError(f"five11 fixture differs from its bounded packet-decoder oracle: {case.get('id')}")
+
+
 def validate_fannkuch_workload(workload: dict) -> None:
     expected_ids = {
         "n-1", "n-2", "n-3", "n-4", "n-5", "n-6", "n-7",
@@ -14659,6 +14792,8 @@ def main() -> int:
         validate_solution42_workload(workload)
     elif algorithm == "drop3":
         validate_drop3_workload(workload)
+    elif algorithm == "five11":
+        validate_five11_workload(workload)
     elif algorithm == "fannkuch":
         validate_fannkuch_workload(workload)
     elif algorithm == "nussinov":

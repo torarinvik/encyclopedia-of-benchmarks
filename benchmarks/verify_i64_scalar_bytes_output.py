@@ -15,13 +15,26 @@ import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from run_i64_scalar_bytes_output import MAX_OUTPUT_BYTES, expected_output
+from ary3_oracle import INVALID_RESULT as ARY3_INVALID_RESULT
+from ary3_oracle import MAX_LENGTH as ARY3_MAX_LENGTH
+from ary3_oracle import MAX_OUTPUT_BYTES as ARY3_MAX_OUTPUT_BYTES
+from ary3_oracle import OUTPUT_ERROR as ARY3_OUTPUT_ERROR
+from floatmm_oracle import INVALID_RESULT as FLOATMM_INVALID_RESULT
+from floatmm_oracle import MAX_OUTPUT_BYTES as FLOATMM_MAX_OUTPUT_BYTES
+from floatmm_oracle import MAX_PASSES as FLOATMM_MAX_PASSES
+from floatmm_oracle import OUTPUT_ERROR as FLOATMM_OUTPUT_ERROR
 from stream_sieve_oracle import I32_MIN as STREAM_SIEVE_MIN_COUNT
 from stream_sieve_oracle import MAX_COUNT as STREAM_SIEVE_MAX_COUNT
 from stream_sieve_oracle import MAX_OUTPUT_BYTES as STREAM_SIEVE_MAX_OUTPUT_BYTES
+from shootout_sieve_oracle import INVALID_RESULT as SHOOTOUT_SIEVE_INVALID_RESULT
+from shootout_sieve_oracle import MAX_ITERATIONS as SHOOTOUT_SIEVE_MAX_ITERATIONS
+from shootout_sieve_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_SIEVE_MAX_OUTPUT_BYTES
+from shootout_sieve_oracle import OUTPUT_ERROR as SHOOTOUT_SIEVE_OUTPUT_ERROR
+from shootout_sieve_oracle import SIEVE_LIMIT as SHOOTOUT_SIEVE_LIMIT
 
 ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal", "integer_to_roman",
               "pascal_triangle_row", "floyd_triangle", "harmonic_series", "butterfly_pattern",
-              "magicdiamondpattern", "prime_factorial", "stream_sieve")
+              "magicdiamondpattern", "prime_factorial", "stream_sieve", "ary3", "sieve", "floatmm")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -58,7 +71,195 @@ def corpus(workload: dict) -> tuple[str, int]:
     capacity_error_result = workload.get("output", {}).get(
         "capacity_error_result", workload.get("output", {}).get("insufficient_capacity_result", -2))
 
-    if encoding == "stream_sieve_primes_i32le":
+    if encoding == "stanford_floatmm_diagonal_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/FloatMM/FloatMM.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/FloatMM/info.sh"
+        )
+        required_case_ids = {
+            "zero_passes_empty", "zero_passes_null_output", "one_printed_diagonal",
+            "two_printed_diagonals", "all_source_printed_diagonals", "insufficient_capacity",
+            "null_output_positive", "negative_passes_invalid", "above_profile_invalid",
+            "int64_min_invalid", "int64_max_invalid",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-stanford-floatmm-bounded-diagonal-ascii-v1"
+                or workload.get("algorithm") != "floatmm"
+                or workload.get("function_symbol") != "floatmm"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/FloatMM/FloatMM.c",
+                    "symbol": "Mm/main",
+                    "url": source_url,
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/FloatMM/info.sh",
+                    "bench_name": "FloatMM",
+                    "source_files": ["FloatMM.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "stanford_floatmm_diagonal_ascii",
+                    "meaning": "Number of leading Mm(run) calls to execute; each call emits the corresponding diagonal result.",
+                    "minimum": 0,
+                    "maximum": FLOATMM_MAX_PASSES,
+                    "invalid_result": FLOATMM_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": 'printf("%f\\n") for each pass\'s binary32 diagonal cell',
+                    "definition": "The exact first passes lines from the source main loop, with six fractional digits and one newline per value.",
+                    "maximum_output_bytes": FLOATMM_MAX_OUTPUT_BYTES,
+                    "invalid_result": FLOATMM_INVALID_RESULT,
+                    "null_output_result": FLOATMM_OUTPUT_ERROR,
+                    "insufficient_capacity_result": FLOATMM_OUTPUT_ERROR,
+                    "zero_byte_output_result": 0,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or workload.get("source_bound") != {
+                    "description": "FloatMM resets seed=74755 on every Mm call, initializes two 40x40 binary32 matrices in row-major order with the 16-bit recurrence seed=(seed*1309+13849)&65535 and entry (temp-(temp/120)*120-60)/3, then computes the full product with row, column, and inner loops ascending and a binary32 accumulator. Mm(run) prints only rmr[run+1][run+1] for run<40 using %f and a newline. The launcher main invokes Mm for run=0..4999; the bounded profile accepts passes=0..40 and preserves the source-visible prefix while omitting later silent repeated products.",
+                    "matrix_side": 40,
+                    "source_launcher_passes": 5000,
+                    "printed_passes": 40,
+                    "suite_pass_bounds": [0, FLOATMM_MAX_PASSES],
+                    "seed": 74755,
+                    "random_recurrence": "seed=(seed*1309+13849)&65535",
+                    "matrix_initialization_order": ["left row-major", "right row-major"],
+                    "matrix_entry": "(temp - (temp/120)*120 - 60) / 3 as binary32, with integer division before float conversion",
+                    "product_order": ["row ascending", "column ascending", "inner index ascending"],
+                    "accumulator_type": "binary32",
+                    "output_order": "rmr[run+1][run+1] for each run from zero to passes-1",
+                    "output_format": "printf(\"%f\\n\")",
+                }
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("floatmm workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "f" / "floatmm" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("floatmm README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in workload["cases"]}
+        maximum_case = fixtures["all_source_printed_diagonals"]
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output_positive"]
+        zero_null_case = fixtures["zero_passes_null_output"]
+        if (maximum_case.get("input_value") != FLOATMM_MAX_PASSES
+                or maximum_case.get("expected_result") != len(expected_output(FLOATMM_MAX_PASSES,
+                                                                               encoding)[1])
+                or capacity_case.get("input_value") != 2
+                or capacity_case.get("output_capacity") != len(expected_output(2, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != FLOATMM_OUTPUT_ERROR
+                or null_case.get("input_value") != 1
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != FLOATMM_OUTPUT_ERROR
+                or zero_null_case.get("input_value") != 0
+                or zero_null_case.get("output_is_null") is not True
+                or zero_null_case.get("expected_result") != 0
+                or fixtures["negative_passes_invalid"].get("input_value") != -1
+                or fixtures["above_profile_invalid"].get("input_value") != FLOATMM_MAX_PASSES + 1):
+            raise ValueError("floatmm workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "shootout_ary3_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/ary3/ary3.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/ary3/info.sh"
+        )
+        required_case_ids = {
+            "one_element", "two_elements", "ten_elements", "large_representative",
+            "maximum_length", "zero_length_invalid", "negative_length_invalid",
+            "above_bound_invalid", "int64_min_invalid", "insufficient_capacity", "null_output",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-shootout-ary3-repeated-array-addition-ascii-v1"
+                or workload.get("algorithm") != "ary3"
+                or workload.get("function_symbol") != "ary3"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/ary3/ary3.c",
+                    "symbol": "main",
+                    "url": source_url,
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/ary3/info.sh",
+                    "bench_name": "ary3",
+                    "source_files": ["ary3.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "shootout_ary3_ascii",
+                    "meaning": "Positive array length n; x[i] is initialized to i+1.",
+                    "minimum": 1,
+                    "maximum": ARY3_MAX_LENGTH,
+                    "invalid_result": ARY3_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "printf(\"%d %d\\n\"): final y[0], one space, final y[n-1], newline",
+                    "definition": "Exact ASCII bytes produced by the 1000 reverse-index passes; for the bounded profile, y[0]=1000 and y[n-1]=1000*n.",
+                    "maximum_output_bytes": ARY3_MAX_OUTPUT_BYTES,
+                    "invalid_result": ARY3_INVALID_RESULT,
+                    "null_output_result": ARY3_OUTPUT_ERROR,
+                    "insufficient_capacity_result": ARY3_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 10,
+                }
+                or ARY3_MAX_OUTPUT_BYTES != 13
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("ary3 workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "a" / "ary3" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("ary3 README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in workload["cases"]}
+        maximum_case = fixtures["maximum_length"]
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (maximum_case.get("input_value") != ARY3_MAX_LENGTH
+                or maximum_case.get("expected_result") != ARY3_MAX_OUTPUT_BYTES
+                or capacity_case.get("input_value") != 10
+                or capacity_case.get("output_capacity") != 10
+                or capacity_case.get("expected_result") != ARY3_OUTPUT_ERROR
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != 10
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != ARY3_OUTPUT_ERROR
+                or fixtures["zero_length_invalid"].get("input_value") != 0
+                or fixtures["above_bound_invalid"].get("input_value") != ARY3_MAX_LENGTH + 1):
+            raise ValueError("ary3 workload is missing maximum, null, capacity, or range fixtures")
+    elif encoding == "stream_sieve_primes_i32le":
         source_url = (
             "https://github.com/TheAlgorithms/Scala/blob/"
             "de555349d5effb87962d3116eb08c9f374065112/"
@@ -142,6 +343,96 @@ def corpus(workload: dict) -> tuple[str, int]:
                 or fixtures["above_int32_range"].get("input_value") != 2 ** 31
                 or fixtures["above_count_limit"].get("input_value") != STREAM_SIEVE_MAX_COUNT + 1):
             raise ValueError("stream_sieve workload is missing maximum, null, capacity, or range fixtures")
+    elif encoding == "shootout_sieve_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/sieve/sieve.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/sieve/info.sh"
+        )
+        required_case_ids = {
+            "zero_iterations", "one_iteration", "two_iterations", "ten_iterations",
+            "maximum_bounded_iterations", "negative_iterations", "iterations_above_bound",
+            "signed_64_minimum", "signed_64_maximum", "insufficient_capacity", "null_output",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-shootout-sieve-bounded-ascii-v1"
+                or workload.get("algorithm") != "sieve"
+                or workload.get("function_symbol") != "sieve"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/sieve/sieve.c",
+                    "symbol": "main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/sieve/info.sh",
+                    "bench_name": "sieve",
+                    "source_files": ["sieve.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound", {}).get("upstream_default_iterations") != 170000
+                or workload.get("source_bound", {}).get("small_problem_size_default_iterations") != 17000
+                or workload.get("source_bound", {}).get("profile_minimum") != 0
+                or workload.get("source_bound", {}).get("profile_maximum") != SHOOTOUT_SIEVE_MAX_ITERATIONS
+                or workload.get("source_bound", {}).get("upstream_default_count") != 1028
+                or workload.get("source_bound", {}).get("upstream_default_stdout") != "Count: 1028\n"
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "shootout_sieve_ascii",
+                    "meaning": "Number of complete sieve passes over the inclusive range 2..8192.",
+                    "minimum": 0,
+                    "maximum": SHOOTOUT_SIEVE_MAX_ITERATIONS,
+                    "invalid_result": SHOOTOUT_SIEVE_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "printf(\"Count: %d\\n\"): final prime count and newline",
+                    "definition": "Zero passes produce Count: 0 followed by a newline. One or more passes produce Count: 1028 followed by a newline, the number of primes in [2,8192].",
+                    "maximum_output_bytes": SHOOTOUT_SIEVE_MAX_OUTPUT_BYTES,
+                    "invalid_result": SHOOTOUT_SIEVE_INVALID_RESULT,
+                    "null_output_result": SHOOTOUT_SIEVE_OUTPUT_ERROR,
+                    "insufficient_capacity_result": SHOOTOUT_SIEVE_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or SHOOTOUT_SIEVE_LIMIT != 8192
+                or SHOOTOUT_SIEVE_MAX_ITERATIONS != 64
+                or SHOOTOUT_SIEVE_MAX_OUTPUT_BYTES != 12
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("sieve workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "sieve" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("sieve README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in workload["cases"]}
+        if (fixtures["zero_iterations"].get("input_value") != 0
+                or fixtures["zero_iterations"].get("expected_result") != 9
+                or fixtures["one_iteration"].get("input_value") != 1
+                or fixtures["one_iteration"].get("expected_result") != 12
+                or fixtures["maximum_bounded_iterations"].get("input_value") != SHOOTOUT_SIEVE_MAX_ITERATIONS
+                or fixtures["maximum_bounded_iterations"].get("expected_result") != 12
+                or fixtures["iterations_above_bound"].get("input_value") != SHOOTOUT_SIEVE_MAX_ITERATIONS + 1
+                or fixtures["insufficient_capacity"].get("output_capacity") != 11
+                or fixtures["insufficient_capacity"].get("expected_result") != SHOOTOUT_SIEVE_OUTPUT_ERROR
+                or fixtures["null_output"].get("output_is_null") is not True
+                or fixtures["null_output"].get("expected_result") != SHOOTOUT_SIEVE_OUTPUT_ERROR):
+            raise ValueError("sieve workload is missing its reviewed boundary or output-error fixtures")
 
     cases: dict[tuple[int, int, bool], tuple[int, bytes]] = {}
 
@@ -179,7 +470,30 @@ def corpus(workload: dict) -> tuple[str, int]:
             raise ValueError(f"workload oracle mismatch: {case['id']}")
         add(value, output_capacity, case.get("capacity_error_result"), output_is_null)
 
-    if encoding == "prime_factorial_unique_u32le":
+    if encoding == "stanford_floatmm_diagonal_ascii":
+        for value in (0, 1, 2, 3, 17, 39, FLOATMM_MAX_PASSES,
+                      -1, FLOATMM_MAX_PASSES + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (1, 2, FLOATMM_MAX_PASSES):
+            required, _ = expected_output(value, encoding)
+            add(value, required - 1)
+            add(value, required, output_is_null=True)
+        add(0, 0, output_is_null=True)
+    elif encoding == "shootout_ary3_ascii":
+        for value in range(1, 33):
+            add(value)
+        for value in (64, 257, 1024, ARY3_MAX_LENGTH):
+            add(value)
+        rng_ary3 = random.Random(20261019)
+        for _ in range(32):
+            add(rng_ary3.randint(1, 128))
+        for value in (0, -1, ARY3_MAX_LENGTH + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (1, 10, ARY3_MAX_LENGTH):
+            required, _ = expected_output(value, encoding)
+            add(value, required - 1)
+        add(1, 10, output_is_null=True)
+    elif encoding == "prime_factorial_unique_u32le":
         # The pinned routine scans every candidate and trial-divides each one;
         # keep this corpus small while still covering the upper bound.
         for value in (2, 3, 4, 12, 30, 210, 2310, 4093, 4096):
@@ -208,6 +522,17 @@ def corpus(workload: dict) -> tuple[str, int]:
         for value in (1, 10, STREAM_SIEVE_MAX_COUNT):
             add(value, STREAM_SIEVE_MAX_OUTPUT_BYTES, output_is_null=True)
         add(STREAM_SIEVE_MIN_COUNT - 1, 0, output_is_null=True)
+    elif encoding == "shootout_sieve_ascii":
+        for value in (0, 1, 2, 10, SHOOTOUT_SIEVE_MAX_ITERATIONS,
+                      -1, SHOOTOUT_SIEVE_MAX_ITERATIONS + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value, capacity in ((0, 8), (0, 9), (1, 11), (1, 12),
+                                (SHOOTOUT_SIEVE_MAX_ITERATIONS,
+                                 SHOOTOUT_SIEVE_MAX_OUTPUT_BYTES - 1),
+                                (SHOOTOUT_SIEVE_MAX_ITERATIONS,
+                                 SHOOTOUT_SIEVE_MAX_OUTPUT_BYTES)):
+            add(value, capacity)
+        add(1, SHOOTOUT_SIEVE_MAX_OUTPUT_BYTES, output_is_null=True)
     else:
         for value in range(4097):
             add(value)

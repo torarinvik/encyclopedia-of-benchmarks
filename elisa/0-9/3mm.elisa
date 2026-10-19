@@ -1,0 +1,99 @@
+const THREE_MM_MAX_DIMENSION: usize = 16
+const THREE_MM_MAX_CELLS: usize = THREE_MM_MAX_DIMENSION * THREE_MM_MAX_DIMENSION
+const THREE_MM_INVALID_RESULT: f64 = -1e300
+
+def three_mm_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 5:
+        return THREE_MM_INVALID_RESULT
+    if values[0] < 1 or values[0] > THREE_MM_MAX_DIMENSION.i64() or
+       values[1] < 1 or values[1] > THREE_MM_MAX_DIMENSION.i64() or
+       values[2] < 1 or values[2] > THREE_MM_MAX_DIMENSION.i64() or
+       values[3] < 1 or values[3] > THREE_MM_MAX_DIMENSION.i64() or
+       values[4] < 1 or values[4] > THREE_MM_MAX_DIMENSION.i64():
+        return THREE_MM_INVALID_RESULT
+    ni: usize = values[0].usize()
+    nj: usize = values[1].usize()
+    nk: usize = values[2].usize()
+    nl: usize = values[3].usize()
+    nm: usize = values[4].usize()
+    a: mutable f64[THREE_MM_MAX_CELLS] = zeroed
+    b: mutable f64[THREE_MM_MAX_CELLS] = zeroed
+    c: mutable f64[THREE_MM_MAX_CELLS] = zeroed
+    d: mutable f64[THREE_MM_MAX_CELLS] = zeroed
+    e: mutable f64[THREE_MM_MAX_CELLS] = zeroed
+    f: mutable f64[THREE_MM_MAX_CELLS] = zeroed
+    g: mutable f64[THREE_MM_MAX_CELLS] = zeroed
+    i: mutable usize = 0
+    j: mutable usize = 0
+    k: mutable usize = 0
+    while i < ni:
+        k <- 0
+        while k < nk:
+            a[i * nk + k] <- ((i * k + 1) % ni).f64() / (5 * ni).f64()
+            k <- k + 1
+        i <- i + 1
+    k <- 0
+    while k < nk:
+        j <- 0
+        while j < nj:
+            b[k * nj + j] <- ((k * (j + 1) + 2) % nj).f64() / (5 * nj).f64()
+            j <- j + 1
+        k <- k + 1
+    i <- 0
+    while i < nj:
+        j <- 0
+        while j < nm:
+            c[i * nm + j] <- (i * (j + 3) % nl).f64() / (5 * nl).f64()
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < nm:
+        j <- 0
+        while j < nl:
+            d[i * nl + j] <- ((i * (j + 2) + 2) % nk).f64() / (5 * nk).f64()
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < ni:
+        j <- 0
+        while j < nj:
+            e[i * nj + j] <- 0.0
+            k <- 0
+            while k < nk:
+                e[i * nj + j] <- e[i * nj + j] + a[i * nk + k] * b[k * nj + j]
+                k <- k + 1
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < nj:
+        j <- 0
+        while j < nl:
+            f[i * nl + j] <- 0.0
+            k <- 0
+            while k < nm:
+                f[i * nl + j] <- f[i * nl + j] + c[i * nm + k] * d[k * nl + j]
+                k <- k + 1
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < ni:
+        j <- 0
+        while j < nl:
+            g[i * nl + j] <- 0.0
+            k <- 0
+            while k < nj:
+                g[i * nl + j] <- g[i * nl + j] + e[i * nj + k] * f[k * nl + j]
+                k <- k + 1
+            j <- j + 1
+        i <- i + 1
+    checksum: mutable f64 = 0.0
+    i <- 0
+    while i < ni:
+        j <- 0
+        while j < nl:
+            checksum <- checksum + g[i * nl + j]
+            j <- j + 1
+        i <- i + 1
+    checksum
+
+export fn three_mm(values: i64&, length: usize) -> f64 = three_mm_impl

@@ -7,6 +7,6 @@ fn long ackermann_value(long m, long n) {
 }
 
 fn long ackermann(long m, long n) @export("ackermann") {
-    if (m < 0 || m > 3 || n < 0 || n > 5) return -1;
+    if (m < 0 || m > 3 || n < 0 || n > 8) return -1;
     return ackermann_value(m, n);
 }

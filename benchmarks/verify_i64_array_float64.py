@@ -19,8 +19,11 @@ from atax_oracle import expected_result as atax_oracle
 from bicg_oracle import expected_result as bicg_oracle
 from mvt_oracle import expected_result as mvt_oracle
 from gemm_oracle import expected_result as gemm_oracle
+from gemver_oracle import expected_result as gemver_oracle
 from covariance_oracle import expected_result as covariance_oracle
 from doitgen_oracle import expected_result as doitgen_oracle
+from two_mm_oracle import expected_result as two_mm_oracle
+from three_mm_oracle import expected_result as three_mm_oracle
 from hubble_parameter_oracle import INVALID_RESULT, expected_result as hubble_parameter_oracle
 from light_aberration_oracle import INVALID_RESULT as LIGHT_ABERRATION_INVALID_RESULT
 from light_aberration_oracle import expected_result as light_aberration_oracle
@@ -627,7 +630,7 @@ ALGORITHMS += ("shunting_yard",)
 ALGORITHMS += ("kmeans_raw_r",)
 ALGORITHMS += ("monte_carlo_integration", "monte_carlo_integration_independent")
 ALGORITHMS += ("traveling_salesman_solver_brute_force", "traveling_salesman_solver_nearest_neighbor")
-ALGORITHMS += ("mvt", "atax", "bicg", "gemm", "covariance", "doitgen")
+ALGORITHMS += ("mvt", "atax", "bicg", "gemm", "gemver", "covariance", "doitgen", "2mm", "3mm")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -819,10 +822,16 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return bicg_oracle(values)
     if algorithm == "gemm":
         return gemm_oracle(values)
+    if algorithm == "gemver":
+        return gemver_oracle(values)
     if algorithm == "covariance":
         return covariance_oracle(values)
     if algorithm == "doitgen":
         return doitgen_oracle(values)
+    if algorithm == "2mm":
+        return two_mm_oracle(values)
+    if algorithm == "3mm":
+        return three_mm_oracle(values)
     if algorithm == "traveling_salesman_solver_brute_force":
         return traveling_salesman_solver_brute_force_oracle(values)
     if algorithm == "traveling_salesman_solver_nearest_neighbor":
@@ -5792,6 +5801,12 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        (1, 65, 1), (1, 1, 65), (I64_MIN, 1, 1), (1, 1, I64_MAX),
                        (1, 1), (1, 1, 1, 1)):
             cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "gemver":
+        for n in (1, 2, 3, 8, 40, 64):
+            values = (n,)
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((0,), (65,), (I64_MIN,), (I64_MAX,), (), (1, 1)):
+            cases[values] = oracle(algorithm, list(values))
     elif algorithm == "covariance":
         for observations in (2, 3, 4, 8):
             for variables in (1, 2, 3, 8):
@@ -5811,6 +5826,31 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        (0, 1, 1), (1, 0, 1), (1, 1, 0), (17, 1, 1),
                        (1, 17, 1), (1, 1, 17), (I64_MIN, 1, 1), (1, 1, I64_MAX),
                        (1, 1), (1, 1, 1, 1)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "2mm":
+        for ni in (1, 2, 3, 8, 16):
+            for nj in (1, 2, 3, 8, 16):
+                for nk in (1, 2, 3, 8, 16):
+                    for nl in (1, 2, 3, 8, 16):
+                        values = (ni, nj, nk, nl)
+                        cases[values] = oracle(algorithm, list(values))
+        for values in ((17, 1, 1, 1), (1, 17, 1, 1), (1, 1, 17, 1), (1, 1, 1, 17),
+                       (0, 1, 1, 1), (1, 0, 1, 1), (1, 1, 0, 1), (1, 1, 1, 0),
+                       (I64_MIN, 1, 1, 1), (1, 1, 1, I64_MAX),
+                       (1, 1, 1), (1, 1, 1, 1, 1)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "3mm":
+        for dimension in (1, 2, 3, 8, 16):
+            values = (dimension,) * 5
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((1, 2, 3, 8, 16), (16, 1, 2, 3, 8), (8, 16, 1, 2, 3),
+                       (3, 8, 16, 1, 2), (2, 3, 8, 16, 1), (1, 16, 2, 8, 3),
+                       (17, 1, 1, 1, 1), (1, 17, 1, 1, 1), (1, 1, 17, 1, 1),
+                       (1, 1, 1, 17, 1), (1, 1, 1, 1, 17),
+                       (0, 1, 1, 1, 1), (1, 0, 1, 1, 1), (1, 1, 0, 1, 1),
+                       (1, 1, 1, 0, 1), (1, 1, 1, 1, 0),
+                       (I64_MIN, 1, 1, 1, 1), (1, 1, 1, 1, I64_MAX),
+                       (1, 1, 1, 1), (1, 1, 1, 1, 1, 1)):
             cases[values] = oracle(algorithm, list(values))
     else:
         raise ValueError(f"no corpus for {algorithm}")
@@ -5909,9 +5949,11 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "monte_carlo_integration": 3,
                     "monte_carlo_integration_independent": 3,
                     "sparsity": 0,
-                    "mvt": 2, "atax": 2, "bicg": 2, "gemm": 3,
+                    "mvt": 2, "atax": 2, "bicg": 2, "gemm": 3, "gemver": 1,
                     "covariance": 2}
     null_lengths["doitgen"] = 3
+    null_lengths["2mm"] = 4
+    null_lengths["3mm"] = 5
     null_lengths.update({"return_on_investment": 2, "debt_to_equity": 2,
                          "gross_profit_margin": 2, "earnings_per_sale": 3})
     null_lengths["prefix_evaluation"] = 1

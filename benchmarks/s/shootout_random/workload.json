@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-shootout-random-bounded-decimal-v1",
+  "algorithm": "shootout_random",
+  "function_symbol": "shootout_random",
+  "description": "Bounded execution of the Shootout linear congruential generator, returning its final formatted value.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/random/random.c",
+    "symbol": "gen_random and main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/random/random.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/random/info.sh",
+    "bench_name": "random",
+    "source_files": ["random.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "The launcher supplies no arguments. Without SMALL_PROBLEM_SIZE, random.c defaults to LENGTH=400000000; with that compile-time macro it defaults to 40000000. For positive argv count n, main performs n generator calls total: n-1 in the loop and one for the printed value. The generator starts with static state 42 and applies (state*3877+29573)%139968 before returning 100.0*state/139968. The suite preserves the recurrence and final nine-place decimal output while bounding n to 1..1000000.",
+    "upstream_default_call_count": 400000000,
+    "small_problem_size_default_call_count": 40000000,
+    "profile_minimum_call_count": 1,
+    "profile_maximum_call_count": 1000000,
+    "source_output_format": "printf(\"%.9f\\n\", value)",
+    "invalid_source_case": "The suite rejects nonpositive and above-bound values. The upstream argc/atoi path does not define the suite's bounded scalar contract."
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "shootout_random_ascii",
+    "meaning": "Number of LCG transitions from initial state 42; the final random value is returned as source-style decimal ASCII.",
+    "minimum": 1,
+    "maximum": 1000000,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "Nine digits after the decimal point followed by LF.",
+    "definition": "After n transitions, format 100.0*state/139968 to nine fractional decimal digits and append LF. No intermediate values or final state are returned.",
+    "maximum_output_bytes": 13,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "one_call", "input_value": 1, "expected_result": 13, "expected_output_hex": "33372e3436343939313939380a"},
+    {"id": "two_calls", "input_value": 2, "expected_result": 13, "expected_output_hex": "37322e3930323337373638360a"},
+    {"id": "ten_calls", "input_value": 10, "expected_result": 13, "expected_output_hex": "35332e3632333638353431340a"},
+    {"id": "thousand_calls", "input_value": 1000, "expected_result": 12, "expected_output_hex": "382e3136333239343436370a"},
+    {"id": "maximum_bounded_calls", "input_value": 1000000, "expected_result": 13, "expected_output_hex": "38312e3436353736333630330a"},
+    {"id": "zero_calls", "input_value": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "negative_calls", "input_value": -1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "calls_above_bound", "input_value": 1000001, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "signed_64_minimum", "input_value": -9223372036854775808, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "signed_64_maximum", "input_value": 9223372036854775807, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "insufficient_capacity", "input_value": 1, "output_capacity": 12, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_value": 1, "output_capacity": 13, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

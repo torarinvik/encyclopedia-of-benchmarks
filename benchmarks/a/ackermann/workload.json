@@ -1,11 +1,36 @@
 {
   "schema_version": 1,
-  "id": "ackermann-v1",
+  "id": "lac-dcc-shootout-ackermann-bounded-v1",
   "algorithm": "ackermann",
   "function_symbol": "ackermann",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/ackermann/ackermann.c",
+    "symbol": "Ack",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/ackermann/ackermann.c"
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/ackermann/info.sh",
+    "bench_name": "ackermann",
+    "source_files": ["ackermann.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "The source implements Ack(m,n) with the direct recurrence A(0,n)=n+1, A(m,0)=A(m-1,1), and A(m,n)=A(m-1,A(m,n-1)). Its main fixes m=3 and reads n from argv, defaulting to 8 when the launcher supplies no option; this yields A(3,8)=2045. The suite exposes the same recurrence over a bounded pair of inputs, with 0<=m<=3 and 0<=n<=8. Each benchmark repetition makes one function call because recursive work grows rapidly.",
+    "profile_minimum": [0, 0],
+    "profile_maximum": [3, 8],
+    "launcher_default": [3, 8],
+    "launcher_default_result": 2045,
+    "invalid_source_case": "The suite wrappers return -1 for negative arguments and values outside the bounded suite profile; the upstream launcher does not define this rejection behavior."
+  },
   "input": {
     "kind": "pair_of_signed_64_bit_integers",
-    "accepted_range": [[0, 3], [0, 5]],
+    "meaning": "Ackermann arguments (m,n) for the source recurrence.",
+    "accepted_range": [[0, 3], [0, 8]],
     "out_of_range_result": -1
   },
   "cases": [
@@ -15,35 +40,47 @@
     {"id":"a03","input_values":[0,3],"expected_result":4},
     {"id":"a04","input_values":[0,4],"expected_result":5},
     {"id":"a05","input_values":[0,5],"expected_result":6},
+    {"id":"a06","input_values":[0,6],"expected_result":7},
+    {"id":"a07","input_values":[0,7],"expected_result":8},
+    {"id":"a08","input_values":[0,8],"expected_result":9},
     {"id":"a10","input_values":[1,0],"expected_result":2},
     {"id":"a11","input_values":[1,1],"expected_result":3},
     {"id":"a12","input_values":[1,2],"expected_result":4},
     {"id":"a13","input_values":[1,3],"expected_result":5},
     {"id":"a14","input_values":[1,4],"expected_result":6},
     {"id":"a15","input_values":[1,5],"expected_result":7},
+    {"id":"a16","input_values":[1,6],"expected_result":8},
+    {"id":"a17","input_values":[1,7],"expected_result":9},
+    {"id":"a18","input_values":[1,8],"expected_result":10},
     {"id":"a20","input_values":[2,0],"expected_result":3},
     {"id":"a21","input_values":[2,1],"expected_result":5},
     {"id":"a22","input_values":[2,2],"expected_result":7},
     {"id":"a23","input_values":[2,3],"expected_result":9},
     {"id":"a24","input_values":[2,4],"expected_result":11},
     {"id":"a25","input_values":[2,5],"expected_result":13},
+    {"id":"a26","input_values":[2,6],"expected_result":15},
+    {"id":"a27","input_values":[2,7],"expected_result":17},
+    {"id":"a28","input_values":[2,8],"expected_result":19},
     {"id":"a30","input_values":[3,0],"expected_result":5},
     {"id":"a31","input_values":[3,1],"expected_result":13},
     {"id":"a32","input_values":[3,2],"expected_result":29},
     {"id":"a33","input_values":[3,3],"expected_result":61},
     {"id":"a34","input_values":[3,4],"expected_result":125},
     {"id":"a35","input_values":[3,5],"expected_result":253},
+    {"id":"a36","input_values":[3,6],"expected_result":509},
+    {"id":"a37","input_values":[3,7],"expected_result":1021},
+    {"id":"launcher_default","input_values":[3,8],"expected_result":2045},
     {"id":"negative_m","input_values":[-1,0],"expected_result":-1},
     {"id":"negative_n","input_values":[0,-1],"expected_result":-1},
     {"id":"m_above_bound","input_values":[4,0],"expected_result":-1},
-    {"id":"n_above_bound","input_values":[0,6],"expected_result":-1},
+    {"id":"n_above_bound","input_values":[0,9],"expected_result":-1},
     {"id":"signed_minimum","input_values":[-9223372036854775808,0],"expected_result":-1},
     {"id":"signed_maximum","input_values":[0,9223372036854775807],"expected_result":-1}
   ],
   "measurement": {
     "comparison_model": "binary_scalar_call",
-    "sample_count": 30,
-    "warmup_rounds": 5,
-    "repetitions_per_sample": 1000
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
   }
 }

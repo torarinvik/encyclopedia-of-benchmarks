@@ -27,7 +27,7 @@ fn count_recursive_nybbles(value: u32) -> i32 {
 
 fn count_fixed_nybbles(value: u32) -> i32 {
     let mut count = 0;
-    for shift in (0..32).step_by(4) { count += NIBBLE_BITS[((value >> shift) & 0xF) as usize]; }
+    for shift in (0..32_u32).step_by(4) { count += NIBBLE_BITS[((value >> shift) & 0xF) as usize]; }
     count
 }
 
@@ -41,7 +41,7 @@ fn count_bw_bytes(value: u32) -> i32 {
 
 fn count_ar_bytes(value: u32) -> i32 {
     let mut count = 0;
-    for index in 0..4 { count += count_byte(value >> (index * 8)); }
+    for index in 0..4_u32 { count += count_byte(value >> (index * 8)); }
     count
 }
 

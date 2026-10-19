@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-shootout-hash-bounded-scalar-v1",
+  "algorithm": "shootout_hash",
+  "function_symbol": "shootout_hash",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/hash/hash.c",
+    "symbols": ["main"],
+    "files": [
+      {"path": "Shootout/hash/hash.c", "blob_sha": "3ee3529e981fca431ce3c0584cdb1024d5e4a598", "symbols": ["main"]},
+      {"path": "Shootout/hash/simple_hash.h", "blob_sha": "3ba7dd7e36d18b8a7eba881351f90134dcce7ff0", "symbols": ["ht_create", "ht_destroy", "ht_hashcode", "ht_find_new", "ht_find", "ht_node_create"]}
+    ],
+    "reference_output": {"path": "Shootout/hash/hash.reference_output", "blob_sha": "d6bed147f9365a5322742006fd6da88ea1bfa26e"},
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hash"
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Shootout/hash/info.sh",
+    "blob_sha": "7cf426f7ff349d279491d83657a086f530a008a3",
+    "bench_name": "hash",
+    "source_files": ["hash.c"],
+    "compile_flags": ["-lm"],
+    "run_options": "",
+    "default_problem_size": 3500000,
+    "small_problem_size_define_enabled": false
+  },
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Number of values inserted and then searched in the hash table.",
+    "range": [0, 3500000],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Number of descending decimal-key lookups found among the inserted lowercase hexadecimal keys.",
+    "maximum_result": 3500000,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "insert_keys": "For each integer from 1 through n, insert its lowercase base-16 spelling and store the integer value.",
+    "lookup_keys": "For each integer from n down to 1, search for its base-10 spelling and count each successful lookup.",
+    "hash": "Fold each unsigned key byte with hash = 5 * hash + byte, then reduce modulo the bucket count.",
+    "bucket_sizing": "Choose the first prime in the source list that is greater than or equal to n. For n=0, the first bucket count is 53; for n=3500000, it is 6291469.",
+    "collision_chains": "Keep entries in insertion order within each bucket and compare the key text during insertion and lookup.",
+    "bounded_profile": "Accept 0 through the pinned default problem size 3500000. Inputs outside the suite profile return -1.",
+    "result": "Return the number of decimal lookup strings found in the table populated with hexadecimal key strings."
+  },
+  "cases": [
+    {"id": "zero_values", "input_value": 0, "expected_result": 0},
+    {"id": "one_value", "input_value": 1, "expected_result": 1},
+    {"id": "single_digit_keys", "input_value": 9, "expected_result": 9},
+    {"id": "decimal_key_not_yet_inserted", "input_value": 10, "expected_result": 9},
+    {"id": "first_two_digit_hex_key", "input_value": 16, "expected_result": 10},
+    {"id": "second_two_digit_hex_key", "input_value": 17, "expected_result": 11},
+    {"id": "launcher_reference_profile", "input_value": 3500000, "expected_result": 356799},
+    {"id": "negative_input", "input_value": -1, "expected_result": -1},
+    {"id": "above_profile_bound", "input_value": 3500001, "expected_result": -1},
+    {"id": "signed_i64_minimum", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "signed_i64_maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ],
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  }
+}

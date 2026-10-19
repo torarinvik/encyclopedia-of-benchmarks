@@ -1,0 +1,68 @@
+const GEMVER_MAX_DIMENSION: usize = 64
+const GEMVER_MAX_CELLS: usize = GEMVER_MAX_DIMENSION * GEMVER_MAX_DIMENSION
+const GEMVER_INVALID_RESULT: f64 = -1e300
+
+def gemver_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 1:
+        return GEMVER_INVALID_RESULT
+    if values[0] < 1 or values[0] > GEMVER_MAX_DIMENSION.i64():
+        return GEMVER_INVALID_RESULT
+    n: usize = values[0].usize()
+    alpha: f64 = 1.5
+    beta: f64 = 1.2
+    a: mutable f64[GEMVER_MAX_CELLS] = zeroed
+    u1: mutable f64[GEMVER_MAX_DIMENSION] = zeroed
+    v1: mutable f64[GEMVER_MAX_DIMENSION] = zeroed
+    u2: mutable f64[GEMVER_MAX_DIMENSION] = zeroed
+    v2: mutable f64[GEMVER_MAX_DIMENSION] = zeroed
+    w: mutable f64[GEMVER_MAX_DIMENSION] = zeroed
+    x: mutable f64[GEMVER_MAX_DIMENSION] = zeroed
+    y: mutable f64[GEMVER_MAX_DIMENSION] = zeroed
+    z: mutable f64[GEMVER_MAX_DIMENSION] = zeroed
+    fn: f64 = n.f64()
+    i: mutable usize = 0
+    while i < n:
+        u1[i] <- i.f64()
+        u2[i] <- ((i.f64() + 1.0) / fn) / 2.0
+        v1[i] <- ((i.f64() + 1.0) / fn) / 4.0
+        v2[i] <- ((i.f64() + 1.0) / fn) / 6.0
+        y[i] <- ((i.f64() + 1.0) / fn) / 8.0
+        z[i] <- ((i.f64() + 1.0) / fn) / 9.0
+        j: mutable usize = 0
+        while j < n:
+            a[i * n + j] <- ((i * j) % n).f64() / fn
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            a[i * n + j] <- a[i * n + j] + u1[i] * v1[j] + u2[i] * v2[j]
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            x[i] <- x[i] + beta * a[j * n + i] * y[j]
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        x[i] <- x[i] + z[i]
+        i <- i + 1
+    i <- 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            w[i] <- w[i] + alpha * a[i * n + j] * x[j]
+            j <- j + 1
+        i <- i + 1
+    checksum: mutable f64 = 0.0
+    i <- 0
+    while i < n:
+        checksum <- checksum + w[i]
+        i <- i + 1
+    checksum
+
+export fn gemver(values: i64&, length: usize) -> f64 = gemver_impl

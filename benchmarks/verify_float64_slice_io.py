@@ -28,6 +28,7 @@ from run_float64_slice_io import (
     validate_principle_component_analysis_workload,
     validate_ramer_douglas_peucker_workload,
     validate_sir_workload,
+    validate_syrk_workload,
 )
 from pca_oracle import (
     MAX_OUTPUT_ELEMENTS as PCA_MAX_OUTPUT_ELEMENTS,
@@ -534,7 +535,9 @@ ALGORITHMS = tuple(ORACLES)
 
 
 def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "pca":
+    if algorithm == "syrk":
+        validate_syrk_workload(workload)
+    elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":
         validate_principal_component_analysis_workload(workload)

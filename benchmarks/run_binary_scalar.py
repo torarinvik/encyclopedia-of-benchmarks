@@ -21,6 +21,7 @@ from fermat_prime_checker_oracle import expected_result as fermat_prime_checker_
 from exponentiation_oracle import expected_result as exponentiation_expected
 from uint53_xor_oracle import expected_result as uint53_xor_expected
 from problem74_sol2_oracle import expected_result as problem74_sol2_expected
+from ackermann_oracle import expected_result as ackermann_expected
 
 U64_MAX = 2**64 - 1
 I64_MIN = -(2**63)
@@ -137,6 +138,10 @@ def encode_values(case: dict, algorithm: str) -> tuple[int, int, int]:
             raise ValueError("binary_multiplication workload inputs must lie within the declared 0..1e9 domain")
         if expected != left * right:
             raise ValueError("binary_multiplication expected_result must equal the bounded product")
+    elif algorithm == "ackermann":
+        expected_from_source = ackermann_expected(values[0], values[1])
+        if expected != expected_from_source:
+            raise ValueError("ackermann expected_result must match the bounded Ackermann value")
     elif algorithm == "imply_gate":
         left, right = values
         valid = left in (0, 1) and right in (0, 1)

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "polybench-3mm-i64-array-f64-v1",
+  "algorithm": "3mm",
+  "function_symbol": "three_mm",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[ni, nj, nk, nl, nm] for the three source matrix multiplication passes",
+    "input_length": 5,
+    "dimension_range": [1, 16],
+    "maximum_input_length": 5
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "sum of final G elements in row-major order after E=A*B, F=C*D, and G=E*F",
+    "invalid_input_result": -1e300
+  },
+  "source_bound": {
+    "description": "PolyBench/C defaults to binary64. A[i][k]=((i*k+1) mod ni)/(5*ni); B[k][j]=((k*(j+1)+2) mod nj)/(5*nj); C[i][j]=(i*(j+3) mod nl)/(5*nl); D[i][j]=((i*(j+2)+2) mod nk)/(5*nk). The first pass initializes E[i][j]=0 and accumulates A[i][k]*B[k][j] for k ascending to nk. The second initializes F[i][j]=0 and accumulates C[i][k]*D[k][j] for k ascending to nm. The third initializes G[i][j]=0 and accumulates E[i][k]*F[k][j] for k ascending to nj. The suite reduces final G row-major. The header defaults to LARGE_DATASET (NI=800,NJ=900,NK=1000,NL=1100,NM=1200); suite dimensions are bounded to 1..16.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/linear-algebra/kernels/3mm/3mm.c",
+    "header_path": "PolyBench/linear-algebra/kernels/3mm/3mm.h",
+    "launcher_path": "PolyBench/linear-algebra/kernels/3mm/info.sh",
+    "launcher": {
+      "benchmark_name": "3mm",
+      "source_selection": "*.c",
+      "compile_flags": ["-I.", "-DPOLYBENCH_DUMP_ARRAYS"],
+      "run_options": []
+    },
+    "original_contributor": "PolyBench/C (Louis-Noel Pouchet and Tomofumi Yuki)",
+    "license_note": "The source file has no explicit license notice; this package contains independently written ports of the published kernel."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "unit_dimensions", "input_values": [1, 1, 1, 1, 1], "input_length": 5, "expected_result": 0.0},
+    {"id": "zero_a_product_shape", "input_values": [1, 2, 3, 8, 16], "input_length": 5, "expected_result": 0.0},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "short_input_invalid", "input_values": [1, 2, 3, 4], "input_length": 4, "expected_result": -1e300},
+    {"id": "zero_dimension_invalid", "input_values": [1, 2, 0, 4, 5], "input_length": 5, "expected_result": -1e300},
+    {"id": "first_unsupported_dimension_invalid", "input_values": [17, 1, 1, 1, 1], "input_length": 5, "expected_result": -1e300}
+  ]
+}

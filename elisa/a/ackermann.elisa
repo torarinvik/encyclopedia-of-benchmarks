@@ -7,7 +7,7 @@ def ackermann_value(m: i64, n: i64) -> i64:
     ackermann_value(m - 1, ackermann_value(m, n - 1))
 
 def ackermann_impl(m: i64, n: i64) -> i64:
-    if m < 0 or m > 3 or n < 0 or n > 5:
+    if m < 0 or m > 3 or n < 0 or n > 8:
         return -1
     ackermann_value(m, n)
 

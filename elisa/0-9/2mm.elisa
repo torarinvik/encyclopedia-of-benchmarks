@@ -1,0 +1,87 @@
+const TWO_MM_MAX_DIMENSION: usize = 16
+const TWO_MM_MAX_CELLS: usize = TWO_MM_MAX_DIMENSION * TWO_MM_MAX_DIMENSION
+const TWO_MM_INVALID_RESULT: f64 = -1e300
+
+def two_mm_impl(values: i64&, length: usize) -> f64:
+    if values.is_null() or length != 4:
+        return TWO_MM_INVALID_RESULT
+    if values[0] < 1 or values[0] > TWO_MM_MAX_DIMENSION.i64() or
+       values[1] < 1 or values[1] > TWO_MM_MAX_DIMENSION.i64() or
+       values[2] < 1 or values[2] > TWO_MM_MAX_DIMENSION.i64() or
+       values[3] < 1 or values[3] > TWO_MM_MAX_DIMENSION.i64():
+        return TWO_MM_INVALID_RESULT
+    ni: usize = values[0].usize()
+    nj: usize = values[1].usize()
+    nk: usize = values[2].usize()
+    nl: usize = values[3].usize()
+    alpha: f64 = 1.5
+    beta: f64 = 1.2
+    a: mutable f64[TWO_MM_MAX_CELLS] = zeroed
+    b: mutable f64[TWO_MM_MAX_CELLS] = zeroed
+    c: mutable f64[TWO_MM_MAX_CELLS] = zeroed
+    d: mutable f64[TWO_MM_MAX_CELLS] = zeroed
+    tmp: mutable f64[TWO_MM_MAX_CELLS] = zeroed
+    i: mutable usize = 0
+    j: mutable usize = 0
+    k: mutable usize = 0
+    l: mutable usize = 0
+    while i < ni:
+        k <- 0
+        while k < nk:
+            a[i * nk + k] <- ((i * k + 1) % ni).f64() / ni.f64()
+            k <- k + 1
+        i <- i + 1
+    k <- 0
+    while k < nk:
+        j <- 0
+        while j < nj:
+            b[k * nj + j] <- (k * (j + 1) % nj).f64() / nj.f64()
+            j <- j + 1
+        k <- k + 1
+    j <- 0
+    while j < nj:
+        l <- 0
+        while l < nl:
+            c[j * nl + l] <- ((j * (l + 3) + 1) % nl).f64() / nl.f64()
+            l <- l + 1
+        j <- j + 1
+    i <- 0
+    while i < ni:
+        l <- 0
+        while l < nl:
+            d[i * nl + l] <- (i * (l + 2) % nk).f64() / nk.f64()
+            l <- l + 1
+        i <- i + 1
+    i <- 0
+    while i < ni:
+        j <- 0
+        while j < nj:
+            tmp[i * nj + j] <- 0.0
+            k <- 0
+            while k < nk:
+                tmp[i * nj + j] <- tmp[i * nj + j] + alpha * a[i * nk + k] * b[k * nj + j]
+                k <- k + 1
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < ni:
+        l <- 0
+        while l < nl:
+            d[i * nl + l] <- d[i * nl + l] * beta
+            j <- 0
+            while j < nj:
+                d[i * nl + l] <- d[i * nl + l] + tmp[i * nj + j] * c[j * nl + l]
+                j <- j + 1
+            l <- l + 1
+        i <- i + 1
+    checksum: mutable f64 = 0.0
+    i <- 0
+    while i < ni:
+        l <- 0
+        while l < nl:
+            checksum <- checksum + d[i * nl + l]
+            l <- l + 1
+        i <- i + 1
+    checksum
+
+export fn two_mm(values: i64&, length: usize) -> f64 = two_mm_impl

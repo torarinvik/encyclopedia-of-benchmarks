@@ -20,6 +20,14 @@ from vector2_oracle import expected_result as vector2_oracle
 from vectors_3d_oracle import expected_result as vectors_3d_oracle
 from partialsums_oracle import expected_output as partialsums_oracle
 from durbin_oracle import expected_output as durbin_oracle
+from syrk_oracle import (
+    INVALID_RESULT as SYRK_INVALID_RESULT,
+    MAX_INPUT_LENGTH as SYRK_MAX_INPUT_LENGTH,
+    MAX_M as SYRK_MAX_M,
+    MAX_N as SYRK_MAX_N,
+    MAX_OUTPUT_ELEMENTS as SYRK_MAX_OUTPUT_ELEMENTS,
+    expected_output as syrk_oracle,
+)
 from dimensionality_reduction_pca_oracle import expected_result as dimensionality_reduction_pca_oracle
 from principal_component_analysis_oracle import (
     INVALID_RESULT as PRINCIPAL_COMPONENT_ANALYSIS_INVALID_RESULT,
@@ -951,6 +959,7 @@ def risk_metrics_oracle_for(algorithm):
 ORACLES = {
     "partialsums": partialsums_oracle,
     "durbin": durbin_oracle,
+    "syrk": syrk_oracle,
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
     "vector3_perspective_projection": vector3_perspective_projection_oracle,
     "vector2": vector2_oracle,
@@ -3659,6 +3668,132 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         if abs(actual_number - expected_number) > allowed:
             raise ValueError(f"{case.get('id')}: expected_output disagrees with the independent oracle")
     return values, expected_result, actual_output
+
+
+def validate_syrk_workload(workload: dict) -> None:
+    """Validate the pinned PolyBench source contract and its matrix fixtures."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_base = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/PolyBench/linear-algebra/blas/syrk/"
+    expected_sources = [
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/linear-algebra/blas/syrk/syrk.c",
+            "symbols": ["init_array", "kernel_syrk", "print_array"],
+            "url": source_base + "syrk.c", "role": "algorithm-and-output",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/linear-algebra/blas/syrk/syrk.h",
+            "symbols": ["MINI_DATASET", "DATA_TYPE_IS_DOUBLE", "DATA_PRINTF_MODIFIER"],
+            "url": source_base + "syrk.h", "role": "dataset-and-type",
+        },
+    ]
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "PolyBench/linear-algebra/blas/syrk/info.sh",
+        "bench_name": "syrk", "source_selection": "*.c",
+        "compile_flags": ["-I.", "-DPOLYBENCH_DUMP_ARRAYS", "-DEXTRALARGE_DATASET"],
+        "run_options": [],
+    }
+    expected_source_bound = {
+        "description": "The source defaults to binary64 with alpha=1.5 and beta=1.2. init_array fills A[i][k]=((i*k+1)%n)/n and C[i][j]=((i*j+2)%m)/m, with A initialized before C. For each i ascending, kernel_syrk first scales C[i][j] by beta for j=0..i, then visits k ascending and updates j=0..i ascending using C[i][j] += alpha*A[i][k]*A[j][k]. The strict upper triangle remains at its initialized values. print_array emits the complete C matrix in row-major order. The launcher selects EXTRALARGE_DATASET (n=2600,m=2000); this suite bounds n to 1..8 so the full matrix fits the shared 64-element output buffer, and m to 1..16.",
+        "matrix_shape": "C is n by n; A is n by m",
+        "alpha": 1.5,
+        "beta": 1.2,
+        "initialization_order": ["A row-major", "C row-major"],
+        "kernel_order": ["i ascending", "scale j=0..i", "k ascending", "update j=0..i ascending"],
+        "output_order": "complete C matrix row-major, including unchanged upper-triangle entries",
+        "launcher_dataset": {"n": 2600, "m": 2000},
+        "suite_bounds": {"n": [1, SYRK_MAX_N], "m": [1, SYRK_MAX_M]},
+    }
+    expected_input = {
+        "kind": "finite_float64_array",
+        "encoding": "[n, m] as exactly integral binary64 dimensions",
+        "input_length": SYRK_MAX_INPUT_LENGTH,
+        "dimension_ranges": {"n": [1, SYRK_MAX_N], "m": [1, SYRK_MAX_M]},
+        "maximum_input_length": SYRK_MAX_INPUT_LENGTH,
+        "invalid_input_result": SYRK_INVALID_RESULT,
+    }
+    expected_contract = {
+        "operation": "Return the complete initialized C matrix after the source-ordered lower-triangle SYRK update.",
+        "source_order": [
+            "initialize all A entries row-major, then all C entries row-major",
+            "for each row i, multiply C[i][j] by beta for j ascending through i",
+            "for each k ascending, add alpha*A[i][k]*A[j][k] for j ascending through i",
+            "preserve initialized C[i][j] where j>i and return all C values row-major",
+        ],
+        "invalid_input_result": SYRK_INVALID_RESULT,
+        "null_output_result": -2,
+        "insufficient_capacity_result": -2,
+        "no_write_on_error": True,
+    }
+    expected_output = {
+        "kind": "float64_matrix",
+        "encoding": "n*n binary64 values of C in row-major order",
+        "maximum_elements": SYRK_MAX_OUTPUT_ELEMENTS,
+        "success_result": "n*n output elements",
+        "invalid_input_result": SYRK_INVALID_RESULT,
+        "invalid_output_capacity_result": -2,
+        "no_write_on_error": True,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call",
+        "sample_count": 5,
+        "warmup_rounds": 1,
+        "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    case_ids = {
+        "unit_dimensions", "two_by_one", "two_by_two", "three_by_two",
+        "maximum_n_output", "maximum_m_dimension",
+        "zero_n_invalid", "zero_m_invalid", "fractional_dimension_invalid",
+        "above_n_bound_invalid", "above_m_bound_invalid", "trailing_input_invalid",
+    }
+    cases = workload.get("cases")
+    observed_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                    if isinstance(cases, list) else [])
+    expected_fields = {
+        "schema_version", "id", "algorithm", "function_symbol", "description",
+        "pinned_sources", "pinned_launcher", "source_bound", "input", "contract",
+        "output", "workspace", "measurement", "cases",
+    }
+    if (set(workload) != expected_fields
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-polybench-syrk-float64-slice-io-v1"
+            or workload.get("algorithm") != "syrk"
+            or workload.get("function_symbol") != "syrk"
+            or workload.get("description")
+                != "Compute the bounded PolyBench SYRK lower-triangular update and return the full initialized output matrix."
+            or workload.get("pinned_sources") != expected_sources
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("source_bound") != expected_source_bound
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("output") != expected_output
+            or workload.get("workspace") != {
+                "elements": SYRK_MAX_OUTPUT_ELEMENTS,
+                "meaning": "Full bounded C matrix; A workspace is at most 8*16 binary64 elements.",
+            }
+            or workload.get("measurement") != expected_measurement
+            or SYRK_MAX_OUTPUT_ELEMENTS != 64
+            or not isinstance(cases, list)
+            or len(observed_ids) != len(case_ids)
+            or len(observed_ids) != len(set(observed_ids))
+            or set(observed_ids) != case_ids):
+        raise ValueError("syrk workload metadata differs from the pinned PolyBench contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "syrk" / "README.md").read_text(encoding="utf-8")
+    if any(term not in readme for term in (
+            source_base + "syrk.c", source_base + "syrk.h", source_base + "info.sh",
+            "full matrix within the shared 64-element output capacity",
+            "strict upper triangle", "row-major order", "source-ordered")):
+        raise ValueError("syrk README is missing its pinned source or contract notes")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        encode_case(case, "syrk", absolute_tolerance, relative_tolerance)
 
 
 def _decode_k_d_tree_abi_values(raw_values: object) -> list[float]:
@@ -10613,7 +10748,9 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"):
         parser.error("workload does not match the float64_slice_io algorithm")
-    if algorithm == "pca":
+    if algorithm == "syrk":
+        validate_syrk_workload(workload)
+    elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":
         validate_principal_component_analysis_workload(workload)

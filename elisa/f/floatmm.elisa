@@ -1,0 +1,152 @@
+const SIDE: usize = 40
+const MAX_PASSES: i64 = 40
+const MAX_OUTPUT_BYTES: usize = 560
+const FRACTION_SCALE: f64 = 8388608.0
+
+@inline(never)
+def floatmm_rounded_add(left: f32, right: f32) -> f32:
+    result: f32 = left + right
+    result
+
+@inline(never)
+def floatmm_rounded_mul(left: f32, right: f32) -> f32:
+    result: f32 = left * right
+    result
+
+@inline(never)
+def floatmm_rounded_div(left: f32, right: f32) -> f32:
+    result: f32 = left / right
+    result
+
+def floatmm_next_random(seed: mutable u32&) -> u32:
+    seed <- (seed * 1309.u32() + 13849.u32()) & 65535.u32()
+    seed
+
+def floatmm_f32_bits(value: f32) -> u32:
+    negative: bool = value < 0.0.f32()
+    normalized: mutable f64 = value.f64()
+    if negative:
+        normalized <- -normalized
+    if normalized == 0.0:
+        return if negative: 0x80000000.u32() else: 0.u32()
+    exponent: mutable i32 = 0
+    while normalized >= 2.0:
+        normalized <- normalized / 2.0
+        exponent <- exponent + 1
+    while normalized < 1.0:
+        normalized <- normalized * 2.0
+        exponent <- exponent - 1
+    fraction: u32 = ((normalized - 1.0) * FRACTION_SCALE).u32()
+    sign: u32 = if negative: 0x80000000.u32() else: 0.u32()
+    sign | ((exponent + 127).u32() << 23) | fraction
+
+def floatmm_compute_diagonal_cell(selected: usize) -> f32:
+    left: mutable f32[SIDE * SIDE] = zeroed
+    right: mutable f32[SIDE * SIDE] = zeroed
+    result: mutable f32[SIDE * SIDE] = zeroed
+    seed: mutable u32 = 74755.u32()
+    row: mutable usize = 0
+    while row < SIDE:
+        column: mutable usize = 0
+        while column < SIDE:
+            temp: u32 = floatmm_next_random(seed)
+            remainder: i64 = (temp - (temp / 120.u32()) * 120.u32()).i64()
+            left[row * SIDE + column] <- floatmm_rounded_div((remainder - 60).f32(), 3.0.f32())
+            column <- column + 1
+        row <- row + 1
+    row <- 0
+    while row < SIDE:
+        column: mutable usize = 0
+        while column < SIDE:
+            temp: u32 = floatmm_next_random(seed)
+            remainder: i64 = (temp - (temp / 120.u32()) * 120.u32()).i64()
+            right[row * SIDE + column] <- floatmm_rounded_div((remainder - 60).f32(), 3.0.f32())
+            column <- column + 1
+        row <- row + 1
+    row <- 0
+    while row < SIDE:
+        column: mutable usize = 0
+        while column < SIDE:
+            total: mutable f32 = 0.0.f32()
+            inner: mutable usize = 0
+            while inner < SIDE:
+                product: f32 = floatmm_rounded_mul(left[row * SIDE + inner], right[inner * SIDE + column])
+                total <- floatmm_rounded_add(total, product)
+                inner <- inner + 1
+            result[row * SIDE + column] <- total
+            column <- column + 1
+        row <- row + 1
+    result[selected * SIDE + selected]
+
+def floatmm_write_unsigned(value: u64, output: mutable u8&, offset: usize) -> usize:
+    reversed: mutable u8[24] = zeroed
+    count: mutable usize = 0
+    remaining: mutable u64 = value
+    while true:
+        reversed[count] <- (48.u64() + remaining % 10.u64()).u8()
+        count <- count + 1
+        remaining <- remaining / 10.u64()
+        if remaining == 0.u64(): break
+    index: mutable usize = 0
+    while index < count:
+        output[offset + index] <- reversed[count - index - 1]
+        index <- index + 1
+    count
+
+def floatmm_write_fixed_six(value: f32, output: mutable u8&, offset: usize) -> usize:
+    bits: u32 = floatmm_f32_bits(value)
+    exponent_bits: u32 = (bits >> 23) & 255.u32()
+    fraction_bits: u32 = bits & 0x7fffff.u32()
+    significand: u64 = if exponent_bits == 0.u32(): fraction_bits.u64() else: ((1.u32() << 23) | fraction_bits).u64()
+    shift: i32 = if exponent_bits == 0.u32(): -149 else: exponent_bits.i32() - 150
+    numerator: u64 = significand * 1000000.u64()
+    micros: mutable u64 = 0.u64()
+    if shift >= 0:
+        micros <- numerator << shift.u32()
+    else:
+        denominator_shift: u32 = (-shift).u32()
+        if denominator_shift >= 64.u32():
+            micros <- 0.u64()
+        else:
+            micros <- numerator >> denominator_shift
+            mask: u64 = (1.u64() << denominator_shift) - 1.u64()
+            remainder: u64 = numerator & mask
+            halfway: u64 = 1.u64() << (denominator_shift - 1.u32())
+            if remainder > halfway or (remainder == halfway and (micros & 1.u64()) != 0.u64()):
+                micros <- micros + 1.u64()
+    position: mutable usize = offset
+    if (bits >> 31) != 0.u32():
+        output[position] <- 45.u8()
+        position <- position + 1
+    position <- position + floatmm_write_unsigned(micros / 1000000.u64(), output, position)
+    output[position] <- 46.u8()
+    position <- position + 1
+    fractional: mutable u32 = (micros % 1000000.u64()).u32()
+    place: mutable u32 = 100000.u32()
+    while place > 0.u32():
+        output[position] <- (48.u32() + (fractional / place) % 10.u32()).u8()
+        position <- position + 1
+        place <- place / 10.u32()
+    output[position] <- 10.u8()
+    position <- position + 1
+    position - offset
+
+def floatmm_impl(passes: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if passes < 0 or passes > MAX_PASSES: return -1
+    if passes == 0: return 0
+    if output.is_null(): return -2
+    formatted: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    required: mutable usize = 0
+    run: mutable i64 = 0
+    while run < passes:
+        diagonal: f32 = floatmm_compute_diagonal_cell(run.usize())
+        required <- required + floatmm_write_fixed_six(diagonal, formatted, required)
+        run <- run + 1
+    if output_capacity < required: return -2
+    index: mutable usize = 0
+    while index < required:
+        output[index] <- formatted[index]
+        index <- index + 1
+    required.i64()
+
+export fn floatmm(passes: i64, output: mutable u8&, output_capacity: usize) -> i64 = floatmm_impl

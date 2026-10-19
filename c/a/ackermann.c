@@ -10,6 +10,6 @@ static int64_t ackermann_value(int64_t m, int64_t n)
 
 int64_t ackermann(int64_t m, int64_t n)
 {
-    if (m < 0 || m > 3 || n < 0 || n > 5) return -1;
+    if (m < 0 || m > 3 || n < 0 || n > 8) return -1;
     return ackermann_value(m, n);
 }

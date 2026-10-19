@@ -8,6 +8,6 @@ ackermann_value :: proc "contextless" (m, n: i64) -> i64 {
 
 @(export)
 ackermann :: proc "c" (m, n: i64) -> i64 {
-	if m < 0 || m > 3 || n < 0 || n > 5 do return -1
+	if m < 0 || m > 3 || n < 0 || n > 8 do return -1
 	return ackermann_value(m, n)
 }

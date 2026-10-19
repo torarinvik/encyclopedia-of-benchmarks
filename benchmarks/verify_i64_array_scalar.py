@@ -21,6 +21,7 @@ import sys
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected_result
+from five11_oracle import expected_result as five11_expected_result
 from deep_clone_graph_oracle import expected_result as deep_clone_graph_oracle
 from frequent_pattern_growth_oracle import expected_result as frequent_pattern_growth_oracle
 from decremental_connectivity_oracle import expected_result as decremental_connectivity_oracle
@@ -1388,6 +1389,7 @@ ALGORITHMS += ("smallest_range",)
 ALGORITHMS += ("lazy_segment_tree_range_set_max",)
 ALGORITHMS += ("lazy_segment_tree_range_add_sum",)
 ALGORITHMS += ("drop3",)
+ALGORITHMS += ("five11",)
 ALGORITHMS += ("queue_using_array",)
 ALGORITHMS += ("queue_using_array2",)
 ALGORITHMS += ("heap_generic",)
@@ -2012,6 +2014,8 @@ def monotonic_array_oracle(values: list[int]) -> int:
 def oracle(algorithm: str, values: list[int]) -> int:
     if algorithm == "drop3":
         return drop3_expected_result(values)
+    if algorithm == "five11":
+        return five11_expected_result(values)
     if algorithm == "msd_radix_string_sorter":
         result = msd_radix_string_sorter_oracle(values)
         return -1 if result is None else result
@@ -3055,6 +3059,9 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
+    if algorithm == "five11":
+        # Exercise the null pointer contract in addition to the checked workload corpus.
+        special_records.append("NULL 2 -1\n")
     if algorithm == "mcnaughton_yamada_thompson":
         def add_mcnaughton_case(values: tuple[int, ...]) -> None:
             if (len(values) > MCNAUGHTON_YAMADA_THOMPSON_MAX_PARSEABLE_INPUT_LENGTH

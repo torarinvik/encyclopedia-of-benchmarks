@@ -1,0 +1,50 @@
+def ary3_impl(length: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if length < 1 or length > 4096:
+        return -1
+    n: usize = length.usize()
+    x: mutable i32[4096] = zeroed
+    y: mutable i32[4096] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        x[index] <- (index.i32() + 1)
+        y[index] <- 0
+        index <- index + 1
+
+    pass: mutable usize = 0
+    while pass < 1000:
+        index <- n
+        while index > 0:
+            index <- index - 1
+            y[index] <- y[index] + x[index]
+        pass <- pass + 1
+
+    first: mutable u32 = y[0].u32()
+    last: mutable u32 = y[n - 1].u32()
+    first_reversed: mutable u8[10] = zeroed
+    first_digit_count: mutable usize = 0
+    while first > 0:
+        first_reversed[first_digit_count] <- (48.u32() + (first % 10)).u8()
+        first_digit_count <- first_digit_count + 1
+        first <- first / 10
+    reversed: mutable u8[10] = zeroed
+    digit_count: mutable usize = 0
+    while last > 0:
+        reversed[digit_count] <- (48.u32() + (last % 10)).u8()
+        digit_count <- digit_count + 1
+        last <- last / 10
+    required: usize = first_digit_count + 2 + digit_count
+    if output.is_null() or output_capacity < required:
+        return -2
+    index <- 0
+    while index < first_digit_count:
+        output[index] <- first_reversed[first_digit_count - index - 1]
+        index <- index + 1
+    output[first_digit_count] <- 32.u8()
+    index <- 0
+    while index < digit_count:
+        output[first_digit_count + 1 + index] <- reversed[digit_count - index - 1]
+        index <- index + 1
+    output[required - 1] <- 10.u8()
+    required.i64()
+
+export fn ary3(length: i64, output: mutable u8&, output_capacity: usize) -> i64 = ary3_impl
