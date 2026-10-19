@@ -1,7 +1,0 @@
-# Return 1 for even and 0 for odd signed 64-bit integers.
-def check_even_impl(value: i64) -> i64:
-    if value % 2 == 0:
-        return 1
-    0
-
-export fn check_even(value: i64) -> i64 = check_even_impl

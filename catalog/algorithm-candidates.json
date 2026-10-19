@@ -17865,9 +17865,9 @@
           "local_folder_source": null
         }
       ],
-      "benchmark_name": "check_even",
-      "review_notes": "The pinned PHP `isEven` function returns whether the signed integer remainder by two equals zero. Each local port applies the same remainder predicate over the full signed 64-bit input domain without negating the value.",
-      "benchmark_contract": "benchmarks/c/check_even/README.md"
+      "review_notes": "The pinned PHP CheckEven function returns the same even/odd predicate as is_even, using a remainder test. It is recorded as a source alias of the shared is_even contract.",
+      "benchmark_contract": "benchmarks/i/is_even/README.md",
+      "alias_of": "is_even"
     },
     {
       "candidate_id": "check_even_odd",
@@ -19556,9 +19556,7 @@
         "Python",
         "Rust"
       ],
-      "local_source_folders": [
-        "rust"
-      ],
+      "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -19587,10 +19585,12 @@
           "language": "Rust",
           "path": "src/sorting/cocktail_shaker_sort.rs",
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/cocktail_shaker_sort.rs",
-          "local_folder_source": "rust"
+          "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/c/cocktail_shaker_sort/README.md"
+      "benchmark_contract": "benchmarks/c/cocktail_sort/README.md",
+      "alias_of": "cocktail_sort",
+      "review_notes": "The pinned Java, JavaScript, Python, and Rust cocktail_shaker_sort sources use the same bidirectional adjacent-swap sorting algorithm as cocktail_sort. Their pass-bound choices are implementation variants within the shared contract."
     },
     {
       "candidate_id": "cocktail_sort",
@@ -69943,9 +69943,9 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "pigeonhole_sort",
-      "review_notes": "The pinned JavaScript implementation counts occurrences across the inclusive min-to-max value range and writes them back in ascending order, matching pigeonhole_sort.",
-      "benchmark_contract": "benchmarks/p/pigeonhole_sort/README.md"
+      "alias_of": "counting_sort",
+      "review_notes": "The pinned JavaScript implementation counts occurrences across the inclusive key range and writes them back in ascending order, matching the counting_sort frequency-array contract.",
+      "benchmark_contract": "benchmarks/c/counting_sort/README.md"
     },
     {
       "candidate_id": "pigeon_sort",
@@ -69964,9 +69964,9 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "pigeonhole_sort",
-      "review_notes": "The pinned Python source counts occurrences in a key-indexed pigeonhole array and writes values back in order, which is the pigeonhole-sort algorithm represented by pigeonhole_sort.",
-      "benchmark_contract": "benchmarks/p/pigeonhole_sort/README.md"
+      "alias_of": "counting_sort",
+      "review_notes": "The pinned Python source counts occurrences in a key-indexed pigeonhole array and writes values back in order, matching the counting_sort frequency-array contract.",
+      "benchmark_contract": "benchmarks/c/counting_sort/README.md"
     },
     {
       "candidate_id": "pigeonhole_sort",
@@ -69981,11 +69981,7 @@
         "R",
         "Rust"
       ],
-      "local_source_folders": [
-        "c",
-        "cpp",
-        "rust"
-      ],
+      "local_source_folders": [],
       "review_status": "reviewed_algorithm_semantics",
       "implementations": [
         {
@@ -69993,14 +69989,14 @@
           "language": "C",
           "path": "sorting/pigeonhole_sort.c",
           "url": "https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/pigeonhole_sort.c",
-          "local_folder_source": "c"
+          "local_folder_source": null
         },
         {
           "repository": "C-Plus-Plus",
           "language": "C++",
           "path": "sorting/pigeonhole_sort.cpp",
           "url": "https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/pigeonhole_sort.cpp",
-          "local_folder_source": "cpp"
+          "local_folder_source": null
         },
         {
           "repository": "C-Plus-Plus-1",
@@ -70042,10 +70038,12 @@
           "language": "Rust",
           "path": "src/sorting/pigeonhole_sort.rs",
           "url": "https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/pigeonhole_sort.rs",
-          "local_folder_source": "rust"
+          "local_folder_source": null
         }
       ],
-      "benchmark_contract": "benchmarks/p/pigeonhole_sort/README.md"
+      "benchmark_contract": "benchmarks/c/counting_sort/README.md",
+      "alias_of": "counting_sort",
+      "review_notes": "The pinned C, C++, and Rust pigeonhole_sort sources count key frequencies and reconstruct ascending integer output. On the shared integer-only domain, this is the same frequency-array algorithm as counting_sort, so the candidate aliases its contract."
     },
     {
       "candidate_id": "pigeonholesort",
@@ -70064,9 +70062,9 @@
           "local_folder_source": null
         }
       ],
-      "alias_of": "pigeonhole_sort",
-      "review_notes": "The pinned Go implementation counts values in a min-to-max pigeonhole range and reconstructs the sorted slice, matching pigeonhole_sort; the benchmark contract supplies the bounded signed-integer domain.",
-      "benchmark_contract": "benchmarks/p/pigeonhole_sort/README.md"
+      "alias_of": "counting_sort",
+      "review_notes": "The pinned Go implementation counts values in a min-to-max key range and reconstructs the sorted slice, matching the counting_sort frequency-array contract.",
+      "benchmark_contract": "benchmarks/c/counting_sort/README.md"
     },
     {
       "candidate_id": "pipeline",

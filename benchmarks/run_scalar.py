@@ -44,7 +44,6 @@ from binary_length_oracle import expected_result as binary_length_expected
 from liouville_oracle import expected_result as liouville_expected
 from gauss_easter_oracle import expected_result as gauss_easter_expected
 from leap_year_oracle import expected_result as leap_year_expected
-from parity_oracle import check_even as check_even_expected
 from parity_oracle import is_odd as is_odd_expected
 from scalar_sequence_oracles import all_ones_sequence as all_ones_sequence_expected
 from scalar_sequence_oracles import all_threes_sequence as all_threes_sequence_expected
@@ -2355,11 +2354,6 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
         expected_from_source = leap_year_expected(input_value)
         if expected_result != expected_from_source:
             raise ValueError("leap_year expected_result must match the positive Gregorian divisibility rule")
-        return
-    if algorithm == "check_even":
-        expected_from_source = check_even_expected(input_value)
-        if expected_result != expected_from_source:
-            raise ValueError("check_even expected_result must match signed remainder parity")
         return
     if algorithm == "is_odd":
         expected_from_source = is_odd_expected(input_value)

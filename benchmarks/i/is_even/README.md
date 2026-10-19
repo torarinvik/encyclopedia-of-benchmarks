@@ -38,3 +38,4 @@ All nine implementations use the same ABI and portable integer operations.
 - [JavaScript `IsEven.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/IsEven.js)
 - [Python `is_even.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/bit_manipulation/is_even.py)
 - [TypeScript `is_even.ts`](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/is_even.ts)
+- PHP [`CheckEven.php`](https://github.com/TheAlgorithms/PHP/blob/b8a54469cc36332ef2934101b58d71075ef1d78e/Maths/CheckEven.php) applies the same parity predicate and is cataloged as an alias of this benchmark.

@@ -34,8 +34,11 @@ Build the runner with `-DBENCHMARK_WITH_SCRATCH -DBENCHMARK_SCRATCH_EXTRA=257`. 
 
 The C source counts nonnegative keys and prints them; C++ finds the input minimum and maximum, builds a dynamic histogram, and returns a new array; Rust provides an in-place unsigned-key implementation with a maximum value. The local contract fixes a small signed key range so all nine ports share the same bounded histogram and workload.
 
+The `pigeonhole_sort` name uses the same frequency-array reconstruction on this integer-only contract. Its source candidates, including the C, C++, and Rust implementations, are cataloged as aliases here rather than as a second benchmark.
+
 ## TheAlgorithms references
 
 - [C `counting_sort.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/counting_sort.c)
 - [C++ `counting_sort.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/counting_sort.cpp)
 - [Rust `counting_sort.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/counting_sort.rs)
+- [C `pigeonhole_sort.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/pigeonhole_sort.c), [C++ `pigeonhole_sort.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/pigeonhole_sort.cpp), and [Rust `pigeonhole_sort.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/pigeonhole_sort.rs)

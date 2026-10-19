@@ -34,6 +34,8 @@ Use [`benchmarks/harness/sort_runner.c`](../../harness/sort_runner.c) and [`benc
 
 The inspected C source performs a forward adjacent-swap pass followed by a backward pass, reducing the active range and stopping when no swap occurs. It assumes the caller supplies the array size; the local ABI represents that size with `size_t` and handles empty input explicitly.
 
+The `cocktail_shaker_sort` name describes the same bidirectional adjacent-swap algorithm. Some sources rescan the full range while others shrink the bounds; these pass-bound differences remain within this benchmark and do not have a separate suite entry.
+
 ## TheAlgorithms reference
 
 The candidate appears in seven source repositories, including an AArch64 assembly implementation. The portable C source was checked at the pinned commit in the catalog:
