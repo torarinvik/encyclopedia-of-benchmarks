@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-npb-is-class-w-bounded-v1",
+  "algorithm": "npb_is",
+  "function_symbol": "npb_is",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "NPB-serial/is/is.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/NPB-serial/is/is.c",
+    "license_note": "The source grants permission to use, copy, distribute, and modify for any purpose, requests derived work to reference NAS Parallel Benchmarks 3.3, and includes an as-is warranty disclaimer; ports are independently written."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "NPB-serial/is/info.sh",
+    "bench_name": "is",
+    "source_files": ["is.c"],
+    "default_compile_flags": [],
+    "class_w_compile_flag": "-DSMALL_PROBLEM_SIZE",
+    "run_options": []
+  },
+  "source_bound": {
+    "profile": "class W selected by SMALL_PROBLEM_SIZE",
+    "total_keys": 1048576,
+    "max_key_exclusive": 65536,
+    "num_buckets": 1024,
+    "iterations": 10,
+    "seed": 314159265,
+    "lcg_multiplier": 1220703125,
+    "lcg_modulus": 70368744177664,
+    "random_draws_per_key": 4,
+    "key_indices": [357773, 934767, 875723, 898999, 404505],
+    "baseline_ranks": [1249, 11698, 1039987, 1043896, 1048018],
+    "profile_minimum_passes": 1,
+    "profile_maximum_passes": 10,
+    "verification": "Each pass checks five class-W partial ranks; a full sorted-order check contributes one more verification. A successful prefix run reports 5*pass_count+1."
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "npb_is_class_w_ascii",
+    "meaning": "Number of class-W rank passes to execute after the source-equivalent rank(1) warm-up.",
+    "minimum": 1,
+    "maximum": 10,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "npb_is_partial_ranks_csv_ascii",
+    "format": "five comma-separated decimal partial ranks and LF per pass, then decimal verification count and LF",
+    "definition": "Each pass emits the count of keys strictly less than each of the five source-selected key values, in source index order. The final line is the total successful partial and full verification count.",
+    "maximum_output_bytes": 353,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "one_pass", "input_value": 1, "expected_result": 37, "expected_output_hex": "313234382c31313639372c313033393938362c313034333839352c313034383031370a360a"},
+    {"id": "two_passes", "input_value": 2, "expected_result": 73, "expected_output_hex": "313234382c31313639372c313033393938362c313034333839352c313034383031370a313234392c31313639382c313033393938352c313034333839342c313034383031360a31310a"},
+    {"id": "class_w_ten_pass_profile", "input_value": 10, "expected_result": 353, "expected_output_hex": "313234382c31313639372c313033393938362c313034333839352c313034383031370a313234392c31313639382c313033393938352c313034333839342c313034383031360a313235302c31313639392c313033393938342c313034333839332c313034383031350a313235312c31313730302c313033393938332c313034333839322c313034383031340a313235322c31313730312c313033393938322c313034333839312c313034383031330a313235332c31313730322c313033393938312c313034333839302c313034383031320a313235342c31313730332c313033393938302c313034333838392c313034383031310a313235352c31313730342c313033393937392c313034333838382c313034383031300a313235362c31313730352c313033393937382c313034333838372c313034383030390a313235372c31313730362c313033393937372c313034333838362c313034383030380a35310a"},
+    {"id": "zero_passes_invalid", "input_value": 0, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "above_profile_invalid", "input_value": 11, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "signed_64_minimum_invalid", "input_value": -9223372036854775808, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "signed_64_maximum_invalid", "input_value": 9223372036854775807, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "insufficient_capacity", "input_value": 1, "output_capacity": 36, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_value": 10, "output_capacity": 353, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

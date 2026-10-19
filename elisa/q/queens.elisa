@@ -1,0 +1,100 @@
+const MAX_N: i64 = 14
+const MAX_DIAGS: usize = 27
+const EMPTY_OWNER: i64 = 101
+const MAX_OUTPUT_BYTES: usize = 80
+
+struct QueensState:
+    n: i64
+    queen: i64[14]
+    file: i64[14]
+    forward_diag: i64[27]
+    backward_diag: i64[27]
+    solutions: u64
+
+def queens_find_solutions(state: mutable QueensState&, level: i64) -> void:
+    if level == state.n:
+        state.solutions <- state.solutions + 1.u64()
+        return
+    file_index: mutable i64 = 0
+    while file_index < state.n:
+        forward: i64 = file_index + level
+        backward: i64 = level - file_index + state.n - 1
+        if state.file[file_index.usize()] >= level and
+                state.forward_diag[forward.usize()] >= level and
+                state.backward_diag[backward.usize()] >= level:
+            state.queen[level.usize()] <- file_index
+            state.file[file_index.usize()] <- level
+            state.forward_diag[forward.usize()] <- level
+            state.backward_diag[backward.usize()] <- level
+            queens_find_solutions(state, level + 1)
+            state.file[file_index.usize()] <- EMPTY_OWNER
+            state.forward_diag[forward.usize()] <- EMPTY_OWNER
+            state.backward_diag[backward.usize()] <- EMPTY_OWNER
+        file_index <- file_index + 1
+
+def queens_append_text(output: mutable u8&, position: mutable usize&, text: &str) -> void:
+    index: mutable usize = 0
+    while index < text.length():
+        output[position] <- text[index].u8()
+        position <- position + 1
+        index <- index + 1
+
+def queens_append_unsigned(output: mutable u8&, position: mutable usize&, value_value: u64) -> void:
+    digits: mutable u8[24] = zeroed
+    count: mutable usize = 0
+    value: mutable u64 = value_value
+    while true:
+        digits[count] <- (48.u64() + value % 10.u64()).u8()
+        count <- count + 1
+        value <- value / 10.u64()
+        if value == 0.u64(): break
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+
+def queens_render_output(n: i64, solutions: u64, output: mutable u8&) -> usize:
+    position: mutable usize = 0
+    queens_append_unsigned(output, position, n.u64())
+    if n == 1:
+        queens_append_text(output, position, " queen on a ")
+    else:
+        queens_append_text(output, position, " queens on a ")
+    queens_append_unsigned(output, position, n.u64())
+    output[position] <- 120.u8()
+    position <- position + 1
+    queens_append_unsigned(output, position, n.u64())
+    queens_append_text(output, position, " board...\n")
+    if solutions == 1.u64():
+        queens_append_text(output, position, "...there is 1 solution\n")
+    else:
+        queens_append_text(output, position, "...there are ")
+        queens_append_unsigned(output, position, solutions)
+        queens_append_text(output, position, " solutions\n")
+    position
+
+def queens_impl(n: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if n < 1 or n > MAX_N: return -1
+    state: mutable QueensState = zeroed
+    state.n <- n
+    file_index: mutable usize = 0
+    while file_index < 14:
+        state.file[file_index] <- EMPTY_OWNER
+        file_index <- file_index + 1
+    diagonal: mutable usize = 0
+    while diagonal < MAX_DIAGS:
+        state.forward_diag[diagonal] <- EMPTY_OWNER
+        state.backward_diag[diagonal] <- EMPTY_OWNER
+        diagonal <- diagonal + 1
+    queens_find_solutions(state, 0)
+
+    formatted: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    required: usize = queens_render_output(n, state.solutions, formatted)
+    if output.is_null() or output_capacity < required: return -2
+    index: mutable usize = 0
+    while index < required:
+        output[index] <- formatted[index]
+        index <- index + 1
+    required.i64()
+
+export fn queens(n: i64, output: mutable u8&, output_capacity: usize) -> i64 = queens_impl

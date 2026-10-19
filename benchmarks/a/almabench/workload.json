@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-coyotebench-almabench-bounded-ephemeris-v1",
+  "algorithm": "almabench",
+  "function_symbol": "almabench",
+  "description": "Bounded eight-planet daily ephemeris calculation from CoyoteBench almabench.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "CoyoteBench/almabench/almabench.c",
+    "symbol": "planetpv, radecdist, main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/almabench/almabench.c",
+    "license_note": "The referenced C source is public domain (No rights reserved); these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "CoyoteBench/almabench/info.sh",
+    "bench_name": "almabench",
+    "source_files": [
+      "almabench.c"
+    ],
+    "compile_flags": [
+      "-lm"
+    ],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "The launcher has no runtime options. The source defaults to 20 passes and 36525 daily dates; SMALL_PROBLEM_SIZE selects one pass and 3652 dates. Every pass resets the date and computes the same ephemeris, so the suite performs one bounded pass and returns the final date output. It calculates all eight planets for each date from J2000+1 through J2000+days and prints only the final date, with three %f fields per planet.",
+    "upstream_default_passes": 20,
+    "small_problem_size_passes": 1,
+    "upstream_default_days": 36525,
+    "small_problem_size_default_days": 3652,
+    "profile_minimum_days": 1,
+    "profile_maximum_days": 36525,
+    "launcher_default_final_julian_day": 2488070.0,
+    "source_output_format": "printf(\"%f %f %f\\n\", right_ascension_hours, declination_degrees, distance_au)",
+    "invalid_suite_case": "The suite rejects day counts outside 1..36525; the pinned launcher does not parse a runtime day count."
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "almabench_ephemeris_ascii",
+    "meaning": "Number of daily ephemeris calculations from J2000+1 through J2000+days; the final day\u2019s eight planet rows are returned.",
+    "minimum": 1,
+    "maximum": 36525,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "Eight lines in planet order Mercury through Neptune, each containing right ascension hours, declination degrees, and distance AU at six fractional digits, separated by one ASCII space and terminated by LF.",
+    "definition": "The final day\u2019s ephemeris for all eight planets, formatted as three six-decimal values per source printf line.",
+    "maximum_output_bytes": 248,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "first_day",
+      "input_value": 1,
+      "expected_result": 232,
+      "expected_output": "16.999606 -26.062875 0.466686\n12.343895 1.293677 0.720320\n6.826238 22.950213 0.983295\n0.041870 -1.260618 1.391721\n2.296705 12.539367 4.965543\n2.932743 14.351363 9.182701\n21.273227 -16.566476 19.924819\n20.413008 -19.035267 30.120463\n"
+    },
+    {
+      "id": "second_day",
+      "input_value": 2,
+      "expected_result": 232,
+      "expected_output": "17.200523 -26.608745 0.466622\n12.441963 0.626034 0.720429\n6.899711 22.859393 0.983290\n0.079754 -0.999864 1.392258\n2.302563 12.570097 4.965675\n2.935114 14.362277 9.182485\n21.273949 -16.563271 19.924917\n20.413420 -19.034045 30.120428\n"
+    },
+    {
+      "id": "small_problem_size_default",
+      "input_value": 3652,
+      "expected_result": 233,
+      "expected_output": "5.055393 26.222349 0.307499\n18.250009 -24.374974 0.727198\n6.710979 23.075860 0.983342\n7.918478 22.539849 1.627357\n22.437444 -10.914173 5.003290\n11.962802 2.696584 9.475564\n23.751850 -2.437249 20.095911\n21.876908 -13.339316 30.024807\n"
+    },
+    {
+      "id": "launcher_default",
+      "input_value": 36525,
+      "expected_result": 228,
+      "expected_output": "20.642158 -25.523861 0.429999\n1.249416 4.846966 0.725148\n6.705096 23.070462 0.983362\n4.298896 21.920988 1.510085\n12.624735 -2.623410 5.451432\n13.207531 -4.994690 9.666555\n1.193477 6.908804 19.971530\n11.053079 7.100724 30.209035\n"
+    },
+    {
+      "id": "zero_days",
+      "input_value": 0,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "negative_days",
+      "input_value": -1,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "days_above_bound",
+      "input_value": 36526,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "signed_64_minimum",
+      "input_value": -9223372036854775808,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "signed_64_maximum",
+      "input_value": 9223372036854775807,
+      "expected_result": -1,
+      "expected_output": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_value": 1,
+      "output_capacity": 247,
+      "expected_result": -2,
+      "expected_output": ""
+    },
+    {
+      "id": "null_output",
+      "input_value": 1,
+      "output_capacity": 248,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": ""
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mcgill-queens-count-only-ascii-v1",
+  "algorithm": "queens",
+  "function_symbol": "queens",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "McGill/queens/queens.c",
+    "symbol": "main/find",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/queens/queens.c"
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "McGill/queens/info.sh",
+    "bench_name": "queens",
+    "source_files": [
+      "queens.c"
+    ],
+    "compile_flags": [
+      "-lm"
+    ],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "The launcher runs queens.c without options. main defaults to n=14, sets printing=0 and findall=1, searches every placement without symmetry pruning, and emits a board-size heading followed by the total solution count. The suite accepts n=1..14, preserving the launcher's default workload at the upper bound while limiting the source's broader 1..100 domain.",
+    "source_default_n": 14,
+    "source_input_range": [
+      1,
+      100
+    ],
+    "suite_input_range": [
+      1,
+      14
+    ],
+    "search_order": "Place one queen per rank; try files left-to-right; recurse immediately when file and diagonal owner entries are not occupied by an earlier rank.",
+    "symmetry_reduction": false,
+    "printing": false,
+    "find_all_solutions": true,
+    "stdout_format": [
+      "printf(\"%d queen%s on a %dx%d board...\\n\")",
+      "...there is 1 solution\\n when the count is one; otherwise ...there are %ld solutions\\n"
+    ]
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "mcgill_queens_count_ascii",
+    "meaning": "Board dimension n for the count-only queens search.",
+    "minimum": 1,
+    "maximum": 14,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "mcgill_queens_count_stdout_ascii",
+    "definition": "The source header line followed by its singular or plural total-solution line; no board layout is printed.",
+    "maximum_output_bytes": 80,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "one_queen_singular_count",
+      "input_value": 1,
+      "output_capacity": 80,
+      "expected_result": 49,
+      "expected_output_hex": "3120717565656e206f6e20612031783120626f6172642e2e2e0a2e2e2e7468657265206973203120736f6c7574696f6e0a"
+    },
+    {
+      "id": "two_queens_no_solutions",
+      "input_value": 2,
+      "output_capacity": 80,
+      "expected_result": 52,
+      "expected_output_hex": "3220717565656e73206f6e20612032783220626f6172642e2e2e0a2e2e2e746865726520617265203020736f6c7574696f6e730a"
+    },
+    {
+      "id": "four_queens_two_solutions",
+      "input_value": 4,
+      "output_capacity": 52,
+      "expected_result": 52,
+      "expected_output_hex": "3420717565656e73206f6e20612034783420626f6172642e2e2e0a2e2e2e746865726520617265203220736f6c7574696f6e730a"
+    },
+    {
+      "id": "eight_queens_standard_count",
+      "input_value": 8,
+      "output_capacity": 80,
+      "expected_result": 53,
+      "expected_output_hex": "3820717565656e73206f6e20612038783820626f6172642e2e2e0a2e2e2e74686572652061726520393220736f6c7574696f6e730a"
+    },
+    {
+      "id": "launcher_default_fourteen_queens",
+      "input_value": 14,
+      "output_capacity": 80,
+      "expected_result": 60,
+      "expected_output_hex": "313420717565656e73206f6e206120313478313420626f6172642e2e2e0a2e2e2e7468657265206172652033363535393620736f6c7574696f6e730a"
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_value": 4,
+      "output_capacity": 51,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_positive",
+      "input_value": 1,
+      "output_capacity": 49,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "output_is_null": true
+    },
+    {
+      "id": "zero_invalid",
+      "input_value": 0,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "above_profile_invalid",
+      "input_value": 15,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "int64_min_invalid",
+      "input_value": -9223372036854775808,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "int64_max_invalid",
+      "input_value": 9223372036854775807,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

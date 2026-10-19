@@ -1,0 +1,173 @@
+# Independent port of the class-W NAS Parallel Benchmarks Integer Sort.
+global mutable NPB_IS_KEY_ARRAY: mutable u32[1048576] = zeroed
+global mutable NPB_IS_KEY_BUFF2: mutable u32[1048576] = zeroed
+global mutable NPB_IS_KEY_BUFF1: mutable u32[65536] = zeroed
+global mutable NPB_IS_BUCKET_SIZE: mutable u32[1024] = zeroed
+global mutable NPB_IS_BUCKET_PTRS: mutable u32[1024] = zeroed
+
+def npb_is_next_state(state: u64) -> u64:
+    two23: u64 = 1.u64() << 23
+    low_mask: u64 = two23 - 1.u64()
+    state_mask: u64 = (1.u64() << 46) - 1.u64()
+    multiplier_high: u64 = 1220703125.u64() / two23
+    multiplier_low: u64 = 1220703125.u64() % two23
+    x1: u64 = state >> 23
+    x2: u64 = state & low_mask
+    t1: u64 = multiplier_high * x2 + multiplier_low * x1
+    z: u64 = t1 & low_mask
+    ((z << 23) + multiplier_low * x2) & state_mask
+
+def npb_is_expected_rank(index: usize, iteration: u32) -> u32:
+    baseline: u32[5] = [1249u32, 11698u32, 1039987u32, 1043896u32, 1048018u32]
+    if index < 2:
+        return (baseline[index].i64() + iteration.i64() - 2).u32()
+    baseline[index] - iteration
+
+def npb_is_decimal_width(value: u32) -> usize:
+    remaining: mutable u32 = value
+    width: mutable usize = 1
+    while remaining >= 10u32:
+        remaining <- remaining / 10u32
+        width <- width + 1
+    width
+
+def npb_is_required_output_bytes(pass_count: u32) -> usize:
+    required: mutable usize = 0
+    iteration: mutable u32 = 1
+    while iteration <= pass_count:
+        test: mutable usize = 0
+        while test < 5:
+            required <- required + npb_is_decimal_width(npb_is_expected_rank(test, iteration))
+            test <- test + 1
+        required <- required + 5
+        iteration <- iteration + 1
+    required <- required + npb_is_decimal_width((5 * pass_count + 1).u32()) + 1
+    required
+
+def npb_is_append_decimal(value: u32, output: mutable u8&, position: mutable usize&) -> void:
+    digits: mutable u8[10] = zeroed
+    count: mutable usize = 0
+    remaining: mutable u32 = value
+    while true:
+        digits[count] <- (48u32 + remaining % 10u32).u8()
+        count <- count + 1
+        remaining <- remaining / 10u32
+        if remaining == 0u32: break
+    while count > 0:
+        count <- count - 1
+        output[position] <- digits[count]
+        position <- position + 1
+
+def npb_is_generate_keys() -> void:
+    can Global.Read, Global.Write:
+        state: mutable u64 = 314159265.u64()
+        index: mutable usize = 0
+        while index < 1048576:
+            four_state_sum: mutable u64 = 0.u64()
+            draw: mutable usize = 0
+            while draw < 4:
+                state <- npb_is_next_state(state)
+                four_state_sum <- four_state_sum + state
+                draw <- draw + 1
+            NPB_IS_KEY_ARRAY[index] <- (four_state_sum >> 32).u32()
+            index <- index + 1
+
+def npb_is_rank_pass(iteration: u32, partials: mutable u32&) -> void:
+    can Global.Read, Global.Write:
+        NPB_IS_KEY_ARRAY[iteration.usize()] <- iteration
+        NPB_IS_KEY_ARRAY[(iteration + 10u32).usize()] <- 65536u32 - iteration
+
+        bucket: mutable usize = 0
+        while bucket < 1024:
+            NPB_IS_BUCKET_SIZE[bucket] <- 0u32
+            bucket <- bucket + 1
+        index: mutable usize = 0
+        while index < 1048576:
+            bucket: usize = (NPB_IS_KEY_ARRAY[index] >> 6).usize()
+            NPB_IS_BUCKET_SIZE[bucket] <- NPB_IS_BUCKET_SIZE[bucket] + 1u32
+            index <- index + 1
+
+        NPB_IS_BUCKET_PTRS[0] <- 0u32
+        bucket <- 1
+        while bucket < 1024:
+            NPB_IS_BUCKET_PTRS[bucket] <- NPB_IS_BUCKET_PTRS[bucket - 1] + NPB_IS_BUCKET_SIZE[bucket - 1]
+            bucket <- bucket + 1
+        index <- 0
+        while index < 1048576:
+            key: u32 = NPB_IS_KEY_ARRAY[index]
+            bucket: usize = (key >> 6).usize()
+            position: usize = NPB_IS_BUCKET_PTRS[bucket].usize()
+            NPB_IS_KEY_BUFF2[position] <- key
+            NPB_IS_BUCKET_PTRS[bucket] <- NPB_IS_BUCKET_PTRS[bucket] + 1u32
+            index <- index + 1
+
+        index <- 0
+        while index < 65536:
+            NPB_IS_KEY_BUFF1[index] <- 0u32
+            index <- index + 1
+        index <- 0
+        while index < 1048576:
+            key: usize = NPB_IS_KEY_BUFF2[index].usize()
+            NPB_IS_KEY_BUFF1[key] <- NPB_IS_KEY_BUFF1[key] + 1u32
+            index <- index + 1
+        key_index: mutable usize = 1
+        while key_index < 65536:
+            NPB_IS_KEY_BUFF1[key_index] <- NPB_IS_KEY_BUFF1[key_index] + NPB_IS_KEY_BUFF1[key_index - 1]
+            key_index <- key_index + 1
+
+        test_indices: usize[5] = [357773, 934767, 875723, 898999, 404505]
+        test: mutable usize = 0
+        while test < 5:
+            key: u32 = NPB_IS_KEY_ARRAY[test_indices[test]]
+            partials[test] <- if key == 0u32: 0u32 else: NPB_IS_KEY_BUFF1[(key - 1u32).usize()]
+            test <- test + 1
+
+def npb_is_full_verify() -> bool:
+    can Global.Read, Global.Write:
+        index: mutable usize = 0
+        while index < 1048576:
+            key: u32 = NPB_IS_KEY_BUFF2[index]
+            NPB_IS_KEY_BUFF1[key.usize()] <- NPB_IS_KEY_BUFF1[key.usize()] - 1u32
+            NPB_IS_KEY_ARRAY[NPB_IS_KEY_BUFF1[key.usize()].usize()] <- key
+            index <- index + 1
+        index <- 1
+        while index < 1048576:
+            if NPB_IS_KEY_ARRAY[index - 1] > NPB_IS_KEY_ARRAY[index]: return false
+            index <- index + 1
+        return true
+
+def npb_is_impl(pass_count: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if pass_count < 1 or pass_count > 10: return -1
+    passes: u32 = pass_count.u32()
+    required: usize = npb_is_required_output_bytes(passes)
+    if output.is_null() or output_capacity < required: return -2
+
+    npb_is_generate_keys()
+    partials: mutable u32[5] = zeroed
+    npb_is_rank_pass(1u32, partials&)
+    passed_verification: mutable u32 = 0u32
+    position: mutable usize = 0
+    iteration: mutable u32 = 1u32
+    while iteration <= passes:
+        npb_is_rank_pass(iteration, partials&)
+        test: mutable usize = 0
+        while test < 5:
+            if partials[test] == npb_is_expected_rank(test, iteration):
+                passed_verification <- passed_verification + 1u32
+            npb_is_append_decimal(partials[test], output, position&)
+            if test + 1 < 5:
+                output[position] <- 44u8
+                position <- position + 1
+            test <- test + 1
+        output[position] <- 10u8
+        position <- position + 1
+        iteration <- iteration + 1u32
+
+    if npb_is_full_verify(): passed_verification <- passed_verification + 1u32
+    if passed_verification != 5u32 * passes + 1u32: passed_verification <- 0u32
+    npb_is_append_decimal(passed_verification, output, position&)
+    output[position] <- 10u8
+    position <- position + 1
+    position.i64()
+
+export fn npb_is(pass_count: i64, output: mutable u8&, output_capacity: usize) -> i64 = npb_is_impl

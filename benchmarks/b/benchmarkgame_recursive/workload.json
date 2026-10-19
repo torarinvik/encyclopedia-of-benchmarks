@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-benchmarkgame-recursive-bounded-stdout-v1",
+  "algorithm": "benchmarkgame_recursive",
+  "function_symbol": "benchmarkgame_recursive",
+  "description": "Bounded port of all five recursive calls and output lines in BenchmarkGame/recursive/recursive.c.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "BenchmarkGame/recursive/recursive.c",
+    "symbol": "main, ack, fib, fibFP, tak, takFP",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/recursive/recursive.c",
+    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "BenchmarkGame/recursive/info.sh",
+    "bench_name": "recursive",
+    "source_files": ["recursive.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "The source main hard-codes n=10 and prints five results in order: integer Ackermann(3,n+1), floating recursive Fibonacci(28+n), integer Takeuchi(3n,2n,n), integer Fibonacci(3), and floating Takeuchi(3.0,2.0,1.0). The suite exposes the source's n as a bounded scalar from 0 through 10; n=10 reproduces the launcher profile. Recursive benchmark implementations remain uncached, and each measurement uses a single call because fibFP grows exponentially.",
+    "launcher_default_n": 10,
+    "profile_minimum_n": 0,
+    "profile_maximum_n": 10,
+    "launcher_default_stdout": "Ack(3,11): 16381\nFib(38.0): 63245986.0\nTak(30,20,10): 10\nFib(3): 3\nTak(3.0,2.0,1.0): 2.0\n",
+    "invalid_suite_input": "The suite returns -1 for n outside 0..10; the pinned main does not parse a command-line n."
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "benchmarkgame_recursive_ascii",
+    "meaning": "The source's n parameter; n controls all three variable recursive calls and n=10 is the pinned launcher profile.",
+    "minimum": 0,
+    "maximum": 10,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "The exact five source printf lines, in source order, with LF line endings.",
+    "maximum_output_bytes": 89,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 1,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "minimum_profile_n",
+      "input_value": 0,
+      "expected_result": 79,
+      "expected_output": "Ack(3,1): 13\nFib(28.0): 514229.0\nTak(0,0,0): 0\nFib(3): 3\nTak(3.0,2.0,1.0): 2.0\n"
+    },
+    {
+      "id": "launcher_default",
+      "input_value": 10,
+      "expected_result": 89,
+      "expected_output": "Ack(3,11): 16381\nFib(38.0): 63245986.0\nTak(30,20,10): 10\nFib(3): 3\nTak(3.0,2.0,1.0): 2.0\n"
+    },
+    {"id": "negative_n", "input_value": -1, "expected_result": -1, "expected_output": ""},
+    {"id": "n_above_bound", "input_value": 11, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_minimum", "input_value": -9223372036854775808, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_maximum", "input_value": 9223372036854775807, "expected_result": -1, "expected_output": ""},
+    {
+      "id": "insufficient_capacity",
+      "input_value": 0,
+      "output_capacity": 78,
+      "expected_result": -2,
+      "expected_output": ""
+    },
+    {
+      "id": "null_output",
+      "input_value": 0,
+      "output_capacity": 89,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": ""
+    }
+  ]
+}

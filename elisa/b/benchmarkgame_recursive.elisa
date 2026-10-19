@@ -1,0 +1,95 @@
+const MAX_N: i64 = 10
+const MAX_OUTPUT_BYTES: usize = 89
+
+def benchmarkgame_recursive_ackermann(x: i64, y: i64) -> i64:
+    if x == 0:
+        return y + 1
+    benchmarkgame_recursive_ackermann(x - 1, if y == 0: 1 else: benchmarkgame_recursive_ackermann(x, y - 1))
+
+def benchmarkgame_recursive_fibonacci_integer(n: i64) -> i64:
+    if n < 2:
+        return 1
+    benchmarkgame_recursive_fibonacci_integer(n - 2) + benchmarkgame_recursive_fibonacci_integer(n - 1)
+
+def benchmarkgame_recursive_fibonacci_float(n: f64) -> f64:
+    if n < 2.0:
+        return 1.0
+    benchmarkgame_recursive_fibonacci_float(n - 2.0) + benchmarkgame_recursive_fibonacci_float(n - 1.0)
+
+def benchmarkgame_recursive_takeuchi_integer(x: i64, y: i64, z: i64) -> i64:
+    if y < x:
+        return benchmarkgame_recursive_takeuchi_integer(
+            benchmarkgame_recursive_takeuchi_integer(x - 1, y, z),
+            benchmarkgame_recursive_takeuchi_integer(y - 1, z, x),
+            benchmarkgame_recursive_takeuchi_integer(z - 1, x, y))
+    z
+
+def benchmarkgame_recursive_takeuchi_float(x: f64, y: f64, z: f64) -> f64:
+    if y < x:
+        return benchmarkgame_recursive_takeuchi_float(
+            benchmarkgame_recursive_takeuchi_float(x - 1.0, y, z),
+            benchmarkgame_recursive_takeuchi_float(y - 1.0, z, x),
+            benchmarkgame_recursive_takeuchi_float(z - 1.0, x, y))
+    z
+
+def benchmarkgame_recursive_append_text(buffer: mutable u8&, used: mutable usize&, text: string) -> void:
+    index: mutable usize = 0
+    while index < text.len():
+        buffer[used] <- text.byte_at(index)
+        used <- used + 1
+        index <- index + 1
+
+def benchmarkgame_recursive_append_number(buffer: mutable u8&, used: mutable usize&, value: i64) -> void:
+    reversed: mutable u8[20] = zeroed
+    remaining: mutable i64 = value
+    count: mutable usize = 0
+    while true:
+        reversed[count] <- (48 + remaining % 10).u8()
+        count <- count + 1
+        remaining <- remaining / 10
+        if remaining == 0:
+            break
+    while count > 0:
+        count <- count - 1
+        buffer[used] <- reversed[count]
+        used <- used + 1
+
+def benchmarkgame_recursive_impl(n: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if n < 0 or n > MAX_N:
+        return -1
+    if output.is_null():
+        return -2
+
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    used: mutable usize = 0
+    benchmarkgame_recursive_append_text(staged, used, "Ack(3,")
+    benchmarkgame_recursive_append_number(staged, used, n + 1)
+    benchmarkgame_recursive_append_text(staged, used, "): ")
+    benchmarkgame_recursive_append_number(staged, used, benchmarkgame_recursive_ackermann(3, n + 1))
+    benchmarkgame_recursive_append_text(staged, used, "\nFib(")
+    benchmarkgame_recursive_append_number(staged, used, 28 + n)
+    benchmarkgame_recursive_append_text(staged, used, ".0): ")
+    benchmarkgame_recursive_append_number(staged, used, benchmarkgame_recursive_fibonacci_float((28 + n).f64()).i64())
+    benchmarkgame_recursive_append_text(staged, used, ".0\nTak(")
+    benchmarkgame_recursive_append_number(staged, used, 3 * n)
+    benchmarkgame_recursive_append_text(staged, used, ",")
+    benchmarkgame_recursive_append_number(staged, used, 2 * n)
+    benchmarkgame_recursive_append_text(staged, used, ",")
+    benchmarkgame_recursive_append_number(staged, used, n)
+    benchmarkgame_recursive_append_text(staged, used, "): ")
+    benchmarkgame_recursive_append_number(staged, used, benchmarkgame_recursive_takeuchi_integer(3 * n, 2 * n, n))
+    benchmarkgame_recursive_append_text(staged, used, "\nFib(3): ")
+    benchmarkgame_recursive_append_number(staged, used, benchmarkgame_recursive_fibonacci_integer(3))
+    benchmarkgame_recursive_append_text(staged, used, "\nTak(3.0,2.0,1.0): ")
+    benchmarkgame_recursive_append_number(staged, used, benchmarkgame_recursive_takeuchi_float(3.0, 2.0, 1.0).i64())
+    benchmarkgame_recursive_append_text(staged, used, ".0\n")
+
+    if output_capacity < used:
+        return -2
+    index: mutable usize = 0
+    while index < used:
+        output[index] <- staged[index]
+        index <- index + 1
+    used.i64()
+
+export fn benchmarkgame_recursive(n: i64, output: mutable u8&, output_capacity: usize) -> i64 = benchmarkgame_recursive_impl

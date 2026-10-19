@@ -23,6 +23,10 @@ from floatmm_oracle import INVALID_RESULT as FLOATMM_INVALID_RESULT
 from floatmm_oracle import MAX_OUTPUT_BYTES as FLOATMM_MAX_OUTPUT_BYTES
 from floatmm_oracle import MAX_PASSES as FLOATMM_MAX_PASSES
 from floatmm_oracle import OUTPUT_ERROR as FLOATMM_OUTPUT_ERROR
+from stanford_intmm_oracle import INVALID_RESULT as STANFORD_INTMM_INVALID_RESULT
+from stanford_intmm_oracle import MAX_OUTPUT_BYTES as STANFORD_INTMM_MAX_OUTPUT_BYTES
+from stanford_intmm_oracle import MAX_PASSES as STANFORD_INTMM_MAX_PASSES
+from stanford_intmm_oracle import OUTPUT_ERROR as STANFORD_INTMM_OUTPUT_ERROR
 from stream_sieve_oracle import I32_MIN as STREAM_SIEVE_MIN_COUNT
 from stream_sieve_oracle import MAX_COUNT as STREAM_SIEVE_MAX_COUNT
 from stream_sieve_oracle import MAX_OUTPUT_BYTES as STREAM_SIEVE_MAX_OUTPUT_BYTES
@@ -31,10 +35,26 @@ from shootout_sieve_oracle import MAX_ITERATIONS as SHOOTOUT_SIEVE_MAX_ITERATION
 from shootout_sieve_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_SIEVE_MAX_OUTPUT_BYTES
 from shootout_sieve_oracle import OUTPUT_ERROR as SHOOTOUT_SIEVE_OUTPUT_ERROR
 from shootout_sieve_oracle import SIEVE_LIMIT as SHOOTOUT_SIEVE_LIMIT
+from shootout_random_oracle import INVALID_RESULT as SHOOTOUT_RANDOM_INVALID_RESULT
+from shootout_random_oracle import MAX_CALL_COUNT as SHOOTOUT_RANDOM_MAX_CALL_COUNT
+from shootout_random_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_RANDOM_MAX_OUTPUT_BYTES
+from shootout_random_oracle import MIN_CALL_COUNT as SHOOTOUT_RANDOM_MIN_CALL_COUNT
+from shootout_random_oracle import OUTPUT_ERROR as SHOOTOUT_RANDOM_OUTPUT_ERROR
+from shootout_heapsort_oracle import INVALID_RESULT as SHOOTOUT_HEAPSORT_INVALID_RESULT
+from shootout_heapsort_oracle import MAX_LENGTH as SHOOTOUT_HEAPSORT_MAX_LENGTH
+from shootout_heapsort_oracle import MAX_OUTPUT_BYTES as SHOOTOUT_HEAPSORT_MAX_OUTPUT_BYTES
+from shootout_heapsort_oracle import MIN_LENGTH as SHOOTOUT_HEAPSORT_MIN_LENGTH
+from shootout_heapsort_oracle import OUTPUT_ERROR as SHOOTOUT_HEAPSORT_OUTPUT_ERROR
+from benchmarkgame_recursive_oracle import INVALID_RESULT as BENCHMARKGAME_RECURSIVE_INVALID_RESULT
+from benchmarkgame_recursive_oracle import MAX_N as BENCHMARKGAME_RECURSIVE_MAX_N
+from benchmarkgame_recursive_oracle import MAX_OUTPUT_BYTES as BENCHMARKGAME_RECURSIVE_MAX_OUTPUT_BYTES
+from benchmarkgame_recursive_oracle import MIN_N as BENCHMARKGAME_RECURSIVE_MIN_N
+from benchmarkgame_recursive_oracle import OUTPUT_ERROR as BENCHMARKGAME_RECURSIVE_OUTPUT_ERROR
 
 ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal", "integer_to_roman",
               "pascal_triangle_row", "floyd_triangle", "harmonic_series", "butterfly_pattern",
-              "magicdiamondpattern", "prime_factorial", "stream_sieve", "ary3", "sieve", "floatmm")
+              "magicdiamondpattern", "prime_factorial", "stream_sieve", "ary3", "sieve", "floatmm",
+              "stanford_intmm", "shootout_random", "shootout_heapsort", "benchmarkgame_recursive")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -175,6 +195,425 @@ def corpus(workload: dict) -> tuple[str, int]:
                 or fixtures["negative_passes_invalid"].get("input_value") != -1
                 or fixtures["above_profile_invalid"].get("input_value") != FLOATMM_MAX_PASSES + 1):
             raise ValueError("floatmm workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "stanford_intmm_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/IntMM/IntMM.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/IntMM/info.sh"
+        )
+        required_case_ids = {
+            "one_pass", "three_passes", "upstream_ten_pass_profile",
+            "zero_passes_invalid", "above_profile_invalid", "signed_64_minimum_invalid",
+            "signed_64_maximum_invalid", "insufficient_capacity", "null_output",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-stanford-intmm-bounded-decimal-v1"
+                or workload.get("algorithm") != "stanford_intmm"
+                or workload.get("function_symbol") != "stanford_intmm"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/IntMM/IntMM.c",
+                    "symbol": "main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Stanford/IntMM/info.sh",
+                    "bench_name": "IntMM",
+                    "source_files": ["IntMM.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "stanford_intmm_ascii",
+                    "meaning": "Number of complete source-equivalent IntMM passes; each pass emits its corresponding diagonal product cell.",
+                    "minimum": 1,
+                    "maximum": STANFORD_INTMM_MAX_PASSES,
+                    "invalid_result": STANFORD_INTMM_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": 'printf("%d\\n"): signed decimal diagonal product cell followed by LF for each pass',
+                    "definition": "For pass index r, the line contains the full 40x40 product's element [r][r] in the source's one-based indexing. Every pass regenerates identical A and B matrices because the source resets the seed.",
+                    "maximum_output_bytes": STANFORD_INTMM_MAX_OUTPUT_BYTES,
+                    "invalid_result": STANFORD_INTMM_INVALID_RESULT,
+                    "null_output_result": STANFORD_INTMM_OUTPUT_ERROR,
+                    "insufficient_capacity_result": STANFORD_INTMM_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or workload.get("source_bound") != {
+                    "description": "The launcher runs main with no options. It invokes Intmm for run indices 0 through 9. Each invocation reseeds to 74755, regenerates two 40x40 signed integer matrices from the 16-bit LCG, computes the full row-major product, and prints the selected diagonal cell as signed decimal plus LF. The bounded contract makes the number of complete source-equivalent passes an input from 1 through 10.",
+                    "upstream_default_passes": 10,
+                    "rows": 40,
+                    "columns": 40,
+                    "seed_initial_value": 74755,
+                    "lcg_multiplier": 1309,
+                    "lcg_increment": 13849,
+                    "lcg_mask": 65535,
+                    "matrix_value_range": [-60, 59],
+                    "profile_minimum_passes": 1,
+                    "profile_maximum_passes": STANFORD_INTMM_MAX_PASSES,
+                    "upstream_default_stdout": "\n".join(("-6984", "5732", "8656", "-2156", "-3040", "-2684", "-8664", "852", "560", "300")) + "\n",
+                    "invalid_source_case": "The suite wrapper returns -1 for pass counts below 1 or above 10; the launcher itself supplies no input and always performs ten passes.",
+                }
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("stanford_intmm workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "stanford_intmm" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("stanford_intmm README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in workload["cases"]}
+        maximum_case = fixtures["upstream_ten_pass_profile"]
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["one_pass"].get("input_value") != 1
+                or fixtures["one_pass"].get("expected_result") != len(expected_output(1, encoding)[1])
+                or fixtures["three_passes"].get("input_value") != 3
+                or fixtures["three_passes"].get("expected_result") != len(expected_output(3, encoding)[1])
+                or maximum_case.get("input_value") != STANFORD_INTMM_MAX_PASSES
+                or maximum_case.get("expected_result") != len(expected_output(
+                    STANFORD_INTMM_MAX_PASSES, encoding)[1])
+                or capacity_case.get("input_value") != STANFORD_INTMM_MAX_PASSES
+                or capacity_case.get("output_capacity") != 0
+                or capacity_case.get("expected_result") != STANFORD_INTMM_OUTPUT_ERROR
+                or null_case.get("input_value") != STANFORD_INTMM_MAX_PASSES
+                or null_case.get("output_capacity") != STANFORD_INTMM_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != STANFORD_INTMM_OUTPUT_ERROR
+                or fixtures["zero_passes_invalid"].get("input_value") != 0
+                or fixtures["above_profile_invalid"].get("input_value") != STANFORD_INTMM_MAX_PASSES + 1
+                or fixtures["signed_64_minimum_invalid"].get("input_value") != I64_MIN
+                or fixtures["signed_64_maximum_invalid"].get("input_value") != I64_MAX):
+            raise ValueError("stanford_intmm workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "shootout_random_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/random/random.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/random/info.sh"
+        )
+        required_case_ids = {
+            "one_call", "two_calls", "ten_calls", "thousand_calls", "maximum_bounded_calls",
+            "zero_calls", "negative_calls", "calls_above_bound", "signed_64_minimum",
+            "signed_64_maximum", "insufficient_capacity", "null_output",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-shootout-random-bounded-decimal-v1"
+                or workload.get("algorithm") != "shootout_random"
+                or workload.get("function_symbol") != "shootout_random"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/random/random.c",
+                    "symbol": "gen_random and main",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/random/info.sh",
+                    "bench_name": "random",
+                    "source_files": ["random.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "The launcher supplies no arguments. Without SMALL_PROBLEM_SIZE, random.c defaults to LENGTH=400000000; with that compile-time macro it defaults to 40000000. For positive argv count n, main performs n generator calls total: n-1 in the loop and one for the printed value. The generator starts with static state 42 and applies (state*3877+29573)%139968 before returning 100.0*state/139968. The suite preserves the recurrence and final nine-place decimal output while bounding n to 1..1000000.",
+                    "upstream_default_call_count": 400000000,
+                    "small_problem_size_default_call_count": 40000000,
+                    "profile_minimum_call_count": SHOOTOUT_RANDOM_MIN_CALL_COUNT,
+                    "profile_maximum_call_count": SHOOTOUT_RANDOM_MAX_CALL_COUNT,
+                    "source_output_format": 'printf("%.9f\\n", value)',
+                    "invalid_source_case": "The suite rejects nonpositive and above-bound values. The upstream argc/atoi path does not define the suite's bounded scalar contract.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "shootout_random_ascii",
+                    "meaning": "Number of LCG transitions from initial state 42; the final random value is returned as source-style decimal ASCII.",
+                    "minimum": SHOOTOUT_RANDOM_MIN_CALL_COUNT,
+                    "maximum": SHOOTOUT_RANDOM_MAX_CALL_COUNT,
+                    "invalid_result": SHOOTOUT_RANDOM_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "Nine digits after the decimal point followed by LF.",
+                    "definition": "After n transitions, format 100.0*state/139968 to nine fractional decimal digits and append LF. No intermediate values or final state are returned.",
+                    "maximum_output_bytes": SHOOTOUT_RANDOM_MAX_OUTPUT_BYTES,
+                    "invalid_result": SHOOTOUT_RANDOM_INVALID_RESULT,
+                    "null_output_result": SHOOTOUT_RANDOM_OUTPUT_ERROR,
+                    "insufficient_capacity_result": SHOOTOUT_RANDOM_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or SHOOTOUT_RANDOM_MAX_OUTPUT_BYTES != 13
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("shootout_random workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "shootout_random" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("shootout_random README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in workload["cases"]}
+        maximum_case = fixtures["maximum_bounded_calls"]
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["one_call"].get("input_value") != SHOOTOUT_RANDOM_MIN_CALL_COUNT
+                or fixtures["one_call"].get("expected_result") != len(expected_output(
+                    SHOOTOUT_RANDOM_MIN_CALL_COUNT, encoding)[1])
+                or maximum_case.get("input_value") != SHOOTOUT_RANDOM_MAX_CALL_COUNT
+                or maximum_case.get("expected_result") != len(expected_output(
+                    SHOOTOUT_RANDOM_MAX_CALL_COUNT, encoding)[1])
+                or capacity_case.get("input_value") != SHOOTOUT_RANDOM_MIN_CALL_COUNT
+                or capacity_case.get("output_capacity") != SHOOTOUT_RANDOM_MAX_OUTPUT_BYTES - 1
+                or capacity_case.get("expected_result") != SHOOTOUT_RANDOM_OUTPUT_ERROR
+                or null_case.get("input_value") != SHOOTOUT_RANDOM_MIN_CALL_COUNT
+                or null_case.get("output_capacity") != SHOOTOUT_RANDOM_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != SHOOTOUT_RANDOM_OUTPUT_ERROR
+                or fixtures["zero_calls"].get("input_value") != 0
+                or fixtures["negative_calls"].get("input_value") != -1
+                or fixtures["calls_above_bound"].get("input_value") != SHOOTOUT_RANDOM_MAX_CALL_COUNT + 1
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX):
+            raise ValueError("shootout_random workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "benchmarkgame_recursive_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/recursive/recursive.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/recursive/info.sh"
+        )
+        required_case_ids = {
+            "minimum_profile_n", "launcher_default", "negative_n", "n_above_bound",
+            "signed_64_minimum", "signed_64_maximum", "insufficient_capacity", "null_output",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-benchmarkgame-recursive-bounded-stdout-v1"
+                or workload.get("algorithm") != "benchmarkgame_recursive"
+                or workload.get("function_symbol") != "benchmarkgame_recursive"
+                or workload.get("description") != "Bounded port of all five recursive calls and output lines in BenchmarkGame/recursive/recursive.c."
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "BenchmarkGame/recursive/recursive.c",
+                    "symbol": "main, ack, fib, fibFP, tak, takFP",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "BenchmarkGame/recursive/info.sh",
+                    "bench_name": "recursive",
+                    "source_files": ["recursive.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "The source main hard-codes n=10 and prints five results in order: integer Ackermann(3,n+1), floating recursive Fibonacci(28+n), integer Takeuchi(3n,2n,n), integer Fibonacci(3), and floating Takeuchi(3.0,2.0,1.0). The suite exposes the source's n as a bounded scalar from 0 through 10; n=10 reproduces the launcher profile. Recursive benchmark implementations remain uncached, and each measurement uses a single call because fibFP grows exponentially.",
+                    "launcher_default_n": 10,
+                    "profile_minimum_n": BENCHMARKGAME_RECURSIVE_MIN_N,
+                    "profile_maximum_n": BENCHMARKGAME_RECURSIVE_MAX_N,
+                    "launcher_default_stdout": "Ack(3,11): 16381\nFib(38.0): 63245986.0\nTak(30,20,10): 10\nFib(3): 3\nTak(3.0,2.0,1.0): 2.0\n",
+                    "invalid_suite_input": "The suite returns -1 for n outside 0..10; the pinned main does not parse a command-line n.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "benchmarkgame_recursive_ascii",
+                    "meaning": "The source's n parameter; n controls all three variable recursive calls and n=10 is the pinned launcher profile.",
+                    "minimum": BENCHMARKGAME_RECURSIVE_MIN_N,
+                    "maximum": BENCHMARKGAME_RECURSIVE_MAX_N,
+                    "invalid_result": BENCHMARKGAME_RECURSIVE_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "The exact five source printf lines, in source order, with LF line endings.",
+                    "maximum_output_bytes": BENCHMARKGAME_RECURSIVE_MAX_OUTPUT_BYTES,
+                    "invalid_result": BENCHMARKGAME_RECURSIVE_INVALID_RESULT,
+                    "null_output_result": BENCHMARKGAME_RECURSIVE_OUTPUT_ERROR,
+                    "insufficient_capacity_result": BENCHMARKGAME_RECURSIVE_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 1,
+                    "warmup_rounds": 0,
+                    "repetitions_per_sample": 1,
+                }
+                or BENCHMARKGAME_RECURSIVE_MIN_N != 0
+                or BENCHMARKGAME_RECURSIVE_MAX_N != 10
+                or BENCHMARKGAME_RECURSIVE_MAX_OUTPUT_BYTES != 89
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("benchmarkgame_recursive workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "b" / "benchmarkgame_recursive" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("benchmarkgame_recursive README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in workload["cases"]}
+        minimum_case = fixtures["minimum_profile_n"]
+        launcher_case = fixtures["launcher_default"]
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        launcher_output = workload["source_bound"]["launcher_default_stdout"].encode("ascii")
+        if (minimum_case.get("input_value") != BENCHMARKGAME_RECURSIVE_MIN_N
+                or minimum_case.get("expected_result") != len(expected_output(
+                    BENCHMARKGAME_RECURSIVE_MIN_N, encoding)[1])
+                or launcher_case.get("input_value") != BENCHMARKGAME_RECURSIVE_MAX_N
+                or launcher_case.get("expected_result") != len(launcher_output)
+                or launcher_case.get("expected_output") != launcher_output.decode("ascii")
+                or capacity_case.get("input_value") != BENCHMARKGAME_RECURSIVE_MIN_N
+                or capacity_case.get("output_capacity") != len(expected_output(
+                    BENCHMARKGAME_RECURSIVE_MIN_N, encoding)[1]) - 1
+                or capacity_case.get("expected_result") != BENCHMARKGAME_RECURSIVE_OUTPUT_ERROR
+                or null_case.get("input_value") != BENCHMARKGAME_RECURSIVE_MIN_N
+                or null_case.get("output_capacity") != BENCHMARKGAME_RECURSIVE_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != BENCHMARKGAME_RECURSIVE_OUTPUT_ERROR
+                or fixtures["negative_n"].get("input_value") != -1
+                or fixtures["n_above_bound"].get("input_value") != BENCHMARKGAME_RECURSIVE_MAX_N + 1
+                or fixtures["signed_64_minimum"].get("input_value") != I64_MIN
+                or fixtures["signed_64_maximum"].get("input_value") != I64_MAX):
+            raise ValueError("benchmarkgame_recursive workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "shootout_heapsort_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/heapsort/heapsort.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/heapsort/info.sh"
+        )
+        required_case_ids = {
+            "minimum_length", "small_length", "medium_length", "maximum_bounded_length",
+            "zero_length_invalid", "one_length_invalid", "above_profile_invalid",
+            "signed_64_minimum_invalid", "signed_64_maximum_invalid",
+            "insufficient_capacity", "null_output",
+        }
+        case_ids = [case.get("id") for case in workload.get("cases", [])]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-shootout-heapsort-bounded-maximum-v1"
+                or workload.get("algorithm") != "shootout_heapsort"
+                or workload.get("function_symbol") != "shootout_heapsort"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/heapsort/heapsort.c",
+                    "symbol": "main and heapsort",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Shootout/heapsort/info.sh",
+                    "bench_name": "heapsort",
+                    "source_files": ["heapsort.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "The launcher supplies no run options. The source default is 8,000,000 values, reduced to 800,000 with SMALL_PROBLEM_SIZE. The suite bounds the one-based generated-double heapsort to input lengths 2 through 8,192. Each independent suite call resets last to 42, generates N doubles from the source LCG, performs the source heapsort, and prints the sorted maximum as %.6f followed by LF.",
+                    "upstream_default_length": 8000000,
+                    "small_problem_size_default_length": 800000,
+                    "profile_minimum_length": SHOOTOUT_HEAPSORT_MIN_LENGTH,
+                    "profile_maximum_length": SHOOTOUT_HEAPSORT_MAX_LENGTH,
+                    "lcg_initial_state": 42,
+                    "lcg_multiplier": 3877,
+                    "lcg_increment": 29573,
+                    "lcg_modulus": 139968,
+                    "source_output_format": "printf(\"%f\\n\", values[N])",
+                    "invalid_source_case": "The source does not define safe behavior for N below 2; the suite returns -1 outside its bounded profile.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "shootout_heapsort_ascii",
+                    "meaning": "Number of generated doubles to heapsort before returning the maximum in source-style decimal ASCII.",
+                    "minimum": SHOOTOUT_HEAPSORT_MIN_LENGTH,
+                    "maximum": SHOOTOUT_HEAPSORT_MAX_LENGTH,
+                    "invalid_result": SHOOTOUT_HEAPSORT_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "Fixed-point decimal with six fractional digits and LF, matching printf(\"%f\\n\").",
+                    "definition": "The largest of N values generated from the source LCG and sorted by its one-based max-heapsort is formatted to six fractional digits and followed by LF.",
+                    "maximum_output_bytes": SHOOTOUT_HEAPSORT_MAX_OUTPUT_BYTES,
+                    "invalid_result": SHOOTOUT_HEAPSORT_INVALID_RESULT,
+                    "null_output_result": SHOOTOUT_HEAPSORT_OUTPUT_ERROR,
+                    "insufficient_capacity_result": SHOOTOUT_HEAPSORT_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or SHOOTOUT_HEAPSORT_MIN_LENGTH != 2
+                or SHOOTOUT_HEAPSORT_MAX_LENGTH != 8192
+                or SHOOTOUT_HEAPSORT_MAX_OUTPUT_BYTES != 9
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("shootout_heapsort workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "s" / "shootout_heapsort" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("shootout_heapsort README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in workload["cases"]}
+        maximum_case = fixtures["maximum_bounded_length"]
+        capacity_case = fixtures["insufficient_capacity"]
+        null_case = fixtures["null_output"]
+        if (fixtures["minimum_length"].get("input_value") != SHOOTOUT_HEAPSORT_MIN_LENGTH
+                or fixtures["minimum_length"].get("expected_result") != len(expected_output(
+                    SHOOTOUT_HEAPSORT_MIN_LENGTH, encoding)[1])
+                or fixtures["small_length"].get("input_value") != 16
+                or fixtures["medium_length"].get("input_value") != 256
+                or maximum_case.get("input_value") != SHOOTOUT_HEAPSORT_MAX_LENGTH
+                or maximum_case.get("expected_result") != SHOOTOUT_HEAPSORT_MAX_OUTPUT_BYTES
+                or capacity_case.get("input_value") != 16
+                or capacity_case.get("output_capacity") != SHOOTOUT_HEAPSORT_MAX_OUTPUT_BYTES - 1
+                or capacity_case.get("expected_result") != SHOOTOUT_HEAPSORT_OUTPUT_ERROR
+                or null_case.get("input_value") != 16
+                or null_case.get("output_capacity") != SHOOTOUT_HEAPSORT_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != SHOOTOUT_HEAPSORT_OUTPUT_ERROR
+                or fixtures["zero_length_invalid"].get("input_value") != 0
+                or fixtures["one_length_invalid"].get("input_value") != 1
+                or fixtures["above_profile_invalid"].get("input_value") != SHOOTOUT_HEAPSORT_MAX_LENGTH + 1
+                or fixtures["signed_64_minimum_invalid"].get("input_value") != I64_MIN
+                or fixtures["signed_64_maximum_invalid"].get("input_value") != I64_MAX):
+            raise ValueError("shootout_heapsort workload is missing its reviewed boundary/output fixtures")
     elif encoding == "shootout_ary3_ascii":
         source_url = (
             "https://github.com/lac-dcc/Benchmarks/blob/"
@@ -479,6 +918,54 @@ def corpus(workload: dict) -> tuple[str, int]:
             add(value, required - 1)
             add(value, required, output_is_null=True)
         add(0, 0, output_is_null=True)
+    elif encoding == "stanford_intmm_ascii":
+        for value in range(1, STANFORD_INTMM_MAX_PASSES + 1):
+            add(value)
+        for value in (0, -1, STANFORD_INTMM_MAX_PASSES + 1, I64_MIN, I64_MAX):
+            add(value)
+        rng_intmm = random.Random(20261019)
+        for _ in range(32):
+            add(rng_intmm.randint(1, STANFORD_INTMM_MAX_PASSES))
+        for value in (1, 3, STANFORD_INTMM_MAX_PASSES):
+            required, _ = expected_output(value, encoding)
+            add(value, required - 1)
+            add(value, STANFORD_INTMM_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "shootout_random_ascii":
+        for value in (SHOOTOUT_RANDOM_MIN_CALL_COUNT, 2, 10, 1000,
+                      SHOOTOUT_RANDOM_MAX_CALL_COUNT, 0, -1,
+                      SHOOTOUT_RANDOM_MAX_CALL_COUNT + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (SHOOTOUT_RANDOM_MIN_CALL_COUNT, 1000, SHOOTOUT_RANDOM_MAX_CALL_COUNT):
+            required, _ = expected_output(value, encoding)
+            for capacity in sorted({0, max(0, required - 1), required, required + 1}):
+                add(value, capacity)
+        for value in (SHOOTOUT_RANDOM_MIN_CALL_COUNT, SHOOTOUT_RANDOM_MAX_CALL_COUNT):
+            add(value, SHOOTOUT_RANDOM_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "benchmarkgame_recursive_ascii":
+        for value in range(BENCHMARKGAME_RECURSIVE_MIN_N, BENCHMARKGAME_RECURSIVE_MAX_N + 1):
+            add(value)
+        for value in (-1, BENCHMARKGAME_RECURSIVE_MAX_N + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (BENCHMARKGAME_RECURSIVE_MIN_N, 1):
+            required, _ = expected_output(value, encoding)
+            for capacity in sorted({0, max(0, required - 1), required, required + 1}):
+                add(value, capacity)
+        for value in (BENCHMARKGAME_RECURSIVE_MIN_N, BENCHMARKGAME_RECURSIVE_MAX_N):
+            add(value, BENCHMARKGAME_RECURSIVE_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "shootout_heapsort_ascii":
+        for value in (SHOOTOUT_HEAPSORT_MIN_LENGTH, 3, 16, 256, 1024,
+                      SHOOTOUT_HEAPSORT_MAX_LENGTH):
+            add(value)
+        rng_heapsort = random.Random(20261020)
+        for _ in range(32):
+            add(rng_heapsort.randint(SHOOTOUT_HEAPSORT_MIN_LENGTH, 512))
+        for value in (0, 1, SHOOTOUT_HEAPSORT_MAX_LENGTH + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (SHOOTOUT_HEAPSORT_MIN_LENGTH, 16, SHOOTOUT_HEAPSORT_MAX_LENGTH):
+            required, _ = expected_output(value, encoding)
+            for capacity in sorted({0, max(0, required - 1), required, required + 1}):
+                add(value, capacity)
+            add(value, SHOOTOUT_HEAPSORT_MAX_OUTPUT_BYTES, output_is_null=True)
     elif encoding == "shootout_ary3_ascii":
         for value in range(1, 33):
             add(value)

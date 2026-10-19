@@ -13,7 +13,7 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | `BenchmarkGame/nsieve-bits/info.sh` | `nsieve-bits` | Newly implemented in this batch | [`benchmarkgame_nsieve_bits`](b/benchmarkgame_nsieve_bits/README.md): three packed-bit sieve passes and prime counts. |
 | `BenchmarkGame/partialsums/info.sh` | `partialsums` | Newly implemented in this batch | [`partialsums`](p/partialsums/README.md): nine sums in source order, bounded to `n<=10000`. |
 | `BenchmarkGame/puzzle/info.sh` | `puzzle` | Newly implemented in this batch | [`benchmarkgame_puzzle`](b/benchmarkgame_puzzle/README.md): deterministic array generation, shuffle, and XOR cancellation. |
-| `BenchmarkGame/recursive/info.sh` | `recursive` | Partial/related | [`ackermann`](a/ackermann/README.md), [`fibonacci_recursive`](f/fibonacci_recursive/README.md), and [`takeuchi`](t/takeuchi/README.md) cover related recurrences; the upstream combined workload also includes distinct floating-point Fibonacci calls. |
+| `BenchmarkGame/recursive/info.sh` | `recursive` | Newly implemented in this batch | [`benchmarkgame_recursive`](b/benchmarkgame_recursive/README.md): all five source-ordered recursive outputs, including floating-point Fibonacci and Takeuchi, with bounded `n`. |
 | `BenchmarkGame/spectral-norm/info.sh` | `spectral-norm` | Newly implemented in this batch | [`spectral_norm`](s/spectral_norm/README.md): ten paired `AᵀA` multiplications on the implicit source matrix. |
 | `BitBench/drop3/info.sh` | `drop3` | Newly implemented in this batch | [`drop3`](d/drop3/README.md): bounded 3-bit stream filtering with the source offset schedule and 20 passes. |
 | `BitBench/uuencode/info.sh` | `uuencode` | Newly implemented in this batch | [`uuencode`](u/uuencode/README.md): bounded source-order uuencoding with the fixed header, 45-byte lines, and exact output framing. |
@@ -42,11 +42,13 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | `Shootout/ackermann/info.sh` | `ackermann` | Newly implemented in this batch | [`ackermann`](a/ackermann/README.md): direct recursive source recurrence, including the launcher default `Ack(3,8)`. |
 | `Shootout/hash/info.sh` | `hash` | Newly implemented in this batch | [`shootout_hash`](s/shootout_hash/README.md): bounded source-compatible chained hash inserts and descending decimal lookups. |
 | `Shootout/sieve/info.sh` | `sieve` | Newly implemented in this batch | [`sieve`](s/sieve/README.md): bounded repeated byte-flag sieve over 2..8192 with exact source stdout framing. |
-| `Shootout/heapsort/info.sh` | `heapsort` | Partial/related | [`heap_sort`](h/heap_sort/README.md): same heap-sort operation; upstream sorts generated doubles and prints only the maximum. |
+| `Shootout/random/info.sh` | `random` | Newly implemented in this batch | [`shootout_random`](s/shootout_random/README.md): bounded source LCG sequence with exact nine-place final-value output. |
+| `Shootout/heapsort/info.sh` | `heapsort` | Newly implemented in this batch | [`shootout_heapsort`](s/shootout_heapsort/README.md): bounded source LCG, one-based generated-double heapsort, and exact maximum line. |
 | `Shootout/nestedloop/info.sh` | `nestedloop` | Exact local semantic match | [`nestedloop`](n/nestedloop/README.md) preserves the six nested loops and counter semantics. |
 | `Shootout/fib2/info.sh` | `fib2` | Newly implemented in this batch | [`fib2`](f/fib2/README.md): uncached recursive Fibonacci variant with source base values `fib(0)=fib(1)=1`. |
 | `Shootout/ary3/info.sh` | `ary3` | Newly implemented in this batch | [`ary3`](a/ary3/README.md): bounded reverse-index array accumulation with exact two-value output framing. |
 | `Stanford/FloatMM/info.sh` | `FloatMM` | Newly implemented in this batch | [`floatmm`](f/floatmm/README.md): bounded source-order binary32 matrix multiplication with the 40 printed diagonal lines. |
+| `Stanford/IntMM/info.sh` | `IntMM` | Newly implemented in this batch | [`stanford_intmm`](s/stanford_intmm/README.md): bounded source-order 40×40 integer matrix product and diagonal stdout prefix. |
 | `Stanford/Bubblesort/info.sh` | `Bubblesort` | Partial/related | [`bubble_sort`](b/bubble_sort/README.md): same adjacent-swap family; upstream runs a fixed generated workload and prints selected ranks. |
 | `Stanford/Quicksort/info.sh` | `Quicksort` | Partial/related | [`quick_sort`](q/quick_sort/README.md): same sort family, different pivot and partition scheme. |
 | `Stanford/Treesort/info.sh` | `Treesort` | Partial/related | [`tree_sort`](t/tree_sort/README.md): same BST-sort family, but upstream drops duplicate keys while local preserves them. |
@@ -83,7 +85,7 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | [`BenchmarkGame/nsieve-bits/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/nsieve-bits/info.sh) | `nsieve-bits` | Newly implemented in this batch |
 | [`BenchmarkGame/partialsums/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/partialsums/info.sh) | `partialsums` | Newly implemented in this batch |
 | [`BenchmarkGame/puzzle/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/puzzle/info.sh) | `puzzle` | Newly implemented in this batch |
-| [`BenchmarkGame/recursive/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/recursive/info.sh) | `recursive` | Partial/related |
+| [`BenchmarkGame/recursive/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/recursive/info.sh) | `recursive` | Newly implemented in this batch |
 | [`BenchmarkGame/spectral-norm/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/spectral-norm/info.sh) | `spectral-norm` | Newly implemented in this batch |
 
 ### BitBench
@@ -341,14 +343,14 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | [`Shootout/ary3/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/ary3/info.sh) | `ary3` | Newly implemented in this batch |
 | [`Shootout/fib2/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/fib2/info.sh) | `fib2` | Newly implemented in this batch |
 | [`Shootout/hash/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hash/info.sh) | `hash` | Newly implemented in this batch |
-| [`Shootout/heapsort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/heapsort/info.sh) | `heapsort` | Partial/related |
+| [`Shootout/heapsort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/heapsort/info.sh) | `heapsort` | Newly implemented in this batch |
 | [`Shootout/hello/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hello/info.sh) | `hello` | Pending semantic review/implementation |
 | [`Shootout/lists/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/lists/info.sh) | `lists` | Pending semantic review/implementation |
 | [`Shootout/matrix/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/matrix/info.sh) | `matrix` | Pending semantic review/implementation |
 | [`Shootout/methcall/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/methcall/info.sh) | `methcall` | Pending semantic review/implementation |
 | [`Shootout/nestedloop/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/nestedloop/info.sh) | `nestedloop` | Exact local semantic match |
 | [`Shootout/objinst/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/objinst/info.sh) | `objinst` | Pending semantic review/implementation |
-| [`Shootout/random/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/random/info.sh) | `random` | Pending semantic review/implementation |
+| [`Shootout/random/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/random/info.sh) | `random` | Newly implemented in this batch |
 | [`Shootout/sieve/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/sieve/info.sh) | `sieve` | Newly implemented in this batch |
 | [`Shootout/strcat/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/strcat/info.sh) | `strcat` | Pending semantic review/implementation |
 
@@ -358,7 +360,7 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 |---|---|---|
 | [`Stanford/Bubblesort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Bubblesort/info.sh) | `Bubblesort` | Partial/related |
 | [`Stanford/FloatMM/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/FloatMM/info.sh) | `FloatMM` | Newly implemented in this batch |
-| [`Stanford/IntMM/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/IntMM/info.sh) | `IntMM` | Pending semantic review/implementation |
+| [`Stanford/IntMM/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/IntMM/info.sh) | `IntMM` | Newly implemented in this batch |
 | [`Stanford/Oscar/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Oscar/info.sh) | `Oscar` | Pending semantic review/implementation |
 | [`Stanford/Puzzle/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Puzzle/info.sh) | `Puzzle` | Pending semantic review/implementation |
 | [`Stanford/Queens/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Queens/info.sh) | `Queens` | Pending semantic review/implementation |
