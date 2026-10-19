@@ -40,6 +40,8 @@ from stanford_bubblesort_oracle import expected_output as stanford_bubblesort_ex
 from stanford_towers_oracle import expected_output as stanford_towers_expected_output
 from stanford_queens_oracle import expected_output as stanford_queens_expected_output
 from stanford_realmm_oracle import expected_output as stanford_realmm_expected_output
+from evalloop_oracle import expected_output as evalloop_expected_output
+from mcgill_misr_oracle import expected_output as mcgill_misr_expected_output
 
 MAX_OUTPUT_BYTES = 8192
 
@@ -91,6 +93,10 @@ def expected_output(value: int, encoding: int | str = 2) -> tuple[int, bytes]:
         return stanford_queens_expected_output(value)
     if encoding == "stanford_realmm_decimal_stdout":
         return stanford_realmm_expected_output(value)
+    if encoding == "evalloop_stdout_ascii":
+        return evalloop_expected_output(value)
+    if encoding == "mcgill_misr_report_ascii":
+        return mcgill_misr_expected_output(value)
     if encoding == "prime_factorial_unique_u32le":
         return prime_factorial_expected_output(value)
     if encoding == "magicdiamondpattern":
@@ -556,6 +562,8 @@ def main() -> int:
                                           "n_queens_backtracking_csharp",
                                           "faster_perfect_numbers", "fizz_buzz", "magicdiamondpattern"}
                 else workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2)))
+    if algorithm == "evalloop":
+        encoding = workload.get("output", {}).get("encoding")
     timing = workload["measurement"]
     samples = args.samples if args.samples is not None else timing["sample_count"]
     warmups = args.warmups if args.warmups is not None else timing["warmup_rounds"]

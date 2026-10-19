@@ -1,0 +1,25 @@
+def versabench_beamformer_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length != 48: return -1
+    values: mutable f32[48] = zeroed
+    i: usize = 0
+    while i < 48:
+        value: f64 = input[i]
+        if value != value or value < -128.0 or value > 128.0: return -1
+        values[i] <- value.f32()
+        i <- i + 1
+    real: mutable f32 = 0.0
+    imag: mutable f32 = 0.0
+    channel: usize = 0
+    while channel < 12:
+        b: usize = 4 * channel
+        rr: f32 = values[b] * values[b + 2] - values[b + 1] * values[b + 3]
+        ii: f32 = values[b] * values[b + 3] + values[b + 1] * values[b + 2]
+        real <- real + rr
+        imag <- imag + ii
+        channel <- channel + 1
+    if output.is_null() or capacity < 2: return -2
+    output[0] <- real.f64()
+    output[1] <- imag.f64()
+    return 2
+
+export fn versabench_beamformer(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = versabench_beamformer_impl

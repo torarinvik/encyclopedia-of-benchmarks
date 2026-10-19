@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "trimaran-netbench-crc-i64-array-scalar-v1",
+  "algorithm": "netbench_crc",
+  "function_symbol": "netbench_crc",
+  "input": {
+    "kind": "signed_i64_array_of_bytes",
+    "encoding": "one unsigned byte value per signed i64 element; no header",
+    "length_range": [0, 256],
+    "maximum_input_length": 256,
+    "valid_value_range": [0, 255],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "low 32 bits of the source update_crc accumulator after one update_crc(0, bytes, length) call"
+  },
+  "source_bound": {
+    "description": "Isolates the pinned NetBench gen_crc_table/update_crc kernel from the packet launcher. Uses polynomial 0x04c11db7, generates all 256 table entries in source order, and processes input bytes in order. The internal state is modeled as wrapping u64 as on LP64; the returned low 32 bits match the source's (unsigned) output conversion and are invariant to unsigned long width.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Trimaran/netbench-crc/crc32.c",
+    "launcher_path": "Trimaran/netbench-crc/info.sh",
+    "license_notice": "NetBench source grants copy, modification, and redistribution under preserved notice and onward-redistribution terms; see LICENSE_NOTICE.txt."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "empty_input", "input_values": [], "expected_result": 0},
+    {"id": "zero_byte", "input_values": [0], "expected_result": 0},
+    {"id": "max_byte", "input_values": [255], "expected_result": 2985771188},
+    {"id": "ascii_digits", "input_values": [49, 50, 51, 52, 53, 54, 55, 56, 57], "expected_result": 2309065087},
+    {"id": "binary_edges", "input_values": [0, 1, 127, 128, 254, 255], "expected_result": 2710314186},
+    {"id": "invalid_low_byte", "input_values": [-1], "expected_result": -1},
+    {"id": "invalid_high_byte", "input_values": [256], "expected_result": -1}
+  ]
+}

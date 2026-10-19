@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mccat-qbsort-i64-array-bytes-v1",
+  "algorithm": "mccat_qbsort",
+  "function_symbol": "mccat_qbsort",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "McCat/01-qbsort/sort.c",
+    "method": "BubbleSort and QuickSort",
+    "signature": "BubbleSort(List *, compare); QuickSort(LinkList *, compare)",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/01-qbsort/sort.c",
+    "role": "algorithm"
+  },
+  "launcher": {
+    "path": "McCat/01-qbsort/info.sh",
+    "run_options": "1000",
+    "input_file": "benchmark.in3",
+    "source_input_items_per_case": 40,
+    "source_input_case_count": 1000
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "[mode, item_count, value_0, ...]",
+    "mode": {
+      "0": "BubbleSort",
+      "1": "QuickSort"
+    },
+    "mode_range": [
+      0,
+      1
+    ],
+    "item_count_range": [
+      1,
+      32
+    ],
+    "item_value_range": [
+      -2147483648,
+      2147483647
+    ],
+    "duplicates_allowed": true,
+    "maximum_valid_input_length": 34,
+    "maximum_parseable_input_length": 34,
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_32_bit_array",
+    "encoding": "ascending sorted values",
+    "maximum_output_elements": 32,
+    "maximum_output_bytes": 128,
+    "success_result": "output byte count",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_output_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "source_repeat_count": 1000,
+    "sample_count": 7,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10
+  },
+  "cases": [
+    {
+      "id": "bubble_reverse",
+      "input_values": [
+        0,
+        5,
+        5,
+        -1,
+        4,
+        0,
+        -3
+      ],
+      "expected_result": 20,
+      "expected_output_hex": "fdffffffffffffff000000000400000005000000",
+      "input_length": 7
+    },
+    {
+      "id": "quick_duplicates",
+      "input_values": [
+        1,
+        7,
+        3,
+        1,
+        3,
+        -2,
+        7,
+        0,
+        3
+      ],
+      "expected_result": 28,
+      "expected_output_hex": "feffffff000000000100000003000000030000000300000007000000",
+      "input_length": 9
+    },
+    {
+      "id": "bubble_int32_extremes",
+      "input_values": [
+        0,
+        4,
+        2147483647,
+        -2147483648,
+        0,
+        -1
+      ],
+      "expected_result": 16,
+      "expected_output_hex": "00000080ffffffff00000000ffffff7f",
+      "input_length": 6
+    },
+    {
+      "id": "quick_singleton",
+      "input_values": [
+        1,
+        1,
+        -9
+      ],
+      "expected_result": 4,
+      "expected_output_hex": "f7ffffff",
+      "input_length": 3
+    },
+    {
+      "id": "invalid_mode",
+      "input_values": [
+        2,
+        1,
+        5
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 3
+    },
+    {
+      "id": "zero_count",
+      "input_values": [
+        0,
+        0
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 2
+    },
+    {
+      "id": "trailing_word",
+      "input_values": [
+        1,
+        1,
+        5,
+        6
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 4
+    },
+    {
+      "id": "out_of_i32_range",
+      "input_values": [
+        0,
+        1,
+        2147483648
+      ],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 3
+    },
+    {
+      "id": "short_output",
+      "input_values": [
+        0,
+        2,
+        2,
+        1
+      ],
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "input_length": 4
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        1,
+        1,
+        4
+      ],
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "input_length": 3
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 0
+    }
+  ]
+}

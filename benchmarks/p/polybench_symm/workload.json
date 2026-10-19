@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "polybench-symm-i64-array-f64-v1",
+  "algorithm": "polybench_symm",
+  "function_symbol": "polybench_symm",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[m, n] where m is the symmetric A dimension and row count of B/C, n is the column count of B/C",
+    "input_length": 2,
+    "row_range": [1, 64],
+    "column_range": [1, 64],
+    "maximum_input_length": 2
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "row-major sum of all final C[i][j] values after the source-order SYMM update",
+    "invalid_input_result": -1e300
+  },
+  "source_bound": {
+    "description": "The pinned PolyBench/C launcher selects EXTRALARGE_DATASET (M=2000, N=2600). This bounded profile accepts m,n in 1..64. It uses alpha=1.5, beta=1.2; initializes C[i][j]=((i+j) mod 100)/m and B[i][j]=((n+i-j) mod 100)/m; initializes A's lower triangle and diagonal to ((i+j) mod 100)/m and its unused upper triangle to -999; and follows the original increasing i,j,k order and update expressions. The source dumps all of final C, while this scalar ABI reports its row-major binary64 sum.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/linear-algebra/blas/symm/symm.c",
+    "launcher_path": "PolyBench/linear-algebra/blas/symm/info.sh",
+    "original_contributor": "PolyBench/C (Louis-Noel Pouchet and Tomofumi Yuki)",
+    "license_note": "The Ohio State University Software Distribution License in benchmarks/p/polybench_symm/LICENSE.txt expressly permits redistribution and use of the Software in source and binary forms, with or without modification, subject to retaining the copyright notice, conditions, and capitalized disclaimer. It bars endorsement using Ohio State University's name without prior written permission and includes the stated warranty/liability disclaimer and user indemnification, defense, and hold-harmless obligation; the complete license also retains its funding and policy statement."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "one_cell", "input_values": [1, 1], "input_length": 2, "expected_result": 0.0},
+    {"id": "two_rows_three_columns", "input_values": [2, 3], "input_length": 2, "expected_result": 17.775},
+    {"id": "three_rows_two_columns", "input_values": [3, 2], "input_length": 2, "expected_result": 20.6},
+    {"id": "rectangular_small", "input_values": [8, 5], "input_length": 2, "expected_result": 413.62500000000006},
+    {"id": "polybench_mini_dimensions", "input_values": [20, 30], "input_length": 2, "expected_result": 23735.249999999993},
+    {"id": "maximum_dimensions", "input_values": [64, 64], "input_length": 2, "expected_result": 292436.8453125},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "short_input_invalid", "input_values": [8], "input_length": 1, "expected_result": -1e300},
+    {"id": "zero_rows_invalid", "input_values": [0, 8], "input_length": 2, "expected_result": -1e300},
+    {"id": "zero_columns_invalid", "input_values": [8, 0], "input_length": 2, "expected_result": -1e300},
+    {"id": "first_unsupported_dimension_invalid", "input_values": [65, 8], "input_length": 2, "expected_result": -1e300}
+  ]
+}

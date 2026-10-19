@@ -1,0 +1,42 @@
+# PolyBench/C heat-3d bounded port. See benchmarks/h/heat_3d/LICENSE.txt.
+extern trunc(value: f64) -> f64
+const MAX_N: usize = 6
+
+def polybench_heat_3d_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    n_value: f64 = input[0]
+    steps_value: f64 = input[1]
+    if n_value != n_value or steps_value != steps_value or trunc(n_value) != n_value or trunc(steps_value) != steps_value: return -1
+    if n_value < 1.0 or n_value > MAX_N.f64() or steps_value < 0.0 or steps_value > 4.0: return -1
+    n: usize = n_value.usize()
+    steps: usize = steps_value.usize()
+    cells: usize = n * n * n
+    if output.is_null() or capacity < cells: return -2
+    a: mutable f64[216] = zeroed
+    b: mutable f64[216] = zeroed
+    staged: mutable f64[216] = zeroed
+    for i in 0..<n:
+        for j in 0..<n:
+            for k in 0..<n:
+                q: usize = i * n * n + j * n + k
+                a[q] <- (i + j + (n - k)).f64() * 10.0 / n.f64()
+                b[q] <- a[q]
+    for _ in 0..<steps:
+        if n > 2:
+            for i in 1..<(n - 1):
+                for j in 1..<(n - 1):
+                    for k in 1..<(n - 1):
+                        q: usize = i * n * n + j * n + k
+                        center: f64 = a[q]
+                        b[q] <- 0.125 * (a[q + n * n] - 2.0 * center + a[q - n * n]) + 0.125 * (a[q + n] - 2.0 * center + a[q - n]) + 0.125 * (a[q + 1] - 2.0 * center + a[q - 1]) + center
+            for i in 1..<(n - 1):
+                for j in 1..<(n - 1):
+                    for k in 1..<(n - 1):
+                        q: usize = i * n * n + j * n + k
+                        center: f64 = b[q]
+                        a[q] <- 0.125 * (b[q + n * n] - 2.0 * center + b[q - n * n]) + 0.125 * (b[q + n] - 2.0 * center + b[q - n]) + 0.125 * (b[q + 1] - 2.0 * center + b[q - 1]) + center
+    for q in 0..<cells: staged[q] <- a[q]
+    for q in 0..<cells: output[q] <- staged[q]
+    cells.i64()
+
+export fn polybench_heat_3d(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = polybench_heat_3d_impl

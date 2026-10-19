@@ -1,0 +1,48 @@
+# PolyBench/C fdtd-2d bounded port. See benchmarks/f/fdtd_2d/LICENSE.txt.
+extern trunc(value: f64) -> f64
+const MAX_NX: usize = 6
+const MAX_NY: usize = 6
+const MAX_TMAX: usize = 4
+
+def fdtd_2d_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length != 3: return -1
+    t_value: f64 = input[0]
+    x_value: f64 = input[1]
+    y_value: f64 = input[2]
+    if t_value != t_value or x_value != x_value or y_value != y_value: return -1
+    if trunc(t_value) != t_value or trunc(x_value) != x_value or trunc(y_value) != y_value: return -1
+    if t_value < 0.0 or t_value > MAX_TMAX.f64() or x_value < 1.0 or x_value > MAX_NX.f64() or y_value < 1.0 or y_value > MAX_NY.f64(): return -1
+    tmax: usize = t_value.usize()
+    nx: usize = x_value.usize()
+    ny: usize = y_value.usize()
+    n: usize = nx * ny
+    required: usize = 3 * n
+    if output.is_null() or capacity < required: return -2
+    ex: mutable f64[36] = zeroed
+    ey: mutable f64[36] = zeroed
+    hz: mutable f64[36] = zeroed
+    fict: mutable f64[4] = zeroed
+    staged: mutable f64[108] = zeroed
+    for t in 0..<tmax: fict[t] <- t.f64()
+    for i in 0..<nx:
+        for j in 0..<ny:
+            ex[i * ny + j] <- (i * (j + 1)).f64() / nx.f64()
+            ey[i * ny + j] <- (i * (j + 2)).f64() / ny.f64()
+            hz[i * ny + j] <- (i * (j + 3)).f64() / nx.f64()
+    for t in 0..<tmax:
+        for j in 0..<ny: ey[j] <- fict[t]
+        for i in 1..<nx:
+            for j in 0..<ny: ey[i * ny + j] <- ey[i * ny + j] - 0.5 * (hz[i * ny + j] - hz[(i - 1) * ny + j])
+        for i in 0..<nx:
+            for j in 1..<ny: ex[i * ny + j] <- ex[i * ny + j] - 0.5 * (hz[i * ny + j] - hz[i * ny + j - 1])
+        if nx > 1 and ny > 1:
+            for i in 0..<(nx - 1):
+                for j in 0..<(ny - 1): hz[i * ny + j] <- hz[i * ny + j] - 0.7 * ((ex[i * ny + j + 1] - ex[i * ny + j]) + (ey[(i + 1) * ny + j] - ey[i * ny + j]))
+    for i in 0..<n:
+        staged[i] <- ex[i]
+        staged[n + i] <- ey[i]
+        staged[2 * n + i] <- hz[i]
+    for i in 0..<required: output[i] <- staged[i]
+    required.i64()
+
+export fn fdtd_2d(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = fdtd_2d_impl

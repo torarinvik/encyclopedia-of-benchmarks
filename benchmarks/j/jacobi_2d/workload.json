@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-polybench-jacobi-2d-float64-slice-io-v1",
+  "algorithm": "jacobi_2d",
+  "function_symbol": "jacobi_2d",
+  "description": "Run the source-order two-array Jacobi 2D stencil over deterministic initial matrices.",
+  "pinned_sources": [
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/stencils/jacobi-2d/jacobi-2d.c",
+      "symbols": ["init_array", "kernel_jacobi_2d"],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/jacobi-2d/jacobi-2d.c",
+      "role": "algorithm"
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/stencils/jacobi-2d/jacobi-2d.h",
+      "symbols": ["MINI_DATASET", "EXTRALARGE_DATASET", "DATA_TYPE_IS_DOUBLE"],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/jacobi-2d/jacobi-2d.h",
+      "role": "dataset-and-type"
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/stencils/jacobi-2d/info.sh",
+      "symbols": ["EXTRALARGE_DATASET"],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/jacobi-2d/info.sh",
+      "role": "launcher"
+    }
+  ],
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n, tsteps]",
+    "n_range": [1, 30],
+    "tsteps_range": [0, 20],
+    "values_must_be_exact_integers": true,
+    "maximum_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "initialization": "A[i][j] = (i*(j+2)+2)/n and B[i][j] = (i*(j+3)+3)/n, matching init_array; n=30 and tsteps=20 are PolyBench MINI_DATASET.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "operation": "Run kernel_jacobi_2d for tsteps iterations and return the final A matrix in row-major order.",
+    "source_order": [
+      "initialize A and B in ascending row-major order",
+      "for each step, update B[i][j] = 0.2 * (A[i][j] + A[i][j-1] + A[i][j+1] + A[i+1][j] + A[i-1][j]) with i then j ascending over the interior",
+      "then update A[i][j] with the same neighbor order using B and the same loop order",
+      "retain initialized boundary cells in both arrays"
+    ],
+    "invalid_output_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "n*n binary64 cells A[0..n-1][0..n-1] in row-major order.",
+    "maximum_elements": 900,
+    "success_result": "output element count (n*n)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 900,
+    "meaning": "Maximum returned A-matrix length; implementations use two bounded 30 by 30 local matrices."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "single_cell_zero_steps", "input_values": [1, 0], "input_length": 2, "expected_result": 1, "expected_output": [2.0]},
+    {"id": "two_by_two_twenty_steps", "input_values": [2, 20], "input_length": 2, "expected_result": 4, "expected_output": [1.0, 1.0, 2.0, 2.5]},
+    {"id": "three_by_three_zero_steps", "input_values": [3, 0], "input_length": 2, "expected_result": 9, "expected_output": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666, 1.3333333333333333, 1.6666666666666667, 2.0, 2.0, 2.6666666666666665, 3.3333333333333335]},
+    {"id": "three_by_three_one_step", "input_values": [3, 1], "input_length": 2, "expected_result": 9, "expected_output": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666, 1.3333333333333333, 2.2, 2.0, 2.0, 2.6666666666666665, 3.3333333333333335]},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1, "expected_output": []},
+    {"id": "fractional_steps", "input_values": [3, 1.5], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "first_unsupported_dimension", "input_values": [31, 1], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "first_unsupported_steps", "input_values": [3, 21], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "trailing_input_invalid", "input_values": [3, 1, 0], "input_length": 3, "expected_result": -1, "expected_output": []},
+    {"id": "short_output_capacity", "input_values": [3, 1], "input_length": 2, "output_capacity": 8, "expected_result": -2, "expected_output": []},
+    {"id": "null_output", "input_values": [3, 1], "input_length": 2, "output_capacity": 900, "output_is_null": true, "expected_result": -2, "expected_output": []}
+  ]
+}

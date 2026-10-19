@@ -1,0 +1,95 @@
+const MAX_WORDS: usize = 160
+const MAX_OUTPUT_BYTES: usize = 18
+const RAW5: u32[32] = [
+    0x0d80, 0x05a2, 0x0c60, 0x0cc0, 0x0ca0, 0x10a2, 0x10c2, 0x10e0,
+    0x0d20, 0x1122, 0x1142, 0x1160, 0x1182, 0x11a0, 0x11c0, 0x05e0,
+    0x0e20, 0x1222, 0x1242, 0x1260, 0x1282, 0x12a0, 0x12c0, 0x06e0,
+    0x1302, 0x1320, 0x1340, 0x0760, 0x0380, 0x07a0, 0x0e80, 0x06a2
+]
+const RAW3: u32[8] = [0x0c08, 0x0c04, 0x1009, 0x100c, 0x1011, 0x1014, 0x0018, 0x041c]
+
+def encode_one(packed_word: u32, disparity: mutable u32&) -> u32:
+    data: u32 = packed_word & 255
+    k: u32 = packed_word >> 8
+    index5: usize = (data >> 3).usize()
+    index3: usize = (data & 7).usize()
+    lookup5: mutable u32 = RAW5[index5]
+    lookup3: mutable u32 = RAW3[index3]
+    if k == 1 and index5 == 7:
+        lookup5 <- 0x04e2
+    if k == 1:
+        if index3 >= 2 and index3 <= 5:
+            lookup3 <- (lookup3 & ~0x1000) | 0x0800
+        elif index3 == 7:
+            lookup3 <- 0x040d
+
+    result: mutable u32 = 0
+    disparity1: mutable u32 = 0
+    if (lookup5 & 0x1000) != 0:
+        result <- lookup5 & 0x03e2
+        disparity1 <- disparity
+    else:
+        code5: u32 = lookup5 & 0x03e2
+        plus5: u32 = if (lookup5 & 0x0800) != 0: 1 else: 0
+        flip5: u32 = if (lookup5 & 0x0400) != 0: 1 else: 0
+        if disparity == plus5: result <- code5 else: result <- code5 ^ 0x03e2
+        disparity1 <- disparity ^ flip5
+
+    if (lookup3 & 0x1000) != 0:
+        result <- result | (lookup3 & 0x001d)
+        disparity <- disparity1
+    else:
+        code3: u32 = lookup3 & 0x001d
+        plus3: u32 = if (lookup3 & 0x0800) != 0: 1 else: 0
+        flip3: u32 = if (lookup3 & 0x0400) != 0: 1 else: 0
+        if disparity1 == plus3: result <- result | code3 else: result <- result | (code3 ^ 0x001d)
+        disparity <- disparity1 ^ flip3
+    result
+
+def append_line(value: u32, staged: mutable u8&, used: mutable usize&) -> void:
+    digit: mutable usize = 0
+    while digit < 8:
+        shift: usize = (7 - digit) * 4
+        nibble: u32 = (value >> shift) & 15
+        if nibble < 10:
+            staged[used] <- (48 + nibble).u8()
+        else:
+            staged[used] <- (55 + nibble).u8()
+        used <- used + 1
+        digit <- digit + 1
+    staged[used] <- 10.u8()
+    used <- used + 1
+
+def versabench_8b10b_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length > MAX_WORDS or (length > 0 and input.is_null()): return -1
+    index: mutable usize = 0
+    while index < length:
+        if input[index] < 0 or input[index] > 511: return -1
+        index <- index + 1
+
+    sample_count: usize = 0
+    if length > 0: sample_count <- 1 + (length - 1) / 128
+    required: usize = sample_count * 9
+    if required > 0 and (output.is_null() or capacity < required): return -2
+
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    used: mutable usize = 0
+    disparity: mutable u32 = 0
+    pass_index: mutable usize = 0
+    while pass_index < length:
+        index <- 0
+        while index < length:
+            encoded: u32 = encode_one(input[index].u32(), disparity&)
+            if pass_index + 1 == length and index % 128 == 0:
+                append_line(encoded, staged&, used&)
+            index <- index + 1
+        pass_index <- pass_index + 1
+
+    index <- 0
+    while index < required:
+        output[index] <- staged[index]
+        index <- index + 1
+    used.i64()
+
+export fn versabench_8b10b(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64 = versabench_8b10b_impl

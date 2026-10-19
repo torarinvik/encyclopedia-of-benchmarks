@@ -1,0 +1,30 @@
+{
+  "schema_version":1,
+  "id":"lac-dcc-polybench-seidel-2d-float64-slice-io-v1",
+  "algorithm":"polybench_seidel_2d",
+  "function_symbol":"polybench_seidel_2d",
+  "description":"Run the bounded source-order in-place Seidel 2D stencil on the initialized PolyBench matrix.",
+  "pinned_sources":[
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/seidel-2d/seidel-2d.c","symbols":["init_array","kernel_seidel_2d"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/seidel-2d/seidel-2d.c","role":"algorithm-and-initialization"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/seidel-2d/seidel-2d.h","symbols":["N","TSTEPS","DATA_TYPE_IS_DOUBLE"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/seidel-2d/seidel-2d.h","role":"dataset-and-type"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/seidel-2d/info.sh","symbols":["EXTRALARGE_DATASET"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/seidel-2d/info.sh","role":"launcher"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/LICENSE.txt","symbols":["Ohio State University Software Distribution License"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/LICENSE.txt","role":"license"}
+  ],
+  "pinned_launcher":{"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/seidel-2d/info.sh","bench_name":"seidel-2d","source_selection":"*.c","compile_flags":["-I.","-DPOLYBENCH_DUMP_ARRAYS","-DEXTRALARGE_DATASET"],"run_options":[]},
+  "source_bound":{"launcher_dataset":{"n":4000,"tsteps":1000},"suite_bounds":{"n":[1,6],"tsteps":[0,4]},"initialization":"A[i,j]=((double)i*(j+2)+2)/n","kernel":"For each step, in-place update interior row-major with the 3x3 neighborhood sum divided by 9.","output_order":"complete final A matrix row-major"},
+  "input":{"kind":"finite_float64_array","encoding":"[n,tsteps] exact integral binary64","input_length":2,"maximum_input_length":2,"dimension_ranges":{"n":[1,6],"tsteps":[0,4]},"invalid_input_result":-1},
+  "contract":{"operation":"Return final initialized A after in-place source-order Seidel sweeps.","source_order":["initialize A in ascending i,j order","for each timestep, update i ascending from one through n-2","within each row update j ascending from one through n-2 immediately from current A","sum neighborhood terms in source order and divide by 9"],"invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "output":{"kind":"float64_matrix","encoding":"n*n final A values row-major","maximum_elements":36,"success_result":"n*n output elements","absolute_tolerance":1e-12,"relative_tolerance":1e-12,"no_write_on_error":true},
+  "workspace":{"elements":72,"meaning":"One 6x6 mutable matrix and one 6x6 staged output."},
+  "measurement":{"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100,"absolute_tolerance":1e-12,"relative_tolerance":1e-12},
+  "cases":[
+    {"id":"one_cell_zero_steps","input_values":[1,0],"input_length":2,"output_capacity":1,"expected_result":1,"expected_output":[2]},
+    {"id":"two_by_two_four_steps_no_interior","input_values":[2,4],"input_length":2,"output_capacity":4,"expected_result":4,"expected_output":[1,1,2,2.5]},
+    {"id":"three_by_three_one_step","input_values":[3,1],"input_length":2,"output_capacity":9,"expected_result":9,"expected_output":[0.6666666666666666,0.6666666666666666,0.6666666666666666,1.3333333333333333,1.5555555555555556,2,2,2.3333333333333335,2.6666666666666665]},
+    {"id":"empty_invalid","input_values":[],"input_length":0,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional_dimension","input_values":[3,1.5],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"unsupported_dimension","input_values":[7,1],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"unsupported_timestep","input_values":[3,5],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"short_output","input_values":[2,1],"input_length":2,"output_capacity":3,"expected_result":-2,"expected_output":[]}
+  ]
+}

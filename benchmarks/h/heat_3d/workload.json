@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-polybench-heat-3d-float64-slice-io-v1",
+  "algorithm": "heat_3d",
+  "function_symbol": "polybench_heat_3d",
+  "description": "Run the bounded PolyBench 3D heat stencil for source-ordered timesteps on deterministic initialized fields.",
+  "pinned_sources": [
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/heat-3d/heat-3d.c","symbols":["init_array","kernel_heat_3d"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/heat-3d/heat-3d.c","role":"algorithm-and-initialization"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/heat-3d/heat-3d.h","symbols":["N","TSTEPS","DATA_TYPE_IS_DOUBLE"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/heat-3d/heat-3d.h","role":"dataset-and-type"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/heat-3d/info.sh","symbols":["EXTRALARGE_DATASET"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/heat-3d/info.sh","role":"launcher"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/LICENSE.txt","symbols":["Ohio State University Software Distribution License"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/LICENSE.txt","role":"license"}
+  ],
+  "pinned_launcher":{"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/heat-3d/info.sh","bench_name":"heat-3d","source_selection":"*.c","compile_flags":["-I.","-DPOLYBENCH_DUMP_ARRAYS","-DEXTRALARGE_DATASET"],"run_options":[]},
+  "source_bound":{"launcher_dataset":{"tsteps":1000,"n":200},"suite_bounds":{"n":[1,6],"tsteps":[0,4]},"initialization":"A[i,j,k]=B[i,j,k]=((i+j+(n-k))*10)/n in binary64","kernel":"For each timestep, update B interior from A then A interior from B; each update adds three 0.125-scaled axis second differences and the center value.","output_order":"complete final A cube, i-major then j then k"},
+  "input":{"kind":"finite_float64_array","encoding":"[n,tsteps] as exact integral binary64 values","input_length":2,"maximum_input_length":2,"dimension_ranges":{"n":[1,6],"tsteps":[0,4]},"invalid_input_result":-1},
+  "contract":{"operation":"Return final initialized A after the bounded source recurrence.","source_order":["initialize A and B with the pinned formula","for each requested step, update B interior in ascending i,j,k order from A","then update A interior in ascending i,j,k order from B","leave all boundary cells unchanged"],"invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "output":{"kind":"float64_array","encoding":"n*n*n binary64 values of A in i,j,k row-major order","maximum_elements":216,"success_result":"n*n*n output elements","absolute_tolerance":1e-12,"relative_tolerance":1e-12,"no_write_on_error":true},
+  "workspace":{"elements":648,"meaning":"Two bounded 6x6x6 fields and one 6x6x6 staged output."},
+  "measurement":{"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100,"absolute_tolerance":1e-12,"relative_tolerance":1e-12},
+  "cases":[
+    {"id":"one_cell_zero_steps","input_values":[1,0],"input_length":2,"output_capacity":1,"expected_result":1,"expected_output":[10]},
+    {"id":"two_cube_one_step_no_interior","input_values":[2,1],"input_length":2,"output_capacity":8,"expected_result":8,"expected_output":[10,5,15,10,15,10,20,15]},
+    {"id":"three_cube_one_step","input_values":[3,1],"input_length":2,"output_capacity":27,"expected_result":27,"expected_output":[10,6.666666666666667,3.3333333333333335,13.333333333333334,10,6.666666666666667,16.666666666666668,13.333333333333334,10,13.333333333333334,10,6.666666666666667,16.666666666666668,13.333333333333334,10,20,16.666666666666668,13.333333333333334,16.666666666666668,13.333333333333334,10,20,16.666666666666668,13.333333333333334,23.333333333333332,20,16.666666666666668]},
+    {"id":"empty_invalid","input_values":[],"input_length":0,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional_steps","input_values":[3,1.5],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"first_unsupported_dimension","input_values":[7,1],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"first_unsupported_timestep","input_values":[3,5],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"short_output","input_values":[2,1],"input_length":2,"output_capacity":7,"expected_result":-2,"expected_output":[]}
+  ]
+}

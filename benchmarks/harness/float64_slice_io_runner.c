@@ -14,7 +14,7 @@
 #endif
 
 #define MAX_INPUT_LENGTH 273
-#define MAX_OUTPUT_ELEMENTS 64
+#define MAX_OUTPUT_ELEMENTS 1024
 #define SENTINEL 0x1.5a5a5a5a5a5a5p+40
 typedef int64_t (*slice_fn)(const double *, size_t, double *, size_t);
 extern int64_t BENCHMARK_FUNCTION(const double *input, size_t input_len,

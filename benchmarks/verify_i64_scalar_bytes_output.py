@@ -122,6 +122,15 @@ from stanford_realmm_oracle import INVALID_RESULT as STANFORD_REALMM_INVALID_RES
 from stanford_realmm_oracle import MAX_OUTPUT_BYTES as STANFORD_REALMM_MAX_OUTPUT_BYTES
 from stanford_realmm_oracle import MAX_PASSES as STANFORD_REALMM_MAX_PASSES
 from stanford_realmm_oracle import OUTPUT_ERROR as STANFORD_REALMM_OUTPUT_ERROR
+from evalloop_oracle import INVALID_RESULT as EVALLOOP_INVALID_RESULT
+from evalloop_oracle import MAX_OUTPUT_BYTES as EVALLOOP_MAX_OUTPUT_BYTES
+from evalloop_oracle import MAX_PASSES as EVALLOOP_MAX_PASSES
+from evalloop_oracle import OUTPUT_ERROR as EVALLOOP_OUTPUT_ERROR
+from mcgill_misr_oracle import INVALID_RESULT as MCGILL_MISR_INVALID_RESULT
+from mcgill_misr_oracle import MAX_EXPERIMENTS as MCGILL_MISR_MAX_EXPERIMENTS
+from mcgill_misr_oracle import MAX_OUTPUT_BYTES as MCGILL_MISR_MAX_OUTPUT_BYTES
+from mcgill_misr_oracle import MIN_EXPERIMENTS as MCGILL_MISR_MIN_EXPERIMENTS
+from mcgill_misr_oracle import OUTPUT_ERROR as MCGILL_MISR_OUTPUT_ERROR
 
 ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal", "integer_to_roman",
               "pascal_triangle_row", "floyd_triangle", "harmonic_series", "butterfly_pattern",
@@ -130,7 +139,7 @@ ALGORITHMS = ("decimal_to_binary", "decimal_to_octal", "decimal_to_hexadecimal",
               "stanford_quicksort", "almabench", "queens", "npb_is", "stanford_treesort",
               "stanford_bubblesort", "stanford_towers", "stanford_queens", "shootout_hello",
               "stanford_realmm", "shootout_lists", "shootout_strcat", "shootout_matrix",
-              "shootout_methcall", "shootout_objinst")
+              "shootout_methcall", "shootout_objinst", "evalloop", "mcgill_misr")
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
 
@@ -164,6 +173,8 @@ def expected_call(value: int, encoding: int | str, output_capacity: int,
 
 def corpus(workload: dict) -> tuple[str, int]:
     encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
+    if workload.get("algorithm") == "evalloop":
+        encoding = workload.get("output", {}).get("encoding")
     capacity_error_result = workload.get("output", {}).get(
         "capacity_error_result", workload.get("output", {}).get("insufficient_capacity_result", -2))
 
@@ -920,6 +931,207 @@ def corpus(workload: dict) -> tuple[str, int]:
                 or null_case.get("output_is_null") is not True
                 or null_case.get("expected_result") != STANFORD_BUBBLESORT_OUTPUT_ERROR):
             raise ValueError("stanford_bubblesort workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "evalloop_stdout_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/evalloop/evalloop.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/evalloop/info.sh"
+        )
+        required_case_ids = {
+            "zero_passes", "one_source_buffer_evaluation", "two_source_buffer_evaluations",
+            "maximum_bounded_profile", "below_profile", "above_profile",
+            "signed_64_minimum", "signed_64_maximum", "short_capacity", "null_output",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-misc-evalloop-bounded-v1"
+                or workload.get("algorithm") != "evalloop"
+                or workload.get("function_symbol") != "evalloop"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Misc/evalloop/evalloop.c",
+                    "symbol": "main",
+                    "url": source_url,
+                    "license_note": "The referenced source has no explicit license notice; these are independently written ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "Misc/evalloop/info.sh",
+                    "bench_name": "evalloop",
+                    "source_files": ["evalloop.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "Initialize 2,047 opcodes as i % 31 + 1 followed by opcode 0; each evaluation starts at the first opcode, dispatches every nonzero command, adds its opcode to a uint32 accumulator, and exits on 0.",
+                    "source_buffer_size": 2048,
+                    "source_nonzero_commands_per_evaluation": 2047,
+                    "source_default_passes": 100000,
+                    "source_default_sum": 3273700000,
+                    "profile_minimum_passes": 0,
+                    "profile_maximum_passes": EVALLOOP_MAX_PASSES,
+                    "sum_per_evaluation": 32737,
+                    "output_format": r"Sum: <unsigned decimal uint32>\n",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "evalloop_passes",
+                    "meaning": "Number of times to evaluate the generated opcode buffer.",
+                    "minimum": 0,
+                    "maximum": EVALLOOP_MAX_PASSES,
+                    "invalid_result": EVALLOOP_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "evalloop_stdout_ascii",
+                    "definition": "The accumulated uint32 sum formatted as `Sum: `, unsigned decimal digits, and LF.",
+                    "maximum_output_bytes": EVALLOOP_MAX_OUTPUT_BYTES,
+                    "invalid_result": EVALLOOP_INVALID_RESULT,
+                    "null_output_result": EVALLOOP_OUTPUT_ERROR,
+                    "insufficient_capacity_result": EVALLOOP_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or EVALLOOP_MAX_PASSES != 1000
+                or EVALLOOP_MAX_OUTPUT_BYTES != 14
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("evalloop workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "e" / "evalloop" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("evalloop README is missing its pinned source or launcher link")
+        fixtures = {case["id"]: case for case in cases}
+        for case_id, value in (("zero_passes", 0), ("one_source_buffer_evaluation", 1),
+                               ("two_source_buffer_evaluations", 2),
+                               ("maximum_bounded_profile", EVALLOOP_MAX_PASSES)):
+            fixture = fixtures[case_id]
+            expected_result, expected = expected_output(value, encoding)
+            if (fixture.get("input_value") != value
+                    or fixture.get("expected_result") != expected_result
+                    or fixture.get("expected_output", "").encode("ascii") != expected):
+                raise ValueError(f"evalloop valid fixture {case_id} does not match its oracle")
+        for case_id, value in (("below_profile", -1),
+                               ("above_profile", EVALLOOP_MAX_PASSES + 1),
+                               ("signed_64_minimum", I64_MIN),
+                               ("signed_64_maximum", I64_MAX)):
+            fixture = fixtures[case_id]
+            if (fixture.get("input_value") != value
+                    or fixture.get("expected_result") != EVALLOOP_INVALID_RESULT
+                    or fixture.get("expected_output") != ""):
+                raise ValueError(f"evalloop invalid fixture {case_id} is incorrect")
+        capacity_case = fixtures["short_capacity"]
+        null_case = fixtures["null_output"]
+        if (capacity_case.get("input_value") != 1
+                or capacity_case.get("output_capacity") != 10
+                or capacity_case.get("expected_result") != EVALLOOP_OUTPUT_ERROR
+                or capacity_case.get("expected_output") != ""
+                or null_case.get("input_value") != 1
+                or null_case.get("output_capacity") != EVALLOOP_MAX_OUTPUT_BYTES
+                or null_case.get("output_is_null") is not True
+                or null_case.get("expected_result") != EVALLOOP_OUTPUT_ERROR
+                or null_case.get("expected_output") != ""):
+            raise ValueError("evalloop workload is missing its reviewed boundary/output fixtures")
+    elif encoding == "mcgill_misr_report_ascii":
+        source_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/misr/misr.c"
+        )
+        launcher_url = (
+            "https://github.com/lac-dcc/Benchmarks/blob/"
+            "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/misr/info.sh"
+        )
+        required_case_ids = {
+            "minimum_profile_short_buffer", "maximum_profile_short_buffer",
+            "minimum_profile_null_output", "zero_experiments_invalid",
+            "negative_experiments_invalid", "above_profile_invalid",
+            "signed_64_minimum_invalid", "signed_64_maximum_invalid",
+        }
+        cases = workload.get("cases", [])
+        case_ids = [case.get("id") for case in cases]
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mcgill-misr-bounded-report-v1"
+                or workload.get("algorithm") != "mcgill_misr"
+                or workload.get("function_symbol") != "mcgill_misr"
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "McGill/misr/misr.c",
+                    "symbol": "main, simulate, init, create_link_list",
+                    "url": source_url,
+                    "license_note": "The referenced C source has no explicit license notice; these are independently written algorithm ports.",
+                }
+                or workload.get("pinned_launcher") != {
+                    "repository": "lac-dcc/Benchmarks",
+                    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+                    "path": "McGill/misr/info.sh",
+                    "bench_name": "misr",
+                    "source_files": ["misr.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": [],
+                }
+                or workload.get("source_bound") != {
+                    "description": "The launcher supplies no arguments. The source fixes reg_len=num_vect=10 and prob=0.25, uses default structure 1000000000 and seed48 words {1,0,0}, and runs 100000 experiments (30000 with SMALL_PROBLEM_SIZE). Each experiment copies the current good register into the faulty register, executes ten vectors through the two MISRs, then records whether any of the ten visible cells differ. The suite uses experiments as its scalar and bounds it to 1..1000. It preserves the POSIX 48-bit lrand48 recurrence, source register/update order, and two-line report while bounding runtime.",
+                    "upstream_default_experiments": 100000,
+                    "small_problem_size_experiments": 30000,
+                    "register_length": 10,
+                    "vectors_per_experiment": 10,
+                    "fault_probability": 0.25,
+                    "feedback_structure": "1000000000",
+                    "seed_words": [1, 0, 0],
+                    "random_recurrence": "state=(0x5DEECE66D*state+0xB) mod 2^48; lrand48=state>>17",
+                    "profile_minimum_experiments": MCGILL_MISR_MIN_EXPERIMENTS,
+                    "profile_maximum_experiments": MCGILL_MISR_MAX_EXPERIMENTS,
+                    "source_output_format": "header printf followed by reg_len, num_vect, prob, num_times, structure, seeds, and (num_times-num_true)/num_times with %.8e",
+                    "invalid_suite_case": "The suite rejects experiment counts outside 1..1000; the pinned main does not parse a runtime experiment count.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_scalar",
+                    "encoding": "mcgill_misr_report_ascii",
+                    "meaning": "Number of independent ten-vector MISR experiments, with source register, probability, structure, and seeds fixed to launcher defaults.",
+                    "minimum": MCGILL_MISR_MIN_EXPERIMENTS,
+                    "maximum": MCGILL_MISR_MAX_EXPERIMENTS,
+                    "invalid_result": MCGILL_MISR_INVALID_RESULT,
+                }
+                or workload.get("output") != {
+                    "kind": "source_stdout_ascii",
+                    "encoding": "The original report header, a space-prefixed parameter line, and LF endings.",
+                    "definition": "The two source printf outputs, including the space after the first LF; the final field is the fraction of experiments whose good and faulty visible registers match, formatted in scientific notation with eight fractional digits.",
+                    "maximum_output_bytes": MCGILL_MISR_MAX_OUTPUT_BYTES,
+                    "invalid_result": MCGILL_MISR_INVALID_RESULT,
+                    "null_output_result": MCGILL_MISR_OUTPUT_ERROR,
+                    "insufficient_capacity_result": MCGILL_MISR_OUTPUT_ERROR,
+                    "errors_write_nothing": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_scalar_bytes_output_call",
+                    "sample_count": 5,
+                    "warmup_rounds": 1,
+                    "repetitions_per_sample": 1,
+                }
+                or MCGILL_MISR_MIN_EXPERIMENTS != 1
+                or MCGILL_MISR_MAX_EXPERIMENTS != 1000
+                or MCGILL_MISR_MAX_OUTPUT_BYTES != 123
+                or len(case_ids) != len(required_case_ids)
+                or len(case_ids) != len(set(case_ids))
+                or set(case_ids) != required_case_ids):
+            raise ValueError("McGill MISR workload metadata does not match its reviewed contract")
+        readme = (ROOT / "benchmarks" / "m" / "mcgill_misr" / "README.md").read_text(
+            encoding="utf-8")
+        if source_url not in readme or launcher_url not in readme:
+            raise ValueError("McGill MISR README is missing its pinned source or launcher link")
     elif encoding == "shootout_hello_stdout_ascii":
         source_url = (
             "https://github.com/lac-dcc/Benchmarks/blob/"
@@ -2669,6 +2881,28 @@ def corpus(workload: dict) -> tuple[str, int]:
             required, _ = expected_output(value, encoding)
             add(value, required - 1)
             add(value, STANFORD_REALMM_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "evalloop_stdout_ascii":
+        for value in (0, 1, 2, 999, EVALLOOP_MAX_PASSES):
+            add(value)
+        for value in (-1, EVALLOOP_MAX_PASSES + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (1, EVALLOOP_MAX_PASSES):
+            required, _ = expected_output(value, encoding)
+            add(value, required - 1)
+            add(value, EVALLOOP_MAX_OUTPUT_BYTES, output_is_null=True)
+    elif encoding == "mcgill_misr_report_ascii":
+        for value in (MCGILL_MISR_MIN_EXPERIMENTS, 2, 10, 100,
+                      MCGILL_MISR_MAX_EXPERIMENTS):
+            add(value)
+        for value in (MCGILL_MISR_MIN_EXPERIMENTS - 1,
+                      MCGILL_MISR_MAX_EXPERIMENTS + 1, I64_MIN, I64_MAX):
+            add(value)
+        for value in (MCGILL_MISR_MIN_EXPERIMENTS, 10,
+                      MCGILL_MISR_MAX_EXPERIMENTS):
+            required, _ = expected_output(value, encoding)
+            add(value, required - 1)
+            add(value, MCGILL_MISR_MAX_OUTPUT_BYTES)
+            add(value, MCGILL_MISR_MAX_OUTPUT_BYTES, output_is_null=True)
     elif encoding == "shootout_lists_stdout_ascii":
         for value in (SHOOTOUT_LISTS_MIN_RUNS, 1, 2, SHOOTOUT_LISTS_MAX_RUNS):
             add(value)
@@ -2858,6 +3092,8 @@ def verify(algorithm: str, language: str, directory: Path, elisa_compiler: str |
     if len(records) != len(workload["cases"]):
         raise RuntimeError("recorder emitted an unexpected number of records")
     encoding = workload.get("input", {}).get("encoding", workload.get("input", {}).get("radix", 2))
+    if algorithm == "evalloop":
+        encoding = workload.get("output", {}).get("encoding")
     capacity_error_result = workload.get("output", {}).get(
         "capacity_error_result", workload.get("output", {}).get("insufficient_capacity_result", -2))
     for case, record in zip(workload["cases"], records):

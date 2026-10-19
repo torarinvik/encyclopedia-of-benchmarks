@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-versabench-beamformer-beamform-f32-f64-slice-v1",
+  "algorithm": "versabench_beamformer",
+  "function_symbol": "versabench_beamformer",
+  "description": "Bounded 12-channel complex BeamForm stage using source-order binary32 arithmetic.",
+  "pinned_sources": [
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "VersaBench/beamformer/beamformer.c",
+      "symbols": ["BeamForm"],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/beamformer/beamformer.c",
+      "role": "algorithm"
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "VersaBench/beamformer/info.sh",
+      "run_options": "-i 25 for SMALL_PROBLEM_SIZE; otherwise -i 400",
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/beamformer/info.sh",
+      "role": "launcher-profile"
+    }
+  ],
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "VersaBench/beamformer/info.sh",
+    "bench_name": "beamformer",
+    "source_files": ["beamformer.c"],
+    "compile_flags": ["-lm", "-DFP_ABSTOLERANCE=1e-5"],
+    "small_run_options": ["-i", "25"],
+    "default_run_options": ["-i", "400"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/beamformer/info.sh"
+  },
+  "workspace": {"elements": 2},
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "12 repetitions of [weight_real, weight_imaginary, sample_real, sample_imaginary]",
+    "channel_count": 12,
+    "exact_length": 48,
+    "value_range": [-128.0, 128.0],
+    "conversion": "each transported value is narrowed to IEEE-754 binary32 before arithmetic",
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "contract": {
+    "algorithm": "For channels in ascending order, real += wr*xr - wi*xi and imaginary += wr*xi + wi*xr, with each multiply, add, subtract, and accumulation rounded as binary32.",
+    "fused_multiply_add": false,
+    "output_buffer_check_after_input_validation": true,
+    "no_write_on_error": true,
+    "launcher_iteration_profile": "The full benchmark runs 25 (small) or 400 iterations; this package exposes one bounded BeamForm kernel call and excludes the surrounding pipeline."
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[real_sum, imaginary_sum], binary32 results promoted to binary64",
+    "maximum_elements": 2,
+    "success_result": 2,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "absolute_tolerance": 0.00002,
+    "relative_tolerance": 0.000002,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0.00002,
+    "relative_tolerance": 0.000002
+  },
+  "cases": [
+    {"id":"all_zero", "input_values":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":48, "expected_result":2, "expected_output":[0.0,0.0]},
+    {"id":"complex_accumulation", "input_values":[1,0,2,3,0,1,4,5,0.5,0.5,2,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":48, "expected_result":2, "expected_output":[-1.0,7.0]},
+    {"id":"single_active_channel", "input_values":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,-8,2], "input_length":48, "expected_result":2, "expected_output":[-8.0,2.0]},
+    {"id":"wrong_length", "input_values":[0,0], "input_length":2, "expected_result":-1, "expected_output":[]},
+    {"id":"out_of_range", "input_values":[129,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":48, "expected_result":-1, "expected_output":[]},
+    {"id":"short_output", "input_values":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":48, "output_capacity":1, "expected_result":-2, "expected_output":[]},
+    {"id":"null_output", "input_values":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":48, "output_is_null":true, "expected_result":-2, "expected_output":[]}
+  ]
+}

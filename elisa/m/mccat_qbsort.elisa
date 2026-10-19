@@ -1,0 +1,71 @@
+def mccat_qbsort_bubble(a: mutable i32&, n: usize):
+    if n < 2: return
+    end: mutable usize = n
+    while end > 1:
+        end <- end - 1
+        i: mutable usize = 0
+        while i + 1 < end:
+            if a[i + 1] < a[i]:
+                t: i32 = a[i]
+                a[i] <- a[i + 1]
+                a[i + 1] <- t
+            i <- i + 1
+
+def mccat_qbsort_quick(a: mutable i32&, n: usize):
+    if n < 2: return
+    pivot: i32 = a[0]
+    lower: mutable i32[32] = zeroed
+    upper: mutable i32[32] = zeroed
+    nl: mutable usize = 0
+    nu: mutable usize = 0
+    i: usize = 1
+    while i < n:
+        if a[i] < pivot:
+            lower[nl] <- a[i]
+            nl <- nl + 1
+        else:
+            upper[nu] <- a[i]
+            nu <- nu + 1
+        i <- i + 1
+    mccat_qbsort_quick(lower, nl)
+    mccat_qbsort_quick(upper, nu)
+    k: mutable usize = 0
+    i <- 0
+    while i < nl: a[k] <- lower[i]; k <- k + 1; i <- i + 1
+    a[k] <- pivot
+    k <- k + 1
+    i <- 0
+    while i < nu: a[k] <- upper[i]; k <- k + 1; i <- i + 1
+
+def mccat_qbsort_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > 34: return -1
+    mode: i64 = input[0]
+    count_value: i64 = input[1]
+    if (mode != 0 and mode != 1) or count_value < 1 or count_value > 32: return -1
+    count: usize = count_value.usize()
+    if length != count + 2: return -1
+    values: mutable i32[32] = zeroed
+    i: usize = 0
+    while i < count:
+        value: i64 = input[i + 2]
+        if value < -2147483648 or value > 2147483647: return -1
+        values[i] <- value.i32()
+        i <- i + 1
+    pass: usize = 0
+    while pass < 1000:
+        i <- 0
+        while i < count: values[i] <- input[i + 2].i32(); i <- i + 1
+        if mode == 0: mccat_qbsort_bubble(values, count)
+        else: mccat_qbsort_quick(values, count)
+        pass <- pass + 1
+    required: usize = 4 * count
+    if output.is_null() or output_capacity < required: return -2
+    i <- 0
+    while i < count:
+        bits: mutable u32 = values[i].u32()
+        b: usize = 0
+        while b < 4: output[i * 4 + b] <- (bits & 255).u8(); bits <- bits >> 8; b <- b + 1
+        i <- i + 1
+    return required.i64()
+
+export fn mccat_qbsort(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = mccat_qbsort_impl

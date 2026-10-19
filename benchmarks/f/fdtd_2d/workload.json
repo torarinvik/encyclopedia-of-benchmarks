@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-polybench-fdtd-2d-float64-slice-io-v1",
+  "algorithm": "fdtd_2d",
+  "function_symbol": "fdtd_2d",
+  "description": "Run the bounded PolyBench 2D finite-difference time-domain update from deterministic initialized fields.",
+  "pinned_sources": [
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/fdtd-2d/fdtd-2d.c","symbols":["init_array","kernel_fdtd_2d"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/fdtd-2d/fdtd-2d.c","role":"algorithm-and-initialization"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/fdtd-2d/fdtd-2d.h","symbols":["TMAX","NX","NY","DATA_TYPE_IS_DOUBLE"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/fdtd-2d/fdtd-2d.h","role":"dataset-and-type"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/fdtd-2d/info.sh","symbols":["LARGE_DATASET"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/stencils/fdtd-2d/info.sh","role":"launcher"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/LICENSE.txt","symbols":["Ohio State University Software Distribution License"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/LICENSE.txt","role":"license"}
+  ],
+  "pinned_launcher":{"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/stencils/fdtd-2d/info.sh","bench_name":"fdtd-2d","source_selection":"*.c","compile_flags":["-I.","-DPOLYBENCH_DUMP_ARRAYS","-DLARGE_DATASET"],"run_options":[]},
+  "source_bound":{"launcher_dataset":{"tmax":500,"nx":1000,"ny":1200},"suite_bounds":{"tmax":[0,4],"nx":[1,6],"ny":[1,6]},"initialization":"fict[t]=t; ex[i,j]=i*(j+1)/nx; ey[i,j]=i*(j+2)/ny; hz[i,j]=i*(j+3)/nx","kernel":"For each t: set ey[0,j]=fict[t]; update ey[i,j] from hz vertical differences; update ex[i,j] from hz horizontal differences; update hz[i,j] from the forward ex/ey differences.","output_order":"ex, ey, hz; each matrix row-major"},
+  "input":{"kind":"finite_float64_array","encoding":"[tmax,nx,ny] exact integral binary64 values","input_length":3,"maximum_input_length":3,"dimension_ranges":{"tmax":[0,4],"nx":[1,6],"ny":[1,6]},"invalid_input_result":-1},
+  "contract":{"operation":"Return the three final initialized field matrices after source-ordered FDTD time steps.","source_order":["initialize fict, ex, ey, hz in source formulas","for each timestep, assign ey row zero","update ey for i ascending from one","update ex for i ascending and j ascending from one","update hz for i ascending below nx-1 and j ascending below ny-1"],"invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "output":{"kind":"float64_array","encoding":"3*nx*ny values: ex then ey then hz, each row-major","maximum_elements":108,"success_result":"3*nx*ny output elements","absolute_tolerance":1e-12,"relative_tolerance":1e-12,"no_write_on_error":true},
+  "workspace":{"elements":432,"meaning":"Three 6x6 matrices, one 6x6 staged output and a five-element fictitious boundary vector."},
+  "measurement":{"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100,"absolute_tolerance":1e-12,"relative_tolerance":1e-12},
+  "cases":[
+    {"id":"one_cell_zero_steps","input_values":[0,1,1],"input_length":3,"output_capacity":3,"expected_result":3,"expected_output":[0,0,0]},
+    {"id":"two_by_two_one_step","input_values":[1,2,2],"input_length":3,"output_capacity":12,"expected_result":12,"expected_output":[0,0,0.5,0.75,0,0,0.25,0.5,-0.175,0,1.5,2]},
+    {"id":"rectangular_zero_steps","input_values":[0,2,3],"input_length":3,"output_capacity":18,"expected_result":18,"expected_output":[0,0,0,0.5,1,1.5,0,0,0,0.6666666666666666,1,1.3333333333333333,0,0,0,1.5,2,2.5]},
+    {"id":"empty_invalid","input_values":[],"input_length":0,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional_dimension","input_values":[1,2.5,2],"input_length":3,"expected_result":-1,"expected_output":[]},
+    {"id":"unsupported_step_count","input_values":[5,2,2],"input_length":3,"expected_result":-1,"expected_output":[]},
+    {"id":"unsupported_dimension","input_values":[1,7,2],"input_length":3,"expected_result":-1,"expected_output":[]},
+    {"id":"short_output","input_values":[1,2,2],"input_length":3,"output_capacity":11,"expected_result":-2,"expected_output":[]}
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "polybench-cholesky-i64-array-f64-v1",
+  "algorithm": "polybench_cholesky",
+  "function_symbol": "polybench_cholesky",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n] where n is the square matrix dimension",
+    "input_length": 1,
+    "dimension_range": [1, 64],
+    "maximum_input_length": 1
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "row-major sum of the final lower-triangle factor elements after the PolyBench Cholesky kernel",
+    "invalid_input_result": -1e300
+  },
+  "source_bound": {
+    "description": "The pinned launcher uses the default LARGE_DATASET (N=2000). This bounded profile accepts 1<=n<=64. The binary64 initializer sets A0[i][j]=((-j % n)/n)+1 for j<=i using C signed remainder, zeroes the upper triangle, resets the diagonal to one, computes B=A0*A0^T with source-order t,r,s loops, and copies B into A. The source-order lower Cholesky loops then update off-diagonal entries, divide by earlier diagonal values, and square-root each diagonal. The source dumps the lower triangle; the suite returns its row-major sum.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/linear-algebra/solvers/cholesky/cholesky.c",
+    "launcher_path": "PolyBench/linear-algebra/solvers/cholesky/info.sh",
+    "original_contributor": "PolyBench/C (Louis-Noel Pouchet and Tomofumi Yuki)",
+    "license_note": "The Ohio State University Software Distribution License in benchmarks/p/polybench_cholesky/LICENSE.txt expressly permits redistribution and use of the Software in source and binary forms, with or without modification, subject to retaining the copyright notice, conditions, and capitalized disclaimer. It bars endorsement using Ohio State University's name without prior written permission and includes the stated warranty/liability disclaimer and user indemnification, defense, and hold-harmless obligation; the full license also retains its funding and policy statement."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "one_cell", "input_values": [1], "input_length": 1, "expected_result": 1.0},
+    {"id": "dimension_two", "input_values": [2], "input_length": 1, "expected_result": 3.0},
+    {"id": "dimension_three", "input_values": [3], "input_length": 1, "expected_result": 5.666666666666667},
+    {"id": "dimension_eight", "input_values": [8], "input_length": 1, "expected_result": 29.0},
+    {"id": "polybench_mini_dimension", "input_values": [40], "input_length": 1, "expected_result": 573.0000000000001},
+    {"id": "maximum_dimension", "input_values": [64], "input_length": 1, "expected_result": 1429.0},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "zero_dimension_invalid", "input_values": [0], "input_length": 1, "expected_result": -1e300},
+    {"id": "first_unsupported_dimension_invalid", "input_values": [65], "input_length": 1, "expected_result": -1e300}
+  ]
+}

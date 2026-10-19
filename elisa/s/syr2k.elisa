@@ -1,0 +1,43 @@
+const MAX_N: usize = 8
+const MAX_M: usize = 16
+
+extern trunc(value: f64) -> f64
+
+def syr2k_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length != 2:
+        return -1
+    n_value: f64 = input[0]
+    m_value: f64 = input[1]
+    if trunc(n_value) != n_value or trunc(m_value) != m_value or n_value < 1.0 or n_value > MAX_N.f64() or m_value < 1.0 or m_value > MAX_M.f64():
+        return -1
+    n: usize = n_value.usize()
+    m: usize = m_value.usize()
+    alpha: f64 = 1.5
+    beta: f64 = 1.2
+    a: mutable f64[128] = zeroed
+    b: mutable f64[128] = zeroed
+    c: mutable f64[64] = zeroed
+
+    for i in 0..n:
+        for j in 0..m:
+            a[i * m + j] <- ((i * j + 1) % n).f64() / n.f64()
+            b[i * m + j] <- ((i * j + 2) % m).f64() / m.f64()
+    for i in 0..n:
+        for j in 0..n:
+            c[i * n + j] <- ((i * j + 3) % n).f64() / m.f64()
+
+    for i in 0..n:
+        for j in 0..(i + 1):
+            c[i * n + j] <- c[i * n + j] * beta
+        for k in 0..m:
+            for j in 0..(i + 1):
+                c[i * n + j] <- c[i * n + j] + a[j * m + k] * alpha * b[i * m + k] + b[j * m + k] * alpha * a[i * m + k]
+
+    required: usize = n * n
+    if output.is_null() or capacity < required:
+        return -2
+    for index in 0..required:
+        output[index] <- c[index]
+    required.i64()
+
+export fn syr2k(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = syr2k_impl

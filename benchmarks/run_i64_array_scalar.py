@@ -24,6 +24,9 @@ from build_abi import ROOT, sha256_file
 from coremark_crc_oracle import INVALID_RESULT as COREMARK_CRC_INVALID_RESULT
 from coremark_crc_oracle import MAX_INPUT_LENGTH as COREMARK_CRC_MAX_INPUT_LENGTH
 from coremark_crc_oracle import expected_result as coremark_crc_expected
+from netbench_crc_oracle import INVALID_RESULT as NETBENCH_CRC_INVALID_RESULT
+from netbench_crc_oracle import MAX_LENGTH as NETBENCH_CRC_MAX_LENGTH
+from netbench_crc_oracle import expected_result as netbench_crc_expected
 from drop3_oracle import INVALID_RESULT as DROP3_INVALID_RESULT
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected
@@ -6111,6 +6114,7 @@ def validate_solution42_workload(workload: dict) -> None:
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (COREMARK_CRC_MAX_INPUT_LENGTH if algorithm == "coremark_crc" else
+                        NETBENCH_CRC_MAX_LENGTH if algorithm == "netbench_crc" else
                         DROP3_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "drop3" else
                         FIVE11_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "five11" else
                         FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "fannkuch" else
@@ -6660,6 +6664,10 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         )
         if expected != expected_from_source:
             raise ValueError("coremark_crc expected_result must match the bounded CoreMark helper recurrence")
+    elif algorithm == "netbench_crc":
+        expected_from_source = netbench_crc_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("netbench_crc expected_result must match the pinned low-32-bit update_crc result")
     elif algorithm == "msd_radix_string_sorter":
         source_result = msd_radix_string_sorter_expected(values)
         expected_from_source = (MSD_RADIX_STRING_SORTER_INVALID_RESULT
@@ -14658,6 +14666,61 @@ def validate_coremark_crc_workload(workload: dict) -> None:
             raise ValueError(f"coremark_crc fixture differs from its source recurrence: {case['id']}")
 
 
+def validate_netbench_crc_workload(workload: dict) -> None:
+    expected_ids = {"empty_input", "zero_byte", "max_byte", "ascii_digits", "binary_edges",
+                    "invalid_low_byte", "invalid_high_byte"}
+    source = workload.get("source_bound", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "source_bound", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "trimaran-netbench-crc-i64-array-scalar-v1"
+            or workload.get("algorithm") != "netbench_crc"
+            or workload.get("function_symbol") != "netbench_crc"
+            or source.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+            or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source.get("path") != "Trimaran/netbench-crc/crc32.c"
+            or source.get("launcher_path") != "Trimaran/netbench-crc/info.sh"
+            or input_spec.get("kind") != "signed_i64_array_of_bytes"
+            or input_spec.get("encoding") != "one unsigned byte value per signed i64 element; no header"
+            or input_spec.get("length_range") != [0, NETBENCH_CRC_MAX_LENGTH]
+            or input_spec.get("maximum_input_length") != NETBENCH_CRC_MAX_LENGTH
+            or input_spec.get("valid_value_range") != [0, 255]
+            or input_spec.get("invalid_input_result") != NETBENCH_CRC_INVALID_RESULT
+            or output_spec.get("kind") != "signed_64_bit_integer"
+            or output_spec.get("meaning") != "low 32 bits of the source update_crc accumulator after one update_crc(0, bytes, length) call"
+            or measurement.get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_ids)
+            or case_ids != expected_ids):
+        raise ValueError("netbench_crc metadata or fixture IDs differ from its pinned byte-update contract")
+
+    readme = (ROOT / "benchmarks" / "n" / "netbench_crc" / "README.md").read_text(
+        encoding="utf-8")
+    notice = (ROOT / "benchmarks" / "n" / "netbench_crc" / "LICENSE_NOTICE.txt").read_text(
+        encoding="utf-8")
+    if ("Trimaran/netbench-crc" not in readme or "LICENSE_NOTICE.txt" not in readme
+            or "forbidden to forbid anyone else" not in notice
+            or "Permission is granted to distribute this file in compiled" not in notice):
+        raise ValueError("netbench_crc README or notice is missing source or redistribution terms")
+
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or set(case) != {"id", "input_values", "expected_result"}
+                or len(values) > NETBENCH_CRC_MAX_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != netbench_crc_expected(values)):
+            raise ValueError(f"netbench_crc fixture differs from its pinned bounded oracle: {case.get('id')}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -14800,6 +14863,8 @@ def main() -> int:
         validate_nussinov_workload(workload)
     elif algorithm == "coremark_crc":
         validate_coremark_crc_workload(workload)
+    elif algorithm == "netbench_crc":
+        validate_netbench_crc_workload(workload)
     elif algorithm == "graph_enumeration":
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":

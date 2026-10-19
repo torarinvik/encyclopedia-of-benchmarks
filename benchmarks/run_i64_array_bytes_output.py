@@ -547,6 +547,7 @@ from benchmarkgame_nsieve_bits_oracle import MAX_OUTPUT_BYTES as NSIEVE_BITS_MAX
 from benchmarkgame_nsieve_bits_oracle import expected_output as nsieve_bits_oracle
 from benchmarkgame_puzzle_oracle import MAX_INPUT_LENGTH as BENCHMARKGAME_PUZZLE_MAX_INPUT_LENGTH
 from benchmarkgame_puzzle_oracle import expected_output as benchmarkgame_puzzle_oracle
+from polybench_adi_oracle import expected_output as polybench_adi_oracle
 from revert_bits_oracle import MAX_PARSEABLE_INPUT_LENGTH as REVERT_BITS_MAX_PARSEABLE_INPUT_LENGTH
 from revert_bits_oracle import OUTPUT_BYTES as REVERT_BITS_OUTPUT_BYTES
 from revert_bits_oracle import expected_output as revert_bits_oracle
@@ -1614,6 +1615,25 @@ from misc_lowercase_oracle import MAX_CHARACTERS as MISC_LOWERCASE_MAX_CHARACTER
 from misc_lowercase_oracle import MAX_OUTPUT_BYTES as MISC_LOWERCASE_MAX_OUTPUT_BYTES
 from misc_lowercase_oracle import MAX_PARSEABLE_INPUT_LENGTH as MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH
 from misc_lowercase_oracle import expected_output as misc_lowercase_expected_output
+from mccat_qbsort_oracle import MAX_COUNT as MCCAT_QBSORT_MAX_COUNT
+from mccat_qbsort_oracle import MAX_OUTPUT_BYTES as MCCAT_QBSORT_MAX_OUTPUT_BYTES
+from mccat_qbsort_oracle import MAX_VALID_INPUT_LENGTH as MCCAT_QBSORT_MAX_VALID_INPUT_LENGTH
+from mccat_qbsort_oracle import expected_output as mccat_qbsort_oracle
+from versabench_bmm_oracle import MAX_INPUT_LENGTH as VERSABENCH_BMM_MAX_INPUT_LENGTH
+from versabench_bmm_oracle import MAX_OUTPUT_BYTES as VERSABENCH_BMM_MAX_OUTPUT_BYTES
+from versabench_bmm_oracle import expected_output as versabench_bmm_oracle
+from mccat_bisect_oracle import MAX_N as MCCAT_BISECT_MAX_N
+from mccat_bisect_oracle import MAX_OUTPUT_BYTES as MCCAT_BISECT_MAX_OUTPUT_BYTES
+from mccat_bisect_oracle import expected_output as mccat_bisect_oracle
+MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH = 2
+from cbench_automotive_qsort1_oracle import MAX_INPUT_VALUES as CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES
+from cbench_automotive_qsort1_oracle import MAX_OUTPUT_BYTES as CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES
+from cbench_automotive_qsort1_oracle import MAX_POINTS as CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS
+from cbench_automotive_qsort1_oracle import expected_result as cbench_automotive_qsort1_expected_result
+from versabench_8b10b_oracle import MAX_OUTPUT_BYTES as VERSABENCH_8B10B_MAX_OUTPUT_BYTES
+from versabench_8b10b_oracle import MAX_PARSEABLE_WORDS as VERSABENCH_8B10B_MAX_PARSEABLE_WORDS
+from versabench_8b10b_oracle import MAX_WORDS as VERSABENCH_8B10B_MAX_WORDS
+from versabench_8b10b_oracle import expected_output as versabench_8b10b_oracle
 from tripforce_tripcode_oracle import MAX_PARSEABLE_INPUT_LENGTH as TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH
 from tripforce_tripcode_oracle import MAX_OUTPUT_BYTES as TRIPFORCE_TRIPCODE_MAX_OUTPUT_BYTES
 from tripforce_tripcode_oracle import expected_output as tripforce_tripcode_expected_output
@@ -1665,6 +1685,21 @@ def misc_lowercase_suite_oracle(
     if output_is_null or (capacity is not None and capacity < result):
         return -2, b""
     return result, output
+
+
+def cbench_automotive_qsort1_suite_oracle(
+        values: list[int], capacity: int | None = None, output_is_null: bool = False,
+        input_is_null: bool = False, input_length: int | None = None) -> tuple[int, bytes]:
+    if (input_is_null or not isinstance(values, (list, tuple))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or type(output_is_null) is not bool
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    return cbench_automotive_qsort1_expected_result(
+        values,
+        CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES if capacity is None else capacity,
+        output_is_null)
 from reverse_k_group_oracle import MAX_N as REVERSE_K_GROUP_MAX_N
 from reverse_k_group_oracle import expected_output as reverse_k_group_expected_output
 from permute_string_oracle import MAX_INPUT_LENGTH as PERMUTE_STRING_MAX_INPUT_LENGTH
@@ -3221,6 +3256,12 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "benchmarkgame_nsieve_bits": nsieve_bits_oracle,
     "benchmarkgame_puzzle": benchmarkgame_puzzle_oracle,
     "revert_bits": revert_bits_oracle,
+    "mccat_qbsort": mccat_qbsort_oracle,
+    "bmm": versabench_bmm_oracle,
+    "mccat_bisect": mccat_bisect_oracle,
+    "cbench_automotive_qsort1": cbench_automotive_qsort1_suite_oracle,
+    "8b10b": versabench_8b10b_oracle,
+    "polybench_adi": polybench_adi_oracle,
     "uuencode": uuencode_oracle,
     "uudecode": uudecode_oracle,
 }
@@ -32927,7 +32968,85 @@ def validate_tabu_search_workload(workload: dict) -> None:
 def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
-    if algorithm in {"smith_waterman_python", "smith_waterman_rust"}:
+    if algorithm == "polybench_adi":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("source_bound", {})
+        expected_ids = {
+            "one_cell", "two_by_two_no_interior", "first_nontrivial_sweep",
+            "polybench_mini_dimensions", "maximum_profile", "empty_input",
+            "wrong_input_length", "extra_input_value", "zero_dimension",
+            "first_unsupported_dimension", "zero_time_steps",
+            "first_unsupported_time_steps", "short_output_capacity", "null_output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "polybench-adi-i64-array-f64-vector-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != "polybench_adi"
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "[n, tsteps]"
+                or input_spec.get("input_length") != 2
+                or input_spec.get("n_range") != [1, 32]
+                or input_spec.get("tsteps_range") != [1, 20]
+                or input_spec.get("maximum_input_length") != 2
+                or input_spec.get("maximum_parseable_input_length") != 3
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "float64_vector"
+                or output_spec.get("encoding") != "n*n little-endian IEEE-754 binary64 values"
+                or output_spec.get("maximum_elements") != 1024
+                or output_spec.get("max_output_bytes") != 8192
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != 8192
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or source.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "PolyBench/stencils/adi/adi.c"
+                or source.get("launcher_path") != "PolyBench/stencils/adi/info.sh"
+                or source.get("header_path") != "PolyBench/stencils/adi/adi.h"
+                or source.get("license_path") != "PolyBench/LICENSE.txt"
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("polybench_adi metadata differs from its pinned bounded contract")
+        if (not math.isclose(output_spec.get("absolute_tolerance", -1), 1.0e-10,
+                             rel_tol=0.0, abs_tol=0.0)
+                or not math.isclose(output_spec.get("relative_tolerance", -1), 1.0e-10,
+                                    rel_tol=0.0, abs_tol=0.0)):
+            raise ValueError("polybench_adi float64 tolerances differ from its contract")
+        seen_ids: set[str] = set()
+        for case in workload["cases"]:
+            case_id = case.get("id")
+            values = case.get("input_values")
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", 8192)
+            output_is_null = case.get("output_is_null", False)
+            if (not isinstance(case_id, str) or case_id in seen_ids
+                    or not isinstance(values, list) or len(values) > 3
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int or input_length != len(values)
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or type(output_is_null) is not bool):
+                raise ValueError(f"polybench_adi fixture framing is invalid: {case_id}")
+            seen_ids.add(case_id)
+            result, output = polybench_adi_oracle(values, capacity, output_is_null,
+                                                   False, input_length)
+            expected_vector = case.get("expected_output")
+            actual_vector = (struct.unpack("<" + "d" * (len(output) // 8), output)
+                             if output else ())
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or not isinstance(expected_vector, list)
+                    or len(expected_vector) != len(actual_vector)
+                    or any(not math.isclose(actual, expected, abs_tol=1.0e-10,
+                                            rel_tol=1.0e-10)
+                           for actual, expected in zip(actual_vector, expected_vector))):
+                raise ValueError(f"polybench_adi fixture differs from its oracle: {case_id}")
+        return
+    elif algorithm in {"smith_waterman_python", "smith_waterman_rust"}:
         python_variant = algorithm == "smith_waterman_python"
         max_parseable = (SMITH_WATERMAN_PYTHON_MAX_PARSEABLE_INPUT_LENGTH if python_variant
                          else SMITH_WATERMAN_RUST_MAX_PARSEABLE_INPUT_LENGTH)
@@ -33654,6 +33773,284 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("repetitions_per_sample") != 1
                 or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
             raise ValueError("misc_lowercase metadata differs from its pinned bounded source contract")
+    elif algorithm == "mccat_qbsort":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("launcher", {})
+        expected_ids = {
+            "bubble_reverse", "quick_duplicates", "bubble_int32_extremes",
+            "quick_singleton", "invalid_mode", "zero_count", "trailing_word",
+            "out_of_i32_range", "short_output", "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mccat-qbsort-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "McCat/01-qbsort/sort.c"
+                or source.get("signature") != "BubbleSort(List *, compare); QuickSort(LinkList *, compare)"
+                or launcher.get("path") != "McCat/01-qbsort/info.sh"
+                or launcher.get("run_options") != "1000"
+                or launcher.get("input_file") != "benchmark.in3"
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "[mode, item_count, value_0, ...]"
+                or input_spec.get("mode_range") != [0, 1]
+                or input_spec.get("item_count_range") != [1, MCCAT_QBSORT_MAX_COUNT]
+                or input_spec.get("item_value_range") != [-(1 << 31), (1 << 31) - 1]
+                or input_spec.get("maximum_valid_input_length") != MCCAT_QBSORT_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("maximum_parseable_input_length") != MCCAT_QBSORT_MAX_VALID_INPUT_LENGTH
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("kind") != "little_endian_signed_32_bit_array"
+                or output_spec.get("maximum_output_bytes") != MCCAT_QBSORT_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != MCCAT_QBSORT_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("source_repeat_count") != 1000
+                or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
+            raise ValueError("mccat_qbsort metadata differs from its pinned sorting contract")
+    elif algorithm == "bmm":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        source_bound = workload.get("source_bound", {})
+        expected_ids = {
+            "single_cell", "medium_blocked_profile", "bounded_blocked_profile",
+            "zero_size_invalid", "zero_block_invalid", "nondividing_block_invalid",
+            "first_unsupported_size_invalid", "null_input_invalid", "short_capacity",
+            "null_output", "wrong_input_length",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-versabench-bmm-bounded-blocked-f32-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != "versabench_bmm"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "VersaBench/bmm/bmm.c"
+                or source.get("symbol") != "my_rand_r, init, mm_inner, matmult, mm_sum, sumup"
+                or launcher.get("path") != "VersaBench/bmm/info.sh"
+                or launcher.get("bench_name") != "bmm"
+                or launcher.get("source_files") != ["bmm.c"]
+                or launcher.get("run_options") != ["128 32 with SMALL_PROBLEM_SIZE", "1024 1024 otherwise"]
+                or source_bound.get("profile_size_range") != [1, 128]
+                or source_bound.get("profile_block_range") != [1, 128]
+                or source_bound.get("profile_requires_size_divisible_by_block") is not True
+                or source_bound.get("source_matrix_extent") != 1024
+                or source_bound.get("maximum_multiply_add_updates") != 2_097_152
+                or source_bound.get("internal_matrix_workspace_bytes") != 196_608
+                or source_bound.get("output_format") != 'printf("final sum = %f\\n")'
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "[NUM, BLOCK]"
+                or input_spec.get("input_length") != 2
+                or input_spec.get("size_range") != [1, 128]
+                or input_spec.get("block_range") != [1, 128]
+                or input_spec.get("size_must_be_divisible_by_block") is not True
+                or input_spec.get("invalid_result") != -1
+                or output_spec.get("kind") != "source_stdout_ascii"
+                or output_spec.get("success_result") != "number of output bytes"
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or output_spec.get("maximum_output_bytes") != VERSABENCH_BMM_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != VERSABENCH_BMM_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
+            raise ValueError("bmm metadata differs from its pinned bounded matrix-multiply contract")
+        readme = (ROOT / "benchmarks" / "b" / "bmm" / "README.md").read_text(encoding="utf-8")
+        if ("VersaBench/bmm/bmm.c" not in readme or "LICENSE" not in readme
+                or "commercial use" not in readme):
+            raise ValueError("bmm README is missing pinned source or license-scope details")
+    elif algorithm == "mccat_bisect":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        source_bound = workload.get("source_bound", {})
+        expected_ids = {
+            "n_2_source_eigenvalue_vector", "n_3_source_eigenvalue_vector",
+            "n_8_source_eigenvalue_vector", "n_16_source_eigenvalue_vector",
+            "n_32_source_eigenvalue_vector", "empty_input_invalid", "null_input_invalid",
+            "minimum_dimension_invalid", "negative_dimension_invalid",
+            "dimension_above_bound_invalid", "extra_input_word_invalid",
+            "short_output_capacity", "null_output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mccat-bisect-bounded-f64-vector-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != "mccat_bisect"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "McCat/04-bisect/dbisect.c"
+                or source.get("symbol") != "dbisect, sturm"
+                or launcher.get("path") != "McCat/04-bisect/info.sh"
+                or launcher.get("source_files") != ["allocvector.c", "bisect_test.c", "dbisect.c"]
+                or launcher.get("compile_flags") != ["-lm"]
+                or launcher.get("input_file") != "bisect_test.in"
+                or launcher.get("source_input") != {
+                    "rep": 1, "n": 500, "eps": 2.220446049250313e-16}
+                or source_bound.get("profile_n_range") != [2, MCCAT_BISECT_MAX_N]
+                or source_bound.get("source_repeat_count") != 1
+                or source_bound.get("profile_epsilon") != 2.220446049250313e-16
+                or source_bound.get("maximum_output_bytes") != MCCAT_BISECT_MAX_OUTPUT_BYTES
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "[n]"
+                or input_spec.get("input_length") != 1
+                or input_spec.get("maximum_parseable_input_length")
+                != MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("dimension_range") != [2, MCCAT_BISECT_MAX_N]
+                or input_spec.get("invalid_result") != -1
+                or input_spec.get("null_input_result") != -1
+                or output_spec.get("kind") != "float64_vector"
+                or output_spec.get("maximum_output_elements") != MCCAT_BISECT_MAX_N + 1
+                or output_spec.get("maximum_output_bytes") != MCCAT_BISECT_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != MCCAT_BISECT_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("mccat_bisect metadata differs from its pinned source bisection contract")
+        readme = (ROOT / "benchmarks" / "m" / "mccat_bisect" / "README.md").read_text(
+            encoding="utf-8")
+        if ("McCat/04-bisect/dbisect.c" not in readme
+                or "McCat/04-bisect/bisect_test.c" not in readme
+                or "LICENSE" not in readme):
+            raise ValueError("mccat_bisect README is missing pinned sources or license notice")
+    elif algorithm == "cbench_automotive_qsort1":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        source_bound = workload.get("source_bound", {})
+        expected_ids = {
+            "single_point", "small_source_ordering", "above_cutoff_partition",
+            "invalid_empty", "invalid_truncated_triples", "invalid_coordinate_bound",
+            "invalid_equal_distance", "insufficient_capacity", "null_output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "cbench-automotive-qsort1-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != "cbench_automotive_qsort1"
+                or workload.get("abi_family") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "cBench/automotive_qsort1/src/qsort_large.c"
+                or source.get("symbol") != "main1, compare, qsortx"
+                or launcher.get("path") != "cBench/automotive_qsort1/src/info.sh"
+                or launcher.get("bench_name") != "automotive_qsort1"
+                or launcher.get("source_files") != ["loop-wrap.c", "qsort.c", "qsort_large.c"]
+                or launcher.get("compile_flags") != ["-lm"]
+                or launcher.get("run_options") != ""
+                or source_bound.get("profile_point_count_range")
+                != [1, CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS]
+                or source_bound.get("coordinate_range") != [-1_000_000, 1_000_000]
+                or source_bound.get("maximum_output_bytes")
+                != CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES
+                or source_bound.get("source_launcher_profile_reproduced") is not False
+                or input_spec.get("kind") != "signed_i64_point_triples"
+                or input_spec.get("encoding") != "[count, x0, y0, z0, ...]"
+                or input_spec.get("count_range") != [1, CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS]
+                or input_spec.get("coordinate_range") != [-1_000_000, 1_000_000]
+                or input_spec.get("maximum_input_values")
+                != CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES
+                or input_spec.get("maximum_parseable_input_length")
+                != CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES
+                or input_spec.get("invalid_result") != -1
+                or input_spec.get("insufficient_output_capacity_result") != -2
+                or "duplicate squared radii" not in input_spec.get("invalid_cases", "")
+                or output_spec.get("kind") != "little_endian_signed_32_bit_array"
+                or output_spec.get("maximum_output_elements")
+                != CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS
+                or output_spec.get("maximum_bytes")
+                != CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or "equal squared radii are rejected" not in output_spec.get("order", "")
+                or workload.get("workspace", {}).get("bytes")
+                != CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("cbench_automotive_qsort1 metadata differs from its bounded source contract")
+        readme = (ROOT / "benchmarks" / "a" / "cbench_automotive_qsort1" / "README.md").read_text(
+            encoding="utf-8")
+        if (source.get("url") not in readme or "LICENSE_NOTICES.md" not in readme
+                or "source-related kernel contract" not in readme):
+            raise ValueError("cbench_automotive_qsort1 README is missing source or scope details")
+    elif algorithm == "8b10b":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        source_bound = workload.get("source_bound", {})
+        expected_ids = {
+            "zero_words_empty", "null_input_zero_length_empty", "one_pinned_word",
+            "four_pinned_words_repeated_four_passes",
+            "first_sample_at_index_128", "maximum_profile_words", "out_of_range_codeword",
+            "negative_codeword", "oversized_input", "short_capacity_for_two_sample_lines",
+            "null_output_positive_result", "signed_i64_minimum_invalid",
+            "signed_i64_maximum_invalid",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-versabench-8b10b-bounded-source-stdout-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != "versabench_8b10b"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "VersaBench/8b10b/calc.c"
+                or source.get("symbol") != "calc, calcSetup, resetDisparity"
+                or launcher.get("repository") != "lac-dcc/Benchmarks"
+                or launcher.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or launcher.get("path") != "VersaBench/8b10b/info.sh"
+                or launcher.get("bench_name") != "8b10b"
+                or launcher.get("source_files") != ["calc.c", "main.c", "testbench.c"]
+                or launcher.get("compile_flags") != []
+                or launcher.get("run_options") != ["input", "2000 with SMALL_PROBLEM_SIZE; otherwise 20000"]
+                or source_bound.get("launcher_big_calc_enabled") is not False
+                or source_bound.get("profile_word_count_range") != [0, VERSABENCH_8B10B_MAX_WORDS]
+                or source_bound.get("maximum_profile_calc_calls") != VERSABENCH_8B10B_MAX_WORDS ** 2
+                or source_bound.get("initial_disparity") != 0
+                or source_bound.get("disparity_persists_across_all_passes") is not True
+                or source_bound.get("output_sampling") != "the final pass output at indices 0,128,... less than N"
+                or source_bound.get("output_format") != "printf(\"%8.8X\\n\")"
+                or input_spec.get("kind") != "packed_signed_64_bit_integer_array"
+                or input_spec.get("encoding") != "N packed 8b10b input words: each value is (k << 8) | byte"
+                or input_spec.get("word_count_range") != [0, VERSABENCH_8B10B_MAX_WORDS]
+                or input_spec.get("maximum_parseable_input_values") != VERSABENCH_8B10B_MAX_PARSEABLE_WORDS
+                or input_spec.get("word_value_range") != [0, 511]
+                or input_spec.get("exact_length") != "the array length is the source numberOfWords N"
+                or input_spec.get("repetition_rule") != "repeat the entire N-word array N times without resetting disparity between passes"
+                or input_spec.get("invalid_result") != -1
+                or input_spec.get("null_input_with_positive_length_result") != -1
+                or output_spec.get("kind") != "source_stdout_ascii"
+                or output_spec.get("encoding") != "sampled uppercase 8-digit hexadecimal codeword plus LF per sample"
+                or output_spec.get("records") != "Final-pass output indices 0,128,... less than N; each line has exactly 8 uppercase hex digits followed by one LF."
+                or output_spec.get("success_result") != "number of output bytes; 9 bytes per sampled codeword"
+                or output_spec.get("empty_result") != "0 bytes when N is 0"
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("errors_write_nothing") is not True
+                or output_spec.get("maximum_output_bytes") != VERSABENCH_8B10B_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != VERSABENCH_8B10B_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("sample_count") != 5
+                or workload.get("measurement", {}).get("warmup_rounds") != 1
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 1
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
+            raise ValueError("8b10b metadata differs from its pinned bounded state-machine contract")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
@@ -33661,6 +34058,7 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "smith_waterman_python" else
                      SMITH_WATERMAN_RUST_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "smith_waterman_rust" else
+                     3 if algorithm == "polybench_adi" else
                      IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "idea_encrypt_decrypt" else
                      TRIPFORCE_TRIPCODE_MAX_PARSEABLE_INPUT_LENGTH
@@ -33692,6 +34090,11 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      REVERT_BITS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "revert_bits" else
                      UUENCODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uuencode" else
                      UUDECODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uudecode" else
+                     MCCAT_QBSORT_MAX_VALID_INPUT_LENGTH if algorithm == "mccat_qbsort" else
+                     VERSABENCH_BMM_MAX_INPUT_LENGTH if algorithm == "bmm" else
+                     MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "mccat_bisect" else
+                     CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES if algorithm == "cbench_automotive_qsort1" else
+                     VERSABENCH_8B10B_MAX_PARSEABLE_WORDS if algorithm == "8b10b" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
                      2 + 2 * (128 if algorithm == "uint128_t" else 256) // 32)
     oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
@@ -34097,6 +34500,7 @@ def main() -> int:
                             if algorithm == "smith_waterman_python" else
                             SMITH_WATERMAN_RUST_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "smith_waterman_rust" else
+                            3 if algorithm == "polybench_adi" else
                             UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
                             10 if algorithm == "uint128_t" else
                             18 if algorithm == "uint256_t" else
@@ -34589,6 +34993,11 @@ def main() -> int:
                             ROTATE_TO_THE_RIGHT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "rotate_to_the_right" else
                             SKYTALE_CIPHER_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "skytale_cipher" else
                             MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "misc_lowercase" else
+                            MCCAT_QBSORT_MAX_VALID_INPUT_LENGTH if algorithm == "mccat_qbsort" else
+                            VERSABENCH_BMM_MAX_INPUT_LENGTH if algorithm == "bmm" else
+                            MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "mccat_bisect" else
+                            CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES if algorithm == "cbench_automotive_qsort1" else
+                            VERSABENCH_8B10B_MAX_PARSEABLE_WORDS if algorithm == "8b10b" else
                             UUENCODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uuencode" else
                             UUDECODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uudecode" else
                             MAX_INPUT_LENGTH)
@@ -34642,11 +35051,11 @@ def main() -> int:
                 required_count, required_output = null_input_result, b""
         float64_vector = workload.get("output", {}).get("kind") == "float64_vector"
         if float64_vector and algorithm not in {
-                "quadratic_roots", "shree_dharacharya_formula", "npv_sensitivity", "triangle", "gaussian_elimination", "gauss_elimination",
+                "quadratic_roots", "shree_dharacharya_formula", "npv_sensitivity", "triangle", "gaussian_elimination", "gauss_elimination", "mccat_bisect",
                 "logistic_regression_python_binary_gd", "logistic_regression_rust_binary_gd",
                 "logistic_regression_cost_gradient",
                 "procentual_proximity",
-                "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2",
+                "cholesky_decomposition", "conjugate_gradient", "gauss_seidel_method", "convolution_neural_network", "image_convolution", "matrix_copy", "depreciation", "chebyshev_iteration", "cramers_rule_2x2", "polybench_adi",
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft", "median_finder", "mfcc",
                 "horizontal_projectile_motion", "solve_quadratic_equation", "euler_modified", "iir_filter", "dispersion", "data_normalization_standardization", "data_transformations", "full_wave_rectifier", "rgb_hsl_conversion", "rgb_hsv_conversion", "hsv_to_rgb_conversion", "ordinary_least_squares_regression", "ordinary_least_squares_regressor", "neural_network", "fuzzy_set_operations", "fuzzy_operations", "gram_schmidt", "gramian", "jacobi_iteration_method", "gaussian_elimination_pivoting", "gauss_jordan", "n_body_simulation", "benchmarkgame_nbody", "nesterov_accelerated_sgd", "naive_bayes_text_classification", "orbital_transfer_work", "inverse_of_matrix"}:
                 "particle_swarm_optimization", "convolve_1d", "convolution_fft", "median_finder", "mfcc",

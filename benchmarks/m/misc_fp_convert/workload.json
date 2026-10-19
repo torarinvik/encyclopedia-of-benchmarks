@@ -32,6 +32,7 @@
     "offset_reset_condition": "iteration % 10 != 0",
     "offset_update_values_float32": [0.1, 0.2]
   },
+  "workspace": {"elements": 1},
   "input": {
     "kind": "finite_float64_array",
     "encoding": "one exact integer outer-iteration count",
@@ -72,6 +73,9 @@
     {"id": "fractional_iterations", "input_values": [1.5], "input_length": 1, "expected_result": -1, "expected_output": []},
     {"id": "above_profile", "input_values": [257.0], "input_length": 1, "expected_result": -1, "expected_output": []},
     {"id": "short_input", "input_values": [], "input_length": 0, "expected_result": -1, "expected_output": []},
-    {"id": "extra_input_value", "input_values": [1.0, 2.0], "input_length": 2, "expected_result": -1, "expected_output": []}
+    {"id": "extra_input_value", "input_values": [1.0, 2.0], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "short_output_capacity", "input_values": [1.0], "input_length": 1, "output_capacity": 0, "expected_result": -2, "expected_output": []},
+    {"id": "null_output", "input_values": [1.0], "input_length": 1, "output_is_null": true, "expected_result": -2, "expected_output": []},
+    {"id": "null_input", "input_values": [], "input_length": 0, "expected_result": -1, "expected_output": []}
   ]
 }

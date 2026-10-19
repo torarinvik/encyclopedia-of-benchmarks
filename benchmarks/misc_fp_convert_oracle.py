@@ -5,7 +5,10 @@ import struct
 
 MIN_ITERATIONS = 1
 MAX_ITERATIONS = 256
+MAX_PARSEABLE_INPUT_LENGTH = 2
 VECTOR_LENGTH = 2048
+INVALID_RESULT = -1
+OUTPUT_ERROR = -2
 
 
 def _f32(value: float) -> float:

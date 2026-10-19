@@ -22,7 +22,7 @@
     "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
     "path": "PolyBench/linear-algebra/kernels/atax/atax.c",
     "original_contributor": "PolyBench/C (Louis-Noel Pouchet and Tomofumi Yuki)",
-    "license_note": "The source file has no explicit license notice; this package contains independently written ports of the published kernel."
+    "license_note": "Covered by the Ohio State University Software Distribution License reproduced in benchmarks/a/atax/LICENSE.txt. The license permits redistribution and use in source and binary forms, with or without modification, if the copyright notice, conditions, and capitalized disclaimer are retained; prohibits endorsement or promotion using Ohio State University's name without prior written permission; and includes the stated warranty/liability disclaimer and user indemnification, defense, and hold-harmless obligation. The full license also includes its funding and policy statement."
   },
   "measurement": {
     "comparison_model": "i64_array_float64_call",

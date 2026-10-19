@@ -18,15 +18,15 @@ Raise an integer base to a nonnegative integer exponent using the pinned linear 
 
 | Language | Source |
 | --- | --- |
-| C | [`c/power_using_recursion.c`](../../../c/power_using_recursion.c) |
-| C3 | [`c3/power_using_recursion.c3`](../../../c3/power_using_recursion.c3) |
-| C++ | [`cpp/power_using_recursion.cpp`](../../../cpp/power_using_recursion.cpp) |
-| Elisa | [`elisa/power_using_recursion.elisa`](../../../elisa/power_using_recursion.elisa) |
-| Nim | [`nim/power_using_recursion.nim`](../../../nim/power_using_recursion.nim) |
-| Odin | [`odin/power_using_recursion.odin`](../../../odin/power_using_recursion.odin) |
-| Rust | [`rust/power_using_recursion.rs`](../../../rust/power_using_recursion.rs) |
-| V | [`v/power_using_recursion.v`](../../../v/power_using_recursion.v) |
-| Zig | [`zig/power_using_recursion.zig`](../../../zig/power_using_recursion.zig) |
+| C | [`c/p/power_using_recursion.c`](../../../c/p/power_using_recursion.c) |
+| C3 | [`c3/p/power_using_recursion.c3`](../../../c3/p/power_using_recursion.c3) |
+| C++ | [`cpp/p/power_using_recursion.cpp`](../../../cpp/p/power_using_recursion.cpp) |
+| Elisa | [`elisa/p/power_using_recursion.elisa`](../../../elisa/p/power_using_recursion.elisa) |
+| Nim | [`nim/p/power_using_recursion.nim`](../../../nim/p/power_using_recursion.nim) |
+| Odin | [`odin/p/power_using_recursion.odin`](../../../odin/p/power_using_recursion.odin) |
+| Rust | [`rust/p/power_using_recursion.rs`](../../../rust/p/power_using_recursion.rs) |
+| V | [`v/p/power_using_recursion.v`](../../../v/p/power_using_recursion.v) |
+| Zig | [`zig/p/power_using_recursion.zig`](../../../zig/p/power_using_recursion.zig) |
 
 ## Pinned sources
 

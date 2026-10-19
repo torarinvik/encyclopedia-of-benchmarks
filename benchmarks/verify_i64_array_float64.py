@@ -16,6 +16,11 @@ import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from atax_oracle import expected_result as atax_oracle
+from polybench_symm_oracle import expected_result as polybench_symm_oracle
+from polybench_cholesky_oracle import (
+    INVALID_RESULT as POLYBENCH_CHOLESKY_INVALID_RESULT,
+    MAX_DIMENSION as POLYBENCH_CHOLESKY_MAX_DIMENSION,
+)
 from bicg_oracle import expected_result as bicg_oracle
 from mvt_oracle import expected_result as mvt_oracle
 from gemm_oracle import expected_result as gemm_oracle
@@ -42,6 +47,10 @@ from run_i64_array_float64 import (
     validate_kmeans_raw_r_workload,
     validate_monte_carlo_integration_workload,
     validate_traveling_salesman_solver_workload,
+    validate_atax_workload,
+    validate_polybench_symm_workload,
+    validate_polybench_cholesky_workload,
+    validate_polybench_ludcmp_workload,
 )
 from traveling_salesman_solver_oracle import (
     INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
@@ -631,6 +640,9 @@ ALGORITHMS += ("kmeans_raw_r",)
 ALGORITHMS += ("monte_carlo_integration", "monte_carlo_integration_independent")
 ALGORITHMS += ("traveling_salesman_solver_brute_force", "traveling_salesman_solver_nearest_neighbor")
 ALGORITHMS += ("mvt", "atax", "bicg", "gemm", "gemver", "covariance", "doitgen", "2mm", "3mm")
+ALGORITHMS += ("polybench_symm",)
+ALGORITHMS += ("polybench_cholesky",)
+ALGORITHMS += ("polybench_ludcmp",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -729,6 +741,104 @@ def schur_complement_verifier_oracle(values: list[int]) -> float:
     return float(c00) - quadratic_form
 
 
+def polybench_cholesky_verifier_oracle(values: list[int]) -> float:
+    """Independently follow the pinned initializer and lower-factor loop order."""
+    if (not isinstance(values, list) or len(values) != 1
+            or type(values[0]) is not int or not 1 <= values[0] <= POLYBENCH_CHOLESKY_MAX_DIMENSION):
+        return POLYBENCH_CHOLESKY_INVALID_RESULT
+    n = values[0]
+    initial = [0.0] * (n * n)
+    for row in range(n):
+        for column in range(row + 1):
+            initial[row * n + column] = float(-(column % n)) / float(n) + 1.0
+        for column in range(row + 1, n):
+            initial[row * n + column] = 0.0
+        initial[row * n + row] = 1.0
+
+    factor = [0.0] * (n * n)
+    for inner in range(n):
+        for row in range(n):
+            for column in range(n):
+                index = row * n + column
+                factor[index] = (factor[index]
+                                 + initial[row * n + inner] * initial[column * n + inner])
+
+    for row in range(n):
+        for column in range(row):
+            for inner in range(column):
+                factor[row * n + column] = (
+                    factor[row * n + column]
+                    - factor[row * n + inner] * factor[column * n + inner])
+            factor[row * n + column] /= factor[column * n + column]
+        for inner in range(row):
+            factor[row * n + row] = (
+                factor[row * n + row] - factor[row * n + inner] * factor[row * n + inner])
+        factor[row * n + row] = math.sqrt(factor[row * n + row])
+
+    result = 0.0
+    for row in range(n):
+        for column in range(row + 1):
+            result += factor[row * n + column]
+    return result
+
+
+def polybench_ludcmp_verifier_oracle(values: list[int]) -> float:
+    """Independently follow PolyBench LUDCMP initialization, solve, and reduction order."""
+    if (not isinstance(values, list) or len(values) != 1
+            or type(values[0]) is not int
+            or not 1 <= values[0] <= POLYBENCH_LUDCMP_MAX_DIMENSION):
+        return POLYBENCH_LUDCMP_INVALID_RESULT
+    n = values[0]
+    matrix = [0.0] * (n * n)
+    rhs = [0.0] * n
+    for row in range(n):
+        rhs[row] = (float(row + 1) / float(n)) / 2.0 + 4.0
+        for column in range(row + 1):
+            matrix[row * n + column] = float(-(column % n)) / float(n) + 1.0
+        for column in range(row + 1, n):
+            matrix[row * n + column] = 0.0
+        matrix[row * n + row] = 1.0
+
+    gram = [0.0] * (n * n)
+    for inner in range(n):
+        for row in range(n):
+            for column in range(n):
+                index = row * n + column
+                gram[index] = gram[index] + matrix[row * n + inner] * matrix[column * n + inner]
+    matrix = gram
+
+    for row in range(n):
+        for column in range(row):
+            partial = matrix[row * n + column]
+            for inner in range(column):
+                partial = partial - matrix[row * n + inner] * matrix[inner * n + column]
+            matrix[row * n + column] = partial / matrix[column * n + column]
+        for column in range(row, n):
+            partial = matrix[row * n + column]
+            for inner in range(row):
+                partial = partial - matrix[row * n + inner] * matrix[inner * n + column]
+            matrix[row * n + column] = partial
+
+    y = [0.0] * n
+    for row in range(n):
+        partial = rhs[row]
+        for column in range(row):
+            partial = partial - matrix[row * n + column] * y[column]
+        y[row] = partial
+
+    x = [0.0] * n
+    for row in range(n - 1, -1, -1):
+        partial = y[row]
+        for column in range(row + 1, n):
+            partial = partial - matrix[row * n + column] * x[column]
+        x[row] = partial / matrix[row * n + row]
+
+    total = 0.0
+    for value in x:
+        total += value
+    return total
+
+
 def sharpe_ratio_verifier_oracle(values: list[int]) -> float:
     """Independently evaluate the bounded non-annualized Sharpe ratio."""
     if (not isinstance(values, list)
@@ -761,6 +871,8 @@ MAX_MIDPOINT_INTEGRAL_ENDPOINT_MILLI = 10_000
 MAX_TERNARY_ENDPOINT_MILLI = 100_000
 MAX_TERNARY_PRECISION_MILLI = 8
 MAX_UNSCENTED_KALMAN_FILTER_INPUT_LENGTH = 9 + UNSCENTED_KALMAN_FILTER_MAX_STEPS
+POLYBENCH_LUDCMP_INVALID_RESULT = -1.0e300
+POLYBENCH_LUDCMP_MAX_DIMENSION = 64
 
 
 def logistic_regression_csharp_binary_gd_oracle(values: list[int]) -> float:
@@ -818,6 +930,12 @@ def oracle(algorithm: str, values: list[int]) -> float:
         return mvt_oracle(values)
     if algorithm == "atax":
         return atax_oracle(values)
+    if algorithm == "polybench_symm":
+        return polybench_symm_oracle(values)
+    if algorithm == "polybench_cholesky":
+        return polybench_cholesky_verifier_oracle(values)
+    if algorithm == "polybench_ludcmp":
+        return polybench_ludcmp_verifier_oracle(values)
     if algorithm == "bicg":
         return bicg_oracle(values)
     if algorithm == "gemm":
@@ -1085,6 +1203,14 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     elif algorithm in {"traveling_salesman_solver_brute_force",
                        "traveling_salesman_solver_nearest_neighbor"}:
         validate_traveling_salesman_solver_workload(workload, algorithm)
+    elif algorithm == "atax":
+        validate_atax_workload(workload)
+    elif algorithm == "polybench_symm":
+        validate_polybench_symm_workload(workload)
+    elif algorithm == "polybench_cholesky":
+        validate_polybench_cholesky_workload(workload)
+    elif algorithm == "polybench_ludcmp":
+        validate_polybench_ludcmp_workload(workload)
     absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     if (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0
             or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
@@ -5781,7 +5907,21 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         )
         for values in malformed:
             add_kmeans_case(tuple(values))
-    elif algorithm in {"mvt", "atax", "bicg"}:
+    elif algorithm == "polybench_cholesky":
+        for n in (1, 2, 3, 8, 40, POLYBENCH_CHOLESKY_MAX_DIMENSION):
+            values = (n,)
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (POLYBENCH_CHOLESKY_MAX_DIMENSION + 1,),
+                       (I64_MIN,), (I64_MAX,), (2, 2)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "polybench_ludcmp":
+        for n in (1, 2, 3, 8, 40, POLYBENCH_LUDCMP_MAX_DIMENSION):
+            values = (n,)
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (POLYBENCH_LUDCMP_MAX_DIMENSION + 1,),
+                       (I64_MIN,), (I64_MAX,), (2, 2)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm in {"mvt", "atax", "bicg", "polybench_symm"}:
         for first in (1, 2, 3, 8):
             for second in (1, 2, 3, 8):
                 values = (first, second)
@@ -5949,7 +6089,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "monte_carlo_integration": 3,
                     "monte_carlo_integration_independent": 3,
                     "sparsity": 0,
-                    "mvt": 2, "atax": 2, "bicg": 2, "gemm": 3, "gemver": 1,
+                    "mvt": 2, "atax": 2, "bicg": 2, "polybench_symm": 2,
+                    "gemm": 3, "gemver": 1,
                     "covariance": 2}
     null_lengths["doitgen"] = 3
     null_lengths["2mm"] = 4

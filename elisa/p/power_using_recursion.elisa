@@ -1,12 +1,15 @@
-def power_recursive(base: i64, exponent: i64) -> i64:
-    if exponent == 0: return 1
-    base * power_recursive(base, exponent - 1)
+def power_using_recursion_value(base: i64, exponent: i64) -> i64:
+    if exponent == 0:
+        return 1
+    base * power_using_recursion_value(base, exponent - 1)
 
 def power_using_recursion_impl(input: i64&, length: usize) -> i64:
-    if input == null or length != 2: return -1
+    if input.is_null() or length != 2:
+        return -1
     base: i64 = input[0]
     exponent: i64 = input[1]
-    if base < -10 or base > 10 or exponent < 0 or exponent > 15: return -1
-    power_recursive(base, exponent)
+    if base < -10 or base > 10 or exponent < 0 or exponent > 15:
+        return -1
+    power_using_recursion_value(base, exponent)
 
 export fn power_using_recursion(input: i64&, length: usize) -> i64 = power_using_recursion_impl

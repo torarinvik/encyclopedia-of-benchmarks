@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-polybench-lu-float64-slice-io-v1",
+  "algorithm": "polybench_lu",
+  "function_symbol": "polybench_lu",
+  "description": "Construct the pinned PolyBench LU Gram matrix and compute its no-pivot in-place factorization.",
+  "pinned_sources": [
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/linear-algebra/solvers/lu/lu.c","symbols":["init_array","kernel_lu"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/lu/lu.c","role":"algorithm-and-initialization"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/linear-algebra/solvers/lu/lu.h","symbols":["N","DATA_TYPE_IS_DOUBLE"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/lu/lu.h","role":"dataset-and-type"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/linear-algebra/solvers/lu/info.sh","symbols":["bench_name","COMPILE_FLAGS"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/solvers/lu/info.sh","role":"launcher"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/LICENSE.txt","symbols":["Ohio State University Software Distribution License"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/LICENSE.txt","role":"license"}
+  ],
+  "pinned_launcher":{"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/linear-algebra/solvers/lu/info.sh","bench_name":"lu","source_selection":"*.c","compile_flags":["-I.","-DPOLYBENCH_DUMP_ARRAYS"],"run_options":[]},
+  "source_bound":{"launcher_dataset":{"n":2000},"suite_bounds":{"n":[1,6]},"initialization":"Build base L0 with diag=1, lower entries 1-j/n, upper entries 0; overwrite A with the row Gram matrix L0*L0^T, accumulating t ascending.","kernel":"In-place no-pivot LU: lower entries use ascending k<j accumulation then divide by U[j,j]; upper entries use ascending k<i accumulation.","output_order":"combined LU matrix row-major"},
+  "input":{"kind":"finite_float64_array","encoding":"[n] as exact integral binary64","input_length":1,"maximum_input_length":1,"dimension_ranges":{"n":[1,6]},"invalid_input_result":-1},
+  "contract":{"operation":"Return the source-initialized Gram matrix after source-ordered in-place LU factorization without pivoting.","source_order":["initialize lower-triangular base matrix","accumulate A[r,t]*A[s,t] into Gram entries with t,r,s ascending","for each i, compute j<i lower entries with k<j ascending then divide by A[j,j]","compute j>=i upper entries with k<i ascending"],"invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "output":{"kind":"float64_matrix","encoding":"n*n values of combined L/U factorization in row-major order; L has implicit unit diagonal","maximum_elements":36,"success_result":"n*n output elements","absolute_tolerance":1e-12,"relative_tolerance":1e-12,"no_write_on_error":true},
+  "workspace":{"elements":108,"meaning":"Base matrix, Gram/factor matrix, and staged output are each bounded to 6x6."},
+  "measurement":{"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100,"absolute_tolerance":1e-12,"relative_tolerance":1e-12},
+  "cases":[
+    {"id":"one_by_one","input_values":[1],"input_length":1,"output_capacity":1,"expected_result":1,"expected_output":[1]},
+    {"id":"two_by_two","input_values":[2],"input_length":1,"output_capacity":4,"expected_result":4,"expected_output":[1,1,1,1]},
+    {"id":"three_by_three","input_values":[3],"input_length":1,"output_capacity":9,"expected_result":9,"expected_output":[1,1,1,1,1,0.6666666666666666,1,0.6666666666666666,1]},
+    {"id":"empty_invalid","input_values":[],"input_length":0,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional_dimension","input_values":[2.5],"input_length":1,"expected_result":-1,"expected_output":[]},
+    {"id":"first_unsupported_dimension","input_values":[7],"input_length":1,"expected_result":-1,"expected_output":[]},
+    {"id":"short_output","input_values":[2],"input_length":1,"output_capacity":3,"expected_result":-2,"expected_output":[]}
+  ]
+}

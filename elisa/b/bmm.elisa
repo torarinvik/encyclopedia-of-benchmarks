@@ -1,0 +1,110 @@
+const VERSABENCH_BMM_MAX_SIZE: usize = 128
+const VERSABENCH_BMM_SOURCE_SIZE: usize = 1024
+const VERSABENCH_BMM_MAX_CELLS: usize = VERSABENCH_BMM_MAX_SIZE * VERSABENCH_BMM_MAX_SIZE
+const VERSABENCH_BMM_MAX_OUTPUT_BYTES: usize = 29
+
+def versabench_bmm_next_random(state: mutable u32&) -> u32:
+    state[0] <- ((state[0].u64() * 1664525.u64() + 1013904223.u64()) & 0xffffffff.u64()).u32()
+    (state[0] >> 16) & 0x7fff.u32()
+
+def versabench_bmm_append_unsigned(buffer: mutable u8&, used: mutable usize&, input_value: u32) -> void:
+    remaining: mutable u32 = input_value
+    reverse: mutable u8[10] = zeroed
+    count: mutable usize = 0
+    while true:
+        reverse[count] <- (48.u32() + remaining % 10.u32()).u8()
+        count <- count + 1
+        remaining <- remaining / 10.u32()
+        if remaining == 0.u32(): break
+    while count > 0:
+        count <- count - 1
+        buffer[used] <- reverse[count]
+        used <- used + 1
+
+def versabench_bmm_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    if input[0] < 1 or input[0] > VERSABENCH_BMM_MAX_SIZE.i64() or input[1] < 1 or
+       input[1] > input[0] or input[0] % input[1] != 0: return -1
+    size: usize = input[0].usize()
+    block: usize = input[1].usize()
+
+    a: mutable f32[VERSABENCH_BMM_MAX_CELLS] = zeroed
+    b: mutable f32[VERSABENCH_BMM_MAX_CELLS] = zeroed
+    matrix_c: mutable f32[VERSABENCH_BMM_MAX_CELLS] = zeroed
+    seed: mutable u32 = 1.u32()
+    i: mutable usize = 0
+    while i < size:
+        j: mutable usize = 0
+        while j < VERSABENCH_BMM_SOURCE_SIZE:
+            random_a: u32 = versabench_bmm_next_random(seed&)
+            random_b: u32 = versabench_bmm_next_random(seed&)
+            if j < size:
+                shift_a: usize = ((j & 31) + 32 - (i & 31)) & 31
+                shift_b: usize = (i + j) & 31
+                a[i * size + j] <- ((random_a >> shift_a.u32()) & 15.u32()).f32()
+                b[i * size + j] <- ((random_b << shift_b.u32()) & 15.u32()).f32()
+            j <- j + 1
+        i <- i + 1
+
+    outer_i: mutable usize = 0
+    while outer_i < size:
+        outer_j: mutable usize = 0
+        while outer_j < size:
+            outer_k: mutable usize = 0
+            while outer_k < size:
+                i <- outer_i
+                while i < outer_i + block:
+                    j <- outer_j
+                    while j < outer_j + block:
+                        cell: usize = i * size + j
+                        k: mutable usize = outer_k
+                        while k < outer_k + block:
+                            matrix_c[cell] <- matrix_c[cell] + a[i * size + k] * b[k * size + j]
+                            k <- k + 1
+                        j <- j + 1
+                    i <- i + 1
+                outer_k <- outer_k + block
+            outer_j <- outer_j + block
+        outer_i <- outer_i + block
+
+    total: mutable f32 = 0.0
+    outer_i <- 0
+    while outer_i < size:
+        outer_j <- 0
+        while outer_j < size:
+            subtotal: mutable f32 = 0.0
+            i <- outer_i
+            while i < outer_i + block:
+                j <- outer_j
+                while j < outer_j + block:
+                    subtotal <- subtotal + matrix_c[i * size + j]
+                    j <- j + 1
+                i <- i + 1
+            total <- total + subtotal
+            outer_j <- outer_j + block
+        outer_i <- outer_i + block
+
+    staged: mutable u8[VERSABENCH_BMM_MAX_OUTPUT_BYTES] = zeroed
+    used: mutable usize = 0
+    prefix: string = "final sum = "
+    i <- 0
+    while i < 12:
+        staged[used] <- prefix[i].u8()
+        used <- used + 1
+        i <- i + 1
+    versabench_bmm_append_unsigned(staged&, used&, total.u32())
+    suffix: string = ".000000\n"
+    i <- 0
+    while i < 8:
+        staged[used] <- suffix[i].u8()
+        used <- used + 1
+        i <- i + 1
+    if output.is_null() or output_capacity < used: return -2
+    i <- 0
+    while i < used:
+        output[i] <- staged[i]
+        i <- i + 1
+    used.i64()
+
+export fn versabench_bmm(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = versabench_bmm_impl

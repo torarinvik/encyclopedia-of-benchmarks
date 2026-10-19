@@ -1,0 +1,31 @@
+const MAX_N: usize = 40
+
+extern trunc(value: f64) -> f64
+
+def trisolv_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length != 1:
+        return -1
+    n_value: f64 = input[0]
+    if trunc(n_value) != n_value or n_value < 1.0 or n_value > MAX_N.f64():
+        return -1
+    n: usize = n_value.usize()
+    if output.is_null() or capacity < n:
+        return -2
+
+    lower: mutable f64[MAX_N][MAX_N] = zeroed
+    b: mutable f64[MAX_N] = zeroed
+    x: mutable f64[MAX_N] = zeroed
+    for i in 0..n:
+        b[i] <- i.f64()
+        for j in 0..i + 1:
+            lower[i][j] <- (i + n - j + 1).f64() * 2.0 / n.f64()
+    for i in 0..n:
+        x[i] <- b[i]
+        for j in 0..i:
+            x[i] <- x[i] - lower[i][j] * x[j]
+        x[i] <- x[i] / lower[i][i]
+    for i in 0..n:
+        output[i] <- x[i]
+    n.i64()
+
+export fn trisolv(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = trisolv_impl

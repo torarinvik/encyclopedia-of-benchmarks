@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-polybench-trmm-float64-slice-io-v1",
+  "algorithm": "trmm",
+  "function_symbol": "trmm",
+  "description": "Compute the bounded PolyBench TRMM initialized matrix update in source order.",
+  "pinned_sources": [
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/linear-algebra/blas/trmm/trmm.c",
+      "symbols": [
+        "init_array",
+        "kernel_trmm"
+      ],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/trmm/trmm.c",
+      "role": "algorithm-and-initialization"
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/linear-algebra/blas/trmm/trmm.h",
+      "symbols": [
+        "M",
+        "N",
+        "DATA_TYPE_IS_DOUBLE"
+      ],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/trmm/trmm.h",
+      "role": "dataset-and-type"
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/linear-algebra/blas/trmm/info.sh",
+      "symbols": [
+        "EXTRALARGE_DATASET"
+      ],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/trmm/info.sh",
+      "role": "launcher"
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/LICENSE.txt",
+      "symbols": [
+        "Ohio State University Software Distribution License"
+      ],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/LICENSE.txt",
+      "role": "license"
+    }
+  ],
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/linear-algebra/blas/trmm/info.sh",
+    "bench_name": "trmm",
+    "source_selection": "*.c",
+    "compile_flags": [
+      "-I.",
+      "-DPOLYBENCH_DUMP_ARRAYS",
+      "-DEXTRALARGE_DATASET"
+    ],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "Default DATA_TYPE is double. Initialization sets alpha=1.5; A[i][j]=((i+j)%m)/m for j<i, A[i][i]=1, and B[i][j]=((n+i-j)%n)/n. For ascending i,j, kernel_trmm accumulates A[k][i]*B[k][j] for ascending k=i+1..m-1, then multiplies B[i][j] by alpha. The launcher selects M=2000,N=2600; this suite bounds each dimension to 1..8 and returns all B values numerically in row-major order instead of the source formatted dump.",
+    "launcher_dataset": {
+      "m": 2000,
+      "n": 2600
+    },
+    "suite_bounds": {
+      "m": [
+        1,
+        8
+      ],
+      "n": [
+        1,
+        8
+      ]
+    },
+    "alpha": 1.5,
+    "output_order": "complete B matrix row-major"
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[m,n] as exactly integral binary64 dimensions",
+    "input_length": 2,
+    "dimension_ranges": {
+      "m": [
+        1,
+        8
+      ],
+      "n": [
+        1,
+        8
+      ]
+    },
+    "maximum_input_length": 2,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "operation": "Return initialized B after source-ordered triangular matrix multiplication update.",
+    "source_order": [
+      "initialize A then B in row-major order",
+      "for i ascending, then j ascending, accumulate k=i+1..m-1 ascending into B[i][j]",
+      "multiply B[i][j] by alpha after its accumulation",
+      "return the complete matrix row-major"
+    ],
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "output": {
+    "kind": "float64_matrix",
+    "encoding": "m*n binary64 values of B in row-major order",
+    "maximum_elements": 64,
+    "success_result": "m*n output elements",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 128,
+    "meaning": "A and B are each at most 8x8 binary64 matrices; returned B contains at most 64 elements."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {
+      "id": "unit_dimensions",
+      "input_values": [
+        1.0,
+        1.0
+      ],
+      "input_length": 2,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output": [
+        0.0
+      ]
+    },
+    {
+      "id": "rectangular_small",
+      "input_values": [
+        3.0,
+        2.0
+      ],
+      "input_length": 2,
+      "output_capacity": 6,
+      "expected_result": 6,
+      "expected_output": [
+        0.25,
+        1.25,
+        0.75,
+        0.0,
+        0.0,
+        0.75
+      ]
+    },
+    {
+      "id": "wide_matrix",
+      "input_values": [
+        2.0,
+        5.0
+      ],
+      "input_length": 2,
+      "output_capacity": 10,
+      "expected_result": 10,
+      "expected_output": [
+        0.15000000000000002,
+        1.2000000000000002,
+        1.5,
+        1.0499999999999998,
+        0.6000000000000001,
+        0.30000000000000004,
+        0.0,
+        1.2000000000000002,
+        0.8999999999999999,
+        0.6000000000000001
+      ]
+    },
+    {
+      "id": "maximum_bounded_matrix",
+      "input_values": [
+        8.0,
+        8.0
+      ],
+      "input_length": 2,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output": [
+        3.28125,
+        3.9375,
+        3.28125,
+        2.8125,
+        2.53125,
+        2.4375,
+        2.53125,
+        2.8125,
+        2.765625,
+        1.9921875,
+        2.71875,
+        2.5078125,
+        2.484375,
+        2.6484375,
+        3.0,
+        3.5390625,
+        2.2734375,
+        1.640625,
+        1.0078125,
+        1.875,
+        2.1796875,
+        2.671875,
+        3.3515625,
+        2.71875,
+        1.6875,
+        1.265625,
+        0.84375,
+        0.421875,
+        1.5,
+        2.390625,
+        1.96875,
+        1.734375,
+        1.640625,
+        1.3125,
+        0.984375,
+        0.65625,
+        0.328125,
+        1.5,
+        1.359375,
+        1.40625,
+        2.015625,
+        1.6640625,
+        1.3125,
+        0.9609375,
+        0.609375,
+        0.2578125,
+        1.40625,
+        1.6171875,
+        1.9453125,
+        1.640625,
+        1.3359375,
+        1.03125,
+        0.7265625,
+        0.421875,
+        0.1171875,
+        1.3125,
+        1.3125,
+        1.125,
+        0.9375,
+        0.75,
+        0.5625,
+        0.375,
+        0.1875,
+        0.0
+      ]
+    },
+    {
+      "id": "zero_m_invalid",
+      "input_values": [
+        0.0,
+        2.0
+      ],
+      "input_length": 2,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "zero_n_invalid",
+      "input_values": [
+        2.0,
+        0.0
+      ],
+      "input_length": 2,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "fractional_dimension_invalid",
+      "input_values": [
+        2.5,
+        3.0
+      ],
+      "input_length": 2,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "trailing_value_invalid",
+      "input_values": [
+        2.0,
+        3.0,
+        4.0
+      ],
+      "input_length": 3,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "above_bound_invalid",
+      "input_values": [
+        9.0,
+        1.0
+      ],
+      "input_length": 2,
+      "output_capacity": 64,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        3.0,
+        2.0
+      ],
+      "input_length": 2,
+      "output_capacity": 5,
+      "expected_result": -2,
+      "expected_output": []
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        3.0,
+        2.0
+      ],
+      "input_length": 2,
+      "output_capacity": 6,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output": []
+    }
+  ]
+}

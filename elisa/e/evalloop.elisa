@@ -1,0 +1,61 @@
+const MIN_PASSES: i64 = 0
+const MAX_PASSES: i64 = 1000
+const BUFFER_SIZE: usize = 2048
+const OUTPUT_CAPACITY: usize = 14
+
+def execute(sum: mutable u32&, opcode: i32) -> void:
+    sum <- sum + opcode.u32()
+
+def format_output(sum_input: u32, staged: mutable u8&) -> usize:
+    staged[0] <- 83u8
+    staged[1] <- 117u8
+    staged[2] <- 109u8
+    staged[3] <- 58u8
+    staged[4] <- 32u8
+    used: mutable usize = 5
+    reversed: mutable u8[10] = zeroed
+    digits: mutable usize = 0
+    sum: mutable u32 = sum_input
+    while true:
+        reversed[digits] <- (48u32 + sum % 10).u8()
+        digits <- digits + 1
+        sum <- sum / 10
+        if sum == 0: break
+    while digits > 0:
+        digits <- digits - 1
+        staged[used] <- reversed[digits]
+        used <- used + 1
+    staged[used] <- 10u8
+    used <- used + 1
+    used
+
+def evalloop_impl(passes: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if passes < MIN_PASSES || passes > MAX_PASSES: return -1
+    if output.is_null(): return -2
+
+    commands: mutable i32[BUFFER_SIZE] = zeroed
+    index: mutable usize = 0
+    while index < BUFFER_SIZE - 1:
+        commands[index] <- (index % 31 + 1).i32()
+        index <- index + 1
+    sum: mutable u32 = 0
+    pass: mutable i64 = 0
+    while pass < passes:
+        pc: mutable usize = 0
+        opcode: mutable i32 = commands[pc]
+        pc <- pc + 1
+        while opcode != 0:
+            if opcode < 1 || opcode > 31: return -1
+            execute(sum, opcode)
+            opcode <- commands[pc]
+            pc <- pc + 1
+        pass <- pass + 1
+
+    staged: mutable u8[OUTPUT_CAPACITY] = zeroed
+    used: usize = format_output(sum, staged[0])
+    if output_capacity < used: return -2
+    for index in 0..<used:
+        output[index] <- staged[index]
+    used.i64()
+
+export fn evalloop(passes: i64, output: mutable u8&, output_capacity: usize) -> i64 = evalloop_impl

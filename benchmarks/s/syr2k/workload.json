@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-polybench-syr2k-float64-slice-io-v1",
+  "algorithm": "syr2k",
+  "function_symbol": "syr2k",
+  "description": "Compute the bounded PolyBench SYR2K lower-triangle rank-2k update and return the complete initialized C matrix.",
+  "pinned_sources": [
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/linear-algebra/blas/syr2k/syr2k.c",
+      "symbols": ["init_array", "kernel_syr2k", "print_array"],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/syr2k/syr2k.c",
+      "role": "algorithm-and-output"
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "PolyBench/linear-algebra/blas/syr2k/syr2k.h",
+      "symbols": ["EXTRALARGE_DATASET", "DATA_TYPE_IS_DOUBLE", "DATA_PRINTF_MODIFIER"],
+      "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/linear-algebra/blas/syr2k/syr2k.h",
+      "role": "dataset-and-type"
+    }
+  ],
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/linear-algebra/blas/syr2k/info.sh",
+    "bench_name": "syr2k",
+    "source_selection": "*.c",
+    "compile_flags": ["-I.", "-DPOLYBENCH_DUMP_ARRAYS", "-DEXTRALARGE_DATASET"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "The source defaults to binary64 with alpha=1.5 and beta=1.2. It initializes A[i][j]=((i*j+1)%n)/n and B[i][j]=((i*j+2)%m)/m, then C[i][j]=((i*j+3)%n)/m. For each i ascending it scales C[i][j] by beta for j=0..i, then visits k ascending and j=0..i ascending, applying C[i][j] += A[j][k]*alpha*B[i][k] + B[j][k]*alpha*A[i][k]. The strict upper triangle remains initialized, and print_array exposes the complete C matrix in row-major order. The launcher selects EXTRALARGE_DATASET (n=2600,m=2000); this package bounds n to 1..8 and m to 1..16.",
+    "matrix_shapes": {"A": ["n", "m"], "B": ["n", "m"], "C": ["n", "n"]},
+    "alpha": 1.5,
+    "beta": 1.2,
+    "initialization_order": ["A and B paired row-major", "C row-major"],
+    "kernel_order": ["i ascending", "scale j=0..i", "k ascending", "update j=0..i ascending"],
+    "update_expression": "C[i][j] += A[j][k]*alpha*B[i][k] + B[j][k]*alpha*A[i][k]",
+    "output_order": "complete C matrix row-major, including initialized strict upper-triangle entries",
+    "launcher_dataset": {"n": 2600, "m": 2000},
+    "suite_bounds": {"n": [1, 8], "m": [1, 16]}
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[n, m] as exactly integral binary64 dimensions",
+    "input_length": 2,
+    "dimension_ranges": {"n": [1, 8], "m": [1, 16]},
+    "maximum_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "invalid_input_result": -1
+  },
+  "contract": {
+    "operation": "Return the complete initialized C matrix after the source-ordered lower-triangle SYR2K update.",
+    "source_order": [
+      "initialize A and B in paired row-major order, then initialize C row-major",
+      "for each row i, multiply C[i][j] by beta for j ascending through i",
+      "for each k ascending, add A[j][k]*alpha*B[i][k] + B[j][k]*alpha*A[i][k] for j ascending through i",
+      "preserve initialized C[i][j] where j>i and return all C values row-major"
+    ],
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "output": {
+    "kind": "float64_matrix",
+    "encoding": "n*n binary64 values of C in row-major order",
+    "maximum_elements": 64,
+    "success_result": "n*n output elements",
+    "invalid_input_result": -1,
+    "invalid_output_capacity_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "elements": 64,
+    "meaning": "Full bounded C matrix; A and B workspaces each contain at most 8*16 binary64 elements."
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "unit_dimensions", "input_values": [1, 1], "input_length": 2, "expected_result": 1, "expected_output": [0.0]},
+    {"id": "two_by_one", "input_values": [2, 1], "input_length": 2, "expected_result": 4, "expected_output": [1.2, 1.2, 1.2, 0.0]},
+    {"id": "two_by_two", "input_values": [2, 2], "input_length": 2, "expected_result": 4, "expected_output": [0.6, 0.5, 0.975, 0.0]},
+    {"id": "three_by_two", "input_values": [3, 2], "input_length": 2, "expected_result": 9, "expected_output": [0.0, 0.0, 0.0, 0.25, 1.6, 1.0, 0.0, 1.2, 0.6]},
+    {"id": "zero_n_invalid", "input_values": [0, 2], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "zero_m_invalid", "input_values": [2, 0], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "fractional_dimension_invalid", "input_values": [2.5, 2], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "above_n_bound_invalid", "input_values": [9, 2], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "above_m_bound_invalid", "input_values": [2, 17], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "trailing_input_invalid", "input_values": [2, 2, 3], "input_length": 3, "expected_result": -1, "expected_output": []},
+    {"id": "short_output_capacity", "input_values": [3, 2], "input_length": 2, "output_capacity": 8, "expected_result": -2, "expected_output": []},
+    {"id": "null_output", "input_values": [3, 2], "input_length": 2, "output_capacity": 64, "output_is_null": true, "expected_result": -2, "expected_output": []}
+  ]
+}

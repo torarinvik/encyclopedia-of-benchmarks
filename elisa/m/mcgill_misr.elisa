@@ -1,0 +1,136 @@
+const MIN_EXPERIMENTS: i64 = 1
+const MAX_EXPERIMENTS: i64 = 1000
+const MAX_OUTPUT_BYTES: usize = 123
+
+def mcgill_misr_next_lrand48(state: mutable u64&) -> u32:
+    low: u64 = state[0] & 0xffffff.u64()
+    high: u64 = state[0] >> 24
+    high_product: u64 = (high * 0xece66d.u64()) & 0xffffff.u64()
+    state[0] <- (low * 0x5deece66d.u64() + (high_product << 24) + 0xbu64()) & 0xffffffffffff.u64()
+    (state[0] >> 17).u32()
+
+def mcgill_misr_different_experiment(random_state: mutable u64&, free_state: mutable u8&) -> bool:
+    faulty_state: mutable u8[10] = zeroed
+    cell: mutable usize = 0
+    while cell < 10:
+        faulty_state[cell] <- free_state[cell]
+        cell <- cell + 1
+    vector: mutable usize = 0
+    while vector < 10:
+        saved_free: u8 = free_state[0]
+        saved_faulty: u8 = faulty_state[0]
+        random_word: mutable u32 = mcgill_misr_next_lrand48(random_state)
+        cell <- 0
+        while cell < 9:
+            free_state[cell] <- ((free_state[cell + 1].u32() + random_word) & 1.u32()).u8()
+            random_probability: u32 = mcgill_misr_next_lrand48(random_state)
+            if random_probability % 1000.u32() < 250.u32(): random_word <- random_word ^ 1.u32()
+            faulty_state[cell] <- ((faulty_state[cell + 1].u32() + random_word) & 1.u32()).u8()
+            random_word <- random_word >> 1
+            cell <- cell + 1
+        random_word <- mcgill_misr_next_lrand48(random_state)
+        free_state[9] <- ((saved_free.u32() + random_word) & 1.u32()).u8()
+        random_probability <- mcgill_misr_next_lrand48(random_state)
+        if random_probability % 10000.u32() < 2500.u32(): random_word <- random_word ^ 1.u32()
+        faulty_state[9] <- ((saved_faulty.u32() + random_word) & 1.u32()).u8()
+        vector <- vector + 1
+    cell <- 0
+    while cell < 10:
+        if free_state[cell] != faulty_state[cell]: return true
+        cell <- cell + 1
+    false
+
+def mcgill_misr_append_text(buffer: mutable u8&, used: mutable usize&, text: string) -> void:
+    index: mutable usize = 0
+    while index < text.length():
+        buffer[used] <- text[index].u8()
+        used <- used + 1
+        index <- index + 1
+
+def mcgill_misr_append_unsigned(buffer: mutable u8&, used: mutable usize&, value_input: u64) -> void:
+    remaining: mutable u64 = value_input
+    reverse: mutable u8[24] = zeroed
+    count: mutable usize = 0
+    while true:
+        reverse[count] <- (48.u64() + remaining % 10.u64()).u8()
+        count <- count + 1
+        remaining <- remaining / 10.u64()
+        if remaining == 0.u64(): break
+    while count > 0:
+        count <- count - 1
+        buffer[used] <- reverse[count]
+        used <- used + 1
+
+def mcgill_misr_append_probability(buffer: mutable u8&, used: mutable usize&,
+                                   same_count: u64, experiments: u64) -> void:
+    mantissa: mutable u64 = 0.u64()
+    exponent: mutable i64 = 0
+    if same_count != 0.u64():
+        scale: mutable u64 = 1.u64()
+        while same_count * scale < experiments:
+            scale <- scale * 10.u64()
+            exponent <- exponent - 1
+        numerator: u64 = same_count * scale * 100000000.u64()
+        mantissa <- numerator / experiments
+        remainder: u64 = numerator % experiments
+        if 2.u64() * remainder > experiments or (2.u64() * remainder == experiments and (mantissa & 1.u64()) != 0.u64()):
+            mantissa <- mantissa + 1.u64()
+        if mantissa == 1000000000.u64():
+            mantissa <- 100000000.u64()
+            exponent <- exponent + 1
+    whole: u64 = mantissa / 100000000.u64()
+    fraction: mutable u64 = mantissa % 100000000.u64()
+    buffer[used] <- (48.u64() + whole).u8()
+    used <- used + 1
+    buffer[used] <- 46.u8()
+    used <- used + 1
+    place: mutable u64 = 10000000.u64()
+    digit: mutable usize = 0
+    while digit < 8:
+        buffer[used] <- (48.u64() + fraction / place).u8()
+        used <- used + 1
+        fraction <- fraction % place
+        place <- place / 10.u64()
+        digit <- digit + 1
+    buffer[used] <- 101.u8()
+    used <- used + 1
+    absolute_exponent: i64 = if exponent < 0: -exponent else: exponent
+    buffer[used] <- if exponent < 0: 45.u8() else: 43.u8()
+    used <- used + 1
+    buffer[used] <- (48 + absolute_exponent / 10).u8()
+    used <- used + 1
+    buffer[used] <- (48 + absolute_exponent % 10).u8()
+    used <- used + 1
+
+def mcgill_misr_impl(experiments: i64, output: mutable u8&, output_capacity: usize) -> i64:
+    if experiments < MIN_EXPERIMENTS or experiments > MAX_EXPERIMENTS: return -1
+    if output.is_null(): return -2
+    random_state: mutable u64 = 1.u64()
+    free_state: mutable u8[10] = zeroed
+    cell: mutable usize = 1
+    while cell < 10:
+        free_state[cell] <- 1.u8()
+        cell <- cell + 1
+    different_count: mutable u64 = 0.u64()
+    experiment: mutable i64 = 0
+    while experiment < experiments:
+        if mcgill_misr_different_experiment(random_state, free_state): different_count <- different_count + 1.u64()
+        experiment <- experiment + 1
+
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    used: mutable usize = 0
+    mcgill_misr_append_text(staged, used, "reg_len #_vect prob #_tms struct seed1 seed2 seed3 Prob same output\n ")
+    mcgill_misr_append_text(staged, used, "10 10 2.500e-01 ")
+    mcgill_misr_append_unsigned(staged, used, experiments.u64())
+    mcgill_misr_append_text(staged, used, " 1000000000 1 0 0 ")
+    mcgill_misr_append_probability(staged, used, experiments.u64() - different_count, experiments.u64())
+    staged[used] <- 10.u8()
+    used <- used + 1
+    if output_capacity < used: return -2
+    index: mutable usize = 0
+    while index < used:
+        output[index] <- staged[index]
+        index <- index + 1
+    used.i64()
+
+export fn mcgill_misr(experiments: i64, output: mutable u8&, output_capacity: usize) -> i64 = mcgill_misr_impl

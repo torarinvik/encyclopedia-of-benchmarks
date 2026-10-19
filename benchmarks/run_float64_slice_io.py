@@ -20,6 +20,15 @@ from vector2_oracle import expected_result as vector2_oracle
 from vectors_3d_oracle import expected_result as vectors_3d_oracle
 from partialsums_oracle import expected_output as partialsums_oracle
 from durbin_oracle import expected_output as durbin_oracle
+from versabench_beamformer_oracle import (
+    CHANNELS as VERSABENCH_BEAMFORMER_CHANNELS,
+    INPUT_LENGTH as VERSABENCH_BEAMFORMER_INPUT_LENGTH,
+    MAX_ABS_VALUE as VERSABENCH_BEAMFORMER_MAX_ABS_VALUE,
+    MAX_OUTPUT_ELEMENTS as VERSABENCH_BEAMFORMER_MAX_OUTPUT_ELEMENTS,
+    INVALID_RESULT as VERSABENCH_BEAMFORMER_INVALID_RESULT,
+    OUTPUT_ERROR as VERSABENCH_BEAMFORMER_OUTPUT_ERROR,
+    expected_output as versabench_beamformer_abi_oracle,
+)
 from syrk_oracle import (
     INVALID_RESULT as SYRK_INVALID_RESULT,
     MAX_INPUT_LENGTH as SYRK_MAX_INPUT_LENGTH,
@@ -36,6 +45,91 @@ from matmul_f64_4x4_oracle import (
     MIN_ITERATIONS as MATMUL_F64_4X4_MIN_ITERATIONS,
     OUTPUT_ERROR as MATMUL_F64_4X4_OUTPUT_ERROR,
     expected_output as matmul_f64_4x4_expected_output,
+)
+from misc_fp_convert_oracle import (
+    INVALID_RESULT as MISC_FP_CONVERT_INVALID_RESULT,
+    MAX_ITERATIONS as MISC_FP_CONVERT_MAX_ITERATIONS,
+    MAX_PARSEABLE_INPUT_LENGTH as MISC_FP_CONVERT_MAX_PARSEABLE_INPUT_LENGTH,
+    MIN_ITERATIONS as MISC_FP_CONVERT_MIN_ITERATIONS,
+    OUTPUT_ERROR as MISC_FP_CONVERT_OUTPUT_ERROR,
+    VECTOR_LENGTH as MISC_FP_CONVERT_VECTOR_LENGTH,
+    expected_output as misc_fp_convert_expected_output,
+)
+from trisolv_oracle import (
+    INVALID_RESULT as TRISOLV_INVALID_RESULT,
+    MAX_N as TRISOLV_MAX_N,
+    MAX_PARSEABLE_INPUT_LENGTH as TRISOLV_MAX_PARSEABLE_INPUT_LENGTH,
+    MIN_N as TRISOLV_MIN_N,
+    OUTPUT_ERROR as TRISOLV_OUTPUT_ERROR,
+    expected_output as trisolv_expected_output,
+)
+from jacobi_1d_oracle import (
+    INVALID_RESULT as JACOBI_1D_INVALID_RESULT,
+    MAX_N as JACOBI_1D_MAX_N,
+    MAX_OUTPUT_ELEMENTS as JACOBI_1D_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as JACOBI_1D_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_TSTEPS as JACOBI_1D_MAX_TSTEPS,
+    OUTPUT_ERROR as JACOBI_1D_OUTPUT_ERROR,
+    expected_output as jacobi_1d_expected_output,
+)
+from jacobi_2d_oracle import (
+    INVALID_RESULT as JACOBI_2D_INVALID_RESULT,
+    MAX_N as JACOBI_2D_MAX_N,
+    MAX_OUTPUT_ELEMENTS as JACOBI_2D_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as JACOBI_2D_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_TSTEPS as JACOBI_2D_MAX_TSTEPS,
+    OUTPUT_ERROR as JACOBI_2D_OUTPUT_ERROR,
+    expected_output as jacobi_2d_expected_output,
+)
+from syr2k_oracle import (
+    INVALID_RESULT as SYR2K_INVALID_RESULT,
+    MAX_M as SYR2K_MAX_M,
+    MAX_N as SYR2K_MAX_N,
+    MAX_OUTPUT_ELEMENTS as SYR2K_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as SYR2K_MAX_PARSEABLE_INPUT_LENGTH,
+    OUTPUT_ERROR as SYR2K_OUTPUT_ERROR,
+    expected_output as syr2k_expected_output,
+)
+from trmm_oracle import (
+    INVALID_RESULT as TRMM_INVALID_RESULT,
+    MAX_DIM as TRMM_MAX_DIM,
+    MAX_INPUT_LENGTH as TRMM_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as TRMM_MAX_OUTPUT_ELEMENTS,
+    OUTPUT_ERROR as TRMM_OUTPUT_ERROR,
+    expected_result as trmm_expected_result,
+)
+from fdtd_2d_oracle import (
+    INVALID_RESULT as FDTD_2D_INVALID_RESULT,
+    MAX_INPUT_LENGTH as FDTD_2D_MAX_INPUT_LENGTH,
+    MAX_NX as FDTD_2D_MAX_NX,
+    MAX_NY as FDTD_2D_MAX_NY,
+    MAX_OUTPUT_ELEMENTS as FDTD_2D_MAX_OUTPUT_ELEMENTS,
+    MAX_TMAX as FDTD_2D_MAX_TMAX,
+    OUTPUT_ERROR as FDTD_2D_OUTPUT_ERROR,
+    expected_output as fdtd_2d_expected_output,
+)
+from heat_3d_oracle import (
+    INVALID_RESULT as HEAT_3D_INVALID_RESULT,
+    MAX_INPUT_LENGTH as HEAT_3D_MAX_INPUT_LENGTH,
+    MAX_N as HEAT_3D_MAX_N,
+    MAX_OUTPUT_ELEMENTS as HEAT_3D_MAX_OUTPUT_ELEMENTS,
+    MAX_TSTEPS as HEAT_3D_MAX_TSTEPS,
+    OUTPUT_ERROR as HEAT_3D_OUTPUT_ERROR,
+    expected_output as heat_3d_expected_output,
+)
+from polybench_lu_oracle import (
+    MAX_N as POLYBENCH_LU_MAX_N,
+    expected_output as polybench_lu_expected_output,
+)
+from polybench_correlation_oracle import (
+    MAX_N as POLYBENCH_CORRELATION_MAX_N,
+    MAX_M as POLYBENCH_CORRELATION_MAX_M,
+    expected_output as polybench_correlation_expected_output,
+)
+from polybench_seidel_2d_oracle import (
+    MAX_N as POLYBENCH_SEIDEL_2D_MAX_N,
+    MAX_TSTEPS as POLYBENCH_SEIDEL_2D_MAX_TSTEPS,
+    expected_output as polybench_seidel_2d_expected_output,
 )
 from dimensionality_reduction_pca_oracle import expected_result as dimensionality_reduction_pca_oracle
 from principal_component_analysis_oracle import (
@@ -982,11 +1076,245 @@ def matmul_f64_4x4_abi_oracle(values, output_capacity=None, output_is_null=False
     return result, output
 
 
+def misc_fp_convert_oracle(values):
+    result, output = misc_fp_convert_expected_output(values)
+    return output if result >= 0 else None
+
+
+def misc_fp_convert_abi_oracle(values, output_capacity=None, output_is_null=False,
+                               input_is_null=False, input_length=None):
+    if input_is_null or (input_length is not None and input_length != len(values)):
+        return MISC_FP_CONVERT_INVALID_RESULT, []
+    result, output = misc_fp_convert_expected_output(values)
+    if result < 0:
+        return result, []
+    if output_is_null or (output_capacity is not None and output_capacity < result):
+        return MISC_FP_CONVERT_OUTPUT_ERROR, []
+    return result, output
+
+
+def trisolv_abi_oracle(values, output_capacity=None, output_is_null=False,
+                       input_is_null=False, input_length=None):
+    if input_is_null or (input_length is not None and input_length != len(values)):
+        return TRISOLV_INVALID_RESULT, []
+    output = trisolv_expected_output(values)
+    if output is None:
+        return TRISOLV_INVALID_RESULT, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return TRISOLV_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def trisolv_oracle(values):
+    result, output = trisolv_abi_oracle(values)
+    return output if result >= 0 else None
+
+
+def jacobi_1d_abi_oracle(values, output_capacity=None, output_is_null=False,
+                         input_is_null=False, input_length=None):
+    if input_is_null or (input_length is not None and input_length != len(values)):
+        return JACOBI_1D_INVALID_RESULT, []
+    output = jacobi_1d_expected_output(values)
+    if output is None:
+        return JACOBI_1D_INVALID_RESULT, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return JACOBI_1D_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def jacobi_1d_oracle(values):
+    result, output = jacobi_1d_abi_oracle(values)
+    return output if result >= 0 else None
+
+
+def jacobi_2d_abi_oracle(values, output_capacity=None, output_is_null=False,
+                         input_is_null=False, input_length=None):
+    if input_is_null or (input_length is not None and input_length != len(values)):
+        return JACOBI_2D_INVALID_RESULT, []
+    output = jacobi_2d_expected_output(values)
+    if output is None:
+        return JACOBI_2D_INVALID_RESULT, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return JACOBI_2D_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def jacobi_2d_oracle(values):
+    result, output = jacobi_2d_abi_oracle(values)
+    return output if result >= 0 else None
+
+
+def syr2k_abi_oracle(values, output_capacity=None, output_is_null=False,
+                     input_is_null=False, input_length=None):
+    if input_is_null or (input_length is not None and input_length != len(values)):
+        return SYR2K_INVALID_RESULT, []
+    output = syr2k_expected_output(values)
+    if output is None:
+        return SYR2K_INVALID_RESULT, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return SYR2K_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def syr2k_oracle(values):
+    result, output = syr2k_abi_oracle(values)
+    return output if result >= 0 else None
+
+
+def trmm_abi_oracle(values, output_capacity=None, output_is_null=False,
+                    input_is_null=False, input_length=None):
+    if (input_is_null or (input_length is not None
+                          and (type(input_length) is not int or input_length != len(values)))):
+        return TRMM_INVALID_RESULT, []
+    capacity = TRMM_MAX_OUTPUT_ELEMENTS if output_capacity is None else output_capacity
+    return trmm_expected_result(values, capacity, output_is_null)
+
+
+def fdtd_2d_abi_oracle(values, output_capacity=None, output_is_null=False,
+                       input_is_null=False, input_length=None):
+    if (input_is_null or (input_length is not None
+                          and (type(input_length) is not int or input_length != len(values)))):
+        return FDTD_2D_INVALID_RESULT, []
+    output = fdtd_2d_expected_output(values)
+    if output is None:
+        return FDTD_2D_INVALID_RESULT, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return FDTD_2D_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def fdtd_2d_oracle(values):
+    result, output = fdtd_2d_abi_oracle(values)
+    return output if result >= 0 else None
+
+
+def heat_3d_abi_oracle(values, output_capacity=None, output_is_null=False,
+                       input_is_null=False, input_length=None):
+    if (input_is_null
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))):
+        return HEAT_3D_INVALID_RESULT, []
+    output = heat_3d_expected_output(values)
+    if output is None:
+        return HEAT_3D_INVALID_RESULT, []
+    if (type(output_is_null) is not bool
+            or output_capacity is not None
+            and (type(output_capacity) is not int or output_capacity < 0)):
+        return HEAT_3D_OUTPUT_ERROR, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return HEAT_3D_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def heat_3d_oracle(values):
+    result, output = heat_3d_abi_oracle(values)
+    return output if result >= 0 else None
+
+
+POLYBENCH_LU_MAX_INPUT_LENGTH = 1
+POLYBENCH_LU_MAX_OUTPUT_ELEMENTS = POLYBENCH_LU_MAX_N * POLYBENCH_LU_MAX_N
+POLYBENCH_LU_INVALID_RESULT = -1
+POLYBENCH_LU_OUTPUT_ERROR = -2
+
+
+def polybench_lu_abi_oracle(values, output_capacity=None, output_is_null=False,
+                            input_is_null=False, input_length=None):
+    if (input_is_null
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))):
+        return POLYBENCH_LU_INVALID_RESULT, []
+    output = polybench_lu_expected_output(values)
+    if output is None:
+        return POLYBENCH_LU_INVALID_RESULT, []
+    if (type(output_is_null) is not bool
+            or output_capacity is not None
+            and (type(output_capacity) is not int or output_capacity < 0)):
+        return POLYBENCH_LU_OUTPUT_ERROR, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return POLYBENCH_LU_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def polybench_lu_oracle(values):
+    result, output = polybench_lu_abi_oracle(values)
+    return output if result >= 0 else None
+
+
+POLYBENCH_CORRELATION_MAX_INPUT_LENGTH = 2
+POLYBENCH_CORRELATION_MAX_OUTPUT_ELEMENTS = POLYBENCH_CORRELATION_MAX_M ** 2
+POLYBENCH_CORRELATION_INVALID_RESULT = -1
+POLYBENCH_CORRELATION_OUTPUT_ERROR = -2
+
+
+def polybench_correlation_abi_oracle(values, output_capacity=None, output_is_null=False,
+                                     input_is_null=False, input_length=None):
+    if (input_is_null
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))):
+        return POLYBENCH_CORRELATION_INVALID_RESULT, []
+    output = polybench_correlation_expected_output(values)
+    if output is None:
+        return POLYBENCH_CORRELATION_INVALID_RESULT, []
+    if (type(output_is_null) is not bool
+            or output_capacity is not None
+            and (type(output_capacity) is not int or output_capacity < 0)):
+        return POLYBENCH_CORRELATION_OUTPUT_ERROR, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return POLYBENCH_CORRELATION_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def polybench_correlation_oracle(values):
+    result, output = polybench_correlation_abi_oracle(values)
+    return output if result >= 0 else None
+
+
+POLYBENCH_SEIDEL_2D_MAX_INPUT_LENGTH = 2
+POLYBENCH_SEIDEL_2D_MAX_OUTPUT_ELEMENTS = POLYBENCH_SEIDEL_2D_MAX_N ** 2
+POLYBENCH_SEIDEL_2D_INVALID_RESULT = -1
+POLYBENCH_SEIDEL_2D_OUTPUT_ERROR = -2
+
+
+def polybench_seidel_2d_abi_oracle(values, output_capacity=None, output_is_null=False,
+                                  input_is_null=False, input_length=None):
+    if (input_is_null
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))):
+        return POLYBENCH_SEIDEL_2D_INVALID_RESULT, []
+    output = polybench_seidel_2d_expected_output(values)
+    if output is None:
+        return POLYBENCH_SEIDEL_2D_INVALID_RESULT, []
+    if (type(output_is_null) is not bool
+            or output_capacity is not None
+            and (type(output_capacity) is not int or output_capacity < 0)):
+        return POLYBENCH_SEIDEL_2D_OUTPUT_ERROR, []
+    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
+        return POLYBENCH_SEIDEL_2D_OUTPUT_ERROR, []
+    return len(output), output
+
+
+def polybench_seidel_2d_oracle(values):
+    result, output = polybench_seidel_2d_abi_oracle(values)
+    return output if result >= 0 else None
+
+
 ORACLES = {
     "partialsums": partialsums_oracle,
     "durbin": durbin_oracle,
+    "versabench_beamformer": versabench_beamformer_abi_oracle,
     "syrk": syrk_oracle,
     "matmul_f64_4x4": matmul_f64_4x4_oracle,
+    "misc_fp_convert": misc_fp_convert_oracle,
+    "trisolv": trisolv_oracle,
+    "jacobi_1d": jacobi_1d_oracle,
+    "jacobi_2d": jacobi_2d_oracle,
+    "syr2k": syr2k_oracle,
+    "trmm": trmm_abi_oracle,
+    "fdtd_2d": fdtd_2d_oracle,
+    "heat_3d": heat_3d_oracle,
+    "polybench_lu": polybench_lu_oracle,
+    "polybench_correlation": polybench_correlation_oracle,
+    "polybench_seidel_2d": polybench_seidel_2d_oracle,
     "vector3_axis_rotation": vector3_axis_rotation_oracle,
     "vector3_perspective_projection": vector3_perspective_projection_oracle,
     "vector2": vector2_oracle,
@@ -3489,8 +3817,26 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         raise ValueError("ABI token decoding is only defined for linear_discriminant_analysis")
     if allow_nonfinite:
         raw_values = _decode_linear_discriminant_analysis_abi_values(raw_values)
-    max_input_length = (MATMUL_F64_4X4_MAX_PARSEABLE_INPUT_LENGTH
+    max_input_length = (VERSABENCH_BEAMFORMER_INPUT_LENGTH
+                        if algorithm == "versabench_beamformer" else
+                        MATMUL_F64_4X4_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "matmul_f64_4x4" else
+                        MISC_FP_CONVERT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "misc_fp_convert" else
+                        TRISOLV_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "trisolv" else
+                        JACOBI_1D_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "jacobi_1d" else
+                        JACOBI_2D_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "jacobi_2d" else
+                        SYR2K_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "syr2k" else
+                        TRMM_MAX_INPUT_LENGTH if algorithm == "trmm" else
+                        FDTD_2D_MAX_INPUT_LENGTH if algorithm == "fdtd_2d" else
+                        HEAT_3D_MAX_INPUT_LENGTH if algorithm == "heat_3d" else
+                        POLYBENCH_LU_MAX_INPUT_LENGTH if algorithm == "polybench_lu" else
+                        POLYBENCH_CORRELATION_MAX_INPUT_LENGTH if algorithm == "polybench_correlation" else
+                        POLYBENCH_SEIDEL_2D_MAX_INPUT_LENGTH if algorithm == "polybench_seidel_2d" else
                         SIR_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sir" else
                         DECISION_TREE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "decision_tree_python_regression" else
@@ -3611,7 +3957,10 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         max_input_length = RISK_METRICS_MAX_PARSEABLE_INPUT_LENGTH_BY_ALGORITHM[algorithm]
     if (not isinstance(raw_values, list) or case.get("input_length") != len(raw_values)
             or (not raw_values and algorithm not in {"md2_digest", "kalman_filter_r_two_state_simulation",
-                                                      "matmul_f64_4x4"}
+                                                      "matmul_f64_4x4", "misc_fp_convert", "trisolv",
+                                                      "jacobi_1d", "jacobi_2d", "fdtd_2d", "heat_3d",
+                                                      "polybench_lu", "polybench_correlation",
+                                                      "polybench_seidel_2d"}
                 and not (allow_nonfinite and case.get("input_is_null") is True
                          and case.get("input_length") == 0))
             or len(raw_values) > max_input_length
@@ -3620,7 +3969,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"matmul_f64_4x4", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
                      "mean_shift", "k_means_clust", "lu_decompose", "lu_elimination",
@@ -3636,8 +3985,92 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                      "single_indeterminate_operations", "montecarlopi",
                      "local_weighted_learning", "muon_optimizer", "pseudo_inverse", "tdigest",
                      *RISK_METRICS_ALGORITHM_NAMES, *TRAVELLING_SALESMAN_PYTHON_ALGORITHMS}:
-        if algorithm == "matmul_f64_4x4":
+        if algorithm == "versabench_beamformer":
+            expected_result, oracle_values = versabench_beamformer_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "matmul_f64_4x4":
             expected_result, oracle_values = matmul_f64_4x4_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "misc_fp_convert":
+            expected_result, oracle_values = misc_fp_convert_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "trisolv":
+            expected_result, oracle_values = trisolv_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "jacobi_1d":
+            expected_result, oracle_values = jacobi_1d_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "jacobi_2d":
+            expected_result, oracle_values = jacobi_2d_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "syr2k":
+            expected_result, oracle_values = syr2k_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "trmm":
+            expected_result, oracle_values = trmm_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "fdtd_2d":
+            expected_result, oracle_values = fdtd_2d_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "heat_3d":
+            expected_result, oracle_values = heat_3d_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "polybench_lu":
+            expected_result, oracle_values = polybench_lu_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "polybench_correlation":
+            expected_result, oracle_values = polybench_correlation_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "polybench_seidel_2d":
+            expected_result, oracle_values = polybench_seidel_2d_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
@@ -3705,6 +4138,114 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         if abs(actual_number - expected_number) > allowed:
             raise ValueError(f"{case.get('id')}: expected_output disagrees with the independent oracle")
     return values, expected_result, actual_output
+
+
+def validate_versabench_beamformer_workload(workload: dict) -> None:
+    """Validate the pinned bounded VersaBench BeamForm-stage contract."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/VersaBench/beamformer/beamformer.c"
+    launcher_url = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/VersaBench/beamformer/info.sh"
+    source = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "VersaBench/beamformer/beamformer.c", "symbols": ["BeamForm"],
+        "url": source_url, "role": "algorithm",
+    }
+    launcher_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "VersaBench/beamformer/info.sh",
+        "run_options": "-i 25 for SMALL_PROBLEM_SIZE; otherwise -i 400",
+        "url": launcher_url, "role": "launcher-profile",
+    }
+    launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "VersaBench/beamformer/info.sh", "bench_name": "beamformer",
+        "source_files": ["beamformer.c"],
+        "compile_flags": ["-lm", "-DFP_ABSTOLERANCE=1e-5"],
+        "small_run_options": ["-i", "25"], "default_run_options": ["-i", "400"],
+        "url": launcher_url,
+    }
+    input_spec = {
+        "kind": "finite_float64_array",
+        "encoding": "12 repetitions of [weight_real, weight_imaginary, sample_real, sample_imaginary]",
+        "channel_count": VERSABENCH_BEAMFORMER_CHANNELS,
+        "exact_length": VERSABENCH_BEAMFORMER_INPUT_LENGTH,
+        "value_range": [-VERSABENCH_BEAMFORMER_MAX_ABS_VALUE,
+                        VERSABENCH_BEAMFORMER_MAX_ABS_VALUE],
+        "conversion": "each transported value is narrowed to IEEE-754 binary32 before arithmetic",
+        "invalid_result": VERSABENCH_BEAMFORMER_INVALID_RESULT,
+        "null_input_result": VERSABENCH_BEAMFORMER_INVALID_RESULT,
+    }
+    contract = {
+        "algorithm": "For channels in ascending order, real += wr*xr - wi*xi and imaginary += wr*xi + wi*xr, with each multiply, add, subtract, and accumulation rounded as binary32.",
+        "fused_multiply_add": False,
+        "output_buffer_check_after_input_validation": True,
+        "no_write_on_error": True,
+        "launcher_iteration_profile": "The full benchmark runs 25 (small) or 400 iterations; this package exposes one bounded BeamForm kernel call and excludes the surrounding pipeline.",
+    }
+    output_spec = {
+        "kind": "float64_array",
+        "encoding": "[real_sum, imaginary_sum], binary32 results promoted to binary64",
+        "maximum_elements": VERSABENCH_BEAMFORMER_MAX_OUTPUT_ELEMENTS,
+        "success_result": VERSABENCH_BEAMFORMER_MAX_OUTPUT_ELEMENTS,
+        "invalid_input_result": VERSABENCH_BEAMFORMER_INVALID_RESULT,
+        "null_output_result": VERSABENCH_BEAMFORMER_OUTPUT_ERROR,
+        "insufficient_capacity_result": VERSABENCH_BEAMFORMER_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "absolute_tolerance": 0.00002,
+        "relative_tolerance": 0.000002,
+    }
+    measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 0.00002, "relative_tolerance": 0.000002,
+    }
+    required_ids = {
+        "all_zero", "complex_accumulation", "single_active_channel", "wrong_length",
+        "out_of_range", "short_output", "null_output",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    required_fields = {
+        "schema_version", "id", "algorithm", "function_symbol", "description",
+        "pinned_sources", "pinned_launcher", "workspace", "input", "contract",
+        "output", "measurement", "cases",
+    }
+    if (set(workload) != required_fields
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-versabench-beamformer-beamform-f32-f64-slice-v1"
+            or workload.get("algorithm") != "versabench_beamformer"
+            or workload.get("function_symbol") != "versabench_beamformer"
+            or workload.get("description") != "Bounded 12-channel complex BeamForm stage using source-order binary32 arithmetic."
+            or workload.get("pinned_sources") != [source, launcher_source]
+            or workload.get("pinned_launcher") != launcher
+            or workload.get("workspace") != {"elements": VERSABENCH_BEAMFORMER_MAX_OUTPUT_ELEMENTS}
+            or workload.get("input") != input_spec
+            or workload.get("contract") != contract
+            or workload.get("output") != output_spec
+            or workload.get("measurement") != measurement
+            or VERSABENCH_BEAMFORMER_CHANNELS != 12
+            or VERSABENCH_BEAMFORMER_INPUT_LENGTH != 48
+            or VERSABENCH_BEAMFORMER_MAX_OUTPUT_ELEMENTS != 2
+            or VERSABENCH_BEAMFORMER_INVALID_RESULT != -1
+            or VERSABENCH_BEAMFORMER_OUTPUT_ERROR != -2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(required_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_ids):
+        raise ValueError("versabench_beamformer metadata or fixture IDs differ from its pinned contract")
+
+    readme = (ROOT / "benchmarks" / "b" / "versabench_beamformer" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme or launcher_url not in readme
+            or "does not implement the preceding FIR decimators" not in readme
+            or "LICENSE" not in readme):
+        raise ValueError("versabench_beamformer README is missing source attribution or scope limits")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if absolute_tolerance != 0.00002 or relative_tolerance != 0.000002:
+        raise ValueError("versabench_beamformer tolerances differ from its binary32 contract")
+    for case in cases:
+        encode_case(case, "versabench_beamformer", absolute_tolerance, relative_tolerance)
 
 
 def validate_matmul_f64_4x4_workload(workload: dict) -> None:
@@ -3833,6 +4374,576 @@ def validate_matmul_f64_4x4_workload(workload: dict) -> None:
         raise ValueError("matmul_f64_4x4 fixtures differ from the independent oracle")
 
 
+def validate_misc_fp_convert_workload(workload: dict) -> None:
+    """Validate the pinned bounded float32-conversion accumulation workload."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "Misc/fp-convert/fp-convert.c"
+    )
+    launcher_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "Misc/fp-convert/info.sh"
+    )
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "Misc/fp-convert/fp-convert.c", "symbol": "main",
+        "url": source_url,
+        "license_note": "The referenced C source has no explicit license notice; these are independently written ports.",
+    }
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "Misc/fp-convert/info.sh", "bench_name": "fp-convert",
+        "source_files": ["fp-convert.c"], "compile_flags": ["-lm"],
+        "run_options": [],
+    }
+    expected_source_bound = {
+        "description": "For each outer iteration, float arrays are filled from a and b plus the element index; the product sum is accumulated in double. a,b reset except at each tenth outer iteration, when float32 constants are added.",
+        "launcher_default_iterations": 500000,
+        "small_problem_size_iterations": 100000,
+        "profile_minimum_iterations": MISC_FP_CONVERT_MIN_ITERATIONS,
+        "profile_maximum_iterations": MISC_FP_CONVERT_MAX_ITERATIONS,
+        "vector_length": MISC_FP_CONVERT_VECTOR_LENGTH,
+        "offset_update_interval": 10,
+        "offset_reset_condition": "iteration % 10 != 0",
+        "offset_update_values_float32": [0.1, 0.2],
+    }
+    expected_input = {
+        "kind": "finite_float64_array",
+        "encoding": "one exact integer outer-iteration count",
+        "valid_length_range": [1, 1], "maximum_valid_length": 1,
+        "maximum_parseable_length": MISC_FP_CONVERT_MAX_PARSEABLE_INPUT_LENGTH,
+        "minimum_iterations": MISC_FP_CONVERT_MIN_ITERATIONS,
+        "maximum_iterations": MISC_FP_CONVERT_MAX_ITERATIONS,
+        "invalid_input_result": MISC_FP_CONVERT_INVALID_RESULT,
+    }
+    expected_output_spec = {
+        "kind": "float64_array",
+        "encoding": "single double-precision accumulated dot-product total",
+        "maximum_elements": 1, "success_result": 1,
+        "invalid_input_result": MISC_FP_CONVERT_INVALID_RESULT,
+        "invalid_output_buffer_result": MISC_FP_CONVERT_OUTPUT_ERROR,
+        "null_output_result": MISC_FP_CONVERT_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "absolute_tolerance": 1e-7, "relative_tolerance": 1e-12,
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 1,
+        "absolute_tolerance": 1e-7, "relative_tolerance": 1e-12,
+    }
+    required_case_ids = {
+        "single_outer_iteration", "two_outer_iterations", "ten_iteration_boundary",
+        "eleven_iteration_boundary", "maximum_profile", "zero_iterations",
+        "fractional_iterations", "above_profile", "short_input", "extra_input_value",
+        "short_output_capacity", "null_output", "null_input",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    required_fields = {
+        "schema_version", "id", "algorithm", "function_symbol", "description",
+        "pinned_source", "pinned_launcher", "source_bound", "workspace", "input",
+        "output", "measurement", "cases",
+    }
+    if (set(workload) != required_fields
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-misc-fp-convert-bounded-v1"
+            or workload.get("algorithm") != "misc_fp_convert"
+            or workload.get("function_symbol") != "misc_fp_convert"
+            or workload.get("description") != "Bounded float32-vector conversion and float64 dot-product accumulation benchmark."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("source_bound") != expected_source_bound
+            or workload.get("workspace") != {"elements": 1}
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output_spec
+            or workload.get("measurement") != expected_measurement
+            or MISC_FP_CONVERT_MIN_ITERATIONS != 1
+            or MISC_FP_CONVERT_MAX_ITERATIONS != 256
+            or MISC_FP_CONVERT_MAX_PARSEABLE_INPUT_LENGTH != 2
+            or MISC_FP_CONVERT_VECTOR_LENGTH != 2048
+            or not isinstance(cases, list)
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids):
+        raise ValueError("misc_fp_convert metadata or fixture IDs differ from its pinned contract")
+
+    base_case_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    special_fields = {
+        "short_output_capacity": {"output_capacity"},
+        "null_output": {"output_is_null"},
+    }
+    for case in cases:
+        if (not isinstance(case, dict)
+                or set(case) != base_case_fields | special_fields.get(case.get("id"), set())):
+            raise ValueError("misc_fp_convert case fields differ from the bounded contract")
+        if (case["id"] in {"short_input", "null_input"}
+                and (case.get("input_values") != [] or case.get("input_length") != 0)):
+            raise ValueError("misc_fp_convert empty-input fixture must have zero input length")
+        if "output_capacity" in case and case["output_capacity"] != 0:
+            raise ValueError("misc_fp_convert short-output fixture must use zero capacity")
+        if "output_is_null" in case and case["output_is_null"] is not True:
+            raise ValueError("misc_fp_convert null-output fixture must pass a null output")
+
+    readme = (ROOT / "benchmarks" / "m" / "misc_fp_convert" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme or launcher_url not in readme
+            or "float32" not in readme or "2,048-element" not in readme):
+        raise ValueError("misc_fp_convert README is missing its source or numeric contract")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if (absolute_tolerance != 1e-7 or relative_tolerance != 1e-12
+            or any(encode_case(case, "misc_fp_convert", absolute_tolerance,
+                               relative_tolerance)[1] != case.get("expected_result")
+                   for case in cases)):
+        raise ValueError("misc_fp_convert fixtures differ from the independent oracle")
+
+
+def validate_trisolv_workload(workload: dict) -> None:
+    """Validate the bounded source-ordered PolyBench triangular solve."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_base = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "PolyBench/linear-algebra/solvers/trisolv/"
+    )
+    expected_sources = [
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/linear-algebra/solvers/trisolv/trisolv.c",
+            "symbols": ["init_array", "kernel_trisolv"],
+            "url": source_base + "trisolv.c", "role": "algorithm",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/linear-algebra/solvers/trisolv/trisolv.h",
+            "symbols": ["MINI_DATASET", "EXTRALARGE_DATASET", "DATA_TYPE_IS_DOUBLE"],
+            "url": source_base + "trisolv.h", "role": "dataset-and-type",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/linear-algebra/solvers/trisolv/info.sh",
+            "symbols": ["EXTRALARGE_DATASET"],
+            "url": source_base + "info.sh", "role": "launcher",
+        },
+    ]
+    expected_input = {
+        "kind": "finite_float64_array", "encoding": "[n]",
+        "n_range": [TRISOLV_MIN_N, TRISOLV_MAX_N],
+        "n_must_be_exact_integer": True, "maximum_input_length": 1,
+        "maximum_parseable_input_length": TRISOLV_MAX_PARSEABLE_INPUT_LENGTH,
+        "initialization": "b[i] = i and L[i][j] = (double)(i + n - j + 1) * 2 / n for 0 <= j <= i < n, matching init_array; n=40 is PolyBench MINI_DATASET.",
+        "invalid_input_result": TRISOLV_INVALID_RESULT,
+        "null_input_result": TRISOLV_INVALID_RESULT,
+    }
+    expected_contract = {
+        "operation": "Solve L*x=b using kernel_trisolv, preserving ascending row and column order and returning x in source order.",
+        "source_order": [
+            "for i from 0 through n-1, set x[i] = b[i]",
+            "for j from 0 through i-1, subtract L[i][j] * x[j] from x[i]",
+            "divide x[i] by L[i][i]",
+        ],
+        "invalid_output_result": TRISOLV_INVALID_RESULT,
+        "null_output_result": TRISOLV_OUTPUT_ERROR,
+        "insufficient_capacity_result": TRISOLV_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    expected_output_spec = {
+        "kind": "float64_array",
+        "encoding": "n binary64 solution values x[0..n-1] in source row order.",
+        "maximum_elements": TRISOLV_MAX_N,
+        "success_result": "output element count (n)",
+        "invalid_input_result": TRISOLV_INVALID_RESULT,
+        "invalid_output_buffer_result": TRISOLV_OUTPUT_ERROR,
+        "null_output_result": TRISOLV_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+    }
+    expected_workspace = {
+        "elements": TRISOLV_MAX_N,
+        "meaning": "Maximum returned vector length. Implementations use bounded local storage for the 40x40 lower-triangle matrix, b, and x.",
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+    }
+    required_case_ids = {
+        "n_1", "n_2", "n_3", "n_4", "empty_invalid", "zero_dimension",
+        "fractional_dimension", "first_unsupported_dimension", "extra_input_value",
+        "short_output_capacity", "null_output",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    required_fields = {
+        "schema_version", "id", "algorithm", "function_symbol", "description",
+        "pinned_sources", "input", "contract", "output", "workspace",
+        "measurement", "cases",
+    }
+    if (set(workload) != required_fields
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-polybench-trisolv-float64-slice-io-v1"
+            or workload.get("algorithm") != "trisolv"
+            or workload.get("function_symbol") != "trisolv"
+            or workload.get("description") != "Solve the deterministic lower-triangular PolyBench system in source row and column order."
+            or workload.get("pinned_sources") != expected_sources
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("output") != expected_output_spec
+            or workload.get("workspace") != expected_workspace
+            or workload.get("measurement") != expected_measurement
+            or TRISOLV_MIN_N != 1 or TRISOLV_MAX_N != 40
+            or TRISOLV_MAX_PARSEABLE_INPUT_LENGTH != 2
+            or not isinstance(cases, list)
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids):
+        raise ValueError("trisolv metadata or fixture IDs differ from its pinned contract")
+
+    base_case_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    special_fields = {
+        "short_output_capacity": {"output_capacity"},
+        "null_output": {"output_is_null"},
+    }
+    for case in cases:
+        if (not isinstance(case, dict)
+                or set(case) != base_case_fields | special_fields.get(case.get("id"), set())):
+            raise ValueError("trisolv case fields differ from its bounded contract")
+        if (case["id"] == "empty_invalid"
+                and (case.get("input_values") != [] or case.get("input_length") != 0)):
+            raise ValueError("trisolv empty-input fixture must have zero input length")
+        if (case["id"] == "short_output_capacity"
+                and case.get("output_capacity") != 3):
+            raise ValueError("trisolv short-output fixture must use capacity three")
+        if "output_is_null" in case and case["output_is_null"] is not True:
+            raise ValueError("trisolv null-output fixture must pass a null output")
+
+    readme = (ROOT / "benchmarks" / "t" / "trisolv" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_base + "trisolv.c" not in readme
+            or "ascending row and column order" not in readme
+            or "n <= 40" not in readme):
+        raise ValueError("trisolv README is missing its source or operation-order contract")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if (absolute_tolerance != 1e-12 or relative_tolerance != 1e-12
+            or any(encode_case(case, "trisolv", absolute_tolerance,
+                               relative_tolerance)[1] != case.get("expected_result")
+                   for case in cases)):
+        raise ValueError("trisolv fixtures differ from the independent oracle")
+
+
+def validate_polybench_jacobi_workload(workload: dict, algorithm: str) -> None:
+    """Validate either bounded PolyBench Jacobi stencil workload."""
+    if algorithm not in {"jacobi_1d", "jacobi_2d"}:
+        raise ValueError("unsupported PolyBench Jacobi workload")
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    dimension = "1d" if algorithm == "jacobi_1d" else "2d"
+    source_base = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        f"PolyBench/stencils/jacobi-{dimension}/"
+    )
+    max_n = JACOBI_1D_MAX_N if dimension == "1d" else JACOBI_2D_MAX_N
+    max_steps = JACOBI_1D_MAX_TSTEPS if dimension == "1d" else JACOBI_2D_MAX_TSTEPS
+    max_parseable = (JACOBI_1D_MAX_PARSEABLE_INPUT_LENGTH if dimension == "1d"
+                     else JACOBI_2D_MAX_PARSEABLE_INPUT_LENGTH)
+    max_output = (JACOBI_1D_MAX_OUTPUT_ELEMENTS if dimension == "1d"
+                  else JACOBI_2D_MAX_OUTPUT_ELEMENTS)
+    invalid_result = (JACOBI_1D_INVALID_RESULT if dimension == "1d"
+                      else JACOBI_2D_INVALID_RESULT)
+    output_error = (JACOBI_1D_OUTPUT_ERROR if dimension == "1d"
+                    else JACOBI_2D_OUTPUT_ERROR)
+    source_file = f"jacobi-{dimension}.c"
+    header_file = f"jacobi-{dimension}.h"
+    expected_sources = [
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": f"PolyBench/stencils/jacobi-{dimension}/{source_file}",
+            "symbols": ["init_array", f"kernel_jacobi_{dimension}"],
+            "url": source_base + source_file, "role": "algorithm",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": f"PolyBench/stencils/jacobi-{dimension}/{header_file}",
+            "symbols": ["MINI_DATASET", "EXTRALARGE_DATASET", "DATA_TYPE_IS_DOUBLE"],
+            "url": source_base + header_file, "role": "dataset-and-type",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": f"PolyBench/stencils/jacobi-{dimension}/info.sh",
+            "symbols": ["EXTRALARGE_DATASET"],
+            "url": source_base + "info.sh", "role": "launcher",
+        },
+    ]
+    initialization = (
+        "A[i] = (i + 2) / n and B[i] = (i + 3) / n, matching init_array; "
+        "n=30 and tsteps=20 are PolyBench MINI_DATASET."
+        if dimension == "1d" else
+        "A[i][j] = (i*(j+2)+2)/n and B[i][j] = (i*(j+3)+3)/n, matching init_array; "
+        "n=30 and tsteps=20 are PolyBench MINI_DATASET."
+    )
+    expected_input = {
+        "kind": "finite_float64_array", "encoding": "[n, tsteps]",
+        "n_range": [1, max_n], "tsteps_range": [0, max_steps],
+        "values_must_be_exact_integers": True, "maximum_input_length": 2,
+        "maximum_parseable_input_length": max_parseable,
+        "initialization": initialization,
+        "invalid_input_result": invalid_result, "null_input_result": invalid_result,
+    }
+    operation = (
+        "Run kernel_jacobi_1d for tsteps iterations and return the final A vector, preserving the two ordered interior sweeps per step."
+        if dimension == "1d" else
+        "Run kernel_jacobi_2d for tsteps iterations and return the final A matrix in row-major order."
+    )
+    source_order = (
+        [
+            "initialize A and B in ascending index order",
+            "for each step, update B[i] = 0.33333 * (A[i-1] + A[i] + A[i+1]) for i ascending from 1 to n-2",
+            "then update A[i] = 0.33333 * (B[i-1] + B[i] + B[i+1]) for i ascending from 1 to n-2",
+            "retain initialized boundary values in both arrays",
+        ] if dimension == "1d" else [
+            "initialize A and B in ascending row-major order",
+            "for each step, update B[i][j] = 0.2 * (A[i][j] + A[i][j-1] + A[i][j+1] + A[i+1][j] + A[i-1][j]) with i then j ascending over the interior",
+            "then update A[i][j] with the same neighbor order using B and the same loop order",
+            "retain initialized boundary cells in both arrays",
+        ]
+    )
+    expected_contract = {
+        "operation": operation, "source_order": source_order,
+        "invalid_output_result": invalid_result,
+        "null_output_result": output_error,
+        "insufficient_capacity_result": output_error,
+        "no_write_on_error": True,
+    }
+    output_encoding = (
+        "n binary64 values A[0..n-1] in source order."
+        if dimension == "1d" else
+        "n*n binary64 cells A[0..n-1][0..n-1] in row-major order."
+    )
+    expected_output_spec = {
+        "kind": "float64_array", "encoding": output_encoding,
+        "maximum_elements": max_output,
+        "success_result": "output element count (n)" if dimension == "1d"
+                          else "output element count (n*n)",
+        "invalid_input_result": invalid_result,
+        "invalid_output_buffer_result": output_error,
+        "null_output_result": output_error,
+        "no_write_on_error": True,
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+    }
+    workspace_meaning = (
+        "Maximum returned vector length; implementations use two bounded 30-element local arrays."
+        if dimension == "1d" else
+        "Maximum returned A-matrix length; implementations use two bounded 30 by 30 local matrices."
+    )
+    expected_workspace = {"elements": max_output, "meaning": workspace_meaning}
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+    }
+    common_ids = {
+        "empty_invalid", "fractional_steps", "first_unsupported_dimension",
+        "first_unsupported_steps", "trailing_input_invalid",
+        "short_output_capacity", "null_output",
+    }
+    valid_ids = ({"single_value_zero_steps", "three_values_zero_steps",
+                  "three_values_one_step", "two_values_twenty_steps"}
+                 if dimension == "1d" else
+                 {"single_cell_zero_steps", "two_by_two_twenty_steps",
+                  "three_by_three_zero_steps", "three_by_three_one_step"})
+    required_case_ids = common_ids | valid_ids
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    required_fields = {
+        "schema_version", "id", "algorithm", "function_symbol", "description",
+        "pinned_sources", "input", "contract", "output", "workspace",
+        "measurement", "cases",
+    }
+    description = (
+        "Run the source-order two-array Jacobi 1D stencil over deterministic initial vectors."
+        if dimension == "1d" else
+        "Run the source-order two-array Jacobi 2D stencil over deterministic initial matrices."
+    )
+    if (set(workload) != required_fields or workload.get("schema_version") != 1
+            or workload.get("id") != f"lac-dcc-polybench-jacobi-{dimension}-float64-slice-io-v1"
+            or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != algorithm
+            or workload.get("description") != description
+            or workload.get("pinned_sources") != expected_sources
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("output") != expected_output_spec
+            or workload.get("workspace") != expected_workspace
+            or workload.get("measurement") != expected_measurement
+            or max_n != 30 or max_steps != 20 or max_parseable != 3
+            or not isinstance(cases, list)
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids):
+        raise ValueError(f"{algorithm} workload metadata differs from its pinned contract")
+    readme = (ROOT / "benchmarks" / "j" / algorithm / "README.md").read_text(
+        encoding="utf-8")
+    if (source_base + source_file not in readme
+            or ("0.33333" if dimension == "1d" else "center, left, right, down, up") not in readme):
+        raise ValueError(f"{algorithm} README is missing source-order details")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if absolute_tolerance != 1e-12 or relative_tolerance != 1e-12:
+        raise ValueError(f"{algorithm} tolerances differ from the reviewed contract")
+    base_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    special_fields = {
+        "short_output_capacity": {"output_capacity"},
+        "null_output": {"output_capacity", "output_is_null"},
+    }
+    for case in cases:
+        if not isinstance(case, dict) or set(case) != base_fields | special_fields.get(case.get("id"), set()):
+            raise ValueError(f"{algorithm} case fields differ from its bounded contract")
+        if (case["id"] == "empty_invalid"
+                and (case.get("input_values") != [] or case.get("input_length") != 0)):
+            raise ValueError(f"{algorithm} empty-input case must have zero input length")
+        if case["id"] == "trailing_input_invalid" and case.get("input_length") != 3:
+            raise ValueError(f"{algorithm} trailing-input case must contain three values")
+        if (case["id"] == "short_output_capacity"
+                and case.get("output_capacity") != (2 if dimension == "1d" else 8)):
+            raise ValueError(f"{algorithm} short-output case has the wrong capacity")
+        if (case["id"] == "null_output"
+                and (case.get("output_capacity") != max_output
+                     or case.get("output_is_null") is not True)):
+            raise ValueError(f"{algorithm} null-output case has the wrong buffer metadata")
+        if encode_case(case, algorithm, absolute_tolerance, relative_tolerance)[1] != case["expected_result"]:
+            raise ValueError(f"{algorithm} fixture differs from its independent oracle")
+
+
+def validate_syr2k_workload(workload: dict) -> None:
+    """Validate the bounded PolyBench SYR2K source contract and matrix fixtures."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_base = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/PolyBench/linear-algebra/blas/syr2k/"
+    expected_sources = [
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/linear-algebra/blas/syr2k/syr2k.c",
+            "symbols": ["init_array", "kernel_syr2k", "print_array"],
+            "url": source_base + "syr2k.c", "role": "algorithm-and-output",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/linear-algebra/blas/syr2k/syr2k.h",
+            "symbols": ["EXTRALARGE_DATASET", "DATA_TYPE_IS_DOUBLE", "DATA_PRINTF_MODIFIER"],
+            "url": source_base + "syr2k.h", "role": "dataset-and-type",
+        },
+    ]
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "PolyBench/linear-algebra/blas/syr2k/info.sh",
+        "bench_name": "syr2k", "source_selection": "*.c",
+        "compile_flags": ["-I.", "-DPOLYBENCH_DUMP_ARRAYS", "-DEXTRALARGE_DATASET"],
+        "run_options": [],
+    }
+    expected_source_bound = {
+        "description": "The source defaults to binary64 with alpha=1.5 and beta=1.2. It initializes A[i][j]=((i*j+1)%n)/n and B[i][j]=((i*j+2)%m)/m, then C[i][j]=((i*j+3)%n)/m. For each i ascending it scales C[i][j] by beta for j=0..i, then visits k ascending and j=0..i ascending, applying C[i][j] += A[j][k]*alpha*B[i][k] + B[j][k]*alpha*A[i][k]. The strict upper triangle remains initialized, and print_array exposes the complete C matrix in row-major order. The launcher selects EXTRALARGE_DATASET (n=2600,m=2000); this package bounds n to 1..8 and m to 1..16.",
+        "matrix_shapes": {"A": ["n", "m"], "B": ["n", "m"], "C": ["n", "n"]},
+        "alpha": 1.5, "beta": 1.2,
+        "initialization_order": ["A and B paired row-major", "C row-major"],
+        "kernel_order": ["i ascending", "scale j=0..i", "k ascending", "update j=0..i ascending"],
+        "update_expression": "C[i][j] += A[j][k]*alpha*B[i][k] + B[j][k]*alpha*A[i][k]",
+        "output_order": "complete C matrix row-major, including initialized strict upper-triangle entries",
+        "launcher_dataset": {"n": 2600, "m": 2000},
+        "suite_bounds": {"n": [1, SYR2K_MAX_N], "m": [1, SYR2K_MAX_M]},
+    }
+    expected_input = {
+        "kind": "finite_float64_array", "encoding": "[n, m] as exactly integral binary64 dimensions",
+        "input_length": 2, "dimension_ranges": {"n": [1, SYR2K_MAX_N], "m": [1, SYR2K_MAX_M]},
+        "maximum_input_length": 2, "maximum_parseable_input_length": SYR2K_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": SYR2K_INVALID_RESULT,
+    }
+    expected_contract = {
+        "operation": "Return the complete initialized C matrix after the source-ordered lower-triangle SYR2K update.",
+        "source_order": [
+            "initialize A and B in paired row-major order, then initialize C row-major",
+            "for each row i, multiply C[i][j] by beta for j ascending through i",
+            "for each k ascending, add A[j][k]*alpha*B[i][k] + B[j][k]*alpha*A[i][k] for j ascending through i",
+            "preserve initialized C[i][j] where j>i and return all C values row-major",
+        ],
+        "invalid_input_result": SYR2K_INVALID_RESULT,
+        "null_output_result": SYR2K_OUTPUT_ERROR,
+        "insufficient_capacity_result": SYR2K_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    expected_output_spec = {
+        "kind": "float64_matrix", "encoding": "n*n binary64 values of C in row-major order",
+        "maximum_elements": SYR2K_MAX_OUTPUT_ELEMENTS,
+        "success_result": "n*n output elements",
+        "invalid_input_result": SYR2K_INVALID_RESULT,
+        "invalid_output_capacity_result": SYR2K_OUTPUT_ERROR,
+        "no_write_on_error": True,
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+    }
+    expected_workspace = {
+        "elements": SYR2K_MAX_OUTPUT_ELEMENTS,
+        "meaning": "Full bounded C matrix; A and B workspaces each contain at most 8*16 binary64 elements.",
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+    }
+    required_case_ids = {
+        "unit_dimensions", "two_by_one", "two_by_two", "three_by_two",
+        "zero_n_invalid", "zero_m_invalid", "fractional_dimension_invalid",
+        "above_n_bound_invalid", "above_m_bound_invalid", "trailing_input_invalid",
+        "short_output_capacity", "null_output",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "description", "pinned_sources", "pinned_launcher", "source_bound",
+                          "input", "contract", "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-polybench-syr2k-float64-slice-io-v1"
+            or workload.get("algorithm") != "syr2k"
+            or workload.get("function_symbol") != "syr2k"
+            or workload.get("pinned_sources") != expected_sources
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("source_bound") != expected_source_bound
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("output") != expected_output_spec
+            or workload.get("workspace") != expected_workspace
+            or workload.get("measurement") != expected_measurement
+            or SYR2K_MAX_N != 8 or SYR2K_MAX_M != 16
+            or SYR2K_MAX_OUTPUT_ELEMENTS != 64 or SYR2K_MAX_PARSEABLE_INPUT_LENGTH != 3
+            or not isinstance(cases, list)
+            or len(case_ids) != len(required_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != required_case_ids):
+        raise ValueError("syr2k workload metadata differs from its pinned source contract")
+    readme = (ROOT / "benchmarks" / "s" / "syr2k" / "README.md").read_text(encoding="utf-8")
+    if (source_base + "syr2k.c" not in readme
+            or "C[i][j] += A[j][k]*alpha*B[i][k] + B[j][k]*alpha*A[i][k]" not in readme):
+        raise ValueError("syr2k README is missing its source or update expression")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if absolute_tolerance != 1e-12 or relative_tolerance != 1e-12:
+        raise ValueError("syr2k tolerances differ from the reviewed contract")
+    base_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    special_fields = {
+        "short_output_capacity": {"output_capacity"},
+        "null_output": {"output_capacity", "output_is_null"},
+    }
+    for case in cases:
+        if not isinstance(case, dict) or set(case) != base_fields | special_fields.get(case.get("id"), set()):
+            raise ValueError("syr2k case fields differ from the bounded contract")
+        if (case["id"] == "trailing_input_invalid" and case.get("input_length") != 3
+                or case["id"] == "short_output_capacity" and case.get("output_capacity") != 8
+                or case["id"] == "null_output"
+                   and (case.get("output_capacity") != SYR2K_MAX_OUTPUT_ELEMENTS
+                        or case.get("output_is_null") is not True)):
+            raise ValueError("syr2k boundary fixture metadata is invalid")
+        if encode_case(case, "syr2k", absolute_tolerance, relative_tolerance)[1] != case["expected_result"]:
+            raise ValueError("syr2k fixture differs from the independent oracle")
+
+
 def validate_syrk_workload(workload: dict) -> None:
     """Validate the pinned PolyBench source contract and its matrix fixtures."""
     commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
@@ -3957,6 +5068,711 @@ def validate_syrk_workload(workload: dict) -> None:
     absolute_tolerance, relative_tolerance = tolerances(workload)
     for case in cases:
         encode_case(case, "syrk", absolute_tolerance, relative_tolerance)
+
+
+def validate_trmm_workload(workload: dict) -> None:
+    """Pin the bounded PolyBench TRMM source contract and its fixtures."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    sources = workload.get("pinned_sources", [])
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    source_paths = {
+        "PolyBench/linear-algebra/blas/trmm/trmm.c",
+        "PolyBench/linear-algebra/blas/trmm/trmm.h",
+        "PolyBench/linear-algebra/blas/trmm/info.sh",
+        "PolyBench/LICENSE.txt",
+    }
+    expected_ids = {
+        "unit_dimensions", "rectangular_small", "wide_matrix", "maximum_bounded_matrix",
+        "zero_m_invalid", "zero_n_invalid", "fractional_dimension_invalid",
+        "trailing_value_invalid", "above_bound_invalid", "insufficient_capacity", "null_output",
+    }
+    launcher = workload.get("pinned_launcher", {})
+    source_bound = workload.get("source_bound", {})
+    input_spec = workload.get("input", {})
+    contract = workload.get("contract", {})
+    output_spec = workload.get("output", {})
+    workspace = workload.get("workspace", {})
+    measurement = workload.get("measurement", {})
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_sources", "pinned_launcher", "source_bound", "input", "contract",
+                          "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-polybench-trmm-float64-slice-io-v1"
+            or workload.get("algorithm") != "trmm"
+            or workload.get("function_symbol") != "trmm"
+            or workload.get("description")
+                != "Compute the bounded PolyBench TRMM initialized matrix update in source order."
+            or not isinstance(sources, list)
+            or {source.get("path") for source in sources if isinstance(source, dict)} != source_paths
+            or any(source.get("repository") != "lac-dcc/Benchmarks"
+                   or source.get("commit") != commit
+                   for source in sources if isinstance(source, dict))
+            or launcher.get("path") != "PolyBench/linear-algebra/blas/trmm/info.sh"
+            or launcher.get("bench_name") != "trmm"
+            or launcher.get("source_selection") != "*.c"
+            or launcher.get("compile_flags") != ["-I.", "-DPOLYBENCH_DUMP_ARRAYS", "-DEXTRALARGE_DATASET"]
+            or launcher.get("run_options") != []
+            or source_bound.get("launcher_dataset") != {"m": 2000, "n": 2600}
+            or source_bound.get("suite_bounds") != {"m": [1, TRMM_MAX_DIM], "n": [1, TRMM_MAX_DIM]}
+            or source_bound.get("alpha") != 1.5
+            or source_bound.get("output_order") != "complete B matrix row-major"
+            or input_spec.get("kind") != "finite_float64_array"
+            or input_spec.get("encoding") != "[m,n] as exactly integral binary64 dimensions"
+            or input_spec.get("input_length") != TRMM_MAX_INPUT_LENGTH
+            or input_spec.get("dimension_ranges") != {"m": [1, TRMM_MAX_DIM], "n": [1, TRMM_MAX_DIM]}
+            or input_spec.get("maximum_input_length") != TRMM_MAX_INPUT_LENGTH
+            or input_spec.get("invalid_input_result") != TRMM_INVALID_RESULT
+            or contract.get("invalid_input_result") != TRMM_INVALID_RESULT
+            or contract.get("null_output_result") != TRMM_OUTPUT_ERROR
+            or contract.get("insufficient_capacity_result") != TRMM_OUTPUT_ERROR
+            or contract.get("no_write_on_error") is not True
+            or output_spec.get("kind") != "float64_matrix"
+            or output_spec.get("maximum_elements") != TRMM_MAX_OUTPUT_ELEMENTS
+            or output_spec.get("success_result") != "m*n output elements"
+            or output_spec.get("invalid_input_result") != TRMM_INVALID_RESULT
+            or output_spec.get("invalid_output_buffer_result") != TRMM_OUTPUT_ERROR
+            or output_spec.get("no_write_on_error") is not True
+            or output_spec.get("absolute_tolerance") != 1e-12
+            or output_spec.get("relative_tolerance") != 1e-12
+            or workspace.get("elements") != 2 * TRMM_MAX_OUTPUT_ELEMENTS
+            or measurement.get("comparison_model") != "float64_slice_io_call"
+            or measurement.get("absolute_tolerance") != 1e-12
+            or measurement.get("relative_tolerance") != 1e-12
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_ids):
+        raise ValueError("trmm workload metadata differs from its pinned bounded source contract")
+
+    readme = (ROOT / "benchmarks" / "t" / "trmm" / "README.md").read_text(encoding="utf-8")
+    if (any(source.get("url") not in readme for source in sources if isinstance(source, dict))
+            or "LICENSE.txt" not in readme or "indemnification" not in readme):
+        raise ValueError("trmm README is missing pinned source or license terms")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if absolute_tolerance != 1e-12 or relative_tolerance != 1e-12:
+        raise ValueError("trmm tolerances differ from its reviewed numerical contract")
+    for case in cases:
+        encode_case(case, "trmm", absolute_tolerance, relative_tolerance)
+
+
+def validate_fdtd_2d_workload(workload: dict) -> None:
+    """Pin the bounded PolyBench FDTD 2D source, license, and ABI fixtures."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    base = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/PolyBench/stencils/fdtd-2d/"
+    source_paths = {
+        "PolyBench/stencils/fdtd-2d/fdtd-2d.c",
+        "PolyBench/stencils/fdtd-2d/fdtd-2d.h",
+        "PolyBench/stencils/fdtd-2d/info.sh",
+        "PolyBench/LICENSE.txt",
+    }
+    expected_ids = {
+        "one_cell_zero_steps", "two_by_two_one_step", "rectangular_zero_steps",
+        "empty_invalid", "fractional_dimension", "unsupported_step_count",
+        "unsupported_dimension", "short_output",
+    }
+    sources = workload.get("pinned_sources")
+    launcher = workload.get("pinned_launcher", {})
+    source_bound = workload.get("source_bound", {})
+    input_spec = workload.get("input", {})
+    contract = workload.get("contract", {})
+    output_spec = workload.get("output", {})
+    workspace = workload.get("workspace", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    expected_source_bound = {
+        "launcher_dataset": {"tmax": 500, "nx": 1000, "ny": 1200},
+        "suite_bounds": {"tmax": [0, FDTD_2D_MAX_TMAX], "nx": [1, FDTD_2D_MAX_NX],
+                         "ny": [1, FDTD_2D_MAX_NY]},
+        "initialization": "fict[t]=t; ex[i,j]=i*(j+1)/nx; ey[i,j]=i*(j+2)/ny; hz[i,j]=i*(j+3)/nx",
+        "kernel": "For each t: set ey[0,j]=fict[t]; update ey[i,j] from hz vertical differences; update ex[i,j] from hz horizontal differences; update hz[i,j] from the forward ex/ey differences.",
+        "output_order": "ex, ey, hz; each matrix row-major",
+    }
+    expected_input = {
+        "kind": "finite_float64_array", "encoding": "[tmax,nx,ny] exact integral binary64 values",
+        "input_length": FDTD_2D_MAX_INPUT_LENGTH, "maximum_input_length": FDTD_2D_MAX_INPUT_LENGTH,
+        "dimension_ranges": {"tmax": [0, FDTD_2D_MAX_TMAX], "nx": [1, FDTD_2D_MAX_NX],
+                             "ny": [1, FDTD_2D_MAX_NY]},
+        "invalid_input_result": FDTD_2D_INVALID_RESULT,
+    }
+    expected_contract = {
+        "operation": "Return the three final initialized field matrices after source-ordered FDTD time steps.",
+        "source_order": [
+            "initialize fict, ex, ey, hz in source formulas",
+            "for each timestep, assign ey row zero",
+            "update ey for i ascending from one",
+            "update ex for i ascending and j ascending from one",
+            "update hz for i ascending below nx-1 and j ascending below ny-1",
+        ],
+        "invalid_input_result": FDTD_2D_INVALID_RESULT,
+        "null_output_result": FDTD_2D_OUTPUT_ERROR,
+        "insufficient_capacity_result": FDTD_2D_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    expected_output = {
+        "kind": "float64_array", "encoding": "3*nx*ny values: ex then ey then hz, each row-major",
+        "maximum_elements": FDTD_2D_MAX_OUTPUT_ELEMENTS,
+        "success_result": "3*nx*ny output elements",
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+        "no_write_on_error": True,
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_sources", "pinned_launcher", "source_bound", "input", "contract",
+                          "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-polybench-fdtd-2d-float64-slice-io-v1"
+            or workload.get("algorithm") != "fdtd_2d"
+            or workload.get("function_symbol") != "fdtd_2d"
+            or workload.get("description")
+                != "Run the bounded PolyBench 2D finite-difference time-domain update from deterministic initialized fields."
+            or not isinstance(sources, list)
+            or {source.get("path") for source in sources if isinstance(source, dict)} != source_paths
+            or any(source.get("repository") != "lac-dcc/Benchmarks"
+                   or source.get("commit") != commit for source in sources if isinstance(source, dict))
+            or launcher != {
+                "repository": "lac-dcc/Benchmarks", "commit": commit,
+                "path": "PolyBench/stencils/fdtd-2d/info.sh", "bench_name": "fdtd-2d",
+                "source_selection": "*.c",
+                "compile_flags": ["-I.", "-DPOLYBENCH_DUMP_ARRAYS", "-DLARGE_DATASET"],
+                "run_options": [],
+            }
+            or source_bound != expected_source_bound
+            or input_spec != expected_input
+            or contract != expected_contract
+            or output_spec != expected_output
+            or workspace != {
+                "elements": 4 * FDTD_2D_MAX_OUTPUT_ELEMENTS,
+                "meaning": "Three 6x6 matrices, one 6x6 staged output and a five-element fictitious boundary vector.",
+            }
+            or measurement != expected_measurement
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_ids):
+        raise ValueError("fdtd_2d workload metadata differs from its pinned bounded source contract")
+
+    readme = (ROOT / "benchmarks" / "f" / "fdtd_2d" / "README.md").read_text(encoding="utf-8")
+    license_text = (ROOT / "benchmarks" / "f" / "fdtd_2d" / "LICENSE.txt").read_text(
+        encoding="utf-8")
+    if (any(base + source.rsplit("/", 1)[-1] not in readme
+            for source in source_paths if source.endswith((".c", ".h", "info.sh")))
+            or "LICENSE.txt" not in readme
+            or "OHIO STATE UNIVERSITY SOFTWARE DISTRIBUTION LICENSE" not in license_text
+            or "INDEMNIFY, DEFEND AND HOLD HARMLESS" not in license_text):
+        raise ValueError("fdtd_2d README or bundled license is missing pinned source attribution")
+
+    base_case_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError("fdtd_2d cases must be JSON objects")
+        case_id = case.get("id")
+        expected_fields = (base_case_fields | {"output_capacity"}
+                           if case_id in {"one_cell_zero_steps", "two_by_two_one_step",
+                                          "rectangular_zero_steps", "short_output"}
+                           else base_case_fields)
+        if set(case) != expected_fields:
+            raise ValueError(f"fdtd_2d case fields differ from its bounded contract: {case_id}")
+        if (type(case.get("input_length")) is not int
+                or case.get("input_length") != len(case.get("input_values", []))
+                or type(case.get("expected_result")) is not int
+                or "output_capacity" in case
+                and (type(case["output_capacity"]) is not int
+                     or case["output_capacity"] < 0)):
+            raise ValueError(f"fdtd_2d fixture framing is invalid: {case_id}")
+        if case_id == "short_output" and case.get("output_capacity") != 11:
+            raise ValueError("fdtd_2d short-output fixture must use capacity eleven")
+        encode_case(case, "fdtd_2d", 1e-12, 1e-12)
+
+
+def validate_heat_3d_workload(workload: dict) -> None:
+    """Pin the bounded PolyBench heat-3d source, license, and ABI fixtures."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_base = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/PolyBench/stencils/heat-3d/"
+    expected_sources = [
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/stencils/heat-3d/heat-3d.c",
+            "symbols": ["init_array", "kernel_heat_3d"],
+            "url": source_base + "heat-3d.c", "role": "algorithm-and-initialization",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/stencils/heat-3d/heat-3d.h",
+            "symbols": ["N", "TSTEPS", "DATA_TYPE_IS_DOUBLE"],
+            "url": source_base + "heat-3d.h", "role": "dataset-and-type",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/stencils/heat-3d/info.sh",
+            "symbols": ["EXTRALARGE_DATASET"],
+            "url": source_base + "info.sh", "role": "launcher",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/LICENSE.txt",
+            "symbols": ["Ohio State University Software Distribution License"],
+            "url": f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/PolyBench/LICENSE.txt",
+            "role": "license",
+        },
+    ]
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "PolyBench/stencils/heat-3d/info.sh", "bench_name": "heat-3d",
+        "source_selection": "*.c",
+        "compile_flags": ["-I.", "-DPOLYBENCH_DUMP_ARRAYS", "-DEXTRALARGE_DATASET"],
+        "run_options": [],
+    }
+    expected_source_bound = {
+        "launcher_dataset": {"tsteps": 1000, "n": 200},
+        "suite_bounds": {"n": [1, HEAT_3D_MAX_N], "tsteps": [0, HEAT_3D_MAX_TSTEPS]},
+        "initialization": "A[i,j,k]=B[i,j,k]=((i+j+(n-k))*10)/n in binary64",
+        "kernel": "For each timestep, update B interior from A then A interior from B; each update adds three 0.125-scaled axis second differences and the center value.",
+        "output_order": "complete final A cube, i-major then j then k",
+    }
+    expected_input = {
+        "kind": "finite_float64_array", "encoding": "[n,tsteps] as exact integral binary64 values",
+        "input_length": HEAT_3D_MAX_INPUT_LENGTH,
+        "maximum_input_length": HEAT_3D_MAX_INPUT_LENGTH,
+        "dimension_ranges": {"n": [1, HEAT_3D_MAX_N], "tsteps": [0, HEAT_3D_MAX_TSTEPS]},
+        "invalid_input_result": HEAT_3D_INVALID_RESULT,
+    }
+    expected_contract = {
+        "operation": "Return final initialized A after the bounded source recurrence.",
+        "source_order": [
+            "initialize A and B with the pinned formula",
+            "for each requested step, update B interior in ascending i,j,k order from A",
+            "then update A interior in ascending i,j,k order from B",
+            "leave all boundary cells unchanged",
+        ],
+        "invalid_input_result": HEAT_3D_INVALID_RESULT,
+        "null_output_result": HEAT_3D_OUTPUT_ERROR,
+        "insufficient_capacity_result": HEAT_3D_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    expected_output_spec = {
+        "kind": "float64_array",
+        "encoding": "n*n*n binary64 values of A in i,j,k row-major order",
+        "maximum_elements": HEAT_3D_MAX_OUTPUT_ELEMENTS,
+        "success_result": "n*n*n output elements",
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+        "no_write_on_error": True,
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+    }
+    expected_cases = {
+        "one_cell_zero_steps", "two_cube_one_step_no_interior", "three_cube_one_step",
+        "empty_invalid", "fractional_steps", "first_unsupported_dimension",
+        "first_unsupported_timestep", "short_output",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_sources", "pinned_launcher", "source_bound", "input", "contract",
+                          "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-polybench-heat-3d-float64-slice-io-v1"
+            or workload.get("algorithm") != "heat_3d"
+            or workload.get("function_symbol") != "polybench_heat_3d"
+            or workload.get("description")
+                != "Run the bounded PolyBench 3D heat stencil for source-ordered timesteps on deterministic initialized fields."
+            or workload.get("pinned_sources") != expected_sources
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("source_bound") != expected_source_bound
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("output") != expected_output_spec
+            or workload.get("workspace") != {
+                "elements": 3 * HEAT_3D_MAX_OUTPUT_ELEMENTS,
+                "meaning": "Two bounded 6x6x6 fields and one 6x6x6 staged output.",
+            }
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_cases)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_cases):
+        raise ValueError("heat_3d workload metadata differs from its pinned bounded source contract")
+
+    readme = (ROOT / "benchmarks" / "h" / "heat_3d" / "README.md").read_text(encoding="utf-8")
+    license_text = (ROOT / "benchmarks" / "h" / "heat_3d" / "LICENSE.txt").read_text(
+        encoding="utf-8")
+    if (any(source["url"] not in readme for source in expected_sources if source["role"] != "license")
+            or "LICENSE.txt" not in readme
+            or "OHIO STATE UNIVERSITY SOFTWARE DISTRIBUTION LICENSE" not in license_text
+            or "INDEMNIFY, DEFEND AND HOLD HARMLESS" not in license_text):
+        raise ValueError("heat_3d README or bundled license is missing pinned source attribution")
+
+    base_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError("heat_3d cases must be JSON objects")
+        case_id = case.get("id")
+        expected_fields = (base_fields | {"output_capacity"}
+                           if case_id in {"one_cell_zero_steps", "two_cube_one_step_no_interior",
+                                          "three_cube_one_step", "short_output"}
+                           else base_fields)
+        if set(case) != expected_fields:
+            raise ValueError(f"heat_3d case fields differ from its bounded contract: {case_id}")
+        if (type(case.get("input_length")) is not int
+                or case.get("input_length") != len(case.get("input_values", []))
+                or type(case.get("expected_result")) is not int
+                or "output_capacity" in case
+                and (type(case["output_capacity"]) is not int or case["output_capacity"] < 0)):
+            raise ValueError(f"heat_3d fixture framing is invalid: {case_id}")
+        if case_id == "short_output" and case.get("output_capacity") != 7:
+            raise ValueError("heat_3d short-output fixture must use capacity seven")
+        encode_case(case, "heat_3d", 1e-12, 1e-12)
+
+
+def validate_polybench_lu_workload(workload: dict) -> None:
+    """Pin the bounded PolyBench LU source, license, and slice-I/O fixtures."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_base = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/PolyBench/linear-algebra/solvers/lu/"
+    expected_sources = [
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/linear-algebra/solvers/lu/lu.c",
+            "symbols": ["init_array", "kernel_lu"],
+            "url": source_base + "lu.c", "role": "algorithm-and-initialization",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/linear-algebra/solvers/lu/lu.h",
+            "symbols": ["N", "DATA_TYPE_IS_DOUBLE"],
+            "url": source_base + "lu.h", "role": "dataset-and-type",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/linear-algebra/solvers/lu/info.sh",
+            "symbols": ["bench_name", "COMPILE_FLAGS"],
+            "url": source_base + "info.sh", "role": "launcher",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "PolyBench/LICENSE.txt",
+            "symbols": ["Ohio State University Software Distribution License"],
+            "url": f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/PolyBench/LICENSE.txt",
+            "role": "license",
+        },
+    ]
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "PolyBench/linear-algebra/solvers/lu/info.sh", "bench_name": "lu",
+        "source_selection": "*.c", "compile_flags": ["-I.", "-DPOLYBENCH_DUMP_ARRAYS"],
+        "run_options": [],
+    }
+    expected_source_bound = {
+        "launcher_dataset": {"n": 2000}, "suite_bounds": {"n": [1, POLYBENCH_LU_MAX_N]},
+        "initialization": "Build base L0 with diag=1, lower entries 1-j/n, upper entries 0; overwrite A with the row Gram matrix L0*L0^T, accumulating t ascending.",
+        "kernel": "In-place no-pivot LU: lower entries use ascending k<j accumulation then divide by U[j,j]; upper entries use ascending k<i accumulation.",
+        "output_order": "combined LU matrix row-major",
+    }
+    expected_input = {
+        "kind": "finite_float64_array", "encoding": "[n] as exact integral binary64",
+        "input_length": POLYBENCH_LU_MAX_INPUT_LENGTH,
+        "maximum_input_length": POLYBENCH_LU_MAX_INPUT_LENGTH,
+        "dimension_ranges": {"n": [1, POLYBENCH_LU_MAX_N]},
+        "invalid_input_result": POLYBENCH_LU_INVALID_RESULT,
+    }
+    expected_contract = {
+        "operation": "Return the source-initialized Gram matrix after source-ordered in-place LU factorization without pivoting.",
+        "source_order": [
+            "initialize lower-triangular base matrix",
+            "accumulate A[r,t]*A[s,t] into Gram entries with t,r,s ascending",
+            "for each i, compute j<i lower entries with k<j ascending then divide by A[j,j]",
+            "compute j>=i upper entries with k<i ascending",
+        ],
+        "invalid_input_result": POLYBENCH_LU_INVALID_RESULT,
+        "null_output_result": POLYBENCH_LU_OUTPUT_ERROR,
+        "insufficient_capacity_result": POLYBENCH_LU_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    expected_output = {
+        "kind": "float64_matrix",
+        "encoding": "n*n values of combined L/U factorization in row-major order; L has implicit unit diagonal",
+        "maximum_elements": POLYBENCH_LU_MAX_OUTPUT_ELEMENTS,
+        "success_result": "n*n output elements",
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+        "no_write_on_error": True,
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+    }
+    expected_case_ids = {
+        "one_by_one", "two_by_two", "three_by_three", "empty_invalid",
+        "fractional_dimension", "first_unsupported_dimension", "short_output",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_sources", "pinned_launcher", "source_bound", "input", "contract",
+                          "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-polybench-lu-float64-slice-io-v1"
+            or workload.get("algorithm") != "polybench_lu"
+            or workload.get("function_symbol") != "polybench_lu"
+            or workload.get("description")
+                != "Construct the pinned PolyBench LU Gram matrix and compute its no-pivot in-place factorization."
+            or workload.get("pinned_sources") != expected_sources
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("source_bound") != expected_source_bound
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("output") != expected_output
+            or workload.get("workspace") != {
+                "elements": 108,
+                "meaning": "Base matrix, Gram/factor matrix, and staged output are each bounded to 6x6.",
+            }
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_case_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_case_ids):
+        raise ValueError("polybench_lu workload metadata differs from its pinned bounded source contract")
+
+    readme = (ROOT / "benchmarks" / "l" / "polybench_lu" / "README.md").read_text(
+        encoding="utf-8")
+    license_text = (ROOT / "benchmarks" / "l" / "polybench_lu" / "LICENSE.txt").read_text(
+        encoding="utf-8")
+    if (any(source["url"] not in readme for source in expected_sources if source["role"] != "license")
+            or "LICENSE.txt" not in readme
+            or "OHIO STATE UNIVERSITY SOFTWARE DISTRIBUTION LICENSE" not in license_text
+            or "Redistribution and use of the Software in source and" not in license_text
+            or "INDEMNIFY, DEFEND AND HOLD HARMLESS" not in license_text):
+        raise ValueError("polybench_lu README or bundled license is missing pinned source attribution")
+
+    case_inputs = {
+        "one_by_one": ([1], 1),
+        "two_by_two": ([2], 4),
+        "three_by_three": ([3], 9),
+        "empty_invalid": ([], None),
+        "fractional_dimension": ([2.5], None),
+        "first_unsupported_dimension": ([7], None),
+        "short_output": ([2], 3),
+    }
+    valid_case_ids = {"one_by_one", "two_by_two", "three_by_three"}
+    invalid_case_ids = {"empty_invalid", "fractional_dimension", "first_unsupported_dimension"}
+    base_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError("polybench_lu cases must be JSON objects")
+        case_id = case.get("id")
+        expected_fields = (base_fields | {"output_capacity"}
+                           if case_id in (valid_case_ids | {"short_output"}) else base_fields)
+        if (set(case) != expected_fields
+                or type(case.get("input_length")) is not int
+                or case.get("input_values") != case_inputs[case_id][0]
+                or case["input_length"] != len(case_inputs[case_id][0])
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output"), list)
+                or "output_capacity" in case
+                and (type(case["output_capacity"]) is not int
+                     or not 0 <= case["output_capacity"] <= POLYBENCH_LU_MAX_OUTPUT_ELEMENTS)):
+            raise ValueError(f"polybench_lu fixture framing is invalid: {case_id}")
+        if case_id == "short_output" and case.get("output_capacity") != 3:
+            raise ValueError("polybench_lu short-output fixture must use capacity three")
+        if case_id in valid_case_ids and case.get("output_capacity") != case.get("expected_result"):
+            raise ValueError(f"polybench_lu valid capacity must exactly fit its output: {case_id}")
+        if case_id in valid_case_ids and case.get("expected_result") != case_inputs[case_id][1]:
+            raise ValueError(f"polybench_lu expected result differs from its fixed matrix shape: {case_id}")
+        _values, result, output = encode_case(case, "polybench_lu", 1e-12, 1e-12)
+        if (case_id in valid_case_ids and (result <= 0 or len(output) != result)
+                or case_id in invalid_case_ids and (result != POLYBENCH_LU_INVALID_RESULT or output)
+                or case_id == "short_output" and (result != POLYBENCH_LU_OUTPUT_ERROR or output)):
+            raise ValueError(f"polybench_lu fixture differs from its source-order oracle: {case_id}")
+
+
+def _validate_polybench_simple_matrix_workload(workload: dict, algorithm: str) -> None:
+    """Validate source metadata and checked fixtures for correlation or Seidel 2D."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    specs = {
+        "polybench_correlation": {
+            "folder": "c", "slug": "polybench_correlation", "dataset": {"n": 1400, "m": 1200},
+            "maximum_n": POLYBENCH_CORRELATION_MAX_N, "maximum_m": POLYBENCH_CORRELATION_MAX_M,
+            "maximum_output": POLYBENCH_CORRELATION_MAX_OUTPUT_ELEMENTS, "workspace": 120,
+            "launcher_path": "PolyBench/datamining/correlation/info.sh", "bench_name": "correlation",
+            "launcher_flags": ["-I.", "-DPOLYBENCH_DUMP_ARRAYS"],
+            "source_paths": ["PolyBench/datamining/correlation/correlation.c",
+                             "PolyBench/datamining/correlation/correlation.h",
+                             "PolyBench/datamining/correlation/info.sh"],
+            "case_ids": {"one_row_two_columns", "two_rows_three_columns", "zero_columns_invalid",
+                         "fractional_dimension", "unsupported_row_count", "empty_invalid", "short_output"},
+            "readme_terms": ["correlation.c", "correlation.h", "LICENSE.txt"],
+            "init": "float_n=n; data[i,j]=(i*j)/m+i using binary64 division",
+            "operation": "Return the source-order standardized data correlation matrix.",
+            "encoding": "[n,m] exact integral binary64 values",
+            "output_encoding": "m*m correlation values row-major",
+            "source_order": [
+                "initialize data row-major and float_n=n",
+                "sum column means by ascending row and divide by n",
+                "sum squared centered deviations by ascending row and divide by n; sqrt and clamp at 0.1",
+                "center/reduce data row-major",
+                "accumulate each upper-triangle correlation in ascending row order and mirror",
+            ],
+            "source_desc": "Compute the source-initialized PolyBench correlation matrix with bounded row and column counts.",
+        },
+        "polybench_seidel_2d": {
+            "folder": "s", "slug": "polybench_seidel_2d", "dataset": {"n": 4000, "tsteps": 1000},
+            "maximum_n": POLYBENCH_SEIDEL_2D_MAX_N, "maximum_m": POLYBENCH_SEIDEL_2D_MAX_TSTEPS,
+            "maximum_output": POLYBENCH_SEIDEL_2D_MAX_OUTPUT_ELEMENTS, "workspace": 72,
+            "launcher_path": "PolyBench/stencils/seidel-2d/info.sh", "bench_name": "seidel-2d",
+            "launcher_flags": ["-I.", "-DPOLYBENCH_DUMP_ARRAYS", "-DEXTRALARGE_DATASET"],
+            "source_paths": ["PolyBench/stencils/seidel-2d/seidel-2d.c",
+                             "PolyBench/stencils/seidel-2d/seidel-2d.h",
+                             "PolyBench/stencils/seidel-2d/info.sh"],
+            "case_ids": {"one_cell_zero_steps", "two_by_two_four_steps_no_interior", "three_by_three_one_step",
+                         "empty_invalid", "fractional_dimension", "unsupported_dimension",
+                         "unsupported_timestep", "short_output"},
+            "readme_terms": ["seidel-2d.c", "seidel-2d.h", "LICENSE.txt"],
+            "init": "A[i,j]=((double)i*(j+2)+2)/n",
+            "operation": "Return final initialized A after in-place source-order Seidel sweeps.",
+            "encoding": "[n,tsteps] exact integral binary64",
+            "output_encoding": "n*n final A values row-major",
+            "source_order": [
+                "initialize A in ascending i,j order",
+                "for each timestep, update i ascending from one through n-2",
+                "within each row update j ascending within each row immediately from current A",
+                "sum neighborhood terms in source order and divide by 9",
+            ],
+            "source_desc": "Run the bounded source-order in-place Seidel 2D stencil on the initialized PolyBench matrix.",
+        },
+    }
+    if algorithm not in specs:
+        raise ValueError(f"unsupported PolyBench matrix workload: {algorithm}")
+    spec = specs[algorithm]
+    source_root = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+    expected_sources = [
+        {"repository": "lac-dcc/Benchmarks", "commit": commit, "path": path,
+         "symbols": ( ["init_array", "kernel_correlation"] if algorithm == "polybench_correlation" and path.endswith(".c")
+                      else ["N", "M", "DATA_TYPE_IS_DOUBLE"] if algorithm == "polybench_correlation" and path.endswith(".h")
+                      else ["init_array", "kernel_seidel_2d"] if algorithm == "polybench_seidel_2d" and path.endswith(".c")
+                      else ["N", "TSTEPS", "DATA_TYPE_IS_DOUBLE"] if algorithm == "polybench_seidel_2d" and path.endswith(".h")
+                      else ["bench_name", "COMPILE_FLAGS"] if path.endswith("info.sh")
+                      else ["Ohio State University Software Distribution License"]),
+         "url": source_root + path,
+         "role": ("algorithm-and-initialization" if path.endswith(".c") else
+                  "dataset-and-type" if path.endswith(".h") else
+                  "launcher" if path.endswith("info.sh") else "license")}
+        for path in spec["source_paths"] + ["PolyBench/LICENSE.txt"]
+    ]
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": spec["launcher_path"], "bench_name": spec["bench_name"],
+        "source_selection": "*.c", "compile_flags": spec["launcher_flags"], "run_options": [],
+    }
+    n_range = [1, spec["maximum_n"]]
+    second_range = ([1, spec["maximum_m"]] if algorithm == "polybench_correlation"
+                    else [0, spec["maximum_m"]])
+    expected_source_bound = {
+        "launcher_dataset": spec["dataset"],
+        "suite_bounds": ({"n": n_range, "m": second_range} if algorithm == "polybench_correlation"
+                         else {"n": n_range, "tsteps": second_range}),
+        "initialization": spec["init"],
+        "output_order": spec["output_encoding"],
+    }
+    if algorithm == "polybench_correlation":
+        expected_source_bound["normalization"] = "Column mean and population stddev, stddev clamp eps=0.1 to 1, then center and divide by sqrt(n)*stddev."
+    else:
+        expected_source_bound["kernel"] = "For each step, in-place update interior row-major with the 3x3 neighborhood sum divided by 9."
+    expected_input = {
+        "kind": "finite_float64_array", "encoding": spec["encoding"],
+        "input_length": 2, "maximum_input_length": 2,
+        "dimension_ranges": ({"n": n_range, "m": second_range} if algorithm == "polybench_correlation"
+                             else {"n": n_range, "tsteps": second_range}),
+        "invalid_input_result": -1,
+    }
+    expected_contract = {
+        "operation": spec["operation"], "source_order": spec["source_order"],
+        "invalid_input_result": -1, "null_output_result": -2,
+        "insufficient_capacity_result": -2, "no_write_on_error": True,
+    }
+    expected_output = {
+        "kind": "float64_matrix", "encoding": spec["output_encoding"],
+        "maximum_elements": spec["maximum_output"], "success_result": "n*n output elements" if algorithm == "polybench_seidel_2d" else "m*m output elements",
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12, "no_write_on_error": True,
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_sources", "pinned_launcher", "source_bound", "input", "contract",
+                          "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != f"lac-dcc-{algorithm.replace('_', '-')}-float64-slice-io-v1"
+            or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != algorithm
+            or workload.get("description") != spec["source_desc"]
+            or workload.get("pinned_sources") != expected_sources
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("source_bound") != expected_source_bound
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("output") != expected_output
+            or workload.get("workspace") != {"elements": spec["workspace"],
+                "meaning": ("Bounded data and correlation matrices, staged output, and mean/stddev vectors: 36+36+36+6+6 elements."
+                            if algorithm == "polybench_correlation" else
+                            "One 6x6 mutable matrix and one 6x6 staged output.")}
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or len(case_ids) != len(spec["case_ids"])
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != spec["case_ids"]):
+        raise ValueError(f"{algorithm} workload metadata differs from its pinned bounded source contract")
+
+    readme = (ROOT / "benchmarks" / spec["folder"] / spec["slug"] / "README.md").read_text(encoding="utf-8")
+    license_text = (ROOT / "benchmarks" / spec["folder"] / spec["slug"] / "LICENSE.txt").read_text(encoding="utf-8")
+    if (any(source["url"] not in readme for source in expected_sources if source["role"] != "license")
+            or any(term not in readme for term in spec["readme_terms"])
+            or "OHIO STATE UNIVERSITY SOFTWARE DISTRIBUTION LICENSE" not in license_text
+            or "INDEMNIFY, DEFEND AND HOLD HARMLESS" not in license_text):
+        raise ValueError(f"{algorithm} README or bundled license is missing pinned source attribution")
+
+    base_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError(f"{algorithm} cases must be JSON objects")
+        case_id = case.get("id")
+        allowed_fields = base_fields | ({"output_capacity"} if case_id in {"short_output"} |
+                                        (spec["case_ids"] - {"empty_invalid", "zero_columns_invalid", "fractional_dimension", "unsupported_row_count", "unsupported_dimension", "unsupported_timestep"}) else set())
+        if (set(case) != allowed_fields
+                or type(case.get("input_length")) is not int
+                or not isinstance(case.get("input_values"), list)
+                or case["input_length"] != len(case["input_values"])
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output"), list)
+                or "output_capacity" in case and (type(case["output_capacity"]) is not int
+                                                   or not 0 <= case["output_capacity"] <= spec["maximum_output"])):
+            raise ValueError(f"{algorithm} fixture framing is invalid: {case_id}")
+        _values, result, output = encode_case(case, algorithm, 1e-12, 1e-12)
+        if case_id == "short_output" and result != -2 or case_id == "empty_invalid" and result != -1:
+            raise ValueError(f"{algorithm} fixture differs from its source-order oracle: {case_id}")
+
+
+def validate_polybench_correlation_workload(workload: dict) -> None:
+    _validate_polybench_simple_matrix_workload(workload, "polybench_correlation")
+
+
+def validate_polybench_seidel_2d_workload(workload: dict) -> None:
+    _validate_polybench_simple_matrix_workload(workload, "polybench_seidel_2d")
 
 
 def _decode_k_d_tree_abi_values(raw_values: object) -> list[float]:
@@ -10911,10 +12727,32 @@ def main() -> int:
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"):
         parser.error("workload does not match the float64_slice_io algorithm")
-    if algorithm == "matmul_f64_4x4":
+    if algorithm == "versabench_beamformer":
+        validate_versabench_beamformer_workload(workload)
+    elif algorithm == "matmul_f64_4x4":
         validate_matmul_f64_4x4_workload(workload)
+    elif algorithm == "misc_fp_convert":
+        validate_misc_fp_convert_workload(workload)
+    elif algorithm == "trisolv":
+        validate_trisolv_workload(workload)
+    elif algorithm in {"jacobi_1d", "jacobi_2d"}:
+        validate_polybench_jacobi_workload(workload, algorithm)
+    elif algorithm == "syr2k":
+        validate_syr2k_workload(workload)
     elif algorithm == "syrk":
         validate_syrk_workload(workload)
+    elif algorithm == "trmm":
+        validate_trmm_workload(workload)
+    elif algorithm == "fdtd_2d":
+        validate_fdtd_2d_workload(workload)
+    elif algorithm == "heat_3d":
+        validate_heat_3d_workload(workload)
+    elif algorithm == "polybench_lu":
+        validate_polybench_lu_workload(workload)
+    elif algorithm == "polybench_correlation":
+        validate_polybench_correlation_workload(workload)
+    elif algorithm == "polybench_seidel_2d":
+        validate_polybench_seidel_2d_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":
@@ -11042,7 +12880,7 @@ def main() -> int:
     workspace = workload.get("workspace", {}).get("elements")
     if algorithm in TRAVELLING_SALESMAN_PYTHON_ALGORITHMS:
         workspace = workload.get("output", {}).get("maximum_elements")
-    maximum_workspace = (SHUFFLE_MAX_OUTPUT_ELEMENTS if algorithm == "shuffle" else 64)
+    maximum_workspace = (SHUFFLE_MAX_OUTPUT_ELEMENTS if algorithm == "shuffle" else 1024)
     if (type(workspace) is not int or not 1 <= workspace <= maximum_workspace):
         parser.error(
             f"workload workspace.elements must be an integer from 1 through {maximum_workspace}")

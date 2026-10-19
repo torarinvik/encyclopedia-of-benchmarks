@@ -1,0 +1,31 @@
+# PolyBench/C lu bounded port. See benchmarks/l/polybench_lu/LICENSE.txt.
+extern trunc(value: f64) -> f64
+const MAX_N: usize = 6
+
+def polybench_lu_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    nv: f64 = input[0]
+    if nv != nv or trunc(nv) != nv or nv < 1.0 or nv > MAX_N.f64(): return -1
+    n: usize = nv.usize()
+    cells: usize = n * n
+    if output.is_null() or capacity < cells: return -2
+    a: mutable f64[36] = zeroed
+    base: mutable f64[36] = zeroed
+    staged: mutable f64[36] = zeroed
+    for i in 0..<n:
+        for j in 0..<(i + 1): base[i * n + j] <- 1.0 - j.f64() / n.f64()
+        base[i * n + i] <- 1.0
+    for t in 0..<n:
+        for r in 0..<n:
+            for s in 0..<n: a[r * n + s] <- a[r * n + s] + base[r * n + t] * base[s * n + t]
+    for i in 0..<n:
+        for j in 0..<i:
+            for k in 0..<j: a[i * n + j] <- a[i * n + j] - a[i * n + k] * a[k * n + j]
+            a[i * n + j] <- a[i * n + j] / a[j * n + j]
+        for j in i..<n:
+            for k in 0..<i: a[i * n + j] <- a[i * n + j] - a[i * n + k] * a[k * n + j]
+    for q in 0..<cells: staged[q] <- a[q]
+    for q in 0..<cells: output[q] <- staged[q]
+    cells.i64()
+
+export fn polybench_lu(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = polybench_lu_impl

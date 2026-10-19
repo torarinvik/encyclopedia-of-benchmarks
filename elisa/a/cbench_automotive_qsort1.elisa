@@ -1,0 +1,99 @@
+# Modified derivative of cBench automotive_qsort1. Upstream directory notice, verbatim: “Matt wrote this using STL. It is GPL'ed.” The notice does not identify a GPL version. qsort.c copyright (C) 2002 Michael Ringgaard. All rights reserved.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+# 3. Neither the name of the project nor the names of its contributors may be
+#    used to endorse or promote products derived from this software without
+#    specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+extern sqrt(value: f64) -> f64
+
+const MAX_POINTS: usize = 128
+const MAX_COORD: i64 = 1000000
+
+def shortsort(ids: mutable usize&, scores: f64&, lo: usize, hi: usize) -> void:
+    end_index: mutable usize = hi
+    while end_index > lo:
+        maximum: mutable usize = lo
+        for p in lo + 1..<end_index + 1:
+            if scores[ids[p]] > scores[ids[maximum]]: maximum <- p
+        temporary: usize = ids[maximum]
+        ids[maximum] <- ids[end_index]
+        ids[end_index] <- temporary
+        end_index <- end_index - 1
+
+def sort_range(ids: mutable usize&, scores: f64&, lo: usize, hi: usize) -> void:
+    if hi <= lo: return
+    if hi - lo + 1 <= 8:
+        shortsort(ids, scores, lo, hi)
+        return
+    mid: usize = lo + (hi - lo + 1) / 2
+    temporary: usize = ids[mid]
+    ids[mid] <- ids[lo]
+    ids[lo] <- temporary
+    loguy: mutable usize = lo
+    higuy: mutable usize = hi + 1
+    while true:
+        loguy <- loguy + 1
+        while loguy <= hi and scores[ids[loguy]] <= scores[ids[lo]]: loguy <- loguy + 1
+        higuy <- higuy - 1
+        while higuy > lo and scores[ids[higuy]] >= scores[ids[lo]]: higuy <- higuy - 1
+        if higuy < loguy: break
+        temporary <- ids[loguy]
+        ids[loguy] <- ids[higuy]
+        ids[higuy] <- temporary
+    temporary <- ids[lo]
+    ids[lo] <- ids[higuy]
+    ids[higuy] <- temporary
+    if higuy > lo + 1: sort_range(ids, scores, lo, higuy - 1)
+    if loguy < hi: sort_range(ids, scores, loguy, hi)
+
+def cbench_automotive_qsort1_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 4 or length > 385: return -1
+    n_value: i64 = values[0]
+    if n_value < 1 or n_value > MAX_POINTS.i64() or length != 1 + 3*n_value.usize(): return -1
+    n: usize = n_value.usize()
+    coords: mutable i32[MAX_POINTS][3] = zeroed
+    ids: mutable usize[MAX_POINTS] = zeroed
+    scores: mutable f64[MAX_POINTS] = zeroed
+    radii: mutable i64[MAX_POINTS] = zeroed
+    for i in 0..<n:
+        sum: mutable i64 = 0
+        for axis in 0..<3:
+            v: i64 = values[1 + 3*i + axis]
+            if v < -MAX_COORD or v > MAX_COORD: return -1
+            coords[i][axis] <- v.i32()
+            sum <- sum + v*v
+        for j in 0..<i: if radii[j] == sum: return -1
+        radii[i] <- sum
+        ids[i] <- i
+        x: f64 = coords[i][0].f64()
+        y: f64 = coords[i][1].f64()
+        z: f64 = coords[i][2].f64()
+        scores[i] <- sqrt(x*x + y*y + z*z)
+    if output.is_null() or output_capacity < 12*n: return -2
+    sort_range(ids, scores, 0, n-1)
+    staged: mutable u8[1536] = zeroed
+    for r in 0..<n:
+        for axis in 0..<3:
+            bits: u32 = coords[ids[r]][axis].u32()
+            for byte in 0..<4: staged[12*r+4*axis+byte] <- ((bits >> (8*byte)) & 255).u8()
+    for i in 0..<12*n: output[i] <- staged[i]
+    (12*n).i64()
+
+export fn cbench_automotive_qsort1(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = cbench_automotive_qsort1_impl

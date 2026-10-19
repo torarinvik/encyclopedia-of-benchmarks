@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-misc-evalloop-bounded-v1",
+  "algorithm": "evalloop",
+  "function_symbol": "evalloop",
+  "description": "Bounded repeated execution of the pinned 2,048-cell opcode buffer through a portable opcode dispatcher.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/evalloop/evalloop.c",
+    "symbol": "main",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/evalloop/evalloop.c",
+    "license_note": "The referenced source has no explicit license notice; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/evalloop/info.sh",
+    "bench_name": "evalloop",
+    "source_files": ["evalloop.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "description": "Initialize 2,047 opcodes as i % 31 + 1 followed by opcode 0; each evaluation starts at the first opcode, dispatches every nonzero command, adds its opcode to a uint32 accumulator, and exits on 0.",
+    "source_buffer_size": 2048,
+    "source_nonzero_commands_per_evaluation": 2047,
+    "source_default_passes": 100000,
+    "source_default_sum": 3273700000,
+    "profile_minimum_passes": 0,
+    "profile_maximum_passes": 1000,
+    "sum_per_evaluation": 32737,
+    "output_format": "Sum: <unsigned decimal uint32>\\n"
+  },
+  "input": {
+    "kind": "signed_64_bit_scalar",
+    "encoding": "evalloop_passes",
+    "meaning": "Number of times to evaluate the generated opcode buffer.",
+    "minimum": 0,
+    "maximum": 1000,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "evalloop_stdout_ascii",
+    "definition": "The accumulated uint32 sum formatted as `Sum: `, unsigned decimal digits, and LF.",
+    "maximum_output_bytes": 14,
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true
+  },
+  "measurement": {
+    "comparison_model": "i64_scalar_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "zero_passes", "input_value": 0, "expected_result": 7, "expected_output": "Sum: 0\n"},
+    {"id": "one_source_buffer_evaluation", "input_value": 1, "expected_result": 11, "expected_output": "Sum: 32737\n"},
+    {"id": "two_source_buffer_evaluations", "input_value": 2, "expected_result": 11, "expected_output": "Sum: 65474\n"},
+    {"id": "maximum_bounded_profile", "input_value": 1000, "expected_result": 14, "expected_output": "Sum: 32737000\n"},
+    {"id": "below_profile", "input_value": -1, "expected_result": -1, "expected_output": ""},
+    {"id": "above_profile", "input_value": 1001, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_minimum", "input_value": -9223372036854775808, "expected_result": -1, "expected_output": ""},
+    {"id": "signed_64_maximum", "input_value": 9223372036854775807, "expected_result": -1, "expected_output": ""},
+    {"id": "short_capacity", "input_value": 1, "output_capacity": 10, "expected_result": -2, "expected_output": ""},
+    {"id": "null_output", "input_value": 1, "output_capacity": 14, "output_is_null": true, "expected_result": -2, "expected_output": ""}
+  ]
+}

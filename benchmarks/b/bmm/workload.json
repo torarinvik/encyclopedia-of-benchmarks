@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-versabench-bmm-bounded-blocked-f32-v1",
+  "algorithm": "bmm",
+  "function_symbol": "versabench_bmm",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "VersaBench/bmm/bmm.c",
+    "symbol": "my_rand_r, init, mm_inner, matmult, mm_sum, sumup",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/bmm/bmm.c",
+    "license_note": "Hewlett-Packard's source license notice is preserved in this package; commercial use requires separate written permission."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "VersaBench/bmm/info.sh",
+    "bench_name": "bmm",
+    "source_files": ["bmm.c"],
+    "compile_flags": [],
+    "run_options": ["128 32 with SMALL_PROBLEM_SIZE", "1024 1024 otherwise"]
+  },
+  "source_bound": {
+    "description": "The bounded profile preserves the 1024-wide source matrix initialization for all active rows, including the two seeded 32-bit LCG draws per source cell, the bit shifts, blocked i/j/k multiplication, blockwise row-major reduction, and six-decimal final stdout format.",
+    "launcher_default_size": 1024,
+    "launcher_default_block": 1024,
+    "launcher_small_problem_size": 128,
+    "launcher_small_problem_block": 32,
+    "profile_size_range": [1, 128],
+    "profile_block_range": [1, 128],
+    "profile_requires_size_divisible_by_block": true,
+    "maximum_multiply_add_updates": 2097152,
+    "source_matrix_extent": 1024,
+    "prng": "state=(state*1664525+1013904223) mod 2^32, seed=1, return=(state>>16)&0x7fff",
+    "matrix_a_generation": "A[i][j]=((my_rand_r(seed) >> ((j-i)&31)) & 0xF)",
+    "matrix_b_generation": "B[i][j]=((my_rand_r(seed) << ((i+j)&31)) & 0xF)",
+    "matrix_initialization_order": "row-major over 1024 columns, drawing A then B for each cell",
+    "multiply_order": "i,j,k tile loops; within each tile i,j,k loops",
+    "reduction_order": "sum each block row-major, then add block sums in block-row/block-column order",
+    "output_format": "printf(\"final sum = %f\\n\")",
+    "internal_matrix_workspace_bytes": 196608
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[NUM, BLOCK]",
+    "input_length": 2,
+    "size_range": [1, 128],
+    "block_range": [1, 128],
+    "size_must_be_divisible_by_block": true,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "source_stdout_ascii",
+    "encoding": "`final sum = ` followed by the exact binary32 result formatted with six fractional digits and LF",
+    "success_result": "number of output bytes",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "errors_write_nothing": true,
+    "maximum_output_bytes": 29
+  },
+  "workspace": {
+    "bytes": 29,
+    "meaning": "Maximum output-buffer capacity for the source-style ASCII report."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "single_cell", "input_values": [1, 1], "input_length": 2, "expected_result": 22, "expected_output_hex": "66696e616c2073756d203d2036342e3030303030300a", "output_capacity": 22},
+    {"id": "medium_blocked_profile", "input_values": [32, 8], "input_length": 2, "expected_result": 25, "expected_output_hex": "66696e616c2073756d203d2037383035352e3030303030300a", "output_capacity": 25},
+    {"id": "bounded_blocked_profile", "input_values": [128, 32], "input_length": 2, "expected_result": 27, "expected_output_hex": "66696e616c2073756d203d20343833353238382e3030303030300a", "output_capacity": 29},
+    {"id": "zero_size_invalid", "input_values": [0, 1], "input_length": 2, "expected_result": -1, "expected_output_hex": "", "output_capacity": 29},
+    {"id": "zero_block_invalid", "input_values": [32, 0], "input_length": 2, "expected_result": -1, "expected_output_hex": "", "output_capacity": 29},
+    {"id": "nondividing_block_invalid", "input_values": [10, 4], "input_length": 2, "expected_result": -1, "expected_output_hex": "", "output_capacity": 29},
+    {"id": "first_unsupported_size_invalid", "input_values": [129, 1], "input_length": 2, "expected_result": -1, "expected_output_hex": "", "output_capacity": 29},
+    {"id": "null_input_invalid", "input_values": [], "input_length": 2, "input_is_null": true, "expected_result": -1, "expected_output_hex": "", "output_capacity": 29},
+    {"id": "short_capacity", "input_values": [1, 1], "input_length": 2, "expected_result": -2, "expected_output_hex": "", "output_capacity": 21},
+    {"id": "null_output", "input_values": [1, 1], "input_length": 2, "expected_result": -2, "expected_output_hex": "", "output_capacity": 22, "output_is_null": true},
+    {"id": "wrong_input_length", "input_values": [1], "input_length": 1, "expected_result": -1, "expected_output_hex": "", "output_capacity": 29}
+  ]
+}

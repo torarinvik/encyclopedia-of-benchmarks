@@ -21,6 +21,7 @@ import sys
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected_result
+from netbench_crc_oracle import MAX_LENGTH as NETBENCH_CRC_MAX_LENGTH
 from five11_oracle import expected_result as five11_expected_result
 from deep_clone_graph_oracle import expected_result as deep_clone_graph_oracle
 from frequent_pattern_growth_oracle import expected_result as frequent_pattern_growth_oracle
@@ -623,6 +624,7 @@ from msd_radix_string_sorter_oracle import expected_result as msd_radix_string_s
 from run_i64_array_scalar import encode_case
 from run_i64_array_scalar import MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_mono_alphabetic_workload
+from run_i64_array_scalar import validate_netbench_crc_workload
 from run_i64_array_scalar import MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_mono_alphabetic_cipher_workload
 from run_i64_array_scalar import validate_msd_radix_string_sorter_workload
@@ -1513,6 +1515,7 @@ ALGORITHMS += ("rsa_explicit_key_transform", "rsa_java_big_integer", "rsa_ruby_b
 ALGORITHMS += ("k_means_julia", "k_means_rust", "k_means_clustering_c",
                "k_means_clustering_zig", "kmeans_rust")
 ALGORITHMS += ("lamport_signature",)
+ALGORITHMS += ("netbench_crc",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -2012,6 +2015,20 @@ def monotonic_array_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "netbench_crc":
+        if len(values) > NETBENCH_CRC_MAX_LENGTH or any(
+                type(value) is not int or value < 0 or value > 255 for value in values):
+            return -1
+        crc = 0
+        mask = (1 << 32) - 1
+        for byte in values:
+            crc ^= byte << 24
+            for _ in range(8):
+                if crc & 0x80000000:
+                    crc = ((crc << 1) ^ 0x04C11DB7) & mask
+                else:
+                    crc = (crc << 1) & mask
+        return crc
     if algorithm == "drop3":
         return drop3_expected_result(values)
     if algorithm == "five11":
@@ -2911,7 +2928,9 @@ def oracle(algorithm: str, values: list[int]) -> int:
 
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "msd_radix_string_sorter":
+    if algorithm == "netbench_crc":
+        validate_netbench_crc_workload(workload)
+    elif algorithm == "msd_radix_string_sorter":
         validate_msd_radix_string_sorter_workload(workload)
     elif algorithm == "mono_alphabetic_cipher":
         validate_mono_alphabetic_cipher_workload(workload)
@@ -3059,6 +3078,18 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         for values in malformed:
             cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 1 -1\n")
+    if algorithm == "netbench_crc":
+        for length in (0, 1, 2, 7, 8, 31, 64, 255, 256):
+            patterns = (
+                tuple(0 for _ in range(length)),
+                tuple(255 for _ in range(length)),
+                tuple((index * 73 + 29) & 255 for index in range(length)),
+            )
+            for values in patterns:
+                cases[values] = oracle(algorithm, list(values))
+        for values in ((-1,), (256,), (0,) * (NETBENCH_CRC_MAX_LENGTH + 1),
+                       (I64_MIN,), (I64_MAX,)):
+            cases[values] = oracle(algorithm, list(values))
     if algorithm == "five11":
         # Exercise the null pointer contract in addition to the checked workload corpus.
         special_records.append("NULL 2 -1\n")

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-polybench-correlation-float64-slice-io-v1",
+  "algorithm": "polybench_correlation",
+  "function_symbol": "polybench_correlation",
+  "description": "Compute the source-initialized PolyBench correlation matrix with bounded row and column counts.",
+  "pinned_sources": [
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/datamining/correlation/correlation.c","symbols":["init_array","kernel_correlation"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/datamining/correlation/correlation.c","role":"algorithm-and-initialization"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/datamining/correlation/correlation.h","symbols":["N","M","DATA_TYPE_IS_DOUBLE"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/datamining/correlation/correlation.h","role":"dataset-and-type"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/datamining/correlation/info.sh","symbols":["bench_name","COMPILE_FLAGS"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/datamining/correlation/info.sh","role":"launcher"},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/LICENSE.txt","symbols":["Ohio State University Software Distribution License"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/PolyBench/LICENSE.txt","role":"license"}
+  ],
+  "pinned_launcher":{"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"PolyBench/datamining/correlation/info.sh","bench_name":"correlation","source_selection":"*.c","compile_flags":["-I.","-DPOLYBENCH_DUMP_ARRAYS"],"run_options":[]},
+  "source_bound":{"launcher_dataset":{"n":1400,"m":1200},"suite_bounds":{"n":[1,6],"m":[1,6]},"initialization":"float_n=n; data[i,j]=(i*j)/m+i using binary64 division","normalization":"Column mean and population stddev, stddev clamp eps=0.1 to 1, then center and divide by sqrt(n)*stddev.","output_order":"m by m correlation matrix in row-major order"},
+  "input":{"kind":"finite_float64_array","encoding":"[n,m] exact integral binary64 values","input_length":2,"maximum_input_length":2,"dimension_ranges":{"n":[1,6],"m":[1,6]},"invalid_input_result":-1},
+  "contract":{"operation":"Return the source-order standardized data correlation matrix.","source_order":["initialize data row-major and float_n=n","sum column means by ascending row and divide by n","sum squared centered deviations by ascending row and divide by n; sqrt and clamp at 0.1","center/reduce data row-major","accumulate each upper-triangle correlation in ascending row order and mirror"],"invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true},
+  "output":{"kind":"float64_matrix","encoding":"m*m correlation values row-major","maximum_elements":36,"success_result":"m*m output elements","absolute_tolerance":1e-12,"relative_tolerance":1e-12,"no_write_on_error":true},
+  "workspace":{"elements":120,"meaning":"Bounded data and correlation matrices, staged output, and mean/stddev vectors: 36+36+36+6+6 elements."},
+  "measurement":{"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100,"absolute_tolerance":1e-12,"relative_tolerance":1e-12},
+  "cases":[
+    {"id":"one_row_two_columns","input_values":[1,2],"input_length":2,"output_capacity":4,"expected_result":4,"expected_output":[1,0,0,1]},
+    {"id":"two_rows_three_columns","input_values":[2,3],"input_length":2,"output_capacity":9,"expected_result":9,"expected_output":[1,1,1,1,1,1,1,1,1]},
+    {"id":"zero_columns_invalid","input_values":[2,0],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional_dimension","input_values":[2.5,3],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"unsupported_row_count","input_values":[7,2],"input_length":2,"expected_result":-1,"expected_output":[]},
+    {"id":"empty_invalid","input_values":[],"input_length":0,"expected_result":-1,"expected_output":[]},
+    {"id":"short_output","input_values":[2,3],"input_length":2,"output_capacity":8,"expected_result":-2,"expected_output":[]}
+  ]
+}

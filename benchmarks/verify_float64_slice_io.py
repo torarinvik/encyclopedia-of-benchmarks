@@ -13,6 +13,32 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from jacobi_1d_oracle import MAX_N as JACOBI_1D_MAX_N, MAX_TSTEPS as JACOBI_1D_MAX_TSTEPS
+from jacobi_2d_oracle import MAX_N as JACOBI_2D_MAX_N, MAX_TSTEPS as JACOBI_2D_MAX_TSTEPS
+from syr2k_oracle import MAX_M as SYR2K_MAX_M, MAX_N as SYR2K_MAX_N
+from syr2k_oracle import MAX_OUTPUT_ELEMENTS as SYR2K_MAX_OUTPUT_ELEMENTS
+from fdtd_2d_oracle import (
+    MAX_INPUT_LENGTH as FDTD_2D_MAX_INPUT_LENGTH,
+    MAX_NX as FDTD_2D_MAX_NX,
+    MAX_NY as FDTD_2D_MAX_NY,
+    MAX_OUTPUT_ELEMENTS as FDTD_2D_MAX_OUTPUT_ELEMENTS,
+    MAX_TMAX as FDTD_2D_MAX_TMAX,
+)
+from heat_3d_oracle import (
+    INVALID_RESULT as HEAT_3D_INVALID_RESULT,
+    MAX_INPUT_LENGTH as HEAT_3D_MAX_INPUT_LENGTH,
+    MAX_N as HEAT_3D_MAX_N,
+    MAX_OUTPUT_ELEMENTS as HEAT_3D_MAX_OUTPUT_ELEMENTS,
+    MAX_TSTEPS as HEAT_3D_MAX_TSTEPS,
+    OUTPUT_ERROR as HEAT_3D_OUTPUT_ERROR,
+)
+from trmm_oracle import (
+    INVALID_RESULT as TRMM_INVALID_RESULT,
+    MAX_DIM as TRMM_MAX_DIM,
+    MAX_INPUT_LENGTH as TRMM_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as TRMM_MAX_OUTPUT_ELEMENTS,
+    OUTPUT_ERROR as TRMM_OUTPUT_ERROR,
+)
 from run_float64_slice_io import (
     _decode_linear_discriminant_analysis_abi_values,
     validate_linear_discriminant_analysis_workload,
@@ -30,6 +56,14 @@ from run_float64_slice_io import (
     validate_sir_workload,
     validate_syrk_workload,
     validate_matmul_f64_4x4_workload,
+    validate_misc_fp_convert_workload,
+    validate_trisolv_workload,
+    validate_polybench_jacobi_workload,
+    validate_syr2k_workload,
+    validate_trmm_workload,
+    validate_fdtd_2d_workload,
+    validate_heat_3d_workload,
+    validate_polybench_lu_workload,
 )
 from pca_oracle import (
     MAX_OUTPUT_ELEMENTS as PCA_MAX_OUTPUT_ELEMENTS,
@@ -160,6 +194,7 @@ from linear_discriminant_analysis_oracle import (
 )
 from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   _format_output, _output_token, encode_case, tolerances,
+                                  validate_versabench_beamformer_workload,
                                   validate_joint_probability_distribution_workload,
                                   validate_pid_workload,
                                   validate_shreedharacharya_workload,
@@ -535,11 +570,221 @@ from perceptron_rust_oracle import (
 ALGORITHMS = tuple(ORACLES)
 
 
+def trmm_verifier_oracle(values, capacity=None, output_is_null=False,
+                         input_is_null=False, input_length=None):
+    """Independent source-order reference for bounded PolyBench TRMM."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > TRMM_MAX_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and (values or input_length not in (None, 0)))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return TRMM_INVALID_RESULT, []
+    if len(values) != TRMM_MAX_INPUT_LENGTH:
+        return TRMM_INVALID_RESULT, []
+    dimensions = []
+    for value in values:
+        numeric = float(value)
+        if numeric != math.trunc(numeric) or not 1 <= numeric <= TRMM_MAX_DIM:
+            return TRMM_INVALID_RESULT, []
+        dimensions.append(int(numeric))
+    m, n = dimensions
+    required = m * n
+    if output_is_null or (capacity is not None and capacity < required):
+        return TRMM_OUTPUT_ERROR, []
+
+    alpha = 1.5
+    a = [[0.0] * m for _ in range(m)]
+    b = [[0.0] * n for _ in range(m)]
+    for i in range(m):
+        for j in range(i):
+            a[i][j] = float((i + j) % m) / float(m)
+        a[i][i] = 1.0
+        for j in range(n):
+            b[i][j] = float((n + i - j) % n) / float(n)
+    for i in range(m):
+        for j in range(n):
+            for k in range(i + 1, m):
+                b[i][j] += a[k][i] * b[k][j]
+            b[i][j] = alpha * b[i][j]
+    output = [b[i][j] for i in range(m) for j in range(n)]
+    return len(output), output
+
+
+def fdtd_2d_verifier_oracle(values, capacity=None, output_is_null=False,
+                            input_is_null=False, input_length=None):
+    """Independent source-order reference for bounded PolyBench FDTD 2D."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > FDTD_2D_MAX_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and values)
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != FDTD_2D_MAX_INPUT_LENGTH:
+        return -1, []
+    dimensions = []
+    for value in values:
+        numeric = float(value)
+        if numeric != math.trunc(numeric):
+            return -1, []
+        dimensions.append(int(numeric))
+    tmax, nx, ny = dimensions
+    if not (0 <= tmax <= FDTD_2D_MAX_TMAX
+            and 1 <= nx <= FDTD_2D_MAX_NX
+            and 1 <= ny <= FDTD_2D_MAX_NY):
+        return -1, []
+    required = 3 * nx * ny
+    if output_is_null or (capacity is not None and capacity < required):
+        return -2, []
+
+    fict = [float(t) for t in range(tmax)]
+    ex = [[float(i * (j + 1)) / float(nx) for j in range(ny)] for i in range(nx)]
+    ey = [[float(i * (j + 2)) / float(ny) for j in range(ny)] for i in range(nx)]
+    hz = [[float(i * (j + 3)) / float(nx) for j in range(ny)] for i in range(nx)]
+    for t in range(tmax):
+        for j in range(ny):
+            ey[0][j] = fict[t]
+        for i in range(1, nx):
+            for j in range(ny):
+                ey[i][j] = ey[i][j] - 0.5 * (hz[i][j] - hz[i - 1][j])
+        for i in range(nx):
+            for j in range(1, ny):
+                ex[i][j] = ex[i][j] - 0.5 * (hz[i][j] - hz[i][j - 1])
+        for i in range(nx - 1):
+            for j in range(ny - 1):
+                delta = (ex[i][j + 1] - ex[i][j]) + (ey[i + 1][j] - ey[i][j])
+                hz[i][j] = hz[i][j] - 0.7 * delta
+    output = [value for matrix in (ex, ey, hz) for row in matrix for value in row]
+    return len(output), output
+
+
+def heat_3d_verifier_oracle(values, capacity=None, output_is_null=False,
+                            input_is_null=False, input_length=None):
+    """Independent source-order reference for bounded PolyBench heat-3d."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > HEAT_3D_MAX_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and values)
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return HEAT_3D_INVALID_RESULT, []
+    if input_is_null or len(values) != HEAT_3D_MAX_INPUT_LENGTH:
+        return HEAT_3D_INVALID_RESULT, []
+    dimensions = []
+    for value in values:
+        numeric = float(value)
+        if numeric != math.trunc(numeric):
+            return HEAT_3D_INVALID_RESULT, []
+        dimensions.append(int(numeric))
+    n, steps = dimensions
+    if not (1 <= n <= HEAT_3D_MAX_N and 0 <= steps <= HEAT_3D_MAX_TSTEPS):
+        return HEAT_3D_INVALID_RESULT, []
+    required = n * n * n
+    if output_is_null or (capacity is not None and capacity < required):
+        return HEAT_3D_OUTPUT_ERROR, []
+
+    a = [[[((i + j + n - k) * 10.0) / float(n) for k in range(n)]
+          for j in range(n)] for i in range(n)]
+    b = [[row[:] for row in plane] for plane in a]
+    for _ in range(steps):
+        for i in range(1, n - 1):
+            for j in range(1, n - 1):
+                for k in range(1, n - 1):
+                    center = a[i][j][k]
+                    dx = 0.125 * (a[i + 1][j][k] - 2.0 * center + a[i - 1][j][k])
+                    dy = 0.125 * (a[i][j + 1][k] - 2.0 * center + a[i][j - 1][k])
+                    dz = 0.125 * (a[i][j][k + 1] - 2.0 * center + a[i][j][k - 1])
+                    b[i][j][k] = ((dx + dy) + dz) + center
+        for i in range(1, n - 1):
+            for j in range(1, n - 1):
+                for k in range(1, n - 1):
+                    center = b[i][j][k]
+                    dx = 0.125 * (b[i + 1][j][k] - 2.0 * center + b[i - 1][j][k])
+                    dy = 0.125 * (b[i][j + 1][k] - 2.0 * center + b[i][j - 1][k])
+                    dz = 0.125 * (b[i][j][k + 1] - 2.0 * center + b[i][j][k - 1])
+                    a[i][j][k] = ((dx + dy) + dz) + center
+    output = [a[i][j][k] for i in range(n) for j in range(n) for k in range(n)]
+    return len(output), output
+
+
+def polybench_lu_verifier_oracle(values, capacity=None, output_is_null=False,
+                                 input_is_null=False, input_length=None):
+    """Independent source-order reference for bounded PolyBench LU."""
+    maximum_n = 6
+    if (not isinstance(values, (list, tuple))
+            or len(values) > 1
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != 1:
+        return -1, []
+    numeric_n = float(values[0])
+    if numeric_n != math.trunc(numeric_n) or not 1 <= numeric_n <= maximum_n:
+        return -1, []
+    n = int(numeric_n)
+    base = [[0.0 for _ in range(n)] for _ in range(n)]
+    for i in range(n):
+        for j in range(i + 1):
+            base[i][j] = 1.0 - float(j) / float(n)
+        base[i][i] = 1.0
+
+    factor = [[0.0 for _ in range(n)] for _ in range(n)]
+    for t in range(n):
+        for r in range(n):
+            for s in range(n):
+                factor[r][s] = factor[r][s] + base[r][t] * base[s][t]
+    for i in range(n):
+        for j in range(i):
+            for k in range(j):
+                factor[i][j] = factor[i][j] - factor[i][k] * factor[k][j]
+            factor[i][j] = factor[i][j] / factor[j][j]
+        for j in range(i, n):
+            for k in range(i):
+                factor[i][j] = factor[i][j] - factor[i][k] * factor[k][j]
+
+    output = [factor[i][j] for i in range(n) for j in range(n)]
+    if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, []
+    return len(output), output
+
+
 def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "matmul_f64_4x4":
+    if algorithm == "versabench_beamformer":
+        validate_versabench_beamformer_workload(workload)
+    elif algorithm == "matmul_f64_4x4":
         validate_matmul_f64_4x4_workload(workload)
+    elif algorithm == "misc_fp_convert":
+        validate_misc_fp_convert_workload(workload)
+    elif algorithm == "trisolv":
+        validate_trisolv_workload(workload)
+    elif algorithm in {"jacobi_1d", "jacobi_2d"}:
+        validate_polybench_jacobi_workload(workload, algorithm)
+    elif algorithm == "syr2k":
+        validate_syr2k_workload(workload)
     elif algorithm == "syrk":
         validate_syrk_workload(workload)
+    elif algorithm == "trmm":
+        validate_trmm_workload(workload)
+    elif algorithm == "fdtd_2d":
+        validate_fdtd_2d_workload(workload)
+    elif algorithm == "heat_3d":
+        validate_heat_3d_workload(workload)
+    elif algorithm == "polybench_lu":
+        validate_polybench_lu_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":
@@ -632,7 +877,7 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     workspace = workload.get("workspace", {}).get("elements")
     if algorithm in RISK_METRICS_ALGORITHM_NAMES or algorithm in TRAVELLING_SALESMAN_PYTHON_ALGORITHMS:
         workspace = workload.get("output", {}).get("maximum_elements")
-    maximum_workspace = (SHUFFLE_MAX_OUTPUT_ELEMENTS if algorithm == "shuffle" else 64)
+    maximum_workspace = (SHUFFLE_MAX_OUTPUT_ELEMENTS if algorithm == "shuffle" else 1024)
     if (type(workspace) is not int or not 1 <= workspace <= maximum_workspace):
         raise ValueError(
             f"workspace.elements must be an integer from 1 through {maximum_workspace}")
@@ -641,6 +886,50 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     for case in workload.get("cases", []):
         values, expected_result, expected_output = encode_case(
             case, algorithm, absolute_tolerance, relative_tolerance)
+        if algorithm == "trmm":
+            independent_result, independent_output = trmm_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or len(independent_output) != len(expected_output)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(independent_output, expected_output))):
+                raise ValueError(f"{case.get('id')}: TRMM fixture differs from the independent verifier oracle")
+        elif algorithm == "fdtd_2d":
+            independent_result, independent_output = fdtd_2d_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or len(independent_output) != len(expected_output)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(independent_output, expected_output))):
+                raise ValueError(f"{case.get('id')}: FDTD 2D fixture differs from the independent verifier oracle")
+        elif algorithm == "heat_3d":
+            independent_result, independent_output = heat_3d_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or len(independent_output) != len(expected_output)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(independent_output, expected_output))):
+                raise ValueError(f"{case.get('id')}: heat_3d fixture differs from the independent verifier oracle")
+        elif algorithm == "polybench_lu":
+            independent_result, independent_output = polybench_lu_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or len(independent_output) != len(expected_output)
+                    or any(abs(actual - expected) > absolute_tolerance
+                           + relative_tolerance * abs(expected)
+                           for actual, expected in zip(independent_output, expected_output))):
+                raise ValueError(f"{case.get('id')}: polybench_lu fixture differs from the independent verifier oracle")
         if expected_result >= 0 and expected_result > workspace:
             raise ValueError(f"workspace is too small for {case.get('id')}")
         output_capacity = case.get("output_capacity", workspace)
@@ -661,7 +950,8 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         invalid_input = [0.0] * invalid_length
         oracle_result = ORACLES[algorithm](invalid_input)
         invalid = (oracle_result[0] < 0
-                   if algorithm in {"joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+                   if algorithm in {"versabench_beamformer", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+                                    "trmm",
                                     "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                                     "median_of_running_array_double", "median_of_running_array_float",
                                     "mean_shift", "k_means_clust", "lu_decompose",
@@ -680,6 +970,80 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                    else oracle_result is None)
         if invalid:
             records.append((invalid_input, -1, [], workspace, 0, 0))
+    if algorithm == "trisolv":
+        maximum_input = [float(workload["input"]["n_range"][1])]
+        maximum_output = ORACLES[algorithm](maximum_input)
+        if (maximum_output is None or len(maximum_output) != workspace
+                or any(not math.isfinite(value) for value in maximum_output)):
+            raise ValueError("trisolv maximum-dimension oracle returned an invalid vector")
+        records.append((maximum_input, len(maximum_output),
+                        [_output_token(value) for value in maximum_output],
+                        workspace, 0, 0))
+    elif algorithm in {"jacobi_1d", "jacobi_2d"}:
+        maximum_input = [float(JACOBI_1D_MAX_N if algorithm == "jacobi_1d" else JACOBI_2D_MAX_N),
+                         float(JACOBI_1D_MAX_TSTEPS if algorithm == "jacobi_1d" else JACOBI_2D_MAX_TSTEPS)]
+        maximum_output = ORACLES[algorithm](maximum_input)
+        if (maximum_output is None or len(maximum_output) > workspace
+                or any(not math.isfinite(value) for value in maximum_output)):
+            raise ValueError(f"{algorithm} maximum-dimension oracle returned an invalid output")
+        records.append((maximum_input, len(maximum_output),
+                        [_output_token(value) for value in maximum_output],
+                        workspace, 0, 0))
+    elif algorithm == "syr2k":
+        maximum_input = [float(SYR2K_MAX_N), float(SYR2K_MAX_M)]
+        maximum_output = ORACLES[algorithm](maximum_input)
+        if (maximum_output is None or len(maximum_output) != SYR2K_MAX_OUTPUT_ELEMENTS
+                or any(not math.isfinite(value) for value in maximum_output)):
+            raise ValueError("syr2k maximum-dimension oracle returned an invalid matrix")
+        records.append((maximum_input, len(maximum_output),
+                        [_output_token(value) for value in maximum_output],
+                        workspace, 0, 0))
+    elif algorithm == "trmm":
+        for m in range(1, TRMM_MAX_DIM + 1):
+            for n in range(1, TRMM_MAX_DIM + 1):
+                maximum_input = [float(m), float(n)]
+                result, output = trmm_verifier_oracle(maximum_input, workspace)
+                if (result != m * n or len(output) != result
+                        or any(not math.isfinite(value) for value in output)):
+                    raise ValueError("trmm independent verifier oracle returned an invalid bounded matrix")
+                records.append((maximum_input, result, [_output_token(value) for value in output],
+                                workspace, 0, 0))
+    elif algorithm == "fdtd_2d":
+        maximum_input = [float(FDTD_2D_MAX_TMAX), float(FDTD_2D_MAX_NX),
+                         float(FDTD_2D_MAX_NY)]
+        result, output = fdtd_2d_verifier_oracle(maximum_input, workspace)
+        if (result != FDTD_2D_MAX_OUTPUT_ELEMENTS or len(output) != result
+                or any(not math.isfinite(value) for value in output)):
+            raise ValueError("fdtd_2d independent verifier oracle returned an invalid maximum output")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "heat_3d":
+        maximum_input = [float(HEAT_3D_MAX_N), float(HEAT_3D_MAX_TSTEPS)]
+        result, output = heat_3d_verifier_oracle(maximum_input, workspace)
+        if (result != HEAT_3D_MAX_OUTPUT_ELEMENTS or len(output) != result
+                or any(not math.isfinite(value) for value in output)):
+            raise ValueError("heat_3d independent verifier oracle returned an invalid maximum output")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+    elif algorithm == "polybench_lu":
+        maximum_input = [6.0]
+        result, output = polybench_lu_verifier_oracle(maximum_input, workspace)
+        if (result != 36 or len(output) != result
+                or any(not math.isfinite(value) for value in output)):
+            raise ValueError("polybench_lu independent verifier oracle returned an invalid maximum matrix")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        result, 0, 0))
+        for capacity in (0, result - 1):
+            error_result, error_output = polybench_lu_verifier_oracle(
+                maximum_input, capacity)
+            if error_result != -2 or error_output:
+                raise ValueError("polybench_lu capacity oracle returned an invalid boundary result")
+            records.append((maximum_input, error_result, [], capacity, 0, 0))
+        null_result, null_output = polybench_lu_verifier_oracle(
+            maximum_input, result, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("polybench_lu null-output oracle returned an invalid result")
+        records.append((maximum_input, null_result, [], result, 0, 1))
     records.append((values, -1, [], workspace, 1, 0))
     if algorithm != "md2_digest":
         records.append(([], -1, [], workspace, 0, 0))
@@ -5472,8 +5836,20 @@ def main() -> int:
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if workload.get("algorithm") != algorithm:
         parser.error("workload algorithm does not match the requested algorithm")
-    if algorithm == "matmul_f64_4x4":
+    if algorithm == "versabench_beamformer":
+        validate_versabench_beamformer_workload(workload)
+    elif algorithm == "matmul_f64_4x4":
         validate_matmul_f64_4x4_workload(workload)
+    elif algorithm == "misc_fp_convert":
+        validate_misc_fp_convert_workload(workload)
+    elif algorithm == "trisolv":
+        validate_trisolv_workload(workload)
+    elif algorithm in {"jacobi_1d", "jacobi_2d"}:
+        validate_polybench_jacobi_workload(workload, algorithm)
+    elif algorithm == "syr2k":
+        validate_syr2k_workload(workload)
+    elif algorithm == "trmm":
+        validate_trmm_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":

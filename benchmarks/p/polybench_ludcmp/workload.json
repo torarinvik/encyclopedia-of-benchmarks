@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "polybench-ludcmp-i64-array-f64-v1",
+  "algorithm": "polybench_ludcmp",
+  "function_symbol": "polybench_ludcmp",
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n] where n is the square matrix dimension",
+    "input_length": 1,
+    "dimension_range": [1, 64],
+    "maximum_input_length": 1
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "increasing-index sum of x after the source-order LU factorization and forward/back substitution",
+    "invalid_input_result": -1e300
+  },
+  "source_bound": {
+    "description": "The pinned launcher selects ludcmp.c with no dataset override; its header defaults to double and LARGE_DATASET N=2000. This bounded profile accepts 1<=n<=64. It initializes b[i]=((i+1)/n)/2+4 and A0 with the source signed-remainder formula, forms A0*A0^T using t/r/s accumulation order, performs no-pivot LU with the original i/j/k order, solves L*y=b, then U*x=y. The source prints x; this scalar ABI returns the source-order sum of x.",
+    "repository": "https://github.com/lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "PolyBench/linear-algebra/solvers/ludcmp/ludcmp.c",
+    "launcher_path": "PolyBench/linear-algebra/solvers/ludcmp/info.sh",
+    "header_path": "PolyBench/linear-algebra/solvers/ludcmp/ludcmp.h",
+    "original_contributor": "PolyBench/C (Louis-Noel Pouchet and Tomofumi Yuki)",
+    "license_note": "The Ohio State University Software Distribution License in benchmarks/p/polybench_ludcmp/LICENSE.txt permits redistribution and use of the Software in source and binary forms, with or without modification, subject to its retention conditions. It prohibits endorsement using Ohio State University's name without prior written permission and includes the funding and policy statement, warranty/liability disclaimer, and user indemnification, defense, and hold-harmless obligation. The complete text is bundled in LICENSE.txt."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 10,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "one_cell", "input_values": [1], "input_length": 1, "expected_result": 4.5},
+    {"id": "dimension_two", "input_values": [2], "input_length": 1, "expected_result": 4.25},
+    {"id": "dimension_three", "input_values": [3], "input_length": 1, "expected_result": 4.166666666666666},
+    {"id": "dimension_eight", "input_values": [8], "input_length": 1, "expected_result": 4.0625},
+    {"id": "polybench_mini_dimension", "input_values": [40], "input_length": 1, "expected_result": 4.012499999999999},
+    {"id": "maximum_dimension", "input_values": [64], "input_length": 1, "expected_result": 4.007812500000001},
+    {"id": "empty_invalid", "input_values": [], "input_length": 0, "expected_result": -1e300},
+    {"id": "zero_dimension_invalid", "input_values": [0], "input_length": 1, "expected_result": -1e300},
+    {"id": "first_unsupported_dimension_invalid", "input_values": [65], "input_length": 1, "expected_result": -1e300}
+  ]
+}

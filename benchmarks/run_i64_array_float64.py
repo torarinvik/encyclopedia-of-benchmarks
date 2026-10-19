@@ -123,6 +123,19 @@ from mvt_oracle import expected_result as mvt_expected
 from atax_oracle import INVALID_RESULT as ATAX_INVALID_RESULT
 from atax_oracle import MAX_INPUT_LENGTH as MAX_ATAX_INPUT_LENGTH
 from atax_oracle import expected_result as atax_expected
+from polybench_symm_oracle import INVALID_RESULT as POLYBENCH_SYMM_INVALID_RESULT
+from polybench_symm_oracle import MAX_INPUT_LENGTH as MAX_POLYBENCH_SYMM_INPUT_LENGTH
+from polybench_symm_oracle import expected_result as polybench_symm_expected
+from polybench_cholesky_oracle import INVALID_RESULT as POLYBENCH_CHOLESKY_INVALID_RESULT
+from polybench_cholesky_oracle import MAX_DIMENSION as POLYBENCH_CHOLESKY_MAX_DIMENSION
+from polybench_cholesky_oracle import MAX_INPUT_LENGTH as MAX_POLYBENCH_CHOLESKY_INPUT_LENGTH
+from polybench_cholesky_oracle import expected_result as polybench_cholesky_expected
+from polybench_ludcmp_oracle import (
+    INVALID_RESULT as POLYBENCH_LUDCMP_INVALID_RESULT,
+    MAX_DIMENSION as POLYBENCH_LUDCMP_MAX_DIMENSION,
+    MAX_INPUT_LENGTH as MAX_POLYBENCH_LUDCMP_INPUT_LENGTH,
+    expected_result as polybench_ludcmp_expected,
+)
 from bicg_oracle import INVALID_RESULT as BICG_INVALID_RESULT
 from bicg_oracle import MAX_INPUT_LENGTH as MAX_BICG_INPUT_LENGTH
 from bicg_oracle import expected_result as bicg_expected
@@ -2188,6 +2201,292 @@ def validate_linpack_lu_solve_workload(workload: dict) -> None:
             raise ValueError(f"linpack_lu_solve fixture differs from its oracle: {case.get('id')}")
 
 
+def validate_atax_workload(workload: dict) -> None:
+    """Pin the bounded PolyBench ATAX source contract and its fixtures."""
+    expected_ids = {
+        "one_cell", "two_rows_three_columns", "three_rows_two_columns", "square_eight",
+        "rectangular_medium", "polybench_mini_shape", "maximum_dimensions", "empty_invalid",
+        "short_input_invalid", "zero_rows_invalid", "zero_columns_invalid",
+        "first_unsupported_dimension_invalid",
+    }
+    source_bound = workload.get("source_bound", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "polybench-atax-i64-array-f64-v1"
+            or workload.get("algorithm") != "atax"
+            or workload.get("function_symbol") != "atax"
+            or source_bound.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+            or source_bound.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source_bound.get("path") != "PolyBench/linear-algebra/kernels/atax/atax.c"
+            or input_spec.get("kind") != "signed_i64_array"
+            or input_spec.get("encoding") != "[m, n] where m is the number of matrix rows and n is the number of columns"
+            or input_spec.get("input_length") != MAX_ATAX_INPUT_LENGTH
+            or input_spec.get("row_range") != [1, 64]
+            or input_spec.get("column_range") != [1, 64]
+            or input_spec.get("maximum_input_length") != MAX_ATAX_INPUT_LENGTH
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("invalid_input_result") != ATAX_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("absolute_tolerance") != 1e-12
+            or measurement.get("relative_tolerance") != 1e-12
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_ids):
+        raise ValueError("atax workload metadata differs from its bounded PolyBench contract")
+
+    readme = (ROOT / "benchmarks" / "a" / "atax" / "README.md").read_text(encoding="utf-8")
+    if ("5d7b75df749241efa7a6e6f5be613d3fcc5cce38" not in readme
+            or "LICENSE.txt" not in readme or "indemnify" not in readme.lower()):
+        raise ValueError("atax README is missing its pinned source or license terms")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (not isinstance(values, list)
+                or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > MAX_ATAX_INPUT_LENGTH):
+            raise ValueError(f"atax fixture framing is invalid: {case.get('id')}")
+        expected = atax_expected(values)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-12)):
+            raise ValueError(f"atax fixture differs from its source-order oracle: {case.get('id')}")
+
+
+def validate_polybench_symm_workload(workload: dict) -> None:
+    """Pin the bounded PolyBench SYMM source contract and its fixtures."""
+    expected_ids = {
+        "one_cell", "two_rows_three_columns", "three_rows_two_columns", "rectangular_small",
+        "polybench_mini_dimensions", "maximum_dimensions", "empty_invalid",
+        "short_input_invalid", "zero_rows_invalid", "zero_columns_invalid",
+        "first_unsupported_dimension_invalid",
+    }
+    source_bound = workload.get("source_bound", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "polybench-symm-i64-array-f64-v1"
+            or workload.get("algorithm") != "polybench_symm"
+            or workload.get("function_symbol") != "polybench_symm"
+            or source_bound.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+            or source_bound.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source_bound.get("path") != "PolyBench/linear-algebra/blas/symm/symm.c"
+            or source_bound.get("launcher_path") != "PolyBench/linear-algebra/blas/symm/info.sh"
+            or input_spec.get("kind") != "signed_i64_array"
+            or input_spec.get("encoding") != "[m, n] where m is the symmetric A dimension and row count of B/C, n is the column count of B/C"
+            or input_spec.get("input_length") != MAX_POLYBENCH_SYMM_INPUT_LENGTH
+            or input_spec.get("row_range") != [1, 64]
+            or input_spec.get("column_range") != [1, 64]
+            or input_spec.get("maximum_input_length") != MAX_POLYBENCH_SYMM_INPUT_LENGTH
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("invalid_input_result") != POLYBENCH_SYMM_INVALID_RESULT
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("absolute_tolerance") != 1e-10
+            or measurement.get("relative_tolerance") != 1e-12
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_ids):
+        raise ValueError("polybench_symm workload metadata differs from its bounded source contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "polybench_symm" / "README.md").read_text(
+        encoding="utf-8")
+    license_text = (ROOT / "benchmarks" / "p" / "polybench_symm" / "LICENSE.txt").read_text(
+        encoding="utf-8")
+    if ("5d7b75df749241efa7a6e6f5be613d3fcc5cce38" not in readme
+            or "LICENSE.txt" not in readme or "indemnify" not in readme.lower()
+            or "OHIO STATE UNIVERSITY SOFTWARE DISTRIBUTION LICENSE" not in license_text
+            or "INDEMNIFY, DEFEND AND HOLD HARMLESS" not in license_text):
+        raise ValueError("polybench_symm README or bundled license is missing required attribution")
+
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (not isinstance(values, list)
+                or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > MAX_POLYBENCH_SYMM_INPUT_LENGTH):
+            raise ValueError(f"polybench_symm fixture framing is invalid: {case.get('id')}")
+        expected = polybench_symm_expected(values)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-10)):
+            raise ValueError(f"polybench_symm fixture differs from its source-order oracle: {case.get('id')}")
+
+
+def validate_polybench_cholesky_workload(workload: dict) -> None:
+    """Pin the bounded PolyBench Cholesky source contract and fixtures."""
+    expected_ids = {
+        "one_cell", "dimension_two", "dimension_three", "dimension_eight",
+        "polybench_mini_dimension", "maximum_dimension", "empty_invalid",
+        "zero_dimension_invalid", "first_unsupported_dimension_invalid",
+    }
+    source_bound = workload.get("source_bound", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "source_bound", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "polybench-cholesky-i64-array-f64-v1"
+            or workload.get("algorithm") != "polybench_cholesky"
+            or workload.get("function_symbol") != "polybench_cholesky"
+            or source_bound.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+            or source_bound.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source_bound.get("path") != "PolyBench/linear-algebra/solvers/cholesky/cholesky.c"
+            or source_bound.get("launcher_path") != "PolyBench/linear-algebra/solvers/cholesky/info.sh"
+            or "B=A0*A0^T" not in source_bound.get("description", "")
+            or "source-order lower Cholesky" not in source_bound.get("description", "")
+            or input_spec != {
+                "kind": "signed_i64_array",
+                "encoding": "[n] where n is the square matrix dimension",
+                "input_length": MAX_POLYBENCH_CHOLESKY_INPUT_LENGTH,
+                "dimension_range": [1, POLYBENCH_CHOLESKY_MAX_DIMENSION],
+                "maximum_input_length": MAX_POLYBENCH_CHOLESKY_INPUT_LENGTH,
+            }
+            or output_spec != {
+                "kind": "binary64",
+                "meaning": "row-major sum of the final lower-triangle factor elements after the PolyBench Cholesky kernel",
+                "invalid_input_result": POLYBENCH_CHOLESKY_INVALID_RESULT,
+            }
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("sample_count") != 5
+            or measurement.get("warmup_rounds") != 1
+            or measurement.get("repetitions_per_sample") != 10
+            or measurement.get("absolute_tolerance") != 1e-10
+            or measurement.get("relative_tolerance") != 1e-12
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_ids):
+        raise ValueError("polybench_cholesky workload metadata differs from its bounded source contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "polybench_cholesky" / "README.md").read_text(
+        encoding="utf-8")
+    license_text = (ROOT / "benchmarks" / "p" / "polybench_cholesky" / "LICENSE.txt").read_text(
+        encoding="utf-8")
+    if ("5d7b75df749241efa7a6e6f5be613d3fcc5cce38" not in readme
+            or "cholesky.c" not in readme or "LICENSE.txt" not in readme
+            or "indemnif" not in readme.lower()
+            or "OHIO STATE UNIVERSITY SOFTWARE DISTRIBUTION LICENSE" not in license_text
+            or "INDEMNIFY, DEFEND AND HOLD HARMLESS" not in license_text):
+        raise ValueError("polybench_cholesky README or bundled license is missing source attribution")
+
+    required_fields = {"id", "input_values", "input_length", "expected_result"}
+    for case in cases:
+        if not isinstance(case, dict) or set(case) != required_fields:
+            raise ValueError("polybench_cholesky fixture fields differ from the bounded contract")
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > MAX_POLYBENCH_CHOLESKY_INPUT_LENGTH):
+            raise ValueError(f"polybench_cholesky fixture framing is invalid: {case.get('id')}")
+        expected = polybench_cholesky_expected(values)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or actual == POLYBENCH_CHOLESKY_INVALID_RESULT
+                and expected != POLYBENCH_CHOLESKY_INVALID_RESULT
+                or expected == POLYBENCH_CHOLESKY_INVALID_RESULT
+                and actual != POLYBENCH_CHOLESKY_INVALID_RESULT
+                or expected != POLYBENCH_CHOLESKY_INVALID_RESULT
+                and not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-10)):
+            raise ValueError(f"polybench_cholesky fixture differs from its source-order oracle: {case.get('id')}")
+
+
+def validate_polybench_ludcmp_workload(workload: dict) -> None:
+    """Pin the bounded PolyBench LUDCMP source contract and scalar fixtures."""
+    expected_ids = {
+        "one_cell", "dimension_two", "dimension_three", "dimension_eight",
+        "polybench_mini_dimension", "maximum_dimension", "empty_invalid",
+        "zero_dimension_invalid", "first_unsupported_dimension_invalid",
+    }
+    source_bound = workload.get("source_bound", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "source_bound", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "polybench-ludcmp-i64-array-f64-v1"
+            or workload.get("algorithm") != "polybench_ludcmp"
+            or workload.get("function_symbol") != "polybench_ludcmp"
+            or source_bound.get("repository") != "https://github.com/lac-dcc/Benchmarks"
+            or source_bound.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or source_bound.get("path") != "PolyBench/linear-algebra/solvers/ludcmp/ludcmp.c"
+            or source_bound.get("launcher_path") != "PolyBench/linear-algebra/solvers/ludcmp/info.sh"
+            or source_bound.get("header_path") != "PolyBench/linear-algebra/solvers/ludcmp/ludcmp.h"
+            or "LARGE_DATASET N=2000" not in source_bound.get("description", "")
+            or "source-order sum of x" not in source_bound.get("description", "")
+            or input_spec != {
+                "kind": "signed_i64_array",
+                "encoding": "[n] where n is the square matrix dimension",
+                "input_length": MAX_POLYBENCH_LUDCMP_INPUT_LENGTH,
+                "dimension_range": [1, POLYBENCH_LUDCMP_MAX_DIMENSION],
+                "maximum_input_length": MAX_POLYBENCH_LUDCMP_INPUT_LENGTH,
+            }
+            or output_spec != {
+                "kind": "binary64",
+                "meaning": "increasing-index sum of x after the source-order LU factorization and forward/back substitution",
+                "invalid_input_result": POLYBENCH_LUDCMP_INVALID_RESULT,
+            }
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("sample_count") != 5
+            or measurement.get("warmup_rounds") != 1
+            or measurement.get("repetitions_per_sample") != 10
+            or measurement.get("absolute_tolerance") != 1e-10
+            or measurement.get("relative_tolerance") != 1e-12
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_ids):
+        raise ValueError("polybench_ludcmp workload metadata differs from its bounded source contract")
+
+    readme = (ROOT / "benchmarks" / "p" / "polybench_ludcmp" / "README.md").read_text(
+        encoding="utf-8")
+    license_text = (ROOT / "benchmarks" / "p" / "polybench_ludcmp" / "LICENSE.txt").read_text(
+        encoding="utf-8")
+    if ("5d7b75df749241efa7a6e6f5be613d3fcc5cce38" not in readme
+            or "ludcmp.c" not in readme or "LICENSE.txt" not in readme
+            or "indemnif" not in readme.lower()
+            or "OHIO STATE UNIVERSITY SOFTWARE DISTRIBUTION LICENSE" not in license_text
+            or "INDEMNIFY, DEFEND AND HOLD HARMLESS" not in license_text):
+        raise ValueError("polybench_ludcmp README or bundled license is missing source attribution")
+
+    required_fields = {"id", "input_values", "input_length", "expected_result"}
+    for case in cases:
+        if not isinstance(case, dict) or set(case) != required_fields:
+            raise ValueError("polybench_ludcmp fixture fields differ from the bounded contract")
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (not isinstance(values, list) or type(input_length) is not int
+                or input_length != len(values)
+                or input_length > MAX_POLYBENCH_LUDCMP_INPUT_LENGTH):
+            raise ValueError(f"polybench_ludcmp fixture framing is invalid: {case.get('id')}")
+        expected = polybench_ludcmp_expected(values)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-10)):
+            raise ValueError(f"polybench_ludcmp fixture differs from its source-order oracle: {case.get('id')}")
+
+
 def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
     values, expected = case.get("input_values"), case.get("expected_result")
     max_input_length = (MONTE_CARLO_INTEGRATION_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "monte_carlo_integration" else
@@ -2302,6 +2601,9 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         MAX_DERICHE_INPUT_LENGTH if algorithm == "deriche" else
                         MAX_MVT_INPUT_LENGTH if algorithm == "mvt" else
                         MAX_ATAX_INPUT_LENGTH if algorithm == "atax" else
+                        MAX_POLYBENCH_SYMM_INPUT_LENGTH if algorithm == "polybench_symm" else
+                        MAX_POLYBENCH_CHOLESKY_INPUT_LENGTH if algorithm == "polybench_cholesky" else
+                        MAX_POLYBENCH_LUDCMP_INPUT_LENGTH if algorithm == "polybench_ludcmp" else
                         MAX_BICG_INPUT_LENGTH if algorithm == "bicg" else
                         MAX_GEMM_INPUT_LENGTH if algorithm == "gemm" else
                         MAX_GEMVER_INPUT_LENGTH if algorithm == "gemver" else
@@ -3030,6 +3332,30 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         elif expected == ATAX_INVALID_RESULT or not math.isclose(
                 expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
             raise ValueError("atax expected_result must match the bounded PolyBench kernel and source-order y checksum")
+    elif algorithm == "polybench_symm":
+        source_result = polybench_symm_expected(values)
+        if source_result == POLYBENCH_SYMM_INVALID_RESULT:
+            if expected != POLYBENCH_SYMM_INVALID_RESULT:
+                raise ValueError("invalid polybench_symm inputs must use the -1e300 result sentinel")
+        elif expected == POLYBENCH_SYMM_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("polybench_symm expected_result must match the bounded source-order SYMM checksum")
+    elif algorithm == "polybench_cholesky":
+        source_result = polybench_cholesky_expected(values)
+        if source_result == POLYBENCH_CHOLESKY_INVALID_RESULT:
+            if expected != POLYBENCH_CHOLESKY_INVALID_RESULT:
+                raise ValueError("invalid polybench_cholesky inputs must use the -1e300 result sentinel")
+        elif expected == POLYBENCH_CHOLESKY_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("polybench_cholesky expected_result must match the lower-factor checksum")
+    elif algorithm == "polybench_ludcmp":
+        source_result = polybench_ludcmp_expected(values)
+        if source_result == POLYBENCH_LUDCMP_INVALID_RESULT:
+            if expected != POLYBENCH_LUDCMP_INVALID_RESULT:
+                raise ValueError("invalid polybench_ludcmp inputs must use the -1e300 result sentinel")
+        elif expected == POLYBENCH_LUDCMP_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-10):
+            raise ValueError("polybench_ludcmp expected_result must match the source-order sum of x")
     elif algorithm == "bicg":
         source_result = bicg_expected(values)
         if source_result == BICG_INVALID_RESULT:
@@ -4768,6 +5094,14 @@ def main() -> int:
         validate_ansibench_whetstone_workload(workload)
     elif algorithm == "linpack_lu_solve":
         validate_linpack_lu_solve_workload(workload)
+    elif algorithm == "atax":
+        validate_atax_workload(workload)
+    elif algorithm == "polybench_symm":
+        validate_polybench_symm_workload(workload)
+    elif algorithm == "polybench_cholesky":
+        validate_polybench_cholesky_workload(workload)
+    elif algorithm == "polybench_ludcmp":
+        validate_polybench_ludcmp_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")

@@ -71317,7 +71317,7 @@
           "local_folder_source": null
         }
       ],
-      "review_notes": "The pinned Java and Python functions implement the same linear recursive recurrence: exponent zero returns one, otherwise multiply base by the result at exponent minus one. The shared integer benchmark bounds bases to -10..10 and exponents to 0..15; negative exponents are excluded because the source recurses until failure. This bounded range makes the Java double and Python integer results exact signed-i64 integers. Source semantics were reviewed in the catalog; the package and nine ports were statically cleared by D58. The i64-array-scalar runner/verifier integration was statically cleared by 8484.",
+      "review_notes": "The pinned Java and Python functions implement the same linear recursive recurrence: exponent zero returns one, otherwise multiply base by the result at exponent minus one. The shared integer benchmark bounds bases to -10..10 and exponents to 0..15; negative exponents are excluded because the source recurses until failure. This bounded range makes the Java double and Python integer results exact signed-i64 integers. Source semantics were reviewed in the catalog; the package and nine ports were statically cleared by D58. The i64-array-scalar runner/verifier integration was statically cleared by 8484. Port implementation reserved to /root/backlog_audit for this turn; nine ports are being authored.",
       "benchmark_name": "power_using_recursion",
       "benchmark_contract": "benchmarks/p/power_using_recursion/README.md"
     },

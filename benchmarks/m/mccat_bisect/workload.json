@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mccat-bisect-bounded-f64-vector-v1",
+  "algorithm": "mccat_bisect",
+  "function_symbol": "mccat_bisect",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "McCat/04-bisect/dbisect.c",
+    "symbol": "dbisect, sturm",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/04-bisect/dbisect.c",
+    "license_note": "Pinned source retains the McGill/McCAT/ACAPS notice; these ports independently implement the published bisection method."
+  },
+  "pinned_launcher": {
+    "path": "McCat/04-bisect/info.sh",
+    "source_files": [
+      "allocvector.c",
+      "bisect_test.c",
+      "dbisect.c"
+    ],
+    "compile_flags": [
+      "-lm"
+    ],
+    "input_file": "bisect_test.in",
+    "source_input": {
+      "rep": 1,
+      "n": 500,
+      "eps": 2.220446049250313e-16
+    }
+  },
+  "source_bound": {
+    "description": "The source constructs a symmetric tridiagonal matrix with diagonal c[i]=(i+1)^4 and off-diagonal b[i]=i, then computes eigenvalues by repeated Sturm-count bisection. The profile follows the launch input rep=1 and eps=DBL_EPSILON, bounds n to 2..32, and returns the numeric values from the source stdout as a little-endian binary64 vector. The source passes &S[-1] to a 1-based solver and prints S[1..n-1]; the profile models the intended shifted indexing safely, yielding lambda_2 through lambda_n, then eps2 and k.",
+    "source_stdout_format": "n-1 lines using printf(\"%5d %.15e\\n\"), followed by printf(\"eps2 = %e,  k = %d\\n\")",
+    "source_launcher_default_n": 500,
+    "profile_n_range": [
+      2,
+      32
+    ],
+    "source_repeat_count": 1,
+    "profile_epsilon": 2.220446049250313e-16,
+    "maximum_output_bytes": 264,
+    "output_vector_order": [
+      "lambda_2 through lambda_n in ascending eigenvalue order",
+      "eps2",
+      "Sturm bisection iteration count k as an exactly representable binary64 value"
+    ]
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[n]",
+    "input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "dimension_range": [
+      2,
+      32
+    ],
+    "invalid_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_vector",
+    "encoding": "little-endian IEEE-754 binary64 values in source stdout order; the eigenvalue row index is implicit from position",
+    "maximum_output_elements": 33,
+    "maximum_output_bytes": 264,
+    "success_result": "output byte count",
+    "invalid_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-12
+  },
+  "workspace": {
+    "bytes": 264,
+    "meaning": "Maximum output vector for n=32."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "n_2_source_eigenvalue_vector",
+      "input_values": [
+        2
+      ],
+      "input_length": 1,
+      "expected_result": 24,
+      "expected_output_hex": "56debdd1fd10304015ae47e17ae41d3d0000000000c05940",
+      "expected_output": [
+        16.066372975210776,
+        2.6549873410885995e-14,
+        103.0
+      ],
+      "output_capacity": 24
+    },
+    {
+      "id": "n_3_source_eigenvalue_vector",
+      "input_values": [
+        3
+      ],
+      "input_length": 1,
+      "expected_result": 32,
+      "expected_output_hex": "b6d6c5474e0130404c46947cef43544085eb51b81e2d423d0000000000806340",
+      "expected_output": [
+        16.00510071353957,
+        81.06149210433904,
+        1.291500240085952e-13,
+        156.0
+      ],
+      "output_capacity": 32
+    },
+    {
+      "id": "n_8_source_eigenvalue_vector",
+      "input_values": [
+        8
+      ],
+      "input_length": 1,
+      "expected_result": 72,
+      "expected_output_hex": "54facff64b013040fc20c27ca5405440fcdcbf0a210070402883667f0c8883404e2276ca04409440582126e101c2a240b47888660700b040c2f5285c7f0c9c3d0000000000807940",
+      "expected_output": [
+        16.005065370345918,
+        81.01010054548163,
+        256.00806689211436,
+        625.0061023720527,
+        1296.0046785791815,
+        2401.0036708751395,
+        4096.028908280819,
+        6.3775629222106995e-12,
+        408.0
+      ],
+      "output_capacity": 72
+    },
+    {
+      "id": "n_16_source_eigenvalue_vector",
+      "input_values": [
+        16
+      ],
+      "input_length": 1,
+      "expected_result": 136,
+      "expected_output_hex": "54facff64b013040fc20c27ca5405440fedcbf0a210070402883667f0c888340422276ca0440944084531de101c2a2402ee501c10000b040ba3bf39d00a1b9401cdfbd410088c340688688378098cc405ad3c0170040d440283d8b1440e4db402839f80800c2e240f016e60720b8e8400e83ce3d0000f04032333333aa01dc3d0000000000388940",
+      "expected_output": [
+        16.005065370345918,
+        81.01010054548163,
+        256.00806689211447,
+        625.0061023720527,
+        1296.0046785791787,
+        2401.0036706127594,
+        4096.002945059254,
+        6561.002410127718,
+        10000.002006277027,
+        14641.001694741848,
+        20736.001449781797,
+        28561.001253900264,
+        38416.00109492458,
+        50625.00096420746,
+        65536.01508952325,
+        1.0188706545122271e-10,
+        807.0
+      ],
+      "output_capacity": 136
+    },
+    {
+      "id": "n_32_source_eigenvalue_vector",
+      "input_values": [
+        32
+      ],
+      "input_length": 1,
+      "expected_result": 264,
+      "expected_output_hex": "52facff64b013040fc20c27ca5405440fedcbf0a210070402a83667f0c888340422276ca0440944084531de101c2a24030e501c10000b040bc3bf39d00a1b9401adfbd410088c3406a8688378098cc405cd3c0170040d440263d8b1440e4db402839f80800c2e240b612e60720b8e8405e0081030000f040d42421031064f4401ad0cf0200a1f940de398a0210d1ff40f41d270100880341ea130d0188bd0741b254f60080980c41242c7100841411418258680000401441ce82600084d717417286590040e41b4194a22900e2372041e6d2260000c22241a0492400a2952541e2fd210020b828412ae81f00022f2c41809ef70100003041ae47e1ea36001c3e0000000000d09840",
+      "expected_output": [
+        16.00506537034591,
+        81.01010054548163,
+        256.00806689211447,
+        625.006102372053,
+        1296.0046785791787,
+        2401.0036706127594,
+        4096.002945059256,
+        6561.0024101277195,
+        10000.002006277024,
+        14641.001694741852,
+        20736.001449781805,
+        28561.001253900256,
+        38416.00109492458,
+        50625.000964199586,
+        65536.00085544723,
+        83521.00076403032,
+        104976.00068646707,
+        130321.00062010388,
+        160000.00056289101,
+        194481.00051322515,
+        234256.0004698388,
+        279841.00043171854,
+        331776.0003980474,
+        390625.0003681601,
+        456976.00034151145,
+        531441.0003176504,
+        614656.0002962023,
+        707281.0002768524,
+        810000.0002593363,
+        923521.0002434303,
+        1048576.0076846182,
+        1.6298632821154513e-09,
+        1588.0
+      ],
+      "output_capacity": 264
+    },
+    {
+      "id": "empty_input_invalid",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_output": [],
+      "output_capacity": 0
+    },
+    {
+      "id": "null_input_invalid",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_output": [],
+      "output_capacity": 0,
+      "input_is_null": true
+    },
+    {
+      "id": "minimum_dimension_invalid",
+      "input_values": [
+        1
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_output": [],
+      "output_capacity": 0
+    },
+    {
+      "id": "negative_dimension_invalid",
+      "input_values": [
+        -1
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_output": [],
+      "output_capacity": 0
+    },
+    {
+      "id": "dimension_above_bound_invalid",
+      "input_values": [
+        33
+      ],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_output": [],
+      "output_capacity": 0
+    },
+    {
+      "id": "extra_input_word_invalid",
+      "input_values": [
+        8,
+        1
+      ],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "expected_output": [],
+      "output_capacity": 0
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        8
+      ],
+      "input_length": 1,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "expected_output": [],
+      "output_capacity": 71
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        8
+      ],
+      "input_length": 1,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "expected_output": [],
+      "output_capacity": 0,
+      "output_is_null": true
+    }
+  ]
+}
