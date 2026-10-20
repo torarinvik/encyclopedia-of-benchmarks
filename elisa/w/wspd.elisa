@@ -1,0 +1,158 @@
+const MAX_POINTS: usize = 8
+const MAX_PAIRS: usize = 28
+const MAX_OUTPUT_BYTES: usize = 456
+
+struct WspdNode:
+    left: i64
+    right: i64
+    count: usize
+    mask: u64
+    center_x: f64
+    center_y: f64
+    radius: f64
+
+struct WspdContext:
+    x: i64[8]
+    y: i64[8]
+    nodes: WspdNode[15]
+    left_masks: u64[28]
+    right_masks: u64[28]
+    next_node: usize
+    pair_count: usize
+    point_count: usize
+    separation: i64
+    overflow: bool
+
+def wspd_point_less(context: WspdContext&, a: usize, b: usize, axis: usize) -> bool:
+    a0: i64 = if axis == 0: context.x[a] else: context.y[a]
+    b0: i64 = if axis == 0: context.x[b] else: context.y[b]
+    a1: i64 = if axis == 0: context.y[a] else: context.x[a]
+    b1: i64 = if axis == 0: context.y[b] else: context.x[b]
+    a0 < b0 or (a0 == b0 and (a1 < b1 or (a1 == b1 and a < b)))
+
+def wspd_build_node(context: mutable WspdContext&, mask: u64) -> usize:
+    id: usize = context.next_node
+    context.next_node <- context.next_node + 1
+    context.nodes[id].left <- -1
+    context.nodes[id].right <- -1
+    context.nodes[id].mask <- mask
+    members: mutable usize[8] = zeroed
+    used: mutable usize = 0
+    min_x: mutable i64 = 0
+    max_x: mutable i64 = 0
+    min_y: mutable i64 = 0
+    max_y: mutable i64 = 0
+    for i in 0..<context.point_count:
+        if (mask & (1.u64() << i)) != 0:
+            if used == 0:
+                min_x <- context.x[i]
+                max_x <- context.x[i]
+                min_y <- context.y[i]
+                max_y <- context.y[i]
+            else:
+                if context.x[i] < min_x: min_x <- context.x[i]
+                if context.x[i] > max_x: max_x <- context.x[i]
+                if context.y[i] < min_y: min_y <- context.y[i]
+                if context.y[i] > max_y: max_y <- context.y[i]
+            members[used] <- i
+            used <- used + 1
+    context.nodes[id].count <- used
+    context.nodes[id].center_x <- (min_x.f64() + max_x.f64()) / 2.0
+    context.nodes[id].center_y <- (min_y.f64() + max_y.f64()) / 2.0
+    hx: f64 = (max_x.f64() - min_x.f64()) / 2.0
+    hy: f64 = (max_y.f64() - min_y.f64()) / 2.0
+    context.nodes[id].radius <- (hx * hx + hy * hy).sqrt()
+    if used == 1: return id
+    axis: usize = 0
+    if max_y - min_y > max_x - min_x: axis <- 1
+    for i in 1..<used:
+        value: usize = members[i]
+        j: mutable usize = i
+        while j > 0 and wspd_point_less(context, value, members[j - 1], axis):
+            members[j] <- members[j - 1]
+            j <- j - 1
+        members[j] <- value
+    left_mask: mutable u64 = 0
+    right_mask: mutable u64 = 0
+    middle: usize = used / 2
+    for i in 0..<used:
+        if i < middle: left_mask <- left_mask | (1.u64() << members[i])
+        else: right_mask <- right_mask | (1.u64() << members[i])
+    left: usize = wspd_build_node(context&, left_mask)
+    right: usize = wspd_build_node(context&, right_mask)
+    context.nodes[id].left <- left.i64()
+    context.nodes[id].right <- right.i64()
+    id
+
+def wspd_well_separated(context: WspdContext&, a: usize, b: usize) -> bool:
+    first: WspdNode = context.nodes[a]
+    second: WspdNode = context.nodes[b]
+    radius: f64 = if first.radius > second.radius: first.radius else: second.radius
+    dx: f64 = first.center_x - second.center_x
+    dy: f64 = first.center_y - second.center_y
+    distance: f64 = (dx * dx + dy * dy).sqrt()
+    distance - 2.0 * radius > context.separation.f64() * radius
+
+def wspd_cross_nodes(context: mutable WspdContext&, a: usize, b: usize) -> void:
+    if context.overflow: return
+    if wspd_well_separated(context, a, b):
+        if context.pair_count >= MAX_PAIRS:
+            context.overflow <- true
+            return
+        context.left_masks[context.pair_count] <- context.nodes[a].mask
+        context.right_masks[context.pair_count] <- context.nodes[b].mask
+        context.pair_count <- context.pair_count + 1
+        return
+    if context.nodes[a].radius > context.nodes[b].radius:
+        wspd_cross_nodes(context&, context.nodes[a].left.usize(), b)
+        wspd_cross_nodes(context&, context.nodes[a].right.usize(), b)
+    else:
+        wspd_cross_nodes(context&, a, context.nodes[b].left.usize())
+        wspd_cross_nodes(context&, a, context.nodes[b].right.usize())
+
+def wspd_visit_node(context: mutable WspdContext&, id: usize) -> void:
+    left: i64 = context.nodes[id].left
+    right: i64 = context.nodes[id].right
+    if left < 0: return
+    wspd_visit_node(context&, left.usize())
+    wspd_visit_node(context&, right.usize())
+    wspd_cross_nodes(context&, left.usize(), right.usize())
+
+def wspd_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def wspd_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values == null or length < 4 or length > 18: return -1
+    count: i64 = values[0]
+    separation: i64 = values[1]
+    if count < 1 or count > 8 or separation < 1 or separation > 8 or length != 2 + 2 * count.usize(): return -1
+    context: mutable WspdContext = zeroed
+    context.point_count <- count.usize()
+    context.separation <- separation
+    for i in 0..<context.point_count:
+        x: i64 = values[2 + 2 * i]
+        y: i64 = values[3 + 2 * i]
+        if x < -1000 or x > 1000 or y < -1000 or y > 1000: return -1
+        for j in 0..<i:
+            if context.x[j] == x and context.y[j] == y: return -1
+        context.x[i] <- x
+        context.y[i] <- y
+    all_mask: u64 = (1.u64() << context.point_count) - 1
+    root: usize = wspd_build_node(context&, all_mask)
+    wspd_visit_node(context&, root)
+    if context.overflow: return -2
+    required: usize = 8 + 16 * context.pair_count
+    staged: mutable u8[456] = zeroed
+    wspd_put_i64(context.pair_count.i64(), staged[0]&, 0)
+    for i in 0..<context.pair_count:
+        wspd_put_i64(context.left_masks[i].i64(), staged[0]&, 8 + 16 * i)
+        wspd_put_i64(context.right_masks[i].i64(), staged[0]&, 16 + 16 * i)
+    if output == null or capacity < required: return -2
+    for i in 0..<required: output[i] <- staged[i]
+    required.i64()
+
+export fn wspd(values: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = wspd_impl

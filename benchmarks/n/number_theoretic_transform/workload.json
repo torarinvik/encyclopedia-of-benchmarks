@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "number-theoretic-transform-i64-array-bytes-output-v1",
+  "algorithm": "number_theoretic_transform",
+  "function_symbol": "number_theoretic_transform",
+  "description": "Forward radix-2 number theoretic transform over the fixed prime modulus 998244353.",
+  "pinned_source": {
+    "repository": "atcoder/ac-library",
+    "commit": "864245a00b00dd008d1abfdc239618fdb7d139da",
+    "path": "atcoder/convolution.hpp",
+    "related_paths": ["document_en/convolution.md", "LICENSE"],
+    "symbol": "atcoder::internal::butterfly",
+    "url": "https://github.com/atcoder/ac-library/blob/864245a00b00dd008d1abfdc239618fdb7d139da/atcoder/convolution.hpp",
+    "license": "CC0 1.0 Universal; complete notice bundled in LICENSE.txt."
+  },
+  "contract": {
+    "operation": "Compute the natural-order forward DFT of a power-of-two vector over the field modulo 998244353.",
+    "input_layout": "[n, a0, ..., a(n-1)]",
+    "bounds": {"n": [1, 64], "coefficient": [0, 998244352]},
+    "semantics": "n is a power of two; primitive root is 3; omega=3^((998244353-1)/n) mod 998244353; result[k]=sum_j a[j]*omega^(j*k) mod 998244353.",
+    "output_encoding": "n unsigned 32-bit little-endian residues in natural index order",
+    "output_bytes": "4*n",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed frame, unsupported length, or noncanonical residue returns -1 before output checks. Null output or capacity below 4*n returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "length word n followed by n canonical residues",
+    "maximum_input_length": 65,
+    "valid_ranges": {"n": "power of two, 1..64", "coefficient": "0..998244352"},
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "unsigned 32-bit little-endian transformed residues",
+    "maximum_bytes": 256,
+    "success_result": "4*n bytes on success",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 100},
+  "cases": [
+    {"id": "singleton", "input_values": [1, 7], "input_length": 2, "output_capacity": 4, "expected_result": 4, "expected_output_hex": "07000000"},
+    {"id": "two_point", "input_values": [2, 1, 2], "input_length": 3, "output_capacity": 8, "expected_result": 8, "expected_output_hex": "030000000000803b"},
+    {"id": "four_point_constant", "input_values": [4, 1, 1, 1, 1], "input_length": 5, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "04000000000000000000000000000000"},
+    {"id": "four_point_impulse", "input_values": [4, 1, 0, 0, 0], "input_length": 5, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "01000000010000000100000001000000"},
+    {"id": "non_power_of_two", "input_values": [3, 1, 2, 3], "input_length": 4, "output_capacity": 12, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "noncanonical_residue", "input_values": [2, 1, 998244353], "input_length": 3, "output_capacity": 8, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_capacity", "input_values": [4, 1, 0, 0, 0], "input_length": 5, "output_capacity": 15, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

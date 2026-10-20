@@ -1,0 +1,12 @@
+The benchmark implementation and its accompanying documentation adapt the
+sqrt-tree algorithm described in "Sqrt Tree" by cp-algorithms contributors,
+including alex65536, algmyr, adamant-pwn, jakobkogler, and wikku. The reference
+article's text is licensed under the Creative Commons Attribution-ShareAlike
+4.0 International license (CC BY-SA 4.0):
+
+https://creativecommons.org/licenses/by-sa/4.0/
+
+The adapted material in this package is distributed under CC BY-SA 4.0. The
+bounded input/output profile and language implementations are adaptations.
+This notice is not a substitute for the full license; the complete legal code
+is available at the link above.

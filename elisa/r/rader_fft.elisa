@@ -1,0 +1,92 @@
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+const MAX_COMPONENT: f64 = 100.0
+const PI_VALUE: f64 = 3.14159265358979323846264338327950288
+
+def rader_fft_fft8(real: mutable f64[8]&, imag: mutable f64[8]&, inverse: bool) -> void:
+    reversed: usize[8] = {0, 4, 2, 6, 1, 5, 3, 7}
+    for i in 0..<8:
+        j: usize = reversed[i]
+        if i < j:
+            temp: f64 = real[i]
+            real[i] <- real[j]
+            real[j] <- temp
+            temp <- imag[i]
+            imag[i] <- imag[j]
+            imag[j] <- temp
+    for stage in 1..<4:
+        block: usize = 1 << stage
+        half: usize = block / 2
+        start: mutable usize = 0
+        while start < 8:
+            for j in 0..<half:
+                sign: f64 = if inverse: 1.0 else: -1.0
+                angle: f64 = sign * 2.0 * PI_VALUE * j.f64() / block.f64()
+                wr: f64 = cos(angle)
+                wi: f64 = sin(angle)
+                even: usize = start + j
+                odd: usize = even + half
+                ur: f64 = real[even]
+                ui: f64 = imag[even]
+                vr: f64 = real[odd] * wr - imag[odd] * wi
+                vi: f64 = real[odd] * wi + imag[odd] * wr
+                real[even] <- ur + vr
+                imag[even] <- ui + vi
+                real[odd] <- ur - vr
+                imag[odd] <- ui - vi
+            start <- start + block
+    if inverse:
+        for i in 0..<8:
+            real[i] <- real[i] / 8.0
+            imag[i] <- imag[i] / 8.0
+
+def rader_fft_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    permutation: usize[4] = {1, 2, 4, 3}
+    kernel_power: usize[4] = {1, 3, 4, 2}
+    if input == null or input_length != 10:
+        return -1
+    for i in 0..<10:
+        value: f64 = input[i]
+        if value != value or value < -MAX_COMPONENT or value > MAX_COMPONENT:
+            return -1
+    if output == null or output_capacity < 10:
+        return -2
+
+    ar: mutable f64[8] = zeroed
+    ai: mutable f64[8] = zeroed
+    br: mutable f64[8] = zeroed
+    bi: mutable f64[8] = zeroed
+    for i in 0..<4:
+        ar[i] <- input[2 * permutation[i]]
+        ai[i] <- input[2 * permutation[i] + 1]
+        angle: f64 = -2.0 * PI_VALUE * kernel_power[i].f64() / 5.0
+        br[i] <- cos(angle)
+        bi[i] <- sin(angle)
+    rader_fft_fft8(ar&, ai&, false)
+    rader_fft_fft8(br&, bi&, false)
+    for i in 0..<8:
+        product_real: f64 = ar[i] * br[i] - ai[i] * bi[i]
+        product_imag: f64 = ar[i] * bi[i] + ai[i] * br[i]
+        ar[i] <- product_real
+        ai[i] <- product_imag
+    rader_fft_fft8(ar&, ai&, true)
+
+    result: mutable f64[10] = zeroed
+    for n in 0..<5:
+        result[0] <- result[0] + input[2 * n]
+        result[1] <- result[1] + input[2 * n + 1]
+    for k in 1..<5:
+        result[2 * k] <- input[0]
+        result[2 * k + 1] <- input[1]
+    for i in 0..<4:
+        target: usize = kernel_power[i]
+        result[2 * target] <- result[2 * target] + ar[i] + ar[i + 4]
+        result[2 * target + 1] <- result[2 * target + 1] + ai[i] + ai[i + 4]
+    for i in 0..<10:
+        output[i] <- result[i]
+    return 10
+
+export fn rader_fft(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = rader_fft_impl

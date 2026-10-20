@@ -1,0 +1,73 @@
+# Adapted from Trekhleb's seam-carving explanation. Copyright (c) 2018
+# Oleksii Trekhleb; MIT License, see benchmarks/s/seam_carving/LICENSE.txt.
+extern sqrt(value: f64) -> f64
+
+def seam_carving_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > 39: return -1
+    width_value: i64 = input[0]
+    height_value: i64 = input[1]
+    if width_value < 2 or width_value > 6 or height_value < 1 or height_value > 6: return -1
+    width: usize = width_value.usize()
+    height: usize = height_value.usize()
+    if length != 2 + width * height: return -1
+    for index in 0 ..< width * height:
+        pixel: i64 = input[2 + index]
+        if pixel < 0 or pixel > 255: return -1
+
+    energy: mutable f64[6][6] = zeroed
+    cumulative: mutable f64[6][6] = zeroed
+    previous_x: mutable i64[6][6] = zeroed
+    seam_x: mutable usize[6] = zeroed
+    for y in 0 ..< height:
+        row: usize = y * width
+        for x in 0 ..< width:
+            middle: f64 = input[2 + row + x].f64()
+            left_energy: mutable f64 = 0.0
+            right_energy: mutable f64 = 0.0
+            if x > 0:
+                difference: f64 = input[2 + row + x - 1].f64() - middle
+                left_energy <- difference * difference + difference * difference + difference * difference
+            if x + 1 < width:
+                difference: f64 = input[2 + row + x + 1].f64() - middle
+                right_energy <- difference * difference + difference * difference + difference * difference
+            energy[y][x] <- sqrt(left_energy + right_energy)
+    for x in 0 ..< width:
+        cumulative[0][x] <- energy[0][x]
+    for y in 1 ..< height:
+        for x in 0 ..< width:
+            minimum: mutable f64 = 1.0e300
+            best_x: mutable usize = x
+            start: usize = if x == 0: 0 else: x - 1
+            end: usize = if x + 1 < width: x + 1 else: width - 1
+            for candidate in start ..< end + 1:
+                if cumulative[y - 1][candidate] < minimum:
+                    minimum <- cumulative[y - 1][candidate]
+                    best_x <- candidate
+            cumulative[y][x] <- minimum + energy[y][x]
+            previous_x[y][x] <- best_x.i64()
+    last_x: mutable usize = 0
+    minimum: mutable f64 = cumulative[height - 1][0]
+    for x in 1 ..< width:
+        if cumulative[height - 1][x] < minimum:
+            minimum <- cumulative[height - 1][x]
+            last_x <- x
+    seam_x[height - 1] <- last_x
+    y: mutable usize = height - 1
+    while y > 0:
+        seam_x[y - 1] <- previous_x[y][seam_x[y]].usize()
+        y <- y - 1
+
+    needed: usize = height * (width - 1)
+    if output.is_null() or capacity < needed: return -2
+    staged: mutable u8[30] = zeroed
+    position: mutable usize = 0
+    for row_index in 0 ..< height:
+        for x in 0 ..< width:
+            if x != seam_x[row_index]:
+                staged[position] <- input[2 + row_index * width + x].u8()
+                position <- position + 1
+    for index in 0 ..< needed:
+        output[index] <- staged[index]
+    needed.i64()
+
+export fn seam_carving(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = seam_carving_impl

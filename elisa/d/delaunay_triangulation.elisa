@@ -1,0 +1,264 @@
+const MAX_POINTS: usize = 8
+const MAX_VERTICES: usize = 11
+const MAX_WORK_TRIANGLES: usize = 17
+const MAX_WORK_EDGES: usize = 51
+const MAX_TRIANGLES: usize = 11
+const MAX_OUTPUT_BYTES: usize = 272
+const CIRCUMCIRCLE_EPSILON: f64 = 0.0001
+
+struct DelaunayPoint:
+    x: f64
+    y: f64
+
+struct DelaunayEdge:
+    a: usize
+    b: usize
+
+struct DelaunayTriangle:
+    a: usize
+    b: usize
+    c: usize
+    cx: f64
+    cy: f64
+    radius_squared: f64
+
+def delaunay_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
+
+def delaunay_incircle(ax: i64, ay: i64, bx: i64, by: i64,
+        cx: i64, cy: i64, dx: i64, dy: i64) -> i64:
+    x1: i64 = ax - dx
+    y1: i64 = ay - dy
+    x2: i64 = bx - dx
+    y2: i64 = by - dy
+    x3: i64 = cx - dx
+    y3: i64 = cy - dy
+    q1: i64 = x1 * x1 + y1 * y1
+    q2: i64 = x2 * x2 + y2 * y2
+    q3: i64 = x3 * x3 + y3 * y3
+    q1 * (x2 * y3 - y2 * x3) - q2 * (x1 * y3 - y1 * x3) + q3 * (x1 * y2 - y1 * x2)
+
+def delaunay_same_edge(a: DelaunayEdge, b: DelaunayEdge) -> bool:
+    (a.a == b.a and a.b == b.b) or (a.a == b.b and a.b == b.a)
+
+def delaunay_make_triangle(points: DelaunayPoint&, a: usize, b: usize, c: usize) -> DelaunayTriangle:
+    p0: DelaunayPoint = points[a]
+    p1: DelaunayPoint = points[b]
+    p2: DelaunayPoint = points[c]
+    ax: f64 = p1.x - p0.x
+    ay: f64 = p1.y - p0.y
+    bx: f64 = p2.x - p0.x
+    by: f64 = p2.y - p0.y
+    m: f64 = p1.x * p1.x - p0.x * p0.x + p1.y * p1.y - p0.y * p0.y
+    u: f64 = p2.x * p2.x - p0.x * p0.x + p2.y * p2.y - p0.y * p0.y
+    scale: f64 = 1.0 / (2.0 * (ax * by - ay * bx))
+    cx: f64 = ((p2.y - p0.y) * m + (p0.y - p1.y) * u) * scale
+    cy: f64 = ((p0.x - p2.x) * m + (p1.x - p0.x) * u) * scale
+    dx: f64 = p0.x - cx
+    dy: f64 = p0.y - cy
+    DelaunayTriangle{a: a, b: b, c: c, cx: cx, cy: cy, radius_squared: dx * dx + dy * dy}
+
+def delaunay_swap_if_greater(a: mutable usize&, b: mutable usize&) -> void:
+    if a > b:
+        temporary: usize = a
+        a <- b
+        b <- temporary
+
+def delaunay_sort_triangle(triangle: mutable DelaunayTriangle&) -> void:
+    delaunay_swap_if_greater(triangle.a, triangle.b)
+    delaunay_swap_if_greater(triangle.b, triangle.c)
+    delaunay_swap_if_greater(triangle.a, triangle.b)
+
+def delaunay_triangle_less(a: DelaunayTriangle, b: DelaunayTriangle) -> bool:
+    if a.a != b.a:
+        return a.a < b.a
+    if a.b != b.b:
+        return a.b < b.b
+    a.c < b.c
+
+def delaunay_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def delaunay_triangulation_impl(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if values == null or length < 7 or length > 17:
+        return -1
+    n_i64: i64 = values[0]
+    if n_i64 < 3 or n_i64 > 8 or length != 1 + 2 * n_i64.usize():
+        return -1
+    n: usize = n_i64.usize()
+    ix: mutable i64[MAX_POINTS] = zeroed
+    iy: mutable i64[MAX_POINTS] = zeroed
+    points: mutable DelaunayPoint[MAX_VERTICES] = zeroed
+    min_x: mutable i64 = 0
+    max_x: mutable i64 = 0
+    min_y: mutable i64 = 0
+    max_y: mutable i64 = 0
+    i: mutable usize = 0
+    while i < n:
+        x: i64 = values[1 + 2 * i]
+        y: i64 = values[2 + 2 * i]
+        if x < -10 or x > 10 or y < -10 or y > 10:
+            return -1
+        j: mutable usize = 0
+        while j < i:
+            if ix[j] == x and iy[j] == y:
+                return -1
+            j <- j + 1
+        ix[i] <- x
+        iy[i] <- y
+        points[i] <- DelaunayPoint{x: x.f64(), y: y.f64()}
+        if i == 0:
+            min_x <- x
+            max_x <- x
+            min_y <- y
+            max_y <- y
+        else:
+            if x < min_x: min_x <- x
+            if x > max_x: max_x <- x
+            if y < min_y: min_y <- y
+            if y > max_y: max_y <- y
+        i <- i + 1
+
+    a: mutable usize = 0
+    while a < n:
+        b: mutable usize = a + 1
+        while b < n:
+            c: mutable usize = b + 1
+            while c < n:
+                if delaunay_orient(ix[a], iy[a], ix[b], iy[b], ix[c], iy[c]) == 0:
+                    return -1
+                c <- c + 1
+            b <- b + 1
+        a <- a + 1
+    a <- 0
+    while a < n:
+        b <- a + 1
+        while b < n:
+            c <- b + 1
+            while c < n:
+                d: mutable usize = c + 1
+                while d < n:
+                    if delaunay_incircle(ix[a], iy[a], ix[b], iy[b], ix[c], iy[c], ix[d], iy[d]) == 0:
+                        return -1
+                    d <- d + 1
+                c <- c + 1
+            b <- b + 1
+        a <- a + 1
+
+    dx: i64 = max_x - min_x
+    dy: i64 = max_y - min_y
+    dmax: i64 = if dx > dy: dx else: dy
+    midx: f64 = (min_x.f64() + max_x.f64()) / 2.0
+    midy: f64 = (min_y.f64() + max_y.f64()) / 2.0
+    s0: usize = n
+    s1: usize = n + 1
+    s2: usize = n + 2
+    points[s0] <- DelaunayPoint{x: midx - 20.0 * dmax.f64(), y: midy - dmax.f64()}
+    points[s1] <- DelaunayPoint{x: midx, y: midy + 20.0 * dmax.f64()}
+    points[s2] <- DelaunayPoint{x: midx + 20.0 * dmax.f64(), y: midy - dmax.f64()}
+    a <- 0
+    while a < n + 3:
+        b <- a + 1
+        while b < n + 3:
+            c <- b + 1
+            while c < n + 3:
+                area2: f64 = (points[b].x - points[a].x) * (points[c].y - points[a].y) - (points[b].y - points[a].y) * (points[c].x - points[a].x)
+                if area2 == 0.0:
+                    return -1
+                c <- c + 1
+            b <- b + 1
+        a <- a + 1
+
+    current: mutable DelaunayTriangle[MAX_WORK_TRIANGLES] = zeroed
+    next: mutable DelaunayTriangle[MAX_WORK_TRIANGLES] = zeroed
+    edges: mutable DelaunayEdge[MAX_WORK_EDGES] = zeroed
+    current_count: mutable usize = 1
+    current[0] <- delaunay_make_triangle(points, s0, s1, s2)
+    p: mutable usize = 0
+    while p < n:
+        edge_count: mutable usize = 0
+        next_count: mutable usize = 0
+        i <- 0
+        while i < current_count:
+            t: DelaunayTriangle = current[i]
+            vx: f64 = t.cx - points[p].x
+            vy: f64 = t.cy - points[p].y
+            if vx * vx + vy * vy - t.radius_squared <= CIRCUMCIRCLE_EPSILON:
+                edges[edge_count] <- DelaunayEdge{a: t.a, b: t.b}
+                edges[edge_count + 1] <- DelaunayEdge{a: t.b, b: t.c}
+                edges[edge_count + 2] <- DelaunayEdge{a: t.a, b: t.c}
+                edge_count <- edge_count + 3
+            else:
+                if next_count >= MAX_WORK_TRIANGLES:
+                    return -1
+                next[next_count] <- t
+                next_count <- next_count + 1
+            i <- i + 1
+        remove: mutable bool[MAX_WORK_EDGES] = zeroed
+        i <- 0
+        while i < edge_count:
+            j: mutable usize = 0
+            while j < edge_count:
+                if i != j and delaunay_same_edge(edges[i], edges[j]):
+                    remove[i] <- true
+                    remove[j] <- true
+                j <- j + 1
+            i <- i + 1
+        i <- 0
+        while i < edge_count:
+            if not remove[i]:
+                if next_count >= MAX_WORK_TRIANGLES:
+                    return -1
+                next[next_count] <- delaunay_make_triangle(points, edges[i].a, edges[i].b, p)
+                next_count <- next_count + 1
+            i <- i + 1
+        i <- 0
+        while i < next_count:
+            current[i] <- next[i]
+            i <- i + 1
+        current_count <- next_count
+        p <- p + 1
+
+    result: mutable DelaunayTriangle[MAX_TRIANGLES] = zeroed
+    result_count: mutable usize = 0
+    i <- 0
+    while i < current_count:
+        t: mutable DelaunayTriangle = current[i]
+        if t.a < n and t.b < n and t.c < n:
+            if result_count >= MAX_TRIANGLES:
+                return -1
+            delaunay_sort_triangle(t)
+            j: mutable usize = result_count
+            result_count <- result_count + 1
+            while j > 0 and delaunay_triangle_less(t, result[j - 1]):
+                result[j] <- result[j - 1]
+                j <- j - 1
+            result[j] <- t
+        i <- i + 1
+    if result_count == 0:
+        return -1
+    staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
+    delaunay_put_i64(staged, 0, result_count.i64())
+    i <- 0
+    while i < result_count:
+        delaunay_put_i64(staged, 8 + 24 * i, result[i].a.i64())
+        delaunay_put_i64(staged, 16 + 24 * i, result[i].b.i64())
+        delaunay_put_i64(staged, 24 + 24 * i, result[i].c.i64())
+        i <- i + 1
+    required: usize = 8 + 24 * result_count
+    if output == null or output_capacity < required:
+        return -2
+    i <- 0
+    while i < required:
+        output[i] <- staged[i]
+        i <- i + 1
+    required.i64()
+
+export fn delaunay_triangulation(values: i64&, length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = delaunay_triangulation_impl

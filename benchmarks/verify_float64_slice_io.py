@@ -200,6 +200,9 @@ from linear_discriminant_analysis_oracle import (
 from run_float64_slice_io import (MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH, ORACLES,
                                   _format_output, _output_token, encode_case, tolerances,
                                   validate_versabench_beamformer_workload,
+                                  validate_rader_fft_workload,
+                                  validate_smallest_enclosing_ball_3d_workload,
+                                  validate_euclidean_t_spanner_workload,
                                   validate_joint_probability_distribution_workload,
                                   validate_pid_workload,
                                   validate_shreedharacharya_workload,
@@ -985,6 +988,12 @@ def mibench_automotive_basicmath_cubic_verifier_oracle(
 def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
     if algorithm == "versabench_beamformer":
         validate_versabench_beamformer_workload(workload)
+    elif algorithm == "rader_fft":
+        validate_rader_fft_workload(workload)
+    elif algorithm == "smallest_enclosing_ball_3d":
+        validate_smallest_enclosing_ball_3d_workload(workload)
+    elif algorithm == "euclidean_t_spanner":
+        validate_euclidean_t_spanner_workload(workload)
     elif algorithm == "matmul_f64_4x4":
         validate_matmul_f64_4x4_workload(workload)
     elif algorithm == "misc_fp_convert":

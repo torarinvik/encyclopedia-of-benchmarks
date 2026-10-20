@@ -1,0 +1,233 @@
+# Bounded ParGeo-style logarithmic batch-dynamic point forest; see package README/LICENSE.
+struct BdkNode:
+    id: usize
+    left: i64
+    right: i64
+    minx: i64
+    maxx: i64
+    miny: i64
+    maxy: i64
+
+def bdk_box(node: BdkNode, qx: i64, qy: i64) -> i64:
+    dx: i64 = if qx < node.minx: node.minx - qx else: if qx > node.maxx: qx - node.maxx else: 0
+    dy: i64 = if qy < node.miny: node.miny - qy else: if qy > node.maxy: qy - node.maxy else: 0
+    dx * dx + dy * dy
+
+def bdk_build(ids: mutable usize[32]&, count: usize, depth: usize,
+              x: i64[32]&, y: i64[32]&, nodes: mutable BdkNode[32]&, used: mutable usize&) -> i64:
+    if count == 0: return -1
+    axis: usize = depth % 2
+    i: mutable usize = 1
+    while i < count:
+        value: usize = ids[i]
+        j: mutable usize = i
+        while j > 0:
+            previous: usize = ids[j - 1]
+            before: bool = if axis == 0:
+                if x[value] != x[previous]: x[value] < x[previous] else: if y[value] != y[previous]: y[value] < y[previous] else: value < previous
+            else:
+                if y[value] != y[previous]: y[value] < y[previous] else: if x[value] != x[previous]: x[value] < x[previous] else: value < previous
+            if not before: break
+            ids[j] <- ids[j - 1]
+            j <- j - 1
+        ids[j] <- value
+        i <- i + 1
+    mid: usize = count / 2
+    root: usize = used
+    used <- used + 1
+    id: usize = ids[mid]
+    left: mutable i64 = -1
+    right: mutable i64 = -1
+    left <- bdk_build(ids, mid, depth + 1, x, y, nodes, used)
+    rest: mutable usize[32] = zeroed
+    rest_count: mutable usize = 0
+    i <- mid + 1
+    while i < count:
+        rest[rest_count] <- ids[i]
+        rest_count <- rest_count + 1
+        i <- i + 1
+    right <- bdk_build(rest, rest_count, depth + 1, x, y, nodes, used)
+    nodes[root].id <- id
+    nodes[root].left <- left
+    nodes[root].right <- right
+    nodes[root].minx <- x[id]
+    nodes[root].maxx <- x[id]
+    nodes[root].miny <- y[id]
+    nodes[root].maxy <- y[id]
+    if left >= 0:
+        nodes[root].minx <- if nodes[left.usize()].minx < nodes[root].minx: nodes[left.usize()].minx else: nodes[root].minx
+        nodes[root].maxx <- if nodes[left.usize()].maxx > nodes[root].maxx: nodes[left.usize()].maxx else: nodes[root].maxx
+        nodes[root].miny <- if nodes[left.usize()].miny < nodes[root].miny: nodes[left.usize()].miny else: nodes[root].miny
+        nodes[root].maxy <- if nodes[left.usize()].maxy > nodes[root].maxy: nodes[left.usize()].maxy else: nodes[root].maxy
+    if right >= 0:
+        nodes[root].minx <- if nodes[right.usize()].minx < nodes[root].minx: nodes[right.usize()].minx else: nodes[root].minx
+        nodes[root].maxx <- if nodes[right.usize()].maxx > nodes[root].maxx: nodes[right.usize()].maxx else: nodes[root].maxx
+        nodes[root].miny <- if nodes[right.usize()].miny < nodes[root].miny: nodes[right.usize()].miny else: nodes[root].miny
+        nodes[root].maxy <- if nodes[right.usize()].maxy > nodes[root].maxy: nodes[right.usize()].maxy else: nodes[root].maxy
+    root.i64()
+
+def bdk_query(at: i64, nodes: BdkNode[32]&, x: i64[32]&, y: i64[32]&, active: bool[32]&, qx: i64, qy: i64,
+              found: mutable bool&, best_id: mutable usize&, best: mutable i64&) -> void:
+    if at < 0: return
+    node: BdkNode = nodes[at.usize()]
+    if found and bdk_box(node, qx, qy) > best: return
+    id: usize = node.id
+    if active[id]:
+        dx: i64 = x[id] - qx
+        dy: i64 = y[id] - qy
+        distance: i64 = dx * dx + dy * dy
+        if not found or distance < best or (distance == best and id < best_id):
+            found <- true
+            best <- distance
+            best_id <- id
+    first: i64 = node.left
+    second: i64 = node.right
+    if first >= 0 and second >= 0 and bdk_box(nodes[second.usize()], qx, qy) < bdk_box(nodes[first.usize()], qx, qy):
+        first <- node.right
+        second <- node.left
+    bdk_query(first, nodes, x, y, active, qx, qy, found, best_id, best)
+    bdk_query(second, nodes, x, y, active, qx, qy, found, best_id, best)
+def batch_dynamic_kd_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() || length < 2 || length > 250: return -1
+    initial: i64 = input[0]
+    if initial < 0 || initial > 8 || length < 2 + 3 * initial.usize(): return -1
+    x: mutable i64[32] = zeroed
+    y: mutable i64[32] = zeroed
+    answers: mutable i64[8] = zeroed
+    active: mutable bool[32] = zeroed
+    ever: mutable bool[32] = zeroed
+    levels: mutable usize[6][32] = zeroed
+    sizes: mutable usize[6] = zeroed
+    pos: mutable usize = 1
+    inserted: mutable usize = 0
+    index: mutable usize = 0
+    while index < initial.usize():
+        raw_id: i64 = input[pos]
+        px: i64 = input[pos + 1]
+        py: i64 = input[pos + 2]
+        pos <- pos + 3
+        if raw_id < 0 || raw_id >= 32 || px < -1000 || px > 1000 || py < -1000 || py > 1000: return -1
+        id: usize = raw_id.usize()
+        if ever[id]: return -1
+        for j in 0..32:
+            if active[j] and x[j] == px and y[j] == py: return -1
+        x[id] <- px
+        y[id] <- py
+        ever[id] <- true
+        active[id] <- true
+        inserted <- inserted + 1
+        carry: mutable usize[32] = zeroed
+        carry[0] <- id
+        carry_count: mutable usize = 1
+        level: mutable usize = 0
+        while level < 6:
+            if sizes[level] == 0:
+                for j in 0..carry_count: levels[level][j] <- carry[j]
+                sizes[level] <- carry_count
+                break
+            next: mutable usize[32] = zeroed
+            next_count: mutable usize = 0
+            for j in 0..sizes[level]:
+                next[next_count] <- levels[level][j]
+                next_count <- next_count + 1
+            for j in 0..carry_count:
+                next[next_count] <- carry[j]
+                next_count <- next_count + 1
+            sizes[level] <- 0
+            for j in 0..next_count: carry[j] <- next[j]
+            carry_count <- next_count
+            level <- level + 1
+        index <- index + 1
+    if pos >= length: return -1
+    raw_batches: i64 = input[pos]
+    pos <- pos + 1
+    if raw_batches < 1 || raw_batches > 8: return -1
+    batches: usize = raw_batches.usize()
+    batch: mutable usize = 0
+    while batch < batches:
+        if pos + 2 > length: return -1
+        kind: i64 = input[pos]
+        raw_count: i64 = input[pos + 1]
+        pos <- pos + 2
+        if (kind != 0 and kind != 1) || raw_count < 1 || raw_count > 8: return -1
+        count: usize = raw_count.usize()
+        if kind == 0:
+            if inserted + count > 32 || pos + 3 * count + 2 > length: return -1
+            records_start: usize = pos
+            j: mutable usize = 0
+            while j < count:
+                raw_id: i64 = input[pos]
+                px: i64 = input[pos + 1]
+                py: i64 = input[pos + 2]
+                pos <- pos + 3
+                if raw_id < 0 || raw_id >= 32 || px < -1000 || px > 1000 || py < -1000 || py > 1000: return -1
+                id: usize = raw_id.usize()
+                if ever[id]: return -1
+                for t in 0..32:
+                    if active[t] and x[t] == px and y[t] == py: return -1
+                for t in 0..j:
+                    if input[records_start + 3 * t + 1] == px and input[records_start + 3 * t + 2] == py: return -1
+                x[id] <- px
+                y[id] <- py
+                ever[id] <- true
+                active[id] <- true
+                inserted <- inserted + 1
+                carry: mutable usize[32] = zeroed
+                carry[0] <- id
+                carry_count: mutable usize = 1
+                level: mutable usize = 0
+                while level < 6:
+                    if sizes[level] == 0:
+                        for z in 0..carry_count: levels[level][z] <- carry[z]
+                        sizes[level] <- carry_count
+                        break
+                    next: mutable usize[32] = zeroed
+                    next_count: mutable usize = 0
+                    for z in 0..sizes[level]:
+                        next[next_count] <- levels[level][z]
+                        next_count <- next_count + 1
+                    for z in 0..carry_count:
+                        next[next_count] <- carry[z]
+                        next_count <- next_count + 1
+                    sizes[level] <- 0
+                    for z in 0..next_count: carry[z] <- next[z]
+                    carry_count <- next_count
+                    level <- level + 1
+                j <- j + 1
+        else:
+            if pos + count + 2 > length: return -1
+            j: mutable usize = 0
+            while j < count:
+                raw_id: i64 = input[pos]
+                pos <- pos + 1
+                if raw_id < 0 || raw_id >= 32 || not active[raw_id.usize()]: return -1
+                active[raw_id.usize()] <- false
+                j <- j + 1
+        if pos + 2 > length: return -1
+        qx: i64 = input[pos]
+        qy: i64 = input[pos + 1]
+        pos <- pos + 2
+        if qx < -1000 || qx > 1000 || qy < -1000 || qy > 1000: return -1
+        found: mutable bool = false
+        best: mutable i64 = 0
+        best_id: mutable usize = 0
+        for lev in 0..6:
+            if sizes[lev] > 0:
+                ids: mutable usize[32] = zeroed
+                for z in 0..sizes[lev]: ids[z] <- levels[lev][z]
+                nodes: mutable BdkNode[32] = zeroed
+                used: mutable usize = 0
+                root: i64 = bdk_build(ids, sizes[lev], 0, x, y, nodes, used)
+                bdk_query(root, nodes, x, y, active, qx, qy, found, best_id, best)
+        if not found: return -1
+        answers[batch] <- best
+        batch <- batch + 1
+    if pos != length: return -1
+    needed: usize = 8 * batches
+    if output.is_null() || capacity < needed: return -2
+    for i in 0..needed:
+        bits: u64 = answers[i / 8].u64()
+        output[i] <- ((bits >> (8 * (i % 8))) & 255).u8()
+    needed.i64()
+
+export fn batch_dynamic_kd_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = batch_dynamic_kd_tree_impl

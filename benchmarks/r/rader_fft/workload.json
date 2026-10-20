@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "id": "rader-fft-five-point-complex-f64-slice-io-v1",
+  "algorithm": "rader_fft",
+  "function_symbol": "rader_fft",
+  "pinned_source": {
+    "repository": "NyaanNyaan/library",
+    "commit": "b3981adc80a800b2584980b01821324ea6c77183",
+    "path": "ntt/rader-ntt.hpp",
+    "symbol": "RaderNTT::ntt",
+    "url": "https://github.com/NyaanNyaan/library/blob/b3981adc80a800b2584980b01821324ea6c77183/ntt/rader-ntt.hpp",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "five-point unnormalized complex forward DFT using Rader primitive-root permutation and cyclic convolution",
+    "formula": "X[k] = sum(x[n] * exp(-2*pi*i*k*n/5), n=0..4)",
+    "primitive_root_mod_5": 2,
+    "input_permutation": [1, 2, 4, 3],
+    "reversed_kernel_powers": [1, 3, 4, 2],
+    "convolution": "linear convolution of length-4 sequences padded to length 8, then folded modulo 4",
+    "output_order": "interleaved real and imaginary components for X[0] through X[4]"
+  },
+  "workspace": {
+    "elements": 42,
+    "meaning": "Two zero-padded length-8 complex work arrays and a ten-element staged output."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[real0,imag0,real1,imag1,...,real4,imag4]",
+    "valid_length_range": [10, 10],
+    "maximum_valid_length": 10,
+    "maximum_parseable_length": 32,
+    "component_range": [-100.0, 100.0],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "interleaved real and imaginary values [Re(X0),Im(X0),...,Re(X4),Im(X4)]",
+    "maximum_elements": 10,
+    "success_result": "number of output float64 elements (10)",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "cases": [
+    {
+      "id": "all_zero",
+      "input_values": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      "input_length": 10,
+      "expected_result": 10,
+      "expected_output": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    },
+    {
+      "id": "impulse_at_zero",
+      "input_values": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      "input_length": 10,
+      "expected_result": 10,
+      "expected_output": [1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0]
+    },
+    {
+      "id": "constant_one",
+      "input_values": [1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0],
+      "input_length": 10,
+      "expected_result": 10,
+      "expected_output": [5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    },
+    {
+      "id": "impulse_at_one_phase",
+      "input_values": [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      "input_length": 10,
+      "expected_result": 10,
+      "expected_output": [1.0, 0.0, 0.30901699437494745, -0.9510565162951535, -0.8090169943749473, -0.5877852522924731, -0.8090169943749476, 0.587785252292473, 0.30901699437494723, 0.9510565162951536]
+    },
+    {
+      "id": "short_input",
+      "input_values": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output": []
+    },
+    {
+      "id": "component_above_bound",
+      "input_values": [100.0001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      "input_length": 10,
+      "expected_result": -1,
+      "expected_output": []
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+struct Seb3Point:
+    x: f64
+    y: f64
+    z: f64
+struct Seb3Sphere:
+    c: Seb3Point
+    r: f64
+def seb3_sub(a: Seb3Point,b: Seb3Point)->Seb3Point: Seb3Point(x:a.x-b.x,y:a.y-b.y,z:a.z-b.z)
+def seb3_add(a: Seb3Point,b: Seb3Point)->Seb3Point: Seb3Point(x:a.x+b.x,y:a.y+b.y,z:a.z+b.z)
+def seb3_mul(a: Seb3Point,k: f64)->Seb3Point: Seb3Point(x:a.x*k,y:a.y*k,z:a.z*k)
+def seb3_dot(a: Seb3Point,b: Seb3Point)->f64: a.x*b.x+a.y*b.y+a.z*b.z
+def seb3_cross(a: Seb3Point,b: Seb3Point)->Seb3Point: Seb3Point(x:a.y*b.z-a.z*b.y,y:a.z*b.x-a.x*b.z,z:a.x*b.y-a.y*b.x)
+def seb3_det(a: Seb3Point,b: Seb3Point,c: Seb3Point)->f64: seb3_dot(a,seb3_cross(b,c))
+def seb3_invalid()->Seb3Sphere: Seb3Sphere(c:Seb3Point(x:0,y:0,z:0),r:-1)
+def seb3_through(p: Seb3Point[4]&,n: usize)->Seb3Sphere:
+    if n==1: return Seb3Sphere(c:p[0],r:0)
+    if n==2:
+        c: Seb3Point=seb3_mul(seb3_add(p[0],p[1]),0.5);d: Seb3Point=seb3_sub(p[0],c)
+        return Seb3Sphere(c:c,r:sqrt(seb3_dot(d,d)))
+    if n==3:
+        u: Seb3Point=seb3_sub(p[1],p[0]);v: Seb3Point=seb3_sub(p[2],p[0]);w: Seb3Point=seb3_cross(u,v);den: f64=2*seb3_dot(w,w)
+        if den<1e-24:return seb3_invalid()
+        off: Seb3Point=seb3_mul(seb3_add(seb3_mul(seb3_cross(v,w),seb3_dot(u,u)),seb3_mul(seb3_cross(w,u),seb3_dot(v,v))),1/den);c: Seb3Point=seb3_add(p[0],off);d: Seb3Point=seb3_sub(c,p[0])
+        return Seb3Sphere(c:c,r:sqrt(seb3_dot(d,d)))
+    a: Seb3Point=seb3_mul(seb3_sub(p[1],p[0]),2);b: Seb3Point=seb3_mul(seb3_sub(p[2],p[0]),2);c: Seb3Point=seb3_mul(seb3_sub(p[3],p[0]),2)
+    qa: f64=seb3_dot(p[1],p[1])-seb3_dot(p[0],p[0]);qb: f64=seb3_dot(p[2],p[2])-seb3_dot(p[0],p[0]);qc: f64=seb3_dot(p[3],p[3])-seb3_dot(p[0],p[0]);den: f64=seb3_det(a,b,c)
+    if abs(den)<1e-18:return seb3_invalid()
+    center: Seb3Point=seb3_mul(seb3_add(seb3_add(seb3_mul(seb3_cross(b,c),qa),seb3_mul(seb3_cross(c,a),qb)),seb3_mul(seb3_cross(a,b),qc)),1/den);delta: Seb3Point=seb3_sub(center,p[0])
+    Seb3Sphere(c:center,r:sqrt(seb3_dot(delta,delta)))
+def seb3_contains(s: Seb3Sphere,p: Seb3Point)->bool:
+    if s.r<0:return false
+    d: Seb3Point=seb3_sub(p,s.c);seb3_dot(d,d)<=(s.r+1e-10)*(s.r+1e-10)
+def seb3_fit(r: Seb3Point[4]&,m: usize)->Seb3Sphere:
+    best: mutable Seb3Sphere=seb3_invalid();mask: mutable usize=1
+    while mask<(1<<m):
+        q: mutable Seb3Point[4]=zeroed;n: mutable usize=0
+        for i in 0..m:
+            if (mask&(1<<i))!=0:q[n]<-r[i];n<-n+1
+        candidate: Seb3Sphere=seb3_through(q,n)
+        if candidate.r>=0:
+            valid: mutable bool=true
+            for i in 0..m:
+                if not seb3_contains(candidate,r[i]):valid<-false
+            if valid and (best.r<0 or candidate.r<best.r-1e-12):best<-candidate
+        mask<-mask+1
+    best
+def seb3_welzl(p: Seb3Point[8]&,n: usize,r: mutable Seb3Point[4]&,m: usize)->Seb3Sphere:
+    if n==0 or m==4:return seb3_fit(r,m)
+    s: Seb3Sphere=seb3_welzl(p,n-1,r,m)
+    if seb3_contains(s,p[n-1]):return s
+    r[m]<-p[n-1]
+    seb3_welzl(p,n-1,r,m+1)
+def smallest_enclosing_ball_3d_impl(input: f64&,length: usize,output: mutable f64&,capacity: usize)->i64:
+    if input.is_null() or length<4 or length>25:return -1
+    raw: f64=input[0]
+    if not (raw==raw) or raw<1 or raw>8 or raw!=floor(raw):return -1
+    n: usize=raw.usize()
+    if length!=1+3*n:return -1
+    p: mutable Seb3Point[8]=zeroed
+    for i in 0..n:
+        p[i]<-Seb3Point(x:input[1+3*i],y:input[2+3*i],z:input[3+3*i])
+        if not (p[i].x==p[i].x) or not (p[i].y==p[i].y) or not (p[i].z==p[i].z) or abs(p[i].x)>10 or abs(p[i].y)>10 or abs(p[i].z)>10:return -1
+    i: mutable usize=1
+    while i<n:
+        v: Seb3Point=p[i];j: mutable usize=i
+        while j>0 and (p[j-1].x>v.x or (p[j-1].x==v.x and (p[j-1].y>v.y or (p[j-1].y==v.y and p[j-1].z>v.z)))):p[j]<-p[j-1];j<-j-1
+        p[j]<-v;i<-i+1
+    boundary: mutable Seb3Point[4]=zeroed;sphere: Seb3Sphere=seb3_welzl(p,n,boundary,0)
+    if sphere.r<0 or not (sphere.r==sphere.r):return -1
+    if output.is_null() or capacity<4:return -2
+    output[0]<-sphere.c.x;output[1]<-sphere.c.y;output[2]<-sphere.c.z;output[3]<-sphere.r
+    4
+export fn smallest_enclosing_ball_3d(input:f64&,length:usize,output:mutable f64&,capacity:usize)->i64=smallest_enclosing_ball_3d_impl

@@ -1193,6 +1193,7 @@ from proper_fractions_oracle import expected_output as proper_fractions_oracle
 from sumset_oracle import expected_output as sumset_oracle
 from run_i64_array_bytes_output import MAX_OUTPUT_CAPACITY
 from run_i64_array_bytes_output import RECORDER_WORKSPACE_ALGORITHMS
+from run_i64_array_bytes_output import EXTERNAL_BYTE_OUTPUT_BOUNDS
 from revert_bits_oracle import MAX_PARSEABLE_INPUT_LENGTH as REVERT_BITS_MAX_PARSEABLE_INPUT_LENGTH
 from revert_bits_oracle import MAX_VALID_INPUT_LENGTH as REVERT_BITS_MAX_VALID_INPUT_LENGTH
 from revert_bits_oracle import OUTPUT_BYTES as REVERT_BITS_OUTPUT_BYTES
@@ -2369,6 +2370,19 @@ from poly1305_oracle import MAX_VALID_INPUT_LENGTH as POLY1305_MAX_VALID_INPUT_L
 from poly1305_oracle import MIN_MESSAGE_LENGTH as POLY1305_MIN_MESSAGE_LENGTH
 from poly1305_oracle import OUTPUT_ERROR_RESULT as POLY1305_OUTPUT_ERROR_RESULT
 from poly1305_oracle import expected_output as poly1305_oracle
+from relaxed_convolution_oracle import expected_output as relaxed_convolution_oracle
+from beta_skeleton_oracle import expected_output as beta_skeleton_oracle
+from schoenhage_strassen_multiply_oracle import expected_output as schoenhage_strassen_multiply_oracle
+from wspd_oracle import expected_output as wspd_oracle
+from batch_dynamic_kd_tree_oracle import expected_output as batch_dynamic_kd_tree_oracle
+from delaunay_triangulation_oracle import expected_output as delaunay_triangulation_oracle
+from delaunay_mesh_refinement_oracle import expected_output as delaunay_mesh_refinement_oracle
+from fortune_voronoi_oracle import expected_output as fortune_voronoi_oracle
+from min_cost_max_flow_oracle import expected_output as min_cost_max_flow_oracle
+from morton_sort_oracle import expected_output as morton_sort_oracle
+from number_theoretic_transform_oracle import expected_output as number_theoretic_transform_oracle
+from seam_carving_oracle import expected_output as seam_carving_oracle
+from sqrt_tree_oracle import expected_output as sqrt_tree_oracle
 from top_k_frequent_words_oracle import MAX_INPUT_LENGTH as TOP_K_FREQUENT_WORDS_MAX_INPUT_LENGTH
 from top_k_frequent_words_oracle import MAX_OUTPUT_BYTES as TOP_K_FREQUENT_WORDS_MAX_OUTPUT_BYTES
 from top_k_frequent_words_oracle import MAX_WORD_LENGTH as TOP_K_FREQUENT_WORDS_MAX_WORD_LENGTH
@@ -3031,6 +3045,16 @@ ALGORITHMS = (*ALGORITHMS, "ansibench_dhrystone", "stream_vector_kernels",
               "nbench_huffman_compression", "nbench_resource_assignment",
               "nbench_emulated_float_arithmetic", "nbench_neural_network",
               "coremark_matrix_manipulation")
+ALGORITHMS = (*ALGORITHMS, "min_cost_max_flow", "morton_sort", "number_theoretic_transform",
+              "relaxed_convolution", "seam_carving", "sqrt_tree", "beta_skeleton",
+              "schoenhage_strassen_multiply", "wspd", "batch_dynamic_kd_tree",
+              "bentley_ottmann", "delaunay_triangulation", "delaunay_mesh_refinement",
+              "fortune_voronoi")
+WORKSPACE_ALGORITHMS.update({"min_cost_max_flow", "morton_sort", "number_theoretic_transform",
+                             "relaxed_convolution", "seam_carving", "sqrt_tree", "beta_skeleton",
+                             "schoenhage_strassen_multiply", "wspd", "batch_dynamic_kd_tree",
+                             "bentley_ottmann", "delaunay_triangulation",
+                             "delaunay_mesh_refinement", "fortune_voronoi"})
 WORKSPACE_ALGORITHMS.add("lru_cache2")
 WORKSPACE_ALGORITHMS.add("memoize")
 WORKSPACE_ALGORITHMS.add("lz78")
@@ -3915,6 +3939,19 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mibench_office_stringsearch_bmh": mibench_office_stringsearch_bmh_verifier_oracle,
     "mibench_security_rijndael": mibench_security_rijndael_verifier_oracle,
     "misc_reed_solomon": misc_reed_solomon_verifier_oracle,
+    "min_cost_max_flow": min_cost_max_flow_oracle,
+    "morton_sort": morton_sort_oracle,
+    "number_theoretic_transform": number_theoretic_transform_oracle,
+    "seam_carving": seam_carving_oracle,
+    "sqrt_tree": sqrt_tree_oracle,
+    "relaxed_convolution": relaxed_convolution_oracle,
+    "beta_skeleton": beta_skeleton_oracle,
+    "schoenhage_strassen_multiply": schoenhage_strassen_multiply_oracle,
+    "wspd": wspd_oracle,
+    "batch_dynamic_kd_tree": batch_dynamic_kd_tree_oracle,
+    "delaunay_triangulation": delaunay_triangulation_oracle,
+    "delaunay_mesh_refinement": delaunay_mesh_refinement_oracle,
+    "fortune_voronoi": fortune_voronoi_oracle,
 }
 
 ANSIBENCH_BYTE_OUTPUT_BOUNDS = {
@@ -3947,6 +3984,11 @@ ANSIBENCH_BYTE_OUTPUT_BOUNDS = {
                               NBENCH_NEURAL_NETWORK_MAX_OUTPUT_BYTES),
     "coremark_matrix_manipulation": (COREMARK_MATRIX_MANIPULATION_MAX_PARSEABLE_INPUT_LENGTH,
                                      COREMARK_MATRIX_MANIPULATION_MAX_OUTPUT_BYTES),
+}
+
+GENERIC_BYTE_OUTPUT_BOUNDS = {
+    **ANSIBENCH_BYTE_OUTPUT_BOUNDS,
+    **EXTERNAL_BYTE_OUTPUT_BOUNDS,
 }
 
 
@@ -5324,6 +5366,251 @@ def polybench_adi_verifier_oracle(
     return len(output), output
 
 
+BENTLEY_OTTMANN_MAX_SEGMENTS = 24
+BENTLEY_OTTMANN_MAX_COORDINATE = 1000
+BENTLEY_OTTMANN_MAX_INPUT_LENGTH = 1 + 4 * BENTLEY_OTTMANN_MAX_SEGMENTS
+BENTLEY_OTTMANN_MAX_INTERSECTIONS = (
+    BENTLEY_OTTMANN_MAX_SEGMENTS * (BENTLEY_OTTMANN_MAX_SEGMENTS - 1) // 2
+)
+BENTLEY_OTTMANN_MAX_OUTPUT_BYTES = 8 * (1 + 2 * BENTLEY_OTTMANN_MAX_INTERSECTIONS)
+
+
+def bentley_ottmann_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    """Independent pairwise exact-geometry oracle for the sweep-line ports."""
+    if (not isinstance(values, (tuple, list))
+            or len(values) > BENTLEY_OTTMANN_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (capacity is not None
+                and (type(capacity) is not int
+                     or not 0 <= capacity <= MAX_OUTPUT_CAPACITY))
+            or type(output_is_null) is not bool or type(input_is_null) is not bool):
+        return -1, b""
+    effective_length = len(values) if input_length is None else input_length
+    if (type(effective_length) is not int
+            or not 0 <= effective_length <= BENTLEY_OTTMANN_MAX_INPUT_LENGTH):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    if effective_length != len(values) or not values:
+        return -1, b""
+
+    segment_count = values[0]
+    if (not 0 <= segment_count <= BENTLEY_OTTMANN_MAX_SEGMENTS
+            or len(values) != 1 + 4 * segment_count):
+        return -1, b""
+
+    segments: list[tuple[int, int, int, int]] = []
+    endpoint_x: set[int] = set()
+    for offset in range(1, len(values), 4):
+        x1, y1, x2, y2 = values[offset:offset + 4]
+        if (any(not -BENTLEY_OTTMANN_MAX_COORDINATE <= coordinate
+                    <= BENTLEY_OTTMANN_MAX_COORDINATE
+                for coordinate in (x1, y1, x2, y2)) or x1 == x2):
+            return -1, b""
+        if x1 > x2:
+            x1, y1, x2, y2 = x2, y2, x1, y1
+        segments.append((x1, y1, x2, y2))
+        endpoint_x.update((x1, x2))
+    if len(endpoint_x) != 2 * segment_count:
+        return -1, b""
+
+    intersections: set[tuple[int, int]] = set()
+    intersection_x: set[int] = set()
+    for index, (x1, y1, x2, y2) in enumerate(segments):
+        rx, ry = x2 - x1, y2 - y1
+        for qx1, qy1, qx2, qy2 in segments[index + 1:]:
+            sx, sy = qx2 - qx1, qy2 - qy1
+            qpx, qpy = qx1 - x1, qy1 - y1
+            denominator = rx * sy - ry * sx
+            if denominator == 0:
+                if qpx * ry - qpy * rx == 0:
+                    if max(x1, qx1) <= min(x2, qx2):
+                        return -1, b""
+                continue
+            t_numerator = qpx * sy - qpy * sx
+            u_numerator = qpx * ry - qpy * rx
+            if denominator < 0:
+                denominator = -denominator
+                t_numerator = -t_numerator
+                u_numerator = -u_numerator
+            if not (0 <= t_numerator <= denominator
+                    and 0 <= u_numerator <= denominator):
+                continue
+            if (t_numerator in (0, denominator)
+                    or u_numerator in (0, denominator)):
+                return -1, b""
+            x_numerator = x1 * denominator + t_numerator * rx
+            y_numerator = y1 * denominator + t_numerator * ry
+            if x_numerator % denominator or y_numerator % denominator:
+                return -1, b""
+            point = (x_numerator // denominator, y_numerator // denominator)
+            if point[0] in endpoint_x or point[0] in intersection_x:
+                return -1, b""
+            intersections.add(point)
+            intersection_x.add(point[0])
+
+    ordered = sorted(intersections)
+    output_values = [len(ordered)]
+    for x, y in ordered:
+        output_values.extend((x, y))
+    output = b"".join(struct.pack("<q", value) for value in output_values)
+    if (len(output) > BENTLEY_OTTMANN_MAX_OUTPUT_BYTES
+            or output_is_null or (capacity is not None and capacity < len(output))):
+        return -2, b""
+    return len(output), output
+
+
+def validate_bentley_ottmann_workload(workload: dict) -> None:
+    """Check the package metadata, pinned source, and fixture results."""
+    pinned_commit = "e43ec3897e48f23843972d02cd05a5bb1b6864a2"
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "bentley-ottmann-general-position-i64-array-bytes-v1"
+            or workload.get("algorithm") != "bentley_ottmann"
+            or workload.get("function_symbol") != "bentley_ottmann"
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "layout": ["segment_count", "x1", "y1", "x2", "y2", "..."],
+                "segment_count_range": [0, BENTLEY_OTTMANN_MAX_SEGMENTS],
+                "coordinate_range": [-BENTLEY_OTTMANN_MAX_COORDINATE,
+                                     BENTLEY_OTTMANN_MAX_COORDINATE],
+                "preconditions": [
+                    "nonvertical segments", "no shared endpoints", "no collinear overlaps",
+                    "proper intersections only at integer lattice points",
+                    "all endpoint and intersection x-coordinates are distinct",
+                ],
+                "invalid_result": -1,
+                "insufficient_output_capacity_result": -2,
+            }
+            or workload.get("output") != {
+                "kind": "little_endian_signed_i64_vector",
+                "layout": ["intersection_count", "x0", "y0", "x1", "y1", "..."],
+                "points_order": "lexicographic x then y",
+                "return_value": "number of output bytes",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_bytes_output_call",
+                "sample_count": 5,
+                "warmup_rounds": 1,
+                "repetitions_per_sample": 100,
+            }):
+        raise ValueError("bentley_ottmann metadata differs from its bounded sweep-line contract")
+
+    readme = (ROOT / "benchmarks" / "b" / "bentley_ottmann" / "README.md").read_text(
+        encoding="utf-8")
+    if (pinned_commit not in readme
+            or "TheAlgorithms/Java" not in readme
+            or "proper crossing at an integer lattice point" not in readme
+            or "source-inspired" not in readme):
+        raise ValueError("bentley_ottmann README lost its pinned source or contract explanation")
+
+    cases = workload.get("cases")
+    expected_ids = {"single_integer_crossing", "no_intersection"}
+    if (not isinstance(cases, list)
+            or any(not isinstance(case, dict) for case in cases)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+            or len(cases) != len(expected_ids)):
+        raise ValueError("bentley_ottmann workload fixtures differ from the reviewed corpus")
+    for case in cases:
+        if (not isinstance(case.get("input_values"), list)
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output_hex"), str)):
+            raise ValueError(f"malformed bentley_ottmann workload fixture: {case.get('id')}")
+        capacity = case.get("output_capacity")
+        result, output = bentley_ottmann_verifier_oracle(
+            case["input_values"], capacity=capacity,
+            output_is_null=case.get("output_is_null", False),
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length"))
+        if (result != case["expected_result"]
+                or output.hex() != case["expected_output_hex"].lower()):
+            raise ValueError(f"bentley_ottmann fixture disagrees with independent oracle: {case['id']}")
+
+
+def bentley_ottmann_corpus(workload: dict) -> tuple[str, int]:
+    validate_bentley_ottmann_workload(workload)
+    records_by_key: dict[tuple[tuple[int, ...], int, bool, bool, int], tuple[int, bytes]] = {}
+
+    def add(values: tuple[int, ...], capacity: int = BENTLEY_OTTMANN_MAX_OUTPUT_BYTES,
+            *, output_is_null: bool = False, input_is_null: bool = False,
+            input_length: int | None = None) -> None:
+        values = tuple(values)
+        effective_length = len(values) if input_length is None else input_length
+        if (len(values) > BENTLEY_OTTMANN_MAX_INPUT_LENGTH
+                or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                or type(output_is_null) is not bool or type(input_is_null) is not bool
+                or type(effective_length) is not int
+                or not 0 <= effective_length <= BENTLEY_OTTMANN_MAX_INPUT_LENGTH):
+            raise ValueError("bentley_ottmann generated input/output framing is out of range")
+        result, output = bentley_ottmann_verifier_oracle(
+            values, capacity, output_is_null, input_is_null, effective_length)
+        if result >= 0:
+            if result != len(output) or result > BENTLEY_OTTMANN_MAX_OUTPUT_BYTES:
+                raise ValueError("bentley_ottmann success violates its output bound")
+        elif output:
+            raise ValueError("bentley_ottmann errors must not write output")
+        key = (values, capacity, output_is_null, input_is_null, effective_length)
+        value = (result, output)
+        if key in records_by_key and records_by_key[key] != value:
+            raise ValueError("bentley_ottmann corpus key collides with a distinct output call")
+        records_by_key[key] = value
+
+    for case in workload["cases"]:
+        values = tuple(case["input_values"])
+        _unbounded_result, unbounded_output = bentley_ottmann_verifier_oracle(values)
+        capacity = case.get("output_capacity", len(unbounded_output))
+        add(values, capacity, output_is_null=case.get("output_is_null", False),
+            input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+
+    crossing = tuple(next(case["input_values"] for case in workload["cases"]
+                         if case["id"] == "single_integer_crossing"))
+    three_crossings = (3, 0, 0, 12, 0, 1, -3, 10, 6, 2, 4, 11, -5)
+    coordinate_edges = (2, -1000, -1000, -999, -1000, 999, 1000, 1000, 1000)
+    maximum_count = [BENTLEY_OTTMANN_MAX_SEGMENTS]
+    for index in range(BENTLEY_OTTMANN_MAX_SEGMENTS):
+        maximum_count.extend((-1000 + 2 * index, -900 + 60 * index,
+                              -999 + 2 * index, -900 + 60 * index))
+    for values in (crossing, three_crossings, coordinate_edges, tuple(maximum_count)):
+        add(values)
+
+    crossing_result, crossing_output = bentley_ottmann_verifier_oracle(crossing)
+    if crossing_result != 24 or len(crossing_output) != 24:
+        raise ValueError("bentley_ottmann capacity probe no longer has its expected fixed size")
+    for capacity in (0, 7, 8, 9):
+        add((0,), capacity)
+    for capacity in (0, crossing_result - 1, crossing_result, crossing_result + 1):
+        add(crossing, capacity)
+    add(crossing, output_is_null=True)
+    add(three_crossings, output_is_null=True)
+
+    malformed = (
+        (), (-1,), (BENTLEY_OTTMANN_MAX_SEGMENTS + 1,), (1,),
+        (1, -1001, 0, -999, 0), (1, 5, 0, 5, 1),
+    )
+    for values in malformed:
+        add(tuple(values))
+    add((0,), input_length=2)
+    add((-1,), 0, output_is_null=True)
+    add((), input_is_null=True, input_length=1)
+
+    records = [(*key, result, output) for key, (result, output) in records_by_key.items()]
+    records.sort(key=lambda record: record[:5])
+    lines = [f"{len(records)}\n"]
+    for values, capacity, output_is_null, input_is_null, input_length, result, output in records:
+        encoded = output.hex() if output else "-"
+        header = f"{input_length} {result} {len(output)} {capacity} {int(input_is_null)} {int(output_is_null)}"
+        checker_values = (0,) * input_length if input_is_null else values
+        values_text = "" if not checker_values else " " + " ".join(map(str, checker_values))
+        lines.append(f"{header}{values_text} {encoded}\n")
+    return "".join(lines), len(records)
+
+
 def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
@@ -6178,9 +6465,9 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or workload.get("measurement", {}).get("repetitions_per_sample") != 1
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("8b10b metadata differs from its pinned bounded state-machine contract")
-    elif algorithm in ANSIBENCH_BYTE_OUTPUT_BOUNDS:
+    elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
         validate_new_byte_output_workload(workload, algorithm)
-        max_input, max_output = ANSIBENCH_BYTE_OUTPUT_BOUNDS[algorithm]
+        max_input, max_output = GENERIC_BYTE_OUTPUT_BOUNDS[algorithm]
     elif algorithm == "uint":
         max_input, max_output = UINT_MAX_PARSEABLE_INPUT_LENGTH, UINT_MAX_OUTPUT_BYTES
         if (workload.get("schema_version") != 1
@@ -6727,7 +7014,7 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 (-(1 << 63),), ((1 << 63) - 1,),
         ):
             add(values)
-    elif algorithm in ANSIBENCH_BYTE_OUTPUT_BOUNDS:
+    elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
         for case in workload["cases"]:
             values = tuple(case["input_values"])
             if case["expected_result"] >= 0:
@@ -6798,6 +7085,8 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
 
 
 def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
+    if algorithm == "bentley_ottmann":
+        return bentley_ottmann_corpus(workload)
     if algorithm in BYTE_OUTPUT_ALGORITHM_ORACLES:
         return byte_output_corpus(workload, algorithm)
     Record = (tuple[tuple[int, ...], int, bytes, int | None]

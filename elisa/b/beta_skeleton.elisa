@@ -1,0 +1,42 @@
+# Bounded beta=2 lune graph adapted from ParGeo; see benchmarks/b/beta_skeleton/LICENSE.txt.
+def beta_skeleton_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() || length < 3 || length > 65:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 || n_value > 32 || length != 1 + 2 * n_value.usize():
+        return -1
+    n: usize = n_value.usize()
+    x: mutable i64[32] = zeroed
+    y: mutable i64[32] = zeroed
+    for i in 0..n:
+        x[i] <- input[1 + 2 * i]
+        y[i] <- input[2 + 2 * i]
+        if x[i] < -1000 || x[i] > 1000 || y[i] < -1000 || y[i] > 1000: return -1
+        for j in 0..i:
+            if x[i] == x[j] and y[i] == y[j]: return -1
+    edges: mutable u8[992] = zeroed
+    count: mutable usize = 0
+    for i in 0..n:
+        for j in (i + 1)..n:
+            dx: i64 = x[i] - x[j]
+            dy: i64 = y[i] - y[j]
+            d2: i64 = dx * dx + dy * dy
+            blocked: mutable bool = false
+            for k in 0..n:
+                if k == i or k == j: continue
+                aix: i64 = x[k] - x[i]
+                aiy: i64 = y[k] - y[i]
+                ajx: i64 = x[k] - x[j]
+                ajy: i64 = y[k] - y[j]
+                if aix * aix + aiy * aiy < d2 and ajx * ajx + ajy * ajy < d2:
+                    blocked <- true
+                    break
+            if not blocked:
+                edges[count] <- i.u8()
+                edges[count + 1] <- j.u8()
+                count <- count + 2
+    if output.is_null() || capacity < count: return -2
+    for i in 0..count: output[i] <- edges[i]
+    count.i64()
+
+export fn beta_skeleton(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = beta_skeleton_impl

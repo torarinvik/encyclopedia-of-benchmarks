@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "euclidean-t-spanner-float64-slice-io-v1",
+  "algorithm": "euclidean_t_spanner",
+  "function_symbol": "euclidean_t_spanner",
+  "pinned_sources": [
+    {"repository":"ParAlg/ParGeo","commit":"4911408762c46b7c262f6d617d7adcb0cb0f219b","path":"src/spatialGraph/spanner/spanner.cpp","related_paths":["include/kdTree/wspdImpl.h","include/kdTree/treeImpl.h","LICENSE"],"symbol":"pargeo::spanner / kdTree::wellSeparatedPairDecomp","url":"https://github.com/ParAlg/ParGeo/blob/4911408762c46b7c262f6d617d7adcb0cb0f219b/src/spatialGraph/spanner/spanner.cpp","license":"MIT; full notice bundled in LICENSE.txt"}
+  ],
+  "contract": {
+    "operation":"Construct the representative-edge graph induced by a well-separated pair decomposition, using ParGeo's stretch-dependent separation constant.",
+    "separation_factor":"s=4*(t+1)/(t-1)",
+    "well_separated_rule":"distance(centerA,centerB)-radiusA-radiusB >= s*max(radiusA,radiusB)",
+    "tree_profile":"Deterministic widest-axis median split; ties sort by other coordinate then input index. A node representative is its smallest original point index.",
+    "output_layout":"[edge_count,u0,v0,...], each undirected endpoint pair normalized so u<v",
+    "stretch_guarantee":"Every pair of input points is connected by a graph path of Euclidean length at most t times their Euclidean distance.",
+    "errors":"Malformed or out-of-range input returns -1 before output checks. Null output or insufficient output capacity returns -2 without writes."
+  },
+  "input": {"kind":"finite_float64_array","encoding":"[point_count,t,x0,y0,...]","maximum_valid_input_length":18,"minimum_point_count":2,"maximum_point_count":8,"stretch_range":[1.5,4.0],"coordinate_range":[-1000,1000],"coordinates_integer_valued":true,"coordinates_distinct":true,"invalid_input_result":-1,"null_input_result":-1},
+  "output": {"kind":"float64_array","encoding":"edge count followed by endpoint index pairs","maximum_elements":57,"success_result":"number of output elements","invalid_input_result":-1,"null_output_result":-2,"insufficient_capacity_result":-2,"no_write_on_error":true,"error_precedence":"Malformed or out-of-range input is rejected before output pointer/capacity checks.","absolute_tolerance":0.0,"relative_tolerance":0.0},
+  "workspace":{"elements":120,"meaning":"At most 15 tree nodes and 28 WSPD representative edges."},
+  "measurement":{"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":1000,"absolute_tolerance":0.0,"relative_tolerance":0.0},
+  "cases":[
+    {"id":"two_points","input_values":[2.0,2.0,0.0,0.0,4.0,0.0],"input_length":6,"expected_result":3,"expected_output":[1.0,0.0,1.0]},
+    {"id":"three_point_line","input_values":[3.0,2.0,0.0,0.0,2.0,0.0,4.0,0.0],"input_length":8,"expected_result":7,"expected_output":[3.0,1.0,2.0,0.0,1.0,0.0,2.0]},
+    {"id":"square","input_values":[4.0,2.0,0.0,0.0,2.0,0.0,2.0,2.0,0.0,2.0],"input_length":10,"expected_result":13,"expected_output":[6.0,0.0,3.0,1.0,2.0,0.0,1.0,1.0,3.0,0.0,2.0,2.0,3.0]},
+    {"id":"clustered_six","input_values":[6.0,2.0,-5.0,0.0,-4.0,0.0,-5.0,1.0,4.0,0.0,5.0,0.0,4.0,1.0],"input_length":14,"expected_result":27,"expected_output":[13.0,1.0,2.0,0.0,2.0,0.0,1.0,4.0,5.0,3.0,5.0,3.0,4.0,0.0,3.0,2.0,3.0,1.0,3.0,0.0,5.0,2.0,5.0,1.0,5.0,0.0,4.0]},
+    {"id":"invalid_stretch","input_values":[2.0,1.0,0.0,0.0,4.0,0.0],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"duplicate_coordinates","input_values":[2.0,2.0,0.0,0.0,0.0,0.0],"input_length":6,"expected_result":-1,"expected_output":[]},
+    {"id":"capacity_short","input_values":[2.0,2.0,0.0,0.0,4.0,0.0],"input_length":6,"output_capacity":2,"expected_result":-2,"expected_output":[]},
+    {"id":"null_output","input_values":[2.0,2.0,0.0,0.0,4.0,0.0],"input_length":6,"output_capacity":3,"output_is_null":true,"expected_result":-2,"expected_output":[]}
+  ]
+}

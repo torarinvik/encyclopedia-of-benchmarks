@@ -507,6 +507,45 @@ from tea_oracle import MAX_PARSEABLE_INPUT_LENGTH as TEA_MAX_PARSEABLE_INPUT_LEN
 from tea_oracle import expected_output as tea_expected_output
 from poly1305_oracle import MAX_PARSEABLE_INPUT_LENGTH as POLY1305_MAX_PARSEABLE_INPUT_LENGTH
 from poly1305_oracle import expected_output as poly1305_expected_output
+from relaxed_convolution_oracle import MAX_PARSEABLE_INPUT_LENGTH as RELAXED_CONVOLUTION_MAX_PARSEABLE_INPUT_LENGTH
+from relaxed_convolution_oracle import MAX_OUTPUT_BYTES as RELAXED_CONVOLUTION_MAX_OUTPUT_BYTES
+from relaxed_convolution_oracle import expected_output as relaxed_convolution_expected_output
+from beta_skeleton_oracle import MAX_PARSEABLE_INPUT_LENGTH as BETA_SKELETON_MAX_PARSEABLE_INPUT_LENGTH
+from beta_skeleton_oracle import MAX_OUTPUT_BYTES as BETA_SKELETON_MAX_OUTPUT_BYTES
+from beta_skeleton_oracle import expected_output as beta_skeleton_expected_output
+from schoenhage_strassen_multiply_oracle import MAX_INPUT_LENGTH as SCHOENHAGE_STRASSEN_MAX_INPUT_LENGTH
+from schoenhage_strassen_multiply_oracle import MAX_OUTPUT_LENGTH as SCHOENHAGE_STRASSEN_MAX_OUTPUT_LENGTH
+from schoenhage_strassen_multiply_oracle import expected_output as schoenhage_strassen_multiply_expected_output
+from wspd_oracle import MAX_INPUT_LENGTH as WSPD_MAX_INPUT_LENGTH
+from wspd_oracle import MAX_OUTPUT_BYTES as WSPD_MAX_OUTPUT_BYTES
+from wspd_oracle import expected_output as wspd_expected_output
+from batch_dynamic_kd_tree_oracle import MAX_INPUT_LENGTH as BATCH_DYNAMIC_KD_TREE_MAX_INPUT_LENGTH
+from batch_dynamic_kd_tree_oracle import MAX_OUTPUT_BYTES as BATCH_DYNAMIC_KD_TREE_MAX_OUTPUT_BYTES
+from batch_dynamic_kd_tree_oracle import expected_output as batch_dynamic_kd_tree_expected_output
+from delaunay_triangulation_oracle import MAX_PARSEABLE_INPUT_LENGTH as DELAUNAY_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH
+from delaunay_triangulation_oracle import MAX_OUTPUT_BYTES as DELAUNAY_TRIANGULATION_MAX_OUTPUT_BYTES
+from delaunay_triangulation_oracle import expected_output as delaunay_triangulation_expected_output
+from delaunay_mesh_refinement_oracle import MAX_PARSEABLE_INPUT_LENGTH as DELAUNAY_MESH_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH
+from delaunay_mesh_refinement_oracle import MAX_OUTPUT_BYTES as DELAUNAY_MESH_REFINEMENT_MAX_OUTPUT_BYTES
+from delaunay_mesh_refinement_oracle import expected_output as delaunay_mesh_refinement_expected_output
+from fortune_voronoi_oracle import MAX_PARSEABLE_INPUT_LENGTH as FORTUNE_VORONOI_MAX_PARSEABLE_INPUT_LENGTH
+from fortune_voronoi_oracle import MAX_OUTPUT_BYTES as FORTUNE_VORONOI_MAX_OUTPUT_BYTES
+from fortune_voronoi_oracle import expected_output as fortune_voronoi_expected_output
+from min_cost_max_flow_oracle import MAX_INPUT_LENGTH as MIN_COST_MAX_FLOW_MAX_PARSEABLE_INPUT_LENGTH
+from min_cost_max_flow_oracle import MAX_OUTPUT_BYTES as MIN_COST_MAX_FLOW_MAX_OUTPUT_BYTES
+from min_cost_max_flow_oracle import expected_output as min_cost_max_flow_expected_output
+from morton_sort_oracle import MAX_PARSEABLE_INPUT_LENGTH as MORTON_SORT_MAX_PARSEABLE_INPUT_LENGTH
+from morton_sort_oracle import MAX_OUTPUT_BYTES as MORTON_SORT_MAX_OUTPUT_BYTES
+from morton_sort_oracle import expected_output as morton_sort_expected_output
+from number_theoretic_transform_oracle import MAX_PARSEABLE_INPUT_LENGTH as NUMBER_THEORETIC_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH
+from number_theoretic_transform_oracle import MAX_OUTPUT_BYTES as NUMBER_THEORETIC_TRANSFORM_MAX_OUTPUT_BYTES
+from number_theoretic_transform_oracle import expected_output as number_theoretic_transform_expected_output
+from seam_carving_oracle import MAX_PARSEABLE_INPUT_LENGTH as SEAM_CARVING_MAX_PARSEABLE_INPUT_LENGTH
+from seam_carving_oracle import MAX_OUTPUT_BYTES as SEAM_CARVING_MAX_OUTPUT_BYTES
+from seam_carving_oracle import expected_output as seam_carving_expected_output
+from sqrt_tree_oracle import MAX_PARSEABLE_INPUT_VALUES as SQRT_TREE_MAX_PARSEABLE_INPUT_LENGTH
+from sqrt_tree_oracle import MAX_OUTPUT_BYTES as SQRT_TREE_MAX_OUTPUT_BYTES
+from sqrt_tree_oracle import expected_output as sqrt_tree_expected_output
 from strip_oracle import MAX_INPUT_LENGTH as MAX_STRIP_INPUT_LENGTH
 from strip_oracle import expected_output as strip_expected_output
 from word_frequency_functions_oracle import MAX_PARSEABLE_INPUT_LENGTH as MAX_WORD_FREQUENCY_FUNCTIONS_PARSEABLE_INPUT_LENGTH
@@ -3371,8 +3410,46 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mibench_office_stringsearch_bmh": mibench_office_stringsearch_bmh_suite_oracle,
     "mibench_security_rijndael": mibench_security_rijndael_oracle,
     "misc_reed_solomon": misc_reed_solomon_suite_oracle,
+    "min_cost_max_flow": min_cost_max_flow_expected_output,
+    "morton_sort": morton_sort_expected_output,
+    "number_theoretic_transform": number_theoretic_transform_expected_output,
+    "seam_carving": seam_carving_expected_output,
+    "sqrt_tree": sqrt_tree_expected_output,
+    "relaxed_convolution": relaxed_convolution_expected_output,
+    "beta_skeleton": beta_skeleton_expected_output,
+    "schoenhage_strassen_multiply": schoenhage_strassen_multiply_expected_output,
+    "wspd": wspd_expected_output,
+    "batch_dynamic_kd_tree": batch_dynamic_kd_tree_expected_output,
+    "delaunay_triangulation": delaunay_triangulation_expected_output,
+    "delaunay_mesh_refinement": delaunay_mesh_refinement_expected_output,
+    "fortune_voronoi": fortune_voronoi_expected_output,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
+
+EXTERNAL_BYTE_OUTPUT_BOUNDS = {
+    "min_cost_max_flow": (MIN_COST_MAX_FLOW_MAX_PARSEABLE_INPUT_LENGTH,
+                          MIN_COST_MAX_FLOW_MAX_OUTPUT_BYTES),
+    "morton_sort": (MORTON_SORT_MAX_PARSEABLE_INPUT_LENGTH, MORTON_SORT_MAX_OUTPUT_BYTES),
+    "number_theoretic_transform": (NUMBER_THEORETIC_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+                                    NUMBER_THEORETIC_TRANSFORM_MAX_OUTPUT_BYTES),
+    "seam_carving": (SEAM_CARVING_MAX_PARSEABLE_INPUT_LENGTH, SEAM_CARVING_MAX_OUTPUT_BYTES),
+    "sqrt_tree": (SQRT_TREE_MAX_PARSEABLE_INPUT_LENGTH, SQRT_TREE_MAX_OUTPUT_BYTES),
+    "relaxed_convolution": (RELAXED_CONVOLUTION_MAX_PARSEABLE_INPUT_LENGTH,
+                            RELAXED_CONVOLUTION_MAX_OUTPUT_BYTES),
+    "beta_skeleton": (BETA_SKELETON_MAX_PARSEABLE_INPUT_LENGTH,
+                       BETA_SKELETON_MAX_OUTPUT_BYTES),
+    "schoenhage_strassen_multiply": (SCHOENHAGE_STRASSEN_MAX_INPUT_LENGTH,
+                                       SCHOENHAGE_STRASSEN_MAX_OUTPUT_LENGTH),
+    "wspd": (WSPD_MAX_INPUT_LENGTH, WSPD_MAX_OUTPUT_BYTES),
+    "batch_dynamic_kd_tree": (BATCH_DYNAMIC_KD_TREE_MAX_INPUT_LENGTH,
+                               BATCH_DYNAMIC_KD_TREE_MAX_OUTPUT_BYTES),
+    "delaunay_triangulation": (DELAUNAY_TRIANGULATION_MAX_PARSEABLE_INPUT_LENGTH,
+                               DELAUNAY_TRIANGULATION_MAX_OUTPUT_BYTES),
+    "delaunay_mesh_refinement": (DELAUNAY_MESH_REFINEMENT_MAX_PARSEABLE_INPUT_LENGTH,
+                                 DELAUNAY_MESH_REFINEMENT_MAX_OUTPUT_BYTES),
+    "fortune_voronoi": (FORTUNE_VORONOI_MAX_PARSEABLE_INPUT_LENGTH,
+                        FORTUNE_VORONOI_MAX_OUTPUT_BYTES),
+}
 
 
 def expected_output(values: list[int], algorithm: str = "letter_combinations_of_phone_number") -> tuple[int, bytes]:
@@ -34629,6 +34706,19 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if ({case.get("id") for case in workload["cases"] if isinstance(case, dict)}
                 != expected_ids or len(workload["cases"]) != len(expected_ids)):
             raise ValueError(f"{algorithm} fixture IDs differ from its pinned workload")
+    elif algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
+        max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][1]
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or input_spec.get("kind") not in {"signed_i64_array", "packed_signed_64_integer_array"}
+                or output_spec.get("maximum_bytes", output_spec.get("maximum_output_bytes")) != max_output
+                or workload.get("workspace", {}).get("bytes") != max_output
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"):
+            raise ValueError(f"{algorithm} metadata differs from its bounded byte-output contract")
     else:
         raise ValueError(f"no byte-output workload validator for {algorithm}")
 
@@ -34688,6 +34778,8 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      VERSABENCH_8B10B_MAX_PARSEABLE_WORDS if algorithm == "8b10b" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
                      2 + 2 * (128 if algorithm == "uint128_t" else 256) // 32)
+    if algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
+        max_parseable = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][0]
     oracle = BYTE_OUTPUT_ALGORITHM_ORACLES[algorithm]
     seen_ids: set[str] = set()
     for case in workload.get("cases", []):

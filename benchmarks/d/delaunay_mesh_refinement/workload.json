@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "delaunay-mesh-refinement-one-step-i64-byte-output-v1",
+  "algorithm": "delaunay_mesh_refinement",
+  "function_symbol": "delaunay_mesh_refinement",
+  "pinned_source": {
+    "repository": "dtcc-platform/dtcc-mesher",
+    "commit": "0bba17bbd0d5de4b3a65b0451c4e5db303e541ac",
+    "path": "src/core/cdt.c",
+    "symbol": "tm_quality_beta; tm_triangle_radius_edge_ratio; tm_triangle_circumcenter; tm_refine_quality_mesh",
+    "url": "https://github.com/dtcc-platform/dtcc-mesher/blob/0bba17bbd0d5de4b3a65b0451c4e5db303e541ac/src/core/cdt.c",
+    "license": "MIT",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "perform at most one quality-driven circumcenter insertion into a triangular Delaunay mesh",
+    "quality_target_min_angle_degrees": 20,
+    "quality_metric": "circumradius divided by shortest edge; bad iff R/s > beta*(1+1e-12), beta=1/(2*sin(20 degrees))",
+    "refinement_steps": 1,
+    "seed_mesh": "one CCW triangle; all three angles must be acute, so the circumcenter is strictly interior and no constrained segment can be encroached",
+    "refinement": "if bad, insert the exact circumcenter and replace the seed with its three CCW fan triangles; otherwise retain the seed",
+    "triangle_order": "seed (0,1,2); refined fan (0,1,3), (1,2,3), (2,0,3)",
+    "center_quantization": "all coordinates are output as signed millionths; rational circumcenter is rounded to nearest millionth, ties away from zero"
+  },
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[3, x0, y0, x1, y1, x2, y2]",
+    "point_count": 3,
+    "coordinate_range": [-100, 100],
+    "vertex_order": "strictly counter-clockwise",
+    "shape": "nondegenerate acute triangle",
+    "invalid_result": -1,
+    "maximum_parseable_length": 7
+  },
+  "output": {
+    "kind": "little_endian_signed_64_integer_bytes",
+    "encoding": "[vertex_count, x0_micro, y0_micro, ..., triangle_count, a0, b0, c0, ...]",
+    "successful_result": "number of output bytes",
+    "no_refinement_bytes": 88,
+    "refined_bytes": 152,
+    "maximum_bytes": 152,
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 152,
+    "meaning": "Staged maximum output of 19 signed 64-bit words."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "skinny_acute_triangle_gets_one_circumcenter",
+      "input_values": [3, 0, 0, 17, 0, 8, 100],
+      "input_length": 7,
+      "expected_result": 152,
+      "expected_output_hex": "040000000000000000000000000000000000000000000000a027a22500000000000000000000000080f4fa020000000000000003000000000000000000000001000000000000000300000000000000010000000000000002000000000000000300000000000000020000000000000000000000000000000300000000000000"
+    },
+    {
+      "id": "acute_good_quality_triangle_is_unchanged",
+      "input_values": [3, 0, 0, 4, 0, 2, 4],
+      "input_length": 7,
+      "expected_result": 88,
+      "expected_output_hex": "03000000000000000000000000000000000000000000000080969800000000000000000000000000809698000000000000000000000000000100000000000000000000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "translated_skinny_triangle",
+      "input_values": [3, -20, 10, -3, 10, -12, 110],
+      "input_length": 7,
+      "expected_result": 152,
+      "expected_output_hex": "040000000000000000d0ed902f0000000040420f0000000000b038a32f0000000040420f0000000000009065a22500000000a02d285a000000000300000000000000000000000100000000000000030000000000000001000000000000000200000000000000030000000000000002000000000000000000000000000000000300000000000000"
+    },
+    {
+      "id": "wrong_length_rejected",
+      "input_values": [3, 0, 0, 17, 0, 8],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "clockwise_seed_rejected",
+      "input_values": [3, 0, 0, 8, 100, 17, 0],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "obtuse_seed_rejected",
+      "input_values": [3, 0, 0, 8, 0, 1, 2],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [3, 0, 0, 17, 0, 8, 100],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 151,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [3, 0, 0, 17, 0, 8, 100],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 152,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 152,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

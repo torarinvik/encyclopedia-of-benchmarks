@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "id": "trekhleb-seam-carving-one-gray-vertical-seam-i64-array-bytes-v1",
+  "algorithm": "seam_carving",
+  "function_symbol": "seam_carving",
+  "description": "Remove one minimum-energy vertical seam from a bounded grayscale image.",
+  "pinned_source": {
+    "repository": "trekhleb/javascript-algorithms",
+    "commit": "85293e3e2b88f4d2ce330d956b139cf628aa1e82",
+    "path": "src/algorithms/image-processing/seam-carving/README.md",
+    "symbols": ["getPixelEnergy", "calculateEnergyMap", "findLowEnergySeam", "deleteSeam", "resizeImageWidth"],
+    "url": "https://github.com/trekhleb/javascript-algorithms/blob/85293e3e2b88f4d2ce330d956b139cf628aa1e82/src/algorithms/image-processing/seam-carving/README.md",
+    "license": "MIT",
+    "license_notice": "LICENSE.txt"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[width, height, row_major_grayscale_pixels...]",
+    "width_range": [2, 6],
+    "height_range": [1, 6],
+    "pixel_range": [0, 255],
+    "exact_length": "2 + width * height",
+    "maximum_valid_input_length": 38,
+    "maximum_parseable_input_length": 39,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "raw_bytes",
+    "encoding": "row-major grayscale pixels after removal of one vertical seam; no dimensions or terminator",
+    "length_bytes": "height * (width - 1)",
+    "success_result": "output byte length",
+    "maximum_output_bytes": 30,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true
+  },
+  "source_bound": {
+    "description": "The upstream explanation resizes an RGBA image by repeatedly calculating horizontal-neighbor RGB energy, finding a minimum vertical seam with dynamic programming, and deleting it. This profile narrows pixels to grayscale replicated into RGB and removes exactly one seam.",
+    "grayscale_mapping": "intensity v is RGB (v, v, v); alpha is omitted",
+    "energy": "sqrt(sum of squared RGB differences to existing left and right neighbors)",
+    "predecessor_tie_break": "scan x-1 through x+1 in ascending order and retain the first strict minimum",
+    "endpoint_tie_break": "scan the last row in ascending x order and retain the first strict minimum",
+    "seam_count": 1,
+    "upstream_width_growth": false
+  },
+  "workspace": {
+    "bytes": 30,
+    "meaning": "Maximum output buffer; pixel, energy, cumulative-energy, predecessor, and seam arrays are fixed to 6 by 6."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {
+      "id": "single_row_leftmost_tie",
+      "input_values": [2, 1, 10, 20],
+      "input_length": 4,
+      "expected_result": 1,
+      "expected_output_hex": "14"
+    },
+    {
+      "id": "flat_image_uses_leftmost_seam",
+      "input_values": [3, 2, 7, 7, 7, 7, 7, 7],
+      "input_length": 8,
+      "expected_result": 4,
+      "expected_output_hex": "07070707"
+    },
+    {
+      "id": "minimum_energy_right_border",
+      "input_values": [3, 2, 0, 10, 20, 100, 0, 0],
+      "input_length": 8,
+      "expected_result": 4,
+      "expected_output_hex": "000a6400"
+    },
+    {
+      "id": "maximum_dimensions_flat_image",
+      "input_values": [6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 38,
+      "expected_result": 30,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "invalid_width",
+      "input_values": [1, 1, 42],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_height",
+      "input_values": [2, 0],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_pixel_payload",
+      "input_values": [3, 2, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "trailing_input_word",
+      "input_values": [2, 1, 0, 255, 1],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "pixel_below_range",
+      "input_values": [2, 1, -1, 255],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "pixel_above_range",
+      "input_values": [2, 1, 0, 256],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ],
+  "abi_cases": [
+    {
+      "id": "short_output_capacity",
+      "input_values": [2, 1, 10, 20],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [2, 1, 10, 20],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "exact_output_capacity",
+      "input_values": [2, 1, 10, 20],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_is_null": false,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "14"
+    },
+    {
+      "id": "invalid_input_precedes_null_output",
+      "input_values": [1, 1, 42],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input_positive_length",
+      "input_values": [],
+      "input_length": 2,
+      "input_is_null": true,
+      "output_is_null": false,
+      "output_capacity": 30,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

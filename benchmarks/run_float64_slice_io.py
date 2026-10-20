@@ -362,6 +362,22 @@ from simple_pendulum_rk4_oracle import OUTPUT_ERROR as SIMPLE_PENDULUM_RK4_OUTPU
 from simple_pendulum_rk4_oracle import MAX_OUTPUT_ELEMENTS as SIMPLE_PENDULUM_RK4_MAX_OUTPUT_ELEMENTS
 from simple_pendulum_rk4_oracle import SCALE as SIMPLE_PENDULUM_RK4_SCALE
 from simple_pendulum_rk4_oracle import expected_result as simple_pendulum_rk4_oracle
+from rader_fft_oracle import (
+    MAX_INPUT_LENGTH as RADER_FFT_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as RADER_FFT_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as RADER_FFT_MAX_OUTPUT_ELEMENTS,
+    expected_output as rader_fft_expected_output,
+)
+from smallest_enclosing_ball_3d_oracle import (
+    MAX_INPUT_LENGTH as SMALLEST_ENCLOSING_BALL_3D_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as SMALLEST_ENCLOSING_BALL_3D_MAX_OUTPUT_ELEMENTS,
+    expected_output as smallest_enclosing_ball_3d_expected_output,
+)
+from euclidean_t_spanner_oracle import (
+    MAX_INPUT_LENGTH as EUCLIDEAN_T_SPANNER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as EUCLIDEAN_T_SPANNER_MAX_OUTPUT_ELEMENTS,
+    expected_output as euclidean_t_spanner_expected_output,
+)
 from piecewise_without_inbuilt_oracle import INPUT_LENGTH as PIECEWISE_WITHOUT_INBUILT_INPUT_LENGTH
 from piecewise_without_inbuilt_oracle import INVALID_RESULT as PIECEWISE_WITHOUT_INBUILT_INVALID_RESULT
 from piecewise_without_inbuilt_oracle import MAX_PARSEABLE_INPUT_LENGTH as PIECEWISE_WITHOUT_INBUILT_MAX_PARSEABLE_INPUT_LENGTH
@@ -1356,6 +1372,21 @@ def mibench_automotive_basicmath_cubic_oracle(values):
     return output if result >= 0 else None
 
 
+def rader_fft_oracle(values):
+    result, output = rader_fft_expected_output(values)
+    return output if result >= 0 else None
+
+
+def smallest_enclosing_ball_3d_oracle(values):
+    result, output = smallest_enclosing_ball_3d_expected_output(values)
+    return output if result >= 0 else None
+
+
+def euclidean_t_spanner_oracle(values):
+    result, output = euclidean_t_spanner_expected_output(values)
+    return output if result >= 0 else None
+
+
 ORACLES = {
     "partialsums": partialsums_oracle,
     "durbin": durbin_oracle,
@@ -1458,9 +1489,228 @@ ORACLES = {
     "travelling_salesman_python_bruteforce": travelling_salesman_python_bruteforce_abi_oracle,
     "travelling_salesman_python_genetic": travelling_salesman_python_genetic_abi_oracle,
     "travelling_salesman_python_held_karp": travelling_salesman_python_held_karp_abi_oracle,
+    "rader_fft": rader_fft_oracle,
+    "smallest_enclosing_ball_3d": smallest_enclosing_ball_3d_oracle,
+    "euclidean_t_spanner": euclidean_t_spanner_oracle,
     **{algorithm: risk_metrics_oracle_for(algorithm)
        for algorithm in RISK_METRICS_ALGORITHM_NAMES},
 }
+
+
+def validate_rader_fft_workload(workload: dict) -> None:
+    """Validate the fixed five-point Rader transform metadata and fixtures."""
+    source = {
+        "repository": "NyaanNyaan/library",
+        "commit": "b3981adc80a800b2584980b01821324ea6c77183",
+        "path": "ntt/rader-ntt.hpp",
+        "symbol": "RaderNTT::ntt",
+        "url": "https://github.com/NyaanNyaan/library/blob/b3981adc80a800b2584980b01821324ea6c77183/ntt/rader-ntt.hpp",
+        "role": "algorithm",
+    }
+    valid_ids = {"all_zero", "impulse_at_zero", "constant_one", "impulse_at_one_phase"}
+    invalid_ids = {"short_input", "component_above_bound"}
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    contract = workload.get("contract", {})
+    measurement = workload.get("measurement", {})
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "pinned_source", "contract", "workspace", "input", "output",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "rader-fft-five-point-complex-f64-slice-io-v1"
+            or workload.get("algorithm") != "rader_fft"
+            or workload.get("function_symbol") != "rader_fft"
+            or workload.get("pinned_source") != source
+            or input_spec.get("kind") != "finite_float64_array"
+            or input_spec.get("encoding") != "[real0,imag0,real1,imag1,...,real4,imag4]"
+            or input_spec.get("valid_length_range") != [RADER_FFT_MAX_INPUT_LENGTH] * 2
+            or input_spec.get("maximum_parseable_length") != RADER_FFT_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("component_range") != [-100.0, 100.0]
+            or input_spec.get("invalid_input_result") != -1
+            or output_spec.get("kind") != "float64_array"
+            or output_spec.get("maximum_elements") != RADER_FFT_MAX_OUTPUT_ELEMENTS
+            or output_spec.get("invalid_input_result") != -1
+            or output_spec.get("invalid_output_buffer_result") != -2
+            or output_spec.get("no_write_on_error") is not True
+            or contract.get("primitive_root_mod_5") != 2
+            or contract.get("input_permutation") != [1, 2, 4, 3]
+            or contract.get("reversed_kernel_powers") != [1, 3, 4, 2]
+            or contract.get("output_order") != "interleaved real and imaginary components for X[0] through X[4]"
+            or workload.get("workspace") != {
+                "elements": 42,
+                "meaning": "Two zero-padded length-8 complex work arrays and a ten-element staged output.",
+            }
+            or measurement.get("comparison_model") != "float64_slice_io_call"
+            or measurement.get("sample_count") != 5
+            or measurement.get("warmup_rounds") != 1
+            or measurement.get("repetitions_per_sample") != 1000
+            or not isinstance(cases, list)
+            or len(case_ids) != len(valid_ids | invalid_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != valid_ids | invalid_ids):
+        raise ValueError("rader_fft metadata or fixture IDs differ from its pinned contract")
+
+    absolute_tolerance = measurement.get("absolute_tolerance")
+    relative_tolerance = measurement.get("relative_tolerance")
+    if absolute_tolerance != 1e-10 or relative_tolerance != 1e-10:
+        raise ValueError("rader_fft requires the reviewed float64 tolerances")
+    for case in cases:
+        if (not isinstance(case, dict)
+                or set(case) != {"id", "input_values", "input_length", "expected_result", "expected_output"}
+                or type(case.get("input_length")) is not int
+                or type(case.get("expected_result")) is not int):
+            raise ValueError("rader_fft fixture framing differs from its pinned contract")
+        _values, result, output = encode_case(case, "rader_fft", absolute_tolerance, relative_tolerance)
+        case_id = case["id"]
+        if ((case_id in valid_ids and (result != RADER_FFT_MAX_OUTPUT_ELEMENTS
+                                      or len(output) != result))
+                or (case_id in invalid_ids and (result != -1 or output))):
+            raise ValueError(f"rader_fft fixture differs from its direct-DFT oracle: {case_id}")
+
+
+def validate_smallest_enclosing_ball_3d_workload(workload: dict) -> None:
+    source = workload.get("pinned_source", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    expected_ids = {
+        "singleton", "diameter_pair", "regular_tetrahedron", "duplicate_points",
+        "malformed_count", "capacity_short", "null_output",
+    }
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    source_url = (
+        "https://github.com/antonsemechko/bounding-spheres-and-circles/blob/"
+        "a6e9fe28d5239fdf72055a5ff7116bb08b2135de/ExactMinBoundSphere3D.m"
+    )
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "smallest-enclosing-ball-3d-float64-slice-io-v1"
+            or workload.get("algorithm") != "smallest_enclosing_ball_3d"
+            or workload.get("function_symbol") != "smallest_enclosing_ball_3d"
+            or source.get("repository") != "AntonSemechko/Bounding-Spheres-And-Circles"
+            or source.get("commit") != "a6e9fe28d5239fdf72055a5ff7116bb08b2135de"
+            or source.get("path") != "ExactMinBoundSphere3D.m"
+            or source.get("url") != source_url
+            or input_spec.get("kind") != "finite_float64_array"
+            or input_spec.get("maximum_valid_input_length") != SMALLEST_ENCLOSING_BALL_3D_MAX_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_length") != SMALLEST_ENCLOSING_BALL_3D_MAX_INPUT_LENGTH
+            or input_spec.get("maximum_point_count") != 8
+            or input_spec.get("coordinate_range") != [-10.0, 10.0]
+            or input_spec.get("invalid_input_result") != -1
+            or output_spec.get("kind") != "float64_array"
+            or output_spec.get("maximum_elements") != SMALLEST_ENCLOSING_BALL_3D_MAX_OUTPUT_ELEMENTS
+            or output_spec.get("invalid_input_result") != -1
+            or output_spec.get("invalid_output_buffer_result") != -2
+            or output_spec.get("null_output_result") != -2
+            or output_spec.get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 32
+            or measurement.get("comparison_model") != "float64_slice_io_call"
+            or measurement.get("absolute_tolerance") != 1e-9
+            or measurement.get("relative_tolerance") != 1e-9
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_ids):
+        raise ValueError("smallest_enclosing_ball_3d metadata differs from its pinned bounded contract")
+
+    readme = (ROOT / "benchmarks" / "s" / "smallest_enclosing_ball_3d" / "README.md").read_text(
+        encoding="utf-8")
+    license_text = (ROOT / "benchmarks" / "s" / "smallest_enclosing_ball_3d" / "LICENSE.txt").read_text(
+        encoding="utf-8")
+    if (source_url not in readme or "MIT License" not in license_text
+            or "Welzl" not in readme or "smallest_circle" not in readme):
+        raise ValueError("smallest_enclosing_ball_3d source or license attribution is incomplete")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if absolute_tolerance != 1e-9 or relative_tolerance != 1e-9:
+        raise ValueError("smallest_enclosing_ball_3d tolerances differ from its contract")
+    for case in cases:
+        if (not isinstance(case, dict) or not isinstance(case.get("input_values"), list)
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(case["input_values"])
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output"), list)):
+            raise ValueError(f"smallest_enclosing_ball_3d fixture framing is invalid: {case.get('id')}")
+        _values, result, _output = encode_case(
+            case, "smallest_enclosing_ball_3d", absolute_tolerance, relative_tolerance)
+        if case["id"] in {"capacity_short", "null_output"} and result != -2:
+            raise ValueError(f"smallest_enclosing_ball_3d ABI fixture is invalid: {case['id']}")
+
+
+def validate_euclidean_t_spanner_workload(workload: dict) -> None:
+    source = {
+        "repository": "ParAlg/ParGeo",
+        "commit": "4911408762c46b7c262f6d617d7adcb0f219b",
+        "path": "src/spatialGraph/spanner/spanner.cpp",
+        "related_paths": ["include/kdTree/wspdImpl.h", "include/kdTree/treeImpl.h", "LICENSE"],
+        "symbol": "pargeo::spanner / kdTree::wellSeparatedPairDecomp",
+        "url": "https://github.com/ParAlg/ParGeo/blob/4911408762c46b7c262f6d617d7adcb0f219b/src/spatialGraph/spanner/spanner.cpp",
+        "license": "MIT; full notice bundled in LICENSE.txt",
+    }
+    cases = workload.get("cases")
+    expected_ids = {
+        "two_points", "three_point_line", "square", "clustered_six",
+        "invalid_stretch", "duplicate_coordinates", "capacity_short", "null_output",
+    }
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "euclidean-t-spanner-float64-slice-io-v1"
+            or workload.get("algorithm") != "euclidean_t_spanner"
+            or workload.get("function_symbol") != "euclidean_t_spanner"
+            or workload.get("pinned_sources") != [source]
+            or input_spec.get("kind") != "finite_float64_array"
+            or input_spec.get("maximum_valid_input_length") != EUCLIDEAN_T_SPANNER_MAX_INPUT_LENGTH
+            or input_spec.get("minimum_point_count") != 2
+            or input_spec.get("maximum_point_count") != 8
+            or input_spec.get("stretch_range") != [1.5, 4.0]
+            or input_spec.get("coordinate_range") != [-1000, 1000]
+            or output_spec.get("kind") != "float64_array"
+            or output_spec.get("maximum_elements") != EUCLIDEAN_T_SPANNER_MAX_OUTPUT_ELEMENTS
+            or output_spec.get("invalid_input_result") != -1
+            or output_spec.get("null_output_result") != -2
+            or output_spec.get("insufficient_capacity_result") != -2
+            or output_spec.get("no_write_on_error") is not True
+            or workload.get("workspace", {}).get("elements") != 120
+            or measurement.get("comparison_model") != "float64_slice_io_call"
+            or measurement.get("absolute_tolerance") != 0.0
+            or measurement.get("relative_tolerance") != 0.0
+            or not isinstance(cases, list)
+            or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids))
+            or set(case_ids) != expected_ids):
+        raise ValueError("euclidean_t_spanner metadata differs from its pinned bounded contract")
+
+    readme = (ROOT / "benchmarks" / "e" / "euclidean_t_spanner" / "README.md").read_text(
+        encoding="utf-8")
+    license_text = (ROOT / "benchmarks" / "e" / "euclidean_t_spanner" / "LICENSE.txt").read_text(
+        encoding="utf-8")
+    if (source["url"] not in readme or "MIT License" not in license_text
+            or "well-separated" not in readme.lower()):
+        raise ValueError("euclidean_t_spanner README or bundled license attribution is incomplete")
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    if absolute_tolerance != 0.0 or relative_tolerance != 0.0:
+        raise ValueError("euclidean_t_spanner requires exact index-vector comparison")
+    for case in cases:
+        if (not isinstance(case, dict) or not isinstance(case.get("input_values"), list)
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(case["input_values"])
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output"), list)):
+            case_id = case.get("id") if isinstance(case, dict) else None
+            raise ValueError(f"euclidean_t_spanner fixture framing is invalid: {case_id}")
+        _values, result, output = encode_case(
+            case, "euclidean_t_spanner", absolute_tolerance, relative_tolerance)
+        if case["id"] in {"capacity_short", "null_output"} and result != -2:
+            raise ValueError(f"euclidean_t_spanner ABI fixture is invalid: {case['id']}")
+        if result >= 0 and (result != len(output) or result > EUCLIDEAN_T_SPANNER_MAX_OUTPUT_ELEMENTS):
+            raise ValueError(f"euclidean_t_spanner output is outside its bounded contract: {case['id']}")
 TDIGEST_WORKSPACE_ELEMENTS = 10
 MAX_RAYLEIGH_QUOTIENT_INPUT_LENGTH = 1 + 16 * 16 + 16
 TRAVELLING_SALESMAN_PYTHON_ALGORITHMS = frozenset({
@@ -3964,6 +4214,12 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         if algorithm == "rmsprop" else 64)
     if algorithm == "kalman_filter":
         max_input_length = KALMAN_FILTER_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "rader_fft":
+        max_input_length = RADER_FFT_MAX_PARSEABLE_INPUT_LENGTH
+    if algorithm == "smallest_enclosing_ball_3d":
+        max_input_length = SMALLEST_ENCLOSING_BALL_3D_MAX_INPUT_LENGTH
+    if algorithm == "euclidean_t_spanner":
+        max_input_length = EUCLIDEAN_T_SPANNER_MAX_INPUT_LENGTH
     if algorithm == "kalman_filter_r_two_state_simulation":
         max_input_length = KALMAN_FILTER_R_MAX_PARSEABLE_INPUT_LENGTH
     if algorithm == "momentum_sgd":
@@ -4033,7 +4289,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_telecomm_fft", "mibench_automotive_basicmath_cubic", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_telecomm_fft", "mibench_automotive_basicmath_cubic", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
                      "mean_shift", "k_means_clust", "lu_decompose", "lu_elimination",
@@ -4149,6 +4405,20 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "mibench_automotive_basicmath_cubic":
             expected_result, oracle_values = mibench_automotive_basicmath_cubic_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "smallest_enclosing_ball_3d":
+            expected_result, oracle_values = smallest_enclosing_ball_3d_expected_output(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "euclidean_t_spanner":
+            expected_result, oracle_values = euclidean_t_spanner_expected_output(
                 values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
@@ -13064,6 +13334,12 @@ def main() -> int:
         parser.error("workload does not match the float64_slice_io algorithm")
     if algorithm == "versabench_beamformer":
         validate_versabench_beamformer_workload(workload)
+    elif algorithm == "rader_fft":
+        validate_rader_fft_workload(workload)
+    elif algorithm == "smallest_enclosing_ball_3d":
+        validate_smallest_enclosing_ball_3d_workload(workload)
+    elif algorithm == "euclidean_t_spanner":
+        validate_euclidean_t_spanner_workload(workload)
     elif algorithm == "matmul_f64_4x4":
         validate_matmul_f64_4x4_workload(workload)
     elif algorithm == "misc_fp_convert":

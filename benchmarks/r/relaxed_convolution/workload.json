@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "id": "relaxed-convolution-i64-array-bytes-output-v1",
+  "algorithm": "relaxed_convolution",
+  "function_symbol": "relaxed_convolution",
+  "description": "Online-style dyadic relaxed convolution schedule with bounded direct block products over modulus 998244353.",
+  "pinned_source": {
+    "repository": "NyaanNyaan/library",
+    "commit": "b3981adc80a800b2584980b01821324ea6c77183",
+    "path": "ntt/relaxed-convolution.hpp",
+    "related_paths": [
+      "LICENSE"
+    ],
+    "symbol": "RelaxedConvolution::get",
+    "url": "https://github.com/NyaanNyaan/library/blob/b3981adc80a800b2584980b01821324ea6c77183/ntt/relaxed-convolution.hpp",
+    "license": "CC0 1.0 Universal; full notice bundled in LICENSE.txt."
+  },
+  "contract": {
+    "operation": "Consume two coefficient streams in lockstep and emit the first n coefficients of their product using the dyadic relaxed-convolution schedule.",
+    "input_layout": "[n, a0, ..., a(n-1), b0, ..., b(n-1)]",
+    "bounds": {
+      "n": [
+        1,
+        16
+      ],
+      "coefficient": [
+        0,
+        998244352
+      ]
+    },
+    "semantics": "At each q, the next pair is appended and c[q]=sum(a[j]*b[q-j]) mod 998244353 is finalized. Ports use the pinned schedule with direct modular block products in place of the upstream cached NTT block multiplication.",
+    "output_encoding": "n unsigned 32-bit little-endian residues",
+    "output_bytes": "4*n",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed input, n outside 1..16, or noncanonical coefficients return -1 before output checks. Null output or capacity below 4*n returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "n followed by n coefficients from each stream",
+    "maximum_input_length": 33,
+    "valid_ranges": {
+      "n": "1..16",
+      "coefficient": "0..998244352"
+    },
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "unsigned 32-bit little-endian residues",
+    "maximum_bytes": 64,
+    "success_result": "4*n bytes on success",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "singleton",
+      "input_values": [
+        1,
+        7,
+        9
+      ],
+      "input_length": 3,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "3f000000"
+    },
+    {
+      "id": "dense_four_terms",
+      "input_values": [
+        4,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "0500000010000000220000003c000000"
+    },
+    {
+      "id": "sparse_cross_blocks",
+      "input_values": [
+        8,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8
+      ],
+      "input_length": 17,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "000000000500000000000000100000000000000022000000000000003c000000"
+    },
+    {
+      "id": "zero_sequence",
+      "input_values": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        9,
+        8,
+        7,
+        6
+      ],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "bad_frame",
+      "input_values": [
+        3,
+        1,
+        2,
+        3,
+        4
+      ],
+      "input_length": 5,
+      "output_capacity": 12,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "noncanonical_residue",
+      "input_values": [
+        1,
+        998244353,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_capacity",
+      "input_values": [
+        4,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "input_length": 9,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

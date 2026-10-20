@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "wspd-cpp-bounded-2d-i64-byte-output-v1",
+  "algorithm": "wspd",
+  "function_symbol": "wspd",
+  "pinned_source": {
+    "repository": "dmatijev/wspd_pip",
+    "commit": "6bbe228bb13993d8ee972671acde8e76c9330eda",
+    "path": "src/findwsp.cpp",
+    "symbol": "FindWSP_cb; FindWSP2_cb",
+    "url": "https://github.com/dmatijev/wspd_pip/blob/6bbe228bb13993d8ee972671acde8e76c9330eda/src/findwsp.cpp",
+    "license": "MIT",
+    "role": "algorithm"
+  },
+  "contract": {
+    "operation": "construct a deterministic well-separated pair decomposition using a bounded median split tree",
+    "separation_test": "center_distance - 2*max_radius > separation_factor*max_radius",
+    "separation_comparison": "strict",
+    "split_axis": "coordinate axis with greatest bounding-box span; x wins ties",
+    "split_order": "selected coordinate, other coordinate, then original input index",
+    "split_position": "floor(point_count/2) points go to the left child",
+    "pair_traversal": "left subtree, right subtree, then their cross-pairs; split greater-radius node, splitting the second node on radius ties",
+    "pair_coverage": "every unordered pair of distinct input points is represented exactly once"
+  },
+  "input": {
+    "kind": "packed_signed_64_integer_array",
+    "encoding": "[point_count, separation_factor, x0, y0, ..., xN-1, yN-1]",
+    "point_count_range": [1, 8],
+    "separation_factor_range": [1, 8],
+    "coordinate_range": [-1000, 1000],
+    "duplicate_coordinates": "invalid",
+    "maximum_parseable_length": 18,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_integer_bytes",
+    "encoding": "[pair_count, left_mask_0, right_mask_0, ...]; bit i marks original input point i",
+    "pair_order": "deterministic depth-first split-tree traversal order",
+    "maximum_pairs": 28,
+    "maximum_bytes": 456,
+    "successful_result": "number of output bytes",
+    "invalid_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "null_output_result": -2,
+    "errors_write_nothing": true
+  },
+  "workspace": {
+    "bytes": 456,
+    "meaning": "Staged maximum output for one signed 64-bit count and at most 28 pairs of signed 64-bit point masks."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1000
+  },
+  "cases": [
+    {
+      "id": "single_point_has_no_pairs",
+      "input_values": [1, 2, 5, -3],
+      "input_length": 4,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "two_points_form_one_pair",
+      "input_values": [2, 1, 0, 0, 10, 0],
+      "input_length": 6,
+      "expected_result": 24,
+      "expected_output_hex": "010000000000000001000000000000000200000000000000"
+    },
+    {
+      "id": "three_collinear_points_recursive_pairs",
+      "input_values": [3, 1, 0, 0, 10, 0, 20, 0],
+      "input_length": 8,
+      "expected_result": 56,
+      "expected_output_hex": "0300000000000000020000000000000004000000000000000100000000000000020000000000000001000000000000000400000000000000"
+    },
+    {
+      "id": "well_separated_two_point_clusters",
+      "input_values": [4, 1, 0, 0, 0, 1, 100, 0, 100, 1],
+      "input_length": 10,
+      "expected_result": 56,
+      "expected_output_hex": "0300000000000000010000000000000002000000000000000400000000000000080000000000000003000000000000000c00000000000000"
+    },
+    {
+      "id": "duplicate_points_rejected",
+      "input_values": [2, 1, 0, 0, 0, 0],
+      "input_length": 6,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "input_length_mismatch",
+      "input_values": [2, 1, 0, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+extern sin(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+const INPUT_LENGTH: usize = 7
+const MAX_OUTPUT_BYTES: usize = 152
+const COORDINATE_SCALE: i64 = 1000000
+
+def delaunay_mesh_refinement_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    (bx-ax)*(cy-ay) - (by-ay)*(cx-ax)
+
+def delaunay_mesh_refinement_round_ratio(numerator: i64, denominator: i64) -> i64:
+    magnitude: i64 = if numerator < 0: -numerator else: numerator
+    rounded: i64 = (magnitude + denominator/2) / denominator
+    if numerator < 0: -rounded else: rounded
+
+def delaunay_mesh_refinement_put(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0..<8:
+        output[offset+byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def delaunay_mesh_refinement_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values == null or length != INPUT_LENGTH or values[0] != 3: return -1
+    x: mutable i64[3] = zeroed
+    y: mutable i64[3] = zeroed
+    for i in 0..<3:
+        x[i] <- values[1+2*i]
+        y[i] <- values[2+2*i]
+        if x[i] < -100 or x[i] > 100 or y[i] < -100 or y[i] > 100: return -1
+        for j in 0..<i:
+            if x[i] == x[j] and y[i] == y[j]: return -1
+    area2: i64 = delaunay_mesh_refinement_orient(x[0],y[0],x[1],y[1],x[2],y[2])
+    if area2 <= 0: return -1
+    for i in 0..<3:
+        j: usize = (i+1)%3
+        k: usize = (i+2)%3
+        ux: i64 = x[j]-x[i]
+        uy: i64 = y[j]-y[i]
+        vx: i64 = x[k]-x[i]
+        vy: i64 = y[k]-y[i]
+        if ux*vx+uy*vy <= 0: return -1
+    len01: f64 = sqrt(((x[1]-x[0])*(x[1]-x[0])+(y[1]-y[0])*(y[1]-y[0])).f64())
+    len12: f64 = sqrt(((x[2]-x[1])*(x[2]-x[1])+(y[2]-y[1])*(y[2]-y[1])).f64())
+    len20: f64 = sqrt(((x[0]-x[2])*(x[0]-x[2])+(y[0]-y[2])*(y[0]-y[2])).f64())
+    shortest: f64 = if len01 < len12: (if len01 < len20: len01 else: len20) else: (if len12 < len20: len12 else: len20)
+    ratio: f64 = len01*len12*len20/(2.0*area2.f64()*shortest)
+    beta: f64 = 1.0/(2.0*sin(3.14159265358979323846/9.0))
+    refine: bool = ratio > beta*(1.0+1e-12)
+    staged: mutable u8[152] = zeroed
+    delaunay_mesh_refinement_put(if refine: 4 else: 3, staged[0]&, 0)
+    for i in 0..<3:
+        delaunay_mesh_refinement_put(x[i]*COORDINATE_SCALE, staged[0]&, 8+16*i)
+        delaunay_mesh_refinement_put(y[i]*COORDINATE_SCALE, staged[0]&, 16+16*i)
+    if refine:
+        ax:i64=x[0]; ay:i64=y[0]; bax:i64=x[1]-ax; bay:i64=y[1]-ay; cax:i64=x[2]-ax; cay:i64=y[2]-ay
+        denominator:i64=2*(bax*cay-bay*cax)
+        balen_sq:i64=bax*bax+bay*bay; calen_sq:i64=cax*cax+cay*cay
+        center_x_num:i64=ax*denominator+cay*balen_sq-bay*calen_sq
+        center_y_num:i64=ay*denominator+bax*calen_sq-cax*balen_sq
+        delaunay_mesh_refinement_put(delaunay_mesh_refinement_round_ratio(center_x_num*COORDINATE_SCALE,denominator),staged[0]&,56)
+        delaunay_mesh_refinement_put(delaunay_mesh_refinement_round_ratio(center_y_num*COORDINATE_SCALE,denominator),staged[0]&,64)
+        words: i64[10] = [3,0,1,3,1,2,3,2,0,3]
+        for i in 0..<10: delaunay_mesh_refinement_put(words[i],staged[0]&,72+8*i)
+    else:
+        words: i64[4] = [1,0,1,2]
+        for i in 0..<4: delaunay_mesh_refinement_put(words[i],staged[0]&,56+8*i)
+    required: usize = if refine: MAX_OUTPUT_BYTES else: 88
+    if output == null or capacity < required: return -2
+    for i in 0..<required: output[i] <- staged[i]
+    required.i64()
+
+export fn delaunay_mesh_refinement(values: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = delaunay_mesh_refinement_impl

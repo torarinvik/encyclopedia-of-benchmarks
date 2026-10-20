@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "id": "min-cost-max-flow-i64-array-bytes-output-v1",
+  "algorithm": "min_cost_max_flow",
+  "function_symbol": "min_cost_max_flow",
+  "description": "Minimum-cost maximum flow on a bounded directed capacitated network with nonnegative edge costs.",
+  "pinned_source": {
+    "repository": "atcoder/ac-library",
+    "commit": "864245a00b00dd008d1abfdc239618fdb7d139da",
+    "path": "atcoder/mincostflow.hpp",
+    "related_paths": [
+      "LICENSE",
+      "document_en/mincostflow.md"
+    ],
+    "symbol": "atcoder::mcf_graph::flow",
+    "url": "https://github.com/atcoder/ac-library/blob/864245a00b00dd008d1abfdc239618fdb7d139da/atcoder/mincostflow.hpp",
+    "license": "CC0 1.0 Universal; full notice bundled in LICENSE.txt."
+  },
+  "contract": {
+    "operation": "Return maximum feasible flow from source to sink up to flow_limit and its minimum possible total cost.",
+    "input_layout": "[vertex_count, edge_count, source, sink, flow_limit, (from, to, capacity, cost)*edge_count]",
+    "bounds": {
+      "vertex_count": [
+        2,
+        8
+      ],
+      "edge_count": [
+        0,
+        16
+      ],
+      "flow_limit": [
+        0,
+        16
+      ],
+      "capacity": [
+        0,
+        5
+      ],
+      "cost": [
+        0,
+        20
+      ]
+    },
+    "cost_restriction": "Initial forward edge costs are nonnegative, as required by AtCoder Library mincostflow.hpp; reverse residual edges have negated costs internally.",
+    "semantics": "Directed multigraph; parallel edges and self-loops are accepted. Augment until no source-to-sink residual path remains or flow_limit is reached. Return the flow achieved and minimum total cost.",
+    "output_encoding": "Two signed 64-bit integers in little-endian order: total flow, then total cost.",
+    "output_bytes": 16,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed frame, vertex, capacity, cost, or bound returns -1 before output checks. Null output or capacity below 16 returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "5-word header followed by edge quadruples in listed order",
+    "maximum_input_length": 69,
+    "valid_ranges": {
+      "vertex_count": "2..8",
+      "edge_count": "0..16",
+      "source_and_sink": "valid vertices, distinct",
+      "flow_limit": "0..16",
+      "edge_capacity": "0..5",
+      "edge_cost": "0..20"
+    },
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "little-endian signed-i64 flow followed by little-endian signed-i64 minimum cost",
+    "maximum_bytes": 16,
+    "success_result": "16 bytes on success",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "Fixed result encoding for flow and cost."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "multiple_paths_maximum_flow",
+      "input_values": [
+        4,
+        5,
+        0,
+        3,
+        10,
+        0,
+        1,
+        2,
+        1,
+        1,
+        3,
+        2,
+        1,
+        0,
+        2,
+        1,
+        2,
+        2,
+        3,
+        1,
+        3,
+        0,
+        3,
+        1,
+        10
+      ],
+      "input_length": 25,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "04000000000000001300000000000000"
+    },
+    {
+      "id": "flow_limit_stops_before_maximum",
+      "input_values": [
+        4,
+        5,
+        0,
+        3,
+        2,
+        0,
+        1,
+        2,
+        1,
+        1,
+        3,
+        2,
+        1,
+        0,
+        2,
+        1,
+        2,
+        2,
+        3,
+        1,
+        3,
+        0,
+        3,
+        1,
+        10
+      ],
+      "input_length": 25,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000400000000000000"
+    },
+    {
+      "id": "residual_rerouting_finds_minimum_cost",
+      "input_values": [
+        6,
+        8,
+        0,
+        5,
+        2,
+        0,
+        1,
+        1,
+        0,
+        0,
+        2,
+        1,
+        0,
+        1,
+        3,
+        1,
+        1,
+        1,
+        4,
+        1,
+        2,
+        2,
+        3,
+        1,
+        1,
+        2,
+        4,
+        1,
+        100,
+        3,
+        5,
+        1,
+        0,
+        4,
+        5,
+        1,
+        0
+      ],
+      "input_length": 37,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "02000000000000000300000000000000"
+    },
+    {
+      "id": "disconnected_sink",
+      "input_values": [
+        3,
+        0,
+        0,
+        2,
+        9
+      ],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "zero_flow_limit",
+      "input_values": [
+        3,
+        2,
+        0,
+        2,
+        0,
+        0,
+        1,
+        2,
+        3,
+        1,
+        2,
+        2,
+        1
+      ],
+      "input_length": 13,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        3,
+        2,
+        0,
+        2,
+        5,
+        0,
+        1,
+        2,
+        3,
+        1,
+        2,
+        2,
+        1
+      ],
+      "input_length": 13,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_cost",
+      "input_values": [
+        2,
+        1,
+        0,
+        1,
+        2,
+        0,
+        1,
+        1,
+        21
+      ],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_vertex",
+      "input_values": [
+        2,
+        1,
+        0,
+        1,
+        2,
+        0,
+        2,
+        1,
+        0
+      ],
+      "input_length": 9,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_frame_length",
+      "input_values": [
+        2,
+        1,
+        0,
+        1,
+        2,
+        0,
+        1,
+        1
+      ],
+      "input_length": 8,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

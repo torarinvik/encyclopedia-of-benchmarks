@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "id": "beta-skeleton-i64-array-bytes-output-v1",
+  "algorithm": "beta_skeleton",
+  "function_symbol": "beta_skeleton",
+  "description": "Beta=2 lune-based planar skeleton using exact integer geometry.",
+  "pinned_source": {
+    "repository": "ParAlg/ParGeo",
+    "commit": "4911408762c46b7c262f6d617d7adcb0cb0f219b",
+    "path": "src/spatialGraph/betaSkeleton/betaSkeleton.cpp",
+    "related_paths": [
+      "LICENSE",
+      "README.md"
+    ],
+    "symbol": "pargeo::betaSkeleton<2>",
+    "url": "https://github.com/ParAlg/ParGeo/blob/4911408762c46b7c262f6d617d7adcb0cb0f219b/src/spatialGraph/betaSkeleton/betaSkeleton.cpp",
+    "license": "MIT; full notice bundled in LICENSE.txt."
+  },
+  "contract": {
+    "operation": "Emit edge (i,j) for i<j iff no other point lies strictly inside both endpoint-centered radius-d disks, where d is endpoint distance.",
+    "input_layout": "[n, x0, y0, ..., x(n-1), y(n-1)]",
+    "bounds": {
+      "n": [
+        1,
+        32
+      ],
+      "coordinate": [
+        -1000,
+        1000
+      ]
+    },
+    "duplicate_points": "Rejected as invalid input.",
+    "semantics": "For each pair, d2=(xi-xj)^2+(yi-yj)^2. A third point blocks exactly when its squared distance to each endpoint is strictly less than d2. Equality to either circle boundary does not block.",
+    "output_encoding": "Lexicographically ordered edge pairs (i,j), i<j, each as two unsigned endpoint-index bytes.",
+    "maximum_output_bytes": 992,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed frame, out-of-range coordinate, or duplicate coordinate returns -1 before output checks. Null output or capacity below the exact output length returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "point count followed by x,y coordinate pairs",
+    "maximum_input_length": 65,
+    "valid_ranges": {
+      "n": "1..32",
+      "coordinates": "-1000..1000; all points distinct"
+    },
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "sorted endpoint pairs as unsigned bytes",
+    "maximum_bytes": 992,
+    "success_result": "two bytes per edge; zero for an empty edge set",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 992,
+    "meaning": "Maximum space for the sorted endpoint-pair byte sequence."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single_point",
+      "input_values": [
+        1,
+        4,
+        -2
+      ],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "two_points",
+      "input_values": [
+        2,
+        0,
+        0,
+        3,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "0001"
+    },
+    {
+      "id": "collinear_middle_blocks_long_edge",
+      "input_values": [
+        3,
+        0,
+        0,
+        1,
+        0,
+        2,
+        0
+      ],
+      "input_length": 7,
+      "output_capacity": 4,
+      "expected_result": 4,
+      "expected_output_hex": "00010102"
+    },
+    {
+      "id": "square_boundary_is_nonblocking",
+      "input_values": [
+        4,
+        0,
+        0,
+        2,
+        0,
+        2,
+        2,
+        0,
+        2
+      ],
+      "input_length": 9,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0001000301020203"
+    },
+    {
+      "id": "asymmetric_cloud",
+      "input_values": [
+        5,
+        -2,
+        0,
+        2,
+        0,
+        0,
+        1,
+        0,
+        -3,
+        4,
+        2
+      ],
+      "input_length": 11,
+      "output_capacity": 10,
+      "expected_result": 10,
+      "expected_output_hex": "00020003010201030104"
+    },
+    {
+      "id": "duplicate_coordinates_invalid",
+      "input_values": [
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 992,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "coordinate_out_of_range",
+      "input_values": [
+        1,
+        1001,
+        0
+      ],
+      "input_length": 3,
+      "output_capacity": 992,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient_capacity",
+      "input_values": [
+        2,
+        0,
+        0,
+        3,
+        0
+      ],
+      "input_length": 5,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

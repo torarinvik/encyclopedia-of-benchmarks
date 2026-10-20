@@ -1,0 +1,90 @@
+struct EtsNode:
+    left: i64
+    right: i64
+    rep: usize
+    mask: u64
+    cx: f64
+    cy: f64
+    radius: f64
+    span: f64
+struct EtsContext:
+    x: f64[8]
+    y: f64[8]
+    nodes: EtsNode[15]
+    edges: f64[56]
+    next_node: usize
+    point_count: usize
+    edge_count: usize
+    separation: f64
+def ets_point_less(context:EtsContext&,a:usize,b:usize,axis:usize)->bool:
+    a0:f64=if axis==0:context.x[a] else:context.y[a]
+    b0:f64=if axis==0:context.x[b] else:context.y[b]
+    a1:f64=if axis==0:context.y[a] else:context.x[a]
+    b1:f64=if axis==0:context.y[b] else:context.x[b]
+    a0<b0 or (a0==b0 and (a1<b1 or (a1==b1 and a<b)))
+def ets_build(context:mutable EtsContext&,mask:u64)->usize:
+    id:usize=context.next_node;context.next_node<-context.next_node+1
+    context.nodes[id].left<--1;context.nodes[id].right<--1;context.nodes[id].mask<-mask
+    members:mutable usize[8]=zeroed;used:mutable usize=0;rep:mutable usize=8
+    min_x:mutable f64=0;max_x:mutable f64=0;min_y:mutable f64=0;max_y:mutable f64=0
+    for i in 0..<context.point_count:
+        if (mask&(1.u64()<<i))!=0:
+            if used==0:min_x<-context.x[i];max_x<-context.x[i];min_y<-context.y[i];max_y<-context.y[i]
+            else:
+                if context.x[i]<min_x:min_x<-context.x[i]
+                if context.x[i]>max_x:max_x<-context.x[i]
+                if context.y[i]<min_y:min_y<-context.y[i]
+                if context.y[i]>max_y:max_y<-context.y[i]
+            members[used]<-i;used<-used+1;if i<rep:rep<-i
+    context.nodes[id].rep<-rep;context.nodes[id].cx<-(min_x+max_x)/2;context.nodes[id].cy<-(min_y+max_y)/2
+    hx:f64=(max_x-min_x)/2;hy:f64=(max_y-min_y)/2;context.nodes[id].radius<-(hx*hx+hy*hy).sqrt();context.nodes[id].span<-if max_x-min_x>max_y-min_y:max_x-min_x else:max_y-min_y
+    if used==1:return id
+    axis:usize=if max_x-min_x>=max_y-min_y:0 else:1
+    for i in 1..<used:
+        value:usize=members[i];j:mutable usize=i
+        while j>0 and ets_point_less(context,value,members[j-1],axis):members[j]<-members[j-1];j<-j-1
+        members[j]<-value
+    left_mask:mutable u64=0;right_mask:mutable u64=0;middle:usize=used/2
+    for i in 0..<used:
+        if i<middle:left_mask<-left_mask|(1.u64()<<members[i])
+        else:right_mask<-right_mask|(1.u64()<<members[i])
+    left:usize=ets_build(context&,left_mask);right:usize=ets_build(context&,right_mask)
+    context.nodes[id].left<-left.i64();context.nodes[id].right<-right.i64();id
+def ets_separated(context:EtsContext&,a:usize,b:usize)->bool:
+    u:EtsNode=context.nodes[a];v:EtsNode=context.nodes[b];dx:f64=u.cx-v.cx;dy:f64=u.cy-v.cy
+    (dx*dx+dy*dy).sqrt()-u.radius-v.radius>=context.separation*(if u.radius>v.radius:u.radius else:v.radius)
+def ets_cross(context:mutable EtsContext&,a:usize,b:usize)->void:
+    if ets_separated(context,a,b):
+        u:mutable usize=context.nodes[a].rep;v:mutable usize=context.nodes[b].rep
+        if u>v:temp:usize=u;u<-v;v<-temp
+        context.edges[2*context.edge_count]<-u.f64();context.edges[2*context.edge_count+1]<-v.f64();context.edge_count<-context.edge_count+1;return
+    if context.nodes[a].left<0:
+        ets_cross(context,context.nodes[b].left.usize(),a);ets_cross(context,context.nodes[b].right.usize(),a)
+    else if context.nodes[b].left<0:
+        ets_cross(context,context.nodes[a].left.usize(),b);ets_cross(context,context.nodes[a].right.usize(),b)
+    else if context.nodes[a].span>context.nodes[b].span:
+        ets_cross(context,context.nodes[a].left.usize(),b);ets_cross(context,context.nodes[a].right.usize(),b)
+    else:
+        ets_cross(context,a,context.nodes[b].left.usize());ets_cross(context,a,context.nodes[b].right.usize())
+def ets_visit(context:mutable EtsContext&,id:usize)->void:
+    left:i64=context.nodes[id].left;right:i64=context.nodes[id].right
+    if left<0:return
+    ets_visit(context,left.usize());ets_visit(context,right.usize());ets_cross(context,left.usize(),right.usize())
+def euclidean_t_spanner_impl(input:f64&,length:usize,output:mutable f64&,capacity:usize)->i64:
+    if input==null or length<6 or length>18:return -1
+    raw:f64=input[0];t:f64=input[1]
+    if raw<2 or raw>8 or raw!=floor(raw) or t<1.5 or t>4 or not (t==t):return -1
+    count:usize=raw.usize();if length!=2+2*count:return -1
+    context:mutable EtsContext=zeroed;context.point_count<-count;context.separation<-4*(t+1)/(t-1)
+    for i in 0..<count:
+        x:f64=input[2+2*i];y:f64=input[3+2*i]
+        if not (x==x) or not (y==y) or x>1000 or x< -1000 or y>1000 or y< -1000 or x!=floor(x) or y!=floor(y):return -1
+        for j in 0..<i:if context.x[j]==x and context.y[j]==y:return -1
+        context.x[i]<-x;context.y[i]<-y
+    all_mask:u64=(1.u64()<<count)-1;root:usize=ets_build(context&,all_mask);ets_visit(context&,root)
+    needed:usize=1+2*context.edge_count
+    if output==null or capacity<needed:return -2
+    output[0]<-context.edge_count.f64()
+    for i in 0..<2*context.edge_count:output[i+1]<-context.edges[i]
+    needed.i64()
+export fn euclidean_t_spanner(input:f64&,length:usize,output:mutable f64&,capacity:usize)->i64=euclidean_t_spanner_impl

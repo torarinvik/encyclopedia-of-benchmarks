@@ -1,0 +1,63 @@
+# New bounded port based on AtCoder Library convolution semantics (CC0); see benchmarks/n/number_theoretic_transform/LICENSE.txt.
+const NTT_MODULUS: i64 = 998244353
+
+def ntt_mod_pow(a_value: i64, exponent_value: i64) -> i64:
+    a: mutable i64 = a_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
+    while exponent > 0:
+        if (exponent & 1) != 0:
+            result <- (result * a) % NTT_MODULUS
+        a <- (a * a) % NTT_MODULUS
+        exponent <- exponent >> 1
+    result
+
+def number_theoretic_transform_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 2 || length > 65:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 || n_value > 64 || (n_value & (n_value - 1)) != 0 || length != n_value.usize() + 1:
+        return -1
+    n: usize = n_value.usize()
+    a: mutable i64[64] = zeroed
+    for i in 0..n:
+        value: i64 = input[i + 1]
+        if value < 0 || value >= NTT_MODULUS:
+            return -1
+        a[i] <- value
+    if output == null || capacity < 4 * n:
+        return -2
+    i: mutable usize = 1
+    j: mutable usize = 0
+    while i < n:
+        bit: mutable usize = n >> 1
+        while (j & bit) != 0:
+            j <- j ^ bit
+            bit <- bit >> 1
+        j <- j ^ bit
+        if i < j:
+            temp: i64 = a[i]
+            a[i] <- a[j]
+            a[j] <- temp
+        i <- i + 1
+    length_value: mutable usize = 2
+    while length_value <= n:
+        step: i64 = ntt_mod_pow(3, (NTT_MODULUS - 1) / length_value.i64())
+        base: mutable usize = 0
+        while base < n:
+            w: mutable i64 = 1
+            for k in 0..(length_value / 2):
+                u: i64 = a[base + k]
+                v: i64 = (a[base + k + length_value / 2] * w) % NTT_MODULUS
+                a[base + k] <- (u + v) % NTT_MODULUS
+                a[base + k + length_value / 2] <- (u - v + NTT_MODULUS) % NTT_MODULUS
+                w <- (w * step) % NTT_MODULUS
+            base <- base + length_value
+        length_value <- length_value * 2
+    for i in 0..n:
+        x: u32 = a[i].u32()
+        for b in 0..4:
+            output[4 * i + b] <- ((x >> (8 * b)) & 255).u8()
+    (4 * n).i64()
+
+export fn number_theoretic_transform(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = number_theoretic_transform_impl

@@ -1,0 +1,119 @@
+# Based on AtCoder Library mcf_graph::flow (CC0 1.0); see benchmarks/m/min_cost_max_flow/LICENSE.txt.
+const MCMF_MAX_N: usize = 8
+const MCMF_MAX_M: usize = 16
+const MCMF_MAX_INPUT: usize = 69
+const MCMF_INF: i64 = 1152921504606846976
+
+struct McmfEdge:
+    from_vertex: usize
+    to_vertex: usize
+    reverse_index: usize
+    capacity: i64
+    cost: i64
+
+def min_cost_max_flow_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null || length < 5 || length > MCMF_MAX_INPUT: return -1
+    n_value: i64 = input[0]
+    m_value: i64 = input[1]
+    source_value: i64 = input[2]
+    sink_value: i64 = input[3]
+    flow_limit: i64 = input[4]
+    if n_value < 2 || n_value > 8 || m_value < 0 || m_value > 16: return -1
+    edge_count: usize = m_value.usize()
+    if length != 5 + 4 * edge_count: return -1
+    if source_value < 0 || source_value >= n_value || sink_value < 0 || sink_value >= n_value ||
+            source_value == sink_value || flow_limit < 0 || flow_limit > 16: return -1
+    n: usize = n_value.usize()
+    m: usize = edge_count
+    source: usize = source_value.usize()
+    sink: usize = sink_value.usize()
+    edges: mutable McmfEdge[32] = zeroed
+    index: mutable usize = 0
+    while index < m:
+        u_value: i64 = input[5 + 4 * index]
+        v_value: i64 = input[6 + 4 * index]
+        cap: i64 = input[7 + 4 * index]
+        cost: i64 = input[8 + 4 * index]
+        if u_value < 0 || u_value >= n_value || v_value < 0 || v_value >= n_value ||
+                cap < 0 || cap > 5 || cost < 0 || cost > 20: return -1
+        u: usize = u_value.usize()
+        v: usize = v_value.usize()
+        edge_index: usize = 2 * index
+        edges[edge_index].from_vertex <- u
+        edges[edge_index].to_vertex <- v
+        edges[edge_index].reverse_index <- edge_index + 1
+        edges[edge_index].capacity <- cap
+        edges[edge_index].cost <- cost
+        edges[edge_index + 1].from_vertex <- v
+        edges[edge_index + 1].to_vertex <- u
+        edges[edge_index + 1].reverse_index <- edge_index
+        edges[edge_index + 1].capacity <- 0
+        edges[edge_index + 1].cost <- -cost
+        index <- index + 1
+    if output == null || capacity < 16: return -2
+    potential: mutable i64[8] = zeroed
+    total_flow: mutable i64 = 0
+    total_cost: mutable i64 = 0
+    while total_flow < flow_limit:
+        dist: mutable i64[8] = zeroed
+        parent: mutable i64[8] = zeroed
+        used: mutable bool[8] = zeroed
+        index <- 0
+        while index < n:
+            dist[index] <- MCMF_INF
+            parent[index] <- -1
+            used[index] <- false
+            index <- index + 1
+        dist[source] <- 0
+        step: mutable usize = 0
+        while step < n:
+            chosen: mutable i64 = -1
+            vertex: mutable usize = 0
+            while vertex < n:
+                if not used[vertex] && dist[vertex] != MCMF_INF &&
+                        (chosen < 0 || dist[vertex] < dist[chosen.usize()]): chosen <- vertex.i64()
+                vertex <- vertex + 1
+            if chosen < 0: break
+            u: usize = chosen.usize()
+            used[u] <- true
+            edge: mutable usize = 0
+            while edge < 2 * m:
+                if edges[edge].from_vertex == u && edges[edge].capacity > 0:
+                    v: usize = edges[edge].to_vertex
+                    candidate: i64 = dist[u] + edges[edge].cost + potential[u] - potential[v]
+                    if not used[v] && candidate < dist[v]:
+                        dist[v] <- candidate
+                        parent[v] <- edge.i64()
+                edge <- edge + 1
+            step <- step + 1
+        if dist[sink] == MCMF_INF: break
+        vertex <- 0
+        while vertex < n:
+            if dist[vertex] != MCMF_INF: potential[vertex] <- potential[vertex] + dist[vertex]
+            vertex <- vertex + 1
+        amount: mutable i64 = flow_limit - total_flow
+        vertex <- sink
+        while vertex != source:
+            edge_index: i64 = parent[vertex]
+            if edge_index < 0: return -1
+            edge_usize: usize = edge_index.usize()
+            if amount > edges[edge_usize].capacity: amount <- edges[edge_usize].capacity
+            vertex <- edges[edge_usize].from_vertex
+        vertex <- sink
+        while vertex != source:
+            edge_usize: usize = parent[vertex].usize()
+            reverse: usize = edges[edge_usize].reverse_index
+            edges[edge_usize].capacity <- edges[edge_usize].capacity - amount
+            edges[reverse].capacity <- edges[reverse].capacity + amount
+            vertex <- edges[edge_usize].from_vertex
+        total_flow <- total_flow + amount
+        total_cost <- total_cost + amount * (potential[sink] - potential[source])
+    flow_bits: u64 = total_flow.u64()
+    cost_bits: u64 = total_cost.u64()
+    for byte in 0..<8:
+        output[byte] <- (flow_bits >> (8 * byte)).u8()
+        output[8 + byte] <- (cost_bits >> (8 * byte)).u8()
+    16
+
+export fn min_cost_max_flow(input: i64&, input_length: usize,
+               output: mutable u8&, output_capacity: usize) -> i64 = min_cost_max_flow_impl

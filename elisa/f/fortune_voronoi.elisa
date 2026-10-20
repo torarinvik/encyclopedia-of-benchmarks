@@ -1,0 +1,259 @@
+extern sqrt(value: f64) -> f64
+extern fabs(value: f64) -> f64
+const FV_N: usize = 8
+const FV_ARCS: usize = 15
+const FV_VERTICES: usize = 32
+const FV_OUTPUT: usize = 1024
+const FV_EPS: f64 = 0.0000000001
+
+struct FvPoint:
+    x: f64
+    y: f64
+struct FvArc:
+    site: i64
+    prev: i64
+    next: i64
+    active: bool
+struct FvCircle:
+    y: f64
+    x: f64
+    arc: i64
+    left: i64
+    right: i64
+struct FvRat:
+    n: i64
+    d: i64
+struct FvRPoint:
+    x: FvRat
+    y: FvRat
+
+def fv_abs(x: i64) -> i64:
+    if x < 0: return -x
+    x
+def fv_gcd(a0: i64, b0: i64) -> i64:
+    a: mutable i64 = if a0 < 0: -a0 else: a0
+    b: mutable i64 = if b0 < 0: -b0 else: b0
+    while b != 0:
+        t: i64 = a % b
+        a <- b
+        b <- t
+    if a == 0: return 1
+    a
+def fv_rat(n0: i64, d0: i64) -> FvRat:
+    n: mutable i64 = n0
+    d: mutable i64 = d0
+    if d < 0:
+        n <- -n
+        d <- -d
+    g: i64 = fv_gcd(n, d)
+    FvRat(n / g, d / g)
+def fv_add(a: FvRat, b: FvRat) -> FvRat: fv_rat(a.n*b.d+b.n*a.d, a.d*b.d)
+def fv_sub(a: FvRat, b: FvRat) -> FvRat: fv_rat(a.n*b.d-b.n*a.d, a.d*b.d)
+def fv_mul(a: FvRat, b: FvRat) -> FvRat: fv_rat(a.n*b.n, a.d*b.d)
+def fv_div(a: FvRat, b: FvRat) -> FvRat: fv_rat(a.n*b.d, a.d*b.n)
+def fv_cmp(a: FvRat, b: FvRat) -> i64:
+    left: i64 = a.n*b.d
+    right: i64 = b.n*a.d
+    if left < right: return -1
+    if left > right: return 1
+    0
+def fv_equal(a: FvRPoint, b: FvRPoint) -> bool: fv_cmp(a.x,b.x)==0 and fv_cmp(a.y,b.y)==0
+def fv_less(a: FvRPoint, b: FvRPoint) -> bool:
+    x: i64 = fv_cmp(a.x,b.x)
+    x < 0 or (x == 0 and fv_cmp(a.y,b.y) < 0)
+def fv_orient(a: FvPoint, b: FvPoint, c: FvPoint) -> i64:
+    v: f64 = (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x)
+    if v > 0.0: return 1
+    if v < 0.0: return -1
+    0
+def fv_breakpoint(p: FvPoint, q: FvPoint, line_y: f64) -> f64:
+    if fabs(p.y-q.y) < FV_EPS: return (p.x+q.x)*0.5
+    dp: f64 = p.y-line_y
+    dq: f64 = q.y-line_y
+    a: f64 = q.y-p.y
+    b: f64 = -2.0*p.x*dq+2.0*q.x*dp
+    c: f64 = (p.x*p.x+p.y*p.y-line_y*line_y)*dq-(q.x*q.x+q.y*q.y-line_y*line_y)*dp
+    disc: mutable f64 = b*b-4.0*a*c
+    if disc < 0.0 and disc > -FV_EPS: disc <- 0.0
+    root: f64 = sqrt(disc)
+    r1: f64 = (-b-root)/(2.0*a)
+    r2: f64 = (-b+root)/(2.0*a)
+    if p.y < q.y:
+        if r1 > r2: return r1
+        return r2
+    if r1 < r2: return r1
+    r2
+def fv_circle(a: FvPoint, b: FvPoint, c: FvPoint, sweep: f64, out: mutable FvCircle&, arc: i64, left: i64, right: i64) -> bool:
+    if fv_orient(a,b,c) >= 0: return false
+    aa: f64 = a.x*a.x+a.y*a.y
+    bb: f64 = b.x*b.x+b.y*b.y
+    cc: f64 = c.x*c.x+c.y*c.y
+    d: f64 = 2.0*(a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y))
+    if fabs(d) < FV_EPS: return false
+    x: f64 = (aa*(b.y-c.y)+bb*(c.y-a.y)+cc*(a.y-b.y))/d
+    y: f64 = (aa*(c.x-b.x)+bb*(a.x-c.x)+cc*(b.x-a.x))/d
+    dx: f64 = x-a.x
+    dy: f64 = y-a.y
+    bottom: f64 = y-sqrt(dx*dx+dy*dy)
+    if not (bottom < sweep-FV_EPS): return false
+    out.y <- bottom
+    out.x <- x
+    out.arc <- arc
+    out.left <- left
+    out.right <- right
+    true
+def fv_dist(p: FvRPoint, a: i64, b: i64, c: i64) -> FvRat:
+    fv_sub(fv_add(fv_mul(fv_rat(a,1),p.x),fv_mul(fv_rat(b,1),p.y)),fv_rat(c,1))
+def fv_intersection(p: FvRPoint, q: FvRPoint, dp: FvRat, dq: FvRat) -> FvRPoint:
+    t: FvRat = fv_div(dp,fv_sub(dp,dq))
+    FvRPoint(fv_add(p.x,fv_mul(t,fv_sub(q.x,p.x))),fv_add(p.y,fv_mul(t,fv_sub(q.y,p.y))))
+def fv_push(poly: mutable FvRPoint[FV_VERTICES]&, count: mutable usize&, point: FvRPoint) -> void:
+    if count == 0 or not fv_equal(poly[count-1],point):
+        poly[count] <- point
+        count <- count+1
+def fv_clip(poly: mutable FvRPoint[FV_VERTICES]&, count: usize, a: i64, b: i64, c: i64) -> usize:
+    next: mutable FvRPoint[FV_VERTICES]
+    n: mutable usize = 0
+    for i in 0..<count:
+        p: FvRPoint = poly[i]
+        q: FvRPoint = poly[(i+1)%count]
+        dp: FvRat = fv_dist(p,a,b,c)
+        dq: FvRat = fv_dist(q,a,b,c)
+        pin: bool = dp.n <= 0
+        qin: bool = dq.n <= 0
+        if pin and qin:
+            fv_push(next,n,q)
+        else if pin and not qin:
+            fv_push(next,n,fv_intersection(p,q,dp,dq))
+        else if not pin and qin:
+            fv_push(next,n,fv_intersection(p,q,dp,dq))
+            fv_push(next,n,q)
+    if n > 1 and fv_equal(next[0],next[n-1]): n <- n-1
+    for i in 0..<n: poly[i] <- next[i]
+    n
+def fv_valid(input: i64&, n: usize) -> bool:
+    for i in 0..<n:
+        for j in (i+1)..<n:
+            if input[1+2*i]==input[1+2*j] and input[2+2*i]==input[2+2*j]: return false
+            if input[2+2*i]==input[2+2*j]: return false
+    for i in 0..<n:
+        for j in (i+1)..<n:
+            for k in (j+1)..<n:
+                ax:i64=input[1+2*i]; ay:i64=input[2+2*i]; bx:i64=input[1+2*j]; by:i64=input[2+2*j]; cx:i64=input[1+2*k]; cy:i64=input[2+2*k]
+                if (bx-ax)*(cy-ay)==(by-ay)*(cx-ax): return false
+    for i in 0..<n:
+        for j in (i+1)..<n:
+            for k in (j+1)..<n:
+                for l in (k+1)..<n:
+                    ax:i64=input[1+2*i]-input[1+2*l]; ay:i64=input[2+2*i]-input[2+2*l]
+                    bx:i64=input[1+2*j]-input[1+2*l]; by:i64=input[2+2*j]-input[2+2*l]
+                    cx:i64=input[1+2*k]-input[1+2*l]; cy:i64=input[2+2*k]-input[2+2*l]
+                    aa:i64=ax*ax+ay*ay; bb:i64=bx*bx+by*by; cc:i64=cx*cx+cy*cy
+                    det:i64=ax*(by*cc-bb*cy)-ay*(bx*cc-bb*cx)+aa*(bx*cy-by*cx)
+                    if det==0:return false
+    true
+def fv_put(out: mutable u8&, slot: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    for i in 0..<8:
+        out[slot*8+i] <- (bits & 255).u8()
+        bits <- bits >> 8
+
+def fortune_voronoi_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or input[0] < 1 or input[0] > 8 or length != 1+2*input[0].usize(): return -1
+    n: usize = input[0].usize()
+    for i in 0..<n:
+        if input[1+2*i] < -8 or input[1+2*i] > 8 or input[2+2*i] < -8 or input[2+2*i] > 8: return -1
+    if not fv_valid(input,n): return -1
+    sites: mutable FvPoint[FV_N]
+    order: mutable i64[FV_N]
+    for i in 0..<n:
+        sites[i] <- FvPoint(input[1+2*i].f64(),input[2+2*i].f64())
+        order[i] <- i.i64()
+    for i in 1..<n:
+        v:i64=order[i]; j:mutable usize=i
+        while j>0 and sites[order[j-1].usize()].y<sites[v.usize()].y:
+            order[j] <- order[j-1]
+            j <- j-1
+        order[j] <- v
+    arcs: mutable FvArc[FV_ARCS]
+    arc_count: mutable usize = 1
+    first: mutable i64 = 0
+    arcs[0] <- FvArc(order[0],-1,-1,true)
+    next_site: mutable usize = 1
+    sweep: mutable f64 = sites[order[0].usize()].y
+    adjacent: mutable bool[FV_N][FV_N]
+    while next_site<n or first>=0:
+        best: mutable FvCircle
+        has: mutable bool = false
+        b: mutable i64 = first
+        while b>=0:
+            l:i64=arcs[b.usize()].prev; r:i64=arcs[b.usize()].next
+            if l>=0 and r>=0:
+                si:i64=arcs[l.usize()].site; sj:i64=arcs[b.usize()].site; sk:i64=arcs[r.usize()].site
+                if si!=sj and sj!=sk and si!=sk:
+                    cand:mutable FvCircle
+                    if fv_circle(sites[si.usize()],sites[sj.usize()],sites[sk.usize()],sweep,cand,b,l,r) and (not has or cand.y>best.y+FV_EPS or (fabs(cand.y-best.y)<=FV_EPS and b<best.arc)):
+                        best <- cand
+                        has <- true
+            b <- arcs[b.usize()].next
+        do_site:bool=next_site<n and (not has or sites[order[next_site].usize()].y>best.y+FV_EPS)
+        if not do_site and not has:break
+        if do_site:
+            site:i64=order[next_site]
+            next_site <- next_site+1
+            sweep <- sites[site.usize()].y
+            arc:mutable i64=first
+            while arcs[arc.usize()].next>=0:
+                right:i64=arcs[arc.usize()].next
+                if sites[site.usize()].x<fv_breakpoint(sites[arcs[arc.usize()].site.usize()],sites[arcs[right.usize()].site.usize()],sweep):break
+                arc <- right
+            old_next:i64=arcs[arc.usize()].next
+            old_site:i64=arcs[arc.usize()].site
+            if arc_count+2>FV_ARCS:return -1
+            middle:i64=arc_count.i64(); arc_count <- arc_count+1
+            arcs[middle.usize()] <- FvArc(site,arc,-1,true)
+            right:i64=arc_count.i64(); arc_count <- arc_count+1
+            arcs[right.usize()] <- FvArc(old_site,middle,old_next,true)
+            arcs[arc.usize()].next <- middle
+            arcs[middle.usize()].next <- right
+            if old_next>=0:arcs[old_next.usize()].prev <- right
+            adjacent[old_site.usize()][site.usize()] <- true
+            adjacent[site.usize()][old_site.usize()] <- true
+        else:
+            arc:i64=best.arc; left:i64=best.left; right:i64=best.right
+            if not arcs[arc.usize()].active or arcs[arc.usize()].prev!=left or arcs[arc.usize()].next!=right:return -1
+            sweep <- best.y
+            ls:i64=arcs[left.usize()].site; rs:i64=arcs[right.usize()].site
+            adjacent[ls.usize()][rs.usize()] <- true
+            adjacent[rs.usize()][ls.usize()] <- true
+            arcs[left.usize()].next <- right
+            arcs[right.usize()].prev <- left
+            arcs[arc.usize()].active <- false
+    values: mutable i64[FV_OUTPUT]
+    used: mutable usize=0
+    values[used] <- n.i64(); used <- used+1
+    for i in 0..<n:
+        poly: mutable FvRPoint[FV_VERTICES]
+        poly[0] <- FvRPoint(FvRat(-16,1),FvRat(-16,1)); poly[1] <- FvRPoint(FvRat(16,1),FvRat(-16,1))
+        poly[2] <- FvRPoint(FvRat(16,1),FvRat(16,1)); poly[3] <- FvRPoint(FvRat(-16,1),FvRat(16,1))
+        count:mutable usize=4
+        for j in 0..<n:
+            if adjacent[i][j]:
+                x:i64=input[1+2*j]; y:i64=input[2+2*j]; sx:i64=input[1+2*i]; sy:i64=input[2+2*i]
+                count <- fv_clip(poly,count,2*(x-sx),2*(y-sy),x*x+y*y-sx*sx-sy*sy)
+        if count<3 or used+2+4*count>FV_OUTPUT:return -1
+        start:mutable usize=0
+        for j in 1..<count:if fv_less(poly[j],poly[start]):start <- j
+        values[used] <- i.i64(); used <- used+1
+        values[used] <- count.i64(); used <- used+1
+        for j in 0..<count:
+            p:FvRPoint=poly[(start+j)%count]
+            values[used] <- p.x.n; used <- used+1; values[used] <- p.x.d; used <- used+1
+            values[used] <- p.y.n; used <- used+1; values[used] <- p.y.d; used <- used+1
+    bytes:usize=used*8
+    if output==null or capacity<bytes:return -2
+    for i in 0..<used:fv_put(output,i,values[i])
+    bytes.i64()
+
+export def fortune_voronoi(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    fortune_voronoi_impl(input,length,output,capacity)

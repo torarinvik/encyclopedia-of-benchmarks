@@ -1,0 +1,52 @@
+def spread_16(value: u32) -> u32:
+    mutable: u32 = value
+    mutable <- (mutable | (mutable << 8)) & 0x00ff00ff
+    mutable <- (mutable | (mutable << 4)) & 0x0f0f0f0f
+    mutable <- (mutable | (mutable << 2)) & 0x33333333
+    (mutable | (mutable << 1)) & 0x55555555
+
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def morton_sort_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if length < 3 or length > 513 or values.is_null() or values[0] < 1 or values[0] > 256:
+        return -1
+    count: usize = values[0].usize()
+    if length != 1 + 2 * count:
+        return -1
+    keys: mutable u32[256] = zeroed
+    order: mutable usize[256] = zeroed
+    index: usize = 0
+    while index < count:
+        x: i64 = values[1 + 2 * index]
+        y: i64 = values[2 + 2 * index]
+        if x < 0 or x > 65535 or y < 0 or y > 65535:
+            return -1
+        keys[index] <- spread_16(x.u32()) | (spread_16(y.u32()) << 1)
+        order[index] <- index
+        index <- index + 1
+    bytes: usize = count * 8
+    if output.is_null() or capacity < bytes:
+        return -2
+    index <- 1
+    while index < count:
+        current: usize = order[index]
+        position: mutable usize = index
+        while position > 0 and (keys[order[position - 1]] > keys[current] or
+              (keys[order[position - 1]] == keys[current] and order[position - 1] > current)):
+            order[position] <- order[position - 1]
+            position <- position - 1
+        order[position] <- current
+        index <- index + 1
+    index <- 0
+    while index < count:
+        store_i64_le(order[index].i64(), output, index * 8)
+        index <- index + 1
+    bytes.i64()
+
+export fn morton_sort(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = morton_sort_impl

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "smallest-enclosing-ball-3d-float64-slice-io-v1",
+  "algorithm": "smallest_enclosing_ball_3d",
+  "function_symbol": "smallest_enclosing_ball_3d",
+  "pinned_source": {
+    "repository": "AntonSemechko/Bounding-Spheres-And-Circles",
+    "commit": "a6e9fe28d5239fdf72055a5ff7116bb08b2135de",
+    "path": "ExactMinBoundSphere3D.m",
+    "related_paths": ["Auxiliary/FitMinSphere2Points.m", "LICENSE.md"],
+    "symbol": "ExactMinBoundSphere3D / B_MinSphere",
+    "url": "https://github.com/antonsemechko/bounding-spheres-and-circles/blob/a6e9fe28d5239fdf72055a5ff7116bb08b2135de/ExactMinBoundSphere3D.m",
+    "license": "MIT; full notice bundled in LICENSE.txt"
+  },
+  "contract": {
+    "operation": "Compute the minimum-radius sphere enclosing up to eight 3D points with Welzl's recursive support-set method.",
+    "algorithm_profile": "Deterministic lexicographic point order; recurse after removing the final point, and add it to the support set only when it lies outside the current sphere. The support set is capped at four points.",
+    "input_layout": "[n,x0,y0,z0,...,x(n-1),y(n-1),z(n-1)]",
+    "coordinate_range": [-10.0, 10.0],
+    "point_count": [1, 8],
+    "duplicate_points": "Accepted; support fitting handles duplicate and degenerate subsets by considering smaller support candidates.",
+    "output": "[center_x,center_y,center_z,radius]",
+    "errors": "Malformed, nonfinite, or out-of-range input returns -1 before output checks. Null output or capacity below four values returns -2 without writes."
+  },
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "Point count followed by flattened xyz coordinates.",
+    "maximum_valid_input_length": 25,
+    "maximum_parseable_input_length": 25,
+    "minimum_point_count": 1,
+    "maximum_point_count": 8,
+    "coordinate_range": [-10.0, 10.0],
+    "all_values_finite": true,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "Sphere center xyz followed by radius.",
+    "maximum_elements": 4,
+    "success_result": 4,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "error_precedence": "Malformed or out-of-range input is rejected before output pointer or capacity checks.",
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "workspace": {"elements": 32, "meaning": "Bounded recursive point and support storage."},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1000,
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-9
+  },
+  "cases": [
+    {"id":"singleton","input_values":[1.0,2.0,-1.0,4.0],"input_length":4,"expected_result":4,"expected_output":[2.0,-1.0,4.0,0.0]},
+    {"id":"diameter_pair","input_values":[2.0,-2.0,0.0,0.0,2.0,0.0,0.0],"input_length":7,"expected_result":4,"expected_output":[0.0,0.0,0.0,2.0]},
+    {"id":"regular_tetrahedron","input_values":[4.0,1.0,1.0,1.0,-1.0,-1.0,1.0,-1.0,1.0,-1.0,1.0,-1.0],"input_length":13,"expected_result":4,"expected_output":[0.0,0.0,0.0,1.7320508075688772]},
+    {"id":"duplicate_points","input_values":[3.0,1.0,2.0,3.0,1.0,2.0,3.0,1.0,2.0,3.0],"input_length":10,"expected_result":4,"expected_output":[1.0,2.0,3.0,0.0]},
+    {"id":"malformed_count","input_values":[2.0,0.0,0.0,0.0],"input_length":4,"expected_result":-1,"expected_output":[]},
+    {"id":"capacity_short","input_values":[1.0,0.0,0.0,0.0],"input_length":4,"output_capacity":3,"expected_result":-2,"expected_output":[]},
+    {"id":"null_output","input_values":[1.0,0.0,0.0,0.0],"input_length":4,"output_capacity":4,"output_is_null":true,"expected_result":-2,"expected_output":[]}
+  ]
+}
