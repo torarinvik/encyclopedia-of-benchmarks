@@ -36,3 +36,7 @@ The inspected C and C++ implementations use the last value as a Lomuto pivot but
 
 - [C `quick_sort.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/quick_sort.c)
 - [C++ `quick_sort.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/quick_sort.cpp)
+- [lac-dcc/Benchmarks Stanford `Quicksort.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Quicksort/Quicksort.c)
+- [lac-dcc/Benchmarks Stanford `Quicksort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Quicksort/info.sh)
+
+The Stanford source uses a midpoint pivot and emits selected ranks from a fixed generated array. Its pivot choice and source profile are variants of the quicksort algorithm covered here, so they do not require another package.

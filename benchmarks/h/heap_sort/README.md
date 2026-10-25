@@ -40,3 +40,7 @@ The checked C sample uses a one-based heap and an interactive fixed-size array; 
 
 - [C `heap_sort.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/heap_sort.c)
 - [C++ `heap_sort.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/heap_sort.cpp)
+- [lac-dcc/Benchmarks Shootout `heapsort.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/heapsort/heapsort.c)
+- [lac-dcc/Benchmarks Shootout `heapsort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/heapsort/info.sh)
+
+The Shootout source sorts generated doubles in a one-based max heap and prints only the maximum. Its source-specific generator, output formatting, and workload size do not change the heapsort algorithm covered by this package.

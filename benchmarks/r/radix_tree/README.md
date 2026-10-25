@@ -46,6 +46,7 @@ operations bounded.
 ## Pinned source
 
 - TheAlgorithms/Python [`data_structures/trie/radix_tree.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/trie/radix_tree.py), commit `e1a2a8b016001309a73d5fec4818c35cca139795`
+- The pinned MiBench [`network-patricia`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/network-patricia/patricia.c) and cBench [`network_patricia`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/network_patricia/src/patricia.c) use the same path-compressed Patricia/radix-trie insertion and exact-search algorithm on fixed-width IPv4 keys. Their key encoding and workload differ, so these sources are cross-referenced here instead of kept as duplicate algorithm packages.
 
 ## Workload
 

@@ -34,3 +34,4 @@ The source uses recursive depth first traversal and O(n) call-stack space. The p
 ## Upstream source
 
 - [TheAlgorithms/Python `binary_tree_node_sum.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/data_structures/binary_tree/binary_tree_node_sum.py)
+- [Olden `treeadd`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/treeadd) uses the same recursive node-plus-left-and-right-subtree summation; its full value-one tree and repeated passes are source workload details rather than a separate algorithm, so it is cross-referenced here instead of kept as a duplicate package.

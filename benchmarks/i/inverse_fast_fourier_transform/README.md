@@ -19,6 +19,7 @@ python3 benchmarks/verify_i64_array_bytes_output.py --algorithm inverse_fast_fou
 ## Pinned source and ports
 
 - Rust [`fast_fourier_transform.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/fast_fourier_transform.rs)
+- LAC-DCC MiBench [`fourierf.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-FFT/fourierf.c) also implements radix-2 inverse FFT. Its float32 complex-vector wrapper is not retained as another package for the same algorithm.
 
 | Language | Source |
 | --- | --- |

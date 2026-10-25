@@ -1,0 +1,186 @@
+const MAX_ITERATIONS: i64 = 1000000
+const IDLE: usize = 1
+const WORK: usize = 2
+const HANDLER_A: usize = 3
+const HANDLER_B: usize = 4
+const DEVICE_A: usize = 5
+const DEVICE_B: usize = 6
+const K_DEV: usize = 1000
+const K_WORK: usize = 1001
+const PKT_BIT: usize = 1
+const WAIT_BIT: usize = 2
+const HOLD_BIT: usize = 4
+const RUN: usize = 0
+const RUN_PKT: usize = 1
+const WAITING: usize = 2
+const WAIT_PKT: usize = 3
+const HOLDING: usize = 4
+const HOLD_PKT: usize = 5
+const HOLD_WAIT: usize = 6
+const HOLD_WAIT_PKT: usize = 7
+
+struct RichardsPacket:
+    link: usize
+    id: usize
+    kind: usize
+    a1: i64
+    a2: i64[4]
+struct RichardsTask:
+    link: usize
+    id: usize
+    priority: usize
+    queue: usize
+    state: usize
+    v1: i64
+    v2: i64
+struct RichardsState:
+    packets: RichardsPacket[9]
+    tasks: RichardsTask[7]
+    packet_used: usize
+    task_list: usize
+    current: usize
+    task_id: usize
+    packet_count: i64
+    hold_count: i64
+    v1: i64
+    v2: i64
+
+def richards_make_packet(state: mutable RichardsState&, link: usize, id: usize, kind: usize) -> usize:
+    state.packet_used <- state.packet_used + 1
+    index: usize = state.packet_used
+    state.packets[index] <- RichardsPacket{link: link, id: id, kind: kind, a1: 0, a2: [0,0,0,0]}
+    index
+
+def richards_make_task(state: mutable RichardsState&, id: usize, priority: usize, queue: usize, task_state: usize, a: i64, b: i64) -> void:
+    state.tasks[id] <- RichardsTask{link: state.task_list, id: id, priority: priority, queue: queue, state: task_state, v1: a, v2: b}
+    state.task_list <- id
+
+def richards_append_packet(state: mutable RichardsState&, packet: usize, head: usize) -> usize:
+    state.packets[packet].link <- 0
+    if head == 0: return packet
+    tail: mutable usize = head
+    while state.packets[tail].link != 0: tail <- state.packets[tail].link
+    state.packets[tail].link <- packet
+    head
+
+def richards_queue_packet(state: mutable RichardsState&, packet: usize) -> usize:
+    destination: usize = state.packets[packet].id
+    state.packet_count <- state.packet_count + 1
+    state.packets[packet].link <- 0
+    state.packets[packet].id <- state.task_id
+    if state.tasks[destination].queue == 0:
+        state.tasks[destination].queue <- packet
+        state.tasks[destination].state <- state.tasks[destination].state | PKT_BIT
+        if state.tasks[destination].priority > state.tasks[state.task_id].priority: return destination
+    else:
+        head: usize = state.tasks[destination].queue
+        state.tasks[destination].queue <- richards_append_packet(state, packet, head)
+    state.current
+
+def richards_release(state: mutable RichardsState&, destination: usize) -> usize:
+    state.tasks[destination].state <- state.tasks[destination].state & ~HOLD_BIT
+    if state.tasks[destination].priority > state.tasks[state.task_id].priority: return destination
+    state.current
+def richards_wait(state: mutable RichardsState&) -> usize:
+    state.tasks[state.task_id].state <- state.tasks[state.task_id].state | WAIT_BIT
+    state.task_id
+def richards_hold(state: mutable RichardsState&) -> usize:
+    state.hold_count <- state.hold_count + 1
+    state.tasks[state.task_id].state <- state.tasks[state.task_id].state | HOLD_BIT
+    state.tasks[state.task_id].link
+
+def richards_run_task(state: mutable RichardsState&, packet_input: usize) -> usize:
+    packet: mutable usize = packet_input
+    if state.task_id == IDLE:
+        state.v2 <- state.v2 - 1
+        if state.v2 == 0: return richards_hold(state)
+        if (state.v1 & 1) == 0:
+            state.v1 <- (state.v1 >> 1) & 32767
+            return richards_release(state, DEVICE_A)
+        state.v1 <- ((state.v1 >> 1) & 32767) ^ 0xD008
+        return richards_release(state, DEVICE_B)
+    if state.task_id == WORK:
+        if packet == 0: return richards_wait(state)
+        state.v1 <- (HANDLER_A + HANDLER_B).i64() - state.v1
+        state.packets[packet].id <- state.v1.usize()
+        state.packets[packet].a1 <- 0
+        index: mutable usize = 0
+        while index < 4:
+            state.v2 <- state.v2 + 1
+            if state.v2 > 26: state.v2 <- 1
+            state.packets[packet].a2[index] <- 64 + state.v2
+            index <- index + 1
+        return richards_queue_packet(state, packet)
+    if state.task_id == HANDLER_A or state.task_id == HANDLER_B:
+        if packet != 0:
+            if state.packets[packet].kind == K_WORK:
+                state.v1 <- richards_append_packet(state, packet, state.v1.usize()).i64()
+            else:
+                state.v2 <- richards_append_packet(state, packet, state.v2.usize()).i64()
+        if state.v1 != 0:
+            work_packet: usize = state.v1.usize()
+            count: usize = state.packets[work_packet].a1.usize()
+            if count > 3:
+                state.v1 <- state.packets[work_packet].link.i64()
+                return richards_queue_packet(state, work_packet)
+            if state.v2 != 0:
+                device_packet: usize = state.v2.usize()
+                state.v2 <- state.packets[device_packet].link.i64()
+                state.packets[device_packet].a1 <- state.packets[work_packet].a2[count]
+                state.packets[work_packet].a1 <- count.i64() + 1
+                return richards_queue_packet(state, device_packet)
+        return richards_wait(state)
+    if packet == 0:
+        if state.v1 == 0: return richards_wait(state)
+        packet <- state.v1.usize()
+        state.v1 <- 0
+        return richards_queue_packet(state, packet)
+    state.v1 <- packet.i64()
+    richards_hold(state)
+
+def richards_schedule(state: mutable RichardsState&) -> bool:
+    while state.current != 0:
+        packet: mutable usize = 0
+        task_id: usize = state.current
+        if state.tasks[task_id].state == WAIT_PKT:
+            packet <- state.tasks[task_id].queue
+            state.tasks[task_id].queue <- state.packets[packet].link
+            if state.tasks[task_id].queue == 0: state.tasks[task_id].state <- RUN
+            else: state.tasks[task_id].state <- RUN_PKT
+        task_state: usize = state.tasks[task_id].state
+        if task_state == RUN or task_state == RUN_PKT:
+            state.task_id <- task_id
+            state.v1 <- state.tasks[task_id].v1
+            state.v2 <- state.tasks[task_id].v2
+            state.current <- richards_run_task(state, packet)
+            state.tasks[task_id].v1 <- state.v1
+            state.tasks[task_id].v2 <- state.v2
+        elif task_state == WAITING or task_state == HOLDING or task_state == HOLD_PKT or task_state == HOLD_WAIT or task_state == HOLD_WAIT_PKT:
+            state.current <- state.tasks[task_id].link
+        else: return false
+    true
+
+def richards_benchmark_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    iterations: i64 = input[0]
+    if iterations < 1 or iterations > MAX_ITERATIONS: return -1
+    state: mutable RichardsState = zeroed
+    work: mutable usize = richards_make_packet(state, 0, 0, K_WORK)
+    work <- richards_make_packet(state, work, 0, K_WORK)
+    richards_make_task(state, IDLE, 0, 0, RUN, 1, iterations)
+    richards_make_task(state, WORK, 1000, work, WAIT_PKT, HANDLER_A.i64(), 0)
+    handler_a: mutable usize = richards_make_packet(state, 0, DEVICE_A, K_DEV)
+    handler_a <- richards_make_packet(state, handler_a, DEVICE_A, K_DEV)
+    handler_a <- richards_make_packet(state, handler_a, DEVICE_A, K_DEV)
+    richards_make_task(state, HANDLER_A, 2000, handler_a, WAIT_PKT, 0, 0)
+    handler_b: mutable usize = richards_make_packet(state, 0, DEVICE_B, K_DEV)
+    handler_b <- richards_make_packet(state, handler_b, DEVICE_B, K_DEV)
+    handler_b <- richards_make_packet(state, handler_b, DEVICE_B, K_DEV)
+    richards_make_task(state, HANDLER_B, 3000, handler_b, WAIT_PKT, 0, 0)
+    richards_make_task(state, DEVICE_A, 4000, 0, WAITING, 0, 0)
+    richards_make_task(state, DEVICE_B, 5000, 0, WAITING, 0, 0)
+    state.current <- state.task_list
+    if not richards_schedule(state): return -1
+    state.packet_count * 2147483648 + state.hold_count
+
+export fn richards_benchmark(input: i64&, length: usize) -> i64 = richards_benchmark_impl

@@ -12,3 +12,7 @@ Run `python3 benchmarks/verify_tree_sort.py` to check short-array ordering and d
 - [Python `tree_sort.py`](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/sorts/tree_sort.py)
 - [Rust `tree_sort.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/sorting/tree_sort.rs)
 - [TypeScript `tree_sort.ts`](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/sorts/tree_sort.ts)
+- [lac-dcc/Benchmarks Stanford `Treesort.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Treesort/Treesort.c)
+- [lac-dcc/Benchmarks Stanford `Treesort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Treesort/info.sh)
+
+The Stanford Treesort source inserts generated keys into a binary search tree and checks its ordering; it prints selected original keys instead of traversing the tree to emit a sorted sequence. Its duplicate-dropping insertion and fixed output profile are source-specific details of the same tree-sort structure, so the source is tracked here without a second package.

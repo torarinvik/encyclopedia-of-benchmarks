@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-olden-tsp-conquer-karp-merge-v1",
+  "algorithm": "olden_tsp",
+  "function_symbol": "olden_tsp",
+  "description": "Bounded Olden closest-point insertion and Karp cycle-merge TSP kernel on deterministic heap-shaped trees.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["Olden/tsp/args.c", "Olden/tsp/build.c", "Olden/tsp/main.c", "Olden/tsp/tsp.c", "Olden/tsp/tsp.h"],
+    "symbols": ["build_tree", "makelist", "conquer", "tsp", "merge"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/tsp",
+    "license_note": "The source refers to olden_v1.0/COPYRIGHT, absent from the pinned repository snapshot; no license is inferred. Ports are independently written from the documented model and algorithm."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Olden/tsp/info.sh",
+    "bench_name": "tsp",
+    "source_files": ["args.c", "build.c", "main.c", "tsp.c"],
+    "compile_flags": ["-lm", "-DTORONTO"],
+    "run_options": ["102400"]
+  },
+  "contract": {
+    "input_layout": "[city_count, x0, y0, ..., x(n-1), y(n-1)]",
+    "allowed_city_counts": [3, 7],
+    "tree_topology": "Complete binary heap over point indices: root 0, children 1 and 2, then children 3 through 6 when city_count is 7.",
+    "tree_order": "The conquer leaves are flattened in the source makelist order: recursive left subtree, recursive right subtree, then subtree root.",
+    "conquer": "For each leaf of at most three points, create a cycle from the first list point. Insert each later point at its closest cycle vertex and on the adjacent side selected by the source edge-length-change comparison.",
+    "merge": "When a subtree exceeds three points, solve its left and right children recursively and insert the subtree root into both cycles by the source Karp four-choice merge, preserving strict comparison tie order and reversals.",
+    "result": "Closed cycle Euclidean length rounded to the nearest thousandth with floor(length*1000+0.5).",
+    "coordinate_range": [-8, 8],
+    "invalid_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[city_count, x0, y0, ..., x(n-1), y(n-1)]",
+    "city_count_range": [3, 7],
+    "city_counts": [3, 7],
+    "coordinate_range": [-8, 8],
+    "exact_length": "1 + 2*city_count",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Closed-tour Euclidean length in thousandths, rounded with floor(x+0.5).",
+    "valid_result_range": [0, 200000],
+    "scale": 1000,
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "three_point_conquer_leaf", "input_values": [3, 0, 0, 3, 0, 0, 4], "expected_result": 12000},
+    {"id": "seven_point_karp_merge_all_coincident", "input_values": [7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "expected_result": 0},
+    {"id": "unsupported_city_count", "input_values": [4, 0, 0, 1, 0, 0, 1, 1, 1], "expected_result": -1},
+    {"id": "zero_cities", "input_values": [0], "expected_result": -1},
+    {"id": "coordinate_out_of_range", "input_values": [3, 9, 0, 0, 0, 0, 0], "expected_result": -1},
+    {"id": "missing_coordinate", "input_values": [3, 0, 0, 1, 0, 0], "expected_result": -1},
+    {"id": "extra_coordinate", "input_values": [3, 0, 0, 1, 0, 0, 0, 4], "expected_result": -1},
+    {"id": "signed_i64_minimum", "input_values": [-9223372036854775808, 0], "expected_result": -1},
+    {"id": "signed_i64_maximum_coordinate", "input_values": [3, 9223372036854775807, 0, 0, 0, 0, 0], "expected_result": -1}
+  ]
+}

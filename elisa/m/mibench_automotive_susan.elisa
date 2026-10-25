@@ -1,0 +1,132 @@
+# SUSAN Version 2l by Stephen Smith
+# Oxford Centre for Functional Magnetic Resonance Imaging of the Brain,
+# Department of Clinical Neurology, Oxford University, Oxford, UK
+# (Previously in Computer Vision and Image Processing Group - now
+# Computer Vision and Electro Optics Group - DERA Chertsey, UK)
+# Email:    steve@fmrib.ox.ac.uk
+# WWW:      http://www.fmrib.ox.ac.uk/~steve
+# (C) Crown Copyright (1995-1999), Defence Evaluation and Research Agency,
+# Farnborough, Hampshire, GU14 6TD, UK
+# DERA WWW site:
+# http://www.dera.gov.uk/
+# DERA Computer Vision and Electro Optics Group WWW site:
+# http://www.dera.gov.uk/imageprocessing/dera/group_home.html
+# DERA Computer Vision and Electro Optics Group point of contact:
+# Dr. John Savage, jtsavage@dera.gov.uk, +44 1344 633203
+# A UK patent has been granted: "Method for digitally processing
+# images to determine the position of edges and/or corners therein for
+# guidance of unmanned vehicle", UK Patent 2272285. Proprietor:
+# Secretary of State for Defence, UK. 15 January 1997
+#
+# This code is issued for research purposes only and remains the
+# property of the UK Secretary of State for Defence. This code must
+# not be passed on without this header information being kept
+# intact. This code must not be sold.
+extern exp(value: f64) -> f64
+
+const MIN_SIDE: usize = 15
+const MAX_SIDE: usize = 16
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 258
+const MASK_RADIUS: i64 = 7
+
+def mibench_automotive_susan_reflect(index: i64, side: usize) -> usize:
+    if index < 0: return (-index - 1).usize()
+    if index >= side.i64(): return (2 * side.i64() - index - 1).usize()
+    index.usize()
+
+def mibench_automotive_susan_median(image: i64[256]&, side: usize, y: usize, x: usize) -> u8:
+    values: mutable i64[8] = zeroed
+    count: mutable usize = 0
+    dy: mutable i64 = -1
+    while dy <= 1:
+        dx: mutable i64 = -1
+        while dx <= 1:
+            if dx != 0 or dy != 0:
+                sy: usize = mibench_automotive_susan_reflect(y.i64() + dy, side)
+                sx: usize = mibench_automotive_susan_reflect(x.i64() + dx, side)
+                values[count] <- image[sy * side + sx]
+                count <- count + 1
+            dx <- dx + 1
+        dy <- dy + 1
+    pass: mutable usize = 0
+    while pass < 7:
+        index: mutable usize = 0
+        while index < 7 - pass:
+            if values[index] > values[index + 1]:
+                temporary: i64 = values[index]
+                values[index] <- values[index + 1]
+                values[index + 1] <- temporary
+            index <- index + 1
+        pass <- pass + 1
+    ((values[3] + values[4]) / 2).u8()
+
+def mibench_automotive_susan_impl(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input[0] < MIN_SIDE.i64() or input[0] > MAX_SIDE.i64(): return -1
+    side: usize = input[0].usize()
+    pixel_count: usize = side * side
+    if input_length != pixel_count + 1: return -1
+    image: mutable i64[256] = zeroed
+    index: mutable usize = 0
+    while index < pixel_count:
+        pixel: i64 = input[index + 1]
+        if pixel < 0 or pixel > 255: return -1
+        image[index] <- pixel
+        index <- index + 1
+    if output.is_null() or output_capacity < pixel_count: return -2
+
+    brightness: mutable i64[511] = zeroed
+    index <- 0
+    while index < 511:
+        difference: i64 = index.i64() - 255
+        temp: f32 = difference.f32() / 20.0.f32()
+        temp = temp * temp
+        brightness[index] <- (100.0 * exp(-temp.f64())).f32().i64()
+        index <- index + 1
+    distance: mutable i64[225] = zeroed
+    mask_index: mutable usize = 0
+    dy: mutable i64 = -MASK_RADIUS
+    while dy <= MASK_RADIUS:
+        dx: mutable i64 = -MASK_RADIUS
+        while dx <= MASK_RADIUS:
+            squared_distance: i64 = dx * dx + dy * dy
+            exponent: f32 = squared_distance.f32() / (-16.0.f32())
+            distance[mask_index] <- (100.0 * exp(exponent.f64())).i64()
+            mask_index <- mask_index + 1
+            dx <- dx + 1
+        dy <- dy + 1
+
+    y: mutable usize = 0
+    while y < side:
+        x: mutable usize = 0
+        while x < side:
+            center: i64 = image[y * side + x]
+            area: mutable i64 = 0
+            total: mutable i64 = 0
+            mask_index <- 0
+            dy <- -MASK_RADIUS
+            while dy <= MASK_RADIUS:
+                sy: usize = mibench_automotive_susan_reflect(y.i64() + dy, side)
+                dx <- -MASK_RADIUS
+                while dx <= MASK_RADIUS:
+                    sx: usize = mibench_automotive_susan_reflect(x.i64() + dx, side)
+                    pixel: i64 = image[sy * side + sx]
+                    contribution: i64 = distance[mask_index] * brightness[(center - pixel + 255).usize()]
+                    area <- area + contribution
+                    total <- total + contribution * pixel
+                    mask_index <- mask_index + 1
+                    dx <- dx + 1
+                dy <- dy + 1
+            denominator: i64 = area - 10000
+            value: u8 = if denominator == 0:
+                mibench_automotive_susan_median(image[0]&, side, y, x)
+            else:
+                ((total - center * 10000) / denominator).u8()
+            output[y * side + x] <- value
+            x <- x + 1
+        y <- y + 1
+    pixel_count.i64()
+
+export fn mibench_automotive_susan(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = mibench_automotive_susan_impl

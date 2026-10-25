@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-olden-health-bounded-hospital-tree-v1",
+  "algorithm": "olden_health",
+  "function_symbol": "olden_health",
+  "description": "Bounded deterministic Olden health-system simulation over a four-way village tree and FIFO hospital queues.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["Olden/health/args.c", "Olden/health/health.c", "Olden/health/health.h", "Olden/health/list.c", "Olden/health/poisson.c"],
+    "symbols": ["alloc_tree", "sim", "put_in_hosp", "check_patients_inside", "check_patients_assess", "check_patients_waiting", "generate_patient", "get_results", "my_rand"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/health",
+    "license_note": "The source refers to olden_v1.0/COPYRIGHT, which is absent from the pinned repository tree. No upstream license is inferred; these ports were independently written from the observed simulation rules."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Olden/health/info.sh",
+    "bench_name": "health",
+    "source_files": ["args.c", "health.c", "list.c", "poisson.c"],
+    "compile_flags": ["-lm", "-DTORONTO"],
+    "small_run_options": ["8", "15", "1"],
+    "default_run_options": ["10", "40", "1"]
+  },
+  "contract": {
+    "input_layout": "[max_level, max_time, seed]",
+    "bounded_profile": "max_level 1..4, max_time 0..40, seed fixed to 1; the level cap bounds the four-way tree to at most 85 villages and patient creation to at most 3,400 records.",
+    "tree": "Each village has four children, numbered label*4+1 through label*4+4, and hospital personnel equal 2^(level-1). Villages process in recursive postorder with child order 3,2,1,0.",
+    "simulation_tick": "A village first admits child referrals in reverse child order, then decrements its inside and assessment queues, promotes waiting patients while personnel are free, and finally generates at most one new patient.",
+    "hospital_rules": "Admission increments hospital visits. Immediate assessment takes 3 time units; successful assessment takes 10 additional units inside; an unsuccessful assessment releases staff and refers the patient to the parent. Waiting time increments by one per tick.",
+    "randomness": "The source Park-Miller recurrence, XOR mask, float32 random value, float32 seed update, and strict generation (>0.666) and referral (>0.1) thresholds are retained. The seed input is fixed to the launcher's value 1.",
+    "result": "Number of patients discharged from an inside queue during the requested ticks. The upstream prints patient totals and averages; the scalar contract selects its reported treated-patient total.",
+    "invalid_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[max_level, max_time, seed]",
+    "exact_length": 3,
+    "max_level_range": [1, 4],
+    "max_time_range": [0, 40],
+    "seed": 1,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Number of patients discharged by the bounded village and hospital simulation.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "maximum_tree_zero_ticks", "input_values": [4, 0, 1], "expected_result": 0},
+    {"id": "single_village_thirteen_ticks", "input_values": [1, 13, 1], "expected_result": 0},
+    {"id": "maximum_tree_before_first_possible_discharge", "input_values": [4, 13, 1], "expected_result": 0},
+    {"id": "zero_level", "input_values": [0, 1, 1], "expected_result": -1},
+    {"id": "level_over_bound", "input_values": [5, 1, 1], "expected_result": -1},
+    {"id": "negative_ticks", "input_values": [1, -1, 1], "expected_result": -1},
+    {"id": "ticks_over_bound", "input_values": [1, 41, 1], "expected_result": -1},
+    {"id": "unsupported_seed", "input_values": [1, 1, 2], "expected_result": -1},
+    {"id": "missing_field", "input_values": [1, 1], "expected_result": -1},
+    {"id": "extra_field", "input_values": [1, 1, 1, 0], "expected_result": -1},
+    {"id": "signed_i64_minimum", "input_values": [-9223372036854775808, 1, 1], "expected_result": -1},
+    {"id": "signed_i64_maximum", "input_values": [1, 1, 9223372036854775807], "expected_result": -1}
+  ]
+}

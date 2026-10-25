@@ -1,0 +1,84 @@
+# Compact dynamic programming for the pinned seven-column Chomp profiles.
+const CHOMP_COLUMNS: usize = 7
+const CHOMP_MAX_STATES: usize = 6435
+
+def chomp_choose(n: usize, k: usize) -> usize:
+    if k == 0: return 1
+    result: mutable usize = 1
+    index: mutable usize = 1
+    while index <= k:
+        result <- result * (n - k + index) / index
+        index <- index + 1
+    result
+
+def chomp_state_rank(rows: usize, heights: usize&) -> usize:
+    rank: mutable usize = 0
+    previous_height: mutable usize = 0
+    position: mutable usize = 0
+    while position < CHOMP_COLUMNS:
+        height: usize = heights[CHOMP_COLUMNS - 1 - position]
+        remaining: usize = CHOMP_COLUMNS - position - 1
+        candidate: mutable usize = previous_height
+        while candidate < height:
+            rank <- rank + chomp_choose(rows - candidate + remaining, remaining)
+            candidate <- candidate + 1
+        previous_height <- height
+        position <- position + 1
+    rank
+
+def chomp_evaluate_state(rows: usize, heights: usize&,
+                         values: mutable u8&) -> void:
+    state_id: usize = chomp_state_rank(rows, heights)
+    has_move: mutable bool = false
+    winning: mutable bool = false
+    row: mutable usize = 0
+    while row < rows:
+        column: mutable usize = 0
+        while column < CHOMP_COLUMNS:
+            child: mutable usize[7] = zeroed
+            changed: mutable bool = false
+            index: mutable usize = 0
+            while index < CHOMP_COLUMNS:
+                height: mutable usize = heights[index]
+                if index >= column and height > row:
+                    height <- row
+                    changed <- true
+                child[index] <- height
+                index <- index + 1
+            if changed:
+                has_move <- true
+                child_id: usize = chomp_state_rank(rows, child)
+                if values[child_id] == 0: winning <- true
+            column <- column + 1
+        row <- row + 1
+    outcome: mutable u8 = 0
+    if not has_move or winning: outcome <- 1
+    values[state_id] <- outcome
+
+def chomp_enumerate_states(rows: usize, column: i64,
+                           minimum_height: usize,
+                           heights: mutable usize&,
+                           values: mutable u8&) -> void:
+    if column < 0:
+        chomp_evaluate_state(rows, heights, values)
+        return
+    height: mutable usize = minimum_height
+    while height <= rows:
+        heights[column.usize()] <- height
+        chomp_enumerate_states(rows, column - 1, height, heights, values)
+        height <- height + 1
+
+def mcgill_chomp_impl(rows: i64) -> i64:
+    if rows != 7 and rows != 8: return -1
+    row_count: usize = rows.usize()
+    heights: mutable usize[7] = zeroed
+    values: mutable u8[6435] = zeroed
+    chomp_enumerate_states(row_count, 6, 0, heights, values)
+    full_board: mutable usize[7] = zeroed
+    column: mutable usize = 0
+    while column < CHOMP_COLUMNS:
+        full_board[column] <- row_count
+        column <- column + 1
+    values[chomp_state_rank(row_count, full_board)].i64()
+
+export fn mcgill_chomp(rows: i64) -> i64 = mcgill_chomp_impl

@@ -1,0 +1,37 @@
+extern cosf(value: f32) -> f32
+extern sinf(value: f32) -> f32
+
+const max_iterations: i64 = 128
+const max_vector_size: usize = 64
+
+def misc_dt_impl(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length != 2: return -1
+    requested_iterations: f64 = input[0]
+    requested_size: f64 = input[1]
+    if requested_iterations != requested_iterations or requested_iterations < 1.0 or requested_iterations > 128.0 or requested_iterations.i64().f64() != requested_iterations: return -1
+    if requested_size != requested_size or requested_size < 1.0 or requested_size > 64.0 or requested_size.i64().f64() != requested_size: return -1
+    iterations: i64 = requested_iterations.i64()
+    size: usize = requested_size.i64().usize()
+    if output.is_null() or output_capacity < size: return -2
+
+    numerator: mutable f64[64] = zeroed
+    denominator: mutable f64[64] = zeroed
+    index: mutable usize = 0
+    while index < size:
+        numerator[index] <- 1.0000001 * cosf((size - index).f32())
+        denominator[index] <- 1.0 + 1e-10 * sinf(index.f32())
+        index <- index + 1
+    iteration: mutable i64 = 0
+    while iteration < iterations:
+        index <- 0
+        while index < size:
+            numerator[index] <- numerator[index] / denominator[index]
+            index <- index + 1
+        iteration <- iteration + 1
+    index <- 0
+    while index < size:
+        output[index] <- numerator[index]
+        index <- index + 1
+    size.i64()
+
+export fn misc_dt(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = misc_dt_impl

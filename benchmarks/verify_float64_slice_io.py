@@ -33,6 +33,17 @@ from heat_3d_oracle import (
     MAX_TSTEPS as HEAT_3D_MAX_TSTEPS,
     OUTPUT_ERROR as HEAT_3D_OUTPUT_ERROR,
 )
+from himenobmtxpa_oracle import (
+    INPUT_LENGTH as HIMENO_INPUT_LENGTH,
+    INVALID_RESULT as HIMENO_INVALID_RESULT,
+    MAX_ITERATIONS as HIMENO_MAX_ITERATIONS,
+    MAX_OUTPUT_ELEMENTS as HIMENO_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as HIMENO_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_SIDE as HIMENO_MAX_SIDE,
+    MIN_ITERATIONS as HIMENO_MIN_ITERATIONS,
+    MIN_SIDE as HIMENO_MIN_SIDE,
+    OUTPUT_ERROR as HIMENO_OUTPUT_ERROR,
+)
 from trmm_oracle import (
     INVALID_RESULT as TRMM_INVALID_RESULT,
     MAX_DIM as TRMM_MAX_DIM,
@@ -40,6 +51,12 @@ from trmm_oracle import (
     MAX_OUTPUT_ELEMENTS as TRMM_MAX_OUTPUT_ELEMENTS,
     OUTPUT_ERROR as TRMM_OUTPUT_ERROR,
 )
+from misc_dt_oracle import expected_output as misc_dt_verifier_expected_output
+from olden_bh_oracle import MAX_BODIES as OLDEN_BH_MAX_BODIES
+from olden_bh_oracle import expected_output as olden_bh_verifier_expected_output
+from olden_em3d_oracle import MAX_DEGREE as OLDEN_EM3D_MAX_DEGREE
+from olden_em3d_oracle import MAX_NODES as OLDEN_EM3D_MAX_NODES
+from olden_em3d_oracle import expected_output as olden_em3d_verifier_expected_output
 from run_float64_slice_io import (
     _decode_linear_discriminant_analysis_abi_values,
     validate_linear_discriminant_analysis_workload,
@@ -58,16 +75,19 @@ from run_float64_slice_io import (
     validate_syrk_workload,
     validate_matmul_f64_4x4_workload,
     validate_misc_fp_convert_workload,
+    validate_misc_dt_workload,
+    validate_olden_bh_workload,
+    validate_olden_em3d_workload,
     validate_trisolv_workload,
     validate_polybench_jacobi_workload,
     validate_syr2k_workload,
     validate_trmm_workload,
     validate_fdtd_2d_workload,
     validate_heat_3d_workload,
+    validate_himenobmtxpa_workload,
     validate_polybench_lu_workload,
     validate_polybench_correlation_workload,
     validate_polybench_seidel_2d_workload,
-    validate_mibench_telecomm_fft_workload,
     validate_mibench_automotive_basicmath_cubic_workload,
 )
 from pca_oracle import (
@@ -725,6 +745,73 @@ def heat_3d_verifier_oracle(values, capacity=None, output_is_null=False,
     return len(output), output
 
 
+def himenobmtxpa_verifier_oracle(values, capacity=None, output_is_null=False,
+                                input_is_null=False, input_length=None):
+    """Independent binary32 model of the bounded 3D Poisson relaxation."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > HIMENO_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return HIMENO_INVALID_RESULT, []
+    if input_is_null or len(values) != HIMENO_INPUT_LENGTH:
+        return HIMENO_INVALID_RESULT, []
+    dims = []
+    for value in values:
+        numeric = float(value)
+        if numeric != math.trunc(numeric):
+            return HIMENO_INVALID_RESULT, []
+        dims.append(int(numeric))
+    nx, ny, nz, iterations = dims
+    if (not HIMENO_MIN_SIDE <= nx <= HIMENO_MAX_SIDE
+            or not HIMENO_MIN_SIDE <= ny <= HIMENO_MAX_SIDE
+            or not HIMENO_MIN_SIDE <= nz <= HIMENO_MAX_SIDE
+            or not HIMENO_MIN_ITERATIONS <= iterations <= HIMENO_MAX_ITERATIONS):
+        return HIMENO_INVALID_RESULT, []
+    if output_is_null or (capacity is not None and capacity < HIMENO_MAX_OUTPUT_ELEMENTS):
+        return HIMENO_OUTPUT_ERROR, []
+
+    def binary32(value: float) -> float:
+        return struct.unpack("<f", struct.pack("<f", value))[0]
+
+    pressure = [0.0] * (nx * ny * nz)
+    staged = [0.0] * len(pressure)
+    denominator = binary32(float((nx - 1) * (nx - 1)))
+    for i in range(nx):
+        for j in range(ny):
+            for k in range(nz):
+                index = i * ny * nz + j * nz + k
+                pressure[index] = binary32(binary32(float(i * i)) / denominator)
+    inverse_six = binary32(1.0 / 6.0)
+    relaxation = binary32(0.8)
+    residual_sum = binary32(0.0)
+    for _iteration in range(iterations):
+        residual_sum = binary32(0.0)
+        for i in range(1, nx - 1):
+            for j in range(1, ny - 1):
+                for k in range(1, nz - 1):
+                    index = i * ny * nz + j * nz + k
+                    neighbor_sum = binary32(pressure[index + ny * nz] + pressure[index + nz])
+                    neighbor_sum = binary32(neighbor_sum + pressure[index + 1])
+                    neighbor_sum = binary32(neighbor_sum + pressure[index - ny * nz])
+                    neighbor_sum = binary32(neighbor_sum + pressure[index - nz])
+                    neighbor_sum = binary32(neighbor_sum + pressure[index - 1])
+                    correction = binary32(binary32(neighbor_sum * inverse_six) - pressure[index])
+                    residual_sum = binary32(
+                        residual_sum + binary32(correction * correction))
+                    staged[index] = binary32(
+                        pressure[index] + binary32(relaxation * correction))
+        for i in range(1, nx - 1):
+            for j in range(1, ny - 1):
+                for k in range(1, nz - 1):
+                    index = i * ny * nz + j * nz + k
+                    pressure[index] = staged[index]
+    return HIMENO_MAX_OUTPUT_ELEMENTS, [float(residual_sum)]
+
+
 def polybench_lu_verifier_oracle(values, capacity=None, output_is_null=False,
                                  input_is_null=False, input_length=None):
     """Independent source-order reference for bounded PolyBench LU."""
@@ -858,83 +945,6 @@ def polybench_seidel_2d_verifier_oracle(values, capacity=None, output_is_null=Fa
     return len(output), output
 
 
-def mibench_telecomm_fft_verifier_oracle(values, capacity=None, output_is_null=False,
-                                         input_is_null=False, input_length=None):
-    """Independent bounded source-order model of MiBench's single precision FFT."""
-    if (not isinstance(values, (list, tuple)) or len(values) > 34
-            or any(type(value) not in (int, float) or not math.isfinite(float(value))
-                   for value in values)
-            or type(output_is_null) is not bool or type(input_is_null) is not bool
-            or (input_is_null and (values or input_length not in (None, 0)))
-            or (input_length is not None
-                and (type(input_length) is not int or input_length != len(values)))
-            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
-        return -1, []
-    if input_is_null or len(values) < 2:
-        return -1, []
-    n_value, direction = float(values[0]), float(values[1])
-    if (n_value != math.trunc(n_value) or direction != math.trunc(direction)
-            or direction not in (0.0, 1.0) or not 2 <= n_value <= 16):
-        return -1, []
-    n = int(n_value)
-    if n & (n - 1) or len(values) != 2 + 2 * n:
-        return -1, []
-    real = [float(value) for value in values[2:2 + n]]
-    imag = [float(value) for value in values[2 + n:]]
-    if any(abs(value) > 8.0 for value in real + imag):
-        return -1, []
-
-    def binary32(value):
-        return struct.unpack("<f", struct.pack("<f", value))[0]
-
-    # Build the bit-reversed working vectors with explicit binary32 stores.
-    stages_real = [0.0] * n
-    stages_imag = [0.0] * n
-    bit_count = n.bit_length() - 1
-    for source in range(n):
-        target = 0
-        cursor = source
-        for _ in range(bit_count):
-            target = (target << 1) | (cursor & 1)
-            cursor >>= 1
-        stages_real[target] = binary32(real[source])
-        stages_imag[target] = binary32(imag[source])
-
-    # Each stage uses the pinned second-order twiddle recurrence, then writes
-    # both butterfly results through binary32 temporaries.
-    block = 2
-    while block <= n:
-        half = block // 2
-        delta = (-2.0 if direction == 1.0 else 2.0) * math.pi / float(block)
-        sin_2, sin_1 = math.sin(-2.0 * delta), math.sin(-delta)
-        cos_2, cos_1 = math.cos(-2.0 * delta), math.cos(-delta)
-        recurrence = 2.0 * cos_1
-        for base in range(0, n, block):
-            ar2, ar1, ai2, ai1 = cos_2, cos_1, sin_2, sin_1
-            for offset in range(half):
-                ar0 = recurrence * ar1 - ar2
-                ar2, ar1 = ar1, ar0
-                ai0 = recurrence * ai1 - ai2
-                ai2, ai1 = ai1, ai0
-                left, right = base + offset, base + offset + half
-                tr = ar0 * stages_real[right] - ai0 * stages_imag[right]
-                ti = ar0 * stages_imag[right] + ai0 * stages_real[right]
-                second_real = binary32(stages_real[left] - tr)
-                second_imag = binary32(stages_imag[left] - ti)
-                first_real = binary32(stages_real[left] + tr)
-                first_imag = binary32(stages_imag[left] + ti)
-                stages_real[right], stages_imag[right] = second_real, second_imag
-                stages_real[left], stages_imag[left] = first_real, first_imag
-        block *= 2
-    if direction == 1.0:
-        stages_real = [binary32(value / float(n)) for value in stages_real]
-        stages_imag = [binary32(value / float(n)) for value in stages_imag]
-    output = [component for pair in zip(stages_real, stages_imag) for component in pair]
-    if output_is_null or (capacity is not None and capacity < len(output)):
-        return -2, []
-    return len(output), output
-
-
 def mibench_automotive_basicmath_cubic_verifier_oracle(
         values, capacity=None, output_is_null=False,
         input_is_null=False, input_length=None):
@@ -998,6 +1008,12 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_matmul_f64_4x4_workload(workload)
     elif algorithm == "misc_fp_convert":
         validate_misc_fp_convert_workload(workload)
+    elif algorithm == "misc_dt":
+        validate_misc_dt_workload(workload)
+    elif algorithm == "olden_bh":
+        validate_olden_bh_workload(workload)
+    elif algorithm == "olden_em3d":
+        validate_olden_em3d_workload(workload)
     elif algorithm == "trisolv":
         validate_trisolv_workload(workload)
     elif algorithm in {"jacobi_1d", "jacobi_2d"}:
@@ -1012,14 +1028,14 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_fdtd_2d_workload(workload)
     elif algorithm == "heat_3d":
         validate_heat_3d_workload(workload)
+    elif algorithm == "himenobmtxpa":
+        validate_himenobmtxpa_workload(workload)
     elif algorithm == "polybench_lu":
         validate_polybench_lu_workload(workload)
     elif algorithm == "polybench_correlation":
         validate_polybench_correlation_workload(workload)
     elif algorithm == "polybench_seidel_2d":
         validate_polybench_seidel_2d_workload(workload)
-    elif algorithm == "mibench_telecomm_fft":
-        validate_mibench_telecomm_fft_workload(workload)
     elif algorithm == "mibench_automotive_basicmath_cubic":
         validate_mibench_automotive_basicmath_cubic_workload(workload)
     elif algorithm == "pca":
@@ -1156,6 +1172,17 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                            + relative_tolerance * abs(expected)
                            for actual, expected in zip(independent_output, expected_output))):
                 raise ValueError(f"{case.get('id')}: heat_3d fixture differs from the independent verifier oracle")
+        elif algorithm == "himenobmtxpa":
+            independent_result, independent_output = himenobmtxpa_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: Himeno fixture differs from the independent verifier oracle"
+                )
         elif algorithm == "polybench_lu":
             independent_result, independent_output = polybench_lu_verifier_oracle(
                 values, case.get("output_capacity", workspace),
@@ -1189,17 +1216,6 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                            + relative_tolerance * abs(expected)
                            for actual, expected in zip(independent_output, expected_output))):
                 raise ValueError(f"{case.get('id')}: Seidel 2D fixture differs from independent verifier oracle")
-        elif algorithm == "mibench_telecomm_fft":
-            independent_result, independent_output = mibench_telecomm_fft_verifier_oracle(
-                values, case.get("output_capacity", workspace),
-                case.get("output_is_null", False), case.get("input_is_null", False),
-                case.get("input_length"))
-            if (independent_result != expected_result
-                    or len(independent_output) != len(expected_output)
-                    or any(abs(actual - expected) > absolute_tolerance
-                           + relative_tolerance * abs(expected)
-                           for actual, expected in zip(independent_output, expected_output))):
-                raise ValueError(f"{case.get('id')}: MiBench FFT fixture differs from independent verifier oracle")
         elif algorithm == "mibench_automotive_basicmath_cubic":
             independent_result, independent_output = mibench_automotive_basicmath_cubic_verifier_oracle(
                 values, case.get("output_capacity", workspace),
@@ -1213,6 +1229,32 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                 raise ValueError(
                     f"{case.get('id')}: MiBench cubic fixture differs from the independent verifier oracle"
                 )
+        elif algorithm == "misc_dt":
+            independent_result, independent_output = misc_dt_verifier_expected_output(values)
+            if case.get("input_is_null", False) or case.get("input_length") != len(values):
+                independent_result, independent_output = -1, []
+            elif (independent_result >= 0
+                    and (case.get("output_is_null", False)
+                         or case.get("output_capacity", workspace) < independent_result)):
+                independent_result, independent_output = -2, []
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: dt fixture differs from the independent verifier oracle")
+        elif algorithm in {"olden_bh", "olden_em3d"}:
+            verifier_oracle = (olden_bh_verifier_expected_output if algorithm == "olden_bh"
+                               else olden_em3d_verifier_expected_output)
+            independent_result, independent_output = verifier_oracle(values)
+            if case.get("input_is_null", False) or case.get("input_length") != len(values):
+                independent_result, independent_output = -1, []
+            elif (independent_result >= 0
+                    and (case.get("output_is_null", False)
+                         or case.get("output_capacity", workspace) < independent_result)):
+                independent_result, independent_output = -2, []
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(f"{case.get('id')}: {algorithm} fixture differs from verifier oracle")
         if expected_result >= 0 and expected_result > workspace:
             raise ValueError(f"workspace is too small for {case.get('id')}")
         output_capacity = case.get("output_capacity", workspace)
@@ -1234,7 +1276,7 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         invalid_input = [0.0] * invalid_length
         oracle_result = ORACLES[algorithm](invalid_input)
         invalid = (oracle_result[0] < 0
-                   if algorithm in {"versabench_beamformer", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+                   if algorithm in {"versabench_beamformer", "olden_bh", "olden_em3d", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
                                     "trmm",
                                     "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                                     "median_of_running_array_double", "median_of_running_array_float",
@@ -1254,6 +1296,55 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                    else oracle_result is None)
         if invalid:
             records.append((invalid_input, -1, [], workspace, 0, 0))
+    if algorithm == "misc_dt":
+        for iterations, size in ((1, 1), (8, 2), (32, 16), (128, 64)):
+            inputs = [float(iterations), float(size)]
+            result, output = misc_dt_verifier_expected_output(inputs)
+            if result != size or len(output) != size:
+                raise ValueError("misc_dt independent oracle rejected a bounded vector profile")
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
+    if algorithm == "olden_bh":
+        rng = random.Random(0xB3)
+        point_pool = [(x, y, z) for x in range(-16, 17)
+                      for y in range(-16, 17) for z in range(-16, 17)]
+        for case_index in range(15):
+            body_count = 2 + case_index % (OLDEN_BH_MAX_BODIES - 1)
+            points = rng.sample(point_pool, body_count)
+            inputs = [float(body_count), rng.choice((0.0, 0.5, 1.0, 2.0)),
+                      rng.choice((0.0, 0.25, 1.0)), 32.0, 0.0, 0.0]
+            for x, y, z in points:
+                inputs.extend((float(x), float(y), float(z), float(rng.randint(1, 16))))
+            result, output = olden_bh_verifier_expected_output(inputs)
+            if (result != 4 or len(output) != 4
+                    or any(not math.isfinite(value) for value in output)):
+                raise ValueError("Olden BH verifier oracle rejected a generated bounded tree")
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
+    elif algorithm == "olden_em3d":
+        rng = random.Random(0xE3D)
+        for case_index in range(20):
+            node_count = 1 + case_index % OLDEN_EM3D_MAX_NODES
+            degree = rng.randint(1, min(OLDEN_EM3D_MAX_DEGREE, node_count))
+            electric = [rng.random() for _ in range(node_count)]
+            magnetic = [rng.random() for _ in range(node_count)]
+            electric_neighbors = []
+            magnetic_neighbors = []
+            for _node in range(node_count):
+                electric_neighbors.extend(rng.sample(range(node_count), degree))
+                magnetic_neighbors.extend(rng.sample(range(node_count), degree))
+            edge_count = node_count * degree
+            inputs = ([float(node_count), float(degree)] + electric + magnetic
+                      + [float(value) for value in electric_neighbors]
+                      + [rng.random() for _ in range(edge_count)]
+                      + [float(value) for value in magnetic_neighbors]
+                      + [rng.random() for _ in range(edge_count)])
+            result, output = olden_em3d_verifier_expected_output(inputs)
+            if (result != 2 * node_count or len(output) != result
+                    or any(not math.isfinite(value) for value in output)):
+                raise ValueError("Olden EM3D verifier oracle rejected a generated bounded graph")
+            records.append((inputs, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
     if algorithm == "trisolv":
         maximum_input = [float(workload["input"]["n_range"][1])]
         maximum_output = ORACLES[algorithm](maximum_input)
@@ -1309,6 +1400,46 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             raise ValueError("heat_3d independent verifier oracle returned an invalid maximum output")
         records.append((maximum_input, result, [_output_token(value) for value in output],
                         workspace, 0, 0))
+    elif algorithm == "himenobmtxpa":
+        maximum_input = [float(HIMENO_MAX_SIDE), float(HIMENO_MAX_SIDE),
+                         float(HIMENO_MAX_SIDE), float(HIMENO_MAX_ITERATIONS)]
+        result, output = himenobmtxpa_verifier_oracle(maximum_input, workspace)
+        if (result != HIMENO_MAX_OUTPUT_ELEMENTS or len(output) != result
+                or any(not math.isfinite(value) for value in output)):
+            raise ValueError("himenobmtxpa independent verifier returned an invalid maximum residual")
+        records.append((maximum_input, result, [_output_token(value) for value in output],
+                        workspace, 0, 0))
+        for capacity in (0, result - 1):
+            error_result, error_output = himenobmtxpa_verifier_oracle(
+                maximum_input, capacity)
+            if error_result != HIMENO_OUTPUT_ERROR or error_output:
+                raise ValueError("himenobmtxpa capacity oracle returned an invalid boundary result")
+            records.append((maximum_input, error_result, [], capacity, 0, 0))
+        null_result, null_output = himenobmtxpa_verifier_oracle(
+            maximum_input, result, output_is_null=True)
+        if null_result != HIMENO_OUTPUT_ERROR or null_output:
+            raise ValueError("himenobmtxpa null-output oracle returned an invalid result")
+        records.append((maximum_input, null_result, [], result, 0, 1))
+        null_input = [0.0] * HIMENO_INPUT_LENGTH
+        null_input_result, null_input_output = himenobmtxpa_verifier_oracle(
+            null_input, workspace, input_is_null=True, input_length=HIMENO_INPUT_LENGTH)
+        if null_input_result != HIMENO_INVALID_RESULT or null_input_output:
+            raise ValueError("himenobmtxpa null-input oracle returned an invalid result")
+        records.append((null_input, null_input_result, [], workspace, 1, 0))
+        rng_himeno = random.Random(0xB17E)
+        for _case_index in range(32):
+            inputs = [
+                float(rng_himeno.randint(HIMENO_MIN_SIDE, HIMENO_MAX_SIDE)),
+                float(rng_himeno.randint(HIMENO_MIN_SIDE, HIMENO_MAX_SIDE)),
+                float(rng_himeno.randint(HIMENO_MIN_SIDE, HIMENO_MAX_SIDE)),
+                float(rng_himeno.randint(HIMENO_MIN_ITERATIONS, HIMENO_MAX_ITERATIONS)),
+            ]
+            random_result, random_output = himenobmtxpa_verifier_oracle(inputs, workspace)
+            if (random_result != HIMENO_MAX_OUTPUT_ELEMENTS or len(random_output) != random_result
+                    or any(not math.isfinite(value) for value in random_output)):
+                raise ValueError("himenobmtxpa oracle rejected a generated bounded grid")
+            records.append((inputs, random_result, [_output_token(value) for value in random_output],
+                            workspace, 0, 0))
     elif algorithm == "polybench_lu":
         maximum_input = [6.0]
         result, output = polybench_lu_verifier_oracle(maximum_input, workspace)
@@ -1363,34 +1494,6 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
             maximum_input, result, output_is_null=True)
         if null_result != -2 or null_output:
             raise ValueError("Seidel 2D null-output oracle returned an invalid result")
-        records.append((maximum_input, null_result, [], result, 0, 1))
-    elif algorithm == "mibench_telecomm_fft":
-        for n in (2, 4, 8, 16):
-            # A single real impulse is valid at every supported radix-2 size.
-            generated_input = [float(n), 0.0] + [1.0] + [0.0] * (n - 1) + [0.0] * n
-            result, output = mibench_telecomm_fft_verifier_oracle(
-                generated_input, 2 * n)
-            if (result != 2 * n or len(output) != result
-                    or any(not math.isfinite(value) for value in output)):
-                raise ValueError("MiBench FFT independent verifier rejected a supported dimension")
-            records.append((generated_input, result, [_output_token(value) for value in output],
-                            result, 0, 0))
-        maximum_input = [16.0, 1.0] + [0.0] * 32
-        result, output = mibench_telecomm_fft_verifier_oracle(maximum_input, 32)
-        if result != 32 or len(output) != 32:
-            raise ValueError("MiBench FFT verifier failed maximum-size inverse boundary")
-        records.append((maximum_input, result, [_output_token(value) for value in output],
-                        result, 0, 0))
-        for capacity in (0, result - 1):
-            error_result, error_output = mibench_telecomm_fft_verifier_oracle(
-                maximum_input, capacity)
-            if error_result != -2 or error_output:
-                raise ValueError("MiBench FFT capacity oracle returned an invalid boundary result")
-            records.append((maximum_input, error_result, [], capacity, 0, 0))
-        null_result, null_output = mibench_telecomm_fft_verifier_oracle(
-            maximum_input, result, output_is_null=True)
-        if null_result != -2 or null_output:
-            raise ValueError("MiBench FFT null-output oracle returned an invalid result")
         records.append((maximum_input, null_result, [], result, 0, 1))
     elif algorithm == "mibench_automotive_basicmath_cubic":
         generated_inputs = (
@@ -6224,6 +6327,8 @@ def main() -> int:
         validate_matmul_f64_4x4_workload(workload)
     elif algorithm == "misc_fp_convert":
         validate_misc_fp_convert_workload(workload)
+    elif algorithm == "misc_dt":
+        validate_misc_dt_workload(workload)
     elif algorithm == "trisolv":
         validate_trisolv_workload(workload)
     elif algorithm in {"jacobi_1d", "jacobi_2d"}:

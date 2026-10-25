@@ -1,0 +1,218 @@
+extern sqrt(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+const MAX_CITIES: i64 = 7
+const CONQUER_THRESHOLD: usize = 3
+const SCALE: f64 = 1000.0
+
+def city_distance(x: i64&, y: i64&, a: usize, b: usize) -> f64:
+    dx: f64 = (x[a] - x[b]).f64()
+    dy: f64 = (y[a] - y[b]).f64()
+    sqrt(dx * dx + dy * dy)
+
+def subtree_size(node: usize, count: usize) -> usize:
+    if node >= count: return 0
+    1 + subtree_size(2 * node + 1, count) + subtree_size(2 * node + 2, count)
+
+def collect_postorder(node: usize, count: usize, order: mutable i64&, length: mutable usize&) -> void:
+    if node >= count: return
+    collect_postorder(2 * node + 1, count, order, length)
+    collect_postorder(2 * node + 2, count, order, length)
+    order[length] <- node.i64()
+    length <- length + 1
+
+def reverse_cycle(start: usize, size: usize, next: mutable usize&, prev: mutable usize&) -> void:
+    current: mutable usize = start
+    i: mutable usize = 0
+    while i < size:
+        old_next: usize = next[current]
+        old_prev: usize = prev[current]
+        next[current] <- old_prev
+        prev[current] <- old_next
+        current <- old_next
+        i <- i + 1
+
+def conquer(order: i64&, count: usize, x: i64&, y: i64&, next: mutable usize&, prev: mutable usize&) -> usize:
+    cycle: usize = order[0].usize()
+    next[cycle] <- cycle
+    prev[cycle] <- cycle
+    point_index: mutable usize = 1
+    while point_index < count:
+        point: usize = order[point_index].usize()
+        min: mutable usize = cycle
+        mindist: mutable f64 = city_distance(x, y, point, cycle)
+        tmp: mutable usize = next[cycle]
+        while tmp != cycle:
+            test: f64 = city_distance(x, y, tmp, point)
+            if test < mindist:
+                mindist <- test
+                min <- tmp
+            tmp <- next[tmp]
+        next_city: usize = next[min]
+        prev_city: usize = prev[min]
+        min_to_next: f64 = city_distance(x, y, min, next_city)
+        min_to_prev: f64 = city_distance(x, y, min, prev_city)
+        point_to_next: f64 = city_distance(x, y, point, next_city)
+        point_to_prev: f64 = city_distance(x, y, point, prev_city)
+        if point_to_prev - min_to_prev < point_to_next - min_to_next:
+            next[prev_city] <- point
+            prev[point] <- prev_city
+            next[point] <- min
+            prev[min] <- point
+        else:
+            prev[next_city] <- point
+            next[point] <- next_city
+            next[min] <- point
+            prev[point] <- min
+        point_index <- point_index + 1
+    cycle
+
+def merge_cycles(a: usize, b: usize, point: usize, size_a: usize, size_b: usize,
+                 x: i64&, y: i64&, next: mutable usize&, prev: mutable usize&) -> usize:
+    min: mutable usize = a
+    mindist: mutable f64 = city_distance(x, y, point, a)
+    tmp: mutable usize = next[a]
+    while tmp != a:
+        test: f64 = city_distance(x, y, point, tmp)
+        if test < mindist:
+            mindist <- test
+            min <- tmp
+        tmp <- next[tmp]
+    next_city: mutable usize = next[min]
+    prev_city: mutable usize = prev[min]
+    min_to_next: mutable f64 = city_distance(x, y, min, next_city)
+    min_to_prev: mutable f64 = city_distance(x, y, min, prev_city)
+    point_to_next: mutable f64 = city_distance(x, y, point, next_city)
+    point_to_prev: mutable f64 = city_distance(x, y, point, prev_city)
+    n1: mutable usize = 0
+    p1: mutable usize = 0
+    tton1: mutable f64 = 0.0
+    ttop1: mutable f64 = 0.0
+    if point_to_prev - min_to_prev < point_to_next - min_to_next:
+        p1 <- prev_city
+        n1 <- min
+        tton1 <- mindist
+        ttop1 <- point_to_prev
+    else:
+        p1 <- min
+        n1 <- next_city
+        ttop1 <- mindist
+        tton1 <- point_to_next
+    min <- b
+    mindist <- city_distance(x, y, point, b)
+    tmp <- next[b]
+    while tmp != b:
+        test: f64 = city_distance(x, y, point, tmp)
+        if test < mindist:
+            mindist <- test
+            min <- tmp
+        tmp <- next[tmp]
+    next_city <- next[min]
+    prev_city <- prev[min]
+    min_to_next <- city_distance(x, y, min, next_city)
+    min_to_prev <- city_distance(x, y, min, prev_city)
+    point_to_next <- city_distance(x, y, point, next_city)
+    point_to_prev <- city_distance(x, y, point, prev_city)
+    n2: mutable usize = 0
+    p2: mutable usize = 0
+    tton2: mutable f64 = 0.0
+    ttop2: mutable f64 = 0.0
+    if point_to_prev - min_to_prev < point_to_next - min_to_next:
+        p2 <- prev_city
+        n2 <- min
+        tton2 <- mindist
+        ttop2 <- point_to_prev
+    else:
+        p2 <- min
+        n2 <- next_city
+        ttop2 <- mindist
+        tton2 <- point_to_next
+    n1_to_n2: f64 = city_distance(x, y, n1, n2)
+    n1_to_p2: f64 = city_distance(x, y, n1, p2)
+    p1_to_n2: f64 = city_distance(x, y, p1, n2)
+    p1_to_p2: f64 = city_distance(x, y, p1, p2)
+    best: mutable f64 = ttop1 + ttop2 + n1_to_n2
+    choice: mutable usize = 1
+    test: mutable f64 = ttop1 + tton2 + n1_to_p2
+    if test < best:
+        choice <- 2
+        best <- test
+    test <- tton1 + ttop2 + p1_to_n2
+    if test < best:
+        choice <- 3
+        best <- test
+    test <- tton1 + tton2 + p1_to_p2
+    if test < best: choice <- 4
+    if choice == 1:
+        reverse_cycle(n2, size_b, next, prev)
+        next[p1] <- point
+        prev[point] <- p1
+        next[point] <- p2
+        prev[p2] <- point
+        next[n2] <- n1
+        prev[n1] <- n2
+    elif choice == 2:
+        next[p1] <- point
+        prev[point] <- p1
+        next[point] <- n2
+        prev[n2] <- point
+        next[p2] <- n1
+        prev[n1] <- p2
+    elif choice == 3:
+        next[p2] <- point
+        prev[point] <- p2
+        next[point] <- n1
+        prev[n1] <- point
+        next[p1] <- n2
+        prev[n2] <- p1
+    else:
+        reverse_cycle(n1, size_a, next, prev)
+        next[n1] <- point
+        prev[point] <- n1
+        next[point] <- n2
+        prev[n2] <- point
+        next[p2] <- p1
+        prev[p1] <- p2
+    point
+
+def solve_subtree(node: usize, count: usize, x: i64&, y: i64&, next: mutable usize&, prev: mutable usize&) -> usize:
+    size: usize = subtree_size(node, count)
+    if size <= CONQUER_THRESHOLD:
+        order: mutable [7]i64 = [0,0,0,0,0,0,0]
+        order_count: mutable usize = 0
+        collect_postorder(node, count, &order[0], &order_count)
+        return conquer(&order[0], order_count, x, y, next, prev)
+    left: usize = 2 * node + 1
+    right: usize = 2 * node + 2
+    left_cycle: usize = solve_subtree(left, count, x, y, next, prev)
+    right_cycle: usize = solve_subtree(right, count, x, y, next, prev)
+    merge_cycles(left_cycle, right_cycle, node, subtree_size(left, count), subtree_size(right, count), x, y, next, prev)
+
+def olden_tsp_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or (length != 7 and length != 15): return -1
+    count_value: i64 = input[0]
+    if count_value != 3 and count_value != 7: return -1
+    count: usize = count_value.usize()
+    if length != 1 + 2 * count: return -1
+    x: mutable [7]i64 = [0,0,0,0,0,0,0]
+    y: mutable [7]i64 = [0,0,0,0,0,0,0]
+    next: mutable [7]usize = [0,0,0,0,0,0,0]
+    prev: mutable [7]usize = [0,0,0,0,0,0,0]
+    city: mutable usize = 0
+    while city < count:
+        x[city] <- input[1 + 2 * city]
+        y[city] <- input[2 + 2 * city]
+        if x[city] < -8 or x[city] > 8 or y[city] < -8 or y[city] > 8: return -1
+        city <- city + 1
+    solve_subtree(0, count, &x[0], &y[0], &next[0], &prev[0])
+    tour_length: mutable f64 = 0.0
+    city <- 0
+    edge: mutable usize = 0
+    while edge < count:
+        following: usize = next[city]
+        tour_length <- tour_length + city_distance(&x[0], &y[0], city, following)
+        city <- following
+        edge <- edge + 1
+    floor(tour_length * SCALE + 0.5).i64()
+
+export fn olden_tsp(input: i64&, length: usize) -> i64 = olden_tsp_impl

@@ -83,18 +83,14 @@ from multiple_of_3_or_5_term_oracle import MAX_INPUT as MULTIPLE_OF_3_OR_5_TERM_
 from multiple_of_3_or_5_term_oracle import expected_result as multiple_of_3_or_5_term_oracle
 from nestedloop_oracle import MAX_N as NESTEDLOOP_MAX_N
 from nestedloop_oracle import expected_result as nestedloop_oracle
-from treeadd_oracle import MAX_LEVEL as TREEADD_MAX_LEVEL
-from treeadd_oracle import expected_result as treeadd_oracle
+from mcgill_chomp_oracle import expected_result as mcgill_chomp_oracle
 from automotive_bitcount_oracle import MAX_ITERATIONS as AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS
 from automotive_bitcount_oracle import expected_result as automotive_bitcount_oracle
-from cbench_automotive_bitcount_oracle import MAX_ITERATIONS as CBENCH_AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS
-from cbench_automotive_bitcount_oracle import expected_result as cbench_automotive_bitcount_oracle
 from shootout_hash_oracle import MAX_N as SHOOTOUT_HASH_MAX_N
 from shootout_hash_oracle import expected_result as shootout_hash_oracle
 from run_scalar import validate_multiple_of_3_or_5_term_workload
-from run_scalar import validate_treeadd_workload
+from run_scalar import validate_mcgill_chomp_workload
 from run_scalar import validate_automotive_bitcount_workload
-from run_scalar import validate_cbench_automotive_bitcount_workload
 from run_scalar import validate_shootout_hash_workload
 
 ALGORITHMS = ("factorial", "check_factorial", "factorial_trailing_zeroes", "binary_count_trailing_zeros", "trailing_zeroes", "fibonacci", "tribonacci", "bitwise_complement", "aliquot_sum", "sum_of_divisors", "abundant_number", "armstrong_number", "lcm_sum", "leonardo_number", "signum", "is_even", "double_factorial", "power_of_two", "prime_check", "perfect_number", "catalan_number", "bell_numbers", "number_of_digits", "digital_root", "happy_number", "automorphic_number", "isautomorphic", "palindrome_number", "power_of_four", "fibonacci_fast", "lucas_series", "lucas_series_recursive", "hamming_weight", "reverse_bits", "collatz", "problem1", "problem2", "problem3", "problem4", "problem5", "problem6", "problem7", "problem8", "problem9", "problem10", "problem10_ruby_prefix", "problem11_sol1", "problem12", "problem12_sol1", "problem13", "problem14", "problem15", "problem15_dp", "problem16", "problem17", "problem19", "problem20", "problem21", "problem23", "problem24", "problem25", "problem26", "problem27", "problem28", "problem29", "problem30", "problem31", "problem31_recursive", "problem32", "problem33", "problem34", "problem35", "problem36", "problem37", "problem38", "problem39", "problem40", "problem41", "problem43", "problem44", "problem45", "problem46", "problem47", "problem48", "problem49", "problem50", "problem51", "problem52", "problem53", "problem55", "problem57", "problem60", "problem62", "problem64", "problem65", "problem68", "problem69", "problem70", "problem72", "problem73", "problem75", "problem76", "problem77", "problem78", "problem79", "problem80", "problem85", "problem86", "problem87", "problem89", "problem95", "problem91", "problem92", "problem94", "problem97", "problem100", "problem101", "problem104", "problem109", "problem111", "problem112", "problem113", "problem114", "problem115", "problem116", "problem117", "problem119", "problem120", "problem121", "problem122", "problem123", "problem125", "problem129", "problem131", "problem135", "problem136", "problem137", "problem138", "problem142", "problem145", "problem164", "problem173", "problem180", "problem187", "problem190", "problem191", "problem203", "problem205", "problem206", "problem234", "problem301", "problem401", "problem493", "problem551", "problem686", "endian_converter", "euler_totient", "byte_encoding_utils", "liouville_lambda", "liouville", "twos_complement_of_binary", "gauss_easter", "leap_year", "is_odd", "binary_length", "count_set_bits", "count_leading_zeros", "clear_leftmost_set_bit", "clear_lowest_set_bit", "sum_of_odd_numbers", "sum_multiples_inclusion_exclusion", "carmichael_number", "evil_number", "keith_number", "kynea_numbers", "padovan_sequence", "pell_number", "perrin_number", "smith_number", "sphenic_number", "all_ones_sequence", "all_twos_sequence", "all_threes_sequence", "cubes_sequence")
@@ -111,9 +107,8 @@ ALGORITHMS += ("multiple_of_3_or_5_term",)
 ALGORITHMS += ("greatest_prime_factor",)
 ALGORITHMS += ("nestedloop",)
 ALGORITHMS += ("fib2",)
-ALGORITHMS += ("treeadd",)
+ALGORITHMS += ("mcgill_chomp",)
 ALGORITHMS += ("automotive_bitcount",)
-ALGORITHMS += ("cbench_automotive_bitcount",)
 ALGORITHMS += ("shootout_hash",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 
@@ -2122,12 +2117,10 @@ def euler_totient_oracle(n: int) -> int:
 def oracle(algorithm: str, n: int) -> int:
     if algorithm == "fib2":
         return fib2_oracle(n)
-    if algorithm == "treeadd":
-        return treeadd_oracle(n)
+    if algorithm == "mcgill_chomp":
+        return mcgill_chomp_oracle(n)
     if algorithm == "automotive_bitcount":
         return automotive_bitcount_oracle(n)
-    if algorithm == "cbench_automotive_bitcount":
-        return cbench_automotive_bitcount_oracle(n)
     if algorithm == "shootout_hash":
         return shootout_hash_oracle(n)
     if algorithm == "nestedloop":
@@ -3101,18 +3094,13 @@ def corpus(algorithm: str) -> tuple[str, dict]:
     if algorithm == "nestedloop":
         inputs.update(range(0, NESTEDLOOP_MAX_N + 1))
         inputs.update((I64_MIN, -1, NESTEDLOOP_MAX_N + 1, I64_MAX))
-    if algorithm == "treeadd":
-        validate_treeadd_workload(workload)
-        inputs.update(range(-2, TREEADD_MAX_LEVEL + 3))
-        inputs.update((20, 22, I64_MIN, I64_MAX))
+    if algorithm == "mcgill_chomp":
+        validate_mcgill_chomp_workload(workload)
+        inputs.update(range(-2, 11))
     if algorithm == "automotive_bitcount":
         validate_automotive_bitcount_workload(workload)
         inputs.update(range(0, 129))
         inputs.update((AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS + 1, I64_MIN, I64_MAX))
-    if algorithm == "cbench_automotive_bitcount":
-        validate_cbench_automotive_bitcount_workload(workload)
-        inputs.update(range(0, 129))
-        inputs.update((CBENCH_AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS + 1, I64_MIN, I64_MAX))
     if algorithm == "shootout_hash":
         validate_shootout_hash_workload(workload)
         inputs.update(range(0, 129))

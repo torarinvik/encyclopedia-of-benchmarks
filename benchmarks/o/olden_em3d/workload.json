@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-olden-em3d-bounded-v1",
+  "algorithm": "olden_em3d",
+  "function_symbol": "olden_em3d",
+  "description": "Bounded source-ordered in-place update of a bipartite electric/magnetic node graph.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Olden/em3d/em3d.c",
+    "symbols": ["compute_nodes", "initialize_graph", "fill_from_fields"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/em3d/em3d.c",
+    "license_note": "Source headers refer to olden_v1.0/COPYRIGHT, which is not available at that path in the pinned snapshot; no license is inferred."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Olden/em3d/info.sh",
+    "bench_name": "em3d",
+    "source_files": ["args.c", "em3d.c", "main.c", "make_graph.c", "util.c"],
+    "compile_flags": ["-lm", "-DTORONTO"],
+    "run_options": ["1024", "1000", "125"],
+    "small_problem_run_options": ["256", "250", "35"]
+  },
+  "source_bound": {
+    "launcher_node_count": 1024,
+    "launcher_degree": 1000,
+    "launcher_local_edge_percent": 125,
+    "small_problem_node_count": 256,
+    "small_problem_degree": 250,
+    "small_problem_local_edge_percent": 35,
+    "source_phase_order": ["compute E node list", "compute H node list"],
+    "source_pair_coefficient_behavior": "The source uses coeffs[i] for both from_values[i] and from_values[i+1] in each two-edge loop iteration."
+  },
+  "contract": {
+    "input_layout": "[node_count, degree, E_values, H_values, E_neighbor_ids, E_coefficients, H_neighbor_ids, H_coefficients]",
+    "valid_node_count_range": [1, 8],
+    "valid_degree_range": [1, 4],
+    "value_and_coefficient_range": [0, 1],
+    "neighbor_id_range": "[0, node_count-1]",
+    "each_node_neighbors_are_distinct": true,
+    "input_length_formula": "2 + 2*node_count + 4*node_count*degree",
+    "update_order": "Process E nodes ascending, then H nodes ascending; each node subtracts its incoming contributions in edge order.",
+    "pair_coefficient_rule": "For edge j, use coefficient at the same node's index j rounded down to the nearest even index, matching compute_nodes.",
+    "output_layout": "E values in node order followed by H values in node order",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2
+  },
+  "workspace": {"elements": 16},
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "source-ordered explicit bipartite graph and initial fields",
+    "minimum_valid_length": 8,
+    "maximum_valid_length": 146,
+    "maximum_parseable_length": 147,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "updated E values followed by updated H values",
+    "maximum_elements": 16,
+    "success_result": "2 * node_count",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "two_partition_one_degree", "input_values": [2.0, 1.0, 0.5, 0.25, 0.75, 0.5, 0.0, 1.0, 0.5, 0.25, 0.0, 1.0, 0.5, 0.25], "input_length": 14, "expected_result": 4, "expected_output": [0.125, 0.125, 0.6875, 0.46875]},
+    {"id": "invalid_zero_degree", "input_values": [2.0, 0.0], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "invalid_duplicate_neighbors", "input_values": [2.0, 2.0, 0.5, 0.25, 0.75, 0.5, 0.0, 0.0, 0.0, 1.0, 0.5, 0.25, 0.5, 0.25, 0.0, 1.0, 0.0, 1.0, 0.5, 0.25, 0.5, 0.25], "input_length": 22, "expected_result": -1, "expected_output": []},
+    {"id": "short_output_capacity", "input_values": [2.0, 1.0, 0.5, 0.25, 0.75, 0.5, 0.0, 1.0, 0.5, 0.25, 0.0, 1.0, 0.5, 0.25], "input_length": 14, "output_capacity": 3, "expected_result": -2, "expected_output": []}
+  ]
+}

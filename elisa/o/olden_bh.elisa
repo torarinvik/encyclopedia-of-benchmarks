@@ -1,0 +1,171 @@
+const min_bodies: usize = 2
+const max_bodies: usize = 16
+const max_nodes: usize = 1024
+const max_depth: usize = 16
+
+struct BhBody:
+    position: f64[3]
+    mass: f64
+
+struct BhCell:
+    body: i64
+    child: i64[8]
+    mass: f64
+    center: f64[3]
+
+struct BhContext:
+    bodies: BhBody[max_bodies]
+    cells: BhCell[max_nodes]
+    used: usize
+
+def bh_octant(position: f64&, center: f64&) -> usize:
+    (if position[0] >= center[0]: 1.usize() else: 0.usize()) |
+    (if position[1] >= center[1]: 2.usize() else: 0.usize()) |
+    (if position[2] >= center[2]: 4.usize() else: 0.usize())
+
+def bh_new_cell(context: mutable BhContext&) -> i64:
+    if context.used >= max_nodes: return -1
+    index: usize = context.used
+    context.used <- context.used + 1
+    context.cells[index].body <- -1
+    context.cells[index].mass <- 0.0
+    for child in 0..<8: context.cells[index].child[child] <- -1
+    for axis in 0..<3: context.cells[index].center[axis] <- 0.0
+    index.i64()
+
+def bh_insert(context: mutable BhContext&, cell_index: usize, body_index: usize,
+              center: f64&, half: f64, depth: usize) -> bool:
+    old_body: i64 = context.cells[cell_index].body
+    if old_body == -1:
+        context.cells[cell_index].body <- body_index.i64()
+        return true
+    if depth >= max_depth: return false
+    if old_body >= 0: context.cells[cell_index].body <- -2
+    item_count: usize = if old_body >= 0: 2 else: 1
+    for item_index in 0..<item_count:
+        which_body: usize = if old_body >= 0 and item_index == 0: old_body.usize() else: body_index
+        child: usize = bh_octant(context.bodies[which_body].position&, center)
+        if context.cells[cell_index].child[child] < 0:
+            created: i64 = bh_new_cell(context&)
+            if created < 0: return false
+            context.cells[cell_index].child[child] <- created
+        next_center: mutable f64[3] = zeroed
+        for axis in 0..<3:
+            direction: f64 = if (child & (1.usize() << axis)) != 0: half / 2.0 else: -half / 2.0
+            next_center[axis] <- center[axis] + direction
+        if not bh_insert(context&, context.cells[cell_index].child[child].usize(), which_body,
+                         next_center&, half / 2.0, depth + 1): return false
+    true
+
+def bh_aggregate(context: mutable BhContext&, cell_index: usize) -> void:
+    body: i64 = context.cells[cell_index].body
+    if body >= 0:
+        context.cells[cell_index].mass <- context.bodies[body.usize()].mass
+        for axis in 0..<3: context.cells[cell_index].center[axis] <- context.bodies[body.usize()].position[axis]
+        return
+    weighted: mutable f64[3] = zeroed
+    context.cells[cell_index].mass <- 0.0
+    for child in 0..<8:
+        child_index: i64 = context.cells[cell_index].child[child]
+        if child_index < 0: continue
+        child_usize: usize = child_index.usize()
+        bh_aggregate(context&, child_usize)
+        context.cells[cell_index].mass <- context.cells[cell_index].mass + context.cells[child_usize].mass
+        for axis in 0..<3:
+            weighted[axis] <- weighted[axis] + context.cells[child_usize].mass * context.cells[child_usize].center[axis]
+    for axis in 0..<3:
+        context.cells[cell_index].center[axis] <- weighted[axis] / context.cells[cell_index].mass
+
+def bh_interact(mass: f64, position: f64&, query: f64&, eps_sq: f64,
+                potential: mutable f64&, acceleration: mutable f64&) -> void:
+    d: mutable f64[3] = zeroed
+    r2: mutable f64 = eps_sq
+    for axis in 0..<3:
+        d[axis] <- position[axis] - query[axis]
+        r2 <- r2 + d[axis] * d[axis]
+    contribution: f64 = mass / r2.sqrt()
+    potential <- potential - contribution
+    scale: f64 = contribution / r2
+    for axis in 0..<3: acceleration[axis] <- acceleration[axis] + d[axis] * scale
+
+def bh_walk(context: BhContext&, cell_index: usize, side: f64, theta_sq: f64,
+            query: f64&, eps_sq: f64, potential: mutable f64&,
+            acceleration: mutable f64&) -> void:
+    body: i64 = context.cells[cell_index].body
+    if body >= 0:
+        bh_interact(context.bodies[body.usize()].mass, context.bodies[body.usize()].position&,
+                    query, eps_sq, potential&, acceleration&)
+        return
+    distance_sq: mutable f64 = 0.0
+    for axis in 0..<3:
+        d: f64 = context.cells[cell_index].center[axis] - query[axis]
+        distance_sq <- distance_sq + d * d
+    if theta_sq * distance_sq < side * side:
+        for child in 0..<8:
+            child_index: i64 = context.cells[cell_index].child[child]
+            if child_index >= 0: bh_walk(context, child_index.usize(), side / 2.0, theta_sq, query,
+                                         eps_sq, potential&, acceleration&)
+    else:
+        bh_interact(context.cells[cell_index].mass, context.cells[cell_index].center&,
+                    query, eps_sq, potential&, acceleration&)
+
+def olden_bh_impl(input: f64&, input_length: usize,
+                  output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 6: return -1
+    requested_count: f64 = input[0]
+    theta: f64 = input[1]
+    softening: f64 = input[2]
+    if requested_count != requested_count or requested_count < min_bodies.f64() or requested_count > max_bodies.f64() or requested_count.i64().f64() != requested_count: return -1
+    if theta != theta or theta < 0.0 or theta > 2.0 or softening != softening or softening < 0.0 or softening > 1.0: return -1
+    count: usize = requested_count.i64().usize()
+    if input_length != 6 + 4 * count: return -1
+    query: mutable f64[3] = zeroed
+    for axis in 0..<3:
+        query[axis] <- input[3 + axis]
+        if query[axis] != query[axis] or query[axis] < -32.0 or query[axis] > 32.0: return -1
+    context: mutable BhContext = zeroed
+    minima: mutable f64[3] = zeroed
+    maxima: mutable f64[3] = zeroed
+    for axis in 0..<3:
+        minima[axis] <- 32.0
+        maxima[axis] <- -32.0
+    for body in 0..<count:
+        for axis in 0..<3:
+            value: f64 = input[6 + 4 * body + axis]
+            if value != value or value < -32.0 or value > 32.0 or value.i64().f64() != value: return -1
+            context.bodies[body].position[axis] <- value
+            if value < minima[axis]: minima[axis] <- value
+            if value > maxima[axis]: maxima[axis] <- value
+        mass: f64 = input[9 + 4 * body]
+        if mass != mass or mass < 1.0 or mass > 16.0: return -1
+        context.bodies[body].mass <- mass
+    for a in 0..<count:
+        for b in a + 1..<count:
+            if context.bodies[a].position[0] == context.bodies[b].position[0] and context.bodies[a].position[1] == context.bodies[b].position[1] and context.bodies[a].position[2] == context.bodies[b].position[2]: return -1
+    inside: mutable bool = true
+    for axis in 0..<3:
+        if query[axis] < minima[axis] or query[axis] > maxima[axis]: inside <- false
+    if inside: return -1
+    if output.is_null() or output_capacity < 4: return -2
+    side: mutable f64 = maxima[0] - minima[0]
+    if maxima[1] - minima[1] > side: side <- maxima[1] - minima[1]
+    if maxima[2] - minima[2] > side: side <- maxima[2] - minima[2]
+    if side <= 0.0: return -1
+    center: mutable f64[3] = zeroed
+    for axis in 0..<3: center[axis] <- (minima[axis] + maxima[axis]) / 2.0
+    root: i64 = bh_new_cell(context&)
+    for body in 0..<count:
+        if not bh_insert(context&, root.usize(), body, center&, side / 2.0, 0): return -1
+    bh_aggregate(context&, root.usize())
+    potential: mutable f64 = 0.0
+    acceleration: mutable f64[3] = zeroed
+    bh_walk(context, root.usize(), side, theta * theta, query&, softening * softening,
+            potential&, acceleration&)
+    output[0] <- potential
+    output[1] <- acceleration[0]
+    output[2] <- acceleration[1]
+    output[3] <- acceleration[2]
+    4
+
+export fn olden_bh(input: f64&, input_length: usize,
+                   output: mutable f64&, output_capacity: usize) -> i64 = olden_bh_impl

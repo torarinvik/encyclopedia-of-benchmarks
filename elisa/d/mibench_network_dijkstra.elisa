@@ -1,0 +1,54 @@
+const MAX_NODES: usize = 6
+const MAX_QUEUE_ITEMS: usize = 1024
+const NONE: i64 = 9999
+
+struct MndQueueItem:
+    node: usize
+    distance: i64
+    previous: i64
+
+def mibench_network_dijkstra_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3: return -1
+    node_value:i64=input[0]
+    if node_value < 1 or node_value > MAX_NODES.i64(): return -1
+    nodes:usize=node_value.usize()
+    if length != 2 + nodes * nodes: return -1
+    source_value:i64=input[1]
+    if source_value < 0 or source_value >= node_value: return -1
+    for index in 0..<nodes*nodes:
+        cost:i64=input[2+index]
+        if cost != NONE and (cost < 0 or cost > 31): return -1
+
+    distance: mutable [MAX_NODES]i64 = [0,0,0,0,0,0]
+    reachable: mutable [MAX_NODES]bool = [false,false,false,false,false,false]
+    queue: mutable MndQueueItem[MAX_QUEUE_ITEMS]
+    for node in 0..<nodes: distance[node] <- NONE
+    source:usize=source_value.usize()
+    distance[source] <- 0
+    reachable[source] <- true
+    head:mutable usize=0
+    tail:mutable usize=0
+    queue[tail] <- MndQueueItem{source,0,NONE}
+    tail <- tail+1
+    while head < tail:
+        item:MndQueueItem=queue[head]
+        head <- head+1
+        for destination in 0..<nodes:
+            cost:i64=input[2+item.node*nodes+destination]
+            if cost == NONE: continue
+            candidate:i64=item.distance+cost
+            if not reachable[destination] or distance[destination] > candidate:
+                distance[destination] <- candidate
+                reachable[destination] <- true
+                if tail >= MAX_QUEUE_ITEMS: return -2
+                queue[tail] <- MndQueueItem{destination,candidate,item.node.i64()}
+                tail <- tail+1
+    checksum:mutable i64=0
+    mask:mutable u64=0
+    for node in 0..<nodes:
+        if reachable[node]:
+            checksum <- checksum+(node+1).i64()*distance[node]
+            mask <- mask | (1.u64() << node)
+    checksum+mask.i64()
+
+export fn mibench_network_dijkstra(input: i64&, length: usize) -> i64 = mibench_network_dijkstra_impl

@@ -22,7 +22,6 @@ from build_abi import EXTENSIONS, ROOT, build, sha256_file
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected_result
 from netbench_crc_oracle import MAX_LENGTH as NETBENCH_CRC_MAX_LENGTH
-from mibench_telecomm_crc32_oracle import MAX_LENGTH as MIBENCH_TELECOMM_CRC32_MAX_LENGTH
 from coremark_crc_oracle import INVALID_RESULT as COREMARK_CRC_INVALID_RESULT
 from coremark_crc_oracle import MAX_INPUT_LENGTH as COREMARK_CRC_MAX_INPUT_LENGTH
 from coremark_crc_oracle import MAX_OPERATIONS as COREMARK_CRC_MAX_OPERATIONS
@@ -631,8 +630,13 @@ from run_i64_array_scalar import MAX_MONO_ALPHABETIC_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_mono_alphabetic_workload
 from run_i64_array_scalar import validate_netbench_crc_workload
 from run_i64_array_scalar import validate_coremark_crc_workload
-from run_i64_array_scalar import validate_mibench_telecomm_crc32_workload
 from run_i64_array_scalar import validate_olden_perimeter_workload
+from run_i64_array_scalar import validate_olden_power_workload
+from run_i64_array_scalar import validate_olden_health_workload
+from run_i64_array_scalar import validate_olden_tsp_workload
+from run_i64_array_scalar import validate_olden_voronoi_workload
+from run_i64_array_scalar import validate_richards_benchmark_workload
+from run_i64_array_scalar import validate_mibench_network_dijkstra_workload
 from run_i64_array_scalar import validate_mcgill_exptree_workload
 from run_i64_array_scalar import MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_mono_alphabetic_cipher_workload
@@ -709,6 +713,22 @@ from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH
 from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_VALID_INPUT_LENGTH
 from mcnaughton_yamada_thompson_oracle import expected_result as mcnaughton_yamada_thompson_oracle
 from olden_perimeter_oracle import expected_result as olden_perimeter_oracle
+from olden_power_oracle import MAX_LEAVES as OLDEN_POWER_MAX_LEAVES
+from olden_power_oracle import MAX_COMPUTE_PASSES as OLDEN_POWER_MAX_COMPUTE_PASSES
+from olden_power_oracle import expected_result as olden_power_oracle
+from olden_health_oracle import MAX_LEVEL as OLDEN_HEALTH_MAX_LEVEL
+from olden_health_oracle import MAX_TICKS as OLDEN_HEALTH_MAX_TICKS
+from olden_health_oracle import expected_result as olden_health_oracle
+from olden_tsp_oracle import ALLOWED_CITIES as OLDEN_TSP_ALLOWED_CITIES
+from olden_tsp_oracle import expected_result as olden_tsp_oracle
+from olden_voronoi_oracle import MAX_INPUT_LENGTH as OLDEN_VORONOI_MAX_INPUT_LENGTH
+from olden_voronoi_oracle import expected_result as olden_voronoi_oracle
+from richards_benchmark_oracle import MAX_ITERATIONS as RICHARDS_BENCHMARK_MAX_ITERATIONS
+from richards_benchmark_oracle import expected_result as richards_benchmark_oracle
+from mibench_network_dijkstra_oracle import MAX_NODES as MIBENCH_NETWORK_DIJKSTRA_MAX_NODES
+from mibench_network_dijkstra_oracle import MAX_EDGE_COST as MIBENCH_NETWORK_DIJKSTRA_MAX_EDGE_COST
+from mibench_network_dijkstra_oracle import NONE as MIBENCH_NETWORK_DIJKSTRA_NONE
+from mibench_network_dijkstra_oracle import expected_result as mibench_network_dijkstra_oracle
 from mcgill_exptree_oracle import expected_result as mcgill_exptree_oracle
 from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_KEY_LENGTH
 from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
@@ -1528,9 +1548,13 @@ ALGORITHMS += ("k_means_julia", "k_means_rust", "k_means_clustering_c",
                "k_means_clustering_zig", "kmeans_rust")
 ALGORITHMS += ("lamport_signature",)
 ALGORITHMS += ("netbench_crc",)
-ALGORITHMS += ("mibench_telecomm_crc32",)
 ALGORITHMS += ("coremark_crc",)
 ALGORITHMS += ("olden_perimeter",)
+ALGORITHMS += ("olden_power",)
+ALGORITHMS += ("olden_health", "olden_tsp")
+ALGORITHMS += ("olden_voronoi",)
+ALGORITHMS += ("mibench_network_dijkstra",)
+ALGORITHMS += ("richards_benchmark",)
 ALGORITHMS += ("mcgill_exptree",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
@@ -2035,6 +2059,18 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return mcgill_exptree_oracle(values)
     if algorithm == "olden_perimeter":
         return olden_perimeter_oracle(values)
+    if algorithm == "olden_power":
+        return olden_power_oracle(values)
+    if algorithm == "olden_health":
+        return olden_health_oracle(values)
+    if algorithm == "olden_tsp":
+        return olden_tsp_oracle(values)
+    if algorithm == "olden_voronoi":
+        return olden_voronoi_oracle(values)
+    if algorithm == "mibench_network_dijkstra":
+        return mibench_network_dijkstra_oracle(values)
+    if algorithm == "richards_benchmark":
+        return richards_benchmark_oracle(values)
     if algorithm == "trimaran_netbench_url_internet_checksum":
         if (len(values) < 2 or len(values) > 66
                 or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
@@ -2058,16 +2094,6 @@ def oracle(algorithm: str, values: list[int]) -> int:
         if mode == 1:
             total = ((total & 0xff) << 8) | (total >> 8)
         return total
-    if algorithm == "mibench_telecomm_crc32":
-        if len(values) > MIBENCH_TELECOMM_CRC32_MAX_LENGTH or any(
-                type(value) is not int or value < 0 or value > 255 for value in values):
-            return -1
-        crc = 0xFFFFFFFF
-        for byte in values:
-            crc ^= byte
-            for _ in range(8):
-                crc = (crc >> 1) ^ 0xEDB88320 if crc & 1 else crc >> 1
-        return crc ^ 0xFFFFFFFF
     if algorithm == "netbench_crc":
         if len(values) > NETBENCH_CRC_MAX_LENGTH or any(
                 type(value) is not int or value < 0 or value > 255 for value in values):
@@ -3053,8 +3079,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                 raise ValueError(f"trimaran_netbench_url_internet_checksum fixture mismatch: {case.get('id')}")
     elif algorithm == "netbench_crc":
         validate_netbench_crc_workload(workload)
-    elif algorithm == "mibench_telecomm_crc32":
-        validate_mibench_telecomm_crc32_workload(workload)
     elif algorithm == "coremark_crc":
         validate_coremark_crc_workload(workload)
     elif algorithm == "msd_radix_string_sorter":
@@ -3172,10 +3196,63 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_smith_waterman_java_workload(workload)
     elif algorithm == "olden_perimeter":
         validate_olden_perimeter_workload(workload)
+    elif algorithm == "olden_power":
+        validate_olden_power_workload(workload)
+    elif algorithm == "olden_health":
+        validate_olden_health_workload(workload)
+    elif algorithm == "olden_tsp":
+        validate_olden_tsp_workload(workload)
+    elif algorithm == "olden_voronoi":
+        validate_olden_voronoi_workload(workload)
+    elif algorithm == "mibench_network_dijkstra":
+        validate_mibench_network_dijkstra_workload(workload)
+    elif algorithm == "richards_benchmark":
+        validate_richards_benchmark_workload(workload)
     elif algorithm == "mcgill_exptree":
         validate_mcgill_exptree_workload(workload)
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
+    if algorithm == "olden_power":
+        cases.update({(leaf_count, compute_passes): olden_power_oracle([leaf_count, compute_passes])
+                      for leaf_count in range(1, OLDEN_POWER_MAX_LEAVES + 1)
+                      for compute_passes in range(OLDEN_POWER_MAX_COMPUTE_PASSES + 1)})
+    elif algorithm == "olden_health":
+        cases.update({(level, ticks, 1): olden_health_oracle([level, ticks, 1])
+                      for level in range(1, OLDEN_HEALTH_MAX_LEVEL + 1)
+                      for ticks in range(OLDEN_HEALTH_MAX_TICKS + 1)})
+    elif algorithm == "olden_tsp":
+        rng = random.Random(0x7550)
+        for _ in range(24):
+            city_count = rng.choice(OLDEN_TSP_ALLOWED_CITIES)
+            values = [city_count]
+            for _city in range(city_count):
+                values.extend((rng.randint(-8, 8), rng.randint(-8, 8)))
+            cases[tuple(values)] = olden_tsp_oracle(values)
+    elif algorithm == "olden_voronoi":
+        rng = random.Random(0x0D3A)
+        for _ in range(32):
+            point_count = rng.choice((3, 5))
+            values = [point_count]
+            for _point in range(point_count):
+                values.extend((rng.randint(-8, 8), rng.randint(-8, 8)))
+            if len(values) <= OLDEN_VORONOI_MAX_INPUT_LENGTH:
+                cases[tuple(values)] = olden_voronoi_oracle(values)
+    elif algorithm == "mibench_network_dijkstra":
+        rng = random.Random(0xD1A5)
+        edge_choices = (MIBENCH_NETWORK_DIJKSTRA_NONE,
+                        *range(MIBENCH_NETWORK_DIJKSTRA_MAX_EDGE_COST + 1))
+        for _ in range(32):
+            node_count = rng.randint(1, MIBENCH_NETWORK_DIJKSTRA_MAX_NODES)
+            source = rng.randrange(node_count)
+            values = [node_count, source]
+            values.extend(rng.choice(edge_choices) for _ in range(node_count * node_count))
+            cases[tuple(values)] = mibench_network_dijkstra_oracle(values)
+    elif algorithm == "richards_benchmark":
+        for iterations in (1, 2, 3, 4, 7, 16, 31, 64, 127, 256):
+            values = [iterations]
+            cases[tuple(values)] = richards_benchmark_oracle(values)
+        for values in ([], [0], [RICHARDS_BENCHMARK_MAX_ITERATIONS + 1], [1, 0]):
+            cases[tuple(values)] = richards_benchmark_oracle(values)
     special_records: list[str] = []
     for case in workload["cases"]:
         values = case["input_values"]
@@ -3233,22 +3310,6 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                        (1, 1, 256), (0, 1, 0, 0), (-(1 << 63),)):
             cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 2 -1\n")
-    if algorithm == "mibench_telecomm_crc32":
-        for length in (0, 1, 2, 7, 8, 31, 64, 255, 256):
-            patterns = (
-                tuple(0 for _ in range(length)),
-                tuple(255 for _ in range(length)),
-                tuple((index * 73 + 29) & 255 for index in range(length)),
-            )
-            for values in patterns:
-                cases[values] = oracle(algorithm, list(values))
-        maximum_pattern = tuple((index * 73 + 29) & 255
-                                for index in range(MIBENCH_TELECOMM_CRC32_MAX_LENGTH))
-        cases[maximum_pattern] = oracle(algorithm, list(maximum_pattern))
-        for values in ((-1,), (256,),
-                       (0,) * (MIBENCH_TELECOMM_CRC32_MAX_LENGTH + 1),
-                       (I64_MIN,), (I64_MAX,)):
-            cases[values] = oracle(algorithm, list(values))
     if algorithm == "coremark_crc":
         rng = random.Random(20261019)
         value_limits = {0: 0xFF, 1: 0xFFFF, 2: 0xFFFFFFFF, 3: (1 << 15) - 1}

@@ -580,10 +580,6 @@ from n_body_simulation_oracle import expected_output as n_body_simulation_expect
 from benchmarkgame_nbody_oracle import MAX_INPUT_LENGTH as BENCHMARKGAME_NBODY_MAX_INPUT_LENGTH
 from benchmarkgame_nbody_oracle import MAX_STEPS as BENCHMARKGAME_NBODY_MAX_STEPS
 from benchmarkgame_nbody_oracle import expected_output as benchmarkgame_nbody_oracle
-from benchmarkgame_nsieve_bits_oracle import MAX_LIMIT as NSIEVE_BITS_MAX_LIMIT
-from benchmarkgame_nsieve_bits_oracle import MAX_PARSEABLE_INPUT_LENGTH as NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
-from benchmarkgame_nsieve_bits_oracle import MAX_OUTPUT_BYTES as NSIEVE_BITS_MAX_OUTPUT_BYTES
-from benchmarkgame_nsieve_bits_oracle import expected_output as nsieve_bits_oracle
 from benchmarkgame_puzzle_oracle import MAX_INPUT_LENGTH as BENCHMARKGAME_PUZZLE_MAX_INPUT_LENGTH
 from benchmarkgame_puzzle_oracle import expected_output as benchmarkgame_puzzle_oracle
 from polybench_adi_oracle import expected_output as polybench_adi_oracle
@@ -935,6 +931,11 @@ from sobel_filter_oracle import (
     MAX_VALID_INPUT_LENGTH as SOBEL_FILTER_MAX_VALID_INPUT_LENGTH,
     OUTPUT_ERROR as SOBEL_FILTER_OUTPUT_ERROR,
     expected_output as sobel_filter_oracle,
+)
+from mibench_automotive_susan_oracle import (
+    MAX_OUTPUT_BYTES as MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as mibench_automotive_susan_oracle,
 )
 from sha3_oracle import (
     INVALID_RESULT as SHA3_INVALID_RESULT,
@@ -1665,6 +1666,9 @@ from mccat_bisect_oracle import MAX_N as MCCAT_BISECT_MAX_N
 from mccat_bisect_oracle import MAX_OUTPUT_BYTES as MCCAT_BISECT_MAX_OUTPUT_BYTES
 from mccat_bisect_oracle import expected_output as mccat_bisect_oracle
 MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH = 2
+from prolangs_c_allroots_oracle import OUTPUT_BYTES as PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES
+from prolangs_c_allroots_oracle import expected_output as prolangs_c_allroots_oracle
+PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH = 5
 from cbench_automotive_qsort1_oracle import MAX_INPUT_VALUES as CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES
 from cbench_automotive_qsort1_oracle import MAX_OUTPUT_BYTES as CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES
 from cbench_automotive_qsort1_oracle import MAX_POINTS as CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS
@@ -3284,34 +3288,19 @@ from uudecode_oracle import (
     MAX_PARSEABLE_INPUT_VALUES as UUDECODE_MAX_PARSEABLE_INPUT_VALUES,
     expected_output as uudecode_oracle,
 )
-from mibench_office_stringsearch_bmh_oracle import (
-    expected_output as mibench_office_stringsearch_bmh_expected_output,
-)
 from mibench_security_rijndael_oracle import (
     expected_output as mibench_security_rijndael_oracle,
 )
+from mibench_security_blowfish_oracle import (
+    INPUT_BYTES as MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES,
+    OUTPUT_BYTES as MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES,
+    expected_output as mibench_security_blowfish_oracle,
+)
+MIBENCH_SECURITY_BLOWFISH_MAX_PARSEABLE_INPUT_LENGTH = MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES + 1
 TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES = TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH + 1
 from misc_reed_solomon_oracle import (
     expected_output as misc_reed_solomon_expected_output,
 )
-
-
-def mibench_office_stringsearch_bmh_suite_oracle(
-        values: list[int] | tuple[int, ...], capacity: int | None = None,
-        output_is_null: bool = False, input_is_null: bool = False,
-        input_length: int | None = None) -> tuple[int, bytes]:
-    if (input_is_null or type(output_is_null) is not bool
-            or not isinstance(values, (list, tuple))
-            or (input_length is not None
-                and (type(input_length) is not int or input_length != len(values)))
-            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
-        return -1, b""
-    result, output = mibench_office_stringsearch_bmh_expected_output(values)
-    if result < 0:
-        return result, output
-    if output_is_null or (capacity is not None and capacity < result):
-        return -2, b""
-    return result, output
 
 
 def misc_reed_solomon_suite_oracle(
@@ -3373,6 +3362,48 @@ def trimaran_enc_3des_suite_oracle(
         return -2, b""
     return result, output
 
+def prolangs_c_allroots_suite_oracle(values, capacity=None, output_is_null=False,
+                                    input_is_null=False, input_length=None):
+    if (input_length is not None
+            and (type(input_length) is not int
+                 or (not input_is_null
+                     and (not isinstance(values, (list, tuple))
+                          or input_length != len(values))))):
+        return -1, b""
+    return prolangs_c_allroots_oracle(
+        values,
+        PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES if capacity is None else capacity,
+        output_is_null,
+        input_is_null,
+    )
+
+
+def mibench_security_blowfish_suite_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > MIBENCH_SECURITY_BLOWFISH_MAX_PARSEABLE_INPUT_LENGTH
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or input_length != (0 if input_is_null else len(values))))
+            or (input_is_null and values)
+            or (capacity is not None
+                and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    result, output = mibench_security_blowfish_oracle(
+        values,
+        MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES if capacity is None else capacity,
+    )
+    if result < 0:
+        return result, output
+    if output_is_null:
+        return -2, b""
+    return result, output
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "string_heap_sort": string_heap_sort_expected_output,
     "bitmap_block_allocation": bitmap_block_allocation_expected_output,
@@ -3394,12 +3425,12 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "ansibench_dhrystone": ansibench_dhrystone_expected_output,
     "coremark_matrix_manipulation": coremark_matrix_manipulation_expected_output,
     "misc_lowercase": misc_lowercase_suite_oracle,
-    "benchmarkgame_nsieve_bits": nsieve_bits_oracle,
     "benchmarkgame_puzzle": benchmarkgame_puzzle_oracle,
     "revert_bits": revert_bits_oracle,
     "mccat_qbsort": mccat_qbsort_oracle,
     "bmm": versabench_bmm_oracle,
     "mccat_bisect": mccat_bisect_oracle,
+    "prolangs_c_allroots": prolangs_c_allroots_suite_oracle,
     "cbench_automotive_qsort1": cbench_automotive_qsort1_suite_oracle,
     "8b10b": versabench_8b10b_oracle,
     "trimaran_enc_rc4": trimaran_enc_rc4_suite_oracle,
@@ -3407,8 +3438,9 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "polybench_adi": polybench_adi_oracle,
     "uuencode": uuencode_oracle,
     "uudecode": uudecode_oracle,
-    "mibench_office_stringsearch_bmh": mibench_office_stringsearch_bmh_suite_oracle,
     "mibench_security_rijndael": mibench_security_rijndael_oracle,
+    "mibench_security_blowfish": mibench_security_blowfish_suite_oracle,
+    "mibench_automotive_susan": mibench_automotive_susan_oracle,
     "misc_reed_solomon": misc_reed_solomon_suite_oracle,
     "min_cost_max_flow": min_cost_max_flow_expected_output,
     "morton_sort": morton_sort_expected_output,
@@ -33233,6 +33265,84 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "acknowledged by his name" not in license_text
                 or "no responsibility is accepted" not in license_text):
             raise ValueError("misc_reed_solomon README or bundled permission notice is incomplete")
+    elif algorithm == "mibench_automotive_susan":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "all_zero_minimum_image", "invalid_too_small_side", "short_frame", "null_input",
+        }
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mibench-automotive-susan-smoothing-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "MiBench/automotive-susan/susan.c",
+                    "symbol": "susan_smoothing",
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/automotive-susan/susan.c",
+                    "rights": "Crown Copyright (1995-1999), Stephen Smith SUSAN v2l. Research purposes only; not for sale; do not pass on without the complete source header retained. Full notice appears in every port and README. No separate license file is present in the pinned source directory.",
+                }
+                or launcher != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "MiBench/automotive-susan/info.sh",
+                    "bench_name": "automotive-susan", "source_files": ["susan.c"],
+                    "compile_flags": ["-lm"],
+                    "run_options": ["input_large.pgm", "Output/output_large.smoothing.pgm", "-s"],
+                }
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "[side, row-major grayscale pixels...]"
+                or input_spec.get("side_range") != [15, 16]
+                or input_spec.get("pixel_range") != [0, 255]
+                or input_spec.get("maximum_valid_length") != 257
+                or input_spec.get("maximum_parseable_length")
+                != MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("null_input_result") != -1
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("encoding") != "raw row-major 8-bit grayscale image"
+                or output_spec.get("maximum_bytes") != MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES
+                or output_spec.get("capacity_unit") != "bytes"
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace") != {
+                    "bytes": MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum 16-by-16 grayscale output plane.",
+                }
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("sample_count") != 5
+                or workload.get("measurement", {}).get("warmup_rounds") != 1
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 100
+                or contract.get("operation") != "Run SUSAN v2l smoothing mode using launcher defaults: brightness threshold 20, distance threshold 4.0, and a 15-by-15 Gaussian spatial mask."
+                or contract.get("input_layout") != "[side, row-major grayscale pixels...]"
+                or contract.get("side_range") != [15, 16]
+                or contract.get("maximum_valid_input_length") != 257
+                or contract.get("maximum_parseable_input_length")
+                != MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH
+                or contract.get("pixel_range") != [0, 255]
+                or contract.get("output_encoding") != "Raw row-major grayscale bytes, one output pixel per input pixel."
+                or contract.get("success_result") != "Number of output bytes, exactly side*side."
+                or contract.get("invalid_result") != -1
+                or contract.get("output_error_result") != -2
+                or contract.get("rights_restrictions")
+                != "Research purposes only; must not be sold; preserve the full upstream header in every distributed port."
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("mibench_automotive_susan metadata differs from its restricted smoothing contract")
+        readme = (ROOT / "benchmarks/m/mibench_automotive_susan/README.md").read_text(
+            encoding="utf-8")
+        if (source["url"] not in readme
+                or "Crown Copyright (1995-1999)" not in readme
+                or "research purposes only" not in readme
+                or "must not be sold" not in readme
+                or "must not be passed on without this header" not in readme
+                or "DERA Computer Vision and Electro Optics Group point of contact" not in readme):
+            raise ValueError("mibench_automotive_susan README is missing source terms or required notice")
     elif algorithm == "mibench_security_rijndael":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -33320,83 +33430,107 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "must reproduce the above copyright" not in license_text
                 or "provided 'as is'" not in license_text):
             raise ValueError("mibench_security_rijndael README or bundled license is incomplete")
-    elif algorithm == "mibench_office_stringsearch_bmh":
-        input_spec = workload.get("input", {})
-        output_spec = workload.get("output", {})
-        launcher = workload.get("pinned_launcher", {})
-        sources = workload.get("pinned_sources", [])
-        source_bound = workload.get("source_bound", {})
-        expected_ids = {
-            "match_middle", "match_at_start", "overlapping_prefixes", "no_match",
-            "pattern_longer_than_text", "empty_text", "empty_pattern_invalid",
-            "truncated_record_invalid", "non_printable_byte_invalid", "short_output",
-        }
+    elif algorithm == "mibench_security_blowfish":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        contract = workload.get("contract", {})
+        source_configuration = contract.get("source_configuration", {})
+        expected_ids = {
+            "upstream_key_abcdefghijklmnopqrstuvwxyz_encrypt",
+            "upstream_key_who_is_john_galt_encrypt",
+            "upstream_key_abcdefghijklmnopqrstuvwxyz_decrypt",
+            "upstream_key_who_is_john_galt_decrypt",
+            "short_output_capacity", "bad_direction", "bad_key_selector",
+            "bad_block_byte", "short_input", "null_input", "null_output",
+        }
         if (workload.get("schema_version") != 1
-                or workload.get("id") != "mibench-office-stringsearch-bmh-i64-array-bytes-output-v1"
+                or workload.get("id") != "lac-dcc-mibench-security-blowfish-ecb-block-i64-array-bytes-output-v1"
                 or workload.get("algorithm") != algorithm
                 or workload.get("function_symbol") != algorithm
-                or input_spec.get("kind") != "packed_signed_64_bit_integer_array"
-                or input_spec.get("encoding") != "[text_length, pattern_length, text byte values..., pattern byte values...]"
-                or input_spec.get("text_length_range") != [0, 128]
-                or input_spec.get("pattern_length_range") != [1, 32]
-                or input_spec.get("byte_range") != [32, 126]
-                or input_spec.get("exact_length") != "2 + text_length + pattern_length"
-                or input_spec.get("maximum_input_length") != 162
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "MiBench/security-blowfish/bf_enc.c",
+                    "related_paths": [
+                        "MiBench/security-blowfish/bf_skey.c",
+                        "MiBench/security-blowfish/bf_ecb.c",
+                        "MiBench/security-blowfish/bf_pi.h",
+                        "MiBench/security-blowfish/bftest.c",
+                    ],
+                    "symbol": "BF_set_key, BF_encrypt, BF_ecb_encrypt",
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/security-blowfish/bf_enc.c",
+                    "license": "Eric Young source license, reproduced verbatim in LICENSE.txt; attribution and advertising acknowledgment apply; terms may not be changed.",
+                }
+                or launcher != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "MiBench/security-blowfish/info.sh",
+                    "bench_name": "security-blowfish",
+                    "source_files": [
+                        "bf_cbc.c", "bf_cfb64.c", "bf_ecb.c", "bf_enc.c",
+                        "bf_ofb64.c", "bf_skey.c", "bftest.c",
+                    ],
+                    "compile_flags": ["-lm"],
+                    "run_options": [
+                        "d", "output_large.enc", "output_large.asc",
+                        "1234567890abcdeffedcba0987654321",
+                    ],
+                }
+                or input_spec.get("kind") != "signed_i64_array_of_bytes"
+                or input_spec.get("encoding") != "direction (0 encrypt, 1 decrypt), key selector (0 or 1), then 8 big-endian block bytes"
+                or input_spec.get("exact_length") != MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES
+                or input_spec.get("maximum_input_length") != MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES
+                or input_spec.get("valid_value_range") != [0, 255]
                 or input_spec.get("invalid_input_result") != -1
-                or output_spec.get("kind") != "little_endian_signed_i64_vector"
-                or output_spec.get("encoding") != "one signed i64 match offset; -1 means no match"
-                or output_spec.get("maximum_elements") != 1
-                or output_spec.get("success_result") != 8
+                or input_spec.get("null_input_result") != -1
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("encoding") != "one raw 8-byte Blowfish result block in big-endian byte order"
+                or output_spec.get("maximum_bytes") != MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES
+                or output_spec.get("success_result") != "Bytes written, exactly 8"
+                or output_spec.get("invalid_input_result") != -1
                 or output_spec.get("null_output_result") != -2
-                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
                 or output_spec.get("no_write_on_error") is not True
                 or workload.get("workspace") != {
-                    "elements": 416,
-                    "meaning": "128-byte text buffer, 32-byte pattern buffer, and 256-entry shift table.",
+                    "bytes": MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES,
+                    "meaning": "One output block.",
                 }
                 or workload.get("measurement", {}).get("comparison_model")
                 != "i64_array_bytes_output_call"
-                or launcher != {
-                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
-                    "path": "MiBench/office-stringsearch/info.sh",
-                    "bench_name": "office-stringsearch",
-                    "source_selection": ["bmhasrch.c", "bmhisrch.c", "bmhsrch.c", "pbmsrch.c"],
-                    "compile_flags": ["-lm"], "run_options": [],
+                or workload.get("measurement", {}).get("sample_count") != 5
+                or workload.get("measurement", {}).get("warmup_rounds") != 1
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 100
+                or contract.get("operation") != "Initialize Blowfish with one of the two published bftest keys, then apply one ECB block encryption or decryption."
+                or contract.get("input_layout") != "[direction, key_selector, 8 block bytes]"
+                or contract.get("maximum_input_length") != MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES
+                or contract.get("output_encoding") != "8 raw Blowfish block bytes, big-endian"
+                or contract.get("output_bytes") != MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES
+                or contract.get("invalid_result") != -1
+                or contract.get("output_error_result") != -2
+                or source_configuration.get("block_bytes") != 8
+                or source_configuration.get("key_strings") != [
+                    "abcdefghijklmnopqrstuvwxyz", "Who is John Galt?",
+                ]
+                or source_configuration.get("direction_encoding") != {
+                    "0": "encrypt", "1": "decrypt",
                 }
-                or len(sources) != 2
-                or sources[0] != {
-                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
-                    "path": "MiBench/office-stringsearch/bmhsrch.c",
-                    "symbols": ["bmh_init", "bmh_search"],
-                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/office-stringsearch/bmhsrch.c",
-                    "role": "algorithm",
-                }
-                or sources[1] != {
-                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
-                    "path": "MiBench/office-stringsearch/info.sh",
-                    "symbols": ["bench_name", "source_files"],
-                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/office-stringsearch/info.sh",
-                    "role": "launcher",
-                }
-                or source_bound != {
-                    "source_variant": "bmhsrch.c case-sensitive Boyer-Moore-Horspool; initialization sets rightmost-prefix bad-character shifts and the fixed final-character shift; search scans candidate windows in increasing order and compares right-to-left.",
-                    "scope": "Standalone bmh_init/bmh_search semantics only. The launcher also includes case-insensitive and accented-character variants plus Pratt-Boyer-Moore; those routines and their demo workload are excluded.",
-                    "license": "The pinned bmhsrch.c header places this implementation in the public domain and attributes it to Raymond Gardner (7/92).",
-                }
-                or {case.get("id") for case in workload["cases"]
+                or source_configuration.get("block_byte_order") != "big-endian, as in BF_ecb_encrypt"
+                or "same two-word block primitive" not in contract.get("source_wrapper", "")
+                or "CBC/CFB/OFB" not in contract.get("source_wrapper", "")
+                or {case.get("id") for case in workload.get("cases", [])
                     if isinstance(case, dict)} != expected_ids):
-            raise ValueError("mibench_office_stringsearch_bmh metadata differs from its pinned bounded contract")
-        readme = (ROOT / "benchmarks/o/mibench_office_stringsearch_bmh/README.md").read_text(
+            raise ValueError("mibench_security_blowfish metadata differs from its bounded ECB contract")
+        readme = (ROOT / "benchmarks/m/mibench_security_blowfish/README.md").read_text(
             encoding="utf-8")
-        license_text = (ROOT / "benchmarks/o/mibench_office_stringsearch_bmh/LICENSE.txt").read_text(
+        license_text = (ROOT / "benchmarks/m/mibench_security_blowfish/LICENSE.txt").read_text(
             encoding="utf-8")
-        if (sources[0]["url"] not in readme
-                or "partial/related" not in readme
-                or "Raymond Gardner" not in readme
-                or "public domain" not in license_text.lower()
-                or "Raymond Gardner" not in license_text):
-            raise ValueError("mibench_office_stringsearch_bmh is missing pinned-source or license attribution")
+        if (source["url"] not in readme
+                or "This product includes cryptographic software written by Eric Young" not in readme
+                or "Eric Young" not in license_text
+                or "Redistribution and use in source and binary forms" not in license_text
+                or "must retain the copyright" not in license_text
+                or "must reproduce the above copyright" not in license_text
+                or "cannot be changed" not in license_text):
+            raise ValueError("mibench_security_blowfish README or bundled license is incomplete")
     elif algorithm == "polybench_adi":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -33909,42 +34043,6 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("coremark_matrix_manipulation metadata differs from its pinned byte-output contract")
-    elif algorithm == "benchmarkgame_nsieve_bits":
-        input_spec = workload.get("input", {})
-        output_spec = workload.get("output", {})
-        expected_ids = {
-            "zero-limit-empty-passes", "limit-one-empty-passes", "limit-two-small-pass",
-            "limit-ten-three-counts", "limit-fifty", "negative-limit-invalid",
-            "limit-over-bound-invalid", "trailing-value-invalid", "short-output-capacity",
-            "null-output", "null-input",
-        }
-        source = workload.get("pinned_source", {})
-        if (workload.get("schema_version") != 1
-                or workload.get("id") != "benchmarkgame-nsieve-bits-three-pass-bounded-v1"
-                or workload.get("algorithm") != algorithm
-                or workload.get("function_symbol") != algorithm
-                or input_spec.get("kind") != "signed_i64_array"
-                or input_spec.get("layout") != "[limit]"
-                or input_spec.get("limit_range") != [0, NSIEVE_BITS_MAX_LIMIT]
-                or input_spec.get("maximum_valid_input_values") != 1
-                or input_spec.get("maximum_parseable_input_values") != NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
-                or input_spec.get("invalid_result") != -1
-                or output_spec.get("kind") != "three_unsigned_64_bit_prime_counts"
-                or output_spec.get("layout") != "[pi(limit), pi(limit >> 1), pi(limit >> 2)]"
-                or output_spec.get("byte_order") != "little_endian"
-                or output_spec.get("maximum_output_bytes") != NSIEVE_BITS_MAX_OUTPUT_BYTES
-                or output_spec.get("invalid_result") != -1
-                or output_spec.get("null_output_result") != -2
-                or output_spec.get("insufficient_output_capacity_result") != -2
-                or workload.get("workspace", {}).get("bytes") != NSIEVE_BITS_MAX_OUTPUT_BYTES
-                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
-                or source.get("repository") != "lac-dcc/Benchmarks"
-                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
-                or source.get("path") != "BenchmarkGame/nsieve-bits/nsieve-bits.c"
-                or source.get("symbol") != "main"
-                or not isinstance(workload.get("cases"), list)
-                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
-            raise ValueError("benchmarkgame_nsieve_bits metadata differs from its bounded pinned-source contract")
     elif algorithm == "benchmarkgame_puzzle":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -34354,6 +34452,59 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "McCat/04-bisect/bisect_test.c" not in readme
                 or "LICENSE" not in readme):
             raise ValueError("mccat_bisect README is missing pinned sources or license notice")
+    elif algorithm == "prolangs_c_allroots":
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        source_bound = workload.get("source_bound", {})
+        expected_ids = {
+            "exact_root_cubic_source_order", "wrong_cubic_invalid",
+            "short_coefficient_vector_invalid", "extra_coefficient_invalid",
+            "null_input_invalid", "short_output_capacity", "null_output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-prolangs-c-allroots-bounded-cubic-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != "prolangs_c_allroots"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "Prolangs-C/allroots/all.c"
+                or source.get("symbol") != "allroots, deflat, newton, HORNERS"
+                or launcher.get("path") != "Prolangs-C/allroots/info.sh"
+                or launcher.get("source_files") != ["all.c", "horners.c", "newton.c"]
+                or launcher.get("compile_flags") != []
+                or launcher.get("source_polynomial_ascending") != [4.1, -3.9, -1.0, 1.0]
+                or source_bound.get("profile_polynomial_ascending") != [4, -4, -1, 1]
+                or source_bound.get("newton_relative_step_tolerance") != 5.0e-6
+                or source_bound.get("newton_max_iteration_counter") != 40
+                or source_bound.get("maximum_output_bytes") != PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "four ascending-order coefficients, exactly [4,-4,-1,1]"
+                or input_spec.get("input_length") != 4
+                or input_spec.get("maximum_parseable_input_length")
+                != PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH
+                or input_spec.get("invalid_result") != -1
+                or input_spec.get("null_input_result") != -1
+                or output_spec.get("kind") != "float64_vector"
+                or output_spec.get("maximum_output_elements") != 3
+                or output_spec.get("maximum_output_bytes") != PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("prolangs_c_allroots metadata differs from its bounded cubic contract")
+        readme = (ROOT / "benchmarks" / "a" / "prolangs_c_allroots" / "README.md").read_text(
+            encoding="utf-8")
+        if ("Prolangs-C/allroots/all.c" not in readme
+                or "No per-package license file" not in readme
+                or "synthetic deflation" not in readme):
+            raise ValueError("prolangs_c_allroots README is missing source, algorithm, or license notes")
     elif algorithm == "cbench_automotive_qsort1":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -34725,8 +34876,11 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     max_parseable = (TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES
                      if algorithm == "trimaran_enc_3des" else
                      191 if algorithm == "misc_reed_solomon" else
+                     MIBENCH_SECURITY_BLOWFISH_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "mibench_security_blowfish" else
+                     MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "mibench_automotive_susan" else
                      49 if algorithm == "mibench_security_rijndael" else
-                     162 if algorithm == "mibench_office_stringsearch_bmh" else
                      TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
                      if algorithm == "trimaran_enc_rc4" else
                      SMITH_WATERMAN_PYTHON_MAX_PARSEABLE_INPUT_LENGTH
@@ -34764,8 +34918,6 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "stream_vector_kernels" else
                      MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "misc_lowercase" else
-                     NSIEVE_BITS_MAX_PARSEABLE_INPUT_LENGTH
-                     if algorithm == "benchmarkgame_nsieve_bits" else
                      BENCHMARKGAME_PUZZLE_MAX_INPUT_LENGTH
                      if algorithm == "benchmarkgame_puzzle" else
                      REVERT_BITS_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "revert_bits" else
@@ -34774,6 +34926,8 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      MCCAT_QBSORT_MAX_VALID_INPUT_LENGTH if algorithm == "mccat_qbsort" else
                      VERSABENCH_BMM_MAX_INPUT_LENGTH if algorithm == "bmm" else
                      MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "mccat_bisect" else
+                     PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "prolangs_c_allroots" else
                      CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES if algorithm == "cbench_automotive_qsort1" else
                      VERSABENCH_8B10B_MAX_PARSEABLE_WORDS if algorithm == "8b10b" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
@@ -34875,8 +35029,6 @@ def main() -> int:
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     workload_path = args.workload or (
-        ROOT / "benchmarks/o/mibench_office_stringsearch_bmh/workload.json"
-        if algorithm == "mibench_office_stringsearch_bmh" else
         ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
         if algorithm == "merge_sort_linked_list" else
         ROOT / "benchmarks" / "merge_ksorted_linked_list" / "workload.json"
@@ -35682,6 +35834,12 @@ def main() -> int:
                             MCCAT_QBSORT_MAX_VALID_INPUT_LENGTH if algorithm == "mccat_qbsort" else
                             VERSABENCH_BMM_MAX_INPUT_LENGTH if algorithm == "bmm" else
                             MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "mccat_bisect" else
+                            PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "prolangs_c_allroots" else
+                            MIBENCH_SECURITY_BLOWFISH_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "mibench_security_blowfish" else
+                            MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "mibench_automotive_susan" else
                             CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES if algorithm == "cbench_automotive_qsort1" else
                             VERSABENCH_8B10B_MAX_PARSEABLE_WORDS if algorithm == "8b10b" else
                             TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES
@@ -35741,7 +35899,7 @@ def main() -> int:
                 required_count, required_output = null_input_result, b""
         float64_vector = workload.get("output", {}).get("kind") == "float64_vector"
         if float64_vector and algorithm not in {
-                "quadratic_roots", "shree_dharacharya_formula", "npv_sensitivity", "triangle", "gaussian_elimination", "gauss_elimination", "mccat_bisect",
+                "quadratic_roots", "shree_dharacharya_formula", "npv_sensitivity", "triangle", "gaussian_elimination", "gauss_elimination", "mccat_bisect", "prolangs_c_allroots",
                 "logistic_regression_python_binary_gd", "logistic_regression_rust_binary_gd",
                 "logistic_regression_cost_gradient",
                 "procentual_proximity",
@@ -35774,9 +35932,6 @@ def main() -> int:
             raise ValueError(f"input and output cannot both be null in {case['id']}")
         if algorithm == "simple_proof_of_work":
             expected_count, expected = simple_proof_of_work_expected_output(
-                values, output_capacity, output_is_null, input_is_null, input_length)
-        elif algorithm == "mibench_office_stringsearch_bmh":
-            expected_count, expected = mibench_office_stringsearch_bmh_suite_oracle(
                 values, output_capacity, output_is_null, input_is_null, input_length)
         elif algorithm == "print_reverse":
             if input_is_null and input_length > 0:

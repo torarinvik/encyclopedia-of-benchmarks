@@ -38,3 +38,7 @@ The checked upstream C implementation uses an early-exit flag; the C++ implement
 
 - [C `bubble_sort.c`](https://github.com/TheAlgorithms/C/blob/e5dad3fa8def3726ec850ca66a7f51521f8ad393/sorting/bubble_sort.c)
 - [C++ `bubble_sort.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/sorting/bubble_sort.cpp)
+- [lac-dcc/Benchmarks Stanford `Bubblesort.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Bubblesort/Bubblesort.c)
+- [lac-dcc/Benchmarks Stanford `Bubblesort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Bubblesort/info.sh)
+
+The Stanford source fully executes adjacent-swap bubble-sort passes without early exit, then prints selected ranks from a fixed generated input. Those loop and output details do not define a separate sorting algorithm.

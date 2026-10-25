@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-himenobmtxpa-float64-slice-io-v1",
+  "algorithm": "himenobmtxpa",
+  "function_symbol": "himenobmtxpa",
+  "description": "Run a bounded binary32 weighted point-Jacobi iteration for the pinned zero-source 3D Poisson profile and return its final residual sum.",
+  "pinned_sources": [
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"Misc/himenobmtxpa/himenobmtxpa.c","symbols":["mat_set_init","jacobi","main"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/himenobmtxpa/himenobmtxpa.c","role":"algorithm-initialization-and-output","license_note":"The pinned source has no explicit license grant; these are independently written ports."},
+    {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"Misc/himenobmtxpa/info.sh","symbols":["bench_name","source_files","compile_flags"],"url":"https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/himenobmtxpa/info.sh","role":"launcher"}
+  ],
+  "pinned_launcher": {"repository":"lac-dcc/Benchmarks","commit":"5d7b75df749241efa7a6e6f5be613d3fcc5cce38","path":"Misc/himenobmtxpa/info.sh","bench_name":"himenobmtxpa","source_files":["himenobmtxpa.c"],"compile_flags":["-lm"],"run_options":[]},
+  "source_bound": {
+    "launcher_dataset":{"nx":64,"ny":64,"nz":128,"iterations":64},
+    "suite_bounds":{"grid_sides":[2,6],"iterations":[1,4]},
+    "initialization":"p[i,j,k]=(float)(i*i)/(float)((nx-1)*(nx-1)); all binary32",
+    "kernel":"Use the pinned fixed coefficients a0=a1=a2=c0=c1=c2=1, a3=1/6, b0=b1=b2=0 and boundary mask 1. Ascending interior sweeps compute ss=neighbor_sum*a3-p, accumulate gosa+=ss*ss, stage p+0.8*ss, then copy the staged interior to p.",
+    "output":"The final iteration's binary32 gosa widened to one binary64 element."
+  },
+  "input": {
+    "kind":"finite_float64_array",
+    "encoding":"[nx,ny,nz,iterations] as exact integral binary64 values",
+    "input_length":4,
+    "maximum_input_length":5,
+    "dimension_ranges":{"nx":[2,6],"ny":[2,6],"nz":[2,6],"iterations":[1,4]},
+    "invalid_input_result":-1
+  },
+  "contract": {
+    "operation":"Return the final residual sum of squares after the requested weighted point-Jacobi sweeps.",
+    "source_order":[
+      "initialize the binary32 pressure field from the x coordinate",
+      "for each iteration, reset gosa and sweep interior i,j,k in ascending order",
+      "sum the six axis neighbors, form ss=neighbor_sum*a3-p, add ss*ss to binary32 gosa, and stage p+0.8*ss",
+      "copy staged interior values into p after the full sweep; preserve boundary cells"
+    ],
+    "invalid_input_result":-1,
+    "null_output_result":-2,
+    "insufficient_capacity_result":-2,
+    "no_write_on_error":true
+  },
+  "output": {
+    "kind":"float64_array",
+    "encoding":"one binary64 value containing final binary32 gosa",
+    "maximum_elements":1,
+    "success_result":"1 output element",
+    "absolute_tolerance":1e-6,
+    "relative_tolerance":1e-5,
+    "no_write_on_error":true
+  },
+  "workspace":{"elements":432,"meaning":"Two bounded 6x6x6 binary32 pressure and staging fields."},
+  "measurement":{"comparison_model":"float64_slice_io_call","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":100,"absolute_tolerance":1e-6,"relative_tolerance":1e-5},
+  "cases":[
+    {"id":"three_cube_one_sweep","input_values":[3,3,3,1],"input_length":4,"expected_result":1,"expected_output":[0.006944446],"output_capacity":1},
+    {"id":"one_two_point_axis_no_interior","input_values":[2,3,4,2],"input_length":4,"expected_result":1,"expected_output":[0.0],"output_capacity":1},
+    {"id":"rectangular_no_interior","input_values":[4,4,2,4],"input_length":4,"expected_result":1,"expected_output":[0.0],"output_capacity":1},
+    {"id":"empty_invalid","input_values":[],"input_length":0,"expected_result":-1,"expected_output":[]},
+    {"id":"fractional_dimension","input_values":[3,3.5,3,1],"input_length":4,"expected_result":-1,"expected_output":[]},
+    {"id":"unsupported_side","input_values":[7,3,3,1],"input_length":4,"expected_result":-1,"expected_output":[]},
+    {"id":"zero_iterations","input_values":[3,3,3,0],"input_length":4,"expected_result":-1,"expected_output":[]},
+    {"id":"trailing_value","input_values":[3,3,3,1,0],"input_length":5,"expected_result":-1,"expected_output":[]},
+    {"id":"short_output","input_values":[3,3,3,1],"input_length":4,"expected_result":-2,"expected_output":[],"output_capacity":0}
+  ]
+}

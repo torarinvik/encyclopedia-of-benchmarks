@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-olden-bh-bounded-v1",
+  "algorithm": "olden_bh",
+  "function_symbol": "olden_bh",
+  "description": "Bounded 3D Barnes–Hut octree gravity-field query with monopole cell approximation.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Olden/bh/newbh.c",
+    "symbols": ["maketree", "hackcofm", "hackgrav", "walksub", "gravsub", "subdivp"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/bh/newbh.c",
+    "license_note": "Source headers refer to olden_v1.0/COPYRIGHT, which is not present at that path in the pinned snapshot; no license is inferred."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Olden/bh/info.sh",
+    "bench_name": "bh",
+    "source_files": ["args.c", "newbh.c", "util.c", "walksub.c"],
+    "compile_flags": ["-lm", "-DTORONTO"],
+    "run_options": ["40000", "30"],
+    "small_problem_run_options": ["2000", "5"]
+  },
+  "source_bound": {
+    "launcher_body_count": 40000,
+    "launcher_step_count": 30,
+    "small_problem_body_count": 2000,
+    "small_problem_step_count": 5,
+    "opening_rule": "Open an internal cell exactly when tolerance_squared * distance_squared < cell_side_squared.",
+    "interaction": "Use monopole mass and center of mass; source QUADPOLE branch is disabled by default.",
+    "softening": "Add eps squared to displacement norm squared before potential and acceleration accumulation."
+  },
+  "contract": {
+    "input_layout": "[body_count, opening_tolerance, softening, query_x, query_y, query_z, (x,y,z,mass)...]",
+    "valid_body_count_range": [2, 16],
+    "coordinate_range": [-32, 32],
+    "coordinates_are_integers": true,
+    "mass_range": [1, 16],
+    "opening_tolerance_range": [0, 2],
+    "softening_range": [0, 1],
+    "query_domain": "The query lies outside the bodies' axis-aligned bounding box.",
+    "tree": "Build an octree by ascending body input order; split an occupied leaf until its two unique integer positions select different octants.",
+    "center_of_mass": "Aggregate child mass and weighted coordinates in octant order 0 through 7.",
+    "walk_order": "Open cells by the pinned geometric rule; visit existing children in octant order 0 through 7.",
+    "output_layout": "[negative potential, ax, ay, az]",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2
+  },
+  "workspace": {"elements": 1024},
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[body_count, opening_tolerance, softening, query_x, query_y, query_z, body records]",
+    "valid_length_formula": "6 + 4 * body_count",
+    "minimum_valid_length": 14,
+    "maximum_valid_length": 70,
+    "maximum_parseable_length": 71,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "[potential, ax, ay, az]",
+    "maximum_elements": 4,
+    "success_result": 4,
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "accepted_three_body_cell", "input_values": [3.0, 1.0, 0.0, 8.0, 0.0, 0.0, -8.0, 0.0, 0.0, 1.0, -7.0, 0.0, 0.0, 1.0, -6.0, 0.0, 0.0, 1.0], "input_length": 18, "expected_result": 4, "expected_output": [-0.2, -0.013333333333333334, 0.0, 0.0]},
+    {"id": "invalid_duplicate_positions", "input_values": [2.0, 1.0, 0.0, 8.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 2.0], "input_length": 14, "expected_result": -1, "expected_output": []},
+    {"id": "invalid_query_inside_body_bounds", "input_values": [2.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0], "input_length": 14, "expected_result": -1, "expected_output": []},
+    {"id": "short_output_capacity", "input_values": [3.0, 1.0, 0.0, 8.0, 0.0, 0.0, -8.0, 0.0, 0.0, 1.0, -7.0, 0.0, 0.0, 1.0, -6.0, 0.0, 0.0, 1.0], "input_length": 18, "output_capacity": 3, "expected_result": -2, "expected_output": []}
+  ]
+}

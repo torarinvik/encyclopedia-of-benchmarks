@@ -25,6 +25,7 @@ The Go `boyermoore.go` source adds Apostolico–Giancarlo suffix-skip state and 
 - [C++ `horspool.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/strings/horspool.cpp) and [C++-Plus-Plus-1 `horspool.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/strings/horspool.cpp)
 - [Go `horspool.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/strings/horspool/horspool.go)
 - [Go `boyermoore.go`](https://github.com/TheAlgorithms/Go/blob/5ba447ec5ff3d1213de65b92e726ee74c5d5cc19/strings/search/boyermoore.go)
+- [LAC-DCC MiBench `bmhsrch.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/office-stringsearch/bmhsrch.c), which uses the same case-sensitive Horspool shift algorithm; its single-first-match result is covered by this package's all-match output.
 - [Existing bad-character-only Boyer–Moore](../boyer_moore_search/README.md)
 - [Existing full Boyer–Moore](../boyer_moore/README.md)
 

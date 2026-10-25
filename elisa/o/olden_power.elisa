@@ -1,0 +1,153 @@
+extern sqrt(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+const MAX_LEAVES: i64 = 4
+const MAX_PASSES: i64 = 4
+const G_EPSILON: f64 = 0.000001
+const H_EPSILON: f64 = 0.000001
+
+def find_g(p: f64, q: f64) -> f64:
+    p * p + q * q - 0.8
+
+def find_h(p: f64, q: f64) -> f64:
+    p - 5.0 * q
+
+def gradient_f(p: f64, q: f64, pi_r: f64, pi_i: f64, gradient: mutable f64&) -> f64:
+    gradient[0] <- 1.0 / (1.0 + p) - pi_r
+    gradient[1] <- 1.0 / (1.0 + q) - pi_i
+    magnitude: f64 = sqrt(gradient[0] * gradient[0] + gradient[1] * gradient[1])
+    gradient[0] <- gradient[0] / magnitude
+    gradient[1] <- gradient[1] / magnitude
+    magnitude
+
+def gradient_g(p: f64, q: f64, gradient: mutable f64&) -> f64:
+    gradient[0] <- 2.0 * p
+    gradient[1] <- 2.0 * q
+    magnitude: f64 = sqrt(gradient[0] * gradient[0] + gradient[1] * gradient[1])
+    gradient[0] <- gradient[0] / magnitude
+    gradient[1] <- gradient[1] / magnitude
+    magnitude
+
+def gradient_h(gradient: mutable f64&) -> f64:
+    magnitude: f64 = sqrt(26.0)
+    gradient[0] <- 1.0 / magnitude
+    gradient[1] <- -5.0 / magnitude
+    magnitude
+
+def second_gradient_f(p: f64, q: f64, pi_r: f64, pi_i: f64, result: mutable f64&) -> void:
+    p_inv: f64 = 1.0 / (p + 1.0)
+    q_inv: f64 = 1.0 / (q + 1.0)
+    p_term: f64 = p_inv - pi_r
+    q_term: f64 = q_inv - pi_i
+    magnitude: f64 = sqrt(p_term * p_term + q_term * q_term)
+    result[0] <- -p_inv * p_inv * p_term / magnitude
+    result[1] <- -q_inv * q_inv * q_term / magnitude
+
+def make_orthogonal(modified: mutable f64&, fixed: f64&) -> f64:
+    dot: f64 = modified[0] * fixed[0] + modified[1] * fixed[1]
+    modified[0] <- modified[0] - dot * fixed[0]
+    modified[1] <- modified[1] - dot * fixed[1]
+    length: f64 = sqrt(modified[0] * modified[0] + modified[1] * modified[1])
+    modified[0] <- modified[0] / length
+    modified[1] <- modified[1] / length
+    if 1.0 - dot * dot < 0.0: return 0.0
+    sqrt(1.0 - dot * dot)
+
+def optimize_one(p: mutable f64&, q: mutable f64&, pi_r: f64, pi_i: f64) -> void:
+    grad_f: [2]f64 = [0.0, 0.0]
+    grad_g: [2]f64 = [0.0, 0.0]
+    grad_h: [2]f64 = [0.0, 0.0]
+    dd_grad_f: [2]f64 = [0.0, 0.0]
+    h: f64 = find_h(p, q)
+    if abs(h) > H_EPSILON:
+        magnitude: f64 = gradient_h(&grad_h)
+        total: f64 = h / magnitude
+        p <- p - total * grad_h[0]
+        q <- q - total * grad_h[1]
+    g: f64 = find_g(p, q)
+    if g > G_EPSILON:
+        magnitude: mutable f64 = gradient_g(p, q, &grad_g)
+        gradient_h(&grad_h)
+        magnitude <- magnitude * make_orthogonal(&grad_g, &grad_h)
+        total: f64 = g / magnitude
+        p <- p - total * grad_g[0]
+        q <- q - total * grad_g[1]
+    magnitude: mutable f64 = gradient_f(p, q, pi_r, pi_i, &grad_f)
+    second_gradient_f(p, q, pi_r, pi_i, &dd_grad_f)
+    total: mutable f64 = grad_f[0] * dd_grad_f[0] + grad_f[1] * dd_grad_f[1]
+    magnitude <- magnitude / abs(total)
+    gradient_h(&grad_h)
+    magnitude <- magnitude * make_orthogonal(&grad_f, &grad_h)
+    gradient_g(p, q, &grad_g)
+    total <- grad_f[0] * grad_g[0] + grad_f[1] * grad_g[1]
+    if total > 0.0:
+        max_dist: f64 = -find_g(p, q) / total
+        if magnitude > max_dist: magnitude <- max_dist
+    p <- p + magnitude * grad_f[0]
+    q <- q + magnitude * grad_f[1]
+
+def solve_voltage(p: mutable f64&, q: mutable f64&, resistance: f64, reactance: f64, alpha: mutable f64&, beta: mutable f64&) -> void:
+    a: mutable f64 = resistance * resistance + reactance * reactance
+    b: mutable f64 = 2.0 * resistance * reactance * q - 2.0 * reactance * reactance * p - resistance
+    c: mutable f64 = resistance * q - reactance * p
+    c <- c * c + resistance * p
+    root: f64 = (-b - sqrt(b * b - 4.0 * a * c)) / (2.0 * a)
+    q <- q + ((root - p) * reactance) / resistance
+    p <- root
+    a <- 2.0 * resistance * p
+    b <- 2.0 * reactance * q
+    alpha <- a / (1.0 - a - b)
+    beta <- b / (1.0 - a - b)
+
+def olden_power_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 2: return -1
+    leaves_value: i64 = input[0]
+    passes_value: i64 = input[1]
+    if leaves_value < 1 or leaves_value > MAX_LEAVES or passes_value < 0 or passes_value > MAX_PASSES: return -1
+    leaves: usize = leaves_value.usize()
+    passes: usize = passes_value.usize()
+    leaf_p: mutable [4]f64 = [1.0, 1.0, 1.0, 1.0]
+    leaf_q: mutable [4]f64 = [1.0, 1.0, 1.0, 1.0]
+    branch_alpha: mutable f64 = 0.0
+    branch_beta: mutable f64 = 0.0
+    lateral_alpha: mutable f64 = 0.0
+    lateral_beta: mutable f64 = 0.0
+    theta_r: f64 = 0.8
+    theta_i: f64 = 0.16
+    work_count: mutable i64 = 0
+    pass: mutable usize = 0
+    while pass < passes:
+        lateral_pi_r: f64 = theta_r + lateral_alpha * (theta_r + (theta_i * 0.000001) / (1.0 / 300000.0))
+        lateral_pi_i: f64 = theta_i + lateral_beta * (theta_i + (theta_r * (1.0 / 300000.0)) / 0.000001)
+        branch_pi_r: f64 = lateral_pi_r + branch_alpha * (theta_r + (theta_i * 0.00002) / 0.0001)
+        branch_pi_i: f64 = lateral_pi_i + branch_beta * (theta_i + (theta_r * 0.0001) / 0.00002)
+        branch_p: mutable f64 = 0.0
+        branch_q: mutable f64 = 0.0
+        leaf: mutable usize = 0
+        while leaf < leaves:
+            optimize_one(&leaf_p[leaf], &leaf_q[leaf], branch_pi_r, branch_pi_i)
+            if leaf_p[leaf] < 0.0:
+                leaf_p[leaf] <- 0.0
+                leaf_q[leaf] <- 0.0
+            branch_p <- branch_p + leaf_p[leaf]
+            branch_q <- branch_q + leaf_q[leaf]
+            work_count <- work_count + 1
+            leaf <- leaf + 1
+        solve_voltage(&branch_p, &branch_q, 0.0001, 0.00002, &branch_alpha, &branch_beta)
+        lateral_p: mutable f64 = branch_p
+        lateral_q: mutable f64 = branch_q
+        solve_voltage(&lateral_p, &lateral_q, 1.0 / 300000.0, 0.000001, &lateral_alpha, &lateral_beta)
+        pass <- pass + 1
+    state_projection: mutable i64 = 0
+    leaf <- 0
+    while leaf < leaves:
+        state_projection <- state_projection + floor(leaf_p[leaf] * 1000.0 + 0.5).i64()
+        state_projection <- state_projection + 2 * floor(leaf_q[leaf] * 1000.0 + 0.5).i64()
+        leaf <- leaf + 1
+    state_projection <- state_projection + floor(branch_alpha * 1000.0 + 0.5).i64()
+    state_projection <- state_projection + 2 * floor(branch_beta * 1000.0 + 0.5).i64()
+    state_projection <- state_projection + floor(lateral_alpha * 1000.0 + 0.5).i64()
+    state_projection <- state_projection + 2 * floor(lateral_beta * 1000.0 + 0.5).i64()
+    state_projection + work_count
+
+export fn olden_power(input: i64&, length: usize) -> i64 = olden_power_impl

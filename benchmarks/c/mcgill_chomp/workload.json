@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mcgill-chomp-fixed-rectangle-i64-scalar-v1",
+  "algorithm": "mcgill_chomp",
+  "function_symbol": "mcgill_chomp",
+  "description": "Evaluate the first-player outcome of the pinned McGill Chomp launcher's complete rectangular game tree.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "McGill/chomp/chomp.c",
+    "symbols": ["make_data", "valid_data", "make_list", "make_play", "get_good_move", "main"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/chomp/chomp.c",
+    "license_note": "The repository snapshot declares no license, and chomp.c has no explicit license grant. The ports are independently written from the observed state recurrence and game rules."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "McGill/chomp/info.sh",
+    "bench_name": "chomp",
+    "source_files": ["chomp.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "mode": "main hardcodes report-game mode 2; interactive selection is disabled",
+    "columns": 7,
+    "rows": {"small_problem_size": 7, "default": 8},
+    "state_representation": "One height per column, ordered left to right; valid heights are non-increasing from left to right.",
+    "move_order": "Rows increase from 0, then columns increase from 0; a move at row r and column c caps every column c and to its right at height r.",
+    "outcome": "A state wins iff it has a legal successor that loses. The empty board has value 1 because the previous mover took the poison square.",
+    "reported_result": "Return the initial full-board value: 1 means the first player wins, 0 means the first player loses. The upstream CLI's individual move lines and prompts are excluded."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Initial board row count selected by the launcher profile; width is fixed at 7 columns.",
+    "accepted_values": [7, 8],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "First-player game-tree outcome for the full rectangular board: 1 for a win, 0 for a loss.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 0,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "small_problem_size_profile_7x7", "input_value": 7, "expected_result": 1},
+    {"id": "default_profile_8x7", "input_value": 8, "expected_result": 1},
+    {"id": "below_profile_range", "input_value": 6, "expected_result": -1},
+    {"id": "above_profile_range", "input_value": 9, "expected_result": -1},
+    {"id": "zero_rows", "input_value": 0, "expected_result": -1},
+    {"id": "negative_rows", "input_value": -1, "expected_result": -1},
+    {"id": "signed_i64_minimum", "input_value": -9223372036854775808, "expected_result": -1},
+    {"id": "signed_i64_maximum", "input_value": 9223372036854775807, "expected_result": -1}
+  ]
+}

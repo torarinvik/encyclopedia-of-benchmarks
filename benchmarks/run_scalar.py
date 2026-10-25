@@ -22,20 +22,13 @@ from typing import Any
 
 from fib2_oracle import expected_result as fib2_expected
 from nestedloop_oracle import expected_result as nestedloop_expected
-from treeadd_oracle import MAX_LEVEL as TREEADD_MAX_LEVEL
-from treeadd_oracle import MAX_NODES as TREEADD_MAX_NODES
-from treeadd_oracle import expected_result as treeadd_expected
+from mcgill_chomp_oracle import INVALID_RESULT as MCGILL_CHOMP_INVALID_RESULT
+from mcgill_chomp_oracle import expected_result as mcgill_chomp_expected
 from automotive_bitcount_oracle import ALGORITHM_NAMES as AUTOMOTIVE_BITCOUNT_ALGORITHM_NAMES
 from automotive_bitcount_oracle import MAX_ITERATIONS as AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS
 from automotive_bitcount_oracle import REFERENCE_CHECKSUMS as AUTOMOTIVE_BITCOUNT_REFERENCE_CHECKSUMS
 from automotive_bitcount_oracle import algorithm_checksums as automotive_bitcount_checksums
 from automotive_bitcount_oracle import expected_result as automotive_bitcount_expected
-from cbench_automotive_bitcount_oracle import ALGORITHM_NAMES as CBENCH_AUTOMOTIVE_BITCOUNT_ALGORITHM_NAMES
-from cbench_automotive_bitcount_oracle import MAX_ITERATIONS as CBENCH_AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS
-from cbench_automotive_bitcount_oracle import REFERENCE_CHECKSUMS as CBENCH_AUTOMOTIVE_BITCOUNT_REFERENCE_CHECKSUMS
-from cbench_automotive_bitcount_oracle import REFERENCE_RESULT as CBENCH_AUTOMOTIVE_BITCOUNT_REFERENCE_RESULT
-from cbench_automotive_bitcount_oracle import algorithm_checksums as cbench_automotive_bitcount_checksums
-from cbench_automotive_bitcount_oracle import expected_result as cbench_automotive_bitcount_expected
 from shootout_hash_oracle import MAX_N as SHOOTOUT_HASH_MAX_N
 from shootout_hash_oracle import REFERENCE_RESULT as SHOOTOUT_HASH_REFERENCE_RESULT
 from shootout_hash_oracle import expected_result as shootout_hash_expected
@@ -1886,91 +1879,70 @@ def validate_multiple_of_3_or_5_term_workload(workload: dict) -> None:
             raise ValueError(f"multiple_of_3_or_5_term workload mismatch: {case.get('id')}")
 
 
-TREEADD_CASE_IDS = frozenset({
-    "zero_level_null_tree", "one_node", "three_node_tree", "small_complete_tree",
-    "source_scale_reference", "maximum_bounded_tree", "negative_level", "above_bound",
-    "small_launcher_level_outside_bound", "default_launcher_level_outside_bound",
-    "signed_i64_minimum", "signed_i64_maximum",
-})
-
-
-def validate_treeadd_workload(workload: dict) -> None:
-    source_files = [
-        {"path": "Olden/treeadd/args.c", "blob_sha": "bd91e51d41be0ebe448ee9a5c2e5a0c8cc4e4a9d", "symbols": ["dealwithargs"]},
-        {"path": "Olden/treeadd/node.c", "blob_sha": "9e09a373bad082a3bc738299361259017f6845d1", "symbols": ["main", "TreeAdd"]},
-        {"path": "Olden/treeadd/par-alloc.c", "blob_sha": "97828a8cff042b19a02ac2254b9f1217f89549dc", "symbols": ["TreeAlloc"]},
-        {"path": "Olden/treeadd/tree.h", "blob_sha": "630e4e4f1849a63a3048a4f629debdd0b404fcb1", "symbols": ["tree_t"]},
-    ]
-    pinned_source = {
-        "repository": "lac-dcc/Benchmarks",
-        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
-        "path": "Olden/treeadd/node.c",
-        "symbols": ["main", "TreeAdd", "TreeAlloc", "dealwithargs"],
-        "files": source_files,
-        "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/treeadd",
-    }
-    pinned_launcher = {
-        "repository": "lac-dcc/Benchmarks",
-        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
-        "path": "Olden/treeadd/info.sh",
-        "blob_sha": "ed3e398d6dce9b50cb71d07bbfe4b744e514c0b1",
-        "bench_name": "treeadd",
-        "source_files": ["args.c", "node.c", "par-alloc.c"],
-        "compile_flags": ["-lm", "-DTORONTO"],
-        "run_options": {"default": "22", "when_SMALL_PROBLEM_SIZE_is_set": "20"},
-        "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/treeadd/info.sh",
-    }
-    input_spec = {
-        "kind": "signed_64_bit_integer",
-        "meaning": "TreeAlloc recursion level; level zero produces a null tree.",
-        "range": [0, TREEADD_MAX_LEVEL],
-        "maximum_nodes": TREEADD_MAX_NODES,
-        "invalid_input_result": -1,
-    }
-    output_spec = {
-        "kind": "signed_64_bit_integer",
-        "meaning": "The value returned by the final TreeAdd traversal of a full binary tree whose every node has value one.",
-        "maximum_result": TREEADD_MAX_NODES,
-        "invalid_input_result": -1,
-    }
-    contract = {
-        "tree_generation": "For each positive level, create one value-one node and recursively create left and right subtrees at level minus one.",
-        "storage": "Use a bounded contiguous node table with left and right child indices; retain the source tree topology and recursive traversal.",
-        "tree_add": "Return zero for a null child; otherwise return the node value plus the left and right subtree sums.",
-        "repetitions": 100,
-        "result": "Return the last TreeAdd result. Since the generated tree is unchanged, this equals 2^level - 1.",
-        "bounded_profile": "The wrapper caps level at 12 (4095 nodes) so the source's level-20/22 launcher profiles remain safe in a portable scalar call.",
-    }
-    expected_measurement = {
-        "comparison_model": "scalar_call",
-        "sample_count": 3,
-        "warmup_rounds": 0,
-        "repetitions_per_sample": 1,
+def validate_mcgill_chomp_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/McGill/chomp/chomp.c"
+    launcher_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/McGill/chomp/info.sh"
+    expected_ids = {
+        "small_problem_size_profile_7x7", "default_profile_8x7", "below_profile_range",
+        "above_profile_range", "zero_rows", "negative_rows", "signed_i64_minimum",
+        "signed_i64_maximum",
     }
     cases = workload.get("cases")
     case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
     if (workload.get("schema_version") != 1
-            or workload.get("id") != "lac-dcc-olden-treeadd-bounded-scalar-v1"
-            or workload.get("algorithm") != "treeadd"
-            or workload.get("function_symbol") != "treeadd"
-            or workload.get("pinned_source") != pinned_source
-            or workload.get("source_note") != "Pinned node.c and par-alloc.c refer to olden_v1.0/COPYRIGHT, which is absent at that path in this snapshot. The ports are independently written; no license is inferred from the missing file."
-            or workload.get("pinned_launcher") != pinned_launcher
-            or workload.get("input") != input_spec
-            or workload.get("output") != output_spec
-            or workload.get("contract") != contract
-            or workload.get("measurement") != expected_measurement
-            or not isinstance(cases, list)
-            or len(case_ids) != len(TREEADD_CASE_IDS)
-            or len(case_ids) != len(set(case_ids))
-            or set(case_ids) != TREEADD_CASE_IDS):
-        raise ValueError("treeadd workload metadata does not match its pinned bounded scalar contract")
+            or workload.get("id") != "lac-dcc-mcgill-chomp-fixed-rectangle-i64-scalar-v1"
+            or workload.get("algorithm") != "mcgill_chomp"
+            or workload.get("function_symbol") != "mcgill_chomp"
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "McGill/chomp/chomp.c",
+                "symbols": ["make_data", "valid_data", "make_list", "make_play", "get_good_move", "main"],
+                "url": source_url,
+                "license_note": "The repository snapshot declares no license, and chomp.c has no explicit license grant. The ports are independently written from the observed state recurrence and game rules.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "McGill/chomp/info.sh", "bench_name": "chomp",
+                "source_files": ["chomp.c"], "compile_flags": ["-lm"], "run_options": [],
+            }
+            or workload.get("source_bound") != {
+                "mode": "main hardcodes report-game mode 2; interactive selection is disabled",
+                "columns": 7, "rows": {"small_problem_size": 7, "default": 8},
+                "state_representation": "One height per column, ordered left to right; valid heights are non-increasing from left to right.",
+                "move_order": "Rows increase from 0, then columns increase from 0; a move at row r and column c caps every column c and to its right at height r.",
+                "outcome": "A state wins iff it has a legal successor that loses. The empty board has value 1 because the previous mover took the poison square.",
+                "reported_result": "Return the initial full-board value: 1 means the first player wins, 0 means the first player loses. The upstream CLI's individual move lines and prompts are excluded.",
+            }
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Initial board row count selected by the launcher profile; width is fixed at 7 columns.",
+                "accepted_values": [7, 8], "invalid_input_result": MCGILL_CHOMP_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "First-player game-tree outcome for the full rectangular board: 1 for a win, 0 for a loss.",
+                "invalid_input_result": MCGILL_CHOMP_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "scalar_call", "sample_count": 3,
+                "warmup_rounds": 0, "repetitions_per_sample": 1,
+            }
+            or not isinstance(cases, list) or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids)) or set(case_ids) != expected_ids):
+        raise ValueError("mcgill_chomp workload metadata does not match the pinned bounded game contract")
+    readme = (ROOT / "benchmarks" / "c" / "mcgill_chomp" / "README.md").read_text(encoding="utf-8")
+    if (source_url not in readme or launcher_url not in readme
+            or "no explicit license grant" not in readme
+            or "fixed at seven columns" not in readme):
+        raise ValueError("mcgill_chomp README is missing its source, license, or bounded-board notes")
     for case in cases:
         input_value = case.get("input_value")
         expected = case.get("expected_result")
-        if (type(input_value) is not int or not I64_MIN <= input_value < (1 << 63)
-                or type(expected) is not int or expected != treeadd_expected(input_value)):
-            raise ValueError(f"treeadd workload mismatch: {case.get('id')}")
+        if (set(case) != {"id", "input_value", "expected_result"}
+                or type(input_value) is not int or not I64_MIN <= input_value <= I64_MAX
+                or type(expected) is not int or expected != mcgill_chomp_expected(input_value)):
+            raise ValueError(f"mcgill_chomp workload mismatch: {case.get('id')}")
 
 
 AUTOMOTIVE_BITCOUNT_CASE_IDS = frozenset({
@@ -2077,121 +2049,6 @@ def validate_automotive_bitcount_workload(workload: dict) -> None:
         raise ValueError("automotive_bitcount oracle does not reproduce the pinned launcher reference checksums")
 
 
-CBENCH_AUTOMOTIVE_BITCOUNT_CASE_IDS = frozenset({
-    "zero_iterations", "one_iteration", "two_iterations", "dataset_1_profile",
-    "negative_iterations", "above_profile_bound", "signed_i64_minimum", "signed_i64_maximum",
-})
-
-
-def validate_cbench_automotive_bitcount_workload(workload: dict) -> None:
-    source_files = [
-        {"path": "cBench/automotive_bitcount/src/bitarray.c", "blob_sha": "b21e8facccb8eb3d5f96bbb0878b89e0f8d87c15", "symbols": ["alloc_bit_array", "getbit", "setbit", "flipbit"]},
-        {"path": "cBench/automotive_bitcount/src/bitcnt_1.c", "blob_sha": "d41f57f1b348a4c9484c881495c9274a3e3f9fd2", "symbols": ["bit_count"]},
-        {"path": "cBench/automotive_bitcount/src/bitcnt_2.c", "blob_sha": "e34e119e32df6c04bdb910a9cdb0d7c3bb66a5f2", "symbols": ["bitcount"]},
-        {"path": "cBench/automotive_bitcount/src/bitcnt_3.c", "blob_sha": "f3d6088600f70c93a17b852818b2d8addd3e2c3f", "symbols": ["ntbl_bitcount", "BW_btbl_bitcount", "AR_btbl_bitcount"]},
-        {"path": "cBench/automotive_bitcount/src/bitcnt_4.c", "blob_sha": "9f76cd0f30a1a126e318ecb83d6899fd65d29f04", "symbols": ["ntbl_bitcnt", "btbl_bitcnt"]},
-        {"path": "cBench/automotive_bitcount/src/bitcnts.c", "blob_sha": "5fa739af8781cfea2ad43c888a08a39f1bf66785", "symbols": ["main1", "bit_shifter"]},
-        {"path": "cBench/automotive_bitcount/src/bitfiles.c", "blob_sha": "504d4833f52a17c4a9b24345615e05eb98b139b9", "symbols": ["bfopen", "bfread", "bfwrite", "bfclose"]},
-        {"path": "cBench/automotive_bitcount/src/bitstrng.c", "blob_sha": "c9f326abb0e751da877553543dd5914f490cacef", "symbols": ["bitstring"]},
-        {"path": "cBench/automotive_bitcount/src/bstr_i.c", "blob_sha": "b4bfc733b1ab94a4500f3e3a70cbf63d4a896bf4", "symbols": ["bstr_i"]},
-        {"path": "cBench/automotive_bitcount/src/loop-wrap.c", "blob_sha": "b439f1a034a200f4d515c43baf4b0c7dc089a327", "symbols": ["main"]},
-        {"path": "cBench/automotive_bitcount/src/bitops.h", "blob_sha": "ae8e0ea8362c3f4240bd483e2e480f92dc7ce0f8", "symbols": ["BitSet", "BitClr", "BitFlp", "BitTst", "BitOff", "BitOn", "BitFlip", "IsBit"]},
-        {"path": "cBench/automotive_bitcount/src/conio.h", "blob_sha": "dba7d926eb9ba19eee21728b5f03cf57432492b0", "symbols": []},
-        {"path": "cBench/automotive_bitcount/src/extkword.h", "blob_sha": "ca0e2b997ff60ea0a7003a22bddca9e6291d9bef", "symbols": ["CDECL"]},
-        {"path": "cBench/automotive_bitcount/src/sniptype.h", "blob_sha": "399935d3a1c98544523310bf493db4d758ba751f", "symbols": ["TOBOOL"]},
-    ]
-    pinned_source = {
-        "repository": "lac-dcc/Benchmarks",
-        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
-        "path": "cBench/automotive_bitcount/src/bitcnts.c",
-        "symbols": ["main1", "bit_shifter", "bit_count", "bitcount", "ntbl_bitcnt", "ntbl_bitcount", "BW_btbl_bitcount", "AR_btbl_bitcount"],
-        "files": source_files,
-        "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/automotive_bitcount/src",
-    }
-    pinned_launcher = {
-        "repository": "lac-dcc/Benchmarks",
-        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
-        "path": "cBench/automotive_bitcount/src/info.sh",
-        "blob_sha": "458156daf193b3276c022fd7ad4bd26ae9d5bd96",
-        "bench_name": "automotive_bitcount",
-        "source_files": ["bitarray.c", "bitcnt_1.c", "bitcnt_2.c", "bitcnt_3.c", "bitcnt_4.c", "bitcnts.c", "bitfiles.c", "bitstrng.c", "bstr_i.c", "loop-wrap.c"],
-        "compile_flags": ["-lm"],
-        "run_options": "",
-        "stdin": "",
-        "dataset_file": {"path": "cBench/automotive_bitcount/src/_ccc_info_datasets", "blob_sha": "a2db6a652c763db87d073776effc866f027dd9cd"},
-        "dataset_index": 1,
-        "dataset_command": "1125000 > ftmp_out",
-        "loop_wrap_repetitions": 80,
-    }
-    input_spec = {
-        "kind": "signed_64_bit_integer",
-        "meaning": "Number of generated values counted by each of the seven source algorithms.",
-        "range": [0, CBENCH_AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS],
-        "invalid_input_result": -1,
-    }
-    output_spec = {
-        "kind": "signed_64_bit_integer",
-        "meaning": "Sum of the seven source-order bit totals weighted by their one-based algorithm positions.",
-        "maximum_result": 756_000_000,
-        "invalid_input_result": -1,
-    }
-    contract = {
-        "source_algorithms": list(CBENCH_AUTOMOTIVE_BITCOUNT_ALGORITHM_NAMES),
-        "source_seed_per_algorithm": 1,
-        "seed_generation": "Each source algorithm resets its local seed to 1, counts it, then adds 13 before the next value. The seven streams are identical.",
-        "counting": "Preserve the seven selected kernels: Kernighan bit clearing, parallel 32-bit bit summation, recursive nybble table, fixed eight-nybble table, BW four-byte table, AR four-byte table, and shift/test.",
-        "result": "The original driver prints one bit total per selected algorithm. The scalar ABI returns the sum of those totals weighted by their one-based source positions.",
-        "bounded_profile": "Accept 0 through dataset 1's 1125000 iterations. The source has no intrinsic maximum; the cBench launcher dataset supplies this bounded profile.",
-        "outer_loop": "Dataset 1 repeats main1 80 times and enables printing only on the final pass. The suite callable models one deterministic main1 pass.",
-    }
-    cases = workload.get("cases")
-    case_ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
-    if (workload.get("schema_version") != 1
-            or workload.get("id") != "lac-dcc-cbench-automotive-bitcount-bounded-scalar-v1"
-            or workload.get("algorithm") != "cbench_automotive_bitcount"
-            or workload.get("function_symbol") != "cbench_automotive_bitcount"
-            or workload.get("pinned_source") != pinned_source
-            or workload.get("pinned_launcher") != pinned_launcher
-            or workload.get("input") != input_spec
-            or workload.get("output") != output_spec
-            or workload.get("contract") != contract
-            or workload.get("measurement") != {
-                "comparison_model": "scalar_call",
-                "sample_count": 3,
-                "warmup_rounds": 0,
-                "repetitions_per_sample": 1,
-            }
-            or not isinstance(cases, list)
-            or len(case_ids) != len(CBENCH_AUTOMOTIVE_BITCOUNT_CASE_IDS)
-            or len(case_ids) != len(set(case_ids))
-            or set(case_ids) != CBENCH_AUTOMOTIVE_BITCOUNT_CASE_IDS):
-        raise ValueError("cbench_automotive_bitcount workload metadata does not match its pinned bounded scalar contract")
-    readme = (ROOT / "benchmarks" / "c" / "cbench_automotive_bitcount" / "README.md").read_text(encoding="utf-8")
-    source_url = "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/automotive_bitcount/src"
-    if source_url not in readme or "repeats the driver 80 times" not in readme or "starts its own stream at `1`" not in readme:
-        raise ValueError("cbench_automotive_bitcount README is missing its pinned source or benchmark-level distinction")
-    for case in cases:
-        input_value = case.get("input_value")
-        expected = case.get("expected_result")
-        if (type(input_value) is not int or not I64_MIN <= input_value < (1 << 63)
-                or type(expected) is not int or expected != cbench_automotive_bitcount_expected(input_value)):
-            raise ValueError(f"cbench_automotive_bitcount workload mismatch: {case.get('id')}")
-        totals = cbench_automotive_bitcount_checksums(input_value)
-        checksums = case.get("algorithm_checksums")
-        if totals is None:
-            if checksums is not None:
-                raise ValueError(f"cbench_automotive_bitcount invalid case must not include checksums: {case.get('id')}")
-        elif (not isinstance(checksums, list)
-                or any(type(value) is not int for value in checksums)
-                or tuple(checksums) != totals):
-            raise ValueError(f"cbench_automotive_bitcount source checksums mismatch: {case.get('id')}")
-    if (cbench_automotive_bitcount_checksums(CBENCH_AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS)
-            != CBENCH_AUTOMOTIVE_BITCOUNT_REFERENCE_CHECKSUMS
-            or cbench_automotive_bitcount_expected(CBENCH_AUTOMOTIVE_BITCOUNT_MAX_ITERATIONS)
-            != CBENCH_AUTOMOTIVE_BITCOUNT_REFERENCE_RESULT):
-        raise ValueError("cbench_automotive_bitcount oracle does not reproduce the dataset 1 profile checksum")
-
-
 def validate_shootout_hash_workload(workload: dict) -> None:
     source_url = "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/hash"
     source_files = [
@@ -2263,17 +2120,13 @@ def validate_expected_result(algorithm: str, input_value: int, expected_result: 
         if expected_result != nestedloop_expected(input_value):
             raise ValueError("nestedloop expected_result must match the bounded six-loop count")
         return
-    if algorithm == "treeadd":
-        if expected_result != treeadd_expected(input_value):
-            raise ValueError("treeadd expected_result must match the bounded full-tree sum")
+    if algorithm == "mcgill_chomp":
+        if expected_result != mcgill_chomp_expected(input_value):
+            raise ValueError("mcgill_chomp expected_result must match the bounded Chomp game-tree outcome")
         return
     if algorithm == "automotive_bitcount":
         if expected_result != automotive_bitcount_expected(input_value):
             raise ValueError("automotive_bitcount expected_result must match the weighted seven-kernel checksum")
-        return
-    if algorithm == "cbench_automotive_bitcount":
-        if expected_result != cbench_automotive_bitcount_expected(input_value):
-            raise ValueError("cbench_automotive_bitcount expected_result must match the weighted seven-kernel checksum")
         return
     if algorithm == "shootout_hash":
         if expected_result != shootout_hash_expected(input_value):
@@ -3876,12 +3729,10 @@ def main() -> int:
         validate_pollards_rho_workload(workload)
     elif algorithm == "multiple_of_3_or_5_term":
         validate_multiple_of_3_or_5_term_workload(workload)
-    elif algorithm == "treeadd":
-        validate_treeadd_workload(workload)
+    elif algorithm == "mcgill_chomp":
+        validate_mcgill_chomp_workload(workload)
     elif algorithm == "automotive_bitcount":
         validate_automotive_bitcount_workload(workload)
-    elif algorithm == "cbench_automotive_bitcount":
-        validate_cbench_automotive_bitcount_workload(workload)
     elif algorithm == "shootout_hash":
         validate_shootout_hash_workload(workload)
     timing = workload["measurement"]

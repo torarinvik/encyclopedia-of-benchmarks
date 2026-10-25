@@ -20,12 +20,6 @@ from vector2_oracle import expected_result as vector2_oracle
 from vectors_3d_oracle import expected_result as vectors_3d_oracle
 from partialsums_oracle import expected_output as partialsums_oracle
 from durbin_oracle import expected_output as durbin_oracle
-from mibench_telecomm_fft_oracle import (
-    MAX_INPUT_LENGTH as MIBENCH_TELECOMM_FFT_MAX_INPUT_LENGTH,
-    MAX_N as MIBENCH_TELECOMM_FFT_MAX_N,
-    MAX_OUTPUT_ELEMENTS as MIBENCH_TELECOMM_FFT_MAX_OUTPUT_ELEMENTS,
-    expected_output as mibench_telecomm_fft_expected_output,
-)
 from mibench_automotive_basicmath_cubic_oracle import (
     COEFFICIENT_COUNT as MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_INPUT_LENGTH,
     INVALID_RESULT as MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_INVALID_RESULT,
@@ -67,6 +61,26 @@ from misc_fp_convert_oracle import (
     OUTPUT_ERROR as MISC_FP_CONVERT_OUTPUT_ERROR,
     VECTOR_LENGTH as MISC_FP_CONVERT_VECTOR_LENGTH,
     expected_output as misc_fp_convert_expected_output,
+)
+from misc_dt_oracle import (
+    INVALID_RESULT as MISC_DT_INVALID_RESULT,
+    MAX_PARSEABLE_INPUT_LENGTH as MISC_DT_MAX_PARSEABLE_INPUT_LENGTH,
+    OUTPUT_ERROR as MISC_DT_OUTPUT_ERROR,
+    expected_output as misc_dt_expected_output,
+)
+from olden_bh_oracle import (
+    INVALID_RESULT as OLDEN_BH_INVALID_RESULT,
+    MAX_INPUT_LENGTH as OLDEN_BH_MAX_INPUT_LENGTH,
+    OUTPUT_ELEMENTS as OLDEN_BH_OUTPUT_ELEMENTS,
+    OUTPUT_ERROR as OLDEN_BH_OUTPUT_ERROR,
+    expected_output as olden_bh_expected_output,
+)
+from olden_em3d_oracle import (
+    INVALID_RESULT as OLDEN_EM3D_INVALID_RESULT,
+    MAX_INPUT_LENGTH as OLDEN_EM3D_MAX_INPUT_LENGTH,
+    MAX_NODES as OLDEN_EM3D_MAX_NODES,
+    OUTPUT_ERROR as OLDEN_EM3D_OUTPUT_ERROR,
+    expected_output as olden_em3d_expected_output,
 )
 from trisolv_oracle import (
     INVALID_RESULT as TRISOLV_INVALID_RESULT,
@@ -129,6 +143,18 @@ from heat_3d_oracle import (
     MAX_TSTEPS as HEAT_3D_MAX_TSTEPS,
     OUTPUT_ERROR as HEAT_3D_OUTPUT_ERROR,
     expected_output as heat_3d_expected_output,
+)
+from himenobmtxpa_oracle import (
+    INPUT_LENGTH as HIMENO_INPUT_LENGTH,
+    INVALID_RESULT as HIMENO_INVALID_RESULT,
+    MAX_OUTPUT_ELEMENTS as HIMENO_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as HIMENO_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_SIDE as HIMENO_MAX_SIDE,
+    MIN_ITERATIONS as HIMENO_MIN_ITERATIONS,
+    MIN_SIDE as HIMENO_MIN_SIDE,
+    MAX_ITERATIONS as HIMENO_MAX_ITERATIONS,
+    OUTPUT_ERROR as HIMENO_OUTPUT_ERROR,
+    expected_output as himenobmtxpa_expected_output,
 )
 from polybench_lu_oracle import (
     MAX_N as POLYBENCH_LU_MAX_N,
@@ -1122,6 +1148,23 @@ def misc_fp_convert_abi_oracle(values, output_capacity=None, output_is_null=Fals
     return result, output
 
 
+def misc_dt_oracle(values):
+    result, output = misc_dt_expected_output(values)
+    return output if result >= 0 else None
+
+
+def misc_dt_abi_oracle(values, output_capacity=None, output_is_null=False,
+                       input_is_null=False, input_length=None):
+    if input_is_null or (input_length is not None and input_length != len(values)):
+        return MISC_DT_INVALID_RESULT, []
+    result, output = misc_dt_expected_output(values)
+    if result < 0:
+        return result, []
+    if output_is_null or (output_capacity is not None and output_capacity < result):
+        return MISC_DT_OUTPUT_ERROR, []
+    return result, output
+
+
 def trisolv_abi_oracle(values, output_capacity=None, output_is_null=False,
                        input_is_null=False, input_length=None):
     if input_is_null or (input_length is not None and input_length != len(values)):
@@ -1240,6 +1283,32 @@ def heat_3d_oracle(values):
     return output if result >= 0 else None
 
 
+def himenobmtxpa_abi_oracle(values, output_capacity=None, output_is_null=False,
+                            input_is_null=False, input_length=None):
+    if (input_is_null
+            or not isinstance(values, (list, tuple))
+            or len(values) > HIMENO_MAX_PARSEABLE_INPUT_LENGTH
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))):
+        return HIMENO_INVALID_RESULT, []
+    output = himenobmtxpa_expected_output(values)
+    if output is None:
+        return HIMENO_INVALID_RESULT, []
+    if (type(output_is_null) is not bool
+            or output_capacity is not None
+            and (type(output_capacity) is not int or output_capacity < 0)):
+        return HIMENO_OUTPUT_ERROR, []
+    if output_is_null or (output_capacity is not None
+                          and output_capacity < HIMENO_MAX_OUTPUT_ELEMENTS):
+        return HIMENO_OUTPUT_ERROR, []
+    return HIMENO_MAX_OUTPUT_ELEMENTS, output
+
+
+def himenobmtxpa_oracle(values):
+    result, output = himenobmtxpa_abi_oracle(values)
+    return output if result >= 0 else None
+
+
 POLYBENCH_LU_MAX_INPUT_LENGTH = 1
 POLYBENCH_LU_MAX_OUTPUT_ELEMENTS = POLYBENCH_LU_MAX_N * POLYBENCH_LU_MAX_N
 POLYBENCH_LU_INVALID_RESULT = -1
@@ -1327,38 +1396,6 @@ def polybench_seidel_2d_oracle(values):
     return output if result >= 0 else None
 
 
-MIBENCH_TELECOMM_FFT_INVALID_RESULT = -1
-MIBENCH_TELECOMM_FFT_OUTPUT_ERROR = -2
-
-
-def mibench_telecomm_fft_abi_oracle(values, output_capacity=None, output_is_null=False,
-                                    input_is_null=False, input_length=None):
-    if (not isinstance(values, (list, tuple))
-            or len(values) > MIBENCH_TELECOMM_FFT_MAX_INPUT_LENGTH
-            or any(type(value) not in (int, float) or not math.isfinite(float(value))
-                   for value in values)
-            or type(output_is_null) is not bool or type(input_is_null) is not bool
-            or (input_is_null and (values or input_length not in (None, 0)))
-            or (input_length is not None
-                and (type(input_length) is not int or input_length != len(values)))
-            or (output_capacity is not None
-                and (type(output_capacity) is not int or output_capacity < 0))):
-        return MIBENCH_TELECOMM_FFT_INVALID_RESULT, []
-    if input_is_null:
-        return MIBENCH_TELECOMM_FFT_INVALID_RESULT, []
-    output = mibench_telecomm_fft_expected_output(values)
-    if output is None:
-        return MIBENCH_TELECOMM_FFT_INVALID_RESULT, []
-    if output_is_null or (output_capacity is not None and output_capacity < len(output)):
-        return MIBENCH_TELECOMM_FFT_OUTPUT_ERROR, []
-    return len(output), output
-
-
-def mibench_telecomm_fft_oracle(values):
-    result, output = mibench_telecomm_fft_abi_oracle(values)
-    return output if result >= 0 else None
-
-
 def mibench_automotive_basicmath_cubic_abi_oracle(
         values, output_capacity=None, output_is_null=False,
         input_is_null=False, input_length=None):
@@ -1387,15 +1424,52 @@ def euclidean_t_spanner_oracle(values):
     return output if result >= 0 else None
 
 
+def _olden_float64_abi_oracle(expected_output, values, output_capacity=None,
+                              output_is_null=False, input_is_null=False,
+                              input_length=None):
+    """Apply the shared float64 slice ABI framing to a bounded Olden oracle."""
+    if (type(input_is_null) is not bool or type(output_is_null) is not bool
+            or not isinstance(values, list)
+            or input_is_null
+            or input_length is not None
+            and (type(input_length) is not int or input_length != len(values))):
+        return OLDEN_BH_INVALID_RESULT, []
+    result, output = expected_output(values)
+    if result < 0:
+        return result, []
+    if (output_capacity is not None
+            and (type(output_capacity) is not int or output_capacity < 0)):
+        return OLDEN_BH_OUTPUT_ERROR, []
+    if output_is_null or output_capacity is not None and output_capacity < result:
+        return OLDEN_BH_OUTPUT_ERROR, []
+    return result, output
+
+
+def olden_bh_abi_oracle(values, output_capacity=None, output_is_null=False,
+                        input_is_null=False, input_length=None):
+    return _olden_float64_abi_oracle(
+        olden_bh_expected_output, values, output_capacity, output_is_null,
+        input_is_null, input_length)
+
+
+def olden_em3d_abi_oracle(values, output_capacity=None, output_is_null=False,
+                          input_is_null=False, input_length=None):
+    return _olden_float64_abi_oracle(
+        olden_em3d_expected_output, values, output_capacity, output_is_null,
+        input_is_null, input_length)
+
+
 ORACLES = {
     "partialsums": partialsums_oracle,
     "durbin": durbin_oracle,
-    "mibench_telecomm_fft": mibench_telecomm_fft_oracle,
     "mibench_automotive_basicmath_cubic": mibench_automotive_basicmath_cubic_oracle,
     "versabench_beamformer": versabench_beamformer_abi_oracle,
     "syrk": syrk_oracle,
     "matmul_f64_4x4": matmul_f64_4x4_oracle,
     "misc_fp_convert": misc_fp_convert_oracle,
+    "misc_dt": misc_dt_oracle,
+    "olden_bh": olden_bh_abi_oracle,
+    "olden_em3d": olden_em3d_abi_oracle,
     "trisolv": trisolv_oracle,
     "jacobi_1d": jacobi_1d_oracle,
     "jacobi_2d": jacobi_2d_oracle,
@@ -1403,6 +1477,7 @@ ORACLES = {
     "trmm": trmm_abi_oracle,
     "fdtd_2d": fdtd_2d_oracle,
     "heat_3d": heat_3d_oracle,
+    "himenobmtxpa": himenobmtxpa_oracle,
     "polybench_lu": polybench_lu_oracle,
     "polybench_correlation": polybench_correlation_oracle,
     "polybench_seidel_2d": polybench_seidel_2d_oracle,
@@ -4133,6 +4208,10 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         if algorithm == "matmul_f64_4x4" else
                         MISC_FP_CONVERT_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "misc_fp_convert" else
+                        MISC_DT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "misc_dt" else
+                        OLDEN_BH_MAX_INPUT_LENGTH + 1 if algorithm == "olden_bh" else
+                        OLDEN_EM3D_MAX_INPUT_LENGTH + 1 if algorithm == "olden_em3d" else
                         TRISOLV_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "trisolv" else
                         JACOBI_1D_MAX_PARSEABLE_INPUT_LENGTH
@@ -4144,10 +4223,10 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         TRMM_MAX_INPUT_LENGTH if algorithm == "trmm" else
                         FDTD_2D_MAX_INPUT_LENGTH if algorithm == "fdtd_2d" else
                         HEAT_3D_MAX_INPUT_LENGTH if algorithm == "heat_3d" else
+                        HIMENO_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "himenobmtxpa" else
                         POLYBENCH_LU_MAX_INPUT_LENGTH if algorithm == "polybench_lu" else
                         POLYBENCH_CORRELATION_MAX_INPUT_LENGTH if algorithm == "polybench_correlation" else
                         POLYBENCH_SEIDEL_2D_MAX_INPUT_LENGTH if algorithm == "polybench_seidel_2d" else
-                        MIBENCH_TELECOMM_FFT_MAX_INPUT_LENGTH if algorithm == "mibench_telecomm_fft" else
                         MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_INPUT_LENGTH
                         if algorithm == "mibench_automotive_basicmath_cubic" else
                         SIR_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sir" else
@@ -4278,8 +4357,10 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             or (not raw_values and algorithm not in {"md2_digest", "kalman_filter_r_two_state_simulation",
                                                       "matmul_f64_4x4", "misc_fp_convert", "trisolv",
                                                       "jacobi_1d", "jacobi_2d", "fdtd_2d", "heat_3d",
+                                                      "himenobmtxpa",
                                                       "polybench_lu", "polybench_correlation",
-                                                      "polybench_seidel_2d", "mibench_telecomm_fft",
+                                                      "polybench_seidel_2d",
+                                                      "olden_bh", "olden_em3d",
                                                       "mibench_automotive_basicmath_cubic"}
                 and not (allow_nonfinite and case.get("input_is_null") is True
                          and case.get("input_length") == 0))
@@ -4289,7 +4370,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_telecomm_fft", "mibench_automotive_basicmath_cubic", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "himenobmtxpa", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
                      "mean_shift", "k_means_clust", "lu_decompose", "lu_elimination",
@@ -4321,6 +4402,27 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "misc_fp_convert":
             expected_result, oracle_values = misc_fp_convert_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "misc_dt":
+            expected_result, oracle_values = misc_dt_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "olden_bh":
+            expected_result, oracle_values = olden_bh_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "olden_em3d":
+            expected_result, oracle_values = olden_em3d_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
@@ -4375,6 +4477,13 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
             oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "himenobmtxpa":
+            expected_result, oracle_values = himenobmtxpa_abi_oracle(
+                values, output_capacity=case.get("output_capacity"),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "polybench_lu":
             expected_result, oracle_values = polybench_lu_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
@@ -4391,13 +4500,6 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
             oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "polybench_seidel_2d":
             expected_result, oracle_values = polybench_seidel_2d_abi_oracle(
-                values, output_capacity=case.get("output_capacity"),
-                output_is_null=case.get("output_is_null", False),
-                input_is_null=case.get("input_is_null", False),
-                input_length=case.get("input_length"))
-            oracle_output = None if expected_result < 0 else oracle_values
-        elif algorithm == "mibench_telecomm_fft":
-            expected_result, oracle_values = mibench_telecomm_fft_abi_oracle(
                 values, output_capacity=case.get("output_capacity"),
                 output_is_null=case.get("output_is_null", False),
                 input_is_null=case.get("input_is_null", False),
@@ -4460,6 +4562,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
         "expected_output", [] if algorithm in {"principal_component_analysis",
                 "principle_component_analysis",
                                                 "ramer_douglas_peucker",
+                                                "olden_bh", "olden_em3d",
                                                 *TRAVELLING_SALESMAN_PYTHON_ALGORITHMS}
         and expected_result < 0 else None)
     if algorithm == "mini_batch_gradient_descent" and expected_result < 0 and raw_expected is None:
@@ -4845,6 +4948,204 @@ def validate_misc_fp_convert_workload(workload: dict) -> None:
                                relative_tolerance)[1] != case.get("expected_result")
                    for case in cases)):
         raise ValueError("misc_fp_convert fixtures differ from the independent oracle")
+
+
+def validate_misc_dt_workload(workload: dict) -> None:
+    """Validate the bounded repeated-array-division profile and its fixtures."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/Misc/dt/dt.c"
+    launcher_url = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/Misc/dt/info.sh"
+    required_fields = {
+        "schema_version", "id", "algorithm", "function_symbol", "description",
+        "pinned_source", "pinned_launcher", "source_bound", "contract", "workspace",
+        "input", "output", "measurement", "cases",
+    }
+    expected_source_bound = {
+        "launcher_default_iterations": 131072,
+        "launcher_vector_size": 2048,
+        "initializer_numerator": "1.0000001 * cosf((float)(size-index))",
+        "initializer_denominator": "1.0 + 1e-10 * sinf((float)index)",
+        "loop_order": "iteration ascending, then vector index ascending",
+        "launcher_output": "print dvec1[0] with %f",
+    }
+    expected_contract = {
+        "input_layout": "[iteration_count, vector_size]",
+        "valid_iteration_range": [1, 128], "valid_vector_size_range": [1, 64],
+        "initialization": "Evaluate cosf and sinf on binary32 inputs and binary32 results, then promote those results to binary64 for the source multiplications and addition.",
+        "division": "Repeat the full ascending-index vector pass for each outer iteration; update numerator[i] by numerator[i] / denominator[i].",
+        "output_layout": "final numerator vector in ascending index order",
+        "source_output_adaptation": "Return all final numerator values to keep the whole division kernel observable; source main prints only index zero.",
+        "invalid_input_result": MISC_DT_INVALID_RESULT,
+        "invalid_output_buffer_result": MISC_DT_OUTPUT_ERROR,
+    }
+    expected_input = {
+        "kind": "finite_float64_array", "encoding": "[iteration_count, vector_size]",
+        "valid_length_range": [2, 2], "maximum_valid_length": 2,
+        "maximum_parseable_length": MISC_DT_MAX_PARSEABLE_INPUT_LENGTH,
+        "minimum_iterations": 1, "maximum_iterations": 128,
+        "minimum_vector_size": 1, "maximum_vector_size": 64,
+        "invalid_input_result": MISC_DT_INVALID_RESULT,
+    }
+    expected_output_spec = {
+        "kind": "float64_array", "encoding": "final numerator vector, ascending index order",
+        "maximum_elements": 64, "success_result": "vector_size",
+        "invalid_input_result": MISC_DT_INVALID_RESULT,
+        "invalid_output_buffer_result": MISC_DT_OUTPUT_ERROR,
+        "null_output_result": MISC_DT_OUTPUT_ERROR, "no_write_on_error": True,
+        "absolute_tolerance": 1e-6, "relative_tolerance": 1e-12,
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 1,
+        "absolute_tolerance": 1e-6, "relative_tolerance": 1e-12,
+    }
+    expected_ids = {
+        "single_element_one_pass", "two_element_repeated_passes", "zero_iterations",
+        "fractional_size", "size_above_profile", "short_input", "extra_input_value",
+        "short_output_capacity", "null_output",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != required_fields
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-misc-dt-bounded-v1"
+            or workload.get("algorithm") != "misc_dt"
+            or workload.get("function_symbol") != "misc_dt"
+            or workload.get("description") != "Bounded repeated elementwise binary64 division of float32-trigonometric initialized vectors."
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": commit,
+                "path": "Misc/dt/dt.c", "symbol": "double_array_divs_variable",
+                "url": source_url,
+                "license_note": "The referenced source has no explicit license grant; these are independently written ports.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": commit,
+                "path": "Misc/dt/info.sh", "bench_name": "dt",
+                "source_files": ["dt.c"], "compile_flags": ["-lm"], "run_options": [],
+            }
+            or workload.get("source_bound") != expected_source_bound
+            or workload.get("contract") != expected_contract
+            or workload.get("workspace") != {"elements": 64}
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output_spec
+            or workload.get("measurement") != expected_measurement
+            or MISC_DT_MAX_PARSEABLE_INPUT_LENGTH != 3
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(case_ids) != len(expected_ids)
+            or len(case_ids) != len(set(case_ids)) or set(case_ids) != expected_ids):
+        raise ValueError("misc_dt metadata or fixture IDs differ from its pinned bounded contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "misc_dt" / "README.md").read_text(encoding="utf-8")
+    if (source_url not in readme or launcher_url not in readme
+            or "float32" not in readme or "outer-iteration then" not in readme
+            or "every division remains observable" not in readme):
+        raise ValueError("misc_dt README is missing provenance or source operation-order notes")
+    base_case_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    special_fields = {"short_output_capacity": {"output_capacity"}, "null_output": {"output_is_null"}}
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        if (not isinstance(case, dict)
+                or set(case) != base_case_fields | special_fields.get(case.get("id"), set())
+                or not isinstance(case.get("input_values"), list)
+                or case.get("input_length") != len(case["input_values"])):
+            raise ValueError("misc_dt case fields or input framing differ from the bounded contract")
+        if (case.get("id") == "short_output_capacity" and case.get("output_capacity") != 1
+                or case.get("id") == "null_output" and case.get("output_is_null") is not True):
+            raise ValueError("misc_dt output-buffer fixture differs from the bounded contract")
+        _, result, output = encode_case(case, "misc_dt", absolute_tolerance, relative_tolerance)
+        if (result != case.get("expected_result")
+                or not _matches_output(case.get("expected_output"), output,
+                                       absolute_tolerance, relative_tolerance)):
+            raise ValueError(f"misc_dt fixture differs from the independent oracle: {case.get('id')}")
+
+
+def _validate_olden_float64_workload(workload: dict, algorithm: str) -> None:
+    """Validate one bounded Olden float64-slice package and all ABI fixtures."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    if algorithm == "olden_bh":
+        package, source_path = "olden_bh", "Olden/bh/newbh.c"
+        expected_id = "lac-dcc-olden-bh-bounded-v1"
+        maximum_length, maximum_output, workspace = OLDEN_BH_MAX_INPUT_LENGTH, OLDEN_BH_OUTPUT_ELEMENTS, 1024
+        invalid_result, output_error = OLDEN_BH_INVALID_RESULT, OLDEN_BH_OUTPUT_ERROR
+        expected_case_ids = {
+            "accepted_three_body_cell", "invalid_duplicate_positions",
+            "invalid_query_inside_body_bounds", "short_output_capacity",
+        }
+        readme_terms = ("opening_tolerance", "QUADPOLE", "license grant")
+    elif algorithm == "olden_em3d":
+        package, source_path = "olden_em3d", "Olden/em3d/em3d.c"
+        expected_id = "lac-dcc-olden-em3d-bounded-v1"
+        maximum_length, maximum_output, workspace = (
+            OLDEN_EM3D_MAX_INPUT_LENGTH, 2 * OLDEN_EM3D_MAX_NODES,
+            2 * OLDEN_EM3D_MAX_NODES)
+        invalid_result, output_error = OLDEN_EM3D_INVALID_RESULT, OLDEN_EM3D_OUTPUT_ERROR
+        expected_case_ids = {
+            "two_partition_one_degree", "invalid_zero_degree",
+            "invalid_duplicate_neighbors", "short_output_capacity",
+        }
+        readme_terms = ("compute_nodes", "even edge index", "no license is inferred")
+    else:
+        raise ValueError(f"unsupported Olden float64 workload: {algorithm}")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/{source_path}"
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "description",
+            "pinned_source", "pinned_launcher", "source_bound", "contract",
+            "workspace", "input", "output", "measurement", "cases",
+    }
+            or workload.get("schema_version") != 1
+            or workload.get("id") != expected_id
+            or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != algorithm
+            or workload.get("pinned_source", {}).get("repository") != "lac-dcc/Benchmarks"
+            or workload.get("pinned_source", {}).get("commit") != commit
+            or workload.get("pinned_source", {}).get("path") != source_path
+            or workload.get("pinned_source", {}).get("url") != source_url
+            or "license_note" not in workload.get("pinned_source", {})
+            or workload.get("pinned_launcher", {}).get("commit") != commit
+            or workload.get("pinned_launcher", {}).get("path") != f"Olden/{package.split('_')[1]}/info.sh"
+            or workload.get("workspace") != {"elements": workspace}
+            or workload.get("input", {}).get("kind") != "finite_float64_array"
+            or workload.get("input", {}).get("maximum_valid_length") != maximum_length
+            or workload.get("input", {}).get("maximum_parseable_length") != maximum_length + 1
+            or workload.get("output", {}).get("kind") != "float64_array"
+            or workload.get("output", {}).get("maximum_elements") != maximum_output
+            or workload.get("output", {}).get("invalid_input_result") != invalid_result
+            or workload.get("output", {}).get("invalid_output_buffer_result") != output_error
+            or workload.get("measurement", {}).get("comparison_model") != "float64_slice_io_call"
+            or not isinstance(cases, list) or len(cases) != len(expected_case_ids)
+            or len(ids) != len(cases) or ids != expected_case_ids):
+        raise ValueError(f"{algorithm} metadata or fixture IDs differ from the bounded Olden contract")
+    readme = (ROOT / "benchmarks" / "o" / package / "README.md").read_text(encoding="utf-8")
+    if source_url not in readme or any(term not in readme for term in readme_terms):
+        raise ValueError(f"{algorithm} README is missing provenance or contract notes")
+    base = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    special = {"short_output_capacity": {"output_capacity"}}
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        if (not isinstance(case, dict)
+                or set(case) != base | special.get(case.get("id"), set())
+                or not isinstance(case.get("input_values"), list)
+                or case.get("input_length") != len(case["input_values"])):
+            raise ValueError(f"{algorithm} fixture framing is invalid: {case.get('id')}")
+        if case.get("id") == "short_output_capacity" and case.get("output_capacity") != 3:
+            raise ValueError(f"{algorithm} short-output fixture must use the pinned capacity of three")
+        _values, result, output = encode_case(case, algorithm, absolute_tolerance, relative_tolerance)
+        if (result != case.get("expected_result")
+                or not _matches_output(case.get("expected_output"), output,
+                                       absolute_tolerance, relative_tolerance)):
+            raise ValueError(f"{algorithm} fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_olden_bh_workload(workload: dict) -> None:
+    _validate_olden_float64_workload(workload, "olden_bh")
+
+
+def validate_olden_em3d_workload(workload: dict) -> None:
+    _validate_olden_float64_workload(workload, "olden_em3d")
 
 
 def validate_trisolv_workload(workload: dict) -> None:
@@ -5783,6 +6084,139 @@ def validate_heat_3d_workload(workload: dict) -> None:
         encode_case(case, "heat_3d", 1e-12, 1e-12)
 
 
+def validate_himenobmtxpa_workload(workload: dict) -> None:
+    """Pin the independent bounded Himeno contract and ABI fixtures."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_base = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/Misc/himenobmtxpa/"
+    expected_sources = [
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "Misc/himenobmtxpa/himenobmtxpa.c",
+            "symbols": ["mat_set_init", "jacobi", "main"],
+            "url": source_base + "himenobmtxpa.c",
+            "role": "algorithm-initialization-and-output",
+            "license_note": "The pinned source has no explicit license grant; these are independently written ports.",
+        },
+        {
+            "repository": "lac-dcc/Benchmarks", "commit": commit,
+            "path": "Misc/himenobmtxpa/info.sh",
+            "symbols": ["bench_name", "source_files", "compile_flags"],
+            "url": source_base + "info.sh", "role": "launcher",
+        },
+    ]
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "Misc/himenobmtxpa/info.sh", "bench_name": "himenobmtxpa",
+        "source_files": ["himenobmtxpa.c"], "compile_flags": ["-lm"],
+        "run_options": [],
+    }
+    expected_source_bound = {
+        "launcher_dataset": {"nx": 64, "ny": 64, "nz": 128, "iterations": 64},
+        "suite_bounds": {
+            "grid_sides": [HIMENO_MIN_SIDE, HIMENO_MAX_SIDE],
+            "iterations": [HIMENO_MIN_ITERATIONS, HIMENO_MAX_ITERATIONS],
+        },
+        "initialization": "p[i,j,k]=(float)(i*i)/(float)((nx-1)*(nx-1)); all binary32",
+        "kernel": "Use the pinned fixed coefficients a0=a1=a2=c0=c1=c2=1, a3=1/6, b0=b1=b2=0 and boundary mask 1. Ascending interior sweeps compute ss=neighbor_sum*a3-p, accumulate gosa+=ss*ss, stage p+0.8*ss, then copy the staged interior to p.",
+        "output": "The final iteration's binary32 gosa widened to one binary64 element.",
+    }
+    expected_input = {
+        "kind": "finite_float64_array",
+        "encoding": "[nx,ny,nz,iterations] as exact integral binary64 values",
+        "input_length": HIMENO_INPUT_LENGTH,
+        "maximum_input_length": HIMENO_MAX_PARSEABLE_INPUT_LENGTH,
+        "dimension_ranges": {
+            "nx": [HIMENO_MIN_SIDE, HIMENO_MAX_SIDE],
+            "ny": [HIMENO_MIN_SIDE, HIMENO_MAX_SIDE],
+            "nz": [HIMENO_MIN_SIDE, HIMENO_MAX_SIDE],
+            "iterations": [HIMENO_MIN_ITERATIONS, HIMENO_MAX_ITERATIONS],
+        },
+        "invalid_input_result": HIMENO_INVALID_RESULT,
+    }
+    expected_contract = {
+        "operation": "Return the final residual sum of squares after the requested weighted point-Jacobi sweeps.",
+        "source_order": [
+            "initialize the binary32 pressure field from the x coordinate",
+            "for each iteration, reset gosa and sweep interior i,j,k in ascending order",
+            "sum the six axis neighbors, form ss=neighbor_sum*a3-p, add ss*ss to binary32 gosa, and stage p+0.8*ss",
+            "copy staged interior values into p after the full sweep; preserve boundary cells",
+        ],
+        "invalid_input_result": HIMENO_INVALID_RESULT,
+        "null_output_result": HIMENO_OUTPUT_ERROR,
+        "insufficient_capacity_result": HIMENO_OUTPUT_ERROR,
+        "no_write_on_error": True,
+    }
+    expected_output_spec = {
+        "kind": "float64_array",
+        "encoding": "one binary64 value containing final binary32 gosa",
+        "maximum_elements": HIMENO_MAX_OUTPUT_ELEMENTS,
+        "success_result": "1 output element",
+        "absolute_tolerance": 1e-6, "relative_tolerance": 1e-5,
+        "no_write_on_error": True,
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-6, "relative_tolerance": 1e-5,
+    }
+    expected_cases = {
+        "three_cube_one_sweep", "one_two_point_axis_no_interior",
+        "rectangular_no_interior", "empty_invalid", "fractional_dimension",
+        "unsupported_side", "zero_iterations", "trailing_value", "short_output",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_sources", "pinned_launcher", "source_bound", "input", "contract",
+                          "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-himenobmtxpa-float64-slice-io-v1"
+            or workload.get("algorithm") != "himenobmtxpa"
+            or workload.get("function_symbol") != "himenobmtxpa"
+            or workload.get("description") != "Run a bounded binary32 weighted point-Jacobi iteration for the pinned zero-source 3D Poisson profile and return its final residual sum."
+            or workload.get("pinned_sources") != expected_sources
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("source_bound") != expected_source_bound
+            or workload.get("input") != expected_input
+            or workload.get("contract") != expected_contract
+            or workload.get("output") != expected_output_spec
+            or workload.get("workspace") != {
+                "elements": 432,
+                "meaning": "Two bounded 6x6x6 binary32 pressure and staging fields.",
+            }
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list) or len(case_ids) != len(expected_cases)
+            or len(case_ids) != len(set(case_ids)) or set(case_ids) != expected_cases):
+        raise ValueError("himenobmtxpa metadata or fixture IDs differ from its pinned bounded contract")
+
+    readme = (ROOT / "benchmarks" / "h" / "himenobmtxpa" / "README.md").read_text(encoding="utf-8")
+    if (any(source["url"] not in readme for source in expected_sources)
+            or "no explicit license grant" not in readme
+            or "no upstream license is inferred" not in readme
+            or "binary32" not in readme):
+        raise ValueError("himenobmtxpa README is missing provenance, precision, or license notes")
+    base_fields = {"id", "input_values", "input_length", "expected_result", "expected_output"}
+    for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError("himenobmtxpa cases must be JSON objects")
+        case_id = case.get("id")
+        fields = base_fields | ({"output_capacity"} if case_id in {
+            "three_cube_one_sweep", "one_two_point_axis_no_interior",
+            "rectangular_no_interior", "short_output"} else set())
+        if (set(case) != fields
+                or not isinstance(case.get("input_values"), list)
+                or type(case.get("input_length")) is not int
+                or case.get("input_length") != len(case["input_values"])
+                or type(case.get("expected_result")) is not int):
+            raise ValueError(f"himenobmtxpa fixture framing is invalid: {case_id}")
+        if "output_capacity" in case and case.get("output_capacity") not in (0, 1):
+            raise ValueError(f"himenobmtxpa output capacity is invalid: {case_id}")
+        if case_id == "short_output" and case.get("output_capacity") != 0:
+            raise ValueError("himenobmtxpa short-output fixture must use capacity zero")
+        encode_case(case, "himenobmtxpa", 1e-6, 1e-5)
+
+
 def validate_polybench_lu_workload(workload: dict) -> None:
     """Pin the bounded PolyBench LU source, license, and slice-I/O fixtures."""
     commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
@@ -6121,135 +6555,6 @@ def validate_polybench_correlation_workload(workload: dict) -> None:
 
 def validate_polybench_seidel_2d_workload(workload: dict) -> None:
     _validate_polybench_simple_matrix_workload(workload, "polybench_seidel_2d")
-
-
-def validate_mibench_telecomm_fft_workload(workload: dict) -> None:
-    """Validate pinned MiBench FFT provenance, attribution, and bounded fixtures."""
-    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
-    root = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/MiBench/telecomm-FFT/"
-    expected_sources = [
-        ("fourierf.c", ["fft_float"], "algorithm"),
-        ("fftmisc.c", ["IsPowerOfTwo", "NumberOfBitsNeeded", "ReverseBits"], "helpers"),
-        ("fourier.h", ["fft_float"], "interface"),
-        ("ddcmath.h", ["DDC_PI"], "constant"),
-        ("main.c", ["main", "deterministic-waveform-generation"], "launcher-workload"),
-        ("info.sh", ["bench_name", "source_files", "RUN_OPTIONS"], "launcher"),
-        ("README", ["public-domain-and-redistribution-conditions"], "license"),
-    ]
-    pinned = workload.get("pinned_sources")
-    if not isinstance(pinned, list) or len(pinned) != len(expected_sources):
-        raise ValueError("mibench_telecomm_fft pinned source inventory changed")
-    for source, (path, symbols, role) in zip(pinned, expected_sources):
-        expected = {"repository": "lac-dcc/Benchmarks", "commit": commit,
-                    "path": f"MiBench/telecomm-FFT/{path}", "symbols": symbols,
-                    "url": root + path, "role": role}
-        if source != expected:
-            raise ValueError(f"mibench_telecomm_fft pinned source changed: {path}")
-    expected_launcher = {
-        "repository": "lac-dcc/Benchmarks", "commit": commit,
-        "path": "MiBench/telecomm-FFT/info.sh", "bench_name": "telecomm-FFT",
-        "source_selection": ["fftmisc.c", "fourierf.c", "main.c"],
-        "compile_flags": ["-lm"], "run_options": ["8", "32768", "-i"],
-    }
-    expected_top_level = {"schema_version", "id", "algorithm", "function_symbol",
-                          "description", "pinned_sources", "pinned_launcher",
-                          "source_bound", "input", "contract", "output", "workspace",
-                          "measurement", "cases"}
-    if (set(workload) != expected_top_level
-            or workload.get("description") != "Run the bounded source-order radix-2 complex float FFT kernel from MiBench telecomm-FFT."
-            or workload.get("pinned_launcher") != expected_launcher
-            or workload.get("id") != "mibench-telecomm-fft-float64-slice-io-v1"
-            or workload.get("schema_version") != 1
-            or workload.get("algorithm") != "mibench_telecomm_fft"
-            or workload.get("function_symbol") != "mibench_telecomm_fft"):
-        raise ValueError("mibench_telecomm_fft identity or pinned launcher metadata changed")
-    expected_source_bound = {
-        "launcher_profile": {"waves": 8, "samples": 32768, "inverse": True},
-        "kernel": "fft_float: radix-2 complex float FFT; bit-reversal copy; source-order butterfly twiddle recurrence; inverse divides final real and imaginary samples by n.",
-        "suite_bounds": {"n": [2, 16], "n_domain": "powers of two",
-                         "input_component_abs_max": 8, "inverse_values": [0, 1]},
-        "precision": "Input and work/output arrays use IEEE binary32; trigonometric recurrence intermediates use binary64; output converts binary32 samples to binary64 ABI values.",
-        "standalone_scope": "The benchmark isolates fft_float. The launcher's deterministic sine/cosine signal construction, CLI parsing, and printf output are excluded.",
-    }
-    expected_input = {"kind": "finite_float64_array",
-                      "encoding": "[n,inverse,real[0..n),imag[0..n)]",
-                      "maximum_input_length": 34, "length_rule": "2+2*n",
-                      "invalid_input_result": -1}
-    expected_contract = {
-        "operation": "Transform the interleaved complex input with the pinned radix-2 single-precision FFT, returning natural-order frequency samples.",
-        "source_order": [
-            "copy inputs to outputs in bit-reversed index order",
-            "for each block size 2,4,...,n, generate twiddle recurrence with source sin/cos initialization",
-            "apply butterflies in increasing block and offset order, rounding each stored array result to binary32",
-            "if inverse is nonzero, divide each output component by n and round to binary32",
-        ],
-        "inverse_flag": "Exact integer 0 selects forward transform; exact integer 1 selects inverse transform.",
-        "invalid_input_result": -1, "null_output_result": -2,
-        "insufficient_capacity_result": -2, "no_write_on_error": True,
-    }
-    expected_output = {
-        "kind": "float64_array",
-        "encoding": "[real_0,imag_0,...,real_(n-1),imag_(n-1)] as exact binary32 values widened to binary64",
-        "maximum_elements": MIBENCH_TELECOMM_FFT_MAX_OUTPUT_ELEMENTS,
-        "success_result": "2*n output elements", "absolute_tolerance": 1e-6,
-        "relative_tolerance": 1e-6, "no_write_on_error": True,
-    }
-    expected_workspace = {"elements": 96,
-                          "meaning": "Two 16-element binary32 input vectors, two 16-element binary32 output vectors, and staged 32-element widened result."}
-    expected_measurement = {"comparison_model": "float64_slice_io_call",
-                            "sample_count": 5, "warmup_rounds": 1,
-                            "repetitions_per_sample": 100,
-                            "absolute_tolerance": 1e-6, "relative_tolerance": 1e-6}
-    if (workload.get("source_bound") != expected_source_bound
-            or workload.get("input") != expected_input
-            or workload.get("contract") != expected_contract
-            or workload.get("output") != expected_output
-            or workload.get("workspace") != expected_workspace
-            or workload.get("measurement") != expected_measurement):
-        raise ValueError("mibench_telecomm_fft contract or measurement metadata changed")
-
-    readme_path = ROOT / "benchmarks/m/mibench_telecomm_fft/README.md"
-    license_path = ROOT / "benchmarks/m/mibench_telecomm_fft/LICENSE.txt"
-    readme = readme_path.read_text(encoding="utf-8")
-    notice = license_path.read_text(encoding="utf-8")
-    required_notice = (
-        "Don Cross", "dcross@intersrv.com", "http://www.intersrv.com/~dcross/fft.html",
-        "public domain", "Do not charge any money for this source code",
-        "Do not remove my name", "Please keep this readme.txt file",
-        "If you make any modifications to the source code",
-    )
-    if (any(term not in notice for term in required_notice)
-            or root + "fourierf.c" not in readme
-            or commit not in readme
-            or "Don Cross" not in readme
-            or "modification" not in readme.lower()
-            or "public domain" not in readme.lower()):
-        raise ValueError("mibench_telecomm_fft README or bundled redistribution notice is incomplete")
-
-    cases = workload.get("cases")
-    expected_case_ids = {"two_point_forward", "two_point_inverse", "sixteen_zero_samples",
-                         "empty_invalid", "one_sample_unsupported", "non_power_of_two",
-                         "invalid_inverse_flag", "short_output"}
-    if (not isinstance(cases, list)
-            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_case_ids
-            or len(cases) != len(expected_case_ids)):
-        raise ValueError("mibench_telecomm_fft fixture inventory changed")
-    absolute_tolerance, relative_tolerance = tolerances(workload)
-    if absolute_tolerance != 1e-6 or relative_tolerance != 1e-6:
-        raise ValueError("mibench_telecomm_fft requires the reviewed float64 tolerances")
-    for case in cases:
-        if (not isinstance(case, dict)
-                or set(case) - {"id", "input_values", "input_length", "output_capacity",
-                                "expected_result", "expected_output"}
-                or not {"id", "input_values", "input_length", "expected_result",
-                        "expected_output"}.issubset(case)):
-            raise ValueError("mibench_telecomm_fft fixture framing changed")
-        if case["id"] in {"two_point_forward", "two_point_inverse", "sixteen_zero_samples", "short_output"}:
-            if type(case.get("output_capacity")) is not int:
-                raise ValueError(f"mibench_telecomm_fft capacity fixture missing: {case['id']}")
-        elif "output_capacity" in case:
-            raise ValueError(f"unexpected mibench_telecomm_fft capacity: {case['id']}")
-        encode_case(case, "mibench_telecomm_fft", absolute_tolerance, relative_tolerance)
 
 
 def validate_mibench_automotive_basicmath_cubic_workload(workload: dict) -> None:
@@ -13344,6 +13649,12 @@ def main() -> int:
         validate_matmul_f64_4x4_workload(workload)
     elif algorithm == "misc_fp_convert":
         validate_misc_fp_convert_workload(workload)
+    elif algorithm == "misc_dt":
+        validate_misc_dt_workload(workload)
+    elif algorithm == "olden_bh":
+        validate_olden_bh_workload(workload)
+    elif algorithm == "olden_em3d":
+        validate_olden_em3d_workload(workload)
     elif algorithm == "trisolv":
         validate_trisolv_workload(workload)
     elif algorithm in {"jacobi_1d", "jacobi_2d"}:
@@ -13358,14 +13669,14 @@ def main() -> int:
         validate_fdtd_2d_workload(workload)
     elif algorithm == "heat_3d":
         validate_heat_3d_workload(workload)
+    elif algorithm == "himenobmtxpa":
+        validate_himenobmtxpa_workload(workload)
     elif algorithm == "polybench_lu":
         validate_polybench_lu_workload(workload)
     elif algorithm == "polybench_correlation":
         validate_polybench_correlation_workload(workload)
     elif algorithm == "polybench_seidel_2d":
         validate_polybench_seidel_2d_workload(workload)
-    elif algorithm == "mibench_telecomm_fft":
-        validate_mibench_telecomm_fft_workload(workload)
     elif algorithm == "mibench_automotive_basicmath_cubic":
         validate_mibench_automotive_basicmath_cubic_workload(workload)
     elif algorithm == "pca":

@@ -1,0 +1,210 @@
+const HEALTH_MAX_LEVEL: i64 = 4
+const HEALTH_MAX_TICKS: i64 = 40
+const HEALTH_MAX_VILLAGES: usize = 85
+const HEALTH_MAX_PATIENTS: usize = 3400
+const HEALTH_WAITING: usize = 0
+const HEALTH_ASSESSING: usize = 1
+const HEALTH_INSIDE: usize = 2
+const HEALTH_UP: usize = 3
+const HEALTH_IA: i64 = 16807
+const HEALTH_IM: i64 = 2147483647
+const HEALTH_IQ: i64 = 127773
+const HEALTH_IR: i64 = 2836
+const HEALTH_MASK: i64 = 123459876
+
+struct OldenHealthPatient:
+    next: i64
+    previous: i64
+    time_left: i64
+    elapsed: i64
+    hospital_visits: i64
+
+struct OldenHealthVillage:
+    label: i64
+    level: i64
+    free_personnel: i64
+    seed: i64
+    head: i64[4]
+    tail: i64[4]
+
+def olden_health_queue_push(villages: mutable OldenHealthVillage&,
+                            patients: mutable OldenHealthPatient&,
+                            village_index: usize, queue: usize, patient_id: usize) -> void:
+    tail: i64 = villages[village_index].tail[queue]
+    patients[patient_id].previous <- tail
+    patients[patient_id].next <- -1
+    if tail >= 0:
+        patients[tail.usize()].next <- patient_id.i64()
+    else:
+        villages[village_index].head[queue] <- patient_id.i64()
+    villages[village_index].tail[queue] <- patient_id.i64()
+
+def olden_health_queue_remove(villages: mutable OldenHealthVillage&,
+                              patients: mutable OldenHealthPatient&,
+                              village_index: usize, queue: usize, patient_id: usize) -> void:
+    previous: i64 = patients[patient_id].previous
+    next: i64 = patients[patient_id].next
+    if previous >= 0:
+        patients[previous.usize()].next <- next
+    else:
+        villages[village_index].head[queue] <- next
+    if next >= 0:
+        patients[next.usize()].previous <- previous
+    else:
+        villages[village_index].tail[queue] <- previous
+    patients[patient_id].next <- -1
+    patients[patient_id].previous <- -1
+
+def olden_health_random(villages: mutable OldenHealthVillage&, village_index: usize) -> f32:
+    state: mutable i64 = villages[village_index].seed ^ HEALTH_MASK
+    quotient: i64 = state / HEALTH_IQ
+    state <- HEALTH_IA * (state - quotient * HEALTH_IQ) - HEALTH_IR * quotient
+    state <- state ^ HEALTH_MASK
+    if state < 0: state <- state + HEALTH_IM
+    value: f32 = ((1.0.f64() / HEALTH_IM.f64()) * state.f64()).f32()
+    villages[village_index].seed <- (value * HEALTH_IM.f32()).i64()
+    value
+
+def olden_health_admit(villages: mutable OldenHealthVillage&,
+                       patients: mutable OldenHealthPatient&,
+                       village_index: usize, patient_id: usize) -> void:
+    patients[patient_id].hospital_visits <- patients[patient_id].hospital_visits + 1
+    if villages[village_index].free_personnel > 0:
+        villages[village_index].free_personnel <- villages[village_index].free_personnel - 1
+        patients[patient_id].time_left <- 3
+        patients[patient_id].elapsed <- patients[patient_id].elapsed + 3
+        olden_health_queue_push(villages, patients, village_index, HEALTH_ASSESSING, patient_id)
+    else:
+        olden_health_queue_push(villages, patients, village_index, HEALTH_WAITING, patient_id)
+
+def olden_health_build_postorder(label: usize, village_count: usize,
+                                 order: mutable usize&, order_length: mutable usize&) -> void:
+    offset: mutable i64 = 4
+    while offset >= 1:
+        child_value: i64 = label.i64() * 4 + offset
+        if child_value.usize() < village_count:
+            olden_health_build_postorder(child_value.usize(), village_count, order, order_length)
+        offset <- offset - 1
+    order[order_length] <- label
+    order_length <- order_length + 1
+
+def olden_health_simulate_village(label: usize, village_count: usize,
+                                  villages: mutable OldenHealthVillage&,
+                                  patients: mutable OldenHealthPatient&,
+                                  patient_count: mutable usize&,
+                                  discharged: mutable i64&) -> void:
+    offset: mutable i64 = 4
+    while offset >= 1:
+        child_value: i64 = label.i64() * 4 + offset
+        if child_value.usize() < village_count:
+            child_label: usize = child_value.usize()
+            patient_value: mutable i64 = villages[child_label].head[HEALTH_UP]
+            while patient_value >= 0:
+                patient_id: usize = patient_value.usize()
+                next_value: i64 = patients[patient_id].next
+                olden_health_queue_remove(villages, patients, child_label, HEALTH_UP, patient_id)
+                olden_health_admit(villages, patients, label, patient_id)
+                patient_value <- next_value
+        offset <- offset - 1
+
+    patient_value: mutable i64 = villages[label].head[HEALTH_INSIDE]
+    while patient_value >= 0:
+        patient_id: usize = patient_value.usize()
+        next_value: i64 = patients[patient_id].next
+        patients[patient_id].time_left <- patients[patient_id].time_left - 1
+        if patients[patient_id].time_left == 0:
+            villages[label].free_personnel <- villages[label].free_personnel + 1
+            olden_health_queue_remove(villages, patients, label, HEALTH_INSIDE, patient_id)
+            discharged <- discharged + 1
+        patient_value <- next_value
+
+    patient_value <- villages[label].head[HEALTH_ASSESSING]
+    while patient_value >= 0:
+        patient_id <- patient_value.usize()
+        next_value: i64 = patients[patient_id].next
+        patients[patient_id].time_left <- patients[patient_id].time_left - 1
+        if patients[patient_id].time_left == 0:
+            random_value: f32 = olden_health_random(villages, label)
+            olden_health_queue_remove(villages, patients, label, HEALTH_ASSESSING, patient_id)
+            if random_value.f64() > 0.1 or villages[label].label == 0:
+                patients[patient_id].time_left <- 10
+                patients[patient_id].elapsed <- patients[patient_id].elapsed + 10
+                olden_health_queue_push(villages, patients, label, HEALTH_INSIDE, patient_id)
+            else:
+                villages[label].free_personnel <- villages[label].free_personnel + 1
+                olden_health_queue_push(villages, patients, label, HEALTH_UP, patient_id)
+        patient_value <- next_value
+
+    patient_value <- villages[label].head[HEALTH_WAITING]
+    while patient_value >= 0:
+        patient_id <- patient_value.usize()
+        next_value = patients[patient_id].next
+        if villages[label].free_personnel > 0:
+            villages[label].free_personnel <- villages[label].free_personnel - 1
+            patients[patient_id].time_left <- 3
+            patients[patient_id].elapsed <- patients[patient_id].elapsed + 3
+            olden_health_queue_remove(villages, patients, label, HEALTH_WAITING, patient_id)
+            olden_health_queue_push(villages, patients, label, HEALTH_ASSESSING, patient_id)
+        else:
+            patients[patient_id].elapsed <- patients[patient_id].elapsed + 1
+        patient_value <- next_value
+
+    if olden_health_random(villages, label).f64() > 0.666:
+        new_patient: usize = patient_count
+        patient_count <- patient_count + 1
+        patients[new_patient].next <- -1
+        patients[new_patient].previous <- -1
+        patients[new_patient].time_left <- 0
+        patients[new_patient].elapsed <- 0
+        patients[new_patient].hospital_visits <- 0
+        olden_health_admit(villages, patients, label, new_patient)
+
+def olden_health_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 3: return -1
+    level: i64 = input[0]
+    ticks: i64 = input[1]
+    seed: i64 = input[2]
+    if level < 1 or level > HEALTH_MAX_LEVEL or ticks < 0 or ticks > HEALTH_MAX_TICKS or seed != 1: return -1
+
+    village_count: mutable usize = 0
+    layer_size: mutable usize = 1
+    depth: mutable i64 = 0
+    while depth < level:
+        village_count <- village_count + layer_size
+        layer_size <- layer_size * 4
+        depth <- depth + 1
+
+    villages: mutable OldenHealthVillage[HEALTH_MAX_VILLAGES] = zeroed
+    label: mutable usize = 0
+    while label < village_count:
+        villages[label].label <- label.i64()
+        if label == 0:
+            villages[label].level <- level
+        else:
+            parent: usize = (label - 1) / 4
+            villages[label].level <- villages[parent].level - 1
+        villages[label].free_personnel <- 1 << (villages[label].level - 1)
+        villages[label].seed <- label.i64() * (HEALTH_IQ + seed)
+        queue: mutable usize = 0
+        while queue < 4:
+            villages[label].head[queue] <- -1
+            villages[label].tail[queue] <- -1
+            queue <- queue + 1
+        label <- label + 1
+
+    order: mutable usize[HEALTH_MAX_VILLAGES] = zeroed
+    order_length: mutable usize = 0
+    olden_health_build_postorder(0, village_count, order, order_length)
+    patients: mutable OldenHealthPatient[HEALTH_MAX_PATIENTS] = zeroed
+    patient_count: mutable usize = 0
+    discharged: mutable i64 = 0
+    tick: mutable i64 = 0
+    while tick < ticks:
+        index: mutable usize = 0
+        while index < order_length:
+            olden_health_simulate_village(order[index], village_count, villages, patients, patient_count, discharged)
+            index <- index + 1
+        tick <- tick + 1
+    discharged
+
+export fn olden_health(input: i64&, length: usize) -> i64 = olden_health_impl

@@ -25,6 +25,10 @@ The pinned implementations generally return a list of primes or a boolean sieve.
 - [R — `mathematics/sieve_of_eratosthenes.r`](https://github.com/TheAlgorithms/R/blob/f65344fabeea0ae33c1ca321af709447c1a8a4c2/mathematics/sieve_of_eratosthenes.r)
 - [Rust — `src/math/sieve_of_eratosthenes.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/sieve_of_eratosthenes.rs)
 - [TypeScript — `maths/sieve_of_eratosthenes.ts`](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/sieve_of_eratosthenes.ts)
+- [lac-dcc/Benchmarks — Shootout `sieve.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/sieve/sieve.c)
+- [lac-dcc/Benchmarks — Benchmark Game `nsieve-bits.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/BenchmarkGame/nsieve-bits/nsieve-bits.c)
+
+The Shootout source repeats the byte-flag sieve over a fixed range and prints its count; `nsieve-bits` packs the flags into words and repeats the same sieve at three bounds. They are tracked as source aliases here because their core algorithm is still the Sieve of Eratosthenes. Their representation, output, and repetition profiles do not create additional algorithm packages.
 
 ## Workload and verification
 

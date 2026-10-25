@@ -21,9 +21,10 @@ from rectangular_to_polar_oracle import expected_result as rectangular_to_polar_
 from run_float64_triple import encode_case, matches
 from standard_score_oracle import expected_result as standard_score_oracle
 from dual_number_automatic_differentiation_oracle import expected_result as dual_number_ad_oracle
+from improved_perlin_noise_3d_oracle import expected_result as improved_perlin_noise_3d_oracle
 
 ALGORITHMS = ("lerp", "standard_score", "coordinate_converter", "rectangular_to_polar",
-              "dual_number_automatic_differentiation")
+              "dual_number_automatic_differentiation", "improved_perlin_noise_3d")
 
 
 def oracle(start: float, end: float, t: float) -> float:
@@ -58,6 +59,10 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             exact = dual_number_ad_oracle(start, end, t)
             if not matches(expected, exact, tolerance, start, end):
                 raise ValueError(f"published workload disagrees with the dual-number oracle: {case['id']}")
+        elif algorithm == "improved_perlin_noise_3d":
+            exact = improved_perlin_noise_3d_oracle([start, end, t])
+            if not matches(expected, exact, tolerance, start, end):
+                raise ValueError(f"published workload disagrees with the Perlin-noise oracle: {case['id']}")
         triples.add((start, end, t))
 
     if algorithm == "lerp":
@@ -123,6 +128,16 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             power = rng.randrange(9)
             triples.add((rng.uniform(-1.0, 1.0), float(power), float(rng.randrange(power + 1))))
         triples.update(((1.5, 2.0, 1.0), (0.5, 3.5, 1.0), (0.5, 3.0, 4.0), (0.5, 3.0, -1.0)))
+    elif algorithm == "improved_perlin_noise_3d":
+        coordinates = (-256.25, -2.75, -1.0, -0.25, 0.0, 0.25, 1.0, 2.75, 256.25)
+        triples.update((x, y, z) for x in coordinates for y in coordinates for z in coordinates)
+        rng = random.Random(20261025)
+        for _ in range(512):
+            triples.add((rng.uniform(-1_000_000.0, 1_000_000.0),
+                         rng.uniform(-1_000_000.0, 1_000_000.0),
+                         rng.uniform(-1_000_000.0, 1_000_000.0)))
+        triples.update(((1_000_001.0, 0.0, 0.0), (-1_000_001.0, 0.0, 0.0),
+                        (0.0, 1_000_001.0, 0.0), (0.0, 0.0, -1_000_001.0)))
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
 
@@ -140,7 +155,8 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     standard_score_oracle(start, end, t) if algorithm == "standard_score" else
                     coordinate_converter_oracle([start, end, t]) if algorithm == "coordinate_converter" else
                     rectangular_to_polar_oracle([start, end, t]) if algorithm == "rectangular_to_polar" else
-                    dual_number_ad_oracle(start, end, t))
+                    dual_number_ad_oracle(start, end, t) if algorithm == "dual_number_automatic_differentiation" else
+                    improved_perlin_noise_3d_oracle([start, end, t]))
         lines.append(" ".join(format(value, ".17g") for value in
                               (start, end, t, expected, tolerance)) + "\n")
     for start, end, t in signed_zero_cases:

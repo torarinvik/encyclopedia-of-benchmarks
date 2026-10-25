@@ -165,6 +165,40 @@ The pinned Python `prisms_algorithm` maps to [`minimum_spanning_tree_prims`](ben
 
 The pinned Java `generatePerlinNoise` method maps to [`perlin_noise`](benchmarks/p/perlin_noise/README.md), preserving Java `Random` initialization, x-major output ordering, and binary32 rounding at each source float operation.
 
+The pinned lac-dcc `Misc/perlin` kernel maps to [`improved_perlin_noise_3d`](benchmarks/i/improved_perlin_noise_3d/README.md), which uses a fixed permutation and hashed 3D gradient interpolation. It is distinct from the seeded 2D value-noise method above.
+
+The pinned lac-dcc `Misc/dt` kernel maps to [`misc_dt`](benchmarks/m/misc_dt/README.md), a repeated elementwise double-precision vector division loop initialized with float32 trigonometric values. It has a different operation from the existing array-multiply and STREAM kernels.
+
+The pinned lac-dcc [`Misc/himenobmtxpa`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/himenobmtxpa/himenobmtxpa.c) kernel maps to [`himenobmtxpa`](benchmarks/h/himenobmtxpa/README.md), a bounded binary32 weighted point-Jacobi solver for a 3D Poisson pressure equation. It reports the final residual sum and is distinct from the existing 2D Jacobi stencil and 3D heat-diffusion kernel. The pinned source has no explicit license grant; the ports were written independently.
+
+The pinned lac-dcc [`CoyoteBench/lpbench`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/CoyoteBench/lpbench/lpbench.c) and [`Linpack`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Linpack/linpack-pc.c) launchers use the same pivoted LINPACK `dgefa` factorization and `dgesl` solve covered by [`linpack_lu_solve`](benchmarks/l/linpack_lu_solve/README.md). Their matrix generation, larger problem sizes, timing, and report formats are workload profiles rather than separate algorithms.
+
+The pinned cBench [`automotive_bitcount`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/automotive_bitcount/src) copy uses the same seven bit-count algorithms already covered by [`automotive_bitcount`](benchmarks/a/automotive_bitcount/README.md). Its deterministic seed, input progression, and outer repetition differ, but they define workload rather than algorithm changes.
+
+The pinned cBench [`telecom_CRC32`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/telecom_CRC32/src/crc_32.c) copy uses the same reflected IEEE CRC-32 table recurrence as [`crc32`](benchmarks/c/crc32/README.md) and MiBench `telecomm-CRC32`; its launcher profile does not add an algorithm.
+
+The pinned lac-dcc McGill `chomp` launcher maps to [`mcgill_chomp`](benchmarks/c/mcgill_chomp/README.md), which solves the fixed 7-column game tree selected by its noninteractive launcher mode.
+
+The pinned MiBench `network-dijkstra` source uses FIFO queue-based label-correcting shortest-path relaxation, not the globally-minimum label selection in [`dijkstra`](benchmarks/d/dijkstra/README.md) or the full edge passes in [`bellman_ford`](benchmarks/b/bellman_ford/README.md). It maps to [`mibench_network_dijkstra`](benchmarks/m/mibench_network_dijkstra/README.md) with bounded row-major graphs and a reachable-distance checksum.
+
+The MiBench `network-patricia` and cBench `network_patricia` sources use the same path-compressed Patricia/radix-trie insertion and exact-search algorithm covered by [`radix_tree`](benchmarks/r/radix_tree/README.md). Their fixed-width IPv4 key encoding and launcher traces do not define separate algorithms or packages.
+
+The MiBench `security-blowfish` package maps to [`mibench_security_blowfish`](benchmarks/m/mibench_security_blowfish/README.md), a bounded one-block ECB core port that preserves Eric Young's terms. Its file-processing launcher and CBC/CFB/OFB modes are not included.
+
+The pinned Olden `power` launcher maps to [`olden_power`](benchmarks/o/olden_power/README.md), preserving the feeder-tree voltage and demand recurrence with a bounded optimizer update and fixed-point projection of the final state.
+
+The pinned Olden `tsp` launcher maps to [`olden_tsp`](benchmarks/o/olden_tsp/README.md), with closest-point insertion at small leaves and the source's four-choice Karp cycle merge at internal nodes.
+
+The pinned Olden `voronoi` launcher maps to [`olden_voronoi`](benchmarks/o/olden_voronoi/README.md), retaining the quad-edge divide-and-conquer Delaunay triangulation and its Voronoi dual checksum; it is distinct from the local Fortune sweep implementation.
+
+The Olden `treeadd` launcher uses the same node-plus-left-and-right-subtree recursive sum as [`binary_tree_node_sum`](benchmarks/b/binary_tree_node_sum/README.md); its value-one full-tree input and repeated traversal are workload details, so it is cross-referenced there rather than retained as a duplicate package.
+
+The pinned Olden `bh` kernel maps to [`olden_bh`](benchmarks/o/olden_bh/README.md), a bounded 3D Barnes–Hut octree with the source's monopole cell approximation and traversal order. The Olden `em3d` and `health` launchers map to [`olden_em3d`](benchmarks/o/olden_em3d/README.md), which updates a bipartite electric/magnetic graph in source order, and [`olden_health`](benchmarks/o/olden_health/README.md), which simulates patients across a four-way village tree and FIFO hospital queues.
+
+The pinned lac-dcc `Misc/salsa20` launcher aliases [`salsa`](benchmarks/s/salsa/README.md): it uses the same 16-word Salsa core and ten double rounds; the counter-based PRNG wrapper does not define a new core algorithm.
+
+The pinned `Prolangs-C/allroots` launcher maps to [`prolangs_c_allroots`](benchmarks/a/prolangs_c_allroots/README.md), which preserves the cubic real-root path using simultaneous Horner/Newton evaluation, synthetic deflation, the quadratic formula, and source-order refinements.
+
 The MATLAB-Octave repository has two `multiple.m` files: `algorithms/Divisibility_of_integers/multiple.m` maps to [`is_divisible`](benchmarks/i/is_divisible/README.md) on its nonnegative-dividend, positive-divisor domain, while `project-euler/Problem1/multiple.m` is a one-term filter mapped to [`multiple_of_3_or_5_term`](benchmarks/m/multiple_of_3_or_5_term/README.md). The latter returns the input term when divisible by 3 or 5 and zero otherwise; it is not the Problem 1 sum.
 
 The Python `minimum_spanning_tree_prims2.py` candidate is a Dijkstra implementation despite its filename. It aliases [`dijkstra`](benchmarks/d/dijkstra/README.md) on connected simple undirected graphs encoded as reciprocal directed edges, with insertion order fixing the source; the shared contract records distances and omits the source parent map.

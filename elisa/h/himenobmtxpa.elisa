@@ -1,0 +1,48 @@
+extern trunc(value: f64) -> f64
+
+def himenobmtxpa_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input.is_null() or length != 4: return -1
+    nx_value: f64 = input[0]
+    ny_value: f64 = input[1]
+    nz_value: f64 = input[2]
+    iterations_value: f64 = input[3]
+    if nx_value != nx_value or ny_value != ny_value or nz_value != nz_value or iterations_value != iterations_value: return -1
+    if trunc(nx_value) != nx_value or trunc(ny_value) != ny_value or trunc(nz_value) != nz_value or trunc(iterations_value) != iterations_value: return -1
+    if nx_value < 2.0 or nx_value > 6.0 or ny_value < 2.0 or ny_value > 6.0 or nz_value < 2.0 or nz_value > 6.0 or iterations_value < 1.0 or iterations_value > 4.0: return -1
+    nx: usize = nx_value.usize()
+    ny: usize = ny_value.usize()
+    nz: usize = nz_value.usize()
+    iterations: usize = iterations_value.usize()
+    if output.is_null() or capacity < 1: return -2
+
+    p: mutable f32[216] = zeroed
+    work: mutable f32[216] = zeroed
+    a3: f32 = 1.0.f32() / 6.0.f32()
+    omega: f32 = 0.8.f32()
+    denominator: f32 = ((nx - 1) * (nx - 1)).f32()
+    for i in 0..<nx:
+        for j in 0..<ny:
+            for k in 0..<nz:
+                q: usize = i * ny * nz + j * nz + k
+                p[q] <- (i * i).f32() / denominator
+    gosa: mutable f32 = 0.0.f32()
+    for _ in 0..<iterations:
+        gosa <- 0.0.f32()
+        for i in 1..<(nx - 1):
+            for j in 1..<(ny - 1):
+                for k in 1..<(nz - 1):
+                    q: usize = i * ny * nz + j * nz + k
+                    s0: mutable f32 = p[q + ny * nz] + p[q + nz] + p[q + 1]
+                    s0 <- s0 + p[q - ny * nz] + p[q - nz] + p[q - 1]
+                    ss: f32 = s0 * a3 - p[q]
+                    gosa <- gosa + ss * ss
+                    work[q] <- p[q] + omega * ss
+        for i in 1..<(nx - 1):
+            for j in 1..<(ny - 1):
+                for k in 1..<(nz - 1):
+                    q: usize = i * ny * nz + j * nz + k
+                    p[q] <- work[q]
+    output[0] <- gosa.f64()
+    1
+
+export fn himenobmtxpa(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = himenobmtxpa_impl

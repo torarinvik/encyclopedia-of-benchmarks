@@ -1,7 +1,0 @@
-The pinned MiBench source `crc_32.c` includes this attribution:
-
-Copyright (C) 1986 Gary S. Brown. You may use this program, or code or tables
-extracted from it, as desired without restriction.
-
-This package contains independent ports of the source's CRC-32 byte-update
-algorithm and does not copy its source file.

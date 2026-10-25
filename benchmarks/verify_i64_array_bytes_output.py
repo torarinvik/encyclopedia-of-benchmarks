@@ -1208,6 +1208,7 @@ from run_i64_array_bytes_output import validate_quadratic_probing_hash_table_wor
 from run_i64_array_bytes_output import validate_lottery_scheduling_workload
 from run_i64_array_bytes_output import validate_random_scheduling_workload
 from run_i64_array_bytes_output import validate_rat_in_maze_workload
+from mibench_security_blowfish_oracle import _INITIAL as _MIBENCH_SECURITY_BLOWFISH_INITIAL
 from run_i64_array_bytes_output import validate_rat_in_amaze_workload
 from run_i64_array_bytes_output import validate_undirected_adjacency_list_graph_workload
 from run_i64_array_bytes_output import validate_unweighted_graph_workload
@@ -2505,8 +2506,9 @@ ALGORITHMS = (*ALGORITHMS, "cpu_scheduling_algorithms")
 ALGORITHMS = (*ALGORITHMS, "eulerian_path")
 ALGORITHMS = (*ALGORITHMS, "directed_simple_cycles")
 ALGORITHMS = (*ALGORITHMS, "yens_kshortest_paths")
-ALGORITHMS = (*ALGORITHMS, "mibench_office_stringsearch_bmh")
 ALGORITHMS = (*ALGORITHMS, "mibench_security_rijndael")
+ALGORITHMS = (*ALGORITHMS, "mibench_security_blowfish")
+ALGORITHMS = (*ALGORITHMS, "mibench_automotive_susan")
 ALGORITHMS = (*ALGORITHMS, "misc_reed_solomon")
 ALGORITHMS = (*ALGORITHMS, "horizontal_projectile_motion")
 ALGORITHMS = (*ALGORITHMS, "jarvis_scan")
@@ -3031,7 +3033,7 @@ ALGORITHMS = (*ALGORITHMS, "smith_waterman_python", "smith_waterman_rust",
               "uint", "uint128_t", "uint256_t")
 ALGORITHMS = (*ALGORITHMS, "uuencode")
 ALGORITHMS = (*ALGORITHMS, "mccat_qbsort")
-ALGORITHMS = (*ALGORITHMS, "bmm", "mccat_bisect")
+ALGORITHMS = (*ALGORITHMS, "bmm", "mccat_bisect", "prolangs_c_allroots")
 ALGORITHMS = (*ALGORITHMS, "8b10b")
 ALGORITHMS = (*ALGORITHMS, "uudecode")
 ALGORITHMS = (*ALGORITHMS, "cbench_automotive_qsort1")
@@ -3104,8 +3106,10 @@ WORKSPACE_ALGORITHMS.add("revert_bits")
 WORKSPACE_ALGORITHMS.add("uuencode")
 WORKSPACE_ALGORITHMS.add("uudecode")
 WORKSPACE_ALGORITHMS.add("misc_lowercase")
+WORKSPACE_ALGORITHMS.add("mibench_security_blowfish")
+WORKSPACE_ALGORITHMS.add("mibench_automotive_susan")
 WORKSPACE_ALGORITHMS.add("mccat_qbsort")
-WORKSPACE_ALGORITHMS.update({"bmm", "mccat_bisect"})
+WORKSPACE_ALGORITHMS.update({"bmm", "mccat_bisect", "prolangs_c_allroots"})
 WORKSPACE_ALGORITHMS.add("8b10b")
 WORKSPACE_ALGORITHMS.add("cbench_automotive_qsort1")
 WORKSPACE_ALGORITHMS.add("polybench_adi")
@@ -3138,6 +3142,15 @@ VERSABENCH_BMM_MAX_OUTPUT_BYTES = 29
 MCCAT_BISECT_MAX_N = 32
 MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH = 2
 MCCAT_BISECT_MAX_OUTPUT_BYTES = (MCCAT_BISECT_MAX_N + 1) * 8
+MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES = 10
+MIBENCH_SECURITY_BLOWFISH_MAX_PARSEABLE_INPUT_LENGTH = 11
+MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES = 8
+MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE = 15
+MIBENCH_AUTOMOTIVE_SUSAN_MAX_SIDE = 16
+MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH = 258
+MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES = 256
+PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH = 5
+PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES = 24
 MCCAT_BISECT_EPSILON = 2.2204460492503131e-16
 CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS = 128
 CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES = 1 + 3 * CBENCH_AUTOMOTIVE_QSORT1_MAX_POINTS
@@ -3579,6 +3592,32 @@ def mccat_bisect_verifier_oracle(
     return len(output), output
 
 
+def prolangs_c_allroots_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    """Independent exact-root reference for the bounded Prolangs-C cubic profile."""
+    if (not isinstance(values, (tuple, list))
+            or len(values) > PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or input_length != (0 if input_is_null else len(values))))
+            or (input_is_null and values)
+            or (capacity is not None
+                and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if input_is_null or tuple(values) != (4, -4, -1, 1):
+        return -1, b""
+    if (output_is_null
+            or (capacity is not None and capacity < PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES)):
+        return -2, b""
+    output = struct.pack("<3d", 2.0, 1.0, -2.0)
+    return PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES, output
+
+
 def versabench_8b10b_verifier_oracle(
         values: tuple[int, ...] | list[int], capacity: int | None = None,
         output_is_null: bool = False, input_is_null: bool = False,
@@ -3647,41 +3686,188 @@ def versabench_8b10b_verifier_oracle(
     return len(output), output
 
 
-def mibench_office_stringsearch_bmh_verifier_oracle(
+# Keep this SUSAN reference independent from the package oracle and language ports.
+def _mibench_susan_verify_f32(value: float) -> float:
+    return struct.unpack("<f", struct.pack("<f", value))[0]
+
+
+def _mibench_susan_verify_reflect(index: int, side: int) -> int:
+    if index < 0:
+        return -index - 1
+    if index >= side:
+        return 2 * side - index - 1
+    return index
+
+
+def _mibench_susan_verify_weights() -> tuple[list[int], list[int]]:
+    brightness: list[int] = []
+    for difference in range(-255, 256):
+        ratio = _mibench_susan_verify_f32(
+            _mibench_susan_verify_f32(float(difference)) / _mibench_susan_verify_f32(20.0))
+        ratio_squared = _mibench_susan_verify_f32(ratio * ratio)
+        rounded_weight = _mibench_susan_verify_f32(100.0 * math.exp(-ratio_squared))
+        brightness.append(int(rounded_weight))
+    distance = []
+    for dy in range(-7, 8):
+        for dx in range(-7, 8):
+            squared_distance = _mibench_susan_verify_f32(float(dx * dx + dy * dy))
+            exponent = _mibench_susan_verify_f32(squared_distance / -16.0)
+            distance.append(int(100.0 * math.exp(exponent)))
+    return brightness, distance
+
+
+def _mibench_susan_verify_median(image: list[int], side: int, y: int, x: int) -> int:
+    neighbors = []
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            if dx == 0 and dy == 0:
+                continue
+            sy = _mibench_susan_verify_reflect(y + dy, side)
+            sx = _mibench_susan_verify_reflect(x + dx, side)
+            neighbors.append(image[sy * side + sx])
+    neighbors.sort()
+    return (neighbors[3] + neighbors[4]) // 2
+
+
+def mibench_automotive_susan_verifier_oracle(
         values: tuple[int, ...] | list[int], capacity: int | None = None,
         output_is_null: bool = False, input_is_null: bool = False,
         input_length: int | None = None) -> tuple[int, bytes]:
-    """Independent straightforward matcher for the bounded BMH source contract."""
-    if (not isinstance(values, (tuple, list)) or input_is_null
-            or type(output_is_null) is not bool
-            or len(values) > 163
+    if (not isinstance(values, (tuple, list))
+            or len(values) > MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH
             or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
                    for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
             or (input_length is not None
-                and (type(input_length) is not int or input_length != len(values)))
+                and (type(input_length) is not int or input_length < 0))
             or (capacity is not None and (type(capacity) is not int or capacity < 0))):
         return -1, b""
-    if len(values) < 2:
+    if input_is_null or len(values) < 2:
         return -1, b""
-    text_length, pattern_length = values[0], values[1]
-    if (not 0 <= text_length <= 128 or not 1 <= pattern_length <= 32
-            or len(values) != 2 + text_length + pattern_length):
+    if input_length is not None and input_length != len(values):
         return -1, b""
-    text = values[2:2 + text_length]
-    pattern = values[2 + text_length:]
-    if any(not 32 <= value <= 126 for value in (*text, *pattern)):
+    side = values[0]
+    if (not MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE <= side <= MIBENCH_AUTOMOTIVE_SUSAN_MAX_SIDE
+            or len(values) != 1 + side * side
+            or any(not 0 <= pixel <= 255 for pixel in values[1:])):
         return -1, b""
-    position = -1
-    last_start = text_length - pattern_length
-    for start in range(last_start + 1):
-        if all(text[start + offset] == pattern[offset]
-               for offset in range(pattern_length)):
-            position = start
-            break
-    encoded = struct.pack("<q", position)
-    if output_is_null or (capacity is not None and capacity < len(encoded)):
+    if output_is_null or (capacity is not None and capacity < side * side):
         return -2, b""
-    return len(encoded), encoded
+
+    image = list(values[1:])
+    brightness, distance = _mibench_susan_verify_weights()
+    result = bytearray(side * side)
+    for y in range(side):
+        for x in range(side):
+            center = image[y * side + x]
+            area = 0
+            total = 0
+            mask_index = 0
+            for dy in range(-7, 8):
+                sy = _mibench_susan_verify_reflect(y + dy, side)
+                for dx in range(-7, 8):
+                    sx = _mibench_susan_verify_reflect(x + dx, side)
+                    pixel = image[sy * side + sx]
+                    contribution = distance[mask_index] * brightness[center - pixel + 255]
+                    area += contribution
+                    total += contribution * pixel
+                    mask_index += 1
+            denominator = area - 10000
+            result[y * side + x] = (
+                _mibench_susan_verify_median(image, side, y, x)
+                if denominator == 0 else
+                (total - center * 10000) // denominator)
+    return side * side, bytes(result)
+
+
+# The verifier shares only the pinned pi-derived seed words; its key expansion and
+# Feistel reference are implemented separately from the package oracle and ports.
+def _mibench_blowfish_verifier_f(value: int, boxes: list[list[int]]) -> int:
+    a = (value >> 24) & 0xFF
+    b = (value >> 16) & 0xFF
+    c = (value >> 8) & 0xFF
+    d = value & 0xFF
+    return ((((boxes[0][a] + boxes[1][b]) & 0xFFFF_FFFF) ^ boxes[2][c])
+            + boxes[3][d]) & 0xFFFF_FFFF
+
+
+def _mibench_blowfish_verifier_encrypt(
+        left: int, right: int, p_array: list[int], boxes: list[list[int]]) -> tuple[int, int]:
+    left ^= p_array[0]
+    for round_index in range(1, 17):
+        right ^= _mibench_blowfish_verifier_f(left, boxes) ^ p_array[round_index]
+        left, right = right, left
+    left, right = right, left
+    right ^= p_array[17]
+    return left & 0xFFFF_FFFF, right & 0xFFFF_FFFF
+
+
+def _mibench_blowfish_verifier_block(
+        key: bytes, block: bytes, decrypt: bool) -> bytes:
+    p_array = list(_MIBENCH_SECURITY_BLOWFISH_INITIAL[:18])
+    boxes = [list(_MIBENCH_SECURITY_BLOWFISH_INITIAL[18 + group * 256:
+                                                      18 + (group + 1) * 256])
+             for group in range(4)]
+    key_index = 0
+    for index in range(18):
+        word = 0
+        for _ in range(4):
+            word = ((word << 8) | key[key_index]) & 0xFFFF_FFFF
+            key_index = (key_index + 1) % len(key)
+        p_array[index] ^= word
+
+    left = right = 0
+    for index in range(0, 18, 2):
+        left, right = _mibench_blowfish_verifier_encrypt(left, right, p_array, boxes)
+        p_array[index], p_array[index + 1] = left, right
+    for group in range(4):
+        for index in range(0, 256, 2):
+            left, right = _mibench_blowfish_verifier_encrypt(left, right, p_array, boxes)
+            boxes[group][index], boxes[group][index + 1] = left, right
+
+    left = int.from_bytes(block[:4], "big")
+    right = int.from_bytes(block[4:], "big")
+    if decrypt:
+        left ^= p_array[17]
+        for round_index in range(16, 0, -1):
+            right ^= _mibench_blowfish_verifier_f(left, boxes) ^ p_array[round_index]
+            left, right = right, left
+        left, right = right, left
+        right ^= p_array[0]
+    else:
+        left, right = _mibench_blowfish_verifier_encrypt(left, right, p_array, boxes)
+    return (left & 0xFFFF_FFFF).to_bytes(4, "big") + (right & 0xFFFF_FFFF).to_bytes(4, "big")
+
+
+def mibench_security_blowfish_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (not isinstance(values, (tuple, list))
+            or len(values) > MIBENCH_SECURITY_BLOWFISH_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or input_length != (0 if input_is_null else len(values))))
+            or (input_is_null and values)
+            or (capacity is not None
+                and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if input_is_null or len(values) != MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES:
+        return -1, b""
+    direction, key_id = values[:2]
+    block_values = values[2:]
+    if direction not in (0, 1) or key_id not in (0, 1) or any(
+            not 0 <= value <= 255 for value in block_values):
+        return -1, b""
+    if (output_is_null
+            or (capacity is not None and capacity < MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES)):
+        return -2, b""
+    keys = (b"abcdefghijklmnopqrstuvwxyz", b"Who is John Galt?")
+    output = _mibench_blowfish_verifier_block(keys[key_id], bytes(block_values), direction == 1)
+    return MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES, output
 
 
 _AES_VERIFIER_SBOX = bytes.fromhex(
@@ -3932,11 +4118,13 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "mccat_qbsort": mccat_qbsort_verifier_oracle,
     "bmm": versabench_bmm_verifier_oracle,
     "mccat_bisect": mccat_bisect_verifier_oracle,
+    "prolangs_c_allroots": prolangs_c_allroots_verifier_oracle,
+    "mibench_security_blowfish": mibench_security_blowfish_verifier_oracle,
+    "mibench_automotive_susan": mibench_automotive_susan_verifier_oracle,
     "cbench_automotive_qsort1": cbench_automotive_qsort1_verifier_oracle,
     "8b10b": versabench_8b10b_verifier_oracle,
     "trimaran_enc_rc4": trimaran_enc_rc4_verifier_oracle,
     "trimaran_enc_3des": trimaran_enc_3des_verifier_oracle,
-    "mibench_office_stringsearch_bmh": mibench_office_stringsearch_bmh_verifier_oracle,
     "mibench_security_rijndael": mibench_security_rijndael_verifier_oracle,
     "misc_reed_solomon": misc_reed_solomon_verifier_oracle,
     "min_cost_max_flow": min_cost_max_flow_oracle,
@@ -3989,6 +4177,9 @@ ANSIBENCH_BYTE_OUTPUT_BOUNDS = {
 GENERIC_BYTE_OUTPUT_BOUNDS = {
     **ANSIBENCH_BYTE_OUTPUT_BOUNDS,
     **EXTERNAL_BYTE_OUTPUT_BOUNDS,
+    "mibench_automotive_susan": (
+        MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
+        MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES),
 }
 
 
@@ -5860,82 +6051,116 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or "provided 'as is'" not in license_text):
             raise ValueError("mibench_security_rijndael README/license attribution is incomplete")
         max_input, max_output = 49, 16
-    elif algorithm == "mibench_office_stringsearch_bmh":
+    elif algorithm == "mibench_automotive_susan":
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = (
+            MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
+            MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES)
+    elif algorithm == "mibench_security_blowfish":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
-        sources = workload.get("pinned_sources", [])
-        expected_ids = {
-            "match_middle", "match_at_start", "overlapping_prefixes", "no_match",
-            "pattern_longer_than_text", "empty_text", "empty_pattern_invalid",
-            "truncated_record_invalid", "non_printable_byte_invalid", "short_output",
-        }
+        source = workload.get("pinned_source", {})
         launcher = workload.get("pinned_launcher", {})
-        source_bound = workload.get("source_bound", {})
+        contract = workload.get("contract", {})
+        source_configuration = contract.get("source_configuration", {})
+        expected_ids = {
+            "upstream_key_abcdefghijklmnopqrstuvwxyz_encrypt",
+            "upstream_key_who_is_john_galt_encrypt",
+            "upstream_key_abcdefghijklmnopqrstuvwxyz_decrypt",
+            "upstream_key_who_is_john_galt_decrypt",
+            "short_output_capacity", "bad_direction", "bad_key_selector",
+            "bad_block_byte", "short_input", "null_input", "null_output",
+        }
         if (workload.get("schema_version") != 1
-                or workload.get("id") != "mibench-office-stringsearch-bmh-i64-array-bytes-output-v1"
+                or workload.get("id") != "lac-dcc-mibench-security-blowfish-ecb-block-i64-array-bytes-output-v1"
                 or workload.get("algorithm") != algorithm
                 or workload.get("function_symbol") != algorithm
-                or input_spec.get("kind") != "packed_signed_64_bit_integer_array"
-                or input_spec.get("encoding") != "[text_length, pattern_length, text byte values..., pattern byte values...]"
-                or input_spec.get("text_length_range") != [0, 128]
-                or input_spec.get("pattern_length_range") != [1, 32]
-                or input_spec.get("byte_range") != [32, 126]
-                or input_spec.get("exact_length") != "2 + text_length + pattern_length"
-                or input_spec.get("maximum_input_length") != 162
-                or input_spec.get("invalid_input_result") != -1
-                or output_spec.get("kind") != "little_endian_signed_i64_vector"
-                or output_spec.get("encoding") != "one signed i64 match offset; -1 means no match"
-                or output_spec.get("maximum_elements") != 1
-                or output_spec.get("success_result") != 8
-                or output_spec.get("null_output_result") != -2
-                or output_spec.get("insufficient_output_capacity_result") != -2
-                or output_spec.get("no_write_on_error") is not True
-                or workload.get("workspace") != {
-                    "elements": 416,
-                    "meaning": "128-byte text buffer, 32-byte pattern buffer, and 256-entry shift table.",
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "MiBench/security-blowfish/bf_enc.c",
+                    "related_paths": [
+                        "MiBench/security-blowfish/bf_skey.c",
+                        "MiBench/security-blowfish/bf_ecb.c",
+                        "MiBench/security-blowfish/bf_pi.h",
+                        "MiBench/security-blowfish/bftest.c",
+                    ],
+                    "symbol": "BF_set_key, BF_encrypt, BF_ecb_encrypt",
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/security-blowfish/bf_enc.c",
+                    "license": "Eric Young source license, reproduced verbatim in LICENSE.txt; attribution and advertising acknowledgment apply; terms may not be changed.",
                 }
-                or workspace_bytes != 8
-                or workload.get("measurement", {}).get("comparison_model")
-                != "i64_array_bytes_output_call"
                 or launcher != {
                     "repository": "lac-dcc/Benchmarks", "commit": pinned,
-                    "path": "MiBench/office-stringsearch/info.sh",
-                    "bench_name": "office-stringsearch",
-                    "source_selection": ["bmhasrch.c", "bmhisrch.c", "bmhsrch.c", "pbmsrch.c"],
-                    "compile_flags": ["-lm"], "run_options": [],
+                    "path": "MiBench/security-blowfish/info.sh",
+                    "bench_name": "security-blowfish",
+                    "source_files": [
+                        "bf_cbc.c", "bf_cfb64.c", "bf_ecb.c", "bf_enc.c",
+                        "bf_ofb64.c", "bf_skey.c", "bftest.c",
+                    ],
+                    "compile_flags": ["-lm"],
+                    "run_options": [
+                        "d", "output_large.enc", "output_large.asc",
+                        "1234567890abcdeffedcba0987654321",
+                    ],
                 }
-                or len(sources) != 2
-                or sources[0] != {
-                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
-                    "path": "MiBench/office-stringsearch/bmhsrch.c",
-                    "symbols": ["bmh_init", "bmh_search"],
-                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/office-stringsearch/bmhsrch.c",
-                    "role": "algorithm",
+                or input_spec.get("kind") != "signed_i64_array_of_bytes"
+                or input_spec.get("encoding") != "direction (0 encrypt, 1 decrypt), key selector (0 or 1), then 8 big-endian block bytes"
+                or input_spec.get("exact_length") != MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES
+                or input_spec.get("maximum_input_length") != MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES
+                or input_spec.get("valid_value_range") != [0, 255]
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("null_input_result") != -1
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("encoding") != "one raw 8-byte Blowfish result block in big-endian byte order"
+                or output_spec.get("maximum_bytes") != MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES
+                or output_spec.get("success_result") != "Bytes written, exactly 8"
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace") != {
+                    "bytes": MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES,
+                    "meaning": "One output block.",
                 }
-                or sources[1] != {
-                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
-                    "path": "MiBench/office-stringsearch/info.sh",
-                    "symbols": ["bench_name", "source_files"],
-                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/office-stringsearch/info.sh",
-                    "role": "launcher",
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("sample_count") != 5
+                or workload.get("measurement", {}).get("warmup_rounds") != 1
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 100
+                or contract.get("operation") != "Initialize Blowfish with one of the two published bftest keys, then apply one ECB block encryption or decryption."
+                or contract.get("input_layout") != "[direction, key_selector, 8 block bytes]"
+                or contract.get("maximum_input_length") != MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES
+                or contract.get("output_encoding") != "8 raw Blowfish block bytes, big-endian"
+                or contract.get("output_bytes") != MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES
+                or contract.get("invalid_result") != -1
+                or contract.get("output_error_result") != -2
+                or source_configuration.get("block_bytes") != 8
+                or source_configuration.get("key_strings") != [
+                    "abcdefghijklmnopqrstuvwxyz", "Who is John Galt?",
+                ]
+                or source_configuration.get("direction_encoding") != {
+                    "0": "encrypt", "1": "decrypt",
                 }
-                or source_bound != {
-                    "source_variant": "bmhsrch.c case-sensitive Boyer-Moore-Horspool; initialization sets rightmost-prefix bad-character shifts and the fixed final-character shift; search scans candidate windows in increasing order and compares right-to-left.",
-                    "scope": "Standalone bmh_init/bmh_search semantics only. The launcher also includes case-insensitive and accented-character variants plus Pratt-Boyer-Moore; those routines and their demo workload are excluded.",
-                    "license": "The pinned bmhsrch.c header places this implementation in the public domain and attributes it to Raymond Gardner (7/92).",
-                }
+                or source_configuration.get("block_byte_order") != "big-endian, as in BF_ecb_encrypt"
+                or "same two-word block primitive" not in contract.get("source_wrapper", "")
+                or "CBC/CFB/OFB" not in contract.get("source_wrapper", "")
                 or {case.get("id") for case in workload.get("cases", [])
                     if isinstance(case, dict)} != expected_ids):
-            raise ValueError("mibench_office_stringsearch_bmh metadata differs from its bounded pinned contract")
-        readme = (ROOT / "benchmarks/o/mibench_office_stringsearch_bmh/README.md").read_text(
+            raise ValueError("mibench_security_blowfish metadata differs from its bounded ECB contract")
+        readme = (ROOT / "benchmarks/m/mibench_security_blowfish/README.md").read_text(
             encoding="utf-8")
-        license_text = (ROOT / "benchmarks/o/mibench_office_stringsearch_bmh/LICENSE.txt").read_text(
+        license_text = (ROOT / "benchmarks/m/mibench_security_blowfish/LICENSE.txt").read_text(
             encoding="utf-8")
-        if (sources[0]["url"] not in readme or "partial/related" not in readme
-                or "Raymond Gardner" not in readme
-                or "public domain" not in license_text.lower()
-                or "Raymond Gardner" not in license_text):
-            raise ValueError("mibench_office_stringsearch_bmh README/license attribution is incomplete")
-        max_input, max_output = 163, 8
+        if (source["url"] not in readme
+                or "This product includes cryptographic software written by Eric Young" not in readme
+                or "Eric Young" not in license_text
+                or "Redistribution and use in source and binary forms" not in license_text
+                or "must retain the copyright" not in license_text
+                or "must reproduce the above copyright" not in license_text
+                or "cannot be changed" not in license_text):
+            raise ValueError("mibench_security_blowfish README or bundled license is incomplete")
+        max_input, max_output = (
+            MIBENCH_SECURITY_BLOWFISH_MAX_PARSEABLE_INPUT_LENGTH,
+            MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES,
+        )
     elif algorithm in {"smith_waterman_python", "smith_waterman_rust"}:
         is_python = algorithm == "smith_waterman_python"
         max_input = (SMITH_WATERMAN_PYTHON_MAX_PARSEABLE_INPUT_LENGTH if is_python
@@ -6347,6 +6572,69 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or "McCat/04-bisect/bisect_test.c" not in readme
                 or "LICENSE" not in readme):
             raise ValueError("mccat_bisect README is missing pinned sources or license notice")
+    elif algorithm == "prolangs_c_allroots":
+        max_input, max_output = (PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH,
+                                 PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES)
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        source_bound = workload.get("source_bound", {})
+        expected_ids = {
+            "exact_root_cubic_source_order", "wrong_cubic_invalid",
+            "short_coefficient_vector_invalid", "extra_coefficient_invalid",
+            "null_input_invalid", "short_output_capacity", "null_output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-prolangs-c-allroots-bounded-cubic-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != "prolangs_c_allroots"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "Prolangs-C/allroots/all.c"
+                or source.get("symbol") != "allroots, deflat, newton, HORNERS"
+                or launcher.get("path") != "Prolangs-C/allroots/info.sh"
+                or launcher.get("source_files") != ["all.c", "horners.c", "newton.c"]
+                or launcher.get("compile_flags") != []
+                or launcher.get("source_polynomial_ascending") != [4.1, -3.9, -1.0, 1.0]
+                or source_bound.get("profile_polynomial_ascending") != [4, -4, -1, 1]
+                or source_bound.get("cauchy_bound") != "sum(abs(coefficients))/abs(leading_coefficient)"
+                or source_bound.get("lower_bound_rule") != "-cauchy_bound-1"
+                or source_bound.get("newton_relative_step_tolerance") != 5.0e-6
+                or source_bound.get("newton_max_iteration_counter") != 40
+                or source_bound.get("maximum_output_bytes") != max_output
+                or source_bound.get("output_order") != [
+                    "initial Newton root",
+                    "deflated quadratic plus root after source refinement",
+                    "deflated quadratic minus root after source refinement",
+                ]
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "four ascending-order coefficients, exactly [4,-4,-1,1]"
+                or input_spec.get("input_length") != 4
+                or input_spec.get("maximum_parseable_input_length") != max_input
+                or input_spec.get("invalid_result") != -1
+                or input_spec.get("null_input_result") != -1
+                or output_spec.get("kind") != "float64_vector"
+                or output_spec.get("encoding") != "three little-endian IEEE-754 binary64 values in source order"
+                or output_spec.get("maximum_output_elements") != 3
+                or output_spec.get("maximum_output_bytes") != max_output
+                or output_spec.get("success_result") != "output byte count"
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or output_spec.get("absolute_tolerance") != 1.0e-12
+                or output_spec.get("relative_tolerance") != 1.0e-12
+                or workspace_bytes != max_output
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids):
+            raise ValueError("prolangs_c_allroots metadata differs from its bounded cubic contract")
+        readme = (ROOT / "benchmarks" / "a" / "prolangs_c_allroots" / "README.md").read_text(
+            encoding="utf-8")
+        if ("Prolangs-C/allroots/all.c" not in readme
+                or "No per-package license file" not in readme
+                or "synthetic deflation" not in readme):
+            raise ValueError("prolangs_c_allroots README is missing source, algorithm, or license notes")
     elif algorithm == "cbench_automotive_qsort1":
         max_input, max_output = (CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES,
                                  CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES)
@@ -6624,35 +6912,67 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 (0,) * 32 + (0,) * 15 + (-1,)):
             add(malformed)
         add((0,) * 32 + (0,) * 15 + (-1,), 0, output_is_null=True)
-    elif algorithm == "mibench_office_stringsearch_bmh":
-        def search_input(text: tuple[int, ...], pattern: tuple[int, ...]) -> tuple[int, ...]:
-            return (len(text), len(pattern), *text, *pattern)
+    elif algorithm == "mibench_automotive_susan":
+        rng_susan = random.Random(20261025)
+        for side in (MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE,
+                     MIBENCH_AUTOMOTIVE_SUSAN_MAX_SIDE):
+            pixels = tuple((index * 29 + index // side * 17 + 11) % 256
+                           for index in range(side * side))
+            result, output = add((side, *pixels))
+            if result != side * side or len(output) != side * side:
+                raise ValueError("mibench_automotive_susan valid image did not fill its output plane")
+            for capacity in (0, result - 1, result, workspace_bytes):
+                add((side, *pixels), capacity)
+            add((side, *pixels), output_is_null=True)
+            for _ in range(2):
+                random_pixels = tuple(rng_susan.randrange(256) for _ in range(side * side))
+                add((side, *random_pixels))
 
-        add(search_input((65, 65, 65, 66, 65, 66, 65, 66), (65, 66)))
-        add(search_input((65,) * 128, (65,)))
-        add(search_input((66,) * 127 + (65,), (65,)))
-        add(search_input((66,) * 128, (65,)))
-        maximum_pattern = (65,) * 32
-        add(search_input((66,) * 96 + maximum_pattern, maximum_pattern))
-        add(search_input(maximum_pattern + (66,) * 96, maximum_pattern))
-        add(search_input((66,) * 128, maximum_pattern))
-        bounded_valid = search_input((32, 126, 32, 126), (126,))
-        for capacity in (0, 7, 8, workspace_bytes):
-            add(bounded_valid, capacity)
-        add(bounded_valid, output_is_null=True)
+        minimum_flat = (MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE,
+                        *((0,) * (MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE ** 2)))
+        add(minimum_flat)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True,
+            input_length=MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH)
+        bad_pixel = list(minimum_flat)
+        bad_pixel[-1] = 256
+        add(tuple(bad_pixel))
+        for malformed in (
+                (), (MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE - 1,),
+                (MIBENCH_AUTOMOTIVE_SUSAN_MAX_SIDE + 1,),
+                (MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE, 0),
+                minimum_flat + (0,), (-(1 << 63),), ((1 << 63) - 1,)):
+            add(malformed)
+        add((MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE, *([0] * 225)),
+            0, output_is_null=True)
+    elif algorithm == "mibench_security_blowfish":
+        reference_input = (0, 0, 66, 76, 79, 87, 70, 73, 83, 72)
+        result, output = add(reference_input)
+        if (result != MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES
+                or len(output) != MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES):
+            raise ValueError("mibench_security_blowfish reference block does not fill its output bound")
+        rng = random.Random(20261025)
+        for key_id in range(2):
+            for direction in range(2):
+                for _ in range(3):
+                    block = tuple(rng.randrange(256) for _ in range(8))
+                    add((direction, key_id, *block))
+        for capacity in (0, MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES - 1,
+                         MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES, workspace_bytes):
+            add(reference_input, capacity)
+        add(reference_input, output_is_null=True)
         add((), input_is_null=True, input_length=0)
         add((), input_is_null=True, input_length=1)
         malformed = (
-            (), (0,), (0, 0), (129, 1, *([65] * 129)),
-            (1, 0, 65), (1, 33, *([65] * 34)),
-            (2, 1, 65), (1, 1, 65, 66), (1, 1, 31, 65),
-            (1, 1, 65, 127),
-            search_input((65,) * 128, (65,) * 32) + (65,),
+            (), (0,) * (MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES - 1),
+            (0,) * (MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES + 1),
+            (2, 0, *([0] * 8)), (0, 2, *([0] * 8)),
+            (0, 0, *([0] * 7), -1), (0, 0, *([0] * 7), 256),
             (-(1 << 63),), ((1 << 63) - 1,),
         )
         for values in malformed:
             add(values)
-        add((1, 1, 31, 65), 0, output_is_null=True)
+        add((2, 0, *([0] * 8)), 0, output_is_null=True)
     elif algorithm in {"smith_waterman_python", "smith_waterman_rust"}:
         rng = random.Random(20261017)
         alphabet = (65, 67, 71, 84, 97, 99, 103, 116, 45)
@@ -6896,6 +7216,23 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         add((), input_is_null=True, input_length=1)
         for values in ((), (1,), (-1,), (MCCAT_BISECT_MAX_N + 1,), (8, 1),
                        (-(1 << 63),), ((1 << 63) - 1,)):
+            add(values)
+    elif algorithm == "prolangs_c_allroots":
+        exact_cubic = (4, -4, -1, 1)
+        result, output = add(exact_cubic)
+        if (result != PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES
+                or len(output) != PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES):
+            raise ValueError("prolangs_c_allroots exact-root fixture does not fill its output bound")
+        for output_capacity in (0, PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES - 1,
+                                PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(exact_cubic, output_capacity)
+        add(exact_cubic, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=4)
+        for values in (
+                (), (4, -4, -1), (4, -3, -1, 1), (4, -4, -1, 1, 0),
+                (0, 0, 0, 1), (-(1 << 63),), ((1 << 63) - 1,),
+        ):
             add(values)
     elif algorithm == "cbench_automotive_qsort1":
         rng = random.Random(20261019)
@@ -42203,9 +42540,7 @@ def main() -> int:
     directory = args.build_dir.resolve()
     directory.mkdir(parents=True, exist_ok=True)
     algorithm = args.algorithm
-    workload_path = (ROOT / "benchmarks/o/mibench_office_stringsearch_bmh/workload.json"
-                     if algorithm == "mibench_office_stringsearch_bmh" else
-                     ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
+    workload_path = (ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
                      if algorithm == "merge_sort_linked_list" else
                      ROOT / "benchmarks" / "merge_ksorted_linked_list" / "workload.json"
                      if algorithm == "merge_ksorted_linked_list" else

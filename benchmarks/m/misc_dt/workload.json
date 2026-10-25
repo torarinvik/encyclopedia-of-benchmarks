@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-misc-dt-bounded-v1",
+  "algorithm": "misc_dt",
+  "function_symbol": "misc_dt",
+  "description": "Bounded repeated elementwise binary64 division of float32-trigonometric initialized vectors.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/dt/dt.c",
+    "symbol": "double_array_divs_variable",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/dt/dt.c",
+    "license_note": "The referenced source has no explicit license grant; these are independently written ports."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/dt/info.sh",
+    "bench_name": "dt",
+    "source_files": ["dt.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "source_bound": {
+    "launcher_default_iterations": 131072,
+    "launcher_vector_size": 2048,
+    "initializer_numerator": "1.0000001 * cosf((float)(size-index))",
+    "initializer_denominator": "1.0 + 1e-10 * sinf((float)index)",
+    "loop_order": "iteration ascending, then vector index ascending",
+    "launcher_output": "print dvec1[0] with %f"
+  },
+  "contract": {
+    "input_layout": "[iteration_count, vector_size]",
+    "valid_iteration_range": [1, 128],
+    "valid_vector_size_range": [1, 64],
+    "initialization": "Evaluate cosf and sinf on binary32 inputs and binary32 results, then promote those results to binary64 for the source multiplications and addition.",
+    "division": "Repeat the full ascending-index vector pass for each outer iteration; update numerator[i] by numerator[i] / denominator[i].",
+    "output_layout": "final numerator vector in ascending index order",
+    "source_output_adaptation": "Return all final numerator values to keep the whole division kernel observable; source main prints only index zero.",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2
+  },
+  "workspace": {"elements": 64},
+  "input": {
+    "kind": "finite_float64_array",
+    "encoding": "[iteration_count, vector_size]",
+    "valid_length_range": [2, 2],
+    "maximum_valid_length": 2,
+    "maximum_parseable_length": 3,
+    "minimum_iterations": 1,
+    "maximum_iterations": 128,
+    "minimum_vector_size": 1,
+    "maximum_vector_size": 64,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "float64_array",
+    "encoding": "final numerator vector, ascending index order",
+    "maximum_elements": 64,
+    "success_result": "vector_size",
+    "invalid_input_result": -1,
+    "invalid_output_buffer_result": -2,
+    "null_output_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-6,
+    "relative_tolerance": 1e-12
+  },
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "absolute_tolerance": 1e-6,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id": "single_element_one_pass", "input_values": [1.0, 1.0], "input_length": 2, "expected_result": 1, "expected_output": [0.5403023306415558]},
+    {"id": "two_element_repeated_passes", "input_values": [8.0, 2.0], "input_length": 2, "expected_result": 2, "expected_output": [-0.4161469, 0.5403023]},
+    {"id": "zero_iterations", "input_values": [0.0, 2.0], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "fractional_size", "input_values": [1.0, 1.5], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "size_above_profile", "input_values": [1.0, 65.0], "input_length": 2, "expected_result": -1, "expected_output": []},
+    {"id": "short_input", "input_values": [1.0], "input_length": 1, "expected_result": -1, "expected_output": []},
+    {"id": "extra_input_value", "input_values": [1.0, 1.0, 0.0], "input_length": 3, "expected_result": -1, "expected_output": []},
+    {"id": "short_output_capacity", "input_values": [1.0, 2.0], "input_length": 2, "output_capacity": 1, "expected_result": -2, "expected_output": []},
+    {"id": "null_output", "input_values": [1.0, 1.0], "input_length": 2, "output_is_null": true, "expected_result": -2, "expected_output": []}
+  ]
+}

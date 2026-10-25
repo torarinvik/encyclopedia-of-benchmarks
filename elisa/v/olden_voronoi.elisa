@@ -1,0 +1,170 @@
+extern floor(value: f64) -> f64
+const MAX_POINTS: usize = 5
+const MAX_EDGES: usize = 32
+const SCALE: f64 = 1000.0
+
+struct OvPoint:
+    x: f64
+    y: f64
+    norm: f64
+struct OvPair:
+    left: i64
+    right: i64
+struct OvCenter:
+    ok: bool
+    x: f64
+    y: f64
+struct OvState:
+    points: OvPoint[MAX_POINTS]
+    left_child: i64[MAX_POINTS]
+    right_child: i64[MAX_POINTS]
+    onext: i64[MAX_EDGES * 4]
+    origin: i64[MAX_EDGES * 4]
+    alive: bool[MAX_EDGES]
+    edge_count: usize
+
+def sym(e: i64) -> i64: e ^ 2
+def rot(e: i64) -> i64: (e & ~3) | ((e + 1) & 3)
+def rotinv(e: i64) -> i64: (e & ~3) | ((e + 3) & 3)
+def lnext(s: OvState&, e: i64) -> i64: rot(s.onext[rotinv(e).usize()].i64())
+def oprev(s: OvState&, e: i64) -> i64: rot(s.onext[rot(e).usize()].i64())
+def rprev(s: OvState&, e: i64) -> i64: s.onext[sym(e).usize()].i64()
+def lprev(s: OvState&, e: i64) -> i64: sym(s.onext[e.usize()].i64())
+def orig(s: OvState&, e: i64) -> i64: s.origin[e.usize()].i64()
+def dest(s: OvState&, e: i64) -> i64: s.origin[sym(e).usize()].i64()
+def ccw(s: OvState&, a: i64, b: i64, c: i64) -> bool:
+    (s.points[a.usize()].x-s.points[c.usize()].x)*(s.points[b.usize()].y-s.points[c.usize()].y) - (s.points[b.usize()].x-s.points[c.usize()].x)*(s.points[a.usize()].y-s.points[c.usize()].y) > 0.0
+def incircle(s: OvState&, a: i64, b: i64, c: i64, d: i64) -> bool:
+    adx:f64=s.points[a.usize()].x-s.points[d.usize()].x; ady:f64=s.points[a.usize()].y-s.points[d.usize()].y
+    bdx:f64=s.points[b.usize()].x-s.points[d.usize()].x; bdy:f64=s.points[b.usize()].y-s.points[d.usize()].y
+    cdx:f64=s.points[c.usize()].x-s.points[d.usize()].x; cdy:f64=s.points[c.usize()].y-s.points[d.usize()].y
+    result:f64=(s.points[a.usize()].norm-s.points[d.usize()].norm)*(bdx*cdy-bdy*cdx)
+    result <- result+(s.points[b.usize()].norm-s.points[d.usize()].norm)*(cdx*ady-cdy*adx)
+    result <- result+(s.points[c.usize()].norm-s.points[d.usize()].norm)*(adx*bdy-ady*bdx)
+    result > 0.0
+def make_edge(s: mutable OvState&, a: i64, b: i64) -> i64:
+    e:i64=(s.edge_count*4).i64(); s.edge_count <- s.edge_count+1
+    s.alive[(e/4).usize()] <- true; s.onext[e.usize()] <- e; s.origin[e.usize()] <- a
+    s.onext[(e+1).usize()] <- e+3; s.onext[(e+2).usize()] <- e+2; s.origin[(e+2).usize()] <- b; s.onext[(e+3).usize()] <- e+1
+    e
+def splice(s: mutable OvState&, a: i64, b: i64) -> void:
+    alpha:i64=rot(s.onext[a.usize()].i64()); beta:i64=rot(s.onext[b.usize()].i64())
+    t1:mutable i64=s.onext[beta.usize()].i64(); temp:mutable i64=s.onext[alpha.usize()].i64()
+    s.onext[alpha.usize()] <- t1; s.onext[beta.usize()] <- temp
+    temp <- s.onext[a.usize()].i64(); t1 <- s.onext[b.usize()].i64(); s.onext[b.usize()] <- temp; s.onext[a.usize()] <- t1
+def connect_left(s: mutable OvState&, a: i64, b: i64) -> i64:
+    e:i64=make_edge(s,dest(s,a),orig(s,b)); splice(s,e,lnext(s,a)); splice(s,sym(e),b); e
+def connect_right(s: mutable OvState&, a: i64, b: i64) -> i64:
+    e:i64=make_edge(s,dest(s,a),orig(s,b)); splice(s,e,sym(a)); splice(s,sym(e),oprev(s,b)); e
+def delete_edge(s: mutable OvState&, e: i64) -> void:
+    f:mutable i64=oprev(s,e); splice(s,e,f); f <- oprev(s,sym(e)); splice(s,sym(e),f); s.alive[(e/4).usize()] <- false
+def valid(s: OvState&, l: i64, base: i64) -> bool: ccw(s,orig(s,base),dest(s,l),dest(s,base))
+def do_merge(s: mutable OvState&, ldo: i64, ldi0: i64, rdi0: i64, rdo0: i64) -> OvPair:
+    ldi:mutable i64=ldi0; rdi:mutable i64=rdi0; rdo:mutable i64=rdo0
+    while true:
+        t3:i64=orig(s,rdi); t1:mutable i64=orig(s,ldi); t2:mutable i64=dest(s,ldi)
+        while ccw(s,t1,t2,t3): ldi <- lnext(s,ldi); t1 <- orig(s,ldi); t2 <- dest(s,ldi)
+        t2 <- dest(s,rdi)
+        if ccw(s,t2,t3,t1): rdi <- rprev(s,rdi)
+        else: break
+    basel:mutable i64=connect_left(s,sym(rdi),ldi); lcand:mutable i64=rprev(s,basel); rcand:mutable i64=oprev(s,basel); left_outer:mutable i64=ldo
+    t1:i64=orig(s,basel); t2:i64=dest(s,basel)
+    if t1==orig(s,rdo): rdo <- basel
+    if t2==orig(s,left_outer): left_outer <- sym(basel)
+    while true:
+        t:mutable i64=s.onext[lcand.usize()].i64()
+        if valid(s,t,basel):
+            v4:i64=orig(s,basel); v1:mutable i64=dest(s,lcand); v3:i64=orig(s,lcand); v2:mutable i64=dest(s,t)
+            while incircle(s,v1,v2,v3,v4):
+                delete_edge(s,lcand); lcand <- t; t <- s.onext[lcand.usize()].i64(); v1 <- dest(s,lcand); v3 <- orig(s,lcand); v2 <- dest(s,t)
+        t <- oprev(s,rcand)
+        if valid(s,t,basel):
+            v4:i64=dest(s,basel); v1:mutable i64=dest(s,t); v2:mutable i64=dest(s,rcand); v3:i64=orig(s,rcand)
+            while incircle(s,v1,v2,v3,v4):
+                delete_edge(s,rcand); rcand <- t; t <- oprev(s,rcand); v2 <- dest(s,rcand); v3 <- orig(s,rcand); v1 <- dest(s,t)
+        lv:bool=valid(s,lcand,basel); rv:bool=valid(s,rcand,basel)
+        if not lv and not rv: return OvPair{left_outer,rdo}
+        v1:i64=dest(s,lcand); v2:i64=orig(s,lcand); v3:i64=orig(s,rcand); v4:i64=dest(s,rcand)
+        if not lv or (rv and incircle(s,v1,v2,v3,v4)):
+            basel <- connect_left(s,rcand,sym(basel)); rcand <- lnext(s,sym(basel))
+        else:
+            basel <- sym(connect_right(s,lcand,basel)); lcand <- rprev(s,basel)
+def get_low(s: OvState&, node0: i64) -> i64:
+    node:mutable i64=node0
+    while s.left_child[node.usize()]>=0: node <- s.left_child[node.usize()].i64()
+    node
+def build_delaunay(s: mutable OvState&, tree: i64, extra: i64) -> OvPair:
+    if tree>=0 and s.right_child[tree.usize()]>=0:
+        minx:i64=get_low(s,tree); dr:OvPair=build_delaunay(s,s.right_child[tree.usize()].i64(),extra); dl:OvPair=build_delaunay(s,s.left_child[tree.usize()].i64(),tree)
+        result:mutable OvPair=do_merge(s,dl.left,dl.right,dr.left,dr.right)
+        while orig(s,result.left)!=minx: result.left <- rprev(s,result.left)
+        while orig(s,result.right)!=extra: result.right <- lprev(s,result.right)
+        return result
+    if tree<0: return OvPair{-1,-1}
+    if s.left_child[tree.usize()]<0:
+        e:i64=make_edge(s,tree,extra); return OvPair{e,sym(e)}
+    s1:i64=s.left_child[tree.usize()].i64(); s2:i64=tree; s3:i64=extra
+    a:i64=make_edge(s,s1,s2); b:i64=make_edge(s,s2,s3); splice(s,sym(a),b); c:i64=connect_left(s,b,a)
+    if ccw(s,s1,s3,s2): return OvPair{sym(c),c}
+    result:OvPair=OvPair{a,sym(b)}
+    if not ccw(s,s1,s2,s3): delete_edge(s,c)
+    result
+def center(s: OvState&, a: i64, b: i64, c: i64) -> OvCenter:
+    vx:f64=s.points[b.usize()].x-s.points[a.usize()].x; vy:f64=s.points[b.usize()].y-s.points[a.usize()].y
+    wx:f64=s.points[c.usize()].x-s.points[a.usize()].x; wy:f64=s.points[c.usize()].y-s.points[a.usize()].y
+    d3:f64=vx*wy-vy*wx; d2:f64= -2.0*d3; d4:f64=(s.points[c.usize()].x-s.points[b.usize()].x)*wx+(s.points[c.usize()].y-s.points[b.usize()].y)*wy
+    OvCenter{true,0.5*(s.points[a.usize()].x+s.points[b.usize()].x)+(d4/d2)*vy,0.5*(s.points[a.usize()].y+s.points[b.usize()].y)-(d4/d2)*vx}
+def face_center(s: OvState&, e: i64) -> OvCenter:
+    e2:i64=lnext(s,e); e3:i64=lnext(s,e2)
+    if lnext(s,e3)!=e: return OvCenter{false,0.0,0.0}
+    a:i64=orig(s,e); b:i64=dest(s,e); c:i64=dest(s,e2)
+    if a==b or b==c or a==c or not ccw(s,a,b,c): return OvCenter{false,0.0,0.0}
+    center(s,a,b,c)
+def quantize(value: f64) -> i64: floor(value*SCALE+0.5).i64()
+
+def olden_voronoi_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or (length!=7 and length!=11): return -1
+    count_value:i64=input[0]
+    if count_value!=3 and count_value!=5: return -1
+    count:usize=count_value.usize()
+    if length!=1+2*count: return -1
+    state:mutable OvState
+    for i in 0..<MAX_POINTS: state.left_child[i] <- -1; state.right_child[i] <- -1
+    for i in 0..<count:
+        x:i64=input[1+2*i]; y:i64=input[2+2*i]
+        if x< -8 or x>8 or y< -8 or y>8: return -1
+        if i>0 and input[1+2*(i-1)]>=x: return -1
+        state.points[i] <- OvPoint{x.f64(),y.f64(),(x*x+y*y).f64()}
+    if count==3: state.left_child[1] <- 0
+    else: state.left_child[2] <- 1; state.right_child[2] <- 3; state.left_child[1] <- 0
+    for a in 0..<count:
+        for b in a+1..<count:
+            for c in b+1..<count:
+                if not ccw(state,a.i64(),b.i64(),c.i64()) and not ccw(state,a.i64(),c.i64(),b.i64()): return -1
+    if count==5:
+        for a in 0..<count:
+            for b in a+1..<count:
+                for c in b+1..<count:
+                    for d in c+1..<count:
+                        if not incircle(state,a.i64(),b.i64(),c.i64(),d.i64()) and not incircle(state,a.i64(),c.i64(),b.i64(),d.i64()): return -1
+    discard build_delaunay(state,if count==3:1 else:2,(count-1).i64())
+    seen:mutable [16][3]i64
+    faces:mutable usize=0; edges:mutable usize=0; dual:mutable usize=0; rays:mutable usize=0; projection:mutable i64=0
+    for edge in 0..<state.edge_count:
+        if state.alive[edge]:
+            e:i64=(edge*4).i64(); left:OvCenter=face_center(state,e)
+            if left.ok:
+                a:i64=orig(state,e); b:i64=dest(state,e); c:i64=dest(state,lnext(state,e)); duplicate:mutable bool=false
+                for f in 0..<faces:
+                    if (seen[f][0]==a or seen[f][1]==a or seen[f][2]==a) and (seen[f][0]==b or seen[f][1]==b or seen[f][2]==b) and (seen[f][0]==c or seen[f][1]==c or seen[f][2]==c): duplicate <- true
+                if not duplicate:
+                    seen[faces][0] <- a; seen[faces][1] <- b; seen[faces][2] <- c; faces <- faces+1
+                    projection <- projection+quantize(left.x)+2*quantize(left.y)
+            right:OvCenter=face_center(state,sym(e))
+            if left.ok or right.ok:
+                edges <- edges+1
+                if left.ok and right.ok: dual <- dual+1
+                else: rays <- rays+1
+    projection+100*faces.i64()+10*dual.i64()+rays.i64()+edges.i64()
+
+export fn olden_voronoi(input: i64&, length: usize) -> i64 = olden_voronoi_impl

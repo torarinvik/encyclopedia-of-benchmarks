@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "mibench-network-dijkstra-bounded-fifo-label-correcting-i64-v1",
+  "algorithm": "mibench_network_dijkstra",
+  "function_symbol": "mibench_network_dijkstra",
+  "description": "Bounded row-major MiBench FIFO label-correcting shortest paths with a reachable-distance checksum.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["MiBench/network-dijkstra/dijkstra.c", "MiBench/network-dijkstra/LICENSE"],
+    "symbols": ["dijkstra", "enqueue", "dequeue", "qcount"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/network-dijkstra",
+    "license_note": "The pinned LICENSE says the benchmark is GPL'ed but gives no version. The ports are independently written and do not copy the source file."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/network-dijkstra/info.sh",
+    "bench_name": "network-dijkstra",
+    "source_files": ["dijkstra.c"],
+    "compile_flags": ["-lm"],
+    "run_options": ["input.dat"]
+  },
+  "contract": {
+    "input_layout": "[node_count, source, row_major_costs...]",
+    "node_count_range": [1, 6],
+    "matrix": "Directed row-major adjacency matrix; 9999 means no edge. Each present edge cost is an integer from 0 through 31.",
+    "queue_algorithm": "Initialize the source label to zero, pop FIFO queue entries carrying the distance observed when they were enqueued, scan each popped node's destinations in ascending index order, and enqueue every strict label improvement. Do not discard stale entries or select a global minimum tentative label.",
+    "observable_result": "Sum (node_index+1)*shortest_distance for reachable vertices, then add a bit mask with bit node_index set for every reachable vertex.",
+    "queue_capacity": 1024,
+    "invalid_result": -1,
+    "queue_limit_result": -2
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[node_count, source, n*n row-major costs]",
+    "node_count_range": [1, 6],
+    "source_range": "0..node_count-1",
+    "present_edge_cost_range": [0, 31],
+    "missing_edge_sentinel": 9999,
+    "exact_length": "2 + node_count*node_count",
+    "maximum_valid_input_length": 38,
+    "maximum_parseable_input_length": 39,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Weighted sum of reachable shortest distances plus the reachable-vertex bit mask.",
+    "invalid_result": -1,
+    "queue_limit_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "single_node_source", "input_values": [1, 0, 9999], "expected_result": 1},
+    {"id": "three_node_shortest_paths", "input_values": [3, 0, 9999, 4, 10, 9999, 9999, 2, 9999, 9999, 9999], "expected_result": 33},
+    {"id": "fifo_relaxation_requeues_node", "input_values": [3, 0, 9999, 1, 5, 9999, 9999, 9999, 1, 9999, 9999], "expected_result": 15},
+    {"id": "zero_weight_cycle", "input_values": [3, 0, 9999, 0, 9999, 0, 0, 9999, 0, 9999, 0], "expected_result": 7},
+    {"id": "unreachable_vertex", "input_values": [4, 0, 9999, 3, 9999, 9999, 9999, 9999, 2, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999], "expected_result": 28},
+    {"id": "zero_source_with_no_edges", "input_values": [2, 0, 9999, 9999, 9999, 9999], "expected_result": 1},
+    {"id": "invalid_node_count", "input_values": [0, 0], "expected_result": -1},
+    {"id": "invalid_source", "input_values": [2, 2, 9999, 9999, 9999, 9999], "expected_result": -1},
+    {"id": "missing_matrix_cell", "input_values": [2, 0, 9999], "expected_result": -1},
+    {"id": "extra_matrix_cell", "input_values": [1, 0, 9999, 9999], "expected_result": -1},
+    {"id": "negative_edge_cost", "input_values": [1, 0, -1], "expected_result": -1},
+    {"id": "edge_cost_above_bound", "input_values": [1, 0, 32], "expected_result": -1}
+  ]
+}

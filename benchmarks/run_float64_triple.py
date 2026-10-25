@@ -20,8 +20,9 @@ from standard_score_oracle import INVALID_RESULT as STANDARD_SCORE_INVALID_RESUL
 from standard_score_oracle import expected_result as standard_score_expected
 from dual_number_automatic_differentiation_oracle import INVALID_RESULT as DUAL_NUMBER_AD_INVALID_RESULT
 from dual_number_automatic_differentiation_oracle import expected_result as dual_number_ad_expected
+from improved_perlin_noise_3d_oracle import expected_result as improved_perlin_noise_3d_expected
 
-SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "golden_search_extrema", "annuity_due_future_value", "ordinary_annuity_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "coordinate_converter", "rectangular_to_polar", "ohms_law", "first_law_of_thermodynamics", "length_conversion", "weight_conversion", "weight", "prefix_conversions", "time_conversions", "mirror_formulae", "simple_interest", "temperature", "line_length", "energy_conversions", "binomial_dist", "orbital_capture_radii", "standard_score", "dual_number_automatic_differentiation"}
+SUPPORTED_ALGORITHMS = {"lerp", "arc_length", "bayes_theorem", "affine_converter", "brent_method_extrema", "golden_search_extrema", "annuity_due_future_value", "ordinary_annuity_future_value", "count_numbers_divisible", "sum_of_geometric_progression", "sum_of_harmonic_series", "equated_monthly_installments", "pressure", "order_of_magnitude_conversion", "pressure_conversions", "addition_rule", "electric_power", "cartesian_to_polar", "coordinate_converter", "rectangular_to_polar", "ohms_law", "first_law_of_thermodynamics", "length_conversion", "weight_conversion", "weight", "prefix_conversions", "time_conversions", "mirror_formulae", "simple_interest", "temperature", "line_length", "energy_conversions", "binomial_dist", "orbital_capture_radii", "standard_score", "dual_number_automatic_differentiation", "improved_perlin_noise_3d"}
 ENERGY_CONVERSION_FACTORS = (1.0, 1000.0, 1000000.0, 1000000000.0, 1.0,
                              3600.0, 3600000.0, 1.0, 4186.8, 4186800.0,
                              1.602176634e-19, 1055.05585, 1.355818)
@@ -533,6 +534,15 @@ def encode_case(case: dict, tolerance: float, algorithm: str = "lerp") -> tuple[
         elif expected == DUAL_NUMBER_AD_INVALID_RESULT or abs(expected - source_result) > tolerance * max(
                 1.0, abs(start), abs(end)):
             raise ValueError("dual-number expected result must match the bounded power derivative")
+    elif algorithm == "improved_perlin_noise_3d":
+        source_result = improved_perlin_noise_3d_expected([start, end, t])
+        if (not -1_000_000.0 <= start <= 1_000_000.0
+                or not -1_000_000.0 <= end <= 1_000_000.0
+                or not -1_000_000.0 <= t <= 1_000_000.0):
+            if expected != -1.0:
+                raise ValueError("invalid improved_perlin_noise_3d inputs must use the -1 result sentinel")
+        elif abs(expected - source_result) > tolerance * max(1.0, abs(start), abs(end), abs(t)):
+            raise ValueError("improved_perlin_noise_3d expected result must match the pinned gradient-noise kernel")
     else:
         raise ValueError(f"unsupported float64_triple algorithm: {algorithm}")
     if not math.isfinite(tolerance) or tolerance <= 0.0:

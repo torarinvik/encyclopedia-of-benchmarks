@@ -1,0 +1,91 @@
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+extern sqrt(value: f64) -> f64
+
+const REQUIRED_BYTES: usize = 24
+const NEWTON_EPSILON: f64 = 5.0e-6
+const MAX_NEWTON_ITERATIONS: usize = 40
+
+def absolute_value(value: f64) -> f64:
+    if value < 0.0: return -value
+    value
+
+def horner_value_and_derivative(coefficients: f64&, degree: usize, x: f64, derivative: mutable f64&) -> f64:
+    value: mutable f64 = coefficients[degree]
+    slope: mutable f64 = value
+    j: mutable usize = degree
+    while j > 1:
+        j <- j - 1
+        value <- x * value + coefficients[j]
+        slope <- x * slope + value
+    value <- x * value + coefficients[0]
+    derivative <- slope
+    value
+
+def newton_root(coefficients: f64&, degree: usize, lower_bound: f64, upper_bound: f64) -> f64:
+    lower: mutable f64 = lower_bound
+    upper: mutable f64 = upper_bound
+    if upper < lower:
+        temporary: f64 = lower
+        lower <- upper
+        upper <- temporary
+    previous: mutable f64 = lower
+    current: mutable f64 = (lower + upper) / 2.0
+    iterations: mutable usize = 0
+    while absolute_value(current - previous) / absolute_value(current) > NEWTON_EPSILON and iterations <= MAX_NEWTON_ITERATIONS:
+        previous <- current
+        derivative: mutable f64 = 0.0
+        value: f64 = horner_value_and_derivative(coefficients, degree, current, &derivative)
+        current <- current - value / derivative
+        iterations <- iterations + 1
+    current
+
+def store_f64_le(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    i: mutable usize = 0
+    while i < 8:
+        output[offset + i] <- (bits & 255).u8()
+        bits <- bits >> 8
+        i <- i + 1
+
+def solve(output: mutable u8&) -> void:
+    original: f64[4] = [4.0, -4.0, -1.0, 1.0]
+    coefficients: f64[4] = [4.0, -4.0, -1.0, 1.0]
+    upper: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < 4:
+        upper <- upper + absolute_value(coefficients[i])
+        i <- i + 1
+    upper <- upper / absolute_value(coefficients[3])
+    lower: f64 = -upper - 1.0
+
+    first_root: f64 = newton_root(&coefficients[0], 3, lower, upper)
+    deflated: mutable f64[3] = zeroed
+    deflated[2] <- coefficients[3]
+    i <- 2
+    while i > 0:
+        i <- i - 1
+        deflated[i] <- deflated[i + 1] * first_root + coefficients[i + 1]
+
+    discriminant: f64 = deflated[1] * deflated[1] - 4.0 * deflated[2] * deflated[0]
+    plus_root: f64 = (-deflated[1] + sqrt(discriminant)) / (2.0 * deflated[2])
+    minus_root: f64 = (-deflated[1] - sqrt(discriminant)) / (2.0 * deflated[2])
+    refined_plus: f64 = newton_root(&original[0], 3, plus_root - 0.5, plus_root + 0.5)
+    refined_minus: f64 = newton_root(&original[0], 3, minus_root - 0.5, minus_root + 0.5)
+    store_f64_le(output, 0, first_root)
+    store_f64_le(output, 8, refined_plus)
+    store_f64_le(output, 16, refined_minus)
+
+def prolangs_c_allroots_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length != 4: return -1
+    if values[0] != 4 or values[1] != -4 or values[2] != -1 or values[3] != 1: return -1
+    if output.is_null() or capacity < REQUIRED_BYTES: return -2
+    staged: mutable u8[REQUIRED_BYTES] = zeroed
+    solve(staged)
+    i: mutable usize = 0
+    while i < REQUIRED_BYTES:
+        output[i] <- staged[i]
+        i <- i + 1
+    REQUIRED_BYTES.i64()
+
+export fn prolangs_c_allroots(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = prolangs_c_allroots_impl

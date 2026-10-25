@@ -7,6 +7,12 @@ Pinned source implementations:
 - Java: [TheAlgorithms/Java `MatrixMultiplication.java`](https://github.com/TheAlgorithms/Java/blob/e43ec3897e48f23843972d02cd05a5bb1b6864a2/src/main/java/com/thealgorithms/matrix/MatrixMultiplication.java)
 - JavaScript: [TheAlgorithms/JavaScript `MatrixMultiplication.js`](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/Maths/MatrixMultiplication.js)
 - TypeScript: [TheAlgorithms/TypeScript `matrix_multiplication.ts`](https://github.com/TheAlgorithms/TypeScript/blob/19b4ced86c99815f142d4a46a028f55487b8038a/maths/matrix_multiplication.ts)
+- lac-dcc/Benchmarks Shootout: [`matrix.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Shootout/matrix/matrix.c)
+- lac-dcc/Benchmarks Stanford integer kernel: [`IntMM.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/IntMM/IntMM.c)
+- lac-dcc/Benchmarks Stanford binary32 kernel: [`FloatMM.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/FloatMM/FloatMM.c)
+- lac-dcc/Benchmarks Stanford double kernel: [`RealMM.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/RealMM/RealMM.c)
+
+These four sources use the same classical row-by-column matrix multiplication loop. Their fixed dimensions, numeric types, generated inputs, repeated passes, and printed subsets are source-profile details; they do not add a distinct multiplication algorithm.
 
 ## Contract
 

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-richards-benchmark-small-profile-i64-array-scalar-v1",
+  "algorithm": "richards_benchmark",
+  "function_symbol": "richards_benchmark",
+  "description": "Bounded Richards priority-linked packet task scheduler using the pinned small-problem iteration count.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["Misc/richards_benchmark/richards_benchmark.c", "Misc/richards_benchmark/info.sh"],
+    "symbols": ["createtask", "schedule", "Wait", "holdself", "release", "qpkt", "idlefn", "workfn", "handlerfn", "devfn"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/richards_benchmark",
+    "license_note": "The pinned C file and package launcher contain no license declaration. No upstream license is inferred; the nine ports and oracle are clean-room implementations of the observed behavior."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/richards_benchmark/info.sh",
+    "bench_name": "richards_benchmark",
+    "source_files": ["richards_benchmark.c"],
+    "compile_flags": ["-lm"],
+    "run_options": []
+  },
+  "contract": {
+    "input_layout": "[idle_count]",
+    "bounded_profile": "idle_count is from 1 through 1,000,000, matching the pinned SMALL_PROBLEM_SIZE iteration count at the upper endpoint.",
+    "tasks": "Six source tasks are created in idle, worker, handler-A, handler-B, device-A, device-B order, with source priorities 0, 1000, 2000, 3000, 4000, and 5000. The prepended task list therefore schedules device-B through idle.",
+    "scheduler": "Preserve the source's 3-bit RUN/RUNPKT/WAIT/WAITPKT/HOLD combinations, FIFO linked packet queues, priority preemption only on first enqueue to an empty task queue, and source-order destination handoff.",
+    "packets": "Two work packets and three device packets per handler are initialized in source allocation and linking order; worker character payloads cycle through A..Z.",
+    "observable_result": "qpkt_count * 2^31 + hold_count. Each source counter is a nonnegative signed-int value, so this packing preserves both values.",
+    "invalid_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[idle_count]",
+    "idle_count_range": [1, 1000000],
+    "exact_length": 1,
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Lossless packing of the source's nonnegative 32-bit queue-packet and hold counters: qpkt_count*2^31 + hold_count.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "pinned_small_problem_size", "input_values": [1000000], "expected_result": 4995882337317627},
+    {"id": "zero_iterations_rejected", "input_values": [0], "expected_result": -1},
+    {"id": "iteration_bound_exceeded", "input_values": [1000001], "expected_result": -1},
+    {"id": "missing_iteration_count", "input_values": [], "expected_result": -1},
+    {"id": "extra_input_value", "input_values": [1, 2], "expected_result": -1}
+  ]
+}

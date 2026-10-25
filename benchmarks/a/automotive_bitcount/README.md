@@ -28,6 +28,11 @@ The independent oracle in
 [`benchmarks/automotive_bitcount_oracle.py`](../../automotive_bitcount_oracle.py)
 computes each algorithm total and the same weighted checksum.
 
+The cBench `automotive_bitcount` copy uses the same seven counting algorithms
+with a different deterministic input stream and outer repeat count. It is
+cross-referenced here as a workload variant rather than kept as a duplicate
+algorithm package.
+
 ## Implementations
 
 | Language | Source |

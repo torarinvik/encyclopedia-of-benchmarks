@@ -8,6 +8,10 @@ The Java source exposes both a `String` overload using the platform's default by
 
 The pinned C `hash_crc32` source uses the same reflected IEEE CRC-32 recurrence, but accepts a NUL-terminated string rather than an explicit byte array. It aliases this benchmark only for empty or NUL-free ASCII input (bytes 1–127); embedded NUL bytes terminate its scan, and its API has no explicit length or invalid-input sentinel. The benchmark retains the broader 0–255 byte-array domain.
 
+The pinned MiBench `crc32buf` kernel also computes this reflected IEEE CRC-32 value, using a 256-entry lookup table rather than the benchmark's bit-at-a-time recurrence. Its table is an implementation optimization of the same algorithm, so the MiBench source maps to this package rather than a second benchmark. The MiBench launcher adds file input and report formatting; its pinned source is [`crc_32.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-CRC32/crc_32.c).
+
+The cBench `telecom_CRC32` copy uses the same `crc_32.c` implementation and reflected IEEE table recurrence. Its no-argument dataset wrapper is another launcher profile, so it maps here instead of adding another CRC-32 package. See the pinned [cBench source](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/telecom_CRC32/src/crc_32.c).
+
 All nine ports compute the same checksum over the byte-array contract:
 
 | Language | Port |

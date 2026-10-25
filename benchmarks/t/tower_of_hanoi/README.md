@@ -23,3 +23,7 @@ Build with the i64_array_bytes_output ABI family. benchmarks/run_i64_array_bytes
 
 - [Rust `hanoi.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/general/hanoi.rs)
 - [Julia `hanoi.jl`](https://github.com/TheAlgorithms/Julia/blob/384424b762bbb40d43f31001beeca0c6ffda2f1f/src/basic/hanoi.jl)
+- [lac-dcc/Benchmarks Stanford `Towers.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Towers/Towers.c)
+- [lac-dcc/Benchmarks Stanford `Towers/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Stanford/Towers/info.sh)
+
+The Stanford Towers workload uses the same three-peg recursive move recurrence, with a 14-disk source profile and a count-only result. Those profile and output differences do not require a second Tower of Hanoi benchmark.

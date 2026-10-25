@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mibench-automotive-susan-smoothing-i64-array-bytes-output-v1",
+  "algorithm": "mibench_automotive_susan",
+  "function_symbol": "mibench_automotive_susan",
+  "description": "MiBench automotive-susan launcher profile: SUSAN smoothing on one bounded grayscale image.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/automotive-susan/susan.c",
+    "symbol": "susan_smoothing",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/automotive-susan/susan.c",
+    "rights": "Crown Copyright (1995-1999), Stephen Smith SUSAN v2l. Research purposes only; not for sale; do not pass on without the complete source header retained. Full notice appears in every port and README. No separate license file is present in the pinned source directory."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/automotive-susan/info.sh",
+    "bench_name": "automotive-susan",
+    "source_files": ["susan.c"],
+    "compile_flags": ["-lm"],
+    "run_options": ["input_large.pgm", "Output/output_large.smoothing.pgm", "-s"]
+  },
+  "contract": {
+    "operation": "Run SUSAN v2l smoothing mode using launcher defaults: brightness threshold 20, distance threshold 4.0, and a 15-by-15 Gaussian spatial mask.",
+    "input_layout": "[side, row-major grayscale pixels...]",
+    "side_range": [15, 16],
+    "maximum_valid_input_length": 257,
+    "maximum_parseable_input_length": 258,
+    "pixel_range": [0, 255],
+    "brightness_weight": "Truncate 100*exp(-((difference/20)^2)) to an unsigned byte after the source's binary32 intermediate rounding.",
+    "spatial_weight": "Truncate 100*exp(-((dx*dx+dy*dy)/16)) to an unsigned byte over dx,dy in [-7,7].",
+    "border": "Mirror the edge sample with repetition, matching SUSAN's enlarged image: index -1 maps to 0 and side maps to side-1.",
+    "output_encoding": "Raw row-major grayscale bytes, one output pixel per input pixel.",
+    "success_result": "Number of output bytes, exactly side*side.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed framing, unsupported dimensions, or non-byte pixels return -1 before output checks. Null output or insufficient byte capacity returns -2 without writes.",
+    "rights_restrictions": "Research purposes only; must not be sold; preserve the full upstream header in every distributed port."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[side, row-major grayscale pixels...]",
+    "side_range": [15, 16],
+    "pixel_range": [0, 255],
+    "maximum_valid_length": 257,
+    "maximum_parseable_length": 258,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "raw row-major 8-bit grayscale image",
+    "maximum_bytes": 256,
+    "capacity_unit": "bytes",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Maximum 16-by-16 grayscale output plane."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "all_zero_minimum_image",
+      "input_values": [
+        15,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 226,
+      "output_capacity": 256,
+      "expected_result": 225,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "invalid_too_small_side",
+      "input_values": [14],
+      "input_length": 1,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_frame",
+      "input_values": [15, 0],
+      "input_length": 2,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 256,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -27,8 +27,6 @@ from coremark_crc_oracle import expected_result as coremark_crc_expected
 from netbench_crc_oracle import INVALID_RESULT as NETBENCH_CRC_INVALID_RESULT
 from netbench_crc_oracle import MAX_LENGTH as NETBENCH_CRC_MAX_LENGTH
 from netbench_crc_oracle import expected_result as netbench_crc_expected
-from mibench_telecomm_crc32_oracle import MAX_LENGTH as MIBENCH_TELECOMM_CRC32_MAX_LENGTH
-from mibench_telecomm_crc32_oracle import mibench_telecomm_crc32 as mibench_telecomm_crc32_expected
 from trimaran_netbench_url_internet_checksum_oracle import (
     MAX_INPUT_LENGTH as TRIMARAN_NETBENCH_URL_CHECKSUM_MAX_INPUT_LENGTH,
     expected_result as trimaran_netbench_url_internet_checksum_expected,
@@ -37,6 +35,27 @@ from drop3_oracle import INVALID_RESULT as DROP3_INVALID_RESULT
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected
 from olden_perimeter_oracle import expected_result as olden_perimeter_expected
+from olden_power_oracle import MAX_INPUT_LENGTH as OLDEN_POWER_MAX_INPUT_LENGTH
+from olden_power_oracle import expected_result as olden_power_expected
+from olden_health_oracle import MAX_LEVEL as OLDEN_HEALTH_MAX_LEVEL
+from olden_health_oracle import MAX_TICKS as OLDEN_HEALTH_MAX_TICKS
+from olden_health_oracle import SOURCE_SEED as OLDEN_HEALTH_SOURCE_SEED
+from olden_health_oracle import expected_result as olden_health_expected
+from olden_tsp_oracle import ALLOWED_CITIES as OLDEN_TSP_ALLOWED_CITIES
+from olden_tsp_oracle import MAX_INPUT_LENGTH as OLDEN_TSP_MAX_INPUT_LENGTH
+from olden_tsp_oracle import expected_result as olden_tsp_expected
+from olden_voronoi_oracle import MAX_INPUT_LENGTH as OLDEN_VORONOI_MAX_INPUT_LENGTH
+from olden_voronoi_oracle import expected_result as olden_voronoi_expected
+from richards_benchmark_oracle import MAX_INPUT_LENGTH as RICHARDS_BENCHMARK_MAX_INPUT_LENGTH
+from richards_benchmark_oracle import MAX_ITERATIONS as RICHARDS_BENCHMARK_MAX_ITERATIONS
+from richards_benchmark_oracle import expected_result as richards_benchmark_expected
+from mibench_network_dijkstra_oracle import MAX_INPUT_LENGTH as MIBENCH_NETWORK_DIJKSTRA_MAX_INPUT_LENGTH
+from mibench_network_dijkstra_oracle import MAX_PARSEABLE_INPUT_LENGTH as MIBENCH_NETWORK_DIJKSTRA_MAX_PARSEABLE_INPUT_LENGTH
+from mibench_network_dijkstra_oracle import MAX_NODES as MIBENCH_NETWORK_DIJKSTRA_MAX_NODES
+from mibench_network_dijkstra_oracle import MAX_EDGE_COST as MIBENCH_NETWORK_DIJKSTRA_MAX_EDGE_COST
+from mibench_network_dijkstra_oracle import NONE as MIBENCH_NETWORK_DIJKSTRA_NONE
+from mibench_network_dijkstra_oracle import MAX_QUEUE_ITEMS as MIBENCH_NETWORK_DIJKSTRA_MAX_QUEUE_ITEMS
+from mibench_network_dijkstra_oracle import expected_result as mibench_network_dijkstra_expected
 from mcgill_exptree_oracle import expected_result as mcgill_exptree_expected
 from five11_oracle import INVALID_RESULT as FIVE11_INVALID_RESULT
 from five11_oracle import MAX_PACKETS as FIVE11_MAX_PACKETS
@@ -6126,9 +6145,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         TRIMARAN_NETBENCH_URL_CHECKSUM_MAX_INPUT_LENGTH + 1
                         if algorithm == "trimaran_netbench_url_internet_checksum" else
                         7 if algorithm == "mcgill_exptree" else
+                        3 if algorithm == "olden_power" else
+                        4 if algorithm == "olden_health" else
+                        OLDEN_TSP_MAX_INPUT_LENGTH + 1 if algorithm == "olden_tsp" else
+                        OLDEN_VORONOI_MAX_INPUT_LENGTH + 1 if algorithm == "olden_voronoi" else
+                        RICHARDS_BENCHMARK_MAX_INPUT_LENGTH if algorithm == "richards_benchmark" else
+                        MIBENCH_NETWORK_DIJKSTRA_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "mibench_network_dijkstra" else
                         2 if algorithm == "olden_perimeter" else
-                        MIBENCH_TELECOMM_CRC32_MAX_LENGTH
-                        if algorithm == "mibench_telecomm_crc32" else
                         DROP3_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "drop3" else
                         FIVE11_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "five11" else
                         FANNKUCH_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "fannkuch" else
@@ -6682,10 +6706,6 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = netbench_crc_expected(values)
         if expected != expected_from_source:
             raise ValueError("netbench_crc expected_result must match the pinned low-32-bit update_crc result")
-    elif algorithm == "mibench_telecomm_crc32":
-        expected_from_source = mibench_telecomm_crc32_expected(values)
-        if expected != expected_from_source:
-            raise ValueError("mibench_telecomm_crc32 expected_result must match the bounded IEEE CRC-32 byte update")
     elif algorithm == "trimaran_netbench_url_internet_checksum":
         expected_from_source = trimaran_netbench_url_internet_checksum_expected(values)
         if expected != expected_from_source:
@@ -6698,6 +6718,30 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = mcgill_exptree_expected(values)
         if expected != expected_from_source:
             raise ValueError("mcgill_exptree expected_result must match the bounded McGill search")
+    elif algorithm == "olden_power":
+        expected_from_source = olden_power_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("olden_power expected_result must match the bounded source recurrence and final-state projection")
+    elif algorithm == "olden_health":
+        expected_from_source = olden_health_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("olden_health expected_result must match the bounded source-ordered hospital simulation")
+    elif algorithm == "olden_tsp":
+        expected_from_source = olden_tsp_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("olden_tsp expected_result must match the bounded closest-insertion/Karp-merge tour")
+    elif algorithm == "olden_voronoi":
+        expected_from_source = olden_voronoi_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("olden_voronoi expected_result must match the bounded quad-edge Voronoi dual summary")
+    elif algorithm == "richards_benchmark":
+        expected_from_source = richards_benchmark_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("richards_benchmark expected_result must match the bounded source-order task scheduler")
+    elif algorithm == "mibench_network_dijkstra":
+        expected_from_source = mibench_network_dijkstra_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mibench_network_dijkstra expected_result must match FIFO label-correcting relaxation")
     elif algorithm == "msd_radix_string_sorter":
         source_result = msd_radix_string_sorter_expected(values)
         expected_from_source = (MSD_RADIX_STRING_SORTER_INVALID_RESULT
@@ -14751,109 +14795,6 @@ def validate_netbench_crc_workload(workload: dict) -> None:
             raise ValueError(f"netbench_crc fixture differs from its pinned bounded oracle: {case.get('id')}")
 
 
-def validate_mibench_telecomm_crc32_workload(workload: dict) -> None:
-    expected_ids = {
-        "empty", "single_zero", "single_max_byte", "ascii_123456789", "binary_mixed",
-        "repeat_a5", "bytes_0_through_31", "invalid_negative_byte", "invalid_byte_above_range",
-    }
-    expected_source = {
-        "repository": "lac-dcc/Benchmarks",
-        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
-        "path": "MiBench/telecomm-CRC32/crc_32.c",
-        "symbol": "crc32buf",
-        "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-CRC32/crc_32.c",
-        "license_note": "The bundled LICENSE states that the code is free with no restrictions. The source attributes the CRC-32 code to Gary S. Brown (1986); see NOTICE.txt.",
-    }
-    expected_launcher = {
-        "repository": "lac-dcc/Benchmarks",
-        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
-        "path": "MiBench/telecomm-CRC32/info.sh",
-        "bench_name": "telecomm-CRC32",
-        "source_files": ["crc_32.c"],
-        "compile_flags": ["-lm"],
-        "run_options": ["large.pcm"],
-    }
-    if (MIBENCH_TELECOMM_CRC32_MAX_LENGTH != 100_001
-            or set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
-                                "pinned_source", "pinned_launcher", "source_bound", "input",
-                                "output", "measurement", "cases"}
-            or workload.get("schema_version") != 1
-            or workload.get("id") != "lac-dcc-mibench-telecomm-crc32-bounded-v1"
-            or workload.get("algorithm") != "mibench_telecomm_crc32"
-            or workload.get("function_symbol") != "mibench_telecomm_crc32"
-            or workload.get("pinned_source") != expected_source
-            or workload.get("pinned_launcher") != expected_launcher
-            or workload.get("source_bound") != {
-                "default_input_file": "large.pcm",
-                "source_kernel": "crc32buf(char *buf, size_t len)",
-                "maximum_input_bytes": MIBENCH_TELECOMM_CRC32_MAX_LENGTH,
-                "table_entries": 256,
-                "polynomial_reflected": "0xEDB88320",
-                "initial_state": "0xFFFFFFFF",
-                "final_xor": "0xFFFFFFFF",
-                "profile_note": "The launcher reads a file of implementation-defined size; the suite uses a byte-array profile capped at 100001 bytes.",
-            }
-            or workload.get("input") != {
-                "kind": "array_of_unsigned_bytes",
-                "encoding": "mibench_telecomm_crc32_bytes",
-                "range": [0, 255],
-                "length_range": [0, MIBENCH_TELECOMM_CRC32_MAX_LENGTH],
-                "invalid_result": -1,
-                "input_mutation": "none",
-            }
-            or workload.get("output") != {
-                "kind": "signed_64_bit_scalar",
-                "encoding": "crc32_ieee_unsigned_value_i64",
-                "definition": "The reflected IEEE CRC-32 value, in the unsigned 32-bit range represented as a nonnegative signed 64-bit integer.",
-                "invalid_result": -1,
-            }
-            or workload.get("measurement") != {
-                "comparison_model": "i64_array_scalar_call",
-                "sample_count": 7,
-                "warmup_rounds": 1,
-                "repetitions_per_sample": 1000,
-            }):
-        raise ValueError("mibench_telecomm_crc32 metadata differs from its pinned bounded byte-array contract")
-
-    cases = workload.get("cases")
-    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
-                if isinstance(cases, list) else [])
-    if (not isinstance(cases, list)
-            or len(cases) != len(expected_ids)
-            or len(case_ids) != len(set(case_ids))
-            or set(case_ids) != expected_ids):
-        raise ValueError("mibench_telecomm_crc32 fixture IDs differ from the reviewed byte corpus")
-
-    package_dir = ROOT / "benchmarks" / "m" / "mibench_telecomm_crc32"
-    readme = (package_dir / "README.md").read_text(encoding="utf-8")
-    license_text = (package_dir / "LICENSE.txt").read_text(encoding="utf-8")
-    notice = (package_dir / "NOTICE.txt").read_text(encoding="utf-8")
-    if (expected_source["url"] not in readme
-            or "telecomm-CRC32/info.sh" not in readme
-            or "crc32buf" not in readme
-            or "large.pcm" not in readme
-            or "100,001 bytes" not in readme
-            or "workload.json" not in readme
-            or "LICENSE.txt" not in readme
-            or "NOTICE.txt" not in readme
-            or "free with no restrictions" not in readme
-            or license_text != "From http://www.snippets.org/.\n\nThis code is FREE with no restrictions.\n"
-            or "Copyright (C) 1986 Gary S. Brown." not in notice
-            or "without restriction" not in notice):
-        raise ValueError("mibench_telecomm_crc32 README or license attribution is incomplete")
-
-    for case in cases:
-        values = case.get("input_values")
-        if (not isinstance(values, list)
-                or set(case) != {"id", "input_values", "expected_result"}
-                or len(values) > MIBENCH_TELECOMM_CRC32_MAX_LENGTH
-                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
-                       for value in values)
-                or type(case.get("expected_result")) is not int
-                or case["expected_result"] != mibench_telecomm_crc32_expected(values)):
-            raise ValueError(f"mibench_telecomm_crc32 fixture differs from its pinned bounded oracle: {case.get('id')}")
-
-
 def validate_olden_perimeter_workload(workload: dict) -> None:
     pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
     expected_ids = {
@@ -14916,6 +14857,18 @@ def validate_mcgill_exptree_workload(workload: dict) -> None:
         "leaf_count_below_bound_invalid", "leaf_count_mismatch_invalid", "zero_leaf_invalid",
         "too_many_leaves_invalid", "out_of_profile_parse_length_invalid",
     }
+    expected_contract = {
+        "operation": "Use each supplied positive integer at most once in a bottom-up expression tree; combine unused work-list entries with addition, subtraction, multiplication, and exact integer division; return the closest value seen at each iterative-deepening limit.",
+        "input_layout": "[goal, leaf_count, leaf_0, ..., leaf_(leaf_count-1)]",
+        "leaf_count_range": [1, 4], "goal_range": [1, 1_000_000_000],
+        "leaf_value_range": [1, 100], "max_input_length": 6,
+        "operator_order": ["+", "-", "*", "/"],
+        "worklist_order": "First operand scans from index zero upward; second operand scans lower indices in ascending order. Used entries are skipped.",
+        "operation_rules": "Multiplication and division by one are skipped. Zero operands are skipped. Division is accepted only when the first scanned value is divisible by the second before the source's operand reordering; subtraction and division then order operands descending. Each search depth compares only its final newly generated value.",
+        "selection_rule": "The initial best value is zero; supplied leaves and later search candidates replace it only on a strictly smaller absolute distance to the goal. Search limits run from one through leaf_count-1 and stop at the first exact match.",
+        "bounded_portable_profile": "At most four leaves of at most 100 keep every intermediate within signed 32-bit range and the complete depth-first search bounded.",
+        "invalid_result": -1,
+    }
     if (workload.get("schema_version") != 1
             or workload.get("id") != "lac-dcc-mcgill-exptree-bounded-scalar-v1"
             or workload.get("algorithm") != "mcgill_exptree"
@@ -14931,6 +14884,7 @@ def validate_mcgill_exptree_workload(workload: dict) -> None:
                 "path": "McGill/exptree/info.sh", "bench_name": "exptree",
                 "source_files": ["exptree.c"], "compile_flags": ["-lm"], "run_options": [],
             }
+            or workload.get("contract") != expected_contract
             or workload.get("input") != {
                 "kind": "signed_i64_array", "encoding": "[goal, leaf_count, leaf_values...]",
                 "max_valid_length": 6, "max_parseable_length": 7, "invalid_result": -1,
@@ -14965,6 +14919,471 @@ def validate_mcgill_exptree_workload(workload: dict) -> None:
                 or type(case.get("expected_result")) is not int
                 or case["expected_result"] != mcgill_exptree_expected(values)):
             raise ValueError(f"mcgill_exptree fixture differs from its bounded oracle: {case.get('id')}")
+
+
+def validate_olden_power_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "one_leaf_zero_passes", "four_leaves_zero_passes", "zero_leaves",
+        "too_many_leaves", "negative_sweeps", "too_many_sweeps", "missing_field",
+        "extra_field", "signed_i64_minimum", "signed_i64_maximum",
+    }
+    cases = workload.get("cases")
+    case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-olden-power-bounded-compute-tree-v1"
+            or workload.get("algorithm") != "olden_power"
+            or workload.get("function_symbol") != "olden_power"
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["Olden/power/build.c", "Olden/power/compute.c", "Olden/power/power.h"],
+                "symbols": ["build_tree", "build_lateral", "build_branch", "build_leaf",
+                            "Compute_Tree", "Compute_Lateral", "Compute_Branch", "Compute_Leaf",
+                            "optimize_node"],
+                "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Olden/power",
+                "license_note": "The source refers to olden_v1.0/COPYRIGHT, which is absent from the pinned repository tree; no license is inferred. The ports are independently written from the documented data model and equations.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "Olden/power/info.sh", "bench_name": "power",
+                "source_files": ["build.c", "compute.c", "main.c"],
+                "compile_flags": ["-lm", "-DTORONTO"], "run_options": [],
+            }
+            or workload.get("contract") != {
+                "input_layout": "[leaf_count, compute_passes]",
+                "topology": "One feeder contains one lateral and one branch; leaf_count demand leaves hang from the branch.",
+                "tree_initialization": "Root theta is (0.8, 0.16). Each leaf starts with (P,Q)=(1,1). Branch constants are R=0.0001, X=0.00002; lateral constants are R=1/300000, X=0.000001. Alpha and beta start at zero.",
+                "compute_pass": "Run one source-ordered Compute_Tree sweep. Each visited leaf executes exactly the first body of optimize_node's do-while loop, then branch and lateral apply the pinned voltage-root and alpha/beta recurrences.",
+                "bounded_optimizer": "The source optimizer is iterative. This profile stops each optimize_node call after one body to bound the kernel while retaining the source's constraint projection, gradients, orthogonalization, and constrained-benefit update order.",
+                "work_count": "Increment once for each leaf optimizer body executed. The count is included as a final checksum offset.",
+                "result": "Sum fixed-point final state terms: for each leaf add round_half_up(1000*P)+2*round_half_up(1000*Q), then add the same weighted terms for branch alpha/beta and lateral alpha/beta; add the leaf optimizer-body count. round_half_up(x) is floor(x+0.5).",
+                "bounds": "1..4 leaves and 0..4 Compute_Tree sweeps; this bounds the tree to one branch with at most four leaf nodes and the work count to 16.",
+                "invalid_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "encoding": "[leaf_count, compute_passes]",
+                "leaf_count_range": [1, 4], "compute_passes_range": [0, 4],
+                "exact_length": 2, "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Fixed-point projection of the completed bounded leaf, branch, and lateral state, offset by the exact number of leaf optimizer bodies executed.",
+                "valid_result_range": [0, 9223372036854775807], "fixed_point_scale": 1000,
+                "rounding": "floor(scaled_value + 0.5)", "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or OLDEN_POWER_MAX_INPUT_LENGTH != 2
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(case_ids) != len(expected_ids) or case_ids != expected_ids):
+        raise ValueError("olden_power metadata or fixture IDs differ from the bounded source contract")
+    readme = (ROOT / "benchmarks" / "o" / "olden_power" / "README.md").read_text(encoding="utf-8")
+    if (f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Olden/power" not in readme
+            or "no license is inferred" not in readme
+            or "final state" not in readme
+            or "count" not in readme):
+        raise ValueError("olden_power README is missing provenance or observable-result notes")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > 3
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != olden_power_expected(values)):
+            raise ValueError(f"olden_power fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_olden_health_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": ["Olden/health/args.c", "Olden/health/health.c", "Olden/health/health.h",
+                  "Olden/health/list.c", "Olden/health/poisson.c"],
+        "symbols": ["alloc_tree", "sim", "put_in_hosp", "check_patients_inside",
+                    "check_patients_assess", "check_patients_waiting", "generate_patient",
+                    "get_results", "my_rand"],
+        "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Olden/health",
+        "license_note": "The source refers to olden_v1.0/COPYRIGHT, which is absent from the pinned repository tree. No upstream license is inferred; these ports were independently written from the observed simulation rules.",
+    }
+    launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "path": "Olden/health/info.sh", "bench_name": "health",
+        "source_files": ["args.c", "health.c", "list.c", "poisson.c"],
+        "compile_flags": ["-lm", "-DTORONTO"],
+        "small_run_options": ["8", "15", "1"], "default_run_options": ["10", "40", "1"],
+    }
+    expected_contract = {
+        "input_layout": "[max_level, max_time, seed]",
+        "bounded_profile": "max_level 1..4, max_time 0..40, seed fixed to 1; the level cap bounds the four-way tree to at most 85 villages and patient creation to at most 3,400 records.",
+        "tree": "Each village has four children, numbered label*4+1 through label*4+4, and hospital personnel equal 2^(level-1). Villages process in recursive postorder with child order 3,2,1,0.",
+        "simulation_tick": "A village first admits child referrals in reverse child order, then decrements its inside and assessment queues, promotes waiting patients while personnel are free, and finally generates at most one new patient.",
+        "hospital_rules": "Admission increments hospital visits. Immediate assessment takes 3 time units; successful assessment takes 10 additional units inside; an unsuccessful assessment releases staff and refers the patient to the parent. Waiting time increments by one per tick.",
+        "randomness": "The source Park-Miller recurrence, XOR mask, float32 random value, float32 seed update, and strict generation (>0.666) and referral (>0.1) thresholds are retained. The seed input is fixed to the launcher's value 1.",
+        "result": "Number of patients discharged from an inside queue during the requested ticks. The upstream prints patient totals and averages; the scalar contract selects its reported treated-patient total.",
+        "invalid_result": -1,
+    }
+    expected_ids = {
+        "maximum_tree_zero_ticks", "single_village_thirteen_ticks",
+        "maximum_tree_before_first_possible_discharge", "zero_level", "level_over_bound",
+        "negative_ticks", "ticks_over_bound", "unsupported_seed", "missing_field",
+        "extra_field", "signed_i64_minimum", "signed_i64_maximum",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-olden-health-bounded-hospital-tree-v1"
+            or workload.get("algorithm") != "olden_health"
+            or workload.get("function_symbol") != "olden_health"
+            or workload.get("description") != "Bounded deterministic Olden health-system simulation over a four-way village tree and FIFO hospital queues."
+            or workload.get("pinned_source") != source
+            or workload.get("pinned_launcher") != launcher
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "encoding": "[max_level, max_time, seed]",
+                "exact_length": 3, "max_level_range": [1, OLDEN_HEALTH_MAX_LEVEL],
+                "max_time_range": [0, OLDEN_HEALTH_MAX_TICKS], "seed": OLDEN_HEALTH_SOURCE_SEED,
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Number of patients discharged by the bounded village and hospital simulation.",
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("olden_health metadata or fixture IDs differ from its bounded source contract")
+    readme = (ROOT / "benchmarks" / "o" / "olden_health" / "README.md").read_text(encoding="utf-8")
+    if (pinned not in readme or "Olden/health/args.c" not in readme
+            or "no license is inferred" not in readme
+            or "Park-Miller" not in readme or "1 through 4" not in readme):
+        raise ValueError("olden_health README is missing provenance or numeric-contract notes")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > 4
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != olden_health_expected(values)):
+            raise ValueError(f"olden_health fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_olden_tsp_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": ["Olden/tsp/args.c", "Olden/tsp/build.c", "Olden/tsp/main.c",
+                  "Olden/tsp/tsp.c", "Olden/tsp/tsp.h"],
+        "symbols": ["build_tree", "makelist", "conquer", "tsp", "merge"],
+        "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Olden/tsp",
+        "license_note": "The source refers to olden_v1.0/COPYRIGHT, absent from the pinned repository snapshot; no license is inferred. Ports are independently written from the documented model and algorithm.",
+    }
+    launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "path": "Olden/tsp/info.sh", "bench_name": "tsp",
+        "source_files": ["args.c", "build.c", "main.c", "tsp.c"],
+        "compile_flags": ["-lm", "-DTORONTO"], "run_options": ["102400"],
+    }
+    expected_contract = {
+        "input_layout": "[city_count, x0, y0, ..., x(n-1), y(n-1)]",
+        "allowed_city_counts": list(OLDEN_TSP_ALLOWED_CITIES),
+        "tree_topology": "Complete binary heap over point indices: root 0, children 1 and 2, then children 3 through 6 when city_count is 7.",
+        "tree_order": "The conquer leaves are flattened in the source makelist order: recursive left subtree, recursive right subtree, then subtree root.",
+        "conquer": "For each leaf of at most three points, create a cycle from the first list point. Insert each later point at its closest cycle vertex and on the adjacent side selected by the source edge-length-change comparison.",
+        "merge": "When a subtree exceeds three points, solve its left and right children recursively and insert the subtree root into both cycles by the source Karp four-choice merge, preserving strict comparison tie order and reversals.",
+        "result": "Closed cycle Euclidean length rounded to the nearest thousandth with floor(length*1000+0.5).",
+        "coordinate_range": [-8, 8], "invalid_result": -1,
+    }
+    expected_ids = {
+        "three_point_conquer_leaf", "seven_point_karp_merge_all_coincident",
+        "unsupported_city_count", "zero_cities", "coordinate_out_of_range",
+        "missing_coordinate", "extra_coordinate", "signed_i64_minimum",
+        "signed_i64_maximum_coordinate",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-olden-tsp-conquer-karp-merge-v1"
+            or workload.get("algorithm") != "olden_tsp"
+            or workload.get("function_symbol") != "olden_tsp"
+            or workload.get("description") != "Bounded Olden closest-point insertion and Karp cycle-merge TSP kernel on deterministic heap-shaped trees."
+            or workload.get("pinned_source") != source
+            or workload.get("pinned_launcher") != launcher
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "encoding": "[city_count, x0, y0, ..., x(n-1), y(n-1)]",
+                "city_count_range": [3, 7], "city_counts": list(OLDEN_TSP_ALLOWED_CITIES),
+                "coordinate_range": [-8, 8], "exact_length": "1 + 2*city_count",
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Closed-tour Euclidean length in thousandths, rounded with floor(x+0.5).",
+                "valid_result_range": [0, 200000], "scale": 1000, "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or OLDEN_TSP_MAX_INPUT_LENGTH != 15
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("olden_tsp metadata or fixture IDs differ from its bounded source contract")
+    readme = (ROOT / "benchmarks" / "o" / "olden_tsp" / "README.md").read_text(encoding="utf-8")
+    if (source["url"] not in readme or "no upstream license is inferred" not in readme
+            or "closest-point insertion" not in readme or "Karp merge" not in readme):
+        raise ValueError("olden_tsp README is missing provenance or algorithm notes")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > OLDEN_TSP_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != olden_tsp_expected(values)):
+            raise ValueError(f"olden_tsp fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_olden_voronoi_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": ["Olden/voronoi/args.c", "Olden/voronoi/newvor.c", "Olden/voronoi/output.c",
+                  "Olden/voronoi/vector.c", "Olden/voronoi/defines.h"],
+        "symbols": ["build_delaunay_triangulation", "build_delaunay", "do_merge", "makeedge",
+                    "splice", "swapedge", "circle_center", "output_voronoi_diagram"],
+        "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Olden/voronoi",
+        "license_note": "The source refers to olden_v1.0/COPYRIGHT, absent from the pinned repository snapshot; no license is inferred. Ports are independently written from the documented structures and algorithm.",
+    }
+    launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "path": "Olden/voronoi/info.sh", "bench_name": "voronoi",
+        "source_files": ["args.c", "newvor.c", "output.c", "vector.c"],
+        "compile_flags": ["-lm", "-DTORONTO"], "run_options": ["10000", "20", "32", "7"],
+    }
+    contract = {
+        "input_layout": "[point_count, x0, y0, ..., x(n-1), y(n-1)]",
+        "allowed_point_counts": [3, 5],
+        "point_order": "Strictly ascending x order; for five points the deterministic tree has root point 2, left subtree rooted at 1 with left point 0, right child 3, and extra point 4.",
+        "algorithm": "Use the source quad-edge structures and predicates. Three points take the source triangle base case. Five points recursively build a left three-point triangulation and right two-point edge, then merge with the source divide-and-conquer lower tangent and incircle edge-removal loop.",
+        "dual_projection": "For each finite Delaunay triangle, add floor(1000*center_x+0.5)+2*floor(1000*center_y+0.5); then add 100 per triangle, 10 per finite Voronoi edge, one per boundary ray, and one per Delaunay edge.",
+        "general_position": "Reject collinear point triples and, for five points, cocircular point quadruples.",
+        "invalid_result": -1,
+    }
+    expected_ids = {
+        "three_point_triangle_base_case", "five_point_quadedge_merge", "wrong_point_count",
+        "unsorted_x", "duplicate_x", "collinear_triple", "coordinate_out_of_range",
+        "missing_coordinate", "extra_coordinate",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-olden-voronoi-quadedge-bounded-v1"
+            or workload.get("algorithm") != "olden_voronoi"
+            or workload.get("function_symbol") != "olden_voronoi"
+            or workload.get("description") != "Bounded source quad-edge divide-and-conquer Delaunay triangulation with Voronoi-dual checksum."
+            or workload.get("pinned_source") != source
+            or workload.get("pinned_launcher") != launcher
+            or workload.get("contract") != contract
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "encoding": "[point_count, x0, y0, ..., x(n-1), y(n-1)]",
+                "point_counts": [3, 5], "coordinate_range": [-8, 8],
+                "strictly_increasing_x": True, "exact_length": "1 + 2*point_count",
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Fixed-point sum of finite Voronoi vertices and combinatorial dual counts.",
+                "scale": 1000, "rounding": "floor(scaled_value+0.5)", "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or OLDEN_VORONOI_MAX_INPUT_LENGTH != 11
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("olden_voronoi metadata or fixture IDs differ from its bounded source contract")
+    readme = (ROOT / "benchmarks" / "o" / "olden_voronoi" / "README.md").read_text(encoding="utf-8")
+    if (source["url"] not in readme or "no upstream license is inferred" not in readme
+            or "quad-edge" not in readme or "Fortune" not in readme):
+        raise ValueError("olden_voronoi README is missing provenance or algorithm distinction notes")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > OLDEN_VORONOI_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != olden_voronoi_expected(values)):
+            raise ValueError(f"olden_voronoi fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_mibench_network_dijkstra_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/MiBench/network-dijkstra"
+    launcher_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/network-dijkstra/info.sh"
+    expected_ids = {
+        "single_node_source", "three_node_shortest_paths", "fifo_relaxation_requeues_node",
+        "zero_weight_cycle", "unreachable_vertex", "zero_source_with_no_edges",
+        "invalid_node_count", "invalid_source", "missing_matrix_cell", "extra_matrix_cell",
+        "negative_edge_cost", "edge_cost_above_bound",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": ["MiBench/network-dijkstra/dijkstra.c", "MiBench/network-dijkstra/LICENSE"],
+        "symbols": ["dijkstra", "enqueue", "dequeue", "qcount"],
+        "url": source_url,
+        "license_note": "The pinned LICENSE says the benchmark is GPL'ed but gives no version. The ports are independently written and do not copy the source file.",
+    }
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "path": "MiBench/network-dijkstra/info.sh", "bench_name": "network-dijkstra",
+        "source_files": ["dijkstra.c"], "compile_flags": ["-lm"], "run_options": ["input.dat"],
+    }
+    expected_contract = {
+        "input_layout": "[node_count, source, row_major_costs...]",
+        "node_count_range": [1, MIBENCH_NETWORK_DIJKSTRA_MAX_NODES],
+        "matrix": f"Directed row-major adjacency matrix; {MIBENCH_NETWORK_DIJKSTRA_NONE} means no edge. Each present edge cost is an integer from 0 through {MIBENCH_NETWORK_DIJKSTRA_MAX_EDGE_COST}.",
+        "queue_algorithm": "Initialize the source label to zero, pop FIFO queue entries carrying the distance observed when they were enqueued, scan each popped node's destinations in ascending index order, and enqueue every strict label improvement. Do not discard stale entries or select a global minimum tentative label.",
+        "observable_result": "Sum (node_index+1)*shortest_distance for reachable vertices, then add a bit mask with bit node_index set for every reachable vertex.",
+        "queue_capacity": MIBENCH_NETWORK_DIJKSTRA_MAX_QUEUE_ITEMS,
+        "invalid_result": -1,
+        "queue_limit_result": -2,
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "mibench-network-dijkstra-bounded-fifo-label-correcting-i64-v1"
+            or workload.get("algorithm") != "mibench_network_dijkstra"
+            or workload.get("function_symbol") != "mibench_network_dijkstra"
+            or workload.get("description") != "Bounded row-major MiBench FIFO label-correcting shortest paths with a reachable-distance checksum."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "encoding": "[node_count, source, n*n row-major costs]",
+                "node_count_range": [1, MIBENCH_NETWORK_DIJKSTRA_MAX_NODES],
+                "source_range": "0..node_count-1",
+                "present_edge_cost_range": [0, MIBENCH_NETWORK_DIJKSTRA_MAX_EDGE_COST],
+                "missing_edge_sentinel": MIBENCH_NETWORK_DIJKSTRA_NONE,
+                "exact_length": "2 + node_count*node_count",
+                "maximum_valid_input_length": MIBENCH_NETWORK_DIJKSTRA_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": MIBENCH_NETWORK_DIJKSTRA_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Weighted sum of reachable shortest distances plus the reachable-vertex bit mask.",
+                "invalid_result": -1,
+                "queue_limit_result": -2,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or MIBENCH_NETWORK_DIJKSTRA_MAX_INPUT_LENGTH != 38
+            or MIBENCH_NETWORK_DIJKSTRA_MAX_PARSEABLE_INPUT_LENGTH != 39
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("mibench_network_dijkstra metadata or fixture IDs differ from its bounded contract")
+    readme = (ROOT / "benchmarks" / "m" / "mibench_network_dijkstra" / "README.md").read_text(encoding="utf-8")
+    source_file_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/network-dijkstra/dijkstra.c"
+    if (source_file_url not in readme or launcher_url not in readme or "queue-based" not in readme
+            or "label-setting" not in readme or "GPL'ed" not in readme):
+        raise ValueError("mibench_network_dijkstra README is missing provenance, license, or algorithm notes")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > MIBENCH_NETWORK_DIJKSTRA_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != mibench_network_dijkstra_expected(values)):
+            raise ValueError(f"mibench_network_dijkstra fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_richards_benchmark_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Misc/richards_benchmark"
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": ["Misc/richards_benchmark/richards_benchmark.c", "Misc/richards_benchmark/info.sh"],
+        "symbols": ["createtask", "schedule", "Wait", "holdself", "release", "qpkt", "idlefn", "workfn", "handlerfn", "devfn"],
+        "url": source_url,
+        "license_note": "The pinned C file and package launcher contain no license declaration. No upstream license is inferred; the nine ports and oracle are clean-room implementations of the observed behavior.",
+    }
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "path": "Misc/richards_benchmark/info.sh", "bench_name": "richards_benchmark",
+        "source_files": ["richards_benchmark.c"], "compile_flags": ["-lm"], "run_options": [],
+    }
+    expected_contract = {
+        "input_layout": "[idle_count]",
+        "bounded_profile": "idle_count is from 1 through 1,000,000, matching the pinned SMALL_PROBLEM_SIZE iteration count at the upper endpoint.",
+        "tasks": "Six source tasks are created in idle, worker, handler-A, handler-B, device-A, device-B order, with source priorities 0, 1000, 2000, 3000, 4000, and 5000. The prepended task list therefore schedules device-B through idle.",
+        "scheduler": "Preserve the source's 3-bit RUN/RUNPKT/WAIT/WAITPKT/HOLD combinations, FIFO linked packet queues, priority preemption only on first enqueue to an empty task queue, and source-order destination handoff.",
+        "packets": "Two work packets and three device packets per handler are initialized in source allocation and linking order; worker character payloads cycle through A..Z.",
+        "observable_result": "qpkt_count * 2^31 + hold_count. Each source counter is a nonnegative signed-int value, so this packing preserves both values.",
+        "invalid_result": -1,
+    }
+    expected_ids = {"pinned_small_problem_size", "zero_iterations_rejected", "iteration_bound_exceeded",
+                    "missing_iteration_count", "extra_input_value"}
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-richards-benchmark-small-profile-i64-array-scalar-v1"
+            or workload.get("algorithm") != "richards_benchmark"
+            or workload.get("function_symbol") != "richards_benchmark"
+            or workload.get("description") != "Bounded Richards priority-linked packet task scheduler using the pinned small-problem iteration count."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "encoding": "[idle_count]",
+                "idle_count_range": [1, RICHARDS_BENCHMARK_MAX_ITERATIONS],
+                "exact_length": 1, "maximum_valid_input_length": 1,
+                "maximum_parseable_input_length": RICHARDS_BENCHMARK_MAX_INPUT_LENGTH,
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Lossless packing of the source's nonnegative 32-bit queue-packet and hold counters: qpkt_count*2^31 + hold_count.",
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or RICHARDS_BENCHMARK_MAX_INPUT_LENGTH != 2
+            or RICHARDS_BENCHMARK_MAX_ITERATIONS != 1_000_000
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("richards_benchmark metadata or fixture IDs differ from its bounded source contract")
+    readme = (ROOT / "benchmarks" / "r" / "richards_benchmark" / "README.md").read_text(encoding="utf-8")
+    if (source_url not in readme or "does not infer an upstream license" not in readme
+            or "FIFO" not in readme or "cooperative scheduler" not in readme):
+        raise ValueError("richards_benchmark README is missing provenance or algorithm notes")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > RICHARDS_BENCHMARK_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != richards_benchmark_expected(values)):
+            raise ValueError(f"richards_benchmark fixture differs from its independent oracle: {case.get('id')}")
 
 
 def validate_trimaran_netbench_url_internet_checksum_workload(workload: dict) -> None:
@@ -15185,14 +15604,24 @@ def main() -> int:
         validate_coremark_crc_workload(workload)
     elif algorithm == "netbench_crc":
         validate_netbench_crc_workload(workload)
-    elif algorithm == "mibench_telecomm_crc32":
-        validate_mibench_telecomm_crc32_workload(workload)
     elif algorithm == "trimaran_netbench_url_internet_checksum":
         validate_trimaran_netbench_url_internet_checksum_workload(workload)
     elif algorithm == "olden_perimeter":
         validate_olden_perimeter_workload(workload)
     elif algorithm == "mcgill_exptree":
         validate_mcgill_exptree_workload(workload)
+    elif algorithm == "olden_power":
+        validate_olden_power_workload(workload)
+    elif algorithm == "olden_health":
+        validate_olden_health_workload(workload)
+    elif algorithm == "olden_tsp":
+        validate_olden_tsp_workload(workload)
+    elif algorithm == "olden_voronoi":
+        validate_olden_voronoi_workload(workload)
+    elif algorithm == "mibench_network_dijkstra":
+        validate_mibench_network_dijkstra_workload(workload)
+    elif algorithm == "richards_benchmark":
+        validate_richards_benchmark_workload(workload)
     elif algorithm == "graph_enumeration":
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":

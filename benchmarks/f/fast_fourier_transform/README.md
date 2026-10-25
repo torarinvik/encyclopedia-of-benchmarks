@@ -15,6 +15,7 @@ The workload includes the pinned two- and four-sample examples, singleton and im
 - C++ [`fast_fourier_transform.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/fdcc29b0ac2848e9d1a8d926e171cc5b39f97759/numerical_methods/fast_fourier_transform.cpp)
 - C++ (additional repository) [`fast_fourier_transform.cpp`](https://github.com/TheAlgorithms/C-Plus-Plus-1/blob/0f20cdcf8f49c2b8f2c128a2ac7b22819a44a680/numerical_methods/fast_fourier_transform.cpp)
 - Rust [`fast_fourier_transform.rs`](https://github.com/TheAlgorithms/Rust/blob/fed66cb0c74c4a939ec5163648458a8c2b46fd4c/src/math/fast_fourier_transform.rs)
+- LAC-DCC MiBench [`fourierf.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/telecomm-FFT/fourierf.c) uses the same radix-2 forward FFT algorithm over complex binary32 samples; the MiBench launcher is crosswalked to the forward and inverse FFT packages rather than duplicated.
 
 | Language | Source |
 | --- | --- |
