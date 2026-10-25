@@ -1,0 +1,88 @@
+/*
+ * Copyright (c) 1988, 1989, 1990, Regents of the University of California.
+ * All rights reserved.
+ *
+ * Use and copying of this software and preparation of derivative works
+ * based upon this software are permitted. However, any distribution of
+ * this software or derivative works must include the above copyright
+ * notice.
+ *
+ * This software is made available AS IS, and neither the Electronics
+ * Research Laboratory or the University of California make any warranty
+ * about the software, its performance or its conformity to any
+ * specification.
+ *
+ * Clean-room bounded EXPAND/IRREDUNDANT profile; no upstream code copied.
+ */
+const ESP_MAX_VARS: usize = 5
+const ESP_MAX_TERMS: usize = 32
+
+def esp_cube_covers(fixed: u32, value: u32, minterm: u32) -> bool:
+    (minterm & fixed) == value
+
+export fn mallocbench_espresso(input: i64&, length: usize) -> i64:
+    if input == null or length != 3:
+        return -1
+    vars_value: i64 = input[0]
+    if vars_value < 1 or vars_value > 5 or input[1] < 0 or input[2] < 0:
+        return -1
+    vars: usize = vars_value.usize()
+    minterms: usize = 1 << vars
+    valid: u64 = (1 << minterms) - 1
+    onset: u64 = input[1].u64()
+    dcset: u64 = input[2].u64()
+    if ((onset | dcset) & ~valid) != 0 or (onset & dcset) != 0:
+        return -1
+
+    fixed: mutable u32[ESP_MAX_TERMS] = zeroed
+    value: mutable u32[ESP_MAX_TERMS] = zeroed
+    count: mutable usize = 0
+    full: u32 = (minterms - 1).u32()
+    for m in 0..<minterms:
+        if (onset & (1 << m)) != 0:
+            fixed[count] <- full
+            value[count] <- m.u32()
+            count <- count + 1
+
+    allowed: u64 = onset | dcset
+    for i in 0..<count:
+        for bit in 0..<vars:
+            candidate_fixed: u32 = fixed[i] & ~(1 << bit)
+            candidate_value: u32 = value[i] & candidate_fixed
+            legal: mutable bool = true
+            for m in 0..<minterms:
+                if esp_cube_covers(candidate_fixed, candidate_value, m.u32()) and (allowed & (1 << m)) == 0:
+                    legal <- false
+                    break
+            if legal:
+                fixed[i] <- candidate_fixed
+                value[i] <- candidate_value
+
+    active: mutable bool[ESP_MAX_TERMS] = zeroed
+    for i in 0..<count:
+        active[i] <- true
+    for i in 0..<count:
+        redundant: mutable bool = true
+        for m in 0..<minterms:
+            if (onset & (1 << m)) == 0 or not esp_cube_covers(fixed[i], value[i], m.u32()):
+                continue
+            covered: mutable bool = false
+            for j in 0..<count:
+                if j != i and active[j] and esp_cube_covers(fixed[j], value[j], m.u32()):
+                    covered <- true
+                    break
+            if not covered:
+                redundant <- false
+                break
+        if redundant:
+            active[i] <- false
+
+    cubes: mutable i64 = 0
+    literals: mutable i64 = 0
+    for i in 0..<count:
+        if not active[i]:
+            continue
+        cubes <- cubes + 1
+        for bit in 0..<vars:
+            literals <- literals + ((fixed[i] >> bit) & 1).i64()
+    cubes * 1024 + literals

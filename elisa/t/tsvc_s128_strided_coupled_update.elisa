@@ -1,0 +1,64 @@
+# Clean-room port of TSVC s128; see package README for provenance and rights.
+
+const TSVC_S128_MAX_N: usize = 16
+const TSVC_S128_MAX_INPUT_LENGTH: usize = 81
+
+def tsvc_s128_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def tsvc_s128_strided_coupled_update_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > TSVC_S128_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 16:
+        return -1
+    n: usize = n_value.usize()
+    b_count: usize = 2 * n
+    if length != 1 + 5 * n:
+        return -1
+    a: mutable i64[16] = zeroed
+    b: mutable i64[32] = zeroed
+    c: mutable i64[32] = zeroed
+    d: mutable i64[16] = zeroed
+    i: mutable usize = 0
+    while i < b_count:
+        b[i] <- input[1 + i]
+        c[i] <- input[1 + b_count + i]
+        if b[i] < -100 or b[i] > 100 or c[i] < -100 or c[i] > 100:
+            return -1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        d[i] <- input[1 + 2 * b_count + i]
+        if d[i] < -100 or d[i] > 100:
+            return -1
+        i <- i + 1
+    output_values: usize = 3 * n
+    output_bytes: usize = 8 * output_values
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    j: mutable i64 = -1
+    i <- 0
+    while i < n:
+        k: usize = (j + 1).usize()
+        a[i] <- b[k] - d[i]
+        j <- k.i64() + 1
+        b[k] <- a[i] + c[k]
+        i <- i + 1
+    i <- 0
+    while i < n:
+        tsvc_s128_store_i64_le(a[i], output, 8 * i)
+        i <- i + 1
+    i <- 0
+    while i < b_count:
+        tsvc_s128_store_i64_le(b[i], output, 8 * (n + i))
+        i <- i + 1
+    output_values.i64()
+
+export fn tsvc_s128_strided_coupled_update(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s128_strided_coupled_update_impl

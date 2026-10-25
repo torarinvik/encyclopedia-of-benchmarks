@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-freebench-distray-one-pixel-i64-array-bytes-output-v1",
+  "algorithm": "freebench_distray",
+  "function_symbol": "freebench_distray",
+  "description": "FreeBench Distray: deterministic bounded tracing of one pixel through the source scene and recursive shading path.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "FreeBench/distray/distray.c",
+    "symbols": ["DistribVector", "IntersectObjs", "TraceLine", "TraceScene"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/FreeBench/distray/distray.c",
+    "attribution": "Ray tracer by Marcus Geelnard; benchmarkification by Peter Rundberg (biff@ce.chalmers.se).",
+    "license_status": "No license statement or license file was found in the pinned source, its directory, or repository root. The package makes no upstream license inference; ports are independent implementations and retain attribution."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "info_path": "FreeBench/distray/info.sh",
+    "bench_name": "distray",
+    "source_files": ["distray.c"],
+    "run_argument_source": "FreeBench/distray/test.in or FreeBench/distray/ref.in",
+    "test_distribution": 1,
+    "reference_distribution": 5
+  },
+  "contract": {
+    "operation": "Render one selected source camera pixel with its distribution, hit, shadow, diffuse, and reflection paths; omit the whole-frame image and timing wrappers.",
+    "input_layout": "[distribution, pixel_x, pixel_y]",
+    "source_image_dimensions": [640, 480],
+    "distribution_range": [1, 5],
+    "pixel_x_range": [0, 639],
+    "pixel_y_range": [0, 479],
+    "random_seed": "Reset to the source LCG seed 0x52462467 at the start of each call.",
+    "recursion_limit": 6,
+    "distribution_recursion_levels": 3,
+    "output_encoding": "Three bytes in source order: red, green, blue. Convert each averaged channel with truncation after multiplying by 255, then clear its low bit as the PPM writer does.",
+    "success_result": 3,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Input must contain exactly three values; out-of-range distribution or source pixel coordinates return -1. Null output or capacity below three returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[distribution, pixel_x, pixel_y]",
+    "minimum_length": 3,
+    "maximum_length": 3,
+    "distribution_range": [1, 5],
+    "pixel_x_range": [0, 639],
+    "pixel_y_range": [0, 479],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "masked RGB pixel bytes",
+    "maximum_bytes": 3,
+    "capacity_unit": "bytes",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "test_launcher_top_left",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "643c98"
+    },
+    {
+      "id": "reference_launcher_top_left",
+      "input_values": [5, 0, 0],
+      "input_length": 3,
+      "expected_result": 3,
+      "expected_output_hex": "643c98"
+    },
+    {
+      "id": "invalid_distribution_zero",
+      "input_values": [0, 0, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "outside_source_image",
+      "input_values": [1, 640, 0],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [1, 0, 0],
+      "input_length": 3,
+      "output_capacity": 2,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

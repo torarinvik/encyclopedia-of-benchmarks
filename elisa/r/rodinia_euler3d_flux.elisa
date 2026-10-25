@@ -1,0 +1,157 @@
+# Rodinia Euler3D bounded cell-flux profile; full notice: benchmarks/r/rodinia_euler3d_flux/LICENSE.txt.
+extern sqrtf(value: f32) -> f32
+extern floor(value: f64) -> f64
+
+const INPUTS: usize = 41
+const GAMMA: f32 = 1.4.f32()
+const SMOOTHING: f32 = 0.2.f32()
+
+struct E3Flow:
+    density: f32
+    momentum: f32[3]
+    energy: f32
+    pressure: f32
+    velocity: f32[3]
+    speed2: f32
+    speed: f32
+    sound: f32
+    momentum_flux: f32[3][3]
+    energy_flux: f32[3]
+
+def e3_add(a: f32, b: f32) -> f32: (a + b).f32()
+def e3_sub(a: f32, b: f32) -> f32: (a - b).f32()
+def e3_mul(a: f32, b: f32) -> f32: (a * b).f32()
+def e3_div(a: f32, b: f32) -> f32: (a / b).f32()
+
+def e3_bits(raw: i64) -> f32:
+    bits: u32 = raw.u32()
+    exponent: u32 = (bits >> 23) & 255
+    fraction: f64 = (bits & 8388607).f64() / 8388608.0
+    if exponent == 255: return 0.0.f32()
+    mantissa: f64 = if exponent == 0: fraction else: 1.0 + fraction
+    power: i64 = if exponent == 0: -126 else: exponent.i64() - 127
+    if (bits & 2147483647) == 0: return if bits >= 2147483648: -0.0.f32() else: 0.0.f32()
+    while power > 0:
+        mantissa <- mantissa * 2.0
+        power <- power - 1
+    while power < 0:
+        mantissa <- mantissa / 2.0
+        power <- power + 1
+    if bits >= 2147483648: mantissa <- -mantissa
+    mantissa.f32()
+
+def e3_read_state(input: i64&, flow: mutable E3Flow&) -> bool:
+    raw: mutable f32[5] = zeroed
+    for i in 0..<5:
+        if input[i] < 0 or input[i] > 4294967295: return false
+        if ((input[i].u32() >> 23) & 255) == 255: return false
+        raw[i] <- e3_bits(input[i])
+    if raw[0] < 0.5.f32() or raw[0] > 2.0.f32() or raw[1] < -1.0.f32() or raw[1] > 1.0.f32() or raw[2] < -1.0.f32() or raw[2] > 1.0.f32() or raw[3] < -1.0.f32() or raw[3] > 1.0.f32() or raw[4] < 1.0.f32() or raw[4] > 5.0.f32(): return false
+    flow.density <- raw[0]
+    for d in 0..<3:
+        flow.momentum[d] <- raw[d + 1]
+        flow.velocity[d] <- e3_div(flow.momentum[d], flow.density)
+    flow.energy <- raw[4]
+    flow.speed2 <- e3_add(e3_add(e3_mul(flow.velocity[0], flow.velocity[0]), e3_mul(flow.velocity[1], flow.velocity[1])), e3_mul(flow.velocity[2], flow.velocity[2]))
+    kinetic: f32 = e3_mul(e3_mul(0.5.f32(), flow.density), flow.speed2)
+    flow.pressure <- e3_mul(e3_sub(GAMMA, 1.0.f32()), e3_sub(flow.energy, kinetic))
+    if flow.pressure <= 0.0.f32(): return false
+    flow.speed <- sqrtf(flow.speed2)
+    flow.sound <- sqrtf(e3_div(e3_mul(GAMMA, flow.pressure), flow.density))
+    de_p: f32 = e3_add(flow.energy, flow.pressure)
+    flow.momentum_flux[0][0] <- e3_add(e3_mul(flow.velocity[0], flow.momentum[0]), flow.pressure)
+    flow.momentum_flux[0][1] <- e3_mul(flow.velocity[0], flow.momentum[1])
+    flow.momentum_flux[0][2] <- e3_mul(flow.velocity[0], flow.momentum[2])
+    flow.momentum_flux[1][0] <- flow.momentum_flux[0][1]
+    flow.momentum_flux[1][1] <- e3_add(e3_mul(flow.velocity[1], flow.momentum[1]), flow.pressure)
+    flow.momentum_flux[1][2] <- e3_mul(flow.velocity[1], flow.momentum[2])
+    flow.momentum_flux[2][0] <- flow.momentum_flux[0][2]
+    flow.momentum_flux[2][1] <- flow.momentum_flux[1][2]
+    flow.momentum_flux[2][2] <- e3_add(e3_mul(flow.velocity[2], flow.momentum[2]), flow.pressure)
+    for d in 0..<3: flow.energy_flux[d] <- e3_mul(flow.velocity[d], de_p)
+    true
+
+def e3_farfield(flow: mutable E3Flow&) -> void:
+    flow.density <- 1.4.f32()
+    flow.pressure <- 1.0.f32()
+    flow.sound <- sqrtf(e3_div(e3_mul(GAMMA, flow.pressure), flow.density))
+    flow.speed <- e3_mul(1.2.f32(), flow.sound)
+    flow.velocity[0] <- flow.speed
+    flow.velocity[1] <- 0.0.f32()
+    flow.velocity[2] <- 0.0.f32()
+    for d in 0..<3: flow.momentum[d] <- e3_mul(flow.density, flow.velocity[d])
+    flow.energy <- e3_add(e3_mul(flow.density, e3_mul(0.5.f32(), e3_mul(flow.speed, flow.speed))), e3_div(flow.pressure, e3_sub(GAMMA, 1.0.f32())))
+    flow.momentum_flux[0][0] <- e3_add(e3_mul(flow.velocity[0], flow.momentum[0]), flow.pressure)
+    flow.momentum_flux[0][1] <- e3_mul(flow.velocity[0], flow.momentum[1])
+    flow.momentum_flux[0][2] <- e3_mul(flow.velocity[0], flow.momentum[2])
+    flow.momentum_flux[1][0] <- flow.momentum_flux[0][1]
+    flow.momentum_flux[1][1] <- e3_add(e3_mul(flow.velocity[1], flow.momentum[1]), flow.pressure)
+    flow.momentum_flux[1][2] <- e3_mul(flow.velocity[1], flow.momentum[2])
+    flow.momentum_flux[2][0] <- flow.momentum_flux[0][2]
+    flow.momentum_flux[2][1] <- flow.momentum_flux[1][2]
+    flow.momentum_flux[2][2] <- e3_add(e3_mul(flow.velocity[2], flow.momentum[2]), flow.pressure)
+    de_p: f32 = e3_add(flow.energy, flow.pressure)
+    for d in 0..<3: flow.energy_flux[d] <- e3_mul(flow.velocity[d], de_p)
+
+def e3_round_away(value: f32) -> i64:
+    scaled: f64 = value.f64() * 1000.0
+    if scaled < 0.0: return -(floor(-scaled + 0.5)).i64()
+    floor(scaled + 0.5).i64()
+
+def rodinia_euler3d_flux_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != INPUTS: return -1
+    center: mutable E3Flow = zeroed
+    if not e3_read_state(input, center&): return -1
+    kinds: mutable i64[4] = zeroed
+    normals: mutable f32[4][3] = zeroed
+    neighbors: mutable E3Flow[4] = zeroed
+    for face in 0..<4:
+        at: usize = 5 + face * 9
+        kinds[face] <- input[at]
+        if kinds[face] < -2 or kinds[face] > 0: return -1
+        for d in 0..<3:
+            raw: i64 = input[at + 1 + d]
+            if raw < 0 or raw > 4294967295: return -1
+            if ((raw.u32() >> 23) & 255) == 255: return -1
+            normals[face][d] <- e3_bits(raw)
+            if normals[face][d] < -1.0.f32() or normals[face][d] > 1.0.f32(): return -1
+        if not e3_read_state(&input[at + 4], neighbors[face]&): return -1
+    far: mutable E3Flow = zeroed
+    e3_farfield(far&)
+    flux_density: mutable f32 = 0.0.f32()
+    flux_energy: mutable f32 = 0.0.f32()
+    flux_momentum: mutable f32[3] = zeroed
+    for face in 0..<4:
+        nx: f32 = normals[face][0]
+        ny: f32 = normals[face][1]
+        nz: f32 = normals[face][2]
+        normal_len: f32 = sqrtf(e3_add(e3_add(e3_mul(nx,nx),e3_mul(ny,ny)),e3_mul(nz,nz)))
+        if kinds[face] == 0:
+            nb: E3Flow& = neighbors[face]&
+            factor: mutable f32 = e3_mul(e3_mul(e3_mul(-normal_len,SMOOTHING),0.5.f32()),e3_add(e3_add(e3_add(center.speed,nb.speed),center.sound),nb.sound))
+            flux_density <- e3_add(flux_density,e3_mul(factor,e3_sub(center.density,nb.density)))
+            flux_energy <- e3_add(flux_energy,e3_mul(factor,e3_sub(center.energy,nb.energy)))
+            for c in 0..<3: flux_momentum[c] <- e3_add(flux_momentum[c],e3_mul(factor,e3_sub(center.momentum[c],nb.momentum[c])))
+            ns: f32[3] = {nx,ny,nz}
+            for axis in 0..<3:
+                factor <- e3_mul(0.5.f32(),ns[axis])
+                flux_density <- e3_add(flux_density,e3_mul(factor,e3_add(nb.momentum[axis],center.momentum[axis])))
+                flux_energy <- e3_add(flux_energy,e3_mul(factor,e3_add(nb.energy_flux[axis],center.energy_flux[axis])))
+                for c in 0..<3: flux_momentum[c] <- e3_add(flux_momentum[c],e3_mul(factor,e3_add(nb.momentum_flux[axis][c],center.momentum_flux[axis][c])))
+        elif kinds[face] == -1:
+            flux_momentum[0] <- e3_add(flux_momentum[0],e3_mul(nx,center.pressure))
+            flux_momentum[1] <- e3_add(flux_momentum[1],e3_mul(ny,center.pressure))
+            flux_momentum[2] <- e3_add(flux_momentum[2],e3_mul(nz,center.pressure))
+        else:
+            ns: f32[3] = {nx,ny,nz}
+            for axis in 0..<3:
+                factor: f32 = e3_mul(0.5.f32(),ns[axis])
+                flux_density <- e3_add(flux_density,e3_mul(factor,e3_add(far.momentum[axis],center.momentum[axis])))
+                flux_energy <- e3_add(flux_energy,e3_mul(factor,e3_add(far.energy_flux[axis],center.energy_flux[axis])))
+                for c in 0..<3: flux_momentum[c] <- e3_add(flux_momentum[c],e3_mul(factor,e3_add(far.momentum_flux[axis][c],center.momentum_flux[axis][c])))
+    result: f32[5] = {flux_density,flux_momentum[0],flux_momentum[1],flux_momentum[2],flux_energy}
+    checksum: mutable i64 = 0
+    for i in 0..<5: checksum <- checksum + (i + 1).i64() * e3_round_away(result[i])
+    checksum
+
+export fn rodinia_euler3d_flux(input: i64&, length: usize) -> i64 = rodinia_euler3d_flux_impl

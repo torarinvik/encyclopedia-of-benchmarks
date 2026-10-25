@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "id": "prolangs-football-tiebreaks-v1",
+  "algorithm": "prolangs_football_tiebreaks",
+  "function_symbol": "prolangs_football_tiebreaks",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[team_count, 12 fields per team, row-major head-to-head wins matrix, row-major symmetric head-to-head ties matrix]",
+    "team_count_range": [2, 8],
+    "team_fields": ["team_id", "conference", "division", "division_record_points", "division_games", "conference_record_points", "conference_games", "common_record_points", "common_games", "division_net_points", "conference_net_points", "overall_net_points"],
+    "record_points": "2*wins + ties; percentage is record_points / (2*games), and zero games means zero percentage",
+    "team_id_range": [0, 31],
+    "conference_range": [0, 1],
+    "division_range": [0, 2],
+    "record_games_range": [0, 64],
+    "net_points_range": [-4096, 4096],
+    "head_to_head": "wins are directional; ties are symmetric; losses are inferred from reciprocal wins; all diagonal entries are zero",
+    "initial_order": "teams are sorted by ascending conference, then ascending team_id, matching the source comparator before tie-breaking",
+    "exact_length": "1 + 12*team_count + 2*team_count*team_count",
+    "invalid_input_result": -2
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "best-to-worst team IDs packed as base-32 digits from left to right"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 5
+  },
+  "cases": [
+    {
+      "id": "same_division_head_to_head_percentage",
+      "input_values": [3, 0,0,0,0,0,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0,0,0,0,0, 2,0,0,0,0,0,0,0,0,0,0,0, 0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      "expected_result": 34
+    },
+    {
+      "id": "cross_division_sweep_moves_winner_first",
+      "input_values": [3, 0,0,0,0,0,0,0,0,0,0,0,0, 1,0,1,0,0,0,0,0,0,0,0,0, 2,0,2,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0],
+      "expected_result": 2080
+    },
+    {
+      "id": "strict_division_split_restarts_head_to_head_for_remaining_three",
+      "input_values": [4, 0,0,0,16,14,0,0,0,0,0,0,0, 1,0,0,8,8,0,0,0,0,0,0,0, 2,0,0,8,8,0,0,0,0,0,0,0, 3,0,0,8,8,0,0,0,0,0,0,0, 0,1,2,3,3,0,0,0,2,1,0,0,1,1,1,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      "expected_result": 3137
+    },
+    {
+      "id": "source_initial_order_uses_conference_before_team_id",
+      "input_values": [2, 7,0,0,0,0,0,0,0,0,0,0,0, 1,1,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+      "expected_result": 225
+    },
+    {
+      "id": "division_record_after_unplayed_head_to_head",
+      "input_values": [2, 0,0,0,4,3,0,0,0,0,0,0,0, 1,0,0,2,3,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+      "expected_result": 1
+    },
+    {
+      "id": "conference_record_across_divisions",
+      "input_values": [2, 0,0,0,0,0,2,3,0,0,0,0,0, 1,0,1,0,0,4,3,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+      "expected_result": 32
+    },
+    {
+      "id": "eligible_common_opponent_record",
+      "input_values": [2, 0,0,0,0,0,4,4,4,4,0,0,0, 1,0,1,0,0,4,4,6,4,0,0,0, 0,0,0,0,0,0,0,0],
+      "expected_result": 32
+    },
+    {
+      "id": "ineligible_common_record_falls_through_to_conference_net",
+      "input_values": [2, 0,0,0,0,0,4,4,2,1,0,0,0, 1,0,1,0,0,4,4,0,1,0,1,0, 0,0,0,0,0,0,0,0],
+      "expected_result": 32
+    },
+    {
+      "id": "division_net_points",
+      "input_values": [2, 0,0,0,0,0,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0,0,5,0,0, 0,0,0,0,0,0,0,0],
+      "expected_result": 32
+    },
+    {
+      "id": "overall_net_points",
+      "input_values": [2, 0,0,0,0,0,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0,0,0,0,2, 0,0,0,0,0,0,0,0],
+      "expected_result": 32
+    },
+    {
+      "id": "unresolved_tie_keeps_source_id_order",
+      "input_values": [2, 0,0,0,0,0,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+      "expected_result": 1
+    },
+    {
+      "id": "asymmetric_tie_matrix_invalid",
+      "input_values": [2, 0,0,0,0,0,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0, 0,1,0,0],
+      "expected_result": -2
+    }
+  ]
+}

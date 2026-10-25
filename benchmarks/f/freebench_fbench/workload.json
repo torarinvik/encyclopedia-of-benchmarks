@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-freebench-fbench-bounded-optical-ray-trace-i64-array-float64-v1",
+  "algorithm": "freebench_fbench",
+  "function_symbol": "freebench_fbench",
+  "description": "Bounded telescope-lens ray tracing and aberration projection from John Walker's Floating Point Benchmark.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/fbench/fbench.c",
+    "symbols": ["transit_surface", "trace_line", "main"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/fbench/fbench.c",
+    "origin_attribution": "John Walker's Floating Point Benchmark, derived from the Marinchip Interactive Lens Design System, December 1980.",
+    "license_note": "The pinned source header permits use, distribution, and modification provided origin information is preserved. Each port identifies the original benchmark and pinned source."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Misc/fbench/info.sh",
+    "bench_name": "fbench",
+    "source_files": ["fbench.c"],
+    "compile_flags": ["-lm"],
+    "run_options": "No input file or command-line profile; the launcher uses the source's 1,000,000 iteration default."
+  },
+  "contract": {
+    "input_layout": "[passes]",
+    "pass_range": [1, 16],
+    "source_lens": [
+      [27.05, 1.5137, 63.6, 0.52],
+      [-16.68, 1.0, 0.0, 0.138],
+      [-16.68, 1.6164, 36.7, 0.38],
+      [-78.1, 1.0, 0.0, 0.0]
+    ],
+    "ray_schedule": "For pass p starting at zero, use ray height 2.0 + 0.0002*p. The first pass exactly preserves the pinned 2.0 height. Trace the D-line marginal ray then paraxial ray, followed by C- and F-line marginal rays. Preserve source surface order and refractive-index wavelength correction.",
+    "observable_result": "Sum of longitudinal spherical aberration, sine-condition aberration, and axial chromatic aberration, accumulated once per pass.",
+    "bounded_work": "At most 16 passes, four four-surface traces per pass; ray heights remain in [2.0, 2.003].",
+    "invalid_result": -1e300
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[passes]",
+    "exact_length": 1,
+    "maximum_parseable_length": 2,
+    "passes_range": [1, 16],
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "Accumulated source aberration projection over the requested bounded passes.",
+    "invalid_result": -1e300,
+    "absolute_tolerance": 1e-8,
+    "relative_tolerance": 1e-9
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "absolute_tolerance": 1e-8,
+    "relative_tolerance": 1e-9
+  },
+  "cases": [
+    {"id": "one_source_profile_pass", "input_values": [1], "expected_result": -0.00649776878},
+    {"id": "zero_passes", "input_values": [0], "expected_result": -1e300},
+    {"id": "above_bound", "input_values": [17], "expected_result": -1e300},
+    {"id": "empty_input", "input_values": [], "expected_result": -1e300},
+    {"id": "extra_input", "input_values": [1, 2], "expected_result": -1e300}
+  ]
+}

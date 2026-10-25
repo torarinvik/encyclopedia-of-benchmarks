@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s1221-lag4-add-recurrence-i64-le-v1",
+  "algorithm": "tsvc_s1221_lag4_add_recurrence",
+  "function_symbol": "tsvc_s1221_lag4_add_recurrence",
+  "abi": "i64_array_bytes_output",
+  "description": "One bounded ascending sweep of the TSVC s1221 lag-four additive recurrence.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "TSVC/tsc.inc",
+      "TSVC/LoopRestructuring-dbl/tsc.c",
+      "TSVC/LoopRestructuring-dbl/info.sh",
+      "TSVC/LoopRestructuring-flt/tsc.c",
+      "TSVC/LoopRestructuring-flt/info.sh",
+      "TSVC/tests.h"
+    ],
+    "symbol": "s1221",
+    "source_lines": {
+      "codelet_start": 1936,
+      "codelet_end": 1957
+    },
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "launcher_family": "TSVC/LoopRestructuring-dbl and TSVC/LoopRestructuring-flt",
+    "launcher_options": {
+      "double": [4350, 14],
+      "float": [4350, 5]
+    },
+    "attribution": "The TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC files or repository material reviewed. These clean-room ports reuse no upstream code or comments and claim no upstream license or endorsement."
+  },
+  "contract": {
+    "operation": "For ascending i=4..n-1, assign B[i]=B[i-4]+A[i].",
+    "input_layout": "[n, A[n], B[n]]",
+    "n_range": [5, 32],
+    "vector_value_range": [-10, 10],
+    "exact_length": "1 + 2*n",
+    "arithmetic": "Inputs are integer-valued source doubles. At most seven additions lie on a dependency chain, so all bounded values are exact in source double and float precision and fit signed i64.",
+    "passes": 1,
+    "output": "Complete final B[n] vector encoded as little-endian signed i64.",
+    "success_result": "n values written",
+    "output_capacity_requirement": "At least 8*n bytes",
+    "input_modified": false,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "maximum_valid_length": 65,
+    "maximum_parseable_length": 65,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Complete final B[n] vector.",
+    "maximum_values": 32,
+    "maximum_bytes": 256,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Temporary A[32] and B[32] signed 64-bit vectors."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "four-independent-lag-chains",
+      "input_values": [8, 1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 30, 40, 50, 60, 70, 80],
+      "input_length": 17,
+      "output_capacity": 64,
+      "expected_result": 8,
+      "expected_output_hex": "0a0000000000000014000000000000001e0000000000000028000000000000000f000000000000001a0000000000000025000000000000003000000000000000"
+    },
+    {
+      "id": "signed-lag-four-chains",
+      "input_values": [9, -1, 2, -3, 4, 1, -2, 3, -4, 5, 7, -8, 9, -10, 1, 2, 3, 4, -5],
+      "input_length": 19,
+      "output_capacity": 72,
+      "expected_result": 9,
+      "expected_output_hex": "0700000000000000f8ffffffffffffff0900000000000000f6ffffffffffffff0800000000000000f6ffffffffffffff0c00000000000000f2ffffffffffffff0600000000000000"
+    },
+    {
+      "id": "minimum-dimension-single-update",
+      "input_values": [5, 1, 2, 3, 4, 5, -1, -2, -3, -4, -5],
+      "input_length": 11,
+      "output_capacity": 40,
+      "expected_result": 5,
+      "expected_output_hex": "fffffffffffffffffefffffffffffffffdfffffffffffffffcffffffffffffff0400000000000000"
+    },
+    {
+      "id": "invalid-dimension-below-minimum",
+      "input_values": [4, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-short-frame",
+      "input_values": [5, 1, 2],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-vector-bound",
+      "input_values": [5, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 11,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [5, 1, 2, 3, 4, 5, -1, -2, -3, -4, -5],
+      "input_length": 11,
+      "output_capacity": 40,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [5, 1, 2, 3, 4, 5, -1, -2, -3, -4, -5],
+      "input_length": 11,
+      "output_capacity": 39,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+# This source code is a product of Sun Microsystems, Inc. and is provided
+# for unrestricted use. Users may copy or modify this source code without charge.
+#
+# SUN SOURCE CODE IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING
+# THE WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
+#
+# Sun source code is provided with no support and without any obligation on
+# the part of Sun Microsystems, Inc. to assist in its use, correction,
+# modification or enhancement.
+#
+# SUN MICROSYSTEMS, INC. SHALL HAVE NO LIABILITY WITH RESPECT TO THE
+# INFRINGEMENT OF COPYRIGHTS, TRADE SECRETS OR ANY PATENTS BY THIS SOFTWARE
+# OR ANY PART THEREOF.
+#
+# In no event will Sun Microsystems, Inc. be liable for any lost revenue
+# or profits or other special, indirect and consequential damages, even if
+# Sun has been advised of the possibility of such damages.
+#
+# Sun Microsystems, Inc.
+# 2550 Garcia Avenue
+# Mountain View, California 94043
+
+const G721_MAX_SAMPLES: usize = 16
+const G721_POWER2: i64[15] = [1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384]
+const G721_QTAB: i64[7] = [-124,80,178,246,300,349,400]
+const G721_DQLNTAB: i64[16] = [-2048,4,135,213,273,323,373,425,425,373,323,273,213,135,4,-2048]
+const G721_WITAB: i64[16] = [-12,18,41,64,112,198,355,1122,1122,355,198,112,64,41,18,-12]
+const G721_FITAB: i64[16] = [0,0,0,512,512,512,1536,3584,3584,1536,512,512,512,0,0,0]
+
+struct G721State:
+    yl: i64
+    yu: i64
+    dms: i64
+    dml: i64
+    ap: i64
+    a: i64[2]
+    b: i64[6]
+    pk: i64[2]
+    dq: i64[6]
+    sr: i64[2]
+    td: i64
+
+def g721_wrap16(value: i64) -> i64:
+    low: i64 = value & 65535
+    if low >= 32768: return low - 65536
+    low
+
+def g721_qtable(value: i64, table: i64&, count: usize) -> i64:
+    index: usize = 0
+    while index < count and value >= table[index]: index <- index + 1
+    index.i64()
+
+def g721_fmult(coefficient: i64, encoded: i64) -> i64:
+    magnitude: i64 = coefficient
+    if magnitude <= 0: magnitude <- (-coefficient) & 8191
+    exponent: i64 = g721_qtable(magnitude, G721_POWER2[0], 15) - 6
+    mantissa: mutable i64 = 32
+    if magnitude != 0:
+        if exponent >= 0: mantissa <- magnitude >> exponent
+        else: mantissa <- magnitude << (-exponent)
+    product_exponent: i64 = exponent + ((encoded >> 6) & 15) - 13
+    product_mantissa: i64 = (mantissa * (encoded & 63) + 48) >> 4
+    result: mutable i64 = 0
+    if product_exponent >= 0: result <- (product_mantissa << product_exponent) & 32767
+    else: result <- product_mantissa >> (-product_exponent)
+    if (coefficient ^ encoded) < 0: return -result
+    result
+
+def g721_predictor_zero(state: G721State&) -> i64:
+    total: mutable i64 = g721_fmult(state.b[0] >> 2, state.dq[0])
+    index: mutable usize = 1
+    while index < 6:
+        total <- total + g721_fmult(state.b[index] >> 2, state.dq[index])
+        index <- index + 1
+    total
+
+def g721_predictor_pole(state: G721State&) -> i64:
+    g721_fmult(state.a[1] >> 2, state.sr[1]) + g721_fmult(state.a[0] >> 2, state.sr[0])
+
+def g721_step_size(state: G721State&) -> i64:
+    if state.ap >= 256: return state.yu
+    y: mutable i64 = state.yl >> 6
+    difference: i64 = state.yu - y
+    weight: i64 = state.ap >> 2
+    if difference > 0: y <- y + ((difference * weight) >> 6)
+    else if difference < 0: y <- y + ((difference * weight + 63) >> 6)
+    y
+
+def g721_quantize(difference: i64, step: i64) -> i64:
+    magnitude: mutable i64 = difference
+    if magnitude < 0: magnitude <- -magnitude
+    exponent: i64 = g721_qtable(magnitude >> 1, G721_POWER2[0], 15)
+    mantissa: i64 = ((magnitude << 7) >> exponent) & 127
+    normalized: i64 = ((exponent << 7) + mantissa) - (step >> 2)
+    index: i64 = g721_qtable(normalized, G721_QTAB[0], 7)
+    if difference < 0: return 15 - index
+    if index == 0: return 15
+    index
+
+def g721_reconstruct(sign: i64, dqln: i64, step: i64) -> i64:
+    dql: i64 = dqln + (step >> 2)
+    if dql < 0:
+        if sign != 0: return -32768
+        return 0
+    exponent: i64 = (dql >> 7) & 15
+    mantissa: i64 = 128 + (dql & 127)
+    value: i64 = (mantissa << 7) >> (14 - exponent)
+    if sign != 0: return value - 32768
+    value
+
+def g721_abs64(value: i64) -> i64:
+    if value < 0: return -value
+    value
+
+def g721_update(step: i64, wi: i64, fi: i64, dq: i64, sr: i64, dqsez: i64, state: mutable G721State&) -> void:
+    magnitude: i64 = dq & 32767
+    ylint: i64 = state.yl >> 15
+    ylfrac: i64 = (state.yl >> 10) & 31
+    threshold1: i64 = (32 + ylfrac) << ylint
+    threshold2: i64 = threshold1
+    if ylint > 9: threshold2 <- 31 << 10
+    dqthr: i64 = (threshold2 + (threshold2 >> 1)) >> 1
+    transition: bool = state.td != 0 and magnitude > dqthr
+    state.yu <- g721_wrap16(step + ((wi - step) >> 5))
+    if state.yu < 544: state.yu <- 544
+    else if state.yu > 5120: state.yu <- 5120
+    state.yl <- state.yl + state.yu + ((-state.yl) >> 6)
+    if transition:
+        state.a[0] <- 0
+        state.a[1] <- 0
+        index: mutable usize = 0
+        while index < 6: state.b[index] <- 0; index <- index + 1
+    else:
+        pk0: i64 = if dqsez < 0: 1 else: 0
+        pks1: i64 = pk0 ^ state.pk[0]
+        a2p: mutable i64 = state.a[1] - (state.a[1] >> 7)
+        if dqsez != 0:
+            fa1: i64 = if pks1 != 0: state.a[0] else: -state.a[0]
+            if fa1 < -8191: a2p <- a2p - 256
+            else if fa1 > 8191: a2p <- a2p + 255
+            else: a2p <- a2p + (fa1 >> 5)
+            if (pk0 ^ state.pk[1]) != 0:
+                if a2p <= -12160: a2p <- -12288
+                else if a2p >= 12416: a2p <- 12288
+                else: a2p <- a2p - 128
+            else:
+                if a2p <= -12416: a2p <- -12288
+                else if a2p >= 12160: a2p <- 12288
+                else: a2p <- a2p + 128
+        a2p <- g721_wrap16(a2p)
+        state.a[1] <- a2p
+        state.a[0] <- g721_wrap16(state.a[0] - (state.a[0] >> 8))
+        if dqsez != 0:
+            if pks1 == 0: state.a[0] <- g721_wrap16(state.a[0] + 192)
+            else: state.a[0] <- g721_wrap16(state.a[0] - 192)
+        limit: i64 = 15360 - a2p
+        if state.a[0] < -limit: state.a[0] <- -limit
+        else if state.a[0] > limit: state.a[0] <- limit
+        state.a[0] <- g721_wrap16(state.a[0])
+        index: mutable usize = 0
+        while index < 6:
+            state.b[index] <- g721_wrap16(state.b[index] - (state.b[index] >> 8))
+            if (dq & 32767) != 0:
+                if (dq ^ state.dq[index]) >= 0: state.b[index] <- g721_wrap16(state.b[index] + 128)
+                else: state.b[index] <- g721_wrap16(state.b[index] - 128)
+            index <- index + 1
+    index: mutable usize = 5
+    while index > 0: state.dq[index] <- state.dq[index - 1]; index <- index - 1
+    if magnitude == 0:
+        if dq >= 0: state.dq[0] <- 32
+        else: state.dq[0] <- g721_wrap16(64544)
+    else:
+        exponent: i64 = g721_qtable(magnitude, G721_POWER2[0], 15)
+        encoded: i64 = (exponent << 6) + ((magnitude << 6) >> exponent)
+        if dq >= 0: state.dq[0] <- g721_wrap16(encoded)
+        else: state.dq[0] <- g721_wrap16(encoded - 1024)
+    state.sr[1] <- state.sr[0]
+    if sr == 0: state.sr[0] <- 32
+    else if sr > 0:
+        exponent: i64 = g721_qtable(sr, G721_POWER2[0], 15)
+        state.sr[0] <- g721_wrap16((exponent << 6) + ((sr << 6) >> exponent))
+    else if sr > -32768:
+        absolute: i64 = -sr
+        exponent: i64 = g721_qtable(absolute, G721_POWER2[0], 15)
+        state.sr[0] <- g721_wrap16((exponent << 6) + ((absolute << 6) >> exponent) - 1024)
+    else: state.sr[0] <- g721_wrap16(64544)
+    state.pk[1] <- state.pk[0]
+    if dqsez < 0: state.pk[0] <- 1
+    else: state.pk[0] <- 0
+    if transition: state.td <- 0
+    else if state.a[1] < -11776: state.td <- 1
+    else: state.td <- 0
+    state.dms <- g721_wrap16(state.dms + ((fi - state.dms) >> 5))
+    state.dml <- g721_wrap16(state.dml + (((fi << 2) - state.dml) >> 7))
+    if transition: state.ap <- 256
+    else if step < 1536 or state.td == 1 or g721_abs64((state.dms << 2) - state.dml) >= (state.dml >> 3):
+        state.ap <- g721_wrap16(state.ap + ((512 - state.ap) >> 4))
+    else: state.ap <- g721_wrap16(state.ap + ((-state.ap) >> 4))
+
+def g721_init_state() -> G721State:
+    state: mutable G721State = zeroed
+    state.yl <- 34816
+    state.yu <- 544
+    index: mutable usize = 0
+    while index < 2: state.sr[index] <- 32; index <- index + 1
+    index <- 0
+    while index < 6: state.dq[index] <- 32; index <- index + 1
+    state
+
+def g721_ulaw_to_linear(input: i64) -> i64:
+    value: i64 = (~input) & 255
+    sample: mutable i64 = ((value & 15) << 3) + 132
+    sample <- sample << ((value & 112) >> 4)
+    if (value & 128) != 0: 132 - sample
+    else: sample - 132
+
+def g721_encode_one(input: i64, state: mutable G721State&) -> i64:
+    sample: i64 = g721_ulaw_to_linear(input) >> 2
+    sezi: i64 = g721_wrap16(g721_predictor_zero(state))
+    sez: i64 = sezi >> 1
+    se: i64 = g721_wrap16((sezi + g721_predictor_pole(state)) >> 1)
+    difference: i64 = g721_wrap16(sample - se)
+    step: i64 = g721_wrap16(g721_step_size(state))
+    code: i64 = g721_quantize(difference, step)
+    dq: i64 = g721_wrap16(g721_reconstruct(code & 8, G721_DQLNTAB[code.usize()], step))
+    sr: mutable i64 = se + dq
+    if dq < 0: sr <- se - (dq & 16383)
+    sr <- g721_wrap16(sr)
+    dqsez: i64 = g721_wrap16(sr + sez - se)
+    g721_update(step, G721_WITAB[code.usize()] << 5, G721_FITAB[code.usize()], dq, sr, dqsez, state)
+    code
+
+def mediabench_g721_encode_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > G721_MAX_SAMPLES + 1: return -1
+    count_value: i64 = input[0]
+    if count_value < 0 or count_value > G721_MAX_SAMPLES.i64(): return -1
+    count: usize = count_value.usize()
+    if input_length != count + 1: return -1
+    index: mutable usize = 0
+    while index < count:
+        if input[index + 1] < 0 or input[index + 1] > 255: return -1
+        index <- index + 1
+    required: usize = (count + 1) / 2
+    if required == 0: return 0
+    if output.is_null() or output_capacity < required: return -2
+    state: mutable G721State = g721_init_state()
+    index <- 0
+    while index < count:
+        code: u8 = g721_encode_one(input[index + 1], state).u8()
+        if index & 1 == 0: output[index / 2] <- code
+        else: output[index / 2] <- output[index / 2] | (code << 4)
+        index <- index + 1
+    required.i64()
+
+export fn mediabench_g721_encode(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = mediabench_g721_encode_impl

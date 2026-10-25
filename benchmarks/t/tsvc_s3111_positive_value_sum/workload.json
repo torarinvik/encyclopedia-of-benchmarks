@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s3111-positive-value-sum-i64-array-scalar-v1",
+  "algorithm": "tsvc_s3111_positive_value_sum",
+  "function_symbol": "tsvc_s3111_positive_value_sum",
+  "abi": "i64_array_scalar",
+  "description": "Bounded strict-positive conditional sum profile of TSVC s3111.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s3111",
+    "source_lines": {"kernel_start": 3717, "kernel_end": 3744, "initialization_start": 586, "initialization_end": 587},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_family": "TSVC/Reductions-dbl",
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. The ports are clean-room implementations of the bounded conditional reduction and reuse no upstream source code or comments; no upstream license or endorsement is claimed."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "argument_order": ["count", "values..."],
+    "count_range": [0, 64],
+    "value_range": [-1000000, 1000000],
+    "maximum_valid_input_length": 65,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "formula": "sum(value for value in values if value > 0)",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "mixed-sign-values",
+      "input_values": [6, -5, 0, 7, -2, 3, -9],
+      "input_length": 7,
+      "expected_result": 10
+    },
+    {
+      "id": "all-nonpositive-values",
+      "input_values": [4, -1, 0, -7, -2],
+      "input_length": 5,
+      "expected_result": 0
+    },
+    {
+      "id": "all-positive-values",
+      "input_values": [3, 4, 5, 6],
+      "input_length": 4,
+      "expected_result": 15
+    },
+    {
+      "id": "empty-array",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 0
+    },
+    {
+      "id": "positive-singleton",
+      "input_values": [1, 100],
+      "input_length": 2,
+      "expected_result": 100
+    },
+    {
+      "id": "negative-singleton",
+      "input_values": [1, -100],
+      "input_length": 2,
+      "expected_result": 0
+    },
+    {
+      "id": "negative-count",
+      "input_values": [-1],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-values",
+      "input_values": [3, 1, -2],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "value-out-of-range",
+      "input_values": [1, 1000001],
+      "input_length": 2,
+      "expected_result": -1
+    },
+    {
+      "id": "count-above-bound",
+      "input_values": [65],
+      "input_length": 1,
+      "expected_result": -1
+    }
+  ]
+}

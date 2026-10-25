@@ -1,0 +1,84 @@
+# Rodinia SRAD v2 kernel profile; full source notice: benchmarks/r/rodinia_srad_v2/LICENSE.txt.
+const PIXELS: usize = 256
+const INPUTS: usize = 258
+const LAMBDA_MIN: u32 = 0x3c23d70a
+const LAMBDA_MAX: u32 = 0x3dcccccd
+const Q0_MIN: u32 = 0x3c23d70a
+const Q0_MAX: u32 = 0x3f800000
+const J_MIN: u32 = 0x3f800000
+const J_MAX: u32 = 0x3fa00000
+
+def srad_from_bits(bits:u32)->f32:
+    exponent_bits:i32=((bits>>23)&255).i32()
+    fraction_bits:u32=bits&8388607
+    value:mutable f64=1.0+fraction_bits.f64()/8388608.0
+    exponent:mutable i32=exponent_bits-127
+    while exponent>0:
+        value<-value*2.0
+        exponent<-exponent-1
+    while exponent<0:
+        value<-value/2.0
+        exponent<-exponent+1
+    value.f32()
+
+def srad_add32(a:f32,b:f32)->f32:(a+b).f32()
+def srad_sub32(a:f32,b:f32)->f32:(a-b).f32()
+def srad_mul32(a:f32,b:f32)->f32:(a*b).f32()
+def srad_div32(a:f32,b:f32)->f32:(a/b).f32()
+
+def rodinia_srad_v2_impl(input:i64&,length:usize)->i64:
+    if input.is_null() or length!=INPUTS:return -1
+    for i in 0..<length:
+        if input[i]<0 or input[i]>4294967295:return -1
+    lambda_bits: u32=input[0].u32()
+    q0_bits: u32=input[1].u32()
+    if lambda_bits<LAMBDA_MIN or lambda_bits>LAMBDA_MAX or q0_bits<Q0_MIN or q0_bits>Q0_MAX:return -1
+    lambda:f32=srad_from_bits(lambda_bits)
+    q0sqr:f32=srad_from_bits(q0_bits)
+    image:mutable f32[256]=zeroed
+    coeff:mutable f32[256]=zeroed
+    north:mutable f32[256]=zeroed
+    south:mutable f32[256]=zeroed
+    west:mutable f32[256]=zeroed
+    east:mutable f32[256]=zeroed
+    for i in 0..<PIXELS:
+        bits:u32=input[i+2].u32()
+        if bits<J_MIN or bits>J_MAX:return -1
+        image[i]<-srad_from_bits(bits)
+    for row in 0..<16:
+        for col in 0..<16:
+            i:usize=row*16+col
+            jc:f32=image[i]
+            n:f32=srad_sub32(image[(if row>0:row-1 else:row)*16+col],jc)
+            s:f32=srad_sub32(image[(if row<15:row+1 else:row)*16+col],jc)
+            w:f32=srad_sub32(image[row*16+(if col>0:col-1 else:col)],jc)
+            e:f32=srad_sub32(image[row*16+(if col<15:col+1 else:col)],jc)
+            north[i]<-n;south[i]<-s;west[i]<-w;east[i]<-e
+            gradient:mutable f32=srad_add32(srad_add32(srad_add32(srad_mul32(n,n),srad_mul32(s,s)),srad_mul32(w,w)),srad_mul32(e,e))
+            gradient<-srad_div32(gradient,srad_mul32(jc,jc))
+            laplacian:f32=srad_div32(srad_add32(srad_add32(srad_add32(n,s),w),e),jc)
+            lap_sq:f32=srad_mul32(laplacian,laplacian)
+            num:f32=(0.5*gradient.f64()-(1.0/16.0)*lap_sq.f64()).f32()
+            den:mutable f32=(1.0+0.25*laplacian.f64()).f32()
+            if den==0.0.f32():return -1
+            qsqr:f32=srad_div32(num,srad_mul32(den,den))
+            den<-srad_div32(srad_sub32(qsqr,q0sqr),srad_mul32(q0sqr,srad_add32(1.0.f32(),q0sqr)))
+            if den == -1.0.f32():return -1
+            c:mutable f32=(1.0/(1.0+den.f64())).f32()
+            if c<0.0.f32():c<-0.0.f32()
+            elif c>1.0.f32():c<-1.0.f32()
+            coeff[i]<-c
+    checksum:mutable i64=0
+    for row in 0..<16:
+        for col in 0..<16:
+            i:usize=row*16+col
+            cc:f32=coeff[i]
+            cs:f32=coeff[(if row<15:row+1 else:row)*16+col]
+            ce:f32=coeff[row*16+(if col<15:col+1 else:col)]
+            divergence:f32=srad_add32(srad_add32(srad_add32(srad_mul32(cc,north[i]),srad_mul32(cs,south[i])),srad_mul32(cc,west[i])),srad_mul32(ce,east[i]))
+            updated:f32=(image[i].f64()+0.25*lambda.f64()*divergence.f64()).f32()
+            if updated<0.0.f32():return -1
+            checksum<-checksum+(updated.f64()*1000000.0+0.5).i64()
+    checksum
+
+export fn rodinia_srad_v2(input:i64&,length:usize)->i64=rodinia_srad_v2_impl

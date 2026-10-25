@@ -1,0 +1,89 @@
+# Clean-room bounded port of Rodinia Myocyte's kernel_cam RHS; full notice is package-local.
+const INPUT_LENGTH: usize = 22
+
+def decode(raw: i64) -> f32:
+    return raw.f32() / 1000000.0.f32()
+
+def addf(a: f32, b: f32) -> f32: return a + b
+def subf(a: f32, b: f32) -> f32: return a - b
+def mulf(a: f32, b: f32) -> f32: return a * b
+def divf(a: f32, b: f32) -> f32: return a / b
+
+def rodinia_myocyte_cam_rhs_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length != INPUT_LENGTH: return -1.0e300
+    if input[0] < 0 or input[0] > 100000000 or input[1] < 100000000 or input[1] > 200000000 or input[2] < 500000 or input[2] > 5000000: return -1.0e300
+    i: mutable usize = 3
+    while i < INPUT_LENGTH:
+        if input[i] < 0 or input[i] > 10000000: return -1.0e300
+        i <- i + 1
+    Ca: f32 = decode(input[0]); K: f32 = decode(input[1]); Mg: f32 = decode(input[2])
+    Btot: f32 = decode(input[3]); CaMKIItot: f32 = decode(input[4]); CaNtot: f32 = decode(input[5]); PP1tot: f32 = decode(input[6])
+    s: mutable f32[15] = zeroed
+    i <- 0
+    while i < 15:
+        s[i] <- decode(input[7 + i]); i <- i + 1
+    CaM: f32=s[0]; Ca2CaM: f32=s[1]; Ca4CaM: f32=s[2]; CaMB: f32=s[3]; Ca2CaMB: f32=s[4]; Ca4CaMB: f32=s[5]
+    Pb2: f32=s[6]; Pb: f32=s[7]; Pt: f32=s[8]; Pt2: f32=s[9]; Pa: f32=s[10]
+    Ca4CaN: f32=s[11]; CaMCa4CaN: f32=s[12]; Ca2CaMCa4CaN: f32=s[13]; Ca4CaMCa4CaN: f32=s[14]
+
+    Kd02: mutable f32 = 0.0; Kd24: mutable f32 = 0.0
+    if Mg <= 1.0:
+        Kd02 <- (0.0025 * (1.0 + K.f64()/0.94 - Mg.f64()/0.012) * (1.0 + K.f64()/8.1 + Mg.f64()/0.022)).f32()
+        Kd24 <- (0.128 * (1.0 + K.f64()/0.64 + Mg.f64()/0.0014) * (1.0 + K.f64()/13.0 - Mg.f64()/0.153)).f32()
+    else:
+        Kd02 <- (0.0025 * (1.0 + K.f64()/0.94 - 1.0/0.012 + (Mg.f64()-1.0)/0.060) * (1.0 + K.f64()/8.1 + 1.0/0.022 + (Mg.f64()-1.0)/0.068)).f32()
+        Kd24 <- (0.128 * (1.0 + K.f64()/0.64 + 1.0/0.0014 + (Mg.f64()-1.0)/0.005) * (1.0 + K.f64()/13.0 - 1.0/0.153 + (Mg.f64()-1.0)/0.150)).f32()
+    if Kd02 <= 0.0 or Kd24 <= 0.0: return -1.0e300
+
+    k20: f32=10.0; k02: f32=divf(k20,Kd02); k42: f32=500.0; k24: f32=divf(k42,Kd24)
+    k0Boff: f32=0.0014; k0Bon: f32=(k0Boff.f64()/0.2).f32(); k2Boff: f32=divf(k0Boff,100.0); k2Bon: f32=k0Bon; k4Boff: f32=k2Boff; k4Bon: f32=k0Bon
+    k20B: f32=divf(k20,100.0); k02B: f32=k02; k42B: f32=k42; k24B: f32=k24
+    kbi: f32=2.2; kib: f32=(kbi.f64()/33.5e-3).f32(); kpp1: f32=1.72; Kmpp1: f32=11.5
+    kib2: f32=kib; kb2i: f32=mulf(kib2,5.0); kb24: f32=k24; kb42: f32=(k42.f64()*33.5e-3/5.0).f32(); kta: f32=divf(kbi,1000.0); kat: f32=kib
+    kt42: f32=(k42.f64()*33.5e-6/5.0).f32(); kt24: f32=k24; kat2: f32=kib; kt2a: f32=mulf(kib,5.0)
+    kcanCaoff: f32=1.0; kcanCaon: f32=(kcanCaoff.f64()/0.5).f32(); kcanCaM4on: f32=46.0; kcanCaM4off: f32=0.0013; kcanCaM2on: f32=kcanCaM4on
+    kcanCaM2off: f32=mulf(2508.0,kcanCaM4off); kcanCaM0on: f32=kcanCaM4on; kcanCaM0off: f32=mulf(165.0,kcanCaM2off)
+    k02can: f32=k02; k20can: f32=divf(k20,165.0); k24can: f32=k24; k42can: f32=divf(k20,2508.0)
+    ca2: f64=Ca.f64()*Ca.f64()
+    rcn02: f32=(k02.f64()*ca2*CaM.f64()-k20.f64()*Ca2CaM.f64()).f32()
+    rcn24: f32=(k24.f64()*ca2*Ca2CaM.f64()-k42.f64()*Ca4CaM.f64()).f32()
+    B: f32=subf(subf(subf(Btot,CaMB),Ca2CaMB),Ca4CaMB)
+    rcn02B: f32=(k02B.f64()*ca2*CaMB.f64()-k20B.f64()*Ca2CaMB.f64()).f32()
+    rcn24B: f32=(k24B.f64()*ca2*Ca2CaMB.f64()-k42B.f64()*Ca4CaMB.f64()).f32()
+    rcn0B: f32=subf(mulf(mulf(k0Bon,CaM),B),mulf(k0Boff,CaMB)); rcn2B: f32=subf(mulf(mulf(k2Bon,Ca2CaM),B),mulf(k2Boff,Ca2CaMB)); rcn4B: f32=subf(mulf(mulf(k4Bon,Ca4CaM),B),mulf(k4Boff,Ca4CaMB))
+    Ca2CaN: f32=subf(subf(subf(subf(CaNtot,Ca4CaN),CaMCa4CaN),Ca2CaMCa4CaN),Ca4CaMCa4CaN)
+    rcnCa4CaN: f32=(kcanCaon.f64()*ca2*Ca2CaN.f64()-kcanCaoff.f64()*Ca4CaN.f64()).f32()
+    rcn02CaN: f32=(k02can.f64()*ca2*CaMCa4CaN.f64()-k20can.f64()*Ca2CaMCa4CaN.f64()).f32()
+    rcn24CaN: f32=(k24can.f64()*ca2*Ca2CaMCa4CaN.f64()-k42can.f64()*Ca4CaMCa4CaN.f64()).f32()
+    rcn0CaN: f32=subf(mulf(mulf(kcanCaM0on,CaM),Ca4CaN),mulf(kcanCaM0off,CaMCa4CaN)); rcn2CaN: f32=subf(mulf(mulf(kcanCaM2on,Ca2CaM),Ca4CaN),mulf(kcanCaM2off,Ca2CaMCa4CaN)); rcn4CaN: f32=subf(mulf(mulf(kcanCaM4on,Ca4CaM),Ca4CaN),mulf(kcanCaM4off,Ca4CaMCa4CaN))
+    Pix: f32=subf(subf(subf(subf(subf(1.0.f32(),Pb2),Pb),Pt),Pt2),Pa)
+    rcnCKib2: f32=subf(mulf(mulf(kib2,Ca2CaM),Pix),mulf(kb2i,Pb2))
+    rcnCKb2b: f32=(kb24.f64()*ca2*Pb2.f64()-kb42.f64()*Pb.f64()).f32()
+    rcnCKib: f32=subf(mulf(mulf(kib,Ca4CaM),Pix),mulf(kbi,Pb))
+    T: f32=addf(addf(addf(Pb,Pt),Pt2),Pa); Td: f64=T.f64()
+    kbt: f32=(0.055*Td+0.0074*Td*Td+0.015*Td*Td*Td).f32()
+    rcnCKbt: f32=subf(mulf(kbt,Pb),divf(mulf(mulf(kpp1,PP1tot),Pt),addf(Kmpp1,mulf(CaMKIItot,Pt))))
+    rcnCKtt2: f32=subf(mulf(kt42,Pt),(kt24.f64()*ca2*Pt2.f64()).f32())
+    rcnCKta: f32=subf(mulf(kta,Pt),mulf(mulf(kat,Ca4CaM),Pa)); rcnCKt2a: f32=subf(mulf(kt2a,Pt2),mulf(mulf(kat2,Ca2CaM),Pa))
+    rcnCKt2b2: f32=divf(mulf(mulf(kpp1,PP1tot),Pt2),addf(Kmpp1,mulf(CaMKIItot,Pt2))); rcnCKai: f32=divf(mulf(mulf(kpp1,PP1tot),Pa),addf(Kmpp1,mulf(CaMKIItot,Pa)))
+    d: mutable f32[16] = zeroed
+    d[0] <- (0.001 * subf(subf(-rcn02,rcn0B),rcn0CaN).f64()).f32()
+    term: mutable f32 = addf(subf(subf(subf(rcn02,rcn24),rcn2B),rcn2CaN),mulf(CaMKIItot,addf(-rcnCKib2,rcnCKt2a)))
+    d[1] <- (0.001*term.f64()).f32()
+    term <- addf(subf(subf(rcn24,rcn4B),rcn4CaN),mulf(CaMKIItot,addf(-rcnCKib,rcnCKta)))
+    d[2] <- (0.001*term.f64()).f32()
+    d[3] <- (0.001*subf(rcn0B,rcn02B).f64()).f32(); d[4] <- (0.001*subf(addf(rcn02B,rcn2B),rcn24B).f64()).f32(); d[5] <- (0.001*addf(rcn24B,rcn4B).f64()).f32()
+    d[6] <- (0.001*addf(subf(rcnCKib2,rcnCKb2b),rcnCKt2b2).f64()).f32(); d[7] <- (0.001*subf(addf(rcnCKib,rcnCKb2b),rcnCKbt).f64()).f32()
+    d[8] <- (0.001*subf(subf(rcnCKbt,rcnCKta),rcnCKtt2).f64()).f32(); d[9] <- (0.001*subf(subf(rcnCKtt2,rcnCKt2a),rcnCKt2b2).f64()).f32()
+    d[10] <- (0.001*subf(addf(rcnCKta,rcnCKt2a),rcnCKai).f64()).f32(); d[11] <- (0.001*subf(subf(subf(rcnCa4CaN,rcn0CaN),rcn2CaN),rcn4CaN).f64()).f32()
+    d[12] <- (0.001*subf(rcn0CaN,rcn02CaN).f64()).f32(); d[13] <- (0.001*subf(addf(rcn2CaN,rcn02CaN),rcn24CaN).f64()).f32(); d[14] <- (0.001*addf(rcn4CaN,rcn24CaN).f64()).f32()
+    comsum: mutable f32 = addf(rcn02,rcn24); comsum <- addf(comsum,rcn02B); comsum <- addf(comsum,rcn24B); comsum <- addf(comsum,rcnCa4CaN); comsum <- addf(comsum,rcn02CaN); comsum <- addf(comsum,rcn24CaN)
+    d[15] <- (0.001*subf(mulf(mulf(2.0.f32(),CaMKIItot),subf(rcnCKtt2,rcnCKb2b)),mulf(2.0.f32(),comsum)).f64()).f32()
+    checksum: mutable f64 = 0.0
+    i <- 0
+    while i < 16:
+        checksum <- checksum + (i + 1).f64() * d[i].f64()
+        i <- i + 1
+    return checksum
+
+export fn rodinia_myocyte_cam_rhs(input: i64&, length: usize) -> f64 = rodinia_myocyte_cam_rhs_impl

@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-office-ghostscript-rop3-transform-i64-array-scalar-v1",
+  "algorithm": "cbench_ghostscript_rop3_transform",
+  "function_symbol": "cbench_ghostscript_rop3_transform",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[mode, rop3_code]",
+    "mode_range": [0, 14],
+    "code_range": [0, 255],
+    "maximum_valid_input_length": 2,
+    "maximum_parseable_input_length": 3,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "transformed 8-bit ROP3 truth-table code",
+    "valid_result_range": [0, 255],
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1
+  },
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "path": "cBench/office_ghostscript/src/gsropt.h",
+    "revision": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "upstream_reference": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/office_ghostscript/src/gsropt.h",
+    "supporting_paths": ["cBench/office_ghostscript/src/info.sh", "cBench/office_ghostscript/src/gsroptab.c"],
+    "launcher_path": "cBench/office_ghostscript/src/info.sh",
+    "operations": [
+      {"mode":0,"source_macro":"rop3_invert_D"}, {"mode":1,"source_macro":"rop3_invert_S"}, {"mode":2,"source_macro":"rop3_invert_T"},
+      {"mode":3,"source_macro":"rop3_know_D_0"}, {"mode":4,"source_macro":"rop3_know_D_1"},
+      {"mode":5,"source_macro":"rop3_know_S_0"}, {"mode":6,"source_macro":"rop3_know_S_1"},
+      {"mode":7,"source_macro":"rop3_know_T_0"}, {"mode":8,"source_macro":"rop3_know_T_1"},
+      {"mode":9,"source_macro":"rop3_swap_S_T"},
+      {"mode":10,"source_macro":"rop3_use_D_when_S_0"}, {"mode":11,"source_macro":"rop3_use_D_when_S_1"},
+      {"mode":12,"source_macro":"rop3_use_D_when_T_0"}, {"mode":13,"source_macro":"rop3_use_D_when_T_1"},
+      {"mode":14,"source_macro":"rop3_not"}
+    ],
+    "scope": "Applies one ROP3 truth-table transformation, selected by mode. It transforms the Boolean function code and does not compute a destination pixel or execute the full Ghostscript workload.",
+    "license": "Aladdin Free Public License, Version 5 (February 25, 1997), reproduced in LICENSE.txt. It permits modification and redistribution subject to restrictive noncommercial terms."
+  },
+  "cases": [
+    {"id":"invert-d","input_values":[0,170],"expected_result":85},
+    {"id":"invert-s","input_values":[1,204],"expected_result":51},
+    {"id":"invert-t","input_values":[2,240],"expected_result":15},
+    {"id":"pin-d-zero","input_values":[3,170],"expected_result":0},
+    {"id":"pin-d-one","input_values":[4,170],"expected_result":255},
+    {"id":"pin-s-zero","input_values":[5,204],"expected_result":0},
+    {"id":"pin-s-one","input_values":[6,204],"expected_result":255},
+    {"id":"pin-t-zero","input_values":[7,240],"expected_result":0},
+    {"id":"pin-t-one","input_values":[8,240],"expected_result":255},
+    {"id":"swap-s-t","input_values":[9,204],"expected_result":240},
+    {"id":"use-d-when-s-zero","input_values":[10,0],"expected_result":34},
+    {"id":"use-d-when-s-one","input_values":[11,0],"expected_result":136},
+    {"id":"use-d-when-t-zero","input_values":[12,0],"expected_result":10},
+    {"id":"use-d-when-t-one","input_values":[13,0],"expected_result":160},
+    {"id":"not-result","input_values":[14,150],"expected_result":105},
+    {"id":"invalid-mode","input_values":[15,0],"expected_result":-1},
+    {"id":"invalid-code","input_values":[0,256],"expected_result":-1},
+    {"id":"wrong-length","input_values":[0],"expected_result":-1}
+  ]
+}

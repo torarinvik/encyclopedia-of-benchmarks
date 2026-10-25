@@ -1,0 +1,13 @@
+/* +++Date last modified: 05-Jul-1997 */
+
+/*
+**        A Pratt-Boyer-Moore string search, written by Jerry Coffin
+**  sometime or other in 1991.  Removed from original program, and
+**  (incorrectly) rewritten for separate, generic use in early 1992.
+**  Corrected with help from Thad Smith, late March and early
+**  April 1992...hopefully it's correct this time. Revised by Bob Stout.
+**
+**  This is hereby placed in the Public Domain by its author.
+**
+**  10/21/93 rdg  Fixed bug found by Jeff Dunlop
+*/

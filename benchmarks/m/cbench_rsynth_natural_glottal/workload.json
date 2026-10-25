@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-office-rsynth-natural-glottal-float64-slice-v1",
+  "algorithm": "cbench_rsynth_natural_glottal_sample",
+  "function_symbol": "cbench_rsynth_natural_glottal_sample",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/office_rsynth/src/nsynth.c",
+    "launcher_path": "cBench/office_rsynth/src/info.sh",
+    "symbols": ["natural_source", "pitch_synch_par_reset"],
+    "supporting_paths": ["cBench/office_rsynth/LICENSE"],
+    "rights_status": "Package declares Carnegie Mellon public-domain software; certain dictionary files are separately restricted and excluded."
+  },
+  "contract": {
+    "input_layout": "[nopen,sample_index]",
+    "input_values_integral": true,
+    "nopen_range": [40, 263],
+    "sample_index_range": [0, 299],
+    "input_elements": 2,
+    "maximum_parseable_input_elements": 3,
+    "output": "one source-f32 natural glottal-source sample promoted to binary64",
+    "maximum_output_elements": 1,
+    "invalid_result": -1,
+    "output_error_result": -2
+  },
+  "profile": {
+    "source_table_equivalent": "natglot_b = trunc(1920000/(nopen*nopen))",
+    "reset": "natglot_a=f32(f32(natglot_b*nopen)*0.333); vwave=f32(0)",
+    "open_sample_recurrence": "natglot_a=f32(natglot_a-natglot_b); vwave=f32(vwave+natglot_a); sample=f32(vwave*0.028)",
+    "closed_sample": 0.0,
+    "replay": "For the selected sample index, replay the recurrence from period offset zero; this represents one isolated pitch period without cross-call state.",
+    "excluded_data": ["beep dictionary", "phone lists", "speech input"],
+    "intermediate_precision": "IEEE binary32 after each source float assignment/operation; output promoted to binary64"
+  },
+  "workspace": {"elements": 1},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 0.00001,
+    "relative_tolerance": 0.0000001
+  },
+  "cases": [
+    {"id":"open-phase-first-sample", "input_values":[40,0], "input_length":2, "output_capacity":1, "expected_result":1, "expected_output":[413.9519958496094]},
+    {"id":"open-phase-second-sample", "input_values":[40,1], "input_length":2, "output_capacity":1, "expected_result":1, "expected_output":[794.3040161132812]},
+    {"id":"closed-phase-zero", "input_values":[40,40], "input_length":2, "output_capacity":1, "expected_result":1, "expected_output":[0.0]},
+    {"id":"invalid-open-bound", "input_values":[39,0], "input_length":2, "output_capacity":1, "expected_result":-1, "expected_output":[]},
+    {"id":"invalid-index-bound", "input_values":[40,300], "input_length":2, "output_capacity":1, "expected_result":-1, "expected_output":[]},
+    {"id":"extra-input", "input_values":[40,0,0], "input_length":3, "output_capacity":1, "expected_result":-1, "expected_output":[]},
+    {"id":"short-output", "input_values":[40,0], "input_length":2, "output_capacity":0, "expected_result":-2, "expected_output":[]},
+    {"id":"null-output", "input_values":[40,0], "input_length":2, "output_capacity":1, "output_is_null":true, "expected_result":-2, "expected_output":[]}
+  ]
+}

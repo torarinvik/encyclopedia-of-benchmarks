@@ -1,0 +1,43 @@
+# Clean-room bounded port of TSVC s4117; see package README for provenance.
+
+const TSVC_S4117_MAX_N: usize = 64
+const TSVC_S4117_MAX_INPUT_LENGTH: usize = 161
+
+def tsvc_s4117_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def tsvc_s4117_pair_replicated_gather_map_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > TSVC_S4117_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    c_length: usize = (n + 1) / 2
+    if length != 1 + 2 * n + c_length:
+        return -1
+    i: mutable usize = 1
+    while i < length:
+        value: i64 = input[i]
+        if value < -2 or value > 2:
+            return -1
+        i <- i + 1
+    if output.is_null() or capacity < 8 * n:
+        return -2
+    b_offset: usize = 1
+    c_offset: usize = 1 + n
+    d_offset: usize = c_offset + c_length
+    i <- 0
+    while i < n:
+        value: i64 = input[b_offset + i] + input[c_offset + i / 2] * input[d_offset + i]
+        tsvc_s4117_store_i64_le(value, output, 8 * i)
+        i <- i + 1
+    n.i64()
+
+export fn tsvc_s4117_pair_replicated_gather_map(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s4117_pair_replicated_gather_map_impl

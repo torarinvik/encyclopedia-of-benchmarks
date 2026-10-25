@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "parboil-mri-gridding-small-kaiser-kernel-v1",
+  "algorithm": "parboil_mri_gridding",
+  "function_symbol": "parboil_mri_gridding",
+  "abi": "i64_array_scalar",
+  "pinned_source": {
+    "repository": "yuhc/gpu-parboil",
+    "commit": "ccf3d3126f1754ca85528722f4ced5894ccb852b",
+    "paths": [
+      "benchmarks/mri-gridding/src/cuda/CPU_kernels.c",
+      "benchmarks/mri-gridding/src/cuda/UDTypes.h",
+      "benchmarks/mri-gridding/src/base/main.c",
+      "LICENSE"
+    ],
+    "symbols": ["kernel_value_CPU", "gridding_Gold", "readSampleData"],
+    "license": "Illinois Open Source License, University of Illinois/NCSA; complete text reproduced in LICENSE.txt."
+  },
+  "contract": {
+    "input_layout": "[sample_count, then sample_count tuples (kx_u, ky_u, kz_u, real_u, imag_u, sdc_u)]",
+    "sample_count_range": [0, 4],
+    "maximum_valid_input_words": 25,
+    "maximum_parseable_input_words": 25,
+    "coordinate_encoding": "Each coordinate is an already grid-mapped coordinate in millionths and must equal 0, 1000000, or 2000000.",
+    "complex_encoding": "real and imag are signed millionths in [-1000000,1000000].",
+    "density_compensation_encoding": "sdc is millionths in [0,1000000].",
+    "grid_dimensions": [3, 3, 3],
+    "kernel_width": 2.5,
+    "oversample": 0.608933,
+    "lookup_table": false,
+    "source_operation": "For each sample, visit source-clipped integer candidate coordinates in z/y/x order. Apply the strict squared-distance cutoff, evaluate source beta and the Kaiser-Bessel polynomial in source operation order, accumulate weighted real/imaginary components and increment density. Samples with both complex components zero or sdc zero are skipped.",
+    "output_definition": "For row-major voxel i=x+3*y+9*z, sum (i+1)*(round_away(real_i*1000)+round_away(imag_i*1000)+density_i).",
+    "quantization": "Real and imaginary values are multiplied by 1000 in binary32, then rounded to nearest integer with ties away from zero. Density is an exact integer for the bounded sample count.",
+    "maximum_absolute_result": 3028536,
+    "invalid_result": -1,
+    "source_scope": "Small CPU gridding recurrence with the non-LUT kernel. File parsing, coordinate scaling, LUT construction, GPU binning, and timing/reporting wrappers are excluded."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_valid_length": 25,
+    "maximum_parseable_length": 25,
+    "encoding": "[sample_count, (kx_u, ky_u, kz_u, real_u, imag_u, sdc_u)...], with grid-mapped integer coordinates and signed/unsigned millionth-scaled values.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "encoding": "Weighted checksum of the final complex grid values quantized to Q1000 plus exact sample-density counts.",
+    "maximum_absolute_value": 3028536,
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 324,
+    "meaning": "Three 27-element binary32 arrays for real, imaginary, and sample-density accumulators."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"one-center-sample-seven-voxel-support","input_values":[1,1000000,1000000,1000000,1000000,-500000,1000000],"input_length":7,"expected_result":49098},
+    {"id":"two-overlapping-center-samples","input_values":[2,1000000,1000000,1000000,1000000,-500000,1000000,1000000,1000000,1000000,1000000,-500000,1000000],"input_length":13,"expected_result":98196},
+    {"id":"corner-sample-clipped-by-grid-boundary","input_values":[1,0,0,0,1000000,0,1000000],"input_length":7,"expected_result":17017},
+    {"id":"zero-amplitude-sample-skips","input_values":[1,1000000,1000000,1000000,0,0,1000000],"input_length":7,"expected_result":0},
+    {"id":"no-samples","input_values":[0],"input_length":1,"expected_result":0},
+    {"id":"coordinate-outside-profile-grid","input_values":[1,3000000,1000000,1000000,1000000,0,1000000],"input_length":7,"expected_result":-1},
+    {"id":"mismatched-sample-count","input_values":[1,1000000,1000000,1000000,1000000,-500000],"input_length":6,"expected_result":-1},
+    {"id":"null-input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ]
+}

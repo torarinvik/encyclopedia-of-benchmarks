@@ -1,0 +1,13 @@
+RSynth package rights notice from the pinned `cBench/office_rsynth/LICENSE`:
+
+Public Domain Software (from Carnegie Mellon University).
+
+Certain dictionaries have special copyright restrictions, namely "beep".
+This is a direct desendant of CUVOLAD (british pronounciation) (as used
+by previous releases of rsynth), and so has a more restrictive copyright
+than the CMU dictionary.
+
+This benchmark package contains only a clean-room implementation of the
+`nsynth.c` natural glottal-source recurrence. It does not include or use any
+dictionary, phone list, or speech data, including the separately restricted
+"beep" dictionary.

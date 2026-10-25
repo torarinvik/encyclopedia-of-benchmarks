@@ -1,0 +1,75 @@
+const INVALID_RESULT: i64 = -1
+const OUTPUT_ERROR: i64 = -2
+const MAX_MESSAGE_BYTES: usize = 55
+
+def rol32(value: u32, shift: u32) -> u32:
+    ((value << shift) | (value >> (32 - shift))).u32()
+
+def add32(left: u32, right: u32) -> u32:
+    ((left.u64() + right.u64()) & 0xFFFFFFFF).u32()
+
+def transform_sha0(block: u8[64], state: mutable u32[5]) -> void:
+    words: mutable u32[80] = zeroed
+    for index in 0..<16:
+        position: usize = index * 4
+        words[index] <- (block[position].u32() << 24) | (block[position+1].u32() << 16) | (block[position+2].u32() << 8) | block[position+3].u32()
+    for index in 16..<80:
+        words[index] <- words[index-3] ^ words[index-8] ^ words[index-14] ^ words[index-16]
+    a: mutable u32 = state[0]
+    b: mutable u32 = state[1]
+    c: mutable u32 = state[2]
+    d: mutable u32 = state[3]
+    e: mutable u32 = state[4]
+    for index in 0..<80:
+        f: mutable u32 = 0
+        k: mutable u32 = 0
+        if index < 20:
+            f <- (b & c) | ((~b) & d)
+            k <- 0x5A827999
+        elif index < 40:
+            f <- b ^ c ^ d
+            k <- 0x6ED9EBA1
+        elif index < 60:
+            f <- (b & c) | (b & d) | (c & d)
+            k <- 0x8F1BBCDC
+        else:
+            f <- b ^ c ^ d
+            k <- 0xCA62C1D6
+        temporary: u32 = add32(add32(add32(add32(rol32(a, 5), f), e), words[index]), k)
+        e <- d
+        d <- c
+        c <- rol32(b, 30)
+        b <- a
+        a <- temporary
+    state[0] <- add32(state[0], a)
+    state[1] <- add32(state[1], b)
+    state[2] <- add32(state[2], c)
+    state[3] <- add32(state[3], d)
+    state[4] <- add32(state[4], e)
+
+def mibench_security_sha0_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MAX_MESSAGE_BYTES + 2:
+        return INVALID_RESULT
+    message_length: i64 = input[0]
+    if message_length < 0 or message_length > 55 or input_length != message_length.usize() + 1:
+        return INVALID_RESULT
+    for index in 1..<input_length:
+        if input[index] < 0 or input[index] > 255:
+            return INVALID_RESULT
+    block: mutable u8[64] = zeroed
+    for index in 0..<message_length.usize():
+        block[index] <- input[index+1].u8()
+    block[message_length.usize()] <- 0x80
+    bit_length: u64 = message_length.u64() * 8
+    for index in 0..<8:
+        block[63-index] <- ((bit_length >> (8*index)) & 255).u8()
+    state: mutable u32[5] = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0]
+    transform_sha0(block, state)
+    if output.is_null() or output_capacity < 20:
+        return OUTPUT_ERROR
+    for index in 0..<5:
+        for byte in 0..<4:
+            output[index*4+byte] <- ((state[index] >> (24-8*byte)) & 255).u8()
+    20
+
+export fn mibench_security_sha0(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = mibench_security_sha0_impl

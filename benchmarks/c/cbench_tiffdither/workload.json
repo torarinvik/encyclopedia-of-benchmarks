@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-consumer-tiffdither-floyd-steinberg-i64-array-bytes-output-v1",
+  "algorithm": "cbench_tiffdither",
+  "function_symbol": "cbench_tiffdither",
+  "description": "Bounded 8-bit grayscale Floyd–Steinberg error diffusion with MSB-first packed rows.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/consumer_tiffdither/src/tiffdither.c",
+    "symbol": "fsdither",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_tiffdither/src/tiffdither.c",
+    "license_notice": "Copyright (c) 1988-1997 Sam Leffler; Copyright (c) 1991-1997 Silicon Graphics, Inc. Permission permits use, modification, distribution and sale with notice retention; advertising name-use is restricted; warranty and liability are disclaimed.",
+    "launcher": {
+      "path": "cBench/consumer_tiffdither/src/info.sh",
+      "bench_name": "consumer_tiffdither",
+      "source_files": "*.c",
+      "compile_flags": ["-lm"],
+      "run_options": []
+    }
+  },
+  "contract": {
+    "input_layout": "[width, height, threshold, row-major grayscale pixels...]",
+    "width_range": [1, 32],
+    "height_range": [2, 16],
+    "threshold_range": [0, 255],
+    "pixel_range": [0, 255],
+    "exact_input_length": "3 + width * height",
+    "error_diffusion": "Raster order; 7/16 east, 3/16 southwest, 5/16 south, 1/16 southeast; signed division truncates toward zero.",
+    "threshold_comparison": "Strictly greater than threshold sets a white bit and subtracts 255 from the quantization error; otherwise the value is the black-pixel error.",
+    "output_layout": "For each source row 0 through height-2, ceil(width/8) bytes, pixels left-to-right in most-significant-bit-first order; unused low bits are zero.",
+    "final_input_row": "Read by the source scanline loop but not emitted; the last-line flag suppresses downward diffusion into it, so it does not affect the result.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[width, height, threshold, width*height grayscale bytes]",
+    "maximum_valid_length": 515,
+    "maximum_parseable_length": 515,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "MSB-first packed one-bit rows, omitting the final source row",
+    "maximum_bytes": 60,
+    "success_result": "ceil(width/8) * (height-1)",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 60,
+    "meaning": "Maximum caller-provided output buffer for 15 packed rows of width 32."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "all_black_row",
+      "input_values": [3, 2, 128, 0, 0, 0, 255, 255, 255],
+      "input_length": 9,
+      "expected_result": 1,
+      "expected_output_hex": "00"
+    },
+    {
+      "id": "threshold_equality_and_horizontal_diffusion",
+      "input_values": [2, 2, 128, 128, 129, 0, 0],
+      "input_length": 7,
+      "expected_result": 1,
+      "expected_output_hex": "40"
+    },
+    {
+      "id": "negative_error_truncates_toward_zero",
+      "input_values": [2, 3, 128, 129, 0, 0, 136, 0, 0],
+      "input_length": 9,
+      "expected_result": 2,
+      "expected_output_hex": "8040"
+    },
+    {
+      "id": "southwest_south_and_southeast_weights",
+      "input_values": [3, 3, 128, 0, 129, 0, 136, 136, 136, 0, 0, 0],
+      "input_length": 12,
+      "expected_result": 2,
+      "expected_output_hex": "4040"
+    },
+    {
+      "id": "non_byte_aligned_white_row",
+      "input_values": [9, 2, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 21,
+      "expected_result": 2,
+      "expected_output_hex": "ff80"
+    },
+    {
+      "id": "final_input_row_is_not_emitted",
+      "input_values": [1, 2, 128, 255, 0],
+      "input_length": 5,
+      "expected_result": 1,
+      "expected_output_hex": "80"
+    },
+    {
+      "id": "wrong_input_length",
+      "input_values": [2, 2, 128, 0, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "pixel_out_of_range",
+      "input_values": [1, 2, 128, 256, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "output_capacity_too_small",
+      "input_values": [2, 2, 128, 128, 129, 0, 0],
+      "input_length": 7,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [1, 2, 128, 255, 0],
+      "input_length": 5,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

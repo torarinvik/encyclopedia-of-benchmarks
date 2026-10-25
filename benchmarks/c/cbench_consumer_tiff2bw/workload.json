@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-consumer-tiff2bw-rgb-to-gray-i64-array-bytes-output-v1",
+  "algorithm": "cbench_consumer_tiff2bw",
+  "function_symbol": "cbench_consumer_tiff2bw",
+  "description": "Bounded fixed-point RGB-to-gray transform from cBench consumer_tiff2bw.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/consumer_tiff2bw/src/tiff2bw.c",
+    "symbols": ["compresscontig", "compresssep"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_tiff2bw/src/tiff2bw.c",
+    "license_note": "The source grants use, copying, modification, distribution, and sale if the complete notice is retained; it restricts advertising use of the authors' names without prior written permission. The full notice is retained in every port and LICENSE.txt."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "info_path": "cBench/consumer_tiff2bw/src/info.sh",
+    "bench_name": "consumer_tiff2bw",
+    "source_files": "*.c",
+    "compile_flags": ["-lm"],
+    "run_options": ""
+  },
+  "contract": {
+    "operation": "Convert each interleaved 8-bit RGB pixel to one weighted grayscale byte using the source's integer percentage weights.",
+    "input_layout": "[pixel_count, R0, G0, B0, ...]",
+    "pixel_count_range": [1, 64],
+    "channel_range": [0, 255],
+    "exact_length": "1 + 3*pixel_count",
+    "maximum_valid_input_length": 193,
+    "weight_expression": "PCT(x) = (x*255)/100 with integer division, producing RED=71, GREEN=150, BLUE=28.",
+    "arithmetic_order": "For each input-order pixel, initialize v=RED*R, add GREEN*G, then add BLUE*B; output v >> 8.",
+    "output_encoding": "One 8-bit grayscale value per pixel in input order.",
+    "success_result": "pixel_count, equal to output byte length",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "errors": "Null or malformed input returns -1 before output checks. Null output or capacity below pixel_count returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "pixel count followed by interleaved red, green, and blue channel values",
+    "maximum_valid_length": 193,
+    "maximum_parseable_length": 193,
+    "channel_range": [0, 255],
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "One source-weighted grayscale byte per RGB pixel.",
+    "maximum_bytes": 64,
+    "capacity_unit": "bytes",
+    "success_result": "Number of pixels converted; equal to the output byte count.",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 64,
+    "meaning": "Maximum grayscale output for 64 RGB pixels."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "black", "input_values": [1, 0, 0, 0], "input_length": 4, "output_capacity": 64, "expected_result": 1, "expected_output_hex": "00"},
+    {"id": "white", "input_values": [1, 255, 255, 255], "input_length": 4, "output_capacity": 64, "expected_result": 1, "expected_output_hex": "f8"},
+    {"id": "red-green-blue-primaries", "input_values": [3, 255, 0, 0, 0, 255, 0, 0, 0, 255], "input_length": 10, "output_capacity": 64, "expected_result": 3, "expected_output_hex": "46951b"},
+    {"id": "mixed-color", "input_values": [1, 128, 64, 32], "input_length": 4, "output_capacity": 1, "expected_result": 1, "expected_output_hex": "4c"},
+    {"id": "multiple-pixels-source-order", "input_values": [4, 3, 6, 9, 120, 80, 40, 255, 255, 255, 0, 255, 0], "input_length": 13, "output_capacity": 4, "expected_result": 4, "expected_output_hex": "0554f895"},
+    {"id": "zero-pixel-count", "input_values": [0], "input_length": 1, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-rgb-triplet", "input_values": [1, 12, 34], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "extra-trailing-value", "input_values": [1, 1, 2, 3, 4], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "channel-out-of-range", "input_values": [1, 0, 256, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 8, 9, 10], "input_length": 4, "output_capacity": 1, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "insufficient-output-capacity", "input_values": [2, 8, 9, 10, 11, 12, 13], "input_length": 7, "output_capacity": 1, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

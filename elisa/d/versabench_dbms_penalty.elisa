@@ -1,0 +1,21 @@
+def versabench_dbms_penalty_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 1 or length > 17 or length != 16: return -1
+    for box in 0..<2:
+        for d in 0..<4:
+            lo: i64 = values[box * 8 + d]
+            hi: i64 = values[box * 8 + 4 + d]
+            if lo < -8 or lo > 8 or hi < -8 or hi > 8 or lo >= hi: return -1
+    joined: mutable i64 = 1
+    original: mutable i64 = 1
+    for d in 0..<4:
+        a_lo: i64 = values[d]
+        b_lo: i64 = values[8 + d]
+        a_hi: i64 = values[4 + d]
+        b_hi: i64 = values[12 + d]
+        lo: i64 = if a_lo < b_lo: a_lo else: b_lo
+        hi: i64 = if a_hi > b_hi: a_hi else: b_hi
+        joined <- joined * (hi - lo)
+        original <- original * (a_hi - a_lo)
+    joined - original
+
+export fn versabench_dbms_penalty(values: i64&, length: usize) -> i64 = versabench_dbms_penalty_impl

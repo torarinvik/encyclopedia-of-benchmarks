@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s4114-reverse-index-gather-fma-i64-le-v1",
+  "algorithm": "tsvc_s4114_reverse_index_gather_fma",
+  "function_symbol": "tsvc_s4114_reverse_index_gather_fma",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded one-sweep TSVC s4114 dense-output reverse-index gather multiply-add.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["TSVC/IndirectAddressing-dbl/info.sh", "TSVC/IndirectAddressing-dbl/tsc.c", "TSVC/tsc.inc", "TSVC/tests.h"],
+    "symbol": "s4114",
+    "source_lines": {"codelet_start": 4758, "codelet_end": 4783, "initialization_start": 728, "initialization_end": 732, "launcher_call_line": 5493},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc#L4758",
+    "launcher_family": "TSVC/IndirectAddressing-dbl",
+    "launcher_type": "double",
+    "launcher_run_options": "12500 14",
+    "launcher_default_scalar": {"n1": 1},
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. These ports are clean-room implementations and reuse no upstream source code or comments; no upstream license or endorsement is claimed."
+  },
+  "contract": {
+    "operation": "For i=0..n-1, compute A[i] = B[i] + C[n - 1 - IP[i]] * D[i].",
+    "input_layout": "[n, IP[n], B[n], C[n], D[n]]",
+    "n_range": [1, 64],
+    "index_range": "0 <= IP[i] < n",
+    "value_range": [-2, 2],
+    "exact_length": "1 + 4*n",
+    "maximum_valid_input_length": 257,
+    "output": "A[n] as little-endian signed i64 values.",
+    "output_capacity_requirement": "At least 8*n bytes.",
+    "success_result": "n values written.",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "input_modified": false,
+    "source_profile": "One full sweep with the source launcher lower-bound scalar n1 fixed to 1, so i starts at zero. The source index expression LEN-IP[i]+1-2 is simplified to n-1-IP[i]. Its local k += 5 statement occurs after the output assignment and is unused; it has no observable effect and is omitted. Timing repetitions, initialization, dummy calls, and checksums are excluded."
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "n, IP[n], B[n], C[n], D[n]",
+    "maximum_valid_length": 257,
+    "maximum_parseable_length": 257,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Computed A[n].",
+    "maximum_values": 64,
+    "maximum_bytes": 512,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 512},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "permuted-reverse-gather",
+      "input_values": [4, 0, 3, 1, 2, 1, -2, 0, 2, 2, -1, 3, 0, 1, 2, -2, 1],
+      "input_length": 17,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "01000000000000000200000000000000faffffffffffffff0100000000000000"
+    },
+    {
+      "id": "signed-gather-products",
+      "input_values": [3, 2, 0, 1, -2, 1, 2, -2, 1, 2, 2, -1, 1],
+      "input_length": 13,
+      "output_capacity": 24,
+      "expected_result": 3,
+      "expected_output_hex": "faffffffffffffffffffffffffffffff0300000000000000"
+    },
+    {
+      "id": "single-element",
+      "input_values": [1, 0, 0, -2, 2],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 1,
+      "expected_output_hex": "fcffffffffffffff"
+    },
+    {"id": "zero-dimension", "input_values": [0, 0, 0, 0, 0], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "index-out-of-range", "input_values": [2, 0, 2, 0, 0, 0, 0, 0, 0], "input_length": 9, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-arrays", "input_values": [2, 0, 1, 0, 0], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "value-out-of-range", "input_values": [1, 0, 0, 3, 0], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "insufficient-output-capacity", "input_values": [1, 0, 0, 1, 1], "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 0, 0, 1, 1], "output_capacity": 8, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 512, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

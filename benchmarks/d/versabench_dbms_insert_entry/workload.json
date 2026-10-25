@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-versabench-dbms-insert-entry-no-split-i64-array-bytes-v1",
+  "algorithm": "versabench_dbms_insert_entry",
+  "function_symbol": "versabench_dbms_insert_entry",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "VersaBench/dbms/insertEntry.c",
+    "supporting_paths": ["VersaBench/dbms/chooseEntry.c", "VersaBench/dbms/penalty.c", "VersaBench/dbms/volume.c", "VersaBench/dbms/keyUnion.c", "VersaBench/dbms/splitNode.c", "VersaBench/dbms/partitionEntries.c", "VersaBench/dbms/index.h", "VersaBench/dbms/indexKey.h"],
+    "launcher_path": "VersaBench/dbms/info.sh",
+    "symbols": ["insertEntry", "chooseEntry", "penalty", "keyUnion"],
+    "author": "M. L. Rivas",
+    "copyright": "Copyright 1999, Atlantic Aerospace Electronics Corp.",
+    "license_status": "No explicit redistribution license found in the pinned directory; local code is clean-room and contains no copied source text or comments."
+  },
+  "contract": {
+    "input_layout": "[depth,new_record_id,new_lower_TXYZ,new_upper_TXYZ,branch_records...,leaf_count,leaf_records...]; branch_record=[child_count,child_boxes...]; leaf_record=[lower_TXYZ,upper_TXYZ,record_id]",
+    "depth_range": [0, 2],
+    "children_per_branch_range": [1, 4],
+    "leaf_records_range": [0, 3],
+    "coordinate_range": [-8, 8],
+    "record_id_range": [0, 31],
+    "maximum_valid_input_words": 104,
+    "maximum_parseable_input_words": 105,
+    "output": "little-endian signed i64 words [depth,new_record_id,chosen_child_index_per_level,updated_leaf_MBR,updated_internal_MBRs_bottom_up]",
+    "maximum_output_bytes": 224,
+    "invalid_result": -1,
+    "output_error_result": -2
+  },
+  "profile": {
+    "selection": "At each level choose the child minimizing volume(union(child,incoming))-volume(child); strict improvement preserves the first tie.",
+    "path_invariant": "Each selected child box equals the next path node's pre-insertion MBR.",
+    "update": "Insert into a leaf with room, recompute its MBR, then replace the selected child key and recompute each ancestor MBR bottom-up.",
+    "scope": "No-split insertEntry success path only; overflow, node splitting, allocation, root growth, record I/O, full database command stream, and metrics harness are excluded.",
+    "arithmetic": "Bounded integer coordinates yield exact volume products matching the source floating-point comparisons."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"empty-root-leaf-insert", "input_values":[0,8,1,1,1,1,2,2,2,2,0], "output_capacity":224, "expected_result":80, "expected_output_hex":"0000000000000000080000000000000001000000000000000100000000000000010000000000000001000000000000000200000000000000020000000000000002000000000000000200000000000000"},
+    {"id":"recursive-descent-and-bottom-up-mbr-update", "input_values":[1,8,1,1,1,1,2,2,2,2,2,0,0,0,0,1,1,1,1,3,3,3,3,4,4,4,4,1,0,0,0,0,1,1,1,1,7], "output_capacity":224, "expected_result":152, "expected_output_hex":"010000000000000008000000000000000000000000000000000000000000000000000000000000000200000000000000020000000000000002000000000000000200000000000000000000000000000000000000000000000000000000000000000400000000000000040000000000000004000000000000000400000000000000"},
+    {"id":"selected-path-mbr-mismatch", "input_values":[1,8,1,1,1,1,2,2,2,2,1,0,0,0,0,2,2,2,2,1,0,0,0,0,1,1,1,1,7], "output_capacity":224, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short-output-capacity", "input_values":[0,8,1,1,1,1,2,2,2,2,0], "output_capacity":79, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[0,8,1,1,1,1,2,2,2,2,0], "output_capacity":224, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_is_null":true, "input_length":0, "output_capacity":224, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

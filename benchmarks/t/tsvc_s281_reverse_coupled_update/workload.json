@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s281-reverse-coupled-update-i64-array-bytes-output-v1",
+  "algorithm": "tsvc_s281_reverse_coupled_update",
+  "function_symbol": "tsvc_s281_reverse_coupled_update",
+  "description": "Bounded source-shaped in-place reverse-coupled array update from TSVC s281.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s281",
+    "included_by": "TSVC/CrossingThresholds-dbl/tsc.c",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "attribution": "The TSVC source comment attributes its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. Ports are clean-room implementations of the published loop behavior; no upstream code or comments are reused and no upstream license or endorsement is claimed."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "info_path": "TSVC/CrossingThresholds-dbl/info.sh",
+    "bench_name": "CrossingThresholds-dbl",
+    "source_files": ["dummy.c", "tsc.c"],
+    "compile_flags": ["-std=gnu99", "-lm"],
+    "run_options": ["5880", "14"]
+  },
+  "contract": {
+    "operation": "For each pass and ascending i, compute x=A[n-i-1]+B[i]*C[i], then store A[i]=x-1 followed by B[i]=x.",
+    "input_layout": "[n, passes, A[0..n), B[0..n), C[0..n)]",
+    "n_range": [1, 16],
+    "passes_range": [1, 8],
+    "a_range": [-2, 2],
+    "b_range": [-2, 2],
+    "c_range": [-1, 1],
+    "exact_length": "2 + 3*n",
+    "maximum_valid_input_length": 50,
+    "arithmetic_type": "binary64 source double; declared inputs and all bounded intermediates are exact integers below 20000 in magnitude",
+    "traversal": "passes in ascending order, then i from 0 through n-1; each A update is visible to later reverse-index reads in that same pass",
+    "output_encoding": "Final A array followed by final B array, each as little-endian signed i64",
+    "success_result": "16*n output bytes",
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "errors": "Null or malformed input returns -1 before output checks. Null output or capacity below 16*n returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "n, passes, then A, B, and C arrays of n integers each",
+    "maximum_valid_length": 50,
+    "maximum_parseable_length": 50,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Little-endian signed i64 values: final A array followed by final B array",
+    "maximum_bytes": 256,
+    "capacity_unit": "bytes",
+    "success_result": "16*n output bytes",
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 256,
+    "meaning": "Two output arrays of at most 16 signed i64 values each."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "source-initializer-pattern", "input_values": [4, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1], "input_length": 14, "output_capacity": 256, "expected_result": 64, "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000100000000000000010000000000000001000000000000000100000000000000"},
+    {"id": "same-pass-reverse-read", "input_values": [2, 1, 1, 2, 1, 1, 1, 1], "input_length": 8, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0200000000000000020000000000000003000000000000000300000000000000"},
+    {"id": "two-source-shaped-passes", "input_values": [2, 2, 1, 2, 1, 1, 1, 1], "input_length": 8, "output_capacity": 32, "expected_result": 32, "expected_output_hex": "0400000000000000060000000000000005000000000000000700000000000000"},
+    {"id": "negative-coefficient-self-read", "input_values": [1, 1, 0, 1, -1], "input_length": 5, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "feffffffffffffffffffffffffffffff"},
+    {"id": "zero-coefficient-self-read", "input_values": [1, 1, 1, 1, 0], "input_length": 5, "output_capacity": 16, "expected_result": 16, "expected_output_hex": "00000000000000000100000000000000"},
+    {"id": "zero-size", "input_values": [0, 1], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "zero-passes", "input_values": [1, 0, 0, 0, 1], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-array", "input_values": [1, 1, 0, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "trailing-array-value", "input_values": [1, 1, 0, 0, 0, 0], "input_length": 6, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "a-out-of-range", "input_values": [1, 1, 3, 0, 0], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "c-out-of-range", "input_values": [1, 1, 0, 0, 2], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 1, 0, 0, 1], "input_length": 5, "output_capacity": 16, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "short-output-capacity", "input_values": [1, 1, 0, 0, 1], "input_length": 5, "output_capacity": 15, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

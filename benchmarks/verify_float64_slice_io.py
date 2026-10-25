@@ -89,6 +89,10 @@ from run_float64_slice_io import (
     validate_polybench_correlation_workload,
     validate_polybench_seidel_2d_workload,
     validate_mibench_automotive_basicmath_cubic_workload,
+    validate_mibench_lame_mdct_long_workload,
+    validate_cbench_consumer_mad_imdct36_workload,
+    validate_cbench_lame_mid_side_workload,
+    validate_cbench_rsynth_natural_glottal_workload,
 )
 from pca_oracle import (
     MAX_OUTPUT_ELEMENTS as PCA_MAX_OUTPUT_ELEMENTS,
@@ -945,6 +949,140 @@ def polybench_seidel_2d_verifier_oracle(values, capacity=None, output_is_null=Fa
     return len(output), output
 
 
+def mibench_lame_mdct_long_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independent cosine-sum reference for LAME's 18-point long MDCT."""
+    if (not isinstance(values, (list, tuple)) or len(values) > 19
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   or not -16.0 <= float(value) <= 16.0 for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and (values or input_length not in (None, 0)))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != 18:
+        return -1, []
+    if output_is_null or capacity is not None and capacity < 18:
+        return -2, []
+    output = []
+    for m in range(18):
+        total = math.fsum(
+            float(values[k]) * math.cos(
+                math.pi * (2 * m + 1) * (4 * k + (38 if k < 9 else 74)) / 144.0
+            )
+            for k in range(18)
+        )
+        output.append((4.0 / 36.0) * total)
+    return 18, output
+
+
+def cbench_consumer_mad_imdct36_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independent high-accuracy cosine-sum reference for libmad IMDCT36."""
+    if (not isinstance(values, (list, tuple)) or len(values) > 19
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   or not -16.0 <= float(value) <= 16.0 for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and (values or input_length not in (None, 0)))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != 18:
+        return -1, []
+    if output_is_null or capacity is not None and capacity < 36:
+        return -2, []
+    output = []
+    for n in range(36):
+        output.append(math.fsum(
+            float(values[k]) * math.cos(
+                math.pi * (2 * n + 19) * (2 * k + 1) / 72.0
+            )
+            for k in range(18)
+        ))
+    return 36, output
+
+
+def cbench_lame_mid_side_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independent source-order reference for LAME's stereo mid-side conversion."""
+    if (not isinstance(values, (list, tuple)) or len(values) > 66
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and (values or input_length not in (None, 0)))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or not 3 <= len(values) <= 65:
+        return -1, []
+    count_value = float(values[0])
+    if count_value != math.trunc(count_value) or not 1 <= count_value <= 32:
+        return -1, []
+    count = int(count_value)
+    if len(values) != 1 + 2 * count:
+        return -1, []
+    samples = [float(value) for value in values[1:]]
+    if any(value < -16.0 or value > 16.0 for value in samples):
+        return -1, []
+    required = 2 * count
+    if output_is_null or capacity is not None and capacity < required:
+        return -2, []
+    scale = math.sqrt(2.0) * 0.5
+    output = []
+    for index in range(count):
+        left = samples[index]
+        right = samples[count + index]
+        output.append((left + right) * scale)
+        output.append((left - right) * scale)
+    return required, output
+
+
+def _cbench_rsynth_f32(value: float) -> float:
+    return struct.unpack("<f", struct.pack("<f", value))[0]
+
+
+def cbench_rsynth_natural_glottal_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independent binary32 recurrence for one bounded RSynth glottal sample."""
+    if (not isinstance(values, (list, tuple)) or len(values) > 3
+            or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_is_null and (values or input_length not in (None, 0)))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, []
+    if input_is_null or len(values) != 2:
+        return -1, []
+    open_value, sample_value = (float(value) for value in values)
+    if (open_value != math.trunc(open_value) or sample_value != math.trunc(sample_value)
+            or not 40 <= open_value <= 263 or not 0 <= sample_value <= 299):
+        return -1, []
+    nopen, sample_index = int(open_value), int(sample_value)
+    result = 0.0
+    if sample_index < nopen:
+        # Integer truncation matches the pinned source table's bounded formula.
+        natglot_b = _cbench_rsynth_f32(1_920_000 // (nopen * nopen))
+        natglot_a = _cbench_rsynth_f32(
+            _cbench_rsynth_f32(natglot_b * float(nopen)) * 0.333)
+        vwave = _cbench_rsynth_f32(0.0)
+        for _ in range(sample_index + 1):
+            natglot_a = _cbench_rsynth_f32(natglot_a - natglot_b)
+            vwave = _cbench_rsynth_f32(vwave + natglot_a)
+        result = _cbench_rsynth_f32(vwave * 0.028)
+    if output_is_null or capacity is not None and capacity < 1:
+        return -2, []
+    return 1, [result]
+
+
 def mibench_automotive_basicmath_cubic_verifier_oracle(
         values, capacity=None, output_is_null=False,
         input_is_null=False, input_length=None):
@@ -1038,6 +1176,14 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_polybench_seidel_2d_workload(workload)
     elif algorithm == "mibench_automotive_basicmath_cubic":
         validate_mibench_automotive_basicmath_cubic_workload(workload)
+    elif algorithm == "mibench_lame_mdct_long":
+        validate_mibench_lame_mdct_long_workload(workload)
+    elif algorithm == "cbench_consumer_mad_imdct36":
+        validate_cbench_consumer_mad_imdct36_workload(workload)
+    elif algorithm == "cbench_lame_mid_side":
+        validate_cbench_lame_mid_side_workload(workload)
+    elif algorithm == "cbench_rsynth_natural_glottal_sample":
+        validate_cbench_rsynth_natural_glottal_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":
@@ -1229,6 +1375,50 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                 raise ValueError(
                     f"{case.get('id')}: MiBench cubic fixture differs from the independent verifier oracle"
                 )
+        elif algorithm == "mibench_lame_mdct_long":
+            independent_result, independent_output = mibench_lame_mdct_long_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: LAME MDCT fixture differs from the independent verifier oracle"
+                )
+        elif algorithm == "cbench_consumer_mad_imdct36":
+            independent_result, independent_output = cbench_consumer_mad_imdct36_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: consumer_mad IMDCT36 fixture differs from the independent verifier oracle"
+                )
+        elif algorithm == "cbench_lame_mid_side":
+            independent_result, independent_output = cbench_lame_mid_side_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: LAME mid-side fixture differs from the independent verifier oracle"
+                )
+        elif algorithm == "cbench_rsynth_natural_glottal_sample":
+            independent_result, independent_output = cbench_rsynth_natural_glottal_verifier_oracle(
+                values, case.get("output_capacity", workspace),
+                case.get("output_is_null", False), case.get("input_is_null", False),
+                case.get("input_length"))
+            if (independent_result != expected_result
+                    or not _matches_output(expected_output, independent_output,
+                                           absolute_tolerance, relative_tolerance)):
+                raise ValueError(
+                    f"{case.get('id')}: RSynth natural-source fixture differs from the independent verifier oracle"
+                )
         elif algorithm == "misc_dt":
             independent_result, independent_output = misc_dt_verifier_expected_output(values)
             if case.get("input_is_null", False) or case.get("input_length") != len(values):
@@ -1292,6 +1482,7 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
                                     "linearregressionrawr", "q_learning",
                                     "single_indeterminate_operations", "montecarlopi",
                                     "local_weighted_learning", "pseudo_inverse", "tdigest",
+                                    "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample",
                                     *TRAVELLING_SALESMAN_PYTHON_ALGORITHMS}
                    else oracle_result is None)
         if invalid:
@@ -1527,6 +1718,81 @@ def checker_records(algorithm: str, workload: dict) -> tuple[str, int]:
         if null_result != -2 or null_output:
             raise ValueError("MiBench cubic null-output oracle returned an invalid result")
         records.append((maximum_input, null_result, [], result, 0, 1))
+    elif algorithm == "cbench_consumer_mad_imdct36":
+        rng_imdct = random.Random(0x1D36)
+        for _case_index in range(32):
+            generated_input = [rng_imdct.uniform(-16.0, 16.0) for _ in range(18)]
+            result, output = cbench_consumer_mad_imdct36_verifier_oracle(
+                generated_input, workspace)
+            if (result != 36 or len(output) != result
+                    or any(not math.isfinite(value) for value in output)):
+                raise ValueError("consumer_mad IMDCT36 verifier rejected a bounded coefficient vector")
+            records.append((generated_input, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
+        boundary_inputs = ([16.0] * 18, [-16.0] * 18)
+        for boundary_input in boundary_inputs:
+            result, output = cbench_consumer_mad_imdct36_verifier_oracle(
+                boundary_input, workspace)
+            if result != 36 or len(output) != 36:
+                raise ValueError("consumer_mad IMDCT36 verifier rejected an inclusive coefficient bound")
+            records.append((boundary_input, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
+        null_input = [0.0] * 18
+        null_result, null_output = cbench_consumer_mad_imdct36_verifier_oracle(
+            null_input, workspace, input_is_null=True, input_length=18)
+        if null_result != -1 or null_output:
+            raise ValueError("consumer_mad IMDCT36 null-input verifier returned an invalid result")
+        records.append((null_input, null_result, [], workspace, 1, 0))
+    elif algorithm == "cbench_lame_mid_side":
+        generated_inputs = []
+        for count in range(1, 33):
+            left = [float(((index * 7 + count) % 33) - 16) / 2.0
+                    for index in range(count)]
+            right = [float(((index * 11 + 2 * count) % 33) - 16) / 2.0
+                     for index in range(count)]
+            generated_inputs.append([float(count), *left, *right])
+        generated_inputs.extend(([32.0, *([16.0] * 32), *([-16.0] * 32)],
+                                 [32.0, *([-16.0] * 32), *([16.0] * 32)]))
+        for generated_input in generated_inputs:
+            result, output = cbench_lame_mid_side_verifier_oracle(generated_input, workspace)
+            if (result != 2 * int(generated_input[0]) or len(output) != result
+                    or any(not math.isfinite(value) for value in output)):
+                raise ValueError("LAME mid-side verifier rejected a bounded channel pair")
+            records.append((generated_input, result, [_output_token(value) for value in output],
+                            workspace, 0, 0))
+        maximum_input = generated_inputs[-2]
+        short_result, short_output = cbench_lame_mid_side_verifier_oracle(
+            maximum_input, workspace - 1)
+        if short_result != -2 or short_output:
+            raise ValueError("LAME mid-side verifier returned an invalid short-capacity result")
+        records.append((maximum_input, short_result, [], workspace - 1, 0, 0))
+        null_result, null_output = cbench_lame_mid_side_verifier_oracle(
+            maximum_input, workspace, output_is_null=True)
+        if null_result != -2 or null_output:
+            raise ValueError("LAME mid-side verifier returned an invalid null-output result")
+        records.append((maximum_input, null_result, [], workspace, 0, 1))
+        null_input_result, null_input_output = cbench_lame_mid_side_verifier_oracle(
+            maximum_input, workspace, input_is_null=True,
+            input_length=len(maximum_input))
+        if null_input_result != -1 or null_input_output:
+            raise ValueError("LAME mid-side verifier returned an invalid null-input result")
+        records.append((maximum_input, null_input_result, [], workspace, 1, 0))
+    elif algorithm == "cbench_rsynth_natural_glottal_sample":
+        for open_samples in (40, 41, 100, 262, 263):
+            for sample_index in (0, open_samples - 1, open_samples, 299):
+                generated_input = [float(open_samples), float(sample_index)]
+                result, output = cbench_rsynth_natural_glottal_verifier_oracle(
+                    generated_input, workspace)
+                if (result != 1 or len(output) != 1 or not math.isfinite(output[0])
+                        or sample_index >= open_samples and output[0] != 0.0):
+                    raise ValueError("RSynth verifier rejected a bounded open/closed phase sample")
+                records.append((generated_input, result, [_output_token(output[0])],
+                                workspace, 0, 0))
+        maximum_input = [263.0, 299.0]
+        result, output = cbench_rsynth_natural_glottal_verifier_oracle(maximum_input, workspace)
+        if result != 1 or output != [0.0]:
+            raise ValueError("RSynth verifier failed the maximum closed-phase sample")
+        records.append((maximum_input, result, [_output_token(output[0])], workspace, 0, 0))
     records.append((values, -1, [], workspace, 1, 0))
     if algorithm != "md2_digest":
         records.append(([], -1, [], workspace, 0, 0))
@@ -6316,7 +6582,10 @@ def main() -> int:
         parser.error("jobs must be positive and language selections must be unique")
     algorithm = args.algorithm
     package_dir = {"polybench_lu": "l", "polybench_correlation": "c",
-                   "polybench_seidel_2d": "s"}.get(algorithm, algorithm[0])
+                   "polybench_seidel_2d": "s",
+                   "cbench_consumer_mad_imdct36": "m",
+                   "cbench_lame_mid_side": "m",
+                   "cbench_rsynth_natural_glottal_sample": "m"}.get(algorithm, algorithm[0])
     workload_path = ROOT / "benchmarks" / package_dir / algorithm / "workload.json"
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if workload.get("algorithm") != algorithm:

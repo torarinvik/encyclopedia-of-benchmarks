@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "rodinia-streamcluster-pgain-bounded-v1",
+  "algorithm": "rodinia_streamcluster_pgain",
+  "function_symbol": "rodinia_streamcluster_pgain",
+  "abi": "i64_array_bytes_output",
+  "pinned_source": {
+    "repository": "utcs-scea/rodinia",
+    "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+    "paths": ["cuda/streamcluster/streamcluster_original.cpp", "cuda/streamcluster/run", "LICENSE"],
+    "symbols": ["dist", "pgain"],
+    "url": "https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/streamcluster",
+    "license": "Princeton University three-condition redistribution notice plus the repository's University of Virginia notice and citation request"
+  },
+  "pinned_launcher": {
+    "path": "cuda/streamcluster/run",
+    "command": "./sc_gpu 10 20 256 65536 65536 1000 none output.txt",
+    "scope_note": "This bounded package measures one pgain candidate evaluation and commit/reject step, not pspeedy initialization or the launcher's full iterative schedule."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n, dimension, candidate, facility_cost, center_mask, assignments[n], weights[n], current_costs[n], coordinates[n*dimension]]",
+    "valid_length": "5 + n*(3+dimension)",
+    "maximum_valid_words": 53,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "output": {
+    "kind": "little_endian_signed_i64_vector",
+    "layout": "[opened, gain, center_count, center_mask, objective, assignments'[n], costs'[n]]",
+    "success_result": "5 + 2*n words",
+    "maximum_bytes": 168
+  },
+  "contract": {
+    "input_layout": "[n, dimension, candidate, facility_cost, center_mask, assignments[n], weights[n], current_costs[n], coordinates[n*dimension]]",
+    "bounds": {"points": [2, 8], "dimension": [1, 3], "facility_cost": [1, 64], "weight": [1, 4], "coordinate": [-8, 8]},
+    "input_length": "5 + n*(3+dimension)",
+    "max_input_words": 53,
+    "max_parseable_input_words": 54,
+    "preconditions": "Nonempty center mask; candidate is not open; assignments target open centers; open centers self-assign at zero cost; current_costs exactly equal weight times squared Euclidean distance.",
+    "operation": "Rodinia pgain: sum strict direct-switch cost deltas, accumulate current_cost minus candidate_cost per current center otherwise, subtract each strictly positive facility_cost+lower closure value, and open candidate iff resulting delta is strictly negative.",
+    "output_layout": "little-endian signed i64 words [opened, gain, center_count, center_mask, objective, assignments'[n], costs'[n]]",
+    "max_output_words": 21,
+    "max_output_bytes": 168,
+    "malformed_result": -1,
+    "null_or_short_output_result": -2
+  },
+  "workspace": {"bytes": 168},
+  "measurement": {"comparison_model": "i64_array_bytes_output_call", "sample_count": 3, "warmup_rounds": 1, "repetitions_per_sample": 1},
+  "cases": [
+    {"id":"profitable_candidate_keeps_existing_center","input_values":[2,1,1,1,1,0,0,1,1,0,4,0,2],"input_length":13,"expected_result":9,"expected_output_hex":"010000000000000003000000000000000200000000000000030000000000000002000000000000000000000000000000010000000000000000000000000000000000000000000000"},
+    {"id":"candidate_is_not_profitable","input_values":[2,1,1,64,1,0,0,1,1,0,64,0,8],"input_length":13,"expected_result":9,"expected_output_hex":"000000000000000000000000000000000100000000000000010000000000000080000000000000000000000000000000000000000000000000000000000000004000000000000000"},
+    {"id":"invalid_candidate_already_open","input_values":[2,1,0,1,1,0,0,1,1,0,0,0,2],"input_length":13,"expected_result":-1},
+    {"id":"invalid_assignment_cost","input_values":[2,1,1,1,1,0,0,1,1,0,5,0,2],"input_length":13,"expected_result":-1}
+  ]
+}

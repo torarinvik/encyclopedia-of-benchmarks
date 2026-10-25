@@ -1,0 +1,7 @@
+Embench-IoT EDN vec_mpy1 attribution
+Pinned source: https://github.com/embench/embench-iot/blob/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/edn/libedn.c
+SPDX-License-Identifier: GPL-3.0-or-later
+
+Pinned header credits Embecosm Limited and University of Bristol (2014-2019), contributors James Pallister and Jeremy Bennett, and identifies original code from WCET Benchmarks (http://www.mrtc.mdh.se/projects/wcet/benchmarks.html). The header states: Permission to license under GPL obtained by email from Björn Lisper.
+
+Local ports independently implement the bounded profile and are distributed under GPL-3.0-or-later. See LICENSE.txt for the complete license.

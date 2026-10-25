@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-indexed-gather-scatter-i64-le-v1",
+  "algorithm": "tsvc_indexed_gather_scatter",
+  "function_symbol": "tsvc_indexed_gather_scatter",
+  "description": "Bounded indexed scatter (s491) and gather-plus-scatter (s4113) vector update profiles from TSVC.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbols": ["s491", "s4113"],
+    "source_lines": {"s491": 4678, "s4113": 4731},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_family": "TSVC/IndirectAddressing-dbl",
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. Ports are independent implementations of the bounded loop behavior; no upstream source code or comments are reused and no upstream license or endorsement is claimed."
+  },
+  "contract": {
+    "operation": "Mode 491 applies destination[index[i]] = b[i] + c[i]*d[i]. Mode 4113 applies destination[index[i]] = b[index[i]] + c[i]. Both visit i upward; repeated indices overwrite earlier values.",
+    "input_layout": "[codelet, n, index[n], destination[n], b[n], c[n], d[n] for codelet 491 only]",
+    "codelet_values": [491, 4113],
+    "n_range": [1, 16],
+    "index_range": "0 through n-1; duplicates are allowed",
+    "operand_range": [-1000000, 1000000],
+    "destination_range": [-9223372036854775808, 9223372036854775807],
+    "exact_length": {"491": "2 + 5*n", "4113": "2 + 4*n"},
+    "maximum_valid_input_length": 82,
+    "output": "Final destination vector encoded as little-endian signed i64 values.",
+    "output_capacity_requirement": "At least 8*n bytes.",
+    "success_result": "Number of destination values written (n).",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "input_modified": false
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "codelet, n, index vector, initial destination vector, b vector, c vector, and d vector for s491",
+    "maximum_valid_length": 82,
+    "maximum_parseable_length": 82,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "The final destination vector, one signed i64 per element.",
+    "maximum_values": 16,
+    "maximum_bytes": 128
+  },
+  "workspace": {"bytes": 128},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "s491-repeated-scatter-last-write-wins",
+      "input_values": [491, 4, 1, 1, 3, 1, 10, 20, 30, 40, 1, 2, 3, 4, 2, -1, 3, 0, 3, 5, -2, 100],
+      "input_length": 22,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "0a0000000000000004000000000000001e00000000000000fdffffffffffffff"
+    },
+    {
+      "id": "s491-permutation-scatter",
+      "input_values": [491, 3, 2, 0, 1, -5, 0, 7, -2, 5, 1, 4, 3, -2, 2, -1, 6],
+      "input_length": 17,
+      "output_capacity": 24,
+      "expected_result": 3,
+      "expected_output_hex": "0200000000000000f5ffffffffffffff0600000000000000"
+    },
+    {
+      "id": "s4113-gather-and-repeated-scatter",
+      "input_values": [4113, 4, 2, 2, 0, 2, 10, 20, 30, 40, 100, 200, 300, 400, 1, 2, 3, 4],
+      "input_length": 18,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "6700000000000000140000000000000030010000000000002800000000000000"
+    },
+    {
+      "id": "s4113-reverse-indexed-gather",
+      "input_values": [4113, 3, 2, 1, 0, 0, 0, 0, 10, 20, 30, 1, -2, 3],
+      "input_length": 14,
+      "output_capacity": 24,
+      "expected_result": 3,
+      "expected_output_hex": "0d0000000000000012000000000000001f00000000000000"
+    },
+    {
+      "id": "s491-maximum-bounded-length",
+      "input_values": [491, 16, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 82,
+      "output_capacity": 128,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {"id": "invalid-codelet", "input_values": [7, 1, 0, 0, 0, 0], "input_length": 6, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "out-of-range-index", "input_values": [491, 2, 0, 2, 5, 6, 1, 2, 2, 3, 1, 1], "input_length": 12, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-s491-tail", "input_values": [491, 2, 0, 1, 7, 8, 2, 3, 4, 5, 6], "input_length": 11, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "operand-out-of-range", "input_values": [4113, 1, 0, 0, 1000001, 0], "input_length": 6, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "insufficient-output-capacity", "input_values": [4113, 1, 0, 7, 10, 2], "input_length": 6, "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [4113, 1, 0, 7, 10, 2], "input_length": 6, "output_capacity": 8, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 128, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

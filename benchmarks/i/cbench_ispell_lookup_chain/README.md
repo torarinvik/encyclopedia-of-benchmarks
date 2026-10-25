@@ -1,0 +1,7 @@
+# Ispell dictionary bucket-chain lookup
+
+This package isolates the direct hash-bucket chain lookup from `lookup.c::lookup` in pinned `lac-dcc/Benchmarks` commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38` (`cBench/office_ispell/src/lookup.c`). It profiles the source path selected when `dotree` is false: compute the Ispell hash bucket, follow its linked collision chain, and compare the canonical word bytes exactly. The existing [`cbench_ispell_hash`](../cbench_ispell_hash/README.md) package covers the hash primitive alone; this package measures the source's chained lookup operation.
+
+The bounded workload uses lowercase ASCII canonical keys, a table of at most eight buckets, and up to eight entries of at most eight bytes. The input serializes bucket heads, per-entry next links, word lengths, and concatenated word bytes. Each entry must be reachable exactly once from a bucket head, and its source hash must select that bucket. A found result is its one-based serialized entry index; zero means absent. Invalid framing or chains return -1. The source's capitalization/affix normalization, `dotree` tree fallback, hash-file loading, spellchecking, and dictionary are outside this package.
+
+The implementation is clean-room and marks itself as modified. The source's explicit redistribution conditions, modification marking, required advertising acknowledgment, no-endorsement term, and disclaimer are reproduced in [LICENSE.txt](LICENSE.txt). No runtime verification is claimed here.

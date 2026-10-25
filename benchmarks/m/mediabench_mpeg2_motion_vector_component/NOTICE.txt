@@ -1,0 +1,3 @@
+Source attribution: MPEG Software Simulation Group, motion.c, Copyright (C) 1996.
+The source describes the software as available without license fee or royalty on an “as is” basis and disclaims warranties. It also disclaims that the programs are free of third-party patent infringement and warns that commercial MPEG-1/MPEG-2 implementations may require patent royalties.
+The pinned source does not provide an explicit source-code redistribution license. These ports independently implement the bounded motion-vector arithmetic and contain no copied source code or comments. This notice does not resolve patent or redistribution questions.

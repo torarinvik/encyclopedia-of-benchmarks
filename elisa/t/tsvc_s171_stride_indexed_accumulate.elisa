@@ -1,0 +1,49 @@
+# Clean-room bounded port of TSVC s171; see package README for provenance.
+
+const TSVC_S171_MAX_N: usize = 32
+const TSVC_S171_MAX_STRIDE: usize = 4
+const TSVC_S171_MAX_INPUT_LENGTH: usize = 159
+
+def tsvc_s171_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def tsvc_s171_stride_indexed_accumulate_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > TSVC_S171_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    stride_value: i64 = input[1]
+    if n_value < 1 or n_value > 32 or stride_value < 1 or stride_value > 4:
+        return -1
+    n: usize = n_value.usize()
+    stride: usize = stride_value.usize()
+    a_length: usize = 1 + (n - 1) * stride
+    if length != 2 + a_length + n:
+        return -1
+    i: mutable usize = 0
+    while i < a_length + n:
+        value: i64 = input[2 + i]
+        if value < -8 or value > 8:
+            return -1
+        i <- i + 1
+    if output.is_null() or capacity < 8 * a_length:
+        return -2
+    i <- 0
+    while i < a_length:
+        tsvc_s171_store_i64_le(input[2 + i], output, 8 * i)
+        i <- i + 1
+    b_offset: usize = 2 + a_length
+    i <- 0
+    while i < n:
+        destination: usize = i * stride
+        value: i64 = input[2 + destination] + input[b_offset + i]
+        tsvc_s171_store_i64_le(value, output, 8 * destination)
+        i <- i + 1
+    a_length.i64()
+
+export fn tsvc_s171_stride_indexed_accumulate(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s171_stride_indexed_accumulate_impl

@@ -1,0 +1,61 @@
+const MEDIABENCH_GSM_RPE_INPUT_COUNT: usize = 40
+const MEDIABENCH_GSM_RPE_MAX_INPUT: usize = 41
+const MEDIABENCH_GSM_RPE_OUTPUT_BYTES: usize = 112
+
+def mediabench_gsm_rpe_asr2(value: i64) -> i64:
+    if value >= 0:
+        return value / 4
+    -(((-value) + 3) / 4)
+
+def mediabench_gsm_rpe_store_i64_le(output: mutable u8&, offset: usize, value: i64):
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- (bits & 255).u8()
+        bits <- bits >> 8
+        byte <- byte + 1
+
+def mediabench_gsm_rpe_impl(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > MEDIABENCH_GSM_RPE_MAX_INPUT:
+        return -1
+    index: mutable usize = 0
+    while index < input_length:
+        if input[index] < -32768 or input[index] > 32767:
+            return -1
+        index <- index + 1
+    if input_length != MEDIABENCH_GSM_RPE_INPUT_COUNT:
+        return -1
+
+    best_score: mutable i64 = -1
+    best_grid: mutable i64 = 0
+    grid: mutable i64 = 0
+    while grid < 4:
+        sum: mutable i64 = 0
+        i: mutable i64 = 0
+        while i < 13:
+            scaled: i64 = mediabench_gsm_rpe_asr2(input[grid + 3 * i])
+            sum <- sum + scaled * scaled
+            i <- i + 1
+        score: i64 = 2 * sum
+        if score > best_score:
+            best_score <- score
+            best_grid <- grid
+        grid <- grid + 1
+
+    staged: mutable i64[14] = zeroed
+    staged[0] <- best_grid
+    i <- 0
+    while i < 13:
+        staged[1 + i.usize()] <- input[best_grid + 3 * i]
+        i <- i + 1
+    if output.is_null() or output_capacity < MEDIABENCH_GSM_RPE_OUTPUT_BYTES:
+        return -2
+    index <- 0
+    while index < 14:
+        mediabench_gsm_rpe_store_i64_le(output, 8 * index, staged[index])
+        index <- index + 1
+    MEDIABENCH_GSM_RPE_OUTPUT_BYTES.i64()
+
+export fn mediabench_gsm_rpe_grid_selection(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = mediabench_gsm_rpe_impl

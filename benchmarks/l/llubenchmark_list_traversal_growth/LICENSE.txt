@@ -1,0 +1,3 @@
+No explicit license grant was found in the pinned LLUBenchmark source or repository material reviewed for this package.
+
+The language ports independently implement the bounded traversal-and-growth profile described in README.md. They reuse no upstream source code or comments and make no claim of an upstream license or endorsement. Source attribution: the pinned source identifies the LLUBENCHMARK and attributes it to Craig Zilles.

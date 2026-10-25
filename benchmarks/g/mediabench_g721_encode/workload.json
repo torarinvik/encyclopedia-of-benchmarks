@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": "mediabench-g721-ulaw-i64-array-bytes-output-v1",
+  "algorithm": "mediabench_g721_encode",
+  "function_symbol": "mediabench_g721_encode",
+  "pinned_sources": [
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "mediabench/g721/g721encode/g721.c",
+      "related_paths": [
+        "mediabench/g721/g721encode/g72x.c",
+        "mediabench/g721/g721encode/g72x.h",
+        "mediabench/g721/g721encode/g711.c",
+        "mediabench/g721/g721encode/encode.c",
+        "mediabench/g721/g721encode/info.sh"
+      ],
+      "symbols": ["g721_encoder", "update", "ulaw2linear", "pack_output"],
+      "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/g721/g721encode",
+      "launcher": "g721",
+      "license_note": "The required g711.c, g721.c, g72x.c, and g72x.h components grant unrestricted use, copying, and modification without charge, with warranty and liability disclaimers; their complete notice is retained in every language port. The CLI adapter is not copied."
+    }
+  ],
+  "contract": {
+    "operation": "Encode a bounded sequence of u-law bytes with the pinned source's G.721 4-bit adaptive differential PCM state machine.",
+    "input_layout": "[count, u_law_byte...]",
+    "count_range": [0, 16],
+    "sample_range": [0, 255],
+    "state_initialization": "Reset the G.721 state to yl=34816, yu=544, zero predictor and adaptation fields, and 32-valued quantized history fields on every call.",
+    "packing": "First 4-bit code occupies the low nibble; the next occupies the high nibble. An odd final code is padded by a zero high nibble.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "zero_count": "Returns zero without output writes; a null output pointer is accepted."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "sample count followed by u-law bytes",
+    "length_range": [1, 17],
+    "maximum_parseable_length": 17,
+    "exact_length": "1 + count",
+    "count_range": [0, 16],
+    "sample_range": [0, 255],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "maximum_bytes": 8,
+    "success_result": "ceil(count / 2)",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2
+  },
+  "source_bound": {
+    "description": "The launcher defaults to u-law input and G.721 4-bit codes. This profile keeps u-law linearization, G.721 difference quantization, adaptive predictor and scale updates, per-call initial state, and low-nibble-first packing.",
+    "excluded_work": "G.723 24/40-kbit variants, A-law and linear input modes, decoding, file input, and timing are outside this package.",
+    "distinctness": "G.721's two-pole/six-zero predictor and adaptive logarithmic scale state differ from the local IMA/DVI codec's scalar predictor and step-index update.",
+    "provenance": "Pinned lac-dcc/Benchmarks MediaBench G.721 launcher at 5d7b75df749241efa7a6e6f5be613d3fcc5cce38. The required codec components carry Sun Microsystems' unrestricted-use notice, copied in full into each port; the CLI adapter's behavior is independently implemented."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "empty-sequence",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "empty-sequence-null-output",
+      "input_values": [0],
+      "input_length": 1,
+      "output_is_null": true,
+      "expected_result": 0,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "single-ulaw-silence",
+      "input_values": [1, 255],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output_hex": "0f"
+    },
+    {
+      "id": "single-positive-ulaw-sample",
+      "input_values": [1, 247],
+      "input_length": 2,
+      "expected_result": 1,
+      "expected_output_hex": "06"
+    },
+    {
+      "id": "two-ulaw-silence-samples",
+      "input_values": [2, 255, 127],
+      "input_length": 3,
+      "expected_result": 1,
+      "expected_output_hex": "ff"
+    },
+    {
+      "id": "invalid-count-above-bound",
+      "input_values": [17],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-length-mismatch",
+      "input_values": [2, 255],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-ulaw-byte",
+      "input_values": [1, 256],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 255, 127],
+      "input_length": 3,
+      "output_capacity": 0,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 255],
+      "input_length": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

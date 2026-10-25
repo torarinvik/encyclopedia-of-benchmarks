@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-office-rsynth-f0-flutter-i64-array-scalar-v1",
+  "algorithm": "cbench_rsynth_f0_flutter",
+  "function_symbol": "cbench_rsynth_f0_flutter",
+  "abi": "i64_array_scalar",
+  "description": "Bounded source flutter helper that adds a three-sine integer pitch perturbation.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/office_rsynth/src/nsynth.c",
+    "symbol": "flutter",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/office_rsynth/src/nsynth.c",
+    "license": "Package-level CMU public-domain notice; restricted dictionary scope excluded and retained in LICENSE.txt."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/office_rsynth/src/info.sh",
+    "bench_name": "office_rsynth",
+    "source_files": ["*.c"],
+    "run_options": [],
+    "scope_note": "Profiles the static flutter helper only; launcher calls it when f0_flutter is nonzero, after incrementing time_count. Speech synthesis and all dictionary/phone data are excluded."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[F0hz10,f0_flutter,time_count]",
+    "f0_hz10_range": [0, 20000],
+    "flutter_range": [0, 100],
+    "time_count_range": [0, 1000000],
+    "maximum_valid_input_length": 3,
+    "maximum_parseable_input_length": 4,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "F0hz10 plus the C-truncated integer three-sine pitch delta",
+    "invalid_result": -1
+  },
+  "contract": {
+    "operation": "orig=F0hz10/10 using integer division; delta=(flutter/50.0)*(orig/100.0)*(sin(2*PI*12.7*t)+sin(2*PI*7.1*t)+sin(2*PI*4.7*t))*10; result=F0hz10+trunc_toward_zero(delta).",
+    "pi_value": 3.1415927,
+    "time_count_semantics": "Value observed inside flutter; source caller increments global time_count once before calling when flutter is enabled.",
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"disabled-flutter","input_values":[2000,0,1],"input_length":3,"expected_result":2000},
+    {"id":"single-frame-flutter","input_values":[2000,50,1],"input_length":3,"expected_result":1974},
+    {"id":"whole-cycle-near-zero","input_values":[2000,50,10],"input_length":3,"expected_result":2000},
+    {"id":"zero-frequency","input_values":[0,100,17],"input_length":3,"expected_result":0},
+    {"id":"invalid-flutter-bound","input_values":[2000,101,1],"input_length":3,"expected_result":-1},
+    {"id":"invalid-time-bound","input_values":[2000,50,1000001],"input_length":3,"expected_result":-1},
+    {"id":"extra-input","input_values":[2000,50,1,0],"input_length":4,"expected_result":-1}
+  ]
+}

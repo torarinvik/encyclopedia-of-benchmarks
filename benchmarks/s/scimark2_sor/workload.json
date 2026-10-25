@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "scimark2-c-sor-bounded-i64-array-scalar-v1",
+  "algorithm": "scimark2_sor",
+  "function_symbol": "scimark2_sor",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[rows, columns, iterations, row_major_milli_grid...]",
+    "rows_range": [2, 8],
+    "columns_range": [2, 8],
+    "iterations_range": [0, 8],
+    "cell_range": [-1000, 1000],
+    "exact_length": "3 + rows * columns",
+    "maximum_parseable_array_length": 67,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "sum((zero_based_flat_index + 1) * final_milli_cell)",
+    "invalid_input_result": -1
+  },
+  "source_bound": {
+    "description": "The kernel preserves SciMark2-C's in-place five-point SOR recurrence, fixed omega=1.25, and pass/row/column order. The grid is explicit rather than generated from the source driver's random stream.",
+    "fixed_point_recurrence": "trunc_toward_zero((1250 * (up + down + left + right) - 1000 * center) / 4000)",
+    "cell_unit": "Each input cell is an integer number of milli-units; recurrence updates use the same representation.",
+    "excluded_work": "Random initialization, timing, cycle doubling, and Mflop reporting are outside the kernel contract.",
+    "provenance": "Pinned lac-dcc/Benchmarks SciMark2-C SOR.c at 5d7b75df749241efa7a6e6f5be613d3fcc5cce38. The pinned C subtree has no explicit license or redistribution notice; ports and oracle are clean-room and do not infer rights from a separate SciMark distribution."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two_by_two-zero-passes",
+      "input_values": [2, 2, 0, 1000, -1000, 500, -500],
+      "input_length": 7,
+      "expected_result": -1500
+    },
+    {
+      "id": "single-center-pulse-one-pass",
+      "input_values": [3, 3, 1, 0, 0, 0, 0, 1000, 0, 0, 0, 0],
+      "input_length": 12,
+      "expected_result": -1250
+    },
+    {
+      "id": "in-place-four-cell-sweep",
+      "input_values": [4, 4, 1, 0, 0, 0, 0, 0, 1000, 1000, 0, 0, 1000, 1000, 0, 0, 0, 0, 0],
+      "input_length": 19,
+      "expected_result": 3775
+    },
+    {
+      "id": "zero-passes-weighted-grid",
+      "input_values": [3, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "input_length": 12,
+      "expected_result": 285
+    },
+    {
+      "id": "invalid-empty",
+      "input_values": [],
+      "input_length": 0,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-inconsistent-grid-length",
+      "input_values": [2, 2, 0, 1, 2],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-cell-below-bound",
+      "input_values": [2, 2, 0, -1001, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-iteration-count",
+      "input_values": [2, 2, 9, 0, 0, 0, 0],
+      "input_length": 7,
+      "expected_result": -1
+    }
+  ]
+}

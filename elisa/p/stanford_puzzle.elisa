@@ -1,0 +1,104 @@
+# Independent bounded implementation of Stanford Puzzle (attributed by the
+# pinned file to Forest Baskett). No upstream code/comments are copied; the
+# pinned source has no explicit redistribution grant.
+const SIDE: usize = 5
+const CELL_COUNT: usize = 125
+const TYPE_COUNT: usize = 13
+const MAX_SEARCH_CALLS: usize = 2005
+const HOLE_SCALE: i64 = 1000000
+const SHAPE_X: usize[13] = [4,2,1,2,4,1,3,1,1,2,2,1,2]
+const SHAPE_Y: usize[13] = [2,1,4,4,1,2,1,3,1,2,1,2,2]
+const SHAPE_Z: usize[13] = [1,4,2,1,2,4,1,1,3,1,2,2,2]
+const SHAPE_CLASS: usize[13] = [0,0,0,0,0,0,1,1,1,2,2,2,3]
+
+def stanford_puzzle_fits(board: bool[125]&, start: usize, kind: usize) -> bool:
+    x0: usize = start % SIDE
+    y0: usize = (start / SIDE) % SIDE
+    z0: usize = start / (SIDE * SIDE)
+    if x0 + SHAPE_X[kind] > SIDE or y0 + SHAPE_Y[kind] > SIDE or z0 + SHAPE_Z[kind] > SIDE:
+        return false
+    z: mutable usize = 0
+    while z < SHAPE_Z[kind]:
+        y: mutable usize = 0
+        while y < SHAPE_Y[kind]:
+            x: mutable usize = 0
+            while x < SHAPE_X[kind]:
+                index: usize = (z0 + z) * SIDE * SIDE + (y0 + y) * SIDE + x0 + x
+                if board[index]: return false
+                x <- x + 1
+            y <- y + 1
+        z <- z + 1
+    true
+
+def stanford_puzzle_mark(board: mutable bool[125]&, start: usize, kind: usize, value: bool) -> void:
+    x0: usize = start % SIDE
+    y0: usize = (start / SIDE) % SIDE
+    z0: usize = start / (SIDE * SIDE)
+    z: mutable usize = 0
+    while z < SHAPE_Z[kind]:
+        y: mutable usize = 0
+        while y < SHAPE_Y[kind]:
+            x: mutable usize = 0
+            while x < SHAPE_X[kind]:
+                index: usize = (z0 + z) * SIDE * SIDE + (y0 + y) * SIDE + x0 + x
+                board[index] <- value
+                x <- x + 1
+            y <- y + 1
+        z <- z + 1
+
+def stanford_puzzle_first_empty(board: bool[125]&, start: usize) -> usize:
+    index: mutable usize = start
+    while index < CELL_COUNT:
+        if not board[index]: return index
+        index <- index + 1
+    0
+
+def stanford_puzzle_source_index(flat: usize) -> i64:
+    x: usize = flat % SIDE
+    y: usize = (flat / SIDE) % SIDE
+    z: usize = flat / (SIDE * SIDE)
+    (x + 1).i64() + 8 * (y + 1).i64() + 64 * (z + 1).i64()
+
+def stanford_puzzle_search(board: mutable bool[125]&, remaining: mutable usize[4]&, start: usize,
+                           calls: mutable usize&, overflow: mutable bool&) -> bool:
+    calls <- calls + 1
+    if calls > MAX_SEARCH_CALLS:
+        overflow <- true
+        return false
+    kind: mutable usize = 0
+    while kind < TYPE_COUNT:
+        class_id: usize = SHAPE_CLASS[kind]
+        if remaining[class_id] != 0 and stanford_puzzle_fits(board, start, kind):
+            stanford_puzzle_mark(board, start, kind, true)
+            remaining[class_id] <- remaining[class_id] - 1
+            next: usize = stanford_puzzle_first_empty(board, start)
+            child: bool = stanford_puzzle_search(board, remaining, next, calls, overflow)
+            if overflow: return false
+            if child or next == 0: return true
+            remaining[class_id] <- remaining[class_id] + 1
+            stanford_puzzle_mark(board, start, kind, false)
+        kind <- kind + 1
+    false
+
+def stanford_puzzle_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1 or input[0] < 1 or input[0] > 100:
+        return -1
+    passes: usize = input[0].usize()
+    checksum: mutable i64 = 0
+    pass_index: mutable usize = 0
+    while pass_index < passes:
+        board: mutable bool[125] = zeroed
+        remaining: mutable usize[4] = [13,3,1,1]
+        if not stanford_puzzle_fits(board, 0, 0): return -1
+        stanford_puzzle_mark(board, 0, 0, true)
+        remaining[0] <- remaining[0] - 1
+        hole: usize = stanford_puzzle_first_empty(board, 0)
+        calls: mutable usize = 0
+        overflow: mutable bool = false
+        if hole == 0 or not stanford_puzzle_search(board, remaining, hole, calls, overflow) or overflow:
+            return -1
+        checksum <- checksum + stanford_puzzle_source_index(hole) * HOLE_SCALE + calls.i64()
+        pass_index <- pass_index + 1
+    checksum
+
+export fn stanford_puzzle(input: i64&, length: usize) -> i64 = stanford_puzzle_impl

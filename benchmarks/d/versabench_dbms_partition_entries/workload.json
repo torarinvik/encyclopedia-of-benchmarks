@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-versabench-dbms-rtree-partition-entries-i64-scalar-v1",
+  "algorithm": "versabench_dbms_partition_entries",
+  "function_symbol": "versabench_dbms_partition_entries",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "VersaBench/dbms/partitionEntries.c",
+    "supporting_paths": ["VersaBench/dbms/penalty.c", "VersaBench/dbms/volume.c", "VersaBench/dbms/keyUnion.c", "VersaBench/dbms/indexKey.h", "VersaBench/dbms/splitNode.c"],
+    "launcher_path": "VersaBench/dbms/info.sh",
+    "symbols": ["partitionEntries", "penalty", "volume", "keyUnion"],
+    "author": "M. L. Rivas",
+    "copyright": "Copyright 1999, Atlantic Aerospace Electronics Corp.",
+    "license_status": "No explicit redistribution license found in the pinned VersaBench/dbms directory; this local implementation is independently written from the documented algorithm and contains no copied source code."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[fan, fan+1 boxes in source-list order; each box is lower_T_X_Y_Z followed by upper_T_X_Y_Z]",
+    "fan_range": [2, 8],
+    "entry_count": "fan + 1, the overflowing node entries passed by splitNode",
+    "coordinate_range": [-8, 8],
+    "box_rule": "For every box, lower[d] < upper[d] in all four dimensions.",
+    "exact_length": "1 + 8*(fan + 1)",
+    "maximum_valid_input_length": 73,
+    "maximum_parseable_input_length": 74,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "bit i is 1 iff source entry i belongs to partition group A; unset bits identify group B",
+    "invalid_result": -1
+  },
+  "profile": {
+    "seed_rule": "enumerate input-order pairs, choosing the pair with the largest 4D union volume; strict greater-than preserves the first pair on ties",
+    "assignment_rule": "assign each non-seed entry in original order by smaller enlargement relative to the seed box; ties go to B; once a group reaches fan, force remaining entries to the other group",
+    "arithmetic": "exact integer volumes; bounded results are exactly representable in source Float",
+    "scope": "R-tree split partitioning helper only; allocation, linked-list mutation, parent adjustment, and recursive insertion are excluded"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"tie-penalties-send-entry-to-b", "input_values":[2,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5], "expected_result":1},
+    {"id":"near-seed-a", "input_values":[2,0,0,0,0,1,1,1,1,0,0,0,0,2,2,2,2,4,4,4,4,5,5,5,5], "expected_result":3},
+    {"id":"invalid-fan", "input_values":[1,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3], "expected_result":-1},
+    {"id":"trailing-data", "input_values":[2,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0], "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_is_null":true, "input_length":0, "expected_result":-1}
+  ]
+}

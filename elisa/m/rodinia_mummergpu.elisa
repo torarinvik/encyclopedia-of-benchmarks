@@ -1,0 +1,157 @@
+# Clean-room bounded MUMmerGPU maximal exact-match query; full source notice is package-local.
+const MAX_REF: usize = 32
+const MAX_QUERY: usize = 32
+const ALPHABET: usize = 5
+const MAX_NODES: usize = 1 + MAX_REF * (MAX_REF + 3) / 2
+const MAX_MATCHES: usize = MAX_REF * MAX_QUERY
+
+def child_index(node: usize, symbol: usize) -> usize:
+    return node * ALPHABET + symbol
+
+def suffix_less(reference: i64&, ref_length: usize, left: usize, right: usize) -> bool:
+    a: mutable usize = left
+    b: mutable usize = right
+    while a < ref_length and b < ref_length and reference[a] == reference[b]:
+        a <- a + 1
+        b <- b + 1
+    if a == ref_length and b == ref_length: return false
+    if a == ref_length: return false
+    if b == ref_length: return true
+    return reference[a] < reference[b]
+
+def put_i64(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte)) and 255.u64()).u8()
+        byte <- byte + 1
+
+def rodinia_mummergpu_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > 3 + MAX_REF + MAX_QUERY: return -1
+    ref_length_value: i64 = input[0]
+    query_length_value: i64 = input[1]
+    min_length_value: i64 = input[2]
+    if ref_length_value < 1 or ref_length_value > MAX_REF.i64() or query_length_value < 1 or query_length_value > MAX_QUERY.i64() or min_length_value < 1 or min_length_value > MAX_QUERY.i64(): return -1
+    ref_length: usize = ref_length_value.usize()
+    query_length: usize = query_length_value.usize()
+    min_length: usize = min_length_value.usize()
+    if length != 3 + ref_length + query_length: return -1
+    reference: mutable i64[MAX_REF] = zeroed
+    query: mutable i64[MAX_QUERY] = zeroed
+    i: mutable usize = 0
+    while i < ref_length:
+        code: i64 = input[3 + i]
+        if code < 0 or code > 3: return -1
+        reference[i] <- code
+        i <- i + 1
+    i <- 0
+    while i < query_length:
+        code: i64 = input[3 + ref_length + i]
+        if code < 0 or code > 3: return -1
+        query[i] <- code
+        i <- i + 1
+
+    children: mutable i64[MAX_NODES * ALPHABET] = zeroed
+    path_node: mutable i64[MAX_REF * (MAX_REF + 1)] = zeroed
+    suffix_order: mutable usize[MAX_REF] = zeroed
+    i <- 0
+    while i < MAX_NODES * ALPHABET:
+        children[i] <- -1
+        i <- i + 1
+    i <- 0
+    while i < MAX_REF * (MAX_REF + 1):
+        path_node[i] <- -1
+        i <- i + 1
+    node_count: mutable usize = 1
+    start: mutable usize = 0
+    while start < ref_length:
+        node: mutable usize = 0
+        depth: mutable usize = 0
+        path_node[start * (MAX_REF + 1)] <- 0
+        pos: mutable usize = start
+        while pos < ref_length:
+            slot: usize = child_index(node, reference[pos].usize())
+            if children[slot] < 0:
+                fresh: usize = node_count
+                node_count <- node_count + 1
+                children[slot] <- fresh.i64()
+                symbol: mutable usize = 0
+                while symbol < ALPHABET:
+                    children[child_index(fresh, symbol)] <- -1
+                    symbol <- symbol + 1
+            node <- children[slot].usize()
+            depth <- depth + 1
+            path_node[start * (MAX_REF + 1) + depth] <- node.i64()
+            pos <- pos + 1
+        terminal_slot: usize = child_index(node, 4)
+        if children[terminal_slot] < 0:
+            fresh: usize = node_count
+            node_count <- node_count + 1
+            children[terminal_slot] <- fresh.i64()
+            symbol: mutable usize = 0
+            while symbol < ALPHABET:
+                children[child_index(fresh, symbol)] <- -1
+                symbol <- symbol + 1
+        start <- start + 1
+
+    i <- 0
+    while i < ref_length:
+        suffix_order[i] <- i
+        i <- i + 1
+    i <- 1
+    while i < ref_length:
+        key: usize = suffix_order[i]
+        j: mutable usize = i
+        while j > 0 and suffix_less(reference, ref_length, key, suffix_order[j - 1]):
+            suffix_order[j] <- suffix_order[j - 1]
+            j <- j - 1
+        suffix_order[j] <- key
+        i <- i + 1
+
+    records: mutable i64[MAX_MATCHES * 3] = zeroed
+    match_count: mutable usize = 0
+    qstart: mutable usize = 0
+    while qstart < query_length:
+        candidate: mutable i64[MAX_REF] = zeroed
+        i <- 0
+        while i < ref_length:
+            candidate[i] <- -1
+            i <- i + 1
+        node: mutable usize = 0
+        depth: mutable usize = 0
+        while true:
+            query_has_next: bool = qstart + depth < query_length
+            rstart: mutable usize = 0
+            while rstart < ref_length:
+                if path_node[rstart * (MAX_REF + 1) + depth] == node.i64():
+                    suffix_ends: bool = rstart + depth == ref_length
+                    if suffix_ends or not query_has_next or reference[rstart + depth] != query[qstart + depth]:
+                        candidate[rstart] <- depth.i64()
+                rstart <- rstart + 1
+            if not query_has_next: break
+            slot: usize = child_index(node, query[qstart + depth].usize())
+            if children[slot] < 0: break
+            node <- children[slot].usize()
+            depth <- depth + 1
+        order: mutable usize = 0
+        while order < ref_length:
+            rstart: usize = suffix_order[order]
+            match_length: i64 = candidate[rstart]
+            if match_length >= min_length.i64():
+                left_maximal: bool = qstart == 0 or rstart == 0 or query[qstart - 1] != reference[rstart - 1]
+                if left_maximal:
+                    records[3 * match_count] <- rstart.i64() + 1
+                    records[3 * match_count + 1] <- qstart.i64() + 1
+                    records[3 * match_count + 2] <- match_length
+                    match_count <- match_count + 1
+            order <- order + 1
+        qstart <- qstart + 1
+    output_bytes: usize = match_count * 24
+    if output.is_null() or capacity < output_bytes: return -2
+    i <- 0
+    while i < 3 * match_count:
+        put_i64(output, i * 8, records[i])
+        i <- i + 1
+    return output_bytes.i64()
+
+export fn rodinia_mummergpu(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = rodinia_mummergpu_impl

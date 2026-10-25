@@ -1,0 +1,26 @@
+# Clean-room bounded profile of TSVC s3111; see package README.
+
+const TSVC_S3111_MAX_N: usize = 64
+const TSVC_S3111_MAX_INPUT_LENGTH: usize = 65
+const TSVC_S3111_MAX_VALUE: i64 = 1000000
+
+def tsvc_s3111_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > TSVC_S3111_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + n:
+        return -1
+
+    sum: mutable i64 = 0
+    for i in 0..n:
+        value: i64 = input[i + 1]
+        if value < -TSVC_S3111_MAX_VALUE or value > TSVC_S3111_MAX_VALUE:
+            return -1
+        if value > 0:
+            sum <- sum + value
+    sum
+
+export fn tsvc_s3111_positive_value_sum(input: i64&, length: usize) -> i64 = tsvc_s3111_impl

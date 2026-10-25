@@ -1,0 +1,14 @@
+TSVC source attribution and rights note
+
+The behavior reference is the TSVC adaptation in the LAC-DCC Benchmarks
+repository, commit 5d7b75df749241efa7a6e6f5be613d3fcc5cce38. Its source says
+that the non-four-digit codelets are taken from the Test Suite for Vectorizing
+Compilers by David Callahan, Jack Dongarra, and David Levine. The pinned TSVC
+directory and repository material reviewed for this package did not provide an
+explicit license grant for the s331 codelet.
+
+These nine ports and the oracle are clean-room implementations of the behavior
+described in the package README. They do not copy or translate upstream source
+code or comments, and they do not claim a license to upstream TSVC material.
+The attribution is included to identify the source of the algorithmic test
+case, not to imply endorsement.

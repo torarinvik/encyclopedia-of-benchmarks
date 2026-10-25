@@ -1,0 +1,9 @@
+# Embench slre bounded search profile
+
+This package ports a bounded, source-compatible slice of Embench's `slre` regular-expression search engine. It is algorithmically distinct from the local `regex_match` benchmark, which only performs whole-string matching with `.` and `*`: this profile searches unanchored text, supports ordered top-level alternation, optional single-character atoms, and start/end anchors, and returns the exclusive end offset of the first match.
+
+Input is `[text_length, pattern_length, text_bytes..., pattern_bytes...]`; text length is 0–24 and pattern length 1–24. Text and literal pattern atoms are lowercase ASCII. `.` matches one character, `?` makes the preceding atom optional, `|` separates nonempty alternatives, `^` may occur only at the beginning, and `$` only at the end. Groups, character sets, escapes, `*`, and `+` are outside this bounded profile. Search tries text positions left to right and alternatives in source order. Within each branch `?` greedily consumes its atom when possible, matching slre's bounded `?` control flow. Return the exclusive end byte offset, `-1` for a valid nonmatch, and `-2` for malformed input/patterns.
+
+The source is `src/slre/libslre.c` and `src/slre/slre.h` at [Embench-IoT commit `09c2ed8c3b7008c95d08b038de4a3f6dc103ed70`](https://github.com/embench/embench-iot/tree/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/slre). It is SPDX GPL-3.0-or-later. Upstream credits Sergey Lyubka (2004–2013), Cesanta Software Limited (2013), Embecosm Limited and University of Bristol (2014–2019), with contributions by James Pallister and Jeremy Bennett. See [`LICENSE.txt`](LICENSE.txt) and [`NOTICE.txt`](NOTICE.txt). The ports are modifications implementing only the documented bounded profile.
+
+The workload provides deterministic examples and the independent Python oracle is `benchmarks/slre_oracle.py`. These artifacts specify the contract; they do not claim execution or runtime verification.

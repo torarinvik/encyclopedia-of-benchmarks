@@ -1,0 +1,166 @@
+# Copyright (C) 1996 McGill University.
+# Copyright (C) 1996 McCAT System Group.
+# Copyright (C) 1996 ACAPS Benchmark Administrator
+#                    benadmin@acaps.cs.mcgill.ca
+#
+# This program is free software; you can redistribute it and/or modify
+# it provided this copyright notice is maintained.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+const MAX_SITES: usize = 8
+const MAX_COORD: i64 = 4
+const CENTER_OFFSET: i64 = 1024
+const CENTER_WIDTH: i64 = 2049
+const RADIUS_RADIX: i64 = 200000
+
+struct VorPoint:
+    x: i64
+    y: i64
+
+struct VorDPoint:
+    x: f64
+    y: f64
+
+struct VorPriority:
+    radius2: f64
+    angle: f64
+
+def mccat_vor_cross(a: VorPoint, b: VorPoint, c: VorPoint) -> i64:
+    (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+
+def mccat_vor_length2(a: VorPoint, b: VorPoint) -> i64:
+    dx: i64 = b.x - a.x
+    dy: i64 = b.y - a.y
+    dx * dx + dy * dy
+
+def mccat_vor_center(a: VorPoint, b: VorPoint, c: VorPoint) -> VorDPoint:
+    n1x: i64 = b.x - a.x
+    n1y: i64 = b.y - a.y
+    n2x: i64 = c.x - b.x
+    n2y: i64 = c.y - b.y
+    m1x: f64 = (a.x.f64() + b.x.f64()) / 2.0
+    m1y: f64 = (a.y.f64() + b.y.f64()) / 2.0
+    m2x: f64 = (b.x.f64() + c.x.f64()) / 2.0
+    m2y: f64 = (b.y.f64() + c.y.f64()) / 2.0
+    c1: f64 = n1x.f64() * m1x + n1y.f64() * m1y
+    c2: f64 = n2x.f64() * m2x + n2y.f64() * m2y
+    denominator: f64 = n1x.f64() * n2y.f64() - n1y.f64() * n2x.f64()
+    VorDPoint{x: (c1 * n2y.f64() - n1y.f64() * c2) / denominator,
+              y: (n1x.f64() * c2 - c1 * n2x.f64()) / denominator}
+
+def mccat_vor_key(points: VorPoint&, hull: usize&, count: usize, position: usize) -> VorPriority:
+    previous: VorPoint = points[hull[(position + count - 1) % count]]
+    current: VorPoint = points[hull[position]]
+    following: VorPoint = points[hull[(position + 1) % count]]
+    center: VorDPoint = mccat_vor_center(previous, current, following)
+    dx: f64 = current.x.f64() - center.x
+    dy: f64 = current.y.f64() - center.y
+    ax: f64 = (previous.x - current.x).f64()
+    ay: f64 = (previous.y - current.y).f64()
+    bx: f64 = (following.x - current.x).f64()
+    by: f64 = (following.y - current.y).f64()
+    dot: f64 = ax * bx + ay * by
+    first_length: f64 = ax * ax + ay * ay
+    second_length: f64 = bx * bx + by * by
+    ratio: f64 = (dot * dot) / (first_length * second_length)
+    VorPriority{radius2: dx * dx + dy * dy, angle: if dot < 0.0: -ratio else: ratio}
+
+def mccat_vor_make_hull(points: mutable VorPoint&, count: usize, hull: mutable usize&) -> usize:
+    for i in 1..<count:
+        value: VorPoint = points[i]
+        j: mutable usize = i
+        while j > 0 and (value.x < points[j - 1].x or (value.x == points[j - 1].x and value.y < points[j - 1].y)):
+            points[j] <- points[j - 1]
+            j <- j - 1
+        points[j] <- value
+    stack: mutable usize[16] = zeroed
+    size: mutable usize = 0
+    for i in 0..<count:
+        while size >= 2 and mccat_vor_cross(points[stack[size - 2]], points[stack[size - 1]], points[i]) <= 0:
+            size <- size - 1
+        stack[size] <- i
+        size <- size + 1
+    threshold: usize = size + 1
+    i: mutable usize = count - 1
+    while i > 0:
+        i <- i - 1
+        while size >= threshold and mccat_vor_cross(points[stack[size - 2]], points[stack[size - 1]], points[i]) <= 0:
+            size <- size - 1
+        stack[size] <- i
+        size <- size + 1
+    size <- size - 1
+    for i in 0..<size: hull[i] <- stack[i]
+    size
+
+def mccat_vor_pack(points: VorPoint&, hull: usize&) -> i64:
+    a: VorPoint = points[hull[0]]
+    b: VorPoint = points[hull[1]]
+    c: VorPoint = points[hull[2]]
+    sides: i64[3] = [mccat_vor_length2(a, b), mccat_vor_length2(b, c), mccat_vor_length2(a, c)]
+    opposite: mutable usize = 0
+    first: mutable usize = 1
+    second: mutable usize = 2
+    longest: mutable i64 = sides[0]
+    if sides[1] > longest: longest <- sides[1]; opposite <- 1; first <- 0; second <- 2
+    if sides[2] > longest: longest <- sides[2]; opposite <- 2; first <- 0; second <- 1
+    triangle: VorPoint[3] = [a, b, c]
+    o: VorPoint = triangle[opposite]
+    dot: f64 = (triangle[first].x - o.x).f64() * (triangle[second].x - o.x).f64() +
+                (triangle[first].y - o.y).f64() * (triangle[second].y - o.y).f64()
+    center: VorDPoint
+    radius: f64
+    if dot < 0.0:
+        center <- VorDPoint{x: (triangle[first].x.f64() + triangle[second].x.f64()) / 2.0,
+                            y: (triangle[first].y.f64() + triangle[second].y.f64()) / 2.0}
+        radius <- longest.f64().sqrt() / 2.0
+    else:
+        center <- mccat_vor_center(a, b, c)
+        dx: f64 = a.x.f64() - center.x
+        dy: f64 = a.y.f64() - center.y
+        radius <- (dx * dx + dy * dy).sqrt()
+    cx: i64 = center.x.i64()
+    cy: i64 = center.y.i64()
+    cents: i64 = (radius * 100.0 + 0.5).i64()
+    if cx < -CENTER_OFFSET or cx > CENTER_OFFSET or cy < -CENTER_OFFSET or cy > CENTER_OFFSET or cents < 0 or cents >= RADIUS_RADIX:
+        return -1
+    ((cx + CENTER_OFFSET) * CENTER_WIDTH + (cy + CENTER_OFFSET)) * RADIUS_RADIX + cents
+
+def mccat_09_vor_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 7 or length > 17:
+        return -1
+    count_i64: i64 = input[0]
+    if count_i64 < 3 or count_i64 > MAX_SITES.i64() or length != 1 + 2 * count_i64.usize():
+        return -1
+    count: usize = count_i64.usize()
+    points: mutable VorPoint[MAX_SITES] = zeroed
+    for i in 0..<count:
+        x: i64 = input[1 + 2 * i]
+        y: i64 = input[2 + 2 * i]
+        if x < -MAX_COORD or x > MAX_COORD or y < -MAX_COORD or y > MAX_COORD:
+            return -1
+        points[i] <- VorPoint{x: x, y: y}
+        for j in 0..<i:
+            if points[j].x == x and points[j].y == y: return -1
+    for i in 0..<count:
+        for j in i + 1..<count:
+            for k in j + 1..<count:
+                if mccat_vor_cross(points[i], points[j], points[k]) == 0: return -1
+    hull: mutable usize[16] = zeroed
+    hull_count: mutable usize = mccat_vor_make_hull(points, count, hull)
+    if hull_count < 3 or hull_count > MAX_SITES: return -1
+    while hull_count > 3:
+        keys: mutable VorPriority[MAX_SITES] = zeroed
+        for i in 0..<hull_count:
+            keys[i] <- mccat_vor_key(points, hull, hull_count, i)
+        for i in 0..<hull_count:
+            for j in 0..<i:
+                if keys[i].radius2 == keys[j].radius2 and keys[i].angle == keys[j].angle: return -1
+        best: mutable usize = 0
+        for i in 1..<hull_count:
+            if keys[i].radius2 > keys[best].radius2 or (keys[i].radius2 == keys[best].radius2 and keys[i].angle < keys[best].angle): best <- i
+        for i in best..<hull_count - 1: hull[i] <- hull[i + 1]
+        hull_count <- hull_count - 1
+    mccat_vor_pack(points, hull)
+
+export fn mccat_09_vor(input: i64&, length: usize) -> i64 = mccat_09_vor_impl

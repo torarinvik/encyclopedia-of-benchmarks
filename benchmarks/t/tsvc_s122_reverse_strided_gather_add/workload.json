@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s122-reverse-strided-gather-add-i64-le-v1",
+  "algorithm": "tsvc_s122_reverse_strided_gather_add",
+  "function_symbol": "tsvc_s122_reverse_strided_gather_add",
+  "abi": "i64_array_bytes_output",
+  "description": "One bounded reverse-sequential gather into an induction-variable-strided destination vector from TSVC s122.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "TSVC/InductionVariable-dbl/info.sh",
+      "TSVC/InductionVariable-dbl/tsc.c",
+      "TSVC/tsc.inc",
+      "TSVC/tests.h"
+    ],
+    "symbol": "s122",
+    "source_lines": {
+      "codelet_start": 1203,
+      "codelet_end": 1229
+    },
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/InductionVariable-dbl",
+    "launcher_family": "TSVC/InductionVariable-dbl",
+    "launcher_options": [9100, 14],
+    "attribution": "The TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC files or repository material reviewed. These clean-room ports reuse no upstream code or comments and claim no upstream license or endorsement."
+  },
+  "contract": {
+    "operation": "Initialize j=1,k=0; for i=n1-1; i<n; i+=n3, perform k+=j then A[i]+=B[n-k].",
+    "input_layout": "[n, n1, n3, A[n], B[n]]",
+    "n_range": [1, 32],
+    "n1_range": "1..n",
+    "n3_range": "1..n",
+    "vector_value_range": [-100, 100],
+    "exact_length": "3 + 2*n",
+    "arithmetic": "A and B encode integer-valued source doubles; every bounded one-pass sum is exact in binary64 and fits signed i64.",
+    "passes": 1,
+    "output": "Complete final A vector in source index order, little-endian signed i64; B is unchanged.",
+    "success_result": "n output values written",
+    "output_capacity_requirement": "At least 8*n bytes",
+    "input_modified": false,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "maximum_valid_length": 67,
+    "maximum_parseable_length": 67,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Complete final A vector; only positions selected by the source affine induction sequence are changed.",
+    "maximum_values": 32,
+    "maximum_bytes": 256,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "One local 32-value A vector and one local 32-value B vector."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "launcher-default-full-reverse-add",
+      "input_values": [5, 1, 1, 10, 20, 30, 40, 50, 1, 2, 3, 4, 5],
+      "input_length": 13,
+      "output_capacity": 40,
+      "expected_result": 5,
+      "expected_output_hex": "0f00000000000000180000000000000021000000000000002a000000000000003300000000000000"
+    },
+    {
+      "id": "sparse-destinations-with-reverse-sequential-gather",
+      "input_values": [7, 2, 3, 0, 1, 2, 3, 4, 5, 6, 10, 20, 30, 40, 50, 60, 70],
+      "input_length": 17,
+      "output_capacity": 56,
+      "expected_result": 7,
+      "expected_output_hex": "0000000000000000470000000000000002000000000000000300000000000000400000000000000005000000000000000600000000000000"
+    },
+    {
+      "id": "single-final-destination",
+      "input_values": [4, 4, 2, 0, 0, 0, 0, -7, 1, 2, -3],
+      "input_length": 11,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "000000000000000000000000000000000000000000000000fdffffffffffffff"
+    },
+    {
+      "id": "one-element-reverse-add",
+      "input_values": [1, 1, 1, 5, -2],
+      "input_length": 5,
+      "output_capacity": 8,
+      "expected_result": 1,
+      "expected_output_hex": "0300000000000000"
+    },
+    {
+      "id": "invalid-zero-vector-length",
+      "input_values": [0, 1, 1],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-short-frame",
+      "input_values": [2, 1, 1, 10],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-zero-lower-bound",
+      "input_values": [1, 0, 1, 5, -2],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-zero-stride",
+      "input_values": [1, 1, 0, 5, -2],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-vector-value-bound",
+      "input_values": [1, 1, 1, 101, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 1, 5, -2],
+      "input_length": 5,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 1, 1, 5, -2],
+      "input_length": 5,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

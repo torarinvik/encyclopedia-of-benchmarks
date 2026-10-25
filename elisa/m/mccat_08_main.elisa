@@ -1,0 +1,156 @@
+/****
+    Copyright (C) 1996 McGill University.
+    Copyright (C) 1996 McCAT System Group.
+    Copyright (C) 1996 ACAPS Benchmark Administrator
+                       benadmin@acaps.cs.mcgill.ca
+
+    This program is free software; you can redistribute it and/or modify
+    it provided this copyright notice is maintained.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+****/
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+
+const HEADER: usize = 20
+const MAX_POINTS: usize = 16
+const MAX_INPUT: usize = 68
+const MAX_FRAMES: i64 = 360
+const MICRO: f64 = 1000000.0
+const SOURCE_PI: f64 = 3.14159265359
+
+def eks_identity(matrix: mutable f64[16]&) -> void:
+    for row in 0..<4:
+        for column in 0..<4:
+            matrix[row * 4 + column] <- if row == column: 1.0 else: 0.0
+
+def eks_scale(x: f64, y: f64, z: f64, matrix: mutable f64[16]&) -> void:
+    eks_identity(matrix)
+    matrix[0] <- x
+    matrix[5] <- y
+    matrix[10] <- z
+
+def eks_translate(x: f64, y: f64, z: f64, matrix: mutable f64[16]&) -> void:
+    eks_identity(matrix)
+    matrix[3] <- x
+    matrix[7] <- y
+    matrix[11] <- z
+
+def eks_multiply(left: f64[16]&, right: f64[16]&, output: mutable f64[16]&) -> void:
+    for row in 0..<4:
+        for column in 0..<4:
+            total: mutable f64 = 0.0
+            for inner in 0..<4: total <- total + left[row * 4 + inner] * right[inner * 4 + column]
+            output[row * 4 + column] <- total
+
+def eks_rotate(rx: f64, ry: f64, rz: f64, output: mutable f64[16]&) -> void:
+    dx: f64 = SOURCE_PI / 180.0 * rx
+    dy: f64 = SOURCE_PI / 180.0 * ry
+    dz: f64 = SOURCE_PI / 180.0 * rz
+    cx: f64 = cos(dx)
+    sx: f64 = sin(dx)
+    cy: f64 = cos(dy)
+    sy: f64 = sin(dy)
+    cz: f64 = cos(dz)
+    sz: f64 = sin(dz)
+    x: mutable f64[16] = zeroed
+    y: mutable f64[16] = zeroed
+    z: mutable f64[16] = zeroed
+    xy: mutable f64[16] = zeroed
+    eks_identity(x)
+    eks_identity(y)
+    eks_identity(z)
+    x[5] <- cx
+    x[6] <- -sx
+    x[9] <- sx
+    x[10] <- cx
+    y[0] <- cy
+    y[2] <- sy
+    y[8] <- -sy
+    y[10] <- cy
+    z[0] <- cz
+    z[1] <- -sz
+    z[4] <- sz
+    z[5] <- cz
+    eks_multiply(x, y, xy)
+    eks_multiply(xy, z, output)
+
+def eks_apply(matrix: f64[16]&, point: f64[3]&, output: mutable f64[3]&) -> void:
+    for row in 0..<3:
+        value: mutable f64 = matrix[row * 4 + 3]
+        for column in 0..<3: value <- value + matrix[row * 4 + column] * point[column]
+        output[row] <- value
+
+def eks_round_milli(value: f64) -> i64:
+    scaled: f64 = value * 1000.0
+    if scaled >= 0.0: return (scaled + 0.5).i64()
+    (scaled - 0.5).i64()
+
+def eks_bounded(value: i64, limit: i64) -> bool: value >= -limit and value <= limit
+
+def mccat_08_main_impl(input: i64&, input_length: usize) -> i64:
+    if input.is_null() or input_length < HEADER or input_length > MAX_INPUT: return -1
+    frames: i64 = input[0]
+    count_value: i64 = input[1]
+    if frames < 1 or frames > MAX_FRAMES or count_value < 1 or count_value > MAX_POINTS.i64(): return -1
+    count: usize = count_value.usize()
+    if input_length != HEADER + 3 * count: return -1
+    for index in 2..<5: if not eks_bounded(input[index], 4000000): return -1
+    for index in 11..<14: if not eks_bounded(input[index], 4000000): return -1
+    for index in 5..<8: if not eks_bounded(input[index], 360000000): return -1
+    for index in 14..<17: if not eks_bounded(input[index], 360000000): return -1
+    for index in 8..<11: if not eks_bounded(input[index], 100000000): return -1
+    for index in 17..<20: if not eks_bounded(input[index], 100000000): return -1
+    points: mutable f64[48] = zeroed
+    raw: mutable i64[48] = zeroed
+    unique: mutable usize = 0
+    for point in 0..<count:
+        coords: mutable i64[3] = zeroed
+        for axis in 0..<3:
+            coords[axis] <- input[HEADER + 3 * point + axis]
+            if not eks_bounded(coords[axis], 100000000): return -1
+        duplicate: mutable bool = false
+        for prior in 0..<unique:
+            if raw[3 * prior] == coords[0] and raw[3 * prior + 1] == coords[1] and raw[3 * prior + 2] == coords[2]: duplicate <- true
+        if not duplicate:
+            for axis in 0..<3:
+                raw[3 * unique + axis] <- coords[axis]
+                points[3 * unique + axis] <- coords[axis].f64() / MICRO
+            unique <- unique + 1
+    checksum: mutable i64 = 0
+    frame: mutable usize = 0
+    while frame < frames.usize():
+        child_scale: mutable f64[16] = zeroed
+        child_rotation: mutable f64[16] = zeroed
+        child_translation: mutable f64[16] = zeroed
+        parent_scale: mutable f64[16] = zeroed
+        parent_rotation: mutable f64[16] = zeroed
+        parent_translation: mutable f64[16] = zeroed
+        eks_scale(input[2].f64()/MICRO,input[3].f64()/MICRO,input[4].f64()/MICRO,child_scale)
+        eks_rotate(input[5].f64()/MICRO,input[6].f64()/MICRO,input[7].f64()/MICRO,child_rotation)
+        eks_translate(input[8].f64()/MICRO,input[9].f64()/MICRO,input[10].f64()/MICRO,child_translation)
+        eks_scale(input[11].f64()/MICRO,input[12].f64()/MICRO,input[13].f64()/MICRO,parent_scale)
+        eks_rotate(input[14].f64()/MICRO,input[15].f64()/MICRO+frame.f64(),input[16].f64()/MICRO,parent_rotation)
+        eks_translate(input[17].f64()/MICRO,input[18].f64()/MICRO,input[19].f64()/MICRO,parent_translation)
+        for point in 0..<unique:
+            original: mutable f64[3] = zeroed
+            a: mutable f64[3] = zeroed
+            b: mutable f64[3] = zeroed
+            c: mutable f64[3] = zeroed
+            d: mutable f64[3] = zeroed
+            e: mutable f64[3] = zeroed
+            f: mutable f64[3] = zeroed
+            for axis in 0..<3: original[axis] <- points[3 * point + axis]
+            eks_apply(child_scale,original,a)
+            eks_apply(child_rotation,a,b)
+            eks_apply(child_translation,b,c)
+            eks_apply(parent_scale,c,d)
+            eks_apply(parent_rotation,d,e)
+            eks_apply(parent_translation,e,f)
+            weight: i64 = (frame.i64() + 1) * (point.i64() + 1)
+            checksum <- checksum + weight * (eks_round_milli(f[0]) + 3 * eks_round_milli(f[1]) + 7 * eks_round_milli(f[2]))
+        frame <- frame + 1
+    checksum
+
+export fn mccat_08_main(input: i64&, input_length: usize) -> i64 = mccat_08_main_impl

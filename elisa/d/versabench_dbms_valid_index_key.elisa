@@ -1,0 +1,27 @@
+def dbms_binary32_ge(a: u32, b: u32) -> bool:
+    exp_a: u32 = (a >> 23) & 255.u32()
+    frac_a: u32 = a & 0x7fffff.u32()
+    exp_b: u32 = (b >> 23) & 255.u32()
+    frac_b: u32 = b & 0x7fffff.u32()
+    if (exp_a == 255.u32() and frac_a != 0) or (exp_b == 255.u32() and frac_b != 0): return false
+    mag_a: u32 = a & 0x7fffffff.u32()
+    mag_b: u32 = b & 0x7fffffff.u32()
+    if mag_a == 0 and mag_b == 0: return true
+    neg_a: bool = (a >> 31) != 0
+    neg_b: bool = (b >> 31) != 0
+    if neg_a != neg_b: return not neg_a
+    if neg_a: return mag_a <= mag_b
+    return mag_a >= mag_b
+
+def versabench_dbms_valid_index_key_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 1 or length > 9 or length != 8: return -1
+    bits: mutable [8]u32 = [0,0,0,0,0,0,0,0]
+    for i in 0..<8:
+        payload: i64 = values[i]
+        if payload < 0 or payload > 4294967295: return -1
+        bits[i] <- payload.u32()
+    for d in 0..<4:
+        if dbms_binary32_ge(bits[d], bits[4+d]): return 0
+    1
+
+export fn versabench_dbms_valid_index_key(values: i64&, length: usize) -> i64 = versabench_dbms_valid_index_key_impl

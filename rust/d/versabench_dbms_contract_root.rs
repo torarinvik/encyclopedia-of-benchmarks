@@ -1,0 +1,5 @@
+fn put(out:*mut u8,w:usize,x:i64){for b in 0..8{unsafe{*out.add(w*8+b)=((x as u64)>>(8*b)) as u8;}}}
+#[no_mangle]
+pub unsafe extern "C" fn versabench_dbms_contract_root(v:*const i64,n:usize,out:*mut u8,cap:usize)->i64{
+ if v.is_null()||n<3||n>12{return -1}let a=unsafe{std::slice::from_raw_parts(v,n)};let nv=a[0];if !(1..=5).contains(&nv)||n!=1+2*nv as usize{return -1}let count=nv as usize;let mut levels=[0_i64;5];let mut entries=[0_i64;5];for i in 0..count{levels[i]=a[1+2*i];entries[i]=a[2+2*i];if !(0..=4).contains(&levels[i])||!(0..=4).contains(&entries[i]){return -1}if i+1<count&&(levels[i]==0||entries[i]!=1||levels[i+1]!=levels[i]-1){return -1}}if levels[count-1]>0&&entries[count-1]==1{return -1}if levels[count-1]>0&&entries[count-1]==0&&count!=1{return -1}let mut root=0;let mut promotions=0;while levels[root]>0&&entries[root]==1{root+=1;promotions+=1}let mut fl=levels[root];let mut fc=entries[root];if fl>0&&fc==0{fl=0;fc=0}if out.is_null()||cap<24{return -2}put(out,0,promotions as i64);put(out,1,fl);put(out,2,fc);24
+}

@@ -1,0 +1,3 @@
+Source attribution: VersaBench DIS Data Management benchmark, `partitionEntries.c`, `penalty.c`, `keyUnion.c`, `volume.c`, and `indexKey.h`; lac-dcc/Benchmarks commit 5d7b75df749241efa7a6e6f5be613d3fcc5cce38. The source headers identify M. L. Rivas and state: Copyright 1999, Atlantic Aerospace Electronics Corp.
+
+No explicit redistribution license was found in the pinned VersaBench/dbms directory. The local ports independently implement the documented R-tree split algorithm and contain no copied upstream source code or comments. This notice does not grant rights to the upstream work.

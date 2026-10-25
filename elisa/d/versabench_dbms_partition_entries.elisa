@@ -1,0 +1,73 @@
+const MAX_FAN: usize = 8
+const MAX_INPUT_LENGTH: usize = 1 + 8 * (MAX_FAN + 1)
+
+def dbmsp_valid_box(values: i64&, at: usize) -> bool:
+    for d in 0..<4:
+        if values[at + d] < -8 or values[at + d] > 8 or values[at + 4 + d] < -8 or values[at + 4 + d] > 8 or values[at + d] >= values[at + 4 + d]: return false
+    true
+
+def dbmsp_volume(values: i64&, at: usize) -> i64:
+    product: mutable i64 = 1
+    for d in 0..<4: product <- product * (values[at + 4 + d] - values[at + d])
+    product
+
+def dbmsp_union_volume(values: i64&, left: usize, right: usize) -> i64:
+    product: mutable i64 = 1
+    for d in 0..<4:
+        left_lo: i64 = values[left + d]
+        right_lo: i64 = values[right + d]
+        left_hi: i64 = values[left + 4 + d]
+        right_hi: i64 = values[right + 4 + d]
+        lo: i64 = if left_lo < right_lo: left_lo else: right_lo
+        hi: i64 = if left_hi > right_hi: left_hi else: right_hi
+        product <- product * (hi - lo)
+    product
+
+def dbmsp_penalty(values: i64&, seed: usize, entry: usize) -> i64:
+    dbmsp_union_volume(values, seed, entry) - dbmsp_volume(values, seed)
+
+def versabench_dbms_partition_entries_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 1 or length > MAX_INPUT_LENGTH + 1: return -1
+    raw_fan: i64 = values[0]
+    if raw_fan < 2 or raw_fan > MAX_FAN.i64(): return -1
+    fan: usize = raw_fan.usize()
+    count: usize = fan + 1
+    if length != 1 + 8 * count: return -1
+    for index in 0..<count:
+        if not dbmsp_valid_box(&values[0], 1 + 8 * index): return -1
+
+    seed_a: mutable usize = 0
+    seed_b: mutable usize = 1
+    largest: mutable i64 = dbmsp_union_volume(&values[0], 1, 9)
+    for i in 0..<count:
+        for j in i + 1..<count:
+            candidate: i64 = dbmsp_union_volume(&values[0], 1 + 8 * i, 1 + 8 * j)
+            if candidate > largest:
+                seed_a <- i
+                seed_b <- j
+                largest <- candidate
+
+    a_at: usize = 1 + 8 * seed_a
+    b_at: usize = 1 + 8 * seed_b
+    size_a: mutable usize = 1
+    size_b: mutable usize = 1
+    mask: mutable i64 = 1.i64() << seed_a
+    for i in 0..<count:
+        if i == seed_a or i == seed_b: continue
+        at: usize = 1 + 8 * i
+        if size_a < fan and size_b < fan:
+            if dbmsp_penalty(&values[0], a_at, at) < dbmsp_penalty(&values[0], b_at, at):
+                mask <- mask | (1.i64() << i)
+                size_a <- size_a + 1
+            else:
+                size_b <- size_b + 1
+        elif size_a >= fan and size_b < fan:
+            size_b <- size_b + 1
+        elif size_b >= fan and size_a < fan:
+            mask <- mask | (1.i64() << i)
+            size_a <- size_a + 1
+        else:
+            return -1
+    mask
+
+export fn versabench_dbms_partition_entries(values: i64&, length: usize) -> i64 = versabench_dbms_partition_entries_impl

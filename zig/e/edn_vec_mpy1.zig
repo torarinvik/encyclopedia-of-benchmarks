@@ -1,0 +1,3 @@
+// SPDX-License-Identifier: GPL-3.0-or-later; see package NOTICE.txt.
+fn put64(out:[*]u8,pos:usize,value:i64)void{const u:u64=@bitCast(value);for(0..8)|j|out[pos+j]=@truncate(u>>(8*j));}
+pub export fn edn_vec_mpy1(raw:?[*]const i64,n:usize,out:?[*]u8,cap:usize)i64{const v=raw orelse return -1;if(n<4 or n>130)return -1;const count=v[0];if(count<1 or count>64 or n!=2+2*@as(usize,@intCast(count)))return -1;const q:usize=@intCast(count);const scale=v[n-1];if(scale< -1024 or scale>1023)return -1;var y=[_]i64{0}**64;for(0..q)|i|{y[i]=v[1+i];const x=v[1+q+i];if(y[i]< -1024 or y[i]>1023 or x< -1024 or x>1023)return -1;}const bytes=8*q;const o=out orelse return -2;if(cap<bytes)return -2;for(0..q)|i|y[i]+=(scale*v[1+q+i])>>15;for(0..q)|i|put64(o,8*i,y[i]);return @intCast(bytes);}

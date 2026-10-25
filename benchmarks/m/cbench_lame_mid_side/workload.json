@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-consumer-lame-mid-side-float64-slice-v1",
+  "algorithm": "cbench_lame_mid_side",
+  "function_symbol": "cbench_lame_mid_side",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/consumer_lame/src/quantize-pvt.c",
+    "supporting_paths": ["cBench/consumer_lame/src/quantize.c"],
+    "launcher_path": "cBench/consumer_lame/src/info.sh",
+    "symbols": ["ms_convert", "convert_mdct"],
+    "copyright": "Mark Taylor, 1999",
+    "license": "GPL-2.0-or-later; source notice retained in LICENSE.txt"
+  },
+  "contract": {
+    "input_layout": "[n,L0..L(n-1),R0..R(n-1)]",
+    "sample_count_range": [1, 32],
+    "sample_range": [-16.0, 16.0],
+    "output_layout": "interleaved [M0,S0,M1,S1,...]",
+    "maximum_input_elements": 65,
+    "maximum_parseable_input_elements": 66,
+    "maximum_output_elements": 64,
+    "invalid_result": -1,
+    "output_error_result": -2
+  },
+  "profile": {
+    "mid": "(L+R)*(sqrt(2)*0.5)",
+    "side": "(L-R)*(sqrt(2)*0.5)",
+    "factor_evaluation": "binary64 sqrt(2) multiplied by 0.5 once; source pair-sum/pair-difference is multiplied by the factor",
+    "scope": "single-channel-pair transform only; models convert_mdct=1 branch and does not claim default launcher reaches it; no granule assembly, MDCT, quantization, psychoacoustics, or bitstream"
+  },
+  "workspace": {"elements": 64},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "cases": [
+    {"id":"equal-positive", "input_values":[1,1,1], "input_length":3, "output_capacity":2, "expected_result":2, "expected_output":[1.4142135623730951,0.0]},
+    {"id":"opposite-sign", "input_values":[1,1,-1], "input_length":3, "output_capacity":2, "expected_result":2, "expected_output":[0.0,1.4142135623730951]},
+    {"id":"two-pairs", "input_values":[2,1,0,0,1], "input_length":5, "output_capacity":4, "expected_result":4, "expected_output":[0.7071067811865476,0.7071067811865476,0.7071067811865476,-0.7071067811865476]},
+    {"id":"out-of-range", "input_values":[1,16.5,0], "input_length":3, "output_capacity":2, "expected_result":-1, "expected_output":[]},
+    {"id":"frame-mismatch", "input_values":[2,1,0,1], "input_length":4, "output_capacity":4, "expected_result":-1, "expected_output":[]},
+    {"id":"short-output", "input_values":[1,1,0], "input_length":3, "output_capacity":1, "expected_result":-2, "expected_output":[]},
+    {"id":"null-output", "input_values":[1,1,0], "input_length":3, "output_capacity":2, "output_is_null":true, "expected_result":-2, "expected_output":[]}
+  ]
+}

@@ -1,0 +1,113 @@
+# Rodinia DWT2D (Jiri Matela, Martin Jirman); complete notices in
+# benchmarks/r/rodinia_dwt2d/LICENSE.txt. Independent scalar 5/3 lifting port.
+const RODINIA_DWT2D_MAX_INPUT: usize = 259
+const RODINIA_DWT2D_MAX_CELLS: usize = 256
+
+def rodinia_dwt2d_div_trunc(numerator: i64, denominator: i64) -> i64:
+    if numerator < 0:
+        return -((-numerator) / denominator)
+    numerator / denominator
+
+def rodinia_dwt2d_transform_line(line: i64&, n: usize,
+                                result: mutable i64&) -> void:
+    half: usize = n / 2
+    detail: mutable i64[8] = zeroed
+    for j in 0..<half:
+        even: i64 = line[2 * j]
+        right: i64 = if j + 1 < half: line[2 * j + 2] else: even
+        detail[j] <- line[2 * j + 1] - rodinia_dwt2d_div_trunc(even + right, 2)
+    result[0] <- line[0] + rodinia_dwt2d_div_trunc(detail[0] + detail[0] + 2, 4)
+    for j in 1..<half:
+        result[j] <- line[2 * j] + rodinia_dwt2d_div_trunc(detail[j - 1] + detail[j] + 2, 4)
+    for j in 0..<half:
+        result[half + j] <- detail[j]
+
+def rodinia_dwt2d_put_i32(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u32 = value.u32()
+    for byte in 0..<4:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def rodinia_dwt2d_impl(input: i64&, length: usize,
+                       output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > RODINIA_DWT2D_MAX_INPUT:
+        return -1
+    wi: i64 = input[0]
+    hi: i64 = input[1]
+    li: i64 = input[2]
+    if wi < 2 or wi > 16 or hi < 2 or hi > 16 or li < 1 or li > 3:
+        return -1
+    factor: i64 = 1 << li.usize()
+    if wi < factor or hi < factor or wi % factor != 0 or hi % factor != 0:
+        return -1
+    width: usize = wi.usize()
+    height: usize = hi.usize()
+    cells: usize = width * height
+    if length != 3 + cells:
+        return -1
+    for i in 0..<cells:
+        if input[3 + i] < 0 or input[3 + i] > 255:
+            return -1
+    output_bytes: usize = cells * 4
+    if output.is_null() or capacity < output_bytes:
+        return -2
+
+    plane: mutable i64[RODINIA_DWT2D_MAX_CELLS] = zeroed
+    vertical: mutable i64[RODINIA_DWT2D_MAX_CELLS] = zeroed
+    next: mutable i64[RODINIA_DWT2D_MAX_CELLS] = zeroed
+    ordered: mutable i64[RODINIA_DWT2D_MAX_CELLS] = zeroed
+    line: mutable i64[16] = zeroed
+    transformed: mutable i64[16] = zeroed
+    for i in 0..<cells:
+        plane[i] <- input[3 + i] - 128
+
+    active_width: mutable usize = width
+    active_height: mutable usize = height
+    for level in 0..<li.usize():
+        for x in 0..<active_width:
+            for y in 0..<active_height:
+                line[y] <- plane[y * width + x]
+            rodinia_dwt2d_transform_line(line&, active_height, transformed&)
+            for y in 0..<active_height:
+                vertical[y * width + x] <- transformed[y]
+        for y in 0..<active_height:
+            for x in 0..<active_width:
+                line[x] <- vertical[y * width + x]
+            rodinia_dwt2d_transform_line(line&, active_width, transformed&)
+            for x in 0..<active_width:
+                next[y * width + x] <- transformed[x]
+        for y in 0..<active_height:
+            for x in 0..<active_width:
+                plane[y * width + x] <- next[y * width + x]
+        active_width <- active_width / 2
+        active_height <- active_height / 2
+    output_index: mutable usize = 0
+    stage: mutable i64 = li - 1
+    while stage >= 0:
+        stage_width: usize = width >> stage.usize()
+        stage_height: usize = height >> stage.usize()
+        half_width: usize = stage_width / 2
+        half_height: usize = stage_height / 2
+        if stage == li - 1:
+            for y in 0..<half_height:
+                for x in 0..<half_width:
+                    ordered[output_index] <- plane[y * width + x]
+                    output_index <- output_index + 1
+        for y in 0..<half_height:
+            for x in half_width..<stage_width:
+                ordered[output_index] <- plane[y * width + x]
+                output_index <- output_index + 1
+        for y in half_height..<stage_height:
+            for x in 0..<half_width:
+                ordered[output_index] <- plane[y * width + x]
+                output_index <- output_index + 1
+        for y in half_height..<stage_height:
+            for x in half_width..<stage_width:
+                ordered[output_index] <- plane[y * width + x]
+                output_index <- output_index + 1
+        stage <- stage - 1
+    for i in 0..<cells:
+        rodinia_dwt2d_put_i32(output&, 4 * i, ordered[i])
+    output_bytes.i64()
+
+export fn rodinia_dwt2d(input: i64&, length: usize, output: mutable u8&,
+                        capacity: usize) -> i64 = rodinia_dwt2d_impl

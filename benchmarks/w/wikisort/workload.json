@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "embench-iot-wikisort-bounded-i64-array-v1",
+  "algorithm": "wikisort",
+  "abi": "mutable_i64_with_scratch",
+  "pinned_source": {
+    "repository": "embench/embench-iot",
+    "commit": "de24bdf561f4eaad7f37685641fa301f2b8b4bc3",
+    "path": "src/wikisort/libwikisort.c",
+    "symbol": "WikiSort",
+    "url": "https://github.com/embench/embench-iot/blob/de24bdf561f4eaad7f37685641fa301f2b8b4bc3/src/wikisort/libwikisort.c",
+    "declared_license": "GPL-3.0-or-later",
+    "original_algorithm_note": "The source attributes WikiSort to BonzaiThePenguin/WikiSort and says the original was placed in the public domain."
+  },
+  "profile": {
+    "maximum_length": 2048,
+    "initial_run_size": 16,
+    "cache_capacity": 512,
+    "small_merge": "stable buffered merge when the left run fits in cache",
+    "large_merge": "bounded block rotation with lower-bound partitions and cache-assisted rotations"
+  },
+  "scratch_elements_extra": 0,
+  "input": {
+    "lengths": [0, 16, 32, 64, 400, 1024, 2048],
+    "generation": {
+      "kind": "modular_affine",
+      "multiplier": 48271,
+      "modulus": 2000003,
+      "offset": 1000001,
+      "formula": "values[index] = ((index * 48271) mod 2000003) - 1000001"
+    }
+  },
+  "measurement": {
+    "timer": "clock()",
+    "comparison_model": "sort_call",
+    "warmup_rounds": 2,
+    "sample_count": 7,
+    "scratch_allocation_timed": false
+  },
+  "oracle": {
+    "path": "benchmarks/wikisort_oracle.py",
+    "operation": "compare the full result with the ascending stable reference order"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-searching-dbl-s331-last-negative-index-v1",
+  "algorithm": "tsvc_s331_last_negative_index",
+  "function_symbol": "tsvc_s331_last_negative_index",
+  "abi": "i64_array_scalar",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["TSVC/Searching-dbl/info.sh", "TSVC/Searching-dbl/tsc.c", "TSVC/tsc.inc", "TSVC/types.h", "TSVC/README"],
+    "symbol": "s331",
+    "source_lines": "TSVC/tsc.inc:3893-3921; initialization TSVC/tsc.inc:607-609",
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/Searching-dbl",
+    "license_status": "No explicit license grant found in the pinned TSVC materials reviewed; clean-room ports, no upstream code/comments reused."
+  },
+  "pinned_launcher": {
+    "path": "TSVC/Searching-dbl/info.sh",
+    "run_options": "80000 14",
+    "source_profile": "double precision; s331 full scan and last negative match"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n, values[0], ..., values[n-1]]",
+    "n_range": [1, 256],
+    "value_range": [-1000000, 1000000],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "i64_scalar",
+    "meaning": "one-based position of the last negative value, or zero when none exists",
+    "invalid_input_result": -1
+  },
+  "measurement": {"comparison_model":"i64_array_scalar","sample_count":5,"warmup_rounds":1,"repetitions_per_sample":5},
+  "cases": [
+    {"id":"source_shape_harmonic_positive_then_negative","input_values":[8,1,1,1,1,1,1,1,-1],"expected_result":8},
+    {"id":"last_of_several_negative_values","input_values":[7,-5,0,-1,2,0,-9,4],"expected_result":6},
+    {"id":"no_negative_values","input_values":[4,0,1,2,3],"expected_result":0},
+    {"id":"negative_at_first_position","input_values":[3,-1,4,5],"expected_result":1},
+    {"id":"malformed_length","input_values":[3,0,-1],"expected_result":-1},
+    {"id":"out_of_range_value","input_values":[2,0,1000001],"expected_result":-1}
+  ]
+}

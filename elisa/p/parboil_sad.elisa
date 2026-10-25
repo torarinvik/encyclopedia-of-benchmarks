@@ -1,0 +1,141 @@
+# Bounded clean-room Parboil SAD profile; source license is in package docs.
+const SAD_RANGE: i64 = 16
+const SAD_DIM: i64 = 33
+const SAD_POS: i64 = 1089
+const SAD_PAD: i64 = 1092
+const SAD_SLOTS: usize = 44772
+
+def fn i64 type_offset(i64 kind):
+    if kind == 1: return 0
+    if kind == 2: return 1
+    if kind == 3: return 3
+    if kind == 4: return 5
+    if kind == 5: return 9
+    if kind == 6: return 17
+    return 25
+
+def fn i64 type_count(i64 kind):
+    if kind == 1: return 1
+    if kind == 2 or kind == 3: return 2
+    if kind == 4: return 4
+    if kind == 5 or kind == 6: return 8
+    return 16
+
+def fn i64 pixel(i64& input, i64 image, i64 y, i64 x):
+    word_index: usize = (image * 64 + y * 4 + x / 4).usize()
+    packed: u32 = input[word_index].u32()
+    return ((packed >> ((x % 4) * 8).u32()) & 255).i64()
+
+def fn i64 parboil_sad_impl(i64& input, usize length) -> i64:
+    if input == null or length != 128: return -1
+    for i in 0..<length:
+        if input[i] < 0 or input[i] > 4294967295: return -1
+
+    sads: mutable u16[SAD_SLOTS] = zeroed
+    py: mutable i64 = -SAD_RANGE
+    while py <= SAD_RANGE:
+        px: mutable i64 = -SAD_RANGE
+        while px <= SAD_RANGE:
+            pos: i64 = (py + SAD_RANGE) * SAD_DIM + px + SAD_RANGE
+            by: mutable i64 = 0
+            while by < 4:
+                bx: mutable i64 = 0
+                while bx < 4:
+                    base: i64 = (type_offset(7) + by * 4 + bx) * SAD_PAD
+                    sad: mutable i64 = 0
+                    y: mutable i64 = 0
+                    while y < 4:
+                        x: mutable i64 = 0
+                        while x < 4:
+                            fy: i64 = by * 4 + y
+                            fx: i64 = bx * 4 + x
+                            ry: mutable i64 = fy + py
+                            rx: mutable i64 = fx + px
+                            if ry < 0: ry <- 0
+                            if ry > 15: ry <- 15
+                            if rx < 0: rx <- 0
+                            if rx > 15: rx <- 15
+                            delta: i64 = pixel(input, 0, fy, fx) - pixel(input, 1, ry, rx)
+                            sad <- sad + (if delta < 0: -delta else: delta)
+                            x <- x + 1
+                        y <- y + 1
+                    sads[(base + pos).usize()] <- sad.u16()
+                    bx <- bx + 1
+                by <- by + 1
+            px <- px + 1
+        py <- py + 1
+
+    # Source larger_sads hierarchy, omitting only unobserved padding slots.
+    by <- 0
+    while by < 2:
+        bx: mutable i64 = 0
+        while bx < 4:
+            dst: i64 = type_offset(6) + 4 * by + bx
+            src: i64 = type_offset(7) + 8 * by + bx
+            pos: mutable i64 = 0
+            while pos < SAD_POS:
+                sads[(dst * SAD_PAD + pos).usize()] <- sads[(src * SAD_PAD + pos).usize()] + sads[((src + 4) * SAD_PAD + pos).usize()]
+                pos <- pos + 1
+            bx <- bx + 1
+        by <- by + 1
+    by <- 0
+    while by < 4:
+        bx: mutable i64 = 0
+        while bx < 2:
+            dst: i64 = type_offset(5) + 2 * by + bx
+            src: i64 = type_offset(7) + 4 * by + 2 * bx
+            pos: mutable i64 = 0
+            while pos < SAD_POS:
+                sads[(dst * SAD_PAD + pos).usize()] <- sads[(src * SAD_PAD + pos).usize()] + sads[((src + 1) * SAD_PAD + pos).usize()]
+                pos <- pos + 1
+            bx <- bx + 1
+        by <- by + 1
+    by <- 0
+    while by < 2:
+        bx: mutable i64 = 0
+        while bx < 2:
+            dst: i64 = type_offset(4) + 2 * by + bx
+            src: i64 = type_offset(5) + 4 * by + bx
+            pos: mutable i64 = 0
+            while pos < SAD_POS:
+                sads[(dst * SAD_PAD + pos).usize()] <- sads[(src * SAD_PAD + pos).usize()] + sads[((src + 2) * SAD_PAD + pos).usize()]
+                pos <- pos + 1
+            bx <- bx + 1
+        by <- by + 1
+    bx <- 0
+    while bx < 2:
+        dst: i64 = type_offset(3) + bx
+        src: i64 = type_offset(4) + bx
+        pos: mutable i64 = 0
+        while pos < SAD_POS:
+            sads[(dst * SAD_PAD + pos).usize()] <- sads[(src * SAD_PAD + pos).usize()] + sads[((src + 2) * SAD_PAD + pos).usize()]
+            pos <- pos + 1
+        bx <- bx + 1
+    by <- 0
+    while by < 2:
+        dst: i64 = type_offset(2) + by
+        src: i64 = type_offset(4) + 2 * by
+        pos: mutable i64 = 0
+        while pos < SAD_POS:
+            sads[(dst * SAD_PAD + pos).usize()] <- sads[(src * SAD_PAD + pos).usize()] + sads[((src + 1) * SAD_PAD + pos).usize()]
+            pos <- pos + 1
+        by <- by + 1
+    pos: mutable i64 = 0
+    while pos < SAD_POS:
+        sads[(type_offset(1) * SAD_PAD + pos).usize()] <- sads[(type_offset(2) * SAD_PAD + pos).usize()] + sads[((type_offset(2) + 1) * SAD_PAD + pos).usize()]
+        pos <- pos + 1
+
+    checksum: mutable i64 = 0
+    kind: mutable i64 = 1
+    while kind <= 7:
+        block: mutable i64 = 0
+        while block < type_count(kind):
+            pos <- 0
+            while pos < SAD_POS:
+                checksum <- checksum + sads[((type_offset(kind) + block) * SAD_PAD + pos).usize()].i64()
+                pos <- pos + 1
+            block <- block + 1
+        kind <- kind + 1
+    checksum
+
+export fn parboil_sad(input: i64&, length: usize) -> i64 = parboil_sad_impl

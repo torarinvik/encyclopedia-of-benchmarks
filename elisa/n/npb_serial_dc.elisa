@@ -1,0 +1,119 @@
+## NAS Parallel Benchmarks 3.3 DC source notice:
+## Permission to use, copy, distribute and modify this software for any purpose
+## with or without fee is hereby granted. We request, however, that all derived
+## work reference the NAS Parallel Benchmarks 3.3. This software is provided
+## "as is" without express or implied warranty.
+##
+## Clean-room bounded adaptation: packed input and ordered scalar checksum
+## replace generated files and the original memory management harness.
+
+const MAX_DIMS: usize = 5
+const MAX_ROWS: usize = 16
+
+def npb_serial_dc_impl(input: i64&, length: usize) -> i64:
+    if length < 4:
+        return -1
+    if input[0] < 1 or input[0] > 5 or input[1] < 1 or input[1] > 16:
+        return -1
+    dimensions: usize = input[0].usize()
+    rows: usize = input[1].usize()
+    if length != 2 + rows * (dimensions + 1):
+        return -1
+
+    attributes: mutable i64[16][5] = zeroed
+    measures: mutable i64[16] = zeroed
+    offset: mutable usize = 2
+    row: mutable usize = 0
+    dimension: mutable usize = 0
+    group: mutable usize = 0
+    while row < rows:
+        dimension <- 0
+        while dimension < dimensions:
+            value: i64 = input[offset]
+            if value < 0 or value > 7:
+                return -1
+            attributes[row][dimension] <- value
+            offset <- offset + 1
+            dimension <- dimension + 1
+        measures[row] <- input[offset]
+        if measures[row] < 0 or measures[row] > 1000:
+            return -1
+        offset <- offset + 1
+        row <- row + 1
+
+    checksum: mutable i64 = 0
+    view_limit: usize = 1 << dimensions
+    mask: mutable usize = 1
+    while mask < view_limit:
+        keys: mutable i64[16][5] = zeroed
+        sums: mutable i64[16] = zeroed
+        group_count: mutable usize = 0
+        row <- 0
+        while row < rows:
+            group <- 0
+            while group < group_count:
+                equal: mutable bool = true
+                dimension <- 0
+                while dimension < dimensions:
+                    if ((mask >> dimension) & 1) != 0 and keys[group][dimension] != attributes[row][dimension]:
+                        equal <- false
+                    dimension <- dimension + 1
+                if equal:
+                    break
+                group <- group + 1
+            if group == group_count:
+                dimension <- 0
+                while dimension < dimensions:
+                    if ((mask >> dimension) & 1) != 0:
+                        keys[group][dimension] <- attributes[row][dimension]
+                    dimension <- dimension + 1
+                sums[group] <- measures[row]
+                group_count <- group_count + 1
+            else:
+                sums[group] <- sums[group] + measures[row]
+            row <- row + 1
+
+        index: mutable usize = 1
+        while index < group_count:
+            position: mutable usize = index
+            while position > 0:
+                comparison: mutable i64 = 0
+                dimension <- 0
+                while dimension < dimensions:
+                    if ((mask >> dimension) & 1) != 0:
+                        if keys[position][dimension] < keys[position - 1][dimension]:
+                            comparison <- -1
+                            break
+                        if keys[position][dimension] > keys[position - 1][dimension]:
+                            comparison <- 1
+                            break
+                    dimension <- dimension + 1
+                if comparison >= 0:
+                    break
+                dimension <- 0
+                while dimension < dimensions:
+                    temporary: i64 = keys[position][dimension]
+                    keys[position][dimension] <- keys[position - 1][dimension]
+                    keys[position - 1][dimension] <- temporary
+                    dimension <- dimension + 1
+                temporary_sum: i64 = sums[position]
+                sums[position] <- sums[position - 1]
+                sums[position - 1] <- temporary_sum
+                position <- position - 1
+            index <- index + 1
+
+        view: i64 = mask.i64()
+        checksum <- checksum + view * 1009 + group_count.i64() * 9176
+        group <- 0
+        while group < group_count:
+            checksum <- checksum + (view + 1) * (group + 1).i64() * (sums[group] + 13)
+            dimension <- 0
+            while dimension < dimensions:
+                if ((mask >> dimension) & 1) != 0:
+                    checksum <- checksum + (dimension + 1).i64() * (keys[group][dimension] + 1) * (group + 3).i64() * (view + 5)
+                dimension <- dimension + 1
+            group <- group + 1
+        mask <- mask + 1
+    checksum
+
+export fn npb_serial_dc(input: i64&, length: usize) -> i64 = npb_serial_dc_impl

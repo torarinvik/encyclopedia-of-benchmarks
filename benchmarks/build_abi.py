@@ -88,7 +88,8 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
                          ROOT / language / algorithm / source_name)
     source = next((candidate for candidate in source_candidates if candidate.is_file()),
                   source_candidates[0])
-    workload = ROOT / "benchmarks" / letter / algorithm / "workload.json"
+    workload_letter = "d" if algorithm.startswith("versabench_dbms_") else letter
+    workload = ROOT / "benchmarks" / workload_letter / algorithm / "workload.json"
     if not source.is_file():
         guide = workload.with_name("README.md")
         if guide.is_file():
@@ -221,6 +222,25 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         harness_object = directory / f"{name}.o"
         executable = directory / (name + (".exe" if os.name == "nt" else ""))
         workspace_flag = []
+        sort_flags = []
+        if family == "sort" and name in {"sort_runner", "sort_checker"}:
+            if spec.get("abi") == "mutable_i64_with_scratch":
+                scratch_extra = spec.get("scratch_elements_extra", 0)
+                if type(scratch_extra) is not int or not 0 <= scratch_extra <= 400004:
+                    raise ValueError("sort scratch_elements_extra must be an integer from 0 through 400004")
+                sort_flags.extend(["-DBENCHMARK_WITH_SCRATCH",
+                                   f"-DBENCHMARK_SCRATCH_EXTRA={scratch_extra}"])
+            if name == "sort_checker":
+                profile_maximum = spec.get("profile", {}).get("maximum_length")
+                workload_lengths = spec.get("input", {}).get("lengths", [])
+                if profile_maximum is None:
+                    if (not isinstance(workload_lengths, list)
+                            or any(type(length) is not int or length < 0 for length in workload_lengths)):
+                        raise ValueError("sort checker requires valid profile.maximum_length or input.lengths")
+                    profile_maximum = max(workload_lengths, default=256)
+                if type(profile_maximum) is not int or not 0 <= profile_maximum <= 1_000_000:
+                    raise ValueError("sort profile maximum length must be from 0 through 1000000")
+                sort_flags.append(f"-DBENCHMARK_SORT_CHECKER_MAX_LENGTH={profile_maximum}")
         null_empty_input_flag = (
             ["-DBENCHMARK_NULL_EMPTY_INPUT_MAY_WRITE"]
             if (name == "i64_array_bytes_output_check"
@@ -242,7 +262,7 @@ def build(algorithm: str, language: str, directory: Path, *, compiler: str | Non
         harness_fp_flags = (["-ffp-contract=off"]
                             if algorithm == "pi_monte_carlo_estimation" else [])
         run([c_compiler, "-std=c11", "-O3", "-DNDEBUG", f"-DBENCHMARK_FUNCTION={function_symbol}",
-             *harness_fp_flags, *workspace_flag, *null_empty_input_flag,
+             *harness_fp_flags, *workspace_flag, *null_empty_input_flag, *sort_flags,
              "-c", str(harness), "-o", str(harness_object)])
         linker = compiler if language == "cpp" else c_compiler
         command = [linker, str(harness_object), str(artifact),

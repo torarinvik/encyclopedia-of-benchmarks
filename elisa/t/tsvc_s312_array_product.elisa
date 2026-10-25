@@ -1,0 +1,25 @@
+# Clean-room bounded profile of TSVC s312; see package README.
+
+const TSVC_S312_MAX_N: usize = 48
+const TSVC_S312_MAX_INPUT_LENGTH: usize = 49
+const TSVC_S312_MAX_VALUE: i64 = 2
+
+def tsvc_s312_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 1 or length > TSVC_S312_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 0 or n_value > 48:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + n:
+        return -1
+
+    product: mutable i64 = 1
+    for i in 0..n:
+        value: i64 = input[i + 1]
+        if value < 0 or value > TSVC_S312_MAX_VALUE:
+            return -1
+        product <- product * value
+    product
+
+export fn tsvc_s312_array_product(input: i64&, length: usize) -> i64 = tsvc_s312_impl

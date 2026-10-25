@@ -1,0 +1,91 @@
+/*
+Fhourstones 2.0 copyright and distribution notice:
+This software is copyright (c) 1996 by John Tromp, Lindenlaan 33,
+1701 GT Heerhugowaard, Netherlands. E-mail: tromp@cwi.nl.
+This notice must not be removed. This software must not be sold for profit.
+You may redistribute if your distributees have the same rights and restrictions.
+
+Fhourstones 3.1 copyright and distribution notice:
+This software is copyright (c) 1996-2005 by John Tromp, Insulindeweg 908,
+1095 DX Amsterdam, Netherlands. E-mail: tromp@cwi.nl.
+This notice must not be removed. This software must not be sold for profit.
+You may redistribute if your distributees have the same rights and restrictions.
+*/
+const WIDTH: i64 = 7
+const HEIGHT: i64 = 6
+const BOARD_CELLS: usize = 42
+const MIN_MOVES: i64 = 36
+const MAX_MOVES: i64 = 41
+const MOVE_ORDER: i64[7] = [3, 2, 4, 1, 5, 0, 6]
+const DIR_X: i64[4] = [1, 0, 1, 1]
+const DIR_Y: i64[4] = [0, 1, 1, -1]
+
+def fhourstones_wins_at(board: i64&, column: i64, row: i64, side: i64) -> bool:
+    direction: mutable usize = 0
+    while direction < 4:
+        count: mutable i64 = 1
+        sign_index: mutable usize = 0
+        while sign_index < 2:
+            sign: i64 = if sign_index == 0: -1 else: 1
+            step: mutable i64 = 1
+            while step < 4:
+                x: i64 = column + sign * step * DIR_X[direction]
+                y: i64 = row + sign * step * DIR_Y[direction]
+                if x < 0 or x >= WIDTH or y < 0 or y >= HEIGHT: break
+                if board[(y * WIDTH + x).usize()] != side: break
+                count <- count + 1
+                step <- step + 1
+            sign_index <- sign_index + 1
+        if count >= 4: return true
+        direction <- direction + 1
+    false
+
+def fhourstones_solve_endgame(board: mutable i64&, heights: mutable i64&, side: i64,
+        remaining: usize, alpha_in: i64, beta: i64) -> i64:
+    if remaining == 0: return 0
+    alpha: mutable i64 = alpha_in
+    best: mutable i64 = -3
+    index: mutable usize = 0
+    while index < 7:
+        column: usize = MOVE_ORDER[index].usize()
+        row: usize = heights[column].usize()
+        if row < 6:
+            board[row * 7 + column] <- side
+            heights[column] <- (row + 1).i64()
+            value: mutable i64 = 2
+            if not fhourstones_wins_at(board, column.i64(), row.i64(), side):
+                next_side: i64 = if side == 1: 2 else: 1
+                value <- -fhourstones_solve_endgame(board, heights, next_side,
+                    remaining - 1, -beta, -alpha)
+            heights[column] <- row.i64()
+            board[row * 7 + column] <- 0
+            if value > best: best <- value
+            if value > alpha: alpha <- value
+            if alpha >= beta: break
+        index <- index + 1
+    best
+
+def fhourstones_exact_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 42: return -1
+    move_count: i64 = input[0]
+    if move_count < MIN_MOVES or move_count > MAX_MOVES: return -1
+    count: usize = move_count.usize()
+    if length != count + 1: return -1
+    board: mutable i64[42] = zeroed
+    heights: mutable i64[7] = zeroed
+    turn: mutable usize = 0
+    while turn < count:
+        column_value: i64 = input[turn + 1]
+        if column_value < 0 or column_value >= WIDTH: return -1
+        column: usize = column_value.usize()
+        row: usize = heights[column].usize()
+        if row >= 6: return -1
+        side: i64 = if turn % 2 == 0: 1 else: 2
+        board[row * 7 + column] <- side
+        heights[column] <- (row + 1).i64()
+        if fhourstones_wins_at(board, column.i64(), row.i64(), side): return -1
+        turn <- turn + 1
+    side_to_move: i64 = if count % 2 == 0: 1 else: 2
+    fhourstones_solve_endgame(board, heights, side_to_move, BOARD_CELLS - count, -3, 3)
+
+export fn fhourstones_exact(input: i64&, length: usize) -> i64 = fhourstones_exact_impl

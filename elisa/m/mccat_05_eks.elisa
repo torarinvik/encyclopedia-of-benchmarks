@@ -1,0 +1,183 @@
+/****
+    Copyright (C) 1996 McGill University.
+    Copyright (C) 1996 McCAT System Group.
+    Copyright (C) 1996 ACAPS Benchmark Administrator
+                       benadmin@acaps.cs.mcgill.ca
+
+    This program is free software; you can redistribute it and/or modify
+    it provided this copyright notice is maintained.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+****/
+extern sqrt(value: f64) -> f64
+
+const MIN_N: i64 = 3
+const MAX_N: i64 = 8
+const MAX_INPUT_LENGTH: usize = 66
+const INPUT_SCALE: f64 = 1000000.0
+const OUTPUT_SCALE: f64 = 1000.0
+const QR_EPSILON: f64 = 1.0e-10
+const MAX_QR_STEPS: usize = 4096
+
+def eks_abs(value: f64) -> f64:
+    if value < 0.0: return -value
+    value
+
+def eks_givens(a: f64, b: f64, s: mutable f64&, c: mutable f64&) -> void:
+    if b == 0.0:
+        c <- 1.0
+        s <- 0.0
+    else if eks_abs(b) > eks_abs(a):
+        t: f64 = -a / b
+        s <- 1.0 / sqrt(1.0 + t * t)
+        c <- s * t
+    else:
+        t: f64 = -b / a
+        c <- 1.0 / sqrt(1.0 + t * t)
+        s <- c * t
+
+def eks_apply_givens(a: mutable f64[64]&, n: usize, s: f64, c: f64,
+        i: usize, j: usize, start: usize, end: usize) -> void:
+    k: mutable usize = start
+    while k <= end:
+        x: f64 = a[i * n + k]
+        y: f64 = a[j * n + k]
+        a[i * n + k] <- c * x - s * y
+        a[j * n + k] <- s * x + c * y
+        k <- k + 1
+    k <- start
+    while k <= end:
+        x: f64 = a[k * n + i]
+        y: f64 = a[k * n + j]
+        a[k * n + i] <- c * x - s * y
+        a[k * n + j] <- s * x + c * y
+        k <- k + 1
+
+def eks_reduce_band(a: mutable f64[64]&, n: usize, bandwidth: usize) -> void:
+    i: mutable usize = bandwidth
+    while i >= 2:
+        j: mutable usize = 0
+        while j < n - i:
+            s: mutable f64 = 0.0
+            c: mutable f64 = 0.0
+            eks_givens(a[j * n + j + i - 1], a[j * n + j + i], s, c)
+            end: usize = if j + 2 * i < n: j + 2 * i else: n - 1
+            eks_apply_givens(a, n, s, c, j + i - 1, j + i, j, end)
+            m: mutable usize = j + i
+            while m < n - i:
+                eks_givens(a[(m - 1) * n + m + i - 1], a[(m - 1) * n + m + i], s, c)
+                end <- if m + 2 * i < n: m + 2 * i else: n - 1
+                eks_apply_givens(a, n, s, c, m + i - 1, m + i, m - 1, end)
+                m <- m + i
+            j <- j + 1
+        i <- i - 1
+
+def eks_qr_iterate(a: mutable f64[64]&, n: usize) -> bool:
+    steps: mutable usize = 0
+    while true:
+        i: mutable usize = 0
+        while i < n - 1:
+            if eks_abs(a[(i + 1) * n + i]) < (eks_abs(a[i * n + i]) + eks_abs(a[(i + 1) * n + i + 1])) * QR_EPSILON:
+                a[(i + 1) * n + i] <- 0.0
+                a[i * n + i + 1] <- 0.0
+            i <- i + 1
+        q: mutable usize = n - 1
+        while q > 0 and a[(q - 1) * n + q] == 0.0: q <- q - 1
+        if q == 0: return true
+        steps <- steps + 1
+        if steps > MAX_QR_STEPS: return false
+        p: mutable usize = q
+        while p > 0 and a[(p - 1) * n + p] != 0.0: p <- p - 1
+        d: f64 = (a[(q - 1) * n + q - 1] - a[q * n + q]) / 2.0
+        t: f64 = a[q * n + q - 1] * a[q * n + q - 1]
+        sign: f64 = if d < 0.0: -1.0 else: 1.0
+        mu: f64 = a[q * n + q] - t / (d + sign * sqrt(d * d + t))
+        x: mutable f64 = a[p * n + p] - mu
+        z: mutable f64 = a[(p + 1) * n + p]
+        i <- p
+        while i < q:
+            s: mutable f64 = 0.0
+            c: mutable f64 = 0.0
+            eks_givens(x, z, s, c)
+            l: usize = if i > p: i - 1 else: p
+            m: usize = if q < i + 2: q else: i + 2
+            k: mutable usize = l
+            while k <= m:
+                u: f64 = a[i * n + k]
+                v: f64 = a[(i + 1) * n + k]
+                a[i * n + k] <- c * u - s * v
+                a[(i + 1) * n + k] <- s * u + c * v
+                k <- k + 1
+            k <- l
+            while k <= m:
+                u: f64 = a[k * n + i]
+                v: f64 = a[k * n + i + 1]
+                a[k * n + i] <- c * u - s * v
+                a[k * n + i + 1] <- s * u + c * v
+                k <- k + 1
+            if i < q - 1:
+                x <- a[(i + 1) * n + i]
+                z <- a[(i + 2) * n + i]
+            i <- i + 1
+    false
+
+def eks_project(value: f64) -> i64:
+    scaled: f64 = value * OUTPUT_SCALE
+    if scaled >= 0.0: return (scaled + 0.5).i64()
+    (scaled - 0.5).i64()
+
+def eks_before(left: f64, right: f64) -> bool:
+    if eks_abs(left) > eks_abs(right): return true
+    if eks_abs(left) < eks_abs(right): return false
+    left < right
+
+def eks_put_i32(value: i64, output: mutable u8[32]&, offset: usize) -> void:
+    bits: u32 = value.u32()
+    output[offset] <- bits.u8()
+    output[offset + 1] <- (bits >> 8).u8()
+    output[offset + 2] <- (bits >> 16).u8()
+    output[offset + 3] <- (bits >> 24).u8()
+
+def mccat_05_eks_impl(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    n64: i64 = input[0]
+    bw64: i64 = input[1]
+    if n64 < MIN_N or n64 > MAX_N or bw64 < 2 or bw64 > 5 or bw64 >= n64: return -1
+    n: usize = n64.usize()
+    bandwidth: usize = bw64.usize()
+    if input_length != 2 + n * n: return -1
+    a: mutable f64[64] = zeroed
+    row: mutable usize = 0
+    while row < n:
+        column: mutable usize = 0
+        while column < n:
+            value: i64 = input[2 + row * n + column]
+            if value < -1000000 or value > 1000000: return -1
+            if row > column and value != input[2 + column * n + row]: return -1
+            distance: usize = if row > column: row - column else: column - row
+            if distance > bandwidth and value != 0: return -1
+            a[row * n + column] <- value.f64() / INPUT_SCALE
+            column <- column + 1
+        row <- row + 1
+    required: usize = n * 4
+    if output.is_null() or capacity < required: return -2
+    eks_reduce_band(a, n, bandwidth)
+    if not eks_qr_iterate(a, n): return -1
+    eigenvalues: mutable f64[8] = zeroed
+    for i in 0..<n: eigenvalues[i] <- a[i * n + i]
+    for i in 1..<n:
+        value: f64 = eigenvalues[i]
+        j: mutable usize = i
+        while j > 0 and eks_before(value, eigenvalues[j - 1]):
+            eigenvalues[j] <- eigenvalues[j - 1]
+            j <- j - 1
+        eigenvalues[j] <- value
+    staged: mutable u8[32] = zeroed
+    for i in 0..<n: eks_put_i32(eks_project(eigenvalues[i]), staged, 4 * i)
+    for i in 0..<required: output[i] <- staged[i]
+    required.i64()
+
+export fn mccat_05_eks(input: i64&, input_length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = mccat_05_eks_impl

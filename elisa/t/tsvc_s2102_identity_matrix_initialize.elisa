@@ -1,0 +1,35 @@
+# Clean-room bounded profile of TSVC s2102; see package README.
+
+const TSVC_S2102_MAX_SIDE: usize = 8
+const TSVC_S2102_MAX_PASSES: usize = 8
+const TSVC_S2102_MAX_CELLS: usize = 64
+
+def tsvc_s2102_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s2102_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length != 2:
+        return -1
+    side_value: i64 = input[0]
+    passes_value: i64 = input[1]
+    if side_value < 1 or side_value > 8 or passes_value < 1 or passes_value > 8:
+        return -1
+    side: usize = side_value.usize()
+    cells: usize = side * side
+    if output.is_null() or capacity < 8 * cells:
+        return -2
+
+    matrix: mutable i64[64] = zeroed
+    for pass in 0..passes_value.usize():
+        for col in 0..side:
+            for row in 0..side:
+                matrix[row * side + col] <- 0
+            matrix[col * side + col] <- 1
+    for cell in 0..cells:
+        tsvc_s2102_store(matrix[cell], output, 8 * cell)
+    cells.i64()
+
+export fn tsvc_s2102_identity_matrix_initialize(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s2102_impl

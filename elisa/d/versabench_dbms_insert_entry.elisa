@@ -1,0 +1,115 @@
+const MAX_DEPTH: usize = 2
+const MAX_CHILDREN: usize = 4
+const MAX_LEAF: usize = 3
+const MAX_INPUT_LENGTH: usize = 104
+const MAX_WORDS: usize = 28
+
+def insert_box_valid(b: i64&) -> bool:
+    for d in 0..<4:
+        if b[d] < -8 or b[d] > 8 or b[4+d] < -8 or b[4+d] > 8 or b[d] >= b[4+d]: return false
+    true
+
+def insert_union(boxes: i64&, count: usize, stride: usize, out: i64&) -> void:
+    for d in 0..<8: out[d] <- boxes[d]
+    for i in 1..<count:
+        for d in 0..<4:
+            if boxes[i*stride+d] < out[d]: out[d] <- boxes[i*stride+d]
+            if boxes[i*stride+4+d] > out[4+d]: out[4+d] <- boxes[i*stride+4+d]
+
+def insert_volume(b: i64&) -> i64:
+    result: mutable i64 = 1
+    for d in 0..<4: result <- result * (b[4+d] - b[d])
+    result
+
+def versabench_dbms_insert_entry_impl(values: i64&, length: usize, output: u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 11 or length > MAX_INPUT_LENGTH + 1: return -1
+    depth_value: i64 = values[0]
+    new_id: i64 = values[1]
+    if depth_value < 0 or depth_value > MAX_DEPTH.i64() or new_id < 0 or new_id >= 32: return -1
+    depth: usize = depth_value.usize()
+    incoming: mutable [8]i64 = [0;8]
+    for i in 0..<8: incoming[i] <- values[2+i]
+    if not insert_box_valid(&incoming[0]): return -1
+    branches: mutable [64]i64 = [0;64]
+    counts: mutable [2]usize = [0,0]
+    pos: mutable usize = 10
+    for level in 0..<depth:
+        if pos >= length: return -1
+        count_value: i64 = values[pos]
+        pos <- pos + 1
+        if count_value < 1 or count_value > MAX_CHILDREN.i64(): return -1
+        count: usize = count_value.usize()
+        if pos + count*8 > length: return -1
+        counts[level] <- count
+        for i in 0..<count:
+            base: usize = level*MAX_CHILDREN*8+i*8
+            for j in 0..<8: branches[base+j] <- values[pos+j]
+            pos <- pos + 8
+            if not insert_box_valid(&branches[base]): return -1
+    if pos >= length: return -1
+    leaf_value: i64 = values[pos]
+    pos <- pos + 1
+    if leaf_value < 0 or leaf_value > MAX_LEAF.i64() or (depth > 0 and leaf_value == 0): return -1
+    leaf_count: usize = leaf_value.usize()
+    if pos + leaf_count*9 > length: return -1
+    leaves: mutable [24]i64 = [0;24]
+    seen: mutable [32]bool = [false;32]
+    for i in 0..<leaf_count:
+        base: usize = i*8
+        for j in 0..<8: leaves[base+j] <- values[pos+j]
+        if not insert_box_valid(&leaves[base]): return -1
+        pos <- pos + 8
+        leaf_id: i64 = values[pos]
+        pos <- pos + 1
+        if leaf_id < 0 or leaf_id >= 32 or seen[leaf_id.usize()]: return -1
+        seen[leaf_id.usize()] <- true
+    if pos != length or seen[new_id.usize()]: return -1
+    choices: mutable [2]usize = [0,0]
+    for level in 0..<depth:
+        best: mutable i64 = 65536
+        for i in 0..<counts[level]:
+            base: usize = level*MAX_CHILDREN*8+i*8
+            joined: mutable [8]i64 = [0;8]
+            for d in 0..<4:
+                joined[d] <- if branches[base+d] < incoming[d] then branches[base+d] else incoming[d]
+                joined[4+d] <- if branches[base+4+d] > incoming[4+d] then branches[base+4+d] else incoming[4+d]
+            penalty: i64 = insert_volume(&joined[0])-insert_volume(&branches[base])
+            if penalty < best: best <- penalty; choices[level] <- i
+    if depth > 0:
+        pre: mutable [8]i64 = [0;8]
+        insert_union(&leaves[0],leaf_count,8,&pre[0])
+        rev: mutable usize = depth
+        while rev > 0:
+            rev <- rev-1
+            level: usize = rev
+            base: usize = level*MAX_CHILDREN*8+choices[level]*8
+            for d in 0..<8: if branches[base+d] != pre[d]: return -1
+            insert_union(&branches[level*MAX_CHILDREN*8],counts[level],8,&pre[0])
+    staged: mutable [32]i64 = [0;32]
+    for i in 0..<leaf_count:
+        for j in 0..<8: staged[i*8+j] <- leaves[i*8+j]
+    for j in 0..<8: staged[leaf_count*8+j] <- incoming[j]
+    child: mutable [8]i64 = [0;8]
+    insert_union(&staged[0],leaf_count+1,8,&child[0])
+    words: mutable [MAX_WORDS]i64 = [0;MAX_WORDS]
+    outn: mutable usize = 0
+    words[outn] <- depth.i64(); outn <- outn+1
+    words[outn] <- new_id; outn <- outn+1
+    for i in 0..<depth: words[outn] <- choices[i].i64(); outn <- outn+1
+    for d in 0..<8: words[outn] <- child[d]; outn <- outn+1
+    rev2: mutable usize = depth
+    while rev2 > 0:
+        rev2 <- rev2-1
+        level: usize = rev2
+        base: usize = level*MAX_CHILDREN*8+choices[level]*8
+        for d in 0..<8: branches[base+d] <- child[d]
+        insert_union(&branches[level*MAX_CHILDREN*8],counts[level],8,&child[0])
+        for d in 0..<8: words[outn] <- child[d]; outn <- outn+1
+    bytes: usize = outn*8
+    if output.is_null() or output_capacity < bytes: return -2
+    for i in 0..<outn:
+        bits: u64 = words[i].u64()
+        for b in 0..<8: output[i*8+b] <- ((bits >> (8*b)) & 255).u8()
+    bytes.i64()
+
+export fn versabench_dbms_insert_entry(values: i64&, length: usize, output: u8&, output_capacity: usize) -> i64 = versabench_dbms_insert_entry_impl

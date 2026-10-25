@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s315-maximum-with-index-i64-array-bytes-v1",
+  "algorithm": "tsvc_s315_maximum_with_index",
+  "function_symbol": "tsvc_s315_maximum_with_index",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded first-maximum value and index reduction profile of TSVC s315.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s315",
+    "source_lines": {"kernel_start": 3477, "kernel_end": 3510, "scan_start": 3493, "scan_end": 3500, "input_overwrite_start": 3486, "input_overwrite_end": 3488},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_family": "TSVC/Reductions-dbl",
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. The ports are clean-room implementations of the bounded maximum-with-first-index reduction and reuse no upstream source code or comments; no upstream license or endorsement is claimed."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "argument_order": ["count", "values..."],
+    "count_range": [1, 64],
+    "value_range": [-1000000, 1000000],
+    "maximum_valid_input_length": 65,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "two_signed_64_bit_integers_little_endian",
+    "fields": ["maximum_value", "first_zero_based_index_of_maximum"],
+    "valid_result": 2,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "required_output_capacity": 16
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "first-of-equal-maxima",
+      "input_values": [7, -2, 5, 9, 9, 0, 4, 9],
+      "input_length": 8,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "09000000000000000200000000000000"
+    },
+    {
+      "id": "negative-maximum",
+      "input_values": [5, 4, -9, -1, -1, -5],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "ffffffffffffffff0200000000000000"
+    },
+    {
+      "id": "singleton",
+      "input_values": [1, -7],
+      "input_length": 2,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "f9ffffffffffffff0000000000000000"
+    },
+    {
+      "id": "last-is-maximum",
+      "input_values": [5, 4, 2, 4, 6, 8],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "08000000000000000400000000000000"
+    },
+    {
+      "id": "maximum-input-size",
+      "input_values": [64, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
+      "input_length": 65,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "3f000000000000003f00000000000000"
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [3, 1, 5, 2],
+      "input_length": 4,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-values",
+      "input_values": [3, 1, 5],
+      "input_length": 3,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "count-out-of-range",
+      "input_values": [65],
+      "input_length": 1,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "value-out-of-range",
+      "input_values": [1, 1000001],
+      "input_length": 2,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

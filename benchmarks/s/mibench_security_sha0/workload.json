@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mibench-security-sha0-single-block-i64-array-bytes-output-v1",
+  "algorithm": "mibench_security_sha0",
+  "function_symbol": "mibench_security_sha0",
+  "description": "Bounded one-block SHA-0 hashing from the MiBench security-sha source, whose launcher leaves the SHA-1 schedule modification disabled.",
+  "pinned_sources": [
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "MiBench/security-sha/sha.c",
+      "related_paths": ["MiBench/security-sha/sha.h", "MiBench/security-sha/sha_driver.c", "MiBench/security-sha/LICENSE", "MiBench/security-sha/info.sh"],
+      "symbols": ["sha_transform", "sha_init", "sha_update", "sha_final"],
+      "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/security-sha",
+      "license_note": "The LICENSE file and source header provide attribution and origin comments only; no explicit license or redistribution grant is stated."
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "cBench/security_sha/src/sha.c",
+      "related_paths": ["cBench/security_sha/src/info.sh"],
+      "symbols": ["sha_transform", "sha_init", "sha_update", "sha_final"],
+      "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/security_sha/src",
+      "launcher_mode": "USE_MODIFIED_SHA is not defined; the message-schedule XOR expansion is not rotated, so this is SHA-0."
+    }
+  ],
+  "contract": {
+    "operation": "Hash a byte string with the original SHA 160-bit compression function, using one 512-bit padded block.",
+    "input_layout": "[message_length, message_bytes...]",
+    "message_length_range": [0, 55],
+    "padding": "Append 0x80, zero-fill through byte 55, and append the 64-bit big-endian message bit length.",
+    "schedule": "W[0..15] are big-endian words; W[t] = W[t-3] XOR W[t-8] XOR W[t-14] XOR W[t-16] for t=16..79, with no one-bit rotation. This is the defining difference from SHA-1.",
+    "output": "20 raw digest bytes in big-endian state-word order.",
+    "invalid_result": -1,
+    "output_error_result": -2
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "message byte count followed by that many byte values",
+    "exact_length": "1 + message_length",
+    "maximum_valid_input_length": 56,
+    "maximum_parseable_input_length": 57,
+    "message_length_range": [0, 55],
+    "byte_range": [0, 255],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "maximum_bytes": 20,
+    "success_result": 20,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 20
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "sha0_empty_message", "input_values": [0], "input_length": 1, "output_capacity": 20, "expected_result": 20, "expected_output_hex": "f96cea198ad1dd5617ac084a3d92c6107708c0ef"},
+    {"id": "sha0_abc_standard_vector", "input_values": [3, 97, 98, 99], "input_length": 4, "output_capacity": 20, "expected_result": 20, "expected_output_hex": "0164b8a914cd2a5e74c4f7ff082c4d97f1edf880"},
+    {"id": "short_output_capacity", "input_values": [3, 97, 98, 99], "input_length": 4, "output_capacity": 19, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [0], "input_length": 1, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "message_too_long_for_single_block", "input_values": [56], "input_length": 1, "output_capacity": 20, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "invalid_byte", "input_values": [1, 256], "input_length": 2, "output_capacity": 20, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "trailing_input", "input_values": [0, 0], "input_length": 2, "output_capacity": 20, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 1, "input_is_null": true, "output_capacity": 20, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

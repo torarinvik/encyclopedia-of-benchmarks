@@ -1,0 +1,12 @@
+Embench-IoT xgboost attribution
+
+Pinned repository: https://github.com/embench/embench-iot
+Commit: 09c2ed8c3b7008c95d08b038de4a3f6dc103ed70
+Source files: src/xgboost/xgboost.c, src/xgboost/xgboost.h, src/xgboost/testbench.c
+
+Upstream source header credits:
+Contributor Zachary Susskind <zsusskind@utexas.edu>
+Contributor Konrad Moron <konrad.moron@tum.de>
+SPDX-License-Identifier: GPL-3.0-or-later
+
+Local files are independently written modifications of the bounded inference profile in README.md, distributed under GPL-3.0-or-later. See LICENSE.txt for the full license text.

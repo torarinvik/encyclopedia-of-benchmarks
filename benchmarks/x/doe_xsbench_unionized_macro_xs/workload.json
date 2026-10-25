@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "doe-xsbench-unionized-macro-xs-i64-f64-v1",
+  "algorithm": "doe_xsbench_unionized_macro_xs",
+  "function_symbol": "doe_xsbench_unionized_macro_xs",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[nuclides,gridpoints,material_nuclides,energy_q,(nuclide_id,concentration_q)*material_nuclides,union_energy_q*(nuclides*gridpoints),pointer_index*(nuclides*gridpoints*nuclides),then per nuclide/gridpoint (energy_q,total_xs_q,elastic_xs_q,absorption_xs_q,fission_xs_q,nu_fission_xs_q)]",
+    "fixed_point_scale": 1000000,
+    "fixed_component_range": [0, 1000000],
+    "nuclide_count_range": [1, 4],
+    "gridpoints_per_nuclide_range": [2, 5],
+    "material_nuclide_count_range": [1, 4],
+    "union_grid_count": "nuclides*gridpoints",
+    "exact_length": "4 + 2*material_nuclides + union_grid_count*(7+nuclides)",
+    "maximum_input_length": 232,
+    "maximum_parseable_input_length": 233,
+    "query_energy_range": [0.0, 1.0],
+    "energy_grid_order": "Each nuclide grid and the union grid are strictly increasing; the union grid contains every per-nuclide energy exactly once.",
+    "material_composition": "Nuclide ids are unique and in range; concentrations are in [0,1].",
+    "pointer_table": "Row-major by union-grid index then nuclide id; each entry equals the pinned source binary_search result for that union energy.",
+    "invalid_result": -1e300,
+    "input_mutation": "none"
+  },
+  "output": {
+    "kind": "float64_scalar",
+    "meaning": "macro_total_xs + 2*macro_elastic_xs + 3*macro_absorption_xs + 5*macro_fission_xs + 7*macro_nu_fission_xs",
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e300
+  },
+  "source_profile": {
+    "kernel": "One calculate_macro_xs lookup over prebuilt unionized energies and per-nuclide index rows.",
+    "search": "grid_search returns the greatest union-grid index whose energy is <= the query, clamped to [0, union_count-2].",
+    "microscopic_lookup": "Use the selected union row's nuclide pointer; if it equals gridpoints-1, shift the low index back by one; linearly interpolate all five microscopic channels using the pinned source expression order.",
+    "macro_accumulation": "In composition order, add each microscopic channel times its nuclide concentration.",
+    "precision": "Binary64 source arithmetic.",
+    "result_projection": "Weighted scalar checksum makes all five macro cross-section channels observable."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20,
+    "absolute_tolerance": 1e-12,
+    "relative_tolerance": 1e-12
+  },
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "DOE_ProxyApps_C/XSBench/info.sh",
+      "DOE_ProxyApps_C/XSBench/CalculateXS.c",
+      "DOE_ProxyApps_C/XSBench/GridInit.c",
+      "DOE_ProxyApps_C/XSBench/XSbench_header.h",
+      "DOE_ProxyApps_C/XSBench/XSutils.c",
+      "DOE_ProxyApps_C/XSBench/LICENSE"
+    ],
+    "symbols": ["grid_search", "binary_search", "calculate_micro_xs", "calculate_macro_xs"],
+    "launcher": {
+      "source_files": ["CalculateXS.c", "GridInit.c", "Main.c", "Materials.c", "XSutils.c", "io.c"],
+      "compile_flags": ["-lm", "-DVERIFICATION"],
+      "run_options": ["-s", "small", "-g", "1250", "-l", "1000000"],
+      "license": "MIT, Copyright (c) 2012-2013 Argonne National Laboratory"
+    },
+    "license": "MIT; full notice is retained in the package and each language port."
+  },
+  "cases": [
+    {
+      "id": "union-grid-search-and-macro-interpolation",
+      "input_values": [2,2,2,250000,0,250000,1,750000,125000,250000,625000,875000,0,0,0,0,1,0,0,1,125000,125000,250000,125000,250000,500000,625000,625000,750000,375000,500000,750000,250000,500000,125000,375000,625000,250000,875000,750000,500000,875000,750000,500000],
+      "input_length": 44,
+      "expected_result": 6.828125
+    },
+    {
+      "id": "upper-union-endpoint-extrapolation",
+      "input_values": [2,2,2,875000,0,250000,1,750000,125000,250000,625000,875000,0,0,0,0,1,0,0,1,125000,125000,250000,125000,250000,500000,625000,625000,750000,375000,500000,750000,250000,500000,125000,375000,625000,250000,875000,750000,500000,875000,750000,500000],
+      "input_length": 44,
+      "expected_result": 12.125
+    },
+    {
+      "id": "invalid-pointer-row",
+      "input_values": [2,2,2,250000,0,250000,1,750000,125000,250000,625000,875000,0,0,0,0,0,0,0,1,125000,125000,250000,125000,250000,500000,625000,625000,750000,375000,500000,750000,250000,500000,125000,375000,625000,250000,875000,750000,500000,875000,750000,500000],
+      "input_length": 44,
+      "expected_result": -1e300
+    },
+    {
+      "id": "invalid-extra-value",
+      "input_values": [2,2,2,250000,0,250000,1,750000,125000,250000,625000,875000,0,0,0,0,1,0,0,1,125000,125000,250000,125000,250000,500000,625000,625000,750000,375000,500000,750000,250000,500000,125000,375000,625000,250000,875000,750000,500000,875000,750000,500000,0],
+      "input_length": 45,
+      "expected_result": -1e300
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1e300
+    }
+  ]
+}

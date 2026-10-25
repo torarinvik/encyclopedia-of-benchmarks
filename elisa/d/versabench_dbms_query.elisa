@@ -1,0 +1,102 @@
+const MAX_NODES: usize = 7
+const MAX_ENTRIES: usize = 4
+const MAX_RECORDS: usize = 16
+const MAX_INPUT_LENGTH: usize = 10 + 38 * MAX_NODES
+
+def dbms_query_valid_box(lo: i64&, hi: i64&) -> bool:
+    for d in 0..<4:
+        if lo[d] < -8 or lo[d] > 8 or hi[d] < -8 or hi[d] > 8 or lo[d] >= hi[d]: return false
+    true
+
+def dbms_query_intersects(entries: i64&, base: usize, qlo: i64&, qhi: i64&) -> bool:
+    for d in 0..<4:
+        if qlo[d] > entries[base + 4 + d] or entries[base + d] > qhi[d]: return false
+    true
+
+def versabench_dbms_query_impl(values: i64&, length: usize, output: u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 10 or length > MAX_INPUT_LENGTH + 1: return -1
+    node_count_value: i64 = values[0]
+    root_value: i64 = values[1]
+    if node_count_value < 1 or node_count_value > MAX_NODES.i64() or root_value < 0 or root_value >= node_count_value: return -1
+    node_count: usize = node_count_value.usize()
+    root: usize = root_value.usize()
+    qlo: mutable [4]i64 = [0,0,0,0]
+    qhi: mutable [4]i64 = [0,0,0,0]
+    for d in 0..<4: qlo[d] <- values[2+d]; qhi[d] <- values[6+d]
+    if not dbms_query_valid_box(&qlo[0], &qhi[0]): return -1
+    levels: mutable [7]i64 = [0,0,0,0,0,0,0]
+    counts: mutable [7]usize = [0,0,0,0,0,0,0]
+    entries: mutable [252]i64 = [0;252]
+    parents: mutable [7]usize = [0,0,0,0,0,0,0]
+    seen: mutable [32]bool = [false;32]
+    leaf_total: mutable usize = 0
+    pos: mutable usize = 10
+    for ni in 0..<node_count:
+        if pos + 2 > length: return -1
+        level: i64 = values[pos]
+        count_value: i64 = values[pos+1]
+        pos <- pos + 2
+        if level < 0 or level > 2 or count_value < 1 or count_value > MAX_ENTRIES.i64(): return -1
+        count: usize = count_value.usize()
+        if pos + count * 9 > length: return -1
+        levels[ni] <- level
+        counts[ni] <- count
+        for ei in 0..<count:
+            base: usize = (ni * MAX_ENTRIES + ei) * 9
+            for k in 0..<9: entries[base+k] <- values[pos+k]
+            pos <- pos + 9
+            key_lo: mutable [4]i64 = [0,0,0,0]
+            key_hi: mutable [4]i64 = [0,0,0,0]
+            for d in 0..<4: key_lo[d] <- entries[base+d]; key_hi[d] <- entries[base+4+d]
+            if not dbms_query_valid_box(&key_lo[0], &key_hi[0]): return -1
+            reference: i64 = entries[base+8]
+            if level == 0:
+                if reference < 0 or reference >= 32 or seen[reference.usize()] or leaf_total >= MAX_RECORDS: return -1
+                seen[reference.usize()] <- true
+                leaf_total <- leaf_total + 1
+            else:
+                if reference < 0 or reference >= node_count_value: return -1
+                parents[reference.usize()] <- parents[reference.usize()] + 1
+                if parents[reference.usize()] > 1: return -1
+    if pos != length or parents[root] != 0: return -1
+    for ni in 0..<node_count:
+        if ni != root and parents[ni] != 1: return -1
+        if levels[ni] == 0: continue
+        for ei in 0..<counts[ni]:
+            base: usize = (ni * MAX_ENTRIES + ei) * 9
+            child: usize = entries[base+8].usize()
+            if levels[child] != levels[ni] - 1: return -1
+            for ce in 0..<counts[child]:
+                child_base: usize = (child * MAX_ENTRIES + ce) * 9
+                for d in 0..<4:
+                    if entries[base+d] > entries[child_base+d] or entries[base+4+d] < entries[child_base+4+d]: return -1
+    stack: mutable [7]usize = [0,0,0,0,0,0,0]
+    stack[0] <- root
+    top: mutable usize = 1
+    hits: mutable [16]i64 = [0;16]
+    hit_count: mutable usize = 0
+    while top > 0:
+        top <- top - 1
+        ni: usize = stack[top]
+        if levels[ni] == 0:
+            for ei in 0..<counts[ni]:
+                base: usize = (ni * MAX_ENTRIES + ei) * 9
+                if dbms_query_intersects(&entries[0], base, &qlo[0], &qhi[0]):
+                    hits[hit_count] <- entries[base+8]
+                    hit_count <- hit_count + 1
+        else:
+            rev: mutable usize = counts[ni]
+            while rev > 0:
+                rev <- rev - 1
+                base: usize = (ni * MAX_ENTRIES + rev) * 9
+                if dbms_query_intersects(&entries[0], base, &qlo[0], &qhi[0]):
+                    stack[top] <- entries[base+8].usize()
+                    top <- top + 1
+    bytes: usize = hit_count * 8
+    if output.is_null() or output_capacity < bytes: return -2
+    for i in 0..<hit_count:
+        bits: u64 = hits[i].u64()
+        for b in 0..<8: output[i*8+b] <- ((bits >> (8*b)) & 255).u8()
+    bytes.i64()
+
+export fn versabench_dbms_query(values: i64&, length: usize, output: u8&, output_capacity: usize) -> i64 = versabench_dbms_query_impl

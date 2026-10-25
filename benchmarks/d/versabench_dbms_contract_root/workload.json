@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-versabench-dbms-delete-root-contract-i64-array-bytes-v1",
+  "algorithm": "versabench_dbms_contract_root",
+  "function_symbol": "versabench_dbms_contract_root",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "VersaBench/dbms/delete.c",
+    "supporting_paths": ["VersaBench/dbms/deleteEntry.c", "VersaBench/dbms/deleteIndexNode.c", "VersaBench/dbms/index.h", "VersaBench/dbms/delete.h"],
+    "launcher_path": "VersaBench/dbms/info.sh",
+    "symbols": ["delete"],
+    "author": "M. L. Rivas",
+    "copyright": "Copyright 1999, Atlantic Aerospace Electronics Corp.",
+    "license_status": "No explicit redistribution license found in the pinned directory; local code is clean-room and contains no copied source text or comments."
+  },
+  "contract": {
+    "input_layout": "[node_count,(level,entry_count)*] along a root-to-terminal sole-child chain",
+    "node_count_range": [1, 5],
+    "level_range": [0, 4],
+    "entry_count_range": [0, 4],
+    "maximum_valid_input_words": 11,
+    "maximum_parseable_input_words": 12,
+    "output": "little-endian signed i64 [promotion_count,final_root_level,final_root_entry_count]",
+    "maximum_output_bytes": 24,
+    "invalid_result": -1,
+    "output_error_result": -2
+  },
+  "profile": {
+    "operation": "Repeatedly promote a sole child while the root is internal; convert an empty internal root to an empty leaf root.",
+    "scope": "Root normalization after deletion only; does not model entry deletion, node allocation/free, root contents, database I/O, or command stream."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"repeated-single-child-promotion", "input_values":[4,3,1,2,1,1,1,0,2], "output_capacity":24, "expected_result":24, "expected_output_hex":"030000000000000000000000000000000200000000000000"},
+    {"id":"stop-at-multi-child-root", "input_values":[2,3,1,2,2], "output_capacity":24, "expected_result":24, "expected_output_hex":"010000000000000002000000000000000200000000000000"},
+    {"id":"empty-internal-root-becomes-leaf", "input_values":[1,3,0], "output_capacity":24, "expected_result":24, "expected_output_hex":"000000000000000000000000000000000000000000000000"},
+    {"id":"leaf-root-unchanged", "input_values":[1,0,2], "output_capacity":24, "expected_result":24, "expected_output_hex":"000000000000000000000000000000000200000000000000"},
+    {"id":"invalid-level-transition", "input_values":[2,3,1,1,2], "output_capacity":24, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short-output-capacity", "input_values":[1,0,2], "output_capacity":23, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[1,0,2], "output_capacity":24, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_is_null":true, "input_length":0, "output_capacity":24, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

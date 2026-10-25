@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-trimaran-enc-pc1-bounded-v1",
+  "algorithm": "trimaran_enc_pc1",
+  "function_symbol": "trimaran_enc_pc1",
+  "description": "Bounded Pukall Cipher 1 byte-stream profile with the source default key and deterministic source LCG.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Trimaran/enc-pc1/pc1cod.c",
+    "symbol": "assemble/code/my_rand_r",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/enc-pc1/pc1cod.c",
+    "author": "Alexander Pukall",
+    "license_note": "The source states that the code is free with no restriction to use and requests that the author's name be included in final software."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Trimaran/enc-pc1/info.sh",
+    "bench_name": "enc-pc1",
+    "source_files": ["pc1cod.c"],
+    "small_problem_run_options": ["1000000"],
+    "default_run_options": ["20000000"]
+  },
+  "source_bound": {
+    "description": "The input is the source NumInput argument, bounded to 2049; the source pre-decrements it before each loop, so at most 2048 pseudo-random bytes are processed. Key feedback uses the plaintext byte before the source's XOR keystream step. The result reconstructs the final d/e pair printed by the source. The unsigned 32-bit LCG wrap and 16-bit state wrap are explicit.",
+    "maximum_processed_bytes": 2048,
+    "default_key_ascii": "abcdefghijklmnopqrstuvwxyz012345",
+    "random_seed": 1,
+    "lcg_multiplier": 1664525,
+    "lcg_increment": 1013904223,
+    "source_print_interval": 2048
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[NumInput], with source loop processing NumInput - 1 bytes",
+    "num_input_range": [1, 2049],
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "final 16-bit source c value; this is equivalent to the source's last printed d/e pair reconstructed as 16*d + e",
+    "valid_result_range": [0, 32767],
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "first_source_print_interval",
+      "description": "The source small reference prints d=1384 and e=14 after its first 2048 iterations; this scalar reconstructs that pair.",
+      "input_values": [2049],
+      "input_length": 1,
+      "expected_result": 22158
+    },
+    {"id": "zero_num_input", "input_values": [0], "expected_result": -1},
+    {"id": "above_bounded_profile", "input_values": [2050], "expected_result": -1},
+    {"id": "negative_num_input", "input_values": [-1], "expected_result": -1},
+    {"id": "empty_input", "input_values": [], "expected_result": -1},
+    {"id": "extra_input_value", "input_values": [2, 0], "expected_result": -1}
+  ]
+}

@@ -1,0 +1,48 @@
+const INVALID_RESULT: f64 = -1.0e300
+
+def doe_minigmg_restriction_impl(values: i64&, length: usize) -> f64:
+    if values == null or length < 11 or length > 515: return INVALID_RESULT
+    nx_raw: i64 = values[0]
+    ny_raw: i64 = values[1]
+    nz_raw: i64 = values[2]
+    if nx_raw < 2 or nx_raw > 8 or nx_raw % 2 != 0: return INVALID_RESULT
+    if ny_raw < 2 or ny_raw > 8 or ny_raw % 2 != 0: return INVALID_RESULT
+    if nz_raw < 2 or nz_raw > 8 or nz_raw % 2 != 0: return INVALID_RESULT
+
+    nx: usize = nx_raw.usize()
+    ny: usize = ny_raw.usize()
+    nz: usize = nz_raw.usize()
+    cells: usize = nx * ny * nz
+    if length != 3 + cells: return INVALID_RESULT
+    q: mutable usize = 0
+    while q < cells:
+        if values[3 + q] < -32768 or values[3 + q] > 32767: return INVALID_RESULT
+        q <- q + 1
+
+    coarse_nx: usize = nx / 2
+    coarse_ny: usize = ny / 2
+    coarse_nz: usize = nz / 2
+    plane: usize = nx * ny
+    checksum: mutable f64 = 0.0
+    coarse_index: mutable usize = 0
+    k: mutable usize = 0
+    while k < coarse_nz:
+        j: mutable usize = 0
+        while j < coarse_ny:
+            i: mutable usize = 0
+            while i < coarse_nx:
+                base: usize = 3 + 2 * i + 2 * j * nx + 2 * k * plane
+                sum: f64 = values[base].f64() + values[base + 1].f64() +
+                    values[base + nx].f64() + values[base + nx + 1].f64() +
+                    values[base + plane].f64() + values[base + plane + 1].f64() +
+                    values[base + plane + nx].f64() + values[base + plane + nx + 1].f64()
+                restricted: f64 = sum * 0.125
+                weight: f64 = (coarse_index + 1).f64()
+                checksum <- checksum + weight * restricted * restricted
+                coarse_index <- coarse_index + 1
+                i <- i + 1
+            j <- j + 1
+        k <- k + 1
+    checksum
+
+export fn doe_minigmg_restriction(values: i64&, length: usize) -> f64 = doe_minigmg_restriction_impl

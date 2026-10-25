@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s273-dependent-conditional-update-i64-array-scalar-v1",
+  "algorithm": "tsvc_s273_dependent_conditional_update",
+  "function_symbol": "tsvc_s273_dependent_conditional_update",
+  "description": "Bounded source-shaped vector update with a dependent conditional from TSVC s273.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s273",
+    "line": 2842,
+    "included_by": "TSVC/ControlFlow-dbl/tsc.c",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc#L2842",
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. Ports are independent implementations of the bounded loop behavior; no upstream source code or comments are reused and no upstream license or endorsement is claimed."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "info_path": "TSVC/ControlFlow-dbl/info.sh",
+    "bench_name": "ControlFlow-dbl",
+    "source_files": ["dummy.c", "tsc.c"],
+    "compile_flags": ["-lm", "-std=gnu99"],
+    "run_options": ["2325", "14"]
+  },
+  "contract": {
+    "operation": "For each pass and ascending i, update A[i] by D[i]*E[i], conditionally update B[i] if the new A[i] is negative, then update C[i] by the new A[i]*D[i].",
+    "input_layout": "[n, passes, A[0..n), B[0..n), C[0..n), D[0..n), E[0..n)]",
+    "n_range": [1, 64],
+    "passes_range": [1, 8],
+    "value_range": [-2, 2],
+    "exact_length": "2 + 5*n",
+    "maximum_valid_input_length": 322,
+    "arithmetic_type": "The source uses binary64 double. Bounded inputs and all intermediates are exact integers below 2^53; the ports use signed i64 arithmetic.",
+    "traversal": "Passes ascend; within each pass, i ascends. The condition tests A after its update; C then uses this same updated A.",
+    "input_modified": false,
+    "output": "Sum of final A, B, and C entries.",
+    "success_result": "The final checksum as signed i64.",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "n, passes, then five contiguous arrays A through E, each of length n",
+    "maximum_valid_length": 322,
+    "maximum_parseable_length": 322,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "updated-a-nonnegative-no-branch", "input_values": [1, 1, 0, 0, 0, 1, 1], "expected_result": 2},
+    {"id": "updated-a-negative-takes-branch", "input_values": [1, 1, -2, 0, 0, 1, 1], "expected_result": -1},
+    {"id": "branch-rechecked-next-pass", "input_values": [1, 2, -2, 0, 0, 1, 1], "expected_result": 0},
+    {"id": "two-independent-elements", "input_values": [2, 1, -2, 1, 0, 0, 0, 0, 1, 1, 1, 1], "expected_result": 3},
+    {"id": "zero-size", "input_values": [0, 1, 0, 0, 0, 0, 0], "expected_result": -1},
+    {"id": "truncated-array", "input_values": [1, 1, 0, 0, 0, 1], "expected_result": -1},
+    {"id": "element-out-of-range", "input_values": [1, 1, 0, 0, 0, 3, 1], "expected_result": -1},
+    {"id": "null-input", "input_values": [], "input_is_null": true, "expected_result": -1}
+  ]
+}

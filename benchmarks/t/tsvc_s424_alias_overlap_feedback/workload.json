@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s424-alias-overlap-feedback-i64-scalar-v1",
+  "algorithm": "tsvc_s424_alias_overlap_feedback",
+  "function_symbol": "tsvc_s424_alias_overlap_feedback",
+  "abi": "i64_array_scalar",
+  "description": "One source-ordered s424 sweep over an aliased backing array with a 64-element feedback displacement.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "TSVC/Equivalencing-dbl/info.sh",
+      "TSVC/Equivalencing-dbl/tsc.c",
+      "TSVC/Equivalencing-flt/info.sh",
+      "TSVC/Equivalencing-flt/tsc.c",
+      "TSVC/tsc.inc",
+      "TSVC/tests.h"
+    ],
+    "symbol": "s424",
+    "source_lines": {
+      "codelet_start": 4317,
+      "codelet_end": 4345
+    },
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "launcher_family": "TSVC/Equivalencing-dbl and TSVC/Equivalencing-flt",
+    "launcher_options": {
+      "double": [3125, 14],
+      "float": [3125, 5]
+    },
+    "attribution": "The TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC files or repository material reviewed. These clean-room ports reuse no upstream code or comments and claim no upstream license or endorsement."
+  },
+  "contract": {
+    "operation": "Set backing-array positions X[63] through X[n+62] to zero, then for ascending i=0..n-2 assign X[i+64]=X[i]+A[i]. Return the sum of X[63] through X[n+62].",
+    "input_layout": "[n, A[n], X_prefix[63]]; backing X indices 63 through n+62 are zero-initialized before the update sweep.",
+    "n_range": [66, 192],
+    "value_range": [0, 10],
+    "exact_length": "n + 64",
+    "arithmetic": "Integer-valued source double/float additions; at most three additions feed any bounded output value, keeping all results exactly representable.",
+    "passes": 1,
+    "success_result": "Sum of the source-observed aliased view after the sweep.",
+    "invalid_input_result": -1,
+    "input_modified": false,
+    "output_range": [0, 7680]
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "maximum_valid_length": 256,
+    "maximum_parseable_length": 256,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "Checksum of X[63] through X[n+62] after the in-place overlap sweep."
+  },
+  "workspace": {
+    "bytes": 3576,
+    "meaning": "Temporary A[192] and backing X[255] signed 64-bit arrays."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "minimum-size-forward-alias-feedback",
+      "input_values": [
+        66,
+        2,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0,
+        3, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 130,
+      "expected_result": 7
+    },
+    {
+      "id": "dimension-below-alias-feedback-bound",
+      "input_values": [65],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-vector-frame",
+      "input_values": [66, 0, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

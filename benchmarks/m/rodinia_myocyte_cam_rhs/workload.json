@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "id": "rodinia-myocyte-kernel-cam-rhs-f32-bounded-v1",
+  "algorithm": "rodinia_myocyte_cam_rhs",
+  "function_symbol": "rodinia_myocyte_cam_rhs",
+  "description": "One bounded source-order evaluation of Rodinia Myocyte's kernel_cam RHS and Ca-buffer communication term.",
+  "pinned_source": {
+    "repository": "utcs-scea/rodinia",
+    "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+    "paths": [
+      "cuda/myocyte/kernel_cam.cu",
+      "cuda/myocyte/run",
+      "LICENSE"
+    ],
+    "url": "https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/myocyte",
+    "license": "University of Virginia BSD-3-Clause; full terms and source citation list are in LICENSE.txt."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "exact_length": 22,
+    "layout": [
+      "Ca_u", "K_u", "Mg_u", "Btot_u", "CaMKIItot_u", "CaNtot_u", "PP1tot_u",
+      "CaM_u", "Ca2CaM_u", "Ca4CaM_u", "CaMB_u", "Ca2CaMB_u", "Ca4CaMB_u",
+      "Pb2_u", "Pb_u", "Pt_u", "Pt2_u", "Pa_u", "Ca4CaN_u", "CaMCa4CaN_u",
+      "Ca2CaMCa4CaN_u", "Ca4CaMCa4CaN_u"
+    ],
+    "fixed_point_scale": 1000000,
+    "decoding": "Each integer becomes f32(raw) / f32(1000000).",
+    "bounds": {
+      "Ca": [0, 100],
+      "K": [100, 200],
+      "Mg": [0.5, 5],
+      "Btot_CaMKIItot_CaNtot_PP1tot_and_states": [0, 10]
+    },
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "Ascending checksum of the 15 kernel_cam state derivatives and source calcium-buffer communication derivative.",
+    "formula": "sum((i + 1) * double(d[i]) for i in 0..15), where each d[i] is the source-order binary32 derivative value.",
+    "invalid_input_result": -1e300
+  },
+  "arithmetic": {
+    "source_state": "Named source float quantities and float assignment results round to binary32.",
+    "promotion_points": "Unsuffixed double constants promote Kd construction, calcium square and selected reaction expressions; kbt and derivative scaling also evaluate in binary64 and are rounded at their float assignment points.",
+    "ordering": "Reaction rates, derivative expressions, the ascending Ca-buffer communication sum, and final weighted checksum retain source order."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-10,
+    "absolute_tolerance": 1e-10,
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero-calcium-mg-low-branch",
+      "input_values": [0, 140000000, 1000000, 1000000, 1000000, 1000000, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 22,
+      "expected_result": 0.0
+    },
+    {
+      "id": "zero-calcium-mg-high-branch",
+      "input_values": [0, 140000000, 2000000, 1000000, 1000000, 1000000, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 22,
+      "expected_result": 0.0
+    },
+    {
+      "id": "invalid-short-vector",
+      "input_values": [0, 140000000, 1000000, 1000000, 1000000, 1000000, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 21,
+      "expected_result": -1e300
+    },
+    {
+      "id": "invalid-potassium-bound",
+      "input_values": [0, 99999999, 1000000, 1000000, 1000000, 1000000, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 22,
+      "expected_result": -1e300
+    },
+    {
+      "id": "null-input-pointer",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1e300
+    }
+  ]
+}

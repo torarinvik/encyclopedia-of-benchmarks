@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "rodinia-dwt2d-integer-53-i64-array-bytes-output-v1",
+  "algorithm": "rodinia_dwt2d",
+  "function_symbol": "rodinia_dwt2d",
+  "description": "Bounded forward integer LeGall 5/3 two-dimensional discrete wavelet transform with recursive low-low decomposition.",
+  "pinned_source": {
+    "repository": "utcs-scea/rodinia",
+    "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+    "paths": [
+      "cuda/dwt2d/run.sh",
+      "cuda/dwt2d/main.cu",
+      "cuda/dwt2d/components.cu",
+      "cuda/dwt2d/dwt.cu",
+      "cuda/dwt2d/dwt_cuda/fdwt53.cu",
+      "cuda/dwt2d/dwt_cuda/transform_buffer.h",
+      "cuda/dwt2d/dwt_cuda/io.h",
+      "cuda/dwt2d/dwt_cuda/dwt.h"
+    ],
+    "url": "https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/dwt2d",
+    "license": "Jiri Matela (2009) and Martin Jirman (2011) source files carry two-condition BSD notices; the repository also includes the University of Virginia BSD-3-Clause notice. All notices and the Rodinia citation request are reproduced in LICENSE.txt."
+  },
+  "contract": {
+    "operation": "Normalize grayscale bytes by subtracting 128, then run the source's forward integer 5/3 lifting transform: vertical predict/update, horizontal predict/update, and recursively decompose only the low-low region.",
+    "input_layout": "[width, height, levels, row_major_grayscale_bytes...]",
+    "width_range": [2, 16],
+    "height_range": [2, 16],
+    "levels_range": [1, 3],
+    "dimension_rule": "Both dimensions must be divisible by 2^levels and at least 2^levels.",
+    "pixel_range": [0, 255],
+    "exact_input_length": "3 + width*height",
+    "max_input_length": 259,
+    "integer_rule": "Signed integer division truncates toward zero, matching the pinned C++ source. At the left edge, update the first even coefficient with the first detail twice. At the last odd sample on each line, mirror the preceding even sample.",
+    "band_order": "The two-dimensional transform stores each band as a contiguous row-major chunk. The deepest level's LL, HL, LH, and HH chunks come first, followed by each less-deep level's HL, LH, and HH chunks.",
+    "output_encoding": "All width*height coefficients in consecutive row-major band chunks: deepest-level LL, HL, LH, HH, then each less-deep level's HL, LH, HH; every coefficient is signed 32-bit little-endian.",
+    "maximum_output_bytes": 1024,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_length": 259,
+    "encoding": "[width, height, levels, row-major grayscale bytes in 0..255]",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "contiguous row-major coefficient band chunks as signed i32 little-endian values",
+    "maximum_bytes": 1024,
+    "success_result": "4*width*height",
+    "null_or_short_output_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two_by_two_constant",
+      "input_values": [2, 2, 1, 128, 128, 128, 128],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "00000000000000000000000000000000"
+    },
+    {
+      "id": "negative_predict_truncates_toward_zero",
+      "input_values": [2, 2, 1, 127, 128, 128, 128],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 16,
+      "expected_result": 16,
+      "expected_output_hex": "000000000000000001000000ffffffff"
+    },
+    {
+      "id": "source_shaped_four_by_four_two_level",
+      "input_values": [4, 4, 2, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143],
+      "input_length": 19,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "06000000020000000900000000000000000000000100000000000000010000000000000000000000040000000400000000000000000000000000000000000000"
+    },
+    {
+      "id": "recursive_constant_four_by_four",
+      "input_values": [4, 4, 2, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128],
+      "input_length": 19,
+      "input_is_null": false,
+      "output_capacity": 64,
+      "expected_result": 64,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "bad_frame",
+      "input_values": [2, 2, 1, 128, 128, 128],
+      "input_length": 6,
+      "input_is_null": false,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dimensions_not_divisible_by_levels",
+      "input_values": [6, 4, 2, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128],
+      "input_length": 27,
+      "input_is_null": false,
+      "output_capacity": 96,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "out_of_range_pixel",
+      "input_values": [2, 2, 1, 128, 128, -1, 128],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_capacity_no_write",
+      "input_values": [2, 2, 1, 128, 128, 128, 128],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_no_write",
+      "input_values": [2, 2, 1, 128, 128, 128, 128],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

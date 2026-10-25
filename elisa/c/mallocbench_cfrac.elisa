@@ -1,0 +1,156 @@
+# Clean-room bounded CFRAC profile based on the published Morrison-Brillhart
+# continued-fraction factorization method. No restricted bignum code is included.
+const CFRAC_MAX_BASE: usize = 10
+const CFRAC_MAX_ITERATIONS: usize = 48
+const CFRAC_MAX_PRIME: u64 = 10000
+
+def cfrac_gcd(a_value: u64, b_value: u64) -> u64:
+    a: mutable u64 = a_value
+    b: mutable u64 = b_value
+    while b != 0:
+        remainder: u64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def cfrac_modpow(base_value: u64, exponent_value: u64, modulus: u64) -> u64:
+    base: mutable u64 = base_value % modulus
+    exponent: mutable u64 = exponent_value
+    result: mutable u64 = 1
+    while exponent != 0:
+        if (exponent & 1) != 0:
+            result <- (result * base) % modulus
+        base <- (base * base) % modulus
+        exponent <- exponent >> 1
+    result
+
+def cfrac_is_prime(value: u64) -> bool:
+    if value < 2:
+        return false
+    divisor: mutable u64 = 2
+    while divisor * divisor <= value:
+        if value % divisor == 0:
+            return false
+        divisor <- divisor + 1
+    true
+
+export fn mallocbench_cfrac(input: i64&, length: usize) -> i64:
+    if input == null or length != 3:
+        return -1
+    n_value: i64 = input[0]
+    base_value: i64 = input[1]
+    iteration_value: i64 = input[2]
+    if n_value < 15 or n_value > 1000000 or (n_value & 1) == 0 or
+       base_value < 2 or base_value > 10 or iteration_value < 1 or iteration_value > 48:
+        return -1
+    n: u64 = n_value.u64()
+    root: mutable u64 = 0
+    while root + 1 <= n / (root + 1):
+        root <- root + 1
+    if root * root == n:
+        return -1
+    base_count: usize = base_value.usize()
+    iteration_limit: usize = iteration_value.usize()
+
+    base: mutable u32[CFRAC_MAX_BASE] = zeroed
+    base[0] <- 2
+    found: mutable usize = 1
+    prime: mutable u64 = 3
+    while prime <= CFRAC_MAX_PRIME and found < base_count:
+        if cfrac_is_prime(prime):
+            residue: u64 = cfrac_modpow(n % prime, (prime - 1) / 2, prime)
+            # Upstream selects residue 0 as well as 1; this profile rejects the zero case by contract.
+            if residue == 0:
+                return -1
+            if residue == 1:
+                base[found] <- prime.u32()
+                found <- found + 1
+        prime <- prime + 2
+    if found != base_count:
+        return -1
+
+    basis_vector: mutable u64[CFRAC_MAX_BASE + 1] = zeroed
+    basis_combo: mutable u64[CFRAC_MAX_BASE + 1] = zeroed
+    basis_used: mutable bool[CFRAC_MAX_BASE + 1] = zeroed
+    relation_a: mutable u64[CFRAC_MAX_ITERATIONS] = zeroed
+    relation_exp: mutable u8[CFRAC_MAX_ITERATIONS * CFRAC_MAX_BASE] = zeroed
+    relation_count: mutable usize = 0
+    u: mutable i64 = (2 * root).i64()
+    previous_u: mutable i64 = u
+    q_value: mutable i64 = 0
+    q_denominator: mutable i64 = 1
+    previous_denominator: mutable i64 = (n - root * root).i64()
+    a_value: mutable i64 = 1
+    previous_a: mutable i64 = root.i64()
+    sign: mutable u64 = 0
+
+    for iteration in 0..<iteration_limit:
+        old_a: i64 = a_value
+        a_value <- (q_value * a_value + previous_a) % n_value
+        previous_a <- old_a
+        old_denominator: i64 = q_denominator
+        q_denominator <- q_value * (previous_u - u) + previous_denominator
+        previous_denominator <- old_denominator
+        previous_u <- u
+        if q_denominator <= 0:
+            return n.i64()
+        q_value <- 1
+        remainder: mutable i64 = u - q_denominator
+        if remainder >= q_denominator:
+            q_value <- u / q_denominator
+            remainder <- u % q_denominator
+        u <- (2 * root).i64() - remainder
+        sign <- sign ^ 1
+        if q_denominator == 1:
+            return n.i64()
+
+        residual: mutable u64 = q_denominator.u64()
+        exponents: mutable u8[CFRAC_MAX_BASE] = zeroed
+        for j in 0..<base_count:
+            while residual % base[j].u64() == 0:
+                residual <- residual / base[j].u64()
+                exponents[j] <- exponents[j] + 1
+        if residual != 1:
+            continue
+        relation_a[relation_count] <- a_value.u64()
+        for j in 0..<base_count:
+            relation_exp[relation_count * CFRAC_MAX_BASE + j] <- exponents[j]
+        vector: mutable u64 = sign
+        for j in 0..<base_count:
+            if (exponents[j] & 1) != 0:
+                vector <- vector | (1 << (j + 1))
+        combination: mutable u64 = 1 << relation_count
+        relation_count <- relation_count + 1
+        inserted: mutable bool = false
+        for bit in 0..<base_count + 1:
+            if (vector & (1 << bit)) == 0:
+                continue
+            if basis_used[bit]:
+                vector <- vector ^ basis_vector[bit]
+                combination <- combination ^ basis_combo[bit]
+            else:
+                basis_used[bit] <- true
+                basis_vector[bit] <- vector
+                basis_combo[bit] <- combination
+                inserted <- true
+                break
+        if not inserted:
+            x: mutable u64 = 1
+            exponent_sum: mutable u64[CFRAC_MAX_BASE] = zeroed
+            for i in 0..<relation_count:
+                if (combination & (1 << i)) == 0:
+                    continue
+                x <- (x * relation_a[i]) % n
+                for j in 0..<base_count:
+                    exponent_sum[j] <- exponent_sum[j] + relation_exp[i * CFRAC_MAX_BASE + j].u64()
+            y: mutable u64 = 1
+            for j in 0..<base_count:
+                y <- (y * cfrac_modpow(base[j].u64(), exponent_sum[j] / 2, n)) % n
+            difference: u64 = if x >= y: x - y else: y - x
+            minus: u64 = cfrac_gcd(difference, n)
+            if minus > 1 and minus < n:
+                return minus.i64()
+            plus: u64 = cfrac_gcd(x + y, n)
+            if plus > 1 and plus < n:
+                return plus.i64()
+    n.i64()

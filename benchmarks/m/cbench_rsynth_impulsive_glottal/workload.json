@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-office-rsynth-impulsive-glottal-float64-slice-v1",
+  "algorithm": "cbench_rsynth_impulsive_glottal_sample",
+  "function_symbol": "cbench_rsynth_impulsive_glottal_sample",
+  "abi": "float64_slice_io",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/office_rsynth/src/nsynth.c",
+    "launcher_path": "cBench/office_rsynth/src/info.sh",
+    "symbols": ["impulsive_source", "pitch_synch_par_reset", "setabc", "resonator"],
+    "supporting_paths": ["cBench/office_rsynth/src/linuxplay.c", "cBench/office_rsynth/LICENSE"],
+    "rights_status": "CMU public-domain notice; separate dictionary restrictions are retained and all dictionary/speech data are excluded."
+  },
+  "contract": {
+    "input_layout": "[nopen,sample_index]",
+    "input_values_integral": true,
+    "nopen_range": [40, 263],
+    "sample_index_range": [0, 299],
+    "input_elements": 2,
+    "maximum_parseable_input_elements": 3,
+    "sample_rate_hz": 8000,
+    "output": "one source-f32 impulsive resonator output promoted to binary64",
+    "maximum_output_elements": 1,
+    "invalid_result": -1,
+    "output_error_result": -2
+  },
+  "profile": {
+    "coefficient_bandwidth": "integer division 8000/nopen",
+    "source_coefficients": "minus_pi_t=f32(-pi/8000); two_pi_t=f32(-2*minus_pi_t); r=f32(exp(minus_pi_t*bw)); c=f32(-(r*r)); b=f32(r*cos(two_pi_t*0)*2); a=f32(1-b-c); temp1=f32(nopen*0.00833); a=f32(a*f32(temp1*temp1))",
+    "impulse": [0, 13000000, -13000000],
+    "input_after_sample_2": 0,
+    "resonator_recurrence": "x=f32(f32(f32(a*input)+f32(b*p1))+f32(c*p2)); p2=p1; p1=x",
+    "initial_state": [0, 0],
+    "intermediate_precision": "IEEE binary32 at source float assignment/operation boundaries; selected output promoted to binary64",
+    "excluded_data": ["beep dictionary", "phone lists", "speech input"]
+  },
+  "workspace": {"elements": 2},
+  "measurement": {
+    "comparison_model": "float64_slice_io_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100,
+    "absolute_tolerance": 10.0,
+    "relative_tolerance": 0.0000001
+  },
+  "cases": [
+    {"id":"zero-input-first-sample","input_values":[40,0],"input_length":2,"output_capacity":1,"expected_result":1,"expected_output":[0.0]},
+    {"id":"nonzero-doublet-phase","input_values":[40,1],"input_length":2,"output_capacity":1,"expected_result":1,"expected_output":[8235.0]},
+    {"id":"invalid-open-bound","input_values":[39,1],"input_length":2,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"invalid-sample-index","input_values":[40,300],"input_length":2,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"extra-input","input_values":[40,1,0],"input_length":3,"output_capacity":1,"expected_result":-1,"expected_output":[]},
+    {"id":"short-output","input_values":[40,1],"input_length":2,"output_capacity":0,"expected_result":-2,"expected_output":[]},
+    {"id":"null-output","input_values":[40,1],"input_length":2,"output_capacity":1,"output_is_null":true,"expected_result":-2,"expected_output":[]}
+  ]
+}

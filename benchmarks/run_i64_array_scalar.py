@@ -31,6 +31,58 @@ from trimaran_netbench_url_internet_checksum_oracle import (
     MAX_INPUT_LENGTH as TRIMARAN_NETBENCH_URL_CHECKSUM_MAX_INPUT_LENGTH,
     expected_result as trimaran_netbench_url_internet_checksum_expected,
 )
+from trimaran_enc_pc1_oracle import (
+    MAX_NUM_INPUT as TRIMARAN_ENC_PC1_MAX_NUM_INPUT,
+    MAX_PARSEABLE_INPUT_LENGTH as TRIMARAN_ENC_PC1_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as trimaran_enc_pc1_expected,
+)
+from mccat_08_main_oracle import MAX_INPUT_LENGTH as MCCAT_08_MAIN_MAX_INPUT_LENGTH
+from mccat_08_main_oracle import expected_result as mccat_08_main_expected
+from mccat_09_vor_oracle import MAX_INPUT_LENGTH as MCCAT_09_VOR_MAX_INPUT_LENGTH
+from mccat_09_vor_oracle import expected_output as mccat_09_vor_expected
+from mallocbench_espresso_oracle import mallocbench_espresso as mallocbench_espresso_expected
+from mallocbench_cfrac_oracle import mallocbench_cfrac as mallocbench_cfrac_expected
+from agrep_approx_substring_count_oracle import (
+    MAX_ERRORS as AGREP_MAX_ERRORS,
+    MAX_PATTERN_LENGTH as AGREP_MAX_PATTERN_LENGTH,
+    MAX_TEXT_LENGTH as AGREP_MAX_TEXT_LENGTH,
+    agrep_approx_substring_count as agrep_approx_substring_count_expected,
+)
+from npb_serial_dc_oracle import MAX_INPUT_LENGTH as NPB_SERIAL_DC_MAX_INPUT_LENGTH
+from npb_serial_dc_oracle import expected_result as npb_serial_dc_expected
+from doe_pathfinder_signature_search_oracle import (
+    MAX_EDGES as DOE_PATHFINDER_MAX_EDGES,
+    MAX_NODES as DOE_PATHFINDER_MAX_NODES,
+    MAX_SIGNATURE_LENGTH as DOE_PATHFINDER_MAX_SIGNATURE_LENGTH,
+    doe_pathfinder_signature_search as doe_pathfinder_signature_search_expected,
+)
+from ptrdist_ks_oracle import MAX_INPUT_LENGTH as PTRDIST_KS_MAX_INPUT_LENGTH
+from ptrdist_ks_oracle import expected_result as ptrdist_ks_expected
+from prolangs_c_assembler_oracle import (
+    MAX_INPUT_LENGTH as PROLANGS_C_ASSEMBLER_MAX_INPUT_LENGTH,
+    MAX_RECORDS as PROLANGS_C_ASSEMBLER_MAX_RECORDS,
+    expected_result as prolangs_c_assembler_expected,
+)
+from prolangs_c_bison_nullable_oracle import (
+    INVALID_RESULT as PROLANGS_C_BISON_NULLABLE_INVALID_RESULT,
+    MAX_INPUT_LENGTH as PROLANGS_C_BISON_NULLABLE_MAX_INPUT_LENGTH,
+    expected_result as prolangs_c_bison_nullable_expected,
+)
+from prolangs_football_tiebreaks_oracle import MAX_TEAMS as PROLANGS_FOOTBALL_MAX_TEAMS
+from prolangs_football_tiebreaks_oracle import MAX_RECORD_GAMES as PROLANGS_FOOTBALL_MAX_RECORD_GAMES
+from prolangs_football_tiebreaks_oracle import MAX_NET_POINTS as PROLANGS_FOOTBALL_MAX_NET_POINTS
+from prolangs_football_tiebreaks_oracle import prolangs_football_tiebreaks as prolangs_football_tiebreaks_expected
+from scimark2_sor_oracle import (
+    MAX_COLS as SCIMARK2_SOR_MAX_COLS,
+    MAX_INPUT_LENGTH as SCIMARK2_SOR_MAX_INPUT_LENGTH,
+    MAX_ROWS as SCIMARK2_SOR_MAX_ROWS,
+    expected_result as scimark2_sor_expected,
+)
+from ptrdist_anagram_oracle import MAX_INPUT_LENGTH as PTRDIST_ANAGRAM_MAX_INPUT_LENGTH
+from ptrdist_anagram_oracle import expected_result as ptrdist_anagram_expected
+from stanford_puzzle_oracle import MAX_PASSES as STANFORD_PUZZLE_MAX_PASSES
+from stanford_puzzle_oracle import MAX_SEARCH_CALLS as STANFORD_PUZZLE_MAX_SEARCH_CALLS
+from stanford_puzzle_oracle import expected_output as stanford_puzzle_expected
 from drop3_oracle import INVALID_RESULT as DROP3_INVALID_RESULT
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected
@@ -46,9 +98,207 @@ from olden_tsp_oracle import MAX_INPUT_LENGTH as OLDEN_TSP_MAX_INPUT_LENGTH
 from olden_tsp_oracle import expected_result as olden_tsp_expected
 from olden_voronoi_oracle import MAX_INPUT_LENGTH as OLDEN_VORONOI_MAX_INPUT_LENGTH
 from olden_voronoi_oracle import expected_result as olden_voronoi_expected
+from embench_aha_mont64_oracle import (
+    INVALID_RESULT as EMBENCH_AHA_MONT64_INVALID_RESULT,
+    MAX_INPUT_LENGTH as EMBENCH_AHA_MONT64_MAX_INPUT_LENGTH,
+    MAX_MODULUS as EMBENCH_AHA_MONT64_MAX_MODULUS,
+    expected_result as embench_aha_mont64_expected,
+)
+from slre_oracle import MAX_PATTERN as SLRE_MAX_PATTERN
+from slre_oracle import MAX_TEXT as SLRE_MAX_TEXT
+from slre_oracle import oracle as slre_expected
+from rodinia_srad_v2_oracle import INPUT_LENGTH as RODINIA_SRAD_V2_INPUT_LENGTH
+from rodinia_srad_v2_oracle import expected_result as rodinia_srad_v2_expected
+from rodinia_euler3d_flux_oracle import INPUT_LENGTH as RODINIA_EULER3D_FLUX_INPUT_LENGTH
+from rodinia_euler3d_flux_oracle import expected_result as rodinia_euler3d_flux_expected
+from rodinia_particlefilter_naive_oracle import MAX_PARTICLES as RODINIA_PARTICLEFILTER_MAX_PARTICLES
+from rodinia_particlefilter_naive_oracle import MAX_SAMPLES as RODINIA_PARTICLEFILTER_MAX_SAMPLES
+from rodinia_particlefilter_naive_oracle import expected_result as rodinia_particlefilter_naive_expected
+from rodinia_lavamd_oracle import MAX_INPUT_LENGTH as RODINIA_LAVAMD_MAX_INPUT_LENGTH
+from rodinia_lavamd_oracle import MAX_PARSEABLE_INPUT_LENGTH as RODINIA_LAVAMD_MAX_PARSEABLE_INPUT_LENGTH
+from rodinia_lavamd_oracle import MAX_PARTICLES as RODINIA_LAVAMD_MAX_PARTICLES
+from rodinia_lavamd_oracle import MAX_COMPONENT_RAW as RODINIA_LAVAMD_MAX_COMPONENT_RAW
+from rodinia_lavamd_oracle import rodinia_lavamd as rodinia_lavamd_expected
+from rodinia_pathfinder_oracle import (
+    MAX_COLS as RODINIA_PATHFINDER_MAX_COLS,
+    MAX_ROWS as RODINIA_PATHFINDER_MAX_ROWS,
+    rodinia_pathfinder as rodinia_pathfinder_expected,
+)
+from rodinia_bplus_tree_oracle import rodinia_bplus_tree as rodinia_bplus_tree_expected
+from xgboost_oracle import FEATURES as XGBOOST_MAX_INPUT_LENGTH
+from xgboost_oracle import FEATURE as XGBOOST_FEATURE
+from xgboost_oracle import THRESHOLD as XGBOOST_THRESHOLD
+from xgboost_oracle import LEFT as XGBOOST_LEFT
+from xgboost_oracle import RIGHT as XGBOOST_RIGHT
+from xgboost_oracle import LEAVES as XGBOOST_LEAVES
+from xgboost_oracle import oracle as xgboost_expected
+
+SLRE_MAX_INPUT_LENGTH = 2 + SLRE_MAX_TEXT + SLRE_MAX_PATTERN
+from analyzer_oracle import MAX_EVENTS as ANALYZER_MAX_EVENTS
+from analyzer_oracle import MAX_EPOCH as ANALYZER_MAX_EPOCH
+from analyzer_oracle import MAX_ADDRESS as ANALYZER_MAX_ADDRESS
+from analyzer_oracle import MAX_INPUT_LENGTH as ANALYZER_MAX_INPUT_LENGTH
+from analyzer_oracle import MAX_PARSEABLE_INPUT_LENGTH as ANALYZER_MAX_PARSEABLE_INPUT_LENGTH
+from analyzer_oracle import expected_result as analyzer_expected
 from richards_benchmark_oracle import MAX_INPUT_LENGTH as RICHARDS_BENCHMARK_MAX_INPUT_LENGTH
 from richards_benchmark_oracle import MAX_ITERATIONS as RICHARDS_BENCHMARK_MAX_ITERATIONS
 from richards_benchmark_oracle import expected_result as richards_benchmark_expected
+from fourinarow_minimax_oracle import MAX_INPUT_LENGTH as FOURINAROW_MAX_INPUT_LENGTH
+from fourinarow_minimax_oracle import expected_result as fourinarow_minimax_expected
+from freebench_neural_hopfield_oracle import MAX_DIMENSION as FREEBENCH_NEURAL_HOPFIELD_MAX_DIMENSION
+from freebench_neural_hopfield_oracle import MAX_NEURONS as FREEBENCH_NEURAL_HOPFIELD_MAX_NEURONS
+from freebench_neural_hopfield_oracle import MAX_INPUT_LENGTH as FREEBENCH_NEURAL_HOPFIELD_MAX_INPUT_LENGTH
+from freebench_neural_hopfield_oracle import MAX_PARSEABLE_INPUT_LENGTH as FREEBENCH_NEURAL_HOPFIELD_MAX_PARSEABLE_INPUT_LENGTH
+from freebench_neural_hopfield_oracle import PATTERN_COUNT as FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT
+from freebench_neural_hopfield_oracle import expected_result as freebench_neural_hopfield_expected
+from freebench_mason_oracle import MAX_INPUT_LENGTH as FREEBENCH_MASON_MAX_INPUT_LENGTH
+from freebench_mason_oracle import MAX_PARSEABLE_INPUT_LENGTH as FREEBENCH_MASON_MAX_PARSEABLE_INPUT_LENGTH
+from freebench_mason_oracle import expected_result as freebench_mason_expected
+from fhourstones_exact_oracle import MAX_INPUT_LENGTH as FHOURSTONES_EXACT_MAX_INPUT_LENGTH
+from fhourstones_exact_oracle import MAX_MOVES as FHOURSTONES_EXACT_MAX_MOVES
+from fhourstones_exact_oracle import MIN_MOVES as FHOURSTONES_EXACT_MIN_MOVES
+from fhourstones_exact_oracle import expected_result as fhourstones_exact_expected
+from cbench_office_pratt_boyer_moore_oracle import (
+    INVALID_RESULT as CBENCH_OFFICE_PRATT_BOYER_MOORE_INVALID_RESULT,
+    MAX_INPUT_LENGTH as CBENCH_OFFICE_PRATT_BOYER_MOORE_MAX_INPUT_LENGTH,
+    expected_result as cbench_office_pratt_boyer_moore_expected,
+)
+from cbench_ispell_hash_oracle import (
+    INVALID_RESULT as CBENCH_ISPELL_HASH_INVALID_RESULT,
+    MAX_INPUT_LENGTH as CBENCH_ISPELL_HASH_MAX_INPUT_LENGTH,
+    expected_result as cbench_ispell_hash_expected,
+)
+from cbench_ispell_lookup_chain_oracle import (
+    INVALID_RESULT as CBENCH_ISPELL_LOOKUP_CHAIN_INVALID_RESULT,
+    MAX_ENTRIES as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_ENTRIES,
+    MAX_INPUT_LENGTH as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERY as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_QUERY,
+    MAX_TABLE as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_TABLE,
+    MAX_WORD as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_WORD,
+    expected_result as cbench_ispell_lookup_chain_expected,
+)
+from cbench_rsynth_f0_flutter_oracle import (
+    INVALID_RESULT as CBENCH_RSYNTH_F0_FLUTTER_INVALID_RESULT,
+    MAX_INPUT_LENGTH as CBENCH_RSYNTH_F0_FLUTTER_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_RSYNTH_F0_FLUTTER_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as cbench_rsynth_f0_flutter_expected,
+)
+from ghostscript_rop3_oracle import (
+    INVALID_RESULT as GHOSTSCRIPT_ROP3_INVALID_RESULT,
+    MAX_INPUT_LENGTH as GHOSTSCRIPT_ROP3_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GHOSTSCRIPT_ROP3_MAX_PARSEABLE_INPUT_LENGTH,
+    PIXEL_MAX as GHOSTSCRIPT_ROP3_PIXEL_MAX,
+    expected_result as ghostscript_rop3_expected,
+)
+from ghostscript_rop3_idempotence_oracle import (
+    INVALID_RESULT as GHOSTSCRIPT_ROP3_IDEMPOTENCE_INVALID_RESULT,
+    MAX_INPUT_LENGTH as GHOSTSCRIPT_ROP3_IDEMPOTENCE_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GHOSTSCRIPT_ROP3_IDEMPOTENCE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as ghostscript_rop3_idempotence_expected,
+)
+from ghostscript_rop3_operand_usage_oracle import (
+    INVALID_RESULT as GHOSTSCRIPT_ROP3_OPERAND_USAGE_INVALID_RESULT,
+    MAX_INPUT_LENGTH as GHOSTSCRIPT_ROP3_OPERAND_USAGE_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GHOSTSCRIPT_ROP3_OPERAND_USAGE_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as ghostscript_rop3_operand_usage_expected,
+)
+from ghostscript_rop3_transform_oracle import (
+    INVALID_RESULT as GHOSTSCRIPT_ROP3_TRANSFORM_INVALID_RESULT,
+    MAX_INPUT_LENGTH as GHOSTSCRIPT_ROP3_TRANSFORM_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as GHOSTSCRIPT_ROP3_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+    MODE_NAMES as GHOSTSCRIPT_ROP3_TRANSFORM_MODE_NAMES,
+    expected_result as ghostscript_rop3_transform_expected,
+)
+from parboil_sad_oracle import (
+    MAX_INPUT_LENGTH as PARBOIL_SAD_MAX_INPUT_LENGTH,
+    MAX_RESULT as PARBOIL_SAD_MAX_RESULT,
+    expected_result as parboil_sad_expected,
+)
+from parboil_lbm_oracle import (
+    MAX_INPUT_LENGTH as PARBOIL_LBM_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PARBOIL_LBM_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POPULATION_RAW as PARBOIL_LBM_MAX_POPULATION_RAW,
+    expected_result as parboil_lbm_expected,
+)
+from tsvc_vbor_oracle import MAX_INPUT_LENGTH as TSVC_VBOR_MAX_INPUT_LENGTH
+from tsvc_vbor_oracle import MAX_N as TSVC_VBOR_MAX_N
+from tsvc_vbor_oracle import expected_result as tsvc_vbor_expected
+from tsvc_s257_column_coupled_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S257_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S257_MAX_N,
+    MAX_PASSES as TSVC_S257_MAX_PASSES,
+    MIN_N as TSVC_S257_MIN_N,
+    expected_result as tsvc_s257_expected,
+)
+from tsvc_s273_dependent_conditional_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S273_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S273_MAX_N,
+    MAX_PASSES as TSVC_S273_MAX_PASSES,
+    expected_result as tsvc_s273_expected,
+)
+from tsvc_s331_last_negative_index_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S331_MAX_INPUT_LENGTH,
+    MAX_LENGTH as TSVC_S331_MAX_LENGTH,
+    expected_result as tsvc_s331_expected,
+)
+from tsvc_s258_wrapped_scalar_expansion_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S258_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S258_MAX_N,
+    MAX_VALUE as TSVC_S258_MAX_VALUE,
+    expected_result as tsvc_s258_wrapped_scalar_expansion_expected,
+)
+from tsvc_s424_alias_overlap_feedback_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S424_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S424_MAX_N,
+    MIN_N as TSVC_S424_MIN_N,
+    VALUE_MAX as TSVC_S424_VALUE_MAX,
+    VALUE_MIN as TSVC_S424_VALUE_MIN,
+    expected_result as tsvc_s424_alias_overlap_feedback_expected,
+)
+from versabench_dbms_choose_entry_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_CHOOSE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_choose_entry_expected,
+)
+from versabench_dbms_partition_entries_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_PARTITION_ENTRIES_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_partition_entries_expected,
+)
+from versabench_dbms_consistent_key_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_CONSISTENT_KEY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_consistent_key_expected,
+)
+from versabench_dbms_penalty_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_PENALTY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_penalty_expected,
+)
+from versabench_dbms_valid_attributes_oracle import (
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_valid_attributes_expected,
+)
+from versabench_dbms_valid_index_key_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_VALID_INDEX_KEY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_valid_index_key_expected,
+)
+from tsvc_s3111_positive_value_sum_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S3111_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S3111_MAX_N,
+    MAX_VALUE as TSVC_S3111_MAX_VALUE,
+    expected_result as tsvc_s3111_positive_value_sum_expected,
+)
+from tsvc_s312_array_product_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S312_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S312_MAX_N,
+    MAX_VALUE as TSVC_S312_MAX_VALUE,
+    expected_result as tsvc_s312_array_product_expected,
+)
+from tsvc_s4115_indexed_gather_product_sum_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S4115_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S4115_MAX_N,
+    MAX_VALUE as TSVC_S4115_MAX_VALUE,
+    expected_result as tsvc_s4115_indexed_gather_product_sum_expected,
+)
 from mibench_network_dijkstra_oracle import MAX_INPUT_LENGTH as MIBENCH_NETWORK_DIJKSTRA_MAX_INPUT_LENGTH
 from mibench_network_dijkstra_oracle import MAX_PARSEABLE_INPUT_LENGTH as MIBENCH_NETWORK_DIJKSTRA_MAX_PARSEABLE_INPUT_LENGTH
 from mibench_network_dijkstra_oracle import MAX_NODES as MIBENCH_NETWORK_DIJKSTRA_MAX_NODES
@@ -56,6 +306,10 @@ from mibench_network_dijkstra_oracle import MAX_EDGE_COST as MIBENCH_NETWORK_DIJ
 from mibench_network_dijkstra_oracle import NONE as MIBENCH_NETWORK_DIJKSTRA_NONE
 from mibench_network_dijkstra_oracle import MAX_QUEUE_ITEMS as MIBENCH_NETWORK_DIJKSTRA_MAX_QUEUE_ITEMS
 from mibench_network_dijkstra_oracle import expected_result as mibench_network_dijkstra_expected
+from mibench_automotive_basicmath_isqrt_oracle import MAX_INPUT_LENGTH as MIBENCH_BASICMATH_ISQRT_MAX_INPUT_LENGTH
+from mibench_automotive_basicmath_isqrt_oracle import MAX_PARSEABLE_INPUT_LENGTH as MIBENCH_BASICMATH_ISQRT_MAX_PARSEABLE_INPUT_LENGTH
+from mibench_automotive_basicmath_isqrt_oracle import MAX_VALUE as MIBENCH_BASICMATH_ISQRT_MAX_VALUE
+from mibench_automotive_basicmath_isqrt_oracle import expected_result as mibench_automotive_basicmath_isqrt_expected
 from mcgill_exptree_oracle import expected_result as mcgill_exptree_expected
 from five11_oracle import INVALID_RESULT as FIVE11_INVALID_RESULT
 from five11_oracle import MAX_PACKETS as FIVE11_MAX_PACKETS
@@ -6140,7 +6394,9 @@ def validate_solution42_workload(workload: dict) -> None:
 
 def encode_case(case: dict, algorithm: str) -> list[int]:
     values, expected = case.get("input_values"), case.get("expected_result")
-    max_input_length = (COREMARK_CRC_MAX_INPUT_LENGTH if algorithm == "coremark_crc" else
+    max_input_length = (EMBENCH_AHA_MONT64_MAX_INPUT_LENGTH + 1
+                        if algorithm == "embench_aha_mont64" else
+                        COREMARK_CRC_MAX_INPUT_LENGTH if algorithm == "coremark_crc" else
                         NETBENCH_CRC_MAX_LENGTH if algorithm == "netbench_crc" else
                         TRIMARAN_NETBENCH_URL_CHECKSUM_MAX_INPUT_LENGTH + 1
                         if algorithm == "trimaran_netbench_url_internet_checksum" else
@@ -6150,8 +6406,18 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         OLDEN_TSP_MAX_INPUT_LENGTH + 1 if algorithm == "olden_tsp" else
                         OLDEN_VORONOI_MAX_INPUT_LENGTH + 1 if algorithm == "olden_voronoi" else
                         RICHARDS_BENCHMARK_MAX_INPUT_LENGTH if algorithm == "richards_benchmark" else
+                        FOURINAROW_MAX_INPUT_LENGTH if algorithm == "fourinarow_minimax" else
+                        FREEBENCH_MASON_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "freebench_mason" else
+                        FHOURSTONES_EXACT_MAX_INPUT_LENGTH
+                        if algorithm == "fhourstones_exact" else
+                        FREEBENCH_NEURAL_HOPFIELD_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "freebench_neural_hopfield" else
                         MIBENCH_NETWORK_DIJKSTRA_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "mibench_network_dijkstra" else
+                        MIBENCH_BASICMATH_ISQRT_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "mibench_automotive_basicmath_isqrt" else
+                        ANALYZER_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "analyzer" else
                         2 if algorithm == "olden_perimeter" else
                         DROP3_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "drop3" else
                         FIVE11_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "five11" else
@@ -6672,7 +6938,108 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         if algorithm == "mono_alphabetic_cipher"
                         else MAX_MSD_RADIX_STRING_SORTER_INPUT_LENGTH
                         if algorithm == "msd_radix_string_sorter"
+                        else SLRE_MAX_INPUT_LENGTH if algorithm == "slre"
+                        else RODINIA_SRAD_V2_INPUT_LENGTH + 1 if algorithm == "rodinia_srad_v2"
+                        else RODINIA_EULER3D_FLUX_INPUT_LENGTH + 1 if algorithm == "rodinia_euler3d_flux"
+                        else 3 + RODINIA_PARTICLEFILTER_MAX_PARTICLES * (4 + RODINIA_PARTICLEFILTER_MAX_SAMPLES) + 1
+                        if algorithm == "rodinia_particlefilter_naive"
+                        else RODINIA_LAVAMD_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "rodinia_lavamd"
+                        else 3 + RODINIA_PATHFINDER_MAX_COLS * RODINIA_PATHFINDER_MAX_ROWS + 1
+                        if algorithm == "rodinia_pathfinder"
+                        else TSVC_S331_MAX_INPUT_LENGTH + 1
+                        if algorithm == "tsvc_s331_last_negative_index"
+                        else TSVC_S258_MAX_INPUT_LENGTH
+                        if algorithm == "tsvc_s258_wrapped_scalar_expansion"
+                        else TSVC_S424_MAX_INPUT_LENGTH
+                        if algorithm == "tsvc_s424_alias_overlap_feedback"
+                        else VERSABENCH_DBMS_CHOOSE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "versabench_dbms_choose_entry"
+                        else VERSABENCH_DBMS_PARTITION_ENTRIES_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "versabench_dbms_partition_entries"
+                        else VERSABENCH_DBMS_CONSISTENT_KEY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "versabench_dbms_consistent_key"
+                        else VERSABENCH_DBMS_PENALTY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "versabench_dbms_penalty"
+                        else VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "versabench_dbms_valid_attributes"
+                        else VERSABENCH_DBMS_VALID_INDEX_KEY_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "versabench_dbms_valid_index_key"
+                        else TSVC_S3111_MAX_INPUT_LENGTH
+                        if algorithm == "tsvc_s3111_positive_value_sum"
+                        else TSVC_S312_MAX_INPUT_LENGTH
+                        if algorithm == "tsvc_s312_array_product"
+                        else TSVC_S4115_MAX_INPUT_LENGTH
+                        if algorithm == "tsvc_s4115_indexed_gather_product_sum"
+                        else 31 if algorithm == "rodinia_bplus_tree"
+                        else XGBOOST_MAX_INPUT_LENGTH if algorithm == "xgboost"
                         else 516 if algorithm == "euler" else 100001)
+    if algorithm == "cbench_rsynth_f0_flutter":
+        max_input_length = CBENCH_RSYNTH_F0_FLUTTER_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "trimaran_enc_pc1":
+        max_input_length = TRIMARAN_ENC_PC1_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "cbench_ispell_lookup_chain":
+        max_input_length = CBENCH_ISPELL_LOOKUP_CHAIN_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "cbench_ghostscript_rop3":
+        max_input_length = GHOSTSCRIPT_ROP3_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "cbench_ghostscript_rop3_idempotence":
+        max_input_length = GHOSTSCRIPT_ROP3_IDEMPOTENCE_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "cbench_ghostscript_rop3_operand_usage":
+        max_input_length = GHOSTSCRIPT_ROP3_OPERAND_USAGE_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "cbench_ghostscript_rop3_transform":
+        max_input_length = GHOSTSCRIPT_ROP3_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "parboil_sad":
+        max_input_length = PARBOIL_SAD_MAX_INPUT_LENGTH
+    elif algorithm == "parboil_lbm":
+        max_input_length = PARBOIL_LBM_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "mccat_08_main":
+        max_input_length = MCCAT_08_MAIN_MAX_INPUT_LENGTH + 1
+    elif algorithm == "mccat_09_vor":
+        max_input_length = MCCAT_09_VOR_MAX_INPUT_LENGTH + 1
+    elif algorithm == "mallocbench_espresso":
+        max_input_length = 4
+    elif algorithm == "ptrdist_anagram":
+        max_input_length = PTRDIST_ANAGRAM_MAX_INPUT_LENGTH + 1
+    elif algorithm == "stanford_puzzle":
+        max_input_length = 2
+    elif algorithm == "mallocbench_cfrac":
+        max_input_length = 4
+    elif algorithm == "agrep_approx_substring_count":
+        max_input_length = 4 + AGREP_MAX_PATTERN_LENGTH + AGREP_MAX_TEXT_LENGTH
+    elif algorithm == "npb_serial_dc":
+        max_input_length = NPB_SERIAL_DC_MAX_INPUT_LENGTH + 1
+    elif algorithm == "doe_pathfinder_signature_search":
+        max_input_length = 4 + 2 * DOE_PATHFINDER_MAX_EDGES + DOE_PATHFINDER_MAX_NODES + DOE_PATHFINDER_MAX_SIGNATURE_LENGTH
+    elif algorithm == "ptrdist_ks":
+        max_input_length = PTRDIST_KS_MAX_INPUT_LENGTH + 1
+    elif algorithm == "prolangs_c_assembler":
+        max_input_length = PROLANGS_C_ASSEMBLER_MAX_INPUT_LENGTH + 1
+    elif algorithm == "prolangs_c_bison_nullable":
+        max_input_length = PROLANGS_C_BISON_NULLABLE_MAX_INPUT_LENGTH
+    elif algorithm == "prolangs_football_tiebreaks":
+        max_input_length = 1 + 12 * PROLANGS_FOOTBALL_MAX_TEAMS + 2 * PROLANGS_FOOTBALL_MAX_TEAMS ** 2 + 1
+    elif algorithm == "scimark2_sor":
+        max_input_length = SCIMARK2_SOR_MAX_INPUT_LENGTH + 1
+    elif algorithm == "xgboost":
+        max_input_length = XGBOOST_MAX_INPUT_LENGTH + 1
+    elif algorithm == "versabench_dbms_choose_entry":
+        max_input_length = VERSABENCH_DBMS_CHOOSE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "versabench_dbms_partition_entries":
+        max_input_length = VERSABENCH_DBMS_PARTITION_ENTRIES_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "versabench_dbms_consistent_key":
+        max_input_length = VERSABENCH_DBMS_CONSISTENT_KEY_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "versabench_dbms_penalty":
+        max_input_length = VERSABENCH_DBMS_PENALTY_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "versabench_dbms_valid_attributes":
+        max_input_length = VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "versabench_dbms_valid_index_key":
+        max_input_length = VERSABENCH_DBMS_VALID_INDEX_KEY_MAX_PARSEABLE_INPUT_LENGTH
+    elif algorithm == "tsvc_s3111_positive_value_sum":
+        max_input_length = TSVC_S3111_MAX_INPUT_LENGTH
+    elif algorithm == "tsvc_s312_array_product":
+        max_input_length = TSVC_S312_MAX_INPUT_LENGTH
+    elif algorithm == "tsvc_s4115_indexed_gather_product_sum":
+        max_input_length = TSVC_S4115_MAX_INPUT_LENGTH
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
             or type(expected) is not int):
@@ -6710,6 +7077,130 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = trimaran_netbench_url_internet_checksum_expected(values)
         if expected != expected_from_source:
             raise ValueError("trimaran_netbench_url_internet_checksum expected_result must match the bounded source helper checksum")
+    elif algorithm == "trimaran_enc_pc1":
+        expected_from_source = trimaran_enc_pc1_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("trimaran_enc_pc1 expected_result must match the bounded Pukall Cipher 1 byte stream")
+    elif algorithm == "cbench_ghostscript_rop3":
+        expected_from_source = ghostscript_rop3_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("cbench_ghostscript_rop3 expected_result must match the bounded ROP3 truth table")
+    elif algorithm == "cbench_ghostscript_rop3_idempotence":
+        expected_from_source = ghostscript_rop3_idempotence_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("cbench_ghostscript_rop3_idempotence must match the pinned source predicate")
+    elif algorithm == "cbench_ghostscript_rop3_operand_usage":
+        expected_from_source = ghostscript_rop3_operand_usage_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("cbench_ghostscript_rop3_operand_usage must match the pinned ROP3 dependency macros")
+    elif algorithm == "cbench_ghostscript_rop3_transform":
+        expected_from_source = ghostscript_rop3_transform_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("cbench_ghostscript_rop3_transform must match the pinned ROP3 transformation macros")
+    elif algorithm == "parboil_sad":
+        expected_from_source = parboil_sad_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("parboil_sad expected_result must match the bounded seven-level SAD aggregate")
+    elif algorithm == "parboil_lbm":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = parboil_lbm_expected(
+            None if input_is_null else values,
+            input_is_null=input_is_null,
+            input_length=case.get("input_length", len(values)),
+        )
+        if expected != expected_from_source:
+            raise ValueError("parboil_lbm expected_result must match the bounded D3Q19 step")
+    elif algorithm == "cbench_rsynth_f0_flutter":
+        expected_from_source = cbench_rsynth_f0_flutter_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("cbench_rsynth_f0_flutter expected_result must match the bounded three-sine helper")
+    elif algorithm == "tsvc_s4115_indexed_gather_product_sum":
+        expected_from_source = tsvc_s4115_indexed_gather_product_sum_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("tsvc_s4115_indexed_gather_product_sum expected_result must match the bounded indexed gather reduction")
+    elif algorithm == "mccat_08_main":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = mccat_08_main_expected(
+            None if input_is_null else values,
+            case.get("input_length", len(values)),
+            input_is_null,
+        )
+        if expected != expected_from_source:
+            raise ValueError("mccat_08_main expected_result must match the bounded source-ordered transform loop")
+    elif algorithm == "mccat_09_vor":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = mccat_09_vor_expected(
+            None if input_is_null else values,
+            case.get("input_length", len(values)),
+            input_is_null,
+        )
+        if expected != expected_from_source:
+            raise ValueError("mccat_09_vor expected_result must match the bounded hull-contraction circle")
+    elif algorithm == "mallocbench_espresso":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = mallocbench_espresso_expected(
+            None if input_is_null else values, case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("mallocbench_espresso expected_result must match the bounded EXPAND/IRREDUNDANT profile")
+    elif algorithm == "ptrdist_anagram":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = ptrdist_anagram_expected(
+            None if input_is_null else values, case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("ptrdist_anagram expected_result must match the bounded multiword decomposition search")
+    elif algorithm == "stanford_puzzle":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = stanford_puzzle_expected(
+            None if input_is_null else values,
+            case.get("input_length", len(values)),
+            input_is_null,
+        )
+        if expected != expected_from_source:
+            raise ValueError("stanford_puzzle expected_result must match the bounded 5x5x5 first-empty-cell search")
+    elif algorithm == "mallocbench_cfrac":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = mallocbench_cfrac_expected(
+            None if input_is_null else values, case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("mallocbench_cfrac expected_result must match the bounded CFRAC relation search")
+    elif algorithm == "agrep_approx_substring_count":
+        expected_from_source = agrep_approx_substring_count_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("agrep_approx_substring_count expected_result must match approximate substring edit-distance counting")
+    elif algorithm == "npb_serial_dc":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = npb_serial_dc_expected(
+            None if input_is_null else values, case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("npb_serial_dc expected_result must match sorted aggregates across all nonempty views")
+    elif algorithm == "doe_pathfinder_signature_search":
+        expected_from_source = doe_pathfinder_signature_search_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("doe_pathfinder_signature_search expected_result must match ordered-label path existence")
+    elif algorithm == "ptrdist_ks":
+        expected_from_source = ptrdist_ks_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("ptrdist_ks expected_result must match bounded Kernighan-Lin partitioning")
+    elif algorithm == "prolangs_c_assembler":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = prolangs_c_assembler_expected(
+            None if input_is_null else values, case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("prolangs_c_assembler expected_result must match the bounded two-pass SIC/XE contract")
+    elif algorithm == "prolangs_c_bison_nullable":
+        input_is_null = case.get("input_is_null", False)
+        expected_from_source = prolangs_c_bison_nullable_expected(
+            None if input_is_null else values, case.get("input_length", len(values)))
+        if expected != expected_from_source:
+            raise ValueError("prolangs_c_bison_nullable expected_result must match the bounded nullable fixed point")
+    elif algorithm == "prolangs_football_tiebreaks":
+        expected_from_source = prolangs_football_tiebreaks_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("prolangs_football_tiebreaks expected_result must match the bounded recursive tie-break contract")
+    elif algorithm == "scimark2_sor":
+        expected_from_source = scimark2_sor_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("scimark2_sor expected_result must match the fixed-omega in-place grid recurrence")
     elif algorithm == "olden_perimeter":
         expected_from_source = olden_perimeter_expected(values)
         if expected != expected_from_source:
@@ -6738,10 +7229,70 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = richards_benchmark_expected(values)
         if expected != expected_from_source:
             raise ValueError("richards_benchmark expected_result must match the bounded source-order task scheduler")
+    elif algorithm == "fourinarow_minimax":
+        expected_from_source = fourinarow_minimax_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("fourinarow_minimax expected_result must match the bounded source-order minimax/alpha-beta search")
+    elif algorithm == "freebench_mason":
+        expected_from_source = freebench_mason_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("freebench_mason expected_result must match the bounded alternating transformation search")
+    elif algorithm == "fhourstones_exact":
+        expected_from_source = fhourstones_exact_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("fhourstones_exact expected_result must match exact Connect Four endgame minimax")
+    elif algorithm == "freebench_neural_hopfield":
+        expected_from_source = freebench_neural_hopfield_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("freebench_neural_hopfield expected_result must match the convergence-proven Hopfield profile")
     elif algorithm == "mibench_network_dijkstra":
         expected_from_source = mibench_network_dijkstra_expected(values)
         if expected != expected_from_source:
             raise ValueError("mibench_network_dijkstra expected_result must match FIFO label-correcting relaxation")
+    elif algorithm == "mibench_automotive_basicmath_isqrt":
+        expected_from_source = mibench_automotive_basicmath_isqrt_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mibench_automotive_basicmath_isqrt expected_result must match the bounded 32-step fixed-point root")
+    elif algorithm == "embench_aha_mont64":
+        expected_from_source = embench_aha_mont64_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("embench_aha_mont64 expected_result must match the bounded Montgomery-domain product")
+    elif algorithm == "slre":
+        expected_from_source = slre_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("slre expected_result must match the bounded ordered regex-search profile")
+    elif algorithm == "rodinia_srad_v2":
+        expected_from_source = rodinia_srad_v2_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rodinia_srad_v2 expected_result must match the bounded two-kernel SRAD update")
+    elif algorithm == "rodinia_euler3d_flux":
+        expected_from_source = rodinia_euler3d_flux_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rodinia_euler3d_flux expected_result must match the bounded source-order face flux")
+    elif algorithm == "rodinia_particlefilter_naive":
+        expected_from_source = rodinia_particlefilter_naive_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rodinia_particlefilter_naive expected_result must match the bounded deterministic transition")
+    elif algorithm == "rodinia_lavamd":
+        expected_from_source = rodinia_lavamd_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rodinia_lavamd expected_result must match the bounded screened-particle interaction checksum")
+    elif algorithm == "rodinia_pathfinder":
+        expected_from_source = rodinia_pathfinder_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rodinia_pathfinder expected_result must match the bounded grid minimum-cost recurrence")
+    elif algorithm == "rodinia_bplus_tree":
+        expected_from_source = rodinia_bplus_tree_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("rodinia_bplus_tree expected_result must match the bounded B+ tree routing profile")
+    elif algorithm == "xgboost":
+        expected_from_source = xgboost_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("xgboost expected_result must match the bounded multi-tree classifier profile")
+    elif algorithm == "analyzer":
+        expected_from_source = analyzer_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("analyzer expected_result must match bounded cross-epoch RAW dependency analysis")
     elif algorithm == "msd_radix_string_sorter":
         source_result = msd_radix_string_sorter_expected(values)
         expected_from_source = (MSD_RADIX_STRING_SORTER_INVALID_RESULT
@@ -15314,6 +15865,100 @@ def validate_mibench_network_dijkstra_workload(workload: dict) -> None:
             raise ValueError(f"mibench_network_dijkstra fixture differs from its independent oracle: {case.get('id')}")
 
 
+def validate_mibench_automotive_basicmath_isqrt_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/MiBench/automotive-basicmath"
+    launcher_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/automotive-basicmath/info.sh"
+    source_file_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/MiBench/automotive-basicmath/isqrt.c"
+    expected_ids = {
+        "zero", "unit_square", "non_square_two", "non_square_three", "square_four",
+        "square_nine", "square_two_hundred_fifty_six", "maximum_bounded_input",
+        "negative_value", "above_bound", "missing_value", "extra_value",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": ["MiBench/automotive-basicmath/isqrt.c", "MiBench/automotive-basicmath/snipmath.h", "MiBench/automotive-basicmath/basicmath.c"],
+        "symbols": ["usqrt"], "url": source_url,
+        "license_note": "The pinned source and launcher do not state a redistribution license. The ports and oracle independently implement the observed recurrence.",
+    }
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "path": "MiBench/automotive-basicmath/info.sh", "bench_name": "automotive-basicmath",
+        "source_files": ["basicmath.c", "cubic.c", "isqrt.c", "rad2deg.c"],
+        "compile_flags": ["-lm"], "run_options": [],
+    }
+    expected_contract = {
+        "input_layout": "[unsigned_value]",
+        "bounded_profile": "One unsigned value from 0 through 65535, contained in the source's ascending integer test loop.",
+        "algorithm": "Run 32 base-two digit steps: shift in the next two input bits, shift the partial root, compare the remainder against 2*root+1, and subtract/set the root bit when the trial fits.",
+        "observable_result": "The source's q.sqrt field: floor(sqrt(value) * 2^16).",
+        "invalid_result": -1,
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-mibench-automotive-basicmath-isqrt-i64-array-scalar-v1"
+            or workload.get("algorithm") != "mibench_automotive_basicmath_isqrt"
+            or workload.get("function_symbol") != "mibench_automotive_basicmath_isqrt"
+            or workload.get("description") != "Bounded MiBench 32-step digit-by-digit fixed-point integer square root."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "encoding": "[unsigned_value]",
+                "value_range": [0, MIBENCH_BASICMATH_ISQRT_MAX_VALUE],
+                "exact_length": 1,
+                "maximum_valid_input_length": MIBENCH_BASICMATH_ISQRT_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": MIBENCH_BASICMATH_ISQRT_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "floor(sqrt(value) * 65536), matching the source's q.sqrt field.",
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or MIBENCH_BASICMATH_ISQRT_MAX_INPUT_LENGTH != 1
+            or MIBENCH_BASICMATH_ISQRT_MAX_PARSEABLE_INPUT_LENGTH != 2
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("mibench_automotive_basicmath_isqrt metadata or fixture IDs differ from its bounded contract")
+    readme = (ROOT / "benchmarks" / "m" / "mibench_automotive_basicmath_isqrt" / "README.md").read_text(encoding="utf-8")
+    if (source_file_url not in readme or launcher_url not in readme
+            or "fixed-point" not in readme or "no inferred license" not in readme):
+        raise ValueError("mibench_automotive_basicmath_isqrt README is missing provenance, license, or algorithm notes")
+    package_dir = ROOT / "benchmarks" / "m" / "mibench_automotive_basicmath_isqrt"
+    if (package_dir / "LICENSE.txt").exists():
+        raise ValueError("mibench_automotive_basicmath_isqrt must not imply an upstream redistribution license")
+    port_files = (
+        ROOT / "c/m/mibench_automotive_basicmath_isqrt.c",
+        ROOT / "c3/m/mibench_automotive_basicmath_isqrt.c3",
+        ROOT / "cpp/m/mibench_automotive_basicmath_isqrt.cpp",
+        ROOT / "elisa/m/mibench_automotive_basicmath_isqrt.elisa",
+        ROOT / "nim/m/mibench_automotive_basicmath_isqrt.nim",
+        ROOT / "odin/m/mibench_automotive_basicmath_isqrt.odin",
+        ROOT / "rust/m/mibench_automotive_basicmath_isqrt.rs",
+        ROOT / "v/m/mibench_automotive_basicmath_isqrt.v",
+        ROOT / "zig/m/mibench_automotive_basicmath_isqrt.zig",
+    )
+    for port in port_files:
+        if not port.is_file() or "mibench_automotive_basicmath_isqrt" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"mibench_automotive_basicmath_isqrt port is missing or lacks its exported symbol: {port}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > MIBENCH_BASICMATH_ISQRT_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != mibench_automotive_basicmath_isqrt_expected(values)):
+            raise ValueError(f"mibench_automotive_basicmath_isqrt fixture differs from its independent oracle: {case.get('id')}")
+
+
 def validate_richards_benchmark_workload(workload: dict) -> None:
     pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
     source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Misc/richards_benchmark"
@@ -15384,6 +16029,416 @@ def validate_richards_benchmark_workload(workload: dict) -> None:
                 or type(case.get("expected_result")) is not int
                 or case["expected_result"] != richards_benchmark_expected(values)):
             raise ValueError(f"richards_benchmark fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_analyzer_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/FreeBench/analyzer"
+    expected_ids = {
+        "empty_trace", "load_without_writer", "same_epoch_store_is_not_cross_epoch",
+        "one_cross_epoch_dependency", "latest_writer_supersedes_old_store",
+        "same_epoch_store_suppresses_older_writer", "repeated_loads_each_count",
+        "interleaved_addresses_and_rewrite", "maximum_address", "count_mismatch",
+        "extra_field", "epoch_regression", "invalid_opcode", "address_above_bound",
+        "event_count_above_bound",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-freebench-analyzer-raw-dependencies-i64-array-scalar-v1"
+            or workload.get("algorithm") != "analyzer"
+            or workload.get("function_symbol") != "analyzer"
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["FreeBench/analyzer/analyzer.c", "FreeBench/analyzer/types.c", "FreeBench/analyzer/functs.c"],
+                "symbols": ["main", "def_list_mod", "def_list_lookup", "conflict_list", "hard_raw_mod"],
+                "url": source_url,
+                "license_note": "The analyzer.c header names Peter Rundberg and says the program may be freely distributed. No separate formal license is inferred; the ports and oracle are clean-room implementations of observed behavior.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "FreeBench/analyzer/info.sh", "bench_name": "analyzer",
+                "source_files": ["analyzer.c", "functs.c", "help.c", "parse_settings.c", "types.c"],
+                "compile_flags": ["-DVERSION=\"1.00\"", "-DCOMPDATE=\"\\\"today\\\"\"", "-DCFLAGS=\\\"\\\"", "-DHOSTNAME=\"\\\"thishost\\\"\""],
+                "run_options": ["test.in when SMALL_PROBLEM_SIZE is set; otherwise ref.in"],
+            }
+            or workload.get("contract") != {
+                "input_layout": "[event_count, (epoch, opcode, address)*]",
+                "event_order": "Rows preserve trace order and epoch numbers are nondecreasing. A store in an epoch supersedes all earlier writers to the same address for later rows.",
+                "raw_rule": "A load conflicts once iff its latest preceding store to the same address is in an earlier epoch.",
+                "observable_result": "Total cross-epoch RAW load count, equal to the sum of the source's per-address conflict accesser counts.",
+                "excluded_source_behavior": "File parsing, text diagnostics, configuration-file options, instruction-mix reporting, and speculative execution-time/speedup estimates are outside this bounded core.",
+                "invalid_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "encoding": "[event_count, (epoch, opcode, address)*]",
+                "event_count_range": [0, ANALYZER_MAX_EVENTS], "epoch_range": [0, ANALYZER_MAX_EPOCH],
+                "opcode_values": {"0": "store", "1": "load"},
+                "address_range": [0, ANALYZER_MAX_ADDRESS],
+                "exact_length": "1 + 3*event_count", "maximum_valid_input_length": ANALYZER_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": ANALYZER_MAX_PARSEABLE_INPUT_LENGTH, "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Count of load events whose most recent preceding store to the same address is in an earlier epoch.",
+                "valid_result_range": [0, ANALYZER_MAX_EVENTS], "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or ANALYZER_MAX_INPUT_LENGTH != 1 + 3 * ANALYZER_MAX_EVENTS
+            or ANALYZER_MAX_PARSEABLE_INPUT_LENGTH != ANALYZER_MAX_INPUT_LENGTH + 1
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("analyzer metadata or fixture IDs differ from its bounded RAW-analysis contract")
+    readme = (ROOT / "benchmarks" / "a" / "analyzer" / "README.md").read_text(encoding="utf-8")
+    if (source_url not in readme or "Peter Rundberg" not in readme
+            or "most recent preceding store" not in readme or "speculative-time" not in readme):
+        raise ValueError("analyzer README is missing provenance or the bounded algorithm contract")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > ANALYZER_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != analyzer_expected(values)):
+            raise ValueError(f"analyzer fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_fourinarow_minimax_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/FreeBench/fourinarow/fourinarow.c"
+    launcher_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/FreeBench/fourinarow/info.sh"
+    expected_ids = [
+        "empty_board_human_tie_chooses_last",
+        "single_human_piece_computer_tie_chooses_first",
+        "unsupported_broken_alpha_beta_method_one",
+        "side_does_not_match_history",
+        "length_mismatch",
+        "history_already_contains_four",
+    ]
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks",
+        "commit": pinned,
+        "paths": ["FreeBench/fourinarow/fourinarow.c", "FreeBench/fourinarow/info.sh",
+                  "FreeBench/fourinarow/test.in", "FreeBench/fourinarow/ref.in"],
+        "symbols": ["init_patterns", "value", "think", "bit_place_piece", "minimax_comp",
+                    "minimax_player", "minimax_comp_ab2", "minimax_player_ab2"],
+        "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/FreeBench/fourinarow",
+        "distribution_notice": "Peter Rundberg, biff@ce.chalmers.se: \"Plese feel free to distribute this program as you like.\" No separate license file is present in the pinned package.",
+    }
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "path": "FreeBench/fourinarow/info.sh", "bench_name": "fourinarow",
+        "source_files": ["fourinarow.c"],
+        "compile_flags": ["-DVERSION=\"1.00\"", "-DCOMPDATE=\"today\"", "-DCFLAGS=\"\"", "-DHOSTNAME=\"thishost\""],
+        "run_options": {"test.in": [7, 2], "ref.in": [9, 2]},
+    }
+    expected_contract = {
+        "input_layout": "[depth, alpha_beta_mode, side, move_count, column_0, ...]",
+        "board": "6 rows by 7 columns; bit index is column + row*7; column pieces occupy rows bottom-up.",
+        "players": "Player 1 (human, minimizing) moves first; player 2 (computer, maximizing) follows. Side must match move_count parity.",
+        "depth": "Source recursion starts at depth 1 and evaluates before moving when depth >= depth_limit; a depth limit D therefore searches D-1 plies including the root move.",
+        "search_modes": {"0": "plain minimax", "2": "source second alpha-beta implementation with strict max>beta and min<alpha cutoffs"},
+        "heuristic": "Source's generated 4/3/2 masks score 1000/20/5 with human negative and computer positive; source loop order and row*6 horizontal/diagonal offsets are retained.",
+        "tie_behavior": "Max nodes keep the first equal-scoring column; min nodes keep the last equal-scoring column.",
+        "history": "Legal alternating column replay from an empty board; no earlier four-in-a-row; at most 20 moves.",
+        "result": "final_heuristic_score*8 + selected_root_column",
+        "invalid_result": -1,
+    }
+    cases = workload.get("cases")
+    ids = [case.get("id") for case in cases] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-freebench-fourinarow-minimax-i64-array-scalar-v1"
+            or workload.get("algorithm") != "fourinarow_minimax"
+            or workload.get("function_symbol") != "fourinarow_minimax"
+            or workload.get("description") != "Bounded FreeBench Connect Four heuristic minimax with optional source mode-2 alpha-beta pruning."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "encoding": "[depth, alpha_beta_mode, side, move_count, column_0, ...]",
+                "depth_range": [2, 7], "alpha_beta_modes": [0, 2], "side_range": [1, 2],
+                "move_count_range": [0, 20], "column_range": [0, 6],
+                "exact_length": "4 + move_count", "maximum_valid_input_length": 24,
+                "maximum_parseable_input_length": 24, "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Heuristic score multiplied by eight plus the chosen column.",
+                "valid_result_range": [-1134480, 1134486], "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or FOURINAROW_MAX_INPUT_LENGTH != 24
+            or not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids):
+        raise ValueError("fourinarow_minimax metadata or fixture IDs differ from its bounded source contract")
+    if (source_url not in (ROOT / "benchmarks" / "f" / "fourinarow_minimax" / "README.md").read_text(encoding="utf-8")
+            or launcher_url not in (ROOT / "benchmarks" / "f" / "fourinarow_minimax" / "README.md").read_text(encoding="utf-8")):
+        raise ValueError("fourinarow_minimax README is missing its pinned source or launcher provenance")
+    readme = (ROOT / "benchmarks" / "f" / "fourinarow_minimax" / "README.md").read_text(encoding="utf-8")
+    if ("Plese feel free to distribute this program as you like." not in readme
+            or "Fhourstones" not in readme or "row * 6" not in readme):
+        raise ValueError("fourinarow_minimax README is missing distribution, variant, or source-behavior notes")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > FOURINAROW_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != fourinarow_minimax_expected(values)):
+            raise ValueError(f"fourinarow_minimax fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_freebench_mason_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/FreeBench/mason"
+    expected_ids = {
+        "initial_goal_uses_first_bound", "two_move_solution", "four_move_solution",
+        "pinned_test_profile_bounded_at_eight", "short_input", "extra_input_value",
+        "duplicate_position", "negative_position", "position_above_board",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-freebench-mason-bounded-search-i64-array-scalar-v1"
+            or workload.get("algorithm") != "freebench_mason"
+            or workload.get("function_symbol") != "freebench_mason"
+            or workload.get("description") != "Bounded iterative-deepening search over the FreeBench Mason alternating transformation puzzle."
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["FreeBench/mason/mason.c", "FreeBench/mason/info.sh", "FreeBench/mason/test.in", "FreeBench/mason/ref.in", "FreeBench/mason/mason.reference_output"],
+                "symbols": ["m0u", "m1u", "m2u", "m0d", "m1d", "m2d", "mu", "md", "nearu", "neard"],
+                "url": source_url,
+                "license_note": "The source header states Copyright (c) 2000 Tord Hansson but contains no redistribution grant. The pinned package has no separate LICENSE file; no upstream license is inferred. Ports and oracle are independently written from the state transitions and search behavior.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "FreeBench/mason/info.sh", "bench_name": "mason",
+                "source_files": ["mason.c"],
+                "compile_flags": ["-DVERSION=\"1.00\"", "-DCOMPDATE=\"\\\"today\\\"\"", "-DCFLAGS=\\\"\\\"", "-DHOSTNAME=\\\"\\\"thishost\\\"\""],
+                "run_options": "test.in when SMALL_PROBLEM_SIZE is set; otherwise ref.in",
+            }
+            or workload.get("contract") != {
+                "input_layout": "[a, b, c, d, bi, ar, g1, g2, g3]",
+                "state_domain": "Nine distinct piece positions in the 18-position board, each in 0..17.",
+                "move_schedule": "Starting in mu at depth zero, apply an upper transformation at even depth and a lower transformation at odd depth; do not apply the same numbered transformation on adjacent moves.",
+                "goal": "a=5, b=6, c=12, d=13, bi=14, ar=15, and g1+g2+g3=3; goal states are checked in mu.",
+                "search": "Iterative-deepening depth-first search with source move order 0,1,2, alternating mu/md recursion, and the source's per-piece four-step reachability pruning table.",
+                "depth_bound": "Search even bounds 2, 4, 6, and 8. A full unpruned pass sequence visits at most 1,012 recursive states; recursion depth is at most 9.",
+                "observable_result": "The first even iterative-deepening bound that reaches the goal. Return 2 when the initial state is already a goal because the source begins with bound 2.",
+                "bounded_failure": "Return -2 when no goal is found through bound 8, even if the unbounded source would find a deeper solution.",
+                "invalid_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "encoding": "[a, b, c, d, bi, ar, g1, g2, g3]",
+                "position_range": [0, 17], "positions_must_be_distinct": True,
+                "exact_length": 9, "maximum_valid_input_length": FREEBENCH_MASON_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": FREEBENCH_MASON_MAX_PARSEABLE_INPUT_LENGTH,
+                "maximum_even_depth_bound": 8, "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "First successful even iterative-deepening bound, or -2 if none succeeds through bound 8.",
+                "valid_result_range": [-2, 8], "invalid_result": -1, "bounded_failure_result": -2,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or FREEBENCH_MASON_MAX_INPUT_LENGTH != 9
+            or FREEBENCH_MASON_MAX_PARSEABLE_INPUT_LENGTH != 10
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("freebench_mason metadata or fixture IDs differ from its bounded search contract")
+    readme = (ROOT / "benchmarks" / "f" / "freebench_mason" / "README.md").read_text(encoding="utf-8")
+    if (source_url not in readme or "Tord Hansson" not in readme
+            or "no upstream license is inferred" not in readme
+            or "unbounded" not in readme or "depth 8" not in readme):
+        raise ValueError("freebench_mason README is missing provenance, rights, or search-bound notes")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > FREEBENCH_MASON_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != freebench_mason_expected(values)):
+            raise ValueError(f"freebench_mason fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_fhourstones_exact_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Fhourstones"
+    expected_ids = {
+        "two_empty_cells_draw_position", "one_empty_cell_draw_position",
+        "position_too_early_for_bounded_contract", "invalid_column",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    distribution_notice = "John Tromp (1996; 1996-2005): notice must not be removed; no sale for profit; redistribution only if recipients have the same rights and restrictions."
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-fhourstones-exact-i64-array-scalar-v1"
+            or workload.get("algorithm") != "fhourstones_exact"
+            or workload.get("function_symbol") != "fhourstones_exact"
+            or workload.get("description") != "Bounded exact Connect Four endgame solver from the Fhourstones 2.0/3.1 solver family."
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["Fhourstones/c4.c", "Fhourstones/play.c", "Fhourstones/info.sh", "Fhourstones/input", "Fhourstones_31/SearchGame.c", "Fhourstones_31/Game.h", "Fhourstones_31/TransGame.h", "Fhourstones_31/info.sh", "Fhourstones_31/inputs", "Fhourstones_31/inputs_large"],
+                "symbols": ["ab", "solve", "makemove", "backmove", "wins", "haswon", "islegalhaswon"],
+                "url": source_url, "distribution_notice": distribution_notice,
+            }
+            or workload.get("pinned_launchers") != [
+                {
+                    "path": "Fhourstones/info.sh", "bench_name": "Fhourstones",
+                    "source_files": ["c4.c", "play.c", "time.c", "trans.c"],
+                    "input_path": "Fhourstones/input",
+                    "run_options": "reads 1-based columns 1 through 7, one position per input line",
+                },
+                {
+                    "path": "Fhourstones_31/info.sh", "bench_name": "Fhourstones_31",
+                    "source_files": ["SearchGame.c"],
+                    "input_path": "Fhourstones_31/inputs or inputs_large",
+                    "run_options": "reads 1-based columns 1 through 7, one position per input line; dataset selected by SMALL_PROBLEM_SIZE",
+                },
+            ]
+            or workload.get("contract") != {
+                "input_layout": "[move_count, zero_based_column_0, ...]",
+                "board": "Seven columns by six rows; pieces fall to the lowest empty row; players alternate starting with player 1.",
+                "bounded_position": "36 through 41 legal moves, leaving at most six empty cells.",
+                "history": "Every column is 0 through 6; no column is overfilled; no prior move in the history has made four in a row.",
+                "algorithm": "Exact alpha-beta negamax to terminal win or full board, center-first move order; the portable bounded implementation omits the pinned solver's transposition table and history heuristic.",
+                "result": "2 for a forced win, 0 for a draw, and -2 for a forced loss, from the side-to-move perspective.",
+                "invalid_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "encoding": "[move_count, zero_based_column_0, ...]",
+                "move_count_range": [FHOURSTONES_EXACT_MIN_MOVES, FHOURSTONES_EXACT_MAX_MOVES],
+                "column_range": [0, 6], "exact_length": "1 + move_count",
+                "maximum_valid_input_length": FHOURSTONES_EXACT_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": FHOURSTONES_EXACT_MAX_INPUT_LENGTH,
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Exact game outcome for the current player; uses Fhourstones 2.0's -2/0/2 score values.",
+                "valid_result_range": [-2, 2], "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or FHOURSTONES_EXACT_MAX_INPUT_LENGTH != FHOURSTONES_EXACT_MAX_MOVES + 1
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("fhourstones_exact metadata or fixture IDs differ from its bounded endgame contract")
+    readme = (ROOT / "benchmarks" / "f" / "fhourstones_exact" / "README.md").read_text(encoding="utf-8")
+    rights = (ROOT / "benchmarks" / "f" / "fhourstones_exact" / "SOURCE_RIGHTS.md").read_text(encoding="utf-8")
+    if (source_url not in readme or "John Tromp" not in readme
+            or "no sale for profit" not in readme or "John Tromp" not in rights):
+        raise ValueError("fhourstones_exact README or rights record is missing source attribution")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > FHOURSTONES_EXACT_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != fhourstones_exact_expected(values)):
+            raise ValueError(f"fhourstones_exact fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_freebench_neural_hopfield_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/FreeBench/neural/neural.c"
+    expected_ids = {
+        "two_neuron_positive_pattern", "maximum_neuron_count", "short_header",
+        "wrong_pattern_count", "one_neuron_dimension", "missing_pattern_records",
+        "dimension_above_bound", "invalid_label",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-freebench-neural-hopfield-bounded-i64-array-scalar-v1"
+            or workload.get("algorithm") != "freebench_neural_hopfield"
+            or workload.get("function_symbol") != "freebench_neural_hopfield"
+            or workload.get("description") != "Bounded FreeBench continuous Hopfield Hebbian/delta learning over a repeated bipolar pattern."
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "FreeBench/neural/neural.c",
+                "symbols": ["readvector", "checkham", "generateT", "delta", "runcont", "storecheck"],
+                "url": source_url,
+                "license_note": "The header identifies (C) 1996, 2001 Fredrik Warg, but gives no redistribution grant. The pinned directory has no separate LICENSE; no upstream license is inferred. Ports and oracle are clean-room implementations and do not copy the source or its pattern data.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "FreeBench/neural/info.sh", "bench_name": "neural",
+                "source_files": ["neural.c"],
+                "compile_flags": ["-DVERSION=\"1.00\"", "-DCOMPDATE=\"\\\"today\\\"\"", "-DCFLAGS=\\\"\\\"", "-DHOSTNAME=\\\"\\\"thishost\\\"\""],
+                "run_options": ["test.in when SMALL_PROBLEM_SIZE is set; otherwise ref.in"],
+            }
+            or workload.get("contract") != {
+                "input_layout": "[width, height, pattern_count, (label, cells...)*]",
+                "readvector_mapping": "Each row-major cell is -1 or +1, corresponding to . or X in the source file. Labels are uppercase ASCII.",
+                "fixed_pattern_count": FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT,
+                "repeated_pattern_domain": "All 10 patterns are identical and bipolar, with 2 through 8 neurons.",
+                "bounded_profile_reason": "The pinned test.in uses distinct patterns and the source delta loop has no iteration bound; static inspection does not establish that profile's termination. This workload therefore uses the repeated-pattern subdomain with a one-pass convergence proof.",
+                "hebbian_rule": "T[i][j] is the sum over all 10 patterns of p[i]*p[j], with T[i][i]=0.",
+                "continuous_rule": "Use the source continuous recall path and delta rate 0.5. For identical patterns, each initial field is 10*(neuron_count-1)*p[i], whose magnitude is at least 10; all recalled signs match, so delta exits after one outer pass.",
+                "observable_result": "Count of the ten patterns that storecheck recalls exactly; 10 on the accepted domain.",
+                "delta_pass_limit": 1, "nonconvergence_result": -2, "invalid_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "encoding": "[width, height, 10, (label_ascii, cell_0, ..., cell_(width*height-1))*]",
+                "width_range": [1, FREEBENCH_NEURAL_HOPFIELD_MAX_DIMENSION],
+                "height_range": [1, FREEBENCH_NEURAL_HOPFIELD_MAX_DIMENSION],
+                "neuron_count_range": [2, FREEBENCH_NEURAL_HOPFIELD_MAX_NEURONS],
+                "pattern_count": FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT,
+                "label_ascii_range": [65, 90], "cell_values": [-1, 1],
+                "all_patterns_must_be_identical": True,
+                "exact_length": "3 + 10*(1 + width*height)",
+                "maximum_valid_input_length": FREEBENCH_NEURAL_HOPFIELD_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": FREEBENCH_NEURAL_HOPFIELD_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Number of original bipolar patterns recalled exactly by the source-ordered storecheck stage.",
+                "valid_result_range": [0, FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT],
+                "invalid_result": -1, "nonconvergence_result": -2,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or FREEBENCH_NEURAL_HOPFIELD_MAX_INPUT_LENGTH != 3 + FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT * (1 + FREEBENCH_NEURAL_HOPFIELD_MAX_NEURONS)
+            or FREEBENCH_NEURAL_HOPFIELD_MAX_PARSEABLE_INPUT_LENGTH != FREEBENCH_NEURAL_HOPFIELD_MAX_INPUT_LENGTH + 1
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("freebench_neural_hopfield metadata or fixture IDs differ from its bounded convergence contract")
+    readme = (ROOT / "benchmarks" / "f" / "freebench_neural_hopfield" / "README.md").read_text(encoding="utf-8")
+    if (source_url not in readme or "Fredrik Warg" not in readme
+            or "No upstream license is inferred" not in readme
+            or "delta corrections are all zero" not in readme):
+        raise ValueError("freebench_neural_hopfield README is missing provenance or convergence notes")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > FREEBENCH_NEURAL_HOPFIELD_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != freebench_neural_hopfield_expected(values)):
+            raise ValueError(f"freebench_neural_hopfield fixture differs from its bounded oracle: {case.get('id')}")
 
 
 def validate_trimaran_netbench_url_internet_checksum_workload(workload: dict) -> None:
@@ -15460,6 +16515,3386 @@ def validate_trimaran_netbench_url_internet_checksum_workload(workload: dict) ->
             raise ValueError(f"trimaran_netbench_url_internet_checksum fixture differs from its source oracle: {case.get('id')}")
 
 
+def validate_trimaran_enc_pc1_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "first_source_print_interval", "zero_num_input", "above_bounded_profile",
+        "negative_num_input", "empty_input", "extra_input_value",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-trimaran-enc-pc1-bounded-v1"
+            or workload.get("algorithm") != "trimaran_enc_pc1"
+            or workload.get("function_symbol") != "trimaran_enc_pc1"
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "Trimaran/enc-pc1/pc1cod.c", "symbol": "assemble/code/my_rand_r",
+                "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/Trimaran/enc-pc1/pc1cod.c",
+                "author": "Alexander Pukall",
+                "license_note": "The source states that the code is free with no restriction to use and requests that the author's name be included in final software.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "Trimaran/enc-pc1/info.sh", "bench_name": "enc-pc1",
+                "source_files": ["pc1cod.c"],
+                "small_problem_run_options": ["1000000"],
+                "default_run_options": ["20000000"],
+            }
+            or workload.get("source_bound") != {
+                "description": "The input is the source NumInput argument, bounded to 2049; the source pre-decrements it before each loop, so at most 2048 pseudo-random bytes are processed. Key feedback uses the plaintext byte before the source's XOR keystream step. The result reconstructs the final d/e pair printed by the source. The unsigned 32-bit LCG wrap and 16-bit state wrap are explicit.",
+                "maximum_processed_bytes": 2048,
+                "default_key_ascii": "abcdefghijklmnopqrstuvwxyz012345",
+                "random_seed": 1,
+                "lcg_multiplier": 1664525,
+                "lcg_increment": 1013904223,
+                "source_print_interval": 2048,
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "encoding": "[NumInput], with source loop processing NumInput - 1 bytes",
+                "num_input_range": [1, TRIMARAN_ENC_PC1_MAX_NUM_INPUT],
+                "maximum_valid_input_length": 1,
+                "maximum_parseable_input_length": TRIMARAN_ENC_PC1_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_input_result": -1,
+                "null_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_scalar",
+                "meaning": "final 16-bit source c value; this is equivalent to the source's last printed d/e pair reconstructed as 16*d + e",
+                "valid_result_range": [0, 32767],
+                "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }):
+        raise ValueError("trimaran_enc_pc1 metadata differs from its pinned bounded cipher contract")
+    package = ROOT / "benchmarks" / "t" / "trimaran_enc_pc1"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    if (workload["pinned_source"]["url"] not in readme
+            or "Alexander Pukall" not in readme
+            or "free code no restriction to use" not in readme
+            or "22158" not in readme
+            or "ARC4" not in readme):
+        raise ValueError("trimaran_enc_pc1 README is missing pinned provenance, attribution, or distinctness notes")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("trimaran_enc_pc1 fixture IDs differ from the pinned contract")
+    for case in cases:
+        values = case.get("input_values")
+        allowed_keys = {"id", "input_values", "expected_result"}
+        if "description" in case:
+            allowed_keys.add("description")
+        if "input_length" in case:
+            allowed_keys.add("input_length")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > TRIMARAN_ENC_PC1_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or ("input_length" in case and case["input_length"] != len(values))
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != trimaran_enc_pc1_expected(values)):
+            raise ValueError(f"trimaran_enc_pc1 fixture differs from its bounded source oracle: {case.get('id')}")
+
+
+def validate_mccat_08_main_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "identity_zero_point", "child_translation", "child_z_rotation_quarter_turn",
+        "source_shaped_parent_child_sweep", "duplicate_points_are_deduplicated",
+        "two_frame_parent_y_sweep", "empty_input_invalid", "null_input",
+        "wrong_length", "point_out_of_range",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-mccat-08-main-bounded-hierarchical-3d-transform-v1"
+            or workload.get("algorithm") != "mccat_08_main"
+            or workload.get("function_symbol") != "mccat_08_main"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["McCat/08-main/main.c", "McCat/08-main/object.c", "McCat/08-main/trig.c", "McCat/08-main/convert.c", "McCat/08-main/header.h"],
+                "symbols": ["MakeSphere", "InsertPoint", "CalcObject", "CalcObjectChildren", "ScaleObjectOverwrite", "RotateObjectAdd", "TranslateObjectAdd", "RotateMatrix", "MultMatrixMatrix", "MultMatrixHPoint"],
+                "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/McCat/08-main",
+                "license_note": "The pinned source includes the McGill/McCAT/ACAPS notice permitting redistribution and modification provided the notice is maintained.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "McCat/08-main/info.sh",
+                "source_files": ["convert.c", "main.c", "object.c", "trig.c"],
+                "compile_flags": ["-lm"],
+                "source_workload": {"sphere_slices": 25, "sphere_polygons_per_slice": 25,
+                                    "radius": 10, "child_translation": [87, 87, 0],
+                                    "frame_count": 360, "parent_y_degrees": "frame index"},
+            }
+            or workload.get("contract") != {
+                "input_layout": "[frame_count, raw_point_count, child_scale_xyz, child_rotation_xyz_degrees, child_translation_xyz, parent_scale_xyz, parent_rotation_xyz_degrees, parent_translation_xyz, point_xyz...]",
+                "numeric_scale": 1000000, "point_range": [-100, 100],
+                "point_counts": [1, 16], "frame_count_range": [1, 360],
+                "scale_range": [-4, 4], "angle_range_degrees": [-360, 360],
+                "deduplication": "Remove exact duplicate micro-unit coordinate triples in first-seen order; source FPEqual merges coordinate differences below 1e-6.",
+                "transform_order": ["child scale overwrite from original point", "child Euler rotation Rx*Ry*Rz", "child translation", "parent scale add", "parent Euler rotation Rx*Ry*Rz with y angle incremented by frame index", "parent translation"],
+                "output_projection": "For each unique point in each frame, round transformed coordinates to nearest milli-unit, ties away from zero, and accumulate (frame_index+1)*(point_index+1)*(x_milli+3*y_milli+7*z_milli).",
+                "invalid_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "maximum_input_length": MCCAT_08_MAIN_MAX_INPUT_LENGTH,
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Weighted checksum of every unique point's transformed position over all frames.",
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }):
+        raise ValueError("mccat_08_main metadata differs from its pinned bounded transform contract")
+    package = ROOT / "benchmarks" / "m" / "mccat_08_main"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    if (workload["pinned_source"]["url"] not in readme
+            or "Peter Riishoej Brinkler" not in readme
+            or "Rx * Ry * Rz" not in readme
+            or "vector3_axis_rotation" not in readme
+            or "Copyright (C) 1996 McGill University." not in readme):
+        raise ValueError("mccat_08_main README or source notice is missing provenance or distinctness details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("mccat_08_main fixture IDs differ from the bounded transform contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > MCCAT_08_MAIN_MAX_INPUT_LENGTH + 1
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or input_length != len(values)
+                or (input_is_null and values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != mccat_08_main_expected(
+                    None if input_is_null else values, input_length, input_is_null)):
+            raise ValueError(f"mccat_08_main fixture differs from its bounded source oracle: {case.get('id')}")
+
+
+def validate_mccat_09_vor_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "right_triangle_circumcircle", "obtuse_triangle_diameter_circle",
+        "acute_triangle_circumcircle", "four_vertex_greedy_contraction",
+        "interior_site_is_not_in_hull", "collinear_triple_invalid",
+        "duplicate_site_invalid", "coordinate_out_of_range", "wrong_length", "null_input",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-mccat-09-vor-bounded-hull-contraction-v1"
+            or workload.get("algorithm") != "mccat_09_vor"
+            or workload.get("function_symbol") != "mccat_09_vor"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["McCat/09-vor/vor.c", "McCat/09-vor/ch.c", "McCat/09-vor/intersec.c", "McCat/09-vor/pointlis.c", "McCat/09-vor/splay.c", "McCat/09-vor/splay2.c"],
+                "symbols": ["construct_vor", "construct_ch", "alg2", "draw_sec"],
+                "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/McCat/09-vor",
+                "license_note": "The pinned source permits redistribution and modification provided the 1996 McGill/McCAT/ACAPS copyright notice is maintained; the full notice is included in LICENSE_NOTICE.txt and every port.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "McCat/09-vor/info.sh",
+                "source_files": ["vor.c", "ch.c", "intersec.c", "pointlis.c", "splay.c", "splay2.c"],
+                "compile_flags": ["-lm"],
+                "source_workload": "vor.in3; source reports the final three-site circle after hull contraction",
+            }
+            or workload.get("contract") != {
+                "input_layout": "[site_count, x0, y0, ..., xN-1, yN-1]",
+                "site_count_range": [3, 8], "coordinate_range": [-4, 4],
+                "duplicate_sites": "rejected", "collinear_triples": "rejected",
+                "priority_ties": "rejected when both radius-squared and signed cosine-squared keys tie during a contraction",
+                "algorithm": ["Build the convex hull; retain its counterclockwise vertices and omit collinear hull points.", "Repeatedly remove the vertex with greatest local circumradius squared; break equal radius keys by smaller signed cosine squared.", "Return the final three-site circumcircle, or the longest-edge diameter circle for an obtuse triangle."],
+                "output_projection": "Truncate center coordinates toward zero; round radius to hundredths; pack as (((cx+1024)*2049+(cy+1024))*200000+radius_cents).",
+                "invalid_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "maximum_input_length": MCCAT_09_VOR_MAX_INPUT_LENGTH,
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Packed final circle center and radius in hundredths.",
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }):
+        raise ValueError("mccat_09_vor metadata differs from its pinned hull-contraction contract")
+    package = ROOT / "benchmarks" / "m" / "mccat_09_vor"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE_NOTICE.txt").read_text(encoding="utf-8")
+    if (workload["pinned_source"]["url"] not in readme
+            or "Fortune sweep" not in readme
+            or "quad-edge" not in readme
+            or "Bowyer-Watson" not in readme
+            or "Copyright (C) 1996 McGill University." not in notice
+            or "This program is free software" not in notice):
+        raise ValueError("mccat_09_vor README or notice is missing provenance, distinctness, or permission details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("mccat_09_vor fixture IDs differ from the bounded hull-contraction contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > MCCAT_09_VOR_MAX_INPUT_LENGTH + 1
+                or type(input_is_null) is not bool
+                or type(input_length) is not int
+                or input_length != len(values)
+                or (input_is_null and values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != mccat_09_vor_expected(
+                    None if input_is_null else values, input_length, input_is_null)):
+            raise ValueError(f"mccat_09_vor fixture differs from its bounded source oracle: {case.get('id')}")
+
+
+def validate_mallocbench_espresso_workload(workload: dict) -> None:
+    expected_ids = {
+        "empty_on_set", "single_minterm_one_variable", "single_minterm_two_variables",
+        "adjacent_minterms_merge", "all_minterms_constant_one", "greedy_overlapping_cover",
+        "dont_care_enables_expansion", "three_variable_parity_pairing",
+        "overlapping_on_and_dont_care", "mask_above_minterm_range", "zero_variables",
+        "too_many_variables", "wrong_length", "null_input",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "mallocbench-espresso-v1"
+            or workload.get("algorithm") != "mallocbench_espresso"
+            or workload.get("function_symbol") != "mallocbench_espresso"
+            or workload.get("input") != {
+                "kind": "i64_array_scalar",
+                "encoding": "[variable_count, on_set_mask, dont_care_mask]",
+                "variable_count_range": [1, 5],
+                "minterm_index": "bit k denotes minterm k; variable 0 is the least-significant minterm bit",
+                "mask_domain": "nonnegative signed i64 with no set bits at or above 2^variable_count",
+                "on_set_and_dont_care_must_be_disjoint": True,
+                "algorithm": "Start with one full minterm cube per ON point; in ascending minterm order, attempt to remove variable literals in ascending variable order if the resulting cube contains only ON or don't-care points; then remove terms in original order if all their ON points remain covered by other active terms.",
+                "result_encoding": "1024*cube_count + literal_count",
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 9,
+                "warmup_rounds": 1, "repetitions_per_sample": 20,
+            }):
+        raise ValueError("mallocbench_espresso workload differs from its bounded source-phase contract")
+    package = ROOT / "benchmarks" / "m" / "mallocbench_espresso"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    source_url = "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MallocBench/espresso"
+    if (source_url not in readme or "EXPAND and IRREDUNDANT" not in readme
+            or "entire Berkeley Espresso optimizer" not in readme
+            or "Regents of the University of California" not in readme
+            or "complete copyright and warranty notice is retained in each language port" not in readme):
+        raise ValueError("mallocbench_espresso README is missing source, profile-boundary, or rights details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("mallocbench_espresso fixture IDs differ from the bounded phase-profile contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > 4 or type(input_is_null) is not bool
+                or type(input_length) is not int or input_length != len(values)
+                or (input_is_null and values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != mallocbench_espresso_expected(
+                    None if input_is_null else values, input_length)):
+            raise ValueError(f"mallocbench_espresso fixture differs from its bounded oracle: {case.get('id')}")
+
+
+def validate_ptrdist_anagram_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "repeated_single_word", "two_decomposition_shapes", "whole_phrase_word",
+        "no_decomposition", "case_folded_reuse", "empty_dictionary", "short_input",
+        "nonletter_phrase", "null_input",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-ptrdist-anagram-decomposition-i64-array-scalar-v1"
+            or workload.get("algorithm") != "ptrdist_anagram"
+            or workload.get("function_symbol") != "ptrdist_anagram"
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["Ptrdist/anagram/anagram.c", "Ptrdist/anagram/info.sh", "Ptrdist/anagram/input.OUT", "Ptrdist/anagram/words"],
+                "symbols": ["BuildMask", "BuildWord", "AddWords", "SortCandidates", "FindAnagram"],
+                "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Ptrdist/anagram",
+                "launcher": {"bench_name": "anagram", "source_files": ["anagram.c"],
+                             "run_options": ["words", "2"], "stdin": "input.OUT"},
+                "rights": "Copyright 1991 Raymond Chen; freely distributable provided all alterations to the original are clearly indicated. Each port contains the notice and alteration statement.",
+            }
+            or workload.get("contract") != {
+                "input_layout": "[phrase_length, phrase_ascii..., dictionary_count, word_length, word_ascii..., ...]",
+                "phrase_length_range": [1, 16], "dictionary_count_range": [0, 12],
+                "word_length_range": [1, 16],
+                "character_domain": "ASCII letters A-Z and a-z; uppercase letters normalize to lowercase",
+                "word_reuse": "A dictionary word may be used repeatedly, as in the recursive source search.",
+                "minimum_word_length": 2,
+                "candidate_filter": "A word is considered if its length is at least two and leaves at least two phrase letters, or if it equals the entire phrase length; it must also fit the original phrase letter counts.",
+                "search": "At each recursion, choose the rarest remaining letter according to aggregate candidate frequency, test fitting words containing it, and defer candidates that fit but omit the pivot. Count complete decompositions.",
+                "invalid_input_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array",
+                "encoding": "length-prefixed ASCII letters using the contract layout",
+                "maximum_length": PTRDIST_ANAGRAM_MAX_INPUT_LENGTH,
+                "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_scalar", "meaning": "number of complete decompositions",
+                "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("ptrdist_anagram metadata differs from its pinned bounded DFS contract")
+    package = ROOT / "benchmarks" / "p" / "ptrdist_anagram"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    if (workload["pinned_source"]["url"] not in readme
+            or "Copyright 1991 by Raymond Chen" not in readme
+            or "clearly indicated as such" not in readme
+            or "multiword decomposition search" not in readme
+            or "single-word frequency comparison" not in readme):
+        raise ValueError("ptrdist_anagram README is missing provenance, rights, or distinctness details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("ptrdist_anagram fixture IDs differ from the bounded DFS contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys
+                or not isinstance(values, list)
+                or len(values) > PTRDIST_ANAGRAM_MAX_INPUT_LENGTH + 1
+                or type(input_is_null) is not bool
+                or type(input_length) is not int or input_length != len(values)
+                or (input_is_null and values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != ptrdist_anagram_expected(
+                    None if input_is_null else values, input_length)):
+            raise ValueError(f"ptrdist_anagram fixture differs from its bounded oracle: {case.get('id')}")
+
+
+def validate_stanford_puzzle_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "one_source_puzzle_pass", "two_source_puzzle_passes", "pinned_hundred_pass_profile",
+        "zero_passes_invalid", "passes_above_bound_invalid", "wrong_length_invalid", "null_input",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-stanford-puzzle-bounded-3d-packing-v1"
+            or workload.get("algorithm") != "stanford_puzzle"
+            or workload.get("function_symbol") != "stanford_puzzle"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["Stanford/Puzzle/Puzzle.c", "Stanford/Puzzle/info.sh"],
+                "symbols": ["Fit", "Place", "Remove", "Trial", "Puzzle"],
+                "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Stanford/Puzzle",
+                "attribution": "The source comments attribute the compute-bound puzzle program to Forest Baskett.",
+                "license_note": "The pinned Puzzle.c contains no explicit redistribution grant. Ports are independent implementations and do not copy its code or comments.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "Stanford/Puzzle/info.sh", "source_files": ["Puzzle.c"],
+                "compile_flags": ["-lm"], "run_options": [], "source_repetitions": 100,
+            }
+            or workload.get("contract") != {
+                "input_layout": "[passes]", "passes_range": [1, STANFORD_PUZZLE_MAX_PASSES],
+                "board": "A 5x5x5 empty box; source's initial piece type 0 is placed at the origin before DFS.",
+                "piece_orientations": [[4, 2, 1], [2, 1, 4], [1, 4, 2], [2, 4, 1], [4, 1, 2], [1, 2, 4], [3, 1, 1], [1, 3, 1], [1, 1, 3], [2, 2, 1], [2, 1, 2], [1, 2, 2], [2, 2, 2]],
+                "piece_classes_remaining_before_initial_placement": [13, 3, 1, 1],
+                "search_order": "At each step select the first empty board cell in source linear order and try piece types 0 through 12; type availability is controlled by the remaining count for its class. Stop at the first full packing.",
+                "search_call_bound": STANFORD_PUZZLE_MAX_SEARCH_CALLS,
+                "output_projection": "For each pass add source_first_empty_index*1000000+recursive_call_count; the first empty cell after the initial placement has source index 77.",
+                "invalid_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "maximum_input_length": 1, "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Sum of packed first-hole index and recursive-call observations across requested passes.",
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }):
+        raise ValueError("stanford_puzzle metadata differs from the pinned bounded packing-search contract")
+    package = ROOT / "benchmarks" / "p" / "stanford_puzzle"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/Stanford/Puzzle/Puzzle.c"
+    if (source_url not in readme or "Forest Baskett" not in readme
+            or "no explicit redistribution license" not in readme
+            or "distinct from the local BenchmarkGame puzzle" not in readme
+            or "2,005 calls" not in readme):
+        raise ValueError("stanford_puzzle README is missing attribution, license, bound, or distinctness notes")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("stanford_puzzle fixture IDs differ from the bounded packing-search contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > 2 or type(input_is_null) is not bool
+                or type(input_length) is not int or input_length != len(values)
+                or (input_is_null and values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != stanford_puzzle_expected(
+                    None if input_is_null else values, input_length, input_is_null)):
+            raise ValueError(f"stanford_puzzle fixture differs from its bounded oracle: {case.get('id')}")
+
+
+def validate_mallocbench_cfrac_workload(workload: dict) -> None:
+    expected_ids = {
+        "source_recurrence_n91_two_steps", "source_recurrence_n91_three_prime_base",
+        "limit_before_smooth_relation", "selected_zero_residue_divisor_is_domain_error",
+        "even_input", "perfect_square_input", "too_small_input", "too_large_input",
+        "factor_base_too_small", "factor_base_too_large", "zero_iteration_limit",
+        "iteration_limit_above_bound", "wrong_input_length", "null_input",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "mallocbench-cfrac-v1"
+            or workload.get("algorithm") != "mallocbench_cfrac"
+            or workload.get("function_symbol") != "mallocbench_cfrac"
+            or workload.get("input") != {
+                "kind": "i64_array_scalar",
+                "encoding": "[n, factor_base_count, iteration_limit]",
+                "n_range": [15, 1_000_000], "n_requirements": "odd and non-square",
+                "factor_base_count_range": [2, 10], "iteration_limit_range": [1, 48],
+                "fixed_multiplier": 1,
+                "factor_base": "2 followed by odd primes in order whose Legendre residue is 0 or 1, matching the source; because residue 0 means p divides n, reject if encountered before the requested base size is full",
+                "smooth_relations_only": True,
+                "failure_result": "n if no proper factor is found by the recurrence-step limit",
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 9,
+                "warmup_rounds": 1, "repetitions_per_sample": 20,
+            }):
+        raise ValueError("mallocbench_cfrac metadata differs from its bounded source recurrence contract")
+    package = ROOT / "benchmarks" / "m" / "mallocbench_cfrac"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    source_url = "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MallocBench/cfrac"
+    if (source_url not in readme or "Morrison–Brillhart" not in readme
+            or "not to be used for profit or distributed in systems sold for profit" not in readme
+            or "do not copy, include, link, or translate" not in readme):
+        raise ValueError("mallocbench_cfrac README is missing provenance, rights, or independence details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("mallocbench_cfrac fixture IDs differ from its bounded CFRAC contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list) or len(values) > 4
+                or type(input_is_null) is not bool or type(input_length) is not int
+                or input_length != len(values) or (input_is_null and values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != mallocbench_cfrac_expected(
+                    None if input_is_null else values, input_length)):
+            raise ValueError(f"mallocbench_cfrac fixture differs from its bounded oracle: {case.get('id')}")
+
+
+def validate_agrep_approx_substring_count_workload(workload: dict) -> None:
+    expected_ids = {
+        "exact_single_match", "one_substitution", "one_deletion_from_pattern",
+        "one_insertion_in_text", "overlapping_exact_matches", "multiple_error_levels",
+        "two_edit_allowance", "empty_text", "no_match_with_zero_errors",
+        "wrong_packed_length", "non_printable_byte", "error_allowance_over_limit",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "agrep-approx-substring-count-v1"
+            or workload.get("algorithm") != "agrep_approx_substring_count"
+            or workload.get("function_symbol") != "agrep_approx_substring_count"
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "layout": "[pattern_length, text_length, max_errors, pattern ASCII bytes..., text ASCII bytes...]",
+                "pattern_length_range": [1, AGREP_MAX_PATTERN_LENGTH],
+                "text_length_range": [0, AGREP_MAX_TEXT_LENGTH],
+                "max_errors_range": [0, AGREP_MAX_ERRORS],
+                "alphabet": "printable ASCII bytes 32 through 126",
+                "exact_length": "3 + pattern_length + text_length",
+                "invalid_input_result": -2,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "number of text byte positions whose minimum unit-cost edit distance to a substring ending there is at most max_errors",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 5,
+            }):
+        raise ValueError("agrep_approx_substring_count metadata differs from its bounded approximate-match contract")
+    package = ROOT / "benchmarks" / "a" / "agrep_approx_substring_count"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    source_url = "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/agrep"
+    if (source_url not in readme or "All Rights Reserved" not in readme
+            or "No redistribution license is inferred" not in readme
+            or "not whole-string Levenshtein distance" not in readme
+            or "not exact Bitap" not in readme):
+        raise ValueError("agrep_approx_substring_count README is missing provenance, rights, or distinctness details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("agrep_approx_substring_count fixture IDs differ from its contract")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > 4 + AGREP_MAX_PATTERN_LENGTH + AGREP_MAX_TEXT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != agrep_approx_substring_count_expected(values)):
+            raise ValueError(f"agrep_approx_substring_count fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_npb_serial_dc_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "duplicate_projected_keys_and_view_order", "one_dimension_group_merge_and_sort",
+        "maximum_dimensions_single_row", "maximum_rows_single_group",
+        "malformed_packed_length", "attribute_out_of_range", "null_input",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-npb-serial-dc-i64-array-scalar-v1"
+            or workload.get("algorithm") != "npb_serial_dc"
+            or workload.get("function_symbol") != "npb_serial_dc"
+            or workload.get("description") != "Aggregates every nonempty projection of a bounded multidimensional input, combining duplicate projected keys and checksumming ordered group results."
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["NPB-serial/dc/info.sh", "NPB-serial/dc/dc.c", "NPB-serial/dc/adc.c", "NPB-serial/dc/extbuild.c", "NPB-serial/dc/rbt.c", "NPB-serial/dc/ADC.par"],
+                "symbols": ["CalculateVeiwSizes", "ComputeGivenGroupbys", "TreeInsert", "computeChecksum"],
+                "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/NPB-serial/dc",
+                "launcher": {
+                    "bench_name": "dc", "source_files": ["adc.c", "dc.c", "jobcntl.c", "c_print_results.c", "extbuild.c", "rbt.c"],
+                    "run_options": ["10000000", "ADC.par"], "small_program_size_compile_flag": "-DSMALL_PROBLEM_SIZE",
+                },
+                "rights": "NAS Parallel Benchmarks 3.3 DC notice permits use, copying, distribution, and modification for any purpose with or without fee; requests derived work reference NAS Parallel Benchmarks 3.3; software is provided as-is without express or implied warranty. Notice is included in each port and README.",
+            }
+            or workload.get("contract") != {
+                "input_layout": "[dimension_count, row_count, row_0_attributes..., row_0_measure, ...]",
+                "dimension_count_range": [1, 5], "row_count_range": [1, 16],
+                "attribute_value_range": [0, 7], "measure_range": [0, 1000],
+                "views": "Every nonempty attribute subset, in ascending bitmask order",
+                "aggregation": "Equal projected keys merge; measures are summed; groups are ordered lexicographically by projected key",
+                "result": "Signed 64-bit deterministic checksum over each view mask, group count, ordered key, and measure sum",
+                "invalid_input_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array",
+                "encoding": "dimension count, row count, then each row's attributes and measure",
+                "maximum_length": NPB_SERIAL_DC_MAX_INPUT_LENGTH, "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_scalar",
+                "meaning": "checksum of the sorted aggregate groups from all nonempty views",
+                "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("npb_serial_dc metadata differs from its pinned bounded data-cube contract")
+    package = ROOT / "benchmarks" / "n" / "npb_serial_dc"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/NPB-serial/dc"
+    if (source_url not in readme or "NAS Parallel Benchmarks 3.3" not in readme
+            or "Permission to use, copy, distribute and modify" not in readme
+            or "without express or implied warranty" not in readme
+            or "clean-room implementations" not in readme):
+        raise ValueError("npb_serial_dc README is missing provenance, permission notice, or adaptation details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("npb_serial_dc fixture IDs differ from its contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > NPB_SERIAL_DC_MAX_INPUT_LENGTH + 1
+                or type(input_is_null) is not bool or type(input_length) is not int
+                or input_length != len(values) or (input_is_null and values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != npb_serial_dc_expected(
+                    None if input_is_null else values, input_length)):
+            raise ValueError(f"npb_serial_dc fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_doe_pathfinder_signature_search_workload(workload: dict) -> None:
+    expected_ids = {
+        "ordered_direct_chain", "unlabeled_intermediate_nodes",
+        "consume_or_traverse_matching_label", "revisit_after_signature_transition",
+        "later_start_label_succeeds", "self_loop_matches_repeated_label",
+        "cyclic_graph_without_target_label", "labels_appear_in_wrong_order",
+        "unlabeled_start_node", "no_edges", "duplicate_edge_invalid",
+        "node_label_out_of_range", "one_label_signature_invalid", "wrong_packed_length",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "doe-pathfinder-signature-search-v1"
+            or workload.get("algorithm") != "doe_pathfinder_signature_search"
+            or workload.get("function_symbol") != "doe_pathfinder_signature_search"
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "layout": "[node_count, edge_count, signature_length, (from, to)*edge_count, node_labels..., signature_labels...]",
+                "node_count_range": [1, DOE_PATHFINDER_MAX_NODES],
+                "edge_count_range": [0, DOE_PATHFINDER_MAX_EDGES],
+                "signature_length_range": [2, DOE_PATHFINDER_MAX_SIGNATURE_LENGTH],
+                "node_labels": "-1 for unlabeled, otherwise 0 through 7",
+                "signature_labels": "0 through 7",
+                "edges": "unique directed edges in traversal order; self-loops allowed",
+                "exact_length": "3 + 2*edge_count + node_count + signature_length",
+                "invalid_input_result": -2,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "1 if any path starts at the first signature label and visits the remaining labels in order, otherwise 0",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 5,
+            }):
+        raise ValueError("doe_pathfinder_signature_search metadata differs from its ordered-label graph contract")
+    package = ROOT / "benchmarks" / "d" / "doe_pathfinder_signature_search"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    source_url = "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/DOE_ProxyApps_C/Pathfinder"
+    if (source_url not in readme or "Sandia Corporation (2013)" not in readme
+            or "DE-AC04-94AL85000" not in readme or "LGPL-3.0-or-later" not in readme
+            or "does not copy upstream source or comments" not in readme
+            or "local Dijkstra" not in readme):
+        raise ValueError("doe_pathfinder_signature_search README is missing provenance, rights, or distinctness details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("doe_pathfinder_signature_search fixture IDs differ from its contract")
+    max_parseable = 4 + 2 * DOE_PATHFINDER_MAX_EDGES + DOE_PATHFINDER_MAX_NODES + DOE_PATHFINDER_MAX_SIGNATURE_LENGTH
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > max_parseable
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != doe_pathfinder_signature_search_expected(values)):
+            raise ValueError(f"doe_pathfinder_signature_search fixture differs from its BFS oracle: {case.get('id')}")
+
+
+def validate_ptrdist_ks_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "empty_netlist_keeps_initial_bisection", "two_module_single_crossing_net",
+        "one_positive_swap_prefix_then_local_optimum", "odd_module_count",
+        "duplicate_member_in_net", "member_out_of_range", "truncated_net", "extra_value",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "ptrdist-ks-bounded-unweighted-kernighan-lin-i64-v1"
+            or workload.get("algorithm") != "ptrdist_ks"
+            or workload.get("function_symbol") != "ptrdist_ks"
+            or workload.get("description") != "Bounded unweighted Kernighan-Lin bisection of a module netlist, including repeated best-positive-prefix passes."
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["Ptrdist/ks/KS-1.c", "Ptrdist/ks/KS-2.c", "Ptrdist/ks/KS.h"],
+                "symbols": ["ComputeDs", "FindMaxGpAndSwap", "FindGMax", "SwapSubsetAndReset", "main"],
+                "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Ptrdist/ks",
+                "license_note": "Pinned source headers identify Todd M. Austin, ECE 756, dated 1993-02-25, but contain no explicit license or redistribution grant. The implementation is clean-room and does not copy source text or KL-4.in.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "Ptrdist/ks/info.sh", "bench_name": "ks",
+                "source_files": ["KS-1.c", "KS-2.c"], "compile_flags": [],
+                "run_options": ["KL-4.in"], "input_not_reused": True,
+            }
+            or workload.get("contract") != {
+                "input_layout": "[module_count, net_count, degree_0, zero_based_member_ids..., ...]",
+                "module_count_range": [2, 8], "module_count_must_be_even": True,
+                "net_count_range": [0, 16], "net_degree_range": "2..module_count",
+                "net_member_rule": "Each member identifier is distinct within its net and lies in 0..module_count-1.",
+                "source_mode": "Default KS_MODE-off, unweighted Kernighan-Lin branch; WEIGHTED and KS_MODE are not enabled by the pinned launcher.",
+                "initial_partition": "First half of module IDs in A and second half in B.",
+                "tie_break": "Scan current A order, then current B order; retain the first candidate on equal gain.",
+                "pass_behavior": "Greedily select each opposite-side pair, temporarily swap it, accumulate gains, commit the first best positive cumulative prefix, and repeat until no positive prefix remains.",
+                "result_encoding": "group_a_mask + (edge_cut_pairs << 8) + (cut_net_count << 17) + (accepted_passes << 22)",
+                "invalid_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "encoding": "[module_count, net_count, degree/member groups...]",
+                "module_count_range": [2, 8], "module_count_parity": "even",
+                "net_count_range": [0, 16], "maximum_valid_input_length": PTRDIST_KS_MAX_INPUT_LENGTH,
+                "net_degree_range": "2..module_count", "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Packed group-A membership mask, cross-side module-pair cut count, cut-net count, and accepted improving passes.",
+                "field_shifts": {"group_a_mask": 0, "edge_cut_pairs": 8, "cut_net_count": 17, "accepted_passes": 22},
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or workload.get("oracle") != {
+                "path": "../../ptrdist_ks_oracle.py", "function": "expected_result",
+                "generated_input_function": "generated_inputs",
+                "method": "For each greedy candidate pair, independently construct the trial partition and recount all cross-side pairs and cut nets in every hyperedge.",
+            }):
+        raise ValueError("ptrdist_ks metadata differs from its bounded unweighted Kernighan-Lin contract")
+    package = ROOT / "benchmarks" / "p" / "ptrdist_ks"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Ptrdist/ks"
+    if (source_url not in readme or "Todd M. Austin" not in readme
+            or "no explicit license or redistribution grant" not in readme
+            or "independently written" not in readme
+            or "distinct from local partition/subset-sum packages" not in readme):
+        raise ValueError("ptrdist_ks README is missing provenance, rights, or distinctness details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("ptrdist_ks fixture IDs differ from its bounded netlist contract")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > PTRDIST_KS_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != ptrdist_ks_expected(values)):
+            raise ValueError(f"ptrdist_ks fixture differs from its independent oracle: {case.get('id')}")
+
+
+def validate_prolangs_c_assembler_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "forward_label_and_word", "format2_and_reservation", "rsub_object_code",
+        "undefined_forward_reference", "malformed_record_count", "null_input",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-prolangs-c-assembler-i64-array-scalar-v1"
+            or workload.get("algorithm") != "prolangs_c_assembler"
+            or workload.get("function_symbol") != "prolangs_c_assembler"
+            or workload.get("description") != "Two-pass SIC/XE location assignment, symbol resolution, and bounded format-2/format-3 code generation."
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["Prolangs-C/assembler/info.sh", "Prolangs-C/assembler/assem.c", "Prolangs-C/assembler/pass1.c", "Prolangs-C/assembler/pass2.c", "Prolangs-C/assembler/op_tab.c", "Prolangs-C/assembler/code.c", "Prolangs-C/assembler/constants.h"],
+                "symbols": ["PASS1", "PASS2", "LOOK_UP_OP", "REAL_CODE", "CHANGE_LOCATION"],
+                "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Prolangs-C/assembler",
+                "launcher": {
+                    "bench_name": "assembler", "source_files": ["assem.c", "buffer.c", "code.c", "convert.c", "op_tab.c", "pass1.c", "pass2.c", "pseudo.c", "record.c", "scan_line.c", "stringI.c", "sym_tab.c"],
+                    "run_options": [],
+                },
+                "rights": "(c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place. The complete notice is preserved in each port and this README.",
+            }
+            or workload.get("contract") != {
+                "input_layout": "[record_count, (opcode_id, label_id, operand_kind, operand_value)*]",
+                "record_count_range": [2, PROLANGS_C_ASSEMBLER_MAX_RECORDS],
+                "opcode_ids": {"0": "START", "1": "END", "2": "RESB", "3": "RESW", "4": "WORD", "5": "LDA", "6": "STA", "7": "ADD", "8": "J", "9": "RSUB", "10": "CLEAR", "11": "ADDR"},
+                "operand_kinds": {"0": "directives and RSUB", "1": "immediate numeric format-3 operand", "2": "simple label reference", "3": "indirect label reference", "4": "CLEAR register ID", "5": "ADDR register pair packed as first*16+second"},
+                "register_ids": {"A": 0, "X": 1, "L": 2, "B": 3, "S": 4, "T": 5},
+                "label_ids": "0 means no label; 1..16 are unique symbols; START requires a label; END has no label",
+                "memory_address_range": [0, 1_048_575], "reserve_count_range": [0, 256],
+                "word_value_range": [0, 16_777_215], "immediate_value_range": [0, 4095],
+                "format3_relative_displacement_range": [-2048, 2047],
+                "checksum": "Seed with (program_length*257 + start_address*17) mod 1000000007; for each source record update (checksum*131 + (address+1)*17 + object_code*3 + size) mod 1000000007",
+                "invalid_input_result": -1,
+            }
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array",
+                "encoding": "numeric record count followed by fixed-width four-field statements",
+                "maximum_length": PROLANGS_C_ASSEMBLER_MAX_INPUT_LENGTH,
+                "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_scalar",
+                "meaning": "deterministic checksum of assigned addresses, emitted object code, sizes, and program length",
+                "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("prolangs_c_assembler metadata differs from its bounded two-pass SIC/XE contract")
+    package = ROOT / "benchmarks" / "p" / "prolangs_c_assembler"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Prolangs-C/assembler"
+    notice = "(c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place."
+    if (source_url not in readme or notice not in readme
+            or "two-pass" not in readme or "forward-reference" not in readme
+            or "format-3" not in readme):
+        raise ValueError("prolangs_c_assembler README is missing source, permission notice, or adaptation details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("prolangs_c_assembler fixture IDs differ from its bounded assembler contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > PROLANGS_C_ASSEMBLER_MAX_INPUT_LENGTH + 1
+                or type(input_is_null) is not bool or type(input_length) is not int
+                or input_length != len(values) or (input_is_null and values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != prolangs_c_assembler_expected(
+                    None if input_is_null else values, input_length)):
+            raise ValueError(f"prolangs_c_assembler fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_prolangs_football_tiebreaks_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    max_input_length = 1 + 12 * PROLANGS_FOOTBALL_MAX_TEAMS + 2 * PROLANGS_FOOTBALL_MAX_TEAMS ** 2
+    expected_ids = {
+        "same_division_head_to_head_percentage",
+        "cross_division_sweep_moves_winner_first",
+        "strict_division_split_restarts_head_to_head_for_remaining_three",
+        "source_initial_order_uses_conference_before_team_id",
+        "division_record_after_unplayed_head_to_head",
+        "conference_record_across_divisions",
+        "eligible_common_opponent_record",
+        "ineligible_common_record_falls_through_to_conference_net",
+        "division_net_points",
+        "overall_net_points",
+        "unresolved_tie_keeps_source_id_order",
+        "asymmetric_tie_matrix_invalid",
+    }
+    input_spec = {
+        "kind": "signed_i64_array",
+        "layout": "[team_count, 12 fields per team, row-major head-to-head wins matrix, row-major symmetric head-to-head ties matrix]",
+        "team_count_range": [2, PROLANGS_FOOTBALL_MAX_TEAMS],
+        "team_fields": ["team_id", "conference", "division", "division_record_points", "division_games", "conference_record_points", "conference_games", "common_record_points", "common_games", "division_net_points", "conference_net_points", "overall_net_points"],
+        "record_points": "2*wins + ties; percentage is record_points / (2*games), and zero games means zero percentage",
+        "team_id_range": [0, 31],
+        "conference_range": [0, 1],
+        "division_range": [0, 2],
+        "record_games_range": [0, PROLANGS_FOOTBALL_MAX_RECORD_GAMES],
+        "net_points_range": [-PROLANGS_FOOTBALL_MAX_NET_POINTS, PROLANGS_FOOTBALL_MAX_NET_POINTS],
+        "head_to_head": "wins are directional; ties are symmetric; losses are inferred from reciprocal wins; all diagonal entries are zero",
+        "initial_order": "teams are sorted by ascending conference, then ascending team_id, matching the source comparator before tie-breaking",
+        "exact_length": "1 + 12*team_count + 2*team_count*team_count",
+        "invalid_input_result": -2,
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "prolangs-football-tiebreaks-v1"
+            or workload.get("algorithm") != "prolangs_football_tiebreaks"
+            or workload.get("function_symbol") != "prolangs_football_tiebreaks"
+            or workload.get("input") != input_spec
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "best-to-worst team IDs packed as base-32 digits from left to right",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 5,
+            }):
+        raise ValueError("prolangs_football_tiebreaks metadata differs from its bounded tie-break contract")
+
+    package = ROOT / "benchmarks" / "p" / "prolangs_football_tiebreaks"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Prolangs-C/football"
+    permission = "Permission to use this code is granted as long as the copyright notice remains in place."
+    if (source_url not in readme or "William Landi" not in readme
+            or permission not in readme or "clean-room" not in readme
+            or "no broader redistribution or relicensing grant is inferred" not in readme):
+        raise ValueError("prolangs_football_tiebreaks README is missing provenance, rights, or adaptation notes")
+
+    cases = workload.get("cases")
+    case_ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+                if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(case_ids) != len(cases) or case_ids != expected_ids):
+        raise ValueError("prolangs_football_tiebreaks fixture IDs differ from the bounded tie-break contract")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > max_input_length + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != prolangs_football_tiebreaks_expected(values)):
+            raise ValueError(f"prolangs_football_tiebreaks fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_scimark2_sor_workload(workload: dict) -> None:
+    expected_ids = {
+        "two_by_two-zero-passes", "single-center-pulse-one-pass",
+        "in-place-four-cell-sweep", "zero-passes-weighted-grid",
+        "invalid-empty", "invalid-inconsistent-grid-length",
+        "invalid-cell-below-bound", "invalid-iteration-count",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "scimark2-c-sor-bounded-i64-array-scalar-v1"
+            or workload.get("algorithm") != "scimark2_sor"
+            or workload.get("function_symbol") != "scimark2_sor"
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "layout": "[rows, columns, iterations, row_major_milli_grid...]",
+                "rows_range": [2, SCIMARK2_SOR_MAX_ROWS],
+                "columns_range": [2, SCIMARK2_SOR_MAX_COLS],
+                "iterations_range": [0, 8], "cell_range": [-1000, 1000],
+                "exact_length": "3 + rows * columns",
+                "maximum_parseable_array_length": SCIMARK2_SOR_MAX_INPUT_LENGTH,
+                "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "sum((zero_based_flat_index + 1) * final_milli_cell)",
+                "invalid_input_result": -1,
+            }
+            or workload.get("source_bound") != {
+                "description": "The kernel preserves SciMark2-C's in-place five-point SOR recurrence, fixed omega=1.25, and pass/row/column order. The grid is explicit rather than generated from the source driver's random stream.",
+                "fixed_point_recurrence": "trunc_toward_zero((1250 * (up + down + left + right) - 1000 * center) / 4000)",
+                "cell_unit": "Each input cell is an integer number of milli-units; recurrence updates use the same representation.",
+                "excluded_work": "Random initialization, timing, cycle doubling, and Mflop reporting are outside the kernel contract.",
+                "provenance": "Pinned lac-dcc/Benchmarks SciMark2-C SOR.c at 5d7b75df749241efa7a6e6f5be613d3fcc5cce38. The pinned C subtree has no explicit license or redistribution notice; ports and oracle are clean-room and do not infer rights from a separate SciMark distribution.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("scimark2_sor metadata differs from the bounded in-place relaxation contract")
+    package = ROOT / "benchmarks" / "s" / "scimark2_sor"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    source_url = "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/SciMark2-C/SOR.c"
+    if (source_url not in readme or "omega=1.25" not in readme
+            or "no explicit license or redistribution notice" not in readme
+            or "does not infer rights from a separate SciMark Java distribution" not in readme
+            or "distinct" not in readme or "gauss_seidel_method" not in readme):
+        raise ValueError("scimark2_sor README is missing provenance, rights, or distinctness details")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("scimark2_sor fixture IDs differ from its bounded grid contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > SCIMARK2_SOR_MAX_INPUT_LENGTH + 1
+                or type(input_length) is not int or input_length != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != scimark2_sor_expected(values)):
+            raise ValueError(f"scimark2_sor fixture differs from its recurrence oracle: {case.get('id')}")
+
+
+def validate_prolangs_c_bison_nullable_workload(workload: dict) -> None:
+    """Pin the bounded grammar-nullability contract, provenance, and fixtures."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "source_shaped_procedure_and_parameter_options", "dependency_chain",
+        "repeated_rhs_occurrences", "cycle_without_empty_seed",
+        "terminal_blocks_nullable_dependency", "invalid_symbol_id", "null_input",
+    }
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": [
+            "Prolangs-C/bison/info.sh", "Prolangs-C/bison/COPYING",
+            "Prolangs-C/bison/nullable.c", "Prolangs-C/bison/gram.h",
+            "Prolangs-C/bison/parse.y.in",
+        ],
+        "symbols": ["set_nullable"],
+        "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Prolangs-C/bison",
+        "launcher": {
+            "bench_name": "bison",
+            "source_files": [
+                "LR0.c", "allocate.c", "closure.c", "conflicts.c", "derives.c",
+                "files.c", "getargs.c", "getopt.c", "gram.c", "lalr.c", "lex.c",
+                "main.c", "nullable.c", "output.c", "print.c", "reader.c",
+                "symtab.c", "warshall.c",
+            ],
+            "run_options": ["parse.y.in", "-v"],
+        },
+        "rights": "The pinned Bison subtree includes the Bison General Public License in COPYING. The ports preserve the complete nullable.c notice and add a 2026 bounded-adaptation notice. No source code is copied.",
+    }
+    expected_contract = {
+        "input_layout": "[nonterminal_count, terminal_count, rule_count, (lhs, rhs_length, rhs_symbol...)*]",
+        "nonterminal_count_range": [1, 16], "terminal_count_range": [0, 16],
+        "rule_count_range": [1, 32], "rhs_length_range": [0, 8],
+        "symbol_encoding": "Nonterminals are 0..nonterminal_count-1. Terminals are nonterminal_count..nonterminal_count+terminal_count-1.",
+        "nullable_rule": "A nonterminal is nullable if it has an empty production or a production whose every right-hand-side symbol is a nullable nonterminal. Any terminal in a right-hand side prevents that production from making its left-hand side nullable.",
+        "algorithm_profile": "Initialize nullable nonterminals from empty productions. For every nonempty all-nonterminal production, retain the number of remaining RHS occurrences. Process each newly nullable nonterminal once and decrement every matching RHS occurrence in every eligible rule; when a rule count reaches zero, enqueue its LHS if not already nullable.",
+        "result_encoding": "Return the nullable set as a bit mask; bit i is one exactly when nonterminal i is nullable.",
+        "input_length": "Exactly 3 plus the sum of 2+rhs_length for each production; maximum 323.",
+        "invalid_input_result": PROLANGS_C_BISON_NULLABLE_INVALID_RESULT,
+    }
+    expected_input = {
+        "kind": "signed_64_bit_integer_array",
+        "encoding": "Production records use integer symbol IDs; no text grammar parsing is included.",
+        "maximum_length": PROLANGS_C_BISON_NULLABLE_MAX_INPUT_LENGTH,
+        "invalid_input_result": PROLANGS_C_BISON_NULLABLE_INVALID_RESULT,
+    }
+    expected_output = {
+        "kind": "signed_64_bit_scalar",
+        "meaning": "Bit mask of nullable nonterminals in ascending symbol-ID order.",
+        "invalid_input_result": PROLANGS_C_BISON_NULLABLE_INVALID_RESULT,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+    }
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "description",
+            "pinned_source", "contract", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-prolangs-c-bison-nullable-i64-array-scalar-v1"
+            or workload.get("algorithm") != "prolangs_c_bison_nullable"
+            or workload.get("function_symbol") != "prolangs_c_bison_nullable"
+            or workload.get("description") != "Bounded Bison nullable-nonterminal analysis using queue-based dependency propagation."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("measurement") != expected_measurement):
+        raise ValueError("prolangs_c_bison_nullable metadata differs from the pinned contract")
+
+    package = ROOT / "benchmarks" / "p" / "prolangs_c_bison_nullable"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "COPYING").read_text(encoding="utf-8")
+    if ("Prolangs-C/bison/nullable.c" not in readme
+            or "independently written" not in readme
+            or "BISON GENERAL PUBLIC LICENSE" not in notice
+            or "Copyright (C) 1988 Richard M. Stallman" not in notice):
+        raise ValueError("prolangs_c_bison_nullable README or license attribution is incomplete")
+
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or ids != expected_ids):
+        raise ValueError("prolangs_c_bison_nullable fixture IDs differ from the contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length")
+        expected = case.get("expected_result")
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > PROLANGS_C_BISON_NULLABLE_MAX_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(input_length) is not int
+                or type(expected) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)
+                or expected != prolangs_c_bison_nullable_expected(
+                    None if input_is_null else values, input_length)):
+            raise ValueError(f"prolangs_c_bison_nullable fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_cbench_office_pratt_boyer_moore_workload(workload: dict) -> None:
+    """Pin cBench helper provenance, contract, rights, and fixtures."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "first_match", "endpoint_false_positive_then_match",
+        "endpoint_false_positive_no_match", "match_at_final_window",
+        "overlapping_repeated_bytes", "pattern_longer_than_text", "empty_text",
+        "single_byte_pattern", "maximum_bounded_lengths", "bad_empty_pattern",
+        "bad_frame_length", "bad_non_ascii_byte", "bad_embedded_nul",
+    }
+    source, contract = workload.get("pinned_source", {}), workload.get("contract", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-office-pratt-boyer-moore-i64-array-scalar-v1"
+            or workload.get("algorithm") != "cbench_office_pratt_boyer_moore"
+            or workload.get("function_symbol") != "cbench_office_pratt_boyer_moore"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "cBench/office_stringsearch1/src/pbmsrch_large.c"
+            or source.get("symbol") != "init_search, strsearch"
+            or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/office_stringsearch1/src/pbmsrch_large.c"
+            or "Public Domain" not in source.get("license", "")
+            or contract.get("input_layout") != "[text_length, pattern_length, text_bytes..., pattern_bytes...]"
+            or contract.get("text_length_range") != [0, 255]
+            or contract.get("pattern_length_range") != [1, 64]
+            or contract.get("byte_range") != [1, 127]
+            or contract.get("maximum_input_length") != CBENCH_OFFICE_PRATT_BOYER_MOORE_MAX_INPUT_LENGTH
+            or contract.get("invalid_result") != CBENCH_OFFICE_PRATT_BOYER_MOORE_INVALID_RESULT
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("cbench_office_pratt_boyer_moore metadata differs from the pinned helper contract")
+    package = ROOT / "benchmarks" / "c" / "cbench_office_pratt_boyer_moore"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("pbmsrch_large.c" not in readme
+            or "not a claim that it implements textbook full Boyer–Moore" not in readme
+            or "Public Domain" not in notice or "Jerry Coffin" not in notice):
+        raise ValueError("cbench_office_pratt_boyer_moore provenance or rights notice is incomplete")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("cbench_office_pratt_boyer_moore fixture IDs differ from the contract")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > CBENCH_OFFICE_PRATT_BOYER_MOORE_MAX_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != cbench_office_pratt_boyer_moore_expected(values)):
+            raise ValueError(f"cbench_office_pratt_boyer_moore fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_cbench_ispell_hash_workload(workload: dict) -> None:
+    """Pin Ispell's bounded ASCII word-hash helper and source notice."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "empty_word", "one_character", "four_character_prefix", "case_folded",
+        "rotating_suffix", "modulus_one", "maximum_word_length",
+        "bad_zero_table_size", "bad_negative_table_size", "bad_word_byte_zero",
+        "bad_non_ascii", "bad_frame_too_long",
+    }
+    source, contract = workload.get("pinned_source", {}), workload.get("contract", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-ispell-hash-i64-array-scalar-v1"
+            or workload.get("algorithm") != "cbench_ispell_hash"
+            or workload.get("function_symbol") != "cbench_ispell_hash"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "cBench/office_ispell/src/hash.c"
+            or source.get("symbol") != "hash"
+            or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/office_ispell/src/hash.c"
+            or "complete source notice" not in source.get("license", "")
+            or workload.get("pinned_launcher", {}).get("path") != "cBench/office_ispell/src/info.sh"
+            or contract.get("input_layout") != "[table_size, word_byte_0, ...]"
+            or contract.get("word_byte_range") != [1, 127]
+            or contract.get("max_word_bytes") != 64
+            or contract.get("table_size_range") != [1, 2_147_483_647]
+            or contract.get("invalid_result") != CBENCH_ISPELL_HASH_INVALID_RESULT
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("cbench_ispell_hash metadata differs from the pinned helper contract")
+    package = ROOT / "benchmarks" / "c" / "cbench_ispell_hash"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("office_ispell/src/hash.c" not in readme
+            or "dictionary lookup" not in readme
+            or "Redistribution and use in source and binary forms" not in notice
+            or "This product includes software developed by Geoff Kuenning" not in notice
+            or "clearly marked as modified versions" not in notice):
+        raise ValueError("cbench_ispell_hash provenance or redistribution notice is incomplete")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("cbench_ispell_hash fixture IDs differ from the bounded contract")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > CBENCH_ISPELL_HASH_MAX_INPUT_LENGTH + 1
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != cbench_ispell_hash_expected(values)):
+            raise ValueError(f"cbench_ispell_hash fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_cbench_ispell_lookup_chain_workload(workload: dict) -> None:
+    """Pin the bounded Ispell collision-chain lookup profile and source notice."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "match-at-chain-head", "match-after-collision", "absent-from-chain", "empty-table",
+        "cycle-is-invalid", "wrong-bucket-is-invalid", "uppercase-key-is-outside-profile",
+    }
+    source = workload.get("pinned_source", {})
+    launcher = workload.get("pinned_launcher", {})
+    contract = workload.get("contract", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "pinned_launcher", "contract",
+                          "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-ispell-lookup-chain-i64-array-scalar-v1"
+            or workload.get("algorithm") != "cbench_ispell_lookup_chain"
+            or workload.get("function_symbol") != "cbench_ispell_lookup_chain"
+            or workload.get("abi") != "i64_array_scalar"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "cBench/office_ispell/src/lookup.c"
+            or source.get("symbol") != "lookup"
+            or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/office_ispell/src/lookup.c"
+            or source.get("hash_source") != "cBench/office_ispell/src/hash.c::hash"
+            or "Explicit modified source/binary redistribution permission" not in source.get("license", "")
+            or launcher.get("repository") != "lac-dcc/Benchmarks"
+            or launcher.get("commit") != pinned
+            or launcher.get("path") != "cBench/office_ispell/src/info.sh"
+            or launcher.get("bench_name") != "office_ispell"
+            or contract.get("input_layout") != "[table_size, query_length, entry_count, query_bytes[query_length], bucket_heads[table_size], next[entry_count], word_lengths[entry_count], concatenated_entry_word_bytes]"
+            or contract.get("table_size_range") != [1, CBENCH_ISPELL_LOOKUP_CHAIN_MAX_TABLE]
+            or contract.get("query_length_range") != [1, CBENCH_ISPELL_LOOKUP_CHAIN_MAX_QUERY]
+            or contract.get("entry_count_range") != [0, CBENCH_ISPELL_LOOKUP_CHAIN_MAX_ENTRIES]
+            or contract.get("word_length_range") != [1, CBENCH_ISPELL_LOOKUP_CHAIN_MAX_WORD]
+            or contract.get("invalid_result") != CBENCH_ISPELL_LOOKUP_CHAIN_INVALID_RESULT
+            or input_spec.get("maximum_valid_input_length") != CBENCH_ISPELL_LOOKUP_CHAIN_MAX_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_input_length") != CBENCH_ISPELL_LOOKUP_CHAIN_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("invalid_result") != CBENCH_ISPELL_LOOKUP_CHAIN_INVALID_RESULT
+            or output_spec.get("valid_result_range") != [0, CBENCH_ISPELL_LOOKUP_CHAIN_MAX_ENTRIES]
+            or output_spec.get("invalid_result") != CBENCH_ISPELL_LOOKUP_CHAIN_INVALID_RESULT
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("cbench_ispell_lookup_chain metadata differs from the pinned lookup contract")
+    package = ROOT / "benchmarks" / "i" / "cbench_ispell_lookup_chain"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("lookup.c::lookup" not in readme
+            or "dotree" not in readme
+            or "Redistribution and use in source and binary forms" not in notice
+            or "This product includes software developed by Geoff Kuenning" not in notice
+            or "clearly marked as modified versions" not in notice):
+        raise ValueError("cbench_ispell_lookup_chain provenance or redistribution notice is incomplete")
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("cbench_ispell_lookup_chain fixture IDs differ from the bounded contract")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > CBENCH_ISPELL_LOOKUP_CHAIN_MAX_PARSEABLE_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != cbench_ispell_lookup_chain_expected(values)):
+            raise ValueError(f"cbench_ispell_lookup_chain fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_cbench_ghostscript_rop3_workload(workload: dict) -> None:
+    """Pin the one-pixel ROP3 profile and preserve its complete AFPL notice."""
+    pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    expected_ids = {
+        "source-rop0-zero", "source-rop85-not-destination", "source-rop90-d-xor-t",
+        "source-rop170-destination", "source-rop204-source", "source-rop240-texture",
+        "source-rop255-all-ones", "mask-high-bit",
+    }
+    cases = workload.get("cases")
+    source = workload.get("pinned_source", {})
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "measurement", "pinned_source", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-office-ghostscript-rop3-i64-array-scalar-v1"
+            or workload.get("algorithm") != "cbench_ghostscript_rop3"
+            or workload.get("function_symbol") != "cbench_ghostscript_rop3"
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "layout": "[destination, source, texture, rop3_code]",
+                "maximum_valid_input_length": GHOSTSCRIPT_ROP3_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": GHOSTSCRIPT_ROP3_MAX_PARSEABLE_INPUT_LENGTH,
+                "pixel_word_range": [0, GHOSTSCRIPT_ROP3_PIXEL_MAX],
+                "rop3_code_range": [0, 255], "invalid_result": GHOSTSCRIPT_ROP3_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "32-bit destination pixel produced by the selected three-input ROP3 truth table",
+                "valid_result_range": [0, GHOSTSCRIPT_ROP3_PIXEL_MAX],
+                "invalid_result": GHOSTSCRIPT_ROP3_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 7,
+                "warmup_rounds": 2, "repetitions_per_sample": 1,
+            }
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("path") != "cBench/office_ghostscript/src/gsroptab.c"
+            or source.get("revision") != pinned
+            or source.get("upstream_reference") != (
+                f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/"
+                "cBench/office_ghostscript/src/gsroptab.c")
+            or source.get("supporting_paths") != [
+                "cBench/office_ghostscript/src/gsropt.h",
+                "cBench/office_ghostscript/src/info.sh"]
+            or source.get("launcher_path") != "cBench/office_ghostscript/src/info.sh"
+            or "256 ROP3 truth-table functions" not in source.get("scope", "")
+            or "Aladdin Free Public License, Version 5" not in source.get("license", "")
+            or "restrictive noncommercial distribution terms" not in source.get("license", "")
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("cbench_ghostscript_rop3 metadata differs from its pinned ROP3 contract")
+    package = ROOT / "benchmarks" / "g" / "cbench_ghostscript_rop3"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source["upstream_reference"] not in readme
+            or "noncommercial distribution" not in readme.lower()
+            or "ALADDIN FREE PUBLIC LICENSE" not in license_text
+            or "redistributable for non-commercial purposes" not in license_text):
+        raise ValueError("cbench_ghostscript_rop3 AFPL text or restriction note is incomplete")
+    for relative in (
+            "c/g/cbench_ghostscript_rop3.c", "c3/g/cbench_ghostscript_rop3.c3",
+            "cpp/g/cbench_ghostscript_rop3.cpp", "elisa/g/cbench_ghostscript_rop3.elisa",
+            "nim/g/cbench_ghostscript_rop3.nim", "odin/g/cbench_ghostscript_rop3.odin",
+            "rust/g/cbench_ghostscript_rop3.rs", "v/g/cbench_ghostscript_rop3.v",
+            "zig/g/cbench_ghostscript_rop3.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"cbench_ghostscript_rop3 port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > GHOSTSCRIPT_ROP3_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != ghostscript_rop3_expected(values)):
+            raise ValueError(f"cbench_ghostscript_rop3 fixture differs from its truth table: {case.get('id')}")
+
+
+def validate_parboil_sad_workload(workload: dict) -> None:
+    """Pin Parboil's bounded hierarchical motion-search SAD profile and license."""
+    pinned = "ccf3d3126f1754ca85528722f4ced5894ccb852b"
+    expected_ids = {
+        "identical-black-macroblocks", "black-current-white-reference", "short-frame",
+    }
+    cases = workload.get("cases")
+    source = workload.get("pinned_source", {})
+    contract = workload.get("contract", {})
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "contract", "input", "output",
+                          "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "parboil-sad-hierarchical-16x16-motion-search-i64-array-scalar-v1"
+            or workload.get("algorithm") != "parboil_sad"
+            or workload.get("function_symbol") != "parboil_sad"
+            or workload.get("abi") != "i64_array_scalar"
+            or source.get("repository") != "yuhc/gpu-parboil"
+            or source.get("commit") != pinned
+            or source.get("paths") != [
+                "benchmarks/sad/src/base/sad_cpu.c", "benchmarks/sad/src/base/sad.h",
+                "benchmarks/sad/src/base/main.c", "benchmarks/sad/DESCRIPTION", "LICENSE"]
+            or source.get("symbols") != ["sad4_cpu", "sad4_one_macroblock", "larger_sads"]
+            or source.get("source_links", {}).get("kernel") != (
+                f"https://github.com/yuhc/gpu-parboil/blob/{pinned}/"
+                "benchmarks/sad/src/base/sad_cpu.c")
+            or "Illinois Open Source License" not in source.get("license", "")
+            or contract.get("exact_input_length") != PARBOIL_SAD_MAX_INPUT_LENGTH
+            or contract.get("maximum_input_length") != PARBOIL_SAD_MAX_INPUT_LENGTH
+            or contract.get("packed_group_range") != [0, 0xFFFFFFFF]
+            or contract.get("pixel_range") != [0, 255]
+            or contract.get("macroblock_dimensions") != [16, 16]
+            or contract.get("search_offsets") != (
+                "dy=-16..16 outer, dx=-16..16 inner; candidate reference coordinates clamp "
+                "independently to [0,15] at image edges.")
+            or contract.get("maximum_result") != PARBOIL_SAD_MAX_RESULT
+            or contract.get("invalid_result") != -1
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "maximum_valid_length": PARBOIL_SAD_MAX_INPUT_LENGTH,
+                "maximum_parseable_length": PARBOIL_SAD_MAX_INPUT_LENGTH,
+                "encoding": "Two 16x16 8-bit grayscale images, each encoded as row-major little-endian u32 words containing four consecutive pixels.",
+                "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "encoding": "Sum of all SAD values from the seven source block types and all search positions.",
+                "maximum_value": PARBOIL_SAD_MAX_RESULT, "invalid_input_result": -1,
+            }
+            or workload.get("workspace") != {
+                "bytes": 89_544,
+                "meaning": "41 source block vectors of 1092 u16 slots each; only the first 1089 slots in each vector are observed.",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 2, "repetitions_per_sample": 100,
+            }
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("parboil_sad metadata differs from its pinned hierarchical kernel contract")
+    package = ROOT / "benchmarks" / "p" / "parboil_sad"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source.get("source_links", {}).get("kernel") not in readme
+            or pinned not in readme or "clean-room" not in readme.lower()
+            or "Illinois Open Source License" not in license_text
+            or "Redistributions of source code must retain" not in license_text):
+        raise ValueError("parboil_sad source attribution or complete license is missing")
+    for relative in (
+            "c/p/parboil_sad.c", "c3/p/parboil_sad.c3", "cpp/p/parboil_sad.cpp",
+            "elisa/p/parboil_sad.elisa", "nim/p/parboil_sad.nim", "odin/p/parboil_sad.odin",
+            "rust/p/parboil_sad.rs", "v/p/parboil_sad.v", "zig/p/parboil_sad.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"parboil_sad language port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > PARBOIL_SAD_MAX_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != parboil_sad_expected(values)):
+            raise ValueError(f"parboil_sad fixture differs from its bounded kernel oracle: {case.get('id')}")
+
+
+def validate_parboil_lbm_workload(workload: dict) -> None:
+    """Pin Parboil's bounded D3Q19 LDC step and retain its Illinois license."""
+    pinned = "ccf3d3126f1754ca85528722f4ced5894ccb852b"
+    expected_ids = {
+        "rest-population-one-hand-derived", "zero-density-invalid",
+        "out-of-domain-population", "short-input", "null-input",
+    }
+    source = workload.get("pinned_source", {})
+    contract = workload.get("contract", {})
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "contract", "input", "output",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "parboil-lbm-d3q19-one-step-i64-array-scalar-v1"
+            or workload.get("algorithm") != "parboil_lbm"
+            or workload.get("function_symbol") != "parboil_lbm"
+            or workload.get("abi") != "i64_array_scalar"
+            or source.get("repository") != "yuhc/gpu-parboil"
+            or source.get("commit") != pinned
+            or source.get("paths") != [
+                "benchmarks/lbm/src/cpu/lbm.c", "benchmarks/lbm/src/cpu/lbm.h",
+                "benchmarks/lbm/src/cpu/lbm_1d_array.h", "benchmarks/lbm/src/cpu/config.h",
+                "benchmarks/lbm/src/cpu/main.c", "LICENSE",
+            ]
+            or source.get("symbols") != [
+                "LBM_initializeGrid", "LBM_initializeSpecialCellsForLDC", "LBM_performStreamCollide",
+            ]
+            or "Illinois Open Source License" not in source.get("license", "")
+            or contract.get("exact_input_length") != PARBOIL_LBM_MAX_INPUT_LENGTH
+            or contract.get("maximum_input_length") != PARBOIL_LBM_MAX_INPUT_LENGTH
+            or contract.get("geometry") != [3, 3, 3]
+            or contract.get("population_raw_range") != [0, PARBOIL_LBM_MAX_POPULATION_RAW]
+            or contract.get("direction_order") != [
+                "C", "N", "S", "E", "W", "T", "B", "NE", "NW", "SE", "SW",
+                "NT", "NB", "ST", "SB", "ET", "EB", "WT", "WB",
+            ]
+            or contract.get("invalid_input_result") != -1
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "maximum_valid_length": PARBOIL_LBM_MAX_INPUT_LENGTH,
+                "maximum_parseable_length": PARBOIL_LBM_MAX_PARSEABLE_INPUT_LENGTH,
+                "encoding": "Nineteen nonnegative center-cell D3Q19 populations in fixed-point units of 1e-6.",
+                "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "encoding": "Weighted fixed-point checksum of all 513 active destination populations after one step.",
+                "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("parboil_lbm metadata differs from its pinned D3Q19 step contract")
+    package = ROOT / "benchmarks" / "p" / "parboil_lbm"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (pinned not in readme or "benchmarks/lbm/src/cpu/lbm.c" not in readme
+            or "clean-room" not in readme.lower()
+            or "Illinois Open Source License" not in license_text
+            or "Redistributions of source code must retain" not in license_text):
+        raise ValueError("parboil_lbm source attribution or complete Illinois license is missing")
+    for relative in (
+            "c/p/parboil_lbm.c", "c3/p/parboil_lbm.c3", "cpp/p/parboil_lbm.cpp",
+            "elisa/p/parboil_lbm.elisa", "nim/p/parboil_lbm.nim", "odin/p/parboil_lbm.odin",
+            "rust/p/parboil_lbm.rs", "v/p/parboil_lbm.v", "zig/p/parboil_lbm.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"parboil_lbm language port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        if (set(case) != {"id", "input_values", "input_length", "input_is_null", "expected_result"}
+                or type(input_is_null) is not bool
+                or not isinstance(values, list)
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != parboil_lbm_expected(
+                    None if input_is_null else values, input_is_null=input_is_null,
+                    input_length=case["input_length"])):
+            raise ValueError(f"parboil_lbm fixture differs from its bounded D3Q19 oracle: {case.get('id')}")
+
+
+def validate_cbench_ghostscript_rop3_idempotence_workload(workload: dict) -> None:
+    """Pin the source-defined ROP3 predicate and preserve AFPL v5 terms."""
+    pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    expected_ids = {
+        "zero-code", "one-code", "source-not-destination-0x55",
+        "destination-code-macro-result", "single-odd-bit-transition", "all-ones-code",
+    }
+    cases = workload.get("cases")
+    source = workload.get("pinned_source", {})
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "measurement", "pinned_source", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-office-ghostscript-rop3-idempotence-i64-array-scalar-v1"
+            or workload.get("algorithm") != "cbench_ghostscript_rop3_idempotence"
+            or workload.get("function_symbol") != "cbench_ghostscript_rop3_idempotence"
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "layout": "[rop3_code]", "code_range": [0, 255],
+                "maximum_valid_input_length": GHOSTSCRIPT_ROP3_IDEMPOTENCE_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": GHOSTSCRIPT_ROP3_IDEMPOTENCE_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": GHOSTSCRIPT_ROP3_IDEMPOTENCE_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "1 when the pinned rop3_is_idempotent macro returns true, otherwise 0",
+                "valid_result_range": [0, 1],
+                "invalid_result": GHOSTSCRIPT_ROP3_IDEMPOTENCE_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 7,
+                "warmup_rounds": 2, "repetitions_per_sample": 1,
+            }
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("path") != "cBench/office_ghostscript/src/gsropt.h"
+            or source.get("revision") != pinned
+            or source.get("upstream_reference") != (
+                f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/"
+                "cBench/office_ghostscript/src/gsropt.h")
+            or source.get("supporting_paths") != [
+                "cBench/office_ghostscript/src/info.sh", "cBench/office_ghostscript/src/gsroptab.c"]
+            or source.get("launcher_path") != "cBench/office_ghostscript/src/info.sh"
+            or "One source-defined Boolean predicate" not in source.get("scope", "")
+            or "Aladdin Free Public License, Version 5" not in source.get("license", "")
+            or "restrictive noncommercial terms" not in source.get("license", "")
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("cbench_ghostscript_rop3_idempotence metadata differs from its pinned predicate")
+    package = ROOT / "benchmarks" / "g" / "cbench_ghostscript_rop3_idempotence"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source["upstream_reference"] not in readme
+            or "noncommercial distribution terms" not in readme.lower()
+            or "does not return the pixel result" not in readme
+            or "ALADDIN FREE PUBLIC LICENSE" not in license_text
+            or "redistributable for non-commercial purposes" not in license_text):
+        raise ValueError("cbench_ghostscript_rop3_idempotence AFPL or distinctness note is incomplete")
+    for relative in (
+            "c/g/cbench_ghostscript_rop3_idempotence.c",
+            "c3/g/cbench_ghostscript_rop3_idempotence.c3",
+            "cpp/g/cbench_ghostscript_rop3_idempotence.cpp",
+            "elisa/g/cbench_ghostscript_rop3_idempotence.elisa",
+            "nim/g/cbench_ghostscript_rop3_idempotence.nim",
+            "odin/g/cbench_ghostscript_rop3_idempotence.odin",
+            "rust/g/cbench_ghostscript_rop3_idempotence.rs",
+            "v/g/cbench_ghostscript_rop3_idempotence.v",
+            "zig/g/cbench_ghostscript_rop3_idempotence.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"cbench_ghostscript_rop3_idempotence port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > GHOSTSCRIPT_ROP3_IDEMPOTENCE_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != ghostscript_rop3_idempotence_expected(values)):
+            raise ValueError(
+                f"cbench_ghostscript_rop3_idempotence fixture mismatch: {case.get('id')}")
+
+
+def validate_cbench_ghostscript_rop3_operand_usage_workload(workload: dict) -> None:
+    """Pin Ghostscript's ROP3 operand-dependence mask and preserve AFPL v5 terms."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "constant-zero", "constant-one", "destination-only", "source-only", "texture-only",
+        "destination-and-source", "all-three-xor", "out-of-range-code", "empty-input",
+    }
+    cases = workload.get("cases")
+    source = workload.get("pinned_source", {})
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "measurement", "pinned_source", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-office-ghostscript-rop3-operand-usage-i64-array-scalar-v1"
+            or workload.get("algorithm") != "cbench_ghostscript_rop3_operand_usage"
+            or workload.get("function_symbol") != "cbench_ghostscript_rop3_operand_usage"
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "layout": "[rop3_code]", "code_range": [0, 255],
+                "maximum_valid_input_length": GHOSTSCRIPT_ROP3_OPERAND_USAGE_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": GHOSTSCRIPT_ROP3_OPERAND_USAGE_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": GHOSTSCRIPT_ROP3_OPERAND_USAGE_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "operand usage mask: destination=1, source=2, texture=4",
+                "valid_result_range": [0, 7],
+                "invalid_result": GHOSTSCRIPT_ROP3_OPERAND_USAGE_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 7,
+                "warmup_rounds": 2, "repetitions_per_sample": 1,
+            }
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("path") != "cBench/office_ghostscript/src/gsropt.h"
+            or source.get("revision") != pinned
+            or source.get("upstream_reference") != (
+                f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/"
+                "cBench/office_ghostscript/src/gsropt.h")
+            or source.get("supporting_paths") != [
+                "cBench/office_ghostscript/src/info.sh", "cBench/office_ghostscript/src/gsroptab.c"]
+            or source.get("launcher_path") != "cBench/office_ghostscript/src/info.sh"
+            or source.get("symbols") != ["rop3_uses_D", "rop3_uses_S", "rop3_uses_T"]
+            or "Reports which of the three truth-table inputs can affect" not in source.get("scope", "")
+            or "Aladdin Free Public License, Version 5" not in source.get("license", "")
+            or "restrictive noncommercial terms" not in source.get("license", "")
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("cbench_ghostscript_rop3_operand_usage metadata differs from its pinned helper")
+    package = ROOT / "benchmarks" / "g" / "cbench_ghostscript_rop3_operand_usage"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source["upstream_reference"] not in readme
+            or "noncommercial distribution terms" not in readme.lower()
+            or "different property" not in readme
+            or "ALADDIN FREE PUBLIC LICENSE" not in license_text
+            or "redistributable for non-commercial purposes" not in license_text):
+        raise ValueError("cbench_ghostscript_rop3_operand_usage AFPL or distinctness note is incomplete")
+    for relative in (
+            "c/g/cbench_ghostscript_rop3_operand_usage.c",
+            "c3/g/cbench_ghostscript_rop3_operand_usage.c3",
+            "cpp/g/cbench_ghostscript_rop3_operand_usage.cpp",
+            "elisa/g/cbench_ghostscript_rop3_operand_usage.elisa",
+            "nim/g/cbench_ghostscript_rop3_operand_usage.nim",
+            "odin/g/cbench_ghostscript_rop3_operand_usage.odin",
+            "rust/g/cbench_ghostscript_rop3_operand_usage.rs",
+            "v/g/cbench_ghostscript_rop3_operand_usage.v",
+            "zig/g/cbench_ghostscript_rop3_operand_usage.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "cbench_ghostscript_rop3_operand_usage" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"cbench_ghostscript_rop3_operand_usage port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > GHOSTSCRIPT_ROP3_OPERAND_USAGE_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != ghostscript_rop3_operand_usage_expected(values)):
+            raise ValueError(
+                f"cbench_ghostscript_rop3_operand_usage fixture mismatch: {case.get('id')}")
+
+
+def validate_cbench_ghostscript_rop3_transform_workload(workload: dict) -> None:
+    """Pin the 15 source ROP3 transformations and preserve AFPL v5 terms."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    cases = workload.get("cases")
+    source = workload.get("pinned_source", {})
+    operations = [{"mode": mode, "source_macro": name}
+                  for mode, name in enumerate(GHOSTSCRIPT_ROP3_TRANSFORM_MODE_NAMES)]
+    expected_ids = {
+        "invert-d", "invert-s", "invert-t", "pin-d-zero", "pin-d-one",
+        "pin-s-zero", "pin-s-one", "pin-t-zero", "pin-t-one", "swap-s-t",
+        "use-d-when-s-zero", "use-d-when-s-one", "use-d-when-t-zero",
+        "use-d-when-t-one", "not-result", "invalid-mode", "invalid-code", "wrong-length",
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "input",
+                          "output", "measurement", "pinned_source", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-office-ghostscript-rop3-transform-i64-array-scalar-v1"
+            or workload.get("algorithm") != "cbench_ghostscript_rop3_transform"
+            or workload.get("function_symbol") != "cbench_ghostscript_rop3_transform"
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "layout": "[mode, rop3_code]",
+                "mode_range": [0, 14], "code_range": [0, 255],
+                "maximum_valid_input_length": GHOSTSCRIPT_ROP3_TRANSFORM_MAX_INPUT_LENGTH,
+                "maximum_parseable_input_length": GHOSTSCRIPT_ROP3_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": GHOSTSCRIPT_ROP3_TRANSFORM_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar", "meaning": "transformed 8-bit ROP3 truth-table code",
+                "valid_result_range": [0, 255],
+                "invalid_result": GHOSTSCRIPT_ROP3_TRANSFORM_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 7,
+                "warmup_rounds": 2, "repetitions_per_sample": 1,
+            }
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("path") != "cBench/office_ghostscript/src/gsropt.h"
+            or source.get("revision") != pinned
+            or source.get("upstream_reference") != (
+                f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/"
+                "cBench/office_ghostscript/src/gsropt.h")
+            or source.get("supporting_paths") != [
+                "cBench/office_ghostscript/src/info.sh", "cBench/office_ghostscript/src/gsroptab.c"]
+            or source.get("launcher_path") != "cBench/office_ghostscript/src/info.sh"
+            or source.get("operations") != operations
+            or "transforms the Boolean function code" not in source.get("scope", "")
+            or "Aladdin Free Public License, Version 5" not in source.get("license", "")
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("cbench_ghostscript_rop3_transform metadata differs from pinned ROP3 macros")
+    package = ROOT / "benchmarks" / "g" / "cbench_ghostscript_rop3_transform"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source["upstream_reference"] not in readme
+            or "noncommercial distribution terms" not in readme.lower()
+            or "distinct from" not in readme
+            or "ALADDIN FREE PUBLIC LICENSE" not in license_text
+            or "redistributable for non-commercial purposes" not in license_text):
+        raise ValueError("cbench_ghostscript_rop3_transform AFPL or distinctness note is incomplete")
+    for relative in (
+            "c/g/cbench_ghostscript_rop3_transform.c",
+            "c3/g/cbench_ghostscript_rop3_transform.c3",
+            "cpp/g/cbench_ghostscript_rop3_transform.cpp",
+            "elisa/g/cbench_ghostscript_rop3_transform.elisa",
+            "nim/g/cbench_ghostscript_rop3_transform.nim",
+            "odin/g/cbench_ghostscript_rop3_transform.odin",
+            "rust/g/cbench_ghostscript_rop3_transform.rs",
+            "v/g/cbench_ghostscript_rop3_transform.v",
+            "zig/g/cbench_ghostscript_rop3_transform.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "cbench_ghostscript_rop3_transform" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"cbench_ghostscript_rop3_transform port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > GHOSTSCRIPT_ROP3_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != ghostscript_rop3_transform_expected(values)):
+            raise ValueError(f"cbench_ghostscript_rop3_transform fixture mismatch: {case.get('id')}")
+
+
+def validate_tsvc_vbor_workload(workload: dict) -> None:
+    """Pin the TSVC vbor codelet provenance, rights, contract, and fixtures."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "one-element-source-values", "one-element-upper-bound",
+        "two-element-source-values", "zero-source-factor", "too-small-n",
+        "truncated-sixth-array", "value-out-of-range", "null-input",
+    }
+    source, contract = workload.get("pinned_source", {}), workload.get("contract", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-tsvc-vbor-i64-array-scalar-v1"
+            or workload.get("algorithm") != "tsvc_vbor"
+            or workload.get("function_symbol") != "tsvc_vbor"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "TSVC/tsc.inc"
+            or source.get("symbol") != "vbor"
+            or source.get("included_by") != "TSVC/ControlLoops-dbl/tsc.c"
+            or workload.get("pinned_launcher", {}).get("run_options") != ["1640", "14"]
+            or contract.get("input_layout") != "[n, A[0..n), B[0..n), C[0..n), D[0..n), E[0..n), F[0..n)]"
+            or contract.get("n_range") != [1, TSVC_VBOR_MAX_N]
+            or contract.get("value_range") != [0, 2]
+            or contract.get("exact_length") != "1 + 6*n"
+            or contract.get("maximum_valid_input_length") != TSVC_VBOR_MAX_INPUT_LENGTH
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 2, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("tsvc_vbor metadata differs from the pinned codelet contract")
+    package = ROOT / "benchmarks" / "t" / "tsvc_vbor"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("TSVC/tsc.inc" not in readme or "No explicit license grant" not in readme
+            or "no explicit license grant" not in rights.lower()):
+        raise ValueError("tsvc_vbor README or rights note is missing attribution")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("tsvc_vbor fixture IDs differ from the bounded contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        expected = case.get("expected_result")
+        allowed_keys = {"id", "input_values", "expected_result"}
+        if "input_length" in case:
+            allowed_keys.add("input_length")
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > TSVC_VBOR_MAX_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(input_length) is not int
+                or type(expected) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or expected != tsvc_vbor_expected(None if input_is_null else values, input_length)):
+            raise ValueError(f"tsvc_vbor fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_tsvc_s257_column_coupled_update_workload(workload: dict) -> None:
+    """Pin the TSVC s257 source profile, rights, contract, and fixtures."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "single-pass-in-place-column-order", "two-passes-retain-matrix-writes",
+        "all-zero-state", "dimension-too-small", "too-many-passes",
+        "entry-out-of-range", "truncated-matrix", "null-input",
+    }
+    source, contract = workload.get("pinned_source", {}), workload.get("contract", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-tsvc-s257-column-coupled-update-i64-array-scalar-v1"
+            or workload.get("algorithm") != "tsvc_s257_column_coupled_update"
+            or workload.get("function_symbol") != "tsvc_s257_column_coupled_update"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "TSVC/tsc.inc"
+            or source.get("symbol") != "s257"
+            or source.get("included_by") != "TSVC/Expansion-dbl/tsc.c"
+            or workload.get("pinned_launcher", {}).get("run_options") != ["4160", "14"]
+            or contract.get("input_layout") != "[n, passes, A[0..n), AA row-major n*n, BB row-major n*n]"
+            or contract.get("n_range") != [TSVC_S257_MIN_N, TSVC_S257_MAX_N]
+            or contract.get("passes_range") != [1, TSVC_S257_MAX_PASSES]
+            or contract.get("value_range") != [-1, 1]
+            or contract.get("maximum_valid_input_length") != TSVC_S257_MAX_INPUT_LENGTH
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 2, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("tsvc_s257_column_coupled_update metadata differs from the pinned codelet contract")
+    package = ROOT / "benchmarks" / "t" / "tsvc_s257_column_coupled_update"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("TSVC/tsc.inc" not in readme or "No explicit license grant" not in readme
+            or "no explicit license grant" not in rights.lower()):
+        raise ValueError("tsvc_s257_column_coupled_update README or rights note is missing attribution")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("tsvc_s257_column_coupled_update fixture IDs differ from the contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        expected = case.get("expected_result")
+        allowed_keys = {"id", "input_values", "expected_result"}
+        if "input_length" in case:
+            allowed_keys.add("input_length")
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > TSVC_S257_MAX_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(input_length) is not int
+                or type(expected) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or expected != tsvc_s257_expected(None if input_is_null else values, input_length)):
+            raise ValueError(f"tsvc_s257_column_coupled_update fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_tsvc_s273_dependent_conditional_update_workload(workload: dict) -> None:
+    """Pin the TSVC s273 dependent-branch profile, rights, and fixtures."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "updated-a-nonnegative-no-branch", "updated-a-negative-takes-branch",
+        "branch-rechecked-next-pass", "two-independent-elements", "zero-size",
+        "truncated-array", "element-out-of-range", "null-input",
+    }
+    source, contract = workload.get("pinned_source", {}), workload.get("contract", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-tsvc-s273-dependent-conditional-update-i64-array-scalar-v1"
+            or workload.get("algorithm") != "tsvc_s273_dependent_conditional_update"
+            or workload.get("function_symbol") != "tsvc_s273_dependent_conditional_update"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "TSVC/tsc.inc"
+            or source.get("symbol") != "s273"
+            or source.get("included_by") != "TSVC/ControlFlow-dbl/tsc.c"
+            or workload.get("pinned_launcher", {}).get("run_options") != ["2325", "14"]
+            or contract.get("input_layout") != "[n, passes, A[0..n), B[0..n), C[0..n), D[0..n), E[0..n)]"
+            or contract.get("n_range") != [1, TSVC_S273_MAX_N]
+            or contract.get("passes_range") != [1, TSVC_S273_MAX_PASSES]
+            or contract.get("value_range") != [-2, 2]
+            or contract.get("maximum_valid_input_length") != TSVC_S273_MAX_INPUT_LENGTH
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 2, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("tsvc_s273_dependent_conditional_update metadata differs from the pinned codelet contract")
+    package = ROOT / "benchmarks" / "t" / "tsvc_s273_dependent_conditional_update"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("TSVC/tsc.inc" not in readme or "No explicit license grant" not in readme
+            or "no explicit license grant" not in rights.lower()):
+        raise ValueError("tsvc_s273_dependent_conditional_update README or rights note is missing attribution")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("tsvc_s273_dependent_conditional_update fixture IDs differ from the contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        expected = case.get("expected_result")
+        allowed_keys = {"id", "input_values", "expected_result"}
+        if "input_length" in case:
+            allowed_keys.add("input_length")
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > TSVC_S273_MAX_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(input_length) is not int
+                or type(expected) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or expected != tsvc_s273_expected(None if input_is_null else values, input_length)):
+            raise ValueError(f"tsvc_s273_dependent_conditional_update fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_tsvc_s331_last_negative_index_workload(workload: dict) -> None:
+    """Pin TSVC s331's full last-negative scan, rights note, ports, and fixtures."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "source_shape_harmonic_positive_then_negative", "last_of_several_negative_values",
+        "no_negative_values", "negative_at_first_position", "malformed_length",
+        "out_of_range_value",
+    }
+    source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": ["TSVC/Searching-dbl/info.sh", "TSVC/Searching-dbl/tsc.c",
+                  "TSVC/tsc.inc", "TSVC/types.h", "TSVC/README"],
+        "symbol": "s331",
+        "source_lines": "TSVC/tsc.inc:3893-3921; initialization TSVC/tsc.inc:607-609",
+        "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/Searching-dbl",
+        "license_status": "No explicit license grant found in the pinned TSVC materials reviewed; clean-room ports, no upstream code/comments reused.",
+    }
+    cases = workload.get("cases")
+    ids = [case.get("id") for case in cases if isinstance(case, dict)] if isinstance(cases, list) else []
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-tsvc-searching-dbl-s331-last-negative-index-v1"
+            or workload.get("algorithm") != "tsvc_s331_last_negative_index"
+            or workload.get("function_symbol") != "tsvc_s331_last_negative_index"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("pinned_source") != source
+            or workload.get("pinned_launcher") != {
+                "path": "TSVC/Searching-dbl/info.sh", "run_options": "80000 14",
+                "source_profile": "double precision; s331 full scan and last negative match",
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "layout": "[n, values[0], ..., values[n-1]]",
+                "n_range": [1, TSVC_S331_MAX_LENGTH],
+                "value_range": [-1_000_000, 1_000_000], "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "i64_scalar",
+                "meaning": "one-based position of the last negative value, or zero when none exists",
+                "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 5,
+            }
+            or len(ids) != len(expected_ids) or set(ids) != expected_ids):
+        raise ValueError("tsvc_s331_last_negative_index metadata or fixtures differ from the pinned contract")
+    package = ROOT / "benchmarks" / "t" / "tsvc_s331_last_negative_index"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("TSVC/tsc.inc" not in readme or "No explicit upstream license grant" not in readme
+            or "no explicit license grant" not in rights.lower()):
+        raise ValueError("tsvc_s331_last_negative_index README or rights note is incomplete")
+    port_paths = (
+        "c/t/tsvc_s331_last_negative_index.c", "c3/t/tsvc_s331_last_negative_index.c3",
+        "cpp/t/tsvc_s331_last_negative_index.cpp", "elisa/t/tsvc_s331_last_negative_index.elisa",
+        "nim/t/tsvc_s331_last_negative_index.nim", "odin/t/tsvc_s331_last_negative_index.odin",
+        "rust/t/tsvc_s331_last_negative_index.rs", "v/t/tsvc_s331_last_negative_index.v",
+        "zig/t/tsvc_s331_last_negative_index.zig",
+    )
+    for relative in port_paths:
+        port = ROOT / relative
+        if not port.is_file() or "tsvc_s331_last_negative_index" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"tsvc_s331_last_negative_index port is missing its symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        expected = case.get("expected_result")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > TSVC_S331_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(expected) is not int
+                or expected != tsvc_s331_expected(values)):
+            raise ValueError(f"tsvc_s331_last_negative_index fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_tsvc_s424_alias_overlap_feedback_workload(workload: dict) -> None:
+    """Pin the TSVC s424 alias-overlap sweep, clean-room note, ports, and fixtures."""
+    pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    expected_ids = {
+        "minimum-size-forward-alias-feedback", "dimension-below-alias-feedback-bound",
+        "truncated-vector-frame", "null-input",
+    }
+    source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": ["TSVC/Equivalencing-dbl/info.sh", "TSVC/Equivalencing-dbl/tsc.c",
+                  "TSVC/Equivalencing-flt/info.sh", "TSVC/Equivalencing-flt/tsc.c",
+                  "TSVC/tsc.inc", "TSVC/tests.h"],
+        "symbol": "s424",
+        "source_lines": {"codelet_start": 4317, "codelet_end": 4345},
+        "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC",
+        "launcher_family": "TSVC/Equivalencing-dbl and TSVC/Equivalencing-flt",
+        "launcher_options": {"double": [3125, 14], "float": [3125, 5]},
+        "attribution": "The TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+        "license_note": "No explicit license grant was found in the pinned TSVC files or repository material reviewed. These clean-room ports reuse no upstream code or comments and claim no upstream license or endorsement.",
+    }
+    contract = {
+        "operation": "Set backing-array positions X[63] through X[n+62] to zero, then for ascending i=0..n-2 assign X[i+64]=X[i]+A[i]. Return the sum of X[63] through X[n+62].",
+        "input_layout": "[n, A[n], X_prefix[63]]; backing X indices 63 through n+62 are zero-initialized before the update sweep.",
+        "n_range": [TSVC_S424_MIN_N, TSVC_S424_MAX_N],
+        "value_range": [TSVC_S424_VALUE_MIN, TSVC_S424_VALUE_MAX],
+        "exact_length": "n + 64",
+        "arithmetic": "Integer-valued source double/float additions; at most three additions feed any bounded output value, keeping all results exactly representable.",
+        "passes": 1,
+        "success_result": "Sum of the source-observed aliased view after the sweep.",
+        "invalid_input_result": -1,
+        "input_modified": False,
+        "output_range": [0, 7680],
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "contract", "input", "output",
+                          "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-tsvc-s424-alias-overlap-feedback-i64-scalar-v1"
+            or workload.get("algorithm") != "tsvc_s424_alias_overlap_feedback"
+            or workload.get("function_symbol") != "tsvc_s424_alias_overlap_feedback"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != {
+                "kind": "bounded_signed_i64_array", "maximum_valid_length": 256,
+                "maximum_parseable_length": 256, "null_input_result": -1}
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "Checksum of X[63] through X[n+62] after the in-place overlap sweep."}
+            or workload.get("workspace") != {
+                "bytes": 3576,
+                "meaning": "Temporary A[192] and backing X[255] signed 64-bit arrays."}
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar", "sample_count": 5,
+                "warmup_rounds": 2, "repetitions_per_sample": 100}
+            or not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids):
+        raise ValueError("tsvc_s424_alias_overlap_feedback workload differs from its pinned alias-sweep contract")
+    package = ROOT / "benchmarks" / "t" / "tsvc_s424_alias_overlap_feedback"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("TSVC/tsc.inc" not in readme or pinned not in readme
+            or "alias-induced feedback" not in readme
+            or "no explicit license grant" not in rights.lower()):
+        raise ValueError("tsvc_s424_alias_overlap_feedback README or rights note is incomplete")
+    for relative in (
+            f"c/t/tsvc_s424_alias_overlap_feedback.c", f"c3/t/tsvc_s424_alias_overlap_feedback.c3",
+            f"cpp/t/tsvc_s424_alias_overlap_feedback.cpp", f"elisa/t/tsvc_s424_alias_overlap_feedback.elisa",
+            f"nim/t/tsvc_s424_alias_overlap_feedback.nim", f"odin/t/tsvc_s424_alias_overlap_feedback.odin",
+            f"rust/t/tsvc_s424_alias_overlap_feedback.rs", f"v/t/tsvc_s424_alias_overlap_feedback.v",
+            f"zig/t/tsvc_s424_alias_overlap_feedback.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "tsvc_s424_alias_overlap_feedback" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"tsvc_s424_alias_overlap_feedback port is missing its symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        input_is_null = case.get("input_is_null", False)
+        expected = case.get("expected_result")
+        allowed_keys = {"id", "input_values", "expected_result", "input_length"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > TSVC_S424_MAX_INPUT_LENGTH
+                or type(input_length) is not int or not 0 <= input_length <= TSVC_S424_MAX_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(expected) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or expected != tsvc_s424_alias_overlap_feedback_expected(
+                    None if input_is_null else values)):
+            raise ValueError(f"tsvc_s424_alias_overlap_feedback fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_tsvc_s258_wrapped_scalar_expansion_workload(workload: dict) -> None:
+    """Pin the bounded s258 expansion profile, rights note, ports, and fixtures."""
+    pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    expected_ids = {
+        "single-positive-refresh", "carried-scalar-across-false-branches",
+        "refresh-after-carry-with-two-output-maps", "invalid-dimension",
+        "truncated-vector-frame", "invalid-value-bound", "null-input",
+    }
+    source = workload.get("pinned_source", {})
+    contract = workload.get("contract", {})
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "contract", "input", "output",
+                          "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-tsvc-s258-wrapped-scalar-expansion-i64-scalar-v1"
+            or workload.get("algorithm") != "tsvc_s258_wrapped_scalar_expansion"
+            or workload.get("function_symbol") != "tsvc_s258_wrapped_scalar_expansion"
+            or workload.get("abi") != "i64_array_scalar"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned or source.get("symbol") != "s258"
+            or source.get("source_lines") != {"codelet_start": 2598, "codelet_end": 2624}
+            or source.get("launcher_family") != "TSVC/Expansion-dbl and TSVC/Expansion-flt"
+            or source.get("launcher_options") != {"double": [4160, 14], "float": [4160, 5]}
+            or "No explicit license grant" not in source.get("license_note", "")
+            or contract.get("n_range") != [1, TSVC_S258_MAX_N]
+            or contract.get("value_range") != [0, TSVC_S258_MAX_VALUE]
+            or contract.get("exact_length") != "1 + 4*n"
+            or workload.get("input", {}).get("maximum_valid_length") != TSVC_S258_MAX_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S258_MAX_INPUT_LENGTH
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar"
+            or not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids):
+        raise ValueError("tsvc_s258_wrapped_scalar_expansion metadata differs from its pinned contract")
+    package = ROOT / "benchmarks" / "t" / "tsvc_s258_wrapped_scalar_expansion"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("TSVC/tsc.inc" not in readme or pinned not in readme
+            or "No explicit license grant" not in rights):
+        raise ValueError("tsvc_s258_wrapped_scalar_expansion attribution or rights note is incomplete")
+    for relative in (
+            "c/t/tsvc_s258_wrapped_scalar_expansion.c", "c3/t/tsvc_s258_wrapped_scalar_expansion.c3",
+            "cpp/t/tsvc_s258_wrapped_scalar_expansion.cpp", "elisa/t/tsvc_s258_wrapped_scalar_expansion.elisa",
+            "nim/t/tsvc_s258_wrapped_scalar_expansion.nim", "odin/t/tsvc_s258_wrapped_scalar_expansion.odin",
+            "rust/t/tsvc_s258_wrapped_scalar_expansion.rs", "v/t/tsvc_s258_wrapped_scalar_expansion.v",
+            "zig/t/tsvc_s258_wrapped_scalar_expansion.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "tsvc_s258_wrapped_scalar_expansion" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"tsvc_s258_wrapped_scalar_expansion port is missing its symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        if (not isinstance(values, list) or len(values) > TSVC_S258_MAX_INPUT_LENGTH
+                or type(is_null) is not bool or type(input_length) is not int
+                or (is_null and (values or input_length != 0))
+                or (not is_null and input_length != len(values))
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != tsvc_s258_wrapped_scalar_expansion_expected(
+                    None if is_null else values)):
+            raise ValueError(f"tsvc_s258_wrapped_scalar_expansion fixture differs from oracle: {case.get('id')}")
+
+
+def validate_versabench_dbms_valid_attributes_workload(workload: dict) -> None:
+    """Pin validAttributes' tagged key/non-key checks and source-level return values."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "empty-list", "valid-finite-key-one", "finite-negative-key",
+        "key-positive-infinity-invalid", "key-nan-passes-source-ordered-comparisons",
+        "nonkey-present", "nonkey-null", "invalid-code", "malformed-key-payload",
+        "bad-count-frame", "invalid-code-precedes-tag-payload", "null-input",
+    }
+    source = workload.get("source", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                          "input", "output", "profile", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-versabench-dbms-valid-attributes-i64-scalar-v1"
+            or workload.get("algorithm") != "versabench_dbms_valid_attributes"
+            or workload.get("function_symbol") != "versabench_dbms_valid_attributes"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "VersaBench/dbms/valid.c"
+            or "validAttributes" not in source.get("symbols", [])
+            or source.get("launcher_path") != "VersaBench/dbms/info.sh"
+            or "No explicit redistribution license" not in source.get("license_status", "")
+            or input_spec.get("count_range") != [0, 51]
+            or input_spec.get("exact_length") != "1 + 2*count"
+            or input_spec.get("maximum_valid_length") != VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_INPUT_LENGTH
+            or input_spec.get("maximum_parseable_length") != VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("code_ranges") != {"key_float": [0, 7], "non_key_string": [8, 50]}
+            or output_spec.get("kind") != "signed_i64_scalar"
+            or output_spec.get("empty_list_result") != 1
+            or output_spec.get("invalid_framing_result") != -1
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids):
+        raise ValueError("versabench_dbms_valid_attributes metadata differs from its pinned contract")
+    package = ROOT / "benchmarks" / "d" / "versabench_dbms_valid_attributes"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+    if ("validAttributes" not in readme or pinned not in readme
+            or "No explicit redistribution license" not in notice):
+        raise ValueError("versabench_dbms_valid_attributes attribution or rights note is incomplete")
+    for relative in (
+            "c/d/versabench_dbms_valid_attributes.c", "c3/d/versabench_dbms_valid_attributes.c3",
+            "cpp/d/versabench_dbms_valid_attributes.cpp", "elisa/d/versabench_dbms_valid_attributes.elisa",
+            "nim/d/versabench_dbms_valid_attributes.nim", "odin/d/versabench_dbms_valid_attributes.odin",
+            "rust/d/versabench_dbms_valid_attributes.rs", "v/d/versabench_dbms_valid_attributes.v",
+            "zig/d/versabench_dbms_valid_attributes.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "versabench_dbms_valid_attributes" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"versabench_dbms_valid_attributes port is missing its symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else -1)
+        if (not isinstance(values, list)
+                or len(values) > VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(is_null) is not bool or type(input_length) is not int
+                or (is_null and (values or input_length < 0))
+                or (not is_null and input_length != len(values))
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != versabench_dbms_valid_attributes_expected(
+                    values, input_is_null=is_null, input_length=input_length)):
+            raise ValueError(f"versabench_dbms_valid_attributes fixture differs from oracle: {case.get('id')}")
+
+
+def validate_versabench_dbms_valid_index_key_workload(workload: dict) -> None:
+    """Pin validIndexKey's IEEE binary32 comparisons, ports, and fixtures."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "ordered-finite-bounds", "equal-endpoint-invalid", "reversed-negative-range",
+        "signed-zero-equality", "nan-lower-passes-source-comparison",
+        "nan-upper-passes-source-comparison", "ordered-infinities",
+        "positive-infinity-lower-invalid", "payload-outside-binary32", "trailing-data",
+        "null-input",
+    }
+    source = workload.get("source", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                          "input", "output", "profile", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-versabench-dbms-valid-index-key-i64-scalar-v1"
+            or workload.get("algorithm") != "versabench_dbms_valid_index_key"
+            or workload.get("function_symbol") != "versabench_dbms_valid_index_key"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "VersaBench/dbms/valid.c"
+            or source.get("supporting_paths") != ["VersaBench/dbms/indexKey.h", "VersaBench/dbms/dataManagement.h"]
+            or "validIndexKey" not in source.get("symbols", [])
+            or source.get("launcher_path") != "VersaBench/dbms/info.sh"
+            or "No explicit redistribution license" not in source.get("license_status", "")
+            or input_spec.get("exact_length") != 8
+            or input_spec.get("maximum_parseable_length") != VERSABENCH_DBMS_VALID_INDEX_KEY_MAX_PARSEABLE_INPUT_LENGTH
+            or input_spec.get("payload_range") != [0, 4294967295]
+            or output_spec.get("kind") != "signed_i64_scalar"
+            or output_spec.get("invalid_framing_result") != -1
+            or workload.get("profile", {}).get("axis_order") != ["T", "X", "Y", "Z"]
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids):
+        raise ValueError("versabench_dbms_valid_index_key metadata differs from its pinned contract")
+    package = ROOT / "benchmarks" / "d" / "versabench_dbms_valid_index_key"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+    if ("validIndexKey" not in readme or pinned not in readme
+            or "No explicit redistribution license" not in notice):
+        raise ValueError("versabench_dbms_valid_index_key attribution or rights note is incomplete")
+    for relative in (
+            "c/d/versabench_dbms_valid_index_key.c", "c3/d/versabench_dbms_valid_index_key.c3",
+            "cpp/d/versabench_dbms_valid_index_key.cpp", "elisa/d/versabench_dbms_valid_index_key.elisa",
+            "nim/d/versabench_dbms_valid_index_key.nim", "odin/d/versabench_dbms_valid_index_key.odin",
+            "rust/d/versabench_dbms_valid_index_key.rs", "v/d/versabench_dbms_valid_index_key.v",
+            "zig/d/versabench_dbms_valid_index_key.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "versabench_dbms_valid_index_key" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"versabench_dbms_valid_index_key port is missing its symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else -1)
+        if (not isinstance(values, list)
+                or len(values) > VERSABENCH_DBMS_VALID_INDEX_KEY_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(is_null) is not bool or type(input_length) is not int
+                or (is_null and (values or input_length < 0))
+                or (not is_null and input_length != len(values))
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != versabench_dbms_valid_index_key_expected(
+                    values, input_is_null=is_null, input_length=input_length)):
+            raise ValueError(f"versabench_dbms_valid_index_key fixture differs from oracle: {case.get('id')}")
+
+
+def validate_versabench_dbms_scalar_helper_workload(workload: dict, algorithm: str) -> None:
+    """Validate clean-room scalar profiles for standalone VersaBench R-tree helpers."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    helpers = {
+        "versabench_dbms_partition_entries": (
+            "lac-dcc-versabench-dbms-rtree-partition-entries-i64-scalar-v1",
+            "VersaBench/dbms/partitionEntries.c", "partitionEntries",
+            {"tie-penalties-send-entry-to-b", "near-seed-a", "invalid-fan", "trailing-data", "null-input"},
+            VERSABENCH_DBMS_PARTITION_ENTRIES_MAX_PARSEABLE_INPUT_LENGTH,
+            versabench_dbms_partition_entries_expected,
+        ),
+        "versabench_dbms_consistent_key": (
+            "lac-dcc-versabench-dbms-rtree-consistent-key-i64-scalar-v1",
+            "VersaBench/dbms/consistent.c", "consistentKey",
+            {"overlap-in-four-dimensions", "touching-boundaries-intersect", "separated-only-in-z",
+             "zero-width-point-box", "invalid-reversed-bound", "trailing-data", "null-input"},
+            VERSABENCH_DBMS_CONSISTENT_KEY_MAX_PARSEABLE_INPUT_LENGTH,
+            versabench_dbms_consistent_key_expected,
+        ),
+        "versabench_dbms_penalty": (
+            "lac-dcc-versabench-dbms-rtree-penalty-i64-scalar-v1",
+            "VersaBench/dbms/penalty.c", "penalty",
+            {"unit-enlargement", "contained-box-zero-penalty", "asymmetric-enlargement",
+             "reverse-asymmetric-enlargement", "maximum-bounded-value", "degenerate-box-invalid",
+             "trailing-data", "null-input"},
+            VERSABENCH_DBMS_PENALTY_MAX_PARSEABLE_INPUT_LENGTH,
+            versabench_dbms_penalty_expected,
+        ),
+    }
+    if algorithm not in helpers:
+        raise ValueError(f"unsupported VersaBench scalar helper: {algorithm}")
+    workload_id, source_path, symbol, expected_ids, max_input, oracle = helpers[algorithm]
+    source = workload.get("source", {})
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                          "input", "output", "profile", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != workload_id
+            or workload.get("algorithm") != algorithm
+            or workload.get("function_symbol") != algorithm
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != source_path
+            or symbol not in source.get("symbols", [])
+            or source.get("launcher_path") != "VersaBench/dbms/info.sh"
+            or "No explicit redistribution license" not in source.get("license_status", "")
+            or workload.get("input", {}).get("maximum_parseable_input_length",
+                                             workload.get("input", {}).get("maximum_parseable_length")) != max_input
+            or workload.get("output", {}).get("kind") != "signed_i64_scalar"
+            or workload.get("output", {}).get("invalid_result") != -1
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar_call"
+            or not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids):
+        raise ValueError(f"{algorithm} metadata differs from its pinned bounded operation")
+    package = ROOT / "benchmarks" / "d" / algorithm
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+    if (source_path not in readme or pinned not in readme
+            or "No explicit redistribution license" not in notice):
+        raise ValueError(f"{algorithm} source attribution or rights notice is incomplete")
+    for relative in (
+            f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+            f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
+            f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
+        port = ROOT / relative
+        if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"{algorithm} port is missing its symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else -1)
+        if (not isinstance(values, list) or len(values) > max_input
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(is_null) is not bool or type(input_length) is not int
+                or is_null and (values or input_length < 0)
+                or not is_null and input_length != len(values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != oracle(
+                    values, input_is_null=is_null, input_length=input_length)):
+            raise ValueError(f"{algorithm} fixture differs from its bounded oracle: {case.get('id')}")
+
+
+def validate_versabench_dbms_choose_entry_workload(workload: dict) -> None:
+    """Pin the bounded DIS 4D child-choice operation, attribution, and fixtures."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "single-child", "minimum-enlargement-second-child", "equal-enlargement-keeps-first",
+        "degenerate-box", "trailing-data", "null-input",
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                          "input", "output", "profile", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-versabench-dbms-rtree-choose-entry-i64-scalar-v1"
+            or workload.get("algorithm") != "versabench_dbms_choose_entry"
+            or workload.get("function_symbol") != "versabench_dbms_choose_entry"
+            or workload.get("source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "VersaBench/dbms/chooseEntry.c",
+                "supporting_paths": ["VersaBench/dbms/penalty.c", "VersaBench/dbms/volume.c",
+                                     "VersaBench/dbms/keyUnion.c", "VersaBench/dbms/indexKey.h"],
+                "launcher_path": "VersaBench/dbms/info.sh",
+                "symbols": ["chooseEntry", "penalty", "volume", "keyUnion"],
+                "author": "M. L. Rivas",
+                "copyright": "Copyright 1999, Atlantic Aerospace Electronics Corp.",
+                "license_status": "No explicit redistribution license found in the pinned VersaBench/dbms directory; this local implementation is independently written from the documented algorithm and contains no copied source code.",
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array",
+                "layout": "[child_count, child_0_lower_T_X_Y_Z, child_0_upper_T_X_Y_Z, ..., incoming_lower_T_X_Y_Z, incoming_upper_T_X_Y_Z]",
+                "child_count_range": [1, 8], "coordinate_range": [-8, 8],
+                "box_rule": "For every box, lower[d] < upper[d] in all four dimensions.",
+                "exact_length": "1 + 8*child_count + 8",
+                "maximum_valid_input_length": 73,
+                "maximum_parseable_input_length": VERSABENCH_DBMS_CHOOSE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH,
+                "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "zero-based index of the child whose 4D bounding box has minimum volume enlargement after union with the incoming box",
+                "tie_rule": "first child wins; source uses strict less-than when replacing the current best",
+                "invalid_result": -1,
+            }
+            or workload.get("profile") != {
+                "arithmetic": "exact integer 4D hyperrectangle volumes; the bounded integer domain yields values exactly representable by source Float",
+                "scope": "child-selection helper used during R-tree insertion; does not implement node splitting, insertion, query, deletion, or database I/O",
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("versabench_dbms_choose_entry metadata differs from the pinned bounded operation")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("versabench_dbms_choose_entry fixture IDs differ from the contract")
+    package = ROOT / "benchmarks" / "d" / "versabench_dbms_choose_entry"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+    if ("VersaBench/dbms/chooseEntry.c" not in readme
+            or "No explicit redistribution license" not in readme
+            or "1999, Atlantic Aerospace Electronics Corp." not in notice
+            or "No explicit redistribution license" not in notice):
+        raise ValueError("versabench_dbms_choose_entry source attribution or rights notice is incomplete")
+    for relative in (
+            "c/d/versabench_dbms_choose_entry.c", "c3/d/versabench_dbms_choose_entry.c3",
+            "cpp/d/versabench_dbms_choose_entry.cpp", "elisa/d/versabench_dbms_choose_entry.elisa",
+            "nim/d/versabench_dbms_choose_entry.nim", "odin/d/versabench_dbms_choose_entry.odin",
+            "rust/d/versabench_dbms_choose_entry.rs", "v/d/versabench_dbms_choose_entry.v",
+            "zig/d/versabench_dbms_choose_entry.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "versabench_dbms_choose_entry" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"versabench_dbms_choose_entry port is missing its symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+        allowed_keys = {"id", "input_values", "expected_result"}
+        if "input_length" in case:
+            allowed_keys.add("input_length")
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > VERSABENCH_DBMS_CHOOSE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(input_length) is not int
+                or type(case.get("expected_result")) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or case["expected_result"] != versabench_dbms_choose_entry_expected(
+                    values, input_is_null=input_is_null, input_length=input_length)):
+            raise ValueError(f"versabench_dbms_choose_entry fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_tsvc_s3111_positive_value_sum_workload(workload: dict) -> None:
+    """Pin s3111's strict-positive reduction, bounds, source attribution, and ports."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "mixed-sign-values", "all-nonpositive-values", "all-positive-values", "empty-array",
+        "positive-singleton", "negative-singleton", "negative-count", "truncated-values",
+        "value-out-of-range", "count-above-bound",
+    }
+    source = workload.get("pinned_source", {})
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-tsvc-s3111-positive-value-sum-i64-array-scalar-v1"
+            or workload.get("algorithm") != "tsvc_s3111_positive_value_sum"
+            or workload.get("function_symbol") != "tsvc_s3111_positive_value_sum"
+            or workload.get("abi") != "i64_array_scalar"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "TSVC/tsc.inc"
+            or source.get("symbol") != "s3111"
+            or source.get("launcher_family") != "TSVC/Reductions-dbl"
+            or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+            or "No explicit license grant" not in source.get("license_note", "")
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array", "argument_order": ["count", "values..."],
+                "count_range": [0, TSVC_S3111_MAX_N],
+                "value_range": [-TSVC_S3111_MAX_VALUE, TSVC_S3111_MAX_VALUE],
+                "maximum_valid_input_length": TSVC_S3111_MAX_INPUT_LENGTH,
+                "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "formula": "sum(value for value in values if value > 0)",
+                "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 2, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("tsvc_s3111_positive_value_sum metadata differs from its pinned reduction contract")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("tsvc_s3111_positive_value_sum fixture IDs differ from the contract")
+    package = ROOT / "benchmarks" / "t" / "tsvc_s3111_positive_value_sum"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("TSVC/tsc.inc" not in readme or "No explicit license grant" not in readme
+            or "no explicit license grant" not in rights.lower()):
+        raise ValueError("tsvc_s3111_positive_value_sum README or rights note is incomplete")
+    for relative in (
+            "c/t/tsvc_s3111_positive_value_sum.c", "c3/t/tsvc_s3111_positive_value_sum.c3",
+            "cpp/t/tsvc_s3111_positive_value_sum.cpp", "elisa/t/tsvc_s3111_positive_value_sum.elisa",
+            "nim/t/tsvc_s3111_positive_value_sum.nim", "odin/t/tsvc_s3111_positive_value_sum.odin",
+            "rust/t/tsvc_s3111_positive_value_sum.rs", "v/t/tsvc_s3111_positive_value_sum.v",
+            "zig/t/tsvc_s3111_positive_value_sum.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "tsvc_s3111_positive_value_sum" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"tsvc_s3111_positive_value_sum port is missing its symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > TSVC_S3111_MAX_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != tsvc_s3111_positive_value_sum_expected(values)):
+            raise ValueError(f"tsvc_s3111_positive_value_sum fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_tsvc_s312_array_product_workload(workload: dict) -> None:
+    """Pin s312's bounded product reduction, source attribution, and ports."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "mixed-factors-with-zero", "small-nonzero-product", "empty-product-identity",
+        "all-unit-factors", "maximum-valid-product", "negative-factor-out-of-range",
+        "factor-above-bound", "truncated-factors", "count-above-bound",
+    }
+    source = workload.get("pinned_source", {})
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-tsvc-s312-array-product-i64-array-scalar-v1"
+            or workload.get("algorithm") != "tsvc_s312_array_product"
+            or workload.get("function_symbol") != "tsvc_s312_array_product"
+            or workload.get("abi") != "i64_array_scalar"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "TSVC/tsc.inc"
+            or source.get("symbol") != "s312"
+            or source.get("launcher_family") != "TSVC/Reductions-dbl"
+            or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+            or "No explicit license grant" not in source.get("license_note", "")
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array", "argument_order": ["count", "values..."],
+                "count_range": [0, TSVC_S312_MAX_N],
+                "value_range": [0, TSVC_S312_MAX_VALUE],
+                "maximum_valid_input_length": TSVC_S312_MAX_INPUT_LENGTH,
+                "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "formula": "product(values), with 1 as the empty-product identity",
+                "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 2, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("tsvc_s312_array_product metadata differs from its pinned reduction contract")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("tsvc_s312_array_product fixture IDs differ from the contract")
+    package = ROOT / "benchmarks" / "t" / "tsvc_s312_array_product"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("TSVC/tsc.inc" not in readme or "No explicit license grant" not in readme
+            or "no explicit license grant" not in rights.lower()):
+        raise ValueError("tsvc_s312_array_product README or rights note is incomplete")
+    for relative in (
+            "c/t/tsvc_s312_array_product.c", "c3/t/tsvc_s312_array_product.c3",
+            "cpp/t/tsvc_s312_array_product.cpp", "elisa/t/tsvc_s312_array_product.elisa",
+            "nim/t/tsvc_s312_array_product.nim", "odin/t/tsvc_s312_array_product.odin",
+            "rust/t/tsvc_s312_array_product.rs", "v/t/tsvc_s312_array_product.v",
+            "zig/t/tsvc_s312_array_product.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "tsvc_s312_array_product" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"tsvc_s312_array_product port is missing its symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > TSVC_S312_MAX_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != tsvc_s312_array_product_expected(values)):
+            raise ValueError(f"tsvc_s312_array_product fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_tsvc_s4115_indexed_gather_product_sum_workload(workload: dict) -> None:
+    """Pin s4115's bounded indexed gather reduction, rights note, and ports."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "duplicate-gather-indexes", "permuted-gather", "singleton", "zero-product-sum",
+        "invalid-index", "truncated-array", "value-out-of-range", "count-out-of-range",
+    }
+    source = workload.get("pinned_source", {})
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-tsvc-s4115-indexed-gather-product-sum-i64-array-scalar-v1"
+            or workload.get("algorithm") != "tsvc_s4115_indexed_gather_product_sum"
+            or workload.get("function_symbol") != "tsvc_s4115_indexed_gather_product_sum"
+            or workload.get("abi") != "i64_array_scalar"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "TSVC/tsc.inc"
+            or source.get("symbol") != "s4115"
+            or source.get("source_lines") != {
+                "kernel_start": 4787, "kernel_end": 4813,
+                "reduction_start": 4799, "reduction_end": 4805,
+            }
+            or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+            or source.get("launcher_family") != "TSVC/IndirectAddressing-dbl"
+            or "No explicit license grant" not in source.get("license_note", "")
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array",
+                "argument_order": ["count", "indexes[count]", "A[count]", "B[count]"],
+                "count_range": [1, TSVC_S4115_MAX_N],
+                "index_range": "0 through count-1; duplicate indexes are allowed",
+                "value_range": [0, TSVC_S4115_MAX_VALUE],
+                "exact_length": "1 + 3*count",
+                "maximum_valid_input_length": TSVC_S4115_MAX_INPUT_LENGTH,
+                "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "formula": "sum(A[i] * B[indexes[i]]) in ascending i order",
+                "maximum_result": 64_000_000_000_000,
+                "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 2, "repetitions_per_sample": 100,
+            }):
+        raise ValueError("tsvc_s4115_indexed_gather_product_sum metadata differs from its pinned reduction contract")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("tsvc_s4115_indexed_gather_product_sum fixture IDs differ from the contract")
+    package = ROOT / "benchmarks" / "t" / "tsvc_s4115_indexed_gather_product_sum"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("TSVC/tsc.inc" not in readme or "No explicit license grant" not in readme
+            or "no explicit license grant" not in rights.lower()):
+        raise ValueError("tsvc_s4115_indexed_gather_product_sum README or rights note is incomplete")
+    for relative in (
+            "c/t/tsvc_s4115_indexed_gather_product_sum.c", "c3/t/tsvc_s4115_indexed_gather_product_sum.c3",
+            "cpp/t/tsvc_s4115_indexed_gather_product_sum.cpp", "elisa/t/tsvc_s4115_indexed_gather_product_sum.elisa",
+            "nim/t/tsvc_s4115_indexed_gather_product_sum.nim", "odin/t/tsvc_s4115_indexed_gather_product_sum.odin",
+            "rust/t/tsvc_s4115_indexed_gather_product_sum.rs", "v/t/tsvc_s4115_indexed_gather_product_sum.v",
+            "zig/t/tsvc_s4115_indexed_gather_product_sum.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "tsvc_s4115_indexed_gather_product_sum" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"tsvc_s4115_indexed_gather_product_sum port is missing its symbol: {relative}")
+    for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError("tsvc_s4115_indexed_gather_product_sum fixture must be an object")
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > TSVC_S4115_MAX_INPUT_LENGTH
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != tsvc_s4115_indexed_gather_product_sum_expected(values)):
+            raise ValueError(f"tsvc_s4115_indexed_gather_product_sum fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_embench_aha_mont64_workload(workload: dict) -> None:
+    pinned = "09c2ed8c3b7008c95d08b038de4a3f6dc103ed70"
+    expected_ids = {
+        "modulus_three", "r_one_modulus_fifteen", "near_signed_limit",
+        "large_limb_product", "zero_operand", "invalid_even_modulus",
+        "invalid_operand_not_reduced", "invalid_negative_operand", "invalid_frame_length",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "embench-aha-mont64-montgomery-product-i64-array-scalar-v1"
+            or workload.get("algorithm") != "embench_aha_mont64"
+            or workload.get("function_symbol") != "embench_aha_mont64"
+            or workload.get("pinned_source") != {
+                "repository": "embench/embench-iot", "commit": pinned,
+                "path": "src/aha-mont64/mont64.c", "symbol": "montmul",
+                "url": f"https://github.com/embench/embench-iot/blob/{pinned}/src/aha-mont64/mont64.c",
+                "spdx": "GPL-3.0-or-later",
+                "rights_note": "Independent ports are written from the mathematical Montgomery operation and do not copy source implementation text or comments; upstream provenance and license are recorded in README.md.",
+            }
+            or workload.get("contract") != {
+                "operation": "Return a*b*R^-1 modulo m for Montgomery residues a,b, with fixed R=2^64.",
+                "input_layout": "[a, b, m]", "input_length": 3,
+                "modulus_range": [3, EMBENCH_AHA_MONT64_MAX_MODULUS],
+                "modulus_rule": "m must be odd.", "operand_rule": "0 <= a,b < m.",
+                "invalid_result": EMBENCH_AHA_MONT64_INVALID_RESULT,
+                "algorithm_scope": "Montgomery reduction primitive only; upstream binary-GCD setup, fourth-power sequence, conventional-result cross-check, and repeat harness are excluded.",
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "exact_length": EMBENCH_AHA_MONT64_MAX_INPUT_LENGTH,
+                "maximum_length": EMBENCH_AHA_MONT64_MAX_INPUT_LENGTH,
+                "invalid_input_result": EMBENCH_AHA_MONT64_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "(a*b*inverse(2^64 mod m)) mod m",
+                "range": "0 through m-1",
+                "invalid_input_result": EMBENCH_AHA_MONT64_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 100,
+            }
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("embench_aha_mont64 metadata or fixture IDs differ from its pinned Montgomery contract")
+
+    package = ROOT / "benchmarks" / "a" / "embench_aha_mont64"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    if (workload["pinned_source"]["url"] not in readme
+            or "GPL-3.0-or-later" not in readme
+            or "do not copy or translate" not in readme
+            or "R=2^64" not in readme):
+        raise ValueError("embench_aha_mont64 README is missing provenance, rights, or Montgomery semantics")
+    paths = (
+        "c/a/embench_aha_mont64.c", "c3/a/embench_aha_mont64.c3",
+        "cpp/a/embench_aha_mont64.cpp", "elisa/a/embench_aha_mont64.elisa",
+        "nim/a/embench_aha_mont64.nim", "odin/a/embench_aha_mont64.odin",
+        "rust/a/embench_aha_mont64.rs", "v/a/embench_aha_mont64.v",
+        "zig/a/embench_aha_mont64.zig",
+    )
+    if any(not (ROOT / path).is_file() for path in paths):
+        raise ValueError("embench_aha_mont64 is missing one or more of its nine language ports")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list)
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or len(values) > EMBENCH_AHA_MONT64_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != embench_aha_mont64_expected(values)):
+            raise ValueError(f"embench_aha_mont64 fixture differs from its Montgomery contract: {case.get('id')}")
+
+
+def validate_slre_workload(workload: dict) -> None:
+    """Validate the pinned bounded Embench slre search profile and fixtures."""
+    pinned = "09c2ed8c3b7008c95d08b038de4a3f6dc103ed70"
+    expected_ids = {
+        "literal_search", "dot_search", "ordered_alternation", "optional_atom",
+        "start_anchor", "end_anchor", "anchored_failure", "no_match",
+        "bad_empty_alternative", "bad_quantifier",
+    }
+    cases = workload.get("cases")
+    case_ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+                if isinstance(cases, list) else [])
+    if (set(workload) != {"schema_version", "id", "algorithm", "source", "input",
+                          "cases", "measurement"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "embench-slre-bounded-search-v1"
+            or workload.get("algorithm") != "slre"
+            or workload.get("source") != {
+                "repository": "https://github.com/embench/embench-iot",
+                "commit": pinned, "path": "src/slre/libslre.c",
+                "header": "src/slre/slre.h", "license": "GPL-3.0-or-later",
+            }
+            or workload.get("input") != {
+                "kind": "i64_array_scalar",
+                "encoding": "[text_length, pattern_length, text_bytes..., pattern_bytes...]",
+                "max_text_length": SLRE_MAX_TEXT,
+                "min_pattern_length": 1,
+                "max_pattern_length": SLRE_MAX_PATTERN,
+                "text": "lowercase ASCII",
+                "pattern": "lowercase literals, dot, optional ?, top-level | alternatives, optional leading ^ and trailing $",
+                "match": "leftmost start, first matching alternative, return exclusive end offset",
+                "no_match": -1, "invalid": -2,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 7,
+                "warmup_rounds": 1, "repetitions_per_sample": 5,
+            }
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(case_ids) != len(cases) or len(set(case_ids)) != len(case_ids)
+            or set(case_ids) != expected_ids):
+        raise ValueError("slre workload metadata or fixture IDs differ from the pinned bounded profile")
+
+    package = ROOT / "benchmarks" / "s" / "slre"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+    source_url = f"https://github.com/embench/embench-iot/tree/{pinned}/src/slre"
+    if (source_url not in readme or "GPL-3.0-or-later" not in readme
+            or "regex_match" not in readme
+            or "GNU GENERAL PUBLIC LICENSE" not in license_text
+            or "Sergey Lyubka" not in notice or "James Pallister" not in notice
+            or "Jeremy Bennett" not in notice):
+        raise ValueError("slre README, GPL license, or upstream attribution is incomplete")
+    for relative in (
+            "c/s/slre.c", "c3/s/slre.c3", "cpp/s/slre.cpp", "elisa/s/slre.elisa",
+            "nim/s/slre.nim", "odin/s/slre.odin", "rust/s/slre.rs", "v/s/slre.v",
+            "zig/s/slre.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"slre port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result", "input_length"}
+                or not isinstance(values, list)
+                or len(values) > SLRE_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != slre_expected(values)):
+            raise ValueError(f"slre fixture differs from its bounded regex oracle: {case.get('id')}")
+
+
+def validate_rodinia_srad_v2_workload(workload: dict) -> None:
+    """Validate the pinned Rodinia SRAD v2 bounded kernel workload."""
+    pinned = "f30e63663cfb114939a15c7ffc4ae112055ae6a8"
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_source", "contract", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "rodinia-srad-v2-two-kernel-f32-bounded-v1"
+            or workload.get("algorithm") != "rodinia_srad_v2"
+            or workload.get("function_symbol") != "rodinia_srad_v2"
+            or workload.get("pinned_source", {}).get("repository") != "utcs-scea/rodinia"
+            or workload.get("pinned_source", {}).get("commit") != pinned
+            or workload.get("pinned_source", {}).get("paths") != [
+                "cuda/srad/srad_v2/srad_kernel.cu", "cuda/srad/srad_v2/srad.cu",
+                "cuda/srad/srad_v2/srad.h", "cuda/srad/srad_v2/run", "LICENSE"]
+            or workload.get("contract", {}).get("exact_input_length") != RODINIA_SRAD_V2_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_length") != RODINIA_SRAD_V2_INPUT_LENGTH
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar"
+            or not isinstance(cases, list) or not cases):
+        raise ValueError("rodinia_srad_v2 workload metadata differs from the pinned bounded contract")
+
+    package = ROOT / "benchmarks" / "r" / "rodinia_srad_v2"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = f"https://github.com/utcs-scea/rodinia/tree/{pinned}/cuda/srad/srad_v2"
+    if (source_url not in readme or "BSD-3-Clause" not in readme
+            or "Redistribution and use" not in license_text):
+        raise ValueError("rodinia_srad_v2 README or complete source license is incomplete")
+    for relative in (
+            "c/r/rodinia_srad_v2.c", "c3/r/rodinia_srad_v2.c3", "cpp/r/rodinia_srad_v2.cpp",
+            "elisa/r/rodinia_srad_v2.elisa", "nim/r/rodinia_srad_v2.nim",
+            "odin/r/rodinia_srad_v2.odin", "rust/r/rodinia_srad_v2.rs",
+            "v/r/rodinia_srad_v2.v", "zig/r/rodinia_srad_v2.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"rodinia_srad_v2 port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        is_null = case.get("input_is_null")
+        if (set(case) != {"id", "input_values", "input_length", "input_is_null", "expected_result"}
+                or not isinstance(values, list)
+                or type(is_null) is not bool
+                or (is_null and (values or case.get("input_length") != 0
+                                 or case.get("expected_result") != -1))
+                or (not is_null and (len(values) > RODINIA_SRAD_V2_INPUT_LENGTH + 1
+                                     or case.get("input_length") != len(values)
+                                     or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                                            for value in values)
+                                     or type(case.get("expected_result")) is not int
+                                     or case["expected_result"] != rodinia_srad_v2_expected(values)))):
+            raise ValueError(f"rodinia_srad_v2 fixture differs from its kernel oracle: {case.get('id')}")
+
+
+def validate_rodinia_euler3d_flux_workload(workload: dict) -> None:
+    """Validate the pinned Rodinia one-cell Euler3D flux profile."""
+    pinned = "f30e63663cfb114939a15c7ffc4ae112055ae6a8"
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_source", "contract", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "rodinia-euler3d-one-cell-four-face-flux-f32-v1"
+            or workload.get("algorithm") != "rodinia_euler3d_flux"
+            or workload.get("function_symbol") != "rodinia_euler3d_flux"
+            or workload.get("pinned_source", {}).get("repository") != "utcs-scea/rodinia"
+            or workload.get("pinned_source", {}).get("commit") != pinned
+            or workload.get("pinned_source", {}).get("paths") != [
+                "cuda/cfd/euler3d.cu", "cuda/cfd/README", "cuda/cfd/run", "LICENSE"]
+            or workload.get("contract", {}).get("exact_input_length") != RODINIA_EULER3D_FLUX_INPUT_LENGTH
+            or workload.get("input", {}).get("maximum_length") != RODINIA_EULER3D_FLUX_INPUT_LENGTH
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar"
+            or not isinstance(cases, list) or not cases):
+        raise ValueError("rodinia_euler3d_flux metadata differs from the pinned bounded CFD contract")
+    package = ROOT / "benchmarks" / "r" / "rodinia_euler3d_flux"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = f"https://github.com/utcs-scea/rodinia/blob/{pinned}/cuda/cfd/euler3d.cu"
+    if (source_url not in readme or "BSD-3-Clause" not in readme
+            or "Redistribution and use" not in license_text):
+        raise ValueError("rodinia_euler3d_flux README or complete source license is incomplete")
+    for relative in (
+            "c/r/rodinia_euler3d_flux.c", "c3/r/rodinia_euler3d_flux.c3",
+            "cpp/r/rodinia_euler3d_flux.cpp", "elisa/r/rodinia_euler3d_flux.elisa",
+            "nim/r/rodinia_euler3d_flux.nim", "odin/r/rodinia_euler3d_flux.odin",
+            "rust/r/rodinia_euler3d_flux.rs", "v/r/rodinia_euler3d_flux.v",
+            "zig/r/rodinia_euler3d_flux.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"rodinia_euler3d_flux port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        input_null = case.get("input_is_null", False)
+        if (set(case) != {"id", "input_values", "input_length", "input_is_null", "expected_result"}
+                or not isinstance(values, list) or type(input_null) is not bool
+                or (input_null and (values or case.get("input_length") != 0
+                                    or case.get("expected_result") != -1))
+                or (not input_null and (len(values) > RODINIA_EULER3D_FLUX_INPUT_LENGTH + 1
+                                        or case.get("input_length") != len(values)
+                                        or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                                               for value in values)
+                                        or type(case.get("expected_result")) is not int
+                                        or case["expected_result"] != rodinia_euler3d_flux_expected(values)))):
+            raise ValueError(f"rodinia_euler3d_flux fixture differs from its flux oracle: {case.get('id')}")
+
+
+def validate_rodinia_particlefilter_naive_workload(workload: dict) -> None:
+    """Validate Rodinia's bounded deterministic naive-particle-filter transition."""
+    pinned = "f30e63663cfb114939a15c7ffc4ae112055ae6a8"
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                          "pinned_source", "contract", "input", "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "rodinia-particlefilter-naive-one-transition-v1"
+            or workload.get("algorithm") != "rodinia_particlefilter_naive"
+            or workload.get("function_symbol") != "rodinia_particlefilter_naive"
+            or workload.get("pinned_source", {}).get("repository") != "utcs-scea/rodinia"
+            or workload.get("pinned_source", {}).get("commit") != pinned
+            or workload.get("pinned_source", {}).get("paths") != [
+                "cuda/particlefilter/ex_particle_CUDA_naive_seq.cu",
+                "cuda/particlefilter/README.txt", "cuda/particlefilter/run", "LICENSE"]
+            or workload.get("contract", {}).get("particle_count") != [1, RODINIA_PARTICLEFILTER_MAX_PARTICLES]
+            or workload.get("contract", {}).get("sample_count") != [1, RODINIA_PARTICLEFILTER_MAX_SAMPLES]
+            or workload.get("input", {}).get("maximum_length")
+            != 3 + RODINIA_PARTICLEFILTER_MAX_PARTICLES * (4 + RODINIA_PARTICLEFILTER_MAX_SAMPLES)
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_scalar"
+            or not isinstance(cases, list) or not cases):
+        raise ValueError("rodinia_particlefilter_naive metadata differs from its pinned bounded profile")
+    package = ROOT / "benchmarks" / "r" / "rodinia_particlefilter_naive"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = f"https://github.com/utcs-scea/rodinia/blob/{pinned}/cuda/particlefilter/ex_particle_CUDA_naive_seq.cu"
+    if (source_url not in readme or "BSD-3-Clause" not in readme
+            or "Redistribution and use" not in license_text):
+        raise ValueError("rodinia_particlefilter_naive README or complete source license is incomplete")
+    for relative in (
+            "c/r/rodinia_particlefilter_naive.c", "c3/r/rodinia_particlefilter_naive.c3",
+            "cpp/r/rodinia_particlefilter_naive.cpp", "elisa/r/rodinia_particlefilter_naive.elisa",
+            "nim/r/rodinia_particlefilter_naive.nim", "odin/r/rodinia_particlefilter_naive.odin",
+            "rust/r/rodinia_particlefilter_naive.rs", "v/r/rodinia_particlefilter_naive.v",
+            "zig/r/rodinia_particlefilter_naive.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"rodinia_particlefilter_naive port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        input_null = case.get("input_is_null", False)
+        if (set(case) != {"id", "input_values", "input_length", "input_is_null", "expected_result"}
+                or not isinstance(values, list) or type(input_null) is not bool
+                or (input_null and (values or case.get("input_length") != 0
+                                    or case.get("expected_result") != -1))
+                or (not input_null and (len(values) > 3 + RODINIA_PARTICLEFILTER_MAX_PARTICLES
+                                        * (4 + RODINIA_PARTICLEFILTER_MAX_SAMPLES) + 1
+                                        or case.get("input_length") != len(values)
+                                        or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                                               for value in values)
+                                        or type(case.get("expected_result")) is not int
+                                        or case["expected_result"] != rodinia_particlefilter_naive_expected(values)))):
+            raise ValueError(f"rodinia_particlefilter_naive fixture differs from its particle oracle: {case.get('id')}")
+
+
+def validate_rodinia_lavamd_workload(workload: dict) -> None:
+    """Validate the bounded screened-particle interaction package and provenance."""
+    pinned = "f30e63663cfb114939a15c7ffc4ae112055ae6a8"
+    source_url = f"https://github.com/utcs-scea/rodinia/tree/{pinned}/cuda/lavaMD"
+    kernel_url = f"https://github.com/utcs-scea/rodinia/blob/{pinned}/cuda/lavaMD/kernel/kernel_gpu_cuda.cu"
+    launcher = {
+        "repository": "utcs-scea/rodinia", "commit": pinned,
+        "path": "cuda/lavaMD/run", "command": "./lavaMD -boxes1d 10",
+        "profile_note": "The bounded package replaces the launcher's 10-by-10-by-10 box workload with one home box and one supplied neighbor box.",
+    }
+    expected_source = {
+        "repository": "utcs-scea/rodinia", "commit": pinned,
+        "paths": ["cuda/lavaMD/kernel/kernel_gpu_cuda.cu", "cuda/lavaMD/main.h",
+                  "cuda/lavaMD/main.c", "LICENSE"],
+        "symbols": ["kernel_gpu_cuda", "box"], "url": source_url,
+        "license": "University of Virginia three-condition BSD-style license",
+        "copyright": "Copyright (c)2008-2011 University of Virginia",
+    }
+    expected_contract = {
+        "operation": "For each home particle, accumulate potential and force from all home particles followed by all particles in one neighbor box, preserving source order.",
+        "pair_formula": "dot=ax*bx+ay*by+az*bz; r2=av+bv-dot; vij=exp(-0.5*r2); fs=2*vij; potential+=b.charge*vij; force_xyz+=b.charge*fs*(a.xyz-b.xyz)",
+        "input_layout": "[home_count, neighbor_count, home particles then neighbor particles as (v_u,x_u,y_u,z_u,charge_u)]",
+        "component_encoding": "unsigned raw integer divided by 1000000.0 into binary64",
+        "component_raw_range": [0, RODINIA_LAVAMD_MAX_COMPONENT_RAW],
+        "particle_count_range_per_box": [1, RODINIA_LAVAMD_MAX_PARTICLES],
+        "output_formula": "1000000000000 + round_half_away(1000000 * sum_i((i+1)*(potential_i+force_x_i+force_y_i+force_z_i)))",
+        "invalid_input_result": -1,
+    }
+    expected_input = {
+        "kind": "packed_i64_array",
+        "layout": "[home_count, neighbor_count, home particles then neighbor particles as (v_u,x_u,y_u,z_u,charge_u)]",
+        "particle_count_range_per_box": [1, RODINIA_LAVAMD_MAX_PARTICLES],
+        "component_encoding": "fixed point raw / 1000000.0; source order is v,x,y,z,charge",
+        "component_raw_range": [0, RODINIA_LAVAMD_MAX_COMPONENT_RAW],
+        "exact_length": "2 + 5*(home_count + neighbor_count)",
+        "minimum_input_values": 12,
+        "maximum_input_values": RODINIA_LAVAMD_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_values": RODINIA_LAVAMD_MAX_PARSEABLE_INPUT_LENGTH,
+        "invalid_input_result": -1,
+    }
+    expected_output = {
+        "kind": "i64_scalar",
+        "meaning": "one-trillion bias plus the micro-unit rounded weighted checksum of home-particle potential and force components",
+        "rounding": "nearest, ties away from zero",
+        "invalid_input_result": -1,
+    }
+    expected_measurement = {
+        "comparison_model": "i64_array_scalar", "sample_count": 3,
+        "warmup_rounds": 1, "repetitions_per_sample": 1,
+    }
+    cases = workload.get("cases")
+    expected_ids = {
+        "two_home_particles_and_one_neighbor_zero_separation", "nonzero_force_at_zero_r2",
+        "all_zero_components", "invalid_empty_input", "invalid_particle_count",
+        "invalid_component_range", "invalid_trailing_value",
+    }
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "description", "pinned_source", "pinned_launcher", "contract", "input",
+                          "output", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "rodinia-lavamd-bounded-screened-pair-interactions-v1"
+            or workload.get("algorithm") != "rodinia_lavamd"
+            or workload.get("function_symbol") != "rodinia_lavamd"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("description") != "Bounded screened-particle potential and force accumulation for one home box and one neighboring box."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("pinned_launcher") != launcher
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("measurement") != expected_measurement
+            or RODINIA_LAVAMD_MAX_INPUT_LENGTH != 42
+            or RODINIA_LAVAMD_MAX_PARSEABLE_INPUT_LENGTH != 43
+            or not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or len(ids) != len(cases) or ids != expected_ids):
+        raise ValueError("rodinia_lavamd workload metadata differs from the pinned bounded profile")
+
+    package = ROOT / "benchmarks" / "l" / "rodinia_lavamd"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (kernel_url not in readme or source_url not in readme or "BSD-3-Clause" not in readme
+            or "alpha = 0.5" not in readme or "one neighboring box" not in readme
+            or "Copyright (c)2008-2011 University of Virginia" not in license_text
+            or "Redistribution and use in source and binary forms" not in license_text
+            or "Neither the name of the University of Virginia" not in license_text
+            or "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS" not in license_text):
+        raise ValueError("rodinia_lavamd README or complete source license is incomplete")
+    for relative in (
+            "c/l/rodinia_lavamd.c", "c3/l/rodinia_lavamd.c3", "cpp/l/rodinia_lavamd.cpp",
+            "elisa/l/rodinia_lavamd.elisa", "nim/l/rodinia_lavamd.nim",
+            "odin/l/rodinia_lavamd.odin", "rust/l/rodinia_lavamd.rs",
+            "v/l/rodinia_lavamd.v", "zig/l/rodinia_lavamd.zig"):
+        port = ROOT / relative
+        if not port.is_file() or "rodinia_lavamd" not in port.read_text(encoding="utf-8"):
+            raise ValueError(f"rodinia_lavamd port is missing or lacks its exported symbol: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list)
+                or len(values) > RODINIA_LAVAMD_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != rodinia_lavamd_expected(values)):
+            raise ValueError(f"rodinia_lavamd fixture differs from its independent interaction oracle: {case.get('id')}")
+
+
+def validate_rodinia_pathfinder_workload(workload: dict) -> None:
+    """Validate the bounded Rodinia row-wise minimum-cost path profile."""
+    pinned = "f30e63663cfb114939a15c7ffc4ae112055ae6a8"
+    expected_input = {
+        "kind": "packed_i64_array",
+        "layout": "[cols, rows, pyramid_height, row-major cell_cost...]",
+        "cols_range": [1, RODINIA_PATHFINDER_MAX_COLS],
+        "rows_range": [1, RODINIA_PATHFINDER_MAX_ROWS],
+        "pyramid_height_range": [1, 4],
+        "cell_cost_range": [0, 9],
+        "maximum_input_values": 3 + RODINIA_PATHFINDER_MAX_COLS * RODINIA_PATHFINDER_MAX_ROWS,
+    }
+    expected_output = {
+        "kind": "i64_scalar",
+        "meaning": "minimum accumulated cost in the final row",
+        "invalid_input_result": -1,
+    }
+    expected_vectors = {
+        "single_row_minimum": [3, 1, 2, 5, 1, 4],
+        "single_column_accumulates_all_rows": [1, 4, 2, 2, 1, 3, 0],
+        "three_by_three_path_and_two_step_chunk": [3, 3, 2, 1, 9, 1, 1, 1, 9, 9, 1, 1],
+        "edge_clamping_and_tied_paths": [2, 3, 1, 0, 0, 1, 1, 0, 0],
+        "chunk_larger_than_remaining_rows": [4, 4, 4, 4, 9, 8, 7, 6, 1, 5, 9, 9, 1, 3, 4, 8, 2, 1, 0, 9, 3],
+        "invalid_empty_input": [],
+        "invalid_pyramid_height": [2, 2, 0, 1, 2, 3, 4],
+        "invalid_cell_cost": [2, 2, 1, 0, 10, 1, 0],
+        "invalid_trailing_value": [1, 1, 1, 4, 5],
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi", "input", "output", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "rodinia-pathfinder-bounded-grid-dp-v1"
+            or workload.get("algorithm") != "rodinia_pathfinder"
+            or workload.get("function_symbol") != "rodinia_pathfinder"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or not isinstance(cases, list)
+            or len(cases) != len(expected_vectors)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != set(expected_vectors)):
+        raise ValueError("rodinia_pathfinder workload metadata differs from its bounded grid-DP contract")
+
+    package = ROOT / "benchmarks/r/rodinia_pathfinder"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = f"https://github.com/utcs-scea/rodinia/blob/{pinned}/cuda/pathfinder/pathfinder.cu"
+    if (source_url not in readme or pinned not in readme
+            or "Redistribution and use" not in license_text
+            or "University of Virginia" not in license_text):
+        raise ValueError("rodinia_pathfinder source attribution or complete license is missing")
+    for relative in (
+            "c/r/rodinia_pathfinder.c", "c3/r/rodinia_pathfinder.c3",
+            "cpp/r/rodinia_pathfinder.cpp", "elisa/r/rodinia_pathfinder.elisa",
+            "nim/r/rodinia_pathfinder.nim", "odin/r/rodinia_pathfinder.odin",
+            "rust/r/rodinia_pathfinder.rs", "v/r/rodinia_pathfinder.v",
+            "zig/r/rodinia_pathfinder.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"rodinia_pathfinder port is missing: {relative}")
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        values = case.get("input_values") if isinstance(case, dict) else None
+        if (not isinstance(case, dict)
+                or set(case) != {"id", "input_values", "expected_result"}
+                or values != expected_vectors.get(case_id)
+                or not isinstance(values, list)
+                or len(values) > expected_input["maximum_input_values"]
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != rodinia_pathfinder_expected(values)):
+            raise ValueError(f"rodinia_pathfinder fixture differs from the bounded oracle: {case_id}")
+
+
+def validate_rodinia_bplus_tree_workload(workload: dict) -> None:
+    """Validate the bounded two-leaf Rodinia B+ tree point-search profile."""
+    expected_ids = {
+        "route_left_separator_and_right", "separator_equality_routes_right",
+        "all_queries_missing", "full_leaf_capacity_and_negative_keys",
+        "invalid_empty_input", "invalid_unsorted_leaf", "invalid_overlapping_leaves",
+        "invalid_record_value", "invalid_trailing_value",
+    }
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                          "input", "output", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "rodinia-bplus-tree-bounded-findk-v1"
+            or workload.get("algorithm") != "rodinia_bplus_tree"
+            or workload.get("function_symbol") != "rodinia_bplus_tree"
+            or workload.get("abi") != "i64_array_scalar"
+            or workload.get("input") != {
+                "kind": "packed_i64_array",
+                "layout": "[left_count, right_count, query_count, interleaved leaf key/value pairs, queries...]",
+                "leaf_count_range": [1, 3], "query_count_range": [1, 16],
+                "key_range": [-1_000_000, 1_000_000],
+                "record_value_range": [0, 1_000_000], "maximum_input_values": 31,
+            }
+            or workload.get("output") != {
+                "kind": "i64_scalar",
+                "meaning": "weighted checksum of found record values; missing source answers contribute zero after value-plus-one projection",
+                "invalid_input_result": -1,
+            }
+            or not isinstance(workload.get("cases"), list)
+            or {case.get("id") for case in workload.get("cases", [])
+                if isinstance(case, dict)} != expected_ids
+            or len(workload.get("cases", [])) != len(expected_ids)):
+        raise ValueError("rodinia_bplus_tree workload metadata differs from its bounded point-search contract")
+
+    package = ROOT / "benchmarks" / "b" / "rodinia_bplus_tree"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = "https://github.com/utcs-scea/rodinia/blob/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/b%2Btree/kernel/kernel_gpu_cuda.cu"
+    if (source_url not in readme or "f30e63663cfb114939a15c7ffc4ae112055ae6a8" not in readme
+            or "Copyright (c)2008-2011 University of Virginia" not in license_text
+            or "Redistribution and use" not in license_text):
+        raise ValueError("rodinia_bplus_tree source attribution or complete license is missing")
+    for relative in (
+            "c/b/rodinia_bplus_tree.c", "c3/b/rodinia_bplus_tree.c3",
+            "cpp/b/rodinia_bplus_tree.cpp", "elisa/b/rodinia_bplus_tree.elisa",
+            "nim/b/rodinia_bplus_tree.nim", "odin/b/rodinia_bplus_tree.odin",
+            "rust/b/rodinia_bplus_tree.rs", "v/b/rodinia_bplus_tree.v",
+            "zig/b/rodinia_bplus_tree.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"rodinia_bplus_tree port is missing: {relative}")
+    for case in workload["cases"]:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        values = case.get("input_values") if isinstance(case, dict) else None
+        if (not isinstance(case, dict) or set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > 31
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != rodinia_bplus_tree_expected(values)):
+            raise ValueError(f"rodinia_bplus_tree fixture differs from its bounded oracle: {case_id}")
+
+
+def validate_xgboost_workload(workload: dict) -> None:
+    """Validate the fixed, source-shaped synthetic XGBoost classifier workload."""
+    model_arrays = {
+        "feature_index": list(XGBOOST_FEATURE), "threshold": list(XGBOOST_THRESHOLD),
+        "left_child": list(XGBOOST_LEFT), "right_child": list(XGBOOST_RIGHT),
+        "leaf_values": list(XGBOOST_LEAVES),
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "source", "input", "cases", "measurement"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "embench-xgboost-bounded-vote-inference-v1"
+            or workload.get("algorithm") != "xgboost"
+            or workload.get("source") != {
+                "repository": "https://github.com/embench/embench-iot",
+                "commit": "09c2ed8c3b7008c95d08b038de4a3f6dc103ed70",
+                "files": ["src/xgboost/xgboost.c", "src/xgboost/xgboost.h", "src/xgboost/testbench.c"],
+                "license": "GPL-3.0-or-later",
+            }
+            or workload.get("input") != {
+                "kind": "i64_array_scalar", "encoding": "64 feature bytes as 64 signed integers",
+                "feature_count": XGBOOST_MAX_INPUT_LENGTH, "feature_range": [0, 255],
+                "model": "fixed six-tree, three-class bounded model; two trees per class; three internal nodes and four leaves per tree",
+                "output": "argmax accumulated leaf votes; ties select lowest class index",
+                "invalid_result": -1,
+                "model_provenance": "Synthetic fixed model; the arrays are not copied from the upstream MNIST model. It is source-shaped to exercise the pinned predict traversal and voting core.",
+                "model_arrays": model_arrays,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar", "sample_count": 7,
+                "warmup_rounds": 1, "repetitions_per_sample": 5,
+            }
+            or not isinstance(cases, list) or not cases):
+        raise ValueError("xgboost workload metadata differs from the bounded fixed classifier contract")
+    package = ROOT / "benchmarks" / "x" / "xgboost"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+    source_url = "https://github.com/embench/embench-iot/blob/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/xgboost/xgboost.c"
+    if ("synthetic" not in readme.lower() or "source-shaped" not in readme.lower()
+            or source_url not in readme or "GPL-3.0-or-later" not in readme
+            or "GNU GENERAL PUBLIC LICENSE" not in license_text
+            or "Zachary Susskind" not in notice or "Konrad Moron" not in notice):
+        raise ValueError("xgboost README, license, or source attribution is incomplete")
+    for relative in (
+            "c/x/xgboost.c", "c3/x/xgboost.c3", "cpp/x/xgboost.cpp", "elisa/x/xgboost.elisa",
+            "nim/x/xgboost.nim", "odin/x/xgboost.odin", "rust/x/xgboost.rs",
+            "v/x/xgboost.v", "zig/x/xgboost.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"xgboost port is missing: {relative}")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result", "input_length"}
+                or not isinstance(values, list) or len(values) > XGBOOST_MAX_INPUT_LENGTH + 1
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("input_length")) is not int or case["input_length"] != len(values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != xgboost_expected(values)):
+            raise ValueError(f"xgboost fixture differs from its fixed model oracle: {case.get('id')}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-manifest", required=True, type=Path)
@@ -15486,6 +19921,8 @@ def main() -> int:
     workload_path = args.workload or (
         ROOT / "benchmarks" / algorithm / "workload.json"
         if algorithm == "mcnaughton_yamada_thompson" else
+        ROOT / "benchmarks" / "d" / algorithm / "workload.json"
+        if algorithm.startswith("versabench_dbms_") else
         ROOT / "benchmarks" / letter / algorithm / "workload.json")
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if (workload.get("algorithm") != algorithm
@@ -15606,6 +20043,99 @@ def main() -> int:
         validate_netbench_crc_workload(workload)
     elif algorithm == "trimaran_netbench_url_internet_checksum":
         validate_trimaran_netbench_url_internet_checksum_workload(workload)
+    elif algorithm == "trimaran_enc_pc1":
+        validate_trimaran_enc_pc1_workload(workload)
+    elif algorithm == "mccat_08_main":
+        validate_mccat_08_main_workload(workload)
+    elif algorithm == "mccat_09_vor":
+        validate_mccat_09_vor_workload(workload)
+    elif algorithm == "mallocbench_espresso":
+        validate_mallocbench_espresso_workload(workload)
+    elif algorithm == "ptrdist_anagram":
+        validate_ptrdist_anagram_workload(workload)
+    elif algorithm == "stanford_puzzle":
+        validate_stanford_puzzle_workload(workload)
+    elif algorithm == "mallocbench_cfrac":
+        validate_mallocbench_cfrac_workload(workload)
+    elif algorithm == "agrep_approx_substring_count":
+        validate_agrep_approx_substring_count_workload(workload)
+    elif algorithm == "npb_serial_dc":
+        validate_npb_serial_dc_workload(workload)
+    elif algorithm == "doe_pathfinder_signature_search":
+        validate_doe_pathfinder_signature_search_workload(workload)
+    elif algorithm == "ptrdist_ks":
+        validate_ptrdist_ks_workload(workload)
+    elif algorithm == "prolangs_c_assembler":
+        validate_prolangs_c_assembler_workload(workload)
+    elif algorithm == "prolangs_c_bison_nullable":
+        validate_prolangs_c_bison_nullable_workload(workload)
+    elif algorithm == "cbench_office_pratt_boyer_moore":
+        validate_cbench_office_pratt_boyer_moore_workload(workload)
+    elif algorithm == "cbench_ispell_hash":
+        validate_cbench_ispell_hash_workload(workload)
+    elif algorithm == "cbench_ispell_lookup_chain":
+        validate_cbench_ispell_lookup_chain_workload(workload)
+    elif algorithm == "cbench_ghostscript_rop3":
+        validate_cbench_ghostscript_rop3_workload(workload)
+    elif algorithm == "cbench_ghostscript_rop3_idempotence":
+        validate_cbench_ghostscript_rop3_idempotence_workload(workload)
+    elif algorithm == "cbench_ghostscript_rop3_operand_usage":
+        validate_cbench_ghostscript_rop3_operand_usage_workload(workload)
+    elif algorithm == "cbench_ghostscript_rop3_transform":
+        validate_cbench_ghostscript_rop3_transform_workload(workload)
+    elif algorithm == "parboil_sad":
+        validate_parboil_sad_workload(workload)
+    elif algorithm == "parboil_lbm":
+        validate_parboil_lbm_workload(workload)
+    elif algorithm == "tsvc_vbor":
+        validate_tsvc_vbor_workload(workload)
+    elif algorithm == "tsvc_s257_column_coupled_update":
+        validate_tsvc_s257_column_coupled_update_workload(workload)
+    elif algorithm == "tsvc_s273_dependent_conditional_update":
+        validate_tsvc_s273_dependent_conditional_update_workload(workload)
+    elif algorithm == "tsvc_s331_last_negative_index":
+        validate_tsvc_s331_last_negative_index_workload(workload)
+    elif algorithm == "tsvc_s424_alias_overlap_feedback":
+        validate_tsvc_s424_alias_overlap_feedback_workload(workload)
+    elif algorithm == "tsvc_s258_wrapped_scalar_expansion":
+        validate_tsvc_s258_wrapped_scalar_expansion_workload(workload)
+    elif algorithm == "versabench_dbms_choose_entry":
+        validate_versabench_dbms_choose_entry_workload(workload)
+    elif algorithm in {"versabench_dbms_partition_entries", "versabench_dbms_consistent_key",
+                       "versabench_dbms_penalty"}:
+        validate_versabench_dbms_scalar_helper_workload(workload, algorithm)
+    elif algorithm == "versabench_dbms_valid_attributes":
+        validate_versabench_dbms_valid_attributes_workload(workload)
+    elif algorithm == "versabench_dbms_valid_index_key":
+        validate_versabench_dbms_valid_index_key_workload(workload)
+    elif algorithm == "tsvc_s3111_positive_value_sum":
+        validate_tsvc_s3111_positive_value_sum_workload(workload)
+    elif algorithm == "tsvc_s312_array_product":
+        validate_tsvc_s312_array_product_workload(workload)
+    elif algorithm == "tsvc_s4115_indexed_gather_product_sum":
+        validate_tsvc_s4115_indexed_gather_product_sum_workload(workload)
+    elif algorithm == "embench_aha_mont64":
+        validate_embench_aha_mont64_workload(workload)
+    elif algorithm == "slre":
+        validate_slre_workload(workload)
+    elif algorithm == "rodinia_srad_v2":
+        validate_rodinia_srad_v2_workload(workload)
+    elif algorithm == "rodinia_euler3d_flux":
+        validate_rodinia_euler3d_flux_workload(workload)
+    elif algorithm == "rodinia_particlefilter_naive":
+        validate_rodinia_particlefilter_naive_workload(workload)
+    elif algorithm == "rodinia_lavamd":
+        validate_rodinia_lavamd_workload(workload)
+    elif algorithm == "rodinia_pathfinder":
+        validate_rodinia_pathfinder_workload(workload)
+    elif algorithm == "rodinia_bplus_tree":
+        validate_rodinia_bplus_tree_workload(workload)
+    elif algorithm == "xgboost":
+        validate_xgboost_workload(workload)
+    elif algorithm == "prolangs_football_tiebreaks":
+        validate_prolangs_football_tiebreaks_workload(workload)
+    elif algorithm == "scimark2_sor":
+        validate_scimark2_sor_workload(workload)
     elif algorithm == "olden_perimeter":
         validate_olden_perimeter_workload(workload)
     elif algorithm == "mcgill_exptree":
@@ -15620,8 +20150,20 @@ def main() -> int:
         validate_olden_voronoi_workload(workload)
     elif algorithm == "mibench_network_dijkstra":
         validate_mibench_network_dijkstra_workload(workload)
+    elif algorithm == "mibench_automotive_basicmath_isqrt":
+        validate_mibench_automotive_basicmath_isqrt_workload(workload)
     elif algorithm == "richards_benchmark":
         validate_richards_benchmark_workload(workload)
+    elif algorithm == "analyzer":
+        validate_analyzer_workload(workload)
+    elif algorithm == "fourinarow_minimax":
+        validate_fourinarow_minimax_workload(workload)
+    elif algorithm == "freebench_mason":
+        validate_freebench_mason_workload(workload)
+    elif algorithm == "fhourstones_exact":
+        validate_fhourstones_exact_workload(workload)
+    elif algorithm == "freebench_neural_hopfield":
+        validate_freebench_neural_hopfield_workload(workload)
     elif algorithm == "graph_enumeration":
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":
@@ -15676,7 +20218,12 @@ def main() -> int:
             raise ValueError(f"input_is_null must be boolean for {case['id']}")
         if input_is_null:
             minimum_null_length = 0 if algorithm in (
-                "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie") else 1
+                "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie",
+                "mccat_08_main", "mccat_09_vor", "mallocbench_espresso", "ptrdist_anagram",
+                "stanford_puzzle", "mallocbench_cfrac", "npb_serial_dc",
+                "prolangs_c_assembler", "prolangs_c_bison_nullable",
+                "versabench_dbms_choose_entry", "tsvc_s424_alias_overlap_feedback",
+                "tsvc_s258_wrapped_scalar_expansion") else 1
             if values or type(input_length) is not int or not minimum_null_length <= input_length <= 100002:
                 raise ValueError(f"null input length is outside the supported range for {case['id']}")
         elif input_length != len(values):

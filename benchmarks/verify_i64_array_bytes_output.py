@@ -20,6 +20,66 @@ import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from freebench_distray_oracle import (
+    MAX_OUTPUT_BYTES as FREEBENCH_DISTRAY_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as FREEBENCH_DISTRAY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as freebench_distray_verifier_oracle,
+)
+from rodinia_dwt2d_oracle import (
+    MAX_INPUT_LENGTH as RODINIA_DWT2D_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RODINIA_DWT2D_MAX_OUTPUT_BYTES,
+    expected_output as rodinia_dwt2d_expected_output,
+    expected_result as rodinia_dwt2d_expected_result,
+)
+from edn_lattice_synthesis_oracle import (
+    MAX_ORDER as EDN_LATTICE_MAX_ORDER,
+    MAX_OUTPUT_BYTES as EDN_LATTICE_MAX_OUTPUT_BYTES,
+    oracle as edn_lattice_synthesis_verifier_oracle,
+)
+from edn_vec_mpy1_oracle import MAX_N as EDN_VEC_MPY1_MAX_N
+from edn_vec_mpy1_oracle import oracle as edn_vec_mpy1_verifier_oracle
+from edn_iir_cascade_oracle import MAX_SECTIONS as EDN_IIR_MAX_SECTIONS
+from edn_iir_cascade_oracle import oracle as edn_iir_cascade_verifier_oracle
+from edn_jpeg_dct_oracle import oracle as edn_jpeg_dct_verifier_oracle
+from nsichneu_oracle import expected_output as nsichneu_verifier_oracle
+from qrduino_oracle import expected_output as qrduino_verifier_expected_output
+from picojpeg_oracle import (
+    expected_output as picojpeg_verifier_expected_output,
+    expected_result as picojpeg_verifier_expected_result,
+)
+from statemate_oracle import expected_output as statemate_verifier_expected_output
+from pcompress2_oracle import expected_output as pcompress2_verifier_oracle
+from mibench_security_sha0_oracle import expected_output as mibench_security_sha0_verifier_oracle
+from lac_adpcm_oracle import (
+    MAX_DECODE_BYTES as LAC_ADPCM_MAX_DECODE_BYTES,
+    MAX_ENCODE_SAMPLES as LAC_ADPCM_MAX_ENCODE_SAMPLES,
+    MAX_INPUT_LENGTH as LAC_ADPCM_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LAC_ADPCM_MAX_OUTPUT_BYTES,
+    expected_output as lac_adpcm_verifier_oracle,
+)
+from mccat_05_eks_oracle import (
+    INPUT_SCALE as MCCAT_05_EKS_INPUT_SCALE,
+    MAX_N as MCCAT_05_EKS_MAX_N,
+    MAX_INPUT_LENGTH as MCCAT_05_EKS_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MCCAT_05_EKS_MAX_OUTPUT_BYTES,
+    expected_output as mccat_05_eks_verifier_oracle,
+)
+from mccat_bintr_oracle import (
+    MAX_INPUT_LENGTH as MCCAT_BINTR_MAX_INPUT_LENGTH,
+    OUTPUT_BYTES as MCCAT_BINTR_OUTPUT_BYTES,
+    expected_output as mccat_bintr_verifier_oracle,
+)
+from mediabench_g721_encode_oracle import (
+    MAX_INPUT_LENGTH as MEDIABENCH_G721_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIABENCH_G721_MAX_OUTPUT_BYTES,
+    expected_output as mediabench_g721_encode_verifier_oracle,
+)
+from simplify_fraction_oracle import (
+    MAX_INPUT_LENGTH as SIMPLIFY_FRACTION_MAX_INPUT_LENGTH,
+    MAX_ABS_COMPONENT as SIMPLIFY_FRACTION_MAX_ABS_COMPONENT,
+    OUTPUT_BYTES as SIMPLIFY_FRACTION_OUTPUT_BYTES,
+    expected_output as simplify_fraction_verifier_oracle,
+)
 from dynamicarray_oracle import expected_output as dynamicarray_oracle
 from flatten_multilevel_linked_list_oracle import MAX_CHAIN_LENGTH as FLATTEN_MAX_CHAIN_LENGTH
 from flatten_multilevel_linked_list_oracle import MAX_INPUT_LENGTH as MAX_FLATTEN_MULTILEVEL_INPUT_LENGTH
@@ -1194,6 +1254,550 @@ from sumset_oracle import expected_output as sumset_oracle
 from run_i64_array_bytes_output import MAX_OUTPUT_CAPACITY
 from run_i64_array_bytes_output import RECORDER_WORKSPACE_ALGORITHMS
 from run_i64_array_bytes_output import EXTERNAL_BYTE_OUTPUT_BOUNDS
+from rodinia_mummergpu_oracle import MAX_QUERY as RODINIA_MUMMERGPU_MAX_QUERY
+from rodinia_mummergpu_oracle import MAX_REF as RODINIA_MUMMERGPU_MAX_REF
+from rodinia_mummergpu_oracle import MAX_OUTPUT_BYTES as RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES
+from tsvc_indexed_gather_scatter_oracle import (
+    I64_MAX as TSVC_INDEXED_GATHER_SCATTER_I64_MAX,
+    I64_MIN as TSVC_INDEXED_GATHER_SCATTER_I64_MIN,
+    MAX_N as TSVC_INDEXED_GATHER_SCATTER_MAX_N,
+    MAX_OPERAND as TSVC_INDEXED_GATHER_SCATTER_MAX_OPERAND,
+    MAX_OUTPUT_BYTES as TSVC_INDEXED_GATHER_SCATTER_MAX_OUTPUT_BYTES,
+)
+from tsvc_s141_packed_symmetric_update_oracle import (
+    I64_MAX as TSVC_S141_I64_MAX,
+    I64_MIN as TSVC_S141_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S141_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S141_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S141_MAX_OUTPUT_BYTES,
+    MAX_ROUNDS as TSVC_S141_MAX_ROUNDS,
+    MAX_VALUE as TSVC_S141_MAX_VALUE,
+)
+from tsvc_s131_forward_neighbor_update_oracle import (
+    I64_MAX as TSVC_S131_I64_MAX,
+    I64_MIN as TSVC_S131_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S131_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S131_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S131_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S131_MAX_PASSES,
+    MAX_VALUE as TSVC_S131_MAX_VALUE,
+)
+from tsvc_s132_shifted_row_update_oracle import (
+    I64_MAX as TSVC_S132_I64_MAX,
+    I64_MIN as TSVC_S132_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S132_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S132_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S132_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S132_MAX_VALUE,
+)
+from tsvc_s152_three_factor_accumulate_oracle import (
+    I64_MAX as TSVC_S152_I64_MAX,
+    I64_MIN as TSVC_S152_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S152_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S152_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S152_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S152_MAX_PASSES,
+    MAX_VALUE as TSVC_S152_MAX_VALUE,
+)
+from tsvc_s161_mutually_exclusive_updates_oracle import (
+    I64_MAX as TSVC_S161_I64_MAX,
+    I64_MIN as TSVC_S161_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S161_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S161_MAX_N,
+    MAX_VALUE as TSVC_S161_MAX_VALUE,
+)
+from tsvc_s211_ordered_neighbor_rewrite_oracle import (
+    I64_MAX as TSVC_S211_I64_MAX,
+    I64_MIN as TSVC_S211_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S211_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S211_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S211_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S211_MAX_PASSES,
+    MAX_VALUE as TSVC_S211_MAX_VALUE,
+)
+from tsvc_s212_next_element_dependency_oracle import (
+    I64_MAX as TSVC_S212_I64_MAX,
+    I64_MIN as TSVC_S212_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S212_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S212_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S212_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S212_MAX_PASSES,
+    MAX_VALUE as TSVC_S212_MAX_VALUE,
+)
+from tsvc_s114_transposed_lower_triangle_update_oracle import (
+    I64_MAX as TSVC_S114_I64_MAX,
+    I64_MIN as TSVC_S114_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S114_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S114_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S114_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S114_MAX_VALUE,
+)
+from tsvc_vif_masked_assignment_oracle import (
+    I64_MAX as TSVC_VIF_I64_MAX,
+    I64_MIN as TSVC_VIF_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_VIF_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_VIF_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_VIF_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_VIF_MAX_VALUE,
+)
+from tsvc_s278_branch_recompute_oracle import (
+    I64_MAX as TSVC_S278_I64_MAX,
+    I64_MIN as TSVC_S278_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S278_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S278_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S278_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S278_MAX_PASSES,
+    MAX_VALUE as TSVC_S278_MAX_VALUE,
+)
+from tsvc_s279_nested_branch_recompute_oracle import (
+    I64_MAX as TSVC_S279_I64_MAX,
+    I64_MIN as TSVC_S279_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S279_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S279_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S279_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S279_MAX_PASSES,
+    MAX_VALUE as TSVC_S279_MAX_VALUE,
+)
+from tsvc_s2111_wavefront_add_recurrence_oracle import (
+    I64_MAX as TSVC_S2111_I64_MAX,
+    I64_MIN as TSVC_S2111_I64_MIN,
+    MAX_CELLS as TSVC_S2111_MAX_CELLS,
+    MAX_INPUT_LENGTH as TSVC_S2111_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S2111_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S2111_MAX_PASSES,
+    MAX_SIDE as TSVC_S2111_MAX_SIDE,
+)
+from tsvc_s353_unrolled_sparse_saxpy_oracle import (
+    I64_MAX as TSVC_S353_I64_MAX,
+    I64_MIN as TSVC_S353_I64_MIN,
+    MAX_ALPHA as TSVC_S353_MAX_ALPHA,
+    MAX_INPUT_LENGTH as TSVC_S353_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S353_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S353_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S353_MAX_VALUE,
+    MIN_N as TSVC_S353_MIN_N,
+)
+from tsvc_s452_index_weighted_vector_map_oracle import (
+    I64_MAX as TSVC_S452_I64_MAX,
+    I64_MIN as TSVC_S452_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S452_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S452_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S452_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S452_MAX_VALUE,
+)
+from tsvc_s126_matrix_column_recurrence_oracle import (
+    I64_MAX as TSVC_S126_I64_MAX,
+    I64_MIN as TSVC_S126_I64_MIN,
+    MAX_CELLS as TSVC_S126_MAX_CELLS,
+    MAX_INPUT_LENGTH as TSVC_S126_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S126_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S126_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S126_MAX_VALUE,
+    MIN_N as TSVC_S126_MIN_N,
+)
+from tsvc_s322_second_order_recurrence_oracle import (
+    I64_MAX as TSVC_S322_I64_MAX,
+    I64_MIN as TSVC_S322_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S322_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S322_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S322_MAX_OUTPUT_BYTES,
+)
+from tsvc_s321_first_order_recurrence_oracle import (
+    I64_MAX as TSVC_S321_I64_MAX,
+    I64_MIN as TSVC_S321_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S321_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S321_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S321_MAX_OUTPUT_BYTES,
+)
+from tsvc_s128_strided_coupled_update_oracle import (
+    I64_MAX as TSVC_S128_I64_MAX,
+    I64_MIN as TSVC_S128_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S128_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S128_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S128_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S128_MAX_VALUE,
+)
+from tsvc_s323_coupled_recurrence_oracle import (
+    I64_MAX as TSVC_S323_I64_MAX,
+    I64_MIN as TSVC_S323_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S323_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S323_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S323_MAX_OUTPUT_BYTES,
+)
+from tsvc_s127_fixed_pair_expansion_oracle import (
+    I64_MAX as TSVC_S127_I64_MAX,
+    I64_MIN as TSVC_S127_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S127_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S127_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S127_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S127_MAX_VALUE,
+)
+from tsvc_s123_conditional_pair_expansion_oracle import (
+    I64_MAX as TSVC_S123_I64_MAX,
+    I64_MIN as TSVC_S123_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S123_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S123_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S123_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S123_MAX_VALUE,
+)
+from tsvc_s122_reverse_strided_gather_add_oracle import (
+    I64_MAX as TSVC_S122_I64_MAX,
+    I64_MIN as TSVC_S122_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S122_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S122_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S122_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S122_MAX_VALUE,
+)
+from tsvc_s315_maximum_with_index_oracle import (
+    I64_MAX as TSVC_S315_I64_MAX,
+    I64_MIN as TSVC_S315_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S315_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S315_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S315_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S315_MAX_VALUE,
+)
+from tsvc_s453_recurrence_weighted_scale_oracle import (
+    I64_MAX as TSVC_S453_I64_MAX,
+    I64_MIN as TSVC_S453_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S453_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S453_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S453_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S453_MAX_VALUE,
+)
+from tsvc_s342_conditional_unpack_oracle import (
+    I64_MAX as TSVC_S342_I64_MAX,
+    I64_MIN as TSVC_S342_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S342_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S342_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S342_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S342_MAX_VALUE,
+)
+from tsvc_s124_conditional_fma_map_oracle import (
+    I64_MAX as TSVC_S124_I64_MAX,
+    I64_MIN as TSVC_S124_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S124_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S124_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S124_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S124_MAX_VALUE,
+)
+from tsvc_s125_matrix_flattened_fma_oracle import (
+    I64_MAX as TSVC_S125_I64_MAX,
+    I64_MIN as TSVC_S125_I64_MIN,
+    MAX_CELLS as TSVC_S125_MAX_CELLS,
+    MAX_INPUT_LENGTH as TSVC_S125_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S125_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S125_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S125_MAX_VALUE,
+)
+from tsvc_s319_coupled_reductions_oracle import (
+    I64_MAX as TSVC_S319_I64_MAX,
+    I64_MIN as TSVC_S319_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S319_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S319_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S319_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S319_MAX_VALUE,
+)
+from tsvc_s241_cross_coupled_product_map_oracle import (
+    I64_MAX as TSVC_S241_I64_MAX,
+    I64_MIN as TSVC_S241_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S241_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S241_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S241_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S241_MAX_VALUE,
+)
+from tsvc_s243_ordered_lookahead_update_oracle import (
+    I64_MAX as TSVC_S243_I64_MAX,
+    I64_MIN as TSVC_S243_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S243_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S243_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S243_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S243_MAX_VALUE,
+)
+from tsvc_s244_false_dependence_cycle_break_oracle import (
+    I64_MAX as TSVC_S244_I64_MAX,
+    I64_MIN as TSVC_S244_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S244_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S244_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S244_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_VALUES as TSVC_S244_MAX_OUTPUT_VALUES,
+    MAX_VALUE as TSVC_S244_MAX_VALUE,
+)
+from tsvc_s1244_polynomial_neighbor_sum_oracle import (
+    I64_MAX as TSVC_S1244_I64_MAX,
+    I64_MIN as TSVC_S1244_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S1244_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S1244_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S1244_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S1244_MAX_VALUE,
+)
+from tsvc_s1221_lag4_add_recurrence_oracle import (
+    I64_MAX as TSVC_S1221_I64_MAX,
+    I64_MIN as TSVC_S1221_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S1221_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S1221_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S1221_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S1221_MAX_VALUE,
+    MIN_N as TSVC_S1221_MIN_N,
+)
+from tsvc_s442_indexed_square_accumulate_oracle import (
+    I64_MAX as TSVC_S442_I64_MAX,
+    I64_MIN as TSVC_S442_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S442_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S442_MAX_N,
+    MAX_PASSES as TSVC_S442_MAX_PASSES,
+    MAX_VALUE as TSVC_S442_MAX_VALUE,
+)
+TSVC_S442_MAX_OUTPUT_BYTES = 8 * TSVC_S442_MAX_N
+from tsvc_s171_stride_indexed_accumulate_oracle import (
+    I64_MAX as TSVC_S171_I64_MAX,
+    I64_MIN as TSVC_S171_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S171_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S171_MAX_N,
+    MAX_STRIDE as TSVC_S171_MAX_STRIDE,
+    MAX_VALUE as TSVC_S171_MAX_VALUE,
+    MIN_VALUE as TSVC_S171_MIN_VALUE,
+)
+TSVC_S171_MAX_OUTPUT_VALUES = 1 + (TSVC_S171_MAX_N - 1) * TSVC_S171_MAX_STRIDE
+TSVC_S171_MAX_OUTPUT_BYTES = 8 * TSVC_S171_MAX_OUTPUT_VALUES
+from tsvc_s4117_pair_replicated_gather_map_oracle import (
+    I64_MAX as TSVC_S4117_I64_MAX,
+    I64_MIN as TSVC_S4117_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S4117_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S4117_MAX_N,
+    MAX_VALUE as TSVC_S4117_MAX_VALUE,
+    MIN_VALUE as TSVC_S4117_MIN_VALUE,
+)
+TSVC_S4117_MAX_OUTPUT_BYTES = 8 * TSVC_S4117_MAX_N
+from tsvc_s162_guarded_shifted_fma_oracle import (
+    I64_MAX as TSVC_S162_I64_MAX,
+    I64_MIN as TSVC_S162_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S162_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S162_MAX_N,
+    MAX_VALUE as TSVC_S162_MAX_VALUE,
+    MIN_VALUE as TSVC_S162_MIN_VALUE,
+)
+TSVC_S162_MAX_OUTPUT_BYTES = 8 * TSVC_S162_MAX_N
+from tsvc_s4114_reverse_index_gather_fma_oracle import (
+    I64_MAX as TSVC_S4114_I64_MAX,
+    I64_MIN as TSVC_S4114_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S4114_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S4114_MAX_N,
+    MAX_VALUE as TSVC_S4114_MAX_VALUE,
+    MIN_VALUE as TSVC_S4114_MIN_VALUE,
+)
+TSVC_S4114_MAX_OUTPUT_BYTES = 8 * TSVC_S4114_MAX_N
+from tsvc_s318_strided_absolute_maximum_with_index_oracle import (
+    I64_MAX as TSVC_S318_I64_MAX,
+    I64_MIN as TSVC_S318_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S318_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S318_MAX_N,
+    MAX_PHYSICAL_N as TSVC_S318_MAX_PHYSICAL_N,
+    MAX_STRIDE as TSVC_S318_MAX_STRIDE,
+    MAX_VALUE as TSVC_S318_MAX_VALUE,
+)
+TSVC_S318_MAX_OUTPUT_BYTES = 16
+from tsvc_s2101_diagonal_matrix_fma_oracle import (
+    I64_MAX as TSVC_S2101_I64_MAX,
+    I64_MIN as TSVC_S2101_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S2101_MAX_INPUT_LENGTH,
+    MAX_MATRIX_VALUES as TSVC_S2101_MAX_MATRIX_VALUES,
+    MAX_N as TSVC_S2101_MAX_N,
+    MAX_VALUE as TSVC_S2101_MAX_VALUE,
+)
+TSVC_S2101_MAX_OUTPUT_BYTES = 8 * TSVC_S2101_MAX_MATRIX_VALUES
+from tsvc_s2102_identity_matrix_initialize_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S2102_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S2102_MAX_OUTPUT_BYTES,
+    MAX_SIDE as TSVC_S2102_MAX_SIDE,
+    MAX_PASSES as TSVC_S2102_MAX_PASSES,
+)
+from tsvc_vag_indexed_gather_copy_oracle import (
+    I64_MAX as TSVC_VAG_I64_MAX,
+    I64_MIN as TSVC_VAG_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_VAG_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_VAG_MAX_N,
+    MAX_VALUE as TSVC_VAG_MAX_VALUE,
+)
+TSVC_VAG_MAX_OUTPUT_BYTES = 8 * TSVC_VAG_MAX_N
+from tsvc_s332_first_above_threshold_oracle import (
+    I64_MAX as TSVC_S332_I64_MAX,
+    I64_MIN as TSVC_S332_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S332_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S332_MAX_N,
+    MAX_VALUE as TSVC_S332_MAX_VALUE,
+)
+TSVC_S332_MAX_OUTPUT_BYTES = 16
+from tsvc_s261_shifted_cross_array_update_oracle import (
+    I64_MAX as TSVC_S261_I64_MAX,
+    I64_MIN as TSVC_S261_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S261_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S261_MAX_N,
+    MAX_VALUE as TSVC_S261_MAX_VALUE,
+)
+TSVC_S261_MAX_OUTPUT_BYTES = 16 * TSVC_S261_MAX_N
+from mediabench_mpeg2_motion_vector_component_oracle import (
+    MAX_INPUT_LENGTH as MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from mibench_jpeg_ycbcr_to_rgb_oracle import (
+    MAX_INPUT_LENGTH as MIBENCH_JPEG_YCBCR_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MIBENCH_JPEG_YCBCR_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as MIBENCH_JPEG_YCBCR_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_PIXELS as MIBENCH_JPEG_YCBCR_MAX_PIXELS,
+)
+from parboil_tpacf_cross_correlation_oracle import (
+    MAX_INPUT_LENGTH as PARBOIL_TPACF_MAX_INPUT_LENGTH,
+    MAX_POINTS as PARBOIL_TPACF_MAX_POINTS,
+    NUM_BINS as PARBOIL_TPACF_NUM_BINS,
+    SCALE as PARBOIL_TPACF_SCALE,
+)
+from parboil_mri_q_oracle import (
+    MAX_COMPONENT_RAW as PARBOIL_MRI_Q_MAX_COMPONENT_RAW,
+    MAX_INPUT_LENGTH as PARBOIL_MRI_Q_MAX_INPUT_LENGTH,
+    MAX_K as PARBOIL_MRI_Q_MAX_K,
+    MAX_OUTPUT_BYTES as PARBOIL_MRI_Q_MAX_OUTPUT_BYTES,
+)
+from parboil_cutcp_oracle import (
+    MAX_ATOMS as PARBOIL_CUTCP_MAX_ATOMS,
+    MAX_COMPONENT_RAW as PARBOIL_CUTCP_MAX_COMPONENT_RAW,
+    MAX_DIMENSION as PARBOIL_CUTCP_MAX_DIMENSION,
+    MAX_INPUT_LENGTH as PARBOIL_CUTCP_MAX_INPUT_LENGTH,
+    MAX_ORIGIN_RAW as PARBOIL_CUTCP_MAX_ORIGIN_RAW,
+    MAX_OUTPUT_BYTES as PARBOIL_CUTCP_MAX_OUTPUT_BYTES,
+    MIN_DIMENSION as PARBOIL_CUTCP_MIN_DIMENSION,
+)
+from parboil_spmv_jds_oracle import (
+    INVALID_RESULT as PARBOIL_SPMV_JDS_INVALID_RESULT,
+    MAX_INPUT_LENGTH as PARBOIL_SPMV_JDS_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PARBOIL_SPMV_JDS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PARBOIL_SPMV_JDS_MAX_OUTPUT_BYTES,
+    OUTPUT_ERROR as PARBOIL_SPMV_JDS_OUTPUT_ERROR,
+)
+from parboil_histo_oracle import (
+    INVALID_RESULT as PARBOIL_HISTO_INVALID_RESULT,
+    MAX_BINS as PARBOIL_HISTO_MAX_BINS,
+    MAX_INPUT_LENGTH as PARBOIL_HISTO_MAX_INPUT_LENGTH,
+    MAX_ITERATIONS as PARBOIL_HISTO_MAX_ITERATIONS,
+    MAX_SAMPLES as PARBOIL_HISTO_MAX_SAMPLES,
+    OUTPUT_ERROR as PARBOIL_HISTO_OUTPUT_ERROR,
+)
+PARBOIL_HISTO_MAX_OUTPUT_BYTES = PARBOIL_HISTO_MAX_BINS
+from tsvc_s252_adjacent_product_pair_sum_oracle import (
+    I64_MAX as TSVC_S252_I64_MAX,
+    I64_MIN as TSVC_S252_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S252_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S252_MAX_N,
+    MAX_VALUE as TSVC_S252_MAX_VALUE,
+)
+TSVC_S252_MAX_OUTPUT_BYTES = 8 * TSVC_S252_MAX_N
+from tsvc_s251_scalar_square_expansion_oracle import (
+    I64_MAX as TSVC_S251_I64_MAX,
+    I64_MIN as TSVC_S251_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S251_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S251_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S251_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S251_MAX_PASSES,
+    MAX_VALUE as TSVC_S251_MAX_VALUE,
+)
+from tsvc_s256_array_expansion_oracle import (
+    I64_MAX as TSVC_S256_I64_MAX,
+    I64_MIN as TSVC_S256_I64_MIN,
+    MAX_A0 as TSVC_S256_MAX_A0,
+    MAX_C0 as TSVC_S256_MAX_C0,
+    MAX_FACTOR as TSVC_S256_MAX_FACTOR,
+    MAX_INPUT_LENGTH as TSVC_S256_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S256_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S256_MAX_OUTPUT_BYTES,
+)
+from tsvc_s253_conditional_affine_update_oracle import (
+    I64_MAX as TSVC_S253_I64_MAX,
+    I64_MIN as TSVC_S253_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S253_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S253_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S253_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S253_MAX_PASSES,
+)
+from tsvc_s272_threshold_dual_accumulate_oracle import (
+    I64_MAX as TSVC_S272_I64_MAX,
+    I64_MIN as TSVC_S272_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S272_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S272_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S272_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S272_MAX_PASSES,
+)
+from tsvc_s271_positive_branch_axpy_oracle import (
+    I64_MAX as TSVC_S271_I64_MAX,
+    I64_MIN as TSVC_S271_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S271_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S271_MAX_N,
+    MAX_PASSES as TSVC_S271_MAX_PASSES,
+)
+TSVC_S271_MAX_OUTPUT_BYTES = 8 * TSVC_S271_MAX_N
+from tsvc_s276_index_split_axpy_oracle import (
+    I64_MAX as TSVC_S276_I64_MAX,
+    I64_MIN as TSVC_S276_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S276_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S276_MAX_N,
+    MAX_PASSES as TSVC_S276_MAX_PASSES,
+)
+TSVC_S276_MAX_OUTPUT_BYTES = 8 * TSVC_S276_MAX_N
+from tsvc_s277_guarded_carry_update_oracle import (
+    I64_MAX as TSVC_S277_I64_MAX,
+    I64_MIN as TSVC_S277_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S277_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S277_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S277_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S277_MAX_PASSES,
+)
+from tsvc_s274_dependent_conditional_overwrite_oracle import (
+    I64_MAX as TSVC_S274_I64_MAX,
+    I64_MIN as TSVC_S274_I64_MIN,
+    MAX_INPUT_LENGTH as TSVC_S274_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S274_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S274_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S274_MAX_PASSES,
+)
+from versabench_dbms_keys_union_oracle import (
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_KEYS_UNION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_KEYS_UNION_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from versabench_dbms_query_oracle import (
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_QUERY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as VERSABENCH_DBMS_QUERY_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_QUERY_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from versabench_dbms_insert_entry_oracle import (
+    MAX_DEPTH as VERSABENCH_DBMS_INSERT_ENTRY_MAX_DEPTH,
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_INSERT_ENTRY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as VERSABENCH_DBMS_INSERT_ENTRY_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_ELEMENTS as VERSABENCH_DBMS_INSERT_ENTRY_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_INSERT_ENTRY_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from versabench_dbms_delete_entry_oracle import (
+    MAX_CHILDREN as VERSABENCH_DBMS_DELETE_ENTRY_MAX_CHILDREN,
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_DELETE_ENTRY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_ELEMENTS as VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_DELETE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_RECORDS_PER_LEAF as VERSABENCH_DBMS_DELETE_ENTRY_MAX_RECORDS_PER_LEAF,
+)
+from versabench_dbms_contract_root_oracle import (
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_CONTRACT_ROOT_MAX_INPUT_LENGTH,
+    MAX_NODES as VERSABENCH_DBMS_CONTRACT_ROOT_MAX_NODES,
+    MAX_OUTPUT_BYTES as VERSABENCH_DBMS_CONTRACT_ROOT_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_ELEMENTS as VERSABENCH_DBMS_CONTRACT_ROOT_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_CONTRACT_ROOT_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from rodinia_streamcluster_pgain_oracle import (
+    MAX_DIMENSION as RODINIA_STREAMCLUSTER_PGAIN_MAX_DIMENSION,
+    MAX_INPUT_LENGTH as RODINIA_STREAMCLUSTER_PGAIN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RODINIA_STREAMCLUSTER_PGAIN_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_ELEMENTS as RODINIA_STREAMCLUSTER_PGAIN_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as RODINIA_STREAMCLUSTER_PGAIN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POINTS as RODINIA_STREAMCLUSTER_PGAIN_MAX_POINTS,
+)
 from revert_bits_oracle import MAX_PARSEABLE_INPUT_LENGTH as REVERT_BITS_MAX_PARSEABLE_INPUT_LENGTH
 from revert_bits_oracle import MAX_VALID_INPUT_LENGTH as REVERT_BITS_MAX_VALID_INPUT_LENGTH
 from revert_bits_oracle import OUTPUT_BYTES as REVERT_BITS_OUTPUT_BYTES
@@ -1236,6 +1840,42 @@ from run_i64_array_bytes_output import validate_shortest_job_first_workload
 from run_i64_array_bytes_output import MAX_SLACK_TIME_SCHEDULING_INPUT_LENGTH
 from run_i64_array_bytes_output import validate_slack_time_scheduling_workload
 from run_i64_array_bytes_output import validate_new_byte_output_workload
+from tsvc_s343_column_major_compaction_oracle import (
+    expected_output as tsvc_s343_column_major_compaction_verifier_oracle,
+)
+from cbench_tiffdither_oracle import (
+    MAX_WIDTH as CBENCH_TIFFDITHER_MAX_WIDTH,
+    MAX_HEIGHT as CBENCH_TIFFDITHER_MAX_HEIGHT,
+    expected_output as cbench_tiffdither_verifier_oracle,
+)
+from cbench_consumer_tiffmedian_oracle import (
+    MAX_PALETTE as CBENCH_TIFFMEDIAN_MAX_PALETTE,
+    MAX_PIXELS as CBENCH_TIFFMEDIAN_MAX_PIXELS,
+    expected_output as cbench_consumer_tiffmedian_verifier_oracle,
+)
+from cbench_consumer_tiff2bw_oracle import (
+    MAX_PIXELS as CBENCH_TIFF2BW_MAX_PIXELS,
+    expected_output as cbench_consumer_tiff2bw_verifier_oracle,
+)
+from cbench_bzip2_mtf_rle_oracle import (
+    MAX_BLOCK_LENGTH as CBENCH_BZIP2_MTF_RLE_MAX_BLOCK_LENGTH,
+    MAX_INPUT_LENGTH as CBENCH_BZIP2_MTF_RLE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_BZIP2_MTF_RLE_MAX_OUTPUT_BYTES,
+    expected_output as cbench_bzip2_mtf_rle_verifier_oracle,
+)
+from cbench_blowfish_cbc_oracle import (
+    MAX_BLOCKS as CBENCH_BLOWFISH_CBC_MAX_BLOCKS,
+    MAX_INPUT_LENGTH as CBENCH_BLOWFISH_CBC_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_BLOWFISH_CBC_MAX_OUTPUT_BYTES,
+    expected_output as cbench_blowfish_cbc_verifier_oracle,
+)
+from tsvc_s281_reverse_coupled_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S281_REVERSE_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S281_REVERSE_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S281_REVERSE_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S281_REVERSE_MAX_PASSES,
+    expected_output as tsvc_s281_reverse_coupled_update_verifier_oracle,
+)
 from ansibench_dhrystone_oracle import MAX_PARSEABLE_INPUT_LENGTH as ANSIBENCH_DHRYSTONE_MAX_PARSEABLE_INPUT_LENGTH
 from ansibench_dhrystone_oracle import MAX_OUTPUT_BYTES as ANSIBENCH_DHRYSTONE_MAX_OUTPUT_BYTES
 from ansibench_dhrystone_oracle import expected_output as ansibench_dhrystone_oracle
@@ -1257,6 +1897,18 @@ from hint_area_bound_refinement_oracle import expected_output as hint_area_bound
 from idea_encrypt_decrypt_oracle import MAX_OUTPUT_BYTES as IDEA_ENCRYPT_DECRYPT_MAX_OUTPUT_BYTES
 from idea_encrypt_decrypt_oracle import MAX_PARSEABLE_INPUT_LENGTH as IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH
 from idea_encrypt_decrypt_oracle import expected_output as idea_encrypt_decrypt_oracle
+from idea_cfb64_oracle import (
+    MAX_OUTPUT_BYTES as IDEA_CFB64_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as IDEA_CFB64_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from llubenchmark_list_traversal_growth_oracle import (
+    MAX_INITIAL_LENGTH as LLUBENCHMARK_MAX_INITIAL_LENGTH,
+    MAX_INPUT_LENGTH as LLUBENCHMARK_MAX_INPUT_LENGTH,
+    MAX_ITERATIONS as LLUBENCHMARK_MAX_ITERATIONS,
+    MAX_LISTS as LLUBENCHMARK_MAX_LISTS,
+    MAX_NODES as LLUBENCHMARK_MAX_NODES,
+)
+LLUBENCHMARK_MAX_OUTPUT_BYTES = 16
 from embedded_list_stress_oracle import MAX_OUTPUT_BYTES as EMBEDDED_LIST_STRESS_MAX_OUTPUT_BYTES
 from embedded_list_stress_oracle import MAX_PARSEABLE_INPUT_LENGTH as EMBEDDED_LIST_STRESS_MAX_PARSEABLE_INPUT_LENGTH
 from embedded_list_stress_oracle import expected_output as embedded_list_stress_oracle
@@ -2507,9 +3159,89 @@ ALGORITHMS = (*ALGORITHMS, "eulerian_path")
 ALGORITHMS = (*ALGORITHMS, "directed_simple_cycles")
 ALGORITHMS = (*ALGORITHMS, "yens_kshortest_paths")
 ALGORITHMS = (*ALGORITHMS, "mibench_security_rijndael")
+ALGORITHMS = (*ALGORITHMS, "cbench_security_rijndael_decrypt")
 ALGORITHMS = (*ALGORITHMS, "mibench_security_blowfish")
 ALGORITHMS = (*ALGORITHMS, "mibench_automotive_susan")
+ALGORITHMS = (*ALGORITHMS, "cbench_automotive_susan_c", "cbench_automotive_susan_e")
+ALGORITHMS = (*ALGORITHMS, "freebench_distray")
+ALGORITHMS = (*ALGORITHMS, "pcompress2")
+ALGORITHMS = (*ALGORITHMS, "mibench_security_sha0")
+ALGORITHMS = (*ALGORITHMS, "lac_adpcm")
+ALGORITHMS = (*ALGORITHMS, "mccat_05_eks")
+ALGORITHMS = (*ALGORITHMS, "mccat_bintr")
+ALGORITHMS = (*ALGORITHMS, "mediabench_g721_encode")
+ALGORITHMS = (*ALGORITHMS, "mediabench_gsm_rpe_grid_selection")
+ALGORITHMS = (*ALGORITHMS, "rodinia_hybridsort")
+ALGORITHMS = (*ALGORITHMS, "rodinia_mummergpu", "tsvc_indexed_gather_scatter",
+              "tsvc_s141_packed_symmetric_update", "tsvc_s131_forward_neighbor_update",
+              "tsvc_s132_shifted_row_update", "tsvc_s152_three_factor_accumulate",
+              "tsvc_s161_mutually_exclusive_updates", "tsvc_s211_ordered_neighbor_rewrite",
+              "tsvc_s212_next_element_dependency")
+ALGORITHMS = (*ALGORITHMS, "rodinia_streamcluster_pgain")
+ALGORITHMS = (*ALGORITHMS, "idea_cfb64")
+ALGORITHMS = (*ALGORITHMS, "llubenchmark_list_traversal_growth")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s114_transposed_lower_triangle_update")
+ALGORITHMS = (*ALGORITHMS, "tsvc_vif_masked_assignment")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s278_branch_recompute")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s279_nested_branch_recompute")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s2111_wavefront_add_recurrence")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s353_unrolled_sparse_saxpy")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s251_scalar_square_expansion")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s452_index_weighted_vector_map")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s126_matrix_column_recurrence")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s322_second_order_recurrence")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s321_first_order_recurrence")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s128_strided_coupled_update")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s323_coupled_recurrence")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s127_fixed_pair_expansion")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s123_conditional_pair_expansion")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s122_reverse_strided_gather_add")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s315_maximum_with_index")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s453_recurrence_weighted_scale")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s342_conditional_unpack")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s124_conditional_fma_map")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s125_matrix_flattened_fma")
+ALGORITHMS = (*ALGORITHMS, "versabench_dbms_keys_union")
+ALGORITHMS = (*ALGORITHMS, "versabench_dbms_query")
+ALGORITHMS = (*ALGORITHMS, "versabench_dbms_insert_entry")
+ALGORITHMS = (*ALGORITHMS, "versabench_dbms_delete_entry")
+ALGORITHMS = (*ALGORITHMS, "versabench_dbms_contract_root")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s319_coupled_reductions")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s241_cross_coupled_product_map")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s243_ordered_lookahead_update")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s244_false_dependence_cycle_break")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s1244_polynomial_neighbor_sum")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s1221_lag4_add_recurrence")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s442_indexed_square_accumulate")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s171_stride_indexed_accumulate")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s4117_pair_replicated_gather_map")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s162_guarded_shifted_fma",
+              "tsvc_s4114_reverse_index_gather_fma")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s318_strided_absolute_maximum_with_index")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s2101_diagonal_matrix_fma")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s2102_identity_matrix_initialize")
+ALGORITHMS = (*ALGORITHMS, "tsvc_vag_indexed_gather_copy")
+ALGORITHMS = (*ALGORITHMS, "mibench_jpeg_ycbcr_to_rgb")
+ALGORITHMS = (*ALGORITHMS, "cbench_consumer_jpeg_h2v2_fancy_upsample")
+ALGORITHMS = (*ALGORITHMS, "parboil_tpacf_cross_correlation")
+ALGORITHMS = (*ALGORITHMS, "parboil_mri_q")
+ALGORITHMS = (*ALGORITHMS, "parboil_cutcp")
+ALGORITHMS = (*ALGORITHMS, "parboil_spmv_jds")
+ALGORITHMS = (*ALGORITHMS, "parboil_histo")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s332_first_above_threshold")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s261_shifted_cross_array_update",
+              "mediabench_mpeg2_motion_vector_component",
+              "tsvc_s252_adjacent_product_pair_sum")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s256_array_expansion")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s253_conditional_affine_update")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s272_threshold_dual_accumulate")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s271_positive_branch_axpy")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s276_index_split_axpy")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s277_guarded_carry_update")
+ALGORITHMS = (*ALGORITHMS, "tsvc_s274_dependent_conditional_overwrite")
+ALGORITHMS = (*ALGORITHMS, "simplify_fraction")
 ALGORITHMS = (*ALGORITHMS, "misc_reed_solomon")
+ALGORITHMS = (*ALGORITHMS, "depthconv")
 ALGORITHMS = (*ALGORITHMS, "horizontal_projectile_motion")
 ALGORITHMS = (*ALGORITHMS, "jarvis_scan")
 ALGORITHMS = (*ALGORITHMS, "floor_and_ceiling")
@@ -2770,7 +3502,42 @@ WORKSPACE_ALGORITHMS = {"blake2b", "title_case_conversion", "red_black_tree_uniq
                         "cross_correlation", "ema_filter", "egyptian_fraction", "count_nucleotide", "atbash_cipher", "choiceset", "chudnovsky_algorithm",
                         "serialize_deserialize_binary_tree", "cramers_rule_2x2", "crc_polynomial_division", "power_for_huge_numbers", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler", "gauss_elimination", "create_binary_tree_from_inorder_preorder",
                         "string_compression", "circular_look_scheduling", "circular_scan_scheduling", "flash_sort", "coordinate_compression", "convolution", "damped_oscillator", "difference_array", "solve_quadratic_equation", "cusum_detector", "complex_number_multiply", "dice_thrower", "hampel_filter", "range_in_sorted_array", "intersection_of_two_arrays", "union_of_two_arrays", "unique_letters_count", "convex_hull_graham", "sorted_arrays_intersection", "compress", "dilation_operation", "nearest_neighbor_interpolation", "dbscan", "des_ecb", "combination_sum", "non_empty_subsequences", "particle_swarm_optimization", "convolve_1d", "depth_first_search_target_route", "convolution_fft", "text_justification", "remove_duplicate_from_string", "max_word", "keyword_shifted_alphabet", "integer_to_english", "largest_smallest_words", "hexa_decimal_to_binary", "ones_complement", "rgbto_hex", "binary_to_excess3", "ipconverter", "shortest_palindrome", "reverse_words_in_string", "numeric_string_sort", "get_products_of_all_other_elements", "correlation_matrix_analysis", "crc_polynomial_division", "power_for_huge_numbers", "fibonacci_heap", "ode_forward_euler", "ode_midpoint_euler", "ode_semi_implicit_euler"}
+WORKSPACE_ALGORITHMS.update({
+    "depthconv", "versabench_dbms_keys_union", "versabench_dbms_query",
+    "versabench_dbms_insert_entry", "tsvc_s241_cross_coupled_product_map",
+    "versabench_dbms_delete_entry",
+    "versabench_dbms_contract_root",
+    "tsvc_s243_ordered_lookahead_update", "tsvc_s244_false_dependence_cycle_break",
+    "tsvc_s1244_polynomial_neighbor_sum", "tsvc_s1221_lag4_add_recurrence",
+    "tsvc_s442_indexed_square_accumulate",
+    "tsvc_s171_stride_indexed_accumulate",
+    "tsvc_s4117_pair_replicated_gather_map",
+    "tsvc_s162_guarded_shifted_fma", "tsvc_s4114_reverse_index_gather_fma",
+    "tsvc_s318_strided_absolute_maximum_with_index",
+    "tsvc_s2101_diagonal_matrix_fma",
+    "tsvc_s2102_identity_matrix_initialize",
+    "tsvc_vag_indexed_gather_copy",
+    "mibench_jpeg_ycbcr_to_rgb",
+    "cbench_consumer_jpeg_h2v2_fancy_upsample",
+    "parboil_tpacf_cross_correlation",
+    "parboil_mri_q",
+    "parboil_cutcp",
+    "parboil_spmv_jds",
+    "parboil_histo",
+    "tsvc_s332_first_above_threshold",
+    "tsvc_s261_shifted_cross_array_update",
+    "mediabench_mpeg2_motion_vector_component",
+    "tsvc_s252_adjacent_product_pair_sum",
+})
 WORKSPACE_ALGORITHMS.update({"recursive_shuffler", "graph_coloring", "fisher_yates_shuffle", "heaps", "heaps_algorithm", "cpu_scheduling_algorithms"})
+WORKSPACE_ALGORITHMS.add("tsvc_s256_array_expansion")
+WORKSPACE_ALGORITHMS.add("tsvc_s253_conditional_affine_update")
+WORKSPACE_ALGORITHMS.add("tsvc_s272_threshold_dual_accumulate")
+WORKSPACE_ALGORITHMS.add("tsvc_s271_positive_branch_axpy")
+WORKSPACE_ALGORITHMS.add("tsvc_s276_index_split_axpy")
+WORKSPACE_ALGORITHMS.add("tsvc_s277_guarded_carry_update")
+WORKSPACE_ALGORITHMS.add("tsvc_s251_scalar_square_expansion")
+WORKSPACE_ALGORITHMS.add("tsvc_s274_dependent_conditional_overwrite")
 WORKSPACE_ALGORITHMS.add("eulerian_path")
 WORKSPACE_ALGORITHMS.add("directed_simple_cycles")
 WORKSPACE_ALGORITHMS.add("yens_kshortest_paths")
@@ -3034,6 +3801,8 @@ ALGORITHMS = (*ALGORITHMS, "smith_waterman_python", "smith_waterman_rust",
 ALGORITHMS = (*ALGORITHMS, "uuencode")
 ALGORITHMS = (*ALGORITHMS, "mccat_qbsort")
 ALGORITHMS = (*ALGORITHMS, "bmm", "mccat_bisect", "prolangs_c_allroots")
+ALGORITHMS = (*ALGORITHMS, "prolangs_c_cdecl")
+ALGORITHMS = (*ALGORITHMS, "tarfind")
 ALGORITHMS = (*ALGORITHMS, "8b10b")
 ALGORITHMS = (*ALGORITHMS, "uudecode")
 ALGORITHMS = (*ALGORITHMS, "cbench_automotive_qsort1")
@@ -3051,13 +3820,30 @@ ALGORITHMS = (*ALGORITHMS, "min_cost_max_flow", "morton_sort", "number_theoretic
               "relaxed_convolution", "seam_carving", "sqrt_tree", "beta_skeleton",
               "schoenhage_strassen_multiply", "wspd", "batch_dynamic_kd_tree",
               "bentley_ottmann", "delaunay_triangulation", "delaunay_mesh_refinement",
-              "fortune_voronoi")
+              "fortune_voronoi", "tsvc_s343_column_major_compaction",
+              "cbench_tiffdither", "cbench_consumer_tiffmedian",
+              "cbench_consumer_tiff2bw", "cbench_bzip2_mtf_rle",
+              "cbench_blowfish_cbc", "tsvc_s281_reverse_coupled_update")
+ALGORITHMS = (*ALGORITHMS, "rodinia_dwt2d")
+ALGORITHMS = (*ALGORITHMS, "qrduino", "picojpeg")
+ALGORITHMS = (*ALGORITHMS, "statemate")
+ALGORITHMS = (*ALGORITHMS, "edn_lattice_synthesis", "edn_vec_mpy1", "edn_iir_cascade",
+              "edn_jpeg_dct", "nsichneu")
 WORKSPACE_ALGORITHMS.update({"min_cost_max_flow", "morton_sort", "number_theoretic_transform",
                              "relaxed_convolution", "seam_carving", "sqrt_tree", "beta_skeleton",
                              "schoenhage_strassen_multiply", "wspd", "batch_dynamic_kd_tree",
                              "bentley_ottmann", "delaunay_triangulation",
-                             "delaunay_mesh_refinement", "fortune_voronoi"})
+                             "delaunay_mesh_refinement", "fortune_voronoi",
+                             "tsvc_s343_column_major_compaction", "cbench_tiffdither",
+                             "cbench_consumer_tiffmedian", "cbench_consumer_tiff2bw",
+                             "cbench_bzip2_mtf_rle", "cbench_blowfish_cbc",
+                             "tsvc_s281_reverse_coupled_update"})
+WORKSPACE_ALGORITHMS.add("rodinia_dwt2d")
+WORKSPACE_ALGORITHMS.update({"qrduino", "picojpeg"})
+WORKSPACE_ALGORITHMS.add("statemate")
 WORKSPACE_ALGORITHMS.add("lru_cache2")
+WORKSPACE_ALGORITHMS.add("idea_cfb64")
+WORKSPACE_ALGORITHMS.add("llubenchmark_list_traversal_growth")
 WORKSPACE_ALGORITHMS.add("memoize")
 WORKSPACE_ALGORITHMS.add("lz78")
 WORKSPACE_ALGORITHMS.update({"lz77_java", "lz77_python_rust"})
@@ -3107,9 +3893,47 @@ WORKSPACE_ALGORITHMS.add("uuencode")
 WORKSPACE_ALGORITHMS.add("uudecode")
 WORKSPACE_ALGORITHMS.add("misc_lowercase")
 WORKSPACE_ALGORITHMS.add("mibench_security_blowfish")
+WORKSPACE_ALGORITHMS.add("cbench_security_rijndael_decrypt")
 WORKSPACE_ALGORITHMS.add("mibench_automotive_susan")
+WORKSPACE_ALGORITHMS.update({"cbench_automotive_susan_c", "cbench_automotive_susan_e"})
+WORKSPACE_ALGORITHMS.add("freebench_distray")
+WORKSPACE_ALGORITHMS.add("pcompress2")
+WORKSPACE_ALGORITHMS.add("mibench_security_sha0")
+WORKSPACE_ALGORITHMS.add("lac_adpcm")
+WORKSPACE_ALGORITHMS.add("mccat_05_eks")
+WORKSPACE_ALGORITHMS.add("mccat_bintr")
+WORKSPACE_ALGORITHMS.add("mediabench_g721_encode")
+WORKSPACE_ALGORITHMS.add("mediabench_gsm_rpe_grid_selection")
+WORKSPACE_ALGORITHMS.add("rodinia_hybridsort")
+WORKSPACE_ALGORITHMS.update({"rodinia_mummergpu", "tsvc_indexed_gather_scatter",
+                             "tsvc_s141_packed_symmetric_update",
+                             "tsvc_s131_forward_neighbor_update",
+                             "tsvc_s132_shifted_row_update", "tsvc_s152_three_factor_accumulate",
+                             "tsvc_s161_mutually_exclusive_updates",
+                             "tsvc_s211_ordered_neighbor_rewrite",
+                             "tsvc_s212_next_element_dependency"})
+WORKSPACE_ALGORITHMS.add("rodinia_streamcluster_pgain")
+WORKSPACE_ALGORITHMS.add("tsvc_s114_transposed_lower_triangle_update")
+WORKSPACE_ALGORITHMS.add("tsvc_vif_masked_assignment")
+WORKSPACE_ALGORITHMS.add("tsvc_s278_branch_recompute")
+WORKSPACE_ALGORITHMS.add("tsvc_s279_nested_branch_recompute")
+WORKSPACE_ALGORITHMS.add("tsvc_s2111_wavefront_add_recurrence")
+WORKSPACE_ALGORITHMS.add("tsvc_s353_unrolled_sparse_saxpy")
+WORKSPACE_ALGORITHMS.add("tsvc_s452_index_weighted_vector_map")
+WORKSPACE_ALGORITHMS.add("tsvc_s126_matrix_column_recurrence")
+WORKSPACE_ALGORITHMS.add("tsvc_s128_strided_coupled_update")
+WORKSPACE_ALGORITHMS.add("tsvc_s127_fixed_pair_expansion")
+WORKSPACE_ALGORITHMS.add("tsvc_s123_conditional_pair_expansion")
+WORKSPACE_ALGORITHMS.add("tsvc_s122_reverse_strided_gather_add")
+WORKSPACE_ALGORITHMS.add("tsvc_s453_recurrence_weighted_scale")
+WORKSPACE_ALGORITHMS.add("tsvc_s342_conditional_unpack")
+WORKSPACE_ALGORITHMS.add("tsvc_s124_conditional_fma_map")
+WORKSPACE_ALGORITHMS.add("tsvc_s125_matrix_flattened_fma")
+WORKSPACE_ALGORITHMS.add("simplify_fraction")
 WORKSPACE_ALGORITHMS.add("mccat_qbsort")
 WORKSPACE_ALGORITHMS.update({"bmm", "mccat_bisect", "prolangs_c_allroots"})
+WORKSPACE_ALGORITHMS.add("prolangs_c_cdecl")
+WORKSPACE_ALGORITHMS.add("tarfind")
 WORKSPACE_ALGORITHMS.add("8b10b")
 WORKSPACE_ALGORITHMS.add("cbench_automotive_qsort1")
 WORKSPACE_ALGORITHMS.add("polybench_adi")
@@ -3149,6 +3973,10 @@ MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE = 15
 MIBENCH_AUTOMOTIVE_SUSAN_MAX_SIDE = 16
 MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH = 258
 MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES = 256
+CBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE = 11
+CBENCH_AUTOMOTIVE_SUSAN_MAX_SIDE = 16
+CBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH = 258
+CBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES = 256
 PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH = 5
 PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES = 24
 MCCAT_BISECT_EPSILON = 2.2204460492503131e-16
@@ -3618,6 +4446,235 @@ def prolangs_c_allroots_verifier_oracle(
     return PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES, output
 
 
+def _cdecl_verifier_parse(values: tuple[int, ...] | list[int]) -> bytes | None:
+    if (not 1 <= len(values) <= 96
+            or any(type(value) is not int or not 1 <= value <= 127 for value in values)):
+        return None
+    source = "".join(chr(value) for value in values)
+    tokens: list[str] = []
+    position = 0
+    punctuation = "*()[],"
+    while position < len(source):
+        character = source[position]
+        if character in " \t\r\n":
+            position += 1
+        elif character.isascii() and (character.isalpha() or character == "_"):
+            end = position + 1
+            while end < len(source):
+                following = source[end]
+                if not (following.isascii() and (following.isalnum() or following == "_")):
+                    break
+                end += 1
+            tokens.append(source[position:end])
+            position = end
+        elif character.isdigit() and character.isascii():
+            end = position + 1
+            while end < len(source) and source[end].isdigit() and source[end].isascii():
+                end += 1
+            tokens.append(source[position:end])
+            position = end
+        elif character in punctuation:
+            tokens.append(character)
+            position += 1
+        else:
+            return None
+
+    cursor = 0
+    base_codes = {"char": 1, "int": 2, "float": 3, "double": 4, "void": 5}
+
+    def peek() -> str | None:
+        return tokens[cursor] if cursor < len(tokens) else None
+
+    def take(expected: str | None = None) -> str | None:
+        nonlocal cursor
+        token = peek()
+        if token is None or (expected is not None and token != expected):
+            return None
+        cursor += 1
+        return token
+
+    def primitive() -> int | None:
+        token = take()
+        return base_codes.get(token) if token is not None else None
+
+    def params() -> list[tuple[int, int]] | None:
+        if take("(") is None:
+            return None
+        result: list[tuple[int, int]] = []
+        if peek() == ")":
+            take(")")
+            return result
+        while True:
+            base = primitive()
+            if base is None:
+                return None
+            depth = 0
+            while peek() == "*":
+                take("*")
+                depth += 1
+                if depth > 8:
+                    return None
+            result.append((base, depth))
+            if len(result) > 3:
+                return None
+            if peek() == ")":
+                take(")")
+                break
+            if take(",") is None:
+                return None
+        if result == [(5, 0)]:
+            return []
+        if any(base == 5 and depth == 0 for base, depth in result):
+            return None
+        return result
+
+    def declarator(name: list[str], operators: list[tuple], depth: int = 0) -> bool:
+        if depth > 6:
+            return False
+        pointers = 0
+        while peek() == "*":
+            take("*")
+            pointers += 1
+            if pointers > 8:
+                return False
+        if peek() == "(":
+            take("(")
+            if not declarator(name, operators, depth + 1) or take(")") is None:
+                return False
+        else:
+            token = take()
+            if (token is None or not token.isascii() or not token
+                    or not (token[0].isalpha() or token[0] == "_")
+                    or any(not (char.isalnum() or char == "_") for char in token)
+                    or len(token) > 16 or name):
+                return False
+            name.append(token)
+        while peek() in ("[", "("):
+            if peek() == "[":
+                take("[")
+                number = take()
+                if (number is None or not number.isdecimal()
+                        or not 1 <= int(number) <= 99 or take("]") is None):
+                    return False
+                operators.append((2, int(number)))
+            else:
+                arguments = params()
+                if arguments is None:
+                    return False
+                operators.append((3, arguments))
+            if len(operators) > 12:
+                return False
+        operators.extend((1,) for _ in range(pointers))
+        return len(operators) <= 12
+
+    base = primitive()
+    if base is None:
+        return None
+    identifier: list[str] = []
+    operators: list[tuple] = []
+    if not declarator(identifier, operators) or cursor != len(tokens):
+        return None
+    if identifier[0] in base_codes or (base == 5 and not operators):
+        return None
+
+    current_kind = "base"
+    is_void = base == 5
+    for operator in reversed(operators):
+        kind = operator[0]
+        if kind == 2:
+            if current_kind == "function" or (current_kind == "base" and is_void):
+                return None
+            current_kind, is_void = "array", False
+        elif kind == 3:
+            if current_kind in ("array", "function"):
+                return None
+            current_kind, is_void = "function", False
+        elif kind == 1:
+            current_kind, is_void = "pointer", False
+        else:
+            return None
+
+    name = identifier[0].encode("ascii")
+    encoded = bytearray((base, len(name), *name, len(operators)))
+    for operator in operators:
+        encoded.append(operator[0])
+        if operator[0] == 2:
+            encoded.append(operator[1])
+        elif operator[0] == 3:
+            encoded.append(len(operator[1]))
+            for parameter_base, pointer_depth in operator[1]:
+                encoded.extend((parameter_base, pointer_depth))
+    return bytes(encoded) if len(encoded) <= 128 else None
+
+
+def prolangs_c_cdecl_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (not isinstance(values, (tuple, list)) or len(values) > 96
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or input_length != (0 if input_is_null else len(values))))
+            or (input_is_null and values)
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    output = _cdecl_verifier_parse(values)
+    if output is None:
+        return -1, b""
+    if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, b""
+    return len(output), output
+
+
+def tarfind_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (not isinstance(values, (tuple, list)) or len(values) > 1602
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or input_length != (0 if input_is_null else len(values))))
+            or (input_is_null and values)
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if input_is_null or len(values) < 2:
+        return -1, b""
+    record_count, query_count = values[0], values[1]
+    if not 1 <= record_count <= 35 or not 1 <= query_count <= 5:
+        return -1, b""
+    position = 2
+    records: list[tuple[int, ...]] = []
+    queries: list[tuple[int, ...]] = []
+    for collection, count in ((records, record_count), (queries, query_count)):
+        for _ in range(count):
+            if position == len(values):
+                return -1, b""
+            size = values[position]
+            position += 1
+            if not 5 <= size <= 39 or size > len(values) - position:
+                return -1, b""
+            name = tuple(values[position:position + size])
+            if any(not 65 <= byte <= 90 for byte in name):
+                return -1, b""
+            collection.append(name)
+            position += size
+    if position != len(values):
+        return -1, b""
+    output = bytes(next((index for index, name in enumerate(records) if name == query), 255)
+                   for query in queries)
+    if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, b""
+    return len(output), output
+
+
 def versabench_8b10b_verifier_oracle(
         values: tuple[int, ...] | list[int], capacity: int | None = None,
         output_is_null: bool = False, input_is_null: bool = False,
@@ -3780,6 +4837,377 @@ def mibench_automotive_susan_verifier_oracle(
     return side * side, bytes(result)
 
 
+# cBench distributes the same SUSAN v2l notice with the corner and edge variants.
+# The bounded references below use its ordinary `-c` and `-e` paths only.
+#
+# /**********************************************************************\
+#   SUSAN Version 2l by Stephen Smith
+#   Oxford Centre for Functional Magnetic Resonance Imaging of the Brain,
+#   Department of Clinical Neurology, Oxford University, Oxford, UK
+#   (Previously in Computer Vision and Image Processing Group - now
+#   Computer Vision and Electro Optics Group - DERA Chertsey, UK)
+#   Email:    steve@fmrib.ox.ac.uk
+#   WWW:      http://www.fmrib.ox.ac.uk/~steve
+#   (C) Crown Copyright (1995-1999), Defence Evaluation and Research Agency,
+#   Farnborough, Hampshire, GU14 6TD, UK
+#   DERA WWW site:
+#   http://www.dera.gov.uk/
+#   DERA Computer Vision and Electro Optics Group WWW site:
+#   http://www.dera.gov.uk/imageprocessing/dera/group_home.html
+#   DERA Computer Vision and Electro Optics Group point of contact:
+#   Dr. John Savage, jtsavage@dera.gov.uk, +44 1344 633203
+#   A UK patent has been granted: "Method for digitally processing
+#   images to determine the position of edges and/or corners therein for
+#   guidance of unmanned vehicle", UK Patent 2272285. Proprietor:
+#   Secretary of State for Defence, UK. 15 January 1997
+#
+#   This code is issued for research purposes only and remains the
+#   property of the UK Secretary of State for Defence. This code must
+#   not be passed on without this header information being kept
+#   intact. This code must not be sold.
+# \**********************************************************************/
+_CBENCH_SUSAN_MASK = tuple(
+    (dx, dy)
+    for dy in range(-3, 4)
+    for dx in range(-3, 4)
+    if (dx, dy) != (0, 0)
+    and (abs(dy) < 3 or abs(dx) <= 1)
+    and (abs(dy) != 2 or abs(dx) <= 2)
+    and (dy != 0 or abs(dx) >= 1)
+)
+
+
+def _cbench_susan_verify_f32(value: float) -> float:
+    return struct.unpack("<f", struct.pack("<f", value))[0]
+
+
+def _cbench_susan_verify_brightness() -> list[int]:
+    table = [0] * 513
+    for difference in range(-256, 257):
+        value = abs(difference) / 20.0
+        value *= value
+        value = value * value * value
+        table[difference + 256] = int(100.0 * math.exp(-value))
+    return table
+
+
+def _cbench_susan_verify_corner_local(
+        responses: list[int], side: int, row: int, column: int) -> bool:
+    center = responses[row * side + column]
+    for dy in range(-3, 4):
+        for dx in range(-3, 4):
+            if dx == 0 and dy == 0:
+                continue
+            neighbor = responses[(row + dy) * side + column + dx]
+            if (dy < 0 or (dy == 0 and dx < 0)) and center <= neighbor:
+                return False
+            if not (dy < 0 or (dy == 0 and dx < 0)) and center < neighbor:
+                return False
+    return True
+
+
+def _cbench_susan_verify_corners(image: list[int], side: int, brightness: list[int]) -> None:
+    responses = [0] * (side * side)
+    for row in range(5, side - 5):
+        for column in range(5, side - 5):
+            center = image[row * side + column]
+            area = 100
+            gx = gy = 0
+            for dx, dy in _CBENCH_SUSAN_MASK:
+                neighbor = image[(row + dy) * side + column + dx]
+                weight = brightness[center - neighbor + 256]
+                area += weight
+                gx += dx * weight
+                gy += dy * weight
+            if area >= 1850 or gx * gx + gy * gy <= (area * area) // 2:
+                continue
+
+            if gy * gy < gx * gx:
+                slope = _cbench_susan_verify_f32(
+                    _cbench_susan_verify_f32(float(gy))
+                    / _cbench_susan_verify_f32(float(abs(gx))))
+                step_x = 1 if gx > 0 else -1
+                along = 0
+                for distance in (1, 2, 3):
+                    offset_y = math.floor(_cbench_susan_verify_f32(distance * slope) + 0.5)
+                    if _cbench_susan_verify_f32(distance * slope) < 0:
+                        offset_y = math.ceil(_cbench_susan_verify_f32(distance * slope) - 0.5)
+                    along += brightness[center - image[(row + offset_y) * side + column + distance * step_x] + 256]
+            else:
+                slope = _cbench_susan_verify_f32(
+                    _cbench_susan_verify_f32(float(gx))
+                    / _cbench_susan_verify_f32(float(abs(gy))))
+                step_y = 1 if gy > 0 else -1
+                along = 0
+                for distance in (1, 2, 3):
+                    offset_x_value = _cbench_susan_verify_f32(distance * slope)
+                    offset_x = (math.floor(offset_x_value + 0.5) if offset_x_value >= 0
+                                else math.ceil(offset_x_value - 0.5))
+                    along += brightness[center - image[(row + distance * step_y) * side + column + offset_x] + 256]
+            if along > 290:
+                responses[row * side + column] = 1850 - area
+
+    markers = []
+    for row in range(5, side - 5):
+        for column in range(5, side - 5):
+            if (responses[row * side + column] > 0
+                    and _cbench_susan_verify_corner_local(responses, side, row, column)):
+                markers.append((row, column))
+    for row, column in markers:
+        top = (row - 1) * side + column - 1
+        image[top:top + 3] = [255, 255, 255]
+        image[top + side:top + side + 3] = [255, 0, 255]
+        image[top + 2 * side:top + 2 * side + 3] = [255, 255, 255]
+
+
+def _cbench_susan_verify_edge_local(
+        responses: list[int], side: int, row: int, column: int, a: int, b: int) -> bool:
+    value = responses[row * side + column]
+    return (value > responses[(row + a) * side + column + b]
+            and value >= responses[(row - a) * side + column - b]
+            and value > responses[(row + 2 * a) * side + column + 2 * b]
+            and value >= responses[(row - 2 * a) * side + column - 2 * b])
+
+
+def _cbench_susan_verify_thin(
+        responses: list[int], middle: list[int], side: int) -> None:
+    row = 4
+    while row < side - 4:
+        column = 4
+        while column < side - 4:
+            at = row * side + column
+            if middle[at] < 8:
+                offsets = (-side - 1, -side, -side + 1, -1, 1,
+                           side - 1, side, side + 1)
+                count = sum(middle[at + offset] < 8 for offset in offsets)
+                center_strength = responses[at]
+                if count == 0:
+                    middle[at] = 100
+
+                if count == 1 and middle[at] < 6:
+                    neighbor_values = [
+                        responses[at - side - 1], responses[at - side], responses[at - side + 1],
+                        responses[at - 1], 0, responses[at + 1],
+                        responses[at + side - 1], responses[at + side], responses[at + side + 1],
+                    ]
+                    neighbor_marks = [
+                        middle[at - side - 1], middle[at - side], middle[at - side + 1],
+                        middle[at - 1], 100, middle[at + 1],
+                        middle[at + side - 1], middle[at + side], middle[at + side + 1],
+                    ]
+                    active_index = next(k for k, mark in enumerate(neighbor_marks) if mark < 8)
+                    multipliers = (
+                        (0, 0, 2, 0, 1, 3, 2, 3, 4),
+                        (0, 0, 0, 2, 1, 2, 3, 4, 3),
+                        (2, 0, 0, 3, 1, 0, 4, 3, 2),
+                        (0, 2, 3, 0, 1, 4, 0, 2, 3),
+                        (3, 2, 0, 4, 1, 0, 3, 2, 0),
+                        (2, 3, 4, 0, 1, 3, 0, 0, 2),
+                        (3, 4, 3, 2, 1, 2, 0, 0, 0),
+                        (4, 3, 2, 3, 1, 0, 2, 0, 0),
+                    )[active_index if active_index < 4 else active_index - 1]
+                    weighted = [v * m for v, m in zip(neighbor_values, multipliers)]
+                    maximum = 0
+                    target_row = target_column = 0
+                    for dy in range(3):
+                        for dx in range(3):
+                            candidate = weighted[dy * 3 + dx]
+                            if candidate > maximum:
+                                maximum = candidate
+                                target_row, target_column = dy, dx
+                    if maximum > 0:
+                        middle[at + (target_row - 1) * side + target_column - 1] = (
+                            4 if middle[at] < 4 else middle[at] + 1)
+                        if 2 * target_row + target_column < 3:
+                            row += target_row - 1
+                            column += target_column - 2
+                            row = max(row, 4)
+                            column = max(column, 4)
+
+                if count == 2:
+                    b00 = int(middle[at - side - 1] < 8)
+                    b02 = int(middle[at - side + 1] < 8)
+                    b20 = int(middle[at + side - 1] < 8)
+                    b22 = int(middle[at + side + 1] < 8)
+                    if b00 + b02 + b20 + b22 == 2 and ((b00 | b22) & (b02 | b20)):
+                        if b00:
+                            move_x, move_y = ((0, -1) if b02 else (-1, 0))
+                        else:
+                            move_x, move_y = ((1, 0) if b02 else (0, 1))
+                        neighbor_strength = responses[(row + move_y) * side + column + move_x]
+                        if _cbench_susan_verify_f32(neighbor_strength / center_strength) > 0.7:
+                            if move_x == 0:
+                                clear = all(middle[(row + 2 * move_y) * side + column + dx] > 7
+                                            for dx in (-1, 0, 1))
+                            else:
+                                clear = all(middle[(row + dy) * side + column + 2 * move_x] > 7
+                                            for dy in (-1, 0, 1))
+                            if clear:
+                                middle[at] = 100
+                                middle[(row + move_y) * side + column + move_x] = 3
+                    else:
+                        b01 = int(middle[at - side] < 8)
+                        b12 = int(middle[at + 1] < 8)
+                        b21 = int(middle[at + side] < 8)
+                        b10 = int(middle[at - 1] < 8)
+                        corner = (
+                            (b01 and (middle[at - 2 * side - 1] < 8 or middle[at - 2 * side + 1] < 8))
+                            or (b10 and (middle[at - side - 2] < 8 or middle[at + side - 2] < 8))
+                            or (b12 and (middle[at - side + 2] < 8 or middle[at + side + 2] < 8))
+                            or (b21 and (middle[at + 2 * side - 1] < 8 or middle[at + 2 * side + 1] < 8))
+                        )
+                        if b01 + b12 + b21 + b10 == 2 and ((b10 | b12) & (b01 | b21)) and corner:
+                            middle[at] = 100
+                            row = max(row - 1, 4)
+                            column = max(column - 2, 4)
+
+                if count > 2:
+                    b01 = int(middle[at - side] < 8)
+                    b12 = int(middle[at + 1] < 8)
+                    b21 = int(middle[at + side] < 8)
+                    b10 = int(middle[at - 1] < 8)
+                    if b01 + b12 + b21 + b10 > 1:
+                        b00 = int(middle[at - side - 1] < 8)
+                        b02 = int(middle[at - side + 1] < 8)
+                        b20 = int(middle[at + side - 1] < 8)
+                        b22 = int(middle[at + side + 1] < 8)
+                        p1, p2, p3, p4 = b00 | b01, b02 | b12, b22 | b21, b20 | b10
+                        connected = p1 + p2 + p3 + p4 - (b01 & p2) - (b12 & p3) - (b21 & p4) - (b10 & p1)
+                        if connected < 2:
+                            middle[at] = 100
+                            row = max(row - 1, 4)
+                            column = max(column - 2, 4)
+            column += 1
+        row += 1
+
+
+def _cbench_susan_verify_edges(image: list[int], side: int, brightness: list[int]) -> None:
+    responses = [0] * (side * side)
+    middle = [100] * (side * side)
+    for row in range(3, side - 3):
+        for column in range(3, side - 3):
+            center = image[row * side + column]
+            area = 100 + sum(
+                brightness[center - image[(row + dy) * side + column + dx] + 256]
+                for dx, dy in _CBENCH_SUSAN_MASK
+            )
+            if area <= 2650:
+                responses[row * side + column] = 2650 - area
+
+    for row in range(4, side - 4):
+        for column in range(4, side - 4):
+            at = row * side + column
+            response = responses[at]
+            if response <= 0:
+                continue
+            area = 2650 - response
+            fallback = area <= 600
+            if area > 600:
+                gx = gy = 0
+                for dx, dy in _CBENCH_SUSAN_MASK:
+                    weight = brightness[image[at] - image[(row + dy) * side + column + dx] + 256]
+                    gx += dx * weight
+                    gy += dy * weight
+                magnitude = _cbench_susan_verify_f32(
+                    math.sqrt(_cbench_susan_verify_f32(float(gx * gx + gy * gy))))
+                if magnitude > 0.9 * float(area):
+                    if gx == 0:
+                        ratio = _cbench_susan_verify_f32(1_000_000.0)
+                    else:
+                        ratio = _cbench_susan_verify_f32(float(gy) / float(gx))
+                    sign = -1 if ratio < 0.0 else 1
+                    ratio = abs(ratio)
+                    if ratio < 0.5:
+                        a, b = 0, 1
+                    elif ratio > 2.0:
+                        a, b = 1, 0
+                    else:
+                        a, b = (1 if sign > 0 else -1), 1
+                    if _cbench_susan_verify_edge_local(responses, side, row, column, a, b):
+                        middle[at] = 1
+                    fallback = False
+                else:
+                    fallback = True
+            if fallback:
+                gx = gy = cross = 0
+                for dx, dy in _CBENCH_SUSAN_MASK:
+                    weight = brightness[image[at] - image[(row + dy) * side + column + dx] + 256]
+                    gx += dx * dx * weight
+                    gy += dy * abs(dy) * weight
+                    cross += dx * dy * weight
+                ratio = (_cbench_susan_verify_f32(1_000_000.0) if gy == 0 else
+                         _cbench_susan_verify_f32(float(gx) / float(gy)))
+                if ratio < 0.5:
+                    a, b = 0, 1
+                elif ratio > 2.0:
+                    a, b = 1, 0
+                else:
+                    a, b = (-1, 1) if cross > 0 else (1, 1)
+                if _cbench_susan_verify_edge_local(responses, side, row, column, a, b):
+                    middle[at] = 2
+
+    _cbench_susan_verify_thin(responses, middle, side)
+    for row in range(side):
+        for column in range(side):
+            if middle[row * side + column] < 8:
+                for dy in (-1, 0, 1):
+                    for dx in (-1, 0, 1):
+                        image[(row + dy) * side + column + dx] = 255
+    for index, marker in enumerate(middle):
+        if marker < 8:
+            image[index] = 0
+
+
+def _cbench_susan_verifier_validate(
+        values: tuple[int, ...] | list[int], capacity: int | None,
+        output_is_null: bool, input_is_null: bool, input_length: int | None) -> tuple[int, bytes] | None:
+    if (not isinstance(values, (tuple, list))
+            or len(values) > CBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63) for value in values)
+            or type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None and (type(input_length) is not int or input_length < 0))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if input_is_null or len(values) < 2:
+        return -1, b""
+    if input_length is not None and input_length != len(values):
+        return -1, b""
+    side = values[0]
+    if (not CBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE <= side <= CBENCH_AUTOMOTIVE_SUSAN_MAX_SIDE
+            or len(values) != 1 + side * side
+            or any(not 0 <= pixel <= 255 for pixel in values[1:])):
+        return -1, b""
+    if output_is_null or (capacity is not None and capacity < side * side):
+        return -2, b""
+    return None
+
+
+def cbench_automotive_susan_c_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    validation = _cbench_susan_verifier_validate(values, capacity, output_is_null,
+                                                 input_is_null, input_length)
+    if validation is not None:
+        return validation
+    image = list(values[1:])
+    _cbench_susan_verify_corners(image, values[0], _cbench_susan_verify_brightness())
+    return len(image), bytes(image)
+
+
+def cbench_automotive_susan_e_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    validation = _cbench_susan_verifier_validate(values, capacity, output_is_null,
+                                                 input_is_null, input_length)
+    if validation is not None:
+        return validation
+    image = list(values[1:])
+    _cbench_susan_verify_edges(image, values[0], _cbench_susan_verify_brightness())
+    return len(image), bytes(image)
+
+
 # The verifier shares only the pinned pi-derived seed words; its key expansion and
 # Feistel reference are implemented separately from the package oracle and ports.
 def _mibench_blowfish_verifier_f(value: int, boxes: list[list[int]]) -> int:
@@ -3888,6 +5316,8 @@ _AES_VERIFIER_SBOX = bytes.fromhex(
     "e1e1f8981169d98e949b1e87e9ce5528"
     "df8ca1890dbfe6426841992d0fb054bb"
 )
+_AES_VERIFIER_INVERSE_SBOX = bytes(
+    _AES_VERIFIER_SBOX.index(value) for value in range(256))
 
 
 def _aes_verifier_xtime(value: int) -> int:
@@ -3960,6 +5390,97 @@ def mibench_security_rijndael_verifier_oracle(
     if output_is_null or (capacity is not None and capacity < 16):
         return -2, b""
     return 16, _aes_verifier_encrypt(tuple(values[:32]), tuple(values[32:]))
+
+
+def _aes_verifier_multiply(left: int, right: int) -> int:
+    product = 0
+    while right:
+        if right & 1:
+            product ^= left
+        left = ((left << 1) ^ (0x1B if left & 0x80 else 0)) & 0xFF
+        right >>= 1
+    return product
+
+
+def _aes_verifier_decrypt(key: tuple[int, ...], block: tuple[int, ...]) -> bytes:
+    expanded = list(key)
+    rcon = 1
+    while len(expanded) < 240:
+        temp = expanded[-4:]
+        word_index = len(expanded) // 4
+        if word_index % 8 == 0:
+            temp = temp[1:] + temp[:1]
+            temp = [_AES_VERIFIER_SBOX[value] for value in temp]
+            temp[0] ^= rcon
+            rcon = _aes_verifier_xtime(rcon)
+        elif word_index % 8 == 4:
+            temp = [_AES_VERIFIER_SBOX[value] for value in temp]
+        previous_word = len(expanded) - 32
+        expanded.extend(expanded[previous_word + offset] ^ temp[offset]
+                        for offset in range(4))
+
+    state = list(block)
+
+    def add_round_key(round_index: int) -> None:
+        offset = round_index * 16
+        for index in range(16):
+            state[index] ^= expanded[offset + index]
+
+    def inverse_shift_sub() -> None:
+        before = state.copy()
+        for column in range(4):
+            for row in range(4):
+                source_column = (column + 4 - row) % 4
+                state[row + 4 * column] = _AES_VERIFIER_INVERSE_SBOX[
+                    before[row + 4 * source_column]]
+
+    def inverse_mix_columns() -> None:
+        for column in range(4):
+            offset = 4 * column
+            a0, a1, a2, a3 = state[offset:offset + 4]
+            state[offset] = (_aes_verifier_multiply(a0, 14)
+                             ^ _aes_verifier_multiply(a1, 11)
+                             ^ _aes_verifier_multiply(a2, 13)
+                             ^ _aes_verifier_multiply(a3, 9))
+            state[offset + 1] = (_aes_verifier_multiply(a0, 9)
+                                 ^ _aes_verifier_multiply(a1, 14)
+                                 ^ _aes_verifier_multiply(a2, 11)
+                                 ^ _aes_verifier_multiply(a3, 13))
+            state[offset + 2] = (_aes_verifier_multiply(a0, 13)
+                                 ^ _aes_verifier_multiply(a1, 9)
+                                 ^ _aes_verifier_multiply(a2, 14)
+                                 ^ _aes_verifier_multiply(a3, 11))
+            state[offset + 3] = (_aes_verifier_multiply(a0, 11)
+                                 ^ _aes_verifier_multiply(a1, 13)
+                                 ^ _aes_verifier_multiply(a2, 9)
+                                 ^ _aes_verifier_multiply(a3, 14))
+
+    add_round_key(14)
+    for round_index in range(13, 0, -1):
+        inverse_shift_sub()
+        add_round_key(round_index)
+        inverse_mix_columns()
+    inverse_shift_sub()
+    add_round_key(0)
+    return bytes(state)
+
+
+def cbench_security_rijndael_decrypt_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (input_is_null or type(output_is_null) is not bool
+            or not isinstance(values, (tuple, list)) or len(values) > 49
+            or any(type(value) is not int or not 0 <= value <= 255 for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if len(values) != 48:
+        return -1, b""
+    if output_is_null or (capacity is not None and capacity < 16):
+        return -2, b""
+    return 16, _aes_verifier_decrypt(tuple(values[:32]), tuple(values[32:]))
 
 
 _RS_VERIFY_MESSAGE_BYTES = 188
@@ -4092,6 +5613,3444 @@ def misc_reed_solomon_verifier_oracle(
     return _RS_VERIFY_CODEWORD_BYTES, bytes(codeword)
 
 
+DEPTHCONV_MAX_CHANNELS = 8
+DEPTHCONV_MAX_INPUT_LENGTH = 1 + 11 * DEPTHCONV_MAX_CHANNELS
+DEPTHCONV_MAX_OUTPUT_BYTES = DEPTHCONV_MAX_CHANNELS
+
+
+def depthconv_verifier_oracle(
+        values: tuple[int, ...] | list[int], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (input_is_null or type(output_is_null) is not bool
+            or not isinstance(values, (tuple, list))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if (len(values) < 1 or len(values) > DEPTHCONV_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)):
+        return -1, b""
+    channels = values[0]
+    if type(channels) is not int or not 1 <= channels <= DEPTHCONV_MAX_CHANNELS:
+        return -1, b""
+    if len(values) != 1 + 11 * channels:
+        return -1, b""
+    input_start, filter_start = 1, 1 + 4 * channels
+    bias_start, multiplier_start, shift_start = (
+        1 + 8 * channels, 1 + 9 * channels, 1 + 10 * channels)
+    if any(not -128 <= x <= 127 for x in values[input_start:bias_start]):
+        return -1, b""
+    if any(not -1_000_000 <= x <= 1_000_000
+           for x in values[bias_start:multiplier_start]):
+        return -1, b""
+    if any(not 0 <= x <= 2_147_483_647
+           for x in values[multiplier_start:shift_start]):
+        return -1, b""
+    if any(not -8 <= x <= 0 for x in values[shift_start:]):
+        return -1, b""
+    if output_is_null or (capacity is not None and capacity < channels):
+        return -2, b""
+    result = bytearray()
+    for channel in range(channels):
+        accumulator = values[bias_start + channel]
+        for row in range(4):
+            input_value = values[input_start + row * channels + channel] + 128
+            filter_value = values[filter_start + row * channels + channel]
+            accumulator += input_value * filter_value
+        shift = 31 - values[shift_start + channel]
+        rounded = accumulator * values[multiplier_start + channel] + (1 << (shift - 1))
+        quantized = rounded // (1 << shift)
+        result.append(max(-128, min(127, quantized)) & 0xff)
+    return channels, bytes(result)
+
+
+def rodinia_dwt2d_verifier_oracle(values, capacity, output_is_null=False,
+                                  input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None and
+                (type(input_length) is not int
+                 or not 0 <= input_length <= RODINIA_DWT2D_MAX_INPUT_LENGTH))
+            or not isinstance(values, (tuple, list))
+            or (input_is_null and (values or output_is_null))
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    result = rodinia_dwt2d_expected_result(
+        values, capacity, output_is_null=output_is_null, input_is_null=input_is_null)
+    if result < 0:
+        return result, b""
+    output = rodinia_dwt2d_expected_output(values)
+    return (result, output) if output is not None and len(output) == result else (-1, b"")
+
+
+def qrduino_verifier_oracle(values, capacity=None, output_is_null=False,
+                            input_is_null=False, input_length=None):
+    return qrduino_verifier_expected_output(values, capacity, output_is_null,
+                                            input_is_null, input_length)
+
+
+def picojpeg_verifier_oracle(values, capacity=None, output_is_null=False,
+                             input_is_null=False, input_length=None):
+    result = picojpeg_verifier_expected_result(
+        values, 64 if capacity is None else capacity, output_is_null,
+        input_is_null, input_length)
+    if result < 0:
+        return result, b""
+    output = picojpeg_verifier_expected_output(values)
+    return (result, output) if output is not None and len(output) == result else (-1, b"")
+
+
+def statemate_verifier_oracle(values, capacity=None, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    return statemate_verifier_expected_output(values, capacity, output_is_null,
+                                              input_is_null, input_length)
+
+
+def edn_verifier_oracle(values, capacity=None, output_is_null=False,
+                        input_is_null=False, input_length=None, *, algorithm):
+    specs = {
+        "edn_lattice_synthesis": (2 + 2 * EDN_LATTICE_MAX_ORDER, EDN_LATTICE_MAX_OUTPUT_BYTES,
+                                  edn_lattice_synthesis_verifier_oracle),
+        "edn_vec_mpy1": (2 + 2 * EDN_VEC_MPY1_MAX_N, 8 * EDN_VEC_MPY1_MAX_N,
+                         edn_vec_mpy1_verifier_oracle),
+        "edn_iir_cascade": (2 + 6 * EDN_IIR_MAX_SECTIONS,
+                            8 * (1 + 2 * EDN_IIR_MAX_SECTIONS), edn_iir_cascade_verifier_oracle),
+        "edn_jpeg_dct": (76, 512, edn_jpeg_dct_verifier_oracle),
+    }
+    max_input_length, max_output_bytes, oracle = specs[algorithm]
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None and
+                (type(input_length) is not int or not 0 <= input_length <= max_input_length + 1))
+            or not isinstance(values, (list, tuple)) or len(values) > max_input_length + 1
+            or (input_is_null and (values or output_is_null))
+            or (not input_is_null and input_length is not None and input_length != len(values))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    result, output = oracle(values)
+    if result < 0:
+        return result, b""
+    if output_is_null:
+        return -2, b""
+    capacity = max_output_bytes if capacity is None else capacity
+    return (-2, b"") if capacity < result else (result, output)
+
+
+def edn_lattice_synthesis_verifier_suite_oracle(values, capacity=None, output_is_null=False,
+                                               input_is_null=False, input_length=None):
+    return edn_verifier_oracle(values, capacity, output_is_null, input_is_null,
+                               input_length, algorithm="edn_lattice_synthesis")
+
+
+def edn_vec_mpy1_verifier_suite_oracle(values, capacity=None, output_is_null=False,
+                                      input_is_null=False, input_length=None):
+    return edn_verifier_oracle(values, capacity, output_is_null, input_is_null,
+                               input_length, algorithm="edn_vec_mpy1")
+
+
+def edn_iir_cascade_verifier_suite_oracle(values, capacity=None, output_is_null=False,
+                                         input_is_null=False, input_length=None):
+    return edn_verifier_oracle(values, capacity, output_is_null, input_is_null,
+                               input_length, algorithm="edn_iir_cascade")
+
+
+def edn_jpeg_dct_verifier_suite_oracle(values, capacity=None, output_is_null=False,
+                                      input_is_null=False, input_length=None):
+    return edn_verifier_oracle(values, capacity, output_is_null, input_is_null,
+                               input_length, algorithm="edn_jpeg_dct")
+
+
+def mediabench_gsm_rpe_grid_selection_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple)) or len(values) > 41
+            or any(type(value) is not int or not UINT_I64_MIN <= value <= UINT_I64_MAX for value in values)
+            or (input_length is not None and
+                (type(input_length) is not int or not 0 <= input_length <= 41))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    effective_length = len(values) if input_length is None else input_length
+    if (effective_length != 40 or len(values) != 40
+            or any(value < -32768 or value > 32767 for value in values)):
+        return -1, b""
+    if output_is_null or (capacity is not None and capacity < 112):
+        return -2, b""
+
+    best_grid = 0
+    best_score = -1
+    for grid in range(4):
+        energy = 0
+        for index in range(13):
+            sample = values[grid + 3 * index]
+            shifted = sample // 4
+            energy += shifted * shifted
+        energy *= 2
+        if energy > best_score:
+            best_grid = grid
+            best_score = energy
+    selected = (best_grid, *(values[best_grid + 3 * index] for index in range(13)))
+    return 112, struct.pack("<14q", *selected)
+
+
+def rodinia_hybridsort_verifier_oracle(values, capacity=None, output_is_null=False,
+                                        input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple)) or len(values) > 65
+            or any(type(value) is not int or not UINT_I64_MIN <= value <= UINT_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int or not 0 <= input_length <= 65))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    if not 3 <= len(values) <= 65:
+        return -1, b""
+    count, items = values[0], values[1:]
+    if (not 2 <= count <= 64 or len(items) != count
+            or any(value < 0 or value > 1_000_000 or value % 1000 != 0 for value in items)
+            or min(items) == max(items)):
+        return -1, b""
+    result = count * 8
+    if output_is_null or (capacity is not None and capacity < result):
+        return -2, b""
+    output = b"".join(struct.pack("<q", value) for value in sorted(items))
+    return result, output
+
+
+def rodinia_mummergpu_verifier_oracle(values, capacity=None, output_is_null=False,
+                                      input_is_null=False, input_length=None):
+    """Enumerate maximal exact-match pairs independently of the suffix-trie ports."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple)) or len(values) > 67
+            or any(type(value) is not int or not UINT_I64_MIN <= value <= UINT_I64_MAX
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int or not 0 <= input_length <= 67))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or not 5 <= len(values) <= 67:
+        return -1, b""
+    ref_length, query_length, min_length = values[:3]
+    if (not 1 <= ref_length <= RODINIA_MUMMERGPU_MAX_REF
+            or not 1 <= query_length <= RODINIA_MUMMERGPU_MAX_QUERY
+            or not 1 <= min_length <= RODINIA_MUMMERGPU_MAX_QUERY
+            or len(values) != 3 + ref_length + query_length):
+        return -1, b""
+    reference = tuple(values[3:3 + ref_length])
+    query = tuple(values[3 + ref_length:])
+    if any(base < 0 or base > 3 for base in (*reference, *query)):
+        return -1, b""
+
+    suffixes = sorted(range(ref_length), key=lambda start: reference[start:] + (4,))
+    records = []
+    for query_start in range(query_length):
+        for ref_start in suffixes:
+            length = 0
+            while (ref_start + length < ref_length
+                   and query_start + length < query_length
+                   and reference[ref_start + length] == query[query_start + length]):
+                length += 1
+            if length < min_length:
+                continue
+            left_boundary = (ref_start == 0 or query_start == 0
+                             or reference[ref_start - 1] != query[query_start - 1])
+            right_boundary = (ref_start + length == ref_length
+                              or query_start + length == query_length
+                              or reference[ref_start + length] != query[query_start + length])
+            if left_boundary and right_boundary:
+                records.append((ref_start + 1, query_start + 1, length))
+    output = b"".join(struct.pack("<qqq", *record) for record in records)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
+def tsvc_indexed_gather_scatter_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply the two indexed-update codelets with explicit source-order writes."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple)) or len(values) > 82
+            or any(type(value) is not int
+                   or not TSVC_INDEXED_GATHER_SCATTER_I64_MIN <= value
+                   <= TSVC_INDEXED_GATHER_SCATTER_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int or not 0 <= input_length <= 82))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 6:
+        return -1, b""
+    mode, count = values[:2]
+    if mode not in (491, 4113) or not 1 <= count <= TSVC_INDEXED_GATHER_SCATTER_MAX_N:
+        return -1, b""
+    arrays_per_index = 5 if mode == 491 else 4
+    if len(values) != 2 + arrays_per_index * count:
+        return -1, b""
+    cursor = 2
+    indices = values[cursor:cursor + count]
+    cursor += count
+    destination = list(values[cursor:cursor + count])
+    cursor += count
+    b_values = values[cursor:cursor + count]
+    cursor += count
+    c_values = values[cursor:cursor + count]
+    cursor += count
+    d_values = values[cursor:cursor + count] if mode == 491 else ()
+    if (any(index < 0 or index >= count for index in indices)
+            or any(abs(value) > TSVC_INDEXED_GATHER_SCATTER_MAX_OPERAND
+                   for value in (*b_values, *c_values, *d_values))):
+        return -1, b""
+    output_bytes = 8 * count
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for position, index in enumerate(indices):
+        if mode == 491:
+            destination[index] = b_values[position] + c_values[position] * d_values[position]
+        else:
+            destination[index] = b_values[index] + c_values[position]
+    output = b"".join(struct.pack("<q", value) for value in destination)
+    return count, output
+
+
+def tsvc_s141_packed_symmetric_update_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute the packed triangle with explicit matrix-coordinate indexing."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple)) or len(values) > TSVC_S141_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S141_I64_MIN <= value <= TSVC_S141_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S141_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 4:
+        return -1, b""
+    n, rounds = values[:2]
+    if not 1 <= n <= TSVC_S141_MAX_N or not 1 <= rounds <= TSVC_S141_MAX_ROUNDS:
+        return -1, b""
+    triangle_length = n * (n + 1) // 2
+    matrix_offset = 2 + triangle_length
+    if len(values) != matrix_offset + n * n:
+        return -1, b""
+    packed = list(values[2:matrix_offset])
+    matrix = values[matrix_offset:]
+    if any(abs(value) > TSVC_S141_MAX_VALUE for value in (*packed, *matrix)):
+        return -1, b""
+    output_bytes = 8 * triangle_length
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for _ in range(rounds):
+        for row in range(n):
+            for column in range(row, n):
+                packed[column * (column + 1) // 2 + row] += matrix[column * n + row]
+    return triangle_length, b"".join(struct.pack("<q", value) for value in packed)
+
+
+def tsvc_s131_forward_neighbor_update_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply the source's left-to-right neighbor loop once per bounded pass."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple)) or len(values) > TSVC_S131_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S131_I64_MIN <= value <= TSVC_S131_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S131_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 4:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S131_MAX_N
+            or not 1 <= passes <= TSVC_S131_MAX_PASSES
+            or len(values) != 2 + 2 * n):
+        return -1, b""
+    a = list(values[2:2 + n])
+    b_values = values[2 + n:]
+    if any(abs(value) > TSVC_S131_MAX_VALUE for value in (*a, *b_values)):
+        return -1, b""
+    output_bytes = 8 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for _ in range(passes):
+        for index in range(n - 1):
+            a[index] = a[index + 1] + b_values[index]
+    return n, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_s132_shifted_row_update_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute the shifted-row output using independent slice boundaries."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple)) or len(values) > TSVC_S132_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S132_I64_MIN <= value <= TSVC_S132_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S132_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 8:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= TSVC_S132_MAX_N or len(values) != 2 + 3 * n:
+        return -1, b""
+    row = values[1:1 + n]
+    target = list(values[1 + n:1 + 2 * n])
+    b_values = values[1 + 2 * n:1 + 3 * n]
+    scalar = values[-1]
+    if any(abs(value) > TSVC_S132_MAX_VALUE
+           for value in (*row, *target, *b_values, scalar)):
+        return -1, b""
+    output_bytes = 8 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for index in range(1, n):
+        target[index] = row[index - 1] + b_values[index] * scalar
+    return n, b"".join(struct.pack("<q", value) for value in target)
+
+
+def tsvc_s152_three_factor_accumulate_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply the source temporary product before accumulating each pass."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple)) or len(values) > TSVC_S152_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S152_I64_MIN <= value <= TSVC_S152_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S152_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 6:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S152_MAX_N
+            or not 1 <= passes <= TSVC_S152_MAX_PASSES
+            or len(values) != 2 + 4 * n):
+        return -1, b""
+    a = list(values[2:2 + n])
+    c_values = values[2 + n:2 + 2 * n]
+    d_values = values[2 + 2 * n:2 + 3 * n]
+    e_values = values[2 + 3 * n:]
+    if any(abs(value) > TSVC_S152_MAX_VALUE
+           for value in (*a, *c_values, *d_values, *e_values)):
+        return -1, b""
+    output_bytes = 8 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for _ in range(passes):
+        for index in range(n):
+            temporary = d_values[index] * e_values[index]
+            a[index] += temporary * c_values[index]
+    return n, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_s161_mutually_exclusive_updates_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply the ordered B-controlled writes to separate A and C arrays."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S161_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S161_I64_MIN <= value <= TSVC_S161_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S161_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 11:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= TSVC_S161_MAX_N or len(values) != 1 + 5 * n:
+        return -1, b""
+    a = list(values[1:1 + n])
+    b_values = values[1 + n:1 + 2 * n]
+    c = list(values[1 + 2 * n:1 + 3 * n])
+    d_values = values[1 + 3 * n:1 + 4 * n]
+    e_values = values[1 + 4 * n:]
+    if any(abs(value) > TSVC_S161_MAX_VALUE
+           for value in (*a, *b_values, *c, *d_values, *e_values)):
+        return -1, b""
+    output_bytes = 16 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for index in range(n - 1):
+        if b_values[index] < 0:
+            c[index + 1] = a[index] + d_values[index] * d_values[index]
+        else:
+            a[index] = c[index] + d_values[index] * e_values[index]
+    output = (*a, *c)
+    return 2 * n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s211_ordered_neighbor_rewrite_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute each source-ordered pair of neighboring array writes."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S211_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S211_I64_MIN <= value <= TSVC_S211_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S211_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 17:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 3 <= n <= TSVC_S211_MAX_N
+            or not 1 <= passes <= TSVC_S211_MAX_PASSES
+            or len(values) != 2 + 5 * n):
+        return -1, b""
+    a = list(values[2:2 + n])
+    b_values = list(values[2 + n:2 + 2 * n])
+    c_values = values[2 + 2 * n:2 + 3 * n]
+    d_values = values[2 + 3 * n:2 + 4 * n]
+    e_values = values[2 + 4 * n:]
+    if any(abs(value) > TSVC_S211_MAX_VALUE
+           for value in (*a, *b_values, *c_values, *d_values, *e_values)):
+        return -1, b""
+    output_bytes = 16 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for _ in range(passes):
+        for index in range(1, n - 1):
+            a[index] = b_values[index - 1] + c_values[index] * d_values[index]
+            b_values[index] = b_values[index + 1] - e_values[index] * d_values[index]
+    output = (*a, *b_values)
+    return 2 * n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s212_next_element_dependency_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute the next-element dependency across ordered TSVC passes."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S212_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S212_I64_MIN <= value <= TSVC_S212_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S212_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 10:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 2 <= n <= TSVC_S212_MAX_N
+            or not 1 <= passes <= TSVC_S212_MAX_PASSES
+            or len(values) != 2 + 4 * n):
+        return -1, b""
+    a = list(values[2:2 + n])
+    b_values = list(values[2 + n:2 + 2 * n])
+    c_values = values[2 + 2 * n:2 + 3 * n]
+    d_values = values[2 + 3 * n:]
+    if any(abs(value) > TSVC_S212_MAX_VALUE
+           for value in (*a, *b_values, *c_values, *d_values)):
+        return -1, b""
+    output_bytes = 16 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for _ in range(passes):
+        for index in range(n - 1):
+            a[index] *= c_values[index]
+            b_values[index] += a[index + 1] * d_values[index]
+    output = (*a, *b_values)
+    return 2 * n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s114_transposed_lower_triangle_update_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute the strict-lower transposed update in row-major order."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S114_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S114_I64_MIN <= value <= TSVC_S114_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S114_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 9:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= TSVC_S114_MAX_N or len(values) != 1 + 2 * n * n:
+        return -1, b""
+    cells = n * n
+    a = list(values[1:1 + cells])
+    b_values = values[1 + cells:]
+    if any(abs(value) > TSVC_S114_MAX_VALUE for value in (*a, *b_values)):
+        return -1, b""
+    output_bytes = 8 * cells
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for row in range(n):
+        for column in range(row):
+            target = row * n + column
+            source = column * n + row
+            a[target] = a[source] + b_values[target]
+    return cells, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_vif_masked_assignment_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute the strict positive-mask replacement of A by B."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_VIF_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_VIF_I64_MIN <= value <= TSVC_VIF_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_VIF_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 3:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_VIF_MAX_N or len(values) != 1 + 2 * n:
+        return -1, b""
+    a = list(values[1:1 + n])
+    b_values = values[1 + n:]
+    if any(abs(value) > TSVC_VIF_MAX_VALUE for value in (*a, *b_values)):
+        return -1, b""
+    output_bytes = 8 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for index, value in enumerate(b_values):
+        if value > 0:
+            a[index] = value
+    return n, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_s278_branch_recompute_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute s278's selected state update and common A assignment."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S278_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S278_I64_MIN <= value <= TSVC_S278_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S278_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 7:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S278_MAX_N
+            or not 1 <= passes <= TSVC_S278_MAX_PASSES
+            or len(values) != 2 + 5 * n):
+        return -1, b""
+    a = list(values[2:2 + n])
+    b_values = list(values[2 + n:2 + 2 * n])
+    c_values = list(values[2 + 2 * n:2 + 3 * n])
+    d_values = values[2 + 3 * n:2 + 4 * n]
+    e_values = values[2 + 4 * n:]
+    if any(abs(value) > TSVC_S278_MAX_VALUE
+           for value in (*a, *b_values, *c_values, *d_values, *e_values)):
+        return -1, b""
+    output_bytes = 24 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for _ in range(passes):
+        for index in range(n):
+            product = d_values[index] * e_values[index]
+            if a[index] > 0:
+                c_values[index] = -c_values[index] + product
+            else:
+                b_values[index] = -b_values[index] + product
+            a[index] = b_values[index] + c_values[index] * d_values[index]
+    output = (*a, *b_values, *c_values)
+    return 3 * n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s279_nested_branch_recompute_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently apply s279's nested B/C branches and common A recompute."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S279_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S279_I64_MIN <= value <= TSVC_S279_I64_MAX
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S279_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None
+                and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 7:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S279_MAX_N
+            or not 1 <= passes <= TSVC_S279_MAX_PASSES
+            or len(values) != 2 + 5 * n):
+        return -1, b""
+    a = list(values[2:2 + n])
+    b_values = list(values[2 + n:2 + 2 * n])
+    c_values = list(values[2 + 2 * n:2 + 3 * n])
+    d_values = values[2 + 3 * n:2 + 4 * n]
+    e_values = values[2 + 4 * n:]
+    if any(not -TSVC_S279_MAX_VALUE <= value <= TSVC_S279_MAX_VALUE
+           for value in (*a, *b_values, *c_values, *d_values, *e_values)):
+        return -1, b""
+    output_bytes = 24 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for _ in range(passes):
+        for index in range(n):
+            if a[index] > 0:
+                c_values[index] = -c_values[index] + e_values[index] * e_values[index]
+            else:
+                b_values[index] = -b_values[index] + d_values[index] * d_values[index]
+                if b_values[index] > a[index]:
+                    c_values[index] += d_values[index] * e_values[index]
+            a[index] = b_values[index] + c_values[index] * d_values[index]
+    output = (*a, *b_values, *c_values)
+    return 3 * n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s2111_wavefront_add_recurrence_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply the 2D recurrence through an independent nested-list model."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S2111_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S2111_I64_MIN <= value <= TSVC_S2111_I64_MAX
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S2111_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 6:
+        return -1, b""
+    side, passes = values[:2]
+    if (not 2 <= side <= TSVC_S2111_MAX_SIDE
+            or not 1 <= passes <= TSVC_S2111_MAX_PASSES
+            or len(values) != 2 + side * side
+            or any(not -8 <= value <= 8 for value in values[2:])):
+        return -1, b""
+    required = 8 * side * side
+    if output_is_null or capacity is not None and capacity < required:
+        return -2, b""
+    matrix = [[values[2 + row * side + col] for col in range(side)]
+              for row in range(side)]
+    for _ in range(passes):
+        for row in range(1, side):
+            for col in range(1, side):
+                matrix[row][col] = matrix[row][col - 1] + matrix[row - 1][col]
+    flattened = [cell for row in matrix for cell in row]
+    return side * side, b"".join(struct.pack("<q", value) for value in flattened)
+
+
+def tsvc_s353_unrolled_sparse_saxpy_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute the five-at-a-time indexed SAXPY updates in source order."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S353_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S353_I64_MIN <= value <= TSVC_S353_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S353_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 17:
+        return -1, b""
+    n, alpha = values[:2]
+    if (n < TSVC_S353_MIN_N or n > TSVC_S353_MAX_N or n % 5 != 0
+            or len(values) != 2 + 3 * n
+            or not -TSVC_S353_MAX_ALPHA <= alpha <= TSVC_S353_MAX_ALPHA):
+        return -1, b""
+    a = list(values[2:2 + n])
+    b_values = values[2 + n:2 + 2 * n]
+    indices = values[2 + 2 * n:]
+    if (any(abs(value) > TSVC_S353_MAX_VALUE for value in (*a, *b_values))
+            or any(index < 0 or index >= n for index in indices)):
+        return -1, b""
+    output_bytes = 8 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for chunk_start in range(0, n, 5):
+        for offset in range(5):
+            index = chunk_start + offset
+            a[index] += alpha * b_values[indices[index]]
+    return n, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_s452_index_weighted_vector_map_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute the index-weighted map from the B and C input vectors."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S452_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S452_I64_MIN <= value <= TSVC_S452_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S452_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 3:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S452_MAX_N or len(values) != 1 + 2 * n:
+        return -1, b""
+    b_values = values[1:1 + n]
+    c_values = values[1 + n:]
+    if any(abs(value) > TSVC_S452_MAX_VALUE for value in (*b_values, *c_values)):
+        return -1, b""
+    output_bytes = 8 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    result = [b_values[index] + c_values[index] * (index + 1) for index in range(n)]
+    return n, b"".join(struct.pack("<q", value) for value in result)
+
+
+def tsvc_s126_matrix_column_recurrence_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Walk the matrix by rows and columns and compute s126's skipped coefficient indices."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S126_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S126_I64_MIN <= value <= TSVC_S126_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S126_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 13:
+        return -1, b""
+    n = values[0]
+    if not TSVC_S126_MIN_N <= n <= TSVC_S126_MAX_N or len(values) != 1 + 3 * n * n:
+        return -1, b""
+    cells = n * n
+    coefficients = values[1:1 + cells]
+    c_matrix = values[1 + cells:1 + 2 * cells]
+    b_matrix = list(values[1 + 2 * cells:])
+    if any(abs(value) > TSVC_S126_MAX_VALUE
+           for value in (*coefficients, *c_matrix, *b_matrix)):
+        return -1, b""
+    output_bytes = 8 * cells
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for column in range(n):
+        for row in range(1, n):
+            target = row * n + column
+            coefficient_index = column * n + row - 1
+            b_matrix[target] = (
+                b_matrix[target - n] + coefficients[coefficient_index] * c_matrix[target]
+            )
+    return cells, b"".join(struct.pack("<q", value) for value in b_matrix)
+
+
+def tsvc_s322_second_order_recurrence_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply the two-lag recurrence in ascending index order."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S322_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S322_I64_MIN <= value <= TSVC_S322_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S322_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 7:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= TSVC_S322_MAX_N or len(values) != 1 + 3 * n:
+        return -1, b""
+    a = list(values[1:1 + n])
+    b_values = values[1 + n:1 + 2 * n]
+    c_values = values[1 + 2 * n:]
+    if any(value not in (-1, 0, 1) for value in (*a, *b_values, *c_values)):
+        return -1, b""
+    output_bytes = 8 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for index in range(2, n):
+        a[index] += a[index - 1] * b_values[index] + a[index - 2] * c_values[index]
+    return n, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_s321_first_order_recurrence_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply the first-order recurrence using each newly updated predecessor."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S321_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S321_I64_MIN <= value <= TSVC_S321_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S321_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 3:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S321_MAX_N or len(values) != 1 + 2 * n:
+        return -1, b""
+    a = list(values[1:1 + n])
+    b_values = values[1 + n:]
+    if any(value not in (-1, 0, 1) for value in (*a, *b_values)):
+        return -1, b""
+    output_bytes = 8 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for index in range(1, n):
+        a[index] += a[index - 1] * b_values[index]
+    return n, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_s128_strided_coupled_update_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Derive the even-stride read/write positions and return A followed by B."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S128_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S128_I64_MIN <= value <= TSVC_S128_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S128_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 6:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S128_MAX_N or len(values) != 1 + 5 * n:
+        return -1, b""
+    b_values = list(values[1:1 + 2 * n])
+    c_values = values[1 + 2 * n:1 + 4 * n]
+    d_values = values[1 + 4 * n:]
+    if any(abs(value) > TSVC_S128_MAX_VALUE for value in (*b_values, *c_values, *d_values)):
+        return -1, b""
+    output_bytes = 24 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    a_values = [b_values[2 * index] - d_values[index] for index in range(n)]
+    for index, value in enumerate(a_values):
+        even = 2 * index
+        b_values[even] = value + c_values[even]
+    output = (*a_values, *b_values)
+    return 3 * n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s323_coupled_recurrence_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply s323's ordered A assignment and dependent B assignment per index."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S323_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S323_I64_MIN <= value <= TSVC_S323_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S323_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 11:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= TSVC_S323_MAX_N or len(values) != 1 + 5 * n:
+        return -1, b""
+    a = list(values[1:1 + n])
+    b = list(values[1 + n:1 + 2 * n])
+    c = values[1 + 2 * n:1 + 3 * n]
+    d = values[1 + 3 * n:1 + 4 * n]
+    e = values[1 + 4 * n:]
+    if any(value not in (-1, 0, 1) for value in (*a, *b, *c, *d, *e)):
+        return -1, b""
+    output_bytes = 16 * n
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+    for index in range(1, n):
+        a[index] = b[index - 1] + c[index] * d[index]
+        b[index] = a[index] + c[index] * e[index]
+    output = (*a, *b)
+    return 2 * n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s127_fixed_pair_expansion_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Construct the stable two-value output pair for each input position."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S127_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S127_I64_MIN <= value <= TSVC_S127_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S127_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 5:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S127_MAX_N or len(values) != 1 + 4 * n:
+        return -1, b""
+    b_values = values[1:1 + n]
+    c_values = values[1 + n:1 + 2 * n]
+    d_values = values[1 + 2 * n:1 + 3 * n]
+    e_values = values[1 + 3 * n:]
+    if any(abs(value) > TSVC_S127_MAX_VALUE
+           for value in (*b_values, *c_values, *d_values, *e_values)):
+        return -1, b""
+    output_count = 2 * n
+    if output_is_null or capacity is not None and capacity < 8 * output_count:
+        return -2, b""
+    result = []
+    for index in range(n):
+        result.extend((
+            b_values[index] + c_values[index] * d_values[index],
+            b_values[index] + d_values[index] * e_values[index],
+        ))
+    return output_count, b"".join(struct.pack("<q", value) for value in result)
+
+
+def tsvc_s123_conditional_pair_expansion_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Expand each B value and conditionally emit the matching C value."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S123_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S123_I64_MIN <= value <= TSVC_S123_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S123_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or not values:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S123_MAX_N or len(values) != 1 + 4 * n:
+        return -1, b""
+    b_values = values[1:1 + n]
+    c_values = values[1 + n:1 + 2 * n]
+    d_values = values[1 + 2 * n:1 + 3 * n]
+    e_values = values[1 + 3 * n:]
+    if any(abs(value) > TSVC_S123_MAX_VALUE
+           for value in (*b_values, *c_values, *d_values, *e_values)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 16 * n:
+        return -2, b""
+    output_values = []
+    for index in range(n):
+        product = d_values[index] * e_values[index]
+        output_values.append(b_values[index] + product)
+        if c_values[index] > 0:
+            output_values.append(c_values[index] + product)
+    return len(output_values), b"".join(struct.pack("<q", value) for value in output_values)
+
+
+def tsvc_s122_reverse_strided_gather_add_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply reverse B reads to the runtime-strided A destinations."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S122_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S122_I64_MIN <= value <= TSVC_S122_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S122_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 5:
+        return -1, b""
+    n, start, stride = values[:3]
+    if (not 1 <= n <= TSVC_S122_MAX_N or not 1 <= start <= n or not 1 <= stride <= n
+            or len(values) != 3 + 2 * n):
+        return -1, b""
+    a_values = list(values[3:3 + n])
+    b_values = values[3 + n:]
+    if any(abs(value) > TSVC_S122_MAX_VALUE for value in (*a_values, *b_values)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    for destination in range(start - 1, n, stride):
+        source = n - 1 - ((destination - (start - 1)) // stride)
+        a_values[destination] += b_values[source]
+    return n, b"".join(struct.pack("<q", value) for value in a_values)
+
+
+def tsvc_s315_maximum_with_index_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Return the maximum and first index using a strict greater-than scan."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S315_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S315_I64_MIN <= value <= TSVC_S315_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S315_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 2:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S315_MAX_N or len(values) != 1 + n:
+        return -1, b""
+    if any(abs(value) > TSVC_S315_MAX_VALUE for value in values[1:]):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < TSVC_S315_MAX_OUTPUT_BYTES:
+        return -2, b""
+    maximum = values[1]
+    maximum_index = 0
+    for index, value in enumerate(values[2:], 1):
+        if value > maximum:
+            maximum, maximum_index = value, index
+    return 2, struct.pack("<qq", maximum, maximum_index)
+
+
+def tsvc_s453_recurrence_weighted_scale_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Derive each output using the closed-form recurrence multiplier."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S453_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S453_I64_MIN <= value <= TSVC_S453_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S453_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or not values:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S453_MAX_N or len(values) != 1 + n:
+        return -1, b""
+    operands = values[1:]
+    if any(abs(value) > TSVC_S453_MAX_VALUE for value in operands):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    output = [2 * (index + 1) * value for index, value in enumerate(operands)]
+    return n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s342_conditional_unpack_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Consume B sequentially at positions selected by positive A values."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S342_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S342_I64_MIN <= value <= TSVC_S342_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S342_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or not values:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S342_MAX_N or len(values) != 1 + 2 * n:
+        return -1, b""
+    a_values = list(values[1:1 + n])
+    packed = values[1 + n:]
+    if any(abs(value) > TSVC_S342_MAX_VALUE for value in (*a_values, *packed)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    packed_index = 0
+    for index in range(n):
+        if a_values[index] > 0:
+            a_values[index] = packed[packed_index]
+            packed_index += 1
+    return n, b"".join(struct.pack("<q", value) for value in a_values)
+
+
+def tsvc_s124_conditional_fma_map_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply s124's strict-positive selection before each D/E multiply-add."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S124_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S124_I64_MIN <= value <= TSVC_S124_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S124_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 5:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S124_MAX_N or len(values) != 1 + 4 * n:
+        return -1, b""
+    b_values = values[1:1 + n]
+    c_values = values[1 + n:1 + 2 * n]
+    d_values = values[1 + 2 * n:1 + 3 * n]
+    e_values = values[1 + 3 * n:]
+    if any(abs(value) > TSVC_S124_MAX_VALUE
+           for value in (*b_values, *c_values, *d_values, *e_values)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    result = [
+        (b_values[index] if b_values[index] > 0 else c_values[index])
+        + d_values[index] * e_values[index]
+        for index in range(n)
+    ]
+    return n, b"".join(struct.pack("<q", value) for value in result)
+
+
+def tsvc_s125_matrix_flattened_fma_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Rebuild s125's row-major flattening through independent flat offsets."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S125_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S125_I64_MIN <= value <= TSVC_S125_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S125_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 4:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S125_MAX_N or len(values) != 1 + 3 * n * n:
+        return -1, b""
+    cells = n * n
+    aa = values[1:1 + cells]
+    bb = values[1 + cells:1 + 2 * cells]
+    cc = values[1 + 2 * cells:]
+    if any(abs(value) > TSVC_S125_MAX_VALUE for value in (*aa, *bb, *cc)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * cells:
+        return -2, b""
+    packed = [aa[index] + bb[index] * cc[index] for index in range(cells)]
+    return cells, b"".join(struct.pack("<q", value) for value in packed)
+
+
+def versabench_dbms_keys_union_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Compute 4D min/max bounds directly from the counted input boxes."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > VERSABENCH_DBMS_KEYS_UNION_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= VERSABENCH_DBMS_KEYS_UNION_MAX_PARSEABLE_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 9:
+        return -1, b""
+    count = values[0]
+    if not 1 <= count <= 16 or len(values) != 1 + 8 * count:
+        return -1, b""
+    lower = list(values[1:5])
+    upper = list(values[5:9])
+    for index in range(count):
+        offset = 1 + index * 8
+        box_lower = values[offset:offset + 4]
+        box_upper = values[offset + 4:offset + 8]
+        if (any(not -8 <= value <= 8 for value in (*box_lower, *box_upper))
+                or any(lo > hi for lo, hi in zip(box_lower, box_upper))):
+            return -1, b""
+        lower = [min(lower[axis], box_lower[axis]) for axis in range(4)]
+        upper = [max(upper[axis], box_upper[axis]) for axis in range(4)]
+    if output_is_null or capacity is not None and capacity < VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES:
+        return -2, b""
+    return VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES, struct.pack("<8q", *(lower + upper))
+
+
+def versabench_dbms_query_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Validate the bounded tree and traverse matching leaves in DFS order."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > VERSABENCH_DBMS_QUERY_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= VERSABENCH_DBMS_QUERY_MAX_PARSEABLE_INPUT_LENGTH))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 10:
+        return -1, b""
+    node_count, root_id = values[0], values[1]
+    if not 1 <= node_count <= 7 or not 0 <= root_id < node_count:
+        return -1, b""
+    query_lower, query_upper = values[2:6], values[6:10]
+
+    def valid_box(lower, upper):
+        return all(-8 <= lower[axis] < upper[axis] <= 8 for axis in range(4))
+
+    if not valid_box(query_lower, query_upper):
+        return -1, b""
+    nodes = []
+    parents = [0] * node_count
+    record_ids = set()
+    leaf_records = 0
+    cursor = 10
+    for _node_id in range(node_count):
+        if cursor + 2 > len(values):
+            return -1, b""
+        level, entry_count = values[cursor:cursor + 2]
+        cursor += 2
+        if not 0 <= level <= 2 or not 1 <= entry_count <= 4:
+            return -1, b""
+        entries = []
+        for _entry_id in range(entry_count):
+            if cursor + 9 > len(values):
+                return -1, b""
+            lower = tuple(values[cursor:cursor + 4])
+            upper = tuple(values[cursor + 4:cursor + 8])
+            reference = values[cursor + 8]
+            cursor += 9
+            if not valid_box(lower, upper):
+                return -1, b""
+            if level == 0:
+                if not 0 <= reference < 32 or reference in record_ids:
+                    return -1, b""
+                record_ids.add(reference)
+                leaf_records += 1
+                if leaf_records > 16:
+                    return -1, b""
+            else:
+                if not 0 <= reference < node_count:
+                    return -1, b""
+                parents[reference] += 1
+            entries.append((lower, upper, reference))
+        nodes.append((level, entries))
+    if cursor != len(values) or parents[root_id] != 0:
+        return -1, b""
+    for node_id, (level, entries) in enumerate(nodes):
+        if node_id != root_id and parents[node_id] != 1:
+            return -1, b""
+        if level == 0:
+            continue
+        for lower, upper, child_id in entries:
+            child_level, child_entries = nodes[child_id]
+            if child_level != level - 1:
+                return -1, b""
+            if any(any(lower[axis] > child_lower[axis] or upper[axis] < child_upper[axis]
+                       for axis in range(4))
+                   for child_lower, child_upper, _reference in child_entries):
+                return -1, b""
+
+    def intersects(lower, upper):
+        return all(not (query_lower[axis] > upper[axis]
+                        or lower[axis] > query_upper[axis]) for axis in range(4))
+
+    hits = []
+
+    def visit(node_id):
+        level, entries = nodes[node_id]
+        for lower, upper, reference in entries:
+            if not intersects(lower, upper):
+                continue
+            if level == 0:
+                hits.append(reference)
+            else:
+                visit(reference)
+
+    visit(root_id)
+    output = b"".join(struct.pack("<q", record_id) for record_id in hits)
+    if capacity is not None and (type(capacity) is not int or capacity < 0):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
+def versabench_dbms_insert_entry_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Model no-split R-tree insertion, first-tie selection, and MBR ascent."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > VERSABENCH_DBMS_INSERT_ENTRY_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= VERSABENCH_DBMS_INSERT_ENTRY_MAX_PARSEABLE_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or input_is_null
+            or (input_length is not None and input_length != len(values))):
+        return -1, b""
+    if len(values) < 11:
+        return -1, b""
+    depth, new_id = values[0], values[1]
+    incoming = tuple(values[2:10])
+
+    def valid_box(box):
+        return (len(box) == 8
+                and all(-8 <= box[axis] < box[axis + 4] <= 8 for axis in range(4)))
+
+    def union_boxes(boxes):
+        return (tuple(min(box[axis] for box in boxes) for axis in range(4))
+                + tuple(max(box[axis + 4] for box in boxes) for axis in range(4)))
+
+    def volume(box):
+        result = 1
+        for axis in range(4):
+            result *= box[axis + 4] - box[axis]
+        return result
+
+    if (type(depth) is not int or not 0 <= depth <= VERSABENCH_DBMS_INSERT_ENTRY_MAX_DEPTH
+            or not 0 <= new_id < 32 or not valid_box(incoming)):
+        return -1, b""
+    cursor = 10
+    levels = []
+    for _level in range(depth):
+        if cursor >= len(values):
+            return -1, b""
+        count = values[cursor]
+        cursor += 1
+        if not 1 <= count <= 4 or cursor + 8 * count > len(values):
+            return -1, b""
+        boxes = [tuple(values[cursor + 8 * index:cursor + 8 * (index + 1)])
+                 for index in range(count)]
+        cursor += 8 * count
+        if any(not valid_box(box) for box in boxes):
+            return -1, b""
+        levels.append(boxes)
+    if cursor >= len(values):
+        return -1, b""
+    leaf_count = values[cursor]
+    cursor += 1
+    if (not 0 <= leaf_count <= 3 or (depth > 0 and leaf_count == 0)
+            or cursor + leaf_count * 9 > len(values)):
+        return -1, b""
+    leaves = []
+    seen_ids = set()
+    for _leaf_index in range(leaf_count):
+        box = tuple(values[cursor:cursor + 8])
+        record_id = values[cursor + 8]
+        cursor += 9
+        if (not valid_box(box) or not 0 <= record_id < 32
+                or record_id in seen_ids):
+            return -1, b""
+        seen_ids.add(record_id)
+        leaves.append((box, record_id))
+    if cursor != len(values) or new_id in seen_ids:
+        return -1, b""
+
+    choices = []
+    for child_boxes in levels:
+        enlargements = [
+            volume(union_boxes((box, incoming))) - volume(box)
+            for box in child_boxes
+        ]
+        choices.append(min(range(len(enlargements)), key=enlargements.__getitem__))
+    if depth:
+        child_before = union_boxes([box for box, _record_id in leaves])
+        for level in range(depth - 1, -1, -1):
+            if levels[level][choices[level]] != child_before:
+                return -1, b""
+            child_before = union_boxes(levels[level])
+
+    leaf_after = union_boxes([box for box, _record_id in leaves] + [incoming])
+    output_words = [depth, new_id, *choices, *leaf_after]
+    child_after = leaf_after
+    for level in range(depth - 1, -1, -1):
+        changed = list(levels[level])
+        changed[choices[level]] = child_after
+        child_after = union_boxes(changed)
+        output_words.extend(child_after)
+    output = b"".join(struct.pack("<q", word) for word in output_words)
+    if capacity is not None and (type(capacity) is not int or capacity < 0):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
+def versabench_dbms_delete_entry_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Prune one-level R-tree children and rebuild survivors after deletion."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > VERSABENCH_DBMS_DELETE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= VERSABENCH_DBMS_DELETE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or input_is_null
+            or (input_length is not None and input_length != len(values))):
+        return -1, b""
+    if len(values) < 10:
+        return -1, b""
+    child_count = values[0]
+    query = tuple(values[1:9])
+
+    def valid_box(box):
+        return (len(box) == 8
+                and all(-8 <= box[axis] < box[axis + 4] <= 8 for axis in range(4)))
+
+    def union_boxes(boxes):
+        return (tuple(min(box[axis] for box in boxes) for axis in range(4))
+                + tuple(max(box[axis + 4] for box in boxes) for axis in range(4)))
+
+    def intersects(box):
+        return all(not (query[axis] > box[axis + 4]
+                        or box[axis] > query[axis + 4]) for axis in range(4))
+
+    if (not 1 <= child_count <= VERSABENCH_DBMS_DELETE_ENTRY_MAX_CHILDREN
+            or not valid_box(query)):
+        return -1, b""
+    cursor = 9
+    children = []
+    seen_ids = set()
+    for _child_index in range(child_count):
+        if cursor + 9 > len(values):
+            return -1, b""
+        record_count = values[cursor]
+        cursor += 1
+        mbr = tuple(values[cursor:cursor + 8])
+        cursor += 8
+        if (not 1 <= record_count <= VERSABENCH_DBMS_DELETE_ENTRY_MAX_RECORDS_PER_LEAF
+                or not valid_box(mbr) or cursor + 9 * record_count > len(values)):
+            return -1, b""
+        records = []
+        for _record_index in range(record_count):
+            box = tuple(values[cursor:cursor + 8])
+            record_id = values[cursor + 8]
+            cursor += 9
+            if (not valid_box(box) or not 0 <= record_id < 32 or record_id in seen_ids):
+                return -1, b""
+            seen_ids.add(record_id)
+            records.append((box, record_id))
+        if union_boxes([box for box, _record_id in records]) != mbr:
+            return -1, b""
+        children.append((mbr, records))
+    if cursor != len(values):
+        return -1, b""
+
+    survivors = []
+    for mbr, records in children:
+        kept = ([(box, record_id) for box, record_id in records if not intersects(box)]
+                if intersects(mbr) else records)
+        if kept:
+            survivors.append((union_boxes([box for box, _record_id in kept]), kept))
+    output_words = [len(survivors)]
+    for mbr, records in survivors:
+        output_words.extend((len(records), *mbr))
+        for box, record_id in records:
+            output_words.extend((*box, record_id))
+    output = b"".join(struct.pack("<q", word) for word in output_words)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
+def versabench_dbms_contract_root_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Normalize a bounded R-tree root after deletion without using the package oracle."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > VERSABENCH_DBMS_CONTRACT_ROOT_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int or not 0 <= input_length <=
+                     VERSABENCH_DBMS_CONTRACT_ROOT_MAX_PARSEABLE_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or input_is_null
+            or (input_length is not None and input_length != len(values))):
+        return -1, b""
+    if len(values) < 3:
+        return -1, b""
+    node_count = values[0]
+    if (not 1 <= node_count <= VERSABENCH_DBMS_CONTRACT_ROOT_MAX_NODES
+            or len(values) != 1 + 2 * node_count):
+        return -1, b""
+    levels = values[1::2]
+    entry_counts = values[2::2]
+    for index, (level, entry_count) in enumerate(zip(levels, entry_counts)):
+        if not 0 <= level <= 4 or not 0 <= entry_count <= 4:
+            return -1, b""
+        if index + 1 < node_count:
+            if (level == 0 or entry_count != 1
+                    or levels[index + 1] != level - 1):
+                return -1, b""
+    final_index = node_count - 1
+    if levels[final_index] > 0 and entry_counts[final_index] == 1:
+        return -1, b""
+    if (levels[final_index] > 0 and entry_counts[final_index] == 0
+            and node_count != 1):
+        return -1, b""
+
+    root_index = 0
+    promotions = 0
+    while levels[root_index] > 0 and entry_counts[root_index] == 1:
+        root_index += 1
+        promotions += 1
+    final_level = levels[root_index]
+    final_count = entry_counts[root_index]
+    if final_level > 0 and final_count == 0:
+        final_level = 0
+        final_count = 0
+    output = struct.pack("<3q", promotions, final_level, final_count)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output), output
+
+
+def tsvc_s241_cross_coupled_product_map_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Rebuild s241's ordered cross-coupled products from independent slices."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S241_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S241_I64_MIN <= value <= TSVC_S241_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S241_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 9:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= TSVC_S241_MAX_N or len(values) != 1 + 4 * n:
+        return -1, b""
+    if any(abs(value) > TSVC_S241_MAX_VALUE for value in values[1:]):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 16 * n:
+        return -2, b""
+    a = list(values[1:1 + n])
+    b = list(values[1 + n:1 + 2 * n])
+    c = values[1 + 2 * n:1 + 3 * n]
+    d = values[1 + 3 * n:]
+    for index in range(n - 1):
+        next_a = a[index + 1]
+        a[index] = b[index] * c[index] * d[index]
+        b[index] = a[index] * next_a * d[index]
+    packed = a + b
+    return 2 * n, b"".join(struct.pack("<q", value) for value in packed)
+
+
+def tsvc_s243_ordered_lookahead_update_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Replay s243's ordered A/B lookahead updates using independent slices."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S243_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S243_I64_MIN <= value <= TSVC_S243_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S243_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 11:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= TSVC_S243_MAX_N or len(values) != 1 + 5 * n:
+        return -1, b""
+    if any(abs(value) > TSVC_S243_MAX_VALUE for value in values[1:]):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 16 * n:
+        return -2, b""
+    a = list(values[1:1 + n])
+    b = list(values[1 + n:1 + 2 * n])
+    c = values[1 + 2 * n:1 + 3 * n]
+    d = values[1 + 3 * n:1 + 4 * n]
+    e = values[1 + 4 * n:]
+    for index in range(n - 1):
+        next_a = a[index + 1]
+        a[index] = b[index] + c[index] * d[index]
+        b[index] = a[index] + d[index] * e[index]
+        a[index] = b[index] + next_a * d[index]
+    packed = a + b
+    return 2 * n, b"".join(struct.pack("<q", value) for value in packed)
+
+
+def tsvc_s244_false_dependence_cycle_break_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Preserve s244's otherwise-overwritten third-store values in a trace."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S244_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S244_I64_MIN <= value <= TSVC_S244_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S244_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 9:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= TSVC_S244_MAX_N or len(values) != 1 + 4 * n:
+        return -1, b""
+    if any(abs(value) > TSVC_S244_MAX_VALUE for value in values[1:]):
+        return -1, b""
+    required_bytes = 8 * (3 * n - 1)
+    if output_is_null or capacity is not None and capacity < required_bytes:
+        return -2, b""
+    a = values[1:1 + n]
+    b = values[1 + n:1 + 2 * n]
+    c = values[1 + 2 * n:1 + 3 * n]
+    d = values[1 + 3 * n:]
+    trace = [b[index] + c[index] + a[index + 1] * d[index]
+             for index in range(n - 1)]
+    final_a = [b[index] + c[index] * d[index] for index in range(n - 1)] + [trace[-1]]
+    final_b = [b[index] + c[index] for index in range(n - 1)] + [b[-1]]
+    output_values = final_a + final_b + trace
+    return len(output_values), b"".join(struct.pack("<q", value) for value in output_values)
+
+
+def tsvc_s1244_polynomial_neighbor_sum_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Rebuild s1244's polynomial map and old-next-A sum from source arrays."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S1244_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S1244_I64_MIN <= value <= TSVC_S1244_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S1244_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 9:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= TSVC_S1244_MAX_N or len(values) != 1 + 4 * n:
+        return -1, b""
+    if any(abs(value) > TSVC_S1244_MAX_VALUE for value in values[1:]):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 16 * n:
+        return -2, b""
+    a = list(values[1:1 + n])
+    b = values[1 + n:1 + 2 * n]
+    c = values[1 + 2 * n:1 + 3 * n]
+    d = list(values[1 + 3 * n:])
+    for index in range(n - 1):
+        next_a = a[index + 1]
+        a[index] = b[index] + c[index] * c[index] + b[index] * b[index] + c[index]
+        d[index] = a[index] + next_a
+    packed = a + d
+    return 2 * n, b"".join(struct.pack("<q", value) for value in packed)
+
+
+def tsvc_s1221_lag4_add_recurrence_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute four stride-separated B recurrence chains from A."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S1221_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S1221_I64_MIN <= value <= TSVC_S1221_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S1221_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 1 + 2 * TSVC_S1221_MIN_N:
+        return -1, b""
+    n = values[0]
+    if not TSVC_S1221_MIN_N <= n <= TSVC_S1221_MAX_N or len(values) != 1 + 2 * n:
+        return -1, b""
+    if any(abs(value) > TSVC_S1221_MAX_VALUE for value in values[1:]):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    a = values[1:1 + n]
+    b = list(values[1 + n:])
+    for index in range(4, n):
+        b[index] = b[index - 4] + a[index]
+    return n, b"".join(struct.pack("<q", value) for value in b)
+
+
+def tsvc_s442_indexed_square_accumulate_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Rebuild the four-way indexed square additions independently of the package oracle."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S442_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S442_I64_MIN <= value <= TSVC_S442_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S442_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 8:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S442_MAX_N
+            or not 1 <= passes <= TSVC_S442_MAX_PASSES
+            or len(values) != 2 + 6 * n):
+        return -1, b""
+    vectors = [values[2 + index * n:2 + (index + 1) * n] for index in range(5)]
+    selectors = values[2 + 5 * n:]
+    if (any(not -TSVC_S442_MAX_VALUE <= value <= TSVC_S442_MAX_VALUE
+            for vector in vectors for value in vector)
+            or any(not 1 <= selector <= 4 for selector in selectors)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    result_a = list(vectors[0])
+    for _pass in range(passes):
+        for index, selector in enumerate(selectors):
+            source = vectors[selector]
+            result_a[index] += source[index] * source[index]
+    return n, b"".join(struct.pack("<q", value) for value in result_a)
+
+
+def tsvc_s171_stride_indexed_accumulate_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Apply the affine-stride additions to an independent final-vector model."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S171_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S171_I64_MIN <= value <= TSVC_S171_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S171_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 4:
+        return -1, b""
+    n, stride = values[:2]
+    if (not 1 <= n <= TSVC_S171_MAX_N
+            or not 1 <= stride <= TSVC_S171_MAX_STRIDE):
+        return -1, b""
+    a_length = 1 + (n - 1) * stride
+    if len(values) != 2 + a_length + n:
+        return -1, b""
+    initial_a = values[2:2 + a_length]
+    addends = values[2 + a_length:]
+    if any(not TSVC_S171_MIN_VALUE <= value <= TSVC_S171_MAX_VALUE
+           for value in (*initial_a, *addends)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * a_length:
+        return -2, b""
+    result = list(initial_a)
+    for index, addend in enumerate(addends):
+        result[index * stride] += addend
+    return a_length, b"".join(struct.pack("<q", value) for value in result)
+
+
+def tsvc_s4117_pair_replicated_gather_map_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Rebuild the half-rate gather from explicit B/C/D spans."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S4117_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S4117_I64_MIN <= value <= TSVC_S4117_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S4117_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 4:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S4117_MAX_N:
+        return -1, b""
+    c_length = (n + 1) // 2
+    if len(values) != 1 + 2 * n + c_length:
+        return -1, b""
+    b_offset = 1
+    c_offset = b_offset + n
+    d_offset = c_offset + c_length
+    inputs = values[1:]
+    if any(not TSVC_S4117_MIN_VALUE <= value <= TSVC_S4117_MAX_VALUE for value in inputs):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    output = [values[b_offset + index]
+              + values[c_offset + index // 2] * values[d_offset + index]
+              for index in range(n)]
+    return n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s162_guarded_shifted_fma_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Rebuild the guarded one-slot recurrence from the explicit array spans."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S162_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S162_I64_MIN <= value <= TSVC_S162_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S162_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 2:
+        return -1, b""
+    n, k = values[:2]
+    if not 1 <= n <= TSVC_S162_MAX_N or k not in (0, 1) or len(values) != 2 + 3 * n:
+        return -1, b""
+    a = list(values[2:2 + n])
+    b = values[2 + n:2 + 2 * n]
+    c = values[2 + 2 * n:]
+    if any(not TSVC_S162_MIN_VALUE <= value <= TSVC_S162_MAX_VALUE
+           for value in (*a, *b, *c)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    if k:
+        for index in range(n - 1):
+            a[index] = a[index + 1] + b[index] * c[index]
+    return n, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_s4114_reverse_index_gather_fma_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Rebuild the dense reverse-index gather from the explicit input spans."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S4114_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S4114_I64_MIN <= value <= TSVC_S4114_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S4114_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or not values:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S4114_MAX_N or len(values) != 1 + 4 * n:
+        return -1, b""
+    ip = values[1:1 + n]
+    b_offset = 1 + n
+    c_offset = b_offset + n
+    d_offset = c_offset + n
+    b = values[b_offset:c_offset]
+    c = values[c_offset:d_offset]
+    d = values[d_offset:]
+    if (any(not 0 <= index < n for index in ip)
+            or any(not TSVC_S4114_MIN_VALUE <= value <= TSVC_S4114_MAX_VALUE
+                   for value in (*b, *c, *d))):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    output = [b[index] + c[n - 1 - ip[index]] * d[index] for index in range(n)]
+    return n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s318_strided_absolute_maximum_with_index_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Rebuild the strided absolute maximum and first logical index."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S318_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S318_I64_MIN <= value <= TSVC_S318_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S318_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 3:
+        return -1, b""
+    n, stride = values[:2]
+    if (not 1 <= n <= TSVC_S318_MAX_N
+            or not 1 <= stride <= TSVC_S318_MAX_STRIDE):
+        return -1, b""
+    physical_n = 1 + (n - 1) * stride
+    if len(values) != 2 + physical_n:
+        return -1, b""
+    physical = values[2:]
+    if any(not -TSVC_S318_MAX_VALUE <= value <= TSVC_S318_MAX_VALUE for value in physical):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < TSVC_S318_MAX_OUTPUT_BYTES:
+        return -2, b""
+    maximum = abs(physical[0])
+    maximum_index = 0
+    for index in range(1, n):
+        magnitude = abs(physical[index * stride])
+        if magnitude > maximum:
+            maximum = magnitude
+            maximum_index = index
+    return 2, struct.pack("<qq", maximum, maximum_index)
+
+
+def tsvc_s2101_diagonal_matrix_fma_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Update the diagonal of a row-major matrix while retaining all other cells."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S2101_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S2101_I64_MIN <= value <= TSVC_S2101_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S2101_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 2:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S2101_MAX_N:
+        return -1, b""
+    cells = n * n
+    if len(values) != 1 + 3 * cells:
+        return -1, b""
+    aa = list(values[1:1 + cells])
+    bb = values[1 + cells:1 + 2 * cells]
+    cc = values[1 + 2 * cells:]
+    if any(not -TSVC_S2101_MAX_VALUE <= value <= TSVC_S2101_MAX_VALUE
+           for value in (*aa, *bb, *cc)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * cells:
+        return -2, b""
+    for row in range(n):
+        diagonal = row * n + row
+        aa[diagonal] += bb[diagonal] * cc[diagonal]
+    return cells, b"".join(struct.pack("<q", value) for value in aa)
+
+
+def tsvc_s2102_identity_matrix_initialize_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Model s2102's repeated column clear and diagonal initialization."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S2102_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S2102_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) != 2:
+        return -1, b""
+    side, passes = values
+    if not 1 <= side <= TSVC_S2102_MAX_SIDE or not 1 <= passes <= TSVC_S2102_MAX_PASSES:
+        return -1, b""
+    cells = side * side
+    if output_is_null or capacity is not None and capacity < 8 * cells:
+        return -2, b""
+    matrix = [0] * cells
+    for _ in range(passes):
+        for column in range(side):
+            for row in range(side):
+                matrix[row * side + column] = 0
+            matrix[column * side + column] = 1
+    return cells, b"".join(struct.pack("<q", value) for value in matrix)
+
+
+def tsvc_vag_indexed_gather_copy_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently gather each bounded source value at its supplied index."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_VAG_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_VAG_I64_MIN <= value <= TSVC_VAG_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_VAG_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 3:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_VAG_MAX_N or len(values) != 1 + 2 * n:
+        return -1, b""
+    indexes = values[1:1 + n]
+    data = values[1 + n:]
+    if (any(not 0 <= index < n for index in indexes)
+            or any(not -TSVC_VAG_MAX_VALUE <= value <= TSVC_VAG_MAX_VALUE for value in data)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    gathered = [data[index] for index in indexes]
+    return n, b"".join(struct.pack("<q", value) for value in gathered)
+
+
+def tsvc_s332_first_above_threshold_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Find the first strict threshold crossing and preserve the no-match sentinels."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S332_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S332_I64_MIN <= value <= TSVC_S332_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S332_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 3:
+        return -1, b""
+    n, threshold = values[:2]
+    if (not 1 <= n <= TSVC_S332_MAX_N
+            or not -TSVC_S332_MAX_VALUE <= threshold <= TSVC_S332_MAX_VALUE
+            or len(values) != 2 + n):
+        return -1, b""
+    items = values[2:]
+    if any(not -TSVC_S332_MAX_VALUE <= value <= TSVC_S332_MAX_VALUE for value in items):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < TSVC_S332_MAX_OUTPUT_BYTES:
+        return -2, b""
+    index = -2
+    found_value = -1
+    for position, value in enumerate(items):
+        if value > threshold:
+            index = position
+            found_value = value
+            break
+    return 2, struct.pack("<qq", index, found_value)
+
+
+def tsvc_s261_shifted_cross_array_update_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently model s261's ordered A update and in-place C scaling."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S261_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not TSVC_S261_I64_MIN <= value <= TSVC_S261_I64_MAX
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S261_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 9:
+        return -1, b""
+    n = values[0]
+    if not 2 <= n <= TSVC_S261_MAX_N or len(values) != 1 + 4 * n:
+        return -1, b""
+    a = list(values[1:1 + n])
+    b = values[1 + n:1 + 2 * n]
+    c = list(values[1 + 2 * n:1 + 3 * n])
+    d = values[1 + 3 * n:]
+    if any(not -TSVC_S261_MAX_VALUE <= value <= TSVC_S261_MAX_VALUE
+           for value in (*a, *b, *c, *d)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 16 * n:
+        return -2, b""
+    for index in range(1, n):
+        a[index] = a[index] + b[index] + c[index - 1]
+        c[index] = c[index] * d[index]
+    output_values = (*a, *c)
+    return len(output_values), b"".join(struct.pack("<q", value) for value in output_values)
+
+
+def mediabench_mpeg2_motion_vector_component_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently decode and wrap one bounded MPEG-2 motion component."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_PARSEABLE_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) != MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_INPUT_LENGTH:
+        return -1, b""
+    predictor, r_size, motion_code, residual = values
+    if not 0 <= r_size <= 6 or not -16 <= motion_code <= 16:
+        return -1, b""
+    limit = 16 << r_size
+    if not -limit <= predictor < limit:
+        return -1, b""
+    if (motion_code == 0 or r_size == 0) and residual != 0:
+        return -1, b""
+    if motion_code != 0 and r_size > 0 and not 0 <= residual < (1 << r_size):
+        return -1, b""
+    vector = predictor
+    if motion_code > 0:
+        vector += ((motion_code - 1) << r_size) + residual + 1
+        if vector >= limit:
+            vector -= 2 * limit
+    elif motion_code < 0:
+        vector -= ((-motion_code - 1) << r_size) + residual + 1
+        if vector < -limit:
+            vector += 2 * limit
+    if output_is_null or capacity is not None and capacity < MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES:
+        return -2, b""
+    return MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES, struct.pack("<q", vector)
+
+
+def mibench_jpeg_ycbcr_to_rgb_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Convert bounded YCbCr samples using an independent fixed-point model."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > MIBENCH_JPEG_YCBCR_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= MIBENCH_JPEG_YCBCR_MAX_PARSEABLE_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or not 4 <= len(values) <= MIBENCH_JPEG_YCBCR_MAX_INPUT_LENGTH:
+        return -1, b""
+    pixel_count = values[0]
+    if (not 1 <= pixel_count <= MIBENCH_JPEG_YCBCR_MAX_PIXELS
+            or len(values) != 1 + 3 * pixel_count
+            or any(not 0 <= sample <= 255 for sample in values[1:])):
+        return -1, b""
+    output = bytearray()
+    for position in range(1, len(values), 3):
+        y, cb, cr = values[position:position + 3]
+        cb -= 128
+        cr -= 128
+        red = y + ((91881 * cr + 32768) >> 16)
+        green = y + ((-22554 * cb + 32768 - 46802 * cr) >> 16)
+        blue = y + ((116130 * cb + 32768) >> 16)
+        output.extend((min(255, max(0, red)), min(255, max(0, green)),
+                       min(255, max(0, blue))))
+    result = bytes(output)
+    if output_is_null or capacity is not None and capacity < len(result):
+        return -2, b""
+    return len(result), result
+
+
+CBENCH_JPEG_H2V2_MAX_PARSEABLE_INPUT_LENGTH = 131
+CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES = 512
+
+
+def cbench_consumer_jpeg_h2v2_fancy_upsample_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independent direct 2x2 IJG triangle-filter model with edge extension."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or not 1 <= len(values) <= CBENCH_JPEG_H2V2_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int or not 0 <= input_length <= 131))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or not 5 <= len(values) <= 130:
+        return -1, b""
+    width, height = values[0], values[1]
+    if (not 3 <= width <= 16 or not 1 <= height <= 8
+            or len(values) != 2 + width * height
+            or any(not 0 <= value <= 255 for value in values[2:])):
+        return -1, b""
+    if capacity is None:
+        capacity = CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES
+    if output_is_null or capacity < 4 * width * height:
+        return -2, b""
+
+    plane = values[2:]
+    expanded = bytearray()
+    for row in range(height):
+        for far_row in (max(0, row - 1), min(height - 1, row + 1)):
+            vertical = [3 * plane[row * width + col] + plane[far_row * width + col]
+                        for col in range(width)]
+            expanded.append((4 * vertical[0] + 8) >> 4)
+            expanded.append((3 * vertical[0] + vertical[1] + 7) >> 4)
+            for col in range(1, width - 1):
+                expanded.append((3 * vertical[col] + vertical[col - 1] + 8) >> 4)
+                expanded.append((3 * vertical[col] + vertical[col + 1] + 7) >> 4)
+            expanded.append((3 * vertical[-1] + vertical[-2] + 8) >> 4)
+            expanded.append((4 * vertical[-1] + 7) >> 4)
+    return len(expanded), bytes(expanded)
+
+
+def _parboil_tpacf_f32(value: float) -> float:
+    return struct.unpack("<f", struct.pack("<f", value))[0]
+
+
+def _parboil_tpacf_boundaries() -> list[float]:
+    boundaries = []
+    for index in range(PARBOIL_TPACF_NUM_BINS + 1):
+        exponent = math.log10(1.0) + float(index) * 1.0 / 5.0
+        arcminutes = math.pow(10.0, exponent)
+        radians = arcminutes / 60.0 * (math.pi / 180.0)
+        boundaries.append(_parboil_tpacf_f32(math.cos(radians)))
+    return boundaries
+
+
+def parboil_tpacf_cross_correlation_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Use the source interval binary search to build a bounded point-pair histogram."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > PARBOIL_TPACF_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= PARBOIL_TPACF_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 8:
+        return -1, b""
+    data_count, random_count = values[:2]
+    if (not 1 <= data_count <= PARBOIL_TPACF_MAX_POINTS
+            or not 1 <= random_count <= PARBOIL_TPACF_MAX_POINTS
+            or len(values) != 2 + 3 * (data_count + random_count)
+            or any(not -PARBOIL_TPACF_SCALE <= value <= PARBOIL_TPACF_SCALE
+                   for value in values[2:])):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < PARBOIL_TPACF_NUM_BINS:
+        return -2, b""
+
+    def point(start: int) -> tuple[float, float, float]:
+        return tuple(_parboil_tpacf_f32(
+            _parboil_tpacf_f32(float(values[start + axis]))
+            / _parboil_tpacf_f32(float(PARBOIL_TPACF_SCALE))) for axis in range(3))
+
+    data_points = [point(2 + 3 * index) for index in range(data_count)]
+    random_start = 2 + 3 * data_count
+    random_points = [point(random_start + 3 * index) for index in range(random_count)]
+    boundaries = _parboil_tpacf_boundaries()
+    histogram = [0] * PARBOIL_TPACF_NUM_BINS
+    for random_point in random_points:
+        for data_point in data_points:
+            x = _parboil_tpacf_f32(data_point[0] * random_point[0])
+            y = _parboil_tpacf_f32(data_point[1] * random_point[1])
+            z = _parboil_tpacf_f32(data_point[2] * random_point[2])
+            distance = _parboil_tpacf_f32(_parboil_tpacf_f32(x + y) + z)
+            lower = 0
+            upper = PARBOIL_TPACF_NUM_BINS
+            while upper - lower > 1:
+                middle = (lower + upper) // 2
+                if distance < boundaries[middle]:
+                    lower = middle
+                else:
+                    upper = middle
+            if distance < boundaries[lower] and distance >= boundaries[upper]:
+                histogram[upper - 1] += 1
+    return PARBOIL_TPACF_NUM_BINS, bytes(histogram)
+
+
+def _parboil_mri_q_f32(value: float | int) -> float:
+    return struct.unpack("<f", struct.pack("<f", value))[0]
+
+
+def parboil_mri_q_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently compute the bounded source-order MRI-Q recurrence."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > PARBOIL_MRI_Q_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= PARBOIL_MRI_Q_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None
+                and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 9:
+        return -1, b""
+    count = values[0]
+    if (not 1 <= count <= PARBOIL_MRI_Q_MAX_K
+            or len(values) != 4 + 5 * count
+            or any(abs(value) > PARBOIL_MRI_Q_MAX_COMPONENT_RAW for value in values[1:])):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < PARBOIL_MRI_Q_MAX_OUTPUT_BYTES:
+        return -2, b""
+
+    def decode(raw: int) -> float:
+        return _parboil_mri_q_f32(
+            _parboil_mri_q_f32(raw) / _parboil_mri_q_f32(1_000_000))
+
+    x, y, z = (decode(value) for value in values[1:4])
+    phi_magnitudes = []
+    records = []
+    for index in range(count):
+        offset = 4 + 5 * index
+        kx, ky, kz, phi_real, phi_imag = (decode(value)
+                                           for value in values[offset:offset + 5])
+        real_square = _parboil_mri_q_f32(phi_real * phi_real)
+        imag_square = _parboil_mri_q_f32(phi_imag * phi_imag)
+        phi_magnitudes.append(_parboil_mri_q_f32(real_square + imag_square))
+        records.append((kx, ky, kz))
+
+    pi_x_2 = _parboil_mri_q_f32(6.2831853071795864769252867665590058)
+    qr = _parboil_mri_q_f32(0.0)
+    qi = _parboil_mri_q_f32(0.0)
+    for index, (kx, ky, kz) in enumerate(records):
+        kx_x = _parboil_mri_q_f32(kx * x)
+        ky_y = _parboil_mri_q_f32(ky * y)
+        kz_z = _parboil_mri_q_f32(kz * z)
+        xy = _parboil_mri_q_f32(kx_x + ky_y)
+        xyz = _parboil_mri_q_f32(xy + kz_z)
+        phase = _parboil_mri_q_f32(pi_x_2 * xyz)
+        cos_phase = _parboil_mri_q_f32(math.cos(phase))
+        sin_phase = _parboil_mri_q_f32(math.sin(phase))
+        qr_term = _parboil_mri_q_f32(phi_magnitudes[index] * cos_phase)
+        qi_term = _parboil_mri_q_f32(phi_magnitudes[index] * sin_phase)
+        qr = _parboil_mri_q_f32(qr + qr_term)
+        qi = _parboil_mri_q_f32(qi + qi_term)
+
+    def round_away_from_zero(value: float) -> int:
+        scaled = _parboil_mri_q_f32(value * _parboil_mri_q_f32(1_000.0))
+        magnitude = math.floor(abs(scaled) + 0.5)
+        return -magnitude if scaled < 0.0 else magnitude
+
+    output = struct.pack("<ii", round_away_from_zero(qr), round_away_from_zero(qi))
+    return PARBOIL_MRI_Q_MAX_OUTPUT_BYTES, output
+
+
+def _parboil_cutcp_f32(value: float | int) -> float:
+    return struct.unpack("<f", struct.pack("<f", value))[0]
+
+
+def parboil_cutcp_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently rebuild the source's hashed cutoff-potential traversal."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > PARBOIL_CUTCP_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= PARBOIL_CUTCP_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None
+                and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 13:
+        return -1, b""
+
+    nx, ny, nz, atom_count = values[:4]
+    if (not PARBOIL_CUTCP_MIN_DIMENSION <= nx <= PARBOIL_CUTCP_MAX_DIMENSION
+            or not PARBOIL_CUTCP_MIN_DIMENSION <= ny <= PARBOIL_CUTCP_MAX_DIMENSION
+            or not PARBOIL_CUTCP_MIN_DIMENSION <= nz <= PARBOIL_CUTCP_MAX_DIMENSION
+            or not 1 <= atom_count <= PARBOIL_CUTCP_MAX_ATOMS
+            or len(values) != 9 + 4 * atom_count):
+        return -1, b""
+    origins_raw = values[4:7]
+    spacing_raw, cutoff_raw = values[7:9]
+    if (any(abs(raw) > PARBOIL_CUTCP_MAX_ORIGIN_RAW or raw % 1_000_000
+            for raw in origins_raw)
+            or not 1_000_000 <= spacing_raw <= 4_000_000
+            or spacing_raw % 1_000_000
+            or not 250_000 <= cutoff_raw <= 4_000_000):
+        return -1, b""
+
+    def decode(raw: int) -> float:
+        return _parboil_cutcp_f32(
+            _parboil_cutcp_f32(raw) / _parboil_cutcp_f32(1_000_000))
+
+    xlo, ylo, zlo = (decode(raw) for raw in origins_raw)
+    spacing = decode(spacing_raw)
+    cutoff = decode(cutoff_raw)
+    atoms = []
+    offset = 9
+    half_spacing = _parboil_cutcp_f32(spacing * _parboil_cutcp_f32(0.5))
+    for _atom_index in range(atom_count):
+        ix, iy, iz, charge_raw = values[offset:offset + 4]
+        if (not 0 <= ix < nx - 1 or not 0 <= iy < ny - 1
+                or not 0 <= iz < nz - 1
+                or abs(charge_raw) > PARBOIL_CUTCP_MAX_COMPONENT_RAW):
+            return -1, b""
+        coordinates = tuple(
+            _parboil_cutcp_f32(
+                origin + _parboil_cutcp_f32(
+                    _parboil_cutcp_f32(index) * spacing + half_spacing))
+            for origin, index in ((xlo, ix), (ylo, iy), (zlo, iz)))
+        atoms.append((*coordinates, decode(charge_raw)))
+        offset += 4
+
+    output_bytes = 4 * nx * ny * nz
+    if output_is_null or capacity is not None and capacity < output_bytes:
+        return -2, b""
+
+    lows = [min(atom[axis] for atom in atoms) for axis in range(3)]
+    highs = [max(atom[axis] for atom in atoms) for axis in range(3)]
+    inverse_cell = _parboil_cutcp_f32(1.0 / _parboil_cutcp_f32(4.0))
+    cell_shape = tuple(
+        math.floor(_parboil_cutcp_f32(_parboil_cutcp_f32(high - low) * inverse_cell)) + 1
+        for low, high in zip(lows, highs))
+    cells_x, cells_y, cells_z = cell_shape
+    cell_count = cells_x * cells_y * cells_z
+    cell_heads = [-1] * cell_count
+    next_atom = [-1] * atom_count
+    for atom_index, atom in enumerate(atoms):
+        x, y, z, charge = atom
+        if charge == 0.0:
+            continue
+        cell_x = math.floor(_parboil_cutcp_f32(_parboil_cutcp_f32(x - lows[0]) * inverse_cell))
+        cell_y = math.floor(_parboil_cutcp_f32(_parboil_cutcp_f32(y - lows[1]) * inverse_cell))
+        cell_z = math.floor(_parboil_cutcp_f32(_parboil_cutcp_f32(z - lows[2]) * inverse_cell))
+        cell_index = (cell_z * cells_y + cell_y) * cells_x + cell_x
+        next_atom[atom_index] = cell_heads[cell_index]
+        cell_heads[cell_index] = atom_index
+
+    inverse_spacing = _parboil_cutcp_f32(1.0 / spacing)
+    cutoff_squared = _parboil_cutcp_f32(cutoff * cutoff)
+    inverse_cutoff_squared = _parboil_cutcp_f32(1.0 / cutoff_squared)
+    radius = math.ceil(_parboil_cutcp_f32(cutoff * inverse_spacing)) - 1
+    lattice = [_parboil_cutcp_f32(0.0)] * (nx * ny * nz)
+    for cell_index in range(cell_count):
+        atom_index = cell_heads[cell_index]
+        while atom_index != -1:
+            atom_x, atom_y, atom_z, charge = atoms[atom_index]
+            rel_x = _parboil_cutcp_f32(atom_x - xlo)
+            rel_y = _parboil_cutcp_f32(atom_y - ylo)
+            rel_z = _parboil_cutcp_f32(atom_z - zlo)
+            center_x = int(_parboil_cutcp_f32(rel_x * inverse_spacing))
+            center_y = int(_parboil_cutcp_f32(rel_y * inverse_spacing))
+            center_z = int(_parboil_cutcp_f32(rel_z * inverse_spacing))
+            first_x, last_x = max(0, center_x - radius), min(nx - 1, center_x + radius + 1)
+            first_y, last_y = max(0, center_y - radius), min(ny - 1, center_y + radius + 1)
+            first_z, last_z = max(0, center_z - radius), min(nz - 1, center_z + radius + 1)
+            x_start = _parboil_cutcp_f32(_parboil_cutcp_f32(first_x * spacing) - rel_x)
+            y_start = _parboil_cutcp_f32(_parboil_cutcp_f32(first_y * spacing) - rel_y)
+            dz = _parboil_cutcp_f32(_parboil_cutcp_f32(first_z * spacing) - rel_z)
+            for grid_z in range(first_z, last_z + 1):
+                z_offset = grid_z * ny
+                dz_squared = _parboil_cutcp_f32(dz * dz)
+                dy = y_start
+                for grid_y in range(first_y, last_y + 1):
+                    row_offset = (z_offset + grid_y) * nx
+                    dyz_squared = _parboil_cutcp_f32(
+                        _parboil_cutcp_f32(dy * dy) + dz_squared)
+                    if dyz_squared < cutoff_squared:
+                        dx = x_start
+                        for grid_x in range(first_x, last_x + 1):
+                            distance_squared = _parboil_cutcp_f32(
+                                _parboil_cutcp_f32(dx * dx) + dyz_squared)
+                            if distance_squared < cutoff_squared:
+                                taper = _parboil_cutcp_f32(
+                                    1.0 - _parboil_cutcp_f32(
+                                        distance_squared * inverse_cutoff_squared))
+                                inverse_distance = _parboil_cutcp_f32(
+                                    1.0 / _parboil_cutcp_f32(math.sqrt(distance_squared)))
+                                energy = _parboil_cutcp_f32(charge * inverse_distance)
+                                energy = _parboil_cutcp_f32(energy * taper)
+                                energy = _parboil_cutcp_f32(energy * taper)
+                                position = row_offset + grid_x
+                                lattice[position] = _parboil_cutcp_f32(
+                                    lattice[position] + energy)
+                            dx = _parboil_cutcp_f32(dx + spacing)
+                    dy = _parboil_cutcp_f32(dy + spacing)
+                dz = _parboil_cutcp_f32(dz + spacing)
+            atom_index = next_atom[atom_index]
+
+    def q1000(value: float) -> int:
+        scaled = _parboil_cutcp_f32(value * _parboil_cutcp_f32(1_000.0))
+        magnitude = math.floor(abs(scaled) + 0.5)
+        return -magnitude if scaled < 0.0 else magnitude
+
+    output = b"".join(struct.pack("<i", q1000(value)) for value in lattice)
+    return output_bytes, output
+
+
+def parboil_spmv_jds_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Validate JDS structure, then independently execute row-rank SpMV."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > PARBOIL_SPMV_JDS_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= PARBOIL_SPMV_JDS_MAX_PARSEABLE_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return PARBOIL_SPMV_JDS_INVALID_RESULT, b""
+    if input_is_null or len(values) < 3:
+        return PARBOIL_SPMV_JDS_INVALID_RESULT, b""
+    dimension, depth, nonzeros = values[:3]
+    if (not 1 <= dimension <= 8 or not 1 <= depth <= 8
+            or not 1 <= nonzeros <= dimension * depth
+            or len(values) != 4 + 3 * dimension + depth + 2 * nonzeros):
+        return PARBOIL_SPMV_JDS_INVALID_RESULT, b""
+    cursor = 3
+    row_counts = values[cursor:cursor + dimension]
+    cursor += dimension
+    permutation = values[cursor:cursor + dimension]
+    cursor += dimension
+    diagonal_offsets = values[cursor:cursor + depth + 1]
+    cursor += depth + 1
+    columns = values[cursor:cursor + nonzeros]
+    cursor += nonzeros
+    matrix_raw = values[cursor:cursor + nonzeros]
+    cursor += nonzeros
+    vector_raw = values[cursor:cursor + dimension]
+    if (row_counts[0] != depth
+            or any(not 0 <= count <= depth for count in row_counts)
+            or any(row_counts[index] < row_counts[index + 1]
+                   for index in range(dimension - 1))
+            or sum(row_counts) != nonzeros
+            or sorted(permutation) != list(range(dimension))
+            or any(not 0 <= column < dimension for column in columns)
+            or any(not -1_000_000 <= value <= 1_000_000
+                   for value in (*matrix_raw, *vector_raw))):
+        return PARBOIL_SPMV_JDS_INVALID_RESULT, b""
+    counts_by_diagonal = [sum(count > diagonal for count in row_counts)
+                          for diagonal in range(depth)]
+    expected_offsets = [0]
+    for count in counts_by_diagonal:
+        expected_offsets.append(expected_offsets[-1] + count)
+    if diagonal_offsets != expected_offsets or diagonal_offsets[-1] != nonzeros:
+        return PARBOIL_SPMV_JDS_INVALID_RESULT, b""
+    required = 4 + 4 * dimension
+    if output_is_null or capacity is not None and capacity < required:
+        return PARBOIL_SPMV_JDS_OUTPUT_ERROR, b""
+
+    def f32(number):
+        return struct.unpack("<f", struct.pack("<f", float(number)))[0]
+
+    scale = f32(1_000_000)
+    vector = [f32(f32(raw) / scale) for raw in vector_raw]
+    matrix = [f32(f32(raw) / scale) for raw in matrix_raw]
+    result_values = [f32(0.0)] * dimension
+    for row_rank in range(dimension):
+        row_sum = f32(0.0)
+        for diagonal in range(row_counts[row_rank]):
+            storage_index = diagonal_offsets[diagonal] + row_rank
+            product_value = f32(matrix[storage_index] * vector[columns[storage_index]])
+            row_sum = f32(row_sum + product_value)
+        result_values[permutation[row_rank]] = row_sum
+    output = struct.pack("<I", dimension) + b"".join(
+        struct.pack("<f", value) for value in result_values)
+    return len(output), output
+
+
+def parboil_histo_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Run the clear-and-saturating-increment histogram independently."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > PARBOIL_HISTO_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value <= (1 << 63) - 1
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= PARBOIL_HISTO_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return PARBOIL_HISTO_INVALID_RESULT, b""
+    if input_is_null or len(values) < 3:
+        return PARBOIL_HISTO_INVALID_RESULT, b""
+    iterations, bin_count, sample_count = values[:3]
+    if (not 0 <= iterations <= PARBOIL_HISTO_MAX_ITERATIONS
+            or not 1 <= bin_count <= PARBOIL_HISTO_MAX_BINS
+            or not 0 <= sample_count <= PARBOIL_HISTO_MAX_SAMPLES
+            or len(values) != 3 + sample_count):
+        return PARBOIL_HISTO_INVALID_RESULT, b""
+    samples = values[3:]
+    if any(not 0 <= sample < bin_count for sample in samples):
+        return PARBOIL_HISTO_INVALID_RESULT, b""
+    if output_is_null or capacity is not None and capacity < bin_count:
+        return PARBOIL_HISTO_OUTPUT_ERROR, b""
+    counts = [0] * bin_count
+    for _ in range(iterations):
+        counts = [0] * bin_count
+        for sample in samples:
+            if counts[sample] < 255:
+                counts[sample] += 1
+    return bin_count, bytes(counts)
+
+
+def tsvc_s252_adjacent_product_pair_sum_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently compute adjacent products with a previous-product carry."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S252_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not TSVC_S252_I64_MIN <= value <= TSVC_S252_I64_MAX
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S252_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 3:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S252_MAX_N or len(values) != 1 + 2 * n:
+        return -1, b""
+    b = values[1:1 + n]
+    c = values[1 + n:]
+    if any(not -TSVC_S252_MAX_VALUE <= value <= TSVC_S252_MAX_VALUE for value in (*b, *c)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    output = []
+    previous_product = 0
+    for index in range(n):
+        product = b[index] * c[index]
+        output.append(product + previous_product)
+        previous_product = product
+    return n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s251_scalar_square_expansion_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently square each element's B+C*D expression."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S251_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S251_I64_MIN <= value <= TSVC_S251_I64_MAX
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S251_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 5:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S251_MAX_N
+            or not 1 <= passes <= TSVC_S251_MAX_PASSES
+            or len(values) != 2 + 3 * n):
+        return -1, b""
+    b_values = values[2:2 + n]
+    c_values = values[2 + n:2 + 2 * n]
+    d_values = values[2 + 2 * n:]
+    if any(not -TSVC_S251_MAX_VALUE <= value <= TSVC_S251_MAX_VALUE
+           for value in (*b_values, *c_values, *d_values)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    output = []
+    for _ in range(passes):
+        output = []
+        for index in range(n):
+            linear = b_values[index] + c_values[index] * d_values[index]
+            output.append(linear * linear)
+    return n, b"".join(struct.pack("<q", value) for value in output)
+
+
+def tsvc_s256_array_expansion_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently model the column sweep and row-state recurrence."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S256_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S256_I64_MIN <= value <= TSVC_S256_I64_MAX for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S256_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 5:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S256_MAX_N or len(values) != 2 + n + 2 * n * n:
+        return -1, b""
+    a0 = values[1]
+    if not -TSVC_S256_MAX_A0 <= a0 <= TSVC_S256_MAX_A0:
+        return -1, b""
+    d_start = 2
+    matrix_start = d_start + n
+    c_start = matrix_start + n * n
+    factors = values[d_start:matrix_start]
+    b_matrix = values[matrix_start:c_start]
+    c_matrix = values[c_start:]
+    if (any(not -TSVC_S256_MAX_FACTOR <= value <= TSVC_S256_MAX_FACTOR for value in factors)
+            or any(not -TSVC_S256_MAX_FACTOR <= value <= TSVC_S256_MAX_FACTOR
+                   for value in b_matrix)
+            or any(not -TSVC_S256_MAX_C0 <= value <= TSVC_S256_MAX_C0 for value in c_matrix)):
+        return -1, b""
+    required_capacity = 8 * (n + n * n)
+    if output_is_null or capacity is not None and capacity < required_capacity:
+        return -2, b""
+    a_values = [0] * n
+    a_values[0] = a0
+    c_result = list(c_matrix)
+    for column in range(n):
+        for row in range(1, n):
+            a_values[row] = 1 - a_values[row - 1]
+            position = row * n + column
+            c_result[position] = a_values[row] + b_matrix[position] * factors[row]
+    result = [*a_values, *c_result]
+    return len(result), b"".join(struct.pack("<q", value) for value in result)
+
+
+def tsvc_s253_conditional_affine_update_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently model the pass-ordered conditional updates to A and C."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S253_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not TSVC_S253_I64_MIN <= value <= TSVC_S253_I64_MAX
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S253_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 6:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S253_MAX_N
+            or not 1 <= passes <= TSVC_S253_MAX_PASSES
+            or len(values) != 2 + 4 * n):
+        return -1, b""
+    if any(not -2 <= value <= 2 for value in values[2:]):
+        return -1, b""
+    a_values = list(values[2:2 + n])
+    b_values = values[2 + n:2 + 2 * n]
+    c_values = list(values[2 + 2 * n:2 + 3 * n])
+    d_values = values[2 + 3 * n:]
+    if output_is_null or capacity is not None and capacity < 16 * n:
+        return -2, b""
+    for _ in range(passes):
+        for index, (b_value, d_value) in enumerate(zip(b_values, d_values)):
+            if a_values[index] > b_value:
+                next_a = a_values[index] - b_value * d_value
+                c_values[index] += next_a
+                a_values[index] = next_a
+    result = [*a_values, *c_values]
+    return len(result), b"".join(struct.pack("<q", value) for value in result)
+
+
+def tsvc_s272_threshold_dual_accumulate_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently model the thresholded, pass-ordered dual update."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S272_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not TSVC_S272_I64_MIN <= value <= TSVC_S272_I64_MAX
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S272_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 8:
+        return -1, b""
+    n, passes, threshold = values[:3]
+    if (not 1 <= n <= TSVC_S272_MAX_N
+            or not 1 <= passes <= TSVC_S272_MAX_PASSES
+            or not -2 <= threshold <= 2
+            or len(values) != 3 + 5 * n
+            or any(not -2 <= value <= 2 for value in values[3:])):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 16 * n:
+        return -2, b""
+    a_end = 3 + n
+    b_end = a_end + n
+    c_end = b_end + n
+    d_end = c_end + n
+    a_values = list(values[3:a_end])
+    b_values = list(values[a_end:b_end])
+    c_values = values[b_end:c_end]
+    d_values = values[c_end:d_end]
+    e_values = values[d_end:]
+    for _ in range(passes):
+        for index in range(n):
+            if e_values[index] >= threshold:
+                a_values[index] += c_values[index] * d_values[index]
+                b_values[index] += c_values[index] * c_values[index]
+    result = [*a_values, *b_values]
+    return len(result), b"".join(struct.pack("<q", value) for value in result)
+
+
+def tsvc_s271_positive_branch_axpy_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently model the strict-positive B mask across repeated passes."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S271_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not TSVC_S271_I64_MIN <= value <= TSVC_S271_I64_MAX
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S271_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 5:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S271_MAX_N
+            or not 1 <= passes <= TSVC_S271_MAX_PASSES
+            or len(values) != 2 + 3 * n
+            or any(not -2 <= value <= 2 for value in values[2:])):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    a_values = list(values[2:2 + n])
+    b_values = values[2 + n:2 + 2 * n]
+    c_values = values[2 + 2 * n:]
+    for _ in range(passes):
+        for index in range(n):
+            if b_values[index] > 0:
+                a_values[index] += b_values[index] * c_values[index]
+    return n, b"".join(struct.pack("<q", value) for value in a_values)
+
+
+def tsvc_s276_index_split_axpy_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently evaluate the source's loop-index coefficient split."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S276_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not TSVC_S276_I64_MIN <= value <= TSVC_S276_I64_MAX
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S276_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 6:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S276_MAX_N
+            or not 1 <= passes <= TSVC_S276_MAX_PASSES
+            or len(values) != 2 + 4 * n
+            or any(not -2 <= value <= 2 for value in values[2:])):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * n:
+        return -2, b""
+    a = list(values[2:2 + n])
+    b = values[2 + n:2 + 2 * n]
+    c = values[2 + 2 * n:2 + 3 * n]
+    d = values[2 + 3 * n:]
+    cutoff = n // 2
+    for _ in range(passes):
+        for index in range(n):
+            coefficient = c[index] if index + 1 < cutoff else d[index]
+            a[index] += b[index] * coefficient
+    return n, b"".join(struct.pack("<q", value) for value in a)
+
+
+def tsvc_s277_guarded_carry_update_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Model s277's ordered A guard and carried write to the next B slot."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S277_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not TSVC_S277_I64_MIN <= value <= TSVC_S277_I64_MAX
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S277_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 7:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S277_MAX_N
+            or not 1 <= passes <= TSVC_S277_MAX_PASSES
+            or len(values) != 2 + 5 * n
+            or any(not -2 <= value <= 2 for value in values[2:])):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 16 * n:
+        return -2, b""
+    a = list(values[2:2 + n])
+    b = list(values[2 + n:2 + 2 * n])
+    c = values[2 + 2 * n:2 + 3 * n]
+    d = values[2 + 3 * n:2 + 4 * n]
+    e = values[2 + 4 * n:]
+    for _ in range(passes):
+        for index in range(n - 1):
+            if a[index] < 0:
+                if b[index] < 0:
+                    a[index] += c[index] * d[index]
+                b[index + 1] = c[index] + d[index] * e[index]
+    result = [*a, *b]
+    return len(result), b"".join(struct.pack("<q", value) for value in result)
+
+
+def tsvc_s274_dependent_conditional_overwrite_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Independently model s274's computed-value branch and overwrite path."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S274_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S274_I64_MIN <= value <= TSVC_S274_I64_MAX
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= TSVC_S274_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 6:
+        return -1, b""
+    n, passes = values[:2]
+    if (not 1 <= n <= TSVC_S274_MAX_N
+            or not 1 <= passes <= TSVC_S274_MAX_PASSES
+            or len(values) != 2 + 4 * n
+            or any(not -2 <= value <= 2 for value in values[2:])):
+        return -1, b""
+    b_values = list(values[2:2 + n])
+    c_values = values[2 + n:2 + 2 * n]
+    d_values = values[2 + 2 * n:2 + 3 * n]
+    e_values = values[2 + 3 * n:]
+    if output_is_null or capacity is not None and capacity < 16 * n:
+        return -2, b""
+    a_values = [0] * n
+    for _ in range(passes):
+        for index in range(n):
+            a_values[index] = c_values[index] + e_values[index] * d_values[index]
+            if a_values[index] > 0:
+                b_values[index] = a_values[index] + b_values[index]
+            else:
+                a_values[index] = d_values[index] * e_values[index]
+    result = [*a_values, *b_values]
+    return len(result), b"".join(struct.pack("<q", value) for value in result)
+
+
+def _idea_cfb64_multiply(left: int, right: int) -> int:
+    a = 65536 if left == 0 else left
+    b = 65536 if right == 0 else right
+    product = (a * b) % 65537
+    return 0 if product == 65536 else product
+
+
+def _idea_cfb64_expand(key: bytes) -> list[int]:
+    words = [int.from_bytes(key[index:index + 2], "big") for index in range(0, 16, 2)]
+    subkeys: list[int] = []
+    while len(subkeys) < 52:
+        subkeys.extend(words[:52 - len(subkeys)])
+        words = [((words[(index + 1) & 7] << 9) | (words[(index + 2) & 7] >> 7)) & 0xFFFF
+                 for index in range(8)]
+    return subkeys
+
+
+def _idea_cfb64_encrypt_block(subkeys: list[int], block: bytes) -> bytes:
+    x1, x2, x3, x4 = (int.from_bytes(block[index:index + 2], "big")
+                      for index in range(0, 8, 2))
+    for round_index in range(8):
+        k1, k2, k3, k4, k5, k6 = subkeys[round_index * 6:round_index * 6 + 6]
+        a = _idea_cfb64_multiply(x1, k1)
+        b = (x2 + k2) & 0xFFFF
+        c = (x3 + k3) & 0xFFFF
+        d = _idea_cfb64_multiply(x4, k4)
+        p = _idea_cfb64_multiply(a ^ c, k5)
+        q = _idea_cfb64_multiply(((b ^ d) + p) & 0xFFFF, k6)
+        r = (p + q) & 0xFFFF
+        x1, x2, x3, x4 = a ^ q, c ^ q, b ^ r, d ^ r
+    final_words = (_idea_cfb64_multiply(x1, subkeys[48]),
+                   (x3 + subkeys[49]) & 0xFFFF,
+                   (x2 + subkeys[50]) & 0xFFFF,
+                   _idea_cfb64_multiply(x4, subkeys[51]))
+    return b"".join(word.to_bytes(2, "big") for word in final_words)
+
+
+def idea_cfb64_verifier_oracle(values, capacity=None, output_is_null=False,
+                               input_is_null=False, input_length=None):
+    """Independently transform IDEA CFB64 data in either direction."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > IDEA_CFB64_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= IDEA_CFB64_MAX_PARSEABLE_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 27:
+        return -1, b""
+    mode, text_length = values[0], values[1]
+    if mode not in (0, 1) or not 1 <= text_length <= 24 or len(values) != 26 + text_length:
+        return -1, b""
+    raw = values[2:]
+    if any(not 0 <= byte <= 255 for byte in raw):
+        return -1, b""
+    key = bytes(raw[:16])
+    feedback = bytes(raw[16:24])
+    data = bytes(raw[24:])
+    subkeys = _idea_cfb64_expand(key)
+    output = bytearray()
+    for offset in range(0, text_length, 8):
+        stream = _idea_cfb64_encrypt_block(subkeys, feedback)
+        chunk = data[offset:offset + 8]
+        transformed = bytes(byte ^ mask for byte, mask in zip(chunk, stream))
+        output.extend(transformed)
+        ciphertext = transformed if mode == 0 else chunk
+        feedback = ciphertext + feedback[len(ciphertext):]
+    output_bytes = bytes(output)
+    if output_is_null or capacity is not None and capacity < len(output_bytes):
+        return -2, b""
+    return len(output_bytes), output_bytes
+
+
+def llubenchmark_list_traversal_growth_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Model per-list node counts, traversal, fractional growth, and appends."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > LLUBENCHMARK_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= LLUBENCHMARK_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) != 3:
+        return -1, b""
+    list_count, initial_length, iterations = values
+    if (not 1 <= list_count <= LLUBENCHMARK_MAX_LISTS
+            or not 1 <= initial_length <= LLUBENCHMARK_MAX_INITIAL_LENGTH
+            or not 0 <= iterations <= LLUBENCHMARK_MAX_ITERATIONS):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < LLUBENCHMARK_MAX_OUTPUT_BYTES:
+        return -2, b""
+
+    lists = [[0] * initial_length for _ in range(list_count)]
+    allocated = list_count * initial_length
+    growth_milli = 0
+    accumulate = 0
+    for _iteration in range(iterations):
+        for nodes in lists:
+            for position in range(len(nodes)):
+                accumulate += nodes[position]
+                nodes[position] += 1
+        growth_milli += 333
+        whole_nodes, growth_milli = divmod(growth_milli, 1000)
+        for ordinal in range(whole_nodes, 0, -1):
+            for list_index, nodes in enumerate(lists):
+                nodes.append(list_index + ordinal)
+                allocated += 1
+                if allocated > LLUBENCHMARK_MAX_NODES:
+                    return -1, b""
+    return 2, struct.pack("<qq", accumulate, allocated)
+
+
+def tsvc_s319_coupled_reductions_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Derive each paired update and its final reduction in source order."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > TSVC_S319_MAX_INPUT_LENGTH
+            or any(type(value) is not int
+                   or not TSVC_S319_I64_MIN <= value <= TSVC_S319_I64_MAX for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= TSVC_S319_MAX_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null or len(values) < 4:
+        return -1, b""
+    n = values[0]
+    if not 1 <= n <= TSVC_S319_MAX_N or len(values) != 1 + 3 * n:
+        return -1, b""
+    c = values[1:1 + n]
+    d = values[1 + n:1 + 2 * n]
+    e = values[1 + 2 * n:]
+    if any(abs(value) > TSVC_S319_MAX_VALUE for value in (*c, *d, *e)):
+        return -1, b""
+    if output_is_null or capacity is not None and capacity < 8 * (2 * n + 1):
+        return -2, b""
+    a_values = []
+    b_values = []
+    total = 0
+    for index in range(n):
+        a_value = c[index] + d[index]
+        total += a_value
+        b_value = c[index] + e[index]
+        total += b_value
+        a_values.append(a_value)
+        b_values.append(b_value)
+    output = (*a_values, *b_values, total)
+    return 2 * n + 1, b"".join(struct.pack("<q", value) for value in output)
+
+
+def rodinia_streamcluster_pgain_verifier_oracle(
+        values, capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    """Recompute one feasible facility opening decision and resulting assignments."""
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > RODINIA_STREAMCLUSTER_PGAIN_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= RODINIA_STREAMCLUSTER_PGAIN_MAX_PARSEABLE_INPUT_LENGTH))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if (input_is_null or len(values) < 5
+            or len(values) > RODINIA_STREAMCLUSTER_PGAIN_MAX_INPUT_LENGTH):
+        return -1, b""
+    n, dimension, candidate, facility_cost, center_mask = values[:5]
+    if (not 2 <= n <= RODINIA_STREAMCLUSTER_PGAIN_MAX_POINTS
+            or not 1 <= dimension <= RODINIA_STREAMCLUSTER_PGAIN_MAX_DIMENSION
+            or not 0 <= candidate < n or not 1 <= facility_cost <= 64
+            or not 0 < center_mask < (1 << n)
+            or center_mask & (1 << candidate)
+            or len(values) != 5 + n * (3 + dimension)):
+        return -1, b""
+    cursor = 5
+    assignments = list(values[cursor:cursor + n]); cursor += n
+    weights = list(values[cursor:cursor + n]); cursor += n
+    current_costs = list(values[cursor:cursor + n]); cursor += n
+    coordinates = [list(values[cursor + index * dimension:
+                                cursor + (index + 1) * dimension]) for index in range(n)]
+    if (any(not 0 <= assignment < n or not (center_mask & (1 << assignment))
+            for assignment in assignments)
+            or any(not 1 <= weight <= 4 for weight in weights)
+            or any(not -8 <= coordinate <= 8
+                   for point in coordinates for coordinate in point)):
+        return -1, b""
+
+    def weighted_distance(point: int, center: int) -> int:
+        return weights[point] * sum(
+            (coordinates[point][axis] - coordinates[center][axis]) ** 2
+            for axis in range(dimension))
+
+    for point in range(n):
+        expected_cost = weighted_distance(point, assignments[point])
+        if (current_costs[point] != expected_cost
+                or center_mask & (1 << point)
+                and (assignments[point] != point or current_costs[point] != 0)):
+            return -1, b""
+    switch = [False] * n
+    lower = [0] * n
+    opening_delta = facility_cost
+    for point in range(n):
+        candidate_cost = weighted_distance(point, candidate)
+        if candidate_cost < current_costs[point]:
+            switch[point] = True
+            opening_delta += candidate_cost - current_costs[point]
+        else:
+            lower[assignments[point]] += current_costs[point] - candidate_cost
+    closing = [False] * n
+    for center in range(n):
+        if center_mask & (1 << center):
+            closure_delta = facility_cost + lower[center]
+            if closure_delta > 0:
+                closing[center] = True
+                opening_delta -= closure_delta
+    opened = opening_delta < 0
+    gain = -opening_delta if opened else 0
+    output_mask = center_mask
+    output_assignments = assignments[:]
+    output_costs = current_costs[:]
+    if opened:
+        for point in range(n):
+            if switch[point] or closing[assignments[point]]:
+                output_assignments[point] = candidate
+                output_costs[point] = weighted_distance(point, candidate)
+        for center in range(n):
+            if closing[center]:
+                output_mask &= ~(1 << center)
+        output_mask |= 1 << candidate
+    center_count = output_mask.bit_count()
+    objective = center_count * facility_cost + sum(output_costs)
+    output_values = (int(opened), gain, center_count, output_mask, objective,
+                     *output_assignments, *output_costs)
+    output = b"".join(struct.pack("<q", value) for value in output_values)
+    if output_is_null or capacity is not None and capacity < len(output):
+        return -2, b""
+    return len(output_values), output
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "ansibench_dhrystone": ansibench_dhrystone_oracle,
     "stream_vector_kernels": stream_vector_kernels_oracle,
@@ -4119,14 +9078,20 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "bmm": versabench_bmm_verifier_oracle,
     "mccat_bisect": mccat_bisect_verifier_oracle,
     "prolangs_c_allroots": prolangs_c_allroots_verifier_oracle,
+    "prolangs_c_cdecl": prolangs_c_cdecl_verifier_oracle,
+    "tarfind": tarfind_verifier_oracle,
     "mibench_security_blowfish": mibench_security_blowfish_verifier_oracle,
     "mibench_automotive_susan": mibench_automotive_susan_verifier_oracle,
+    "cbench_automotive_susan_c": cbench_automotive_susan_c_verifier_oracle,
+    "cbench_automotive_susan_e": cbench_automotive_susan_e_verifier_oracle,
     "cbench_automotive_qsort1": cbench_automotive_qsort1_verifier_oracle,
     "8b10b": versabench_8b10b_verifier_oracle,
     "trimaran_enc_rc4": trimaran_enc_rc4_verifier_oracle,
     "trimaran_enc_3des": trimaran_enc_3des_verifier_oracle,
     "mibench_security_rijndael": mibench_security_rijndael_verifier_oracle,
+    "cbench_security_rijndael_decrypt": cbench_security_rijndael_decrypt_verifier_oracle,
     "misc_reed_solomon": misc_reed_solomon_verifier_oracle,
+    "depthconv": depthconv_verifier_oracle,
     "min_cost_max_flow": min_cost_max_flow_oracle,
     "morton_sort": morton_sort_oracle,
     "number_theoretic_transform": number_theoretic_transform_oracle,
@@ -4140,6 +9105,106 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "delaunay_triangulation": delaunay_triangulation_oracle,
     "delaunay_mesh_refinement": delaunay_mesh_refinement_oracle,
     "fortune_voronoi": fortune_voronoi_oracle,
+    "tsvc_s343_column_major_compaction": tsvc_s343_column_major_compaction_verifier_oracle,
+    "cbench_tiffdither": cbench_tiffdither_verifier_oracle,
+    "cbench_consumer_tiffmedian": cbench_consumer_tiffmedian_verifier_oracle,
+    "cbench_consumer_tiff2bw": cbench_consumer_tiff2bw_verifier_oracle,
+    "cbench_bzip2_mtf_rle": cbench_bzip2_mtf_rle_verifier_oracle,
+    "cbench_blowfish_cbc": cbench_blowfish_cbc_verifier_oracle,
+    "tsvc_s281_reverse_coupled_update": tsvc_s281_reverse_coupled_update_verifier_oracle,
+    "freebench_distray": freebench_distray_verifier_oracle,
+    "pcompress2": pcompress2_verifier_oracle,
+    "mibench_security_sha0": mibench_security_sha0_verifier_oracle,
+    "lac_adpcm": lac_adpcm_verifier_oracle,
+    "mccat_05_eks": mccat_05_eks_verifier_oracle,
+    "mccat_bintr": mccat_bintr_verifier_oracle,
+    "mediabench_g721_encode": mediabench_g721_encode_verifier_oracle,
+    "mediabench_gsm_rpe_grid_selection": mediabench_gsm_rpe_grid_selection_verifier_oracle,
+    "rodinia_hybridsort": rodinia_hybridsort_verifier_oracle,
+    "rodinia_mummergpu": rodinia_mummergpu_verifier_oracle,
+    "tsvc_indexed_gather_scatter": tsvc_indexed_gather_scatter_verifier_oracle,
+    "tsvc_s141_packed_symmetric_update": tsvc_s141_packed_symmetric_update_verifier_oracle,
+    "tsvc_s131_forward_neighbor_update": tsvc_s131_forward_neighbor_update_verifier_oracle,
+    "tsvc_s132_shifted_row_update": tsvc_s132_shifted_row_update_verifier_oracle,
+    "tsvc_s152_three_factor_accumulate": tsvc_s152_three_factor_accumulate_verifier_oracle,
+    "tsvc_s161_mutually_exclusive_updates": tsvc_s161_mutually_exclusive_updates_verifier_oracle,
+    "tsvc_s211_ordered_neighbor_rewrite": tsvc_s211_ordered_neighbor_rewrite_verifier_oracle,
+    "tsvc_s212_next_element_dependency": tsvc_s212_next_element_dependency_verifier_oracle,
+    "tsvc_s114_transposed_lower_triangle_update": tsvc_s114_transposed_lower_triangle_update_verifier_oracle,
+    "tsvc_vif_masked_assignment": tsvc_vif_masked_assignment_verifier_oracle,
+    "tsvc_s278_branch_recompute": tsvc_s278_branch_recompute_verifier_oracle,
+    "tsvc_s279_nested_branch_recompute": tsvc_s279_nested_branch_recompute_verifier_oracle,
+    "tsvc_s2111_wavefront_add_recurrence": tsvc_s2111_wavefront_add_recurrence_verifier_oracle,
+    "tsvc_s353_unrolled_sparse_saxpy": tsvc_s353_unrolled_sparse_saxpy_verifier_oracle,
+    "tsvc_s452_index_weighted_vector_map": tsvc_s452_index_weighted_vector_map_verifier_oracle,
+    "tsvc_s126_matrix_column_recurrence": tsvc_s126_matrix_column_recurrence_verifier_oracle,
+    "tsvc_s322_second_order_recurrence": tsvc_s322_second_order_recurrence_verifier_oracle,
+    "tsvc_s321_first_order_recurrence": tsvc_s321_first_order_recurrence_verifier_oracle,
+    "tsvc_s128_strided_coupled_update": tsvc_s128_strided_coupled_update_verifier_oracle,
+    "tsvc_s323_coupled_recurrence": tsvc_s323_coupled_recurrence_verifier_oracle,
+    "tsvc_s127_fixed_pair_expansion": tsvc_s127_fixed_pair_expansion_verifier_oracle,
+    "tsvc_s123_conditional_pair_expansion": tsvc_s123_conditional_pair_expansion_verifier_oracle,
+    "tsvc_s122_reverse_strided_gather_add": tsvc_s122_reverse_strided_gather_add_verifier_oracle,
+    "tsvc_s315_maximum_with_index": tsvc_s315_maximum_with_index_verifier_oracle,
+    "tsvc_s453_recurrence_weighted_scale": tsvc_s453_recurrence_weighted_scale_verifier_oracle,
+    "tsvc_s342_conditional_unpack": tsvc_s342_conditional_unpack_verifier_oracle,
+    "tsvc_s124_conditional_fma_map": tsvc_s124_conditional_fma_map_verifier_oracle,
+    "tsvc_s125_matrix_flattened_fma": tsvc_s125_matrix_flattened_fma_verifier_oracle,
+    "versabench_dbms_keys_union": versabench_dbms_keys_union_verifier_oracle,
+    "versabench_dbms_query": versabench_dbms_query_verifier_oracle,
+    "versabench_dbms_insert_entry": versabench_dbms_insert_entry_verifier_oracle,
+    "versabench_dbms_delete_entry": versabench_dbms_delete_entry_verifier_oracle,
+    "versabench_dbms_contract_root": versabench_dbms_contract_root_verifier_oracle,
+    "tsvc_s319_coupled_reductions": tsvc_s319_coupled_reductions_verifier_oracle,
+    "tsvc_s241_cross_coupled_product_map": tsvc_s241_cross_coupled_product_map_verifier_oracle,
+    "tsvc_s243_ordered_lookahead_update": tsvc_s243_ordered_lookahead_update_verifier_oracle,
+    "tsvc_s244_false_dependence_cycle_break": tsvc_s244_false_dependence_cycle_break_verifier_oracle,
+    "tsvc_s1244_polynomial_neighbor_sum": tsvc_s1244_polynomial_neighbor_sum_verifier_oracle,
+    "tsvc_s1221_lag4_add_recurrence": tsvc_s1221_lag4_add_recurrence_verifier_oracle,
+    "tsvc_s442_indexed_square_accumulate": tsvc_s442_indexed_square_accumulate_verifier_oracle,
+    "tsvc_s171_stride_indexed_accumulate": tsvc_s171_stride_indexed_accumulate_verifier_oracle,
+    "tsvc_s4117_pair_replicated_gather_map": tsvc_s4117_pair_replicated_gather_map_verifier_oracle,
+    "tsvc_s162_guarded_shifted_fma": tsvc_s162_guarded_shifted_fma_verifier_oracle,
+    "tsvc_s4114_reverse_index_gather_fma": tsvc_s4114_reverse_index_gather_fma_verifier_oracle,
+    "tsvc_s318_strided_absolute_maximum_with_index": (
+        tsvc_s318_strided_absolute_maximum_with_index_verifier_oracle),
+    "tsvc_s2101_diagonal_matrix_fma": tsvc_s2101_diagonal_matrix_fma_verifier_oracle,
+    "tsvc_s2102_identity_matrix_initialize": tsvc_s2102_identity_matrix_initialize_verifier_oracle,
+    "tsvc_vag_indexed_gather_copy": tsvc_vag_indexed_gather_copy_verifier_oracle,
+    "tsvc_s332_first_above_threshold": tsvc_s332_first_above_threshold_verifier_oracle,
+    "tsvc_s261_shifted_cross_array_update": tsvc_s261_shifted_cross_array_update_verifier_oracle,
+    "mediabench_mpeg2_motion_vector_component": mediabench_mpeg2_motion_vector_component_verifier_oracle,
+    "mibench_jpeg_ycbcr_to_rgb": mibench_jpeg_ycbcr_to_rgb_verifier_oracle,
+    "cbench_consumer_jpeg_h2v2_fancy_upsample": cbench_consumer_jpeg_h2v2_fancy_upsample_verifier_oracle,
+    "parboil_tpacf_cross_correlation": parboil_tpacf_cross_correlation_verifier_oracle,
+    "parboil_mri_q": parboil_mri_q_verifier_oracle,
+    "parboil_cutcp": parboil_cutcp_verifier_oracle,
+    "parboil_spmv_jds": parboil_spmv_jds_verifier_oracle,
+    "parboil_histo": parboil_histo_verifier_oracle,
+    "tsvc_s251_scalar_square_expansion": tsvc_s251_scalar_square_expansion_verifier_oracle,
+    "tsvc_s279_nested_branch_recompute": tsvc_s279_nested_branch_recompute_verifier_oracle,
+    "tsvc_s2111_wavefront_add_recurrence": tsvc_s2111_wavefront_add_recurrence_verifier_oracle,
+    "tsvc_s252_adjacent_product_pair_sum": tsvc_s252_adjacent_product_pair_sum_verifier_oracle,
+    "tsvc_s256_array_expansion": tsvc_s256_array_expansion_verifier_oracle,
+    "tsvc_s253_conditional_affine_update": tsvc_s253_conditional_affine_update_verifier_oracle,
+    "tsvc_s272_threshold_dual_accumulate": tsvc_s272_threshold_dual_accumulate_verifier_oracle,
+    "tsvc_s271_positive_branch_axpy": tsvc_s271_positive_branch_axpy_verifier_oracle,
+    "tsvc_s276_index_split_axpy": tsvc_s276_index_split_axpy_verifier_oracle,
+    "tsvc_s277_guarded_carry_update": tsvc_s277_guarded_carry_update_verifier_oracle,
+    "tsvc_s274_dependent_conditional_overwrite": tsvc_s274_dependent_conditional_overwrite_verifier_oracle,
+    "idea_cfb64": idea_cfb64_verifier_oracle,
+    "llubenchmark_list_traversal_growth": llubenchmark_list_traversal_growth_verifier_oracle,
+    "rodinia_streamcluster_pgain": rodinia_streamcluster_pgain_verifier_oracle,
+    "simplify_fraction": simplify_fraction_verifier_oracle,
+    "rodinia_dwt2d": rodinia_dwt2d_verifier_oracle,
+    "qrduino": qrduino_verifier_oracle,
+    "picojpeg": picojpeg_verifier_oracle,
+    "statemate": statemate_verifier_oracle,
+    "edn_lattice_synthesis": edn_lattice_synthesis_verifier_suite_oracle,
+    "edn_vec_mpy1": edn_vec_mpy1_verifier_suite_oracle,
+    "edn_iir_cascade": edn_iir_cascade_verifier_suite_oracle,
+    "edn_jpeg_dct": edn_jpeg_dct_verifier_suite_oracle,
+    "nsichneu": nsichneu_verifier_oracle,
 }
 
 ANSIBENCH_BYTE_OUTPUT_BOUNDS = {
@@ -4180,6 +9245,15 @@ GENERIC_BYTE_OUTPUT_BOUNDS = {
     "mibench_automotive_susan": (
         MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
         MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES),
+    "cbench_automotive_susan_c": (
+        CBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
+        CBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES),
+    "cbench_automotive_susan_e": (
+        CBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
+        CBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES),
+    "freebench_distray": (
+        FREEBENCH_DISTRAY_MAX_PARSEABLE_INPUT_LENGTH,
+        FREEBENCH_DISTRAY_MAX_OUTPUT_BYTES),
 }
 
 
@@ -5811,6 +10885,18 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     workspace_bytes = (workload.get("workspace") or {}).get(
         "bytes", output_spec.get("maximum_bytes", output_spec.get(
             "maximum_output_bytes", output_spec.get("success_result"))))
+    if algorithm == "versabench_dbms_keys_union":
+        workspace_bytes = VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES
+    if algorithm == "versabench_dbms_query":
+        workspace_bytes = VERSABENCH_DBMS_QUERY_MAX_OUTPUT_BYTES
+    if algorithm == "versabench_dbms_insert_entry":
+        workspace_bytes = VERSABENCH_DBMS_INSERT_ENTRY_MAX_OUTPUT_BYTES
+    if algorithm == "versabench_dbms_delete_entry":
+        workspace_bytes = VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_BYTES
+    if algorithm == "versabench_dbms_contract_root":
+        workspace_bytes = VERSABENCH_DBMS_CONTRACT_ROOT_MAX_OUTPUT_BYTES
+    if workspace_bytes is None and algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
+        workspace_bytes = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][1]
     if algorithm == "trimaran_enc_3des":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         expected_ids = {
@@ -5883,6 +10969,78 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = (TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES,
                                  TRIMARAN_ENC_RC4_MAX_OUTPUT_BYTES)
+    elif algorithm == "depthconv":
+        pinned = "09c2ed8c3b7008c95d08b038de4a3f6dc103ed70"
+        expected_ids = {
+            "per_channel_bias_rounding", "input_offset_and_accumulation",
+            "activation_clamp", "short_output_capacity", "invalid_input_byte",
+            "invalid_shift", "bad_frame_length", "null_output",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "embench-depthconv-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded per-channel quantized int8 depthwise convolution using the pinned Embench/TensorFlow Lite Micro kernel contract."
+                or source != {
+                    "repository": "embench/embench-iot", "commit": pinned,
+                    "path": "src/depthconv/depthconv.c",
+                    "symbol": "DepthwiseConvPerChannel",
+                    "url": f"https://github.com/embench/embench-iot/blob/{pinned}/src/depthconv/depthconv.c",
+                    "copyright": "Copyright 2024 The TensorFlow Authors. All Rights Reserved.",
+                    "spdx": "Apache-2.0",
+                    "rights": "Full Apache 2.0 text and attribution bundled in LICENSE.txt and NOTICE.txt; ports are clean-room and contain no copied source code/comments.",
+                }
+                or contract != {
+                    "operation": "For each channel, accumulate a 4-tap vertical depthwise filter with input offset 128 and bias; apply source-style per-channel rounded quantized multiplier/shift and clamp to signed int8.",
+                    "input_layout": "[channels, 4*channels input values row-major, 4*channels filter values row-major, channels biases, channels multipliers, channels shifts]",
+                    "channels_range": [1, 8], "input_filter_range": [-128, 127],
+                    "bias_range": [-1000000, 1000000],
+                    "multiplier_range": [0, 2147483647], "shift_range": [-8, 0],
+                    "exact_input_length": "1+11*channels",
+                    "max_input_length": DEPTHCONV_MAX_INPUT_LENGTH,
+                    "output_bytes": "channels", "output_value_range": [-128, 127],
+                    "invalid_result": -1, "output_error_result": -2,
+                    "no_write_on_error": True,
+                    "source_arithmetic": "total_shift=31-shift; round=1<<(total_shift-1); floor arithmetic shift of acc*multiplier+round by total_shift.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "maximum_length": DEPTHCONV_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "one two's-complement int8 result per channel",
+                    "maximum_bytes": DEPTHCONV_MAX_OUTPUT_BYTES,
+                    "null_or_short_output_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("depthconv metadata differs from its pinned bounded contract")
+        package = ROOT / "benchmarks" / "d" / "depthconv"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or "clean-room" not in readme
+                or "Copyright 2024 The TensorFlow Authors" not in notice
+                or "Apache License" not in license_text):
+            raise ValueError("depthconv README or Apache attribution files are incomplete")
+        for relative in (
+                "c/d/depthconv.c", "c3/d/depthconv.c3", "cpp/d/depthconv.cpp",
+                "elisa/d/depthconv.elisa", "nim/d/depthconv.nim", "odin/d/depthconv.odin",
+                "rust/d/depthconv.rs", "v/d/depthconv.v", "zig/d/depthconv.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"depthconv port is missing: {relative}")
     elif algorithm == "misc_reed_solomon":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         source = workload.get("pinned_source", {})
@@ -6051,11 +11209,91 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or "provided 'as is'" not in license_text):
             raise ValueError("mibench_security_rijndael README/license attribution is incomplete")
         max_input, max_output = 49, 16
+    elif algorithm == "cbench_security_rijndael_decrypt":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "nist_aes256_inverse_vector", "zero_key_zero_plaintext_inverse",
+            "short_output_capacity", "bad_byte", "short_input", "null_output",
+        }
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        contract = workload.get("contract", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-cbench-security-rijndael-decrypt-aes256-block-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "cBench/security_rijndael_d/src/aes.c",
+                    "related_paths": ["cBench/security_rijndael_d/src/aes.h",
+                                      "cBench/security_rijndael_d/src/aesxam.c"],
+                    "symbol": "set_key(..., dec, ...) and decrypt",
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/security_rijndael_d/src/aes.c",
+                    "license": "Brian Gladman permission allows modification and redistribution subject to the complete two-condition notice; see LICENSE.txt.",
+                }
+                or launcher != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "cBench/security_rijndael_d/src/info.sh",
+                    "bench_name": "security_rijndael_d",
+                    "source_files": ["aes.c", "aesxam.c"],
+                    "run_options": "Dataset profiles pass mode d and a fixed 256-bit key; the wrapper decrypts CBC files.",
+                }
+                or contract != {
+                    "operation": "AES-256 decrypt one ciphertext block to raw inverse-block bytes before CBC chaining XOR.",
+                    "input_layout": "[32 key bytes, 16 ciphertext bytes]",
+                    "input_length": 48, "valid_byte_range": [0, 255],
+                    "output_encoding": "16 raw AES decrypted bytes",
+                    "invalid_result": -1, "output_error_result": -2,
+                    "no_write_on_error": True,
+                    "wrapper_excluded": "CBC XOR with prior ciphertext/IV, padding, file input/output, CLI modes, and repeated dataset profile.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array_of_bytes", "exact_length": 48,
+                    "valid_value_range": [0, 255], "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array", "maximum_bytes": 16,
+                    "success_result": 16, "invalid_input_result": -1,
+                    "null_or_short_output_result": -2,
+                }
+                or workload.get("workspace") != {
+                    "bytes": 16, "meaning": "Capacity for one AES plaintext block.",
+                }
+                or workspace_bytes != 16
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("cbench_security_rijndael_decrypt metadata differs from its pinned block contract")
+        package = ROOT / "benchmarks" / "c" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        required_notice = (
+            "Copyright (c) 2001 Dr Brian Gladman",
+            "Redistribution and use in source and binary forms",
+            "must retain the above copyright",
+            "must reproduce the above copyright",
+            "provided 'as is'",
+        )
+        if (source["url"] not in readme or "aesxam" not in readme
+                or "Brian Gladman" not in readme
+                or any(fragment not in license_text for fragment in required_notice)):
+            raise ValueError("cbench_security_rijndael_decrypt README or LICENSE.txt is incomplete")
+        max_input, max_output = 49, 16
     elif algorithm == "mibench_automotive_susan":
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = (
             MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
             MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES)
+    elif algorithm in {"cbench_automotive_susan_c", "cbench_automotive_susan_e"}:
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = (
+            CBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
+            CBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES)
     elif algorithm == "mibench_security_blowfish":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         source = workload.get("pinned_source", {})
@@ -6635,6 +11873,91 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or "No per-package license file" not in readme
                 or "synthetic deflation" not in readme):
             raise ValueError("prolangs_c_allroots README is missing source, algorithm, or license notes")
+    elif algorithm == "prolangs_c_cdecl":
+        max_input, max_output = 96, 128
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "plain-object", "array-of-pointers", "pointer-to-array",
+            "pointer-to-function", "array-of-function-pointers",
+            "void-parameter-normalization", "array-of-function-invalid",
+            "dimension-out-of-profile", "null-input", "short-output", "null-output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-prolangs-c-cdecl-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "Prolangs-C/cdecl/cdecl.c"
+                or source.get("symbol") != "dodexplain"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or launcher.get("path") != "Prolangs-C/cdecl/info.sh"
+                or launcher.get("source_files") != ["cdecl.c"]
+                or launcher.get("compile_flags") != ["-std=gnu89"]
+                or launcher.get("stdin_path") != "Prolangs-C/cdecl/testset"
+                or contract.get("maximum_valid_input_length") != max_input
+                or contract.get("maximum_output_bytes") != max_output
+                or "identifier-outward order" not in contract.get("operation", "")
+                or workload.get("input", {}).get("maximum_valid_length") != max_input
+                or workload.get("input", {}).get("maximum_parseable_length") != max_input
+                or workload.get("output", {}).get("maximum_bytes") != max_output
+                or workspace_bytes != max_output
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("prolangs_c_cdecl metadata differs from its bounded declarator contract")
+        readme = (ROOT / "benchmarks" / "p" / algorithm / "README.md").read_text(
+            encoding="utf-8")
+        if ("Prolangs-C/cdecl/cdecl.c" not in readme
+                or "no explicit license grant" not in readme.lower()
+                or "does not copy upstream code" not in readme):
+            raise ValueError("prolangs_c_cdecl README is missing source scope or rights details")
+    elif algorithm == "tarfind":
+        max_input, max_output = 1602, 5
+        pinned = "de24bdf561f4eaad7f37685641fa301f2b8b4bc3"
+        source = workload.get("pinned_source", {})
+        expected_ids = {
+            "early_middle_last_and_absent", "first_duplicate_header_wins",
+            "near_match_and_exact_case_sensitive_search", "maximum_record_and_query_counts",
+            "maximum_packed_input_length", "maximum_filename_length",
+            "malformed_lowercase_filename_byte", "malformed_filename_length",
+            "truncated_record_name", "trailing_values_rejected",
+            "output_capacity_too_small", "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "embench-iot-tarfind-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "embench/embench-iot"
+                or source.get("commit") != pinned
+                or source.get("path") != "src/tarfind/tarfind.c"
+                or source.get("symbol") != "benchmark_body"
+                or "SPDX-License-Identifier: MIT" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("record_count_range") != [1, 35]
+                or workload.get("contract", {}).get("query_count_range") != [1, 5]
+                or workload.get("contract", {}).get("filename_length_range") != [5, 39]
+                or workload.get("input", {}).get("maximum_valid_length") != max_input
+                or workload.get("input", {}).get("maximum_parseable_length") != max_input
+                or workload.get("output", {}).get("maximum_bytes") != max_output
+                or workspace_bytes != max_output
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tarfind metadata differs from its pinned filename-search contract")
+        package = ROOT / "benchmarks" / "t" / "tarfind"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source.get("url") not in readme or "MIT" not in readme
+                or "Copyright (c) Julian Kunkel" not in license_text
+                or "Permission is hereby granted" not in license_text
+                or "THE SOFTWARE IS PROVIDED \"AS IS\"" not in license_text):
+            raise ValueError("tarfind README or MIT notice is incomplete")
     elif algorithm == "cbench_automotive_qsort1":
         max_input, max_output = (CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES,
                                  CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES)
@@ -6753,6 +12076,77 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or workload.get("measurement", {}).get("repetitions_per_sample") != 1
                 or {case.get("id") for case in workload.get("cases", [])} != expected_ids):
             raise ValueError("8b10b metadata differs from its pinned bounded state-machine contract")
+    elif algorithm == "mediabench_g721_encode":
+        max_input, max_output = (MEDIABENCH_G721_MAX_INPUT_LENGTH,
+                                 MEDIABENCH_G721_MAX_OUTPUT_BYTES)
+    elif algorithm in {"cbench_tiffdither", "cbench_consumer_tiffmedian",
+                       "cbench_consumer_tiff2bw", "cbench_bzip2_mtf_rle",
+                       "cbench_blowfish_cbc", "tsvc_s281_reverse_coupled_update",
+                       "edn_lattice_synthesis", "edn_vec_mpy1", "edn_iir_cascade",
+                       "edn_jpeg_dct", "nsichneu", "mediabench_gsm_rpe_grid_selection",
+                       "rodinia_hybridsort", "rodinia_mummergpu",
+                       "tsvc_indexed_gather_scatter", "tsvc_s141_packed_symmetric_update",
+                       "tsvc_s131_forward_neighbor_update", "tsvc_s132_shifted_row_update",
+                       "tsvc_s152_three_factor_accumulate",
+                       "tsvc_s161_mutually_exclusive_updates",
+                       "tsvc_s211_ordered_neighbor_rewrite",
+                       "tsvc_s212_next_element_dependency",
+                       "tsvc_s114_transposed_lower_triangle_update",
+                       "tsvc_vif_masked_assignment",
+                       "tsvc_s278_branch_recompute",
+                       "tsvc_s279_nested_branch_recompute",
+                       "tsvc_s2111_wavefront_add_recurrence",
+                       "tsvc_s353_unrolled_sparse_saxpy",
+                       "tsvc_s452_index_weighted_vector_map",
+                       "tsvc_s126_matrix_column_recurrence",
+                       "tsvc_s322_second_order_recurrence",
+                       "tsvc_s321_first_order_recurrence",
+                       "tsvc_s128_strided_coupled_update",
+                       "tsvc_s323_coupled_recurrence",
+                       "tsvc_s127_fixed_pair_expansion",
+                       "tsvc_s123_conditional_pair_expansion",
+                       "tsvc_s122_reverse_strided_gather_add",
+                       "tsvc_s315_maximum_with_index",
+                       "tsvc_s453_recurrence_weighted_scale",
+                       "tsvc_s342_conditional_unpack",
+                       "tsvc_s124_conditional_fma_map",
+                       "tsvc_s125_matrix_flattened_fma",
+                       "tsvc_s319_coupled_reductions",
+                       "versabench_dbms_keys_union",
+                       "versabench_dbms_query",
+                       "versabench_dbms_insert_entry",
+                       "versabench_dbms_delete_entry",
+                       "versabench_dbms_contract_root",
+                       "tsvc_s241_cross_coupled_product_map",
+                       "tsvc_s243_ordered_lookahead_update",
+                       "tsvc_s244_false_dependence_cycle_break",
+                       "tsvc_s1244_polynomial_neighbor_sum",
+                       "tsvc_s1221_lag4_add_recurrence",
+                       "tsvc_s442_indexed_square_accumulate",
+                       "tsvc_s171_stride_indexed_accumulate",
+                       "tsvc_s4117_pair_replicated_gather_map",
+                       "tsvc_s162_guarded_shifted_fma",
+                       "tsvc_s4114_reverse_index_gather_fma",
+                       "tsvc_s318_strided_absolute_maximum_with_index",
+                       "tsvc_s2101_diagonal_matrix_fma",
+                       "tsvc_s2102_identity_matrix_initialize",
+                       "tsvc_vag_indexed_gather_copy",
+                       "tsvc_s332_first_above_threshold",
+                       "tsvc_s261_shifted_cross_array_update",
+                       "mediabench_mpeg2_motion_vector_component",
+                       "tsvc_s251_scalar_square_expansion",
+                       "tsvc_s279_nested_branch_recompute",
+                       "tsvc_s2111_wavefront_add_recurrence",
+                       "tsvc_s252_adjacent_product_pair_sum",
+                       "idea_cfb64",
+                       "llubenchmark_list_traversal_growth",
+                       "rodinia_streamcluster_pgain",
+                       "mibench_jpeg_ycbcr_to_rgb",
+                       "cbench_consumer_jpeg_h2v2_fancy_upsample",
+                       "parboil_tpacf_cross_correlation",
+                       "parboil_mri_q", "parboil_cutcp"}:
+        validate_new_byte_output_workload(workload, algorithm)
+        max_input, max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm]
     elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
         validate_new_byte_output_workload(workload, algorithm)
         max_input, max_output = GENERIC_BYTE_OUTPUT_BOUNDS[algorithm]
@@ -6824,9 +12218,79 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 or not input_is_null and effective_length != len(values)):
             raise ValueError(f"{algorithm} generated ABI framing is out of range")
         result, output = oracle(values, capacity, output_is_null, input_is_null, effective_length)
-        if (result >= 0 and (result != len(output) or len(output) > max_output
-                             or output_is_null or capacity < result)
-                or result < 0 and (result not in (-1, -2) or output)):
+        if algorithm in {"tsvc_s343_column_major_compaction",
+                         "tsvc_indexed_gather_scatter",
+                         "tsvc_s141_packed_symmetric_update",
+                         "tsvc_s131_forward_neighbor_update",
+                         "tsvc_s132_shifted_row_update",
+                         "tsvc_s152_three_factor_accumulate",
+                         "tsvc_s161_mutually_exclusive_updates",
+                         "tsvc_s211_ordered_neighbor_rewrite",
+                         "tsvc_s212_next_element_dependency",
+                         "tsvc_s114_transposed_lower_triangle_update",
+                         "tsvc_vif_masked_assignment",
+                         "tsvc_s278_branch_recompute",
+                         "tsvc_s279_nested_branch_recompute",
+                         "tsvc_s2111_wavefront_add_recurrence",
+                         "tsvc_s353_unrolled_sparse_saxpy",
+                         "tsvc_s452_index_weighted_vector_map",
+                         "tsvc_s126_matrix_column_recurrence",
+                         "tsvc_s322_second_order_recurrence",
+                         "tsvc_s321_first_order_recurrence",
+                         "tsvc_s128_strided_coupled_update",
+                         "tsvc_s323_coupled_recurrence",
+                         "tsvc_s127_fixed_pair_expansion",
+                         "tsvc_s123_conditional_pair_expansion",
+                         "tsvc_s122_reverse_strided_gather_add",
+                         "tsvc_s315_maximum_with_index",
+                         "tsvc_s453_recurrence_weighted_scale",
+                         "tsvc_s342_conditional_unpack",
+                         "tsvc_s124_conditional_fma_map",
+                         "tsvc_s125_matrix_flattened_fma",
+                         "tsvc_s319_coupled_reductions",
+                         "tsvc_s241_cross_coupled_product_map",
+                         "tsvc_s243_ordered_lookahead_update",
+                         "tsvc_s244_false_dependence_cycle_break",
+                         "tsvc_s1244_polynomial_neighbor_sum",
+                         "tsvc_s1221_lag4_add_recurrence",
+                         "tsvc_s442_indexed_square_accumulate",
+                         "tsvc_s171_stride_indexed_accumulate",
+                         "tsvc_s4117_pair_replicated_gather_map",
+                         "tsvc_s162_guarded_shifted_fma",
+                         "tsvc_s4114_reverse_index_gather_fma",
+                         "tsvc_s318_strided_absolute_maximum_with_index",
+                         "tsvc_s2101_diagonal_matrix_fma",
+                         "tsvc_s2102_identity_matrix_initialize",
+                         "tsvc_vag_indexed_gather_copy",
+                         "tsvc_s332_first_above_threshold",
+                         "tsvc_s261_shifted_cross_array_update",
+                         "tsvc_s251_scalar_square_expansion",
+                         "tsvc_s279_nested_branch_recompute",
+                         "tsvc_s2111_wavefront_add_recurrence",
+                         "tsvc_s252_adjacent_product_pair_sum",
+                         "llubenchmark_list_traversal_growth",
+                         "rodinia_streamcluster_pgain"}:
+            inconsistent_framing = (
+                result >= 0 and (
+                    result * 8 != len(output)
+                    or len(output) > max_output
+                    or output_is_null
+                    or capacity < (values[0] * values[1] * 8
+                                   if algorithm == "tsvc_s343_column_major_compaction"
+                                   else result * 8)
+                )
+                or result < 0 and (result not in (-1, -2) or output)
+            )
+        else:
+            inconsistent_framing = (
+                result >= 0 and (result != len(output) or len(output) > max_output
+                                 or output_is_null and not (
+                                     algorithm == "mediabench_g721_encode"
+                                     and result == 0 and not output)
+                                 or capacity < result)
+                or result < 0 and (result not in (-1, -2) or output)
+            )
+        if inconsistent_framing:
             raise ValueError(f"{algorithm} oracle returned inconsistent byte framing")
         key = values, capacity, output_is_null, input_is_null, effective_length
         records_by_key[key] = result, output
@@ -6839,14 +12303,2689 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         input_is_null = fixture.get("input_is_null", False)
         input_length = fixture.get("input_length", len(values))
         result, output = oracle(values, capacity, output_is_null, input_is_null, input_length)
+        if algorithm == "mediabench_gsm_rpe_grid_selection":
+            expected_values = fixture.get("expected_values")
+            output_matches_fixture = (
+                isinstance(expected_values, list) and len(output) == 112
+                and struct.unpack("<14q", output) == tuple(expected_values)
+                if result >= 0 else "expected_values" not in fixture and not output)
+        else:
+            output_matches_fixture = fixture.get("expected_output_hex", "").lower() == output.hex()
         if (type(fixture.get("expected_result")) is not int
                 or fixture["expected_result"] != result
-                or fixture.get("expected_output_hex", "").lower() != output.hex()):
+                or not output_matches_fixture):
             raise ValueError(f"{algorithm} workload fixture differs from its oracle: {fixture.get('id')}")
         add(values, capacity, output_is_null=output_is_null,
             input_is_null=input_is_null, input_length=input_length)
 
-    if algorithm == "misc_reed_solomon":
+    if algorithm == "simplify_fraction":
+        for fixture in workload.get("abi_cases", []):
+            add(tuple(fixture["input_values"]),
+                fixture.get("output_capacity", workspace_bytes),
+                output_is_null=fixture.get("output_is_null", False),
+                input_is_null=fixture.get("input_is_null", False),
+                input_length=fixture.get("input_length", len(fixture["input_values"])))
+        maximum = (SIMPLIFY_FRACTION_MAX_ABS_COMPONENT,
+                   -SIMPLIFY_FRACTION_MAX_ABS_COMPONENT)
+        maximum_result, maximum_output = add(maximum)
+        if (maximum_result != SIMPLIFY_FRACTION_OUTPUT_BYTES
+                or len(maximum_output) != SIMPLIFY_FRACTION_OUTPUT_BYTES):
+            raise ValueError("simplify_fraction maximum-magnitude pair has an invalid output size")
+        for capacity in (0, maximum_result - 1, maximum_result, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((SIMPLIFY_FRACTION_MAX_ABS_COMPONENT,
+             -SIMPLIFY_FRACTION_MAX_ABS_COMPONENT, 0))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+    elif algorithm == "mediabench_g721_encode":
+        traces = (
+            (0,),
+            (1, 255),
+            (1, 247),
+            (8, 255, 254, 253, 252, 251, 250, 249, 248),
+            (MEDIABENCH_G721_MAX_INPUT_LENGTH - 1,
+             *(index * 31 % 256 for index in range(MEDIABENCH_G721_MAX_INPUT_LENGTH - 1))),
+        )
+        for values in traces:
+            result, _output = add(values)
+            if result > 0:
+                for capacity in (0, result - 1, result, workspace_bytes):
+                    add(values, capacity)
+                add(values, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=MEDIABENCH_G721_MAX_INPUT_LENGTH)
+        for values in (
+                (), (1,), (MEDIABENCH_G721_MAX_INPUT_LENGTH,), (17,),
+                (1, -1), (1, 256), (2, 255), (1, 255, 127),
+                tuple([0] * MEDIABENCH_G721_MAX_INPUT_LENGTH),
+                (UINT_I64_MIN,), (UINT_I64_MAX,)):
+            add(tuple(values))
+    elif algorithm == "mediabench_gsm_rpe_grid_selection":
+        zeroes = (0,) * 40
+        pulse_cases = tuple(
+            tuple(4 if index == grid else 0 for index in range(40))
+            for grid in range(4)
+        )
+        add(zeroes)
+        for values in pulse_cases:
+            add(values)
+        negative_edge = tuple(-32768 if index % 4 == 0 else 32767 if index % 7 == 0 else 0
+                              for index in range(40))
+        add(negative_edge)
+        rng = random.Random(20261025)
+        for _ in range(24):
+            add(tuple(rng.randrange(-32768, 32768) for _ in range(40)))
+        capacity_probe = tuple((index * 8191) % 65536 - 32768 for index in range(40))
+        for capacity in (0, 111, 112, 113, workspace_bytes):
+            add(capacity_probe, capacity)
+        add(capacity_probe, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for values in (
+                (), (0,) * 39, (0,) * 41, (32768,) + (0,) * 39,
+                (-32769,) + (0,) * 39, (0,) * 40 + (1,),
+                (-(1 << 63),), ((1 << 63) - 1,)):
+            add(values)
+        add((0,) * 40, 0, output_is_null=True)
+    elif algorithm == "rodinia_hybridsort":
+        rng = random.Random(20261025)
+        for count in (2, 3, 8, 31, 64):
+            items = list(range(0, count * 1000, 1000))
+            rng.shuffle(items)
+            add((count, *items))
+        maximum = (64, *range(0, 64_000, 1000))
+        result, output = add(maximum)
+        if result != 512 or len(output) != 512:
+            raise ValueError("rodinia_hybridsort maximum bounded input has an invalid output size")
+        for capacity in (0, result - 1, result, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (1, 0, 1000), (2, 1000), (2, 1000, 1000),
+                (3, 0, 1000, 1501), (3, -1000, 0, 1000),
+                (3, 0, 1000, 1_001_000), (65, *range(65)),
+                (3, 0, 1000, 2000, 3000),):
+            add(malformed)
+    elif algorithm == "rodinia_mummergpu":
+        rng = random.Random(0x4D554D)
+
+        def make_mummer_case(ref_length: int, query_length: int,
+                             min_length: int) -> tuple[int, ...]:
+            reference = tuple(rng.randrange(4) for _ in range(ref_length))
+            query = tuple(rng.randrange(4) for _ in range(query_length))
+            return (ref_length, query_length, min_length, *reference, *query)
+
+        maximum_input = make_mummer_case(RODINIA_MUMMERGPU_MAX_REF,
+                                         RODINIA_MUMMERGPU_MAX_QUERY, 1)
+        result, output = add(maximum_input)
+        if result != len(output) or len(output) > RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES:
+            raise ValueError("rodinia_mummergpu maximum-dimension case exceeds its output bound")
+        for _case_index in range(64):
+            ref_length = rng.randint(1, RODINIA_MUMMERGPU_MAX_REF)
+            query_length = rng.randint(1, RODINIA_MUMMERGPU_MAX_QUERY)
+            min_length = rng.randint(1, RODINIA_MUMMERGPU_MAX_QUERY)
+            add(make_mummer_case(ref_length, query_length, min_length))
+        capacity_input = (4, 4, 1, 0, 1, 0, 1, 0, 1, 0, 1)
+        capacity_result, _capacity_output = add(capacity_input)
+        if capacity_result <= 0:
+            raise ValueError("rodinia_mummergpu capacity probe must produce at least one match")
+        for capacity in (0, capacity_result - 1, capacity_result, workspace_bytes):
+            add(capacity_input, capacity)
+        add(capacity_input, output_is_null=True)
+        add((1, 1, RODINIA_MUMMERGPU_MAX_QUERY, 0, 0))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (0, 1, 1, 0, 0), (1, 0, 1, 0, 0),
+                (1, 1, 0, 0, 0), (1, 1, 1, 4, 0),
+                (2, 1, 1, 0, 1), (1, 1, 1, 0, 0, 0),
+                (RODINIA_MUMMERGPU_MAX_REF + 1, 1, 1, *([0] * 34)),
+                (1, 1, 1, UINT_I64_MIN, 0), (1, 1, 1, UINT_I64_MAX, 0)):
+            add(malformed)
+    elif algorithm == "tsvc_indexed_gather_scatter":
+        rng = random.Random(0x54913)
+
+        def make_tsvc_indexed_case(mode: int, count: int) -> tuple[int, ...]:
+            indices = tuple(rng.randrange(count) for _ in range(count))
+            destination = tuple(rng.randint(-1000, 1000) for _ in range(count))
+            b_values = tuple(rng.randint(-1000, 1000) for _ in range(count))
+            c_values = tuple(rng.randint(-1000, 1000) for _ in range(count))
+            d_values = tuple(rng.randint(-1000, 1000) for _ in range(count)) if mode == 491 else ()
+            return (mode, count, *indices, *destination, *b_values, *c_values, *d_values)
+
+        for mode in (491, 4113):
+            for count in range(1, TSVC_INDEXED_GATHER_SCATTER_MAX_N + 1):
+                values = make_tsvc_indexed_case(mode, count)
+                result, output = add(values)
+                if result != count or len(output) != 8 * count:
+                    raise ValueError("TSVC indexed-update verifier returned inconsistent output framing")
+            maximum = make_tsvc_indexed_case(mode, TSVC_INDEXED_GATHER_SCATTER_MAX_N)
+            result, _output = add(maximum)
+            for capacity in (0, result * 8 - 1, result * 8, workspace_bytes):
+                add(maximum, capacity)
+            add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            mode = rng.choice((491, 4113))
+            count = rng.randint(1, TSVC_INDEXED_GATHER_SCATTER_MAX_N)
+            add(make_tsvc_indexed_case(mode, count))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (7, 1, 0, 0, 0, 0), (491, 0),
+                (491, 1, 1, 0, 0, 0, 0), (4113, 1, 0, 0, 1000001, 0),
+                (491, 1, 0, 0, 0, 1000001, 0, 0),
+                (4113, 1, 0, UINT_I64_MIN, 0, 0),
+                (4113, 1, 0, UINT_I64_MAX, 0, 0)):
+            add(malformed)
+    elif algorithm == "tsvc_s141_packed_symmetric_update":
+        rng = random.Random(0x5141)
+
+        def make_s141_case(n: int, rounds: int) -> tuple[int, ...]:
+            triangle = n * (n + 1) // 2
+            packed = tuple(rng.randint(-1000, 1000) for _ in range(triangle))
+            matrix = tuple(rng.randint(-1000, 1000) for _ in range(n * n))
+            return (n, rounds, *packed, *matrix)
+
+        for n in range(1, TSVC_S141_MAX_N + 1):
+            for rounds in (1, 2, TSVC_S141_MAX_ROUNDS):
+                values = make_s141_case(n, rounds)
+                result, output = add(values)
+                if (result != n * (n + 1) // 2
+                        or len(output) != result * 8):
+                    raise ValueError("TSVC s141 verifier returned inconsistent packed output")
+        maximum = make_s141_case(TSVC_S141_MAX_N, TSVC_S141_MAX_ROUNDS)
+        result, output = add(maximum)
+        if (result != 136 or len(output) != TSVC_S141_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s141 maximum case exceeds the packed-output bound")
+        for capacity in (0, result * 8 - 1, result * 8, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s141_case(rng.randint(1, TSVC_S141_MAX_N),
+                               rng.randint(1, TSVC_S141_MAX_ROUNDS)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (0, 1, 0, 0), (1, 0, 0, 0),
+                (1, 1, 0), (1, 1, 0, 0, 0),
+                (1, 1, 0, TSVC_S141_MAX_VALUE + 1),
+                (1, 1, TSVC_S141_MAX_VALUE + 1, 0),
+                (TSVC_S141_MAX_N + 1, 1, *([0] * (TSVC_S141_MAX_N * (TSVC_S141_MAX_N + 1) // 2
+                                                + TSVC_S141_MAX_N ** 2)))):
+            add(malformed)
+    elif algorithm == "tsvc_s131_forward_neighbor_update":
+        rng = random.Random(0x5131)
+
+        def make_s131_case(n: int, passes: int) -> tuple[int, ...]:
+            a_values = tuple(rng.randint(-1000, 1000) for _ in range(n))
+            b_values = tuple(rng.randint(-1000, 1000) for _ in range(n))
+            return (n, passes, *a_values, *b_values)
+
+        for n in range(1, TSVC_S131_MAX_N + 1):
+            for passes in (1, 2, TSVC_S131_MAX_PASSES):
+                values = make_s131_case(n, passes)
+                result, output = add(values)
+                if result != n or len(output) != result * 8:
+                    raise ValueError("TSVC s131 verifier returned inconsistent vector framing")
+        maximum = make_s131_case(TSVC_S131_MAX_N, TSVC_S131_MAX_PASSES)
+        result, output = add(maximum)
+        if result != TSVC_S131_MAX_N or len(output) != TSVC_S131_MAX_OUTPUT_BYTES:
+            raise ValueError("TSVC s131 maximum case exceeds the output bound")
+        for capacity in (0, result * 8 - 1, result * 8, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s131_case(rng.randint(1, TSVC_S131_MAX_N),
+                               rng.randint(1, TSVC_S131_MAX_PASSES)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (0, 1, 0, 0), (1, 0, 0, 0),
+                (1, 1, 0), (1, 1, 0, 0, 0),
+                (1, 1, TSVC_S131_MAX_VALUE + 1, 0),
+                (1, 1, 0, TSVC_S131_MAX_VALUE + 1),
+                (TSVC_S131_MAX_N + 1, 1,
+                 *([0] * (2 * TSVC_S131_MAX_N)))):
+            add(malformed)
+    elif algorithm == "tsvc_s132_shifted_row_update":
+        rng = random.Random(0x5132)
+
+        def make_s132_case(n: int, limit: int = 1000) -> tuple[int, ...]:
+            row = tuple(rng.randint(-limit, limit) for _ in range(n))
+            target = tuple(rng.randint(-limit, limit) for _ in range(n))
+            b_values = tuple(rng.randint(-limit, limit) for _ in range(n))
+            scalar = rng.randint(-limit, limit)
+            return (n, *row, *target, *b_values, scalar)
+
+        for n in range(2, TSVC_S132_MAX_N + 1):
+            values = make_s132_case(n)
+            result, output = add(values)
+            if result != n or len(output) != result * 8:
+                raise ValueError("TSVC s132 verifier returned inconsistent vector framing")
+        maximum = make_s132_case(TSVC_S132_MAX_N, TSVC_S132_MAX_VALUE)
+        result, output = add(maximum)
+        if result != TSVC_S132_MAX_N or len(output) != TSVC_S132_MAX_OUTPUT_BYTES:
+            raise ValueError("TSVC s132 maximum case exceeds the output bound")
+        for capacity in (0, result * 8 - 1, result * 8, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s132_case(rng.randint(2, TSVC_S132_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (1, 0, 0, 0, 0), (2, 0, 0, 0, 0, 0, 0),
+                (2, TSVC_S132_MAX_VALUE + 1, 0, 0, 0, 0, 0, 0),
+                (2, 0, 0, 0, 0, 0, 0, TSVC_S132_MAX_VALUE + 1)):
+            add(malformed)
+    elif algorithm == "tsvc_s152_three_factor_accumulate":
+        rng = random.Random(0x5152)
+
+        def make_s152_case(n: int, passes: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S152_MAX_VALUE, TSVC_S152_MAX_VALUE)
+                            for _ in range(n)) for _ in range(4)]
+            return (n, passes, *arrays[0], *arrays[1], *arrays[2], *arrays[3])
+
+        for n in range(1, TSVC_S152_MAX_N + 1):
+            for passes in (1, 2, TSVC_S152_MAX_PASSES):
+                values = make_s152_case(n, passes)
+                result, output = add(values)
+                if result != n or len(output) != result * 8:
+                    raise ValueError("TSVC s152 verifier returned inconsistent vector framing")
+        maximum = make_s152_case(TSVC_S152_MAX_N, TSVC_S152_MAX_PASSES)
+        result, output = add(maximum)
+        if result != TSVC_S152_MAX_N or len(output) != TSVC_S152_MAX_OUTPUT_BYTES:
+            raise ValueError("TSVC s152 maximum case exceeds the output bound")
+        for capacity in (0, result * 8 - 1, result * 8, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s152_case(rng.randint(1, TSVC_S152_MAX_N),
+                               rng.randint(1, TSVC_S152_MAX_PASSES)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (0, 1, 0, 0, 0, 0), (1, 0, 0, 0, 0, 0),
+                (1, 1, 0, 0, 0), (1, 1, 0, 3, 0, 0),
+                (1, 1, 0, 0, -3, 0), (1, 1, 0, 0, 0, 3)):
+            add(malformed)
+    elif algorithm == "tsvc_s161_mutually_exclusive_updates":
+        rng = random.Random(0x5161)
+
+        def make_s161_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S161_MAX_VALUE, TSVC_S161_MAX_VALUE)
+                            for _ in range(n)) for _ in range(5)]
+            return (n, *arrays[0], *arrays[1], *arrays[2], *arrays[3], *arrays[4])
+
+        for n in range(2, TSVC_S161_MAX_N + 1):
+            values = make_s161_case(n)
+            result, output = add(values)
+            if result != 2 * n or len(output) != 16 * n:
+                raise ValueError("TSVC s161 verifier returned inconsistent A/C framing")
+        maximum = make_s161_case(TSVC_S161_MAX_N)
+        result, output = add(maximum)
+        if result != 2 * TSVC_S161_MAX_N or len(output) != 16 * TSVC_S161_MAX_N:
+            raise ValueError("TSVC s161 maximum case exceeds the output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s161_case(rng.randint(2, TSVC_S161_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        base = (2, *([0] * 10))
+        malformed = (
+            (), (1, *([0] * 5)),
+            (TSVC_S161_MAX_N + 1, *([0] * (5 * TSVC_S161_MAX_N))),
+            base[:-1], base + (0,),
+            (2, TSVC_S161_MAX_VALUE + 1, *base[2:]),
+            (2, *base[1:3], TSVC_S161_MAX_VALUE + 1, *base[4:]),
+            (2, *base[1:6], -TSVC_S161_MAX_VALUE - 1, *base[7:]),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s211_ordered_neighbor_rewrite":
+        rng = random.Random(0x5211)
+
+        def make_s211_case(n: int, passes: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S211_MAX_VALUE, TSVC_S211_MAX_VALUE)
+                            for _ in range(n)) for _ in range(5)]
+            return (n, passes, *arrays[0], *arrays[1], *arrays[2], *arrays[3], *arrays[4])
+
+        for n in range(3, TSVC_S211_MAX_N + 1):
+            for passes in (1, 2, TSVC_S211_MAX_PASSES):
+                values = make_s211_case(n, passes)
+                result, output = add(values)
+                if result != 2 * n or len(output) != 16 * n:
+                    raise ValueError("TSVC s211 generated case has inconsistent A/B framing")
+        maximum = make_s211_case(TSVC_S211_MAX_N, TSVC_S211_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S211_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S211_MAX_N
+                or len(output) != TSVC_S211_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s211 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s211_case(rng.randint(3, TSVC_S211_MAX_N),
+                               rng.randint(1, TSVC_S211_MAX_PASSES)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        base = (3, 1, *([0] * 15))
+        malformed = (
+            (), (2, 1, *([0] * 10)), (3, 0, *([0] * 15)),
+            (TSVC_S211_MAX_N + 1, 1, *([0] * (5 * TSVC_S211_MAX_N))),
+            base[:-1], base + (0,),
+            (3, 1, TSVC_S211_MAX_VALUE + 1, *base[3:]),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s212_next_element_dependency":
+        rng = random.Random(0x5212)
+
+        def make_s212_case(n: int, passes: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S212_MAX_VALUE, TSVC_S212_MAX_VALUE)
+                            for _ in range(n)) for _ in range(4)]
+            return (n, passes, *arrays[0], *arrays[1], *arrays[2], *arrays[3])
+
+        for n in range(2, TSVC_S212_MAX_N + 1):
+            for passes in (1, 2, TSVC_S212_MAX_PASSES):
+                values = make_s212_case(n, passes)
+                result, output = add(values)
+                if result != 2 * n or len(output) != 16 * n:
+                    raise ValueError("TSVC s212 generated case has inconsistent A/B framing")
+        maximum = make_s212_case(TSVC_S212_MAX_N, TSVC_S212_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S212_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S212_MAX_N
+                or len(output) != TSVC_S212_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s212 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s212_case(rng.randint(2, TSVC_S212_MAX_N),
+                               rng.randint(1, TSVC_S212_MAX_PASSES)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        base = (2, 1, *([0] * 8))
+        malformed = (
+            (), (1, 1, *([0] * 4)), (2, 0, *([0] * 8)),
+            (TSVC_S212_MAX_N + 1, 1, *([0] * (4 * TSVC_S212_MAX_N))),
+            base[:-1], base + (0,),
+            (2, 1, TSVC_S212_MAX_VALUE + 1, *base[3:]),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s114_transposed_lower_triangle_update":
+        rng = random.Random(0x5114)
+
+        def make_s114_case(n: int) -> tuple[int, ...]:
+            cells = n * n
+            a_values = tuple(rng.randint(-TSVC_S114_MAX_VALUE, TSVC_S114_MAX_VALUE)
+                             for _ in range(cells))
+            b_values = tuple(rng.randint(-TSVC_S114_MAX_VALUE, TSVC_S114_MAX_VALUE)
+                             for _ in range(cells))
+            return (n, *a_values, *b_values)
+
+        for n in range(2, TSVC_S114_MAX_N + 1):
+            values = make_s114_case(n)
+            result, output = add(values)
+            if result != n * n or len(output) != 8 * n * n:
+                raise ValueError("TSVC s114 generated case has inconsistent matrix framing")
+        maximum = make_s114_case(TSVC_S114_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S114_MAX_INPUT_LENGTH
+                or result != TSVC_S114_MAX_N * TSVC_S114_MAX_N
+                or len(output) != TSVC_S114_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s114 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s114_case(rng.randint(2, TSVC_S114_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        base = (2, *([0] * 8))
+        malformed = (
+            (), (1, 0, 0),
+            (TSVC_S114_MAX_N + 1, *([0] * (TSVC_S114_MAX_INPUT_LENGTH - 1))),
+            base[:-1], base + (0,),
+            (2, TSVC_S114_MAX_VALUE + 1, *base[2:]),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_vif_masked_assignment":
+        rng = random.Random(0x5F1F)
+
+        def make_vif_case(n: int) -> tuple[int, ...]:
+            a_values = tuple(rng.randint(-TSVC_VIF_MAX_VALUE, TSVC_VIF_MAX_VALUE)
+                             for _ in range(n))
+            b_values = tuple(rng.randint(-TSVC_VIF_MAX_VALUE, TSVC_VIF_MAX_VALUE)
+                             for _ in range(n))
+            return (n, *a_values, *b_values)
+
+        for n in range(1, TSVC_VIF_MAX_N + 1):
+            values = make_vif_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC vif generated case has inconsistent vector framing")
+        maximum = make_vif_case(TSVC_VIF_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_VIF_MAX_INPUT_LENGTH
+                or result != TSVC_VIF_MAX_N
+                or len(output) != TSVC_VIF_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC vif maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_vif_case(rng.randint(1, TSVC_VIF_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (1, 0), (1, 0, 0, 0),
+            (TSVC_VIF_MAX_N + 1, *([0] * (2 * TSVC_VIF_MAX_N))),
+            (1, TSVC_VIF_MAX_VALUE + 1, 0), (1, 0, TSVC_VIF_MAX_VALUE + 1),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s278_branch_recompute":
+        rng = random.Random(0x5278)
+
+        def make_s278_case(n: int, passes: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S278_MAX_VALUE, TSVC_S278_MAX_VALUE)
+                            for _ in range(n)) for _ in range(5)]
+            return (n, passes, *arrays[0], *arrays[1], *arrays[2], *arrays[3], *arrays[4])
+
+        for n in range(1, TSVC_S278_MAX_N + 1):
+            for passes in (1, 2, TSVC_S278_MAX_PASSES):
+                values = make_s278_case(n, passes)
+                result, output = add(values)
+                if result != 3 * n or len(output) != 24 * n:
+                    raise ValueError("TSVC s278 generated case has inconsistent A/B/C framing")
+        maximum = make_s278_case(TSVC_S278_MAX_N, TSVC_S278_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S278_MAX_INPUT_LENGTH
+                or result != 3 * TSVC_S278_MAX_N
+                or len(output) != TSVC_S278_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s278 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s278_case(rng.randint(1, TSVC_S278_MAX_N),
+                               rng.randint(1, TSVC_S278_MAX_PASSES)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        base = (1, 1, *([0] * 5))
+        malformed = (
+            (), (0, 1), (1, 0, *([0] * 5)),
+            (TSVC_S278_MAX_N + 1, 1, *([0] * (5 * TSVC_S278_MAX_N))),
+            base[:-1], base + (0,),
+            (1, 1, TSVC_S278_MAX_VALUE + 1, *base[3:]),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s279_nested_branch_recompute":
+        rng = random.Random(0x5279)
+
+        def make_s279_case(n: int, passes: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S279_MAX_VALUE, TSVC_S279_MAX_VALUE)
+                            for _ in range(n)) for _ in range(5)]
+            return (n, passes, *arrays[0], *arrays[1], *arrays[2], *arrays[3], *arrays[4])
+
+        for n in range(1, TSVC_S279_MAX_N + 1):
+            for passes in (1, 2, TSVC_S279_MAX_PASSES):
+                values = make_s279_case(n, passes)
+                result, output = add(values)
+                if result != 3 * n or len(output) != 24 * n:
+                    raise ValueError("TSVC s279 generated case has inconsistent A/B/C framing")
+        maximum = make_s279_case(TSVC_S279_MAX_N, TSVC_S279_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S279_MAX_INPUT_LENGTH
+                or result != 3 * TSVC_S279_MAX_N
+                or len(output) != TSVC_S279_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s279 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s279_case(rng.randint(1, TSVC_S279_MAX_N),
+                               rng.randint(1, TSVC_S279_MAX_PASSES)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        base = (1, 1, *([0] * 5))
+        malformed = (
+            (), (0, 1), (1, 0, *([0] * 5)),
+            (TSVC_S279_MAX_N + 1, 1, *([0] * (5 * TSVC_S279_MAX_N))),
+            base[:-1], base + (0,),
+            (1, 1, TSVC_S279_MAX_VALUE + 1, *base[3:]),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s2111_wavefront_add_recurrence":
+        def make_s2111_case(side: int, passes: int) -> tuple[int, ...]:
+            seeds = tuple(((row * 5 + col * 3) % 17) - 8
+                          for row in range(side) for col in range(side))
+            return (side, passes, *seeds)
+
+        for side in range(2, TSVC_S2111_MAX_SIDE + 1):
+            for passes in (1, 2, TSVC_S2111_MAX_PASSES):
+                values = make_s2111_case(side, passes)
+                result, output = add(values)
+                if result != side * side or len(output) != 8 * side * side:
+                    raise ValueError("TSVC s2111 generated case has inconsistent matrix framing")
+        maximum = make_s2111_case(TSVC_S2111_MAX_SIDE, TSVC_S2111_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S2111_MAX_INPUT_LENGTH
+                or result != TSVC_S2111_MAX_CELLS
+                or len(output) != TSVC_S2111_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s2111 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        base = (2, 1, 0, 0, 0, 0)
+        malformed = (
+            (), (1, 1, 0), (TSVC_S2111_MAX_SIDE + 1, 1),
+            (2, 0, 0, 0, 0, 0), base[:-1], base + (0,),
+            (2, 1, 0, 0, 0, 9),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s353_unrolled_sparse_saxpy":
+        rng = random.Random(0x5353)
+
+        def make_s353_case(n: int) -> tuple[int, ...]:
+            alpha = rng.randint(-TSVC_S353_MAX_ALPHA, TSVC_S353_MAX_ALPHA)
+            a_values = tuple(rng.randint(-TSVC_S353_MAX_VALUE, TSVC_S353_MAX_VALUE)
+                             for _ in range(n))
+            b_values = tuple(rng.randint(-TSVC_S353_MAX_VALUE, TSVC_S353_MAX_VALUE)
+                             for _ in range(n))
+            indices = tuple(rng.randrange(n) for _ in range(n))
+            return (n, alpha, *a_values, *b_values, *indices)
+
+        for n in (5, 10, 15, TSVC_S353_MAX_N):
+            values = make_s353_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s353 generated case has inconsistent vector framing")
+        maximum = make_s353_case(TSVC_S353_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S353_MAX_INPUT_LENGTH
+                or result != TSVC_S353_MAX_N
+                or len(output) != TSVC_S353_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s353 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s353_case(rng.choice((5, 10, 15, TSVC_S353_MAX_N))))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        base = (5, 1, *([0] * 15))
+        invalid_indices = (5, 1, *([0] * 10), 0, 1, 2, 3, 5)
+        malformed = (
+            (), (4, 1, *([0] * 12)), (5, 1, *([0] * 14)), base + (0,),
+            (TSVC_S353_MAX_N + 1, 1, *([0] * (3 * TSVC_S353_MAX_N))),
+            (5, TSVC_S353_MAX_ALPHA + 1, *base[2:]), invalid_indices,
+            (5, 1, TSVC_S353_MAX_VALUE + 1, *base[3:]),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s452_index_weighted_vector_map":
+        rng = random.Random(0x5453)
+
+        def make_s452_case(n: int) -> tuple[int, ...]:
+            b_values = tuple(rng.randint(-TSVC_S452_MAX_VALUE, TSVC_S452_MAX_VALUE)
+                             for _ in range(n))
+            c_values = tuple(rng.randint(-TSVC_S452_MAX_VALUE, TSVC_S452_MAX_VALUE)
+                             for _ in range(n))
+            return (n, *b_values, *c_values)
+
+        for n in range(1, TSVC_S452_MAX_N + 1):
+            values = make_s452_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s452 generated case has inconsistent vector framing")
+        maximum = make_s452_case(TSVC_S452_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S452_MAX_INPUT_LENGTH
+                or result != TSVC_S452_MAX_N
+                or len(output) != TSVC_S452_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s452 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s452_case(rng.randint(1, TSVC_S452_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (1, 0), (1, 0, 0, 0),
+            (TSVC_S452_MAX_N + 1, *([0] * (2 * TSVC_S452_MAX_N))),
+            (1, TSVC_S452_MAX_VALUE + 1, 0),
+            (1, 0, TSVC_S452_MAX_VALUE + 1),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s126_matrix_column_recurrence":
+        rng = random.Random(0x126)
+
+        def make_s126_case(n: int) -> tuple[int, ...]:
+            coefficients = tuple(rng.randint(-TSVC_S126_MAX_VALUE, TSVC_S126_MAX_VALUE)
+                                 for _ in range(n * n))
+            c_matrix = tuple(rng.randint(-TSVC_S126_MAX_VALUE, TSVC_S126_MAX_VALUE)
+                             for _ in range(n * n))
+            b_matrix = tuple(rng.randint(-TSVC_S126_MAX_VALUE, TSVC_S126_MAX_VALUE)
+                             for _ in range(n * n))
+            return (n, *coefficients, *c_matrix, *b_matrix)
+
+        for n in range(TSVC_S126_MIN_N, TSVC_S126_MAX_N + 1):
+            values = make_s126_case(n)
+            result, output = add(values)
+            if result != n * n or len(output) != 8 * n * n:
+                raise ValueError("TSVC s126 generated case has inconsistent matrix framing")
+        maximum = make_s126_case(TSVC_S126_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S126_MAX_INPUT_LENGTH
+                or result != TSVC_S126_MAX_CELLS
+                or len(output) != TSVC_S126_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s126 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s126_case(rng.randint(TSVC_S126_MIN_N, TSVC_S126_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        small = make_s126_case(TSVC_S126_MIN_N)
+        malformed = (
+            (), (1,), (2, 1, 2),
+            (TSVC_S126_MAX_N + 1, *([0] * (3 * TSVC_S126_MAX_N * TSVC_S126_MAX_N))),
+            small[:1] + (TSVC_S126_MAX_VALUE + 1,) + small[2:],
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s322_second_order_recurrence":
+        rng = random.Random(0x322)
+
+        def make_s322_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-1, 1) for _ in range(n)) for _ in range(3)]
+            return (n, *arrays[0], *arrays[1], *arrays[2])
+
+        for n in range(2, TSVC_S322_MAX_N + 1):
+            values = make_s322_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s322 generated case has inconsistent vector framing")
+        maximum = make_s322_case(TSVC_S322_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S322_MAX_INPUT_LENGTH
+                or result != TSVC_S322_MAX_N
+                or len(output) != TSVC_S322_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s322 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output)):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s322_case(rng.randint(2, TSVC_S322_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        small = make_s322_case(2)
+        malformed = (
+            (), (1, 0, 0, 0), (2, 0, 0, 0, 0, 0),
+            (TSVC_S322_MAX_N + 1, *([0] * (TSVC_S322_MAX_INPUT_LENGTH - 1))),
+            small[:2] + (2,) + small[3:],
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s321_first_order_recurrence":
+        rng = random.Random(0x321)
+
+        def make_s321_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-1, 1) for _ in range(n)) for _ in range(2)]
+            return (n, *arrays[0], *arrays[1])
+
+        for n in range(1, TSVC_S321_MAX_N + 1):
+            values = make_s321_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s321 generated case has inconsistent vector framing")
+        maximum = make_s321_case(TSVC_S321_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S321_MAX_INPUT_LENGTH
+                or result != TSVC_S321_MAX_N
+                or len(output) != TSVC_S321_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s321 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output)):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s321_case(rng.randint(1, TSVC_S321_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (2, 0, 0, 0),
+            (TSVC_S321_MAX_N + 1, *([0] * (TSVC_S321_MAX_INPUT_LENGTH - 1))),
+            (1, 0, 2),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s128_strided_coupled_update":
+        rng = random.Random(0x128)
+
+        def make_s128_case(n: int) -> tuple[int, ...]:
+            b_values = tuple(rng.randint(-TSVC_S128_MAX_VALUE, TSVC_S128_MAX_VALUE)
+                             for _ in range(2 * n))
+            c_values = tuple(rng.randint(-TSVC_S128_MAX_VALUE, TSVC_S128_MAX_VALUE)
+                             for _ in range(2 * n))
+            d_values = tuple(rng.randint(-TSVC_S128_MAX_VALUE, TSVC_S128_MAX_VALUE)
+                             for _ in range(n))
+            return (n, *b_values, *c_values, *d_values)
+
+        for n in range(1, TSVC_S128_MAX_N + 1):
+            values = make_s128_case(n)
+            result, output = add(values)
+            if result != 3 * n or len(output) != 24 * n:
+                raise ValueError("TSVC s128 generated case has inconsistent A/B framing")
+        maximum = make_s128_case(TSVC_S128_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S128_MAX_INPUT_LENGTH
+                or result != 3 * TSVC_S128_MAX_N
+                or len(output) != TSVC_S128_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s128 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s128_case(rng.randint(1, TSVC_S128_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (2, 10, 20),
+            (TSVC_S128_MAX_N + 1, *([0] * (TSVC_S128_MAX_INPUT_LENGTH - 1))),
+            (1, TSVC_S128_MAX_VALUE + 1, 0, 0, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s323_coupled_recurrence":
+        rng = random.Random(0x323)
+
+        def make_s323_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-1, 1) for _ in range(n)) for _ in range(5)]
+            return (n, *arrays[0], *arrays[1], *arrays[2], *arrays[3], *arrays[4])
+
+        for n in range(2, TSVC_S323_MAX_N + 1):
+            values = make_s323_case(n)
+            result, output = add(values)
+            if result != 2 * n or len(output) != 16 * n:
+                raise ValueError("TSVC s323 generated case has inconsistent A/B framing")
+        maximum = make_s323_case(TSVC_S323_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S323_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S323_MAX_N
+                or len(output) != TSVC_S323_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s323 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output)):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s323_case(rng.randint(2, TSVC_S323_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        small = make_s323_case(2)
+        malformed = (
+            (), (1, *([0] * 5)), (2, *([0] * 9)),
+            (TSVC_S323_MAX_N + 1, *([0] * (TSVC_S323_MAX_INPUT_LENGTH - 1))),
+            small[:2] + (2,) + small[3:],
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s127_fixed_pair_expansion":
+        rng = random.Random(0x127)
+
+        def make_s127_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S127_MAX_VALUE, TSVC_S127_MAX_VALUE)
+                            for _ in range(n)) for _ in range(4)]
+            return (n, *arrays[0], *arrays[1], *arrays[2], *arrays[3])
+
+        for n in range(1, TSVC_S127_MAX_N + 1):
+            values = make_s127_case(n)
+            result, output = add(values)
+            if result != 2 * n or len(output) != 16 * n:
+                raise ValueError("TSVC s127 generated case has inconsistent expansion framing")
+        maximum = make_s127_case(TSVC_S127_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S127_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S127_MAX_N
+                or len(output) != TSVC_S127_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s127 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s127_case(rng.randint(1, TSVC_S127_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (2, 1, 2),
+            (TSVC_S127_MAX_N + 1, *([0] * (TSVC_S127_MAX_INPUT_LENGTH - 1))),
+            (1, TSVC_S127_MAX_VALUE + 1, 0, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s123_conditional_pair_expansion":
+        rng = random.Random(0x123)
+
+        def make_s123_case(n: int, *, positive_c: bool | None = None) -> tuple[int, ...]:
+            b_values = [rng.randint(-TSVC_S123_MAX_VALUE, TSVC_S123_MAX_VALUE)
+                        for _ in range(n)]
+            if positive_c is True:
+                c_values = [rng.randint(1, TSVC_S123_MAX_VALUE) for _ in range(n)]
+            elif positive_c is False:
+                c_values = [rng.randint(-TSVC_S123_MAX_VALUE, 0) for _ in range(n)]
+            else:
+                c_values = [rng.randint(-TSVC_S123_MAX_VALUE, TSVC_S123_MAX_VALUE)
+                            for _ in range(n)]
+            d_values = [rng.randint(-TSVC_S123_MAX_VALUE, TSVC_S123_MAX_VALUE)
+                        for _ in range(n)]
+            e_values = [rng.randint(-TSVC_S123_MAX_VALUE, TSVC_S123_MAX_VALUE)
+                        for _ in range(n)]
+            return (n, *b_values, *c_values, *d_values, *e_values)
+
+        for n in range(1, TSVC_S123_MAX_N + 1):
+            values = make_s123_case(n)
+            result, output = add(values)
+            if not n <= result <= 2 * n or len(output) != 8 * result:
+                raise ValueError("TSVC s123 generated case has inconsistent conditional-expansion framing")
+        maximum = make_s123_case(TSVC_S123_MAX_N, positive_c=True)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S123_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S123_MAX_N
+                or len(output) != TSVC_S123_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s123 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add(make_s123_case(TSVC_S123_MAX_N, positive_c=False))
+        for _case_index in range(32):
+            add(make_s123_case(rng.randint(1, TSVC_S123_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (2, 1, 2, 3),
+            (TSVC_S123_MAX_N + 1, *([0] * (TSVC_S123_MAX_INPUT_LENGTH - 1))),
+            (1, TSVC_S123_MAX_VALUE + 1, 0, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s122_reverse_strided_gather_add":
+        rng = random.Random(0x122)
+
+        def make_s122_case(n: int) -> tuple[int, ...]:
+            start = rng.randint(1, n)
+            stride = rng.randint(1, n)
+            arrays = [tuple(rng.randint(-TSVC_S122_MAX_VALUE, TSVC_S122_MAX_VALUE)
+                            for _ in range(n)) for _ in range(2)]
+            return (n, start, stride, *arrays[0], *arrays[1])
+
+        for n in range(1, TSVC_S122_MAX_N + 1):
+            values = make_s122_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s122 generated case has inconsistent A-vector framing")
+        maximum = (TSVC_S122_MAX_N, 1, 1,
+                   *([TSVC_S122_MAX_VALUE] * TSVC_S122_MAX_N),
+                   *([-TSVC_S122_MAX_VALUE] * TSVC_S122_MAX_N))
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S122_MAX_INPUT_LENGTH
+                or result != TSVC_S122_MAX_N
+                or len(output) != TSVC_S122_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s122 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s122_case(rng.randint(1, TSVC_S122_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (1,), (1, 0, 1, 0, 0), (1, 1, 0, 0, 0),
+            (TSVC_S122_MAX_N + 1, *([0] * (TSVC_S122_MAX_INPUT_LENGTH - 3))),
+            (1, 1, 1, TSVC_S122_MAX_VALUE + 1, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s315_maximum_with_index":
+        rng = random.Random(0x315)
+
+        def make_s315_case(n: int) -> tuple[int, ...]:
+            values = [rng.randint(-TSVC_S315_MAX_VALUE, TSVC_S315_MAX_VALUE)
+                      for _ in range(n)]
+            return (n, *values)
+
+        for n in range(1, TSVC_S315_MAX_N + 1):
+            result, output = add(make_s315_case(n))
+            if result != 2 or len(output) != TSVC_S315_MAX_OUTPUT_BYTES:
+                raise ValueError("TSVC s315 generated case has inconsistent two-field result framing")
+        tied_maximum = [0] * TSVC_S315_MAX_N
+        tied_maximum[7] = TSVC_S315_MAX_VALUE
+        tied_maximum[-1] = TSVC_S315_MAX_VALUE
+        maximum = (TSVC_S315_MAX_N, *tied_maximum)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S315_MAX_INPUT_LENGTH
+                or result != 2 or len(output) != TSVC_S315_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s315 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output)):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s315_case(rng.randint(1, TSVC_S315_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (TSVC_S315_MAX_N + 1, *([0] * (TSVC_S315_MAX_INPUT_LENGTH - 1))),
+            (2, 1), (1, TSVC_S315_MAX_VALUE + 1),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s453_recurrence_weighted_scale":
+        rng = random.Random(0x453)
+
+        def make_s453_case(n: int) -> tuple[int, ...]:
+            operands = tuple(rng.randint(-TSVC_S453_MAX_VALUE, TSVC_S453_MAX_VALUE)
+                             for _ in range(n))
+            return (n, *operands)
+
+        for n in range(1, TSVC_S453_MAX_N + 1):
+            values = make_s453_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s453 generated case has inconsistent vector framing")
+        maximum = (TSVC_S453_MAX_N, *([TSVC_S453_MAX_VALUE] * TSVC_S453_MAX_N))
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S453_MAX_INPUT_LENGTH
+                or result != TSVC_S453_MAX_N
+                or len(output) != TSVC_S453_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s453 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s453_case(rng.randint(1, TSVC_S453_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (TSVC_S453_MAX_N + 1, *([0] * (TSVC_S453_MAX_INPUT_LENGTH - 1))),
+            (2, 10), (1, TSVC_S453_MAX_VALUE + 1),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s342_conditional_unpack":
+        rng = random.Random(0x342)
+
+        def make_s342_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S342_MAX_VALUE, TSVC_S342_MAX_VALUE)
+                            for _ in range(n)) for _ in range(2)]
+            return (n, *arrays[0], *arrays[1])
+
+        for n in range(1, TSVC_S342_MAX_N + 1):
+            values = make_s342_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s342 generated case has inconsistent final-A framing")
+        maximum = (TSVC_S342_MAX_N, *([1] * TSVC_S342_MAX_N),
+                   *([TSVC_S342_MAX_VALUE] * TSVC_S342_MAX_N))
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S342_MAX_INPUT_LENGTH
+                or result != TSVC_S342_MAX_N
+                or len(output) != TSVC_S342_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s342 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        no_mask = (TSVC_S342_MAX_N, *([0] * (2 * TSVC_S342_MAX_N)))
+        add(no_mask)
+        for _case_index in range(32):
+            add(make_s342_case(rng.randint(1, TSVC_S342_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (2, 1, 0),
+            (TSVC_S342_MAX_N + 1, *([0] * (TSVC_S342_MAX_INPUT_LENGTH - 1))),
+            (1, TSVC_S342_MAX_VALUE + 1, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s124_conditional_fma_map":
+        rng = random.Random(0x124)
+
+        def make_s124_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S124_MAX_VALUE, TSVC_S124_MAX_VALUE)
+                            for _ in range(n)) for _ in range(4)]
+            return (n, *arrays[0], *arrays[1], *arrays[2], *arrays[3])
+
+        for n in range(1, TSVC_S124_MAX_N + 1):
+            values = make_s124_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s124 generated case has inconsistent map framing")
+        maximum = make_s124_case(TSVC_S124_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S124_MAX_INPUT_LENGTH
+                or result != TSVC_S124_MAX_N
+                or len(output) != TSVC_S124_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s124 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s124_case(rng.randint(1, TSVC_S124_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (2, 1, 2, 3, 4),
+            (TSVC_S124_MAX_N + 1, *([0] * (TSVC_S124_MAX_INPUT_LENGTH - 1))),
+            (1, TSVC_S124_MAX_VALUE + 1, 0, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s125_matrix_flattened_fma":
+        rng = random.Random(0x125)
+
+        def make_s125_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S125_MAX_VALUE, TSVC_S125_MAX_VALUE)
+                            for _ in range(n * n)) for _ in range(3)]
+            return (n, *arrays[0], *arrays[1], *arrays[2])
+
+        for n in range(1, TSVC_S125_MAX_N + 1):
+            values = make_s125_case(n)
+            result, output = add(values)
+            if result != n * n or len(output) != 8 * n * n:
+                raise ValueError("TSVC s125 generated case has inconsistent matrix framing")
+        maximum = make_s125_case(TSVC_S125_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S125_MAX_INPUT_LENGTH
+                or result != TSVC_S125_MAX_CELLS
+                or len(output) != TSVC_S125_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s125 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s125_case(rng.randint(1, TSVC_S125_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (2, 1, 2, 3),
+            (TSVC_S125_MAX_N + 1, *([0] * (TSVC_S125_MAX_INPUT_LENGTH - 1))),
+            (1, TSVC_S125_MAX_VALUE + 1, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s319_coupled_reductions":
+        rng = random.Random(0x319)
+
+        def make_s319_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S319_MAX_VALUE, TSVC_S319_MAX_VALUE)
+                            for _ in range(n)) for _ in range(3)]
+            return (n, *arrays[0], *arrays[1], *arrays[2])
+
+        for n in range(1, TSVC_S319_MAX_N + 1):
+            values = make_s319_case(n)
+            result, output = add(values)
+            if result != 2 * n + 1 or len(output) != 8 * result:
+                raise ValueError("TSVC s319 generated case has inconsistent coupled-output framing")
+        maximum = make_s319_case(TSVC_S319_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S319_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S319_MAX_N + 1
+                or len(output) != TSVC_S319_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s319 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s319_case(rng.randint(1, TSVC_S319_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (2, 1, 2, 3),
+            (TSVC_S319_MAX_N + 1, *([0] * (TSVC_S319_MAX_INPUT_LENGTH - 1))),
+            (1, TSVC_S319_MAX_VALUE + 1, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "versabench_dbms_keys_union":
+        rng = random.Random(0xDB5)
+
+        def make_keys_union_case(count: int) -> tuple[int, ...]:
+            boxes = []
+            for _index in range(count):
+                lower = [rng.randint(-8, 7) for _axis in range(4)]
+                upper = [rng.randint(value, 8) for value in lower]
+                boxes.extend((*lower, *upper))
+            return (count, *boxes)
+
+        for count in range(1, 17):
+            values = make_keys_union_case(count)
+            result, output = add(values)
+            if result != VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES or len(output) != result:
+                raise ValueError("VersaBench keysUnion generated case has inconsistent fixed output framing")
+        maximum = make_keys_union_case(16)
+        result, output = add(maximum)
+        if (len(maximum) != VERSABENCH_DBMS_KEYS_UNION_MAX_INPUT_LENGTH
+                or result != VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES
+                or len(output) != VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES):
+            raise ValueError("VersaBench keysUnion maximum case exceeds its input or output bound")
+        for capacity in (0, result - 1, result, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_keys_union_case(rng.randint(1, 16)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (17, *([0] * (VERSABENCH_DBMS_KEYS_UNION_MAX_INPUT_LENGTH - 1))),
+            (1, *([0] * 8), 0), (1, 9, 0, 0, 0, 9, 1, 1, 1),
+            (1, 1, 0, 0, 0, 0, 1, 1, 1),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "versabench_dbms_query":
+        def encode_query_tree(nodes, query_lower=(2, 2, 2, 2),
+                             query_upper=(5, 5, 5, 5)) -> tuple[int, ...]:
+            words = [len(nodes), 0, *query_lower, *query_upper]
+            for level, entries in nodes:
+                words.extend((level, len(entries)))
+                for lower, upper, reference in entries:
+                    words.extend((*lower, *upper, reference))
+            return tuple(words)
+
+        leaf_boxes = (
+            ((1, 1, 1, 1), (2, 2, 2, 2)),
+            ((4, 1, 1, 1), (5, 2, 2, 2)),
+            ((7, 1, 1, 1), (8, 2, 2, 2)),
+        )
+        nested = encode_query_tree((
+            (2, (((0, 0, 0, 0), (3, 3, 3, 3), 1),
+                 ((4, 0, 0, 0), (7, 3, 3, 3), 2),
+                 ((7, 0, 0, 0), (8, 3, 3, 3), 3))),
+            (1, ((leaf_boxes[0][0], leaf_boxes[0][1], 4),)),
+            (1, ((leaf_boxes[1][0], leaf_boxes[1][1], 5),)),
+            (1, ((leaf_boxes[2][0], leaf_boxes[2][1], 6),)),
+            (0, ((leaf_boxes[0][0], leaf_boxes[0][1], 11),)),
+            (0, ((leaf_boxes[1][0], leaf_boxes[1][1], 22),)),
+            (0, ((leaf_boxes[2][0], leaf_boxes[2][1], 33),)),
+        ))
+        result, output = add(nested)
+        if result != 16 or output != struct.pack("<2q", 11, 22):
+            raise ValueError("VersaBench query nested-tree case lost DFS hits or boundary intersection")
+        for capacity in (0, result - 1, result, workspace_bytes):
+            add(nested, capacity)
+        add(nested, output_is_null=True)
+
+        full_nodes = [
+            (2, (((0, 0, 0, 0), (4, 4, 4, 4), 1),
+                 ((4, 0, 0, 0), (8, 4, 4, 4), 2))),
+            (1, (((1, 1, 1, 1), (2, 2, 2, 2), 3),
+                 ((2, 1, 1, 1), (3, 2, 2, 2), 4))),
+            (1, (((5, 1, 1, 1), (6, 2, 2, 2), 5),
+                 ((6, 1, 1, 1), (7, 2, 2, 2), 6))),
+        ]
+        leaf_boxes_full = (
+            ((1, 1, 1, 1), (2, 2, 2, 2)),
+            ((2, 1, 1, 1), (3, 2, 2, 2)),
+            ((5, 1, 1, 1), (6, 2, 2, 2)),
+            ((6, 1, 1, 1), (7, 2, 2, 2)),
+        )
+        for leaf_id, (lower, upper) in enumerate(leaf_boxes_full):
+            full_nodes.append((0, tuple(
+                (lower, upper, record_id)
+                for record_id in range(leaf_id * 4, leaf_id * 4 + 4))))
+        full = encode_query_tree(tuple(full_nodes), (0, 0, 0, 0), (8, 8, 8, 8))
+        result, output = add(full)
+        if (len(output) != VERSABENCH_DBMS_QUERY_MAX_OUTPUT_BYTES
+                or result != VERSABENCH_DBMS_QUERY_MAX_OUTPUT_BYTES):
+            raise ValueError("VersaBench query maximum leaf-report case exceeds the output bound")
+        add(full, result - 1)
+        add(full, result)
+
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), nested[:-1], (8, 0),
+            nested[:20] + (7,) + nested[21:],
+            nested[:-1] + (22,),
+            (1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "versabench_dbms_insert_entry":
+        box_mbr = (0, 0, 0, 0, 2, 2, 1, 1)
+        incoming = (2, 2, 1, 1, 3, 3, 2, 2)
+        repeated_children = (4, *(coordinate for _child in range(4) for coordinate in box_mbr))
+        leaf_data = (3,
+                     0, 0, 0, 0, 1, 1, 1, 1, 1,
+                     1, 0, 0, 0, 2, 1, 1, 1, 2,
+                     0, 1, 0, 0, 1, 2, 1, 1, 3)
+        maximum = (2, 8, *incoming, *repeated_children, *repeated_children, *leaf_data)
+        result, output = add(maximum)
+        if (len(maximum) != VERSABENCH_DBMS_INSERT_ENTRY_MAX_INPUT_LENGTH
+                or result != VERSABENCH_DBMS_INSERT_ENTRY_MAX_OUTPUT_BYTES
+                or len(output) != VERSABENCH_DBMS_INSERT_ENTRY_MAX_OUTPUT_BYTES):
+            raise ValueError("VersaBench insertEntry maximum recursive case exceeds its contract bounds")
+        for capacity in (0, result - 1, result, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (3, 8, *incoming, 0), maximum[:-1],
+            maximum[:48] + (3,) + maximum[49:],
+            maximum[:-1] + (1,),
+            (0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "versabench_dbms_delete_entry":
+        query_lower = (-8, -8, -8, -8)
+        query_upper = (-7, -7, -7, -7)
+        maximum_words = [4, *query_lower, *query_upper]
+        record_id = 0
+        for child_index in range(4):
+            lower = (2 * child_index,) * 4
+            upper = (2 * child_index + 1,) * 4
+            box = (*lower, *upper)
+            maximum_words.extend((4, *box))
+            for _record_index in range(4):
+                maximum_words.extend((*box, record_id))
+                record_id += 1
+        maximum = tuple(maximum_words)
+        result, output = add(maximum)
+        if (len(maximum) != VERSABENCH_DBMS_DELETE_ENTRY_MAX_INPUT_LENGTH
+                or result != VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_BYTES
+                or len(output) != VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_BYTES):
+            raise ValueError("VersaBench deleteEntry maximum survivor case exceeds its contract bounds")
+        for capacity in (0, result - 1, result, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), maximum[:-1], maximum[:-1] + (0,),
+            (VERSABENCH_DBMS_DELETE_ENTRY_MAX_CHILDREN + 1, *maximum[1:]),
+            maximum[:14] + (2,) + maximum[15:],
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "versabench_dbms_contract_root":
+        maximum = (5, 4, 1, 3, 1, 2, 1, 1, 1, 0, 2)
+        result, output = add(maximum)
+        if (len(maximum) != VERSABENCH_DBMS_CONTRACT_ROOT_MAX_INPUT_LENGTH
+                or result != VERSABENCH_DBMS_CONTRACT_ROOT_MAX_OUTPUT_BYTES
+                or len(output) != VERSABENCH_DBMS_CONTRACT_ROOT_MAX_OUTPUT_BYTES):
+            raise ValueError("VersaBench root-contraction maximum chain exceeds its contract bounds")
+        for capacity in (0, result - 1, result, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((1, 3, 2))
+        add((1, 2, 0))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), maximum + (0,),
+            (2, 3, 1, 1, 2),
+            (2, 3, 1, 2, 0),
+            (1, 5, 0),
+            (1, 2, 1),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s241_cross_coupled_product_map":
+        rng = random.Random(0x5241)
+
+        def make_s241_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S241_MAX_VALUE, TSVC_S241_MAX_VALUE)
+                            for _ in range(n)) for _ in range(4)]
+            return (n, *arrays[0], *arrays[1], *arrays[2], *arrays[3])
+
+        for n in range(2, TSVC_S241_MAX_N + 1):
+            values = make_s241_case(n)
+            result, output = add(values)
+            if result != 2 * n or len(output) != 8 * result:
+                raise ValueError("TSVC s241 generated case has inconsistent coupled-array framing")
+        maximum = make_s241_case(TSVC_S241_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S241_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S241_MAX_N
+                or len(output) != TSVC_S241_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s241 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s241_case(rng.randint(2, TSVC_S241_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (1, *([0] * 4)), (2, *([0] * 7)),
+            (TSVC_S241_MAX_N + 1, *([0] * (TSVC_S241_MAX_INPUT_LENGTH - 1))),
+            (2, TSVC_S241_MAX_VALUE + 1, *([0] * 7)),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s243_ordered_lookahead_update":
+        rng = random.Random(0x5243)
+
+        def make_s243_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S243_MAX_VALUE, TSVC_S243_MAX_VALUE)
+                            for _ in range(n)) for _ in range(5)]
+            return (n, *arrays[0], *arrays[1], *arrays[2], *arrays[3], *arrays[4])
+
+        for n in range(2, TSVC_S243_MAX_N + 1):
+            values = make_s243_case(n)
+            result, output = add(values)
+            if result != 2 * n or len(output) != 8 * result:
+                raise ValueError("TSVC s243 generated case has inconsistent lookahead framing")
+        maximum = make_s243_case(TSVC_S243_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S243_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S243_MAX_N
+                or len(output) != TSVC_S243_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s243 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s243_case(rng.randint(2, TSVC_S243_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (1, *([0] * 5)), (2, *([0] * 9)),
+            (TSVC_S243_MAX_N + 1, *([0] * (TSVC_S243_MAX_INPUT_LENGTH - 1))),
+            (2, TSVC_S243_MAX_VALUE + 1, *([0] * 9)),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s244_false_dependence_cycle_break":
+        rng = random.Random(0x5244)
+
+        def make_s244_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S244_MAX_VALUE, TSVC_S244_MAX_VALUE)
+                            for _ in range(n)) for _ in range(4)]
+            return (n, *arrays[0], *arrays[1], *arrays[2], *arrays[3])
+
+        for n in range(2, TSVC_S244_MAX_N + 1):
+            values = make_s244_case(n)
+            result, output = add(values)
+            if result != 3 * n - 1 or len(output) != 8 * result:
+                raise ValueError("TSVC s244 generated trace has inconsistent result framing")
+        maximum = make_s244_case(TSVC_S244_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S244_MAX_INPUT_LENGTH
+                or result != TSVC_S244_MAX_OUTPUT_VALUES
+                or len(output) != TSVC_S244_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s244 maximum trace case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s244_case(rng.randint(2, TSVC_S244_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (1, *([0] * 4)), (2, 0, 0),
+            (TSVC_S244_MAX_N + 1, *([0] * (TSVC_S244_MAX_INPUT_LENGTH - 1))),
+            (2, TSVC_S244_MAX_VALUE + 1, *([0] * 7)),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s1244_polynomial_neighbor_sum":
+        rng = random.Random(0x1244)
+
+        def make_s1244_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S1244_MAX_VALUE, TSVC_S1244_MAX_VALUE)
+                            for _ in range(n)) for _ in range(4)]
+            return (n, *arrays[0], *arrays[1], *arrays[2], *arrays[3])
+
+        for n in range(2, TSVC_S1244_MAX_N + 1):
+            values = make_s1244_case(n)
+            result, output = add(values)
+            if result != 2 * n or len(output) != 8 * result:
+                raise ValueError("TSVC s1244 generated case has inconsistent A/D output framing")
+        maximum = make_s1244_case(TSVC_S1244_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S1244_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S1244_MAX_N
+                or len(output) != TSVC_S1244_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s1244 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s1244_case(rng.randint(2, TSVC_S1244_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (1, *([0] * 4)), (2, *([0] * 7)),
+            (TSVC_S1244_MAX_N + 1, *([0] * (TSVC_S1244_MAX_INPUT_LENGTH - 1))),
+            (2, TSVC_S1244_MAX_VALUE + 1, *([0] * 7)),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s1221_lag4_add_recurrence":
+        rng = random.Random(0x1221)
+
+        def make_s1221_case(n: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S1221_MAX_VALUE, TSVC_S1221_MAX_VALUE)
+                            for _ in range(n)) for _ in range(2)]
+            return (n, *arrays[0], *arrays[1])
+
+        for n in range(TSVC_S1221_MIN_N, TSVC_S1221_MAX_N + 1):
+            values = make_s1221_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * result:
+                raise ValueError("TSVC s1221 generated case has inconsistent lag-four output framing")
+        maximum = make_s1221_case(TSVC_S1221_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S1221_MAX_INPUT_LENGTH
+                or result != TSVC_S1221_MAX_N
+                or len(output) != TSVC_S1221_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s1221 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s1221_case(rng.randint(TSVC_S1221_MIN_N, TSVC_S1221_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (TSVC_S1221_MIN_N - 1, *([0] * (2 * (TSVC_S1221_MIN_N - 1)))),
+            (TSVC_S1221_MIN_N, 1, 2),
+            (TSVC_S1221_MAX_N + 1, *([0] * (TSVC_S1221_MAX_INPUT_LENGTH - 1))),
+            (TSVC_S1221_MIN_N, TSVC_S1221_MAX_VALUE + 1, *([0] * (2 * TSVC_S1221_MIN_N - 1))),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s4117_pair_replicated_gather_map":
+        def make_s4117_case(n: int) -> tuple[int, ...]:
+            c_length = (n + 1) // 2
+            b = tuple((index % 5) - 2 for index in range(n))
+            c = tuple(((index * 3) % 5) - 2 for index in range(c_length))
+            d = tuple(((index * 2) % 5) - 2 for index in range(n))
+            return (n, *b, *c, *d)
+
+        for n in range(1, TSVC_S4117_MAX_N + 1):
+            values = make_s4117_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s4117 generated case has inconsistent vector framing")
+        maximum = make_s4117_case(TSVC_S4117_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S4117_MAX_INPUT_LENGTH
+                or result != TSVC_S4117_MAX_N
+                or len(output) != TSVC_S4117_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s4117 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0, 0, 0, 0), (TSVC_S4117_MAX_N + 1, *([0] * (TSVC_S4117_MAX_INPUT_LENGTH - 1))),
+            (2, 1, 2, 3, 4), (1, 0, TSVC_S4117_MAX_VALUE + 1, 0),
+            (1, 0, 1, 1, 0), make_s4117_case(3)[:-1],
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s171_stride_indexed_accumulate":
+        def make_s171_case(n: int, stride: int) -> tuple[int, ...]:
+            a_length = 1 + (n - 1) * stride
+            initial_a = tuple((index % 7) - 3 for index in range(a_length))
+            addends = tuple(((index * 3) % 9) - 4 for index in range(n))
+            return (n, stride, *initial_a, *addends)
+
+        for n in range(1, TSVC_S171_MAX_N + 1):
+            for stride in range(1, TSVC_S171_MAX_STRIDE + 1):
+                values = make_s171_case(n, stride)
+                result, output = add(values)
+                expected_length = 1 + (n - 1) * stride
+                if result != expected_length or len(output) != 8 * expected_length:
+                    raise ValueError("TSVC s171 generated case has inconsistent affine-vector framing")
+        maximum = make_s171_case(TSVC_S171_MAX_N, TSVC_S171_MAX_STRIDE)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S171_MAX_INPUT_LENGTH
+                or result != TSVC_S171_MAX_OUTPUT_VALUES
+                or len(output) != TSVC_S171_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s171 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0, 1, 0), (1, 0, 0, 0),
+            (TSVC_S171_MAX_N + 1, TSVC_S171_MAX_STRIDE,
+             *([0] * (TSVC_S171_MAX_INPUT_LENGTH - 2))),
+            (3, 2, 0, 0, 0, 0, 0, 0, 0),
+            (1, 1, TSVC_S171_MAX_VALUE + 1, 0),
+            (1, 1, 0, TSVC_S171_MIN_VALUE - 1),
+            make_s171_case(2, 4)[:-1],
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s162_guarded_shifted_fma":
+        def make_s162_case(n: int, k: int) -> tuple[int, ...]:
+            a = tuple((index % 5) - 2 for index in range(n))
+            b = tuple(((index * 3) % 5) - 2 for index in range(n))
+            c = tuple(2 - ((index * 2) % 5) for index in range(n))
+            return (n, k, *a, *b, *c)
+
+        for n in range(1, TSVC_S162_MAX_N + 1):
+            for k in (0, 1):
+                values = make_s162_case(n, k)
+                result, output = add(values)
+                if result != n or len(output) != 8 * n:
+                    raise ValueError("TSVC s162 generated case has inconsistent guarded-vector framing")
+        maximum = make_s162_case(TSVC_S162_MAX_N, 1)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S162_MAX_INPUT_LENGTH
+                or result != TSVC_S162_MAX_N
+                or len(output) != TSVC_S162_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s162 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0, 0), (1, 2, 0, 0, 0),
+            (TSVC_S162_MAX_N + 1, 1, *([0] * (TSVC_S162_MAX_INPUT_LENGTH - 2))),
+            make_s162_case(2, 1)[:-1],
+            (1, 1, TSVC_S162_MAX_VALUE + 1, 0, 0, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s4114_reverse_index_gather_fma":
+        def make_s4114_case(n: int, reverse: bool = False) -> tuple[int, ...]:
+            ip = tuple((n - 1 - index if reverse else (index + 1) % n)
+                       for index in range(n))
+            b = tuple((index % 5) - 2 for index in range(n))
+            c = tuple(((index * 3) % 5) - 2 for index in range(n))
+            d = tuple(2 - ((index * 2) % 5) for index in range(n))
+            return (n, *ip, *b, *c, *d)
+
+        for n in range(1, TSVC_S4114_MAX_N + 1):
+            for reverse in (False, True):
+                values = make_s4114_case(n, reverse)
+                result, output = add(values)
+                if result != n or len(output) != 8 * n:
+                    raise ValueError("TSVC s4114 generated case has inconsistent gather-vector framing")
+        maximum = make_s4114_case(TSVC_S4114_MAX_N, True)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S4114_MAX_INPUT_LENGTH
+                or result != TSVC_S4114_MAX_N
+                or len(output) != TSVC_S4114_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s4114 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,),
+            (TSVC_S4114_MAX_N + 1, *([0] * (TSVC_S4114_MAX_INPUT_LENGTH - 1))),
+            (1, 1, 0, 0, 0, 0),
+            (1, 0, 0, 0, TSVC_S4114_MAX_VALUE + 1, 0),
+            make_s4114_case(2)[:-1],
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s318_strided_absolute_maximum_with_index":
+        def make_s318_case(n: int, stride: int) -> tuple[int, ...]:
+            physical_n = 1 + (n - 1) * stride
+            physical = [((index * 17) % 101) - 50 for index in range(physical_n)]
+            if n > 1:
+                physical[0] = -TSVC_S318_MAX_VALUE
+                physical[(n - 1) * stride] = TSVC_S318_MAX_VALUE
+            return (n, stride, *physical)
+
+        for n in range(1, TSVC_S318_MAX_N + 1):
+            for stride in range(1, TSVC_S318_MAX_STRIDE + 1):
+                values = make_s318_case(n, stride)
+                result, output = add(values)
+                if result != 2 or len(output) != TSVC_S318_MAX_OUTPUT_BYTES:
+                    raise ValueError("TSVC s318 generated case has inconsistent fixed-result framing")
+        maximum = make_s318_case(TSVC_S318_MAX_N, TSVC_S318_MAX_STRIDE)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S318_MAX_INPUT_LENGTH
+                or result != 2 or len(output) != TSVC_S318_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s318 maximum case exceeds its input or output bound")
+        for capacity in (0, TSVC_S318_MAX_OUTPUT_BYTES - 1,
+                         TSVC_S318_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0, 1, 0), (1, 0, 0),
+            (TSVC_S318_MAX_N + 1, 1, *([0] * TSVC_S318_MAX_PHYSICAL_N)),
+            make_s318_case(3, 2)[:-1],
+            (2, 1, 0, TSVC_S318_MAX_VALUE + 1),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s2101_diagonal_matrix_fma":
+        def make_s2101_case(n: int) -> tuple[int, ...]:
+            cells = n * n
+            aa = tuple((index % 11) - 5 for index in range(cells))
+            bb = tuple(((index * 3) % 9) - 4 for index in range(cells))
+            cc = tuple(4 - ((index * 2) % 9) for index in range(cells))
+            return (n, *aa, *bb, *cc)
+
+        for n in range(1, TSVC_S2101_MAX_N + 1):
+            values = make_s2101_case(n)
+            result, output = add(values)
+            if result != n * n or len(output) != 8 * n * n:
+                raise ValueError("TSVC s2101 generated case has inconsistent matrix framing")
+        maximum = make_s2101_case(TSVC_S2101_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S2101_MAX_INPUT_LENGTH
+                or result != TSVC_S2101_MAX_MATRIX_VALUES
+                or len(output) != TSVC_S2101_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s2101 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (TSVC_S2101_MAX_N + 1, *([0] * (TSVC_S2101_MAX_INPUT_LENGTH - 1))),
+            (2, *([0] * (3 * 4 - 1))),
+            (1, 0, TSVC_S2101_MAX_VALUE + 1, 0),
+            (1, 0, 0, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s2102_identity_matrix_initialize":
+        for side in range(1, TSVC_S2102_MAX_SIDE + 1):
+            for passes in (1, TSVC_S2102_MAX_PASSES):
+                values = (side, passes)
+                result, output = add(values)
+                if result != side * side or len(output) != 8 * side * side:
+                    raise ValueError("TSVC s2102 generated case has inconsistent identity-matrix framing")
+        maximum = (TSVC_S2102_MAX_SIDE, TSVC_S2102_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S2102_MAX_INPUT_LENGTH
+                or result != TSVC_S2102_MAX_SIDE ** 2
+                or len(output) != TSVC_S2102_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s2102 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for values in ((), (0, 1), (TSVC_S2102_MAX_SIDE + 1, 1),
+                       (1, 0), (1, TSVC_S2102_MAX_PASSES + 1), (1, 1, 0)):
+            add(values)
+    elif algorithm == "tsvc_vag_indexed_gather_copy":
+        def make_vag_case(n: int, duplicate_indexes: bool = False) -> tuple[int, ...]:
+            indexes = tuple(0 for _ in range(n)) if duplicate_indexes else tuple(
+                (index * 7) % n for index in range(n))
+            data = tuple(((index * 31) % 2001) - 1000 for index in range(n))
+            return (n, *indexes, *data)
+
+        for n in range(1, TSVC_VAG_MAX_N + 1):
+            values = make_vag_case(n, duplicate_indexes=(n % 2 == 0))
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC vag generated case has inconsistent gather-vector framing")
+        maximum = make_vag_case(TSVC_VAG_MAX_N, duplicate_indexes=True)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_VAG_MAX_INPUT_LENGTH
+                or result != TSVC_VAG_MAX_N
+                or len(output) != TSVC_VAG_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC vag maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (TSVC_VAG_MAX_N + 1, *([0] * (TSVC_VAG_MAX_INPUT_LENGTH - 1))),
+            (2, 0, 2, 5, 6), (2, 0, 1, 5),
+            (1, 0, TSVC_VAG_MAX_VALUE + 1),
+            (1, 0, -TSVC_VAG_MAX_VALUE - 1),
+            make_vag_case(3)[:-1],
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s442_indexed_square_accumulate":
+        rng = random.Random(0x442)
+
+        def make_s442_case(n: int, passes: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S442_MAX_VALUE, TSVC_S442_MAX_VALUE)
+                            for _ in range(n)) for _ in range(5)]
+            selectors = tuple((index % 4) + 1 for index in range(n))
+            return (n, passes, *(value for vector in arrays for value in vector), *selectors)
+
+        for n in range(1, TSVC_S442_MAX_N + 1):
+            values = make_s442_case(n, 1 + ((n - 1) % TSVC_S442_MAX_PASSES))
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s442 generated case has inconsistent vector framing")
+        maximum = make_s442_case(TSVC_S442_MAX_N, TSVC_S442_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S442_MAX_INPUT_LENGTH
+                or result != TSVC_S442_MAX_N
+                or len(output) != TSVC_S442_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s442 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s442_case(rng.randint(1, TSVC_S442_MAX_N),
+                               rng.randint(1, TSVC_S442_MAX_PASSES)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0, 1), (1, 0, *([0] * 6)),
+            (TSVC_S442_MAX_N + 1, 1, *([0] * (TSVC_S442_MAX_INPUT_LENGTH - 2))),
+            (1, TSVC_S442_MAX_PASSES + 1, *([0] * 6)),
+            (1, 1, 0, 0, 0, 0, 0),
+            (1, 1, 0, 0, 0, 0, 0, 5),
+            (1, 1, TSVC_S442_MAX_VALUE + 1, 0, 0, 0, 0, 1),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s332_first_above_threshold":
+        rng = random.Random(0x332)
+
+        def make_s332_case(n: int) -> tuple[int, ...]:
+            threshold = rng.randint(-TSVC_S332_MAX_VALUE, TSVC_S332_MAX_VALUE)
+            items = [rng.randint(-TSVC_S332_MAX_VALUE, TSVC_S332_MAX_VALUE)
+                     for _ in range(n)]
+            return (n, threshold, *items)
+
+        for n in range(1, TSVC_S332_MAX_N + 1):
+            values = make_s332_case(n)
+            result, output = add(values)
+            if result != 2 or len(output) != TSVC_S332_MAX_OUTPUT_BYTES:
+                raise ValueError("TSVC s332 generated case has inconsistent two-value framing")
+        maximum = (TSVC_S332_MAX_N, 0, *([0] * (TSVC_S332_MAX_N - 1)), TSVC_S332_MAX_VALUE)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S332_MAX_INPUT_LENGTH
+                or result != 2 or len(output) != TSVC_S332_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s332 maximum late-match case exceeds its contract bounds")
+        for capacity in (0, result * 8 - 1, result * 8, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s332_case(rng.randint(1, TSVC_S332_MAX_N)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0, 0),
+            (TSVC_S332_MAX_N + 1, 0, *([0] * (TSVC_S332_MAX_INPUT_LENGTH - 2))),
+            (1, TSVC_S332_MAX_VALUE + 1, 0), (1, 0, TSVC_S332_MAX_VALUE + 1),
+            (1, 0), (1, 0, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s261_shifted_cross_array_update":
+        def make_s261_case(n: int) -> tuple[int, ...]:
+            a = tuple((index % 5) - 2 for index in range(n))
+            b = tuple((index % 3) - 1 for index in range(n))
+            c = tuple(2 - (index % 5) for index in range(n))
+            d = tuple((index % 5) - 2 for index in range(n))
+            return (n, *a, *b, *c, *d)
+
+        for n in range(2, TSVC_S261_MAX_N + 1):
+            values = make_s261_case(n)
+            result, output = add(values)
+            if result != 2 * n or len(output) != 16 * n:
+                raise ValueError("TSVC s261 generated case has inconsistent final-vector framing")
+        maximum = make_s261_case(TSVC_S261_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S261_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S261_MAX_N
+                or len(output) != TSVC_S261_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s261 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (1, 0, 0, 0, 0), (TSVC_S261_MAX_N + 1, *([0] * (4 * TSVC_S261_MAX_N))),
+            (2, 3, 0, 0, 0, 0, 0, 0, 0), make_s261_case(2)[:-1],
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "mediabench_mpeg2_motion_vector_component":
+        valid_cases = []
+        for r_size in range(7):
+            for motion_code in (-16, -1, 0, 1, 16):
+                residual = 0 if motion_code == 0 or r_size == 0 else (1 << r_size) - 1
+                valid_cases.append((0, r_size, motion_code, residual))
+        valid_cases.extend(((15, 0, 1, 0), (-16, 0, -1, 0),
+                            (63, 2, 3, 2), (-60, 2, -3, 1)))
+        for values in valid_cases:
+            result, output = add(values)
+            if result != MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES or len(output) != result:
+                raise ValueError("MediaBench MPEG2 component generated case has invalid byte framing")
+        for capacity in (0, MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES - 1,
+                         MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES, workspace_bytes):
+            add((15, 0, 1, 0), capacity)
+        add((15, 0, 1, 0), output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (0, 0, 1), (0, 0, 1, 0, 0),
+            (0, 7, 1, 0), (0, 2, 17, 0), (16, 0, 1, 0),
+            (0, 2, 0, 1), (0, 2, 1, 4),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "mibench_jpeg_ycbcr_to_rgb":
+        def make_jpeg_ycbcr_case(pixel_count: int) -> tuple[int, ...]:
+            samples = tuple((pixel * 47 + channel * 83 + 19) & 255
+                            for pixel in range(pixel_count) for channel in range(3))
+            return (pixel_count, *samples)
+
+        for pixel_count in range(1, MIBENCH_JPEG_YCBCR_MAX_PIXELS + 1):
+            values = make_jpeg_ycbcr_case(pixel_count)
+            result, output = add(values)
+            if result != 3 * pixel_count or len(output) != result:
+                raise ValueError("MiBench JPEG generated case has inconsistent RGB byte framing")
+        maximum = make_jpeg_ycbcr_case(MIBENCH_JPEG_YCBCR_MAX_PIXELS)
+        result, output = add(maximum)
+        if (len(maximum) != MIBENCH_JPEG_YCBCR_MAX_INPUT_LENGTH
+                or result != MIBENCH_JPEG_YCBCR_MAX_OUTPUT_BYTES
+                or len(output) != MIBENCH_JPEG_YCBCR_MAX_OUTPUT_BYTES):
+            raise ValueError("MiBench JPEG maximum case exceeds its input or output bound")
+        for capacity in (0, result - 1, result, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (MIBENCH_JPEG_YCBCR_MAX_PIXELS + 1, *([0] * 49)),
+            (2, 0, 128, 128), (1, 256, 128, 128),
+            tuple(maximum[:-1]), tuple(maximum) + (0,), tuple([0] * max_input),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "cbench_consumer_jpeg_h2v2_fancy_upsample":
+        def make_h2v2_case(width: int, height: int) -> tuple[int, ...]:
+            samples = tuple((row * 67 + col * 43 + row * col * 11 + 9) & 255
+                            for row in range(height) for col in range(width))
+            return (width, height, *samples)
+
+        for height in range(1, 9):
+            for width in range(3, 17):
+                values = make_h2v2_case(width, height)
+                result, output = add(values)
+                if result != 4 * width * height or len(output) != result:
+                    raise ValueError("cBench JPEG h2v2 generated case has invalid expanded-plane framing")
+        maximum = make_h2v2_case(16, 8)
+        result, output = add(maximum)
+        if (len(maximum) != 130 or result != CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES
+                or len(output) != CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES):
+            raise ValueError("cBench JPEG h2v2 maximum case exceeds its input/output bounds")
+        for capacity in (0, result - 1, result, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (3,), (2, 1, 8, 9), (17, 1, *([0] * 17)),
+            (3, 0, 1, 2, 3), (3, 9, *([0] * 27)),
+            (3, 1, 0, 1), (3, 1, 0, 1, 2, 3),
+            (3, 1, 0, -1, 2), (3, 1, 0, 256, 2),
+            (3, 1, 0, -(1 << 63), 2),
+            (3, 1, 0, (1 << 63) - 1, 2),
+            tuple([0] * max_input),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "parboil_tpacf_cross_correlation":
+        def make_tpacf_case(data_count: int, random_count: int) -> tuple[int, ...]:
+            data_points = tuple(
+                component
+                for index in range(data_count)
+                for component in (((index * 271_000 + 600_000) % 2_000_001) - 1_000_000,
+                                  ((index * 419_000 + 200_000) % 2_000_001) - 1_000_000,
+                                  ((index * 137_000 + 900_000) % 2_000_001) - 1_000_000))
+            random_points = tuple(
+                component
+                for index in range(random_count)
+                for component in (((index * 317_000 + 800_000) % 2_000_001) - 1_000_000,
+                                  ((index * 233_000 + 400_000) % 2_000_001) - 1_000_000,
+                                  ((index * 163_000 + 100_000) % 2_000_001) - 1_000_000))
+            return (data_count, random_count, *data_points, *random_points)
+
+        for data_count in range(1, PARBOIL_TPACF_MAX_POINTS + 1):
+            for random_count in range(1, PARBOIL_TPACF_MAX_POINTS + 1):
+                values = make_tpacf_case(data_count, random_count)
+                result, output = add(values)
+                if result != PARBOIL_TPACF_NUM_BINS or len(output) != PARBOIL_TPACF_NUM_BINS:
+                    raise ValueError("Parboil TPACF generated case has invalid histogram framing")
+        maximum = make_tpacf_case(PARBOIL_TPACF_MAX_POINTS, PARBOIL_TPACF_MAX_POINTS)
+        result, output = add(maximum)
+        if (len(maximum) != PARBOIL_TPACF_MAX_INPUT_LENGTH
+                or result != PARBOIL_TPACF_NUM_BINS or len(output) != PARBOIL_TPACF_NUM_BINS):
+            raise ValueError("Parboil TPACF maximum case exceeds its input or output bound")
+        for capacity in (0, PARBOIL_TPACF_NUM_BINS - 1,
+                         PARBOIL_TPACF_NUM_BINS, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0, 1, *([0] * 6)),
+            (PARBOIL_TPACF_MAX_POINTS + 1, 1, *([0] * 24)),
+            (1, 1, 1_000_001, 0, 0, 0, 1_000_000, 0),
+            (1, 1, 1_000_000, 0, 0, 0, 1_000_000),
+            (1, 1, 1_000_000, 0, 0, 0, 1_000_000, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "parboil_mri_q":
+        def make_mri_q_case(count: int) -> tuple[int, ...]:
+            records = tuple(
+                component
+                for index in range(count)
+                for component in (
+                    1_000_000 if index % 2 else -500_000,
+                    250_000 if index % 3 else 0,
+                    -125_000 if index % 2 else 500_000,
+                    (index + 1) * 100_000,
+                    (count - index) * 75_000,
+                ))
+            return (count, 250_000, -125_000, 500_000, *records)
+
+        for count in range(1, PARBOIL_MRI_Q_MAX_K + 1):
+            values = make_mri_q_case(count)
+            result, output = add(values)
+            if result != PARBOIL_MRI_Q_MAX_OUTPUT_BYTES or len(output) != result:
+                raise ValueError("Parboil MRI-Q generated case has inconsistent output framing")
+        maximum = make_mri_q_case(PARBOIL_MRI_Q_MAX_K)
+        result, output = add(maximum)
+        if (len(maximum) != PARBOIL_MRI_Q_MAX_INPUT_LENGTH
+                or result != PARBOIL_MRI_Q_MAX_OUTPUT_BYTES
+                or len(output) != PARBOIL_MRI_Q_MAX_OUTPUT_BYTES):
+            raise ValueError("Parboil MRI-Q maximum case exceeds its input or output bound")
+        for capacity in (0, PARBOIL_MRI_Q_MAX_OUTPUT_BYTES - 1,
+                         PARBOIL_MRI_Q_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0, *([0] * 8)),
+            (PARBOIL_MRI_Q_MAX_K + 1, *([0] * (PARBOIL_MRI_Q_MAX_INPUT_LENGTH - 1))),
+            (1, *([0] * 7)), (1, *([0] * 9)),
+            (1, PARBOIL_MRI_Q_MAX_COMPONENT_RAW + 1, *([0] * 7)),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "parboil_cutcp":
+        def make_cutcp_case(nx: int, ny: int, nz: int, atom_count: int) -> tuple[int, ...]:
+            spacing_raw = (1 + (atom_count % 4)) * 1_000_000
+            values = [nx, ny, nz, atom_count, -1_000_000, 2_000_000, 0,
+                      spacing_raw, 3_000_000]
+            charges = (1_000_000, -750_000, 500_000, -250_000)
+            for atom_index in range(atom_count):
+                values.extend((
+                    (atom_index * 2 + nx) % (nx - 1),
+                    (atom_index + ny) % (ny - 1),
+                    (atom_index * 3 + nz) % (nz - 1),
+                    charges[atom_index],
+                ))
+            return tuple(values)
+
+        for nx in range(PARBOIL_CUTCP_MIN_DIMENSION, PARBOIL_CUTCP_MAX_DIMENSION + 1):
+            for ny in range(PARBOIL_CUTCP_MIN_DIMENSION, PARBOIL_CUTCP_MAX_DIMENSION + 1):
+                for nz in range(PARBOIL_CUTCP_MIN_DIMENSION, PARBOIL_CUTCP_MAX_DIMENSION + 1):
+                    for atom_count in range(1, PARBOIL_CUTCP_MAX_ATOMS + 1):
+                        values = make_cutcp_case(nx, ny, nz, atom_count)
+                        result, output = add(values)
+                        if result != 4 * nx * ny * nz or len(output) != result:
+                            raise ValueError("Parboil cutcp generated case has inconsistent lattice framing")
+        maximum = make_cutcp_case(
+            PARBOIL_CUTCP_MAX_DIMENSION, PARBOIL_CUTCP_MAX_DIMENSION,
+            PARBOIL_CUTCP_MAX_DIMENSION, PARBOIL_CUTCP_MAX_ATOMS)
+        result, output = add(maximum)
+        if (len(maximum) != PARBOIL_CUTCP_MAX_INPUT_LENGTH
+                or result != PARBOIL_CUTCP_MAX_OUTPUT_BYTES
+                or len(output) != PARBOIL_CUTCP_MAX_OUTPUT_BYTES):
+            raise ValueError("Parboil cutcp maximum case exceeds its input or output bound")
+        for capacity in (0, PARBOIL_CUTCP_MAX_OUTPUT_BYTES - 1,
+                         PARBOIL_CUTCP_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (1, 2, 2, 1, *([0] * 9)),
+            (2, 2, 2, PARBOIL_CUTCP_MAX_ATOMS + 1, *([0] * 21)),
+            (2, 2, 2, 1, 500_000, 0, 0, 1_000_000, 1_000_000, 0, 0, 0, 1_000_000),
+            (2, 2, 2, 1, 0, 0, 0, 1_500_000, 1_000_000, 0, 0, 0, 1_000_000),
+            (2, 2, 2, 1, 0, 0, 0, 1_000_000, 100_000, 0, 0, 0, 1_000_000),
+            (2, 2, 2, 1, 0, 0, 0, 1_000_000, 1_000_000, 1, 0, 0, 1_000_000),
+            (2, 2, 2, 1, 0, 0, 0, 1_000_000, 1_000_000, 0, 0, 0,
+             PARBOIL_CUTCP_MAX_COMPONENT_RAW + 1),
+            (2, 2, 2, 1, 0, 0, 0, 1_000_000, 1_000_000, 0, 0, 0),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "parboil_spmv_jds":
+        def make_spmv_case(dimension: int, depth: int) -> tuple[int, ...]:
+            nonzeros = dimension * depth
+            rows = (depth,) * dimension
+            permutation = tuple(reversed(range(dimension)))
+            offsets = tuple(diagonal * dimension for diagonal in range(depth + 1))
+            columns = tuple((row + diagonal) % dimension
+                            for diagonal in range(depth) for row in range(dimension))
+            matrix = tuple(((row * 137 + diagonal * 251) % 2_000_001) - 1_000_000
+                           for diagonal in range(depth) for row in range(dimension))
+            vector = tuple(((index * 997) % 2_000_001) - 1_000_000
+                           for index in range(dimension))
+            return (dimension, depth, nonzeros, *rows, *permutation,
+                    *offsets, *columns, *matrix, *vector)
+
+        for dimension in range(1, 9):
+            for depth in range(1, 9):
+                values = make_spmv_case(dimension, depth)
+                result, output = add(values)
+                if result != 4 + 4 * dimension or len(output) != result:
+                    raise ValueError("Parboil SpMV generated frame has inconsistent output length")
+        maximum = make_spmv_case(8, 8)
+        result, output = add(maximum)
+        if (len(maximum) != PARBOIL_SPMV_JDS_MAX_INPUT_LENGTH
+                or result != PARBOIL_SPMV_JDS_MAX_OUTPUT_BYTES
+                or len(output) != PARBOIL_SPMV_JDS_MAX_OUTPUT_BYTES):
+            raise ValueError("Parboil SpMV maximum case exceeds its input or output bound")
+        for capacity in (0, PARBOIL_SPMV_JDS_MAX_OUTPUT_BYTES - 1,
+                         PARBOIL_SPMV_JDS_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        n, depth, nnz, *tail = maximum
+        row_end = 3 + n
+        permutation_end = row_end + n
+        offset_end = permutation_end + depth + 1
+        column_end = offset_end + nnz
+        data_end = column_end + nnz
+        malformed = (
+            (), (0, 1, 1), (1, 0, 1), (1, 1, 2), maximum[:-1],
+            (2, 1, 2, 1, 1, 0, 1, 0, 2, 0, 0, 1, 1, 1, 1, 1),
+            (*maximum[:row_end], 0, *maximum[row_end + 1:]),
+            (*maximum[:permutation_end], 1, *maximum[permutation_end + 1:]),
+            (*maximum[:offset_end], 8, *maximum[offset_end + 1:]),
+            (*maximum[:column_end], 1_000_001, *maximum[column_end + 1:]),
+            (*maximum[:data_end], 1_000_001, *maximum[data_end + 1:]),
+            (*maximum[:-1], 1_000_001),
+            (*maximum, 0), (-1, *maximum[1:]), (I64_MIN, *maximum[1:]),
+            (I64_MAX, *maximum[1:]),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "parboil_histo":
+        for iterations, bins, samples in (
+                (0, 4, (0, 1, 3, 3, 3)),
+                (1, 5, (0, 1, 2, 3, 4, 4)),
+                (4, 3, (0, 1, 1, 2, 2, 2)),
+                (PARBOIL_HISTO_MAX_ITERATIONS, PARBOIL_HISTO_MAX_BINS,
+                 tuple(index % PARBOIL_HISTO_MAX_BINS
+                       for index in range(PARBOIL_HISTO_MAX_SAMPLES)))):
+            values = (iterations, bins, len(samples), *samples)
+            result, output = add(values)
+            if result != bins or len(output) != bins:
+                raise ValueError("Parboil histogram generated case has inconsistent output framing")
+        saturation = (1, 1, 256, *([0] * 256))
+        result, output = add(saturation)
+        if result != 1 or output != b"\xff":
+            raise ValueError("Parboil histogram saturation case differs from the u8 contract")
+        maximum = (
+            PARBOIL_HISTO_MAX_ITERATIONS, PARBOIL_HISTO_MAX_BINS,
+            PARBOIL_HISTO_MAX_SAMPLES,
+            *(index % PARBOIL_HISTO_MAX_BINS for index in range(PARBOIL_HISTO_MAX_SAMPLES)))
+        result, output = add(maximum)
+        if (len(maximum) != PARBOIL_HISTO_MAX_INPUT_LENGTH
+                or result != PARBOIL_HISTO_MAX_OUTPUT_BYTES
+                or len(output) != PARBOIL_HISTO_MAX_OUTPUT_BYTES):
+            raise ValueError("Parboil histogram maximum case exceeds its input or output bound")
+        for capacity in (0, PARBOIL_HISTO_MAX_OUTPUT_BYTES - 1,
+                         PARBOIL_HISTO_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (0,), (-1, 1, 0), (PARBOIL_HISTO_MAX_ITERATIONS + 1, 1, 0),
+                (1, 0, 0), (1, PARBOIL_HISTO_MAX_BINS + 1, 0),
+                (1, 1, PARBOIL_HISTO_MAX_SAMPLES + 1), (1, 2, 1, 2),
+                (1, 2, 1, -1), (1, 2, 1, I64_MIN), (1, 2, 1, I64_MAX),
+        ):
+            add(malformed)
+    elif algorithm == "tsvc_s251_scalar_square_expansion":
+        rng = random.Random(0x5251)
+
+        def make_s251_case(n: int, passes: int) -> tuple[int, ...]:
+            arrays = [tuple(rng.randint(-TSVC_S251_MAX_VALUE, TSVC_S251_MAX_VALUE)
+                            for _ in range(n)) for _ in range(3)]
+            return (n, passes, *arrays[0], *arrays[1], *arrays[2])
+
+        for n in range(1, TSVC_S251_MAX_N + 1):
+            for passes in (1, 2, TSVC_S251_MAX_PASSES):
+                values = make_s251_case(n, passes)
+                result, output = add(values)
+                if result != n or len(output) != 8 * n:
+                    raise ValueError("TSVC s251 generated case has inconsistent vector framing")
+        maximum = make_s251_case(TSVC_S251_MAX_N, TSVC_S251_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S251_MAX_INPUT_LENGTH
+                or result != TSVC_S251_MAX_N
+                or len(output) != TSVC_S251_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s251 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_s251_case(rng.randint(1, TSVC_S251_MAX_N),
+                               rng.randint(1, TSVC_S251_MAX_PASSES)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        base = (1, 1, *([0] * 3))
+        malformed = (
+            (), (0, 1), (1, 0, *([0] * 3)),
+            (TSVC_S251_MAX_N + 1, 1, *([0] * (3 * TSVC_S251_MAX_N))),
+            base[:-1], base + (0,),
+            (1, 1, TSVC_S251_MAX_VALUE + 1, *base[3:]),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s252_adjacent_product_pair_sum":
+        def make_s252_case(n: int) -> tuple[int, ...]:
+            b = tuple((index % 5) - 2 for index in range(n))
+            c = tuple(2 - (index % 5) for index in range(n))
+            return (n, *b, *c)
+
+        for n in range(1, TSVC_S252_MAX_N + 1):
+            values = make_s252_case(n)
+            result, output = add(values)
+            if result != n or len(output) != 8 * n:
+                raise ValueError("TSVC s252 generated case has inconsistent vector framing")
+        maximum = make_s252_case(TSVC_S252_MAX_N)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S252_MAX_INPUT_LENGTH
+                or result != TSVC_S252_MAX_N or len(output) != TSVC_S252_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s252 maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (TSVC_S252_MAX_N + 1, *([0] * (2 * TSVC_S252_MAX_N))),
+            (2, 0, 0), (1, TSVC_S252_MAX_VALUE + 1, 0),
+            make_s252_case(1)[:-1],
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s256_array_expansion":
+        def make_s256_case(n: int) -> tuple[int, ...]:
+            a0 = (n % 7) - 3
+            d_values = tuple((index % 5) - 2 for index in range(n))
+            b_values = tuple((index % 11) - 5 for index in range(n * n))
+            c_values = tuple((index % 17) - 8 for index in range(n * n))
+            return (n, a0, *d_values, *b_values, *c_values)
+
+        for n in range(1, TSVC_S256_MAX_N + 1):
+            values = make_s256_case(n)
+            result, output = add(values)
+            if result != n + n * n or len(output) != 8 * (n + n * n):
+                raise ValueError("TSVC s256 generated case has inconsistent vector/matrix framing")
+        maximum = (
+            TSVC_S256_MAX_N, TSVC_S256_MAX_A0,
+            *([TSVC_S256_MAX_FACTOR] * TSVC_S256_MAX_N),
+            *([TSVC_S256_MAX_FACTOR] * (TSVC_S256_MAX_N * TSVC_S256_MAX_N)),
+            *([TSVC_S256_MAX_C0] * (TSVC_S256_MAX_N * TSVC_S256_MAX_N)),
+        )
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S256_MAX_INPUT_LENGTH
+                or result != TSVC_S256_MAX_N + TSVC_S256_MAX_N * TSVC_S256_MAX_N
+                or len(output) != TSVC_S256_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s256 maximum case exceeds its input or output bound")
+        for capacity in (0, TSVC_S256_MAX_OUTPUT_BYTES - 1,
+                         TSVC_S256_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (TSVC_S256_MAX_N + 1,), (1, 0, 0, 0),
+            (1, TSVC_S256_MAX_A0 + 1, 0, 0, 0),
+            (1, 0, TSVC_S256_MAX_FACTOR + 1, 0, 0),
+            (1, 0, 0, TSVC_S256_MAX_FACTOR + 1, 0),
+            (1, 0, 0, 0, TSVC_S256_MAX_C0 + 1),
+            (2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
+            (1, TSVC_S256_I64_MAX, 0, 0, 0),
+            (1, 0, 0, 0, TSVC_S256_I64_MIN),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s253_conditional_affine_update":
+        def make_s253_case(n: int, passes: int) -> tuple[int, ...]:
+            a_values = tuple((index % 5) - 2 for index in range(n))
+            b_values = tuple(((index + 1) % 5) - 2 for index in range(n))
+            c_values = tuple(((index * 3) % 5) - 2 for index in range(n))
+            d_values = tuple(((index * 2 + 1) % 5) - 2 for index in range(n))
+            return (n, passes, *a_values, *b_values, *c_values, *d_values)
+
+        for n in range(1, TSVC_S253_MAX_N + 1):
+            for passes in sorted({1, 1 + (n % TSVC_S253_MAX_PASSES), TSVC_S253_MAX_PASSES}):
+                values = make_s253_case(n, passes)
+                result, output = add(values)
+                if result != 2 * n or len(output) != 16 * n:
+                    raise ValueError("TSVC s253 generated case has inconsistent vector framing")
+        maximum = make_s253_case(TSVC_S253_MAX_N, TSVC_S253_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S253_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S253_MAX_N
+                or len(output) != TSVC_S253_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s253 maximum case exceeds its input or output bound")
+        for capacity in (0, TSVC_S253_MAX_OUTPUT_BYTES - 1,
+                         TSVC_S253_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0, 1), (TSVC_S253_MAX_N + 1, 1),
+            (1, 0, 0, 0, 0, 0), (1, TSVC_S253_MAX_PASSES + 1, 0, 0, 0, 0),
+            (1, 1, 0, 0, 0), (1, 1, 3, 0, 0, 0),
+            (1, 1, 0, 0, 0, 0, 0),
+            (1, 1, TSVC_S253_I64_MAX, 0, 0, 0),
+            (1, 1, 0, 0, 0, TSVC_S253_I64_MIN),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "tsvc_s272_threshold_dual_accumulate":
+        def make_s272_case(n: int, passes: int, threshold: int) -> tuple[int, ...]:
+            a_values = tuple((index % 5) - 2 for index in range(n))
+            b_values = tuple(((index + 1) % 5) - 2 for index in range(n))
+            c_values = tuple(((index * 3 + 2) % 5) - 2 for index in range(n))
+            d_values = tuple(((index * 2 + 1) % 5) - 2 for index in range(n))
+            e_values = tuple(((index * 4 + 3) % 5) - 2 for index in range(n))
+            return (n, passes, threshold, *a_values, *b_values,
+                    *c_values, *d_values, *e_values)
+
+        for n in range(1, TSVC_S272_MAX_N + 1):
+            for passes in (1, TSVC_S272_MAX_PASSES):
+                for threshold in (-2, 0, 2):
+                    values = make_s272_case(n, passes, threshold)
+                    result, output = add(values)
+                    if result != 2 * n or len(output) != 16 * n:
+                        raise ValueError("TSVC s272 generated case has inconsistent output framing")
+        maximum = make_s272_case(TSVC_S272_MAX_N, TSVC_S272_MAX_PASSES, 0)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S272_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S272_MAX_N
+                or len(output) != TSVC_S272_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s272 maximum case exceeds its input or output bound")
+        for capacity in (0, TSVC_S272_MAX_OUTPUT_BYTES - 1,
+                         TSVC_S272_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (0,), (1, 1), (TSVC_S272_MAX_N + 1, 1, 0),
+                (1, 0, 0, 0, 0, 0, 0, 0),
+                (1, TSVC_S272_MAX_PASSES + 1, 0, 0, 0, 0, 0, 0),
+                (1, 1, 3, 0, 0, 0, 0, 0),
+                (1, 1, 0, 0, 0, 0, 0),
+                (1, 1, 0, 0, 0, 3, 0, 0),
+                (1, 1, 0, TSVC_S272_I64_MAX, 0, 0, 0, 0),
+                (1, 1, 0, 0, 0, 0, 0, TSVC_S272_I64_MIN)):
+            add(malformed)
+    elif algorithm == "tsvc_s271_positive_branch_axpy":
+        def make_s271_case(n: int, passes: int) -> tuple[int, ...]:
+            a_values = tuple((index % 5) - 2 for index in range(n))
+            b_values = tuple(((index * 2 + 1) % 5) - 2 for index in range(n))
+            c_values = tuple(((index * 3 + 4) % 5) - 2 for index in range(n))
+            return (n, passes, *a_values, *b_values, *c_values)
+
+        for n in range(1, TSVC_S271_MAX_N + 1):
+            for passes in (1, TSVC_S271_MAX_PASSES):
+                values = make_s271_case(n, passes)
+                result, output = add(values)
+                if result != n or len(output) != 8 * n:
+                    raise ValueError("TSVC s271 generated case has inconsistent output framing")
+        maximum = make_s271_case(TSVC_S271_MAX_N, TSVC_S271_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S271_MAX_INPUT_LENGTH
+                or result != TSVC_S271_MAX_N
+                or len(output) != TSVC_S271_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s271 maximum case exceeds its input or output bound")
+        for capacity in (0, TSVC_S271_MAX_OUTPUT_BYTES - 1,
+                         TSVC_S271_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (0, 1), (TSVC_S271_MAX_N + 1, 1),
+                (1, 0, 0, 0, 0), (1, TSVC_S271_MAX_PASSES + 1, 0, 0, 0),
+                (1, 1, 0, 3, 0), (1, 1, 0, 0, -3),
+                (2, 1, 0, 0, 1, 1, 1),
+                (1, 1, TSVC_S271_I64_MAX, 0, 0),
+                (1, 1, 0, 0, TSVC_S271_I64_MIN)):
+            add(malformed)
+    elif algorithm == "tsvc_s276_index_split_axpy":
+        def make_s276_case(n: int, passes: int) -> tuple[int, ...]:
+            a_values = tuple((index % 5) - 2 for index in range(n))
+            b_values = tuple(((index * 2 + 1) % 5) - 2 for index in range(n))
+            c_values = tuple(((index * 3 + 4) % 5) - 2 for index in range(n))
+            d_values = tuple(((index * 4 + 2) % 5) - 2 for index in range(n))
+            return (n, passes, *a_values, *b_values, *c_values, *d_values)
+
+        for n in range(1, TSVC_S276_MAX_N + 1):
+            for passes in (1, TSVC_S276_MAX_PASSES):
+                values = make_s276_case(n, passes)
+                result, output = add(values)
+                if result != n or len(output) != 8 * n:
+                    raise ValueError("TSVC s276 generated case has inconsistent output framing")
+        maximum = make_s276_case(TSVC_S276_MAX_N, TSVC_S276_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S276_MAX_INPUT_LENGTH
+                or result != TSVC_S276_MAX_N
+                or len(output) != TSVC_S276_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s276 maximum case exceeds its input or output bound")
+        for capacity in (0, TSVC_S276_MAX_OUTPUT_BYTES - 1,
+                         TSVC_S276_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (0, 1), (TSVC_S276_MAX_N + 1, 1),
+                (1, 0, 0, 0, 0, 0), (1, TSVC_S276_MAX_PASSES + 1, 0, 0, 0, 0),
+                (1, 1, 0, 3, 0, 0), (1, 1, 0, 0, -3, 0),
+                (1, 1, 0, 0, 0, -3),
+                (2, 1, 0, 0, 1, 1, 1),
+                (1, 1, TSVC_S276_I64_MAX, 0, 0, 0),
+                (1, 1, 0, 0, 0, TSVC_S276_I64_MIN)):
+            add(malformed)
+    elif algorithm == "tsvc_s277_guarded_carry_update":
+        def make_s277_case(n: int, passes: int) -> tuple[int, ...]:
+            a_values = tuple((index % 5) - 2 for index in range(n))
+            b_values = tuple(((index * 2 + 1) % 5) - 2 for index in range(n))
+            c_values = tuple(((index * 3 + 4) % 5) - 2 for index in range(n))
+            d_values = tuple(((index * 4 + 2) % 5) - 2 for index in range(n))
+            e_values = tuple(((index * 3 + 1) % 5) - 2 for index in range(n))
+            return (n, passes, *a_values, *b_values, *c_values, *d_values, *e_values)
+
+        for n in range(1, TSVC_S277_MAX_N + 1):
+            for passes in (1, TSVC_S277_MAX_PASSES):
+                values = make_s277_case(n, passes)
+                result, output = add(values)
+                if result != 2 * n or len(output) != 16 * n:
+                    raise ValueError("TSVC s277 generated case has inconsistent output framing")
+        maximum = make_s277_case(TSVC_S277_MAX_N, TSVC_S277_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S277_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S277_MAX_N
+                or len(output) != TSVC_S277_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s277 maximum case exceeds its input or output bound")
+        for capacity in (0, TSVC_S277_MAX_OUTPUT_BYTES - 1,
+                         TSVC_S277_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (0, 1), (TSVC_S277_MAX_N + 1, 1),
+                (1, 0, 0, 0, 0, 0, 0),
+                (1, TSVC_S277_MAX_PASSES + 1, 0, 0, 0, 0, 0),
+                (1, 1, 0, 3, 0, 0, 0), (1, 1, 0, 0, 0, 0, -3),
+                (2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (1, 1, TSVC_S277_I64_MAX, 0, 0, 0, 0),
+                (1, 1, 0, 0, 0, 0, TSVC_S277_I64_MIN)):
+            add(malformed)
+    elif algorithm == "tsvc_s274_dependent_conditional_overwrite":
+        def make_s274_case(n: int, passes: int) -> tuple[int, ...]:
+            b_values = tuple((index % 5) - 2 for index in range(n))
+            c_values = tuple(((index + 2) % 5) - 2 for index in range(n))
+            d_values = tuple(((index * 2 + 1) % 5) - 2 for index in range(n))
+            e_values = tuple(((index * 3 + 4) % 5) - 2 for index in range(n))
+            return (n, passes, *b_values, *c_values, *d_values, *e_values)
+
+        for n in range(1, TSVC_S274_MAX_N + 1):
+            for passes in sorted({1, 1 + (n % TSVC_S274_MAX_PASSES),
+                                  TSVC_S274_MAX_PASSES}):
+                values = make_s274_case(n, passes)
+                result, output = add(values)
+                if result != 2 * n or len(output) != 16 * n:
+                    raise ValueError("TSVC s274 generated case has inconsistent output framing")
+        maximum = make_s274_case(TSVC_S274_MAX_N, TSVC_S274_MAX_PASSES)
+        result, output = add(maximum)
+        if (len(maximum) != TSVC_S274_MAX_INPUT_LENGTH
+                or result != 2 * TSVC_S274_MAX_N
+                or len(output) != TSVC_S274_MAX_OUTPUT_BYTES):
+            raise ValueError("TSVC s274 maximum case exceeds its input or output bound")
+        for capacity in (0, TSVC_S274_MAX_OUTPUT_BYTES - 1,
+                         TSVC_S274_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for malformed in (
+                (), (0, 1), (TSVC_S274_MAX_N + 1, 1),
+                (1, 0, 0, 0, 0, 0),
+                (1, TSVC_S274_MAX_PASSES + 1, 0, 0, 0, 0),
+                (1, 1, 0, 0, 0), (1, 1, 3, 0, 0, 0),
+                (1, 1, 0, 0, 0, 0, 0),
+                (1, 1, TSVC_S274_I64_MAX, 0, 0, 0),
+                (1, 1, 0, 0, 0, TSVC_S274_I64_MIN)):
+            add(malformed)
+    elif algorithm == "idea_cfb64":
+        def make_idea_cfb64_case(mode: int, text_length: int) -> tuple[int, ...]:
+            key = tuple((index * 29 + text_length) & 255 for index in range(16))
+            iv = tuple((index * 17 + 3) & 255 for index in range(8))
+            data = tuple((index * 37 + text_length * 11 + mode * 13) & 255
+                         for index in range(text_length))
+            return (mode, text_length, *key, *iv, *data)
+
+        for mode in (0, 1):
+            for text_length in range(1, 25):
+                values = make_idea_cfb64_case(mode, text_length)
+                result, output = add(values)
+                if result != text_length or len(output) != text_length:
+                    raise ValueError("IDEA CFB64 generated case has inconsistent output length")
+        maximum = make_idea_cfb64_case(0, 24)
+        for capacity in (0, 15, 16, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, workspace_bytes - 1)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed = (
+            (), (0,), (2, 1, *([0] * 25)),
+            (0, 0, *([0] * 24)), (0, 1, *([0] * 24)),
+            (0, 1, 256, *([0] * 24)), (1, 2, *([0] * 24)),
+            (1, 1, *([0] * 26)), (0, 25, *([0] * 49)),
+            tuple([0] * IDEA_CFB64_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "llubenchmark_list_traversal_growth":
+        for num_lists in range(1, LLUBENCHMARK_MAX_LISTS + 1):
+            for initial_length in range(1, LLUBENCHMARK_MAX_INITIAL_LENGTH + 1):
+                for iterations in range(LLUBENCHMARK_MAX_ITERATIONS + 1):
+                    values = (num_lists, initial_length, iterations)
+                    result, output = add(values)
+                    if result != 2 or len(output) != LLUBENCHMARK_MAX_OUTPUT_BYTES:
+                        raise ValueError("LLUBenchmark generated case has inconsistent counter framing")
+        maximum = (LLUBENCHMARK_MAX_LISTS,
+                   LLUBENCHMARK_MAX_INITIAL_LENGTH,
+                   LLUBENCHMARK_MAX_ITERATIONS)
+        result, output = add(maximum)
+        if (result != 2 or len(output) != LLUBENCHMARK_MAX_OUTPUT_BYTES
+                or int.from_bytes(output[8:16], "little", signed=True) != LLUBENCHMARK_MAX_NODES):
+            raise ValueError("LLUBenchmark maximum case exceeds its bounded node pool")
+        for capacity in (0, LLUBENCHMARK_MAX_OUTPUT_BYTES - 1,
+                         LLUBENCHMARK_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        malformed = ((0, 1, 1), (1, 0, 1), (1, 1, LLUBENCHMARK_MAX_ITERATIONS + 1),
+                     (LLUBENCHMARK_MAX_LISTS + 1, 1, 0), (1, 1))
+        for values in malformed:
+            add(values)
+    elif algorithm == "rodinia_streamcluster_pgain":
+        rng = random.Random(0x5C1A57)
+
+        def make_streamcluster_case(n: int, dimension: int) -> tuple[int, ...]:
+            candidate = rng.randrange(1, n)
+            open_centers = [0]
+            open_centers.extend(index for index in range(1, n)
+                                if index != candidate and rng.randrange(3) == 0)
+            center_mask = sum(1 << center for center in open_centers)
+            facility_cost = rng.randint(1, 64)
+            assignments = [index if index in open_centers else rng.choice(open_centers)
+                           for index in range(n)]
+            weights = [rng.randint(1, 4) for _ in range(n)]
+            coordinates = [[rng.randint(-8, 8) for _ in range(dimension)] for _ in range(n)]
+            current_costs = [weights[index] * sum(
+                (coordinates[index][axis] - coordinates[assignments[index]][axis]) ** 2
+                for axis in range(dimension)) for index in range(n)]
+            return (n, dimension, candidate, facility_cost, center_mask,
+                    *assignments, *weights, *current_costs,
+                    *(coordinate for point in coordinates for coordinate in point))
+
+        for n in range(2, RODINIA_STREAMCLUSTER_PGAIN_MAX_POINTS + 1):
+            for dimension in range(1, RODINIA_STREAMCLUSTER_PGAIN_MAX_DIMENSION + 1):
+                values = make_streamcluster_case(n, dimension)
+                result, output = add(values)
+                if result != 5 + 2 * n or len(output) != 8 * result:
+                    raise ValueError("Streamcluster generated case has inconsistent output framing")
+        maximum = make_streamcluster_case(
+            RODINIA_STREAMCLUSTER_PGAIN_MAX_POINTS,
+            RODINIA_STREAMCLUSTER_PGAIN_MAX_DIMENSION)
+        result, output = add(maximum)
+        if (len(maximum) != RODINIA_STREAMCLUSTER_PGAIN_MAX_INPUT_LENGTH
+                or result != RODINIA_STREAMCLUSTER_PGAIN_MAX_OUTPUT_ELEMENTS
+                or len(output) != RODINIA_STREAMCLUSTER_PGAIN_MAX_OUTPUT_BYTES):
+            raise ValueError("Streamcluster maximum case exceeds its input or output bound")
+        for capacity in (0, len(output) - 1, len(output), workspace_bytes):
+            add(maximum, capacity)
+        add(maximum, output_is_null=True)
+        for _case_index in range(32):
+            add(make_streamcluster_case(rng.randint(2, RODINIA_STREAMCLUSTER_PGAIN_MAX_POINTS),
+                                        rng.randint(1, RODINIA_STREAMCLUSTER_PGAIN_MAX_DIMENSION)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        base = make_streamcluster_case(2, 1)
+        n = base[0]
+        assignment_offset = 5
+        weight_offset = assignment_offset + n
+        cost_offset = weight_offset + n
+        coordinate_offset = cost_offset + n
+        malformed = (
+            (), base[:-1], base + (0,),
+            (n, base[1], 0, *base[3:]),
+            (n, base[1], base[2], 65, *base[4:]),
+            (n, base[1], base[2], base[3], 0, *base[5:]),
+            (*base[:assignment_offset], base[2], *base[assignment_offset + 1:]),
+            (*base[:weight_offset], 0, *base[weight_offset + 1:]),
+            (*base[:cost_offset], base[cost_offset] + 1, *base[cost_offset + 1:]),
+            (*base[:coordinate_offset], 9, *base[coordinate_offset + 1:]),
+        )
+        for values in malformed:
+            add(values)
+    elif algorithm == "freebench_distray":
+        for distribution, pixel_x, pixel_y in (
+                (1, 320, 240), (3, 0, 0), (3, 320, 240),
+                (5, 320, 240), (5, 639, 479)):
+            result, output = add((distribution, pixel_x, pixel_y))
+            if result != FREEBENCH_DISTRAY_MAX_OUTPUT_BYTES or len(output) != result:
+                raise ValueError("freebench_distray pixel probe did not fill its RGB output")
+        reference = (5, 0, 0)
+        for capacity in (0, FREEBENCH_DISTRAY_MAX_OUTPUT_BYTES - 1,
+                         FREEBENCH_DISTRAY_MAX_OUTPUT_BYTES, workspace_bytes):
+            add(reference, capacity)
+        add(reference, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True,
+            input_length=FREEBENCH_DISTRAY_MAX_PARSEABLE_INPUT_LENGTH)
+        for malformed in (
+                (), (1, 0), (1, 0, 0, 0), (0, 0, 0), (6, 0, 0),
+                (1, -1, 0), (1, 640, 0), (1, 0, -1), (1, 0, 480),
+                (-(1 << 63),), ((1 << 63) - 1,)):
+            add(malformed)
+        add((6, 0, 0), 0, output_is_null=True)
+    elif algorithm == "depthconv":
+        def frame(channels: int, inputs: tuple[int, ...], filters: tuple[int, ...],
+                  biases: tuple[int, ...], multipliers: tuple[int, ...],
+                  shifts: tuple[int, ...]) -> tuple[int, ...]:
+            return (channels, *inputs, *filters, *biases, *multipliers, *shifts)
+
+        valid_inputs = [
+            (1, -128, -128, -128, -128, 0, 0, 0, 0, 0, 1_152_862_902, -8),
+            frame(2, (0, -1, 1, -128, 127, 0, -127, 1),
+                  (1, -1, 127, -128, 127, -128, 1, -1),
+                  (500, -500), (1_152_862_902, 1_152_862_902), (-8, -8)),
+            frame(8, tuple((i * 37) % 256 - 128 for i in range(32)),
+                  tuple((i * 53) % 256 - 128 for i in range(32)),
+                  tuple((-1 if i & 1 else 1) * 1_000_000 for i in range(8)),
+                  (0, 1, 2_147_483_647, 1_152_862_902,
+                   2_147_483_647, 1, 0, 1_152_862_902),
+                  (-8, -7, -6, -5, -4, -3, -2, 0)),
+        ]
+        for values in valid_inputs:
+            result, _output = add(values)
+            for capacity in (0, max(0, result - 1), result, workspace_bytes):
+                add(values, capacity)
+            add(values, output_is_null=True)
+        rng = random.Random(20261025)
+        for channels in (1, 2, 4, 8):
+            add(frame(
+                channels,
+                tuple(rng.randrange(-128, 128) for _ in range(4 * channels)),
+                tuple(rng.randrange(-128, 128) for _ in range(4 * channels)),
+                tuple(rng.randrange(-1_000_000, 1_000_001) for _ in range(channels)),
+                tuple(rng.randrange(0, 2_147_483_648) for _ in range(channels)),
+                tuple(rng.randrange(-8, 1) for _ in range(channels))))
+        malformed = (
+            (), (0,), (9,), (1, -128),
+            (1, 128, -128, -128, -128, 0, 0, 0, 0, 0, 1, -8),
+            (1, -128, -128, -128, -128, -129, 0, 0, 0, 0, 1, -8),
+            (1, -128, -128, -128, -128, 0, 0, 0, 0, 1_000_001, 1, -8),
+            (1, -128, -128, -128, -128, 0, 0, 0, 0, 0, -1, -8),
+            (1, -128, -128, -128, -128, 0, 0, 0, 0, 0, 2_147_483_648, -8),
+            (1, -128, -128, -128, -128, 0, 0, 0, 0, 0, 1, -9),
+            (1, -128, -128, -128, -128, 0, 0, 0, 0, 0, 1, 1),
+            valid_inputs[0] + (0,),
+        )
+        for values in malformed:
+            add(values)
+        add(malformed[4], 0, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=DEPTHCONV_MAX_INPUT_LENGTH)
+    elif algorithm == "misc_reed_solomon":
         ascending = tuple(range(188))
         zero_payload = (0,) * 188
         all_ones = (255,) * 188
@@ -6912,6 +15051,32 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 (0,) * 32 + (0,) * 15 + (-1,)):
             add(malformed)
         add((0,) * 32 + (0,) * 15 + (-1,), 0, output_is_null=True)
+    elif algorithm == "cbench_security_rijndael_decrypt":
+        nist_key = tuple(range(32))
+        nist_ciphertext = (
+            142, 162, 183, 202, 81, 103, 69, 191,
+            234, 252, 73, 144, 75, 73, 96, 137,
+        )
+        nist = (*nist_key, *nist_ciphertext)
+        zero_case = ((0,) * 32 +
+                     (220, 149, 192, 120, 162, 64, 137, 137,
+                      173, 72, 162, 20, 146, 132, 32, 135))
+        add(nist)
+        add(zero_case)
+        rng = random.Random(20261027)
+        for _ in range(16):
+            add(tuple(rng.randrange(256) for _ in range(48)))
+        for capacity in (0, 15, 16, workspace_bytes):
+            add(nist, capacity)
+        add(nist, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=1)
+        for malformed in (
+                (), (0,) * 47, (0,) * 49, (-1,) + (0,) * 47,
+                (256,) + (0,) * 47, ((1 << 63) - 1,) + (0,) * 47,
+                (0,) * 32 + (0,) * 15 + (-1,)):
+            add(malformed)
+        add((0,) * 32 + (0,) * 15 + (-1,), 0, output_is_null=True)
     elif algorithm == "mibench_automotive_susan":
         rng_susan = random.Random(20261025)
         for side in (MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE,
@@ -6945,6 +15110,46 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             add(malformed)
         add((MIBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE, *([0] * 225)),
             0, output_is_null=True)
+    elif algorithm in {"cbench_automotive_susan_c", "cbench_automotive_susan_e"}:
+        rng_susan_mode = random.Random(20261026)
+        for side in (CBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE,
+                     CBENCH_AUTOMOTIVE_SUSAN_MAX_SIDE):
+            flat = tuple(0 for _ in range(side * side))
+            result, output = add((side, *flat))
+            if result != side * side or len(output) != side * side:
+                raise ValueError(f"{algorithm} valid image did not fill its output plane")
+            for capacity in (0, result - 1, result, workspace_bytes):
+                add((side, *flat), capacity)
+            add((side, *flat), output_is_null=True)
+
+            step = tuple(0 if index % side < side // 2 else 255
+                         for index in range(side * side))
+            add((side, *step))
+            square = tuple(
+                220 if side // 3 <= index // side < 2 * side // 3
+                and side // 3 <= index % side < 2 * side // 3 else 12
+                for index in range(side * side)
+            )
+            add((side, *square))
+            for _ in range(2):
+                random_pixels = tuple(rng_susan_mode.randrange(256)
+                                      for _ in range(side * side))
+                add((side, *random_pixels))
+
+        minimum_flat = (CBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE,
+                        *((0,) * (CBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE ** 2)))
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True,
+            input_length=CBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH)
+        bad_pixel = list(minimum_flat)
+        bad_pixel[-1] = 256
+        add(tuple(bad_pixel))
+        for malformed in (
+                (), (CBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE - 1,),
+                (CBENCH_AUTOMOTIVE_SUSAN_MAX_SIDE + 1,),
+                (CBENCH_AUTOMOTIVE_SUSAN_MIN_SIDE, 0),
+                minimum_flat + (0,), (-(1 << 63),), ((1 << 63) - 1,)):
+            add(malformed)
     elif algorithm == "mibench_security_blowfish":
         reference_input = (0, 0, 66, 76, 79, 87, 70, 73, 83, 72)
         result, output = add(reference_input)
@@ -7351,6 +15556,371 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                 (-(1 << 63),), ((1 << 63) - 1,),
         ):
             add(values)
+    elif algorithm == "pcompress2":
+        rng_pcompress2 = random.Random(20261025)
+        payloads = (
+            (0,),
+            (65, 65),
+            tuple(range(32)),
+            tuple(255 if index % 2 else 0 for index in range(32)),
+            tuple(rng_pcompress2.randrange(256) for _ in range(32)),
+        )
+        for payload in payloads:
+            values = (len(payload), *payload)
+            result, output = add(values)
+            if result > 0:
+                for capacity in (0, result - 1, result, workspace_bytes):
+                    add(values, capacity)
+                add(values, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for values in ((), (0,), (33,), (1, 0, 0), (2, 65),
+                       (1, 256), (1, -1), tuple([0] * max_input)):
+            add(values)
+    elif algorithm == "mibench_security_sha0":
+        sha0_messages = (
+            (), (0,), (97, 98, 99), tuple(range(55)),
+        )
+        for message in sha0_messages:
+            values = (len(message), *message)
+            result, _ = add(values)
+            if result > 0:
+                for capacity in (0, result - 1, result, workspace_bytes):
+                    add(values, capacity)
+                add(values, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for values in ((56,), (1, 256), (1, -1), (0, 0),
+                       tuple([0] * max_input)):
+            add(values)
+    elif algorithm == "lac_adpcm":
+        encode_traces = (
+            (1, 0),
+            (1, 1, 0),
+            (1, 2, 7, 17),
+            (1, 7, -32768, -12000, -1, 0, 1, 12000, 32767),
+            (1, LAC_ADPCM_MAX_ENCODE_SAMPLES,
+             *(index * 257 % 65536 - 32768
+               for index in range(LAC_ADPCM_MAX_ENCODE_SAMPLES))),
+        )
+        decode_traces = (
+            (2, 0),
+            (2, 1, 0),
+            (2, 2, 0x44, 0x9F),
+            (2, LAC_ADPCM_MAX_DECODE_BYTES,
+             *(index * 73 % 256 for index in range(LAC_ADPCM_MAX_DECODE_BYTES))),
+        )
+        for values in (*encode_traces, *decode_traces):
+            result, output = add(values)
+            if result > 0:
+                for capacity in (0, result - 1, result, workspace_bytes):
+                    add(values, capacity)
+                add(values, output_is_null=True)
+            else:
+                add(values, 0, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for values in (
+                (), (1,), (1, -1), (1, LAC_ADPCM_MAX_ENCODE_SAMPLES + 1),
+                (1, 1), (1, 0, 0), (1, 1, -32769), (1, 1, 32768),
+                (2, LAC_ADPCM_MAX_DECODE_BYTES + 1), (2, 1),
+                (2, 1, -1), (2, 1, 256), (2, 0, 0),
+                (3, 0), (-(1 << 63),), ((1 << 63) - 1,),
+                tuple([0] * max_input),
+        ):
+            add(values)
+    elif algorithm == "mccat_05_eks":
+        def symmetric_banded_matrix(n: int, bandwidth: int, seed: int) -> tuple[int, ...]:
+            rng_matrix = random.Random(seed)
+            matrix = [[0] * n for _ in range(n)]
+            for row in range(n):
+                for column in range(row, min(n, row + bandwidth + 1)):
+                    value = rng_matrix.randint(-250_000, 250_000)
+                    matrix[row][column] = value
+                    matrix[column][row] = value
+            return (n, bandwidth, *(value for row in matrix for value in row))
+
+        matrices = [
+            symmetric_banded_matrix(n, min(5, n - 1), 20261025 + n)
+            for n in range(3, MCCAT_05_EKS_MAX_N + 1)
+        ]
+        matrices.extend(
+            symmetric_banded_matrix(8, bandwidth, 20300000 + bandwidth)
+            for bandwidth in range(2, 6)
+        )
+        for values in matrices:
+            result, output = add(values)
+            if result > 0:
+                for capacity in (0, result - 1, result, workspace_bytes):
+                    add(values, capacity)
+                add(values, output_is_null=True)
+
+        maximum_input = symmetric_banded_matrix(
+            MCCAT_05_EKS_MAX_N, 5, 20261033)
+        maximum_result, maximum_output = add(maximum_input)
+        if (len(maximum_input) != MCCAT_05_EKS_MAX_INPUT_LENGTH
+                or maximum_result != MCCAT_05_EKS_MAX_OUTPUT_BYTES
+                or len(maximum_output) != MCCAT_05_EKS_MAX_OUTPUT_BYTES):
+            raise ValueError("mccat_05_eks maximum matrix does not fill its output bound")
+        for capacity in (0, maximum_result - 1, maximum_result, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for values in (
+                (), (3,), (2, 2), (9, 2), (3, 0), (3, 3), (3, 5),
+                (3, 2, *([0] * 8)),
+                (3, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0),
+                (3, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0),
+                (3, 2, 0, 0, 0, 0, 0, 0, 0, 0, MCCAT_05_EKS_INPUT_SCALE + 1),
+                tuple([3, 2] + [0] * (max_input - 2)),
+        ):
+            add(values)
+    elif algorithm == "mccat_bintr":
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mccat-17-bintr-dfs-membership-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or input_spec.get("maximum_parseable_length") != MCCAT_BINTR_MAX_INPUT_LENGTH
+                or output_spec.get("maximum_bytes") != MCCAT_BINTR_OUTPUT_BYTES
+                or workspace_bytes != MCCAT_BINTR_OUTPUT_BYTES
+                or workload.get("contract", {}).get("probe_count") != 100
+                or "memberOfBinaryTree" not in (ROOT / "benchmarks/m/mccat_bintr/README.md").read_text(encoding="utf-8")):
+            raise ValueError("mccat_bintr metadata differs from its pinned DFS-membership profile")
+
+        def bintr_case(nodes: tuple[int, ...], probes: tuple[int, ...]) -> tuple[int, ...]:
+            if len(probes) != 100:
+                raise ValueError("mccat_bintr generated probe count must be exactly 100")
+            return (len(nodes), *nodes, 100, *probes)
+
+        profiles = (
+            ((5,), tuple([5] * 100)),
+            ((5, 9, 1, 5), tuple(1 if index % 2 == 0 else 7 for index in range(100))),
+            ((32, *range(1, 32), *range(33, 65)), tuple((index % 64) + 1 for index in range(100))),
+            ((32, 16, 48, 8, 24, 40, 56, 4, 12, 20, 28, 36, 44, 52, 60,
+              2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62,
+              1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31,
+              33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63),
+             tuple(64 - (index % 64) for index in range(100))),
+        )
+        for nodes, probes in profiles:
+            values = bintr_case(nodes, probes)
+            result, output = add(values)
+            if result == MCCAT_BINTR_OUTPUT_BYTES:
+                for capacity in (0, result - 1, result, workspace_bytes):
+                    add(values, capacity)
+                add(values, output_is_null=True)
+
+        maximum_nodes = tuple(range(-32, 0)) + tuple(range(1, 33))
+        maximum_input = bintr_case(maximum_nodes, tuple((index % 64) + 1 for index in range(100)))
+        maximum_result, maximum_output = add(maximum_input)
+        if (len(maximum_input) != MCCAT_BINTR_MAX_INPUT_LENGTH
+                or maximum_result != MCCAT_BINTR_OUTPUT_BYTES
+                or len(maximum_output) != MCCAT_BINTR_OUTPUT_BYTES):
+            raise ValueError("mccat_bintr maximum-sized tree does not match its output bound")
+        for capacity in (0, maximum_result - 1, maximum_result, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=MCCAT_BINTR_MAX_INPUT_LENGTH)
+        for values in (
+                (), (0,), (1, 0, 100, *([1] * 100)),
+                (1, 1, 99, *([1] * 99)),
+                (1, 1, 100, *([0] * 100)),
+                (1, 32768, 100, *([1] * 100)),
+                (1, 1, 100, *([32768] * 100)),
+                bintr_case((1,), tuple([1] * 100)) + (1,),
+                tuple([0] * MCCAT_BINTR_MAX_INPUT_LENGTH),
+        ):
+            add(values)
+    elif algorithm == "cbench_tiffdither":
+        width = CBENCH_TIFFDITHER_MAX_WIDTH
+        height = CBENCH_TIFFDITHER_MAX_HEIGHT
+        pixels = tuple((index * 73 + 19) % 256 for index in range(width * height))
+        maximum_input = (width, height, 127, *pixels)
+        maximum_result, maximum_output = add(maximum_input)
+        if (len(maximum_input) != max_input or maximum_result != max_output
+                or len(maximum_output) != max_output):
+            raise ValueError("cbench_tiffdither maximum input does not match its output bound")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        for values in (
+                (), (UINT_I64_MIN,), (UINT_I64_MAX,),
+                (0, 2, 128, 0, 0), (1, 1, 128, 0),
+                (2, 2, 256, 0, 0, 0, 0),
+                (2, 2, 128, 0, 0, 0),
+                (2, 2, 128, 0, 0, 0, 256),
+                tuple([0] * max_input),
+        ):
+            add(values)
+    elif algorithm == "cbench_consumer_tiffmedian":
+        pixels = tuple(
+            component
+            for red_bin in range(CBENCH_TIFFMEDIAN_MAX_PIXELS)
+            for component in (red_bin * 8, 0, 0)
+        )
+        maximum_input = (CBENCH_TIFFMEDIAN_MAX_PALETTE,
+                         CBENCH_TIFFMEDIAN_MAX_PIXELS, *pixels)
+        maximum_result, maximum_output = add(maximum_input)
+        if (len(maximum_input) != max_input or maximum_result != max_output
+                or len(maximum_output) != max_output):
+            raise ValueError("cbench_consumer_tiffmedian maximum palette input does not fill its output bound")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        invalid_palette = list(maximum_input)
+        invalid_palette[0] = CBENCH_TIFFMEDIAN_MAX_PALETTE + 1
+        invalid_component = list(maximum_input)
+        invalid_component[2] = 256
+        malformed_inputs = (
+            (), (UINT_I64_MIN,), (UINT_I64_MAX,),
+            (1, 0, 0, 0, 0), tuple(maximum_input[:-1]),
+            tuple(invalid_palette), tuple(invalid_component),
+            (1, 1, 0, UINT_I64_MIN, 0), tuple([0] * max_input),
+        )
+        for values in malformed_inputs:
+            add(values)
+    elif algorithm == "cbench_consumer_tiff2bw":
+        pixels = tuple(
+            channel
+            for index in range(CBENCH_TIFF2BW_MAX_PIXELS)
+            for channel in ((index * 37 + 11) % 256,
+                            (index * 83 + 29) % 256,
+                            (index * 149 + 47) % 256)
+        )
+        maximum_input = (CBENCH_TIFF2BW_MAX_PIXELS, *pixels)
+        maximum_result, maximum_output = add(maximum_input)
+        if (len(maximum_input) != max_input or maximum_result != max_output
+                or len(maximum_output) != max_output):
+            raise ValueError("cbench_consumer_tiff2bw maximum RGB input does not fill its output bound")
+        for capacity in (0, max_output - 1, max_output, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        over_range = list(maximum_input)
+        over_range[2] = 256
+        malformed_inputs = (
+            (), (UINT_I64_MIN,), (UINT_I64_MAX,),
+            (0,), (CBENCH_TIFF2BW_MAX_PIXELS + 1, *pixels),
+            (1, 0, 0), (1, 0, 0, 0, 1),
+            (1, UINT_I64_MIN, 0, 0), (1, 0, UINT_I64_MAX, 0),
+            tuple(over_range), tuple(maximum_input[:-1]), tuple([0] * max_input),
+        )
+        for values in malformed_inputs:
+            add(values)
+    elif algorithm == "cbench_bzip2_mtf_rle":
+        if (max_input != CBENCH_BZIP2_MTF_RLE_MAX_INPUT_LENGTH
+                or max_output != CBENCH_BZIP2_MTF_RLE_MAX_OUTPUT_BYTES):
+            raise ValueError("cbench_bzip2_mtf_rle suite bounds differ from the oracle contract")
+        max_block = CBENCH_BZIP2_MTF_RLE_MAX_BLOCK_LENGTH
+        max_output_bytes = max_output
+        max_output_input = (0, 0, max_block, *range(max_block))
+        max_result, encoded_maximum = add(max_output_input)
+        if (len(max_output_input) != 3 + max_block or max_result != max_output_bytes
+                or len(encoded_maximum) != max_output_bytes):
+            raise ValueError("cbench_bzip2_mtf_rle maximum encoder case does not fill its output bound")
+        maximum_input = (
+            1, max_block, max_output_bytes, *range(max_block),
+            *([2] * (max_output_bytes - 1)), max_block + 1,
+        )
+        maximum_result, maximum_output = add(maximum_input)
+        if (len(maximum_input) != max_input or maximum_result != max_block
+                or len(maximum_output) != max_block):
+            raise ValueError("cbench_bzip2_mtf_rle maximum decoder case differs from its bounded frame")
+        for capacity in (0, max_output_bytes - 1, max_output_bytes, workspace_bytes):
+            add(max_output_input, capacity)
+        for capacity in (0, max_block - 1, max_block, workspace_bytes):
+            add(maximum_input, capacity)
+        add(max_output_input, output_is_null=True)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        too_many_zero_run_symbols = (1, 1, 7, 7, 0, 1, 1, 1, 1, 1, 2)
+        malformed_inputs = (
+            (), (UINT_I64_MIN,), (UINT_I64_MAX,),
+            (2, 0, 0), (0, 1, 1, 0), (0, 0, 0),
+            (0, 0, max_block + 1, *range(max_block + 1)),
+            (0, 0, 1, -1), (0, 0, 1, 256),
+            (1, 0, 2, 0, 2), (1, 2, 2, 9, 7, 2, 3),
+            (1, 2, 2, 7, 7, 2, 3), (1, 1, 2, 7, 0, 1),
+            (1, 1, 3, 7, 2, 2, 2), (1, 1, 2, 7, 3, 2),
+            too_many_zero_run_symbols,
+            (0, 0, max_block, *range(max_block - 1)),
+            tuple([0] * max_input),
+        )
+        for values in malformed_inputs:
+            add(values)
+    elif algorithm == "cbench_blowfish_cbc":
+        if (max_input != CBENCH_BLOWFISH_CBC_MAX_INPUT_LENGTH
+                or max_output != CBENCH_BLOWFISH_CBC_MAX_OUTPUT_BYTES):
+            raise ValueError("cbench_blowfish_cbc suite bounds differ from the oracle contract")
+        block_count = CBENCH_BLOWFISH_CBC_MAX_BLOCKS
+        max_output_bytes = max_output
+        maximum_input = (0, 0, block_count, *([0] * 8), *([0] * (8 * block_count)))
+        maximum_result, encoded_maximum = add(maximum_input)
+        if (len(maximum_input) != max_input or maximum_result != max_output_bytes
+                or len(encoded_maximum) != max_output_bytes):
+            raise ValueError("cbench_blowfish_cbc maximum block input does not fill its output bound")
+        for capacity in (0, max_output_bytes - 1, max_output_bytes, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        malformed_inputs = (
+            (), (UINT_I64_MIN,), (UINT_I64_MAX,),
+            (2, 0, 1, *([0] * 16)), (0, 2, 1, *([0] * 16)),
+            (0, 0, 0, *([0] * 8)), (0, 0, block_count + 1, *([0] * 40)),
+            (0, 0, 1, *([0] * 7)), (0, 0, 1, *([0] * 9)),
+            (0, 0, 1, 256, *([0] * 15)),
+            (1, 1, 1, 0, *([0] * 15)),
+            tuple(maximum_input[:-1]), tuple(maximum_input) + (0,),
+            tuple([0] * max_input),
+        )
+        for values in malformed_inputs:
+            add(values)
+    elif algorithm == "tsvc_s281_reverse_coupled_update":
+        if (max_input != TSVC_S281_REVERSE_MAX_INPUT_LENGTH
+                or max_output != TSVC_S281_REVERSE_MAX_OUTPUT_BYTES):
+            raise ValueError("tsvc_s281_reverse_coupled_update suite bounds differ from the oracle contract")
+        n = TSVC_S281_REVERSE_MAX_N
+        passes = TSVC_S281_REVERSE_MAX_PASSES
+        a_values = tuple((index % 5) - 2 for index in range(n))
+        b_values = tuple(((index * 3) % 5) - 2 for index in range(n))
+        c_values = tuple((index % 3) - 1 for index in range(n))
+        maximum_input = (n, passes, *a_values, *b_values, *c_values)
+        max_output_bytes = max_output
+        maximum_result, encoded_maximum = add(maximum_input)
+        if (len(maximum_input) != max_input or maximum_result != max_output_bytes
+                or len(encoded_maximum) != max_output_bytes):
+            raise ValueError("tsvc_s281_reverse_coupled_update maximum input does not fill its output bound")
+        for capacity in (0, max_output_bytes - 1, max_output_bytes, workspace_bytes):
+            add(maximum_input, capacity)
+        add(maximum_input, output_is_null=True)
+        add((), input_is_null=True, input_length=0)
+        add((), input_is_null=True, input_length=max_input)
+        bad_a = list(maximum_input)
+        bad_a[2] = 3
+        bad_b = list(maximum_input)
+        bad_b[2 + n] = -3
+        bad_c = list(maximum_input)
+        bad_c[2 + 2 * n] = 2
+        malformed_inputs = (
+            (), (UINT_I64_MIN,), (UINT_I64_MAX,),
+            (0, 1), (n + 1, 1, *([0] * (3 * (n + 1)))),
+            (1, 0, 0, 0, 0), (1, passes + 1, 0, 0, 0),
+            (1, 1, 0, 0), (1, 1, 0, 0, 0, 0),
+            tuple(bad_a), tuple(bad_b), tuple(bad_c),
+            tuple(maximum_input[:-1]), tuple(maximum_input) + (0,),
+            tuple([0] * max_input),
+        )
+        for values in malformed_inputs:
+            add(values)
     elif algorithm in GENERIC_BYTE_OUTPUT_BOUNDS:
         for case in workload["cases"]:
             values = tuple(case["input_values"])
@@ -7360,6 +15930,29 @@ def byte_output_corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     add(values, 0)
                     add(values, result - 1)
                 add(values, output_is_null=True)
+        if algorithm == "rodinia_dwt2d":
+            rng = random.Random(20261025)
+            for width, height, levels in ((2, 2, 1), (4, 4, 2), (8, 8, 3),
+                                          (16, 8, 2), (16, 16, 2)):
+                values = (width, height, levels,
+                          *(rng.randrange(256) for _ in range(width * height)))
+                result, output = add(values)
+                if result != 4 * width * height or len(output) != result:
+                    raise ValueError("rodinia_dwt2d generated matrix has an invalid output size")
+                for capacity in (0, result - 1, result, workspace_bytes):
+                    add(values, capacity)
+                add(values, output_is_null=True)
+            for invalid in (
+                    (1, 2, 1, 128, 128, 128, 128),
+                    (4, 4, 3, *([128] * 16)),
+                    (6, 4, 2, *([128] * 24)),
+                    (2, 2, 1, 128, 128, -1, 128),
+                    (2, 2, 1, 128, 128, 128),
+                    (2, 2, 1, *([128] * 5)),
+            ):
+                add(invalid)
+            add((), input_is_null=True, input_length=0)
+            add((), input_is_null=True, input_length=RODINIA_DWT2D_MAX_INPUT_LENGTH)
         add((), 0, output_is_null=True)
         add((), input_is_null=True, input_length=0)
         add((), input_is_null=True, input_length=max_input)
@@ -42542,6 +51135,8 @@ def main() -> int:
     algorithm = args.algorithm
     workload_path = (ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
                      if algorithm == "merge_sort_linked_list" else
+                     ROOT / "benchmarks" / "d" / algorithm / "workload.json"
+                     if algorithm == "versabench_dbms_keys_union" else
                      ROOT / "benchmarks" / "merge_ksorted_linked_list" / "workload.json"
                      if algorithm == "merge_ksorted_linked_list" else
                      ROOT / "benchmarks" / "maximum_fenwick_tree" / "workload.json"

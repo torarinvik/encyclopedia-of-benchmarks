@@ -1,0 +1,124 @@
+# Clean-room bounded simulator for Embench's NSicherNeu Petri/T-Net transition path.
+const INPUT_COUNT: usize = 9
+const OUTPUT_COUNT: usize = 17
+const OUTPUT_BYTES: usize = OUTPUT_COUNT * 8
+const MAX_RUNS: i64 = 64
+
+def nsichneu_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length != INPUT_COUNT or input[0] < 1 or input[0] > MAX_RUNS: return -1
+    index: mutable usize = 1
+    while index < length:
+        if input[index] < -1000 or input[index] > 1000: return -1
+        index <- index + 1
+    if output == null or capacity < OUTPUT_BYTES: return -2
+
+    p1: mutable i64[3] = [input[1], input[2], input[3]]
+    p2: mutable i64[5] = [input[4], input[5], input[6], input[7], input[8]]
+    p3: mutable i64[6] = zeroed
+    p1_count: mutable i64 = 3
+    p2_count: mutable i64 = 5
+    p3_count: mutable i64 = 0
+
+    run: mutable i64 = 0
+    while run < input[0]:
+        p1_count <- 3
+        p2_count <- 5
+        p3_count <- 0
+        first: mutable usize = 0
+        while first < 3:
+            second: mutable usize = 0
+            while second < 3:
+                if second != first:
+                    third: mutable usize = 0
+                    while third < 3:
+                        if third != first and third != second:
+                            if p1_count >= 3 and p3_count + 3 <= 6 and p1[second] == p1[third]:
+                                x: mutable i64 = p1[first]
+                                y: mutable i64 = p1[second]
+                                if x < y:
+                                    p1_count <- p1_count - 3
+                                    p3[p3_count.usize()] <- x
+                                    p3[(p3_count + 1).usize()] <- y
+                                    p3[(p3_count + 2).usize()] <- x - y
+                                    p3_count <- p3_count + 3
+                        third <- third + 1
+                second <- second + 1
+            first <- first + 1
+        
+        subset_number: mutable usize = 0
+        while subset_number < 5:
+            omitted: usize = 4 - subset_number
+            subset: mutable usize[4] = zeroed
+            count: mutable usize = 0
+            index <- 0
+            while index < 5:
+                if index != omitted:
+                    subset[count] <- index
+                    count <- count + 1
+                index <- index + 1
+            a: mutable usize = 0
+            while a < 4:
+                b: mutable usize = 0
+                while b < 4:
+                    if b != a:
+                        c: mutable usize = 0
+                        while c < 4:
+                            if c != a and c != b:
+                                d: mutable usize = 0
+                                while d < 4:
+                                    if d != a and d != b and d != c:
+                                        i0: usize = subset[a]
+                                        i1: usize = subset[b]
+                                        i2: usize = subset[c]
+                                        i3: usize = subset[d]
+                                        if p2_count >= 4 and p3_count + 3 <= 6 and p2[i1] == p2[i2] and p2[i1] == p2[i3]:
+                                            x: mutable i64 = p2[i0]
+                                            y: mutable i64 = p2[i1]
+                                            if y > x:
+                                                p2_count <- p2_count - 4
+                                                p3[p3_count.usize()] <- x
+                                                p3[(p3_count + 1).usize()] <- y
+                                                p3[(p3_count + 2).usize()] <- x + y
+                                                p3_count <- p3_count + 3
+                                    d <- d + 1
+                            c <- c + 1
+                    b <- b + 1
+                a <- a + 1
+            subset_number <- subset_number + 1
+        run <- run + 1
+
+    snapshot: mutable i64[OUTPUT_COUNT] = zeroed
+    position: mutable usize = 0
+    snapshot[position] <- p1_count
+    position <- position + 1
+    index <- 0
+    while index < 3:
+        snapshot[position] <- p1[index]
+        position <- position + 1
+        index <- index + 1
+    snapshot[position] <- p2_count
+    position <- position + 1
+    index <- 0
+    while index < 5:
+        snapshot[position] <- p2[index]
+        position <- position + 1
+        index <- index + 1
+    snapshot[position] <- p3_count
+    position <- position + 1
+    index <- 0
+    while index < 6:
+        snapshot[position] <- p3[index]
+        position <- position + 1
+        index <- index + 1
+    index <- 0
+    while index < OUTPUT_COUNT:
+        bits: mutable u64 = snapshot[index].u64()
+        byte: mutable usize = 0
+        while byte < 8:
+            output[index * 8 + byte] <- (bits & 255.u64()).u8()
+            bits <- bits >> 8
+            byte <- byte + 1
+        index <- index + 1
+    return OUTPUT_BYTES.i64()
+
+export fn nsichneu(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = nsichneu_impl

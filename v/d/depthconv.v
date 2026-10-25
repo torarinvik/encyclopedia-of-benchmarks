@@ -1,0 +1,5 @@
+module depthconv
+const max_channels=8
+fn rounded_shift(value i64,shift int)i64{divisor:=i64(1)<<shift;if value>=0{return value/divisor};return -((-value+divisor-1)/divisor)}
+@[export:'depthconv']
+pub fn depthconv(values &i64,length usize,mut output &u8,capacity usize)i64{unsafe{if values==nil||length<1||length>1+11*max_channels{return -1};channels:=values[0];if channels<1||channels>max_channels||length!=usize(1+11*channels){return -1};c:=int(channels);for i in 1..1+8*c{if values[i] < -128||values[i]>127{return -1}};for i in 1+8*c..1+9*c{if values[i] < -1_000_000||values[i]>1_000_000{return -1}};for i in 1+9*c..1+10*c{if values[i]<0||values[i]>2147483647{return -1}};for i in 1+10*c..length{if values[i] < -8||values[i]>0{return -1}};if output==nil||capacity<usize(c){return -2};for ch in 0..c{mut acc:=i32(0);for row in 0..4{acc+=i32(values[1+row*c+ch]+128)*i32(values[1+4*c+row*c+ch])};acc+=i32(values[1+8*c+ch]);shift:=int(31-values[1+10*c+ch]);round:=i64(1)<< (shift-1);mut scaled:=rounded_shift(i64(acc)*values[1+9*c+ch]+round,shift);if scaled>127{scaled=127};if scaled< -128{scaled=-128};output[ch]=u8(i8(scaled))};return channels}}

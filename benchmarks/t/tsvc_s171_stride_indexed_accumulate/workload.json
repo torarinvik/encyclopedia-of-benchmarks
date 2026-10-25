@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s171-stride-indexed-accumulate-i64-le-v1",
+  "algorithm": "tsvc_s171_stride_indexed_accumulate",
+  "function_symbol": "tsvc_s171_stride_indexed_accumulate",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded one-sweep affine-stride scatter-add from TSVC s171.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["TSVC/Symbolics-dbl/info.sh", "TSVC/Symbolics-dbl/tsc.c", "TSVC/tsc.inc", "TSVC/tests.h"],
+    "symbol": "s171",
+    "source_lines": {"codelet_start": 1666, "codelet_end": 1687, "initialization_start": 331, "initialization_end": 333},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc#L1666",
+    "launcher_family": "TSVC/Symbolics-dbl",
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. These ports are clean-room implementations and reuse no upstream source code or comments; no upstream license or endorsement is claimed."
+  },
+  "contract": {
+    "operation": "For i=0..n-1 in ascending order, add B[i] to A[i*stride].",
+    "input_layout": "[n, stride, A[a_length], B[n]]",
+    "n_range": [1, 32],
+    "stride_range": [1, 4],
+    "a_length": "1 + (n - 1) * stride",
+    "value_range": [-8, 8],
+    "exact_length": "2 + a_length + n",
+    "maximum_valid_input_length": 159,
+    "output": "Final A[a_length] as little-endian signed i64 values.",
+    "output_capacity_requirement": "At least 8*a_length bytes.",
+    "success_result": "a_length values written.",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "input_modified": false,
+    "source_profile": "One ascending execution of s171. Positive bounded strides produce distinct destination positions. The pinned launcher passes inc=1; this bounded parameterized profile also includes strides 2 through 4 to expose the source's affine indexed write pattern. Timing passes, initialization, dummy calls, and checksums are excluded."
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "n, stride, the A destination span, then n B addends",
+    "maximum_valid_length": 159,
+    "maximum_parseable_length": 159,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Final A destination span, including unchanged non-target slots.",
+    "maximum_values": 125,
+    "maximum_bytes": 1000,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 1000},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "stride-two-preserves-gap-slots",
+      "input_values": [3, 2, 1, -1, 2, 0, -2, 3, 4, -1],
+      "input_length": 10,
+      "output_capacity": 40,
+      "expected_result": 5,
+      "expected_output_hex": "0400000000000000ffffffffffffffff06000000000000000000000000000000fdffffffffffffff"
+    },
+    {
+      "id": "contiguous-launcher-stride-shape",
+      "input_values": [4, 1, 0, 2, -2, 1, -1, 2, 5, -3],
+      "input_length": 10,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "ffffffffffffffff04000000000000000300000000000000feffffffffffffff"
+    },
+    {
+      "id": "single-addend",
+      "input_values": [1, 4, 7, -2],
+      "input_length": 4,
+      "output_capacity": 8,
+      "expected_result": 1,
+      "expected_output_hex": "0500000000000000"
+    },
+    {"id": "zero-dimension", "input_values": [0, 1, 0], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "zero-stride", "input_values": [2, 0, 1, 2, 3, 4], "input_length": 6, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-a-span", "input_values": [3, 2, 1, 2, 3], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "value-out-of-range", "input_values": [1, 1, 0, 9], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "insufficient-output-capacity", "input_values": [1, 1, 0, 1], "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 1, 0, 1], "output_capacity": 8, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 1000, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

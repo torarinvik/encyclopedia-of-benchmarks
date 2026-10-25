@@ -1,0 +1,47 @@
+// Root separator routes point lookup into one of two sorted B+ tree leaves.
+export fn rodinia_bplus_tree(input: i64&, length: usize) -> i64 {
+    if length < 7 or length > 31: return -1
+    left_value: i64 = input[0]
+    right_value: i64 = input[1]
+    query_value: i64 = input[2]
+    if left_value < 1 or left_value > 3 or right_value < 1 or right_value > 3 or
+        query_value < 1 or query_value > 16: return -1
+    left_n: usize = left_value.usize()
+    right_n: usize = right_value.usize()
+    query_n: usize = query_value.usize()
+    if length != 3 + 2 * (left_n + right_n) + query_n: return -1
+    counts: usize[2] = [left_n, right_n]
+    keys: mutable i64[2][3] = zeroed
+    vals: mutable i64[2][3] = zeroed
+    cursor: mutable usize = 3
+    leaf: mutable usize = 0
+    while leaf < 2:
+        slot: mutable usize = 0
+        while slot < counts[leaf]:
+            key: i64 = input[cursor]
+            value: i64 = input[cursor + 1]
+            cursor <- cursor + 2
+            if key < -1000000 or key > 1000000 or value < 0 or value > 1000000 or
+                (slot != 0 and key <= keys[leaf][slot - 1]): return -1
+            keys[leaf][slot] <- key
+            vals[leaf][slot] <- value
+            slot <- slot + 1
+        leaf <- leaf + 1
+    if keys[0][left_n - 1] >= keys[1][0]: return -1
+    answer: mutable i64 = 0
+    qi: mutable usize = 0
+    while qi < query_n:
+        query: i64 = input[cursor]
+        cursor <- cursor + 1
+        if query < -1000000 or query > 1000000: return -1
+        leaf <- 0
+        if query >= keys[1][0]: leaf <- 1
+        slot <- 0
+        while slot < counts[leaf]:
+            if keys[leaf][slot] == query:
+                answer <- answer + (qi + 1).i64() * (vals[leaf][slot] + 1)
+                break
+            slot <- slot + 1
+        qi <- qi + 1
+    return answer
+}

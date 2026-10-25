@@ -1,0 +1,42 @@
+extern cos(value: f64) -> f64
+
+const CBENCH_CONSUMER_MAD_IMDCT36_INPUT_COUNT: usize = 18
+const CBENCH_CONSUMER_MAD_IMDCT36_MAX_INPUT: usize = 19
+const CBENCH_CONSUMER_MAD_IMDCT36_OUTPUT_COUNT: usize = 36
+const CBENCH_CONSUMER_MAD_IMDCT36_PI: f64 = 3.14159265358979323846264338327950288
+
+def cbench_consumer_mad_imdct36_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > CBENCH_CONSUMER_MAD_IMDCT36_MAX_INPUT:
+        return -1
+    index: mutable usize = 0
+    while index < input_length:
+        value: f64 = input[index]
+        if value != value or value < -16.0 or value > 16.0:
+            return -1
+        index <- index + 1
+    if input_length != CBENCH_CONSUMER_MAD_IMDCT36_INPUT_COUNT:
+        return -1
+
+    staged: mutable f64[CBENCH_CONSUMER_MAD_IMDCT36_OUTPUT_COUNT] = zeroed
+    n: mutable usize = 0
+    while n < CBENCH_CONSUMER_MAD_IMDCT36_OUTPUT_COUNT:
+        total: mutable f64 = 0.0
+        index <- 0
+        while index < CBENCH_CONSUMER_MAD_IMDCT36_INPUT_COUNT:
+            angle: f64 = CBENCH_CONSUMER_MAD_IMDCT36_PI *
+                (2 * n + 19).f64() * (2 * index + 1).f64() / 72.0
+            total <- total + input[index] * cos(angle)
+            index <- index + 1
+        staged[n] <- total
+        n <- n + 1
+    if output.is_null() or output_capacity < CBENCH_CONSUMER_MAD_IMDCT36_OUTPUT_COUNT:
+        return -2
+    n <- 0
+    while n < CBENCH_CONSUMER_MAD_IMDCT36_OUTPUT_COUNT:
+        output[n] <- staged[n]
+        n <- n + 1
+    CBENCH_CONSUMER_MAD_IMDCT36_OUTPUT_COUNT.i64()
+
+export fn cbench_consumer_mad_imdct36(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = cbench_consumer_mad_imdct36_impl

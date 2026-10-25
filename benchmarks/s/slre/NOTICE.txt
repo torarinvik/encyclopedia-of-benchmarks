@@ -1,0 +1,13 @@
+Embench-IoT slre attribution
+
+Pinned source: https://github.com/embench/embench-iot/tree/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/slre
+Files: src/slre/libslre.c and src/slre/slre.h
+
+The upstream source header credits:
+Copyright (c) 2004-2013 Sergey Lyubka <valenok@gmail.com>
+Copyright (c) 2013 Cesanta Software Limited. All rights reserved.
+Copyright (C) 2014-2019 Embecosm Limited and University of Bristol.
+Contributors: James Pallister and Jeremy Bennett.
+SPDX-License-Identifier: GPL-3.0-or-later.
+
+The local ports are independently written modifications of the bounded profile described in README.md and are distributed under GPL-3.0-or-later. The Embench repository COPYING file is the license text bundled as LICENSE.txt.

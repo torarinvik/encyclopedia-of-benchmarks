@@ -1,0 +1,5 @@
+fn wide(a:u64,b:u64)->(u64,u64){let mask=0xffff_ffffu64;let (a0,a1)=(a&mask,a>>32);let (b0,b1)=(b&mask,b>>32);let (p00,p01,p10,p11)=(a0*b0,a0*b1,a1*b0,a1*b1);let mut lo=p00;let mut hi=p11;let old=lo;lo=lo.wrapping_add(p01<<32);hi=hi.wrapping_add(p01>>32).wrapping_add((lo<old) as u64);let old=lo;lo=lo.wrapping_add(p10<<32);hi=hi.wrapping_add(p10>>32).wrapping_add((lo<old) as u64);(hi,lo)}
+fn montmul(a:u64,b:u64,m:u64,np:u64)->u64{let(thi,tlo)=wide(a,b);let(tmmhi,tmmlo)=wide(tlo.wrapping_mul(np),m);let ulo=tlo.wrapping_add(tmmlo);let mut uhi=thi.wrapping_add(tmmhi);if ulo<tlo{uhi=uhi.wrapping_add(1);}let ov=uhi<thi||(uhi==thi&&ulo<tlo);if ov||uhi>=m{uhi.wrapping_sub(m)}else{uhi}}
+fn nprime(m:u64)->u64{let mut inv=1u64;for _ in 0..6{inv=inv.wrapping_mul(2u64.wrapping_sub(m.wrapping_mul(inv)));}0u64.wrapping_sub(inv)}
+#[no_mangle]
+pub unsafe extern "C" fn embench_aha_mont64(v:*const i64,n:usize)->i64{if v.is_null()||n!=3{return -1;}let a=unsafe{*v};let b=unsafe{*v.add(1)};let mm=unsafe{*v.add(2)};if a<0||b<0||mm<3||mm&1==0{return -1;}let(a,b,m)=(a as u64,b as u64,mm as u64);if a>=m||b>=m{return -1;}let np=nprime(m);montmul(a,b,m,np) as i64}

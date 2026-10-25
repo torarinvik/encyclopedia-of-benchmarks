@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "id": "parboil-tpacf-cross-correlation-f32-histogram-v1",
+  "algorithm": "parboil_tpacf_cross_correlation",
+  "function_symbol": "parboil_tpacf_cross_correlation",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded Parboil TPACF cross-correlation histogram over source logarithmic angular bins.",
+  "pinned_source": {
+    "repository": "yuhc/gpu-parboil",
+    "commit": "ccf3d3126f1754ca85528722f4ced5894ccb852b",
+    "paths": [
+      "benchmarks/tpacf/src/cuda_base/tpacf_kernel.cu",
+      "benchmarks/tpacf/src/base/model.h",
+      "benchmarks/tpacf/DESCRIPTION",
+      "LICENSE"
+    ],
+    "symbols": ["initBinB", "gen_hists"],
+    "constants": {
+      "num_bins": 20,
+      "min_arcmin": 1.0,
+      "max_arcmin": 10000.0,
+      "bins_per_decade": 5,
+      "source_coordinate_type": "binary32 Cartesian components"
+    },
+    "source_links": {
+      "kernel": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/tpacf/src/cuda_base/tpacf_kernel.cu",
+      "model": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/tpacf/src/base/model.h",
+      "license": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/LICENSE"
+    },
+    "license": "Illinois Open Source License (University of Illinois/NCSA), copyright 2007-2011 Board of Trustees of the University of Illinois; complete notice copied to package LICENSE.txt."
+  },
+  "contract": {
+    "input_layout": "[data_count, random_count, data_xyz..., random_xyz...]",
+    "coordinate_encoding": "Signed Q1e-6 Cartesian component; decode f32(f32(raw)/f32(1000000)).",
+    "point_count_range": [1, 4],
+    "coordinate_range": [-1000000, 1000000],
+    "exact_length": "2 + 3*(data_count + random_count)",
+    "max_input_length": 26,
+    "thresholds": "21 descending f32 values for k=0..20, f32(cos(pow(10,log10(1)+k/5)/60*(pi/180))) with binary64 expression then f32 storage.",
+    "dot_operation_order": "f32(dx*rx), f32(dy*ry), f32(dz*rz), f32(product_x+product_y), f32(sum_xy+product_z).",
+    "bin_rule": "Source binary search min=0,max=20; if distance < boundary[min] and distance >= boundary[max], increment max-1; distances outside source thresholds are ignored.",
+    "output": "20 unsigned histogram counts as raw bytes in ascending source-bin order.",
+    "max_pairs": 16,
+    "success_result": 20,
+    "output_capacity_requirement": 20,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[data_count, random_count, data Cartesian triples, random Cartesian triples]",
+    "maximum_valid_length": 26,
+    "maximum_parseable_length": 26,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "20 unsigned source-bin counts in ascending angular-distance order",
+    "maximum_bytes": 20,
+    "capacity_unit": "bytes",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 104,
+    "meaning": "21 f32 angular thresholds (84 bytes) and 20 u8 histogram bins; coordinates are read from the input on demand."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "orthogonal-pair-bin-18",
+      "input_values": [1, 1, 1000000, 0, 0, 0, 1000000, 0],
+      "input_length": 8,
+      "output_capacity": 20,
+      "expected_result": 20,
+      "expected_output_hex": "0000000000000000000000000000000000000100"
+    },
+    {
+      "id": "three-cross-pairs-in-distinct-bins",
+      "input_values": [2, 2, 1000000, 0, 0, 0, 1000000, 0, 600000, 800000, 0, -1000000, 0, 0],
+      "input_length": 14,
+      "output_capacity": 20,
+      "expected_result": 20,
+      "expected_output_hex": "0000000000000000000000000000000001010100"
+    },
+    {
+      "id": "antipodal-pair-outside-max-angle",
+      "input_values": [1, 1, 1000000, 0, 0, -1000000, 0, 0],
+      "input_length": 8,
+      "output_capacity": 20,
+      "expected_result": 20,
+      "expected_output_hex": "0000000000000000000000000000000000000000"
+    },
+    {
+      "id": "invalid-empty-point-set",
+      "input_values": [0, 1, 1000000, 0, 0, 0, 1000000, 0],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-input",
+      "input_values": [1, 1, 1000000, 0, 0, 0, 1000000],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 1000000, 0, 0, 0, 1000000, 0],
+      "input_length": 8,
+      "output_capacity": 20,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 1, 1000000, 0, 0, 0, 1000000, 0],
+      "input_length": 8,
+      "output_capacity": 19,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

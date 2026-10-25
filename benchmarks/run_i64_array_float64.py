@@ -32,6 +32,50 @@ from nbench_fourier_coefficients_oracle import (
     MAX_PARSEABLE_INPUT_LENGTH as NBENCH_FOURIER_COEFFICIENTS_MAX_PARSEABLE_INPUT_LENGTH,
     expected_result as nbench_fourier_coefficients_expected,
 )
+from misc_flops_oracle import INVALID_RESULT as MISC_FLOPS_INVALID_RESULT
+from misc_flops_oracle import MAX_INPUT_LENGTH as MAX_MISC_FLOPS_INPUT_LENGTH
+from misc_flops_oracle import expected_result as misc_flops_expected
+from freebench_fbench_oracle import (
+    INVALID_RESULT as FREEBENCH_FBENCH_INVALID_RESULT,
+    MAX_PASSES as FREEBENCH_FBENCH_MAX_PASSES,
+    expected_result as freebench_fbench_expected,
+)
+from doe_rsbench_doppler_xs_oracle import (
+    INVALID_RESULT as DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT,
+    MAX_INPUT_LENGTH as DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH,
+    expected_result as doe_rsbench_doppler_xs_expected,
+)
+from doe_simplemoc_quadratic_attenuation_oracle import (
+    INVALID_RESULT as DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT,
+    MAX_INPUT_LENGTH as DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as doe_simplemoc_quadratic_attenuation_expected,
+)
+from doe_xsbench_unionized_macro_xs_oracle import (
+    INVALID_RESULT as DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT,
+    MAX_INPUT_LENGTH as DOE_XSBENCH_UNIONIZED_MACRO_XS_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DOE_XSBENCH_UNIONIZED_MACRO_XS_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as doe_xsbench_unionized_macro_xs_expected,
+)
+from doe_minigmg_restriction_oracle import (
+    INVALID_RESULT as DOE_MINIGMG_RESTRICTION_INVALID_RESULT,
+    MAX_INPUT_LENGTH as DOE_MINIGMG_RESTRICTION_MAX_INPUT_LENGTH,
+    expected_result as doe_minigmg_restriction_expected,
+)
+from doe_miniamr_stencil_average_oracle import (
+    INVALID_RESULT as DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT,
+    MAX_INPUT_LENGTH as DOE_MINIAMR_STENCIL_AVERAGE_MAX_INPUT_LENGTH,
+    MAX_DIMENSION as DOE_MINIAMR_STENCIL_AVERAGE_MAX_DIMENSION,
+    MIN_DIMENSION as DOE_MINIAMR_STENCIL_AVERAGE_MIN_DIMENSION,
+    MAX_VALUE as DOE_MINIAMR_STENCIL_AVERAGE_MAX_VALUE,
+    MIN_VALUE as DOE_MINIAMR_STENCIL_AVERAGE_MIN_VALUE,
+    expected_result as doe_miniamr_stencil_average_expected,
+)
+from rodinia_myocyte_cam_rhs_oracle import (
+    INPUT_LENGTH as RODINIA_MYOCYTE_CAM_RHS_INPUT_LENGTH,
+    INVALID_RESULT as RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT,
+    expected_result as rodinia_myocyte_cam_rhs_expected,
+)
 from traveling_salesman_solver_oracle import (
     INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
     MAX_BRUTE_FORCE_INPUT_LENGTH as TRAVELING_SALESMAN_SOLVER_BRUTE_FORCE_MAX_INPUT_LENGTH,
@@ -539,6 +583,92 @@ MAX_UNSCENTED_KALMAN_FILTER_INPUT_LENGTH = 9 + UNSCENTED_KALMAN_FILTER_MAX_STEPS
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_INPUT_LENGTH = 2 + 32 + 32 * 32
 MAX_REALTIME_STATS_CASE_INPUT_LENGTH = MAX_REALTIME_STATS_PARSEABLE_INPUT_LENGTH + 1
 MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH = KMEANS_RAW_R_MAX_PARSEABLE_INPUT_LENGTH + 1
+MAX_DOE_MINIAMR_STENCIL_AVERAGE_PARSEABLE_INPUT_LENGTH = DOE_MINIAMR_STENCIL_AVERAGE_MAX_INPUT_LENGTH + 1
+
+
+def validate_rodinia_myocyte_cam_rhs_workload(workload: dict) -> None:
+    """Pin the bounded Myocyte kernel projection, fixtures, source, and rights."""
+    expected_source = {
+        "repository": "utcs-scea/rodinia",
+        "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+        "paths": ["cuda/myocyte/kernel_cam.cu", "cuda/myocyte/run", "LICENSE"],
+        "url": "https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/myocyte",
+        "license": "University of Virginia BSD-3-Clause; full terms and source citation list are in LICENSE.txt.",
+    }
+    expected_layout = [
+        "Ca_u", "K_u", "Mg_u", "Btot_u", "CaMKIItot_u", "CaNtot_u", "PP1tot_u",
+        "CaM_u", "Ca2CaM_u", "Ca4CaM_u", "CaMB_u", "Ca2CaMB_u", "Ca4CaMB_u",
+        "Pb2_u", "Pb_u", "Pt_u", "Pt2_u", "Pa_u", "Ca4CaN_u", "CaMCa4N_u",
+        "Ca2CaMCa4N_u", "Ca4CaMCa4N_u",
+    ]
+    expected_ids = {
+        "zero-calcium-mg-low-branch", "zero-calcium-mg-high-branch",
+        "invalid-short-vector", "invalid-potassium-bound", "null-input-pointer",
+    }
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                          "description", "pinned_source", "input", "output", "arithmetic",
+                          "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "rodinia-myocyte-kernel-cam-rhs-f32-bounded-v1"
+            or workload.get("algorithm") != "rodinia_myocyte_cam_rhs"
+            or workload.get("function_symbol") != "rodinia_myocyte_cam_rhs"
+            or workload.get("pinned_source") != expected_source
+            or input_spec.get("kind") != "signed_i64_array"
+            or input_spec.get("exact_length") != RODINIA_MYOCYTE_CAM_RHS_INPUT_LENGTH
+            or input_spec.get("layout") != expected_layout
+            or input_spec.get("fixed_point_scale") != 1_000_000
+            or input_spec.get("decoding") != "Each integer becomes f32(raw) / f32(1000000)."
+            or input_spec.get("bounds") != {
+                "Ca": [0, 100], "K": [100, 200], "Mg": [0.5, 5],
+                "Btot_CaMKIItot_CaNtot_PP1tot_and_states": [0, 10],
+            }
+            or input_spec.get("invalid_input_result") != RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("invalid_input_result") != RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT
+            or output_spec.get("meaning") != "Ascending checksum of the 15 kernel_cam state derivatives and source calcium-buffer communication derivative."
+            or output_spec.get("formula") != "sum((i + 1) * double(d[i]) for i in 0..15), where each d[i] is the source-order binary32 derivative value."
+            or workload.get("arithmetic") != {
+                "source_state": "Named source float quantities and float assignment results round to binary32.",
+                "promotion_points": "Unsuffixed double constants promote Kd construction, calcium square and selected reaction expressions; kbt and derivative scaling also evaluate in binary64 and are rounded at their float assignment points.",
+                "ordering": "Reaction rates, derivative expressions, the ascending Ca-buffer communication sum, and final weighted checksum retain source order.",
+            }
+            or measurement.get("comparison_model") != "i64_array_float64_call"
+            or measurement.get("relative_tolerance") != 1e-10
+            or measurement.get("absolute_tolerance") != 1e-10
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+        raise ValueError("rodinia_myocyte_cam_rhs workload differs from its pinned bounded contract")
+    for case in cases:
+        values = case.get("input_values")
+        if (not isinstance(values, list)
+                or case.get("input_length") != len(values)
+                or len(values) > RODINIA_MYOCYTE_CAM_RHS_INPUT_LENGTH
+                or (case.get("input_is_null") is True and values)):
+            raise ValueError(f"rodinia_myocyte_cam_rhs fixture framing is invalid: {case.get('id')}")
+        actual = case.get("expected_result")
+        expected = rodinia_myocyte_cam_rhs_expected(values)
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or not math.isclose(actual, expected, rel_tol=1e-10, abs_tol=1e-10)):
+            raise ValueError(f"rodinia_myocyte_cam_rhs fixture differs from the binary32 oracle: {case.get('id')}")
+
+    package = ROOT / "benchmarks" / "m" / "rodinia_myocyte_cam_rhs"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if ("BSD-3-Clause" not in readme or "clean-room implementations" not in readme
+            or "University of Virginia" not in license_text or "All rights reserved." not in license_text):
+        raise ValueError("rodinia_myocyte_cam_rhs source provenance or rights notice is incomplete")
+    for relative in (
+            "c/m/rodinia_myocyte_cam_rhs.c", "c3/m/rodinia_myocyte_cam_rhs.c3",
+            "cpp/m/rodinia_myocyte_cam_rhs.cpp", "elisa/m/rodinia_myocyte_cam_rhs.elisa",
+            "nim/m/rodinia_myocyte_cam_rhs.nim", "odin/m/rodinia_myocyte_cam_rhs.odin",
+            "rust/m/rodinia_myocyte_cam_rhs.rs", "v/m/rodinia_myocyte_cam_rhs.v",
+            "zig/m/rodinia_myocyte_cam_rhs.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"rodinia_myocyte_cam_rhs language port is missing: {relative}")
 
 
 def validate_monte_carlo_integration_workload(workload: dict, algorithm: str) -> None:
@@ -2099,6 +2229,628 @@ def validate_nbench_fourier_coefficients_workload(workload: dict) -> None:
             raise ValueError(f"nbench_fourier_coefficients fixture differs from its oracle: {case.get('id')}")
 
 
+def validate_misc_flops_workload(workload: dict) -> None:
+    expected_ids = {
+        "module_1_rational_integral", "module_2_atan_series_pi",
+        "module_3_sine_integral", "module_4_cosine_integral",
+        "module_5_tangent_integral", "module_6_sine_cosine_integral",
+        "module_7_mixed_rational_integrals", "module_8_sine_cosine_squared_integral",
+        "module_below_range", "steps_below_range", "steps_above_range", "extra_input",
+    }
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-misc-flops-i64-array-float64-v1"
+            or workload.get("algorithm") != "misc_flops"
+            or workload.get("function_symbol") != "misc_flops"
+            or workload.get("pinned_source", {}).get("repository") != "lac-dcc/Benchmarks"
+            or workload.get("pinned_source", {}).get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+            or workload.get("contract", {}).get("input_layout") != "[module, steps]"
+            or workload.get("contract", {}).get("module_range") != [1, 8]
+            or workload.get("contract", {}).get("steps_range") != [2, 128]
+            or input_spec.get("kind") != "bounded_signed_i64_array"
+            or input_spec.get("exact_length") != 2
+            or input_spec.get("maximum_parseable_length") != MAX_MISC_FLOPS_INPUT_LENGTH
+            or input_spec.get("invalid_result") != MISC_FLOPS_INVALID_RESULT
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("invalid_result") != MISC_FLOPS_INVALID_RESULT
+            or output_spec.get("absolute_tolerance") != 0.02
+            or output_spec.get("relative_tolerance") != 1e-10
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 0.02
+            or workload.get("measurement", {}).get("relative_tolerance") != 1e-10
+            or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
+        raise ValueError("misc_flops metadata differs from its pinned eight-kernel contract")
+
+    readme = (ROOT / "benchmarks" / "m" / "misc_flops" / "README.md").read_text(encoding="utf-8")
+    if ("lac-dcc/Benchmarks" not in readme
+            or "no explicit license or redistribution grant" not in readme
+            or "eight distinct floating-point kernels" not in readme):
+        raise ValueError("misc_flops README is missing its source, rights, or distinct-kernel notes")
+
+    seen_modules: set[int] = set()
+    for case in workload["cases"]:
+        values, actual = case.get("input_values"), case.get("expected_result")
+        if (not isinstance(values, list) or len(values) > MAX_MISC_FLOPS_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(actual) not in (int, float) or not math.isfinite(actual)):
+            raise ValueError(f"misc_flops fixture framing is invalid: {case.get('id')}")
+        expected = misc_flops_expected(values)
+        if expected == MISC_FLOPS_INVALID_RESULT:
+            if actual != MISC_FLOPS_INVALID_RESULT:
+                raise ValueError(f"misc_flops invalid fixture has a non-sentinel result: {case.get('id')}")
+        elif not math.isclose(actual, expected, rel_tol=1e-10, abs_tol=0.02):
+            raise ValueError(f"misc_flops fixture differs from its oracle: {case.get('id')}")
+        elif len(values) == 2:
+            seen_modules.add(values[0])
+    if seen_modules != set(range(1, 9)):
+        raise ValueError("misc_flops workload must include a valid fixture for every module")
+
+
+def validate_freebench_fbench_workload(workload: dict) -> None:
+    expected_ids = {
+        "one_source_profile_pass", "zero_passes", "above_bound",
+        "empty_input", "extra_input",
+    }
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    source = workload.get("pinned_source", {})
+    launcher = workload.get("pinned_launcher", {})
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/Misc/fbench/fbench.c"
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-freebench-fbench-bounded-optical-ray-trace-i64-array-float64-v1"
+            or workload.get("algorithm") != "freebench_fbench"
+            or workload.get("function_symbol") != "freebench_fbench"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("path") != "Misc/fbench/fbench.c"
+            or source.get("symbols") != ["transit_surface", "trace_line", "main"]
+            or launcher.get("path") != "Misc/fbench/info.sh"
+            or launcher.get("bench_name") != "fbench"
+            or workload.get("contract", {}).get("input_layout") != "[passes]"
+            or workload.get("contract", {}).get("pass_range") != [1, FREEBENCH_FBENCH_MAX_PASSES]
+            or workload.get("contract", {}).get("ray_schedule") != (
+                "For pass p starting at zero, use ray height 2.0 + 0.0002*p. The first pass exactly preserves the pinned 2.0 height. Trace the D-line marginal ray then paraxial ray, followed by C- and F-line marginal rays. Preserve source surface order and refractive-index wavelength correction.")
+            or workload.get("contract", {}).get("bounded_work") != (
+                "At most 16 passes, four four-surface traces per pass; ray heights remain in [2.0, 2.003].")
+            or input_spec.get("kind") != "bounded_signed_i64_array"
+            or input_spec.get("exact_length") != 1
+            or input_spec.get("maximum_parseable_length") != 2
+            or input_spec.get("passes_range") != [1, FREEBENCH_FBENCH_MAX_PASSES]
+            or input_spec.get("invalid_result") != FREEBENCH_FBENCH_INVALID_RESULT
+            or output_spec.get("kind") != "binary64"
+            or output_spec.get("invalid_result") != FREEBENCH_FBENCH_INVALID_RESULT
+            or output_spec.get("absolute_tolerance") != 1e-8
+            or output_spec.get("relative_tolerance") != 1e-9
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 1e-8
+            or workload.get("measurement", {}).get("relative_tolerance") != 1e-9
+            or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids):
+        raise ValueError("freebench_fbench metadata differs from its bounded optical ray-trace contract")
+
+    readme = (ROOT / "benchmarks" / "f" / "freebench_fbench" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme
+            or "permits use, distribution, and modification when origin information is preserved" not in readme
+            or "four-surface achromatic telescope" not in readme):
+        raise ValueError("freebench_fbench README is missing source, license, or algorithm details")
+
+    for case in workload["cases"]:
+        values, actual = case.get("input_values"), case.get("expected_result")
+        if (not isinstance(values, list) or len(values) > 2
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(actual) not in (int, float) or not math.isfinite(actual)):
+            raise ValueError(f"freebench_fbench fixture framing is invalid: {case.get('id')}")
+        expected = freebench_fbench_expected(values)
+        if expected == FREEBENCH_FBENCH_INVALID_RESULT:
+            if actual != FREEBENCH_FBENCH_INVALID_RESULT:
+                raise ValueError(f"freebench_fbench invalid fixture has a non-sentinel result: {case.get('id')}")
+        elif not math.isclose(actual, expected, rel_tol=1e-9, abs_tol=1e-8):
+            raise ValueError(f"freebench_fbench fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_doe_rsbench_doppler_xs_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/DOE_ProxyApps_C/RSBench"
+    expected_ids = {
+        "abrarov-small-z", "asymptotic-window-one", "four-l-factors-and-abrarov",
+        "energy-one-final-window-clamp", "bad-window-pole-range", "zero-z-singularity",
+        "trailing-data", "null-input",
+    }
+    source = workload.get("pinned_source", {})
+    input_spec = workload.get("input", {})
+    output_spec = workload.get("output", {})
+    profile = workload.get("profile", {})
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "doe-rsbench-doppler-microscopic-xs-i64-f64-v1"
+            or workload.get("algorithm") != "doe_rsbench_doppler_xs"
+            or workload.get("function_symbol") != "doe_rsbench_doppler_xs"
+            or source.get("repository") != "lac-dcc/Benchmarks"
+            or source.get("commit") != pinned
+            or source.get("paths") != [
+                "DOE_ProxyApps_C/RSBench/info.sh", "DOE_ProxyApps_C/RSBench/xs_kernel.c",
+                "DOE_ProxyApps_C/RSBench/io.c", "DOE_ProxyApps_C/RSBench/rsbench.h",
+                "DOE_ProxyApps_C/RSBench/LICENSE",
+            ]
+            or source.get("symbols") != [
+                "calculate_micro_xs_doppler", "calculate_sig_T", "fast_nuclear_W"]
+            or source.get("launcher") != {
+                "source_files": [
+                    "glibc_compat_rand.c", "init.c", "io.c", "main.c", "material.c",
+                    "utils.c", "xs_kernel.c"],
+                "run_options": ["-s", "small", "-l", "100000", "-p", "1000", "-w", "1000"],
+                "default_doppler_mode": True,
+            }
+            or source.get("license") != "MIT; complete notice is included in the ports, README, and LICENSE file."
+            or input_spec.get("kind") != "signed_i64_array"
+            or input_spec.get("fixed_point_scale") != 1_000_000
+            or input_spec.get("window_count_range") != [1, 4]
+            or input_spec.get("pole_count_range") != [0, 8]
+            or input_spec.get("numL_range") != [1, 4]
+            or input_spec.get("maximum_parseable_input_length")
+            != DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH
+            or input_spec.get("invalid_result") != DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT
+            or output_spec.get("kind") != "float64_scalar"
+            or output_spec.get("absolute_tolerance") != 1e-9
+            or output_spec.get("relative_tolerance") != 1e-12
+            or output_spec.get("invalid_result") != DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT
+            or profile.get("mode") != "Doppler broadening enabled, matching the launcher's default mode"
+            or profile.get("singular_pole_behavior")
+            != "A selected pole with Z=(0,0) is outside the bounded domain and returns invalid_result."
+            or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"
+            or workload.get("measurement", {}).get("absolute_tolerance") != 1e-9
+            or workload.get("measurement", {}).get("relative_tolerance") != 1e-12
+            or {case.get("id") for case in workload.get("cases", [])
+                if isinstance(case, dict)} != expected_ids):
+        raise ValueError("doe_rsbench_doppler_xs metadata differs from its bounded source contract")
+
+    readme = (ROOT / "benchmarks/r/doe_rsbench_doppler_xs/README.md").read_text(
+        encoding="utf-8")
+    license_text = (ROOT / "benchmarks/r/doe_rsbench_doppler_xs/LICENSE").read_text(
+        encoding="utf-8")
+    if (source_url not in readme
+            or "MIT License" not in license_text
+            or "complete notice is included in each port" not in readme
+            or "small-|Z|" not in readme):
+        raise ValueError("doe_rsbench_doppler_xs README or license is missing provenance")
+
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        actual = case.get("expected_result")
+        if (not isinstance(values, list) or len(values) > DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_length) is not int
+                or type(input_is_null) is not bool
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or type(actual) not in (int, float) or not math.isfinite(actual)):
+            raise ValueError(f"doe_rsbench_doppler_xs fixture framing is invalid: {case.get('id')}")
+        expected = doe_rsbench_doppler_xs_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if expected == DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT:
+            if actual != DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT:
+                raise ValueError(f"doe_rsbench_doppler_xs invalid fixture has a non-sentinel result: {case.get('id')}")
+        elif not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError(f"doe_rsbench_doppler_xs fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_doe_simplemoc_quadratic_attenuation_workload(workload: dict) -> None:
+    """Pin the bounded SimpleMOC attenuation contract, license, and fixtures."""
+    source_url = (
+        "https://github.com/lac-dcc/Benchmarks/tree/"
+        "5d7b75df749241efa7a6e6f5be613d3fcc5cce38/DOE_ProxyApps_C/SimpleMOC")
+    expected_ids = {
+        "constant-source-long-track", "linear-source-slope",
+        "quadratic-source-curvature", "two-energy-groups", "table-interpolation",
+        "maximum-four-groups", "invalid-zero-groups", "invalid-truncated-group",
+        "invalid-offset-outside-stencil", "invalid-optical-thickness",
+        "invalid-extra-value", "null-input",
+    }
+    expected_input = {
+        "kind": "signed_i64_array",
+        "layout": "[groups,zin_q,dz_q,ds_q,mu_q,azimuth_weight_q,polar_weight_q,(source_prev_q,source_center_q,source_next_q,sigma_t_q,psi_in_q,tally_in_q)*groups]",
+        "fixed_point_scale": 1_000_000,
+        "maximum_component_magnitude": 10_000_000,
+        "group_count_range": [1, 4],
+        "exact_length": "7 + 6*groups",
+        "maximum_parseable_input_length": DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_MAX_PARSEABLE_INPUT_LENGTH,
+        "dz_range": [0.01, 10.0],
+        "ds_range": [0.001, 10.0],
+        "direction_cosine_range": [0.0, 1.0],
+        "weight_ranges": [0.0, 1.0],
+        "sigma_t_range": [0.1, 10.0],
+        "source_sample_range": [-10.0, 10.0],
+        "psi_and_tally_minimum": 0.0,
+        "offset_constraint": "abs(2*zin) <= dz",
+        "optical_thickness_range": "0 < sigma_t*ds <= 10",
+        "invalid_result": DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT,
+        "input_mutation": "none",
+    }
+    expected_output = {
+        "kind": "float64_scalar",
+        "meaning": "Binary32 accumulation of (group_index+1)*(updated fine-region tally + outgoing angular flux), group_index starting at zero.",
+        "absolute_tolerance": 2e-4,
+        "relative_tolerance": 2e-6,
+        "invalid_result": DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT,
+    }
+    expected_profile = {
+        "source_order": "Quadratic source reconstructed from the supplied previous, center, and next axial samples.",
+        "table_precision": 0.01,
+        "table_maximum_tau": 10.0,
+        "table_intervals": 353,
+        "table_index_rule": "int(tau/dx + 0.5f*dx), preserving the pinned source expression.",
+        "above_table_rule": "Return 1.0 when tau > 10-dx.",
+        "operation_precision": "Binary32 with source expression order.",
+        "result_projection": "Weighted scalar checksum retains both per-group tally and outgoing psi values.",
+    }
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks",
+        "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+        "paths": [
+            "DOE_ProxyApps_C/SimpleMOC/info.sh",
+            "DOE_ProxyApps_C/SimpleMOC/default.in",
+            "DOE_ProxyApps_C/SimpleMOC/solver.c",
+            "DOE_ProxyApps_C/SimpleMOC/utils.c",
+            "DOE_ProxyApps_C/SimpleMOC/SimpleMOC_header.h",
+            "DOE_ProxyApps_C/SimpleMOC/LICENSE",
+        ],
+        "symbols": ["attenuate_fluxes", "buildExponentialTable", "interpolateTable"],
+        "launcher": {
+            "source_files": [
+                "comms.c", "glibc_compat_rand.c", "init.c", "io.c", "main.c",
+                "papi.c", "solver.c", "source.c", "test.c", "tracks.c", "utils.c",
+            ],
+            "default_axial_expansion_order": 2,
+            "iterations": 1,
+            "license": "MIT, copyright John Tramm 2014",
+        },
+        "license": "MIT; complete notice is included in the ports, README, and LICENSE file.",
+    }
+    measurement = workload.get("measurement", {})
+    cases = workload.get("cases")
+    ids = ([case.get("id") for case in cases if isinstance(case, dict)]
+           if isinstance(cases, list) else [])
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "input", "output",
+            "source_profile", "measurement", "pinned_source", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "doe-simplemoc-quadratic-attenuation-i64-f64-v1"
+            or workload.get("algorithm") != "doe_simplemoc_quadratic_attenuation"
+            or workload.get("function_symbol") != "doe_simplemoc_quadratic_attenuation"
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("source_profile") != expected_profile
+            or workload.get("pinned_source") != expected_source
+            or measurement != {
+                "comparison_model": "i64_array_float64_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 20,
+                "absolute_tolerance": 2e-4, "relative_tolerance": 2e-6,
+            }
+            or set(ids) != expected_ids
+            or len(ids) != len(expected_ids)):
+        raise ValueError("doe_simplemoc_quadratic_attenuation metadata differs from its source contract")
+
+    package = ROOT / "benchmarks/d/doe_simplemoc_quadratic_attenuation"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE").read_text(encoding="utf-8")
+    if (source_url not in readme or "attenuate_fluxes" not in readme
+            or "full notice appears in each port" not in readme
+            or "MIT License" not in license_text or "Copyright (c) 2014 John Tramm" not in license_text):
+        raise ValueError("doe_simplemoc_quadratic_attenuation README or license is missing provenance")
+
+    if not isinstance(cases, list):
+        raise ValueError("doe_simplemoc_quadratic_attenuation cases must be an array")
+    absolute_tolerance = expected_output["absolute_tolerance"]
+    relative_tolerance = expected_output["relative_tolerance"]
+    for case in cases:
+        if (not isinstance(case, dict)
+                or set(case) - {"id", "input_values", "input_length", "input_is_null", "expected_result"}):
+            raise ValueError("doe_simplemoc_quadratic_attenuation fixture fields differ from the contract")
+        values = case.get("input_values")
+        input_length = case.get("input_length")
+        input_is_null = case.get("input_is_null", False)
+        actual = case.get("expected_result")
+        if (not isinstance(values, list)
+                or len(values) > DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(input_length) is not int or type(input_is_null) is not bool
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or type(actual) not in (int, float) or not math.isfinite(actual)):
+            raise ValueError(f"doe_simplemoc_quadratic_attenuation fixture framing is invalid: {case.get('id')}")
+        expected = doe_simplemoc_quadratic_attenuation_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if (expected == DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT
+                and actual != DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT
+                or expected != DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT
+                and (actual == DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT
+                     or not math.isclose(actual, expected, rel_tol=relative_tolerance,
+                                         abs_tol=absolute_tolerance))):
+            raise ValueError(f"doe_simplemoc_quadratic_attenuation fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_doe_xsbench_unionized_macro_xs_workload(workload: dict) -> None:
+    """Pin the one-query XSBench macro cross-section contract and fixtures."""
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "union-grid-search-and-macro-interpolation", "upper-union-endpoint-extrapolation",
+        "invalid-pointer-row", "invalid-extra-value", "null-input",
+    }
+    expected_input = {
+        "kind": "signed_i64_array",
+        "layout": "[nuclides,gridpoints,material_nuclides,energy_q,(nuclide_id,concentration_q)*material_nuclides,union_energy_q*(nuclides*gridpoints),pointer_index*(nuclides*gridpoints*nuclides),then per nuclide/gridpoint (energy_q,total_xs_q,elastic_xs_q,absorption_xs_q,fission_xs_q,nu_fission_xs_q)]",
+        "fixed_point_scale": 1_000_000,
+        "fixed_component_range": [0, 1_000_000],
+        "nuclide_count_range": [1, 4],
+        "gridpoints_per_nuclide_range": [2, 5],
+        "material_nuclide_count_range": [1, 4],
+        "union_grid_count": "nuclides*gridpoints",
+        "exact_length": "4 + 2*material_nuclides + union_grid_count*(7+nuclides)",
+        "maximum_input_length": DOE_XSBENCH_UNIONIZED_MACRO_XS_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_length": DOE_XSBENCH_UNIONIZED_MACRO_XS_MAX_PARSEABLE_INPUT_LENGTH,
+        "query_energy_range": [0.0, 1.0],
+        "energy_grid_order": "Each nuclide grid and the union grid are strictly increasing; the union grid contains every per-nuclide energy exactly once.",
+        "material_composition": "Nuclide ids are unique and in range; concentrations are in [0,1].",
+        "pointer_table": "Row-major by union-grid index then nuclide id; each entry equals the pinned source binary_search result for that union energy.",
+        "invalid_result": DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT,
+        "input_mutation": "none",
+    }
+    expected_output = {
+        "kind": "float64_scalar",
+        "meaning": "macro_total_xs + 2*macro_elastic_xs + 3*macro_absorption_xs + 5*macro_fission_xs + 7*macro_nu_fission_xs",
+        "absolute_tolerance": 1e-12,
+        "relative_tolerance": 1e-12,
+        "invalid_result": DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT,
+    }
+    expected_profile = {
+        "kernel": "One calculate_macro_xs lookup over prebuilt unionized energies and per-nuclide index rows.",
+        "search": "grid_search returns the greatest union-grid index whose energy is <= the query, clamped to [0, union_count-2].",
+        "microscopic_lookup": "Use the selected union row's nuclide pointer; if it equals gridpoints-1, shift the low index back by one; linearly interpolate all five microscopic channels using the pinned source expression order.",
+        "macro_accumulation": "In composition order, add each microscopic channel times its nuclide concentration.",
+        "precision": "Binary64 source arithmetic.",
+        "result_projection": "Weighted scalar checksum makes all five macro cross-section channels observable.",
+    }
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": [
+            "DOE_ProxyApps_C/XSBench/info.sh", "DOE_ProxyApps_C/XSBench/CalculateXS.c",
+            "DOE_ProxyApps_C/XSBench/GridInit.c", "DOE_ProxyApps_C/XSBench/XSbench_header.h",
+            "DOE_ProxyApps_C/XSBench/XSutils.c", "DOE_ProxyApps_C/XSBench/LICENSE",
+        ],
+        "symbols": ["grid_search", "binary_search", "calculate_micro_xs", "calculate_macro_xs"],
+        "launcher": {
+            "source_files": ["CalculateXS.c", "GridInit.c", "Main.c", "Materials.c", "XSutils.c", "io.c"],
+            "compile_flags": ["-lm", "-DVERIFICATION"],
+            "run_options": ["-s", "small", "-g", "1250", "-l", "1000000"],
+            "license": "MIT, Copyright (c) 2012-2013 Argonne National Laboratory",
+        },
+        "license": "MIT; full notice is retained in the package and each language port.",
+    }
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "input", "output",
+            "source_profile", "measurement", "pinned_source", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "doe-xsbench-unionized-macro-xs-i64-f64-v1"
+            or workload.get("algorithm") != "doe_xsbench_unionized_macro_xs"
+            or workload.get("function_symbol") != "doe_xsbench_unionized_macro_xs"
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("source_profile") != expected_profile
+            or workload.get("pinned_source") != expected_source
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_float64_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 20,
+                "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+            }):
+        raise ValueError("doe_xsbench_unionized_macro_xs metadata differs from its pinned source contract")
+
+    package = ROOT / "benchmarks" / "x" / "doe_xsbench_unionized_macro_xs"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE").read_text(encoding="utf-8")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/DOE_ProxyApps_C/XSBench"
+    if (source_url not in readme or "calculate_macro_xs" not in readme
+            or "MIT License" not in license_text
+            or "Copyright (c) 2012-2013 Argonne National Laboratory" not in license_text
+            or "The above copyright notice and this permission notice" not in license_text):
+        raise ValueError("doe_xsbench_unionized_macro_xs README or license is missing provenance")
+
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (not isinstance(cases, list) or len(cases) != len(expected_ids)
+            or ids != expected_ids):
+        raise ValueError("doe_xsbench_unionized_macro_xs fixture IDs differ from its contract")
+    for case in cases:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length")
+        actual = case.get("expected_result")
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or len(values) > DOE_XSBENCH_UNIONIZED_MACRO_XS_MAX_PARSEABLE_INPUT_LENGTH
+                or type(input_is_null) is not bool or type(input_length) is not int
+                or (input_is_null and (values or input_length != 0))
+                or (not input_is_null and input_length != len(values))
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(actual) not in (int, float) or not math.isfinite(actual)):
+            raise ValueError(f"doe_xsbench_unionized_macro_xs fixture framing is invalid: {case.get('id')}")
+        expected = doe_xsbench_unionized_macro_xs_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        if (expected == DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT
+                and actual != DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT
+                or expected != DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT
+                and (actual == DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT
+                     or not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-12))):
+            raise ValueError(f"doe_xsbench_unionized_macro_xs fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_doe_minigmg_restriction_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "zero-single-coarse-cell", "constant-single-coarse-cell",
+        "fractional-one-eighth-mean", "two-coarse-cells-with-position-weights",
+        "four-coarse-cells-mixed-values", "invalid-empty", "invalid-null",
+        "invalid-short-grid", "invalid-odd-dimension", "invalid-trailing-cell",
+        "invalid-cell-below-range", "invalid-cell-above-range",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "doe-minigmg-restriction-v1"
+            or workload.get("algorithm") != "doe_minigmg_restriction"
+            or workload.get("function_symbol") != "doe_minigmg_restriction"
+            or workload.get("source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "DOE_ProxyApps_C/miniGMG/restriction.inc",
+                "symbol": "restriction",
+            }
+            or workload.get("license_note") != "The pinned miniGMG subtree provides a BSD-3-Clause-style redistribution grant and an additional enhancement-license paragraph; the complete source notice is preserved in LICENSE.txt."
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array",
+                "minimum_length": 11, "maximum_length": DOE_MINIGMG_RESTRICTION_MAX_INPUT_LENGTH,
+                "layout": ["nx", "ny", "nz", "fine_grid row-major with x varying fastest"],
+                "dimension_minimum": 2, "dimension_maximum": 8,
+                "dimension_multiple": 2, "fine_cell_minimum": -32768,
+                "fine_cell_maximum": 32767,
+                "exact_length": "3 + nx*ny*nz",
+                "invalid_input_result": DOE_MINIGMG_RESTRICTION_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "binary64",
+                "definition": "sum((q+1)*r[q]*r[q]) in coarse k,j,i traversal order, where r[q] is the source-ordered mean of the corresponding eight fine cells and q starts at zero",
+                "relative_tolerance": 0.0, "absolute_tolerance": 0.0,
+                "invalid_input_result": DOE_MINIGMG_RESTRICTION_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_float64_call",
+                "sample_count": 7, "warmup_rounds": 2,
+                "repetitions_per_sample": 10000,
+            }
+            or not isinstance(workload.get("cases"), list)
+            or len(workload["cases"]) != len(expected_ids)
+            or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+        raise ValueError("doe_minigmg_restriction metadata differs from its bounded miniGMG contract")
+
+    package = ROOT / "benchmarks" / "d" / "doe_minigmg_restriction"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/DOE_ProxyApps_C/miniGMG/restriction.inc"
+    if (source_url not in readme or "LICENSE.txt" not in readme
+            or "Redistribution and use in source and binary forms" not in license_text
+            or "(1) Redistributions of source code must retain" not in license_text
+            or "(2) Redistributions in binary form must reproduce" not in license_text
+            or "(3) Neither the name of the University of California" not in license_text
+            or "You are under no obligation whatsoever to provide any bug fixes" not in license_text):
+        raise ValueError("doe_minigmg_restriction README or license is missing provenance or terms")
+
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length")
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or type(input_length) is not int or input_length != len(values)
+                or type(input_is_null) is not bool
+                or len(values) > DOE_MINIGMG_RESTRICTION_MAX_INPUT_LENGTH
+                or input_is_null and values
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)):
+            raise ValueError(f"doe_minigmg_restriction fixture framing is invalid: {case.get('id')}")
+        expected = doe_minigmg_restriction_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or actual != expected):
+            raise ValueError(f"doe_minigmg_restriction fixture differs from its oracle: {case.get('id')}")
+
+
+def validate_doe_miniamr_stencil_average_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "zero-star-field", "constant-star-field", "isolated-interior-impulse-star",
+        "isolated-interior-impulse-box", "invalid-short-grid", "invalid-empty",
+        "invalid-null",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "doe-miniamr-stencil-average-v1"
+            or workload.get("algorithm") != "doe_miniamr_stencil_average"
+            or workload.get("function_symbol") != "doe_miniamr_stencil_average"
+            or workload.get("source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "DOE_ProxyApps_C/miniAMR/stencil.c",
+                "symbol": "stencil_calc",
+            }
+            or workload.get("license_note") != "Source header says GNU LGPL version 2.1 or any later version and includes Sandia/DOE attribution; the pinned subtree's full GNU LGPL version 3 text is retained in LICENSE.txt and every port preserves the full source header."
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer_array",
+                "minimum_length": 68,
+                "maximum_length": DOE_MINIAMR_STENCIL_AVERAGE_MAX_INPUT_LENGTH,
+                "layout": ["stencil", "nx", "ny", "nz", "haloed grid array[i][j][k] with k varying fastest"],
+                "stencil_values": [7, 27],
+                "interior_dimension_values": [
+                    DOE_MINIAMR_STENCIL_AVERAGE_MIN_DIMENSION,
+                    DOE_MINIAMR_STENCIL_AVERAGE_MAX_DIMENSION,
+                ],
+                "grid_cell_minimum": DOE_MINIAMR_STENCIL_AVERAGE_MIN_VALUE,
+                "grid_cell_maximum": DOE_MINIAMR_STENCIL_AVERAGE_MAX_VALUE,
+                "exact_length": "4 + (nx+2)*(ny+2)*(nz+2)",
+                "invalid_input_result": DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT,
+            }
+            or workload.get("output") != {
+                "kind": "binary64",
+                "definition": "sum((q+1)*work[q]*work[q]) over the staged interior values in i,j,k source traversal order; work is the selected 7-point or 27-point mean",
+                "relative_tolerance": 1e-12,
+                "absolute_tolerance": 1e-12,
+                "invalid_input_result": DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_float64_call",
+                "sample_count": 7,
+                "warmup_rounds": 2,
+                "repetitions_per_sample": 10000,
+            }
+            or not isinstance(workload.get("cases"), list)
+            or len(workload["cases"]) != len(expected_ids)
+            or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids):
+        raise ValueError("doe_miniamr_stencil_average metadata differs from its bounded miniAMR contract")
+
+    package = ROOT / "benchmarks" / "d" / "doe_miniamr_stencil_average"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/DOE_ProxyApps_C/miniAMR/stencil.c"
+    if (source_url not in readme or "LICENSE.txt" not in readme
+            or "GNU LESSER GENERAL PUBLIC LICENSE" not in license_text
+            or "Version 3, 29 June 2007" not in license_text):
+        raise ValueError("doe_miniamr_stencil_average README or license is missing pinned provenance or terms")
+
+    for case in workload["cases"]:
+        values = case.get("input_values")
+        input_is_null = case.get("input_is_null", False)
+        input_length = case.get("input_length")
+        allowed_keys = {"id", "input_values", "input_length", "expected_result"}
+        if input_is_null:
+            allowed_keys.add("input_is_null")
+        if (set(case) != allowed_keys or not isinstance(values, list)
+                or type(input_length) is not int or input_length != len(values)
+                or type(input_is_null) is not bool
+                or len(values) > MAX_DOE_MINIAMR_STENCIL_AVERAGE_PARSEABLE_INPUT_LENGTH
+                or (input_is_null and values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX
+                       for value in values)):
+            raise ValueError(f"doe_miniamr_stencil_average fixture framing is invalid: {case.get('id')}")
+        expected = doe_miniamr_stencil_average_expected(
+            values, input_is_null=input_is_null, input_length=input_length)
+        actual = case.get("expected_result")
+        if (type(actual) not in (int, float) or not math.isfinite(actual)
+                or not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-12)):
+            raise ValueError(f"doe_miniamr_stencil_average fixture differs from its oracle: {case.get('id')}")
+
+
 def validate_ansibench_whetstone_workload(workload: dict) -> None:
     expected_ids = {"one-complete-pass", "two-complete-passes", "three-complete-passes",
                     "invalid-zero-passes", "invalid-too-many-passes", "invalid-trailing-value",
@@ -2654,6 +3406,20 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
                         if algorithm == "ansibench_whetstone" else
                         LINPACK_LU_SOLVE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "linpack_lu_solve" else
+                        MAX_MISC_FLOPS_INPUT_LENGTH if algorithm == "misc_flops" else
+                        2 if algorithm == "freebench_fbench" else
+                        DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH
+                        if algorithm == "doe_rsbench_doppler_xs" else
+                        DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "doe_simplemoc_quadratic_attenuation" else
+                        DOE_XSBENCH_UNIONIZED_MACRO_XS_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "doe_xsbench_unionized_macro_xs" else
+                        DOE_MINIGMG_RESTRICTION_MAX_INPUT_LENGTH
+                        if algorithm == "doe_minigmg_restriction" else
+                        MAX_DOE_MINIAMR_STENCIL_AVERAGE_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "doe_miniamr_stencil_average" else
+                        RODINIA_MYOCYTE_CAM_RHS_INPUT_LENGTH
+                        if algorithm == "rodinia_myocyte_cam_rhs" else
                         MAX_INPUT_LENGTH)
     if (not isinstance(values, list) or len(values) > max_input_length
             or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
@@ -2680,6 +3446,77 @@ def encode_case(case: dict, algorithm: str) -> tuple[list[int], float]:
         source_result = nbench_fourier_coefficients_expected(values)
         if expected != source_result:
             raise ValueError("nbench_fourier_coefficients expected_result must match the pinned coefficient projection")
+    if algorithm == "misc_flops":
+        source_result = misc_flops_expected(values)
+        if source_result == MISC_FLOPS_INVALID_RESULT:
+            if expected != MISC_FLOPS_INVALID_RESULT:
+                raise ValueError("invalid misc_flops inputs must use the -1e300 result sentinel")
+        elif expected == MISC_FLOPS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-10, abs_tol=0.02):
+            raise ValueError("misc_flops expected_result must match the bounded eight-kernel oracle")
+    if algorithm == "freebench_fbench":
+        source_result = freebench_fbench_expected(values)
+        if source_result == FREEBENCH_FBENCH_INVALID_RESULT:
+            if expected != FREEBENCH_FBENCH_INVALID_RESULT:
+                raise ValueError("invalid freebench_fbench inputs must use the -1e300 result sentinel")
+        elif expected == FREEBENCH_FBENCH_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-9, abs_tol=1e-8):
+            raise ValueError("freebench_fbench expected_result must match the bounded ray-trace oracle")
+    if algorithm == "doe_rsbench_doppler_xs":
+        source_result = doe_rsbench_doppler_xs_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if source_result == DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT:
+            if expected != DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT:
+                raise ValueError("invalid doe_rsbench_doppler_xs inputs must use the -1e300 sentinel")
+        elif expected == DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-9):
+            raise ValueError("doe_rsbench_doppler_xs expected_result must match the Doppler lookup oracle")
+    if algorithm == "doe_simplemoc_quadratic_attenuation":
+        source_result = doe_simplemoc_quadratic_attenuation_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if source_result == DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT:
+            if expected != DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT:
+                raise ValueError("invalid SimpleMOC inputs must use the -1e300 sentinel")
+        elif expected == DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=2e-6, abs_tol=2e-4):
+            raise ValueError("doe_simplemoc_quadratic_attenuation expected_result must match its binary32 oracle")
+    if algorithm == "doe_xsbench_unionized_macro_xs":
+        source_result = doe_xsbench_unionized_macro_xs_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if source_result == DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT:
+            if expected != DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT:
+                raise ValueError("invalid doe_xsbench_unionized_macro_xs inputs must use the -1e300 sentinel")
+        elif expected == DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT or not math.isclose(
+                expected, source_result, rel_tol=1e-12, abs_tol=1e-12):
+            raise ValueError("doe_xsbench_unionized_macro_xs expected_result must match the macro-XS oracle")
+    if algorithm == "doe_minigmg_restriction":
+        source_result = doe_minigmg_restriction_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if expected != source_result:
+            raise ValueError("doe_minigmg_restriction expected_result must match the source-order coarse-grid checksum")
+    if algorithm == "doe_miniamr_stencil_average":
+        source_result = doe_miniamr_stencil_average_expected(
+            values, input_is_null=case.get("input_is_null", False),
+            input_length=case.get("input_length", len(values)))
+        if (source_result == DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT
+                and expected != DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT
+                or source_result != DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT
+                and (expected == DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT
+                     or not math.isclose(expected, source_result, rel_tol=1e-12, abs_tol=1e-12))):
+            raise ValueError("doe_miniamr_stencil_average expected_result must match the source-order stencil projection")
+    if algorithm == "rodinia_myocyte_cam_rhs":
+        source_result = rodinia_myocyte_cam_rhs_expected(values)
+        if (source_result == RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT
+                and expected != RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT
+                or source_result != RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT
+                and (expected == RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT
+                     or not math.isclose(expected, source_result,
+                                         rel_tol=1e-10, abs_tol=1e-10))):
+            raise ValueError("rodinia_myocyte_cam_rhs expected_result must match the source-order binary32 model")
     if algorithm == "ansibench_whetstone":
         source_result = ansibench_whetstone_expected(
             values,
@@ -5090,6 +5927,10 @@ def main() -> int:
         validate_traveling_salesman_solver_workload(workload, algorithm)
     elif algorithm == "nbench_fourier_coefficients":
         validate_nbench_fourier_coefficients_workload(workload)
+    elif algorithm == "misc_flops":
+        validate_misc_flops_workload(workload)
+    elif algorithm == "freebench_fbench":
+        validate_freebench_fbench_workload(workload)
     elif algorithm == "ansibench_whetstone":
         validate_ansibench_whetstone_workload(workload)
     elif algorithm == "linpack_lu_solve":
@@ -5102,6 +5943,18 @@ def main() -> int:
         validate_polybench_cholesky_workload(workload)
     elif algorithm == "polybench_ludcmp":
         validate_polybench_ludcmp_workload(workload)
+    elif algorithm == "doe_rsbench_doppler_xs":
+        validate_doe_rsbench_doppler_xs_workload(workload)
+    elif algorithm == "doe_simplemoc_quadratic_attenuation":
+        validate_doe_simplemoc_quadratic_attenuation_workload(workload)
+    elif algorithm == "doe_xsbench_unionized_macro_xs":
+        validate_doe_xsbench_unionized_macro_xs_workload(workload)
+    elif algorithm == "doe_minigmg_restriction":
+        validate_doe_minigmg_restriction_workload(workload)
+    elif algorithm == "doe_miniamr_stencil_average":
+        validate_doe_miniamr_stencil_average_workload(workload)
+    elif algorithm == "rodinia_myocyte_cam_rhs":
+        validate_rodinia_myocyte_cam_rhs_workload(workload)
     if (workload.get("algorithm") != algorithm
             or workload.get("measurement", {}).get("comparison_model") != "i64_array_float64_call"):
         parser.error("workload does not match the built i64-array float64 algorithm")
@@ -5140,6 +5993,12 @@ def main() -> int:
                 or algorithm == "nbench_fourier_coefficients" and input_length == 0
                 or algorithm == "ansibench_whetstone" and input_length == 1
                 or algorithm == "linpack_lu_solve" and input_length == 1
+                or algorithm == "doe_rsbench_doppler_xs" and input_length == 0
+                or algorithm in {"doe_simplemoc_quadratic_attenuation",
+                                 "doe_xsbench_unionized_macro_xs",
+                                 "doe_minigmg_restriction",
+                                 "doe_miniamr_stencil_average",
+                                 "rodinia_myocyte_cam_rhs"} and input_length == 0
                 or algorithm in {"monte_carlo_integration",
                                  "monte_carlo_integration_independent"} and input_length == 3)
             if not supported_null_input or values:

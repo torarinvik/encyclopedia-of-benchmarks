@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mibench-consumer-jpeg-ycbcr-to-rgb-i64-array-bytes-v1",
+  "algorithm": "mibench_jpeg_ycbcr_to_rgb",
+  "function_symbol": "mibench_jpeg_ycbcr_to_rgb",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/consumer-jpeg/jdcolor.c",
+    "launcher_path": "MiBench/consumer-jpeg/info.sh",
+    "symbols": ["build_ycc_rgb_table", "ycc_rgb_convert"],
+    "copyright": "Thomas G. Lane, 1991-1996; Independent JPEG Group",
+    "license": "IJG permission terms reproduced in LICENSE.txt"
+  },
+  "contract": {
+    "input_layout": "[pixel_count,Y0,Cb0,Cr0,...]",
+    "pixel_count_range": [1, 16],
+    "sample_range": [0, 255],
+    "output": "row-major RGB byte triples, 3 bytes per input pixel",
+    "maximum_input_words": 49,
+    "maximum_parseable_input_words": 50,
+    "maximum_output_bytes": 48,
+    "invalid_result": -1,
+    "output_error_result": -2
+  },
+  "profile": {
+    "center_sample": 128,
+    "scale_bits": 16,
+    "fixed_constants": {
+      "red_from_cr": 91881,
+      "blue_from_cb": 116130,
+      "green_from_cb_magnitude": 22554,
+      "green_from_cr_magnitude": 46802
+    },
+    "rounding": "red/blue add 32768 before arithmetic shift; green adds one 32768 bias in the Cb term then shifts the summed scaled terms",
+    "range_limit": "clamp each output channel to 0..255, matching the 8-bit IJG range-limit table"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"neutral-black", "input_values":[1,0,128,128], "output_capacity":48, "expected_result":3, "expected_output_hex":"000000"},
+    {"id":"neutral-gray", "input_values":[1,127,128,128], "output_capacity":48, "expected_result":3, "expected_output_hex":"7f7f7f"},
+    {"id":"neutral-white", "input_values":[1,255,128,128], "output_capacity":48, "expected_result":3, "expected_output_hex":"ffffff"},
+    {"id":"chroma-extremes", "input_values":[2,128,0,255,128,255,0], "output_capacity":48, "expected_result":6, "expected_output_hex":"ff510000b0ff"},
+    {"id":"invalid-sample", "input_values":[1,256,128,128], "output_capacity":48, "expected_result":-1, "expected_output_hex":""},
+    {"id":"frame-length-mismatch", "input_values":[2,0,128,128], "output_capacity":48, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short-output", "input_values":[1,128,128,128], "output_capacity":2, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[1,128,128,128], "output_capacity":48, "output_is_null":true, "expected_result":-2, "expected_output_hex":""}
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-versabench-dbms-rtree-consistent-key-i64-scalar-v1",
+  "algorithm": "versabench_dbms_consistent_key",
+  "function_symbol": "versabench_dbms_consistent_key",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "VersaBench/dbms/consistent.c",
+    "supporting_paths": ["VersaBench/dbms/indexKey.h", "VersaBench/dbms/query.c", "VersaBench/dbms/deleteEntry.c"],
+    "launcher_path": "VersaBench/dbms/info.sh",
+    "symbols": ["consistentKey"],
+    "author": "M. L. Rivas",
+    "copyright": "Copyright 1999, Atlantic Aerospace Electronics Corp.",
+    "license_status": "No explicit redistribution license found in the pinned VersaBench/dbms directory; this local implementation is independently written from the documented predicate and contains no copied source code."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[A_lower_T_X_Y_Z, A_upper_T_X_Y_Z, B_lower_T_X_Y_Z, B_upper_T_X_Y_Z]",
+    "coordinate_range": [-8, 8],
+    "box_rule": "For each box and dimension, lower <= upper; zero-width intervals are valid.",
+    "exact_length": 16,
+    "maximum_valid_input_length": 16,
+    "maximum_parseable_input_length": 17,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "1 when the closed 4D boxes intersect, otherwise 0",
+    "boundary_rule": "touching faces, edges, or points count as intersection",
+    "invalid_result": -1
+  },
+  "profile": {
+    "operation": "source consistentKey: return false if any dimension has strict separation; otherwise return true",
+    "scope": "R-tree query/delete key filter only; tree traversal and non-key attribute matching are excluded"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"overlap-in-four-dimensions", "input_values":[0,0,0,0,2,2,2,2,1,1,1,1,3,3,3,3], "expected_result":1},
+    {"id":"touching-boundaries-intersect", "input_values":[0,0,0,0,1,1,1,1,1,1,1,1,2,2,2,2], "expected_result":1},
+    {"id":"separated-only-in-z", "input_values":[0,0,0,0,1,1,1,1,0,0,2,0,1,1,3,1], "expected_result":0},
+    {"id":"zero-width-point-box", "input_values":[1,1,1,1,1,1,1,1,1,0,1,1,2,2,2,2], "expected_result":1},
+    {"id":"invalid-reversed-bound", "input_values":[0,0,0,0,1,1,1,1,2,0,0,0,1,1,1,1], "expected_result":-1},
+    {"id":"trailing-data", "input_values":[0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1,0], "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_is_null":true, "input_length":0, "expected_result":-1}
+  ]
+}

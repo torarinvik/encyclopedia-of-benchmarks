@@ -1,0 +1,67 @@
+module parboil_tpacf_cross_correlation;
+
+extern cos(value: f64) -> f64
+extern log10(value: f64) -> f64
+extern pow(base: f64, exponent: f64) -> f64
+
+def fn f32 parboil_tpacf_coordinate(i64* input, i64 offset):
+    return input[offset].f32() / 1000000.0.f32()
+
+/* Parboil TPACF, Illinois Open Source License; see package LICENSE.txt. */
+def fn i64 parboil_tpacf_cross_correlation(i64* input, i64 input_length,
+        u8* output, i64 output_capacity):
+    if input == null or input_length < 8 or input_length > 26: return -1
+    data_value: i64 = input[0]
+    random_value: i64 = input[1]
+    if data_value < 1 or data_value > 4 or random_value < 1 or random_value > 4: return -1
+    data_count: i64 = data_value
+    random_count: i64 = random_value
+    if input_length != 2 + 3 * (data_count + random_count): return -1
+    i: mutable i64 = 2
+    while i < input_length:
+        if input[i] < -1000000 or input[i] > 1000000: return -1
+        i <- i + 1
+    if output == null or output_capacity < 20: return -2
+
+    boundaries: mutable f32[21] = zeroed
+    k: mutable i64 = 0
+    while k <= 20:
+        exponent: f64 = log10(1.0) + k.f64() * 1.0 / 5.0
+        arcminutes: f64 = pow(10.0, exponent)
+        radians: f64 = arcminutes / 60.0 * (3.141592653589793238462643383279502884 / 180.0)
+        boundaries[k] <- cos(radians).f32()
+        k <- k + 1
+    histogram: mutable u8[20] = zeroed
+    random_base: i64 = 2 + 3 * data_count
+    j: mutable i64 = 0
+    while j < random_count:
+        rx: f32 = parboil_tpacf_coordinate(input, random_base + 3 * j)
+        ry: f32 = parboil_tpacf_coordinate(input, random_base + 3 * j + 1)
+        rz: f32 = parboil_tpacf_coordinate(input, random_base + 3 * j + 2)
+        i <- 0
+        while i < data_count:
+            dx: f32 = parboil_tpacf_coordinate(input, 2 + 3 * i)
+            dy: f32 = parboil_tpacf_coordinate(input, 2 + 3 * i + 1)
+            dz: f32 = parboil_tpacf_coordinate(input, 2 + 3 * i + 2)
+            px: f32 = dx * rx
+            py: f32 = dy * ry
+            pz: f32 = dz * rz
+            xy: f32 = px + py
+            distance: f32 = xy + pz
+            min: mutable i64 = 0
+            max: mutable i64 = 20
+            while max > min + 1:
+                middle: i64 = (min + max) / 2
+                if distance >= boundaries[middle]: max <- middle
+                else: min <- middle
+            if distance < boundaries[min] and distance >= boundaries[max]:
+                histogram[max - 1] <- histogram[max - 1] + 1
+            i <- i + 1
+        j <- j + 1
+    bin: mutable i64 = 0
+    while bin < 20:
+        output[bin] <- histogram[bin]
+        bin <- bin + 1
+    return 20
+
+export fn parboil_tpacf_cross_correlation

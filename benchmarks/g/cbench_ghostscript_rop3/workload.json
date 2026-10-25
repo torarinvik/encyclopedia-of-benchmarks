@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-office-ghostscript-rop3-i64-array-scalar-v1",
+  "algorithm": "cbench_ghostscript_rop3",
+  "function_symbol": "cbench_ghostscript_rop3",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[destination, source, texture, rop3_code]",
+    "maximum_valid_input_length": 4,
+    "maximum_parseable_input_length": 5,
+    "pixel_word_range": [0, 4294967295],
+    "rop3_code_range": [0, 255],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "32-bit destination pixel produced by the selected three-input ROP3 truth table",
+    "valid_result_range": [0, 4294967295],
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1
+  },
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "path": "cBench/office_ghostscript/src/gsroptab.c",
+    "revision": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "upstream_reference": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/office_ghostscript/src/gsroptab.c",
+    "supporting_paths": ["cBench/office_ghostscript/src/gsropt.h", "cBench/office_ghostscript/src/info.sh"],
+    "launcher_path": "cBench/office_ghostscript/src/info.sh",
+    "scope": "The source defines the 256 ROP3 truth-table functions used by Ghostscript raster operations. This profile measures one selected 32-bit per-pixel Boolean operation only, not page interpretation, raster traversal, transparency, device dispatch, or the full Ghostscript launcher workload.",
+    "license": "Aladdin Free Public License, Version 5 (February 25, 1997), reproduced in LICENSE.txt. It permits modification and redistribution subject to its conditions, including restrictive noncommercial distribution terms."
+  },
+  "cases": [
+    {"id":"source-rop0-zero","input_values":[305419896,3735928559,2779096485,0],"expected_result":0},
+    {"id":"source-rop85-not-destination","input_values":[305419896,3735928559,2779096485,85],"expected_result":3989547399},
+    {"id":"source-rop90-d-xor-t","input_values":[305419896,3735928559,2779096485,90],"expected_result":3079795677},
+    {"id":"source-rop170-destination","input_values":[305419896,3735928559,2779096485,170],"expected_result":305419896},
+    {"id":"source-rop204-source","input_values":[305419896,3735928559,2779096485,204],"expected_result":3735928559},
+    {"id":"source-rop240-texture","input_values":[305419896,3735928559,2779096485,240],"expected_result":2779096485},
+    {"id":"source-rop255-all-ones","input_values":[0,0,0,255],"expected_result":4294967295},
+    {"id":"mask-high-bit","input_values":[2147483648,0,0,170],"expected_result":2147483648}
+  ]
+}

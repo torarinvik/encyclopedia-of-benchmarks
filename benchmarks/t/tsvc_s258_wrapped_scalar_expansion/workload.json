@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s258-wrapped-scalar-expansion-i64-scalar-v1",
+  "algorithm": "tsvc_s258_wrapped_scalar_expansion",
+  "function_symbol": "tsvc_s258_wrapped_scalar_expansion",
+  "abi": "i64_array_scalar",
+  "description": "One pass of the TSVC s258 conditional scalar refresh/carry and two-array expansion.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "TSVC/Expansion-dbl/info.sh",
+      "TSVC/Expansion-dbl/tsc.c",
+      "TSVC/Expansion-flt/info.sh",
+      "TSVC/Expansion-flt/tsc.c",
+      "TSVC/tsc.inc",
+      "TSVC/tests.h"
+    ],
+    "symbol": "s258",
+    "source_lines": {
+      "codelet_start": 2598,
+      "codelet_end": 2624
+    },
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC",
+    "launcher_family": "TSVC/Expansion-dbl and TSVC/Expansion-flt",
+    "launcher_options": {
+      "double": [4160, 14],
+      "float": [4160, 5]
+    },
+    "attribution": "The TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC files or repository material reviewed. These clean-room ports reuse no upstream code or comments and claim no upstream license or endorsement."
+  },
+  "contract": {
+    "operation": "Start s at zero; for ascending i, refresh s to D[i]*D[i] only if A[i]>0, then write B[i]=s*C[i]+D[i] and E[i]=(s+1)*AA0[i]. Return sum(B)+sum(E).",
+    "input_layout": "[n, A[n], C[n], D[n], AA0[n]]",
+    "n_range": [1, 64],
+    "value_range": [0, 2],
+    "exact_length": "1 + 4*n",
+    "arithmetic": "Integer-valued source double/float operations; every result is exactly representable in binary32 and binary64.",
+    "passes": 1,
+    "success_result": "Sum of B and E, matching source check(25).",
+    "invalid_input_result": -1,
+    "input_modified": false,
+    "output_range": [0, 1280]
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "maximum_valid_length": 257,
+    "maximum_parseable_length": 257,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "Sum of final B[n] and E[n] vectors."
+  },
+  "workspace": {
+    "bytes": 1024,
+    "meaning": "Temporary B[64] and E[64] signed 64-bit vectors."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-positive-refresh",
+      "input_values": [1, 1, 1, 2, 1],
+      "input_length": 5,
+      "expected_result": 11
+    },
+    {
+      "id": "carried-scalar-across-false-branches",
+      "input_values": [3, 2, 0, 0, 1, 1, 1, 2, 1, 1, 1, 2, 1],
+      "input_length": 13,
+      "expected_result": 36
+    },
+    {
+      "id": "refresh-after-carry-with-two-output-maps",
+      "input_values": [4, 0, 1, 0, 1, 1, 1, 0, 2, 2, 2, 0, 1, 1, 1, 2, 1],
+      "input_length": 17,
+      "expected_result": 29
+    },
+    {
+      "id": "invalid-dimension",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": -1
+    },
+    {
+      "id": "truncated-vector-frame",
+      "input_values": [2, 0, 0],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "invalid-value-bound",
+      "input_values": [1, 3, 0, 0, 0],
+      "input_length": 5,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-office-ghostscript-rop3-idempotence-i64-array-scalar-v1",
+  "algorithm": "cbench_ghostscript_rop3_idempotence",
+  "function_symbol": "cbench_ghostscript_rop3_idempotence",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[rop3_code]",
+    "code_range": [0, 255],
+    "maximum_valid_input_length": 1,
+    "maximum_parseable_input_length": 2,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "1 when the pinned rop3_is_idempotent macro returns true, otherwise 0",
+    "valid_result_range": [0, 1],
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 1
+  },
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "path": "cBench/office_ghostscript/src/gsropt.h",
+    "revision": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "upstream_reference": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/office_ghostscript/src/gsropt.h",
+    "supporting_paths": ["cBench/office_ghostscript/src/info.sh", "cBench/office_ghostscript/src/gsroptab.c"],
+    "launcher_path": "cBench/office_ghostscript/src/info.sh",
+    "scope": "One source-defined Boolean predicate on an 8-bit ROP3 code; it does not produce a raster pixel and does not include Ghostscript page interpretation or raster traversal.",
+    "license": "Aladdin Free Public License, Version 5 (February 25, 1997), reproduced in LICENSE.txt. It permits modification and redistribution subject to restrictive noncommercial terms."
+  },
+  "cases": [
+    {"id":"zero-code","input_values":[0],"expected_result":1},
+    {"id":"one-code","input_values":[1],"expected_result":1},
+    {"id":"source-not-destination-0x55","input_values":[85],"expected_result":1},
+    {"id":"destination-code-macro-result","input_values":[170],"expected_result":0},
+    {"id":"single-odd-bit-transition","input_values":[2],"expected_result":0},
+    {"id":"all-ones-code","input_values":[255],"expected_result":1}
+  ]
+}

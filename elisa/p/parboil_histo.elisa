@@ -1,0 +1,35 @@
+module parboil_histo;
+
+/* Clean-room Parboil histogram profile; see package LICENSE.txt. */
+def fn i64 parboil_histo(i64* input, i64 input_length, u8* output, i64 output_capacity):
+    if input == null or input_length < 3 or input_length > 1027: return -1
+    iterations: i64 = input[0]
+    bins: i64 = input[1]
+    samples: i64 = input[2]
+    if iterations < 0 or iterations > 8 or bins < 1 or bins > 256 or samples < 0 or samples > 1024: return -1
+    if input_length != 3 + samples: return -1
+    i: mutable i64 = 0
+    while i < samples:
+        if input[3 + i] < 0 or input[3 + i] >= bins: return -1
+        i <- i + 1
+    if output == null or output_capacity < bins: return -2
+    histogram: mutable u8[256] = zeroed
+    iter: mutable i64 = 0
+    while iter < iterations:
+        i <- 0
+        while i < bins:
+            histogram[i] <- 0
+            i <- i + 1
+        i <- 0
+        while i < samples:
+            bin: i64 = input[3 + i]
+            if histogram[bin] < 255: histogram[bin] <- histogram[bin] + 1
+            i <- i + 1
+        iter <- iter + 1
+    i <- 0
+    while i < bins:
+        output[i] <- histogram[i]
+        i <- i + 1
+    return bins
+
+export fn parboil_histo

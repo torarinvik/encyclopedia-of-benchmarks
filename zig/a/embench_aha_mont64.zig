@@ -1,0 +1,4 @@
+fn wide(a:u64,b:u64)struct{hi:u64,lo:u64}{const mask:u64=0xffff_ffff;const a0=a&mask;const a1=a>>32;const b0=b&mask;const b1=b>>32;const p00=a0*b0;const p01=a0*b1;const p10=a1*b0;const p11=a1*b1;var lo=p00;var old=lo;lo+%=p01<<32;var hi=p11+(p01>>32)+@intFromBool(lo<old);old=lo;lo+%=p10<<32;hi+=(p10>>32)+@intFromBool(lo<old);return .{.hi=hi,.lo=lo};}
+fn mont(a:u64,b:u64,m:u64,np:u64)u64{const p=wide(a,b);const q=wide(p.lo*%np,m);const lo=p.lo+%q.lo;var hi=p.hi+%q.hi;if(lo<p.lo)hi+%=1;const ov=hi<p.hi or (hi==p.hi and lo<p.lo);if(ov or hi>=m)return hi-%m;return hi;}
+fn nprime(m:u64)u64{var x:u64=1;for(0..6)|_|x *%= 2 -% (m *% x);return 0 -% x;}
+pub export fn embench_aha_mont64(values:?[*]const i64,length:usize)i64{const v=values orelse return -1;if(length!=3 or v[0]<0 or v[1]<0 or v[2]<3 or @mod(v[2],2)==0)return -1;const a:u64=@intCast(v[0]);const b:u64=@intCast(v[1]);const m:u64=@intCast(v[2]);if(a>=m or b>=m)return -1;return @intCast(mont(a,b,m,nprime(m)));}

@@ -1,0 +1,4 @@
+module edn_lattice_synthesis
+fn put64(mut out &u8,pos usize,value i64){u:=u64(value);for j in 0..8{unsafe{out[pos+j]=u8(u>>(8*j))}}}
+@[export:'edn_lattice_synthesis']
+pub fn edn_lattice_synthesis(values &i64,length usize,mut output &u8,capacity usize)i64{unsafe{if values==nil||length<2||length>34{return -1};order:=values[0];mut f:=values[1];if order<1||order>16||f< -65536||f>65535||length!=usize(2+2*order){return -1};q:=int(order);mut b:=[16]i64{};mut k:=[16]i64{};for i in 0..q{b[i]=values[2+i];k[i]=values[2+q+i];if b[i]< -1024||b[i]>1023||k[i]< -1024||k[i]>1023{return -1}};bytes:=8*(q+1);if output==nil||capacity<bytes{return -2};f-=b[q-1]*k[q-1];mut z:=q;for z>1{z--;i:=z-1;f-=b[i]*k[i];b[i+1]=b[i]+((k[i]*(f>>16))>>16)};b[0]=f>>16;put64(output,0,f);for i in 0..q{put64(output,8*(i+1),b[i])};return i64(bytes)}}

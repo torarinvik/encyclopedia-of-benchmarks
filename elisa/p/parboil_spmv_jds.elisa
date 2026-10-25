@@ -1,0 +1,116 @@
+/* Clean-room bounded Parboil JDS SpMV profile; Illinois terms in LICENSE.txt. */
+def fn f32 parboil_spmv_jds_decode(i64 value):
+    return value.f32() / 1000000.0.f32()
+
+def fn void parboil_spmv_jds_put32(u8* output, i64 position, u32 value):
+    output[position] <- value.u8()
+    output[position + 1] <- (value >> 8).u8()
+    output[position + 2] <- (value >> 16).u8()
+    output[position + 3] <- (value >> 24).u8()
+
+def fn i64 parboil_spmv_jds(i64* input, i64 input_length, u8* output, i64 output_capacity):
+    if input == null or input_length < 3 or input_length > 164: return -1
+    if input[0] < 1 or input[0] > 8 or input[1] < 1 or input[1] > 8 or input[2] < 1 or input[2] > 64: return -1
+    n: i64 = input[0]
+    depth: i64 = input[1]
+    nnz: i64 = input[2]
+    if input_length != 4 + 3 * n + depth + 2 * nnz: return -1
+    rows: mutable i64[8] = zeroed
+    perm: mutable i64[8] = zeroed
+    ptr: mutable i64[9] = zeroed
+    cols: mutable i64[64] = zeroed
+    data: mutable i64[64] = zeroed
+    vector: mutable i64[8] = zeroed
+    p: mutable i64 = 3
+    i: mutable i64 = 0
+    while i < n:
+        if input[p] < 0 or input[p] > depth: return -1
+        rows[i] <- input[p]
+        p <- p + 1
+        i <- i + 1
+    if rows[0] != depth: return -1
+    i <- 1
+    while i < n:
+        if rows[i] > rows[i - 1]: return -1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        perm[i] <- input[p]
+        p <- p + 1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        if perm[i] < 0 or perm[i] >= n: return -1
+        j: mutable i64 = 0
+        while j < i:
+            if perm[j] == perm[i]: return -1
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i <= depth:
+        ptr[i] <- input[p]
+        p <- p + 1
+        i <- i + 1
+    i <- 0
+    while i < nnz:
+        cols[i] <- input[p]
+        p <- p + 1
+        i <- i + 1
+    i <- 0
+    while i < nnz:
+        data[i] <- input[p]
+        p <- p + 1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        vector[i] <- input[p]
+        p <- p + 1
+        i <- i + 1
+    if ptr[0] != 0: return -1
+    off: mutable i64 = 0
+    k: mutable i64 = 0
+    while k < depth:
+        count: mutable i64 = 0
+        i <- 0
+        while i < n:
+            if rows[i] > k: count <- count + 1
+            i <- i + 1
+        off <- off + count
+        if ptr[k + 1] != off: return -1
+        k <- k + 1
+    if off != nnz: return -1
+    i <- 0
+    while i < nnz:
+        if cols[i] < 0 or cols[i] >= n or data[i] < -1000000 or data[i] > 1000000: return -1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        if vector[i] < -1000000 or vector[i] > 1000000: return -1
+        i <- i + 1
+    output_bytes: i64 = 4 + 4 * n
+    if output == null or output_capacity < output_bytes: return -2
+    y: mutable f32[8] = zeroed
+    staged: mutable u8[36] = zeroed
+    i <- 0
+    while i < n:
+        acc: mutable f32 = 0.0.f32()
+        k <- 0
+        while k < rows[i]:
+            j: i64 = ptr[k] + i
+            product: f32 = parboil_spmv_jds_decode(data[j]) * parboil_spmv_jds_decode(vector[cols[j]])
+            acc <- acc + product
+            k <- k + 1
+        y[perm[i]] <- acc
+        i <- i + 1
+    parboil_spmv_jds_put32(staged, 0, n.u32())
+    i <- 0
+    while i < n:
+        parboil_spmv_jds_put32(staged, 4 + 4 * i, y[i].u32())
+        i <- i + 1
+    i <- 0
+    while i < output_bytes:
+        output[i] <- staged[i]
+        i <- i + 1
+    return output_bytes
+
+export fn parboil_spmv_jds

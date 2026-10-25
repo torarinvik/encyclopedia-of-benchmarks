@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-versabench-dbms-rtree-choose-entry-i64-scalar-v1",
+  "algorithm": "versabench_dbms_choose_entry",
+  "function_symbol": "versabench_dbms_choose_entry",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "VersaBench/dbms/chooseEntry.c",
+    "supporting_paths": ["VersaBench/dbms/penalty.c", "VersaBench/dbms/volume.c", "VersaBench/dbms/keyUnion.c", "VersaBench/dbms/indexKey.h"],
+    "launcher_path": "VersaBench/dbms/info.sh",
+    "symbols": ["chooseEntry", "penalty", "volume", "keyUnion"],
+    "author": "M. L. Rivas",
+    "copyright": "Copyright 1999, Atlantic Aerospace Electronics Corp.",
+    "license_status": "No explicit redistribution license found in the pinned VersaBench/dbms directory; this local implementation is independently written from the documented algorithm and contains no copied source code."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[child_count, child_0_lower_T_X_Y_Z, child_0_upper_T_X_Y_Z, ..., incoming_lower_T_X_Y_Z, incoming_upper_T_X_Y_Z]",
+    "child_count_range": [1, 8],
+    "coordinate_range": [-8, 8],
+    "box_rule": "For every box, lower[d] < upper[d] in all four dimensions.",
+    "exact_length": "1 + 8*child_count + 8",
+    "maximum_valid_input_length": 73,
+    "maximum_parseable_input_length": 74,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "zero-based index of the child whose 4D bounding box has minimum volume enlargement after union with the incoming box",
+    "tie_rule": "first child wins; source uses strict less-than when replacing the current best",
+    "invalid_result": -1
+  },
+  "profile": {
+    "arithmetic": "exact integer 4D hyperrectangle volumes; the bounded integer domain yields values exactly representable by source Float",
+    "scope": "child-selection helper used during R-tree insertion; does not implement node splitting, insertion, query, deletion, or database I/O"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"single-child", "input_values":[1,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3], "expected_result":0},
+    {"id":"minimum-enlargement-second-child", "input_values":[2,0,0,0,0,1,1,1,1,4,4,4,4,5,5,5,5,4,4,4,4,5,5,5,5], "expected_result":1},
+    {"id":"equal-enlargement-keeps-first", "input_values":[2,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,1,1,1,1,2,2,2,2], "expected_result":0},
+    {"id":"degenerate-box", "input_values":[1,0,0,0,0,1,1,1,0,2,2,2,2,3,3,3,3], "expected_result":-1},
+    {"id":"trailing-data", "input_values":[1,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,0], "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_is_null":true, "input_length":0, "expected_result":-1}
+  ]
+}

@@ -1,0 +1,13 @@
+Embench-IoT EDN lattice synthesis attribution
+
+Pinned source: https://github.com/embench/embench-iot/blob/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/edn/libedn.c
+Source function: latsynth
+SPDX-License-Identifier: GPL-3.0-or-later
+
+Pinned source header attribution:
+This version, copyright (C) 2014-2019 Embecosm Limited and University of Bristol.
+Contributors James Pallister and Jeremy Bennett.
+Original code from WCET Benchmarks, http://www.mrtc.mdh.se/projects/wcet/benchmarks.html
+Permission to license under GPL obtained by email from Björn Lisper.
+
+The local ports are independently written modifications of the bounded latsynth profile in README.md and are distributed under GPL-3.0-or-later. See LICENSE.txt for the full license text.

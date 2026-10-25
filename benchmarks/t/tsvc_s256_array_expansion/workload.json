@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s256-array-expansion-i64-le-v1",
+  "algorithm": "tsvc_s256_array_expansion",
+  "function_symbol": "tsvc_s256_array_expansion",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded source-order row recurrence and matrix expansion based on TSVC s256.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s256",
+    "source_lines": {"kernel_start": 2543, "kernel_end": 2567, "loop_start": 2554, "loop_end": 2559},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_family": "TSVC/Expansion-dbl",
+    "launcher_source": "TSVC/Expansion-dbl/tsc.c selects TYPE double.",
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. These ports independently implement the bounded array-expansion operation and reuse no upstream source code or comments; no upstream license or endorsement is claimed."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "argument_order": ["n", "A0", "D[n]", "B[n*n] row-major", "C_initial[n*n] row-major"],
+    "n_range": [1, 16],
+    "exact_length": "2 + n + 2*n*n",
+    "maximum_valid_input_length": 530,
+    "a0_range": [-1000, 1000],
+    "d_and_b_range": [-1000, 1000],
+    "c_initial_range": [-1000000, 1000000],
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "A_final[n] followed by C_final[n*n] in row-major order.",
+    "successful_result": "Number of output elements, n+n*n.",
+    "required_capacity": "8*(n+n*n) bytes.",
+    "maximum_elements": 272,
+    "maximum_bytes": 2176,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "singleton-no-row-update",
+      "input_values": [1, 7, 5, 2, 41],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "07000000000000002900000000000000"
+    },
+    {
+      "id": "three-by-three-expansion",
+      "input_values": [3, 0, 1, 2, 3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101, 102, 103, 104, 105, 106, 107, 108],
+      "input_length": 23,
+      "output_capacity": 96,
+      "expected_result": 12,
+      "expected_output_hex": "00000000000000000100000000000000000000000000000064000000000000006500000000000000660000000000000009000000000000000b000000000000000d00000000000000150000000000000018000000000000001b00000000000000"
+    },
+    {
+      "id": "preserve-row-zero-negative-seed",
+      "input_values": [2, -2, 9, 2, 1000, 1000, 4, -3, 44, 45, 55, 56],
+      "input_length": 12,
+      "output_capacity": 48,
+      "expected_result": 6,
+      "expected_output_hex": "feffffffffffffff03000000000000002c000000000000002d000000000000000b00000000000000fdffffffffffffff"
+    },
+    {
+      "id": "truncated-matrix",
+      "input_values": [2, 0, 1, 2],
+      "input_length": 4,
+      "output_capacity": 48,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "factor-out-of-range",
+      "input_values": [1, 0, 0, 1000001, 0],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dimension-out-of-range",
+      "input_values": [17],
+      "input_length": 1,
+      "output_capacity": 2176,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-buffer",
+      "input_values": [1, 7, 5, 2, 41],
+      "input_length": 5,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+# Independent bounded profile; complete Aladdin Free Public License v5 is bundled.
+export fn cbench_ghostscript_rop3_idempotence(values: i64&, length: usize) -> i64 = cbench_ghostscript_rop3_idempotence_impl
+
+def cbench_ghostscript_rop3_idempotence_impl(values: i64&, length: usize) -> i64:
+    if length > 2: return -1
+    if length > 0 and values == null: return -1
+    if length != 1: return -1
+    if values[0] < 0 or values[0] > 255: return -1
+    code: u64 = values[0].u64()
+    bit: mutable usize = 1
+    while bit < 8:
+        if ((code >> bit) & 1) != 0 and ((code >> (bit - 1)) & 1) == 0: return 0
+        bit <- bit + 2
+    return 1

@@ -1,0 +1,5 @@
+No explicit license grant was found in the pinned LAC-DCC TSVC source or
+repository material reviewed for this benchmark. This package independently
+implements the documented s257 loop behavior and does not reuse upstream
+source code or comments. The source attribution and rights limitation are
+documented in README.md.

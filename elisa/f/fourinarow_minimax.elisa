@@ -1,0 +1,184 @@
+const max_history: usize = 20
+const max_depth: i64 = 7
+const huge_score: i64 = 100000
+const c4v: u64 = (1.u64() << 0.usize()) | (1.u64() << 7.usize()) | (1.u64() << 14.usize()) | (1.u64() << 21.usize())
+const c3v: u64 = c4v >> 7.usize()
+const c2v: u64 = c3v >> 7.usize()
+const c4h: u64 = 15.u64()
+const c3h: u64 = c4h >> 1.usize()
+const c2h: u64 = c3h >> 1.usize()
+const c4ur: u64 = (1.u64() << 0.usize()) | (1.u64() << 8.usize()) | (1.u64() << 16.usize()) | (1.u64() << 24.usize())
+const c3ur: u64 = c4ur >> 8.usize()
+const c2ur: u64 = c3ur >> 8.usize()
+const c4ul: u64 = (1.u64() << 3.usize()) | (1.u64() << 9.usize()) | (1.u64() << 15.usize()) | (1.u64() << 21.usize())
+const c3ul: u64 = c4ul >> 6.usize()
+const c2ul: u64 = c3ul >> 6.usize()
+
+def has(board: u64, mask: u64) -> bool:
+    (board & mask) == mask
+
+def score_board(human: u64, computer: u64) -> i64:
+    total: mutable i64 = 0
+    player: mutable usize = 0
+    while player < 2:
+        b: u64 = if player == 0: human else: computer
+        other: u64 = if player == 0: computer else: human
+        sign: i64 = if player == 0: -1 else: 1
+        i: mutable usize = 0
+        while i < 21:
+            if has(b, c4v << i): total <- total + sign * 1000
+            i <- i + 1
+        i <- 0
+        while i < 6:
+            j: mutable usize = 0
+            while j < 4:
+                if has(b, c4h << (j + i * 6)): total <- total + sign * 1000
+                j <- j + 1
+            i <- i + 1
+        i <- 0
+        while i < 3:
+            j: mutable usize = 0
+            while j < 4:
+                if has(b, c4ur << (j + i * 6)): total <- total + sign * 1000
+                if has(b, c4ul << (j + i * 6)): total <- total + sign * 1000
+                j <- j + 1
+            i <- i + 1
+        i <- 0
+        while i < 21:
+            if has(b, c3v << i) and (other & (c4v << i)) == 0.u64(): total <- total + sign * 20
+            i <- i + 1
+        i <- 0
+        while i < 6:
+            j: mutable usize = 0
+            while j < 5:
+                if has(b, c3h << (j + i * 6)): total <- total + sign * 20
+                j <- j + 1
+            i <- i + 1
+        i <- 0
+        while i < 3:
+            j: mutable usize = 0
+            while j < 4:
+                if has(b, c3ur << (j + i * 6)): total <- total + sign * 20
+                if has(b, c3ul << (j + i * 6)): total <- total + sign * 20
+                j <- j + 1
+            i <- i + 1
+        i <- 0
+        while i < 21:
+            if has(b, c2v << i) and (other & (c4v << i)) == 0.u64(): total <- total + sign * 5
+            i <- i + 1
+        i <- 0
+        while i < 6:
+            j: mutable usize = 0
+            while j < 6:
+                if has(b, c2h << (j + i * 6)): total <- total + sign * 5
+                j <- j + 1
+            i <- i + 1
+        i <- 0
+        while i < 3:
+            j: mutable usize = 0
+            while j < 4:
+                if has(b, c2ur << (j + i * 6)): total <- total + sign * 5
+                if has(b, c2ul << (j + i * 6)): total <- total + sign * 5
+                j <- j + 1
+            i <- i + 1
+        player <- player + 1
+    total
+
+def wins(board: u64) -> bool:
+    row: mutable usize = 0
+    while row < 6:
+        col: mutable usize = 0
+        while col < 7:
+            dc: mutable i64 = 0
+            while dc <= 1:
+                dr: mutable i64 = -1
+                while dr <= 1:
+                    if dc != 0 or dr > 0:
+                        ec: i64 = col.i64() + 3 * dc
+                        er: i64 = row.i64() + 3 * dr
+                        if ec < 7 and er >= 0 and er < 6:
+                            line: mutable u64 = 0
+                            k: mutable i64 = 0
+                            while k < 4:
+                                cell: i64 = col.i64() + k * dc + (row.i64() + k * dr) * 7
+                                line <- line | (1.u64() << cell.usize())
+                                k <- k + 1
+                            if (board & line) == line: return true
+                    dr <- dr + 1
+                dc <- dc + 1
+            col <- col + 1
+        row <- row + 1
+    false
+
+def search(human: u64, computer: u64, side: i64, level: i64, limit: i64,
+           mode: i64, alpha: i64, beta: i64) -> i64:
+    if level >= limit: return score_board(human, computer)
+    if side == 2:
+        best: mutable i64 = -huge_score
+        col: mutable usize = 0
+        while col < 7:
+            row: mutable usize = 0
+            while row < 6 and ((human | computer) & (1.u64() << (col + row * 7))) != 0.u64(): row <- row + 1
+            if row < 6:
+                bit: u64 = 1.u64() << (col + row * 7)
+                value: i64 = search(human, computer | bit, 1, level + 1, limit, mode, best, beta)
+                if value > best: best <- value
+                if mode == 2 and best > beta: return best
+            col <- col + 1
+        return best
+    best: mutable i64 = huge_score
+    col: mutable usize = 0
+    while col < 7:
+        row: mutable usize = 0
+        while row < 6 and ((human | computer) & (1.u64() << (col + row * 7))) != 0.u64(): row <- row + 1
+        if row < 6:
+            bit: u64 = 1.u64() << (col + row * 7)
+            value: i64 = search(human | bit, computer, 2, level + 1, limit, mode, alpha, best)
+            if value <= best: best <- value
+            if mode == 2 and best < alpha: return best
+        col <- col + 1
+    best
+
+def evaluate(human: u64, computer: u64, side: i64, depth: i64, mode: i64) -> i64:
+    best: mutable i64 = if side == 2: -huge_score else: huge_score
+    best_col: mutable i64 = 0
+    col: mutable usize = 0
+    while col < 7:
+        row: mutable usize = 0
+        while row < 6 and ((human | computer) & (1.u64() << (col + row * 7))) != 0.u64(): row <- row + 1
+        if row < 6:
+            bit: u64 = 1.u64() << (col + row * 7)
+            value: i64 = if side == 2:
+                search(human, computer | bit, 1, 2, depth, mode, best, huge_score)
+            else:
+                search(human | bit, computer, 2, 2, depth, mode, -huge_score, best)
+            if (side == 2 and value > best) or (side == 1 and value <= best):
+                best <- value
+                best_col <- col.i64()
+        col <- col + 1
+    best * 8 + best_col
+
+def fourinarow_minimax_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 4 or length > 4 + max_history: return -1
+    depth: i64 = input[0]
+    mode: i64 = input[1]
+    side: i64 = input[2]
+    count: i64 = input[3]
+    if depth < 2 or depth > max_depth or (mode != 0 and mode != 2) or (side != 1 and side != 2) or count < 0 or count > max_history.i64() or length != (4 + count).usize() or side != (if count % 2 == 0: 1 else: 2): return -1
+    human: mutable u64 = 0
+    computer: mutable u64 = 0
+    heights: mutable usize[7] = zeroed
+    turn: mutable usize = 0
+    while turn < count.usize():
+        col_value: i64 = input[4 + turn]
+        if col_value < 0 or col_value >= 7: return -1
+        col: usize = col_value.usize()
+        if heights[col] >= 6: return -1
+        bit: u64 = 1.u64() << (col + heights[col] * 7)
+        if turn % 2 == 0: human <- human | bit else: computer <- computer | bit
+        heights[col] <- heights[col] + 1
+        if wins(if turn % 2 == 0: human else: computer): return -1
+        turn <- turn + 1
+    evaluate(human, computer, side, depth, mode)
+
+export fn fourinarow_minimax(input: i64&, length: usize) -> i64 = fourinarow_minimax_impl

@@ -1,0 +1,3 @@
+No explicit license grant was found in the pinned LAC-DCC TSVC source or repository material reviewed for this benchmark.
+
+The language ports independently implement the bounded s114 loop behavior described in README.md. They reuse no upstream source code or comments and make no claim of an upstream license or endorsement. Source attribution: TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.

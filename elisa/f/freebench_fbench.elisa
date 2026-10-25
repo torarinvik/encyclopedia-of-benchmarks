@@ -1,0 +1,93 @@
+/* John Walker's Floating Point Benchmark, derived from the Marinchip
+   Interactive Lens Design System (December 1980). Pinned source:
+   lac-dcc/Benchmarks/Misc/fbench/fbench.c at commit
+   5d7b75df749241efa7a6e6f5be613d3fcc5cce38. The original header permits
+   use, distribution, and modification when origin information is preserved. */
+extern sin(value: f64) -> f64
+extern cos(value: f64) -> f64
+extern tan(value: f64) -> f64
+extern asin(value: f64) -> f64
+
+const MAX_PASSES: i64 = 16
+const INVALID_RESULT: f64 = -1.0e300
+const SPECTRAL_LINE: f64[9] = {0.0, 7621.0, 6869.955, 6562.816, 5895.944, 5269.557, 4861.344, 4340.477, 3968.494}
+const LENS: f64[16] = {27.05, 1.5137, 63.6, 0.52, -16.68, 1.0, 0.0, 0.138, -16.68, 1.6164, 36.7, 0.38, -78.1, 1.0, 0.0, 0.0}
+
+def freebench_fbench_trace_line(line: usize, initial_height: f64, paraxial: bool) -> f64[2]:
+    object_distance: mutable f64 = 0.0
+    ray_height: mutable f64 = initial_height
+    axis_slope_angle: mutable f64 = 0.0
+    from_index: mutable f64 = 1.0
+    for surface in 0..<4:
+        radius: f64 = LENS[surface * 4]
+        nominal_index: f64 = LENS[surface * 4 + 1]
+        abbe_number: f64 = LENS[surface * 4 + 2]
+        thickness: f64 = LENS[surface * 4 + 3]
+        to_index: mutable f64 = nominal_index
+        if to_index > 1.0:
+            to_index <- to_index + ((SPECTRAL_LINE[4] - SPECTRAL_LINE[line])
+                / (SPECTRAL_LINE[3] - SPECTRAL_LINE[6]))
+                * ((nominal_index - 1.0) / abbe_number)
+        if paraxial:
+            if radius != 0.0:
+                incidence_sine: mutable f64 = 0.0
+                if object_distance == 0.0:
+                    axis_slope_angle <- 0.0
+                    incidence_sine <- ray_height / radius
+                else:
+                    incidence_sine <- ((object_distance - radius) / radius) * axis_slope_angle
+                refraction_sine: f64 = (from_index / to_index) * incidence_sine
+                old_axis_slope_angle: f64 = axis_slope_angle
+                axis_slope_angle <- axis_slope_angle + incidence_sine - refraction_sine
+                if object_distance != 0.0: ray_height <- object_distance * old_axis_slope_angle
+                object_distance <- ray_height / axis_slope_angle
+            else:
+                object_distance <- object_distance * (to_index / from_index)
+                axis_slope_angle <- axis_slope_angle * (from_index / to_index)
+        else if radius != 0.0:
+            incidence_sine: mutable f64 = 0.0
+            if object_distance == 0.0:
+                axis_slope_angle <- 0.0
+                incidence_sine <- ray_height / radius
+            else:
+                incidence_sine <- ((object_distance - radius) / radius) * sin(axis_slope_angle)
+            incidence_angle: f64 = asin(incidence_sine)
+            refraction_sine: f64 = (from_index / to_index) * incidence_sine
+            old_axis_slope_angle: f64 = axis_slope_angle
+            axis_slope_angle <- axis_slope_angle + incidence_angle - asin(refraction_sine)
+            sagitta: mutable f64 = sin((old_axis_slope_angle + incidence_angle) / 2.0)
+            sagitta <- 2.0 * radius * sagitta * sagitta
+            object_distance <- (radius * sin(old_axis_slope_angle + incidence_angle))
+                * (1.0 / tan(axis_slope_angle)) + sagitta
+        else:
+            refraction_angle: f64 = -asin((from_index / to_index) * sin(axis_slope_angle))
+            object_distance <- object_distance * ((to_index * cos(-refraction_angle))
+                / (from_index * cos(axis_slope_angle)))
+            axis_slope_angle <- -refraction_angle
+        from_index <- to_index
+        if surface < 3: object_distance <- object_distance - thickness
+    result: mutable f64[2] = zeroed
+    result[0] <- object_distance
+    result[1] <- axis_slope_angle
+    result
+
+def freebench_fbench_one_pass(ray_height: f64) -> f64:
+    marginal_d: f64[2] = freebench_fbench_trace_line(4, ray_height, false)
+    paraxial_d: f64[2] = freebench_fbench_trace_line(4, ray_height, true)
+    marginal_c: f64[2] = freebench_fbench_trace_line(3, ray_height, false)
+    marginal_f: f64[2] = freebench_fbench_trace_line(6, ray_height, false)
+    spherical_aberration: f64 = paraxial_d[0] - marginal_d[0]
+    sine_condition_aberration: f64 = 1.0 - (paraxial_d[0] * paraxial_d[1])
+        / (sin(marginal_d[1]) * marginal_d[0])
+    chromatic_aberration: f64 = marginal_f[0] - marginal_c[0]
+    spherical_aberration + sine_condition_aberration + chromatic_aberration
+
+def freebench_fbench_impl(input: i64&, length: usize) -> f64:
+    if input == null or length != 1 or input[0] < 1 or input[0] > MAX_PASSES: return INVALID_RESULT
+    total: mutable f64 = 0.0
+    for pass in 0..<input[0].usize():
+        ray_height: f64 = 2.0 + 0.0002 * pass.f64()
+        total <- total + freebench_fbench_one_pass(ray_height)
+    total
+
+export fn freebench_fbench(input: i64&, length: usize) -> f64 = freebench_fbench_impl

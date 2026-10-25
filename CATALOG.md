@@ -53,7 +53,7 @@ The pinned Python `primelib.py` bundle maps its even/odd checks, prime testing a
 
 The separate [`greatest_prime_factor`](benchmarks/g/greatest_prime_factor/README.md) contract preserves the pinned source's 0 and 1 sentinels, rejects negative inputs, and uses repeated prime-factor division for positive values; its docs, oracle, and nine ports are statically cleared, with scalar runner/verifier integration statically cleared. The [`smallest_prime_factor`](benchmarks/s/smallest_prime_factor/README.md) contract is bounded to 2..1,000,005 to preserve the source's factor-list semantics; its docs, workload, oracle, and all nine ports are statically cleared; scalar runner/verifier integration is statically cleared.
 
-The separate [`simplify_fraction`](benchmarks/s/simplify_fraction/README.md) contract uses bounded signed numerator/denominator pairs and preserves the source's denominator sign; its README, workload, oracle, and all nine ports are statically cleared; scalar runner/verifier integration is pending.
+The separate [`simplify_fraction`](benchmarks/s/simplify_fraction/README.md) contract uses bounded signed numerator/denominator pairs and preserves the source's denominator sign. Its README, workload, oracle, and nine suite-language ports are statically cleared, and the byte-output runner/verifier cover the valid and ABI boundary cases.
 
 The separate [`get_primes_between`](benchmarks/g/get_primes_between/README.md) contract uses prime endpoints in 2..997 and returns the strict interior primes as comma-separated ASCII; empty interiors map to the source's index error. Its README, workload, oracle, all nine ports, and byte-output runner/verifier integration are statically cleared.
 
@@ -183,7 +183,7 @@ The pinned MiBench `network-dijkstra` source uses FIFO queue-based label-correct
 
 The MiBench `network-patricia` and cBench `network_patricia` sources use the same path-compressed Patricia/radix-trie insertion and exact-search algorithm covered by [`radix_tree`](benchmarks/r/radix_tree/README.md). Their fixed-width IPv4 key encoding and launcher traces do not define separate algorithms or packages.
 
-The MiBench `security-blowfish` package maps to [`mibench_security_blowfish`](benchmarks/m/mibench_security_blowfish/README.md), a bounded one-block ECB core port that preserves Eric Young's terms. Its file-processing launcher and CBC/CFB/OFB modes are not included.
+The MiBench `security-blowfish` package maps to [`mibench_security_blowfish`](benchmarks/m/mibench_security_blowfish/README.md), a bounded one-block ECB core port that preserves Eric Young's terms. Its file-processing launcher and CBC/CFB/OFB modes are not included there; the distinct CBC chaining mode is covered by [`cbench_blowfish_cbc`](benchmarks/c/cbench_blowfish_cbc/README.md), while CFB/OFB and launcher file handling remain outside the local packages.
 
 The pinned Olden `power` launcher maps to [`olden_power`](benchmarks/o/olden_power/README.md), preserving the feeder-tree voltage and demand recurrence with a bounded optimizer update and fixed-point projection of the final state.
 
@@ -2528,7 +2528,37 @@ The Java `cross_correlation` package preserves the source reversed-y overlap ord
  Java, JavaScript, TypeScript, and Go matrix-product sources share the exact square-domain `matrix_multiplication` contract; the package uses n≥2 to avoid the JavaScript one-row failure. Go's `Matrix.Multiply` candidate aliases this package; the Rust `multiply.rs` candidate is the separate decimal-string algorithm.
  The Python/Rust `exponential_moving_average` batch recurrence uses a shared window-size-at-least-two warm-up; Java streaming EMA is tracked separately. `bisection_2` preserves its fixed `10-x²` equation and 0.01 interval threshold. JavaScript `check_word_occurrence` preserves the source flag inversion and whitespace tokenization behavior.
  The C++ `ncr_modulo_p` package preserves modular-inverse failure for composite moduli. Python `magnetic_flux` preserves the field-area-cosine formula and one-decimal rounding.
- Forward radix-2 FFT is mapped across the pinned C++ and Rust implementations. The inverse benchmark uses the valid Rust implementation embedded in its FFT module; the two pinned C++ inverse files are excluded as mathematically incorrect.
+ Forward radix-2 FFT is mapped across the pinned C++ and Rust implementations. The inverse benchmark uses the valid Rust implementation embedded in its FFT module; the two pinned C++ inverse files are excluded as mathematically incorrect. LAC-DCC's [`oourafft`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/oourafft/oourafft.c) repeatedly uses Ooura's forward and inverse complex DFT for correlation, and [`ffbench`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/ffbench/ffbench.c) applies the same FFT core in separable 2D passes; these benchmark profiles map to existing FFT packages instead of duplicating the transform algorithm.
+ FreeBench `pifft` uses an FFT-convolution multiplier inside a modified AGM π calculation. [`freebench_pifft`](benchmarks/f/freebench_pifft/README.md) preserves that operation mix with a bounded eight-point, six-decimal fixed-point profile; it is related to [`gauss_legendre`](benchmarks/g/gauss_legendre/README.md) but has a distinct multiplication kernel. The pinned source has no explicit license grant.
+ The MiBench SUSAN package implements bounded smoothing, and cBench `automotive_susan_s` selects the same operation despite its separate launcher. The cBench `automotive_susan_c` and `_e` profiles invoke distinct corner-detection and edge-detection/thinning operations, now covered by [`cbench_automotive_susan_c`](benchmarks/c/cbench_automotive_susan_c/README.md) and [`cbench_automotive_susan_e`](benchmarks/c/cbench_automotive_susan_e/README.md); all three cBench variants share byte-identical `susan.c` source content.
+ cBench [`network_dijkstra`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/network_dijkstra/src/dijkstra_large.c) uses the same FIFO label-correcting queue, queued distance snapshots, and adjacency relaxation as MiBench [`network-dijkstra`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/network-dijkstra/dijkstra.c). Its dynamic matrix and repeated source/destination driver do not add a new shortest-path algorithm; both map to [`mibench_network_dijkstra`](benchmarks/m/mibench_network_dijkstra/README.md).
+ FreeBench `analyzer` is a distinct memory-trace algorithm: it counts loads whose latest earlier writer belongs to a prior epoch. The bounded implementation is in [`analyzer`](benchmarks/a/analyzer/README.md), with file parsing and speculative timing excluded from the measured core.
+ FreeBench `fourinarow` is bounded depth-limited heuristic minimax/alpha-beta on Connect Four, captured by [`fourinarow_minimax`](benchmarks/f/fourinarow_minimax/README.md) and distinct from the exact endgame result in [`fhourstones_exact`](benchmarks/f/fhourstones_exact/README.md). That package covers both [Fhourstones 2.0](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Fhourstones) and [Fhourstones 3.1](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Fhourstones_31), which are versions of the same exact solver family.
+ FreeBench `neural` is a bounded continuous Hopfield network with Hebbian weights and delta recall, implemented in [`freebench_neural_hopfield`](benchmarks/f/freebench_neural_hopfield/README.md). It is distinct from feed-forward backpropagation and perceptron inference; the accepted repeated-pattern domain proves the source's delta loop converges after one pass.
+ FreeBench `mason` is a distinct alternating-permutation puzzle search with a source-ordered move tree and per-piece reachability pruning, represented by [`freebench_mason`](benchmarks/f/freebench_mason/README.md) with an explicit depth cap of 8.
+ FreeBench `distray` renders a deterministic selected pixel through distribution sampling and recursive scene shading. [`freebench_distray`](benchmarks/f/freebench_distray/README.md) captures that ray-tracing core without the full-image and timing wrappers; the pinned source has no explicit license grant.
+ FreeBench `pcompress2` applies a Burrows-Wheeler transform over cyclic byte rotations, the source run-length packetizer, and adaptive arithmetic coding. [`pcompress2`](benchmarks/p/pcompress2/README.md) returns the bounded compressed record, with file I/O and repetition omitted. Existing standalone BWT and arithmetic-coding contracts cover component operations rather than this complete compression pipeline; the pinned sources have no explicit license grant.
+ MiBench `security-sha` and cBench `security_sha` both leave `USE_MODIFIED_SHA` undefined and therefore select the original SHA-0 schedule without the SHA-1 one-bit rotation. [`mibench_security_sha0`](benchmarks/s/mibench_security_sha0/README.md) covers both launchers with a bounded single-block raw digest; the pinned MiBench files contain attribution but no explicit redistribution grant.
+ LAC-DCC's telecom ADPCM encoder and decoder plus Mediabench `rawcaudio`/`rawdaudio` use the same IMA/DVI adaptive differential PCM recurrences and tables. [`lac_adpcm`](benchmarks/i/lac_adpcm/README.md) uses a mode field to expose both bounded operations; the original source permission notice is retained in every port.
+ McCat `05-eks` performs a band-to-tridiagonal Givens reduction followed by shifted symmetric QR iteration. [`mccat_05_eks`](benchmarks/m/mccat_05_eks/README.md) keeps that general eigensolver distinct from the existing two-by-two shifted QR kernel; the independent oracle diagonalizes the bounded symmetric inputs with cyclic Jacobi rotations.
+
+ McCat `08-main` updates child points through source-ordered scale, Euler rotation, and translation operations, then applies a parent transform across a rotation sweep. [`mccat_08_main`](benchmarks/m/mccat_08_main/README.md) preserves the `Rx * Ry * Rz` order, first-seen point deduplication, and frame-indexed parent rotation; this is distinct from the local single-axis vector rotation operation.
+
+ McCat `09-vor` constructs a convex hull, greedily contracts hull vertices by local circumradius priority, and reports the final three-site circle. [`mccat_09_vor`](benchmarks/m/mccat_09_vor/README.md) is distinct from the local Fortune sweep, Olden quad-edge, and Bowyer-Watson triangulation packages, which construct different geometric structures.
+
+ McCat `12-IOtest` scans generated byte arrays at different strides and reports simple aggregates. It measures memory-access patterns rather than a distinct algorithm, so the crosswalk records it without adding another package.
+
+ MallocBench's Espresso launcher runs a full multi-output PLA minimizer, but [`mallocbench_espresso`](benchmarks/m/mallocbench_espresso/README.md) isolates bounded single-output EXPAND and IRREDUNDANT phases over binary minterm masks. Its deterministic cover cost is not a claim of global minimization; the later Espresso phases and large PLA input are outside the profile.
+
+ Stanford `Puzzle` is a fixed 5×5×5 polycube packing search. [`stanford_puzzle`](benchmarks/p/stanford_puzzle/README.md) keeps the first-empty-cell DFS, 13 source orientations, shared piece-class counts, and source's 2,005-call observation. The source attributes the benchmark to Forest Baskett and has no explicit redistribution grant; the package records that status and uses independent ports.
+
+ McCat `17-bintr` inserts values into a sorted binary tree, reports size, sum, and mean, then runs 100 recursive left-first depth-first membership scans. [`mccat_bintr`](benchmarks/m/mccat_bintr/README.md) keeps this launcher behavior distinct from [`binary_search_tree`](benchmarks/b/binary_search_tree/README.md), whose lookups follow ordered key comparisons; the source's key-directed search call is commented out. All nine ports and the byte-output runner/verifier integration preserve the source notice.
+ LAC-DCC's FLoPS.c v2.0 family contains eight different numerical kernels. [`misc_flops`](benchmarks/m/misc_flops/README.md) selects each through a bounded module input and keeps them distinct from Whetstone and the existing generic integration algorithms. Its upstream files provide attribution but no explicit redistribution grant.
+ LAC-DCC `Misc/fbench` traces rays through a four-surface achromatic telescope and computes spherical, sine-condition, and chromatic aberrations. [`freebench_fbench`](benchmarks/f/freebench_fbench/README.md) keeps the source ray trace in a bounded pass profile, distinct from the numerical kernels in FLoPS and the operation mix in Whetstone.
+ MiBench `automotive-basicmath` integer square root is covered by [`mibench_automotive_basicmath_isqrt`](benchmarks/m/mibench_automotive_basicmath_isqrt/README.md): nine ports implement the 32-step digit recurrence, and the `i64_array_scalar` runner/verifier validate its pinned workload and generated square-boundary probes. The source and launcher state no redistribution license; the package records no inferred license. Its angle-conversion kernels map to existing [`radians`](benchmarks/r/radians/README.md) and [`radian_to_degree`](benchmarks/r/radian_to_degree/README.md) packages, so they are not repeated under a new name.
+ LAC-DCC's [`Dhrystone/dry/dry.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Dhrystone/dry/dry.c) is the C/1.1 integer Dhrystone procedure workload; [`Dhrystone/fldry/fldry.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Dhrystone/fldry/fldry.c) uses the same sequence with numeric fields promoted to floating point. Both are version/type variants of the same Dhrystone benchmark family represented by ANSIbench's bounded Dhrystone 2.1 core, rather than separate algorithm packages.
+ LAC-DCC's [`richards_benchmark.c`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/richards_benchmark/richards_benchmark.c) and the existing [`richards_benchmark`](benchmarks/r/richards_benchmark/README.md) package implement the same six-task packet scheduler and callback transitions. The local package exposes the source's optional 1,000,000-iteration profile; the pinned launcher leaves `SMALL_PROBLEM_SIZE` undefined and runs the default 10,000,000-iteration profile.
+ cBench [`security_sha`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/security_sha/src/sha.c) and MiBench `security-sha` both compile without `USE_MODIFIED_SHA`, selecting the unrotated SHA-0 schedule; both are covered by [`mibench_security_sha0`](benchmarks/s/mibench_security_sha0/README.md), while [`sha1`](benchmarks/s/sha1/README.md) retains the standard rotated schedule.
  Weighted interval scheduling preserves the Python predecessor search, DP recurrence, and selected-index reconstruction. `palindrome_partitioning` is split between minimum-cut DP (C++, Python, Rust, Kotlin) and JavaScript all-partitions backtracking.
  Gaussian elimination is mapped on symmetric tridiagonal systems that prevent row-pivot swaps; the pinned C `gauss_elimination` source has a separate dense partial-pivoting contract. Euler-method variants share a dyadic-grid trajectory for C#/Java/JavaScript/Python, while Julia keeps its distinct span-based contract. Hill-cipher sources are split by modulus 36, 26, and 97 rather than merged by filename.
  AVL-tree sources are split into unique-key mutable operations, C++ insert-only behavior, and F# persistent insert/delete behavior; the C++ demo deletion path does not rebalance.
@@ -3445,7 +3475,7 @@ The pinned Python `deep_clone_graph.py` uses an explicit stack and an identity-t
 The pinned Python `fuzzy_set_operations.py` applies triangular membership and eight elementwise fuzzy-set formulas to NumPy vectors. The benchmark defines those operations over bounded membership values and excludes the plotting demo; see the [guide](benchmarks/f/fuzzy_set_operations/README.md) and [pinned source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/fuzzy_logic/fuzzy_set_operations.py).
 The pinned Python `resistor_color_code.py` maps three through six color bands to significant digits, multiplier, optional tolerance, and optional temperature coefficient. Its [nine-language benchmark](benchmarks/r/resistor_color_code/README.md) preserves the returned resistance text, including source float formatting.
 The pinned Java `WelshPowell.findColoring` sorts vertices by descending degree with stable index ties. Its color-class scan admits an uncolored vertex only when it has no already-colored neighbor of any color; the nine-port [`welsh_powell`](benchmarks/w/welsh_powell/README.md) package preserves that source rule.
-The pinned Python and Java DES sources share a standard 16-round ECB block transform. The nine-language [`des_ecb`](benchmarks/d/des_ecb/README.md) contract normalizes their key and ciphertext encodings, restricts plaintext to ASCII bytes, and pads a partial final block with zero bytes.
+The pinned Python and Java DES sources share a standard 16-round ECB block transform. The nine-language [`des_ecb`](benchmarks/d/des_ecb/README.md) contract normalizes their key and ciphertext encodings, restricts plaintext to ASCII bytes, and pads a partial final block with zero bytes. LAC-DCC's [VersaBench `ecbdes`](https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/VersaBench/ecbdes) uses the same DES ECB core with a fixed block-count driver, so it maps to this package rather than adding another DES algorithm benchmark.
 [Intensity based segmentation](benchmarks/i/intensity_based_segmentation/README.md) ports the pinned Python ordered-threshold overwrite behavior across all nine languages and packs bounded pixel labels.
 The pinned MATLAB-Octave `Parametric_ReLU.m` plots the same caller-supplied-slope piecewise function as `leaky_relu` on finite binary64 inputs; its prompt and plotting are presentation context. Candidate `parametric_re_lu` aliases the [leaky ReLU guide](benchmarks/l/leaky_relu/README.md).
 The pinned JavaScript `permutate` incrementally inserts each character, deduplicates the resulting strings, and sorts them lexicographically. The benchmark restricts inputs to distinct printable ASCII and hashes the sorted permutation list for the scalar-array ABI. See the [permutate string guide](benchmarks/p/permutate_string/README.md) and [pinned JavaScript source](https://github.com/TheAlgorithms/JavaScript/blob/5c39e87a9a31f279c60f830ad74a845e4788a517/String/PermutateString.js).
@@ -4067,3 +4097,616 @@ The pinned Julia notebook defines the SIR right-hand side `dS = -beta*S*I`, `dI 
 ## Linear discriminant analysis (`linear_discriminant_analysis`)
 
 The pinned Python source is a one-dimensional pooled-Gaussian classifier: it computes class means and priors, a shared pooled variance, then chooses the first maximum class score. The bounded contract preserves source operation order and rejects inputs whose top score margin is below `1e-8`. The README, workload, oracle, generated nonfinite probes, all nine language ports, and float64 runner/verifier integration are statically cleared; each input position has NaN/+Inf/-Inf coverage. See the [guide](benchmarks/l/linear_discriminant_analysis/README.md), [workload](benchmarks/l/linear_discriminant_analysis/workload.json), [oracle](benchmarks/linear_discriminant_analysis_oracle.py), and pinned [Python source](https://github.com/TheAlgorithms/Python/blob/e1a2a8b016001309a73d5fec4818c35cca139795/machine_learning/linear_discriminant_analysis.py).
+
+## Pukall Cipher 1 (`trimaran_enc_pc1`)
+
+The pinned Trimaran source implements Pukall Cipher 1 with a 16-bit state recurrence, a 32-byte evolving key, and a deterministic LCG byte stream. The bounded `i64_array_scalar` contract processes at most 2,048 bytes and preserves the source's plaintext-feedback ordering; its result reconstructs the source's final `d/e` pair. All nine ports and array-scalar runner/verifier integration are in place, with Alexander Pukall's requested attribution. See the [guide](benchmarks/t/trimaran_enc_pc1/README.md), [workload](benchmarks/t/trimaran_enc_pc1/workload.json), [oracle](benchmarks/trimaran_enc_pc1_oracle.py), and pinned [source](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Trimaran/enc-pc1/pc1cod.c).
+
+## McCat hierarchical 3D transforms (`mccat_08_main`)
+
+The bounded McCat 08-main contract applies the source child and parent transforms in order, deduplicates first-seen points, sweeps the parent y-rotation by frame, and returns a weighted checksum of rounded coordinates. Nine language ports and scalar runner/verifier integration are in place. See the [guide](benchmarks/m/mccat_08_main/README.md), [workload](benchmarks/m/mccat_08_main/workload.json), and [oracle](benchmarks/mccat_08_main_oracle.py).
+
+## McCat hull-contraction circle (`mccat_09_vor`)
+
+McCat 09-vor contracts convex-hull vertices by the source's local circumradius priority and returns the final three-site circle. This core is distinct from the local Fortune sweep, quad-edge divide-and-conquer, and Bowyer-Watson triangulation algorithms. Nine language ports and scalar runner/verifier integration are in place. See the [guide](benchmarks/m/mccat_09_vor/README.md), [workload](benchmarks/m/mccat_09_vor/workload.json), and [oracle](benchmarks/mccat_09_vor_oracle.py).
+
+## Espresso bounded minimization phases (`mallocbench_espresso`)
+
+This profile preserves the Espresso source EXPAND and IRREDUNDANT phases for small single-output binary functions. It does not claim to reproduce the full multi-output PLA optimizer or its later phases. Nine language ports and scalar runner/verifier integration are in place. See the [guide](benchmarks/m/mallocbench_espresso/README.md), [workload](benchmarks/m/mallocbench_espresso/workload.json), and [oracle](benchmarks/mallocbench_espresso_oracle.py).
+
+## Multiword anagram decomposition (`ptrdist_anagram`)
+
+The Ptrdist program counts phrase decompositions into a supplied word list using a rarest-letter DFS pivot, packed frequency checks, and deferred non-pivot candidates. This differs from local single-word anagram checks and dictionary lookups. Nine language ports and scalar runner/verifier integration preserve Raymond Chen's redistribution notice and identify alterations. See the [guide](benchmarks/p/ptrdist_anagram/README.md), [workload](benchmarks/p/ptrdist_anagram/workload.json), and [oracle](benchmarks/ptrdist_anagram_oracle.py).
+
+## Stanford Puzzle 3D packing search (`stanford_puzzle`)
+
+The pinned puzzle fills a 5×5×5 box with fixed polycube orientations using first-empty-cell recursive backtracking. The bounded profile preserves the source order, piece-class availability, source index for the first hole, and the 2,005 recursive-call observation while allowing 1–100 passes. Nine language ports and scalar runner/verifier integration are in place; the pinned source has no explicit redistribution grant. See the [guide](benchmarks/p/stanford_puzzle/README.md), [workload](benchmarks/p/stanford_puzzle/workload.json), and [oracle](benchmarks/stanford_puzzle_oracle.py).
+
+## MallocBench continued-fraction factorization (`mallocbench_cfrac`)
+
+The bounded profile preserves CFRAC convergents, smooth-relation collection, GF(2) dependency search, and gcd factor extraction with multiplier fixed at 1. It rejects factor-base divisors as a domain precondition and omits partial relations, early aborts, multiplier search, and the restricted arbitrary-precision library. Nine language ports and scalar runner/verifier integration are in place. See the [guide](benchmarks/m/mallocbench_cfrac/README.md), [workload](benchmarks/m/mallocbench_cfrac/workload.json), and [oracle](benchmarks/mallocbench_cfrac_oracle.py).
+
+## Approximate substring matching (`agrep_approx_substring_count`)
+
+The bounded Prolangs-C profile streams a Levenshtein row with a free restart at each text byte, then counts end positions within the requested edit allowance. It supports insertion, deletion, and substitution errors, which distinguishes it from exact Bitap and whole-string edit distance. Nine independent language ports and scalar runner/verifier integration are in place; the pinned upstream source grants no redistribution license. See the [guide](benchmarks/a/agrep_approx_substring_count/README.md), [workload](benchmarks/a/agrep_approx_substring_count/workload.json), and [oracle](benchmarks/agrep_approx_substring_count_oracle.py).
+
+## NPB serial data cube (`npb_serial_dc`)
+
+The bounded NPB-serial `dc` profile groups and sums rows for every nonempty subset of up to five attributes, orders each view’s projected keys lexicographically, and checksums the results. It preserves the data-cube aggregation core while omitting external parameter files and generated data. Nine language ports and scalar runner/verifier integration retain the NAS Parallel Benchmarks 3.3 permission, attribution request, and warranty notice. See the [guide](benchmarks/n/npb_serial_dc/README.md), [workload](benchmarks/n/npb_serial_dc/workload.json), and [oracle](benchmarks/npb_serial_dc_oracle.py).
+
+## DOE PathFinder ordered-label search (`doe_pathfinder_signature_search`)
+
+The bounded graph contract checks whether a directed path can consume a requested node-label sequence in order. It preserves the source DFS’s optional label consumption and resets cycle state after each signature transition; this differs from ordinary shortest-path and path-existence algorithms. Nine language ports use an independent state-space BFS oracle, and the README records the Sandia attribution, U.S. Government rights, and LGPL terms selected by the source headers. See the [guide](benchmarks/d/doe_pathfinder_signature_search/README.md), [workload](benchmarks/d/doe_pathfinder_signature_search/workload.json), and [oracle](benchmarks/doe_pathfinder_signature_search_oracle.py).
+
+## Kernighan–Lin netlist bisection (`ptrdist_ks`)
+
+The Ptrdist `ks` profile uses the default unweighted Kernighan–Lin branch to divide an even set of modules into two balanced groups. It chooses opposite-side pairs by gain, then commits the best positive cumulative prefix of each paired-swap pass. This is distinct from subset-sum partition decisions. Nine clean-room ports and an independent recounting oracle are included; the pinned source has no explicit redistribution grant. See the [guide](benchmarks/p/ptrdist_ks/README.md), [workload](benchmarks/p/ptrdist_ks/workload.json), and [oracle](benchmarks/ptrdist_ks_oracle.py).
+
+## Prolangs-C two-pass assembler (`prolangs_c_assembler`)
+
+This bounded SIC/XE assembler preserves pass-one location and symbol assignment, pass-two forward-reference resolution, format-2 register encoding, format-3 addressing, `WORD` emission, and the source permission notice. It replaces source-line parsing and files with numeric records and a deterministic object-code checksum. Nine language ports and an independent oracle are included. See the [guide](benchmarks/p/prolangs_c_assembler/README.md), [workload](benchmarks/p/prolangs_c_assembler/workload.json), and [oracle](benchmarks/prolangs_c_assembler_oracle.py).
+
+## Prolangs-C Bison nullable analysis (`prolangs_c_bison_nullable`)
+
+This bounded grammar-analysis kernel computes the least set of nullable nonterminals using empty-production seeds and queue-based dependency propagation. Numeric production records replace text parsing, and the result is projected to a bit mask. Nine independent ports, a repeated-scan oracle, and scalar runner/verifier integration are included; the pinned Bison General Public License and source attribution are preserved. See the [guide](benchmarks/p/prolangs_c_bison_nullable/README.md), [workload](benchmarks/p/prolangs_c_bison_nullable/workload.json), and [oracle](benchmarks/prolangs_c_bison_nullable_oracle.py).
+
+## TSVC s343 column-major compaction (`tsvc_s343_column_major_compaction`)
+
+This clean-room profile scans separate row-major data and mask matrices by columns and packs each payload whose mask is positive. It preserves duplicates, exact little-endian i64 output, and the source scan order. Nine language ports and byte-output runner/verifier integration cover the bounded kernel; the README records the source reference and that no upstream license grant was found. See the [guide](benchmarks/t/tsvc_s343_column_major_compaction/README.md), [workload](benchmarks/t/tsvc_s343_column_major_compaction/workload.json), and [oracle](benchmarks/tsvc_s343_column_major_compaction_oracle.py).
+
+## TSVC s281 reverse-coupled update (`tsvc_s281_reverse_coupled_update`)
+
+This clean-room profile preserves `s281`'s ascending in-place updates while each step reads `A[n-i-1]`; later reads in a pass can therefore observe earlier writes. Bounded integer-valued inputs retain exact binary64 source behavior and emit the final A/B arrays as little-endian signed i64. Nine language ports and byte-output runner/verifier integration are included; the package documents the source attribution and the absence of an explicit upstream license grant. See the [guide](benchmarks/t/tsvc_s281_reverse_coupled_update/README.md), [workload](benchmarks/t/tsvc_s281_reverse_coupled_update/workload.json), and [oracle](benchmarks/tsvc_s281_reverse_coupled_update_oracle.py).
+
+## SciMark2 SOR grid relaxation (`scimark2_sor`)
+
+This package preserves the SciMark2-C in-place five-point stencil with fixed `omega=1.25`, row-major update order, and a fixed-point projection. That non-unit over-relaxation and 2D grid contract distinguishes it from the local `omega=1` Gauss-Seidel solver. Nine clean-room ports and an independent oracle are included; the pinned C subtree contains no explicit redistribution grant. See the [guide](benchmarks/s/scimark2_sor/README.md), [workload](benchmarks/s/scimark2_sor/workload.json), and [oracle](benchmarks/scimark2_sor_oracle.py).
+
+## MediaBench G.721 u-law encoder (`mediabench_g721_encode`)
+
+The bounded MediaBench profile encodes up to 16 u-law samples with the G.721 adaptive predictor and scale updates, resetting its state per call and packing the first code in the low nibble. It is distinct from the IMA/DVI `lac_adpcm` recurrence. Nine language ports retain the required Sun Microsystems notice, and the byte-output runner and verifier include workload and generated boundary cases. See the [guide](benchmarks/g/mediabench_g721_encode/README.md), [workload](benchmarks/g/mediabench_g721_encode/workload.json), and [oracle](benchmarks/mediabench_g721_encode_oracle.py).
+
+## DOE RSBench Doppler microscopic lookup (`doe_rsbench_doppler_xs`)
+
+This bounded profile isolates one source-order microscopic cross-section lookup with Doppler broadening, including the Abrarov approximation and the QUICK_W asymptotic branch. Fixed-point fixtures replace launcher-scale random initialization, material selection, threading, and I/O. Nine language ports retain the MIT notice; the float64 runner and verifier compare with absolute tolerance `1e-9` and relative tolerance `1e-12`. See the [guide](benchmarks/r/doe_rsbench_doppler_xs/README.md), [workload](benchmarks/r/doe_rsbench_doppler_xs/workload.json), and [oracle](benchmarks/doe_rsbench_doppler_xs_oracle.py).
+
+## DOE SimpleMOC quadratic-source attenuation (`doe_simplemoc_quadratic_attenuation`)
+
+This bounded profile isolates one default SimpleMOC quadratic-source segment update, including the pinned 353-interval exponential lookup, flux integral, fine-region tally, and outgoing angular flux. Nine language ports preserve binary32 expression order and the MIT notice; the float64 runner and verifier compare a checksum that observes both updated outputs. It is distinct from RSBench's Doppler-broadened cross-section lookup. See the [guide](benchmarks/d/doe_simplemoc_quadratic_attenuation/README.md), [workload](benchmarks/d/doe_simplemoc_quadratic_attenuation/workload.json), and [oracle](benchmarks/doe_simplemoc_quadratic_attenuation_oracle.py).
+
+## DOE XSBench unionized-grid macroscopic cross-section lookup (`doe_xsbench_unionized_macro_xs`)
+
+This bounded profile searches a prepared unionized energy grid, follows its per-nuclide pointer row, interpolates five microscopic cross-section channels, and accumulates the selected material in source order. It captures XSBench's macroscopic lookup path and is distinct from RSBench's Doppler-broadened microscopic lookup. Nine language ports retain the Argonne MIT notice; the float64 runner and verifier cover the bounded table layout and endpoint rules. See the [guide](benchmarks/x/doe_xsbench_unionized_macro_xs/README.md), [workload](benchmarks/x/doe_xsbench_unionized_macro_xs/workload.json), and [oracle](benchmarks/doe_xsbench_unionized_macro_xs_oracle.py).
+
+## DOE miniGMG cell-centered restriction (`doe_minigmg_restriction`)
+
+This bounded multigrid kernel averages each nonoverlapping 2×2×2 fine-grid block in source order and projects the coarse grid to a position-weighted squared checksum. Fractional means are preserved, so it measures the restriction arithmetic rather than integer-only downsampling. Nine ports retain miniGMG's BSD-style notice; the float64 runner and verifier cover the maximum 8×8×8 grid, fractional cases, malformed dimensions and cell bounds. See the [guide](benchmarks/d/doe_minigmg_restriction/README.md), [workload](benchmarks/d/doe_minigmg_restriction/workload.json), and [oracle](benchmarks/doe_minigmg_restriction_oracle.py).
+
+## Prolangs-C football tie-breaks (`prolangs_football_tiebreaks`)
+
+The bounded contract orders an unresolved record group by conference and team ID, compares exact winning fractions, then applies the source's H2H, division, and conference criteria, restarting at H2H after every strict subgroup split. Fixtures cover both initial ordering and recursive criterion restart. Nine language ports and an independent oracle are included. See the [guide](benchmarks/p/prolangs_football_tiebreaks/README.md), [workload](benchmarks/p/prolangs_football_tiebreaks/workload.json), and [oracle](benchmarks/prolangs_football_tiebreaks_oracle.py).
+
+## Prolangs-C cdecl declarator parser (`prolangs_c_cdecl`)
+
+This clean-room profile parses bounded ANSI-C declarations and serializes their base type, identifier, and pointer/array/function operators in identifier-outward order. The encoding preserves the distinction between arrays of pointers and pointers to arrays. The recursive-descent parser and workload exercise declarator binding and function-parameter forms; command processing, casts, qualifiers, and interactive I/O are excluded. No explicit upstream license grant was found, and no upstream parser text or comments are copied. Nine language ports and byte-output runner/verifier integration are included. See the [guide](benchmarks/p/prolangs_c_cdecl/README.md), [workload](benchmarks/p/prolangs_c_cdecl/workload.json), and [oracle](benchmarks/prolangs_c_cdecl_oracle.py).
+
+## cBench TIFF Floyd–Steinberg dithering (`cbench_tiffdither`)
+
+This bounded grayscale image kernel applies source-order Floyd–Steinberg error diffusion, strict thresholding, and MSB-first packed output. It is distinct from the local Burkes dithering algorithm, which uses a different image representation and diffusion weights. Nine ports retain the Sam Leffler and Silicon Graphics permission notice; the byte-output runner and verifier cover signed division, row handling, packing, and capacity errors. See the [guide](benchmarks/c/cbench_tiffdither/README.md), [workload](benchmarks/c/cbench_tiffdither/workload.json), and [oracle](benchmarks/cbench_tiffdither_oracle.py).
+
+## cBench TIFF median-cut palette construction (`cbench_consumer_tiffmedian`)
+
+This bounded RGB quantization kernel forms a 5-bit-per-channel histogram, repeatedly splits the eligible box with greatest population along its longest range, shrinks both children, and emits palette midpoint colors in source box-list order. It is distinct from TIFF dithering and from image filters that do not construct a palette. Nine clean-room ports retain source provenance without claiming an upstream license grant; the byte-output runner and verifier cover the bounded RGB domain and palette capacity. See the [guide](benchmarks/c/cbench_consumer_tiffmedian/README.md), [workload](benchmarks/c/cbench_consumer_tiffmedian/workload.json), and [oracle](benchmarks/cbench_consumer_tiffmedian_oracle.py).
+
+## cBench TIFF RGB-to-gray transform (`cbench_consumer_tiff2bw`)
+
+This bounded pixel kernel converts each interleaved 8-bit RGB triplet with the source's fixed-point weights and emits one grayscale byte in input order. It is distinct from dithering and palette construction. Nine ports retain the full Sam Leffler and Silicon Graphics permission notice; the byte-output runner and verifier cover coefficient arithmetic, malformed RGB framing, and capacity errors. See the [guide](benchmarks/c/cbench_consumer_tiff2bw/README.md), [workload](benchmarks/c/cbench_consumer_tiff2bw/workload.json), and [oracle](benchmarks/cbench_consumer_tiff2bw_oracle.py).
+
+## cBench bzip2 MTF and zero-run coding (`cbench_bzip2_mtf_rle`)
+
+This bounded package isolates the bzip2 move-to-front stage and its RUNA/RUNB zero-run coding. Mode 0 maps an already sorted BWT last column to MTF/RUNA/RUNB/EOB bytes; mode 1 expands those tokens and inverse-MTFs the BWT column. It excludes the full BWT/Huffman codec, so it does not duplicate `pcompress2`. Nine ports retain bzip2/libbzip2 1.0.4's full Julian Seward notice. The byte-output runner and verifier cover both directions, the 32-byte block and 33-byte token limits, malformed streams, and output-capacity behavior. See the [guide](benchmarks/c/cbench_bzip2_mtf_rle/README.md), [workload](benchmarks/c/cbench_bzip2_mtf_rle/workload.json), and [oracle](benchmarks/cbench_bzip2_mtf_rle_oracle.py).
+
+## cBench Blowfish CBC (`cbench_blowfish_cbc`)
+
+This profile applies Eric Young's Blowfish CBC chaining to one through four blocks, with encryption and decryption directions and the two fixed source test keys. It is a distinct mode-specific operation from the existing Blowfish ECB package; it does not reproduce the file driver or the neighboring CFB64/OFB64 paths. Nine ports retain the complete Eric Young notice, including the required advertising acknowledgment and the restriction on changing derivative distribution terms. The byte-output runner and verifier cover key selection, IV chaining, malformed frames, and output-capacity errors. See the [guide](benchmarks/c/cbench_blowfish_cbc/README.md), [workload](benchmarks/c/cbench_blowfish_cbc/workload.json), and [oracle](benchmarks/cbench_blowfish_cbc_oracle.py).
+
+## cBench Rijndael AES-256 block decryption (`cbench_security_rijndael_decrypt`)
+
+This package adds the inverse AES-256 block primitive selected by the cBench `_d` launcher. It complements the existing encryption-only MiBench Rijndael port; the cBench CBC chaining, padding, file driver, and repeated dataset wrapper remain outside the bounded profile. Nine ports retain the complete Brian Gladman two-condition redistribution notice. The byte-output runner and verifier cover known-answer vectors, malformed bytes and lengths, null output, and capacity failures. See the [guide](benchmarks/c/cbench_security_rijndael_decrypt/README.md), [workload](benchmarks/c/cbench_security_rijndael_decrypt/workload.json), and [oracle](benchmarks/cbench_security_rijndael_decrypt_oracle.py).
+
+## cBench Pratt–Boyer–Moore helper (`cbench_office_pratt_boyer_moore`)
+
+This bounded string search ports the Public Domain `init_search`/`strsearch` helper from `pbmsrch_large.c`, preserving its endpoint skip table, terminal zero shift, and one-byte advance after a false endpoint match. It remains distinct from the local Horspool search and does not claim textbook full Boyer–Moore behavior. Nine ports, an independent oracle, and strict scalar-suite workload coverage are included. See the [guide](benchmarks/c/cbench_office_pratt_boyer_moore/README.md), [workload](benchmarks/c/cbench_office_pratt_boyer_moore/workload.json), and [oracle](benchmarks/cbench_office_pratt_boyer_moore_oracle.py).
+
+## cBench Ispell word hash (`cbench_ispell_hash`)
+
+This bounded helper uppercases ASCII letters, packs the first four bytes, then rotates the 32-bit state and XORs the remaining bytes before reducing by the caller's table size. It is distinct from cryptographic digest benchmarks such as `string_hash_equality`, which compares Keccak-256 outputs. Nine ports preserve the Ispell source's redistribution notice and use a documented ASCII conversion profile; the dictionary and spellchecker remain outside the package. See the [guide](benchmarks/c/cbench_ispell_hash/README.md), [workload](benchmarks/c/cbench_ispell_hash/workload.json), and [oracle](benchmarks/cbench_ispell_hash_oracle.py).
+
+## cBench Ispell collision-chain lookup (`cbench_ispell_lookup_chain`)
+
+This bounded dictionary lookup hashes a pre-normalized lowercase ASCII query, follows its bucket's linked collision chain, and returns the first exact word match. It exercises `lookup.c::lookup` and its chain traversal; the neighboring [`cbench_ispell_hash`](benchmarks/c/cbench_ispell_hash/README.md) package covers only the hash primitive. The package preserves the source's redistribution notice. See the [guide](benchmarks/i/cbench_ispell_lookup_chain/README.md), [workload](benchmarks/i/cbench_ispell_lookup_chain/workload.json), and [oracle](benchmarks/cbench_ispell_lookup_chain_oracle.py).
+
+## cBench Ghostscript ROP3 truth-table operation (`cbench_ghostscript_rop3`)
+
+This bounded one-pixel Boolean kernel selects one of 256 three-input raster operations using the `(T,S,D)` truth-table index and returns a 32-bit destination word. It excludes Ghostscript's raster traversal and page interpreter. Nine ports preserve the complete Aladdin Free Public License v5; its restrictive noncommercial distribution terms are called out in the guide. The algorithm is registered in the array-scalar suite. See the [guide](benchmarks/g/cbench_ghostscript_rop3/README.md), [workload](benchmarks/g/cbench_ghostscript_rop3/workload.json), and [oracle](benchmarks/ghostscript_rop3_oracle.py).
+
+## cBench Ghostscript ROP3 idempotence predicate (`cbench_ghostscript_rop3_idempotence`)
+
+This bounded scalar operation evaluates Ghostscript's `rop3_is_idempotent` macro for one 8-bit truth table. The package preserves the header macro's exact bit behavior, including its result for code `0xaa`, and distinguishes this predicate from the pixel-producing [`cbench_ghostscript_rop3`](benchmarks/g/cbench_ghostscript_rop3/README.md) operation. Nine ports preserve AFPL v5 and its restrictive noncommercial distribution terms. See the [guide](benchmarks/g/cbench_ghostscript_rop3_idempotence/README.md), [workload](benchmarks/g/cbench_ghostscript_rop3_idempotence/workload.json), and [oracle](benchmarks/ghostscript_rop3_idempotence_oracle.py).
+
+## cBench Ghostscript ROP3 operand-usage mask (`cbench_ghostscript_rop3_operand_usage`)
+
+This helper reports which D, S, and T inputs can affect an 8-bit ROP3 truth table, returning a three-bit usage mask; constant functions return zero. It is distinct from both pixel evaluation and idempotence testing. Nine ports preserve AFPL v5 and its restrictive noncommercial distribution terms. See the [guide](benchmarks/g/cbench_ghostscript_rop3_operand_usage/README.md), [workload](benchmarks/g/cbench_ghostscript_rop3_operand_usage/workload.json), and [oracle](benchmarks/ghostscript_rop3_operand_usage_oracle.py).
+
+## cBench Ghostscript ROP3 truth-table transforms (`cbench_ghostscript_rop3_transform`)
+
+This bounded helper applies one of 15 truth-table remappings from `gsropt.h`, including input inversion, pinning, swapping, conditional use of D, and output inversion. It transforms the operation code rather than evaluating pixels or testing truth-table properties. Nine ports preserve AFPL v5 and its restrictive noncommercial distribution terms. See the [guide](benchmarks/g/cbench_ghostscript_rop3_transform/README.md), [workload](benchmarks/g/cbench_ghostscript_rop3_transform/workload.json), and [oracle](benchmarks/ghostscript_rop3_transform_oracle.py).
+
+## TSVC vbor nested-product kernel (`tsvc_vbor`)
+
+This clean-room scalar profile preserves TSVC's source-shaped four nested products over six arrays and sums each per-index product. Integer-valued inputs in 0..2 keep the source binary64 intermediates exact, allowing all nine ports to use signed i64 arithmetic. The scalar runner and verifier include maximum-bound and malformed-input coverage; the README records source attribution and the absence of an explicit upstream license grant. See the [guide](benchmarks/t/tsvc_vbor/README.md), [workload](benchmarks/t/tsvc_vbor/workload.json), and [oracle](benchmarks/tsvc_vbor_oracle.py).
+
+## Embench-IoT TAR filename search (`tarfind`)
+
+This package scans bounded TAR-header filename fields in archive order and returns the first matching record for each query, with 255 marking misses. It isolates the source benchmark’s linear filename search while leaving archive payloads and unrelated header fields out of scope. Nine ports retain the target source’s MIT notice; the byte-output runner and verifier cover duplicate names, exact case-sensitive matches, misses, maximum bounds, and malformed frames. See the [guide](benchmarks/t/tarfind/README.md), [workload](benchmarks/t/tarfind/workload.json), and [oracle](benchmarks/tarfind_oracle.py).
+
+## Embench-IoT quantized depthwise convolution (`depthconv`)
+
+This package benchmarks the bounded per-channel int8 depthwise convolution profile from TensorFlow Lite Micro’s `DepthwiseConvPerChannel`: four vertical taps, 1–8 channels, input offset 128, per-channel bias and quantization, and signed-int8 activation clamping. It preserves the source rounding shift and byte representation while excluding the original benchmark harness. Nine clean-room ports include Apache-2.0 attribution; the byte-output runner and verifier validate source metadata, workload fixtures, boundary cases, and output capacity. See the [guide](benchmarks/d/depthconv/README.md), [workload](benchmarks/d/depthconv/workload.json), and [oracle](benchmarks/depthconv_oracle.py).
+
+## Embench-IoT QRduino encoder snapshot (`qrduino`)
+
+This bounded profile encodes nonzero ASCII bytes in QR byte mode using version 2-L, including data padding, Reed–Solomon parity, module placement, and mask candidate evaluation. It preserves the Embench verifier’s observable output: the first 22 row-packed bytes from the unmasked frame before format bits are applied, rather than the final QR symbol. Nine clean-room ports retain the pinned GPL-3.0-or-later attribution and are registered in the byte-output suite. See the [guide](benchmarks/q/qrduino/README.md), [workload](benchmarks/q/qrduino/workload.json), and [oracle](benchmarks/qrduino_oracle.py).
+
+## Embench-IoT picojpeg grayscale block decoder (`picojpeg`)
+
+This bounded decoder validates and reconstructs one 8×8 baseline grayscale JPEG block. It covers marker parsing, a restricted canonical Huffman stream, DC and AC coefficient decoding, dequantization, and inverse-DCT pixel output; color, multiple blocks, progressive scans, and the original repeated-image harness are excluded. Nine clean-room ports preserve the Embench GPL attribution and Rich Geldreich’s public-domain origin note. See the [guide](benchmarks/p/picojpeg/README.md), [workload](benchmarks/p/picojpeg/workload.json), and [oracle](benchmarks/picojpeg_oracle.py).
+
+## Embench-IoT Statemate default settlement (`statemate`)
+
+This profile repeats the fixed no-stimulus initialization and statechart settlement path of the generated car-window controller, returning the verifier-visible 64-byte Bitlist, 16 state identifier bytes, and three timer words. It does not implement stimulus-driven branches or a general StateChart runtime. Nine clean-room ports retain the pinned GPL-3.0-or-later attribution and are registered in the byte-output suite. See the [guide](benchmarks/s/statemate/README.md), [workload](benchmarks/s/statemate/workload.json), and [oracle](benchmarks/statemate_oracle.py).
+
+## Embench-IoT slre regex search (`slre`)
+
+This bounded search profile preserves leftmost matching, ordered top-level alternatives, dot matching, optional atoms, and start/end anchors, returning the exclusive match end. It is distinct from the existing whole-string `regex_match` benchmark; groups, character sets, escapes, `*`, and `+` remain outside this profile. Nine ports retain the pinned GPL-3.0-or-later license and upstream credits. See the [guide](benchmarks/s/slre/README.md), [workload](benchmarks/s/slre/workload.json), and [oracle](benchmarks/slre_oracle.py).
+
+## Embench-IoT WikiSort block merge (`wikisort`)
+
+This bounded stable-sort profile uses 16-item insertion runs, a 512-item cache for small merges, and block rotations with lower-bound partitions when the left run exceeds the cache. The 2,048-element maximum reaches the fallback path while keeping caller scratch allocation outside the timed call. Nine ports implement the documented source-shaped profile under the pinned GPL-3.0-or-later attribution. See the [guide](benchmarks/w/wikisort/README.md), [workload](benchmarks/w/wikisort/workload.json), and [oracle](benchmarks/wikisort_oracle.py).
+
+## Embench-IoT bounded boosted-tree inference (`xgboost`)
+
+This bounded inference profile evaluates a fixed six-tree, three-class synthetic model through the source-shaped threshold traversal and vote aggregation, including high-bit leaf IDs and lowest-index tie resolution. The embedded model is explicitly synthetic rather than copied from upstream MNIST data; training and the original test harness are excluded. Nine ports retain the pinned GPL-3.0-or-later notice. The scalar runner and verifier compare the workload's model arrays and fixtures with the independent oracle. See the [guide](benchmarks/x/xgboost/README.md), [workload](benchmarks/x/xgboost/workload.json), and [oracle](benchmarks/xgboost_oracle.py).
+
+## Embench EDN lattice synthesis (`edn_lattice_synthesis`)
+
+This fixed-point profile runs the source-order lattice synthesis recurrence and emits the final accumulator and updated state vector as signed 64-bit words. It preserves arithmetic shifts and short-range bounds, with all nine ports covered by the byte-output suite and the complete GPL and permission notice. See the [guide](benchmarks/e/edn_lattice_synthesis/README.md), [workload](benchmarks/e/edn_lattice_synthesis/workload.json), and [oracle](benchmarks/edn_lattice_synthesis_oracle.py).
+
+## Embench EDN Q15 vector multiply-add (`edn_vec_mpy1`)
+
+This fixed-point kernel updates each `y` value with the arithmetic-shifted Q15 product of the shared scaler and corresponding `x` value. The bounded workload checks negative shifts and signed output encoding across nine ports. See the [guide](benchmarks/e/edn_vec_mpy1/README.md), [workload](benchmarks/e/edn_vec_mpy1/workload.json), and [oracle](benchmarks/edn_vec_mpy1_oracle.py).
+
+## Embench EDN cascaded IIR (`edn_iir_cascade`)
+
+This profile applies ordered second-order Q15 sections, preserving the source's two-stage multiply-accumulate recurrence and per-section state shift. It emits the final sample and all updated section states from the bounded cascade. Nine ports are registered in the byte-output suite. See the [guide](benchmarks/e/edn_iir_cascade/README.md), [workload](benchmarks/e/edn_iir_cascade/workload.json), and [oracle](benchmarks/edn_iir_cascade_oracle.py).
+
+## Embench EDN fixed-point JPEG forward DCT (`edn_jpeg_dct`)
+
+This source-shaped kernel performs the row pass then column pass of a factorized 8×8 forward DCT, preserving signed-16 narrowing and fixed shifts. It is a fixed-point 2D factorization, distinct from the dense 1D MFCC DCT-II and the inverse DCT inside picojpeg. Nine ports are registered in the byte-output suite. See the [guide](benchmarks/e/edn_jpeg_dct/README.md), [workload](benchmarks/e/edn_jpeg_dct/workload.json), and [oracle](benchmarks/edn_jpeg_dct_oracle.py).
+
+## Embench-IoT NSICHNEU Petri/T-Net transitions (`nsichneu`)
+
+This bounded profile executes the generated NSicherNeu place transitions in source order, including the six P1 permutations, 120 P2 permutations, persistent markings across repeated runs, and verifier-sized P3 output. Nine ports preserve the pinned GPL-3.0-or-later attribution and are checked by an independent transition simulator in the byte-output suite. See the [guide](benchmarks/n/nsichneu/README.md), [workload](benchmarks/n/nsichneu/workload.json), and [oracle](benchmarks/nsichneu_oracle.py).
+
+## Rodinia SRAD v2 diffusion update (`rodinia_srad_v2`)
+
+This bounded profile executes the two SRAD v2 diffusion kernels over one 16×16 image block and preserves the pinned binary32 stores, unsuffixed-literal promotion points, and source coefficient-neighbor choices. It excludes random image generation, ROI statistics, and CUDA setup. Nine ports retain the complete BSD-3-Clause source notice; the scalar runner and verifier use the independent fixed-binary32 oracle. See the [guide](benchmarks/r/rodinia_srad_v2/README.md), [workload](benchmarks/r/rodinia_srad_v2/workload.json), and [oracle](benchmarks/rodinia_srad_v2_oracle.py).
+
+## Rodinia Euler3D single-cell flux (`rodinia_euler3d_flux`)
+
+This bounded kernel computes five conservative flux components for one cell across four faces, retaining the source order for real neighbors, wing walls, and far-field boundaries. Binary32 arithmetic and source constants are preserved, with the scalar suite checking a weighted fixed-point projection against an independent oracle. Nine ports include the full BSD-3-Clause source notice. See the [guide](benchmarks/r/rodinia_euler3d_flux/README.md), [workload](benchmarks/r/rodinia_euler3d_flux/workload.json), and [oracle](benchmarks/rodinia_euler3d_flux_oracle.py).
+
+## Rodinia naive particle-filter transition (`rodinia_particlefilter_naive`)
+
+This deterministic transition covers bounded motion prediction, observation likelihood weighting, centroid estimation, and source-order systematic resampling. It takes supplied normal draws, sample intensities, and resampling offset, excluding random video generation and CUDA setup. Nine ports retain the complete BSD-3-Clause notice and are wired to the scalar oracle suite. See the [guide](benchmarks/r/rodinia_particlefilter_naive/README.md), [workload](benchmarks/r/rodinia_particlefilter_naive/workload.json), and [oracle](benchmarks/rodinia_particlefilter_naive_oracle.py).
+
+## Rodinia LavaMD screened particle interactions (`rodinia_lavamd`)
+
+This bounded profile accumulates screened potential and force components for each supplied home particle against particles in the home box and one neighboring box, retaining the source arithmetic and iteration order. It replaces the launcher's 10-by-10-by-10 box workload with explicit boxes containing one to four particles. Nine ports preserve the complete University of Virginia three-condition BSD-style notice and are registered in the i64-array scalar suite. See the [guide](benchmarks/l/rodinia_lavamd/README.md), [workload](benchmarks/l/rodinia_lavamd/workload.json), and [oracle](benchmarks/rodinia_lavamd_oracle.py).
+
+## Rodinia Myocyte CaM RHS (`rodinia_myocyte_cam_rhs`)
+
+This bounded profile evaluates Rodinia Myocyte's `kernel_cam` state derivatives and calcium-buffer communication term in source order, returning their weighted checksum. It retains the complete University of Virginia BSD-3-Clause notice and is registered in the float64 suite. See the [guide](benchmarks/m/rodinia_myocyte_cam_rhs/README.md), [workload](benchmarks/m/rodinia_myocyte_cam_rhs/workload.json), and [oracle](benchmarks/rodinia_myocyte_cam_rhs_oracle.py).
+
+## Rodinia Streamcluster facility opening (`rodinia_streamcluster_pgain`)
+
+This bounded profile performs one source-ordered `pgain` facility-opening decision, including center closures, point reassignment, and the objective checksum. It retains the Princeton and University of Virginia notices and is registered in the byte-output suite. See the [guide](benchmarks/s/rodinia_streamcluster_pgain/README.md), [workload](benchmarks/s/rodinia_streamcluster_pgain/workload.json), and [oracle](benchmarks/rodinia_streamcluster_pgain_oracle.py).
+
+## Rodinia Pathfinder minimum-cost grid path (`rodinia_pathfinder`)
+
+This bounded dynamic program accumulates cell costs row by row and returns the least cost in the final frontier, with same-column and neighboring-column transitions. The input grid is explicit and deterministic, while the source's pyramid-height chunk parameter remains part of the call contract. Nine ports retain Rodinia's BSD notice and are registered in the i64-array scalar suite. See the [guide](benchmarks/r/rodinia_pathfinder/README.md), [workload](benchmarks/r/rodinia_pathfinder/workload.json), and [oracle](benchmarks/rodinia_pathfinder_oracle.py).
+
+## MiBench LAME long-block MDCT (`mibench_lame_mdct_long`)
+
+This package isolates LAME's 18-sample long-block MDCT helper over already-windowed values and returns the 18 source-ordered coefficients. It excludes the MP3 filterbank and file/bitstream pipeline, retains the LGPL-2.0-or-later source notice, and registers the nine ports in the float64-slice suite. See the [guide](benchmarks/m/mibench_lame_mdct_long/README.md), [workload](benchmarks/m/mibench_lame_mdct_long/workload.json), and [oracle](benchmarks/mibench_lame_mdct_long_oracle.py).
+
+## cBench consumer_mad inverse MDCT36 (`cbench_consumer_mad_imdct36`)
+
+This package isolates libmad's 18-coefficient to 36-sample long-block inverse MDCT as a bounded binary64 cosine transform. It records that the profile is mathematically equivalent to the default fixed-point helper, without claiming bit-for-bit Q28 behavior; parsing, windowing, overlap-add, and polyphase synthesis remain outside the contract. Nine ports retain the GPL-2.0-or-later notice and are registered in the float64-slice suite. See the [guide](benchmarks/m/cbench_consumer_mad_imdct36/README.md), [workload](benchmarks/m/cbench_consumer_mad_imdct36/workload.json), and [oracle](benchmarks/cbench_consumer_mad_imdct36_oracle.py).
+
+## cBench LAME stereo mid-side transform (`cbench_lame_mid_side`)
+
+This package isolates LAME's per-spectral-pair left/right to mid/side transform from the conditional `convert_mdct` path. Its profile preserves the source pair-sum/pair-difference operation order and excludes granule assembly, MDCT, quantization, psychoacoustics, and bitstream writing. Nine ports retain the GPL-2.0-or-later notice and are registered in the float64-slice suite. See the [guide](benchmarks/m/cbench_lame_mid_side/README.md), [workload](benchmarks/m/cbench_lame_mid_side/workload.json), and [oracle](benchmarks/cbench_lame_mid_side_oracle.py).
+
+## cBench RSynth natural glottal-source sample (`cbench_rsynth_natural_glottal_sample`)
+
+This package returns one selected sample from RSynth's natural glottal-source recurrence with the pinned C binary32 rounding boundaries. It models one isolated pitch period and excludes the impulsive source, resonator, formant filters, dictionaries, speech input, and the text-to-speech pipeline. Nine ports use the cBench source's CMU public-domain designation while excluding its separately restricted dictionary data; the rights scope is retained in the package. See the [guide](benchmarks/m/cbench_rsynth_natural_glottal/README.md), [workload](benchmarks/m/cbench_rsynth_natural_glottal/workload.json), and [oracle](benchmarks/cbench_rsynth_natural_glottal_oracle.py).
+
+## MediaBench GSM RPE grid selection (`mediabench_gsm_rpe_grid_selection`)
+
+This bounded GSM kernel compares the four 3-spaced phases of a 40-sample residual, preserves arithmetic-shift energy calculation and lowest-grid tie selection, then emits the selected 13 samples. It retains the upstream copyright notice and registers in the byte-output suite. See the [guide](benchmarks/m/mediabench_gsm_rpe_grid_selection/README.md), [workload](benchmarks/m/mediabench_gsm_rpe_grid_selection/workload.json), and [oracle](benchmarks/mediabench_gsm_rpe_grid_selection_oracle.py).
+
+## Rodinia HybridSort bounded histogram merge (`rodinia_hybridsort`)
+
+This package preserves HybridSort's histogram partition and per-bucket merge-sort structure over explicit bounded inputs. It fixes uniform bins over the input range instead of Rodinia's adaptive quantile pivots, retains the Rodinia license and NVIDIA histogram notice, and is registered in the byte-output suite. See the [guide](benchmarks/r/rodinia_hybridsort/README.md), [workload](benchmarks/r/rodinia_hybridsort/workload.json), and [oracle](benchmarks/rodinia_hybridsort_oracle.py).
+
+## Rodinia B+ tree point search (`rodinia_bplus_tree`)
+
+The bounded profile routes queries through a single internal separator to one of two sorted leaf ranges and scores found records in source order. It preserves the separator-equality route, cites the pinned Rodinia source, retains its redistribution notice, and registers the nine ports in the scalar suite. See the [guide](benchmarks/b/rodinia_bplus_tree/README.md), [workload](benchmarks/b/rodinia_bplus_tree/workload.json), and [oracle](benchmarks/rodinia_bplus_tree_oracle.py).
+
+## Rodinia MUMmerGPU maximal exact matches (`rodinia_mummergpu`)
+
+This bounded DNA query reports all left- and right-maximal exact matches for one reference/query pair, preserving one-based coordinates and suffix-tree traversal order. It retains the subtree's full Artistic License text and is registered in the byte-output suite. See the [guide](benchmarks/m/rodinia_mummergpu/README.md), [workload](benchmarks/m/rodinia_mummergpu/workload.json), and [oracle](benchmarks/rodinia_mummergpu_oracle.py).
+
+## TSVC indexed gather and scatter updates (`tsvc_indexed_gather_scatter`)
+
+This package covers TSVC s491 scatter and s4113 gather-plus-scatter, preserving ascending loop order and last-write-wins behavior for repeated indices. The clean-room ports retain source attribution and explicitly make no upstream license claim; the byte-output suite checks packed i64 destinations and capacity boundaries. See the [guide](benchmarks/t/tsvc_indexed_gather_scatter/README.md), [workload](benchmarks/t/tsvc_indexed_gather_scatter/workload.json), and [oracle](benchmarks/tsvc_indexed_gather_scatter_oracle.py).
+
+## TSVC s141 packed symmetric update (`tsvc_s141_packed_symmetric_update`)
+
+This bounded kernel accumulates the lower triangle of a row-major matrix into packed symmetric storage, with an explicit repeated-round count. It is distinct from dense symmetric matrix multiplication and indexed gather/scatter; the clean-room ports document the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s141_packed_symmetric_update/README.md), [workload](benchmarks/t/tsvc_s141_packed_symmetric_update/workload.json), and [oracle](benchmarks/tsvc_s141_packed_symmetric_update_oracle.py).
+
+## TSVC s131 forward-neighbor update (`tsvc_s131_forward_neighbor_update`)
+
+This clean-room recurrence updates each array element from its right neighbor in ascending order for a bounded number of passes, preserving the source's within-pass read behavior and leaving the final element unchanged. The byte-output suite checks the packed i64 vector and boundary conditions; the README records s151 as a duplicate helper-based form and notes the missing upstream license grant. See the [guide](benchmarks/t/tsvc_s131_forward_neighbor_update/README.md), [workload](benchmarks/t/tsvc_s131_forward_neighbor_update/workload.json), and [oracle](benchmarks/tsvc_s131_forward_neighbor_update_oracle.py).
+
+## TSVC s132 shifted-row update (`tsvc_s132_shifted_row_update`)
+
+This bounded cross-row kernel updates target elements from the preceding element of another row plus a scaled vector, leaving target element zero unchanged. The clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s132_shifted_row_update/README.md), [workload](benchmarks/t/tsvc_s132_shifted_row_update/workload.json), and [oracle](benchmarks/tsvc_s132_shifted_row_update_oracle.py).
+
+## TSVC s152 three-factor accumulation (`tsvc_s152_three_factor_accumulate`)
+
+This bounded kernel multiplies three input factors and accumulates the result into an output vector over repeated passes, preserving per-element update order. The clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s152_three_factor_accumulate/README.md), [workload](benchmarks/t/tsvc_s152_three_factor_accumulate/workload.json), and [oracle](benchmarks/tsvc_s152_three_factor_accumulate_oracle.py).
+
+## TSVC s161 mutually exclusive updates (`tsvc_s161_mutually_exclusive_updates`)
+
+This bounded control-flow kernel updates either A at index i or C at i+1 according to B, preserving the ascending loop's dependency between successive indices. The clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s161_mutually_exclusive_updates/README.md), [workload](benchmarks/t/tsvc_s161_mutually_exclusive_updates/workload.json), and [oracle](benchmarks/tsvc_s161_mutually_exclusive_updates_oracle.py).
+
+## TSVC s162 guarded shifted FMA (`tsvc_s162_guarded_shifted_fma`)
+
+This bounded control-flow kernel preserves the scalar guard: k=0 leaves A unchanged, while k=1 updates A[i] from the next A slot plus B[i]*C[i] for the ascending prefix, leaving the final slot untouched. Its clean-room ports use an integer-exact domain and record that no explicit upstream license grant was found. See the [guide](benchmarks/t/tsvc_s162_guarded_shifted_fma/README.md), [workload](benchmarks/t/tsvc_s162_guarded_shifted_fma/workload.json), and [oracle](benchmarks/tsvc_s162_guarded_shifted_fma_oracle.py).
+
+## TSVC s278 branch recomputation (`tsvc_s278_branch_recompute`)
+
+This bounded control-flow kernel updates B or C based on the current A value, then recomputes A from the resulting state. It preserves the per-element branch and pass order, records the missing upstream license grant, and is registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s278_branch_recompute/README.md), [workload](benchmarks/t/tsvc_s278_branch_recompute/workload.json), and [oracle](benchmarks/tsvc_s278_branch_recompute_oracle.py).
+
+## TSVC s279 nested branch recomputation (`tsvc_s279_nested_branch_recompute`)
+
+This bounded control-flow kernel recomputes C on the positive-A branch; otherwise it updates B and conditionally updates C before the common A recomputation. Its nine clean-room language ports preserve the nested decision and record that no explicit upstream license grant was found. See the [guide](benchmarks/t/tsvc_s279_nested_branch_recompute/README.md), [workload](benchmarks/t/tsvc_s279_nested_branch_recompute/workload.json), and [oracle](benchmarks/tsvc_s279_nested_branch_recompute_oracle.py).
+
+## TSVC s353 unrolled sparse SAXPY (`tsvc_s353_unrolled_sparse_saxpy`)
+
+This bounded loop-rerolling kernel performs source-ordered `A[i] += alpha * B[index[i]]` updates in five-element chunks, preserving repeated gather indices. The clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s353_unrolled_sparse_saxpy/README.md), [workload](benchmarks/t/tsvc_s353_unrolled_sparse_saxpy/workload.json), and [oracle](benchmarks/tsvc_s353_unrolled_sparse_saxpy_oracle.py).
+
+## TSVC s452 index-weighted vector map (`tsvc_s452_index_weighted_vector_map`)
+
+This bounded global-data-flow kernel computes `A[i] = B[i] + C[i] * (i + 1)` across an input vector. The clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s452_index_weighted_vector_map/README.md), [workload](benchmarks/t/tsvc_s452_index_weighted_vector_map/workload.json), and [oracle](benchmarks/tsvc_s452_index_weighted_vector_map_oracle.py).
+
+## TSVC s126 matrix column recurrence (`tsvc_s126_matrix_column_recurrence`)
+
+This bounded induction-variable kernel updates each matrix column from top to bottom, using the prior row's updated B value and skipping one coefficient after each column. Its clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s126_matrix_column_recurrence/README.md), [workload](benchmarks/t/tsvc_s126_matrix_column_recurrence/workload.json), and [oracle](benchmarks/tsvc_s126_matrix_column_recurrence_oracle.py).
+
+## TSVC s128 strided coupled update (`tsvc_s128_strided_coupled_update`)
+
+This bounded induction-variable kernel reads and rewrites even-indexed B entries while producing A, leaving odd B entries unchanged. Its clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s128_strided_coupled_update/README.md), [workload](benchmarks/t/tsvc_s128_strided_coupled_update/workload.json), and [oracle](benchmarks/tsvc_s128_strided_coupled_update_oracle.py).
+
+## TSVC s127 fixed pair expansion (`tsvc_s127_fixed_pair_expansion`)
+
+This bounded induction-variable kernel emits two ordered values for each input position, preserving the source's fixed 2x expansion. Its clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s127_fixed_pair_expansion/README.md), [workload](benchmarks/t/tsvc_s127_fixed_pair_expansion/workload.json), and [oracle](benchmarks/tsvc_s127_fixed_pair_expansion_oracle.py).
+
+## TSVC s322 second-order recurrence (`tsvc_s322_second_order_recurrence`)
+
+This bounded recurrence updates each A element from the preceding two A values and per-index B/C coefficients, preserving ascending in-place order. Its clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s322_second_order_recurrence/README.md), [workload](benchmarks/t/tsvc_s322_second_order_recurrence/workload.json), and [oracle](benchmarks/tsvc_s322_second_order_recurrence_oracle.py).
+
+## TSVC s321 first-order recurrence (`tsvc_s321_first_order_recurrence`)
+
+This bounded recurrence updates each A element from the already-updated predecessor and a per-index B coefficient, preserving ascending in-place order. Its clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s321_first_order_recurrence/README.md), [workload](benchmarks/t/tsvc_s321_first_order_recurrence/workload.json), and [oracle](benchmarks/tsvc_s321_first_order_recurrence_oracle.py).
+
+## TSVC s323 coupled recurrence (`tsvc_s323_coupled_recurrence`)
+
+This bounded coupled recurrence updates A from the previous B value and then updates B from the new A value, preserving source order. Its clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s323_coupled_recurrence/README.md), [workload](benchmarks/t/tsvc_s323_coupled_recurrence/workload.json), and [oracle](benchmarks/tsvc_s323_coupled_recurrence_oracle.py).
+
+## TSVC s114 transposed lower-triangle update (`tsvc_s114_transposed_lower_triangle_update`)
+
+This bounded matrix kernel overwrites each strict lower-triangle A entry with its transposed upper-triangle value plus the matching B entry, preserving source row and column order. The clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s114_transposed_lower_triangle_update/README.md), [workload](benchmarks/t/tsvc_s114_transposed_lower_triangle_update/workload.json), and [oracle](benchmarks/tsvc_s114_transposed_lower_triangle_update_oracle.py).
+
+## TSVC s211 ordered neighbor rewrite (`tsvc_s211_ordered_neighbor_rewrite`)
+
+This bounded two-array recurrence updates interior A and B elements in ascending order: each A write reads the already-updated left B neighbor, while each B write reads the not-yet-updated right B neighbor. The clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s211_ordered_neighbor_rewrite/README.md), [workload](benchmarks/t/tsvc_s211_ordered_neighbor_rewrite/workload.json), and [oracle](benchmarks/tsvc_s211_ordered_neighbor_rewrite_oracle.py).
+
+## TSVC s2111 wavefront addition recurrence (`tsvc_s2111_wavefront_add_recurrence`)
+
+This bounded row-major matrix recurrence replaces each interior cell with its already-updated left neighbor plus the value above. The package exposes caller-provided boundary seeds because the pinned launcher initializes the matrix to zero; this profile projection is documented in its guide. Nine clean-room ports record that no explicit upstream license grant was found. See the [guide](benchmarks/t/tsvc_s2111_wavefront_add_recurrence/README.md), [workload](benchmarks/t/tsvc_s2111_wavefront_add_recurrence/workload.json), and [oracle](benchmarks/tsvc_s2111_wavefront_add_recurrence_oracle.py).
+
+## TSVC s212 next-element dependency (`tsvc_s212_next_element_dependency`)
+
+This bounded recurrence scales A at the current index, then accumulates the still-unmodified next A element into B, preserving source statement order over repeated passes. The clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s212_next_element_dependency/README.md), [workload](benchmarks/t/tsvc_s212_next_element_dependency/workload.json), and [oracle](benchmarks/tsvc_s212_next_element_dependency_oracle.py).
+
+## TSVC vif masked assignment (`tsvc_vif_masked_assignment`)
+
+This bounded vector codelet copies B into A only where the source predicate `B[i] > 0` holds, leaving other destination values unchanged. The clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_vif_masked_assignment/README.md), [workload](benchmarks/t/tsvc_vif_masked_assignment/workload.json), and [oracle](benchmarks/tsvc_vif_masked_assignment_oracle.py).
+
+## Embench-IoT Montgomery product (`embench_aha_mont64`)
+
+This bounded scalar kernel returns the reduced Montgomery-domain product `a*b*R^-1 mod m` for odd `m` and fixed radix `R=2^64`. It measures one Montgomery reduction on caller-supplied residues, distinct from ordinary modular multiplication and from the source benchmark’s GCD setup, exponentiation loop, and repeat harness. Nine clean-room ports record the pinned GPL-3.0-or-later provenance without copying source text; the scalar runner and verifier check the bounded contract and fixtures. See the [guide](benchmarks/a/embench_aha_mont64/README.md), [workload](benchmarks/a/embench_aha_mont64/workload.json), and [oracle](benchmarks/embench_aha_mont64_oracle.py).
+
+
+## TSVC s257 column-coupled matrix update (`tsvc_s257_column_coupled_update`)
+
+This clean-room scalar profile preserves s257's source-order in-place dependency: each matrix-row update overwrites the shared column scalar, which feeds the next row and later column. Bounded integer-valued inputs preserve exact binary64 behavior, and the nine ports use signed i64 arithmetic. The scalar runner and verifier cover the maximum matrix, multiple passes, malformed frames, and null input; the README records source attribution and the absence of an explicit upstream license grant. See the [guide](benchmarks/t/tsvc_s257_column_coupled_update/README.md), [workload](benchmarks/t/tsvc_s257_column_coupled_update/workload.json), and [oracle](benchmarks/tsvc_s257_column_coupled_update_oracle.py).
+
+## TSVC s273 dependent conditional update (`tsvc_s273_dependent_conditional_update`)
+
+This clean-room scalar profile preserves the order-sensitive sequence that updates A, tests that new A value to decide whether to update B, then uses it again to update C. The bounded integer domain keeps the source binary64 operations exact across all nine signed-i64 ports. The scalar runner and verifier cover both branch outcomes, a later-pass branch transition, maximum bounds, malformed frames, and null input; the README records source attribution and the absence of an explicit upstream license grant. See the [guide](benchmarks/t/tsvc_s273_dependent_conditional_update/README.md), [workload](benchmarks/t/tsvc_s273_dependent_conditional_update/workload.json), and [oracle](benchmarks/tsvc_s273_dependent_conditional_update_oracle.py).
+
+## TSVC s331 last-negative scan (`tsvc_s331_last_negative_index`)
+
+This clean-room scalar profile scans the full vector and returns the one-based position of the last negative value, matching s331's `j` update and `temp = j+1` projection. It is distinct from first-match equality search. The bounded integer-valued inputs preserve the predicate in both the double and float `Searching` families; s332's first-above-threshold early-exit codelet remains outside this package. The runner and verifier validate the pinned TSVC metadata, rights note, fixtures, and nine ports, and generate bounded maximum-size and malformed cases. No explicit upstream TSVC license grant was found; the package makes no upstream license claim. See the [guide](benchmarks/t/tsvc_s331_last_negative_index/README.md), [workload](benchmarks/t/tsvc_s331_last_negative_index/workload.json), and [oracle](benchmarks/tsvc_s331_last_negative_index_oracle.py).
+
+## DOE miniAMR 7-point and 27-point stencil averages (`doe_miniamr_stencil_average`)
+
+This three-dimensional block kernel averages either the center and six axis neighbors or all 27 cells in each 3×3×3 neighborhood. It preserves source traversal and summation order, writes every interior result to a work buffer, then copies the staged values into the block before computing a position-weighted checksum. Nine language ports and an independent oracle cover both stencil branches, bounded haloed blocks, and malformed inputs. The package retains the Sandia source header and LGPL-2.1-or-later notice. See the [guide](benchmarks/d/doe_miniamr_stencil_average/README.md), [workload](benchmarks/d/doe_miniamr_stencil_average/workload.json), and [oracle](benchmarks/doe_miniamr_stencil_average_oracle.py).
+
+## Rodinia forward integer 5/3 2D DWT (`rodinia_dwt2d`)
+
+This bounded profile follows Rodinia's `-f -5` path: grayscale normalization, integer LeGall 5/3 lifting, vertical then horizontal passes, and recursive low-low decomposition. It emits source-ordered row-major wavelet-band chunks as signed i32 little-endian bytes. Nine clean-room ports and an independent oracle cover small divisible dimensions, recursive levels, signed-division edge cases, and output-capacity errors. The package preserves the pinned source notices and Rodinia citation request. See the [guide](benchmarks/r/rodinia_dwt2d/README.md), [workload](benchmarks/r/rodinia_dwt2d/workload.json), and [oracle](benchmarks/rodinia_dwt2d_oracle.py).
+
+## VersaBench DIS R-tree child selection (`versabench_dbms_choose_entry`)
+
+This bounded database helper chooses the existing child whose 4D bounding box gains the least volume when combined with an incoming box, keeping the first child on ties. The nine clean-room ports preserve pinned source attribution and document the absent redistribution grant. See the [guide](benchmarks/d/versabench_dbms_choose_entry/README.md), [workload](benchmarks/d/versabench_dbms_choose_entry/workload.json), and [oracle](benchmarks/versabench_dbms_choose_entry_oracle.py).
+
+## TSVC s3111 positive-value sum (`tsvc_s3111_positive_value_sum`)
+
+This bounded reduction sums only values greater than zero, retaining the conditional branch that distinguishes it from an ordinary array sum. Its clean-room ports record the missing upstream license grant and are registered in the scalar suite. See the [guide](benchmarks/t/tsvc_s3111_positive_value_sum/README.md), [workload](benchmarks/t/tsvc_s3111_positive_value_sum/workload.json), and [oracle](benchmarks/tsvc_s3111_positive_value_sum_oracle.py).
+
+## TSVC s124 conditional FMA map (`tsvc_s124_conditional_fma_map`)
+
+This bounded induction-variable kernel selects B when positive and C otherwise, then adds D times E at each position. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s124_conditional_fma_map/README.md), [workload](benchmarks/t/tsvc_s124_conditional_fma_map/workload.json), and [oracle](benchmarks/tsvc_s124_conditional_fma_map_oracle.py).
+
+## TSVC s123 conditional pair expansion (`tsvc_s123_conditional_pair_expansion`)
+
+This bounded induction-variable kernel emits `B[i]+D[i]*E[i]` for every position and inserts `C[i]+D[i]*E[i]` when C is positive. It returns the actual output count and preserves per-index order. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s123_conditional_pair_expansion/README.md), [workload](benchmarks/t/tsvc_s123_conditional_pair_expansion/workload.json), and [oracle](benchmarks/tsvc_s123_conditional_pair_expansion_oracle.py).
+
+## TSVC s122 reverse-strided gather-add (`tsvc_s122_reverse_strided_gather_add`)
+
+This bounded induction-variable kernel adds a reverse sequential B stream to A positions selected by a runtime start and stride. It preserves untouched A entries and returns the complete A vector. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s122_reverse_strided_gather_add/README.md), [workload](benchmarks/t/tsvc_s122_reverse_strided_gather_add/workload.json), and [oracle](benchmarks/tsvc_s122_reverse_strided_gather_add_oracle.py).
+
+## TSVC s125 flattened matrix FMA (`tsvc_s125_matrix_flattened_fma`)
+
+This bounded induction-variable kernel visits matrix cells in row-major order and emits `AA + BB*CC` for each cell. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s125_matrix_flattened_fma/README.md), [workload](benchmarks/t/tsvc_s125_matrix_flattened_fma/workload.json), and [oracle](benchmarks/tsvc_s125_matrix_flattened_fma_oracle.py).
+
+## TSVC s2101 diagonal matrix FMA (`tsvc_s2101_diagonal_matrix_fma`)
+
+This bounded row-major matrix kernel updates `AA[i,i] += BB[i,i]*CC[i,i]` in ascending diagonal order and leaves off-diagonal cells unchanged. It differs from s125's full-matrix FMA. Nine clean-room ports document the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s2101_diagonal_matrix_fma/README.md), [workload](benchmarks/t/tsvc_s2101_diagonal_matrix_fma/workload.json), and [oracle](benchmarks/tsvc_s2101_diagonal_matrix_fma_oracle.py).
+
+## TSVC s2102 identity matrix initialization (`tsvc_s2102_identity_matrix_initialize`)
+
+This bounded column-major initialization clears each matrix column and then sets its diagonal element to one, returning the full row-major identity matrix as little-endian signed i64 values. Repeated passes preserve the source loop's reset behavior. It is distinct from s2101's diagonal FMA. Nine clean-room ports document the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s2102_identity_matrix_initialize/README.md), [workload](benchmarks/t/tsvc_s2102_identity_matrix_initialize/workload.json), and [oracle](benchmarks/tsvc_s2102_identity_matrix_initialize_oracle.py).
+
+## TSVC s312 array product (`tsvc_s312_array_product`)
+
+This bounded reduction multiplies every factor in order, using 1 for an empty array. Nine clean-room ports record the missing upstream license grant and are registered in the scalar suite. See the [guide](benchmarks/t/tsvc_s312_array_product/README.md), [workload](benchmarks/t/tsvc_s312_array_product/workload.json), and [oracle](benchmarks/tsvc_s312_array_product_oracle.py).
+
+## TSVC s315 maximum with index (`tsvc_s315_maximum_with_index`)
+
+This bounded reduction returns the maximum value and the first zero-based index where it occurs. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s315_maximum_with_index/README.md), [workload](benchmarks/t/tsvc_s315_maximum_with_index/workload.json), and [oracle](benchmarks/tsvc_s315_maximum_with_index_oracle.py).
+
+## TSVC s318 strided absolute maximum with index (`tsvc_s318_strided_absolute_maximum_with_index`)
+
+This bounded reduction scans a correctly sized physical span at a caller-selected stride and returns the maximum sampled magnitude with its first logical index. It differs from `abs_max`'s signed-element result and from s315's signed maximum. Nine clean-room ports record that no explicit upstream TSVC license grant was found and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s318_strided_absolute_maximum_with_index/README.md), [workload](benchmarks/t/tsvc_s318_strided_absolute_maximum_with_index/workload.json), and [oracle](benchmarks/tsvc_s318_strided_absolute_maximum_with_index_oracle.py).
+
+## TSVC s319 coupled reductions (`tsvc_s319_coupled_reductions`)
+
+This bounded fused reduction emits two pointwise sums per input position, then a combined total in source order. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s319_coupled_reductions/README.md), [workload](benchmarks/t/tsvc_s319_coupled_reductions/workload.json), and [oracle](benchmarks/tsvc_s319_coupled_reductions_oracle.py).
+
+## TSVC s241 cross-coupled product map (`tsvc_s241_cross_coupled_product_map`)
+
+This bounded two-array kernel updates A and B in ascending order, combining a three-factor product with the old next A value. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s241_cross_coupled_product_map/README.md), [workload](benchmarks/t/tsvc_s241_cross_coupled_product_map/workload.json), and [oracle](benchmarks/tsvc_s241_cross_coupled_product_map_oracle.py).
+
+## TSVC s243 ordered lookahead update (`tsvc_s243_ordered_lookahead_update`)
+
+This bounded two-array kernel preserves s243's source-ordered A/B lookahead updates and leaves the final pair unchanged. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s243_ordered_lookahead_update/README.md), [workload](benchmarks/t/tsvc_s243_ordered_lookahead_update/workload.json), and [oracle](benchmarks/tsvc_s243_ordered_lookahead_update_oracle.py).
+
+## TSVC s244 false dependence cycle break (`tsvc_s244_false_dependence_cycle_break`)
+
+This bounded one-sweep kernel preserves s244's source statement order and emits a trace of intermediate stores that later iterations overwrite. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s244_false_dependence_cycle_break/README.md), [workload](benchmarks/t/tsvc_s244_false_dependence_cycle_break/workload.json), and [oracle](benchmarks/tsvc_s244_false_dependence_cycle_break_oracle.py).
+
+## TSVC s1244 polynomial neighbor sum (`tsvc_s1244_polynomial_neighbor_sum`)
+
+This bounded two-array kernel applies s1244's polynomial update to A, then adds the saved old next-A value into D in ascending order. The final A and D entries remain unchanged. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s1244_polynomial_neighbor_sum/README.md), [workload](benchmarks/t/tsvc_s1244_polynomial_neighbor_sum/workload.json), and [oracle](benchmarks/tsvc_s1244_polynomial_neighbor_sum_oracle.py).
+
+## TSVC s1221 lag-four additive recurrence (`tsvc_s1221_lag4_add_recurrence`)
+
+This bounded recurrence updates B from B four positions earlier plus A, forming four independent additive chains. Its integer-valued domain is exact for both TSVC float families. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s1221_lag4_add_recurrence/README.md), [workload](benchmarks/t/tsvc_s1221_lag4_add_recurrence/workload.json), and [oracle](benchmarks/tsvc_s1221_lag4_add_recurrence_oracle.py).
+
+## TSVC s332 first above threshold (`tsvc_s332_first_above_threshold`)
+
+This bounded search stops at the first value strictly above its threshold, returning its index and value or the source no-match sentinels. It is distinct from s331's full scan for the last negative value. See the [guide](benchmarks/t/tsvc_s332_first_above_threshold/README.md), [workload](benchmarks/t/tsvc_s332_first_above_threshold/workload.json), and [oracle](benchmarks/tsvc_s332_first_above_threshold_oracle.py).
+
+## TSVC s442 indexed square accumulate (`tsvc_s442_indexed_square_accumulate`)
+
+This bounded kernel uses an index tag to choose one of four arrays, then adds that value's square into A over repeated ascending passes. All four branches are represented, with bounded integer values that stay exact. See the [guide](benchmarks/t/tsvc_s442_indexed_square_accumulate/README.md), [workload](benchmarks/t/tsvc_s442_indexed_square_accumulate/workload.json), and [oracle](benchmarks/tsvc_s442_indexed_square_accumulate_oracle.py).
+
+## VersaBench DIS R-tree partition entries (`versabench_dbms_partition_entries`)
+
+This bounded split helper selects the pair of entries with the largest 4D union volume, then assigns the remaining entries to two groups in source order. See the [guide](benchmarks/d/versabench_dbms_partition_entries/README.md), [workload](benchmarks/d/versabench_dbms_partition_entries/workload.json), and [oracle](benchmarks/versabench_dbms_partition_entries_oracle.py).
+
+## VersaBench DIS R-tree consistent key (`versabench_dbms_consistent_key`)
+
+This bounded predicate checks whether two closed 4D boxes intersect, including touching faces, edges, and points. See the [guide](benchmarks/d/versabench_dbms_consistent_key/README.md), [workload](benchmarks/d/versabench_dbms_consistent_key/workload.json), and [oracle](benchmarks/versabench_dbms_consistent_key_oracle.py).
+
+## VersaBench DIS R-tree keys union (`versabench_dbms_keys_union`)
+
+This bounded helper returns the minimum 4D bounding box containing a list of keys. See the [guide](benchmarks/d/versabench_dbms_keys_union/README.md), [workload](benchmarks/d/versabench_dbms_keys_union/workload.json), and [oracle](benchmarks/versabench_dbms_keys_union_oracle.py).
+
+## VersaBench DIS R-tree query (`versabench_dbms_query`)
+
+This bounded tree traversal prunes branches by closed 4D box intersection and emits matching leaf record IDs in depth-first entry order. See the [guide](benchmarks/d/versabench_dbms_query/README.md), [workload](benchmarks/d/versabench_dbms_query/workload.json), and [oracle](benchmarks/versabench_dbms_query_oracle.py).
+
+## VersaBench DIS R-tree insert entry (`versabench_dbms_insert_entry`)
+
+This bounded success-path profile follows recursive minimum-enlargement descent, inserts into a leaf with room, and recomputes bounding boxes back up the path. Overflow and split handling remain outside the profile. See the [guide](benchmarks/d/versabench_dbms_insert_entry/README.md), [workload](benchmarks/d/versabench_dbms_insert_entry/workload.json), and [oracle](benchmarks/versabench_dbms_insert_entry_oracle.py).
+
+## VersaBench DIS R-tree delete entry (`versabench_dbms_delete_entry`)
+
+This bounded one-level deletion profile prunes child MBRs by closed 4D intersection, removes matching leaf records, unlinks empty children, and recomputes surviving MBRs. See the [guide](benchmarks/d/versabench_dbms_delete_entry/README.md), [workload](benchmarks/d/versabench_dbms_delete_entry/workload.json), and [oracle](benchmarks/versabench_dbms_delete_entry_oracle.py).
+
+## VersaBench DIS R-tree root contraction (`versabench_dbms_contract_root`)
+
+This bounded root-normalization step repeatedly promotes a sole child after deletion, then converts an empty internal root to an empty leaf. It is separate from leaf deletion and child MBR updates. See the [guide](benchmarks/d/versabench_dbms_contract_root/README.md), [workload](benchmarks/d/versabench_dbms_contract_root/workload.json), and [oracle](benchmarks/versabench_dbms_contract_root_oracle.py).
+
+## VersaBench DIS R-tree penalty (`versabench_dbms_penalty`)
+
+This bounded insertion helper computes the directional 4D volume enlargement from adding one box to another. See the [guide](benchmarks/d/versabench_dbms_penalty/README.md), [workload](benchmarks/d/versabench_dbms_penalty/workload.json), and [oracle](benchmarks/versabench_dbms_penalty_oracle.py).
+
+## VersaBench DIS R-tree valid attributes (`versabench_dbms_valid_attributes`)
+
+This bounded record validator checks attribute codes, binary32 key payloads, and the source's null/non-null rules for non-key attributes. It preserves the source-level distinction between invalid data and malformed framing. See the [guide](benchmarks/d/versabench_dbms_valid_attributes/README.md), [workload](benchmarks/d/versabench_dbms_valid_attributes/workload.json), and [oracle](benchmarks/versabench_dbms_valid_attributes_oracle.py).
+
+## VersaBench DIS R-tree valid index key (`versabench_dbms_valid_index_key`)
+
+This bounded predicate checks strict lower-to-upper endpoint order for four binary32 dimensions, preserving the source's NaN, signed-zero, and infinity comparison behavior. See the [guide](benchmarks/d/versabench_dbms_valid_index_key/README.md), [workload](benchmarks/d/versabench_dbms_valid_index_key/workload.json), and [oracle](benchmarks/versabench_dbms_valid_index_key_oracle.py).
+
+## TSVC s453 recurrence-weighted scale (`tsvc_s453_recurrence_weighted_scale`)
+
+This bounded kernel advances a scalar recurrence by two and uses it to scale each B value, preserving the source's recurrence dependency. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s453_recurrence_weighted_scale/README.md), [workload](benchmarks/t/tsvc_s453_recurrence_weighted_scale/workload.json), and [oracle](benchmarks/tsvc_s453_recurrence_weighted_scale_oracle.py).
+
+## TSVC s342 conditional unpack (`tsvc_s342_conditional_unpack`)
+
+This bounded packing kernel replaces positive-mask positions in A with successive values from packed B, retaining every unselected A position. It models one loop-body sweep and returns the full final A vector. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s342_conditional_unpack/README.md), [workload](benchmarks/t/tsvc_s342_conditional_unpack/workload.json), and [oracle](benchmarks/tsvc_s342_conditional_unpack_oracle.py).
+
+## TSVC s258 wrapped scalar expansion (`tsvc_s258_wrapped_scalar_expansion`)
+
+This bounded scalar-ABI profile preserves s258's conditional scalar refresh, carry across false branches, and two output expansions. The values remain exact in the Expansion double and float families. See the [guide](benchmarks/t/tsvc_s258_wrapped_scalar_expansion/README.md), [workload](benchmarks/t/tsvc_s258_wrapped_scalar_expansion/workload.json), and [oracle](benchmarks/tsvc_s258_wrapped_scalar_expansion_oracle.py).
+
+## TSVC s261 shifted cross-array update (`tsvc_s261_shifted_cross_array_update`)
+
+This one-sweep profile updates A from the previous C value, then scales C in place so later iterations observe the changed neighbor. It returns final A and C as packed i64 vectors. See the [guide](benchmarks/t/tsvc_s261_shifted_cross_array_update/README.md), [workload](benchmarks/t/tsvc_s261_shifted_cross_array_update/workload.json), and [oracle](benchmarks/tsvc_s261_shifted_cross_array_update_oracle.py).
+
+## TSVC s251 scalar square expansion (`tsvc_s251_scalar_square_expansion`)
+
+This bounded expansion computes a per-element temporary `B+C*D` and writes its square to A. The temporary resets for each index; it is not a recurrence. Nine clean-room ports record the missing upstream license grant and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s251_scalar_square_expansion/README.md), [workload](benchmarks/t/tsvc_s251_scalar_square_expansion/workload.json), and [oracle](benchmarks/tsvc_s251_scalar_square_expansion_oracle.py).
+
+## TSVC s252 adjacent product pair sum (`tsvc_s252_adjacent_product_pair_sum`)
+
+This bounded vector kernel adds each adjacent pair of products, carrying the previous product rather than the previous output. See the [guide](benchmarks/t/tsvc_s252_adjacent_product_pair_sum/README.md), [workload](benchmarks/t/tsvc_s252_adjacent_product_pair_sum/workload.json), and [oracle](benchmarks/tsvc_s252_adjacent_product_pair_sum_oracle.py).
+
+## TSVC s256 array expansion (`tsvc_s256_array_expansion`)
+
+This bounded nested sweep preserves the row-seeded recurrence for A and writes each column of C from the corresponding B cell and row factor D. It returns the final A vector and matrix, and is distinct from s257's coupled matrix/scalar recurrence. Nine clean-room ports record that no explicit upstream TSVC license grant was found and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s256_array_expansion/README.md), [workload](benchmarks/t/tsvc_s256_array_expansion/workload.json), and [oracle](benchmarks/tsvc_s256_array_expansion_oracle.py).
+
+## TSVC s253 conditional affine update (`tsvc_s253_conditional_affine_update`)
+
+This bounded multi-pass kernel conditionally computes `A[i]-B[i]*D[i]`, adds it to C, and stores it back into A, so the updated state controls later passes. It is distinct from s273's dependent negative-value branch, s278's sign-controlled assignment, and s124's nonmutating map. Nine clean-room ports record that no explicit upstream TSVC license grant was found and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s253_conditional_affine_update/README.md), [workload](benchmarks/t/tsvc_s253_conditional_affine_update/workload.json), and [oracle](benchmarks/tsvc_s253_conditional_affine_update_oracle.py).
+
+## TSVC s274 dependent conditional overwrite (`tsvc_s274_dependent_conditional_overwrite`)
+
+This bounded multi-pass kernel computes `A[i]=C[i]+E[i]*D[i]`, then either adds A into B when A is positive or overwrites A with `D[i]*E[i]`. It differs from s273's conditional state update and s278's branch on the prior A value. Nine clean-room ports record that no explicit upstream TSVC license grant was found and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s274_dependent_conditional_overwrite/README.md), [workload](benchmarks/t/tsvc_s274_dependent_conditional_overwrite/workload.json), and [oracle](benchmarks/tsvc_s274_dependent_conditional_overwrite_oracle.py).
+
+## TSVC s272 thresholded dual accumulation (`tsvc_s272_threshold_dual_accumulate`)
+
+This bounded multi-pass kernel updates A by `C[i]*D[i]` and B by `C[i]*C[i]` when E meets the inclusive threshold. Its E-controlled paired updates differ from the adjacent s273–s274 branch contracts. Nine clean-room ports document that no explicit upstream TSVC license grant was found and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s272_threshold_dual_accumulate/README.md), [workload](benchmarks/t/tsvc_s272_threshold_dual_accumulate/workload.json), and [oracle](benchmarks/tsvc_s272_threshold_dual_accumulate_oracle.py).
+
+## TSVC s271 positive-branch AXPY (`tsvc_s271_positive_branch_axpy`)
+
+This bounded multi-pass kernel updates A by `B[i]*C[i]` only when B is strictly positive. Zero and negative B values leave A untouched; repeated passes preserve the same branch mask because B is not modified. Nine clean-room ports note that no explicit upstream TSVC license grant was found and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s271_positive_branch_axpy/README.md), [workload](benchmarks/t/tsvc_s271_positive_branch_axpy/workload.json), and [oracle](benchmarks/tsvc_s271_positive_branch_axpy_oracle.py).
+
+## TSVC s276 index-split AXPY (`tsvc_s276_index_split_axpy`)
+
+This bounded multi-pass kernel chooses C or D using the source cutoff `i+1 < floor(n/2)`, then updates A by `B[i]` times that coefficient. The branch depends only on the loop index and preserves two coefficient regions, including the source's small-n boundary. Nine clean-room ports document that no explicit TSVC license grant was found and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s276_index_split_axpy/README.md), [workload](benchmarks/t/tsvc_s276_index_split_axpy/workload.json), and [oracle](benchmarks/tsvc_s276_index_split_axpy_oracle.py).
+
+## TSVC s277 guarded carry update (`tsvc_s277_guarded_carry_update`)
+
+This bounded multi-pass kernel skips each iteration when A[i] is nonnegative, conditionally updates A[i] when B[i] is negative, and then writes a computed value into B[i+1]. That carried write affects later loop iterations and later passes. Nine clean-room ports document that no explicit TSVC license grant was found and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_s277_guarded_carry_update/README.md), [workload](benchmarks/t/tsvc_s277_guarded_carry_update/workload.json), and [oracle](benchmarks/tsvc_s277_guarded_carry_update_oracle.py).
+
+## MediaBench MPEG-2 motion-vector component (`mediabench_mpeg2_motion_vector_component`)
+
+This bounded profile implements one MPEG-2 motion-vector component update, including signed delta calculation and one wrap into the legal predictor interval. It excludes VLC parsing and decoder state. The ports are clean-room, with source redistribution and patent caveats recorded in the package notice. See the [guide](benchmarks/m/mediabench_mpeg2_motion_vector_component/README.md), [workload](benchmarks/m/mediabench_mpeg2_motion_vector_component/workload.json), and [oracle](benchmarks/mediabench_mpeg2_motion_vector_component_oracle.py).
+
+## TSVC s424 alias-overlap feedback (`tsvc_s424_alias_overlap_feedback`)
+
+This scalar profile models the source-ordered sweep over a 64-element alias displacement, where each write can feed later reads. Its bounded integer domain preserves the Equivalencing double and float behavior exactly. See the [guide](benchmarks/t/tsvc_s424_alias_overlap_feedback/README.md), [workload](benchmarks/t/tsvc_s424_alias_overlap_feedback/workload.json), and [oracle](benchmarks/tsvc_s424_alias_overlap_feedback_oracle.py).
+
+## IDEA CFB64 stream encryption and decryption (`idea_cfb64`)
+
+This bounded PGP profile supports both IDEA CFB64 directions, feeding ciphertext back as the next keystream state and preserving a partial final segment without padding. One package covers the paired cBench `security_pgp_d` encryption and `security_pgp_e` decryption helpers, avoiding duplicate benchmark ids for the same mode. It is distinct from the fixed-block IDEA ECB encryption/decryption benchmark. The package records both sources' noncommercial-use statements and the absence of an explicit source redistribution grant. See the [guide](benchmarks/p/idea_cfb64/README.md), [workload](benchmarks/p/idea_cfb64/workload.json), and [oracle](benchmarks/idea_cfb64_oracle.py).
+
+## LLUBenchmark list traversal and growth (`llubenchmark_list_traversal_growth`)
+
+This bounded workload traverses and dirties linked-list counts, accumulates their values, and appends nodes according to the source's fractional growth schedule. Index-linked storage preserves each list's order while bounding the node pool. See the [guide](benchmarks/l/llubenchmark_list_traversal_growth/README.md), [workload](benchmarks/l/llubenchmark_list_traversal_growth/workload.json), and [oracle](benchmarks/llubenchmark_list_traversal_growth_oracle.py).
+
+## TSVC s171 stride-indexed accumulation (`tsvc_s171_stride_indexed_accumulate`)
+
+This one-sweep kernel adds each B value into A at an affine-stride destination and preserves the untouched gap slots. The bounded profile covers the pinned contiguous launcher shape and strides 2 through 4; it is distinct from the arbitrary-index gather/scatter profile. See the [guide](benchmarks/t/tsvc_s171_stride_indexed_accumulate/README.md), [workload](benchmarks/t/tsvc_s171_stride_indexed_accumulate/workload.json), and [oracle](benchmarks/tsvc_s171_stride_indexed_accumulate_oracle.py).
+
+## TSVC s4114 reverse-index gather FMA (`tsvc_s4114_reverse_index_gather_fma`)
+
+This bounded dense-output map computes A[i] = B[i] + C[n-1-IP[i]]*D[i] in one ascending sweep, preserving s4114's reverse-index gather. It differs from s4113/s491's indirect LHS scatters and s4117's fixed C[i/2] gather. The profile fixes the launcher lower bound to n1=1, omits s4114's dead k+=5 update, and uses clean-room ports because no explicit upstream TSVC license grant was found. See the [guide](benchmarks/t/tsvc_s4114_reverse_index_gather_fma/README.md), [workload](benchmarks/t/tsvc_s4114_reverse_index_gather_fma/workload.json), and [oracle](benchmarks/tsvc_s4114_reverse_index_gather_fma_oracle.py).
+
+## TSVC s4115 indexed gather product-sum (`tsvc_s4115_indexed_gather_product_sum`)
+
+This bounded source-order reduction sums `A[i] * B[indexes[i]]`, allowing repeated gather indexes. It is distinct from s4114 and s4117's output-vector maps, the `vag` indexed copy, and s4113/s491's scatter updates. Its nine clean-room ports record that no explicit upstream TSVC license grant was found and are registered in the array-scalar suite. See the [guide](benchmarks/t/tsvc_s4115_indexed_gather_product_sum/README.md), [workload](benchmarks/t/tsvc_s4115_indexed_gather_product_sum/workload.json), and [oracle](benchmarks/tsvc_s4115_indexed_gather_product_sum_oracle.py).
+
+## TSVC vag indexed gather-copy (`tsvc_vag_indexed_gather_copy`)
+
+This bounded indexed copy emits `values[indexes[i]]` in ascending output order and permits duplicate indexes. It differs from s4113/s491's indirect LHS scatter operations, s4114's reverse-index gather FMA, and s4117's fixed paired gather map. Nine clean-room ports record that no explicit upstream TSVC license grant was found and are registered in the byte-output suite. See the [guide](benchmarks/t/tsvc_vag_indexed_gather_copy/README.md), [workload](benchmarks/t/tsvc_vag_indexed_gather_copy/workload.json), and [oracle](benchmarks/tsvc_vag_indexed_gather_copy_oracle.py).
+
+## TSVC s4117 pair-replicated gather map (`tsvc_s4117_pair_replicated_gather_map`)
+
+This one-sweep map reuses each C value for two adjacent outputs and multiplies it by the corresponding D value before adding B. It is distinct from s171's affine-stride scatter update and the explicit arbitrary-index gather/scatter profile. See the [guide](benchmarks/t/tsvc_s4117_pair_replicated_gather_map/README.md), [workload](benchmarks/t/tsvc_s4117_pair_replicated_gather_map/workload.json), and [oracle](benchmarks/tsvc_s4117_pair_replicated_gather_map_oracle.py).
+
+## MiBench JPEG YCbCr to RGB (`mibench_jpeg_ycbcr_to_rgb`)
+
+This profile isolates the JPEG decoder's 8-bit fixed-point color-conversion kernel, including its distinct green-channel rounding and output clamping. It is separate from grayscale decoding and RGB-to-gray conversion. See the [guide](benchmarks/m/mibench_jpeg_ycbcr_to_rgb/README.md), [workload](benchmarks/m/mibench_jpeg_ycbcr_to_rgb/workload.json), and [oracle](benchmarks/mibench_jpeg_ycbcr_to_rgb_oracle.py).
+
+## cBench IJG JPEG 2x2 fancy upsampling (`cbench_consumer_jpeg_h2v2_fancy_upsample`)
+
+This bounded component-plane kernel performs IJG's twofold horizontal and vertical triangle-filter interpolation, including its explicit edge formulas, replicated top/bottom context rows, and fixed-point `+8`/`+7` rounding. It is distinct from YCbCr-to-RGB conversion and grayscale block decoding, which do not spatially upsample component planes. The package retains the IJG notice and documents the adaptation boundary; JPEG parsing, context-buffer control, other sampling ratios, IDCT, color conversion, and the complete cBench decoder remain outside the profile. Nine language ports are registered in the byte-output runner and independent verifier, which cover workload fixtures and generated dimension, malformed-input, null-output, and capacity cases. See the [guide](benchmarks/m/cbench_consumer_jpeg_h2v2_fancy_upsample/README.md), [workload](benchmarks/m/cbench_consumer_jpeg_h2v2_fancy_upsample/workload.json), and [oracle](benchmarks/cbench_consumer_jpeg_h2v2_fancy_upsample_oracle.py).
+
+## Parboil TPACF cross-correlation histogram (`parboil_tpacf_cross_correlation`)
+
+This bounded kernel pairs two Cartesian point sets, computes source-ordered binary32 dot products, and counts them in Parboil's 20 logarithmic angular bins. It produces a histogram, distinct from one-dimensional signal cross-correlation or spatial-neighbor search. See the [guide](benchmarks/p/parboil_tpacf_cross_correlation/README.md), [workload](benchmarks/p/parboil_tpacf_cross_correlation/workload.json), and [oracle](benchmarks/parboil_tpacf_cross_correlation_oracle.py).
+
+## Parboil MRI-Q one-voxel Fourier accumulation (`parboil_mri_q`)
+
+This package preserves Parboil MRI-Q's two-pass complex-magnitude preparation and source-order binary32 phase/Q recurrence for up to four k-space records at one voxel. It serializes the completed result as a pair of little-endian signed Q1000 integers, with the quantization boundary documented in the contract. It is distinct from TPACF's angular pair histogram; the full spatial grid, file loading, and reconstruction remain outside this profile. See the [guide](benchmarks/p/parboil_mri_q/README.md), [workload](benchmarks/p/parboil_mri_q/workload.json), and [oracle](benchmarks/parboil_mri_q_oracle.py).
+
+## Parboil cutcp cutoff-potential lattice (`parboil_cutcp`)
+
+This bounded kernel maps up to four point charges onto a small 3D lattice, preserving Parboil's binary32 spatial-cell hash, reverse insertion-chain traversal, cutoff clipping, and source-order tapered q/r accumulation. It uses half-cell atom placement to avoid zero distance without adding a source-side guard, then serializes each completed potential as signed little-endian Q1000 i32. The package is distinct from MRI-Q Fourier accumulation and TPACF pair histograms; atom parsing and the subsequent `remove_exclusions` pass are excluded. Nine clean-room ports retain the Illinois license notice and are registered in the byte-output runner and independent verifier. See the [guide](benchmarks/p/parboil_cutcp/README.md), [workload](benchmarks/p/parboil_cutcp/workload.json), and [oracle](benchmarks/parboil_cutcp_oracle.py).
+
+## Parboil SAD hierarchical motion search (`parboil_sad`)
+
+This bounded video kernel compares one current 16×16 macroblock with the reference image at every source displacement in the 33×33 search window. It sums all seven hierarchical block-size SAD levels, including Parboil's edge-clamped reference coordinates and candidate order. This is distinct from local mean-absolute-error metrics, which compare aligned arrays without motion search or multi-level block aggregation. Nine clean-room ports retain the full Illinois Open Source License and are registered in the array-scalar suite. See the [guide](benchmarks/p/parboil_sad/README.md), [workload](benchmarks/p/parboil_sad/workload.json), and [oracle](benchmarks/parboil_sad_oracle.py).
+
+## Parboil LBM D3Q19 stream/collide (`parboil_lbm`)
+
+This bounded profile executes one source-ordered D3Q19 step on a 3×3×3 LDC grid with one fluid cell, collision and bounce-back boundaries, then returns a weighted fixed-point checksum. It preserves binary32 moment operations and the pinned double-macro equilibrium products; the source does not specify compiler floating-point flags, so the workload documents its assumed rounding behavior. Nine clean-room ports retain the Illinois Open Source License and are registered in the array-scalar suite. The reduced profile excludes full-grid setup, input files, repeated simulation, and timing. See the [guide](benchmarks/p/parboil_lbm/README.md), [workload](benchmarks/p/parboil_lbm/workload.json), and [oracle](benchmarks/parboil_lbm_oracle.py).
+
+## Parboil histogram (`parboil_histo`)
+
+This bounded standalone histogram clears and scans the same sample array on each requested pass, incrementing byte-sized bins up to 255. It exposes frequency counts as raw bytes and differs from histogram logic used internally by other image algorithms. Nine clean-room ports retain the Illinois Open Source License and are registered in the byte-output suite. See the [guide](benchmarks/p/parboil_histo/README.md), [workload](benchmarks/p/parboil_histo/workload.json), and [oracle](benchmarks/parboil_histo_oracle.py).
+
+## Parboil JDS sparse matrix-vector product (`parboil_spmv_jds`)
+
+This bounded kernel consumes validated Jagged Diagonal Storage, performs source-ordered binary32 multiply-accumulation by row rank, and scatters results through the row permutation. It is distinct from sparse-matrix format classification and dense matrix multiplication. Nine clean-room ports retain the Illinois Open Source License and are registered in the byte-output suite. COO parsing, symmetric conversion, file I/O, and repeated timing are outside the profile. See the [guide](benchmarks/p/parboil_spmv_jds/README.md), [workload](benchmarks/p/parboil_spmv_jds/workload.json), and [oracle](benchmarks/parboil_spmv_jds_oracle.py).

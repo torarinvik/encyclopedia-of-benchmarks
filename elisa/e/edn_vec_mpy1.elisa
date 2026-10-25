@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: GPL-3.0-or-later; see package NOTICE.txt.
+def put64(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for j in 0..<8: output[position + j] <- ((bits >> (8 * j)) & 255).u8()
+
+def edn_vec_mpy1_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 4 or length > 130: return -1
+    count_value: i64 = values[0]
+    if count_value < 1 or count_value > 64: return -1
+    count: usize = count_value.usize()
+    if length != 2 + 2 * count: return -1
+    scale: i64 = values[length - 1]
+    if scale < -1024 or scale > 1023: return -1
+    y: mutable i64[64] = zeroed
+    x: mutable i64[64] = zeroed
+    for index in 0..<count:
+        y[index] <- values[1 + index]
+        x[index] <- values[1 + count + index]
+        if y[index] < -1024 or y[index] > 1023 or x[index] < -1024 or x[index] > 1023: return -1
+    byte_count: usize = 8 * count
+    if output.is_null() or capacity < byte_count: return -2
+    for index in 0..<count:
+        y[index] <- y[index] + ((scale * x[index]) >> 15)
+    for index in 0..<count:
+        put64(output, 8 * index, y[index])
+    byte_count.i64()
+
+export fn edn_vec_mpy1(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = edn_vec_mpy1_impl

@@ -1,0 +1,102 @@
+// Rodinia bucket partition plus per-bucket merge sort; notices are in package LICENSE.txt.
+const MAX_ITEMS: usize = 64
+const BINS: usize = 1024
+
+def bucket(value: f32, minimum: f32, span: f32) -> usize:
+    mut index: i32 = (((value - minimum) / span) * 1024.0).i32()
+    if index < 0: index <- 0
+    if index >= 1024: index <- 1023
+    return index.usize()
+
+def merge_sort(items: mutable i64&, scratch: mutable i64&, start: usize, count: usize):
+    width: mutable usize = 1
+    while width < count:
+        left: mutable usize = 0
+        while left < count:
+            middle: usize = if left + width < count: left + width else: count
+            right: usize = if left + 2 * width < count: left + 2 * width else: count
+            a: mutable usize = left
+            b: mutable usize = middle
+            out: mutable usize = left
+            while a < middle and b < right:
+                if items[start + a] <= items[start + b]:
+                    scratch[out] <- items[start + a]
+                    a <- a + 1
+                else:
+                    scratch[out] <- items[start + b]
+                    b <- b + 1
+                out <- out + 1
+            while a < middle:
+                scratch[out] <- items[start + a]; a <- a + 1; out <- out + 1
+            while b < right:
+                scratch[out] <- items[start + b]; b <- b + 1; out <- out + 1
+            left <- left + 2 * width
+        i: mutable usize = 0
+        while i < count:
+            items[start + i] <- scratch[i]
+            i <- i + 1
+        width <- width * 2
+
+def put_i64(output: mutable u8&, offset: usize, value: i64):
+    bits: u64 = value.u64()
+    b: mutable usize = 0
+    while b < 8:
+        output[offset + b] <- ((bits >> (8 * b)) and 255).u8()
+        b <- b + 1
+
+export fn rodinia_hybridsort(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 {
+    if input.is_null() or length < 3 or length > MAX_ITEMS + 1: return -1
+    count_value: i64 = input[0]
+    if count_value < 2 or count_value > 64: return -1
+    count: usize = count_value.usize()
+    if length != 1 + count: return -1
+    items: mutable i64[64] = zeroed
+    scratch: mutable i64[64] = zeroed
+    min_raw: mutable i64 = 9223372036854775807
+    max_raw: mutable i64 = -9223372036854775807 - 1
+    i: mutable usize = 0
+    while i < count:
+        raw: i64 = input[1 + i]
+        if raw < 0 or raw > 1000000 or raw % 1000 != 0: return -1
+        items[i] <- raw
+        if raw < min_raw: min_raw <- raw
+        if raw > max_raw: max_raw <- raw
+        i <- i + 1
+    if min_raw == max_raw: return -1
+    output_bytes: usize = count * 8
+    if output.is_null() or capacity < output_bytes: return -2
+    minimum: f32 = min_raw.f32() / 1000000.0
+    maximum: f32 = max_raw.f32() / 1000000.0
+    span: f32 = maximum - minimum
+    histogram: mutable usize[1024] = zeroed
+    offsets: mutable usize[1025] = zeroed
+    next: mutable usize[1024] = zeroed
+    scattered: mutable i64[64] = zeroed
+    i <- 0
+    while i < count:
+        value: f32 = items[i].f32() / 1000000.0
+        histogram[bucket(value, minimum, span)] <- histogram[bucket(value, minimum, span)] + 1
+        i <- i + 1
+    bin: mutable usize = 0
+    while bin < BINS:
+        offsets[bin + 1] <- offsets[bin] + histogram[bin]
+        next[bin] <- offsets[bin]
+        bin <- bin + 1
+    i <- 0
+    while i < count:
+        value: f32 = items[i].f32() / 1000000.0
+        b: usize = bucket(value, minimum, span)
+        scattered[next[b]] <- items[i]
+        next[b] <- next[b] + 1
+        i <- i + 1
+    bin <- 0
+    while bin < BINS:
+        size: usize = offsets[bin + 1] - offsets[bin]
+        if size > 1: merge_sort(scattered, scratch, offsets[bin], size)
+        bin <- bin + 1
+    i <- 0
+    while i < count:
+        put_i64(output, i * 8, scattered[i])
+        i <- i + 1
+    return output_bytes.i64()
+}

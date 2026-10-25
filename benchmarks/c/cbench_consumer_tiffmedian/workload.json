@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-consumer-tiffmedian-i64-array-bytes-output-v1",
+  "algorithm": "cbench_consumer_tiffmedian",
+  "function_symbol": "cbench_consumer_tiffmedian",
+  "description": "Bounded source-shaped median-cut construction of an RGB palette from a small pixel set.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/consumer_tiffmedian/src/tiffmedian.c",
+    "symbol": "splitbox",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_tiffmedian/src/tiffmedian.c",
+    "license_note": "No explicit license grant was found in the pinned tiffmedian.c file. The package is a clean-room implementation of the abstract algorithm and includes no upstream source text or comments. The separate bundled tiffio.h notice is not treated as a license for tiffmedian.c."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "info_path": "cBench/consumer_tiffmedian/src/info.sh",
+    "bench_name": "consumer_tiffmedian",
+    "source_files": "*.c",
+    "compile_flags": ["-lm"],
+    "run_options": "",
+    "default_dither_mode": false
+  },
+  "contract": {
+    "operation": "Construct the source-shaped median-cut RGB palette from the occupied 5-bit-per-channel histogram bins. The bounded package stops before TIFF output rendering and pixel-index mapping.",
+    "input_layout": "[palette_limit, pixel_count, r0, g0, b0, ...]",
+    "palette_limit_range": [1, 8],
+    "pixel_count_range": [1, 16],
+    "component_range": [0, 255],
+    "histogram": "RGB components are quantized by shifting right three bits, producing a 32x32x32 histogram.",
+    "box_selection": "Select the first source-order box with greatest population among boxes with a nonzero channel range.",
+    "split_axis": "Longest channel span; ties prefer red, then green, then blue.",
+    "split_rule": "Accumulate per-axis histogram counts to floor(box_population/2), advancing one bin when the median position is the first bin. The lower box is inserted at the front of the palette list.",
+    "shrink_rule": "Contract both child boxes to the minimum and maximum occupied histogram coordinates on each channel.",
+    "palette_rule": "Emit 4*(minimum_bin+maximum_bin) for each channel, in current source box-list order.",
+    "output_encoding": "[actual_palette_count, R0, G0, B0, ...]",
+    "maximum_valid_input_length": 50,
+    "maximum_output_bytes": 25,
+    "success_result": "Output byte length, exactly 1+3*actual_palette_count.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Malformed framing, invalid palette or pixel counts, and non-byte RGB components return -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[palette_limit, pixel_count, row-major RGB triples...]",
+    "maximum_valid_length": 50,
+    "maximum_parseable_length": 50,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "palette count followed by RGB palette entries",
+    "maximum_bytes": 25,
+    "capacity_unit": "bytes",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 25,
+    "meaning": "Maximum caller-provided palette output buffer for eight RGB entries and their count."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-bin-repeated-color",
+      "input_values": [1, 3, 8, 16, 24, 8, 16, 24, 8, 16, 24],
+      "input_length": 11,
+      "output_capacity": 25,
+      "expected_result": 4,
+      "expected_output_hex": "01081018"
+    },
+    {
+      "id": "two-red-axis-bins",
+      "input_values": [2, 2, 0, 0, 0, 8, 0, 0],
+      "input_length": 8,
+      "output_capacity": 25,
+      "expected_result": 7,
+      "expected_output_hex": "02000000080000"
+    },
+    {
+      "id": "palette-limit-exceeds-unique-bins",
+      "input_values": [8, 2, 0, 1, 7, 7, 7, 1],
+      "input_length": 8,
+      "output_capacity": 25,
+      "expected_result": 4,
+      "expected_output_hex": "01000000"
+    },
+    {
+      "id": "invalid-palette-limit",
+      "input_values": [0, 1, 0, 0, 0],
+      "input_length": 5,
+      "output_capacity": 25,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-rgb-component",
+      "input_values": [1, 1, 0, 256, 0],
+      "input_length": 5,
+      "output_capacity": 25,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 25,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output",
+      "input_values": [2, 2, 0, 0, 0, 8, 0, 0],
+      "input_length": 8,
+      "output_capacity": 6,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 8, 16, 24],
+      "input_length": 5,
+      "output_capacity": 25,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

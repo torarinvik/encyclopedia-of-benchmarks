@@ -1,0 +1,34 @@
+def put_root_word(output: u8&, word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for b in 0..<8: output[word*8+b] <- ((bits >> (8*b)) & 255).u8()
+
+def versabench_dbms_contract_root_impl(values: i64&, length: usize, output: u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 3 or length > 12: return -1
+    raw_count: i64 = values[0]
+    if raw_count < 1 or raw_count > 5: return -1
+    count: usize = raw_count.usize()
+    if length != 1+2*count: return -1
+    levels: mutable [5]i64 = [0;5]
+    entries: mutable [5]i64 = [0;5]
+    for i in 0..<count:
+        levels[i] <- values[1+2*i]
+        entries[i] <- values[2+2*i]
+        if levels[i] < 0 or levels[i] > 4 or entries[i] < 0 or entries[i] > 4: return -1
+        if i+1 < count and (levels[i] == 0 or entries[i] != 1 or levels[i+1] != levels[i]-1): return -1
+    if levels[count-1] > 0 and entries[count-1] == 1: return -1
+    if levels[count-1] > 0 and entries[count-1] == 0 and count != 1: return -1
+    root: mutable usize = 0
+    promotions: mutable usize = 0
+    while levels[root] > 0 and entries[root] == 1:
+        root <- root+1
+        promotions <- promotions+1
+    final_level: mutable i64 = levels[root]
+    final_count: mutable i64 = entries[root]
+    if final_level > 0 and final_count == 0: final_level <- 0; final_count <- 0
+    if output.is_null() or capacity < 24: return -2
+    put_root_word(output,0,promotions.i64())
+    put_root_word(output,1,final_level)
+    put_root_word(output,2,final_count)
+    24
+
+export fn versabench_dbms_contract_root(values: i64&, length: usize, output: u8&, capacity: usize) -> i64 = versabench_dbms_contract_root_impl

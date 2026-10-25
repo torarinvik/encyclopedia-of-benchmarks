@@ -1,0 +1,31 @@
+# Independent ROP3 truth-table transforms; complete AFPL v5 is bundled.
+export fn cbench_ghostscript_rop3_transform(values: i64&, length: usize) -> i64 = cbench_ghostscript_rop3_transform_impl
+
+def cbench_ghostscript_rop3_transform_impl(values: i64&, length: usize) -> i64:
+    if length > 3: return -1
+    if length > 0 and values == null: return -1
+    if length != 2 or values[0] < 0 or values[0] > 14 or values[1] < 0 or values[1] > 255: return -1
+    mode: usize = values[0].usize()
+    code: u64 = values[1].u64()
+    result: mutable u64 = 0
+    index: mutable usize = 0
+    while index < 8:
+        d: usize = index & 1
+        s: usize = (index >> 1) & 1
+        t: usize = (index >> 2) & 1
+        source_index: mutable usize = index
+        forced: mutable i64 = -1
+        if mode <= 2: source_index <- source_index ^ (1 << mode)
+        elif mode <= 8:
+            dimension: usize = (mode - 3) / 2
+            pinned: usize = (mode - 3) & 1
+            source_index <- (index & !(1 << dimension)) | (pinned << dimension)
+        elif mode == 9: source_index <- (index & !6) | (s << 2) | (t << 1)
+        elif mode <= 13:
+            operand: usize = if mode < 12 then s else t
+            if operand == ((mode - 10) & 1): forced <- d.i64()
+        else: forced <- (1 - ((code >> index) & 1)).i64()
+        bit: u64 = if forced < 0 then (code >> source_index) & 1 else forced.u64()
+        result <- result | (bit << index)
+        index <- index + 1
+    return result.i64()

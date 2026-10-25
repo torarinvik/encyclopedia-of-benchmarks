@@ -1,0 +1,16 @@
+const INPUT_LENGTH: usize = 16
+const MAX_PARSEABLE_INPUT_LENGTH: usize = 17
+
+def versabench_dbms_consistent_key_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH or length != INPUT_LENGTH: return -1
+    for box in 0..<2:
+        base: usize = box * 8
+        for d in 0..<4:
+            lower: i64 = values[base + d]
+            upper: i64 = values[base + 4 + d]
+            if lower < -8 or lower > 8 or upper < -8 or upper > 8 or lower > upper: return -1
+    for d in 0..<4:
+        if values[d] > values[12 + d] or values[8 + d] > values[4 + d]: return 0
+    1
+
+export fn versabench_dbms_consistent_key(values: i64&, length: usize) -> i64 = versabench_dbms_consistent_key_impl

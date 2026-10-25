@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s141-packed-symmetric-update-i64-le-v1",
+  "algorithm": "tsvc_s141_packed_symmetric_update",
+  "function_symbol": "tsvc_s141_packed_symmetric_update",
+  "description": "Bounded packed symmetric-triangle accumulation profile of TSVC s141.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s141",
+    "source_lines": {"kernel_start": 1476, "kernel_end": 1503, "initialization": 328},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. The ports are clean-room implementations of the bounded loop contract and reuse no upstream source code or comments; no upstream license or endorsement is claimed."
+  },
+  "contract": {
+    "operation": "For every round, visit i upward and j upward from i to n-1, then apply packed[j*(j+1)/2+i] += matrix[j*n+i].",
+    "input_layout": "[n, rounds, packed[n*(n+1)/2], row_major_matrix[n*n]]",
+    "n_range": [1, 16],
+    "rounds_range": [1, 32],
+    "value_range": [-1000000, 1000000],
+    "exact_length": "2 + n*(n+1)/2 + n*n",
+    "maximum_valid_input_length": 394,
+    "output": "Final packed vector encoded as little-endian signed i64 values.",
+    "output_capacity_requirement": "At least 8*n*(n+1)/2 bytes.",
+    "success_result": "n*(n+1)/2 values written.",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "input_modified": false
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "n, rounds, packed triangular state in column-grouped order, then dense row-major matrix",
+    "maximum_valid_length": 394,
+    "maximum_parseable_length": 394,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Final packed triangle, positions j*(j+1)/2+i for 0<=i<=j<n.",
+    "maximum_values": 136,
+    "maximum_bytes": 1088
+  },
+  "workspace": {"bytes": 1088},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-cell",
+      "input_values": [1, 1, 5, 7],
+      "input_length": 4,
+      "output_capacity": 8,
+      "expected_result": 1,
+      "expected_output_hex": "0c00000000000000"
+    },
+    {
+      "id": "three-by-three-two-rounds-lower-triangle-only",
+      "input_values": [3, 2, 1, 2, 3, 4, 5, 6, 10, 999, 999, 40, 50, 999, 70, 80, 90],
+      "input_length": 17,
+      "output_capacity": 48,
+      "expected_result": 6,
+      "expected_output_hex": "1500000000000000520000000000000067000000000000009000000000000000a500000000000000ba00000000000000"
+    },
+    {
+      "id": "two-by-two-negative-initial-state-three-rounds",
+      "input_values": [2, 3, 0, -2, 5, 2, 999, 4, 6],
+      "input_length": 9,
+      "output_capacity": 24,
+      "expected_result": 3,
+      "expected_output_hex": "06000000000000000a000000000000001700000000000000"
+    },
+    {
+      "id": "zero-dimension-invalid",
+      "input_values": [0, 1, 0, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-matrix-invalid",
+      "input_values": [2, 1, 0, 0, 0, 0, 0, 0],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "matrix-value-out-of-range",
+      "input_values": [1, 1, 0, 1000001],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [1, 1, 0, 7],
+      "input_length": 4,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 0, 7],
+      "input_length": 4,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 1088,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

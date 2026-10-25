@@ -1,0 +1,53 @@
+# Clean-room one-sweep profile of TSVC s243; see package README.
+
+const TSVC_S243_MAX_N: usize = 64
+const TSVC_S243_MAX_INPUT_LENGTH: usize = 321
+const TSVC_S243_MAX_VALUE: i64 = 2
+
+def tsvc_s243_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s243_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 11 or length > TSVC_S243_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 2 or n_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + 5 * n:
+        return -1
+
+    a_start: usize = 1
+    b_start: usize = a_start + n
+    c_start: usize = b_start + n
+    d_start: usize = c_start + n
+    e_start: usize = d_start + n
+    a: mutable i64[64] = zeroed
+    b: mutable i64[64] = zeroed
+    for i in 0..n:
+        a[i] <- input[a_start + i]
+        b[i] <- input[b_start + i]
+        if a[i] < -TSVC_S243_MAX_VALUE or a[i] > TSVC_S243_MAX_VALUE or
+            b[i] < -TSVC_S243_MAX_VALUE or b[i] > TSVC_S243_MAX_VALUE or
+            input[c_start + i] < -TSVC_S243_MAX_VALUE or input[c_start + i] > TSVC_S243_MAX_VALUE or
+            input[d_start + i] < -TSVC_S243_MAX_VALUE or input[d_start + i] > TSVC_S243_MAX_VALUE or
+            input[e_start + i] < -TSVC_S243_MAX_VALUE or input[e_start + i] > TSVC_S243_MAX_VALUE:
+            return -1
+    if output.is_null() or capacity < 16 * n:
+        return -2
+
+    for i in 0..(n - 1):
+        next_a: i64 = a[i + 1]
+        d_value: i64 = input[d_start + i]
+        a[i] <- b[i] + input[c_start + i] * d_value
+        b[i] <- a[i] + d_value * input[e_start + i]
+        a[i] <- b[i] + next_a * d_value
+    for i in 0..n:
+        tsvc_s243_store(a[i], output, 8 * i)
+        tsvc_s243_store(b[i], output, 8 * (n + i))
+    (2 * n).i64()
+
+export fn tsvc_s243_ordered_lookahead_update(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s243_impl

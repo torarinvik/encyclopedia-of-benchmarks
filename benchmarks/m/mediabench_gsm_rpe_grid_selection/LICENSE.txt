@@ -1,0 +1,5 @@
+This package's source terms and full attribution are preserved in
+[`COPYRIGHT.txt`](COPYRIGHT.txt). The pinned GSM source permits any use when
+that notice remains intact and disclaims warranty. The package ports are
+independent implementations of the documented operation and include no
+upstream function body.

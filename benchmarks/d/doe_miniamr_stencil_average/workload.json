@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "doe-miniamr-stencil-average-v1",
+  "algorithm": "doe_miniamr_stencil_average",
+  "function_symbol": "doe_miniamr_stencil_average",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "DOE_ProxyApps_C/miniAMR/stencil.c",
+    "symbol": "stencil_calc"
+  },
+  "license_note": "Source header says GNU LGPL version 2.1 or any later version and includes Sandia/DOE attribution; the pinned subtree's full GNU LGPL version 3 text is retained in LICENSE.txt and every port preserves the full source header.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "minimum_length": 68,
+    "maximum_length": 220,
+    "layout": ["stencil", "nx", "ny", "nz", "haloed grid array[i][j][k] with k varying fastest"],
+    "stencil_values": [7, 27],
+    "interior_dimension_values": [2, 4],
+    "grid_cell_minimum": -1000,
+    "grid_cell_maximum": 1000,
+    "exact_length": "4 + (nx+2)*(ny+2)*(nz+2)",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "sum((q+1)*work[q]*work[q]) over the staged interior values in i,j,k source traversal order; work is the selected 7-point or 27-point mean",
+    "relative_tolerance": 1e-12,
+    "absolute_tolerance": 1e-12,
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"zero-star-field","input_values":[
+      7,2,2,2,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    ],"input_length":68,"expected_result":0.0},
+    {"id":"constant-star-field","input_values":[
+      7,2,2,2,
+      1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+    ],"input_length":68,"expected_result":36.0},
+    {"id":"isolated-interior-impulse-star","input_values":[
+      7,2,2,2,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    ],"input_length":68,"expected_result":0.8979591836734694},
+    {"id":"isolated-interior-impulse-box","input_values":[
+      27,2,2,2,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    ],"input_length":68,"expected_result":0.19753086419753085},
+    {"id":"invalid-short-grid","input_values":[7,2,2,2],"input_length":4,"expected_result":-1e300},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-null","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

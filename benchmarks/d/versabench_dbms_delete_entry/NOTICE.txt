@@ -1,0 +1,3 @@
+VersaBench DIS database attribution: M. L. Rivas; source headers state Copyright 1999, Atlantic Aerospace Electronics Corp.
+Pinned source: lac-dcc/Benchmarks commit 5d7b75df749241efa7a6e6f5be613d3fcc5cce38, VersaBench/dbms/deleteEntry.c and supporting delete/index files.
+The pinned directory contained no explicit redistribution license. This package is a clean-room implementation of a bounded behavior profile and does not reproduce upstream source text or comments. This notice records provenance and does not resolve the original license status.

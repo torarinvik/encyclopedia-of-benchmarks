@@ -1,0 +1,61 @@
+# Clean-room bounded profile of TSVC s278; see package README.
+
+const TSVC_S278_MAX_N: usize = 64
+const TSVC_S278_MAX_INPUT_LENGTH: usize = 322
+const TSVC_S278_MAX_VALUE: i64 = 2
+const TSVC_S278_MAX_PASSES: i64 = 16
+
+def tsvc_s278_bounded(value: i64) -> bool:
+    value >= -TSVC_S278_MAX_VALUE and value <= TSVC_S278_MAX_VALUE
+
+def tsvc_s278_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s278_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 7 or length > TSVC_S278_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    passes: i64 = input[1]
+    if n_value < 1 or n_value > 64 or passes < 1 or passes > TSVC_S278_MAX_PASSES:
+        return -1
+    n: usize = n_value.usize()
+    if length != 2 + 5 * n:
+        return -1
+
+    a_start: usize = 2
+    b_start: usize = a_start + n
+    c_start: usize = b_start + n
+    d_start: usize = c_start + n
+    e_start: usize = d_start + n
+    a: mutable i64[64] = zeroed
+    b: mutable i64[64] = zeroed
+    c: mutable i64[64] = zeroed
+    for i in 0..n:
+        a[i] <- input[a_start + i]
+        b[i] <- input[b_start + i]
+        c[i] <- input[c_start + i]
+        if not tsvc_s278_bounded(a[i]) or not tsvc_s278_bounded(b[i]) or
+            not tsvc_s278_bounded(c[i]) or not tsvc_s278_bounded(input[d_start + i]) or
+            not tsvc_s278_bounded(input[e_start + i]):
+            return -1
+    if output.is_null() or capacity < 24 * n:
+        return -2
+
+    for pass in 0..passes.usize():
+        for i in 0..n:
+            de: i64 = input[d_start + i] * input[e_start + i]
+            if a[i] > 0:
+                c[i] <- -c[i] + de
+            else:
+                b[i] <- -b[i] + de
+            a[i] <- b[i] + c[i] * input[d_start + i]
+    for i in 0..n:
+        tsvc_s278_store(a[i], output, 8 * i)
+        tsvc_s278_store(b[i], output, 8 * (n + i))
+        tsvc_s278_store(c[i], output, 8 * (2 * n + i))
+    (3 * n).i64()
+
+export fn tsvc_s278_branch_recompute(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s278_impl

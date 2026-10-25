@@ -1,0 +1,75 @@
+module parboil_mri_q
+
+extern cosf(value: f32) -> f32
+extern sinf(value: f32) -> f32
+
+def fn f32 parboil_mri_q_decode_component(i64 raw):
+    return raw.f32() / 1000000.0.f32()
+
+def fn i32 parboil_mri_q_quantize_q(f32 value):
+    scaled: f32 = value * 1000.0.f32()
+    magnitude: f32 = if scaled < 0.0.f32(): -scaled else: scaled
+    whole: mutable i32 = magnitude.i32()
+    fraction: f32 = magnitude - whole.f32()
+    if fraction >= 0.5.f32(): whole <- whole + 1
+    if scaled < 0.0.f32(): return -whole
+    return whole
+
+def fn void parboil_mri_q_write_i32_le(u8* output, i64 offset, i32 value):
+    bits: u32 = value.u32()
+    output[offset] <- bits.u8()
+    output[offset + 1] <- (bits >> 8).u8()
+    output[offset + 2] <- (bits >> 16).u8()
+    output[offset + 3] <- (bits >> 24).u8()
+
+/* Clean-room Parboil MRI-Q profile; Illinois Open Source License in package docs. */
+def fn i64 parboil_mri_q(i64* input, i64 input_length, u8* output, i64 output_capacity):
+    if input == null or input_length < 9 or input_length > 24: return -1
+    if input[0] < 1 or input[0] > 4: return -1
+    count: i64 = input[0]
+    if input_length != 4 + 5 * count: return -1
+    i: mutable i64 = 1
+    while i < input_length:
+        if input[i] < -1000000 or input[i] > 1000000: return -1
+        i <- i + 1
+    if output == null or output_capacity < 8: return -2
+
+    x: f32 = parboil_mri_q_decode_component(input[1])
+    y: f32 = parboil_mri_q_decode_component(input[2])
+    z: f32 = parboil_mri_q_decode_component(input[3])
+    phi_magnitudes: mutable f32[4] = zeroed
+    k: mutable i64 = 0
+    while k < count:
+        offset: i64 = 4 + 5 * k
+        phi_real: f32 = parboil_mri_q_decode_component(input[offset + 3])
+        phi_imag: f32 = parboil_mri_q_decode_component(input[offset + 4])
+        real_square: f32 = phi_real * phi_real
+        imag_square: f32 = phi_imag * phi_imag
+        phi_magnitudes[k] <- real_square + imag_square
+        k <- k + 1
+    qr: mutable f32 = 0.0.f32()
+    qi: mutable f32 = 0.0.f32()
+    k <- 0
+    while k < count:
+        offset: i64 = 4 + 5 * k
+        kx: f32 = parboil_mri_q_decode_component(input[offset])
+        ky: f32 = parboil_mri_q_decode_component(input[offset + 1])
+        kz: f32 = parboil_mri_q_decode_component(input[offset + 2])
+        kx_x: f32 = kx * x
+        ky_y: f32 = ky * y
+        kz_z: f32 = kz * z
+        xy: f32 = kx_x + ky_y
+        xyz: f32 = xy + kz_z
+        phase: f32 = 6.2831853071795864769252867665590058.f32() * xyz
+        cos_phase: f32 = cosf(phase)
+        sin_phase: f32 = sinf(phase)
+        qr_term: f32 = phi_magnitudes[k] * cos_phase
+        qi_term: f32 = phi_magnitudes[k] * sin_phase
+        qr <- qr + qr_term
+        qi <- qi + qi_term
+        k <- k + 1
+    parboil_mri_q_write_i32_le(output, 0, parboil_mri_q_quantize_q(qr))
+    parboil_mri_q_write_i32_le(output, 4, parboil_mri_q_quantize_q(qi))
+    return 8
+
+export fn parboil_mri_q

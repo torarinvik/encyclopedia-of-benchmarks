@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mccat-17-bintr-dfs-membership-i64-array-bytes-output-v1",
+  "algorithm": "mccat_bintr",
+  "function_symbol": "mccat_bintr",
+  "description": "Bounded sorted-insertion binary tree summary plus 100 generic recursive left-first membership probes.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["McCat/17-bintr/bintree.c", "McCat/17-bintr/bintree.h", "McCat/17-bintr/bnchmrk.c", "McCat/17-bintr/bnchmrk.in1", "McCat/17-bintr/info.sh"],
+    "symbols": ["insertSortedBinaryTree", "getSizeBinaryTree", "getSumBinaryTree", "getArithmeticMeanBinaryTree", "memberOfBinaryTree", "memberOfBinaryTreeRecurs"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/17-bintr",
+    "launcher": {"bench_name": "17-bintr", "source_files": ["bintree.c", "bnchmrk.c"], "stdin": "bnchmrk.in1"},
+    "license_note": "McGill University, McCAT System Group, and ACAPS Benchmark Administrator permit use, redistribution, and modification provided the copyright notice is maintained; the source disclaims warranties."
+  },
+  "contract": {
+    "input_layout": "[node_count, node_values..., probe_count, probe_values...]",
+    "node_count_range": [1, 64],
+    "probe_count": 100,
+    "value_range": [-32768, 32767],
+    "sentinel_value": 0,
+    "sentinel_handling": "The source uses zero to terminate each stdin list. The structured contract omits sentinels and rejects zero in node and probe values.",
+    "tree": "Insert values in supplied order into a sorted binary tree. Duplicate keys leave the existing tree unchanged, as in insertSortedBinaryTree.",
+    "summary": "Return tree size, recursive value sum, and arithmetic mean. The profile requires at least one input value so the source mean is defined.",
+    "membership": "Run 100 independent generic recursive depth-first searches, visiting left before right after a miss. This matches the active memberOfBinaryTree call; the key-directed memberOfSortedBinaryTree call is commented out in the launcher.",
+    "output_layout": "4-byte unsigned tree size little-endian, 8-byte IEEE-754 sum little-endian, 8-byte IEEE-754 mean little-endian, then a 13-byte membership bitmap (probe i is bit i modulo 8 of byte floor(i/8)).",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "node count, that many nonzero signed-16-bit node values, literal probe count 100, then 100 nonzero signed-16-bit probes",
+    "exact_length": "node_count + 102",
+    "maximum_parseable_length": 166,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "maximum_bytes": 33,
+    "success_result": 33,
+    "invalid_input_result": -1,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {"bytes": 33},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single_node_all_hits",
+      "input_values": [1, 5, 100,
+        5,5,5,5,5,5,5,5,5,5,
+        5,5,5,5,5,5,5,5,5,5,
+        5,5,5,5,5,5,5,5,5,5,
+        5,5,5,5,5,5,5,5,5,5,
+        5,5,5,5,5,5,5,5,5,5,
+        5,5,5,5,5,5,5,5,5,5,
+        5,5,5,5,5,5,5,5,5,5,
+        5,5,5,5,5,5,5,5,5,5,
+        5,5,5,5,5,5,5,5,5,5,
+        5,5,5,5,5,5,5,5,5,5
+      ],
+      "input_length": 103,
+      "expected_result": 33,
+      "expected_output_hex": "0100000000000000000014400000000000001440ffffffffffffffffffffffff0f"
+    },
+    {
+      "id": "duplicate_insertion_and_alternating_hit_miss",
+      "input_values": [3,5,9,5,100,
+        5,7,5,7,5,7,5,7,5,7,
+        5,7,5,7,5,7,5,7,5,7,
+        5,7,5,7,5,7,5,7,5,7,
+        5,7,5,7,5,7,5,7,5,7,
+        5,7,5,7,5,7,5,7,5,7,
+        5,7,5,7,5,7,5,7,5,7,
+        5,7,5,7,5,7,5,7,5,7,
+        5,7,5,7,5,7,5,7,5,7,
+        5,7,5,7,5,7,5,7,5,7,
+        5,7,5,7,5,7,5,7,5,7
+      ],
+      "input_length": 105,
+      "expected_result": 33,
+      "expected_output_hex": "020000000000000000002c400000000000001c40555555555555555555555505"
+    },
+    {"id": "wrong_probe_count", "input_values": [1,5,99], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_output_capacity", "input_values": [1,5,100,
+      5,5,5,5,5,5,5,5,5,5,
+      5,5,5,5,5,5,5,5,5,5,
+      5,5,5,5,5,5,5,5,5,5,
+      5,5,5,5,5,5,5,5,5,5,
+      5,5,5,5,5,5,5,5,5,5,
+      5,5,5,5,5,5,5,5,5,5,
+      5,5,5,5,5,5,5,5,5,5,
+      5,5,5,5,5,5,5,5,5,5,
+      5,5,5,5,5,5,5,5,5,5,
+      5,5,5,5,5,5,5,5,5,5
+    ], "input_length": 103, "output_capacity": 32, "expected_result": -2, "expected_output_hex": ""}
+  ]
+}

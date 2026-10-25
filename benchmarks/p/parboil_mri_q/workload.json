@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "id": "parboil-mri-q-one-voxel-f32-q1000-i64-array-bytes-output-v1",
+  "algorithm": "parboil_mri_q",
+  "function_symbol": "parboil_mri_q",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded direct nonuniform 3D Fourier accumulation at one voxel, with Parboil MRI-Q's complex-magnitude preprocessing and source-order binary32 recurrence.",
+  "pinned_source": {
+    "repository": "yuhc/gpu-parboil",
+    "commit": "ccf3d3126f1754ca85528722f4ced5894ccb852b",
+    "paths": [
+      "benchmarks/mri-q/src/cpu/computeQ.cc",
+      "benchmarks/mri-q/DESCRIPTION",
+      "LICENSE"
+    ],
+    "symbols": ["ComputePhiMagCPU", "ComputeQCPU"],
+    "constants": {
+      "max_k": 4,
+      "pi_x_2": "6.2831853071795864769252867665590058f as binary32",
+      "source_component_type": "IEEE-754 binary32"
+    },
+    "source_links": {
+      "kernel": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/mri-q/src/cpu/computeQ.cc",
+      "description": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/mri-q/DESCRIPTION",
+      "license": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/LICENSE"
+    },
+    "url": "https://github.com/yuhc/gpu-parboil/tree/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/mri-q",
+    "license": "Illinois Open Source License, University of Illinois/NCSA; full repository license reproduced in LICENSE.txt."
+  },
+  "contract": {
+    "operation": "First compute all per-record phi magnitudes, then accumulate Qr=phiMag*cos(2*pi*(Kx*x+Ky*y+Kz*z)) and Qi=phiMag*sin(2*pi*(Kx*x+Ky*y+Kz*z)) for one spatial voxel, preserving the source's two passes and binary32 operation order.",
+    "input_layout": "[numK,x_u,y_u,z_u,(Kx_u,Ky_u,Kz_u,phiR_u,phiI_u)*numK]",
+    "component_encoding": "Signed Q1e-6 scalar; decode f32(f32(raw)/f32(1000000)).",
+    "numK_range": [1, 4],
+    "component_scale": 1000000,
+    "component_raw_range": [-1000000, 1000000],
+    "exact_length": "4 + 5*numK",
+    "max_input_length": 24,
+    "float_rule": "Decode each component as f32(f32(raw)/f32(1000000)); round each source-order multiplication, addition, Q product and Q accumulator update to binary32. PIx2 is the binary32 source constant 6.2831853071795864769252867665590058f.",
+    "phi_magnitude_pass": "phiMag[k] = f32(f32(phiR[k]*phiR[k]) + f32(phiI[k]*phiI[k])) for k in ascending input order, before any Q accumulation.",
+    "phase_operation_order": "f32(Kx*x), f32(Ky*y), f32(Kz*z), f32(product_x+product_y), f32(sum_xy+product_z), then f32(PIx2*sum_xyz).",
+    "accumulation_order": "For each k in ascending input order, compute cosf(phase), sinf(phase), f32(phiMag[k]*trig), then add to Qr and Qi with binary32 rounding.",
+    "output_encoding": "signed i32 little-endian Qr*1000 then signed i32 little-endian Qi*1000; each uses nearest rounding with ties away from zero after the completed source recurrence.",
+    "output_bytes": 8,
+    "maximum_abs_q_component": 8,
+    "saturation": "none required under the four-record and component bounds",
+    "success_result": 8,
+    "output_capacity_requirement": 8,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_length": 24,
+    "maximum_valid_length": 24,
+    "maximum_parseable_length": 24,
+    "encoding": "one record count, one voxel coordinate triple, then numK records of k-space coordinate triple and complex phi real/imaginary values, all Q1e-6",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "signed i32 little-endian pair [roundf(Qr*1000), roundf(Qi*1000)]",
+    "maximum_bytes": 8,
+    "capacity_unit": "bytes",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true,
+    "success_result": 8,
+    "null_or_short_output_result": -2
+  },
+  "workspace": {
+    "bytes": 16,
+    "meaning": "Four binary32 phi-magnitude values computed in a first pass; all other state is scalar."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "zero_phase_zero_magnitude",
+      "input_values": [1, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 9,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "0000000000000000"
+    },
+    {
+      "id": "origin_single_unit_magnitude",
+      "input_values": [1, 0, 0, 0, 1000000, -1000000, 500000, 1000000, 0],
+      "input_length": 9,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "e803000000000000"
+    },
+    {
+      "id": "origin_complex_magnitude_and_two_record_sum",
+      "input_values": [2, 0, 0, 0, 1000000, 0, 0, 300000, 400000, -1000000, 500000, 0, 600000, 800000],
+      "input_length": 14,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "e204000000000000"
+    },
+    {
+      "id": "four_record_origin_source_bound",
+      "input_values": [4, 0, 0, 0, 1000000, 0, 0, 1000000, 0, 0, 1000000, 0, 1000000, 0, 0, 0, 1000000, 1000000, 0, -1000000, 0, 0, 0, 1000000],
+      "input_length": 24,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "a00f000000000000"
+    },
+    {
+      "id": "source_pi_over_two_phase",
+      "input_values": [1, 250000, 0, 0, 1000000, 0, 0, 1000000, 0],
+      "input_length": 9,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": 8,
+      "expected_output_hex": "00000000e8030000"
+    },
+    {
+      "id": "bad_frame_length",
+      "input_values": [1, 0, 0, 0, 1000000, 0, 0, 1000000],
+      "input_length": 8,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "record_count_out_of_range",
+      "input_values": [5, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 9,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "component_out_of_range",
+      "input_values": [1, 1000001, 0, 0, 1000000, 0, 0, 1000000, 0],
+      "input_length": 9,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_capacity_no_write",
+      "input_values": [1, 0, 0, 0, 1000000, 0, 0, 1000000, 0],
+      "input_length": 9,
+      "input_is_null": false,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_no_write",
+      "input_values": [1, 0, 0, 0, 1000000, 0, 0, 1000000, 0],
+      "input_length": 9,
+      "input_is_null": false,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

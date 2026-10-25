@@ -1,0 +1,44 @@
+# Clean-room bounded profile of TSVC s319; see package README.
+
+const TSVC_S319_MAX_N: usize = 64
+const TSVC_S319_MAX_INPUT_LENGTH: usize = 193
+const TSVC_S319_MAX_VALUE: i64 = 2
+
+def tsvc_s319_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s319_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > TSVC_S319_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + 3 * n:
+        return -1
+
+    c_start: usize = 1
+    d_start: usize = c_start + n
+    e_start: usize = d_start + n
+    for i in 0..n:
+        if input[c_start + i] < -TSVC_S319_MAX_VALUE or input[c_start + i] > TSVC_S319_MAX_VALUE or input[d_start + i] < -TSVC_S319_MAX_VALUE or input[d_start + i] > TSVC_S319_MAX_VALUE or input[e_start + i] < -TSVC_S319_MAX_VALUE or input[e_start + i] > TSVC_S319_MAX_VALUE:
+            return -1
+    value_count: usize = 2 * n + 1
+    if output.is_null() or capacity < 8 * value_count:
+        return -2
+
+    total: mutable i64 = 0
+    for i in 0..n:
+        a_value: i64 = input[c_start + i] + input[d_start + i]
+        b_value: i64 = input[c_start + i] + input[e_start + i]
+        tsvc_s319_store(a_value, output, 8 * i)
+        tsvc_s319_store(b_value, output, 8 * (n + i))
+        total <- total + a_value
+        total <- total + b_value
+    tsvc_s319_store(total, output, 8 * (2 * n))
+    value_count.i64()
+
+export fn tsvc_s319_coupled_reductions(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s319_impl

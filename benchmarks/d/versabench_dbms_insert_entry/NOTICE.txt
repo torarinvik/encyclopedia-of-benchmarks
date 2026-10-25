@@ -1,0 +1,3 @@
+VersaBench DIS database attribution: M. L. Rivas; source headers state Copyright 1999, Atlantic Aerospace Electronics Corp.
+Pinned source: lac-dcc/Benchmarks commit 5d7b75df749241efa7a6e6f5be613d3fcc5cce38, VersaBench/dbms/insertEntry.c and related R-tree helper/header files.
+The pinned directory did not contain an explicit redistribution license. This package is an independent clean-room implementation of a bounded algorithm profile and does not copy upstream source text or comments. This notice records provenance; it is not a claim that the original source license has been resolved.

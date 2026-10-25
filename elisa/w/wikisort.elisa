@@ -1,0 +1,166 @@
+# Bounded clean-room stable block-merge sort profile inspired by WikiSort.
+const CACHE_CAPACITY: usize = 512
+const RUN_SIZE: usize = 16
+const MAXIMUM_LENGTH: usize = 2048
+
+def reverse_range(values: mutable i64&, first_value: usize, last_value: usize) -> void:
+    first: mutable usize = first_value
+    last: mutable usize = last_value
+    while first < last:
+        last <- last - 1
+        if first >= last:
+            break
+        item: mutable i64 = values[first]
+        values[first] <- values[last]
+        values[last] <- item
+        first <- first + 1
+
+def insertion_sort(values: mutable i64&, first: usize, last: usize) -> void:
+    index: mutable usize = first + 1
+    while index < last:
+        item: mutable i64 = values[index]
+        position: mutable usize = index
+        while position > first and item < values[position - 1]:
+            values[position] <- values[position - 1]
+            position <- position - 1
+        values[position] <- item
+        index <- index + 1
+
+def rotate_adjacent(values: mutable i64&, scratch: mutable i64&, first: usize, middle: usize, last: usize, cache_size: usize) -> void:
+    left_length: mutable usize = middle - first
+    right_length: mutable usize = last - middle
+    if left_length == 0 or right_length == 0:
+        return
+    if left_length <= right_length and left_length <= cache_size:
+        index: mutable usize = 0
+        while index < left_length:
+            scratch[index] <- values[first + index]
+            index <- index + 1
+        index <- 0
+        while index < right_length:
+            values[first + index] <- values[middle + index]
+            index <- index + 1
+        index <- 0
+        while index < left_length:
+            values[first + right_length + index] <- scratch[index]
+            index <- index + 1
+        return
+    if right_length < left_length and right_length <= cache_size:
+        index: mutable usize = 0
+        while index < right_length:
+            scratch[index] <- values[middle + index]
+            index <- index + 1
+        index <- left_length
+        while index > 0:
+            index <- index - 1
+            values[first + right_length + index] <- values[first + index]
+        index <- 0
+        while index < right_length:
+            values[first + index] <- scratch[index]
+            index <- index + 1
+        return
+    reverse_range(values, first, middle)
+    reverse_range(values, middle, last)
+    reverse_range(values, first, last)
+
+def merge_from_cache(values: mutable i64&, scratch: mutable i64&, first: usize, middle: usize, last: usize) -> void:
+    left_length: mutable usize = middle - first
+    index: mutable usize = 0
+    while index < left_length:
+        scratch[index] <- values[first + index]
+        index <- index + 1
+    left: mutable usize = 0
+    right: mutable usize = middle
+    output: mutable usize = first
+    while left < left_length and right < last:
+        if scratch[left] <= values[right]:
+            values[output] <- scratch[left]
+            left <- left + 1
+        else:
+            values[output] <- values[right]
+            right <- right + 1
+        output <- output + 1
+    while left < left_length:
+        values[output] <- scratch[left]
+        left <- left + 1
+        output <- output + 1
+
+def block_rotation_merge(values: mutable i64&, scratch: mutable i64&, first: usize, middle_value: usize, last: usize, cache_size: usize) -> void:
+    total: mutable usize = last - first
+    block_size: mutable usize = 1
+    while block_size + 1 <= total / (block_size + 1):
+        block_size <- block_size + 1
+    middle: mutable usize = middle_value
+    left: mutable usize = first
+    while left < middle and middle < last:
+        if values[left] <= values[middle]:
+            boundary_value: mutable i64 = values[middle]
+            low: mutable usize = left
+            high: mutable usize = middle
+            while low < high:
+                probe: mutable usize = low + (high - low) / 2
+                if values[probe] <= boundary_value:
+                    low <- probe + 1
+                else:
+                    high <- probe
+            left <- low
+        else:
+            key: mutable i64 = values[left]
+            low: mutable usize = middle
+            high: mutable usize = last
+            while low < high:
+                probe: mutable usize = low + (high - low) / 2
+                if values[probe] < key:
+                    low <- probe + 1
+                else:
+                    high <- probe
+            block_end: mutable usize = low
+            if block_end - middle > block_size:
+                block_end <- middle + block_size
+            moved: mutable usize = block_end - middle
+            if moved == 0:
+                left <- left + 1
+            else:
+                rotate_adjacent(values, scratch, left, middle, block_end, cache_size)
+                left <- left + moved
+                middle <- middle + moved
+
+def wikisort_impl(values: mutable i64&, scratch: mutable i64&, length: usize) -> void:
+    if length < 2 or length > MAXIMUM_LENGTH:
+        return
+    cache_size: mutable usize = length
+    if cache_size > CACHE_CAPACITY:
+        cache_size <- CACHE_CAPACITY
+    if length <= 32:
+        insertion_sort(values, 0, length)
+        return
+    start: mutable usize = 0
+    while start < length:
+        end: mutable usize = start + RUN_SIZE
+        if end > length:
+            end <- length
+        insertion_sort(values, start, end)
+        start <- start + RUN_SIZE
+    width: mutable usize = RUN_SIZE
+    while width < length:
+        first: mutable usize = 0
+        while first < length:
+            middle: mutable usize = first + width
+            if middle > length:
+                middle <- length
+            last: mutable usize = middle + width
+            if last > length:
+                last <- length
+            if middle < last and values[middle] < values[middle - 1]:
+                if values[last - 1] < values[first]:
+                    rotate_adjacent(values, scratch, first, middle, last, cache_size)
+                else if middle - first <= cache_size:
+                    merge_from_cache(values, scratch, first, middle, last)
+                else:
+                    block_rotation_merge(values, scratch, first, middle, last, cache_size)
+            first <- last
+        if width > length / 2:
+            break
+        width <- width * 2
+
+export fn wikisort(values: mutable i64&, scratch: mutable i64&, length: usize) -> void = wikisort_impl

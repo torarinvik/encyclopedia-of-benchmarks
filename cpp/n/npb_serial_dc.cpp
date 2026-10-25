@@ -1,0 +1,84 @@
+/* NAS Parallel Benchmarks 3.3 DC source notice:
+ * Permission to use, copy, distribute and modify this software for any purpose
+ * with or without fee is hereby granted. We request, however, that all derived
+ * work reference the NAS Parallel Benchmarks 3.3. This software is provided
+ * "as is" without express or implied warranty.
+ *
+ * Clean-room bounded adaptation: packed input and ordered scalar checksum
+ * replace generated files and the original memory management harness.
+ */
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+namespace {
+constexpr std::size_t max_dims = 5, max_rows = 16;
+}
+
+extern "C" std::int64_t npb_serial_dc(const std::int64_t *input, std::size_t length) {
+    if (input == nullptr || length < 4 || input[0] < 1 || input[0] > static_cast<std::int64_t>(max_dims) ||
+        input[1] < 1 || input[1] > static_cast<std::int64_t>(max_rows)) return -1;
+    const std::size_t dimensions = static_cast<std::size_t>(input[0]);
+    const std::size_t rows = static_cast<std::size_t>(input[1]);
+    if (length != 2 + rows * (dimensions + 1)) return -1;
+    std::array<std::array<std::int64_t, max_dims>, max_rows> attributes{};
+    std::array<std::int64_t, max_rows> measures{};
+    std::size_t offset = 2;
+    for (std::size_t row = 0; row < rows; ++row) {
+        for (std::size_t dimension = 0; dimension < dimensions; ++dimension) {
+            const auto value = input[offset++];
+            if (value < 0 || value > 7) return -1;
+            attributes[row][dimension] = value;
+        }
+        measures[row] = input[offset++];
+        if (measures[row] < 0 || measures[row] > 1000) return -1;
+    }
+    std::int64_t checksum = 0;
+    const unsigned view_limit = 1u << dimensions;
+    for (unsigned mask = 1; mask < view_limit; ++mask) {
+        std::array<std::array<std::int64_t, max_dims>, max_rows> keys{};
+        std::array<std::int64_t, max_rows> sums{};
+        std::size_t group_count = 0;
+        for (std::size_t row = 0; row < rows; ++row) {
+            std::size_t group = 0;
+            for (; group < group_count; ++group) {
+                bool equal = true;
+                for (std::size_t dimension = 0; dimension < dimensions; ++dimension)
+                    if ((mask & (1u << dimension)) != 0 && keys[group][dimension] != attributes[row][dimension]) equal = false;
+                if (equal) break;
+            }
+            if (group == group_count) {
+                for (std::size_t dimension = 0; dimension < dimensions; ++dimension)
+                    if ((mask & (1u << dimension)) != 0) keys[group][dimension] = attributes[row][dimension];
+                sums[group] = measures[row];
+                ++group_count;
+            } else sums[group] += measures[row];
+        }
+        for (std::size_t index = 1; index < group_count; ++index) {
+            std::size_t position = index;
+            while (position > 0) {
+                int comparison = 0;
+                for (std::size_t dimension = 0; dimension < dimensions; ++dimension) {
+                    if ((mask & (1u << dimension)) == 0) continue;
+                    if (keys[position][dimension] < keys[position - 1][dimension]) { comparison = -1; break; }
+                    if (keys[position][dimension] > keys[position - 1][dimension]) { comparison = 1; break; }
+                }
+                if (comparison >= 0) break;
+                keys[position].swap(keys[position - 1]);
+                std::swap(sums[position], sums[position - 1]);
+                --position;
+            }
+        }
+        const auto view = static_cast<std::int64_t>(mask);
+        checksum += view * 1009 + static_cast<std::int64_t>(group_count) * 9176;
+        for (std::size_t group = 0; group < group_count; ++group) {
+            checksum += (view + 1) * static_cast<std::int64_t>(group + 1) * (sums[group] + 13);
+            for (std::size_t dimension = 0; dimension < dimensions; ++dimension)
+                if ((mask & (1u << dimension)) != 0)
+                    checksum += static_cast<std::int64_t>(dimension + 1) * (keys[group][dimension] + 1) *
+                                static_cast<std::int64_t>(group + 3) * (view + 5);
+        }
+    }
+    return checksum;
+}

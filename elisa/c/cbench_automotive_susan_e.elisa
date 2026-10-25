@@ -1,0 +1,336 @@
+/**********************************************************************\
+  SUSAN Version 2l by Stephen Smith
+  Oxford Centre for Functional Magnetic Resonance Imaging of the Brain,
+  Department of Clinical Neurology, Oxford University, Oxford, UK
+  (Previously in Computer Vision and Image Processing Group - now
+  Computer Vision and Electro Optics Group - DERA Chertsey, UK)
+  Email:    steve@fmrib.ox.ac.uk
+  WWW:      http://www.fmrib.ox.ac.uk/~steve
+  (C) Crown Copyright (1995-1999), Defence Evaluation and Research Agency,
+  Farnborough, Hampshire, GU14 6TD, UK
+  DERA WWW site:
+  http://www.dera.gov.uk/
+  DERA Computer Vision and Electro Optics Group WWW site:
+  http://www.dera.gov.uk/imageprocessing/dera/group_home.html
+  DERA Computer Vision and Electro Optics Group point of contact:
+  Dr. John Savage, jtsavage@dera.gov.uk, +44 1344 633203
+  A UK patent has been granted: "Method for digitally processing
+  images to determine the position of edges and/or corners therein for
+  guidance of unmanned vehicle", UK Patent 2272285. Proprietor:
+  Secretary of State for Defence, UK. 15 January 1997
+
+  This code is issued for research purposes only and remains the
+  property of the UK Secretary of State for Defence. This code must
+  not be passed on without this header information being kept
+  intact. This code must not be sold.
+\**********************************************************************/
+extern exp(value: f64) -> f64
+extern sqrt(value: f64) -> f64
+
+const MIN_SIDE: i64 = 11
+const MAX_SIDE: i64 = 16
+const MAX_INPUT_LENGTH: usize = 258
+const MAX_NO_EDGES: i64 = 2650
+const MASK_X: i64[36] = [-1,0,1,-2,-1,0,1,2,-3,-2,-1,0,1,2,3,-3,-2,-1,1,2,3,-3,-2,-1,0,1,2,3,-2,-1,0,1,2,-1,0,1]
+const MASK_Y: i64[36] = [-3,-3,-3,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3]
+
+struct SusanEDirection:
+    a: i64
+    b: i64
+    sign: i64
+
+struct SusanESymmetryDirection:
+    a: i64
+    b: i64
+
+def susan_e_abs(value: i64) -> i64:
+    if value < 0: return -value
+    value
+
+def susan_e_brightness_table(table: mutable u8[513]) -> void:
+    difference: mutable i64 = -256
+    while difference <= 256:
+        scaled: f64 = susan_e_abs(difference).f64() / 20.0
+        term: f64 = scaled * scaled
+        term <- term * term * term
+        table[(difference + 256).usize()] <- (100.0 * exp(-term)).u8()
+        difference <- difference + 1
+
+def susan_e_edge_orientation(gx: i64, gy: i64) -> SusanEDirection:
+    slope: mutable f32 = 1000000.0
+    if gx != 0: slope <- gy.f32() / gx.f32()
+    sign: mutable i64 = 1
+    if slope < 0.0:
+        sign <- -1
+        slope <- -slope
+    if slope < 0.5: return SusanEDirection{a: 0, b: 1, sign: sign}
+    if slope > 2.0: return SusanEDirection{a: 1, b: 0, sign: sign}
+    if sign > 0: return SusanEDirection{a: 1, b: 1, sign: sign}
+    SusanEDirection{a: -1, b: 1, sign: sign}
+
+def susan_e_symmetry_orientation(gx: i64, gy: i64, cross: i64) -> SusanESymmetryDirection:
+    slope: f32 = 1000000.0
+    if gy != 0: slope = gx.f32() / gy.f32()
+    if slope < 0.5: return SusanESymmetryDirection{a: 0, b: 1}
+    if slope > 2.0: return SusanESymmetryDirection{a: 1, b: 0}
+    if cross > 0: return SusanESymmetryDirection{a: -1, b: 1}
+    SusanESymmetryDirection{a: 1, b: 1}
+
+def susan_e_active(middle: u8[256]&, index: usize) -> i64:
+    if middle[index] < 8: return 1
+    0
+
+def susan_e_edge_maximum(response: i64[256]&, side: usize, y: i64, x: i64, a: i64, b: i64) -> bool:
+    value: i64 = response[y.usize() * side + x.usize()]
+    value > response[(y + a).usize() * side + (x + b).usize()] and
+        value >= response[(y - a).usize() * side + (x - b).usize()] and
+        value > response[(y + 2 * a).usize() * side + (x + 2 * b).usize()] and
+        value >= response[(y - 2 * a).usize() * side + (x - 2 * b).usize()]
+
+def susan_e_thin_edges(response: i64[256]&, middle: mutable u8[256]&, side: usize) -> void:
+    y: mutable i64 = 4
+    while y < side.i64() - 4:
+        x: mutable i64 = 4
+        while x < side.i64() - 4:
+            at: usize = y.usize() * side + x.usize()
+            if susan_e_active(middle, at) != 0:
+                centre: i64 = response[at]
+                n: i64 = susan_e_active(middle, (y - 1).usize() * side + (x - 1).usize()) +
+                    susan_e_active(middle, (y - 1).usize() * side + x.usize()) +
+                    susan_e_active(middle, (y - 1).usize() * side + (x + 1).usize()) +
+                    susan_e_active(middle, y.usize() * side + (x - 1).usize()) +
+                    susan_e_active(middle, y.usize() * side + (x + 1).usize()) +
+                    susan_e_active(middle, (y + 1).usize() * side + (x - 1).usize()) +
+                    susan_e_active(middle, (y + 1).usize() * side + x.usize()) +
+                    susan_e_active(middle, (y + 1).usize() * side + (x + 1).usize())
+                if n == 0: middle[at] <- 100
+                if n == 1 and middle[at] < 6:
+                    l: mutable i64[9] = [
+                        response[(y - 1).usize() * side + (x - 1).usize()],
+                        response[(y - 1).usize() * side + x.usize()],
+                        response[(y - 1).usize() * side + (x + 1).usize()],
+                        response[y.usize() * side + (x - 1).usize()], 0,
+                        response[y.usize() * side + (x + 1).usize()],
+                        response[(y + 1).usize() * side + (x - 1).usize()],
+                        response[(y + 1).usize() * side + x.usize()],
+                        response[(y + 1).usize() * side + (x + 1).usize()]
+                    ]
+                    k: mutable i64[9] = [1,1,1,1,1,1,1,1,1]
+                    if susan_e_active(middle, (y - 1).usize() * side + (x - 1).usize()) != 0:
+                        k[0] <- 0; k[1] <- 0; k[3] <- 0; k[2] <- 2; k[6] <- 2; k[5] <- 3; k[7] <- 3; k[8] <- 4
+                    elif susan_e_active(middle, (y - 1).usize() * side + x.usize()) != 0:
+                        k[1] <- 0; k[0] <- 0; k[2] <- 0; k[3] <- 2; k[5] <- 2; k[6] <- 3; k[8] <- 3; k[7] <- 4
+                    elif susan_e_active(middle, (y - 1).usize() * side + (x + 1).usize()) != 0:
+                        k[2] <- 0; k[1] <- 0; k[5] <- 0; k[0] <- 2; k[8] <- 2; k[3] <- 3; k[7] <- 3; k[6] <- 4
+                    elif susan_e_active(middle, y.usize() * side + (x - 1).usize()) != 0:
+                        k[3] <- 0; k[0] <- 0; k[6] <- 0; k[1] <- 2; k[7] <- 2; k[2] <- 3; k[8] <- 3; k[5] <- 4
+                    elif susan_e_active(middle, y.usize() * side + (x + 1).usize()) != 0:
+                        k[5] <- 0; k[2] <- 0; k[8] <- 0; k[1] <- 2; k[7] <- 2; k[0] <- 3; k[6] <- 3; k[3] <- 4
+                    elif susan_e_active(middle, (y + 1).usize() * side + (x - 1).usize()) != 0:
+                        k[6] <- 0; k[3] <- 0; k[7] <- 0; k[0] <- 2; k[8] <- 2; k[1] <- 3; k[5] <- 3; k[2] <- 4
+                    elif susan_e_active(middle, (y + 1).usize() * side + x.usize()) != 0:
+                        k[7] <- 0; k[6] <- 0; k[8] <- 0; k[3] <- 2; k[5] <- 2; k[0] <- 3; k[2] <- 3; k[1] <- 4
+                    else:
+                        k[8] <- 0; k[5] <- 0; k[7] <- 0; k[6] <- 2; k[2] <- 2; k[1] <- 3; k[3] <- 3; k[0] <- 4
+                    best: mutable i64 = 0
+                    best_y: mutable i64 = 0
+                    best_x: mutable i64 = 0
+                    yy: mutable usize = 0
+                    while yy < 3:
+                        xx: mutable usize = 0
+                        while xx < 3:
+                            value: i64 = l[yy * 3 + xx] * k[yy * 3 + xx]
+                            if value > best:
+                                best <- value
+                                best_y <- yy.i64()
+                                best_x <- xx.i64()
+                            xx <- xx + 1
+                        yy <- yy + 1
+                    if best > 0:
+                        if middle[at] < 4: middle[(y + best_y - 1).usize() * side + (x + best_x - 1).usize()] <- 4
+                        else: middle[(y + best_y - 1).usize() * side + (x + best_x - 1).usize()] <- middle[at] + 1
+                        if best_y + best_y + best_x < 3:
+                            y <- y + best_y - 1
+                            x <- x + best_x - 2
+                            if y < 4: y <- 4
+                            if x < 4: x <- 4
+                if n == 2:
+                    b00: i64 = susan_e_active(middle, (y - 1).usize() * side + (x - 1).usize())
+                    b02: i64 = susan_e_active(middle, (y - 1).usize() * side + (x + 1).usize())
+                    b20: i64 = susan_e_active(middle, (y + 1).usize() * side + (x - 1).usize())
+                    b22: i64 = susan_e_active(middle, (y + 1).usize() * side + (x + 1).usize())
+                    if b00 + b02 + b20 + b22 == 2 and ((b00 | b22) & (b02 | b20)) != 0:
+                        mx: mutable i64 = 0
+                        my: mutable i64 = 0
+                        if b00 != 0:
+                            if b02 != 0: my <- -1
+                            else: mx <- -1
+                        elif b02 != 0: mx <- 1
+                        else: my <- 1
+                        ratio: f32 = response[(y + my).usize() * side + (x + mx).usize()].f32() / centre.f32()
+                        if ratio.f64() > 0.7:
+                            clear: mutable bool = false
+                            if mx == 0:
+                                clear <- middle[(y + 2 * my).usize() * side + (x - 1).usize()] > 7 and
+                                    middle[(y + 2 * my).usize() * side + x.usize()] > 7 and
+                                    middle[(y + 2 * my).usize() * side + (x + 1).usize()] > 7
+                            else:
+                                clear <- middle[y.usize() * side + (x + 2 * mx).usize()] > 7 and
+                                    middle[(y - 1).usize() * side + (x + 2 * mx).usize()] > 7 and
+                                    middle[(y + 1).usize() * side + (x + 2 * mx).usize()] > 7
+                            if clear:
+                                middle[at] <- 100
+                                middle[(y + my).usize() * side + (x + mx).usize()] <- 3
+                    else:
+                        b01: i64 = susan_e_active(middle, (y - 1).usize() * side + x.usize())
+                        b12: i64 = susan_e_active(middle, y.usize() * side + (x + 1).usize())
+                        b21: i64 = susan_e_active(middle, (y + 1).usize() * side + x.usize())
+                        b10: i64 = susan_e_active(middle, y.usize() * side + (x - 1).usize())
+                        angled: bool = b01 + b12 + b21 + b10 == 2 and
+                            ((b10 | b12) & (b01 | b21)) != 0 and
+                            ((b01 != 0 and (susan_e_active(middle, (y - 2).usize() * side + (x - 1).usize()) != 0 or susan_e_active(middle, (y - 2).usize() * side + (x + 1).usize()) != 0)) or
+                             (b10 != 0 and (susan_e_active(middle, (y - 1).usize() * side + (x - 2).usize()) != 0 or susan_e_active(middle, (y + 1).usize() * side + (x - 2).usize()) != 0)) or
+                             (b12 != 0 and (susan_e_active(middle, (y - 1).usize() * side + (x + 2).usize()) != 0 or susan_e_active(middle, (y + 1).usize() * side + (x + 2).usize()) != 0)) or
+                             (b21 != 0 and (susan_e_active(middle, (y + 2).usize() * side + (x - 1).usize()) != 0 or susan_e_active(middle, (y + 2).usize() * side + (x + 1).usize()) != 0)))
+                        if angled:
+                            middle[at] <- 100
+                            y <- y - 1
+                            x <- x - 2
+                            if y < 4: y <- 4
+                            if x < 4: x <- 4
+                if n > 2:
+                    b01: i64 = susan_e_active(middle, (y - 1).usize() * side + x.usize())
+                    b12: i64 = susan_e_active(middle, y.usize() * side + (x + 1).usize())
+                    b21: i64 = susan_e_active(middle, (y + 1).usize() * side + x.usize())
+                    b10: i64 = susan_e_active(middle, y.usize() * side + (x - 1).usize())
+                    if b01 + b12 + b21 + b10 > 1:
+                        b00: i64 = susan_e_active(middle, (y - 1).usize() * side + (x - 1).usize())
+                        b02: i64 = susan_e_active(middle, (y - 1).usize() * side + (x + 1).usize())
+                        b20: i64 = susan_e_active(middle, (y + 1).usize() * side + (x - 1).usize())
+                        b22: i64 = susan_e_active(middle, (y + 1).usize() * side + (x + 1).usize())
+                        p1: i64 = b00 | b01
+                        p2: i64 = b02 | b12
+                        p3: i64 = b22 | b21
+                        p4: i64 = b20 | b10
+                        connected: i64 = p1 + p2 + p3 + p4 - (b01 & p2) - (b12 & p3) - (b21 & p4) - (b10 & p1)
+                        if connected < 2:
+                            middle[at] <- 100
+                            y <- y - 1
+                            x <- x - 2
+                            if y < 4: y <- 4
+                            if x < 4: x <- 4
+            x <- x + 1
+        y <- y + 1
+
+def susan_e_edges(image: mutable u8[256]&, side: usize, brightness: u8[513]&) -> void:
+    response: mutable i64[256] = zeroed
+    middle: mutable u8[256] = [100; 256]
+    y: mutable usize = 3
+    while y < side - 3:
+        x: mutable usize = 3
+        while x < side - 3:
+            at: usize = y * side + x
+            center: i64 = image[at].i64()
+            area: mutable i64 = 100
+            k: mutable usize = 0
+            while k < 36:
+                sy: usize = (y.i64() + MASK_Y[k]).usize()
+                sx: usize = (x.i64() + MASK_X[k]).usize()
+                area <- area + brightness[(center - image[sy * side + sx].i64() + 256).usize()].i64()
+                k <- k + 1
+            if area <= MAX_NO_EDGES: response[at] <- MAX_NO_EDGES - area
+            x <- x + 1
+        y <- y + 1
+    y <- 4
+    while y < side - 4:
+        x <- 4
+        while x < side - 4:
+            at: usize = y * side + x
+            strength: i64 = response[at]
+            if strength <= 0:
+                x <- x + 1
+                continue
+            area: i64 = MAX_NO_EDGES - strength
+            do_symmetry: mutable bool = area <= 600
+            if area > 600:
+                gx: mutable i64 = 0
+                gy: mutable i64 = 0
+                k <- 0
+                while k < 36:
+                    sy: usize = (y.i64() + MASK_Y[k]).usize()
+                    sx: usize = (x.i64() + MASK_X[k]).usize()
+                    value: i64 = brightness[(image[at].i64() - image[sy * side + sx].i64() + 256).usize()].i64()
+                    gx <- gx + MASK_X[k] * value
+                    gy <- gy + MASK_Y[k] * value
+                    k <- k + 1
+                magnitude: f32 = sqrt((gx * gx + gy * gy).f32().f64()).f32()
+                if magnitude.f64() > 0.9 * area.f32().f64():
+                    do_symmetry <- false
+                    direction: SusanEDirection = susan_e_edge_orientation(gx, gy)
+                    if susan_e_edge_maximum(response, side, y.i64(), x.i64(), direction.a, direction.b):
+                        middle[at] <- 1
+                else:
+                    do_symmetry <- true
+            if do_symmetry:
+                gx: mutable i64 = 0
+                gy: mutable i64 = 0
+                cross: mutable i64 = 0
+                k <- 0
+                while k < 36:
+                    sy: usize = (y.i64() + MASK_Y[k]).usize()
+                    sx: usize = (x.i64() + MASK_X[k]).usize()
+                    value: i64 = brightness[(image[at].i64() - image[sy * side + sx].i64() + 256).usize()].i64()
+                    dx: i64 = MASK_X[k]
+                    dy: i64 = MASK_Y[k]
+                    gx <- gx + dx * dx * value
+                    gy <- gy + dy * susan_e_abs(dy) * value
+                    cross <- cross + dx * dy * value
+                    k <- k + 1
+                direction: SusanESymmetryDirection = susan_e_symmetry_orientation(gx, gy, cross)
+                if susan_e_edge_maximum(response, side, y.i64(), x.i64(), direction.a, direction.b):
+                    middle[at] <- 2
+            x <- x + 1
+        y <- y + 1
+    susan_e_thin_edges(response, middle, side)
+    y <- 0
+    while y < side:
+        x <- 0
+        while x < side:
+            if middle[y * side + x] < 8:
+                at: usize = (y - 1) * side + x - 1
+                image[at] <- 255; image[at + 1] <- 255; image[at + 2] <- 255
+                image[at + side] <- 255; image[at + side + 1] <- 255; image[at + side + 2] <- 255
+                image[at + 2 * side] <- 255; image[at + 2 * side + 1] <- 255; image[at + 2 * side + 2] <- 255
+            x <- x + 1
+        y <- y + 1
+    index: mutable usize = 0
+    while index < side * side:
+        if middle[index] < 8: image[index] <- 0
+        index <- index + 1
+
+def susan_e_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    side_value: i64 = input[0]
+    if side_value < MIN_SIDE or side_value > MAX_SIDE: return -1
+    side: usize = side_value.usize()
+    count: usize = side * side
+    if input_length != count + 1: return -1
+    image: mutable u8[256] = zeroed
+    index: mutable usize = 0
+    while index < count:
+        pixel: i64 = input[index + 1]
+        if pixel < 0 or pixel > 255: return -1
+        image[index] <- pixel.u8()
+        index <- index + 1
+    if output == null or output_capacity < count: return -2
+    brightness: mutable u8[513] = zeroed
+    susan_e_brightness_table(brightness)
+    susan_e_edges(image, side, brightness)
+    index <- 0
+    while index < count:
+        output[index] <- image[index]
+        index <- index + 1
+    count.i64()
+
+export fn cbench_automotive_susan_e(input: i64&, input_length: usize,
+        output: mutable u8&, output_capacity: usize) -> i64 = susan_e_impl

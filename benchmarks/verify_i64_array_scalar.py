@@ -15,10 +15,141 @@ import math
 from pathlib import Path
 import platform
 import random
+import struct
 import subprocess
 import sys
 
 from build_abi import EXTENSIONS, ROOT, build, sha256_file
+from trimaran_enc_pc1_oracle import (
+    MAX_NUM_INPUT as TRIMARAN_ENC_PC1_MAX_NUM_INPUT,
+    expected_result as trimaran_enc_pc1_oracle,
+)
+from mccat_08_main_oracle import MAX_INPUT_LENGTH as MCCAT_08_MAIN_MAX_INPUT_LENGTH
+from mccat_08_main_oracle import expected_result as mccat_08_main_oracle
+from mccat_09_vor_oracle import MAX_INPUT_LENGTH as MCCAT_09_VOR_MAX_INPUT_LENGTH
+from mccat_09_vor_oracle import expected_output as mccat_09_vor_oracle
+from mallocbench_espresso_oracle import mallocbench_espresso as mallocbench_espresso_oracle
+from mallocbench_cfrac_oracle import mallocbench_cfrac as mallocbench_cfrac_oracle
+from agrep_approx_substring_count_oracle import (
+    MAX_ERRORS as AGREP_MAX_ERRORS,
+    MAX_PATTERN_LENGTH as AGREP_MAX_PATTERN_LENGTH,
+    MAX_TEXT_LENGTH as AGREP_MAX_TEXT_LENGTH,
+    agrep_approx_substring_count as agrep_approx_substring_count_oracle,
+)
+from npb_serial_dc_oracle import MAX_INPUT_LENGTH as NPB_SERIAL_DC_MAX_INPUT_LENGTH
+from npb_serial_dc_oracle import expected_result as npb_serial_dc_oracle
+from doe_pathfinder_signature_search_oracle import (
+    MAX_EDGES as DOE_PATHFINDER_MAX_EDGES,
+    MAX_NODES as DOE_PATHFINDER_MAX_NODES,
+    MAX_SIGNATURE_LENGTH as DOE_PATHFINDER_MAX_SIGNATURE_LENGTH,
+    doe_pathfinder_signature_search as doe_pathfinder_signature_search_oracle,
+)
+from ptrdist_ks_oracle import MAX_INPUT_LENGTH as PTRDIST_KS_MAX_INPUT_LENGTH
+from ptrdist_ks_oracle import expected_result as ptrdist_ks_oracle
+from ptrdist_ks_oracle import generated_inputs as ptrdist_ks_generated_inputs
+from prolangs_c_assembler_oracle import (
+    MAX_INPUT_LENGTH as PROLANGS_C_ASSEMBLER_MAX_INPUT_LENGTH,
+    expected_result as prolangs_c_assembler_oracle,
+)
+from prolangs_c_bison_nullable_oracle import (
+    MAX_INPUT_LENGTH as PROLANGS_C_BISON_NULLABLE_MAX_INPUT_LENGTH,
+    expected_result as prolangs_c_bison_nullable_oracle,
+)
+from cbench_office_pratt_boyer_moore_oracle import (
+    MAX_INPUT_LENGTH as CBENCH_OFFICE_PRATT_BOYER_MOORE_MAX_INPUT_LENGTH,
+    expected_result as cbench_office_pratt_boyer_moore_oracle,
+)
+from cbench_ispell_hash_oracle import (
+    MAX_INPUT_LENGTH as CBENCH_ISPELL_HASH_MAX_INPUT_LENGTH,
+    expected_result as cbench_ispell_hash_oracle,
+)
+from cbench_ispell_lookup_chain_oracle import (
+    MAX_ENTRIES as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_ENTRIES,
+    MAX_INPUT_LENGTH as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_QUERY as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_QUERY,
+    MAX_TABLE as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_TABLE,
+    MAX_WORD as CBENCH_ISPELL_LOOKUP_CHAIN_MAX_WORD,
+    expected_result as cbench_ispell_lookup_chain_oracle,
+)
+CBENCH_GHOSTSCRIPT_ROP3_MAX_INPUT_LENGTH = 4
+CBENCH_GHOSTSCRIPT_ROP3_MAX_PARSEABLE_INPUT_LENGTH = 5
+CBENCH_GHOSTSCRIPT_ROP3_PIXEL_MAX = 0xFFFFFFFF
+PARBOIL_SAD_MAX_INPUT_LENGTH = 128
+PARBOIL_SAD_MAX_RESULT = 497_629_440
+PARBOIL_LBM_MAX_INPUT_LENGTH = 19
+PARBOIL_LBM_MAX_POPULATION_RAW = 100_000
+CBENCH_GHOSTSCRIPT_ROP3_IDEMPOTENCE_MAX_INPUT_LENGTH = 1
+CBENCH_GHOSTSCRIPT_ROP3_IDEMPOTENCE_MAX_PARSEABLE_INPUT_LENGTH = 2
+from ghostscript_rop3_operand_usage_oracle import (
+    INVALID_RESULT as CBENCH_GHOSTSCRIPT_ROP3_OPERAND_USAGE_INVALID_RESULT,
+    MAX_INPUT_LENGTH as CBENCH_GHOSTSCRIPT_ROP3_OPERAND_USAGE_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_GHOSTSCRIPT_ROP3_OPERAND_USAGE_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from ghostscript_rop3_transform_oracle import (
+    INVALID_RESULT as CBENCH_GHOSTSCRIPT_ROP3_TRANSFORM_INVALID_RESULT,
+    MAX_INPUT_LENGTH as CBENCH_GHOSTSCRIPT_ROP3_TRANSFORM_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_GHOSTSCRIPT_ROP3_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from tsvc_vbor_oracle import MAX_INPUT_LENGTH as TSVC_VBOR_MAX_INPUT_LENGTH
+from tsvc_vbor_oracle import MAX_N as TSVC_VBOR_MAX_N
+from tsvc_vbor_oracle import expected_result as tsvc_vbor_oracle
+from tsvc_s257_column_coupled_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S257_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S257_MAX_N,
+    MAX_PASSES as TSVC_S257_MAX_PASSES,
+    MIN_N as TSVC_S257_MIN_N,
+    expected_result as tsvc_s257_oracle,
+)
+from tsvc_s273_dependent_conditional_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S273_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S273_MAX_N,
+    MAX_PASSES as TSVC_S273_MAX_PASSES,
+    expected_result as tsvc_s273_oracle,
+)
+from tsvc_s331_last_negative_index_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S331_MAX_INPUT_LENGTH,
+    MAX_LENGTH as TSVC_S331_MAX_LENGTH,
+    expected_result as tsvc_s331_oracle,
+)
+from tsvc_s258_wrapped_scalar_expansion_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S258_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S258_MAX_N,
+    MAX_VALUE as TSVC_S258_MAX_VALUE,
+)
+from tsvc_s424_alias_overlap_feedback_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S424_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S424_MAX_N,
+    MIN_N as TSVC_S424_MIN_N,
+    VALUE_MAX as TSVC_S424_VALUE_MAX,
+    VALUE_MIN as TSVC_S424_VALUE_MIN,
+)
+from embench_aha_mont64_oracle import expected_result as embench_aha_mont64_oracle
+from slre_oracle import oracle as slre_oracle
+from rodinia_srad_v2_oracle import expected_result as rodinia_srad_v2_oracle
+from rodinia_euler3d_flux_oracle import expected_result as rodinia_euler3d_flux_oracle
+from rodinia_particlefilter_naive_oracle import expected_result as rodinia_particlefilter_naive_oracle
+from rodinia_lavamd_oracle import MAX_INPUT_LENGTH as RODINIA_LAVAMD_MAX_INPUT_LENGTH
+from rodinia_lavamd_oracle import MAX_PARSEABLE_INPUT_LENGTH as RODINIA_LAVAMD_MAX_PARSEABLE_INPUT_LENGTH
+from rodinia_lavamd_oracle import MAX_PARTICLES as RODINIA_LAVAMD_MAX_PARTICLES
+from rodinia_lavamd_oracle import MAX_COMPONENT_RAW as RODINIA_LAVAMD_MAX_COMPONENT_RAW
+from rodinia_lavamd_oracle import rodinia_lavamd as rodinia_lavamd_oracle
+from rodinia_pathfinder_oracle import rodinia_pathfinder as rodinia_pathfinder_oracle
+from rodinia_bplus_tree_oracle import rodinia_bplus_tree as rodinia_bplus_tree_oracle
+from xgboost_oracle import oracle as xgboost_oracle
+from prolangs_football_tiebreaks_oracle import MAX_TEAMS as PROLANGS_FOOTBALL_MAX_TEAMS
+from prolangs_football_tiebreaks_oracle import MAX_RECORD_GAMES as PROLANGS_FOOTBALL_MAX_RECORD_GAMES
+from prolangs_football_tiebreaks_oracle import MAX_NET_POINTS as PROLANGS_FOOTBALL_MAX_NET_POINTS
+from prolangs_football_tiebreaks_oracle import prolangs_football_tiebreaks as prolangs_football_tiebreaks_oracle
+from scimark2_sor_oracle import (
+    MAX_INPUT_LENGTH as SCIMARK2_SOR_MAX_INPUT_LENGTH,
+    expected_result as scimark2_sor_oracle,
+    generated_inputs as scimark2_sor_generated_inputs,
+)
+from ptrdist_anagram_oracle import MAX_INPUT_LENGTH as PTRDIST_ANAGRAM_MAX_INPUT_LENGTH
+from ptrdist_anagram_oracle import expected_result as ptrdist_anagram_oracle
+from stanford_puzzle_oracle import MAX_PASSES as STANFORD_PUZZLE_MAX_PASSES
+from stanford_puzzle_oracle import expected_output as stanford_puzzle_oracle
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected_result
 from netbench_crc_oracle import MAX_LENGTH as NETBENCH_CRC_MAX_LENGTH
@@ -637,6 +768,99 @@ from run_i64_array_scalar import validate_olden_tsp_workload
 from run_i64_array_scalar import validate_olden_voronoi_workload
 from run_i64_array_scalar import validate_richards_benchmark_workload
 from run_i64_array_scalar import validate_mibench_network_dijkstra_workload
+from run_i64_array_scalar import validate_analyzer_workload
+from run_i64_array_scalar import validate_fourinarow_minimax_workload
+from run_i64_array_scalar import validate_freebench_mason_workload
+from run_i64_array_scalar import validate_fhourstones_exact_workload
+from run_i64_array_scalar import validate_mibench_automotive_basicmath_isqrt_workload
+from run_i64_array_scalar import validate_freebench_neural_hopfield_workload
+from run_i64_array_scalar import validate_trimaran_enc_pc1_workload
+from run_i64_array_scalar import validate_mccat_08_main_workload
+from run_i64_array_scalar import validate_mccat_09_vor_workload
+from run_i64_array_scalar import validate_mallocbench_espresso_workload
+from run_i64_array_scalar import validate_ptrdist_anagram_workload
+from run_i64_array_scalar import validate_stanford_puzzle_workload
+from run_i64_array_scalar import validate_mallocbench_cfrac_workload
+from run_i64_array_scalar import validate_agrep_approx_substring_count_workload
+from run_i64_array_scalar import validate_npb_serial_dc_workload
+from run_i64_array_scalar import validate_doe_pathfinder_signature_search_workload
+from run_i64_array_scalar import validate_ptrdist_ks_workload
+from run_i64_array_scalar import validate_prolangs_c_assembler_workload
+from run_i64_array_scalar import validate_prolangs_c_bison_nullable_workload
+from run_i64_array_scalar import validate_cbench_office_pratt_boyer_moore_workload
+from run_i64_array_scalar import validate_cbench_ispell_hash_workload
+from run_i64_array_scalar import validate_cbench_ispell_lookup_chain_workload
+from run_i64_array_scalar import validate_cbench_ghostscript_rop3_workload
+from run_i64_array_scalar import validate_cbench_ghostscript_rop3_idempotence_workload
+from run_i64_array_scalar import validate_cbench_ghostscript_rop3_operand_usage_workload
+from run_i64_array_scalar import validate_cbench_ghostscript_rop3_transform_workload
+from run_i64_array_scalar import validate_parboil_sad_workload
+from run_i64_array_scalar import validate_parboil_lbm_workload
+from run_i64_array_scalar import validate_tsvc_vbor_workload
+from run_i64_array_scalar import validate_tsvc_s257_column_coupled_update_workload
+from run_i64_array_scalar import validate_tsvc_s273_dependent_conditional_update_workload
+from run_i64_array_scalar import validate_tsvc_s331_last_negative_index_workload
+from run_i64_array_scalar import validate_tsvc_s424_alias_overlap_feedback_workload
+from run_i64_array_scalar import validate_tsvc_s258_wrapped_scalar_expansion_workload
+from run_i64_array_scalar import validate_versabench_dbms_choose_entry_workload
+from run_i64_array_scalar import validate_versabench_dbms_scalar_helper_workload
+from run_i64_array_scalar import validate_versabench_dbms_valid_attributes_workload
+from run_i64_array_scalar import validate_versabench_dbms_valid_index_key_workload
+from run_i64_array_scalar import validate_tsvc_s3111_positive_value_sum_workload
+from run_i64_array_scalar import validate_tsvc_s312_array_product_workload
+from run_i64_array_scalar import validate_tsvc_s4115_indexed_gather_product_sum_workload
+from versabench_dbms_choose_entry_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_CHOOSE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_choose_entry_oracle,
+)
+from versabench_dbms_partition_entries_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_PARTITION_ENTRIES_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_partition_entries_oracle,
+)
+from versabench_dbms_consistent_key_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_CONSISTENT_KEY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_consistent_key_oracle,
+)
+from versabench_dbms_penalty_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_PENALTY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_penalty_oracle,
+)
+from versabench_dbms_valid_attributes_oracle import (
+    MAX_ATTRIBUTES as VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_ATTRIBUTES,
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as versabench_dbms_valid_attributes_oracle,
+)
+from versabench_dbms_valid_index_key_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_VALID_INDEX_KEY_MAX_PARSEABLE_INPUT_LENGTH,
+)
+from tsvc_s3111_positive_value_sum_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S3111_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S3111_MAX_N,
+    MAX_VALUE as TSVC_S3111_MAX_VALUE,
+    expected_result as tsvc_s3111_positive_value_sum_oracle,
+)
+from tsvc_s312_array_product_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S312_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S312_MAX_N,
+    MAX_VALUE as TSVC_S312_MAX_VALUE,
+    expected_result as tsvc_s312_array_product_oracle,
+)
+from tsvc_s4115_indexed_gather_product_sum_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S4115_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S4115_MAX_N,
+    MAX_VALUE as TSVC_S4115_MAX_VALUE,
+)
+from run_i64_array_scalar import validate_embench_aha_mont64_workload
+from run_i64_array_scalar import validate_slre_workload
+from run_i64_array_scalar import validate_rodinia_srad_v2_workload, validate_xgboost_workload
+from run_i64_array_scalar import validate_rodinia_pathfinder_workload
+from run_i64_array_scalar import validate_rodinia_bplus_tree_workload
+from run_i64_array_scalar import validate_rodinia_euler3d_flux_workload
+from run_i64_array_scalar import validate_rodinia_particlefilter_naive_workload
+from run_i64_array_scalar import validate_rodinia_lavamd_workload
+from run_i64_array_scalar import validate_prolangs_football_tiebreaks_workload
+from run_i64_array_scalar import validate_scimark2_sor_workload
 from run_i64_array_scalar import validate_mcgill_exptree_workload
 from run_i64_array_scalar import MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_mono_alphabetic_cipher_workload
@@ -729,6 +953,25 @@ from mibench_network_dijkstra_oracle import MAX_NODES as MIBENCH_NETWORK_DIJKSTR
 from mibench_network_dijkstra_oracle import MAX_EDGE_COST as MIBENCH_NETWORK_DIJKSTRA_MAX_EDGE_COST
 from mibench_network_dijkstra_oracle import NONE as MIBENCH_NETWORK_DIJKSTRA_NONE
 from mibench_network_dijkstra_oracle import expected_result as mibench_network_dijkstra_oracle
+from analyzer_oracle import MAX_EVENTS as ANALYZER_MAX_EVENTS
+from analyzer_oracle import MAX_EPOCH as ANALYZER_MAX_EPOCH
+from analyzer_oracle import MAX_ADDRESS as ANALYZER_MAX_ADDRESS
+from analyzer_oracle import expected_result as analyzer_oracle
+from fourinarow_minimax_oracle import MAX_HISTORY as FOURINAROW_MAX_HISTORY
+from fourinarow_minimax_oracle import expected_result as fourinarow_minimax_oracle
+from mibench_automotive_basicmath_isqrt_oracle import MAX_VALUE as MIBENCH_BASICMATH_ISQRT_MAX_VALUE
+from mibench_automotive_basicmath_isqrt_oracle import expected_result as mibench_automotive_basicmath_isqrt_oracle
+from freebench_mason_oracle import MAX_DEPTH as FREEBENCH_MASON_MAX_DEPTH
+from freebench_mason_oracle import MAX_PARSEABLE_INPUT_LENGTH as FREEBENCH_MASON_MAX_PARSEABLE_INPUT_LENGTH
+from freebench_mason_oracle import expected_result as freebench_mason_oracle
+from fhourstones_exact_oracle import MAX_MOVES as FHOURSTONES_EXACT_MAX_MOVES
+from fhourstones_exact_oracle import MIN_MOVES as FHOURSTONES_EXACT_MIN_MOVES
+from fhourstones_exact_oracle import expected_result as fhourstones_exact_oracle
+from freebench_neural_hopfield_oracle import MAX_DIMENSION as FREEBENCH_NEURAL_HOPFIELD_MAX_DIMENSION
+from freebench_neural_hopfield_oracle import MAX_NEURONS as FREEBENCH_NEURAL_HOPFIELD_MAX_NEURONS
+from freebench_neural_hopfield_oracle import MAX_PARSEABLE_INPUT_LENGTH as FREEBENCH_NEURAL_HOPFIELD_MAX_PARSEABLE_INPUT_LENGTH
+from freebench_neural_hopfield_oracle import PATTERN_COUNT as FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT
+from freebench_neural_hopfield_oracle import expected_result as freebench_neural_hopfield_oracle
 from mcgill_exptree_oracle import expected_result as mcgill_exptree_oracle
 from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_KEY_LENGTH
 from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
@@ -1374,6 +1617,49 @@ from knapsack_zero_one_tabulation_oracle import expected_result as knapsack_zero
 
 ALGORITHMS = ("lcm_of_n_numbers", "problem18", "problem22", "problem54", "problem59", "problem67", "problem71", "problem81", "problem82", "problem99", "problem102", "problem107", "problem345", "alternate_harmonic_series", "alternating_harmonic_series", "mode", "number_of_positive_divisors", "divisors", "n_bonacci", "egg_dropping", "subarray_sum_equals_k", "optimal_string_alignment_distance", "validate_credit_card", "endianness", "hamming_distance_bytes", "hamming_distance_strings", "frequency_finder", "multiply_digit", "hexa_decimal_to_decimal", "djb2", "hash_djb2", "hash_xor8", "hex_to_oct", "grid_get", "number_of_subarrays_with_odd_sum", "maximum_circular_subarray", "maximum_product_subarray", "maximum_subarray_int32", "maximum_subarray_allow_empty", "median_search", "largest_rectangle_histogram", "hamiltonian_path_exists", "fast_searcher", "minimum_sum_partition", "upper_bound", "longest_subarray_with_sum_at_most", "length_of_last_word", "find_min_iterator", "how_many_times_rotated", "digit_dp", "xor_search_missing_number", "maximum_sum_bst", "in_static_equilibrium", "string_prefix_suffix", "brightness", "bron_kerbosch", "edmonds_blossom_algorithm", "edmonds_karp", "is_valid_email_address", "bidirectional_dijkstra", "bst_from_sorted_array", "burstballoons", "checkequal", "coinchange", "celebrity_finder", "burkes_dithering", "car_pool", "ceil_in_binary_search_tree", "inorder_successor_of_bst", "linear_recurrence_matrix", "recursive_linear_search", "chaining", "set_kth_bit", "max_area_of_island", "directed_dfs_forest_count", "count_homogenous", "check_cycle", "n_in_a_row_board_status", "non_repeating_element", "count_singly_linked_list_recursion", "dice_throw", "depth_first_search_iterative", "depth_first_search_recursive", "elf_hash", "is_isomorphic", "is_graph_bipartite", "karatsuba", "good_pairs", "good_pairs_hash", "find_kth_number", "parse_integer", "pow_logarithmic", "modular_exponentiation", "modpow", "saddleback_search", "index_2d_array_in_1d", "gas_station", "find_second_largest_element", "second_min_max", "constrained_shortest_path", "jump_game", "pairs_with_given_sum", "comparison", "count_less_equal_in_sorted_array", "lipogram", "one_bit_difference", "wildcard_matching", "primitive_root", "dijkstras_two_stack_algorithm", "undirected_cycle_check")
 ALGORITHMS += ("trimaran_netbench_url_internet_checksum",)
+ALGORITHMS += ("trimaran_enc_pc1",)
+ALGORITHMS += ("mccat_08_main",)
+ALGORITHMS += ("mccat_09_vor",)
+ALGORITHMS += ("mallocbench_espresso",)
+ALGORITHMS += ("ptrdist_anagram",)
+ALGORITHMS += ("stanford_puzzle",)
+ALGORITHMS += ("mallocbench_cfrac", "agrep_approx_substring_count")
+ALGORITHMS += ("npb_serial_dc",)
+ALGORITHMS += ("doe_pathfinder_signature_search",)
+ALGORITHMS += ("ptrdist_ks",)
+ALGORITHMS += ("prolangs_c_assembler",)
+ALGORITHMS += ("prolangs_c_bison_nullable",)
+ALGORITHMS += ("cbench_office_pratt_boyer_moore", "tsvc_vbor")
+ALGORITHMS += ("cbench_ispell_hash",)
+ALGORITHMS += ("cbench_ispell_lookup_chain",)
+ALGORITHMS += ("cbench_ghostscript_rop3",)
+ALGORITHMS += ("cbench_ghostscript_rop3_idempotence",)
+ALGORITHMS += ("cbench_ghostscript_rop3_operand_usage",)
+ALGORITHMS += ("cbench_ghostscript_rop3_transform",)
+ALGORITHMS += ("parboil_sad",)
+ALGORITHMS += ("parboil_lbm",)
+ALGORITHMS += ("tsvc_s257_column_coupled_update",)
+ALGORITHMS += ("tsvc_s273_dependent_conditional_update",)
+ALGORITHMS += ("tsvc_s331_last_negative_index",)
+ALGORITHMS += ("tsvc_s424_alias_overlap_feedback", "tsvc_s258_wrapped_scalar_expansion")
+ALGORITHMS += ("versabench_dbms_choose_entry",)
+ALGORITHMS += ("versabench_dbms_partition_entries", "versabench_dbms_consistent_key",
+              "versabench_dbms_penalty")
+ALGORITHMS += ("versabench_dbms_valid_attributes",)
+ALGORITHMS += ("versabench_dbms_valid_index_key",)
+ALGORITHMS += ("tsvc_s3111_positive_value_sum",)
+ALGORITHMS += ("tsvc_s312_array_product",)
+ALGORITHMS += ("tsvc_s4115_indexed_gather_product_sum",)
+ALGORITHMS += ("embench_aha_mont64",)
+ALGORITHMS += ("slre",)
+ALGORITHMS += ("rodinia_srad_v2", "xgboost")
+ALGORITHMS += ("rodinia_euler3d_flux",)
+ALGORITHMS += ("rodinia_particlefilter_naive",)
+ALGORITHMS += ("rodinia_lavamd",)
+ALGORITHMS += ("rodinia_pathfinder",)
+ALGORITHMS += ("rodinia_bplus_tree",)
+ALGORITHMS += ("prolangs_football_tiebreaks",)
+ALGORITHMS += ("scimark2_sor",)
 ALGORITHMS += ("sort_the_odd",)
 ALGORITHMS += ("depth_first_search_tic_tac_toe",)
 ALGORITHMS += ("dynamic_coin_change_solver",)
@@ -1554,8 +1840,13 @@ ALGORITHMS += ("olden_power",)
 ALGORITHMS += ("olden_health", "olden_tsp")
 ALGORITHMS += ("olden_voronoi",)
 ALGORITHMS += ("mibench_network_dijkstra",)
+ALGORITHMS += ("mibench_automotive_basicmath_isqrt",)
+ALGORITHMS += ("analyzer",)
 ALGORITHMS += ("richards_benchmark",)
+ALGORITHMS += ("fourinarow_minimax",)
+ALGORITHMS += ("freebench_mason", "fhourstones_exact")
 ALGORITHMS += ("mcgill_exptree",)
+ALGORITHMS += ("freebench_neural_hopfield",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -2054,7 +2345,434 @@ def monotonic_array_oracle(values: list[int]) -> int:
                or all(left >= right for left, right in zip(values, values[1:])))
 
 
+def versabench_dbms_valid_index_key_verifier_oracle(values: list[int]) -> int:
+    """Decode binary32 endpoints and apply the source's ordered comparison."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) != 8
+            or any(type(value) is not int or not 0 <= value <= 0xFFFF_FFFF for value in values)):
+        return -1
+    lower = [struct.unpack("<f", struct.pack("<I", bits))[0] for bits in values[:4]]
+    upper = [struct.unpack("<f", struct.pack("<I", bits))[0] for bits in values[4:]]
+    return 0 if any(left >= right for left, right in zip(lower, upper)) else 1
+
+
+def tsvc_s258_verifier_oracle(values: list[int]) -> int:
+    """Independently model s258's carried scalar and two expansion sums."""
+    if (not isinstance(values, (list, tuple)) or not 1 + 4 <= len(values) <= TSVC_S258_MAX_INPUT_LENGTH
+            or any(type(value) is not int for value in values)):
+        return -1
+    n = values[0]
+    if not 1 <= n <= TSVC_S258_MAX_N or len(values) != 1 + 4 * n:
+        return -1
+    a = values[1:1 + n]
+    c = values[1 + n:1 + 2 * n]
+    d = values[1 + 2 * n:1 + 3 * n]
+    aa0 = values[1 + 3 * n:]
+    if any(value < 0 or value > TSVC_S258_MAX_VALUE for value in (*a, *c, *d, *aa0)):
+        return -1
+    carry = 0
+    total = 0
+    for i in range(n):
+        if a[i] > 0:
+            carry = d[i] * d[i]
+        total += carry * c[i] + d[i] + (carry + 1) * aa0[i]
+    return total
+
+
+def tsvc_s424_verifier_oracle(values: list[int]) -> int:
+    """Independently evaluate the forward alias feedback in the bounded s424 profile."""
+    if (not isinstance(values, (list, tuple))
+            or not 1 + TSVC_S424_MIN_N + 63 <= len(values) <= TSVC_S424_MAX_INPUT_LENGTH
+            or any(type(value) is not int for value in values)):
+        return -1
+    n = values[0]
+    if not TSVC_S424_MIN_N <= n <= TSVC_S424_MAX_N or len(values) != n + 64:
+        return -1
+    a = list(values[1:1 + n])
+    x = [0] * (n + 63)
+    prefix = values[1 + n:]
+    if (len(prefix) != 63 or any(value < TSVC_S424_VALUE_MIN or value > TSVC_S424_VALUE_MAX
+                                 for value in (*a, *prefix))):
+        return -1
+    x[:63] = prefix
+    for i in range(n - 1):
+        x[i + 64] = x[i] + a[i]
+    return sum(x[63:63 + n])
+
+
+def tsvc_s4115_verifier_oracle(values: list[int]) -> int:
+    """Independently evaluate each indexed product before summing in order."""
+    if (not isinstance(values, (list, tuple))
+            or not 1 <= len(values) <= TSVC_S4115_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)):
+        return -1
+    count = values[0]
+    if not 1 <= count <= TSVC_S4115_MAX_N or len(values) != 1 + 3 * count:
+        return -1
+    index_end = count + 1
+    a_end = index_end + count
+    indexes = values[1:index_end]
+    left = values[index_end:a_end]
+    right = values[a_end:]
+    if (any(index < 0 or index >= count for index in indexes)
+            or any(value < 0 or value > TSVC_S4115_MAX_VALUE for value in (*left, *right))):
+        return -1
+    total = 0
+    for position, index in enumerate(indexes):
+        total += left[position] * right[index]
+    return total
+
+
+def cbench_ghostscript_rop3_verifier_oracle(values: list[int]) -> int:
+    """Build the 32-bit ROP3 output from eight disjoint Boolean minterms."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > CBENCH_GHOSTSCRIPT_ROP3_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= (1 << 63) - 1
+                   for value in values)
+            or len(values) != CBENCH_GHOSTSCRIPT_ROP3_MAX_INPUT_LENGTH):
+        return -1
+    destination, source, texture, code = values
+    if (any(not 0 <= value <= CBENCH_GHOSTSCRIPT_ROP3_PIXEL_MAX
+            for value in (destination, source, texture))
+            or not 0 <= code <= 255):
+        return -1
+    mask = CBENCH_GHOSTSCRIPT_ROP3_PIXEL_MAX
+    planes = (destination, source, texture)
+    result = 0
+    for minterm in range(8):
+        selected = mask
+        for plane_index, plane in enumerate(planes):
+            bit = (minterm >> plane_index) & 1
+            selected &= plane if bit else (~plane & mask)
+        if (code >> minterm) & 1:
+            result |= selected
+    return result
+
+
+def cbench_ghostscript_rop3_idempotence_verifier_oracle(values: list[int]) -> int:
+    """Evaluate each source-addressed pair of ROP truth-table bits."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > CBENCH_GHOSTSCRIPT_ROP3_IDEMPOTENCE_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+            or len(values) != CBENCH_GHOSTSCRIPT_ROP3_IDEMPOTENCE_MAX_INPUT_LENGTH
+            or not 0 <= values[0] <= 255):
+        return -1
+    code = values[0]
+    for pair_index in range(4):
+        # The source macro rejects a set odd-position bit whose preceding
+        # even-position bit is clear; evaluate those pairs as two-bit values.
+        if ((code >> (2 * pair_index)) & 0b11) == 0b10:
+            return 0
+    return 1
+
+
+def cbench_ghostscript_rop3_operand_usage_verifier_oracle(values: list[int]) -> int:
+    """Build the truth table, then compare entries across each input dimension."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > CBENCH_GHOSTSCRIPT_ROP3_OPERAND_USAGE_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+            or len(values) != CBENCH_GHOSTSCRIPT_ROP3_OPERAND_USAGE_MAX_INPUT_LENGTH
+            or not 0 <= values[0] <= 255):
+        return CBENCH_GHOSTSCRIPT_ROP3_OPERAND_USAGE_INVALID_RESULT
+    truth_table = tuple((values[0] >> assignment) & 1 for assignment in range(8))
+    usage_mask = 0
+    for dimension, usage_flag in enumerate((1, 2, 4)):
+        if any(truth_table[index] != truth_table[index | (1 << dimension)]
+               for index in range(8) if not index & (1 << dimension)):
+            usage_mask |= usage_flag
+    return usage_mask
+
+
+def cbench_ghostscript_rop3_transform_verifier_oracle(values: list[int]) -> int:
+    """Remap truth-table assignments for each selected Boolean transform."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) > CBENCH_GHOSTSCRIPT_ROP3_TRANSFORM_MAX_PARSEABLE_INPUT_LENGTH
+            or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+            or len(values) != CBENCH_GHOSTSCRIPT_ROP3_TRANSFORM_MAX_INPUT_LENGTH):
+        return CBENCH_GHOSTSCRIPT_ROP3_TRANSFORM_INVALID_RESULT
+    mode, code = values
+    if not 0 <= mode <= 14 or not 0 <= code <= 255:
+        return CBENCH_GHOSTSCRIPT_ROP3_TRANSFORM_INVALID_RESULT
+    transformed = 0
+    for assignment in range(8):
+        destination_bit = assignment & 1
+        source_bit = (assignment >> 1) & 1
+        texture_bit = (assignment >> 2) & 1
+        lookup = assignment
+        forced_output = None
+        if mode in (0, 1, 2):
+            lookup ^= 1 << mode
+        elif 3 <= mode <= 8:
+            input_dimension = (mode - 3) // 2
+            constant = (mode - 3) & 1
+            lookup = (assignment & ~(1 << input_dimension)) | (constant << input_dimension)
+        elif mode == 9:
+            lookup = ((assignment & ~6) | (source_bit << 2) | (texture_bit << 1))
+        elif 10 <= mode <= 13:
+            condition_bit = source_bit if mode < 12 else texture_bit
+            condition_value = (mode - 10) & 1
+            if condition_bit == condition_value:
+                forced_output = destination_bit
+        elif mode == 14:
+            forced_output = 1 - ((code >> assignment) & 1)
+        output_bit = forced_output if forced_output is not None else (code >> lookup) & 1
+        transformed |= output_bit << assignment
+    return transformed
+
+
+def parboil_sad_verifier_oracle(values: list[int]) -> int:
+    """Recompute every block rectangle at every clamped motion offset."""
+    if (not isinstance(values, (list, tuple))
+            or len(values) != PARBOIL_SAD_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not 0 <= value <= 0xFFFFFFFF for value in values)):
+        return -1
+
+    def decode(words):
+        image = [0] * 256
+        for row in range(16):
+            row_base = 16 * row
+            for group in range(4):
+                word = words[row * 4 + group]
+                for byte in range(4):
+                    image[row_base + 4 * group + byte] = (word >> (8 * byte)) & 0xFF
+        return image
+
+    current = decode(values[:64])
+    reference = decode(values[64:])
+    shapes = ((16, 16), (8, 16), (16, 8), (8, 8), (4, 8), (8, 4), (4, 4))
+    checksum = 0
+    for offset_y in range(-16, 17):
+        for offset_x in range(-16, 17):
+            for height, width in shapes:
+                for block_y in range(0, 16, height):
+                    for block_x in range(0, 16, width):
+                        for row in range(height):
+                            current_y = block_y + row
+                            reference_y = min(15, max(0, current_y + offset_y))
+                            for column in range(width):
+                                current_x = block_x + column
+                                reference_x = min(15, max(0, current_x + offset_x))
+                                checksum += abs(
+                                    current[current_y * 16 + current_x]
+                                    - reference[reference_y * 16 + reference_x])
+    return checksum if checksum <= PARBOIL_SAD_MAX_RESULT else -1
+
+
+def parboil_lbm_verifier_oracle(values: list[int]) -> int:
+    """Compute Parboil LBM through source-cell push streaming and collision."""
+    q_count = PARBOIL_LBM_MAX_INPUT_LENGTH
+    if (not isinstance(values, (list, tuple)) or len(values) != q_count
+            or any(type(value) is not int or not 0 <= value <= PARBOIL_LBM_MAX_POPULATION_RAW
+                   for value in values)
+            or not any(values)):
+        return -1
+
+    def f32(value):
+        return struct.unpack("<f", struct.pack("<f", value))[0]
+
+    directions = (
+        (0, 0, 0), (0, 1, 0), (0, -1, 0), (1, 0, 0), (-1, 0, 0),
+        (0, 0, 1), (0, 0, -1), (1, 1, 0), (-1, 1, 0), (1, -1, 0),
+        (-1, -1, 0), (0, 1, 1), (0, 1, -1), (0, -1, 1), (0, -1, -1),
+        (1, 0, 1), (1, 0, -1), (-1, 0, 1), (-1, 0, -1),
+    )
+    reverse = (0, 2, 1, 4, 3, 6, 5, 10, 9, 8, 7, 14, 13, 12, 11, 18, 17, 16, 15)
+
+    def equilibrium(q):
+        if q == 0:
+            return f32(1.0 / 3.0)
+        return f32(1.0 / (18.0 if q <= 6 else 36.0))
+
+    populations = [[equilibrium(q) for q in range(q_count)] for _ in range(27)]
+    center = 1 + 3 + 9
+    populations[center] = [f32(f32(raw) / f32(1_000_000)) for raw in values]
+    destination = [[equilibrium(q) for q in range(q_count)] for _ in range(27)]
+
+    def axis_factor(velocity, positive, speed_squared):
+        term = f32(f32(4.5) * velocity)
+        term = f32(term + (f32(3.0) if positive else f32(-3.0)))
+        term = f32(velocity * term)
+        term = f32(f32(1.0) + term)
+        return f32(term - speed_squared)
+
+    def diagonal_factor(projected_velocity, speed_squared):
+        term = f32(f32(4.5) * projected_velocity)
+        term = f32(term + f32(3.0))
+        term = f32(projected_velocity * term)
+        term = f32(f32(1.0) + term)
+        return f32(term - speed_squared)
+
+    def collide(source, density, factor, weight):
+        omega = f32(1.95)
+        base = f32(f32(f32(1.0) - omega) * source)
+        equilibrium_term = float(weight) * float(omega)
+        equilibrium_term = equilibrium_term * float(density)
+        equilibrium_term = equilibrium_term * float(factor)
+        return f32(float(base) + equilibrium_term)
+
+    source = populations[center]
+    density = source[0]
+    for value in source[1:]:
+        density = f32(density + value)
+    x_velocity = source[3]
+    for index, sign in ((4, -1), (7, 1), (8, -1), (9, 1), (10, -1),
+                        (15, 1), (16, 1), (17, -1), (18, -1)):
+        x_velocity = f32(x_velocity + source[index] if sign > 0 else x_velocity - source[index])
+    y_velocity = source[1]
+    for index, sign in ((2, -1), (7, 1), (8, 1), (9, -1), (10, -1),
+                        (11, 1), (12, 1), (13, -1), (14, -1)):
+        y_velocity = f32(y_velocity + source[index] if sign > 0 else y_velocity - source[index])
+    z_velocity = source[5]
+    for index, sign in ((6, -1), (11, 1), (12, -1), (13, 1), (14, -1),
+                        (15, 1), (16, -1), (17, 1), (18, -1)):
+        z_velocity = f32(z_velocity + source[index] if sign > 0 else z_velocity - source[index])
+    x_velocity = f32(x_velocity / density)
+    y_velocity = f32(y_velocity / density)
+    z_velocity = f32(z_velocity / density)
+    speed_squared = f32(x_velocity * x_velocity)
+    speed_squared = f32(speed_squared + f32(y_velocity * y_velocity))
+    speed_squared = f32(speed_squared + f32(z_velocity * z_velocity))
+    speed_squared = f32(f32(1.5) * speed_squared)
+    factors = [f32(f32(1.0) - speed_squared)]
+    factors.extend((
+        axis_factor(y_velocity, True, speed_squared),
+        axis_factor(y_velocity, False, speed_squared),
+        axis_factor(x_velocity, True, speed_squared),
+        axis_factor(x_velocity, False, speed_squared),
+        axis_factor(z_velocity, True, speed_squared),
+        axis_factor(z_velocity, False, speed_squared),
+    ))
+    for first, second in (
+            (x_velocity, y_velocity), (-x_velocity, y_velocity),
+            (x_velocity, -y_velocity), (-x_velocity, -y_velocity),
+            (y_velocity, z_velocity), (y_velocity, -z_velocity),
+            (-y_velocity, z_velocity), (-y_velocity, -z_velocity),
+            (x_velocity, z_velocity), (x_velocity, -z_velocity),
+            (-x_velocity, z_velocity), (-x_velocity, -z_velocity)):
+        factors.append(diagonal_factor(f32(first + second), speed_squared))
+    post = [collide(source[q], density, factors[q],
+                    1.0 / 3.0 if q == 0 else 1.0 / 18.0 if q <= 6 else 1.0 / 36.0)
+            for q in range(q_count)]
+
+    for z in range(3):
+        for y in range(3):
+            for x in range(3):
+                cell = x + 3 * y + 9 * z
+                obstacle = x in (0, 2) or y in (0, 2) or z in (0, 2)
+                for q, (dx, dy, dz) in enumerate(directions):
+                    tx, ty, tz = x + dx, y + dy, z + dz
+                    if not (0 <= tx < 3 and 0 <= ty < 3 and 0 <= tz < 3):
+                        continue
+                    target = tx + 3 * ty + 9 * tz
+                    outgoing = populations[cell][reverse[q]] if obstacle else post[q]
+                    destination[target][q] = outgoing
+
+    checksum = 0
+    for cell, row in enumerate(destination):
+        for population in row:
+            scaled = f32(f32(population) * f32(1_000_000))
+            fixed = int(abs(scaled) + 0.5)
+            if scaled < 0:
+                fixed = -fixed
+            checksum += (cell + 1) * fixed
+    return checksum
+
+
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "mccat_08_main":
+        return mccat_08_main_oracle(values)
+    if algorithm == "mccat_09_vor":
+        return mccat_09_vor_oracle(values)
+    if algorithm == "mallocbench_espresso":
+        return mallocbench_espresso_oracle(values)
+    if algorithm == "ptrdist_anagram":
+        return ptrdist_anagram_oracle(values)
+    if algorithm == "stanford_puzzle":
+        return stanford_puzzle_oracle(values)
+    if algorithm == "mallocbench_cfrac":
+        return mallocbench_cfrac_oracle(values)
+    if algorithm == "agrep_approx_substring_count":
+        return agrep_approx_substring_count_oracle(values)
+    if algorithm == "npb_serial_dc":
+        return npb_serial_dc_oracle(values)
+    if algorithm == "doe_pathfinder_signature_search":
+        return doe_pathfinder_signature_search_oracle(values)
+    if algorithm == "ptrdist_ks":
+        return ptrdist_ks_oracle(values)
+    if algorithm == "prolangs_c_assembler":
+        return prolangs_c_assembler_oracle(values)
+    if algorithm == "prolangs_c_bison_nullable":
+        return prolangs_c_bison_nullable_oracle(values)
+    if algorithm == "cbench_office_pratt_boyer_moore":
+        return cbench_office_pratt_boyer_moore_oracle(values)
+    if algorithm == "cbench_ispell_hash":
+        return cbench_ispell_hash_oracle(values)
+    if algorithm == "cbench_ispell_lookup_chain":
+        return cbench_ispell_lookup_chain_oracle(values)
+    if algorithm == "cbench_ghostscript_rop3":
+        return cbench_ghostscript_rop3_verifier_oracle(values)
+    if algorithm == "cbench_ghostscript_rop3_idempotence":
+        return cbench_ghostscript_rop3_idempotence_verifier_oracle(values)
+    if algorithm == "cbench_ghostscript_rop3_operand_usage":
+        return cbench_ghostscript_rop3_operand_usage_verifier_oracle(values)
+    if algorithm == "cbench_ghostscript_rop3_transform":
+        return cbench_ghostscript_rop3_transform_verifier_oracle(values)
+    if algorithm == "parboil_sad":
+        return parboil_sad_verifier_oracle(values)
+    if algorithm == "parboil_lbm":
+        return parboil_lbm_verifier_oracle(values)
+    if algorithm == "tsvc_vbor":
+        return tsvc_vbor_oracle(values)
+    if algorithm == "tsvc_s257_column_coupled_update":
+        return tsvc_s257_oracle(values)
+    if algorithm == "tsvc_s273_dependent_conditional_update":
+        return tsvc_s273_oracle(values)
+    if algorithm == "tsvc_s331_last_negative_index":
+        return tsvc_s331_oracle(values)
+    if algorithm == "tsvc_s258_wrapped_scalar_expansion":
+        return tsvc_s258_verifier_oracle(values)
+    if algorithm == "tsvc_s424_alias_overlap_feedback":
+        return tsvc_s424_verifier_oracle(values)
+    if algorithm == "versabench_dbms_choose_entry":
+        return versabench_dbms_choose_entry_oracle(values)
+    if algorithm == "versabench_dbms_partition_entries":
+        return versabench_dbms_partition_entries_oracle(values)
+    if algorithm == "versabench_dbms_consistent_key":
+        return versabench_dbms_consistent_key_oracle(values)
+    if algorithm == "versabench_dbms_penalty":
+        return versabench_dbms_penalty_oracle(values)
+    if algorithm == "versabench_dbms_valid_attributes":
+        return versabench_dbms_valid_attributes_oracle(values)
+    if algorithm == "versabench_dbms_valid_index_key":
+        return versabench_dbms_valid_index_key_verifier_oracle(values)
+    if algorithm == "tsvc_s3111_positive_value_sum":
+        return tsvc_s3111_positive_value_sum_oracle(values)
+    if algorithm == "tsvc_s312_array_product":
+        return tsvc_s312_array_product_oracle(values)
+    if algorithm == "tsvc_s4115_indexed_gather_product_sum":
+        return tsvc_s4115_verifier_oracle(values)
+    if algorithm == "embench_aha_mont64":
+        return embench_aha_mont64_oracle(values)
+    if algorithm == "slre":
+        return slre_oracle(values)
+    if algorithm == "rodinia_srad_v2":
+        return rodinia_srad_v2_oracle(values)
+    if algorithm == "rodinia_euler3d_flux":
+        return rodinia_euler3d_flux_oracle(values)
+    if algorithm == "rodinia_particlefilter_naive":
+        return rodinia_particlefilter_naive_oracle(values)
+    if algorithm == "rodinia_lavamd":
+        return rodinia_lavamd_oracle(values)
+    if algorithm == "rodinia_pathfinder":
+        return rodinia_pathfinder_oracle(values)
+    if algorithm == "rodinia_bplus_tree":
+        return rodinia_bplus_tree_oracle(values)
+    if algorithm == "xgboost":
+        return xgboost_oracle(values)
+    if algorithm == "prolangs_football_tiebreaks":
+        return prolangs_football_tiebreaks_oracle(values)
+    if algorithm == "scimark2_sor":
+        return scimark2_sor_oracle(values)
     if algorithm == "mcgill_exptree":
         return mcgill_exptree_oracle(values)
     if algorithm == "olden_perimeter":
@@ -2069,8 +2787,22 @@ def oracle(algorithm: str, values: list[int]) -> int:
         return olden_voronoi_oracle(values)
     if algorithm == "mibench_network_dijkstra":
         return mibench_network_dijkstra_oracle(values)
+    if algorithm == "mibench_automotive_basicmath_isqrt":
+        return mibench_automotive_basicmath_isqrt_oracle(values)
+    if algorithm == "analyzer":
+        return analyzer_oracle(values)
     if algorithm == "richards_benchmark":
         return richards_benchmark_oracle(values)
+    if algorithm == "fourinarow_minimax":
+        return fourinarow_minimax_oracle(values)
+    if algorithm == "freebench_mason":
+        return freebench_mason_oracle(values)
+    if algorithm == "fhourstones_exact":
+        return fhourstones_exact_oracle(values)
+    if algorithm == "freebench_neural_hopfield":
+        return freebench_neural_hopfield_oracle(values)
+    if algorithm == "trimaran_enc_pc1":
+        return trimaran_enc_pc1_oracle(values)
     if algorithm == "trimaran_netbench_url_internet_checksum":
         if (len(values) < 2 or len(values) > 66
                 or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
@@ -3009,7 +3741,25 @@ def oracle(algorithm: str, values: list[int]) -> int:
 
 
 def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
-    if algorithm == "trimaran_netbench_url_internet_checksum":
+    if algorithm == "embench_aha_mont64":
+        validate_embench_aha_mont64_workload(workload)
+    elif algorithm == "slre":
+        validate_slre_workload(workload)
+    elif algorithm == "rodinia_srad_v2":
+        validate_rodinia_srad_v2_workload(workload)
+    elif algorithm == "rodinia_euler3d_flux":
+        validate_rodinia_euler3d_flux_workload(workload)
+    elif algorithm == "rodinia_particlefilter_naive":
+        validate_rodinia_particlefilter_naive_workload(workload)
+    elif algorithm == "rodinia_lavamd":
+        validate_rodinia_lavamd_workload(workload)
+    elif algorithm == "rodinia_pathfinder":
+        validate_rodinia_pathfinder_workload(workload)
+    elif algorithm == "rodinia_bplus_tree":
+        validate_rodinia_bplus_tree_workload(workload)
+    elif algorithm == "xgboost":
+        validate_xgboost_workload(workload)
+    elif algorithm == "trimaran_netbench_url_internet_checksum":
         source = workload.get("pinned_source", {})
         launcher = workload.get("pinned_launcher", {})
         expected_ids = {
@@ -3077,6 +3827,81 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                     or type(case.get("expected_result")) is not int
                     or case["expected_result"] != oracle(algorithm, values)):
                 raise ValueError(f"trimaran_netbench_url_internet_checksum fixture mismatch: {case.get('id')}")
+    elif algorithm == "trimaran_enc_pc1":
+        validate_trimaran_enc_pc1_workload(workload)
+    elif algorithm == "mccat_08_main":
+        validate_mccat_08_main_workload(workload)
+    elif algorithm == "mccat_09_vor":
+        validate_mccat_09_vor_workload(workload)
+    elif algorithm == "mallocbench_espresso":
+        validate_mallocbench_espresso_workload(workload)
+    elif algorithm == "ptrdist_anagram":
+        validate_ptrdist_anagram_workload(workload)
+    elif algorithm == "stanford_puzzle":
+        validate_stanford_puzzle_workload(workload)
+    elif algorithm == "mallocbench_cfrac":
+        validate_mallocbench_cfrac_workload(workload)
+    elif algorithm == "agrep_approx_substring_count":
+        validate_agrep_approx_substring_count_workload(workload)
+    elif algorithm == "npb_serial_dc":
+        validate_npb_serial_dc_workload(workload)
+    elif algorithm == "doe_pathfinder_signature_search":
+        validate_doe_pathfinder_signature_search_workload(workload)
+    elif algorithm == "ptrdist_ks":
+        validate_ptrdist_ks_workload(workload)
+    elif algorithm == "prolangs_c_assembler":
+        validate_prolangs_c_assembler_workload(workload)
+    elif algorithm == "prolangs_c_bison_nullable":
+        validate_prolangs_c_bison_nullable_workload(workload)
+    elif algorithm == "cbench_office_pratt_boyer_moore":
+        validate_cbench_office_pratt_boyer_moore_workload(workload)
+    elif algorithm == "cbench_ispell_hash":
+        validate_cbench_ispell_hash_workload(workload)
+    elif algorithm == "cbench_ispell_lookup_chain":
+        validate_cbench_ispell_lookup_chain_workload(workload)
+    elif algorithm == "cbench_ghostscript_rop3":
+        validate_cbench_ghostscript_rop3_workload(workload)
+    elif algorithm == "cbench_ghostscript_rop3_idempotence":
+        validate_cbench_ghostscript_rop3_idempotence_workload(workload)
+    elif algorithm == "cbench_ghostscript_rop3_operand_usage":
+        validate_cbench_ghostscript_rop3_operand_usage_workload(workload)
+    elif algorithm == "cbench_ghostscript_rop3_transform":
+        validate_cbench_ghostscript_rop3_transform_workload(workload)
+    elif algorithm == "parboil_sad":
+        validate_parboil_sad_workload(workload)
+    elif algorithm == "parboil_lbm":
+        validate_parboil_lbm_workload(workload)
+    elif algorithm == "tsvc_vbor":
+        validate_tsvc_vbor_workload(workload)
+    elif algorithm == "tsvc_s257_column_coupled_update":
+        validate_tsvc_s257_column_coupled_update_workload(workload)
+    elif algorithm == "tsvc_s273_dependent_conditional_update":
+        validate_tsvc_s273_dependent_conditional_update_workload(workload)
+    elif algorithm == "tsvc_s331_last_negative_index":
+        validate_tsvc_s331_last_negative_index_workload(workload)
+    elif algorithm == "tsvc_s424_alias_overlap_feedback":
+        validate_tsvc_s424_alias_overlap_feedback_workload(workload)
+    elif algorithm == "tsvc_s258_wrapped_scalar_expansion":
+        validate_tsvc_s258_wrapped_scalar_expansion_workload(workload)
+    elif algorithm == "versabench_dbms_choose_entry":
+        validate_versabench_dbms_choose_entry_workload(workload)
+    elif algorithm in {"versabench_dbms_partition_entries", "versabench_dbms_consistent_key",
+                       "versabench_dbms_penalty"}:
+        validate_versabench_dbms_scalar_helper_workload(workload, algorithm)
+    elif algorithm == "versabench_dbms_valid_attributes":
+        validate_versabench_dbms_valid_attributes_workload(workload)
+    elif algorithm == "versabench_dbms_valid_index_key":
+        validate_versabench_dbms_valid_index_key_workload(workload)
+    elif algorithm == "tsvc_s3111_positive_value_sum":
+        validate_tsvc_s3111_positive_value_sum_workload(workload)
+    elif algorithm == "tsvc_s312_array_product":
+        validate_tsvc_s312_array_product_workload(workload)
+    elif algorithm == "tsvc_s4115_indexed_gather_product_sum":
+        validate_tsvc_s4115_indexed_gather_product_sum_workload(workload)
+    elif algorithm == "prolangs_football_tiebreaks":
+        validate_prolangs_football_tiebreaks_workload(workload)
+    elif algorithm == "scimark2_sor":
+        validate_scimark2_sor_workload(workload)
     elif algorithm == "netbench_crc":
         validate_netbench_crc_workload(workload)
     elif algorithm == "coremark_crc":
@@ -3206,13 +4031,115 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_olden_voronoi_workload(workload)
     elif algorithm == "mibench_network_dijkstra":
         validate_mibench_network_dijkstra_workload(workload)
+    elif algorithm == "mibench_automotive_basicmath_isqrt":
+        validate_mibench_automotive_basicmath_isqrt_workload(workload)
+    elif algorithm == "analyzer":
+        validate_analyzer_workload(workload)
     elif algorithm == "richards_benchmark":
         validate_richards_benchmark_workload(workload)
+    elif algorithm == "fourinarow_minimax":
+        validate_fourinarow_minimax_workload(workload)
+    elif algorithm == "freebench_mason":
+        validate_freebench_mason_workload(workload)
+    elif algorithm == "fhourstones_exact":
+        validate_fhourstones_exact_workload(workload)
+    elif algorithm == "freebench_neural_hopfield":
+        validate_freebench_neural_hopfield_workload(workload)
     elif algorithm == "mcgill_exptree":
         validate_mcgill_exptree_workload(workload)
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
-    if algorithm == "olden_power":
+    special_records: list[str] = []
+    if algorithm == "rodinia_bplus_tree":
+        rng_bplus = random.Random(0xB_500_71)
+
+        def pack_bplus(left, right, queries):
+            return (len(left), len(right), len(queries),
+                    *(item for pair in (*left, *right) for item in pair), *queries)
+
+        for _ in range(96):
+            keys = sorted(rng_bplus.sample(range(-1000, 1001), rng_bplus.randint(2, 6)))
+            split = rng_bplus.randint(1, len(keys) - 1)
+            left_keys, right_keys = keys[:split], keys[split:]
+            left = [(key, rng_bplus.randint(0, 1_000_000)) for key in left_keys]
+            right = [(key, rng_bplus.randint(0, 1_000_000)) for key in right_keys]
+            queries = [rng_bplus.choice((*keys, *range(-1100, 1101)))
+                       for _ in range(rng_bplus.randint(1, 16))]
+            values = pack_bplus(left, right, queries)
+            cases[values] = oracle(algorithm, list(values))
+
+        maximum = pack_bplus(
+            [(-6, 10), (-4, 20), (-2, 30)],
+            [(0, 40), (2, 50), (4, 60)],
+            [-6, -2, 0, 4, 5, 100, -100, 0, 1, 2, 3, 4, -4, 6, -5, 7],
+        )
+        cases[maximum] = oracle(algorithm, list(maximum))
+        for malformed in (
+                (), (1, 1, 1), (1, 1, 1, 2, 3, 4, 5),
+                (2, 1, 1, 2, 10, 1, 20, 1, 10),
+                (1, 1, 1, 5, 10, 5, 20, 5),
+                (1, 1, 1, 1, -1, 2, 20, 1),
+                (1, 1, 17, 1, 10, 2, 20, *([0] * 17)),
+                (I64_MIN,), (I64_MAX,)):
+            if len(malformed) <= 31:
+                cases[malformed] = oracle(algorithm, list(malformed))
+    elif algorithm == "rodinia_lavamd":
+        rng_lavamd = random.Random(0x1A7A6D)
+
+        def pack_lavamd(home, neighbor):
+            return (len(home), len(neighbor),
+                    *(component for particle in (*home, *neighbor) for component in particle))
+
+        for home_count in range(1, RODINIA_LAVAMD_MAX_PARTICLES + 1):
+            for neighbor_count in range(1, RODINIA_LAVAMD_MAX_PARTICLES + 1):
+                zero_home = [(0, 0, 0, 0, 0) for _ in range(home_count)]
+                zero_neighbor = [(0, 0, 0, 0, 0) for _ in range(neighbor_count)]
+                zero_values = pack_lavamd(zero_home, zero_neighbor)
+                cases[zero_values] = rodinia_lavamd_oracle(list(zero_values))
+
+                extreme_home = [
+                    (RODINIA_LAVAMD_MAX_COMPONENT_RAW, 0, RODINIA_LAVAMD_MAX_COMPONENT_RAW,
+                     0, RODINIA_LAVAMD_MAX_COMPONENT_RAW)
+                    for _ in range(home_count)
+                ]
+                extreme_neighbor = [
+                    (0, RODINIA_LAVAMD_MAX_COMPONENT_RAW, 0,
+                     RODINIA_LAVAMD_MAX_COMPONENT_RAW, RODINIA_LAVAMD_MAX_COMPONENT_RAW)
+                    for _ in range(neighbor_count)
+                ]
+                extreme_values = pack_lavamd(extreme_home, extreme_neighbor)
+                cases[extreme_values] = rodinia_lavamd_oracle(list(extreme_values))
+
+                home = [tuple(rng_lavamd.randint(0, RODINIA_LAVAMD_MAX_COMPONENT_RAW)
+                              for _ in range(5)) for _ in range(home_count)]
+                neighbor = [tuple(rng_lavamd.randint(0, RODINIA_LAVAMD_MAX_COMPONENT_RAW)
+                                  for _ in range(5)) for _ in range(neighbor_count)]
+                random_values = pack_lavamd(home, neighbor)
+                cases[random_values] = rodinia_lavamd_oracle(list(random_values))
+
+        for _ in range(48):
+            home_count = rng_lavamd.randint(1, RODINIA_LAVAMD_MAX_PARTICLES)
+            neighbor_count = rng_lavamd.randint(1, RODINIA_LAVAMD_MAX_PARTICLES)
+            home = [tuple(rng_lavamd.randint(0, RODINIA_LAVAMD_MAX_COMPONENT_RAW)
+                          for _ in range(5)) for _ in range(home_count)]
+            neighbor = [tuple(rng_lavamd.randint(0, RODINIA_LAVAMD_MAX_COMPONENT_RAW)
+                              for _ in range(5)) for _ in range(neighbor_count)]
+            values = pack_lavamd(home, neighbor)
+            if len(values) <= RODINIA_LAVAMD_MAX_INPUT_LENGTH:
+                cases[values] = rodinia_lavamd_oracle(list(values))
+
+        for malformed in (
+                (), (0, 1), (5, 1), (1, 5), (1, 1),
+                (1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (1, 1, 0, 0, 0, 0, RODINIA_LAVAMD_MAX_COMPONENT_RAW + 1,
+                 0, 0, 0, 0, 0),
+                (1, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0),
+                (1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (I64_MIN,), (I64_MAX,),
+                tuple([1, 1] + [0] * (RODINIA_LAVAMD_MAX_PARSEABLE_INPUT_LENGTH - 2))):
+            if len(malformed) <= RODINIA_LAVAMD_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[malformed] = rodinia_lavamd_oracle(list(malformed))
+    elif algorithm == "olden_power":
         cases.update({(leaf_count, compute_passes): olden_power_oracle([leaf_count, compute_passes])
                       for leaf_count in range(1, OLDEN_POWER_MAX_LEAVES + 1)
                       for compute_passes in range(OLDEN_POWER_MAX_COMPUTE_PASSES + 1)})
@@ -3247,13 +4174,476 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             values = [node_count, source]
             values.extend(rng.choice(edge_choices) for _ in range(node_count * node_count))
             cases[tuple(values)] = mibench_network_dijkstra_oracle(values)
+    elif algorithm == "mibench_automotive_basicmath_isqrt":
+        probes = {0, 1, MIBENCH_BASICMATH_ISQRT_MAX_VALUE}
+        for root in range(1, 256):
+            square = root * root
+            for value in (square - 1, square, square + 1):
+                if 0 <= value <= MIBENCH_BASICMATH_ISQRT_MAX_VALUE:
+                    probes.add(value)
+        for bit in range(16):
+            boundary = 1 << bit
+            for value in (boundary - 1, boundary, boundary + 1):
+                if 0 <= value <= MIBENCH_BASICMATH_ISQRT_MAX_VALUE:
+                    probes.add(value)
+        rng_isqrt = random.Random(0x15A7)
+        probes.update(rng_isqrt.randrange(MIBENCH_BASICMATH_ISQRT_MAX_VALUE + 1)
+                      for _ in range(128))
+        for value in probes:
+            values = (value,)
+            cases[values] = mibench_automotive_basicmath_isqrt_oracle(list(values))
+        for values in ((), (-1,), (MIBENCH_BASICMATH_ISQRT_MAX_VALUE + 1,),
+                       (I64_MIN,), (I64_MAX,), (0, 0)):
+            cases[values] = mibench_automotive_basicmath_isqrt_oracle(list(values))
+    elif algorithm == "analyzer":
+        rng_analyzer = random.Random(0xA11A)
+        for _ in range(64):
+            event_count = rng_analyzer.randint(0, ANALYZER_MAX_EVENTS)
+            values = [event_count]
+            epoch = 0
+            for event in range(event_count):
+                if event and rng_analyzer.randrange(4) == 0:
+                    epoch = min(epoch + 1, ANALYZER_MAX_EPOCH)
+                opcode = 0 if rng_analyzer.randrange(3) == 0 else 1
+                address = rng_analyzer.randrange(ANALYZER_MAX_ADDRESS + 1)
+                values.extend((epoch, opcode, address))
+            cases[tuple(values)] = analyzer_oracle(values)
+        malformed = (
+            (), (0, 0), (1,), (1, 0, 0), (1, 0, 2, 7), (1, 0, 0, -1),
+            (1, 0, 0, ANALYZER_MAX_ADDRESS + 1),
+            (2, 1, 0, 7, 0, 1, 7), (1, -1, 1, 7),
+            (1, ANALYZER_MAX_EPOCH + 1, 1, 7),
+            (ANALYZER_MAX_EVENTS + 1,),
+        )
+        for values in malformed:
+            if len(values) <= 1 + 3 * ANALYZER_MAX_EVENTS + 1:
+                cases[values] = analyzer_oracle(list(values))
     elif algorithm == "richards_benchmark":
         for iterations in (1, 2, 3, 4, 7, 16, 31, 64, 127, 256):
             values = [iterations]
             cases[tuple(values)] = richards_benchmark_oracle(values)
         for values in ([], [0], [RICHARDS_BENCHMARK_MAX_ITERATIONS + 1], [1, 0]):
             cases[tuple(values)] = richards_benchmark_oracle(values)
-    special_records: list[str] = []
+    elif algorithm == "fourinarow_minimax":
+        histories = ((), (0,), (0, 1), (3, 2, 4), (0, 1, 0, 2))
+        for history in histories:
+            side = 1 if len(history) % 2 == 0 else 2
+            for depth in (2, 3, 4):
+                for mode in (0, 2):
+                    values = [depth, mode, side, len(history), *history]
+                    cases[tuple(values)] = fourinarow_minimax_oracle(values)
+        for values in ([], [2, 0, 1, 0, 7], [2, 1, 1, 0], [8, 2, 1, 0],
+                       [2, 0, 2, 0], [2, 0, 1, FOURINAROW_MAX_HISTORY + 1]):
+            cases[tuple(values)] = fourinarow_minimax_oracle(values)
+    elif algorithm == "freebench_neural_hopfield":
+        rng_hopfield = random.Random(0x484F50)
+        dimensions = {2: (2, 1), 3: (3, 1), 4: (2, 2), 5: (5, 1),
+                      6: (3, 2), 7: (7, 1), 8: (4, 2)}
+        maximum_case_values: list[int] | None = None
+        for neurons in range(2, FREEBENCH_NEURAL_HOPFIELD_MAX_NEURONS + 1):
+            width, height = dimensions[neurons]
+            for variant in range(3):
+                pattern = [rng_hopfield.choice((-1, 1)) for _ in range(neurons)]
+                values = [width, height, FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT]
+                for pattern_index in range(FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT):
+                    values.append(65 + pattern_index)
+                    values.extend(pattern)
+                cases[tuple(values)] = freebench_neural_hopfield_oracle(values)
+                if neurons == FREEBENCH_NEURAL_HOPFIELD_MAX_NEURONS and variant == 2:
+                    maximum_case_values = values
+        assert maximum_case_values is not None
+        mismatched = list(maximum_case_values)
+        mismatched[-1] = -mismatched[-1]
+        malformed = (
+            (), (2, 1), (2, 1, FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT - 1),
+            (1, 1, FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT),
+            (FREEBENCH_NEURAL_HOPFIELD_MAX_DIMENSION + 1, 1,
+             FREEBENCH_NEURAL_HOPFIELD_PATTERN_COUNT),
+            tuple(mismatched),
+            tuple((*maximum_case_values[:-1], 0)),
+            tuple((*maximum_case_values, 0)),
+            tuple((maximum_case_values[0], maximum_case_values[1],
+                   maximum_case_values[2], 64, *maximum_case_values[4:])),
+        )
+        for values in malformed:
+            if len(values) <= FREEBENCH_NEURAL_HOPFIELD_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[tuple(values)] = freebench_neural_hopfield_oracle(list(values))
+    elif algorithm == "cbench_office_pratt_boyer_moore":
+        for values in (
+            (), (0,), (0, 0), (1, 1, 65, 65), (3, 2, 120, 120, 97, 98, 99),
+            (2, 1, 65, 66), (1, 2, 65, 66), (1, 1, 0, 65),
+            tuple([255, 64, *([97] * 255), *([97] * 64)]),
+        ):
+            if len(values) <= CBENCH_OFFICE_PRATT_BOYER_MOORE_MAX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "cbench_ispell_hash":
+        maximum = (2_147_483_647, *([97] * 64))
+        cases[maximum] = oracle(algorithm, list(maximum))
+        malformed = (
+            (), (0,), (-1,), (0, 97), (10, 0), (10, 128),
+            (2_147_483_648, 65), (10, *([65] * 65)),
+            (I64_MIN,), (I64_MAX, 65),
+        )
+        for values in malformed:
+            if len(values) <= CBENCH_ISPELL_HASH_MAX_INPUT_LENGTH + 1:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "cbench_ispell_lookup_chain":
+        def hash_bucket(word: tuple[int, ...], table_size: int) -> int:
+            state = 0
+            for byte in word[:4]:
+                state = ((state << 8) | (byte - 32)) & 0xFFFFFFFF
+            for byte in word[4:]:
+                state = (((state << 5) | (state >> 27)) & 0xFFFFFFFF) ^ (byte - 32)
+            return state % table_size
+
+        def make_lookup_case(query: tuple[int, ...], words: tuple[tuple[int, ...], ...],
+                             table_size: int) -> tuple[int, ...]:
+            heads = [-1] * table_size
+            next_links = [-1] * len(words)
+            for entry in range(len(words) - 1, -1, -1):
+                bucket = hash_bucket(words[entry], table_size)
+                next_links[entry] = heads[bucket]
+                heads[bucket] = entry
+            return (table_size, len(query), len(words), *query, *heads, *next_links,
+                    *(len(word) for word in words), *(byte for word in words for byte in word))
+
+        words = tuple(tuple(word.encode("ascii")) for word in
+                      ("cat", "dog", "rat", "ant", "owl", "fox", "bee", "yak"))
+        for table_size in (1, 2, 5, CBENCH_ISPELL_LOOKUP_CHAIN_MAX_TABLE):
+            for query in (words[0], words[3], tuple(b"mouse")):
+                values = make_lookup_case(query, words[:min(3, len(words))], table_size)
+                cases[values] = oracle(algorithm, list(values))
+        maximum_words = tuple(tuple([97 + index] * CBENCH_ISPELL_LOOKUP_CHAIN_MAX_WORD)
+                              for index in range(CBENCH_ISPELL_LOOKUP_CHAIN_MAX_ENTRIES))
+        maximum = make_lookup_case(tuple([97] * CBENCH_ISPELL_LOOKUP_CHAIN_MAX_QUERY),
+                                   maximum_words, CBENCH_ISPELL_LOOKUP_CHAIN_MAX_TABLE)
+        if len(maximum) == CBENCH_ISPELL_LOOKUP_CHAIN_MAX_INPUT_LENGTH:
+            cases[maximum] = oracle(algorithm, list(maximum))
+        for values in (
+                (), (0, 1, 0), (CBENCH_ISPELL_LOOKUP_CHAIN_MAX_TABLE + 1, 1, 0, 97),
+                (1, CBENCH_ISPELL_LOOKUP_CHAIN_MAX_QUERY + 1, 0, *([97] * 9), -1),
+                (1, 1, 1, 65, 0, -1, 1, 97),
+        ):
+            if len(values) <= CBENCH_ISPELL_LOOKUP_CHAIN_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "cbench_ghostscript_rop3":
+        destination, source, texture = 0xA5A55A5A, 0x3C3CC3C3, 0xF0F00F0F
+        for code in range(256):
+            values = (destination, source, texture, code)
+            cases[values] = oracle(algorithm, list(values))
+        for values in (
+                (), (0, 0, 0), (0, 0, 0, 0, 0),
+                (CBENCH_GHOSTSCRIPT_ROP3_PIXEL_MAX + 1, 0, 0, 0),
+                (0, -1, 0, 0), (0, 0, I64_MAX, 0),
+                (0, 0, 0, -1), (0, 0, 0, 256),
+                (I64_MIN, 0, 0, 0), (I64_MAX, 0, 0, 0),
+        ):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "cbench_ghostscript_rop3_idempotence":
+        for code in range(256):
+            cases[(code,)] = oracle(algorithm, [code])
+        for values in ((), (0, 0), (-1,), (256,), (I64_MIN,), (I64_MAX,)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "cbench_ghostscript_rop3_operand_usage":
+        for code in range(256):
+            cases[(code,)] = oracle(algorithm, [code])
+        for values in ((), (0, 0), (-1,), (256,), (I64_MIN,), (I64_MAX,)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "cbench_ghostscript_rop3_transform":
+        for mode in range(15):
+            for code in range(256):
+                values = (mode, code)
+                cases[values] = oracle(algorithm, list(values))
+        for values in (
+                (), (0,), (0, 0, 0), (-1, 0), (15, 0),
+                (0, -1), (0, 256), (I64_MIN, 0), (I64_MAX, 0),
+        ):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "parboil_sad":
+        def pack_image(pixel_at):
+            words = []
+            for row in range(16):
+                for group in range(4):
+                    word = 0
+                    for byte in range(4):
+                        word |= (pixel_at(row, group * 4 + byte) & 0xFF) << (8 * byte)
+                    words.append(word)
+            return tuple(words)
+
+        patterned = (
+            *pack_image(lambda row, col: (row * 37 + col * 19) & 0xFF),
+            *pack_image(lambda row, col: ((row * 11) ^ (col * 53) ^ (row * col)) & 0xFF),
+        )
+        cases[patterned] = oracle(algorithm, list(patterned))
+        edge_pattern = (
+            *pack_image(lambda row, col: 255 if col in (0, 15) else 0),
+            *pack_image(lambda row, col: 255 if row in (0, 15) else 0),
+        )
+        cases[edge_pattern] = oracle(algorithm, list(edge_pattern))
+        maximum = (*([0] * 64), *([0xFFFFFFFF] * 64))
+        maximum_result = oracle(algorithm, list(maximum))
+        if maximum_result != PARBOIL_SAD_MAX_RESULT:
+            raise ValueError("Parboil SAD verifier maximum does not match its bounded result contract")
+        cases[maximum] = maximum_result
+        for values in (
+                (), (0,), tuple([0] * (PARBOIL_SAD_MAX_INPUT_LENGTH - 1)),
+                tuple([0] * (PARBOIL_SAD_MAX_INPUT_LENGTH + 1)),
+                (-1, *([0] * 127)), (0x1_0000_0000, *([0] * 127)),
+                (I64_MIN, *([0] * 127)), (I64_MAX, *([0] * 127)),
+        ):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "parboil_lbm":
+        rest = (100_000, *([0] * 18))
+        rest_result = oracle(algorithm, list(rest))
+        if rest_result != 365_401_848:
+            raise ValueError("Parboil LBM rest-only fixture differs from the hand-derived checksum")
+        cases[rest] = rest_result
+        mixed = tuple((index * 7_919 + 12_347) % 100_001 for index in range(19))
+        cases[mixed] = oracle(algorithm, list(mixed))
+        cases[tuple([100_000] * 19)] = oracle(algorithm, [100_000] * 19)
+        for values in (
+                (), tuple([0] * 18), tuple([0] * 20), tuple([0] * 19),
+                (-1, *([0] * 18)), (100_001, *([0] * 18)),
+                (I64_MIN, *([0] * 18)), (I64_MAX, *([0] * 18))):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "tsvc_vbor":
+        maximum = [TSVC_VBOR_MAX_N]
+        maximum.extend([2] * (6 * TSVC_VBOR_MAX_N))
+        cases[tuple(maximum)] = oracle(algorithm, maximum)
+        mixed = [3, *([0, 1, 2] * 6)]
+        cases[tuple(mixed)] = oracle(algorithm, mixed)
+        malformed = (
+            (), (0,), (1, 1, 1, 1, 1, 1), (1, 1, 1, 1, 1, 1, 1, 0),
+            (TSVC_VBOR_MAX_N + 1,), (1, 3, 1, 1, 1, 1, 1),
+            tuple([0] * (TSVC_VBOR_MAX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "tsvc_s257_column_coupled_update":
+        maximum = [TSVC_S257_MAX_N, TSVC_S257_MAX_PASSES]
+        maximum.extend([1] * TSVC_S257_MAX_N)
+        maximum.extend([1] * (2 * TSVC_S257_MAX_N * TSVC_S257_MAX_N))
+        cases[tuple(maximum)] = oracle(algorithm, maximum)
+        mixed = [2, 3, 1, 0, *([0, 1, -1, 1, 0, -1, -1, 1])]
+        cases[tuple(mixed)] = oracle(algorithm, mixed)
+        malformed = (
+            (), (2,), (1, 1, *([0] * 5)),
+            (2, TSVC_S257_MAX_PASSES + 1, *([0] * 10)),
+            (2, 1, *([0] * 11)), (2, 1, *([0] * 11), 2),
+            tuple([0] * (TSVC_S257_MAX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "tsvc_s273_dependent_conditional_update":
+        maximum = [TSVC_S273_MAX_N, TSVC_S273_MAX_PASSES]
+        maximum.extend([2] * (5 * TSVC_S273_MAX_N))
+        cases[tuple(maximum)] = oracle(algorithm, maximum)
+        mixed = [3, 2, -2, 1, 0, 2, -1, 2, 1, -2, 1, 2, -1, 0, 2, -2, 1]
+        cases[tuple(mixed)] = oracle(algorithm, mixed)
+        malformed = (
+            (), (1,), (0, 1, *([0] * 5)), (1, TSVC_S273_MAX_PASSES + 1, *([0] * 5)),
+            (1, 1, *([0] * 4)), (1, 1, 0, 0, 0, 3, 0),
+            tuple([0] * (TSVC_S273_MAX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "tsvc_s331_last_negative_index":
+        maximum_no_match = [TSVC_S331_MAX_LENGTH, *([1] * TSVC_S331_MAX_LENGTH)]
+        cases[tuple(maximum_no_match)] = oracle(algorithm, maximum_no_match)
+        maximum_last_match = [TSVC_S331_MAX_LENGTH, *([1] * (TSVC_S331_MAX_LENGTH - 1)), -1]
+        cases[tuple(maximum_last_match)] = oracle(algorithm, maximum_last_match)
+        mixed = [8, -1, 0, -2, 3, 4, -7, 9, 0]
+        cases[tuple(mixed)] = oracle(algorithm, mixed)
+        malformed = (
+            (), (0,), (TSVC_S331_MAX_LENGTH + 1, *([0] * (TSVC_S331_MAX_LENGTH + 1))),
+            (3, 1, 2), (1, 1_000_001),
+            tuple([1, 0] + [0] * TSVC_S331_MAX_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= TSVC_S331_MAX_INPUT_LENGTH + 1:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "tsvc_s258_wrapped_scalar_expansion":
+        maximum = [TSVC_S258_MAX_N]
+        maximum.extend([2] * (4 * TSVC_S258_MAX_N))
+        cases[tuple(maximum)] = oracle(algorithm, maximum)
+        mixed = [4, 0, 1, 2, 0, 2, 1, 0, 2, 1, 2, 0, 1, 2, 1, 0, 2]
+        cases[tuple(mixed)] = oracle(algorithm, mixed)
+        malformed = (
+            (), (0,), (TSVC_S258_MAX_N + 1,), (1, 1, 0, 0),
+            (1, 3, 0, 0, 0), (1, 1, 0, 0, 0, 0),
+            tuple([0] * (TSVC_S258_MAX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "tsvc_s424_alias_overlap_feedback":
+        maximum = [TSVC_S424_MAX_N, *([TSVC_S424_VALUE_MAX] * (TSVC_S424_MAX_N + 63))]
+        cases[tuple(maximum)] = oracle(algorithm, maximum)
+        minimum = [TSVC_S424_MIN_N, *([0] * (TSVC_S424_MIN_N + 63))]
+        cases[tuple(minimum)] = oracle(algorithm, minimum)
+        malformed = (
+            (), (TSVC_S424_MIN_N - 1,), (TSVC_S424_MAX_N + 1,),
+            (TSVC_S424_MIN_N, *([0] * (TSVC_S424_MIN_N + 62))),
+            (TSVC_S424_MIN_N, TSVC_S424_VALUE_MAX + 1,
+             *([0] * (TSVC_S424_MIN_N + 62))),
+            tuple([0] * (TSVC_S424_MAX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            if len(values) <= TSVC_S424_MAX_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "versabench_dbms_choose_entry":
+        rng_choose = random.Random(0xD15)
+
+        def make_box() -> tuple[int, ...]:
+            lower = tuple(rng_choose.randint(-8, 6) for _ in range(4))
+            upper = tuple(rng_choose.randint(value + 1, 8) for value in lower)
+            return (*lower, *upper)
+
+        for child_count in range(1, 9):
+            children = [make_box() for _ in range(child_count)]
+            values = (child_count, *(coordinate for box in children for coordinate in box), *make_box())
+            cases[values] = oracle(algorithm, list(values))
+        maximum = (8, *(coordinate for _ in range(8) for coordinate in make_box()), *make_box())
+        cases[maximum] = oracle(algorithm, list(maximum))
+        if len(maximum) + 1 <= VERSABENCH_DBMS_CHOOSE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH:
+            trailing = (*maximum, 0)
+            cases[trailing] = oracle(algorithm, list(trailing))
+        valid_child = (0, 0, 0, 0, 1, 1, 1, 1)
+        valid_incoming = (2, 2, 2, 2, 3, 3, 3, 3)
+        degenerate_child = (0, 0, 0, 0, 1, 1, 1, 0)
+        bad_coordinate = (9, 2, 2, 2, 10, 3, 3, 3)
+        malformed = (
+            (), (0,), (9,), (1, *valid_child),
+            (1, *degenerate_child, *valid_incoming),
+            (1, *valid_child, *bad_coordinate),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            if len(values) <= VERSABENCH_DBMS_CHOOSE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "tsvc_s3111_positive_value_sum":
+        maximum = (TSVC_S3111_MAX_N, *([TSVC_S3111_MAX_VALUE] * TSVC_S3111_MAX_N))
+        cases[maximum] = oracle(algorithm, list(maximum))
+        mixed = (TSVC_S3111_MAX_N, *(
+            TSVC_S3111_MAX_VALUE if index % 3 == 0 else
+            -TSVC_S3111_MAX_VALUE if index % 3 == 1 else 0
+            for index in range(TSVC_S3111_MAX_N)))
+        cases[mixed] = oracle(algorithm, list(mixed))
+        malformed = (
+            (), (0,), (-1,), (TSVC_S3111_MAX_N + 1,),
+            (2, 1), (1, TSVC_S3111_MAX_VALUE + 1),
+            (1, -TSVC_S3111_MAX_VALUE - 1),
+            tuple([1] + [0] * TSVC_S3111_MAX_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= TSVC_S3111_MAX_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "tsvc_s312_array_product":
+        maximum = (TSVC_S312_MAX_N, *([TSVC_S312_MAX_VALUE] * TSVC_S312_MAX_N))
+        cases[maximum] = oracle(algorithm, list(maximum))
+        cases[(0,)] = oracle(algorithm, [0])
+        cases[(4, 2, 0, 2, 2)] = oracle(algorithm, [4, 2, 0, 2, 2])
+        malformed = (
+            (), (-1,), (TSVC_S312_MAX_N + 1,), (3, 2, 2),
+            (1, -1), (1, TSVC_S312_MAX_VALUE + 1),
+            tuple([TSVC_S312_MAX_N] + [TSVC_S312_MAX_VALUE] * TSVC_S312_MAX_N
+                  + [0]),
+        )
+        for values in malformed:
+            if len(values) <= TSVC_S312_MAX_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "tsvc_s4115_indexed_gather_product_sum":
+        maximum = (
+            TSVC_S4115_MAX_N,
+            *range(TSVC_S4115_MAX_N),
+            *([TSVC_S4115_MAX_VALUE] * TSVC_S4115_MAX_N),
+            *([TSVC_S4115_MAX_VALUE] * TSVC_S4115_MAX_N),
+        )
+        maximum_result = oracle(algorithm, list(maximum))
+        if maximum_result != 64_000_000_000_000:
+            raise ValueError("TSVC s4115 verifier maximum does not match its bounded result contract")
+        cases[maximum] = maximum_result
+        duplicate_indexes = (4, 1, 1, 3, 0, 10, 20, 30, 40, 5, 20, 30, 40)
+        cases[duplicate_indexes] = oracle(algorithm, list(duplicate_indexes))
+        permuted_indexes = (3, 2, 0, 1, 1, 2, 3, 7, 11, 13)
+        cases[permuted_indexes] = oracle(algorithm, list(permuted_indexes))
+        malformed = (
+            (), (0,), (TSVC_S4115_MAX_N + 1,), (1,),
+            (2, 0, 2, 5, 6, 7, 8), (2, 0, 1, 5, 6),
+            (1, 0, 1_000_001, 7), (1, 0, -1, 7),
+            (2, 0, 1, 5, 6, 7, 1_000_001),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            if len(values) <= TSVC_S4115_MAX_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "versabench_dbms_partition_entries":
+        cases[(2, *([0, 0, 0, 0, 1, 1, 1, 1] * 3))] = oracle(
+            algorithm, [2, *([0, 0, 0, 0, 1, 1, 1, 1] * 3)])
+        malformed = ((), (1,), (9,), (2, *([0] * 24)))
+        for values in malformed:
+            if len(values) <= VERSABENCH_DBMS_PARTITION_ENTRIES_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "versabench_dbms_consistent_key":
+        cases[(0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2)] = oracle(
+            algorithm, [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2])
+        malformed = ((), (0,), tuple([0] * 15), tuple([0] * 17))
+        for values in malformed:
+            if len(values) <= VERSABENCH_DBMS_CONSISTENT_KEY_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "versabench_dbms_penalty":
+        cases[(0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 2, 1, 1, 1)] = oracle(
+            algorithm, [0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 2, 1, 1, 1])
+        malformed = ((), (0,), tuple([0] * 15), tuple([0] * 17))
+        for values in malformed:
+            if len(values) <= VERSABENCH_DBMS_PENALTY_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "versabench_dbms_valid_attributes":
+        attrs = []
+        for code in range(VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_ATTRIBUTES):
+            attrs.extend((code, 1065353216 if code < 8 else 1))
+        maximum = (VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_ATTRIBUTES, *attrs)
+        cases[maximum] = oracle(algorithm, list(maximum))
+        cases[(2, 3, 2143289345, 8, 1)] = oracle(
+            algorithm, [2, 3, 2143289345, 8, 1])
+        cases[(1, 2, 2139095040)] = oracle(algorithm, [1, 2, 2139095040])
+        cases[(2, 51, -9, 8, 1)] = oracle(algorithm, [2, 51, -9, 8, 1])
+        malformed = (
+            (), (52,), (2, 0, 1065353216),
+            (1, 0, 4294967296), (1, 8, 2),
+            tuple([0] + [0] * VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_PARSEABLE_INPUT_LENGTH),
+        )
+        for values in malformed:
+            if len(values) <= VERSABENCH_DBMS_VALID_ATTRIBUTES_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    elif algorithm == "versabench_dbms_valid_index_key":
+        samples = (
+            (1065353216, 3221225472, 2147483648, 4286578688,
+             1073741824, 3212836864, 1056964608, 2139095040),
+            (0, 0, 0, 0, 2147483648, 1, 1, 1),
+            (2143289344, 0, 0, 0, 1065353216, 1, 1, 1),
+            (4286578688, 4286578688, 4286578688, 4286578688,
+             2139095040, 2139095040, 2139095040, 2139095040),
+        )
+        for values in samples:
+            cases[tuple(values)] = oracle(algorithm, list(values))
+        rng_valid_index_key = random.Random(0xD15)
+        for _case_index in range(64):
+            values = tuple(rng_valid_index_key.getrandbits(32) for _word in range(8))
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0,), tuple([0] * 7), tuple([0] * 9),
+            (1 << 32, 0, 0, 0, 1, 1, 1, 1),
+            (-1, 0, 0, 0, 1, 1, 1, 1),
+        )
+        for values in malformed:
+            if len(values) <= VERSABENCH_DBMS_VALID_INDEX_KEY_MAX_PARSEABLE_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, list(values))
+    if algorithm == "cbench_office_pratt_boyer_moore":
+        special_records.append(f"NULL 1 {oracle(algorithm, [])}\n")
+    elif algorithm == "cbench_ispell_hash":
+        special_records.append(f"NULL 1 {oracle(algorithm, [])}\n")
+    elif algorithm == "cbench_ispell_lookup_chain":
+        special_records.append(f"NULL 1 {oracle(algorithm, [])}\n")
     for case in workload["cases"]:
         values = case["input_values"]
         expected = case["expected_result"]
@@ -3261,6 +4651,15 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
             input_length = case.get("input_length")
             minimum_null_length = 0 if algorithm in (
                 "mul_array", "rotting_oranges", "solution42", "k_nn", "rsa_cipher", "suffix_trie",
+                "mccat_08_main", "mccat_09_vor", "mallocbench_espresso", "ptrdist_anagram",
+                "stanford_puzzle", "mallocbench_cfrac", "npb_serial_dc",
+                "prolangs_c_assembler", "prolangs_c_bison_nullable", "tsvc_vbor",
+                "versabench_dbms_choose_entry",
+                "versabench_dbms_partition_entries", "versabench_dbms_consistent_key",
+                "versabench_dbms_penalty", "versabench_dbms_valid_attributes",
+                "versabench_dbms_valid_index_key",
+                "tsvc_s257_column_coupled_update", "tsvc_s273_dependent_conditional_update",
+                "tsvc_s424_alias_overlap_feedback", "tsvc_s258_wrapped_scalar_expansion",
                 "k_means_julia", "k_means_rust", "k_means_clustering_c",
                 "k_means_clustering_zig", "kmeans_rust") else 1
             if (values or type(input_length) is not int
@@ -3310,6 +4709,305 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
                        (1, 1, 256), (0, 1, 0, 0), (-(1 << 63),)):
             cases[values] = oracle(algorithm, list(values))
         special_records.append("NULL 2 -1\n")
+    elif algorithm == "trimaran_enc_pc1":
+        for value in (1, 2, 3, 16, 255, 2048, TRIMARAN_ENC_PC1_MAX_NUM_INPUT):
+            values = (value,)
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (-1,), (TRIMARAN_ENC_PC1_MAX_NUM_INPUT + 1,),
+                       (1, 0), (I64_MIN,), (I64_MAX,)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "mccat_08_main":
+        def add_transform_case(values: tuple[int, ...]) -> None:
+            if len(values) <= MCCAT_08_MAIN_MAX_INPUT_LENGTH + 1:
+                cases[values] = oracle(algorithm, list(values))
+
+        identity_header = (1_000_000, 1_000_000, 1_000_000,
+                           0, 0, 0, 0, 0, 0,
+                           1_000_000, 1_000_000, 1_000_000,
+                           0, 0, 0, 0, 0, 0)
+        add_transform_case((1, 1, *identity_header, -100_000_000, 100_000_000, 0))
+        add_transform_case((360, 1, *identity_header, 1_000_000, -2_000_000, 3_000_000))
+        max_points = tuple(value for index in range(16)
+                           for value in (index * 1_000_000, -index * 500_000, index * 250_000))
+        add_transform_case((1, 16, *identity_header, *max_points))
+        add_transform_case((3, 2, *identity_header, 1_000_000, 2_000_000, 3_000_000,
+                            1_000_000, 2_000_000, 3_000_000))
+        malformed = (
+            (), (1,), (1, 0, *identity_header),
+            (0, 1, *identity_header, 0, 0, 0),
+            (1, 17, *identity_header),
+            (361, 1, *identity_header, 0, 0, 0),
+            (1, 1, *identity_header, 100_000_001, 0, 0),
+            (1, 1, *identity_header, 0, 0, 0, 0),
+            tuple([0] * (MCCAT_08_MAIN_MAX_INPUT_LENGTH + 1)),
+        )
+        for values in malformed:
+            add_transform_case(tuple(values))
+    elif algorithm == "mccat_09_vor":
+        candidates = (
+            (3, -4, -1, 3, -2, 0, 4),
+            (4, -3, -2, 3, -1, 2, 3, -1, 2),
+            (5, -3, -1, 2, -3, 3, 1, 0, 4, -2, 3),
+            (8, -4, -1, -3, 2, -2, -4, -1, 1, 0, 4, 2, -3, 4, 1, 3, 3),
+        )
+        for values in candidates:
+            if len(values) <= MCCAT_09_VOR_MAX_INPUT_LENGTH:
+                cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (3,), (2, 0, 0, 1, 0),
+            (3, 0, 0, 1, 1, 2, 2),
+            (3, 0, 0, 4, 0, 4, 0),
+            (3, 5, 0, 0, 4, 4, 0),
+            (3, 0, 0, 4, 0, 0, 3, 0),
+            tuple([0] * (MCCAT_09_VOR_MAX_INPUT_LENGTH + 1)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "mallocbench_espresso":
+        generated = (
+            (5, 0, 0), (5, 1 << 31, 0), (5, (1 << 32) - 1, 0),
+            (5, 0x00FF00FF, 0), (5, 0x00000001, 0x00000002),
+            (5, 0x00000003, 0x0000000C), (1, 1, 1),
+            (2, 16, 0), (0, 0, 0), (6, 0, 0), (2, 1),
+            (2, 0, 0, 0), (I64_MIN, 0, 0), (I64_MAX, 0, 0),
+        )
+        for values in generated:
+            if len(values) <= 4:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "ptrdist_anagram":
+        def encode_phrase(phrase: str, words: tuple[str, ...]) -> tuple[int, ...]:
+            encoded: list[int] = [len(phrase), *(ord(char) for char in phrase), len(words)]
+            for word in words:
+                encoded.extend((len(word), *(ord(char) for char in word)))
+            return tuple(encoded)
+
+        maximum_phrase = "abcdefghijklmnop"
+        maximum_word = "abcdefghijklmnop"
+        maximum = encode_phrase(maximum_phrase, tuple(maximum_word for _ in range(12)))
+        cases[maximum] = oracle(algorithm, list(maximum))
+        candidates = (
+            encode_phrase("aabbcc", ("ab", "ac", "bc", "abc")),
+            encode_phrase("aaaaaa", ("aa", "aaa")),
+            encode_phrase("abcd", ("ABCD", "ab", "cd")),
+            (1, 97, 0), (1, 97, 1, 1, 97),
+            (3, 97, 98, 99, 1, 4, 97),
+            (3, 97, 98, 99, 1, 2, 97, 33),
+            tuple([16, *([97] * 16), 12] + [1] * (PTRDIST_ANAGRAM_MAX_INPUT_LENGTH - 18)),
+            tuple([0] * (PTRDIST_ANAGRAM_MAX_INPUT_LENGTH + 1)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in candidates:
+            if len(values) <= PTRDIST_ANAGRAM_MAX_INPUT_LENGTH + 1:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "stanford_puzzle":
+        for passes in (1, 2, 17, STANFORD_PUZZLE_MAX_PASSES):
+            values = (passes,)
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (STANFORD_PUZZLE_MAX_PASSES + 1,),
+                       (1, 0), (I64_MIN,), (I64_MAX,)):
+            if len(values) <= 2:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "mallocbench_cfrac":
+        candidates = (
+            (91, 2, 1), (91, 2, 2), (91, 3, 2), (15, 2, 8),
+            (15, 3, 8), (1000000, 2, 48), (999983, 2, 48),
+            (91, 1, 8), (91, 11, 8), (91, 2, 0), (91, 2, 49),
+            (), (91,), (91, 2), (91, 2, 2, 0), (I64_MIN, 2, 8),
+        )
+        for values in candidates:
+            if len(values) <= 4:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "agrep_approx_substring_count":
+        maximum_pattern = tuple((AGREP_MAX_PATTERN_LENGTH, 0, AGREP_MAX_ERRORS,
+                                 *([65] * AGREP_MAX_PATTERN_LENGTH)))
+        maximum_text = tuple((1, AGREP_MAX_TEXT_LENGTH, AGREP_MAX_ERRORS, 65,
+                              *([65] * AGREP_MAX_TEXT_LENGTH)))
+        for values in (maximum_pattern, maximum_text):
+            cases[values] = oracle(algorithm, list(values))
+        malformed = (
+            (), (0, 0, 0), (AGREP_MAX_PATTERN_LENGTH + 1, 0, 0),
+            (1, AGREP_MAX_TEXT_LENGTH + 1, 0, 65),
+            (1, 0, AGREP_MAX_ERRORS + 1, 65), (1, 1, 0, 65),
+            (1, 1, 0, 65, 65, 65), (1, 1, 0, 65, 10),
+        )
+        for values in malformed:
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "npb_serial_dc":
+        for dimensions, row_count in ((1, 1), (1, 16), (3, 7), (5, 1), (5, 16)):
+            values = [dimensions, row_count]
+            for row in range(row_count):
+                values.extend((row * (dimension + 1) % 8 for dimension in range(dimensions)))
+                values.append((row * 67 + 13) % 1001)
+            cases[tuple(values)] = oracle(algorithm, values)
+        malformed = (
+            (), (0, 1), (6, 1), (1, 0), (1, 17), (1, 1, 8, 0),
+            (1, 1, 0, 1001), (2, 1, 0, 0, 1),
+            tuple([0] * (NPB_SERIAL_DC_MAX_INPUT_LENGTH + 1)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            if len(values) <= NPB_SERIAL_DC_MAX_INPUT_LENGTH + 1:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "doe_pathfinder_signature_search":
+        maximum = [DOE_PATHFINDER_MAX_NODES, DOE_PATHFINDER_MAX_EDGES,
+                   DOE_PATHFINDER_MAX_SIGNATURE_LENGTH]
+        for source in range(DOE_PATHFINDER_MAX_NODES):
+            for target in range(DOE_PATHFINDER_MAX_NODES):
+                maximum.extend((source, target))
+        maximum.extend([1] * DOE_PATHFINDER_MAX_NODES)
+        maximum.extend([1] * DOE_PATHFINDER_MAX_SIGNATURE_LENGTH)
+        cases[tuple(maximum)] = oracle(algorithm, maximum)
+        malformed = (
+            (), (0, 0, 2), (DOE_PATHFINDER_MAX_NODES + 1, 0, 2),
+            (1, 2, 2, 0, 0, 0, 0, 0, 1),
+            (1, 0, DOE_PATHFINDER_MAX_SIGNATURE_LENGTH + 1, 0, 0, 1, 2, 3, 4),
+            tuple([0] * (4 + 2 * DOE_PATHFINDER_MAX_EDGES
+                         + DOE_PATHFINDER_MAX_NODES + DOE_PATHFINDER_MAX_SIGNATURE_LENGTH)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            if len(values) <= (4 + 2 * DOE_PATHFINDER_MAX_EDGES
+                               + DOE_PATHFINDER_MAX_NODES + DOE_PATHFINDER_MAX_SIGNATURE_LENGTH):
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "ptrdist_ks":
+        for values in ptrdist_ks_generated_inputs():
+            if len(values) <= PTRDIST_KS_MAX_INPUT_LENGTH:
+                cases[tuple(values)] = oracle(algorithm, values)
+        malformed = (
+            (), (2,), (2, 0, 1), (2, 0, 3), (4, 1, 2, 0, 4),
+            tuple([0] * (PTRDIST_KS_MAX_INPUT_LENGTH + 1)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            if len(values) <= PTRDIST_KS_MAX_INPUT_LENGTH + 1:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "prolangs_c_assembler":
+        maximum_records = [0, 1, 0, 0]
+        maximum_records.extend(value for label in range(2, 16)
+                               for value in (2, label, 0, 1))
+        maximum_records.extend((1, 0, 0, 0))
+        maximum = (16, *maximum_records)
+        cases[maximum] = oracle(algorithm, list(maximum))
+        malformed = (
+            (), (1,), (2, 0, 1), (3, 0, 1, 0, 0, 2, 1, 0, 1, 1, 0, 0, 0),
+            (3, 0, 1, 0, 0, 12, 0, 0, 0, 1, 0, 0, 0),
+            (3, 0, 1, 0, 0xFFFFF, 3, 2, 0, 1, 1, 0, 0, 0),
+            tuple([0] * (PROLANGS_C_ASSEMBLER_MAX_INPUT_LENGTH + 1)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            if len(values) <= PROLANGS_C_ASSEMBLER_MAX_INPUT_LENGTH + 1:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "prolangs_c_bison_nullable":
+        maximum = [16, 16, 32]
+        for rule in range(32):
+            maximum.extend((rule % 16, 8,
+                            *((rule + rhs_index) % 16 for rhs_index in range(8))))
+        if len(maximum) != PROLANGS_C_BISON_NULLABLE_MAX_INPUT_LENGTH:
+            raise ValueError("prolangs_c_bison_nullable generated maximum input has the wrong length")
+        cases[tuple(maximum)] = oracle(algorithm, maximum)
+        malformed = (
+            (), (1,), (0, 0, 1, 0, 0), (1, 0, 0), (1, 0, 1, 1, 0),
+            (1, 0, 1, 0, 9, *([0] * 9)),
+            (1, 1, 1, 0, 1, 1), (1, 0, 1, 0, 0, 0),
+            tuple([0] * (PROLANGS_C_BISON_NULLABLE_MAX_INPUT_LENGTH + 1)),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            if len(values) <= PROLANGS_C_BISON_NULLABLE_MAX_INPUT_LENGTH + 1:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "prolangs_football_tiebreaks":
+        team_count = PROLANGS_FOOTBALL_MAX_TEAMS
+        maximum = [team_count]
+        for team in range(team_count):
+            record_values = []
+            for _ in range(3):
+                record_values.extend((2 * PROLANGS_FOOTBALL_MAX_RECORD_GAMES,
+                                      PROLANGS_FOOTBALL_MAX_RECORD_GAMES))
+            net = PROLANGS_FOOTBALL_MAX_NET_POINTS if team % 2 == 0 else -PROLANGS_FOOTBALL_MAX_NET_POINTS
+            maximum.extend((team, team // 4, team % 3, *record_values, net, net, net))
+        maximum.extend([0] * (2 * team_count * team_count))
+        cases[tuple(maximum)] = oracle(algorithm, maximum)
+
+        rng_football = random.Random(0xF007BA11)
+        for _ in range(32):
+            count = rng_football.randint(2, PROLANGS_FOOTBALL_MAX_TEAMS)
+            team_ids = rng_football.sample(range(32), count)
+            values = [count]
+            for team in range(count):
+                records = []
+                for _record in range(3):
+                    games = rng_football.randint(0, PROLANGS_FOOTBALL_MAX_RECORD_GAMES)
+                    records.extend((rng_football.randint(0, 2 * games), games))
+                nets = [rng_football.randint(-PROLANGS_FOOTBALL_MAX_NET_POINTS,
+                                             PROLANGS_FOOTBALL_MAX_NET_POINTS)
+                        for _net in range(3)]
+                values.extend((team_ids[team], rng_football.randrange(2), rng_football.randrange(3),
+                               *records, *nets))
+            wins = [0] * (count * count)
+            ties = [0] * (count * count)
+            for left in range(count):
+                for right in range(left + 1, count):
+                    wins[left * count + right] = rng_football.randint(0, 3)
+                    wins[right * count + left] = rng_football.randint(0, 3)
+                    tied = rng_football.randint(0, 1)
+                    ties[left * count + right] = tied
+                    ties[right * count + left] = tied
+            values.extend(wins)
+            values.extend(ties)
+            cases[tuple(values)] = oracle(algorithm, values)
+
+        pair = [2, *([0] * 12), 1, *([0] * 11), *([0] * 8)]
+        duplicate_id = list(pair)
+        duplicate_id[13] = 0
+        invalid_conference = list(pair)
+        invalid_conference[14] = 2
+        invalid_division = list(pair)
+        invalid_division[15] = 3
+        invalid_record_points = list(pair)
+        invalid_record_points[16] = 1
+        invalid_games = list(pair)
+        invalid_games[17] = PROLANGS_FOOTBALL_MAX_RECORD_GAMES + 1
+        invalid_net = list(pair)
+        invalid_net[10] = PROLANGS_FOOTBALL_MAX_NET_POINTS + 1
+        invalid_diagonal_win = list(pair)
+        invalid_diagonal_win[1 + 12 * 2] = 1
+        invalid_diagonal_tie = list(pair)
+        invalid_diagonal_tie[1 + 12 * 2 + 4] = 1
+        asymmetric_ties = list(pair)
+        asymmetric_ties[1 + 12 * 2 + 4 + 1] = 1
+        excessive_win_cell = list(pair)
+        excessive_win_cell[1 + 12 * 2 + 1] = PROLANGS_FOOTBALL_MAX_RECORD_GAMES + 1
+        malformed = (
+            (), (1, 0), (PROLANGS_FOOTBALL_MAX_TEAMS + 1,), (2,),
+            tuple(pair[:-1]), tuple((*maximum, 0)), tuple(duplicate_id),
+            tuple(invalid_conference), tuple(invalid_division),
+            tuple(invalid_record_points), tuple(invalid_games), tuple(invalid_net),
+            tuple(invalid_diagonal_win), tuple(invalid_diagonal_tie),
+            tuple(asymmetric_ties), tuple(excessive_win_cell),
+            (I64_MIN,), (I64_MAX,),
+        )
+        for values in malformed:
+            if len(values) <= 1 + 12 * PROLANGS_FOOTBALL_MAX_TEAMS + 2 * PROLANGS_FOOTBALL_MAX_TEAMS ** 2 + 1:
+                cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "scimark2_sor":
+        for values in scimark2_sor_generated_inputs():
+            cases[tuple(values)] = oracle(algorithm, values)
+        maximum = [SCIMARK2_SOR_MAX_ROWS, SCIMARK2_SOR_MAX_COLS, 8] + [0] * (
+            SCIMARK2_SOR_MAX_ROWS * SCIMARK2_SOR_MAX_COLS)
+        maximum[3 + (SCIMARK2_SOR_MAX_ROWS // 2) * SCIMARK2_SOR_MAX_COLS
+                + SCIMARK2_SOR_MAX_COLS // 2] = 1000
+        cases[tuple(maximum)] = oracle(algorithm, maximum)
+        for values in (
+                (), (1, 2, 0), (SCIMARK2_SOR_MAX_ROWS + 1, 2, 0),
+                (2, 2, 0, 0, 0, 0, 0, 0),
+                (2, 2, 0, -1001, 0, 0, 0), (2, 2, 9, 0, 0, 0, 0),
+                tuple([0] * (SCIMARK2_SOR_MAX_INPUT_LENGTH + 1)),
+                (I64_MIN,), (I64_MAX,),
+        ):
+            if len(values) <= SCIMARK2_SOR_MAX_INPUT_LENGTH + 1:
+                cases[values] = oracle(algorithm, list(values))
     if algorithm == "coremark_crc":
         rng = random.Random(20261019)
         value_limits = {0: 0xFF, 1: 0xFFFF, 2: 0xFFFFFFFF, 3: (1 << 15) - 1}
@@ -15500,6 +17198,8 @@ def main() -> int:
         for algorithm in args.algorithms:
             workload_path = (ROOT / "benchmarks" / algorithm / "workload.json"
                              if algorithm == "mcnaughton_yamada_thompson" else
+                             ROOT / "benchmarks" / "d" / algorithm / "workload.json"
+                             if algorithm.startswith("versabench_dbms_") else
                              ROOT / "benchmarks" / algorithm[0] / algorithm / "workload.json")
             workload = json.loads(workload_path.read_text(encoding="utf-8"))
             data, case_count = corpus(algorithm, workload)

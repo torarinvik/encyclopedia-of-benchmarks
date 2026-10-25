@@ -1,0 +1,134 @@
+# Copyright 1992 by Stichting Mathematisch Centrum, Amsterdam, The Netherlands.
+#
+# All Rights Reserved
+#
+# Permission to use, copy, modify, and distribute this software and its
+# documentation for any purpose and without fee is hereby granted, provided
+# that the above copyright notice appear in all copies and that both that
+# copyright notice and this permission notice appear in supporting
+# documentation, and that the names of Stichting Mathematisch Centrum or CWI
+# not be used in advertising or publicity pertaining to distribution of the
+# software without specific, written prior permission.
+#
+# STICHTING MATHEMATISCH CENTRUM DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+# SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS,
+# IN NO EVENT SHALL STICHTING MATHEMATISCH CENTRUM BE LIABLE FOR ANY SPECIAL,
+# INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+# OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
+const LAC_ADPCM_INDEX: i32[16] = [-1, -1, -1, -1, 2, 4, 6, 8, -1, -1, -1, -1, 2, 4, 6, 8]
+const LAC_ADPCM_STEP: i32[89] = [
+    7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31,
+    34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88, 97, 107, 118, 130,
+    143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449,
+    494, 544, 598, 658, 724, 796, 876, 963, 1060, 1166, 1282, 1411,
+    1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327, 3660, 4026,
+    4428, 4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487,
+    12635, 13899, 15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794,
+    32767,
+]
+
+def lac_adpcm_clamp_index(value: i32) -> i32:
+    if value < 0:
+        return 0
+    if value > 88:
+        return 88
+    value
+
+def lac_adpcm_clamp_sample(value: i32) -> i32:
+    if value < -32768:
+        return -32768
+    if value > 32767:
+        return 32767
+    value
+
+def lac_adpcm_encode_one(sample: i32, predictor: mutable i32&, index: mutable i32&) -> u8:
+    step: mutable i32 = LAC_ADPCM_STEP[index.usize()]
+    diff: mutable i32 = sample - predictor
+    sign: i32 = if diff < 0: 8 else: 0
+    if sign != 0:
+        diff <- -diff
+    code: mutable i32 = 0
+    change: mutable i32 = step >> 3
+    if diff >= step:
+        code <- 4
+        diff <- diff - step
+        change <- change + step
+    step <- step >> 1
+    if diff >= step:
+        code <- code | 2
+        diff <- diff - step
+        change <- change + step
+    step <- step >> 1
+    if diff >= step:
+        code <- code | 1
+        change <- change + step
+    predictor <- lac_adpcm_clamp_sample(predictor + (if sign != 0: -change else: change))
+    code <- code | sign
+    index <- lac_adpcm_clamp_index(index + LAC_ADPCM_INDEX[code.usize()])
+    code.u8()
+
+def lac_adpcm_decode_one(code: i32, predictor: mutable i32&, index: mutable i32&) -> i32:
+    step: i32 = LAC_ADPCM_STEP[index.usize()]
+    index <- lac_adpcm_clamp_index(index + LAC_ADPCM_INDEX[code.usize()])
+    magnitude: i32 = code & 7
+    change: mutable i32 = step >> 3
+    if (magnitude & 4) != 0:
+        change <- change + step
+    if (magnitude & 2) != 0:
+        change <- change + (step >> 1)
+    if (magnitude & 1) != 0:
+        change <- change + (step >> 2)
+    predictor <- lac_adpcm_clamp_sample(predictor + (if (code & 8) != 0: -change else: change))
+    predictor
+
+def lac_adpcm_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 2 or input_length > 258:
+        return -1
+    mode: i64 = input[0]
+    count: i64 = input[1]
+    if mode == 1:
+        if count < 0 or count > 256 or input_length != count.usize() + 2:
+            return -1
+        for i in 0..<count.usize():
+            if input[i + 2] < -32768 or input[i + 2] > 32767:
+                return -1
+    elif mode == 2:
+        if count < 0 or count > 128 or input_length != count.usize() + 2:
+            return -1
+        for i in 0..<count.usize():
+            if input[i + 2] < 0 or input[i + 2] > 255:
+                return -1
+    else:
+        return -1
+
+    n: usize = count.usize()
+    required: usize = if mode == 1: (n + 1) / 2 else: n * 4
+    if required == 0:
+        return 0
+    if output.is_null() or output_capacity < required:
+        return -2
+    predictor: mutable i32 = 0
+    index: mutable i32 = 0
+    if mode == 1:
+        for i in 0..<n:
+            code: u8 = lac_adpcm_encode_one(input[i + 2].i32(), predictor, index)
+            if (i & 1) == 0:
+                output[i / 2] <- (code.i32() << 4).u8()
+            else:
+                output[i / 2] <- output[i / 2] | code
+    else:
+        for i in 0..<n:
+            packed: i32 = input[i + 2].i32()
+            for half in 0..<2:
+                code: i32 = if half == 0: packed >> 4 else: packed & 15
+                sample: i32 = lac_adpcm_decode_one(code, predictor, index)
+                sample_bits: u16 = (sample & 65535).u16()
+                position: usize = (i * 2 + half) * 2
+                output[position] <- (sample_bits & 255).u8()
+                output[position + 1] <- (sample_bits >> 8).u8()
+    required.i64()
+
+export fn lac_adpcm(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = lac_adpcm_impl

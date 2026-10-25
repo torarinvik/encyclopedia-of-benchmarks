@@ -1,0 +1,4 @@
+module edn_iir_cascade
+fn put64(mut out &u8,pos usize,value i64){u:=u64(value);for j in 0..8{unsafe{out[pos+j]=u8(u>>(8*j))}}}
+@[export:'edn_iir_cascade']
+pub fn edn_iir_cascade(values &i64,length usize,mut output &u8,capacity usize)i64{unsafe{if values==nil||length<2||length>50{return -1};count:=values[0];mut x:=values[1];if count<1||count>8||x< -1024||x>1023||length!=usize(2+6*count){return -1};q:=int(count);mut c:=[32]i64{};mut s:=[16]i64{};for i in 0..4*q{c[i]=values[2+i];if c[i]< -1024||c[i]>1023{return -1}};for i in 0..2*q{s[i]=values[2+4*q+i];if s[i]< -1024||s[i]>1023{return -1}};bytes:=8*(1+2*q);if output==nil||capacity<bytes{return -2};for i in 0..q{t:=x+((c[4*i+2]*s[2*i]+c[4*i+3]*s[2*i+1])>>15);x=t+((c[4*i]*s[2*i]+c[4*i+1]*s[2*i+1])>>15);s[2*i+1]=s[2*i];s[2*i]=t};put64(output,0,x);for i in 0..2*q{put64(output,8*(i+1),s[i])};return i64(bytes)}}

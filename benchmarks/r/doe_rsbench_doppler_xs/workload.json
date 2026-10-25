@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "doe-rsbench-doppler-microscopic-xs-i64-f64-v1",
+  "algorithm": "doe_rsbench_doppler_xs",
+  "function_symbol": "doe_rsbench_doppler_xs",
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "[n_windows,n_poles,numL,energy_q, (bg_T_q,bg_A_q,bg_F_q,start,end)*n_windows, pseudo_K0RS_q*numL, (EA_re_q,EA_im_q,RT_re_q,RT_im_q,RA_re_q,RA_im_q,RF_re_q,RF_im_q,l_value)*n_poles]",
+    "fixed_point_scale": 1000000,
+    "energy_q_range": [0, 1000000],
+    "window_count_range": [1, 4],
+    "pole_count_range": [0, 8],
+    "numL_range": [1, 4],
+    "background_and_pseudo_value_range": [0, 1000000],
+    "pole_component_range": [0, 152500000],
+    "window_pole_bounds": "Each window carries a half-open [start,end) range with 0 <= start <= end <= n_poles.",
+    "pole_l_value_range": "0..numL-1",
+    "maximum_parseable_input_length": 100,
+    "invalid_result": -1e300,
+    "input_mutation": "none"
+  },
+  "output": {
+    "kind": "float64_scalar",
+    "meaning": "sigT + 2*sigA + 3*sigF + 5*sigE for one source-order Doppler-broadened microscopic lookup; sigE=sigT-sigA",
+    "absolute_tolerance": 1e-9,
+    "relative_tolerance": 1e-12,
+    "invalid_result": -1e300
+  },
+  "profile": {
+    "mode": "Doppler broadening enabled, matching the launcher's default mode",
+    "window_selection": "int(E / (1.0 / n_windows)), clamped from n_windows to n_windows-1 at E=1",
+    "faddeeva": "Abrarov N=10 approximation when |Z|<6; otherwise the source's three-term QUICK_W asymptotic expansion",
+    "singular_pole_behavior": "A selected pole with Z=(0,0) is outside the bounded domain and returns invalid_result.",
+    "operation_order": "Preserves source expression order for resonance-factor construction, complex multiplication, pole summation, and channel updates.",
+    "result_aggregation": "The upstream kernel writes four channels; the scalar ABI combines them with fixed weights to retain all four values.",
+    "launcher_initialization_and_timing": "Excluded; pole, window, material, and pseudo-K0RS data are deterministic fixture inputs."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "DOE_ProxyApps_C/RSBench/info.sh",
+      "DOE_ProxyApps_C/RSBench/xs_kernel.c",
+      "DOE_ProxyApps_C/RSBench/io.c",
+      "DOE_ProxyApps_C/RSBench/rsbench.h",
+      "DOE_ProxyApps_C/RSBench/LICENSE"
+    ],
+    "symbols": ["calculate_micro_xs_doppler", "calculate_sig_T", "fast_nuclear_W"],
+    "launcher": {
+      "source_files": ["glibc_compat_rand.c", "init.c", "io.c", "main.c", "material.c", "utils.c", "xs_kernel.c"],
+      "run_options": ["-s", "small", "-l", "100000", "-p", "1000", "-w", "1000"],
+      "default_doppler_mode": true
+    },
+    "license": "MIT; complete notice is included in the ports, README, and LICENSE file."
+  },
+  "cases": [
+    {"id": "abrarov-small-z", "input_values": [1,1,1,500000,1000000,250000,125000,0,1,0,0,0,0,0,0,0,0,0,0], "input_length": 19, "expected_result": 2.8125},
+    {"id": "asymptotic-window-one", "input_values": [2,1,1,750000,0,0,0,0,0,1000000,500000,250000,0,1,0,20000000,0,0,0,0,0,0,0,0], "input_length": 24, "expected_result": 3.9375},
+    {"id": "four-l-factors-and-abrarov", "input_values": [1,1,4,250000,400000,100000,200000,0,1,100000,200000,300000,400000,0,0,0,0,0,0,0,0,3], "input_length": 22, "expected_result": 0.675},
+    {"id": "energy-one-final-window-clamp", "input_values": [2,0,1,1000000,0,0,0,0,0,1000000,1000000,500000,0,0,0], "input_length": 15, "expected_result": 4.5},
+    {"id": "bad-window-pole-range", "input_values": [1,1,1,500000,1000000,0,0,0,2,0,0,0,0,0,0,0,0,0,0], "input_length": 19, "expected_result": -1e300},
+    {"id": "zero-z-singularity", "input_values": [1,1,1,500000,1000000,0,0,0,1,0,500000,0,0,0,0,0,0,0,0], "input_length": 19, "expected_result": -1e300},
+    {"id": "trailing-data", "input_values": [1,0,1,0,0,0,0,0,0,0,0], "input_length": 11, "expected_result": -1e300},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "expected_result": -1e300}
+  ]
+}

@@ -27,6 +27,36 @@ from mibench_automotive_basicmath_cubic_oracle import (
     OUTPUT_ERROR as MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_OUTPUT_ERROR,
     expected_output as mibench_automotive_basicmath_cubic_expected_output,
 )
+from mibench_lame_mdct_long_oracle import (
+    INPUT_COUNT as MIBENCH_LAME_MDCT_LONG_INPUT_COUNT,
+    MAX_INPUT_LENGTH as MIBENCH_LAME_MDCT_LONG_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as MIBENCH_LAME_MDCT_LONG_MAX_OUTPUT_ELEMENTS,
+    expected_output as mibench_lame_mdct_long_expected_output,
+)
+from cbench_consumer_mad_imdct36_oracle import (
+    INPUT_COUNT as CBENCH_CONSUMER_MAD_IMDCT36_INPUT_COUNT,
+    MAX_INPUT_LENGTH as CBENCH_CONSUMER_MAD_IMDCT36_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as CBENCH_CONSUMER_MAD_IMDCT36_MAX_OUTPUT_ELEMENTS,
+    ABSOLUTE_TOLERANCE as CBENCH_CONSUMER_MAD_IMDCT36_ABSOLUTE_TOLERANCE,
+    RELATIVE_TOLERANCE as CBENCH_CONSUMER_MAD_IMDCT36_RELATIVE_TOLERANCE,
+    expected_output as cbench_consumer_mad_imdct36_expected_output,
+)
+from cbench_lame_mid_side_oracle import (
+    MAX_CHANNEL_SAMPLES as CBENCH_LAME_MID_SIDE_MAX_CHANNEL_SAMPLES,
+    MAX_INPUT_LENGTH as CBENCH_LAME_MID_SIDE_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_LAME_MID_SIDE_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as CBENCH_LAME_MID_SIDE_MAX_OUTPUT_ELEMENTS,
+    expected_output as cbench_lame_mid_side_expected_output,
+)
+from cbench_rsynth_natural_glottal_oracle import (
+    MIN_OPEN as CBENCH_RSYNTH_MIN_OPEN,
+    MAX_OPEN as CBENCH_RSYNTH_MAX_OPEN,
+    MAX_SAMPLE_INDEX as CBENCH_RSYNTH_MAX_SAMPLE_INDEX,
+    MAX_INPUT_LENGTH as CBENCH_RSYNTH_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_RSYNTH_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_ELEMENTS as CBENCH_RSYNTH_MAX_OUTPUT_ELEMENTS,
+    expected_output as cbench_rsynth_natural_glottal_expected_output,
+)
 from versabench_beamformer_oracle import (
     CHANNELS as VERSABENCH_BEAMFORMER_CHANNELS,
     INPUT_LENGTH as VERSABENCH_BEAMFORMER_INPUT_LENGTH,
@@ -1463,6 +1493,10 @@ ORACLES = {
     "partialsums": partialsums_oracle,
     "durbin": durbin_oracle,
     "mibench_automotive_basicmath_cubic": mibench_automotive_basicmath_cubic_oracle,
+    "mibench_lame_mdct_long": mibench_lame_mdct_long_expected_output,
+    "cbench_consumer_mad_imdct36": cbench_consumer_mad_imdct36_expected_output,
+    "cbench_lame_mid_side": cbench_lame_mid_side_expected_output,
+    "cbench_rsynth_natural_glottal_sample": cbench_rsynth_natural_glottal_expected_output,
     "versabench_beamformer": versabench_beamformer_abi_oracle,
     "syrk": syrk_oracle,
     "matmul_f64_4x4": matmul_f64_4x4_oracle,
@@ -4229,6 +4263,14 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                         POLYBENCH_SEIDEL_2D_MAX_INPUT_LENGTH if algorithm == "polybench_seidel_2d" else
                         MIBENCH_AUTOMOTIVE_BASICMATH_CUBIC_MAX_INPUT_LENGTH
                         if algorithm == "mibench_automotive_basicmath_cubic" else
+                        MIBENCH_LAME_MDCT_LONG_MAX_INPUT_LENGTH
+                        if algorithm == "mibench_lame_mdct_long" else
+                        CBENCH_CONSUMER_MAD_IMDCT36_MAX_INPUT_LENGTH
+                        if algorithm == "cbench_consumer_mad_imdct36" else
+                        CBENCH_LAME_MID_SIDE_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "cbench_lame_mid_side" else
+                        CBENCH_RSYNTH_MAX_PARSEABLE_INPUT_LENGTH
+                        if algorithm == "cbench_rsynth_natural_glottal_sample" else
                         SIR_MAX_PARSEABLE_INPUT_LENGTH + 1 if algorithm == "sir" else
                         DECISION_TREE_MAX_PARSEABLE_INPUT_LENGTH
                         if algorithm == "decision_tree_python_regression" else
@@ -4361,7 +4403,11 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                                                       "polybench_lu", "polybench_correlation",
                                                       "polybench_seidel_2d",
                                                       "olden_bh", "olden_em3d",
-                                                      "mibench_automotive_basicmath_cubic"}
+                                                      "mibench_automotive_basicmath_cubic",
+                                                      "mibench_lame_mdct_long",
+                                                      "cbench_consumer_mad_imdct36",
+                                                      "cbench_lame_mid_side",
+                                                      "cbench_rsynth_natural_glottal_sample"}
                 and not (allow_nonfinite and case.get("input_is_null") is True
                          and case.get("input_length") == 0))
             or len(raw_values) > max_input_length
@@ -4370,7 +4416,7 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                    for value in raw_values)):
         raise ValueError("float64-slice inputs must be finite arrays with a matching input_length")
     values = [float(value) for value in raw_values]
-    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "himenobmtxpa", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
+    if algorithm in {"versabench_beamformer", "matmul_f64_4x4", "misc_fp_convert", "misc_dt", "olden_bh", "olden_em3d", "trisolv", "jacobi_1d", "jacobi_2d", "syr2k", "trmm", "fdtd_2d", "heat_3d", "himenobmtxpa", "polybench_lu", "polybench_correlation", "polybench_seidel_2d", "mibench_automotive_basicmath_cubic", "mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample", "smallest_enclosing_ball_3d", "euclidean_t_spanner", "joint_probability_distribution", "shreedharacharya", "rotation_matrix",
                      "rhumb_distance", "rhumb_bearing", "rhumb_destination",
                      "median_of_running_array_double", "median_of_running_array_float",
                      "mean_shift", "k_means_clust", "lu_decompose", "lu_elimination",
@@ -4512,6 +4558,34 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                 input_is_null=case.get("input_is_null", False),
                 input_length=case.get("input_length"))
             oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "mibench_lame_mdct_long":
+            expected_result, oracle_values = mibench_lame_mdct_long_expected_output(
+                values, capacity=case.get("output_capacity", MIBENCH_LAME_MDCT_LONG_MAX_OUTPUT_ELEMENTS),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "cbench_consumer_mad_imdct36":
+            expected_result, oracle_values = cbench_consumer_mad_imdct36_expected_output(
+                values, capacity=case.get("output_capacity", CBENCH_CONSUMER_MAD_IMDCT36_MAX_OUTPUT_ELEMENTS),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "cbench_lame_mid_side":
+            expected_result, oracle_values = cbench_lame_mid_side_expected_output(
+                values, output_capacity=case.get("output_capacity", CBENCH_LAME_MID_SIDE_MAX_OUTPUT_ELEMENTS),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
+        elif algorithm == "cbench_rsynth_natural_glottal_sample":
+            expected_result, oracle_values = cbench_rsynth_natural_glottal_expected_output(
+                values, output_capacity=case.get("output_capacity", CBENCH_RSYNTH_MAX_OUTPUT_ELEMENTS),
+                output_is_null=case.get("output_is_null", False),
+                input_is_null=case.get("input_is_null", False),
+                input_length=case.get("input_length"))
+            oracle_output = None if expected_result < 0 else oracle_values
         elif algorithm == "smallest_enclosing_ball_3d":
             expected_result, oracle_values = smallest_enclosing_ball_3d_expected_output(
                 values, output_capacity=case.get("output_capacity"),
@@ -4565,6 +4639,8 @@ def encode_case(case: dict, algorithm: str, absolute_tolerance: float,
                                                 "olden_bh", "olden_em3d",
                                                 *TRAVELLING_SALESMAN_PYTHON_ALGORITHMS}
         and expected_result < 0 else None)
+    if algorithm in {"mibench_lame_mdct_long", "cbench_consumer_mad_imdct36", "cbench_lame_mid_side", "cbench_rsynth_natural_glottal_sample"} and raw_expected is None:
+        raw_expected = expected_output
     if algorithm == "mini_batch_gradient_descent" and expected_result < 0 and raw_expected is None:
         raw_expected = []
     if (not isinstance(raw_expected, list) or len(raw_expected) != len(expected_output)):
@@ -6555,6 +6631,476 @@ def validate_polybench_correlation_workload(workload: dict) -> None:
 
 def validate_polybench_seidel_2d_workload(workload: dict) -> None:
     _validate_polybench_simple_matrix_workload(workload, "polybench_seidel_2d")
+
+
+def validate_mibench_lame_mdct_long_workload(workload: dict) -> None:
+    """Validate the pinned, bounded MiBench LAME long-block MDCT profile."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "MiBench/consumer-lame/newmdct.c"
+    )
+    source = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "MiBench/consumer-lame/newmdct.c",
+        "symbols": ["mdct_long", "mdct_sub48"], "url": source_url,
+        "launcher": "MiBench/consumer-lame/info.sh",
+        "license": "GNU Library General Public License version 2 or later",
+        "copyright": "Copyright (c) 1999 Takehiro Tominaga",
+    }
+    contract = {
+        "operation": "Compute the LAME long-block MDCT helper over its 18 already-windowed input values.",
+        "formula": "out[m]=(4/36)*sum(x[k]*cos(pi*(2*m+1)*q[k]/144), k=0..17), m=0..17; q[k]=4*k+38 for k<9, otherwise 4*k+74",
+        "input": "exactly 18 finite binary64 values in [-16,16]",
+        "output": "18 binary64 coefficients in ascending source bin order",
+        "excluded": ["polyphase analysis filterbank", "window assembly", "short-block MDCT", "alias reduction", "MP3 encoding and bitstream", "WAV parsing", "timing/repetition wrapper"],
+        "invalid_input_result": -1, "output_error_result": -2,
+        "no_write_on_error": True, "absolute_tolerance": 1e-10,
+        "relative_tolerance": 1e-10,
+    }
+    expected_input = {
+        "kind": "finite_float64_array", "length_exact": MIBENCH_LAME_MDCT_LONG_INPUT_COUNT,
+        "maximum_input_length": MIBENCH_LAME_MDCT_LONG_MAX_INPUT_LENGTH,
+        "range": [-16, 16], "invalid_result": -1,
+    }
+    expected_output = {
+        "kind": "float64_array", "length": MIBENCH_LAME_MDCT_LONG_MAX_OUTPUT_ELEMENTS,
+        "null_or_short_result": -2, "success_result": MIBENCH_LAME_MDCT_LONG_MAX_OUTPUT_ELEMENTS,
+        "no_write_on_error": True, "absolute_tolerance": 1e-10,
+        "relative_tolerance": 1e-10,
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 20,
+        "absolute_tolerance": 1e-10, "relative_tolerance": 1e-10,
+    }
+    expected_vectors = {
+        "zero": [0] * MIBENCH_LAME_MDCT_LONG_INPUT_COUNT,
+        "impulse": [1] + [0] * (MIBENCH_LAME_MDCT_LONG_INPUT_COUNT - 1),
+        "alternating_bounded": [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8, 0.5, -0.5],
+        "invalid_length": [0, 0],
+        "invalid_out_of_range": [17.5] + [0] * (MIBENCH_LAME_MDCT_LONG_INPUT_COUNT - 1),
+        "short_output_capacity": [1] + [0] * (MIBENCH_LAME_MDCT_LONG_INPUT_COUNT - 1),
+        "null_output": [1] + [0] * (MIBENCH_LAME_MDCT_LONG_INPUT_COUNT - 1),
+    }
+    expected_ids = set(expected_vectors)
+    expected_fields = {
+        "schema_version", "id", "algorithm", "function_symbol", "description",
+        "pinned_source", "contract", "input", "output", "workspace", "measurement", "cases",
+    }
+    cases = workload.get("cases")
+    if (set(workload) != expected_fields
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-mibench-consumer-lame-mdct-long-v1"
+            or workload.get("algorithm") != "mibench_lame_mdct_long"
+            or workload.get("function_symbol") != "mibench_lame_mdct_long"
+            or workload.get("description") != "Bounded long-block 18-to-18 modified discrete cosine transform helper from LAME."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != expected_input
+            or workload.get("output") != expected_output
+            or workload.get("workspace") != {"elements": MIBENCH_LAME_MDCT_LONG_MAX_OUTPUT_ELEMENTS}
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+            or len(cases) != len(expected_ids)):
+        raise ValueError("mibench_lame_mdct_long metadata differs from the pinned bounded contract")
+
+    package = ROOT / "benchmarks/m/mibench_lame_mdct_long"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source_url not in readme or commit not in readme
+            or "LGPL-2.0-or-later" not in readme
+            or "GNU Library General Public License" not in license_text
+            or "Takehiro TOMINAGA" not in license_text):
+        raise ValueError("mibench_lame_mdct_long source notice or license is incomplete")
+    for relative in (
+            "c/m/mibench_lame_mdct_long.c", "c3/m/mibench_lame_mdct_long.c3",
+            "cpp/m/mibench_lame_mdct_long.cpp", "elisa/m/mibench_lame_mdct_long.elisa",
+            "nim/m/mibench_lame_mdct_long.nim", "odin/m/mibench_lame_mdct_long.odin",
+            "rust/m/mibench_lame_mdct_long.rs", "v/m/mibench_lame_mdct_long.v",
+            "zig/m/mibench_lame_mdct_long.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"mibench_lame_mdct_long port is missing: {relative}")
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        values = case.get("input_values") if isinstance(case, dict) else None
+        expected_result = (
+            18 if case_id in {"zero", "impulse", "alternating_bounded"}
+            else -2 if case_id in {"short_output_capacity", "null_output"}
+            else -1
+        )
+        expected_case_fields = {"id", "input_values", "input_length", "expected_result"}
+        if case_id == "short_output_capacity":
+            expected_case_fields.add("output_capacity")
+        elif case_id == "null_output":
+            expected_case_fields.update({"output_capacity", "output_is_null"})
+        if (not isinstance(case, dict)
+                or set(case) != expected_case_fields
+                or values != expected_vectors.get(case_id)
+                or case.get("input_length") != len(values)
+                or case.get("expected_result") != expected_result
+                or case_id == "short_output_capacity" and case.get("output_capacity") != 17
+                or case_id == "null_output" and (case.get("output_capacity") != 18
+                                                  or case.get("output_is_null") is not True)):
+            raise ValueError(f"mibench_lame_mdct_long fixture framing is invalid: {case_id}")
+        result, output = mibench_lame_mdct_long_expected_output(
+            values, capacity=case.get("output_capacity", MIBENCH_LAME_MDCT_LONG_MAX_OUTPUT_ELEMENTS),
+            output_is_null=case.get("output_is_null", False), input_length=case["input_length"])
+        if result != expected_result or (result >= 0 and len(output) != result):
+            raise ValueError(f"mibench_lame_mdct_long fixture differs from its oracle: {case_id}")
+
+
+def validate_cbench_consumer_mad_imdct36_workload(workload: dict) -> None:
+    """Validate the bounded binary64 libmad 18-to-36 inverse MDCT profile."""
+    commit = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/cBench/consumer_mad/src/layer3.c"
+    launcher_url = f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/cBench/consumer_mad/src/info.sh"
+    source = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "cBench/consumer_mad/src/layer3.c", "symbols": ["imdct36", "III_imdct_l"],
+        "url": source_url, "launcher": "cBench/consumer_mad/src/info.sh",
+        "launcher_url": launcher_url,
+        "license": "GNU GPL version 2 or (at your option) any later version",
+        "copyright": "Copyright (C) 2000-2001 Robert Leslie",
+    }
+    contract = {
+        "operation": "Compute 36 unwindowed inverse-MDCT samples from one 18-coefficient long block.",
+        "formula": "x[n]=sum(k=0..17, X[k]*cos(pi*(2*n+19)*(2*k+1)/72)), n=0..35; evaluate k in ascending order with binary64 left-to-right accumulation; no normalization factor",
+        "input": "exactly 18 finite binary64 coefficients, each in [-16,16]",
+        "output": "36 binary64 unwindowed samples in ascending time index",
+        "arithmetic_profile": "binary64 canonical formula; mathematical transform of libmad imdct36, not bit-exact FPM_DEFAULT Q28 arithmetic",
+        "excluded": ["MPEG frame and side-information parsing", "Huffman decoding", "dequantization",
+                     "alias reduction", "normal/start/stop block windowing", "overlap-add history",
+                     "polyphase synthesis", "file and CLI handling"],
+        "invalid_input_result": -1, "output_error_result": -2, "no_write_on_error": True,
+        "absolute_tolerance": CBENCH_CONSUMER_MAD_IMDCT36_ABSOLUTE_TOLERANCE,
+        "relative_tolerance": CBENCH_CONSUMER_MAD_IMDCT36_RELATIVE_TOLERANCE,
+    }
+    expected_ids = {
+        "zero", "impulse_first", "source_default_profile", "alternating", "invalid_length",
+        "invalid_out_of_range", "short_output_capacity", "null_output",
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {
+                "schema_version", "id", "algorithm", "function_symbol", "description",
+                "pinned_source", "contract", "input", "output", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-consumer-mad-imdct36-v1"
+            or workload.get("algorithm") != "cbench_consumer_mad_imdct36"
+            or workload.get("function_symbol") != "cbench_consumer_mad_imdct36"
+            or workload.get("description") != "Bounded binary64 profile of libmad's 18-to-36 long-block inverse MDCT helper."
+            or workload.get("pinned_source") != source
+            or workload.get("contract") != contract
+            or workload.get("input") != {
+                "kind": "finite_float64_array", "length_exact": CBENCH_CONSUMER_MAD_IMDCT36_INPUT_COUNT,
+                "maximum_input_length": CBENCH_CONSUMER_MAD_IMDCT36_MAX_INPUT_LENGTH,
+                "range": [-16, 16], "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "float64_array", "length": CBENCH_CONSUMER_MAD_IMDCT36_MAX_OUTPUT_ELEMENTS,
+                "null_or_short_result": -2, "success_result": CBENCH_CONSUMER_MAD_IMDCT36_MAX_OUTPUT_ELEMENTS,
+                "no_write_on_error": True,
+                "absolute_tolerance": CBENCH_CONSUMER_MAD_IMDCT36_ABSOLUTE_TOLERANCE,
+                "relative_tolerance": CBENCH_CONSUMER_MAD_IMDCT36_RELATIVE_TOLERANCE,
+            }
+            or workload.get("workspace") != {"elements": CBENCH_CONSUMER_MAD_IMDCT36_MAX_OUTPUT_ELEMENTS}
+            or workload.get("measurement") != {
+                "comparison_model": "float64_slice_io_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 20,
+                "absolute_tolerance": CBENCH_CONSUMER_MAD_IMDCT36_ABSOLUTE_TOLERANCE,
+                "relative_tolerance": CBENCH_CONSUMER_MAD_IMDCT36_RELATIVE_TOLERANCE,
+            }
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+            or len(cases) != len(expected_ids)):
+        raise ValueError("cbench_consumer_mad_imdct36 metadata differs from its bounded source profile")
+
+    package = ROOT / "benchmarks" / "m" / "cbench_consumer_mad_imdct36"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source_url not in readme or launcher_url not in readme or commit not in readme
+            or "not bit-for-bit identity" not in readme
+            or "GNU GENERAL PUBLIC LICENSE" not in license_text
+            or "Copyright (C) 2000-2001 Robert Leslie" not in license_text):
+        raise ValueError("cbench_consumer_mad_imdct36 source attribution or GPL notice is incomplete")
+    for relative in (
+            "c/m/cbench_consumer_mad_imdct36.c", "c3/m/cbench_consumer_mad_imdct36.c3",
+            "cpp/m/cbench_consumer_mad_imdct36.cpp", "elisa/m/cbench_consumer_mad_imdct36.elisa",
+            "nim/m/cbench_consumer_mad_imdct36.nim", "odin/m/cbench_consumer_mad_imdct36.odin",
+            "rust/m/cbench_consumer_mad_imdct36.rs", "v/m/cbench_consumer_mad_imdct36.v",
+            "zig/m/cbench_consumer_mad_imdct36.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"cbench_consumer_mad_imdct36 port is missing: {relative}")
+
+    expected_vectors = {
+        "zero": [0] * 18,
+        "impulse_first": [1] + [0] * 17,
+        "source_default_profile": [0.25, -0.5, 0.75, -1, 1.25, -1.5, 1.75, -2, 2.25,
+                                   -2.5, 2.75, -3, 3.25, -3.5, 3.75, -4, 4.25, -4.5],
+        "alternating": [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8, 0.5, -0.5],
+        "invalid_length": [0, 0],
+        "invalid_out_of_range": [16.5] + [0] * 17,
+        "short_output_capacity": [1] + [0] * 17,
+        "null_output": [1] + [0] * 17,
+    }
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        values = case.get("input_values") if isinstance(case, dict) else None
+        expected_result = (36 if case_id in {"zero", "impulse_first", "source_default_profile", "alternating"}
+                           else -2 if case_id in {"short_output_capacity", "null_output"} else -1)
+        expected_case_fields = {"id", "input_values", "input_length", "expected_result"}
+        if case_id in {"short_output_capacity", "null_output"}:
+            expected_case_fields.add("output_capacity")
+        if case_id == "null_output":
+            expected_case_fields.add("output_is_null")
+        if (not isinstance(case, dict) or set(case) != expected_case_fields
+                or values != expected_vectors.get(case_id) or case.get("input_length") != len(values)
+                or case.get("expected_result") != expected_result
+                or case_id == "short_output_capacity" and case.get("output_capacity") != 35
+                or case_id == "null_output" and (case.get("output_capacity") != 36
+                                                   or case.get("output_is_null") is not True)):
+            raise ValueError(f"cbench_consumer_mad_imdct36 fixture framing is invalid: {case_id}")
+        result, output = cbench_consumer_mad_imdct36_expected_output(
+            values, capacity=case.get("output_capacity", CBENCH_CONSUMER_MAD_IMDCT36_MAX_OUTPUT_ELEMENTS),
+            output_is_null=case.get("output_is_null", False), input_length=case["input_length"])
+        if result != expected_result or result >= 0 and len(output) != result:
+            raise ValueError(f"cbench_consumer_mad_imdct36 fixture differs from its oracle: {case_id}")
+
+
+def validate_cbench_lame_mid_side_workload(workload: dict) -> None:
+    """Validate the pinned, bounded LAME stereo mid-side transform profile."""
+    commit = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    source_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "cBench/consumer_lame/src/quantize-pvt.c"
+    )
+    caller_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "cBench/consumer_lame/src/quantize.c"
+    )
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "cBench/consumer_lame/src/quantize-pvt.c",
+        "supporting_paths": ["cBench/consumer_lame/src/quantize.c"],
+        "launcher_path": "cBench/consumer_lame/src/info.sh",
+        "symbols": ["ms_convert", "convert_mdct"],
+        "copyright": "Mark Taylor, 1999",
+        "license": "GPL-2.0-or-later; source notice retained in LICENSE.txt",
+    }
+    expected_contract = {
+        "input_layout": "[n,L0..L(n-1),R0..R(n-1)]",
+        "sample_count_range": [1, CBENCH_LAME_MID_SIDE_MAX_CHANNEL_SAMPLES],
+        "sample_range": [-16.0, 16.0],
+        "output_layout": "interleaved [M0,S0,M1,S1,...]",
+        "maximum_input_elements": CBENCH_LAME_MID_SIDE_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_elements": CBENCH_LAME_MID_SIDE_MAX_PARSEABLE_INPUT_LENGTH,
+        "maximum_output_elements": CBENCH_LAME_MID_SIDE_MAX_OUTPUT_ELEMENTS,
+        "invalid_result": -1,
+        "output_error_result": -2,
+    }
+    expected_profile = {
+        "mid": "(L+R)*(sqrt(2)*0.5)",
+        "side": "(L-R)*(sqrt(2)*0.5)",
+        "factor_evaluation": "binary64 sqrt(2) multiplied by 0.5 once; source pair-sum/pair-difference is multiplied by the factor",
+        "scope": "single-channel-pair transform only; models convert_mdct=1 branch and does not claim default launcher reaches it; no granule assembly, MDCT, quantization, psychoacoustics, or bitstream",
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 1e-12, "relative_tolerance": 1e-12,
+    }
+    expected_ids = {
+        "equal-positive", "opposite-sign", "two-pairs", "out-of-range",
+        "frame-mismatch", "short-output", "null-output",
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "source",
+            "contract", "profile", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-consumer-lame-mid-side-float64-slice-v1"
+            or workload.get("algorithm") != "cbench_lame_mid_side"
+            or workload.get("function_symbol") != "cbench_lame_mid_side"
+            or workload.get("source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("profile") != expected_profile
+            or workload.get("workspace") != {"elements": CBENCH_LAME_MID_SIDE_MAX_OUTPUT_ELEMENTS}
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+            or len(cases) != len(expected_ids)):
+        raise ValueError("cbench_lame_mid_side metadata differs from its pinned bounded contract")
+
+    package = ROOT / "benchmarks" / "m" / "cbench_lame_mid_side"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source_url not in readme or caller_url not in readme or commit not in readme
+            or "convert_mdct=1" not in readme
+            or "GNU General Public License" not in license_text
+            or "Copyright (c) 1999 Mark Taylor" not in license_text):
+        raise ValueError("cbench_lame_mid_side source attribution or GPL notice is incomplete")
+    for relative in (
+            "c/m/cbench_lame_mid_side.c", "c3/m/cbench_lame_mid_side.c3",
+            "cpp/m/cbench_lame_mid_side.cpp", "elisa/m/cbench_lame_mid_side.elisa",
+            "nim/m/cbench_lame_mid_side.nim", "odin/m/cbench_lame_mid_side.odin",
+            "rust/m/cbench_lame_mid_side.rs", "v/m/cbench_lame_mid_side.v",
+            "zig/m/cbench_lame_mid_side.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"cbench_lame_mid_side port is missing: {relative}")
+
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        values = case.get("input_values") if isinstance(case, dict) else None
+        if (not isinstance(case, dict)
+                or set(case) - {"id", "input_values", "input_length", "output_capacity",
+                                "output_is_null", "expected_result", "expected_output"}
+                or not isinstance(values, list)
+                or len(values) > CBENCH_LAME_MID_SIDE_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in values)
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or type(case.get("output_capacity")) is not int
+                or not 0 <= case["output_capacity"] <= CBENCH_LAME_MID_SIDE_MAX_OUTPUT_ELEMENTS
+                or "output_is_null" in case and type(case["output_is_null"]) is not bool
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output"), list)):
+            raise ValueError(f"cbench_lame_mid_side fixture framing is invalid: {case_id}")
+        result, output = cbench_lame_mid_side_expected_output(
+            values, output_capacity=case["output_capacity"],
+            output_is_null=case.get("output_is_null", False),
+            input_is_null=case.get("input_is_null", False), input_length=case["input_length"])
+        expected_output = case["expected_output"]
+        if (result != case["expected_result"] or len(output) != len(expected_output)
+                or result < 0 and expected_output
+                or any(type(actual) not in (int, float)
+                       or not math.isfinite(float(actual))
+                       or abs(float(actual) - reference) > absolute_tolerance
+                       + relative_tolerance * abs(reference)
+                       for actual, reference in zip(expected_output, output))):
+            raise ValueError(f"cbench_lame_mid_side fixture differs from its oracle: {case_id}")
+
+
+def validate_cbench_rsynth_natural_glottal_workload(workload: dict) -> None:
+    """Validate the bounded, source-f32 RSynth natural glottal sample profile."""
+    commit = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+    source_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "cBench/office_rsynth/src/nsynth.c"
+    )
+    launcher_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "cBench/office_rsynth/src/info.sh"
+    )
+    rights_url = (
+        f"https://github.com/lac-dcc/Benchmarks/blob/{commit}/"
+        "cBench/office_rsynth/LICENSE"
+    )
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": commit,
+        "path": "cBench/office_rsynth/src/nsynth.c",
+        "launcher_path": "cBench/office_rsynth/src/info.sh",
+        "symbols": ["natural_source", "pitch_synch_par_reset"],
+        "supporting_paths": ["cBench/office_rsynth/LICENSE"],
+        "rights_status": "Package declares Carnegie Mellon public-domain software; certain dictionary files are separately restricted and excluded.",
+    }
+    expected_contract = {
+        "input_layout": "[nopen,sample_index]", "input_values_integral": True,
+        "nopen_range": [CBENCH_RSYNTH_MIN_OPEN, CBENCH_RSYNTH_MAX_OPEN],
+        "sample_index_range": [0, CBENCH_RSYNTH_MAX_SAMPLE_INDEX],
+        "input_elements": CBENCH_RSYNTH_MAX_INPUT_LENGTH,
+        "maximum_parseable_input_elements": CBENCH_RSYNTH_MAX_PARSEABLE_INPUT_LENGTH,
+        "output": "one source-f32 natural glottal-source sample promoted to binary64",
+        "maximum_output_elements": CBENCH_RSYNTH_MAX_OUTPUT_ELEMENTS,
+        "invalid_result": -1, "output_error_result": -2,
+    }
+    expected_profile = {
+        "source_table_equivalent": "natglot_b = trunc(1920000/(nopen*nopen))",
+        "reset": "natglot_a=f32(f32(natglot_b*nopen)*0.333); vwave=f32(0)",
+        "open_sample_recurrence": "natglot_a=f32(natglot_a-natglot_b); vwave=f32(vwave+natglot_a); sample=f32(vwave*0.028)",
+        "closed_sample": 0.0,
+        "replay": "For the selected sample index, replay the recurrence from period offset zero; this represents one isolated pitch period without cross-call state.",
+        "excluded_data": ["beep dictionary", "phone lists", "speech input"],
+        "intermediate_precision": "IEEE binary32 after each source float assignment/operation; output promoted to binary64",
+    }
+    expected_measurement = {
+        "comparison_model": "float64_slice_io_call", "sample_count": 5,
+        "warmup_rounds": 1, "repetitions_per_sample": 100,
+        "absolute_tolerance": 0.00001, "relative_tolerance": 0.0000001,
+    }
+    expected_ids = {
+        "open-phase-first-sample", "open-phase-second-sample", "closed-phase-zero",
+        "invalid-open-bound", "invalid-index-bound", "extra-input", "short-output", "null-output",
+    }
+    cases = workload.get("cases")
+    if (set(workload) != {
+            "schema_version", "id", "algorithm", "function_symbol", "source",
+            "contract", "profile", "workspace", "measurement", "cases"}
+            or workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-cbench-office-rsynth-natural-glottal-float64-slice-v1"
+            or workload.get("algorithm") != "cbench_rsynth_natural_glottal_sample"
+            or workload.get("function_symbol") != "cbench_rsynth_natural_glottal_sample"
+            or workload.get("source") != expected_source
+            or workload.get("contract") != expected_contract
+            or workload.get("profile") != expected_profile
+            or workload.get("workspace") != {"elements": CBENCH_RSYNTH_MAX_OUTPUT_ELEMENTS}
+            or workload.get("measurement") != expected_measurement
+            or not isinstance(cases, list)
+            or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+            or len(cases) != len(expected_ids)):
+        raise ValueError("cbench_rsynth_natural_glottal_sample metadata differs from its bounded contract")
+
+    package = ROOT / "benchmarks" / "m" / "cbench_rsynth_natural_glottal"
+    readme = (package / "README.md").read_text(encoding="utf-8")
+    license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+    if (source_url not in readme or launcher_url not in readme or rights_url not in readme
+            or "public domain from Carnegie Mellon University" not in readme
+            or "Public Domain Software (from Carnegie Mellon University)" not in license_text
+            or "Certain dictionaries have special copyright restrictions" not in license_text):
+        raise ValueError("cbench_rsynth natural-source provenance or rights scope is incomplete")
+    for relative in (
+            "c/m/cbench_rsynth_natural_glottal.c", "c3/m/cbench_rsynth_natural_glottal.c3",
+            "cpp/m/cbench_rsynth_natural_glottal.cpp", "elisa/m/cbench_rsynth_natural_glottal.elisa",
+            "nim/m/cbench_rsynth_natural_glottal.nim", "odin/m/cbench_rsynth_natural_glottal.odin",
+            "rust/m/cbench_rsynth_natural_glottal.rs", "v/m/cbench_rsynth_natural_glottal.v",
+            "zig/m/cbench_rsynth_natural_glottal.zig"):
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"cbench_rsynth natural-source port is missing: {relative}")
+
+    absolute_tolerance, relative_tolerance = tolerances(workload)
+    for case in cases:
+        case_id = case.get("id") if isinstance(case, dict) else None
+        values = case.get("input_values") if isinstance(case, dict) else None
+        if (not isinstance(case, dict)
+                or set(case) - {"id", "input_values", "input_length", "output_capacity",
+                                "output_is_null", "expected_result", "expected_output"}
+                or not isinstance(values, list)
+                or len(values) > CBENCH_RSYNTH_MAX_PARSEABLE_INPUT_LENGTH
+                or any(type(value) not in (int, float) or not math.isfinite(float(value))
+                       for value in values)
+                or type(case.get("input_length")) is not int
+                or case["input_length"] != len(values)
+                or type(case.get("output_capacity")) is not int
+                or not 0 <= case["output_capacity"] <= CBENCH_RSYNTH_MAX_OUTPUT_ELEMENTS
+                or "output_is_null" in case and type(case["output_is_null"]) is not bool
+                or type(case.get("expected_result")) is not int
+                or not isinstance(case.get("expected_output"), list)):
+            raise ValueError(f"cbench_rsynth natural-source fixture framing is invalid: {case_id}")
+        result, output = cbench_rsynth_natural_glottal_expected_output(
+            values, output_capacity=case["output_capacity"],
+            output_is_null=case.get("output_is_null", False),
+            input_is_null=case.get("input_is_null", False), input_length=case["input_length"])
+        expected_output = case["expected_output"]
+        if (result != case["expected_result"] or len(output) != len(expected_output)
+                or result < 0 and expected_output
+                or any(type(actual) not in (int, float)
+                       or not math.isfinite(float(actual))
+                       or abs(float(actual) - reference) > absolute_tolerance
+                       + relative_tolerance * abs(reference)
+                       for actual, reference in zip(expected_output, output))):
+            raise ValueError(f"cbench_rsynth natural-source fixture differs from its oracle: {case_id}")
 
 
 def validate_mibench_automotive_basicmath_cubic_workload(workload: dict) -> None:
@@ -13631,7 +14177,10 @@ def main() -> int:
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
 
     letter = {"polybench_lu": "l", "polybench_correlation": "c",
-              "polybench_seidel_2d": "s"}.get(algorithm, algorithm[0])
+              "polybench_seidel_2d": "s",
+              "cbench_consumer_mad_imdct36": "m",
+              "cbench_lame_mid_side": "m",
+              "cbench_rsynth_natural_glottal_sample": "m"}.get(algorithm, algorithm[0])
     workload_path = args.workload or ROOT / "benchmarks" / letter / algorithm / "workload.json"
     workload = json.loads(workload_path.read_text(encoding="utf-8"))
     if (workload.get("algorithm") != algorithm
@@ -13679,6 +14228,14 @@ def main() -> int:
         validate_polybench_seidel_2d_workload(workload)
     elif algorithm == "mibench_automotive_basicmath_cubic":
         validate_mibench_automotive_basicmath_cubic_workload(workload)
+    elif algorithm == "mibench_lame_mdct_long":
+        validate_mibench_lame_mdct_long_workload(workload)
+    elif algorithm == "cbench_consumer_mad_imdct36":
+        validate_cbench_consumer_mad_imdct36_workload(workload)
+    elif algorithm == "cbench_lame_mid_side":
+        validate_cbench_lame_mid_side_workload(workload)
+    elif algorithm == "cbench_rsynth_natural_glottal_sample":
+        validate_cbench_rsynth_natural_glottal_workload(workload)
     elif algorithm == "pca":
         validate_pca_workload(workload)
     elif algorithm == "principal_component_analysis":

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "parboil-spmv-jds-bounded-f32-vector-v1",
+  "algorithm": "parboil_spmv_jds",
+  "function_symbol": "parboil_spmv_jds",
+  "abi": "i64_array_bytes_output",
+  "pinned_source": {
+    "repository": "yuhc/gpu-parboil",
+    "commit": "ccf3d3126f1754ca85528722f4ced5894ccb852b",
+    "paths": ["benchmarks/spmv/src/cpu/main.c", "benchmarks/spmv/src/cpu/file.c", "benchmarks/spmv/src/cpu/file.h", "LICENSE"],
+    "symbols": ["coo_to_jds", "input_vec", "main"],
+    "license": "Illinois Open Source License, University of Illinois/NCSA; full license reproduced in LICENSE.txt."
+  },
+  "contract": {
+    "input_layout": "[dimension, diagonal_depth, nnz, row_nnz[dimension], perm[dimension], ptr[depth+1], column_index[nnz], value_raw[nnz], vector_raw[dimension]]",
+    "dimension_range": [1, 8],
+    "depth_range": [1, 8],
+    "maximum_valid_input_words": 164,
+    "maximum_parseable_input_words": 165,
+    "row_invariants": "row_nnz is nonincreasing and row_nnz[0]=depth; nnz=sum(row_nnz); diagonal length k is count(row_nnz[i]>k); ptr is the prefix sum of those lengths; perm is a permutation of 0..dimension-1.",
+    "coordinate_range": "Every column index is in 0..dimension-1.",
+    "value_encoding": "Matrix values and dense vector values are signed Q1e-6 integers in [-1000000,1000000], converted as binary32(raw)/binary32(1000000).",
+    "operation": "For each JDS row rank i in ascending order, initialize float32 sum=0, then for k=0..row_nnz[i]-1 use j=ptr[k]+i, round float32(data[j]*x[column[j]]) to binary32, and add/round to sum in source order. Store sum at output[perm[i]].",
+    "output_encoding": "Little-endian uint32 dimension followed by dimension little-endian IEEE-754 binary32 output values, matching the source output record shape.",
+    "maximum_output_bytes": 36,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "source_scope": "Preconverted Jagged Diagonal Storage only. COO parsing, symmetric expansion/conversion, 50 repeated benchmark iterations, file I/O, and timing wrappers are excluded."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_valid_length": 164,
+    "maximum_parseable_length": 165,
+    "encoding": "JDS dimensions and row metadata followed by column indexes and signed Q1e-6 binary32 source values.",
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Little-endian uint32 dimension followed by dimension IEEE-754 binary32 row results.",
+    "maximum_bytes": 36,
+    "capacity_unit": "bytes",
+    "success_result": "dimension*4+4 bytes",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 36,
+    "meaning": "Maximum-size staged output record; output is copied only after validation and computation succeed."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"two-row-permuted-jds","input_values":[2,2,3,2,1,1,0,0,2,3,0,1,1,100000,200000,300000,500000,1000000],"output_capacity":36,"expected_result":12,"expected_output_hex":"02000000cdcc4c3e3333b33e"},
+    {"id":"one-row-negative-product","input_values":[1,1,1,1,0,0,1,0,700000,-200000],"output_capacity":36,"expected_result":8,"expected_output_hex":"01000000295c0fbe"},
+    {"id":"invalid-permutation","input_values":[2,1,2,1,1,0,0,0,2,0,1,1000000,1000000,1000000,1000000],"output_capacity":36,"expected_result":-1,"expected_output_hex":""},
+    {"id":"invalid-diagonal-prefix","input_values":[2,2,3,2,1,0,1,0,1,3,0,1,1,2000000,3000000,4000000,5000000,6000000],"output_capacity":36,"expected_result":-1,"expected_output_hex":""},
+    {"id":"bad-column-index","input_values":[1,1,1,1,0,0,1,1,1000000,1000000],"output_capacity":36,"expected_result":-1,"expected_output_hex":""},
+    {"id":"out-of-range-value","input_values":[1,1,1,1,0,0,1,0,1000001,1000000],"output_capacity":36,"expected_result":-1,"expected_output_hex":""},
+    {"id":"short-output-capacity","input_values":[1,1,1,1,0,0,1,0,1000000,1000000],"output_capacity":7,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-output","input_values":[1,1,1,1,0,0,1,0,1000000,1000000],"output_capacity":36,"output_is_null":true,"expected_result":-2,"expected_output_hex":""},
+    {"id":"null-input","input_values":[],"input_is_null":true,"input_length":0,"output_capacity":36,"expected_result":-1,"expected_output_hex":""}
+  ]
+}

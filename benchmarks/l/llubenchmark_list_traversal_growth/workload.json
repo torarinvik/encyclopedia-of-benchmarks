@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-llubenchmark-list-traversal-growth-i64-le-v1",
+  "algorithm": "llubenchmark_list_traversal_growth",
+  "function_symbol": "llubenchmark_list_traversal_growth",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded index-linked reproduction of LLUBenchmark traversal, dirtying, fractional growth, and tail insertion.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["llubenchmark/info.sh", "llubenchmark/llubenchmark.c"],
+    "symbol": "main list traversal and growth loops",
+    "source_lines": {
+      "node_definition": [41, 44],
+      "allocation_and_initialization": [56, 78],
+      "initial_lists": [121, 137],
+      "traversal_and_growth": [138, 179]
+    },
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/llubenchmark",
+    "launcher_options": {"small": ["-i", 3000], "default": ["-i", 6000]},
+    "attribution": "The source header identifies LLUBENCHMARK and Craig Zilles.",
+    "license_note": "No explicit license grant was found in the pinned source or repository material reviewed; the package is clean-room and makes no upstream license claim."
+  },
+  "contract": {
+    "operation": "Build num_lists linked lists of initial_length zero-count nodes. For each iteration, traverse lists in order, accumulate each current count and increment it; add 0.333 to the fractional growth state and append the whole-part number of nodes per list at each tail, assigning source counts list_index+ordinal.",
+    "input_layout": "[num_lists, initial_length, iterations]",
+    "num_lists_range": [1, 4],
+    "initial_length_range": [1, 4],
+    "iterations_range": [0, 16],
+    "exact_length": 3,
+    "growth_rate": 0.333,
+    "dirty_traversal": true,
+    "tail_insertion": true,
+    "output": "Two little-endian signed i64 values: accumulate and num_allocated.",
+    "success_result": 2,
+    "output_capacity_requirement": 16,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "maximum_valid_length": 3,
+    "maximum_parseable_length": 3,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "[accumulate, num_allocated]",
+    "maximum_values": 2,
+    "maximum_bytes": 16,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 640,
+    "meaning": "next[36], node_count[36], head[4], and tail[4], each represented as signed i64 in the portable model."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "growth-at-fourth-pass",
+      "input_values": [2, 1, 4],
+      "input_length": 3,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "0c000000000000000400000000000000"
+    },
+    {
+      "id": "two-fractional-growth-events",
+      "input_values": [1, 2, 7],
+      "input_length": 3,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "30000000000000000400000000000000"
+    },
+    {
+      "id": "zero-iteration-initial-pool",
+      "input_values": [1, 1, 0],
+      "input_length": 3,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "00000000000000000100000000000000"
+    },
+    {
+      "id": "invalid-list-count",
+      "input_values": [0, 1, 1],
+      "input_length": 3,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-input",
+      "input_values": [2, 1],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 1, 4],
+      "input_length": 3,
+      "output_capacity": 16,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 1, 4],
+      "input_length": 3,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

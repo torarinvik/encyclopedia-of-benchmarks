@@ -1,0 +1,6 @@
+No explicit license grant was found in the pinned LAC-DCC TSVC source or
+repository material reviewed for this benchmark. These ports are independent,
+clean-room implementations of a bounded cyclic neighbor-average operation.
+They reuse no upstream source code or comments. Source attribution and this
+rights limitation are documented in README.md; no upstream license or
+endorsement is claimed.

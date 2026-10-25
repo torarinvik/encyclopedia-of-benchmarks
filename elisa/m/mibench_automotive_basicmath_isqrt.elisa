@@ -1,0 +1,17 @@
+def mibench_automotive_basicmath_isqrt_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1: return -1
+    if input[0] < 0 or input[0] > 65535: return -1
+    x: mutable u32 = input[0].u32()
+    root: mutable u32 = 0
+    remainder: mutable u32 = 0
+    for step in 0..<32:
+        remainder <- (remainder << 2) + (x >> 30)
+        x <- x << 2
+        root <- root << 1
+        trial: u32 = (root << 1) + 1
+        if remainder >= trial:
+            remainder <- remainder - trial
+            root <- root + 1
+    root.i64()
+
+export fn mibench_automotive_basicmath_isqrt(input: i64&, length: usize) -> i64 = mibench_automotive_basicmath_isqrt_impl

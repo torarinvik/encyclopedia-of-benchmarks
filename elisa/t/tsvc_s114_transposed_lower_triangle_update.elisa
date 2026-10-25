@@ -1,0 +1,50 @@
+# Clean-room port of TSVC s114; see package README for provenance and rights.
+
+const TSVC_S114_MAX_N: usize = 16
+const TSVC_S114_MAX_INPUT_LENGTH: usize = 513
+
+def tsvc_s114_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def tsvc_s114_transposed_lower_triangle_update_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 9 or length > TSVC_S114_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 2 or n_value > 16:
+        return -1
+    n: usize = n_value.usize()
+    cells: usize = n * n
+    if length != 1 + 2 * cells:
+        return -1
+    a: mutable i64[256] = zeroed
+    b: mutable i64[256] = zeroed
+    i: mutable usize = 0
+    while i < cells:
+        a[i] <- input[1 + i]
+        b[i] <- input[1 + cells + i]
+        if a[i] < -1000000 or a[i] > 1000000 or b[i] < -1000000 or b[i] > 1000000:
+            return -1
+        i <- i + 1
+    output_bytes: usize = 8 * cells
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    i <- 0
+    while i < n:
+        j: mutable usize = 0
+        while j < i:
+            a[i * n + j] <- a[j * n + i] + b[i * n + j]
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < cells:
+        tsvc_s114_store_i64_le(a[i], output, 8 * i)
+        i <- i + 1
+    cells.i64()
+
+export fn tsvc_s114_transposed_lower_triangle_update(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s114_transposed_lower_triangle_update_impl

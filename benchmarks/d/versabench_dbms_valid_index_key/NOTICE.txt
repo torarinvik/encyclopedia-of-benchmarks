@@ -1,0 +1,3 @@
+Source reference: lac-dcc/Benchmarks, commit 5d7b75df749241efa7a6e6f5be613d3fcc5cce38, VersaBench/dbms/valid.c and indexKey.h.
+
+The pinned source headers identify M. L. Rivas and state: Copyright 1999, Atlantic Aerospace Electronics Corp. No explicit license permitting redistribution or modification was located in the pinned VersaBench/dbms directory. The local ports are independently written clean-room implementations of the bounded four-coordinate validity predicate and contain no copied upstream source text or comments. This notice does not assert that the upstream source is permissively licensed or grant rights in it.

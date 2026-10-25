@@ -32,6 +32,8 @@ from automotive_bitcount_oracle import expected_result as automotive_bitcount_ex
 from shootout_hash_oracle import MAX_N as SHOOTOUT_HASH_MAX_N
 from shootout_hash_oracle import REFERENCE_RESULT as SHOOTOUT_HASH_REFERENCE_RESULT
 from shootout_hash_oracle import expected_result as shootout_hash_expected
+from freebench_pifft_oracle import FFT_SIZE as FREEBENCH_PIFFT_FFT_SIZE
+from freebench_pifft_oracle import expected_result as freebench_pifft_expected
 from twos_complement_of_binary_oracle import expected_result as twos_complement_of_binary_expected
 from binary_length_oracle import expected_result as binary_length_expected
 from liouville_oracle import expected_result as liouville_expected
@@ -2111,7 +2113,91 @@ def validate_shootout_hash_workload(workload: dict) -> None:
         raise ValueError("shootout_hash oracle does not reproduce the pinned launcher reference output")
 
 
+def validate_freebench_pifft_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/FreeBench/pifft"
+    launcher_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/FreeBench/pifft/info.sh"
+    expected_cases = {"bounded_eight_point_profile", "profile_below_bound",
+                      "profile_above_bound", "negative_length"}
+    expected_source = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "paths": ["FreeBench/pifft/pifft.c", "FreeBench/pifft/fftsg.c",
+                  "FreeBench/pifft/info.sh", "FreeBench/pifft/test.in",
+                  "FreeBench/pifft/ref.in", "FreeBench/pifft/pifft.reference_output"],
+        "symbols": ["mp_mul", "mp_squ", "mp_inv", "mp_sqrt", "mp_sscanf",
+                    "mp_sprintf", "main"],
+        "url": source_url,
+        "license_note": "The pifft.c header attributes the program to T. Ooura; neither pifft.c nor fftsg.c contains an explicit license grant, and the pinned directory has no separate license file. No upstream license is inferred. Ports and oracle are independently written from the modified AGM equations and observed behavior; no upstream source code or comments are copied.",
+    }
+    expected_launcher = {
+        "repository": "lac-dcc/Benchmarks", "commit": pinned,
+        "path": "FreeBench/pifft/info.sh", "bench_name": "pifft",
+        "source_files": ["fftsg.c", "pifft.c"],
+        "run_options": "test.in when SMALL_PROBLEM_SIZE is set; otherwise ref.in",
+        "test_profile_nfft": 16384,
+        "reference_profile_nfft": 1048576,
+    }
+    expected_contract = {
+        "algorithm": "Modified Gauss-Legendre arithmetic-geometric mean recurrence from pifft.c, with an eight-point radix-2 FFT convolution used for fixed-point multiplication.",
+        "input": "The only valid signed integer input is nfft=8, representing the bounded FFT length. Other values return -1.",
+        "fixed_point_scale": 1000000,
+        "multiplication": "Decompose each scaled operand into three base-1000 limbs, zero-pad their product to an 8-point radix-2 convolution, round coefficients to integers, reconstruct the exact limb product, then round to six decimal places.",
+        "iteration": "Apply the source initialization and update order; stop when the residual is within one micro-unit or after eight updates.",
+        "observable_result": "Round the modified AGM pi estimate half-up to milli-units; 3142 encodes 3.142.",
+        "invalid_result": -1,
+        "bounded_profile_note": "The source launcher selects nfft=16384 or 1048576. Those high-precision profiles are not reproduced; this workload fixes nfft=8 and reports a three-decimal result to keep the scalar ABI portable and bounded.",
+    }
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-freebench-pifft-bounded-fft-agm-scalar-v1"
+            or workload.get("algorithm") != "freebench_pifft"
+            or workload.get("function_symbol") != "freebench_pifft"
+            or workload.get("description") != "Bounded FFT-convolution multiplication within FreeBench's modified AGM pi calculation."
+            or workload.get("pinned_source") != expected_source
+            or workload.get("pinned_launcher") != expected_launcher
+            or workload.get("contract") != expected_contract
+            or workload.get("input") != {
+                "kind": "signed_64_bit_integer", "meaning": "Fixed radix-2 transform length nfft.",
+                "valid_value": FREEBENCH_PIFFT_FFT_SIZE, "invalid_input_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_64_bit_integer",
+                "meaning": "Modified AGM estimate of pi rounded half-up to milli-units.",
+                "scale": 1000, "valid_result": 3142, "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }
+            or not isinstance(cases, list) or len(cases) != len(expected_cases)
+            or len(ids) != len(cases) or ids != expected_cases):
+        raise ValueError("freebench_pifft metadata or fixture IDs differ from its bounded contract")
+    readme = (ROOT / "benchmarks" / "f" / "freebench_pifft" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme or launcher_url not in readme
+            or "No upstream license is inferred" not in readme
+            or "six fractional decimal places" not in readme or "nfft=8" not in readme):
+        raise ValueError("freebench_pifft README is missing provenance, rights, or profile notes")
+    observed: set[int] = set()
+    for case in cases:
+        input_value = case.get("input_value")
+        if (set(case) != {"id", "input_value", "expected_result"}
+                or type(input_value) is not int or not I64_MIN <= input_value <= I64_MAX
+                or input_value in observed or type(case.get("expected_result")) is not int
+                or case["expected_result"] != freebench_pifft_expected(input_value)):
+            raise ValueError(f"freebench_pifft fixture differs from its oracle: {case.get('id')}")
+        observed.add(input_value)
+    if observed != {FREEBENCH_PIFFT_FFT_SIZE, 4, 16, -8}:
+        raise ValueError("freebench_pifft workload is missing a bounded profile boundary case")
+
+
 def validate_expected_result(algorithm: str, input_value: int, expected_result: int) -> None:
+    if algorithm == "freebench_pifft":
+        if expected_result != freebench_pifft_expected(input_value):
+            raise ValueError("freebench_pifft expected_result must match the bounded fixed-point AGM oracle")
+        return
     if algorithm == "fib2":
         if expected_result != fib2_expected(input_value):
             raise ValueError("fib2 expected_result must match the bounded recursive Shootout recurrence")
@@ -3735,6 +3821,8 @@ def main() -> int:
         validate_automotive_bitcount_workload(workload)
     elif algorithm == "shootout_hash":
         validate_shootout_hash_workload(workload)
+    elif algorithm == "freebench_pifft":
+        validate_freebench_pifft_workload(workload)
     timing = workload["measurement"]
     sample_count = args.samples if args.samples is not None else int(timing["sample_count"])
     warmup_rounds = args.warmups if args.warmups is not None else int(timing["warmup_rounds"])

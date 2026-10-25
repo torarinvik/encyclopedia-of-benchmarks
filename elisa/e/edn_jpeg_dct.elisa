@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: GPL-3.0-or-later; see package NOTICE.txt.
+def dct_narrow(value: i64) -> i16:
+    return value.i16()
+
+def dct_put64(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for j in 0..<8: output[position + j] <- ((bits >> (8 * j)) & 255).u8()
+
+def dct_line(block: mutable i16&, base: usize, stride: usize, shift: usize, product_shift: usize, factors: i16&) -> void:
+    temp: mutable i64[12] = zeroed
+    for j in 0..<4:
+        left: i64 = block[base + stride * j].i64()
+        right: i64 = block[base + stride * (7 - j)].i64()
+        temp[j] <- left + right
+        temp[7 - j] <- left - right
+    temp[8] <- temp[0] + temp[3]
+    temp[9] <- temp[0] - temp[3]
+    temp[10] <- temp[1] + temp[2]
+    temp[11] <- temp[1] - temp[2]
+    block[base] <- dct_narrow((temp[8] + temp[10]) >> shift)
+    block[base + 4 * stride] <- dct_narrow((temp[8] - temp[10]) >> shift)
+    temp[8] <- dct_narrow(temp[11] + temp[9]).i64() * factors[10].i64()
+    block[base + 2 * stride] <- dct_narrow(temp[8] + dct_narrow((temp[9] * factors[9].i64()) >> product_shift).i64())
+    block[base + 6 * stride] <- dct_narrow(temp[8] + dct_narrow((temp[11] * factors[11].i64()) >> product_shift).i64())
+    temp[0] <- dct_narrow(temp[4] + temp[7]).i64() * factors[2].i64()
+    temp[1] <- dct_narrow(temp[5] + temp[6]).i64() * factors[0].i64()
+    temp[2] <- temp[4] + temp[6]
+    temp[3] <- temp[5] + temp[7]
+    temp[8] <- dct_narrow(temp[2] + temp[3]).i64() * factors[8].i64()
+    temp[2] <- dct_narrow(temp[2]).i64() * factors[1].i64() + temp[8]
+    temp[3] <- dct_narrow(temp[3]).i64() * factors[3].i64() + temp[8]
+    block[base + 7 * stride] <- dct_narrow((dct_narrow(temp[4] * factors[4].i64() + temp[0] + temp[2]).i64()) >> product_shift)
+    block[base + 5 * stride] <- dct_narrow((dct_narrow(temp[5] * factors[6].i64() + temp[1] + temp[3]).i64()) >> product_shift)
+    block[base + 3 * stride] <- dct_narrow((dct_narrow(temp[6] * factors[5].i64() + temp[1] + temp[2]).i64()) >> product_shift)
+    block[base + stride] <- dct_narrow((dct_narrow(temp[7] * factors[7].i64() + temp[0] + temp[3]).i64()) >> product_shift)
+
+def edn_jpeg_dct_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length != 76: return -1
+    block: mutable i16[64] = zeroed
+    factors: mutable i16[12] = zeroed
+    for index in 0..<64:
+        if values[index] < -8 or values[index] > 8: return -1
+        block[index] <- values[index].i16()
+    for index in 0..<12:
+        if values[64 + index] < -32 or values[64 + index] > 31: return -1
+        factors[index] <- values[64 + index].i16()
+    if output.is_null() or capacity < 512: return -2
+    for row in 0..<8: dct_line(block, row * 8, 1, 0, 13, factors)
+    for column in 0..<8: dct_line(block, column, 8, 3, 16, factors)
+    for index in 0..<64: dct_put64(output, 8 * index, block[index].i64())
+    512
+
+export fn edn_jpeg_dct(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = edn_jpeg_dct_impl

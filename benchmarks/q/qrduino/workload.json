@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "embench-iot-qrduino-v2-l-i64-array-bytes-output-v1",
+  "algorithm": "qrduino",
+  "function_symbol": "qrduino",
+  "description": "Bounded byte-mode QR version 2-L encoding with Reed-Solomon parity, data placement, eight mask candidates, and the source-verified unmasked frame prefix.",
+  "pinned_source": {
+    "repository": "embench/embench-iot",
+    "commit": "de24bdf561f4eaad7f37685641fa301f2b8b4bc3",
+    "path": "src/qrduino/qrencode.c",
+    "symbol": "qrencode",
+    "url": "https://github.com/embench/embench-iot/blob/de24bdf561f4eaad7f37685641fa301f2b8b4bc3/src/qrduino/qrencode.c",
+    "version": "Embench-IoT commit de24bdf561f4eaad7f37685641fa301f2b8b4bc3",
+    "license_note": "The QRduino source declares SPDX-License-Identifier: GPL-3.0-or-later. These implementations are independently written; the package retains the GPL-3.0-or-later license and source attribution."
+  },
+  "contract": {
+    "operation": "Encode a bounded nonzero-ASCII byte string in QR byte mode at version 2, error-correction level L, then return the source benchmark's first 22 row-packed bytes from the unmasked frame.",
+    "input_layout": "[message_length, byte_0, ..., byte_(message_length-1)]",
+    "message_length_range": [1, 21],
+    "byte_range": [1, 127],
+    "output_encoding": "The first 22 bytes of the 25-by-25 unmasked QR module matrix, packed MSB-first by row into four bytes per row.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "Length-prefixed nonzero ASCII bytes.",
+    "maximum_valid_length": 22,
+    "maximum_parseable_length": 23,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Source-verified unmasked frame prefix.",
+    "maximum_bytes": 22,
+    "success_result": "number of bytes written",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 2200,
+    "meaning": "Bounded codeword, frame, reservation, and candidate-mask scratch."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 25
+  },
+  "cases": [
+    {
+      "id": "source_benchmark_payload",
+      "input_values": [21, 104, 116, 116, 112, 58, 47, 47, 119, 119, 119, 46, 109, 97, 103, 101, 101, 99, 46, 99, 111, 109],
+      "expected_result": 22,
+      "expected_output_hex": "fe653f80826ea080ba412e80ba262e80ba09ae808214",
+      "input_length": 22
+    },
+    {
+      "id": "embedded_nul_rejected",
+      "input_values": [3, 65, 0, 66],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 4
+    },
+    {
+      "id": "non_ascii_byte_rejected",
+      "input_values": [2, 65, 128],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 3
+    },
+    {
+      "id": "message_over_version_two_limit",
+      "input_values": [22, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 23
+    },
+    {
+      "id": "trailing_input_value_rejected",
+      "input_values": [1, 65, 66],
+      "expected_result": -1,
+      "expected_output_hex": "",
+      "input_length": 3
+    },
+    {
+      "id": "output_capacity_too_small",
+      "input_values": [1, 65],
+      "output_capacity": 21,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "input_length": 2
+    },
+    {
+      "id": "null_output",
+      "input_values": [1, 65],
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": "",
+      "input_length": 2
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

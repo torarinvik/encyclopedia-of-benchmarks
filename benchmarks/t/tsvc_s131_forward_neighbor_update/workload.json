@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s131-forward-neighbor-update-i64-le-v1",
+  "algorithm": "tsvc_s131_forward_neighbor_update",
+  "function_symbol": "tsvc_s131_forward_neighbor_update",
+  "description": "Bounded forward-neighbor recurrence profile of TSVC s131.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "s131",
+    "source_lines": {"kernel_start": 1423, "kernel_end": 1445, "initialization": 321},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_family": "TSVC/GlobalDataFlow-dbl",
+    "duplicate_symbols": {"s151": "same update loop with offset one, called through a helper"},
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. The ports are clean-room implementations of the bounded loop contract and reuse no upstream source code or comments; no upstream license or endorsement is claimed."
+  },
+  "contract": {
+    "operation": "For each pass in order, visit i upward from 0 to n-2 and assign a[i] = a[i+1] + b[i]; a[n-1] is unchanged.",
+    "input_layout": "[n, passes, a[n], b[n]]",
+    "n_range": [1, 64],
+    "passes_range": [1, 32],
+    "value_range": [-1000000, 1000000],
+    "exact_length": "2 + 2*n",
+    "maximum_valid_input_length": 130,
+    "output": "Final a vector encoded as little-endian signed i64 values.",
+    "output_capacity_requirement": "At least 8*n bytes.",
+    "success_result": "n values written.",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "input_modified": false
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "n, passes, initial a vector, b vector",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 130,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Final a vector after all passes.",
+    "maximum_values": 64,
+    "maximum_bytes": 512
+  },
+  "workspace": {"bytes": 512},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "single-element-unchanged",
+      "input_values": [1, 5, 9, -4],
+      "input_length": 4,
+      "output_capacity": 8,
+      "expected_result": 1,
+      "expected_output_hex": "0900000000000000"
+    },
+    {
+      "id": "one-pass-forward-neighbor-update",
+      "input_values": [4, 1, 1, 2, 3, 4, 10, 20, 30, 40],
+      "input_length": 10,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "0c00000000000000170000000000000022000000000000000400000000000000"
+    },
+    {
+      "id": "three-pass-neighbor-propagation",
+      "input_values": [4, 3, 1, 2, 3, 4, 10, 20, 30, 40],
+      "input_length": 10,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "4000000000000000360000000000000022000000000000000400000000000000"
+    },
+    {
+      "id": "zero-dimension-invalid",
+      "input_values": [0, 1, 0, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-array-invalid",
+      "input_values": [3, 1, 0, 0, 0, 1, 2],
+      "input_length": 7,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "operand-out-of-range",
+      "input_values": [1, 1, 1000001, 0],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [2, 1, 0, 0, 1, 1],
+      "input_length": 6,
+      "output_capacity": 15,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 1, 0, 7],
+      "input_length": 4,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 512,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "rodinia-leukocyte-gicov-f32-bounded-v1",
+  "algorithm": "rodinia_leukocyte_gicov",
+  "function_symbol": "rodinia_leukocyte_gicov",
+  "description": "Seven-row bounded GICOV ellipse score using the source-ordered binary32 sum and Welford variance recurrence.",
+  "pinned_source": {
+    "repository": "utcs-scea/rodinia",
+    "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+    "paths": ["cuda/leukocyte/CUDA/find_ellipse_kernel.cu", "LICENSE"],
+    "url": "https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/leukocyte",
+    "license": "University of Virginia BSD-3-Clause; full terms and citation list in LICENSE.txt."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_length": 113,
+    "layout": ["point_count", "7 consecutive rows of point_count projected gradient samples"],
+    "point_count_bounds": [2, 16],
+    "sample_integer_bounds": [-1000000, 1000000],
+    "sample_scale": 1000000,
+    "decoding": "Each sample becomes f32(f32(raw) / f32(1000000)); samples are the source directional-gradient projection grad_x*cos_angle + grad_y*sin_angle.",
+    "exact_length": "1 + 7*point_count",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "meaning": "Maximum source-order binary32 GICOV score across the seven ellipse rows, promoted to binary64.",
+    "formula": "max(0, f32(f32(mean*mean)/sample_variance)) over rows; mean=sum/N and sample_variance=M2/(N-1), with sum and Welford M2 accumulated in source order.",
+    "invalid_input_result": -1e300,
+    "zero_variance": "Outside the finite profile domain; return invalid sentinel."
+  },
+  "arithmetic": {
+    "precision": "Binary32 at each source float accumulation/update and score operation; returned score is promoted to binary64.",
+    "ordering": "Seven ellipses ascending; within each row, points ascending; add to sum, then Welford delta, mean update, and M2 update. Replace mean with sum/N before variance and score."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "relative_tolerance": 1e-7,
+    "absolute_tolerance": 1e-7,
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two-point-source-row-order-score-4p5",
+      "input_values": [2, 1000000, 500000, 1000000, 0, 500000, 0, -1000000, -500000, 500000, 1000000, 250000, 750000, -500000, 500000],
+      "input_length": 15,
+      "expected_result": 4.5
+    },
+    {
+      "id": "invalid-zero-variance-row",
+      "input_values": [2, 1000000, 1000000, 1000000, 0, 500000, 0, -1000000, -500000, 500000, 1000000, 250000, 750000, -500000, 500000],
+      "input_length": 15,
+      "expected_result": -1e300
+    },
+    {
+      "id": "invalid-short-rows",
+      "input_values": [2, 1000000, 500000],
+      "input_length": 3,
+      "expected_result": -1e300
+    },
+    {
+      "id": "invalid-sample-bound",
+      "input_values": [2, 1000001, 500000, 1000000, 0, 500000, 0, -1000000, -500000, 500000, 1000000, 250000, 750000, -500000, 500000],
+      "input_length": 15,
+      "expected_result": -1e300
+    },
+    {
+      "id": "null-input-pointer",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1e300
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "id": "rodinia-hybridsort-bounded-histogram-merge-i64-bytes-v1",
+  "algorithm": "rodinia_hybridsort",
+  "function_symbol": "rodinia_hybridsort",
+  "description": "Bounded histogram bucket partition followed by per-bucket merge sort, with source-shaped float bucket selection and a deterministic explicit input vector.",
+  "pinned_source": {
+    "repository": "utcs-scea/rodinia",
+    "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+    "paths": [
+      "cuda/hybridsort/run.sh",
+      "cuda/hybridsort/hybridsort.cu",
+      "cuda/hybridsort/histogram1024_kernel.cu",
+      "cuda/hybridsort/mergeSort.cu"
+    ],
+    "url": "https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/hybridsort",
+    "license": "Rodinia's University of Virginia terms and NVIDIA's histogram example notice are reproduced in the package license files."
+  },
+  "contract": {
+    "operation": "Convert each bounded fixed-point input q to binary32 q/1,000,000, histogram values into 1024 uniform bins over the input minimum-to-maximum interval, stably scatter by bin, merge-sort each bin, and emit the sorted original q values.",
+    "input_layout": "[count, q0, q1, ...]",
+    "count_range": [2, 64],
+    "q_range": [0, 1000000],
+    "q_multiple": 1000,
+    "distinct_values_required": true,
+    "exact_input_length": "1 + count",
+    "maximum_input_length": 65,
+    "bucket_count": 1024,
+    "bucket_rule": "binary32 index = trunc(((binary32(q)/1,000,000 - minimum)/(maximum-minimum))*1024), clamped to 0..1023; minimum and maximum are binary32 conversions of the smallest and largest q divided by 1,000,000.",
+    "output_encoding": "The sorted original q values, each encoded as signed 64-bit little-endian; duplicates are retained.",
+    "maximum_output_bytes": 512,
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_length": 65,
+    "encoding": "[count, q0, q1, ...] where count is 2..64 and q is a multiple of 1000 in 0..1000000",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "sorted original q values as signed i64 little-endian",
+    "maximum_bytes": 512,
+    "success_result": "8*count",
+    "null_or_short_output_result": -2
+  },
+  "workspace": {
+    "bytes": 512
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "four_values_cross_bins",
+      "input_values": [4, 4000, 1000, 3000, 2000],
+      "input_length": 5,
+      "input_is_null": false,
+      "output_capacity": 32,
+      "expected_result": 32,
+      "expected_output_hex": "e803000000000000d007000000000000b80b000000000000a00f000000000000"
+    },
+    {
+      "id": "duplicates_retained_and_sorted",
+      "input_values": [6, 10000, 10000, 0, 10000, 0, 5000],
+      "input_length": 7,
+      "input_is_null": false,
+      "output_capacity": 48,
+      "expected_result": 48,
+      "expected_output_hex": "000000000000000000000000000000008813000000000000102700000000000010270000000000001027000000000000"
+    },
+    {
+      "id": "range_endpoints",
+      "input_values": [3, 0, 500000, 1000000],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 24,
+      "expected_result": 24,
+      "expected_output_hex": "000000000000000020a107000000000040420f0000000000"
+    },
+    {
+      "id": "invalid_null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 0,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_truncated_frame",
+      "input_values": [3, 1000, 2000],
+      "input_length": 3,
+      "input_is_null": false,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_non_multiple_of_quantum",
+      "input_values": [3, 0, 1000, 1501],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_all_values_equal",
+      "input_values": [3, 5000, 5000, 5000],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_no_write",
+      "input_values": [3, 0, 1000, 2000],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output_no_write",
+      "input_values": [3, 0, 1000, 2000],
+      "input_length": 4,
+      "input_is_null": false,
+      "output_capacity": 24,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

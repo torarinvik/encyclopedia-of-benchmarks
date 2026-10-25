@@ -1,0 +1,93 @@
+const INPUT_BYTES: usize = 48
+
+def gm(a0: u8, b0: u8) -> u8:
+    a: mutable u8 = a0
+    b: mutable u8 = b0
+    r: mutable u8 = 0
+    while b != 0:
+        if (b & 1) != 0: r <- r ^ a
+        d: u16 = a.u16() << 1
+        if (a & 128) != 0: d <- d ^ 0x11b
+        a <- (d & 255).u8()
+        b <- b >> 1
+    r
+
+def gp(a0: u8, n0: u32) -> u8:
+    a: mutable u8 = a0
+    n: mutable u32 = n0
+    r: mutable u8 = 1
+    while n != 0:
+        if (n & 1) != 0: r <- gm(r, a)
+        a <- gm(a, a)
+        n <- n >> 1
+    r
+
+def decrypt_block(key: u8&, input: u8&) -> u8[16]:
+    s: mutable u8[256] = zeroed
+    inv: mutable u8[256] = zeroed
+    for x in 0..<256:
+        q: u8 = if x == 0: 0 else: gp(x.u8(), 254)
+        s[x] <- q ^ (((q.u16() << 1) | (q.u16() >> 7)) & 255).u8() ^
+            (((q.u16() << 2) | (q.u16() >> 6)) & 255).u8() ^
+            (((q.u16() << 3) | (q.u16() >> 5)) & 255).u8() ^
+            (((q.u16() << 4) | (q.u16() >> 4)) & 255).u8() ^ 0x63
+    for x in 0..<256: inv[s[x]] <- x.u8()
+    rc: u8[7] = [1, 2, 4, 8, 16, 32, 64]
+    rk: mutable u8[240] = zeroed
+    for i in 0..<32: rk[i] <- key[i]
+    w: mutable usize = 32
+    while w < 240:
+        wi: usize = w / 4
+        t: mutable u8[4] = [rk[w-4], rk[w-3], rk[w-2], rk[w-1]]
+        if wi % 8 == 0:
+            a: u8 = t[0]
+            t[0] <- s[t[1]] ^ rc[wi / 8 - 1]
+            t[1] <- s[t[2]]
+            t[2] <- s[t[3]]
+            t[3] <- s[a]
+        else if wi % 8 == 4:
+            for j in 0..<4: t[j] <- s[t[j]]
+        for j in 0..<4:
+            rk[w] <- rk[w - 32] ^ t[j]
+            w <- w + 1
+    st: mutable u8[16] = zeroed
+    for i in 0..<16: st[i] <- input[i] ^ rk[224+i]
+    round: mutable usize = 13
+    while round > 0:
+        prev: u8[16] = st
+        for c in 0..<4:
+            for r in 0..<4: st[r+4*c] <- inv[prev[r+4*((c+4-r)%4)]]
+        for i in 0..<16: st[i] <- st[i] ^ rk[round*16+i]
+        for c in 0..<4:
+            o: usize = 4*c
+            a: u8 = st[o]
+            b: u8 = st[o+1]
+            d: u8 = st[o+2]
+            e: u8 = st[o+3]
+            st[o] <- gm(a,14)^gm(b,11)^gm(d,13)^gm(e,9)
+            st[o+1] <- gm(a,9)^gm(b,14)^gm(d,11)^gm(e,13)
+            st[o+2] <- gm(a,13)^gm(b,9)^gm(d,14)^gm(e,11)
+            st[o+3] <- gm(a,11)^gm(b,13)^gm(d,9)^gm(e,14)
+        round <- round - 1
+    prev: u8[16] = st
+    for c in 0..<4:
+        for r in 0..<4: st[r+4*c] <- inv[prev[r+4*((c+4-r)%4)]]
+    for i in 0..<16: st[i] <- st[i] ^ rk[i]
+    st
+
+def cbench_security_rijndael_decrypt_impl(input: i64&, input_length: usize,
+                                          output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length != INPUT_BYTES: return -1
+    for i in 0..<INPUT_BYTES:
+        if input[i] < 0 or input[i] > 255: return -1
+    if output.is_null() or output_capacity < 16: return -2
+    key: mutable u8[32] = zeroed
+    block: mutable u8[16] = zeroed
+    for i in 0..<32: key[i] <- input[i].u8()
+    for i in 0..<16: block[i] <- input[32+i].u8()
+    plain: u8[16] = decrypt_block(key[0], block[0])
+    for i in 0..<16: output[i] <- plain[i]
+    16
+
+export fn cbench_security_rijndael_decrypt(input: i64&, input_length: usize,
+    output: mutable u8&, output_capacity: usize) -> i64 = cbench_security_rijndael_decrypt_impl

@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: GPL-3.0-or-later; see package NOTICE.txt.
+def xgboost_impl(values: i64&, length: usize) -> i64:
+    if length != 64:
+        return -1
+    for index in 0..<64:
+        if values[index] < 0 or values[index] > 255:
+            return -1
+    feature: usize[18] = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+    threshold: i64[18] = [100,100,100,128,120,110,90,140,80,110,100,200,150,150,150,70,130,180]
+    left_child: i64[18] = [1,128,130,1,128,130,1,128,130,1,128,130,1,128,130,1,128,130]
+    right_child: i64[18] = [2,129,131,2,129,131,2,129,131,2,129,131,2,129,131,2,129,131]
+    leaves: i64[24] = [1,0,0,2,0,2,1,0,0,1,2,0,1,0,0,2,2,0,1,0,0,2,1,0]
+    votes: mutable i64[3] = zeroed
+    for tree in 0..<6:
+        base: usize = tree * 3
+        node: i64 = 0
+        while node < 128:
+            at: usize = base + node.usize()
+            if values[feature[at]] < threshold[at]:
+                node = left_child[at]
+            else:
+                node = right_child[at]
+        votes[tree / 2] += leaves[tree * 4 + (node & 127).usize()]
+    best: usize = 0
+    for class_index in 1..<3:
+        if votes[class_index] > votes[best]:
+            best = class_index
+    return best.i64()
+
+export fn xgboost(values: i64&, length: usize) -> i64 = xgboost_impl(values, length)

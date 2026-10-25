@@ -1,0 +1,41 @@
+# Clean-room bounded GICOV recurrence; full applicable notice is in package LICENSE.txt.
+const ELLIPSE_COUNT: usize = 7
+const MAX_POINTS: usize = 16
+const INVALID: f64 = -1.0e300
+
+def decode(raw: i64) -> f32:
+    return raw.f32() / 1000000.0.f32()
+
+def rodinia_leukocyte_gicov_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 1: return INVALID
+    points_raw: i64 = input[0]
+    if points_raw < 2 or points_raw > 16: return INVALID
+    points: usize = points_raw.usize()
+    if length != 1 + ELLIPSE_COUNT * points: return INVALID
+    i: mutable usize = 1
+    while i < length:
+        if input[i] < -1000000 or input[i] > 1000000: return INVALID
+        i <- i + 1
+
+    maximum: f32 = 0.0.f32()
+    ellipse: mutable usize = 0
+    while ellipse < ELLIPSE_COUNT:
+        sum: f32 = 0.0.f32(); mean: f32 = 0.0.f32(); m2: f32 = 0.0.f32()
+        base: usize = 1 + ellipse * points
+        n: mutable usize = 0
+        while n < points:
+            p: f32 = decode(input[base + n])
+            sum <- sum + p
+            delta: f32 = p - mean
+            mean <- mean + delta / (n + 1).f32()
+            m2 <- m2 + delta * (p - mean)
+            n <- n + 1
+        mean <- sum / points.f32()
+        variance: f32 = m2 / (points - 1).f32()
+        if not (variance > 0.0.f32()): return INVALID
+        score: f32 = (mean * mean) / variance
+        if score > maximum: maximum <- score
+        ellipse <- ellipse + 1
+    maximum.f64()
+
+export fn rodinia_leukocyte_gicov(input: i64&, length: usize) -> f64 = rodinia_leukocyte_gicov_impl

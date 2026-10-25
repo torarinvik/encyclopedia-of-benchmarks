@@ -1,0 +1,89 @@
+const MAX_INPUT: usize = 189
+const MAX_WORDS: usize = 181
+
+def delete_box_valid(b: i64&) -> bool:
+    for d in 0..<4: if b[d] < -8 or b[d] > 8 or b[4+d] < -8 or b[4+d] > 8 or b[d] >= b[4+d]: return false
+    true
+def delete_hit(b: i64&, q: i64&) -> bool:
+    for d in 0..<4: if q[d] > b[4+d] or b[d] > q[4+d]: return false
+    true
+def delete_union(boxes: i64&, count: usize, stride: usize, out: i64&) -> void:
+    for d in 0..<8: out[d] <- boxes[d]
+    for i in 1..<count:
+        for d in 0..<4:
+            if boxes[i*stride+d] < out[d]: out[d] <- boxes[i*stride+d]
+            if boxes[i*stride+4+d] > out[4+d]: out[4+d] <- boxes[i*stride+4+d]
+def versabench_dbms_delete_entry_impl(values: i64&, length: usize, output: u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 10 or length > MAX_INPUT + 1: return -1
+    child_value: i64 = values[0]
+    if child_value < 1 or child_value > 4: return -1
+    child_count: usize = child_value.usize()
+    query: mutable [8]i64 = [0;8]
+    for d in 0..<8: query[d] <- values[1+d]
+    if not delete_box_valid(&query[0]): return -1
+    boxes: mutable [128]i64 = [0;128]
+    ids: mutable [16]i64 = [0;16]
+    mbrs: mutable [32]i64 = [0;32]
+    counts: mutable [4]usize = [0;4]
+    seen: mutable [32]bool = [false;32]
+    pos: mutable usize = 9
+    for c in 0..<child_count:
+        if pos+9 > length: return -1
+        raw_count: i64 = values[pos]
+        pos <- pos+1
+        if raw_count < 1 or raw_count > 4: return -1
+        count: usize = raw_count.usize()
+        if pos+8+count*9 > length: return -1
+        counts[c] <- count
+        mb: usize = c*8
+        for d in 0..<8: mbrs[mb+d] <- values[pos+d]
+        if not delete_box_valid(&mbrs[mb]): return -1
+        pos <- pos+8
+        for r in 0..<count:
+            base: usize = c*32+r*8
+            for d in 0..<8: boxes[base+d] <- values[pos+d]
+            if not delete_box_valid(&boxes[base]): return -1
+            pos <- pos+8
+            rid: i64 = values[pos]; pos <- pos+1
+            if rid < 0 or rid >= 32 or seen[rid.usize()]: return -1
+            ids[c*4+r] <- rid; seen[rid.usize()] <- true
+        actual: mutable [8]i64 = [0;8]
+        delete_union(&boxes[c*32],count,8,&actual[0])
+        for d in 0..<8: if actual[d] != mbrs[mb+d]: return -1
+    if pos != length: return -1
+    kept: mutable [128]i64 = [0;128]
+    kept_ids: mutable [16]i64 = [0;16]
+    kept_mbr: mutable [32]i64 = [0;32]
+    kept_count: mutable [4]usize = [0;4]
+    remaining: mutable usize = 0
+    for c in 0..<child_count:
+        k: mutable usize = 0
+        for r in 0..<counts[c]:
+            base: usize = c*32+r*8
+            if delete_hit(&mbrs[c*8],&query[0]) and delete_hit(&boxes[base],&query[0]): continue
+            for d in 0..<8: kept[c*32+k*8+d] <- boxes[base+d]
+            kept_ids[c*4+k] <- ids[c*4+r]
+            k <- k+1
+        if k > 0:
+            kept_count[remaining] <- k
+            for r in 0..<k:
+                for d in 0..<8: kept[remaining*32+r*8+d] <- kept[c*32+r*8+d]
+                kept_ids[remaining*4+r] <- kept_ids[c*4+r]
+            delete_union(&kept[remaining*32],k,8,&kept_mbr[remaining*8])
+            remaining <- remaining+1
+    words: mutable [MAX_WORDS]i64 = [0;MAX_WORDS]
+    outn: mutable usize = 0
+    words[outn] <- remaining.i64(); outn <- outn+1
+    for c in 0..<remaining:
+        words[outn] <- kept_count[c].i64(); outn <- outn+1
+        for d in 0..<8: words[outn] <- kept_mbr[c*8+d]; outn <- outn+1
+        for r in 0..<kept_count[c]:
+            for d in 0..<8: words[outn] <- kept[c*32+r*8+d]; outn <- outn+1
+            words[outn] <- kept_ids[c*4+r]; outn <- outn+1
+    bytes: usize = outn*8
+    if output.is_null() or capacity < bytes: return -2
+    for i in 0..<outn:
+        bits: u64 = words[i].u64()
+        for b in 0..<8: output[i*8+b] <- ((bits >> (8*b)) & 255).u8()
+    bytes.i64()
+export fn versabench_dbms_delete_entry(values: i64&, length: usize, output: u8&, capacity: usize) -> i64 = versabench_dbms_delete_entry_impl

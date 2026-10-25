@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Bounded modified profile of Embench slre; see package NOTICE.txt for upstream attribution.
+def slre_atom(x: i64) -> bool:
+    return (x >= 97 and x <= 122) or x == 46
+
+def slre_impl(values: i64&, length: usize) -> i64:
+    if length < 2:
+        return -2
+    if values[0] < 0 or values[0] > 24 or values[1] < 1 or values[1] > 24:
+        return -2
+    text_length: usize = values[0].usize()
+    pattern_length: usize = values[1].usize()
+    pattern_start: usize = 2 + text_length
+    if length != pattern_start + pattern_length:
+        return -2
+    for index in 0..<text_length:
+        if values[2 + index] < 97 or values[2 + index] > 122:
+            return -2
+    low: usize = 0
+    high: usize = pattern_length
+    anchored_start: bool = false
+    anchored_end: bool = false
+    if values[pattern_start] == 94:
+        anchored_start = true
+        low += 1
+    if low < high and values[pattern_start + high - 1] == 36:
+        anchored_end = true
+        high -= 1
+    index: usize = low
+    nonempty: bool = false
+    while index < high:
+        symbol: i64 = values[pattern_start + index]
+        if symbol == 124:
+            if not nonempty:
+                return -2
+            nonempty = false
+            index += 1
+            continue
+        if not slre_atom(symbol):
+            return -2
+        nonempty = true
+        index += 1
+        if index < high and values[pattern_start + index] == 63:
+            index += 1
+    if not nonempty:
+        return -2
+    for start in 0..text_length:
+        if anchored_start and start > 0:
+            break
+        branch: usize = low
+        while branch <= high:
+            finish: usize = branch
+            while finish < high and values[pattern_start + finish] != 124:
+                finish += 1
+                if finish < high and values[pattern_start + finish] == 63:
+                    finish += 1
+            cursor: usize = branch
+            position: usize = start
+            matched: bool = true
+            while cursor < finish:
+                symbol: i64 = values[pattern_start + cursor]
+                optional: bool = cursor + 1 < finish and values[pattern_start + cursor + 1] == 63
+                if position < text_length and (symbol == 46 or symbol == values[2 + position]):
+                    position += 1
+                elif not optional:
+                    matched = false
+                    break
+                if optional:
+                    cursor += 2
+                else:
+                    cursor += 1
+            if matched and (not anchored_end or position == text_length):
+                return position.i64()
+            if finish == high:
+                break
+            branch = finish + 1
+    return -1
+
+export fn slre(values: i64&, length: usize) -> i64 = slre_impl(values, length)

@@ -1,0 +1,61 @@
+# Clean-room port of TSVC s281; see the package README for provenance and rights.
+
+const TSVC_S281_MAX_N: usize = 16
+const TSVC_S281_MAX_INPUT_LENGTH: usize = 50
+
+def tsvc_s281_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def tsvc_s281_reverse_coupled_update_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > TSVC_S281_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    passes_value: i64 = input[1]
+    if n_value < 1 or n_value > TSVC_S281_MAX_N or passes_value < 1 or passes_value > 8:
+        return -1
+    n: usize = n_value.usize()
+    passes: usize = passes_value.usize()
+    if length != 2 + 3 * n:
+        return -1
+
+    a: mutable f64[16] = zeroed
+    b: mutable f64[16] = zeroed
+    c: mutable f64[16] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        av: i64 = input[2 + i]
+        bv: i64 = input[2 + n + i]
+        cv: i64 = input[2 + 2 * n + i]
+        if av < -2 or av > 2 or bv < -2 or bv > 2 or cv < -1 or cv > 1:
+            return -1
+        a[i] <- av.f64()
+        b[i] <- bv.f64()
+        c[i] <- cv.f64()
+        i <- i + 1
+
+    output_bytes: usize = 16 * n
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    pass_index: mutable usize = 0
+    while pass_index < passes:
+        i <- 0
+        while i < n:
+            x: f64 = a[n - i - 1] + b[i] * c[i]
+            a[i] <- x - 1.0
+            b[i] <- x
+            i <- i + 1
+        pass_index <- pass_index + 1
+    i <- 0
+    while i < n:
+        tsvc_s281_store_i64_le(a[i].i64(), output, 8 * i)
+        tsvc_s281_store_i64_le(b[i].i64(), output, 8 * (n + i))
+        i <- i + 1
+    output_bytes.i64()
+
+export fn tsvc_s281_reverse_coupled_update(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s281_reverse_coupled_update_impl

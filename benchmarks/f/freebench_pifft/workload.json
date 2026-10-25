@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-freebench-pifft-bounded-fft-agm-scalar-v1",
+  "algorithm": "freebench_pifft",
+  "function_symbol": "freebench_pifft",
+  "description": "Bounded FFT-convolution multiplication within FreeBench's modified AGM pi calculation.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["FreeBench/pifft/pifft.c", "FreeBench/pifft/fftsg.c", "FreeBench/pifft/info.sh", "FreeBench/pifft/test.in", "FreeBench/pifft/ref.in", "FreeBench/pifft/pifft.reference_output"],
+    "symbols": ["mp_mul", "mp_squ", "mp_inv", "mp_sqrt", "mp_sscanf", "mp_sprintf", "main"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/FreeBench/pifft",
+    "license_note": "The pifft.c header attributes the program to T. Ooura; neither pifft.c nor fftsg.c contains an explicit license grant, and the pinned directory has no separate license file. No upstream license is inferred. Ports and oracle are independently written from the modified AGM equations and observed behavior; no upstream source code or comments are copied."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "FreeBench/pifft/info.sh",
+    "bench_name": "pifft",
+    "source_files": ["fftsg.c", "pifft.c"],
+    "run_options": "test.in when SMALL_PROBLEM_SIZE is set; otherwise ref.in",
+    "test_profile_nfft": 16384,
+    "reference_profile_nfft": 1048576
+  },
+  "contract": {
+    "algorithm": "Modified Gauss-Legendre arithmetic-geometric mean recurrence from pifft.c, with an eight-point radix-2 FFT convolution used for fixed-point multiplication.",
+    "input": "The only valid signed integer input is nfft=8, representing the bounded FFT length. Other values return -1.",
+    "fixed_point_scale": 1000000,
+    "multiplication": "Decompose each scaled operand into three base-1000 limbs, zero-pad their product to an 8-point radix-2 convolution, round coefficients to integers, reconstruct the exact limb product, then round to six decimal places.",
+    "iteration": "Apply the source initialization and update order; stop when the residual is within one micro-unit or after eight updates.",
+    "observable_result": "Round the modified AGM pi estimate half-up to milli-units; 3142 encodes 3.142.",
+    "invalid_result": -1,
+    "bounded_profile_note": "The source launcher selects nfft=16384 or 1048576. Those high-precision profiles are not reproduced; this workload fixes nfft=8 and reports a three-decimal result to keep the scalar ABI portable and bounded."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Fixed radix-2 transform length nfft.",
+    "valid_value": 8,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Modified AGM estimate of pi rounded half-up to milli-units.",
+    "scale": 1000,
+    "valid_result": 3142,
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "bounded_eight_point_profile", "input_value": 8, "expected_result": 3142},
+    {"id": "profile_below_bound", "input_value": 4, "expected_result": -1},
+    {"id": "profile_above_bound", "input_value": 16, "expected_result": -1},
+    {"id": "negative_length", "input_value": -8, "expected_result": -1}
+  ]
+}

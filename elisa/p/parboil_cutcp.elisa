@@ -1,0 +1,191 @@
+module parboil_cutcp
+
+extern floorf(f32 value) -> f32
+extern ceilf(f32 value) -> f32
+extern sqrtf(f32 value) -> f32
+
+const MAX_DIM: i64 = 4
+const MAX_ATOMS: i64 = 4
+const MAX_INPUT: i64 = 25
+const MAX_GRID: i64 = 64
+const INV_CELL_LENGTH: f32 = 0.25.f32()
+
+def fn f32 parboil_cutcp_decode(i64 raw):
+    return raw.f32() / 1000000.0.f32()
+
+def fn i32 parboil_cutcp_quantize(f32 value):
+    scaled: f32 = value * 1000.0.f32()
+    magnitude: f32 = if scaled < 0.0.f32(): -scaled else: scaled
+    whole: mutable i32 = magnitude.i32()
+    if magnitude - whole.f32() >= 0.5.f32(): whole <- whole + 1
+    if scaled < 0.0.f32(): return -whole
+    return whole
+
+def fn void parboil_cutcp_write_i32_le(u8* output, i64 offset, i32 value):
+    bits: u32 = value.u32()
+    output[offset] <- bits.u8()
+    output[offset + 1] <- (bits >> 8).u8()
+    output[offset + 2] <- (bits >> 16).u8()
+    output[offset + 3] <- (bits >> 24).u8()
+
+/* Clean-room Parboil cutcp profile; Illinois Open Source License in package docs. */
+def fn i64 parboil_cutcp(i64* input, i64 input_length, u8* output, i64 output_capacity):
+    if input == null or input_length < 13 or input_length > MAX_INPUT: return -1
+    if input[0] < 2 or input[0] > MAX_DIM or input[1] < 2 or input[1] > MAX_DIM
+        or input[2] < 2 or input[2] > MAX_DIM or input[3] < 1 or input[3] > MAX_ATOMS: return -1
+    nx: i64 = input[0]
+    ny: i64 = input[1]
+    nz: i64 = input[2]
+    atom_count: i64 = input[3]
+    if input_length != 9 + 4 * atom_count: return -1
+    xlo_raw: i64 = input[4]
+    ylo_raw: i64 = input[5]
+    zlo_raw: i64 = input[6]
+    spacing_raw: i64 = input[7]
+    cutoff_raw: i64 = input[8]
+    if xlo_raw < -16000000 or xlo_raw > 16000000 or ylo_raw < -16000000 or ylo_raw > 16000000
+        or zlo_raw < -16000000 or zlo_raw > 16000000 or xlo_raw % 1000000 != 0
+        or ylo_raw % 1000000 != 0 or zlo_raw % 1000000 != 0
+        or spacing_raw < 1000000 or spacing_raw > 4000000 or spacing_raw % 1000000 != 0
+        or cutoff_raw < 250000 or cutoff_raw > 4000000: return -1
+    n: mutable i64 = 0
+    while n < atom_count:
+        offset: i64 = 9 + 4 * n
+        if input[offset] < 0 or input[offset] >= nx - 1 or input[offset + 1] < 0
+            or input[offset + 1] >= ny - 1 or input[offset + 2] < 0
+            or input[offset + 2] >= nz - 1 or input[offset + 3] < -1000000
+            or input[offset + 3] > 1000000: return -1
+        n <- n + 1
+    points: i64 = nx * ny * nz
+    output_bytes: i64 = 4 * points
+    if output == null or output_capacity < output_bytes: return -2
+
+    xlo: f32 = parboil_cutcp_decode(xlo_raw)
+    ylo: f32 = parboil_cutcp_decode(ylo_raw)
+    zlo: f32 = parboil_cutcp_decode(zlo_raw)
+    spacing: f32 = parboil_cutcp_decode(spacing_raw)
+    cutoff: f32 = parboil_cutcp_decode(cutoff_raw)
+    half_spacing: f32 = spacing * 0.5.f32()
+    atoms_x: mutable f32[4] = zeroed
+    atoms_y: mutable f32[4] = zeroed
+    atoms_z: mutable f32[4] = zeroed
+    atoms_q: mutable f32[4] = zeroed
+    n <- 0
+    while n < atom_count:
+        offset: i64 = 9 + 4 * n
+        ix: f32 = input[offset].f32()
+        iy: f32 = input[offset + 1].f32()
+        iz: f32 = input[offset + 2].f32()
+        atoms_x[n] <- xlo + (ix * spacing + half_spacing)
+        atoms_y[n] <- ylo + (iy * spacing + half_spacing)
+        atoms_z[n] <- zlo + (iz * spacing + half_spacing)
+        atoms_q[n] <- parboil_cutcp_decode(input[offset + 3])
+        n <- n + 1
+
+    min_x: mutable f32 = atoms_x[0]
+    max_x: mutable f32 = atoms_x[0]
+    min_y: mutable f32 = atoms_y[0]
+    max_y: mutable f32 = atoms_y[0]
+    min_z: mutable f32 = atoms_z[0]
+    max_z: mutable f32 = atoms_z[0]
+    n <- 1
+    while n < atom_count:
+        if atoms_x[n] < min_x: min_x <- atoms_x[n]
+        if atoms_x[n] > max_x: max_x <- atoms_x[n]
+        if atoms_y[n] < min_y: min_y <- atoms_y[n]
+        if atoms_y[n] > max_y: max_y <- atoms_y[n]
+        if atoms_z[n] < min_z: min_z <- atoms_z[n]
+        if atoms_z[n] > max_z: max_z <- atoms_z[n]
+        n <- n + 1
+    nx_cell: i64 = floorf((max_x - min_x) * INV_CELL_LENGTH).i64() + 1
+    ny_cell: i64 = floorf((max_y - min_y) * INV_CELL_LENGTH).i64() + 1
+    nz_cell: i64 = floorf((max_z - min_z) * INV_CELL_LENGTH).i64() + 1
+    cell_count: i64 = nx_cell * ny_cell * nz_cell
+    first: mutable i64[64] = zeroed
+    next: mutable i64[4] = zeroed
+    n <- 0
+    while n < cell_count:
+        first[n] <- -1
+        n <- n + 1
+    n <- 0
+    while n < atom_count:
+        next[n] <- -1
+        n <- n + 1
+    n <- 0
+    while n < atom_count:
+        if atoms_q[n] != 0.0.f32():
+            i: i64 = floorf((atoms_x[n] - min_x) * INV_CELL_LENGTH).i64()
+            j: i64 = floorf((atoms_y[n] - min_y) * INV_CELL_LENGTH).i64()
+            k: i64 = floorf((atoms_z[n] - min_z) * INV_CELL_LENGTH).i64()
+            cell: i64 = (k * ny_cell + j) * nx_cell + i
+            next[n] <- first[cell]
+            first[cell] <- n
+        n <- n + 1
+
+    cutoff_squared: f32 = cutoff * cutoff
+    inv_cutoff_squared: f32 = 1.0.f32() / cutoff_squared
+    inv_spacing: f32 = 1.0.f32() / spacing
+    radius: i64 = ceilf(cutoff * inv_spacing).i64() - 1
+    grid: mutable f32[64] = zeroed
+    c: mutable i64 = 0
+    while c < cell_count:
+        n <- first[c]
+        while n != -1:
+            x: f32 = atoms_x[n] - xlo
+            y: f32 = atoms_y[n] - ylo
+            z: f32 = atoms_z[n] - zlo
+            q: f32 = atoms_q[n]
+            ic: i64 = (x * inv_spacing).i64()
+            jc: i64 = (y * inv_spacing).i64()
+            kc: i64 = (z * inv_spacing).i64()
+            ia: mutable i64 = ic - radius
+            ib: mutable i64 = ic + radius + 1
+            ja: mutable i64 = jc - radius
+            jb: mutable i64 = jc + radius + 1
+            ka: mutable i64 = kc - radius
+            kb: mutable i64 = kc + radius + 1
+            if ia < 0: ia <- 0
+            if ib >= nx: ib <- nx - 1
+            if ja < 0: ja <- 0
+            if jb >= ny: jb <- ny - 1
+            if ka < 0: ka <- 0
+            if kb >= nz: kb <- nz - 1
+            xstart: f32 = ia.f32() * spacing - x
+            ystart: f32 = ja.f32() * spacing - y
+            dz: mutable f32 = ka.f32() * spacing - z
+            k: mutable i64 = ka
+            while k <= kb:
+                koff: i64 = k * ny
+                dz2: f32 = dz * dz
+                dy: mutable f32 = ystart
+                j: mutable i64 = ja
+                while j <= jb:
+                    jkoff: i64 = (koff + j) * nx
+                    dydz2: f32 = dy * dy + dz2
+                    if dydz2 < cutoff_squared:
+                        dx: mutable f32 = xstart
+                        i: mutable i64 = ia
+                        while i <= ib:
+                            r2: f32 = dx * dx + dydz2
+                            if r2 < cutoff_squared:
+                                s: f32 = 1.0.f32() - r2 * inv_cutoff_squared
+                                reciprocal_r: f32 = 1.0.f32() / sqrtf(r2)
+                                energy: mutable f32 = q * reciprocal_r
+                                energy <- energy * s
+                                energy <- energy * s
+                                grid[jkoff + i] <- grid[jkoff + i] + energy
+                            dx <- dx + spacing
+                            i <- i + 1
+                    dy <- dy + spacing
+                    j <- j + 1
+                dz <- dz + spacing
+                k <- k + 1
+            n <- next[n]
+        c <- c + 1
+    point: mutable i64 = 0
+    while point < points:
+        parboil_cutcp_write_i32_le(output, 4 * point, parboil_cutcp_quantize(grid[point]))
+        point <- point + 1
+    return output_bytes
+
+export fn parboil_cutcp

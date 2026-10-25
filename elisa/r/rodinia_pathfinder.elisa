@@ -1,0 +1,51 @@
+// Bounded row-wise minimum-cost path through a grid.
+export fn rodinia_pathfinder(input: i64&, length: usize) -> i64 {
+    if length < 4 or length > 1027: return -1
+    cols_value: i64 = input[0]
+    rows_value: i64 = input[1]
+    height_value: i64 = input[2]
+    if cols_value < 1 or cols_value > 32 or rows_value < 1 or rows_value > 32 or
+        height_value < 1 or height_value > 4: return -1
+    cols: usize = cols_value.usize()
+    rows: usize = rows_value.usize()
+    height: usize = height_value.usize()
+    cells: usize = cols * rows
+    if length != 3 + cells: return -1
+    index: mutable usize = 0
+    while index < cells:
+        if input[3 + index] < 0 or input[3 + index] > 9: return -1
+        index <- index + 1
+
+    previous: mutable i64[32] = zeroed
+    current: mutable i64[32] = zeroed
+    col: mutable usize = 0
+    while col < cols:
+        previous[col] <- input[3 + col]
+        col <- col + 1
+    first: mutable usize = 1
+    while first < rows:
+        steps: mutable usize = rows - first
+        if steps > height: steps <- height
+        step: mutable usize = 0
+        while step < steps:
+            row: usize = first + step
+            col <- 0
+            while col < cols:
+                best: mutable i64 = previous[col]
+                if col > 0 and previous[col - 1] < best: best <- previous[col - 1]
+                if col + 1 < cols and previous[col + 1] < best: best <- previous[col + 1]
+                current[col] <- best + input[3 + row * cols + col]
+                col <- col + 1
+            col <- 0
+            while col < cols:
+                previous[col] <- current[col]
+                col <- col + 1
+            step <- step + 1
+        first <- first + height
+    answer: mutable i64 = previous[0]
+    col <- 1
+    while col < cols:
+        if previous[col] < answer: answer <- previous[col]
+        col <- col + 1
+    return answer
+}

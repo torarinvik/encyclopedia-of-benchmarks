@@ -1,0 +1,79 @@
+module llubenchmark_list_traversal_growth;
+
+def fn void llub_store_le_i64(u8* output, i64 offset, i64 value):
+    byte: mutable i64 = 0
+    while byte < 8:
+        output[offset + byte] <- ((value >> (8 * byte)).u8())
+        byte <- byte + 1
+
+def fn i64 llubenchmark_list_traversal_growth(i64* input, i64 input_length,
+        u8* output, i64 output_capacity):
+    if input == null or input_length != 3: return -1
+    list_value: i64 = input[0]
+    initial_value: i64 = input[1]
+    iteration_value: i64 = input[2]
+    if list_value < 1 or list_value > 4 or initial_value < 1 or initial_value > 4 or iteration_value < 0 or iteration_value > 16: return -1
+    if output == null or output_capacity < 16: return -2
+
+    list_count: i64 = list_value
+    initial_length: i64 = initial_value
+    iterations: i64 = iteration_value
+    next_node: mutable i64[36] = zeroed
+    node_count: mutable i64[36] = zeroed
+    head: mutable i64[4] = zeroed
+    tail: mutable i64[4] = zeroed
+    i: mutable i64 = 0
+    while i < 36:
+        next_node[i] <- -1
+        i <- i + 1
+    i <- 0
+    while i < 4:
+        head[i] <- -1
+        tail[i] <- -1
+        i <- i + 1
+    allocated: mutable i64 = 0
+    level: mutable i64 = 0
+    while level < initial_length:
+        list: mutable i64 = 0
+        while list < list_count:
+            node: i64 = allocated
+            allocated <- allocated + 1
+            next_node[node] <- head[list]
+            head[list] <- node
+            if tail[list] == -1: tail[list] <- node
+            list <- list + 1
+        level <- level + 1
+
+    accumulate: mutable i64 = 0
+    growth_milli: mutable i64 = 0
+    pass: mutable i64 = 0
+    while pass < iterations:
+        list: mutable i64 = 0
+        while list < list_count:
+            node: mutable i64 = head[list]
+            while node != -1:
+                accumulate <- accumulate + node_count[node]
+                node_count[node] <- node_count[node] + 1
+                node <- next_node[node]
+            list <- list + 1
+        growth_milli <- growth_milli + 333
+        insertions: i64 = growth_milli / 1000
+        growth_milli <- growth_milli - insertions * 1000
+        ordinal: mutable i64 = insertions
+        while ordinal > 0:
+            list <- 0
+            while list < list_count:
+                node: i64 = allocated
+                allocated <- allocated + 1
+                node_count[node] <- list + ordinal
+                next_node[node] <- -1
+                next_node[tail[list]] <- node
+                tail[list] <- node
+                list <- list + 1
+            ordinal <- ordinal - 1
+        pass <- pass + 1
+    llub_store_le_i64(output, 0, accumulate)
+    llub_store_le_i64(output, 8, allocated)
+    return 2
+
+export fn llubenchmark_list_traversal_growth

@@ -1,0 +1,17 @@
+LAME `quantize.c` source license declaration:
+
+Copyright (c) 1999 Mark Taylor
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+more details.
+
+The ports independently implement the documented L/R-to-mid/side arithmetic
+and do not copy LAME source code. The pinned source declares GPL-2.0-or-later;
+the full terms are available at:
+https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

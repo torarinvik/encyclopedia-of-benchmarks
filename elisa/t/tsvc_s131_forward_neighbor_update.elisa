@@ -1,0 +1,45 @@
+# Clean-room bounded profile of TSVC s131; see package README.
+
+const TSVC_S131_MAX_N: usize = 64
+const TSVC_S131_MAX_INPUT_LENGTH: usize = 130
+const TSVC_S131_MAX_VALUE: i64 = 1000000
+const TSVC_S131_MAX_PASSES: i64 = 32
+
+def tsvc_s131_bounded(value: i64) -> bool:
+    value >= -TSVC_S131_MAX_VALUE and value <= TSVC_S131_MAX_VALUE
+
+def tsvc_s131_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s131_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > TSVC_S131_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    passes: i64 = input[1]
+    if n_value < 1 or n_value > 64 or passes < 1 or passes > TSVC_S131_MAX_PASSES:
+        return -1
+    n: usize = n_value.usize()
+    if length != 2 + 2 * n:
+        return -1
+
+    a: mutable i64[64] = zeroed
+    b: i64[64] = zeroed
+    for i in 0..n:
+        a[i] <- input[2 + i]
+        b[i] <- input[2 + n + i]
+        if not tsvc_s131_bounded(a[i]) or not tsvc_s131_bounded(b[i]):
+            return -1
+    if output.is_null() or capacity < 8 * n:
+        return -2
+
+    for pass in 0..passes.usize():
+        for i in 0..n - 1:
+            a[i] <- a[i + 1] + b[i]
+    for i in 0..n:
+        tsvc_s131_store(a[i], output, 8 * i)
+    n.i64()
+
+export fn tsvc_s131_forward_neighbor_update(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s131_impl

@@ -1,0 +1,50 @@
+/* Clean-room RSynth impulsive glottal/resonator profile; modified implementation. */
+extern exp(value: f64) -> f64
+extern cos(value: f64) -> f64
+
+def fn f64 cbench_rsynth_impulsive_sample_impl(f64& input, usize input_length,
+        mutable f64& output, usize output_capacity) -> i64:
+    if input.is_null() or input_length < 1 or input_length > 3:
+        return -1
+    if input_length != 2:
+        return -1
+    open_value: f64 = input[0]
+    sample_value: f64 = input[1]
+    if open_value != open_value or sample_value != sample_value:
+        return -1
+    if open_value < 40.0 or open_value > 263.0 or open_value != open_value.i64().f64():
+        return -1
+    if sample_value < 0.0 or sample_value > 299.0 or sample_value != sample_value.i64().f64():
+        return -1
+    nopen: i64 = open_value.i64()
+    target: i64 = sample_value.i64()
+    rate: i64 = 8000
+    minus_pi: f32 = (-3.14159265358979323846 / rate.f64()).f32()
+    two_pi: f32 = (-2.0 * minus_pi.f64()).f32()
+    bandwidth: i64 = rate / nopen
+    r: f32 = exp(minus_pi.f64() * bandwidth.f64()).f32()
+    c: f32 = (-(r * r)).f32()
+    b: f32 = (r.f64() * cos(two_pi.f64() * 0.0) * 2.0).f32()
+    a: mutable f32 = (1.0 - b.f64() - c.f64()).f32()
+    t: f32 = (nopen.f64() * 0.00833).f32()
+    a <- (a * (t * t)).f32()
+    p1: mutable f32 = 0.0
+    p2: mutable f32 = 0.0
+    result: mutable f32 = 0.0
+    i: mutable i64 = 0
+    while i <= target:
+        impulse: f32 = if i == 1: 13000000.0.f32() else: if i == 2: -13000000.0.f32() else: 0.0.f32()
+        x: mutable f32 = (a * impulse).f32()
+        x <- (x + (b * p1).f32()).f32()
+        x <- (x + (c * p2).f32()).f32()
+        p2 <- p1
+        p1 <- x
+        result <- x
+        i <- i + 1
+    if output.is_null() or output_capacity < 1:
+        return -2
+    output[0] <- result.f64()
+    return 1
+
+export fn cbench_rsynth_impulsive_glottal_sample(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = cbench_rsynth_impulsive_sample_impl

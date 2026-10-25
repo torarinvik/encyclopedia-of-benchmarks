@@ -38,6 +38,38 @@ from linpack_lu_solve_oracle import INVALID_RESULT as LINPACK_LU_SOLVE_INVALID_R
 from linpack_lu_solve_oracle import expected_result as linpack_lu_solve_oracle
 from nbench_fourier_coefficients_oracle import INVALID_RESULT as NBENCH_FOURIER_INVALID_RESULT
 from nbench_fourier_coefficients_oracle import expected_result as nbench_fourier_coefficients_oracle
+from misc_flops_oracle import expected_result as misc_flops_oracle
+from freebench_fbench_oracle import expected_result as freebench_fbench_oracle
+from doe_rsbench_doppler_xs_oracle import (
+    INVALID_RESULT as DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT,
+    MAX_INPUT_LENGTH as DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH,
+    expected_result as doe_rsbench_doppler_xs_oracle,
+)
+from doe_simplemoc_quadratic_attenuation_oracle import (
+    INVALID_RESULT as DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT,
+    MAX_INPUT_LENGTH as DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_result as doe_simplemoc_quadratic_attenuation_oracle,
+)
+from doe_xsbench_unionized_macro_xs_oracle import (
+    INVALID_RESULT as DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT,
+    MAX_INPUT_LENGTH as DOE_XSBENCH_UNIONIZED_MACRO_XS_MAX_INPUT_LENGTH,
+    expected_result as doe_xsbench_unionized_macro_xs_oracle,
+)
+from doe_minigmg_restriction_oracle import (
+    INVALID_RESULT as DOE_MINIGMG_RESTRICTION_INVALID_RESULT,
+    MAX_INPUT_LENGTH as DOE_MINIGMG_RESTRICTION_MAX_INPUT_LENGTH,
+    expected_result as doe_minigmg_restriction_oracle,
+)
+from doe_miniamr_stencil_average_oracle import (
+    INVALID_RESULT as DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT,
+    MAX_INPUT_LENGTH as DOE_MINIAMR_STENCIL_AVERAGE_MAX_INPUT_LENGTH,
+    expected_result as doe_miniamr_stencil_average_oracle,
+)
+from rodinia_myocyte_cam_rhs_oracle import (
+    INVALID_RESULT as RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT,
+    expected_result as rodinia_myocyte_cam_rhs_oracle,
+)
 from run_i64_array_float64 import (
     MAX_KMEANS_RAW_R_WORKLOAD_INPUT_LENGTH,
     encode_case, resolve_tolerances, result_matches,
@@ -60,6 +92,14 @@ from run_i64_array_float64 import (
     validate_ansibench_whetstone_workload,
     validate_linpack_lu_solve_workload,
     validate_nbench_fourier_coefficients_workload,
+    validate_misc_flops_workload,
+    validate_freebench_fbench_workload,
+    validate_doe_rsbench_doppler_xs_workload,
+    validate_doe_simplemoc_quadratic_attenuation_workload,
+    validate_doe_xsbench_unionized_macro_xs_workload,
+    validate_doe_minigmg_restriction_workload,
+    validate_doe_miniamr_stencil_average_workload,
+    validate_rodinia_myocyte_cam_rhs_workload,
 )
 from traveling_salesman_solver_oracle import (
     INVALID_RESULT as TRAVELING_SALESMAN_SOLVER_INVALID_RESULT,
@@ -653,6 +693,14 @@ ALGORITHMS += ("polybench_symm",)
 ALGORITHMS += ("polybench_cholesky",)
 ALGORITHMS += ("polybench_ludcmp",)
 ALGORITHMS += ("ansibench_whetstone", "linpack_lu_solve", "nbench_fourier_coefficients")
+ALGORITHMS += ("misc_flops",)
+ALGORITHMS += ("freebench_fbench",)
+ALGORITHMS += ("doe_rsbench_doppler_xs",)
+ALGORITHMS += ("doe_simplemoc_quadratic_attenuation",)
+ALGORITHMS += ("doe_xsbench_unionized_macro_xs",)
+ALGORITHMS += ("doe_minigmg_restriction",)
+ALGORITHMS += ("doe_miniamr_stencil_average",)
+ALGORITHMS += ("rodinia_myocyte_cam_rhs",)
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_BATCH = 32
 MAX_SPARSE_CATEGORICAL_CROSS_ENTROPY_CLASSES = 32
@@ -946,6 +994,29 @@ def oracle(algorithm: str, values: list[int], *, input_is_null: bool = False,
     if algorithm == "nbench_fourier_coefficients":
         return nbench_fourier_coefficients_oracle(
             values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "misc_flops":
+        if input_is_null or (input_length is not None and input_length != len(values)):
+            return -1e300
+        return misc_flops_oracle(values)
+    if algorithm == "freebench_fbench":
+        return freebench_fbench_oracle(values)
+    if algorithm == "doe_rsbench_doppler_xs":
+        return doe_rsbench_doppler_xs_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "doe_simplemoc_quadratic_attenuation":
+        return doe_simplemoc_quadratic_attenuation_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "doe_xsbench_unionized_macro_xs":
+        return doe_xsbench_unionized_macro_xs_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "doe_minigmg_restriction":
+        return doe_minigmg_restriction_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "doe_miniamr_stencil_average":
+        return doe_miniamr_stencil_average_oracle(
+            values, input_is_null=input_is_null, input_length=input_length)
+    if algorithm == "rodinia_myocyte_cam_rhs":
+        return rodinia_myocyte_cam_rhs_oracle(values)
     if algorithm == "mvt":
         return mvt_oracle(values)
     if algorithm == "atax":
@@ -1237,6 +1308,22 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
         validate_linpack_lu_solve_workload(workload)
     elif algorithm == "nbench_fourier_coefficients":
         validate_nbench_fourier_coefficients_workload(workload)
+    elif algorithm == "misc_flops":
+        validate_misc_flops_workload(workload)
+    elif algorithm == "freebench_fbench":
+        validate_freebench_fbench_workload(workload)
+    elif algorithm == "doe_rsbench_doppler_xs":
+        validate_doe_rsbench_doppler_xs_workload(workload)
+    elif algorithm == "doe_simplemoc_quadratic_attenuation":
+        validate_doe_simplemoc_quadratic_attenuation_workload(workload)
+    elif algorithm == "doe_xsbench_unionized_macro_xs":
+        validate_doe_xsbench_unionized_macro_xs_workload(workload)
+    elif algorithm == "doe_minigmg_restriction":
+        validate_doe_minigmg_restriction_workload(workload)
+    elif algorithm == "doe_miniamr_stencil_average":
+        validate_doe_miniamr_stencil_average_workload(workload)
+    elif algorithm == "rodinia_myocyte_cam_rhs":
+        validate_rodinia_myocyte_cam_rhs_workload(workload)
     absolute_tolerance, relative_tolerance = resolve_tolerances(workload)
     if (not math.isfinite(absolute_tolerance) or absolute_tolerance < 0.0
             or not math.isfinite(relative_tolerance) or relative_tolerance < 0.0):
@@ -1257,6 +1344,194 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             explicit_null_cases.append((case["input_length"], source_result))
             continue
         cases[tuple(values)] = source_result
+
+    if algorithm == "doe_rsbench_doppler_xs":
+        windows = []
+        for index in range(4):
+            windows.extend((250_000 * (index + 1), 200_000, 300_000,
+                            2 * index, 2 * index + 2))
+        pseudo_factors = (0, 100_000, 200_000, 300_000)
+        poles = []
+        for index in range(8):
+            poles.extend((500_000, 1_000_000, 100_000, 200_000,
+                          300_000, 100_000, 200_000, 300_000, index % 4))
+        maximum_input = (4, 8, 4, 1_000_000, *windows, *pseudo_factors, *poles)
+        if len(maximum_input) != DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH:
+            raise ValueError("doe_rsbench_doppler_xs generated maximum input has the wrong length")
+        maximum_result = doe_rsbench_doppler_xs_oracle(maximum_input)
+        if (maximum_result == DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT
+                or not math.isfinite(maximum_result)):
+            raise ValueError("doe_rsbench_doppler_xs generated maximum input is outside its valid domain")
+        cases[maximum_input] = maximum_result
+        for malformed in (
+                (), (1,), (5, 0, 1, 0, *([0] * 6)),
+                maximum_input[:-1], maximum_input + (0,),
+                maximum_input[:-1] + (4,)):
+            cases[tuple(malformed)] = doe_rsbench_doppler_xs_oracle(malformed)
+
+    if algorithm == "doe_simplemoc_quadratic_attenuation":
+        maximum_input = [4, 0, 10_000_000, 10_000_000,
+                         1_000_000, 1_000_000, 1_000_000]
+        for group in range(4):
+            maximum_input.extend((-10_000_000 + group * 1_000_000,
+                                  group * 1_000_000,
+                                  10_000_000 - group * 1_000_000,
+                                  1_000_000, 1_000_000, 2_000_000))
+        maximum_result = doe_simplemoc_quadratic_attenuation_oracle(maximum_input)
+        if (len(maximum_input) != DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_MAX_INPUT_LENGTH
+                or maximum_result == DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT
+                or not math.isfinite(maximum_result)):
+            raise ValueError("SimpleMOC generated maximum-group input is outside its valid domain")
+        cases[tuple(maximum_input)] = maximum_result
+        rng_simplemoc = random.Random(20261025)
+        for _ in range(48):
+            groups = rng_simplemoc.randint(1, 4)
+            dz = rng_simplemoc.randint(10_000, 10_000_000)
+            zin = rng_simplemoc.randint(-(dz // 3), dz // 3)
+            sigma = rng_simplemoc.randint(100_000, 1_000_000)
+            ds = rng_simplemoc.randint(1_000, 10_000_000)
+            values = [groups, zin, dz, ds, rng_simplemoc.randint(0, 1_000_000),
+                      rng_simplemoc.randint(0, 1_000_000),
+                      rng_simplemoc.randint(0, 1_000_000)]
+            for _group in range(groups):
+                values.extend((rng_simplemoc.randint(-10_000_000, 10_000_000),
+                               rng_simplemoc.randint(-10_000_000, 10_000_000),
+                               rng_simplemoc.randint(-10_000_000, 10_000_000),
+                               sigma, rng_simplemoc.randint(0, 1_000_000),
+                               rng_simplemoc.randint(0, 1_000_000)))
+            sample = tuple(values)
+            result = doe_simplemoc_quadratic_attenuation_oracle(sample)
+            if result == DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT or not math.isfinite(result):
+                raise ValueError("SimpleMOC generated a random input outside its valid domain")
+            cases[sample] = result
+        for malformed in (
+                (), (0, 0, 1_000_000, 1_000_000, 1_000_000, 1_000_000, 1_000_000),
+                (1, 0, 1_000_000, 1_000_000, 1_000_000, 1_000_000, 1_000_000),
+                tuple(maximum_input[:-1]), tuple(maximum_input + [0]),
+                (1, 0, 1_000_000, 10_000_000, 1_000_000, 1_000_000,
+                 1_000_000, 0, 0, 0, 2_000_000, 500_000, 250_000)):
+            result = doe_simplemoc_quadratic_attenuation_oracle(malformed)
+            if result != DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT:
+                raise ValueError("SimpleMOC accepted a generated malformed input")
+            cases[tuple(malformed)] = result
+
+    if algorithm == "doe_xsbench_unionized_macro_xs":
+        nuclides = 4
+        gridpoints = 5
+        material_nuclides = 4
+        maximum_input = [nuclides, gridpoints, material_nuclides, 555_555]
+        for nuclide in range(nuclides):
+            maximum_input.extend((nuclide, 250_000 * (nuclide + 1)))
+        per_nuclide_energies = [
+            [point * 200_000 + nuclide * 20_000 for point in range(gridpoints)]
+            for nuclide in range(nuclides)
+        ]
+        union_energies = sorted(
+            energy for grid in per_nuclide_energies for energy in grid
+        )
+        maximum_input.extend(union_energies)
+        for union_energy in union_energies:
+            for grid in per_nuclide_energies:
+                if union_energy > grid[-1]:
+                    pointer = gridpoints - 2
+                else:
+                    pointer = 0
+                    for point, grid_energy in enumerate(grid):
+                        if grid_energy > union_energy:
+                            break
+                        pointer = point
+                maximum_input.append(pointer)
+        for nuclide, grid in enumerate(per_nuclide_energies):
+            for point, energy in enumerate(grid):
+                channels = [
+                    100_000 * (nuclide + 1) + 25_000 * point + 10_000 * channel
+                    for channel in range(5)
+                ]
+                maximum_input.extend((energy, *channels))
+        maximum_result = doe_xsbench_unionized_macro_xs_oracle(maximum_input)
+        if (len(maximum_input) != DOE_XSBENCH_UNIONIZED_MACRO_XS_MAX_INPUT_LENGTH
+                or maximum_result == DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT
+                or not math.isfinite(maximum_result)):
+            raise ValueError("XSBench generated maximum input is outside its valid domain")
+        cases[tuple(maximum_input)] = maximum_result
+
+        bad_pointer = maximum_input.copy()
+        bad_pointer[4 + 2 * material_nuclides + nuclides * gridpoints] = gridpoints - 1
+        bad_union_order = maximum_input.copy()
+        union_start = 4 + 2 * material_nuclides
+        bad_union_order[union_start], bad_union_order[union_start + 1] = (
+            bad_union_order[union_start + 1], bad_union_order[union_start]
+        )
+        bad_query = maximum_input.copy()
+        bad_query[3] = 1_000_001
+        bad_composition = maximum_input.copy()
+        bad_composition[4] = nuclides
+        bad_i64_component = maximum_input.copy()
+        bad_i64_component[3] = I64_MIN
+        malformed_inputs = (
+            (), (1,), (5, 2, 1, 0), tuple(maximum_input[:-1]),
+            tuple(maximum_input + [0]), tuple(bad_pointer), tuple(bad_union_order),
+            tuple(bad_query), tuple(bad_composition), tuple(bad_i64_component),
+        )
+        for malformed in malformed_inputs:
+            result = doe_xsbench_unionized_macro_xs_oracle(malformed)
+            if result != DOE_XSBENCH_UNIONIZED_MACRO_XS_INVALID_RESULT:
+                raise ValueError("XSBench accepted a generated malformed input")
+            cases[tuple(malformed)] = result
+
+    if algorithm == "doe_minigmg_restriction":
+        nx = ny = nz = 8
+        fine = tuple((index * 7919) % 65536 - 32768
+                     for index in range(nx * ny * nz))
+        maximum_input = (nx, ny, nz, *fine)
+        if len(maximum_input) != DOE_MINIGMG_RESTRICTION_MAX_INPUT_LENGTH:
+            raise ValueError("miniGMG generated maximum input has the wrong length")
+        maximum_result = doe_minigmg_restriction_oracle(maximum_input)
+        if (maximum_result == DOE_MINIGMG_RESTRICTION_INVALID_RESULT
+                or not math.isfinite(maximum_result)):
+            raise ValueError("miniGMG generated maximum input is outside its valid domain")
+        cases[maximum_input] = maximum_result
+
+        malformed_inputs = (
+            (), (2, 2, 2), (0, 2, 2, *fine),
+            (3, 2, 2, *([0] * 12)), (10, 2, 2, *([0] * 40)),
+            maximum_input[:-1], maximum_input + (0,),
+            (2, 2, 2, -32769, 0, 0, 0, 0, 0, 0, 0),
+            (2, 2, 2, 32768, 0, 0, 0, 0, 0, 0, 0),
+        )
+        for malformed in malformed_inputs:
+            result = doe_minigmg_restriction_oracle(malformed)
+            if result != DOE_MINIGMG_RESTRICTION_INVALID_RESULT:
+                raise ValueError("miniGMG accepted a generated malformed input")
+            cases[tuple(malformed)] = result
+
+    if algorithm == "doe_miniamr_stencil_average":
+        nx = ny = nz = 4
+        haloed = tuple((index * 97) % 2001 - 1000
+                       for index in range((nx + 2) * (ny + 2) * (nz + 2)))
+        maximum_input = (27, nx, ny, nz, *haloed)
+        if len(maximum_input) != DOE_MINIAMR_STENCIL_AVERAGE_MAX_INPUT_LENGTH:
+            raise ValueError("miniAMR generated maximum input has the wrong length")
+        maximum_result = doe_miniamr_stencil_average_oracle(maximum_input)
+        if (maximum_result == DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT
+                or not math.isfinite(maximum_result)):
+            raise ValueError("miniAMR generated maximum input is outside its valid domain")
+        cases[maximum_input] = maximum_result
+
+        odd_grid = (7, 3, 4, 4, *([0] * (5 * 6 * 6)))
+        oversized_dimension = (7, 6, 2, 2, *([0] * (8 * 4 * 4)))
+        below_range = (7, 2, 2, 2, -1001, *([0] * 63))
+        above_range = (7, 2, 2, 2, 1001, *([0] * 63))
+        malformed_inputs = (
+            (), (7, 4, 4, 4), (9, 4, 4, 4, *haloed), odd_grid,
+            oversized_dimension, maximum_input[:-1], maximum_input + (0,),
+            below_range, above_range,
+        )
+        for malformed in malformed_inputs:
+            result = doe_miniamr_stencil_average_oracle(malformed)
+            if result != DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT:
+                raise ValueError("miniAMR accepted a generated malformed input")
+            cases[tuple(malformed)] = result
 
     if algorithm in {"traveling_salesman_solver_brute_force",
                      "traveling_salesman_solver_nearest_neighbor"}:
@@ -5963,6 +6238,20 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
             cases[values] = oracle(algorithm, list(values))
         for values in ((), (0,), (17,), (1, 2), (I64_MIN,), (I64_MAX,)):
             cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "misc_flops":
+        for module in range(1, 9):
+            for steps in (2, 3, 7, 16, 64, 127, 128):
+                values = (module, steps)
+                cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0, 16), (9, 16), (3, 1), (8, 129),
+                       (3, 16, 0), (I64_MIN, 16), (3, I64_MAX)):
+            cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "freebench_fbench":
+        for passes in (1, 2, 3, 4, 8, 16):
+            values = (passes,)
+            cases[values] = oracle(algorithm, list(values))
+        for values in ((), (0,), (17,), (1, 2), (I64_MIN,), (I64_MAX,)):
+            cases[values] = oracle(algorithm, list(values))
     elif algorithm == "linpack_lu_solve":
         for n in (2, 3, 4):
             matrix = tuple(1 if row == column else 0
@@ -6043,6 +6332,46 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                        (I64_MIN, 1, 1, 1, 1), (1, 1, 1, 1, I64_MAX),
                        (1, 1, 1, 1), (1, 1, 1, 1, 1, 1)):
             cases[values] = oracle(algorithm, list(values))
+    elif algorithm == "rodinia_myocyte_cam_rhs":
+        rng = random.Random(0x4D595943)
+
+        def make_myocyte_case() -> tuple[int, ...]:
+            return (
+                rng.randint(0, 100_000_000),
+                rng.randint(100_000_000, 200_000_000),
+                rng.randint(500_000, 5_000_000),
+                *(rng.randint(0, 10_000_000) for _ in range(19)),
+            )
+
+        for ca in (0, 100_000_000):
+            for potassium in (100_000_000, 200_000_000):
+                for magnesium in (500_000, 1_000_000, 5_000_000):
+                    values = (ca, potassium, magnesium, *([0] * 19))
+                    result = oracle(algorithm, list(values))
+                    if not math.isfinite(result) or result == RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT:
+                        raise ValueError("Myocyte boundary state was rejected by the bounded oracle")
+                    cases[values] = result
+        for _case_index in range(32):
+            values = make_myocyte_case()
+            result = oracle(algorithm, list(values))
+            if not math.isfinite(result) or result == RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT:
+                raise ValueError("Myocyte randomized state was rejected by the bounded oracle")
+            cases[values] = result
+
+        base = (50_000_000, 140_000_000, 2_000_000, *([1_000_000] * 19))
+        malformed = (
+            (), base[:-1],
+            (-1, *base[1:]), (100_000_001, *base[1:]),
+            (base[0], 99_999_999, *base[2:]), (base[0], 200_000_001, *base[2:]),
+            (base[0], base[1], 499_999, *base[3:]),
+            (base[0], base[1], 5_000_001, *base[3:]),
+            (*base[:3], -1, *base[4:]), (*base[:3], 10_000_001, *base[4:]),
+        )
+        for values in malformed:
+            result = oracle(algorithm, list(values))
+            if result != RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT:
+                raise ValueError("Myocyte accepted a generated malformed or out-of-range state")
+            cases[values] = result
     else:
         raise ValueError(f"no corpus for {algorithm}")
 
@@ -6145,7 +6474,13 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
                     "covariance": 2,
                     "ansibench_whetstone": 1,
                     "linpack_lu_solve": 1,
-                    "nbench_fourier_coefficients": 0}
+                    "nbench_fourier_coefficients": 0,
+                    "doe_rsbench_doppler_xs": DOE_RSBENCH_DOPPLER_XS_MAX_INPUT_LENGTH,
+                    "doe_simplemoc_quadratic_attenuation": 0,
+                    "doe_xsbench_unionized_macro_xs": 0,
+                    "doe_minigmg_restriction": 0,
+                    "doe_miniamr_stencil_average": 0,
+                    "rodinia_myocyte_cam_rhs": 0}
     null_lengths["doitgen"] = 3
     null_lengths["2mm"] = 4
     null_lengths["3mm"] = 5
@@ -6156,7 +6491,17 @@ def corpus(workload: dict, algorithm: str) -> tuple[str, int]:
     null_lengths["laplace_transformation"] = 3
     null_lengths["relativity"] = 3
     null_length = null_lengths[algorithm]
-    null_result = (MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
+    null_result = (DOE_RSBENCH_DOPPLER_XS_INVALID_RESULT
+                   if algorithm == "doe_rsbench_doppler_xs" else
+                   DOE_SIMPLEMOC_QUADRATIC_ATTENUATION_INVALID_RESULT
+                   if algorithm == "doe_simplemoc_quadratic_attenuation" else
+                   DOE_MINIGMG_RESTRICTION_INVALID_RESULT
+                   if algorithm == "doe_minigmg_restriction" else
+                   DOE_MINIAMR_STENCIL_AVERAGE_INVALID_RESULT
+                   if algorithm == "doe_miniamr_stencil_average" else
+                   RODINIA_MYOCYTE_CAM_RHS_INVALID_RESULT
+                   if algorithm == "rodinia_myocyte_cam_rhs" else
+                   MEAN_BIAS_DEVIATION_PERCENT_INVALID_RESULT
                    if algorithm == "mean_bias_deviation_percent" else
                    ANSIBENCH_WHETSTONE_INVALID_RESULT
                    if algorithm == "ansibench_whetstone" else

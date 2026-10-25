@@ -1,0 +1,21 @@
+# Independent ROP3 truth-table dependency profile; full AFPL v5 is bundled.
+export fn cbench_ghostscript_rop3_operand_usage(values: i64&, length: usize) -> i64 = cbench_ghostscript_rop3_operand_usage_impl
+
+def cbench_ghostscript_rop3_operand_usage_impl(values: i64&, length: usize) -> i64:
+    if length > 2: return -1
+    if length > 0 and values == null: return -1
+    if length != 1: return -1
+    if values[0] < 0 or values[0] > 255: return -1
+    code: u64 = values[0].u64()
+    usage: mutable u64 = 0
+    dimension: mutable usize = 0
+    while dimension < 3:
+        toggle: usize = 1 << dimension
+        index: mutable usize = 0
+        while index < 8:
+            if (index & toggle) == 0 and ((code >> index) & 1) != ((code >> (index | toggle)) & 1):
+                usage <- usage | toggle.u64()
+                break
+            index <- index + 1
+        dimension <- dimension + 1
+    return usage.i64()

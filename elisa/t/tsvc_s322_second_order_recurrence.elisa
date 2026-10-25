@@ -1,0 +1,43 @@
+# Clean-room bounded profile of TSVC s322; see package README.
+
+const TSVC_S322_MAX_N: usize = 64
+const TSVC_S322_MAX_INPUT_LENGTH: usize = 193
+
+def tsvc_s322_bounded(value: i64) -> bool:
+    value >= -1 and value <= 1
+
+def tsvc_s322_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s322_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 7 or length > TSVC_S322_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 2 or n_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + 3 * n:
+        return -1
+
+    a_start: usize = 1
+    b_start: usize = a_start + n
+    c_start: usize = b_start + n
+    for i in 0..n:
+        if not tsvc_s322_bounded(input[a_start + i]) or not tsvc_s322_bounded(input[b_start + i]) or not tsvc_s322_bounded(input[c_start + i]):
+            return -1
+    if output.is_null() or capacity < 8 * n:
+        return -2
+
+    a: i64[64]
+    for i in 0..n:
+        a[i] <- input[a_start + i]
+    for i in 2..n:
+        a[i] <- a[i] + a[i - 1] * input[b_start + i] + a[i - 2] * input[c_start + i]
+    for i in 0..n:
+        tsvc_s322_store(a[i], output, 8 * i)
+    n.i64()
+
+export fn tsvc_s322_second_order_recurrence(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s322_impl

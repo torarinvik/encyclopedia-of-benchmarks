@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-ima-adpcm-encode-decode-i64-array-bytes-output-v1",
+  "algorithm": "lac_adpcm",
+  "function_symbol": "lac_adpcm",
+  "description": "Bounded IMA/DVI adaptive differential PCM encoding and decoding with an operation selector.",
+  "pinned_sources": [
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "cBench/telecom_adpcm_c/src/adpcm.c",
+      "related_paths": ["cBench/telecom_adpcm_c/src/adpcm.h", "cBench/telecom_adpcm_c/src/rawcaudio.c", "cBench/telecom_adpcm_c/src/info.sh"],
+      "symbols": ["adpcm_coder"],
+      "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/telecom_adpcm_c/src",
+      "launcher": "telecom_adpcm_c",
+      "license_note": "Source grants use, copy, modification, and distribution with no fee, provided the copyright and permission notices are retained and the stated advertising restriction is followed."
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "cBench/telecom_adpcm_d/src/adpcm.c",
+      "related_paths": ["cBench/telecom_adpcm_d/src/adpcm.h", "cBench/telecom_adpcm_d/src/rawdaudio.c", "cBench/telecom_adpcm_d/src/info.sh"],
+      "symbols": ["adpcm_decoder"],
+      "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/telecom_adpcm_d/src",
+      "launcher": "telecom_adpcm_d",
+      "license_note": "Same IMA/DVI ADPCM implementation and permissive notice as the encoder launcher."
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "mediabench/adpcm/rawcaudio/adpcm.c",
+      "related_paths": ["mediabench/adpcm/rawcaudio/adpcm.h", "mediabench/adpcm/rawcaudio/rawcaudio.c", "mediabench/adpcm/rawcaudio/info.sh"],
+      "symbols": ["adpcm_coder"],
+      "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/adpcm/rawcaudio",
+      "launcher": "rawcaudio",
+      "source_blob": "c4dfa50350a43d2a961d6397eb03a4df29530d5a",
+      "license_note": "The coder source blob is byte-identical to Mediabench rawdaudio and retains the same Stichting Mathematisch Centrum permission notice."
+    },
+    {
+      "repository": "lac-dcc/Benchmarks",
+      "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+      "path": "mediabench/adpcm/rawdaudio/adpcm.c",
+      "related_paths": ["mediabench/adpcm/rawdaudio/adpcm.h", "mediabench/adpcm/rawdaudio/rawdaudio.c", "mediabench/adpcm/rawdaudio/info.sh"],
+      "symbols": ["adpcm_decoder"],
+      "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/mediabench/adpcm/rawdaudio",
+      "launcher": "rawdaudio",
+      "source_blob": "c4dfa50350a43d2a961d6397eb03a4df29530d5a",
+      "license_note": "The decoder source blob is byte-identical to Mediabench rawcaudio and retains the same Stichting Mathematisch Centrum permission notice."
+    }
+  ],
+  "contract": {
+    "operation": "Select IMA/DVI ADPCM encoding or decoding with a mode field.",
+    "input_layout": "[mode, count, payload...]",
+    "mode": {
+      "1": "Encode count signed 16-bit PCM samples; payload values range from -32768 to 32767.",
+      "2": "Decode count packed ADPCM bytes; payload values range from 0 to 255. Each byte contains a high-nibble sample followed by a low-nibble sample."
+    },
+    "encoder": "Starts with predictor 0 and step index 0. Packs the first code into the high nibble; for an odd sample count, the final low nibble is zero.",
+    "decoder": "Starts with predictor 0 and step index 0. Emits two signed 16-bit samples for each input byte, high nibble first, encoded as canonical little-endian bytes.",
+    "encode_count_range": [0, 256],
+    "decode_byte_count_range": [0, 128],
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "zero_count": "Returns zero and performs no output writes; a null output pointer is accepted when no bytes are produced."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "mode, payload count, followed by samples or packed bytes",
+    "maximum_parseable_length": 258,
+    "mode_range": [1, 2],
+    "maximum_encode_samples": 256,
+    "maximum_decode_bytes": 128,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "maximum_bytes": 512,
+    "encode_success_result": "ceil(sample_count / 2)",
+    "decode_success_result": "4 * packed_byte_count",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {"bytes": 512},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id": "encode_zero", "input_values": [1, 1, 0], "input_length": 3, "expected_result": 1, "expected_output_hex": "00"},
+    {"id": "encode_small_positive", "input_values": [1, 1, 1], "input_length": 3, "expected_result": 1, "expected_output_hex": "10"},
+    {"id": "encode_pair_state_update", "input_values": [1, 2, 7, 17], "input_length": 4, "expected_result": 1, "expected_output_hex": "44"},
+    {"id": "encode_negative", "input_values": [1, 1, -1], "input_length": 3, "expected_result": 1, "expected_output_hex": "90"},
+    {"id": "decode_zero_byte", "input_values": [2, 1, 0], "input_length": 3, "expected_result": 4, "expected_output_hex": "00000000"},
+    {"id": "decode_two_magnitude_four_codes", "input_values": [2, 1, 68], "input_length": 3, "expected_result": 4, "expected_output_hex": "07001100"},
+    {"id": "encode_empty", "input_values": [1, 0], "input_length": 2, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "decode_empty", "input_values": [2, 0], "input_length": 2, "expected_result": 0, "expected_output_hex": ""},
+    {"id": "invalid_mode", "input_values": [3, 1, 0], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "sample_out_of_range", "input_values": [1, 1, 32768], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "packed_byte_out_of_range", "input_values": [2, 1, 256], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "extra_input", "input_values": [1, 0, 1], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "short_capacity", "input_values": [2, 1, 68], "input_length": 3, "output_capacity": 3, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_output", "input_values": [1, 1, 0], "input_length": 3, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null_input", "input_values": [], "input_length": 3, "input_is_null": true, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

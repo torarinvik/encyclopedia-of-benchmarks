@@ -1,0 +1,6 @@
+No explicit license grant was found in the pinned LAC-DCC TSVC source or
+repository material reviewed for this benchmark. These ports independently
+implement the bounded one-sweep s1244 polynomial neighbor-sum operation and
+reuse no upstream source code or comments. Source attribution and the rights
+limitation are documented in README.md; no upstream license or endorsement is
+claimed.

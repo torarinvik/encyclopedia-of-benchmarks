@@ -1,0 +1,47 @@
+# Clean-room bounded profile of TSVC s318; see package README.
+
+const TSVC_S318_MAX_N: usize = 64
+const TSVC_S318_MAX_STRIDE: usize = 4
+const TSVC_S318_MAX_PHYSICAL_N: usize = 1 + (TSVC_S318_MAX_N - 1) * TSVC_S318_MAX_STRIDE
+const TSVC_S318_MAX_INPUT_LENGTH: usize = 2 + TSVC_S318_MAX_PHYSICAL_N
+const TSVC_S318_MAX_VALUE: i64 = 1000000
+
+def tsvc_s318_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s318_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > TSVC_S318_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    stride_value: i64 = input[1]
+    if n_value < 1 or n_value > 64 or stride_value < 1 or stride_value > 4:
+        return -1
+    n: usize = n_value.usize()
+    stride: usize = stride_value.usize()
+    physical_n: usize = 1 + (n - 1) * stride
+    if length != 2 + physical_n:
+        return -1
+    for i in 0..physical_n:
+        value: i64 = input[i + 2]
+        if value < -TSVC_S318_MAX_VALUE or value > TSVC_S318_MAX_VALUE:
+            return -1
+    if output.is_null() or capacity < 16:
+        return -2
+
+    first: i64 = input[2]
+    maximum: mutable i64 = if first < 0 then -first else first
+    maximum_index: mutable usize = 0
+    for i in 1..n:
+        value: i64 = input[2 + i * stride]
+        magnitude: i64 = if value < 0 then -value else value
+        if magnitude > maximum:
+            maximum <- magnitude
+            maximum_index <- i
+    tsvc_s318_store(maximum, output, 0)
+    tsvc_s318_store(maximum_index.i64(), output, 8)
+    2
+
+export fn tsvc_s318_strided_absolute_maximum_with_index(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s318_impl

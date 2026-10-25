@@ -1,0 +1,45 @@
+const CBENCH_LAME_MID_SIDE_MAX_INPUT: usize = 65
+const CBENCH_LAME_MID_SIDE_MAX_OUTPUT: usize = 64
+const CBENCH_LAME_MID_SIDE_SQRT2: f64 = 1.414213562373095048801688724209698079
+
+def cbench_lame_mid_side_impl(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 1 or input_length > CBENCH_LAME_MID_SIDE_MAX_INPUT + 1:
+        return -1
+    index: mutable usize = 0
+    while index < input_length:
+        value: f64 = input[index]
+        if value != value:
+            return -1
+        index <- index + 1
+    if input[0] < 1.0 or input[0] > 32.0 or input[0] != input[0].i64().f64():
+        return -1
+    count: usize = input[0].usize()
+    if input_length != 1 + 2 * count:
+        return -1
+    index <- 1
+    while index < input_length:
+        if input[index] < -16.0 or input[index] > 16.0:
+            return -1
+        index <- index + 1
+
+    staged: mutable f64[CBENCH_LAME_MID_SIDE_MAX_OUTPUT] = zeroed
+    factor: f64 = CBENCH_LAME_MID_SIDE_SQRT2 * 0.5
+    index <- 0
+    while index < count:
+        left: f64 = input[1 + index]
+        right: f64 = input[1 + count + index]
+        staged[2 * index] <- (left + right) * factor
+        staged[2 * index + 1] <- (left - right) * factor
+        index <- index + 1
+    needed: usize = 2 * count
+    if output.is_null() or output_capacity < needed:
+        return -2
+    index <- 0
+    while index < needed:
+        output[index] <- staged[index]
+        index <- index + 1
+    needed.i64()
+
+export fn cbench_lame_mid_side(input: f64&, input_length: usize,
+        output: mutable f64&, output_capacity: usize) -> i64 = cbench_lame_mid_side_impl

@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "id": "embench-depthconv-i64-array-bytes-output-v1",
+  "algorithm": "depthconv",
+  "function_symbol": "depthconv",
+  "description": "Bounded per-channel quantized int8 depthwise convolution using the pinned Embench/TensorFlow Lite Micro kernel contract.",
+  "pinned_source": {
+    "repository": "embench/embench-iot",
+    "commit": "09c2ed8c3b7008c95d08b038de4a3f6dc103ed70",
+    "path": "src/depthconv/depthconv.c",
+    "symbol": "DepthwiseConvPerChannel",
+    "url": "https://github.com/embench/embench-iot/blob/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/depthconv/depthconv.c",
+    "copyright": "Copyright 2024 The TensorFlow Authors. All Rights Reserved.",
+    "spdx": "Apache-2.0",
+    "rights": "Full Apache 2.0 text and attribution bundled in LICENSE.txt and NOTICE.txt; ports are clean-room and contain no copied source code/comments."
+  },
+  "contract": {
+    "operation": "For each channel, accumulate a 4-tap vertical depthwise filter with input offset 128 and bias; apply source-style per-channel rounded quantized multiplier/shift and clamp to signed int8.",
+    "input_layout": "[channels, 4*channels input values row-major, 4*channels filter values row-major, channels biases, channels multipliers, channels shifts]",
+    "channels_range": [
+      1,
+      8
+    ],
+    "input_filter_range": [
+      -128,
+      127
+    ],
+    "bias_range": [
+      -1000000,
+      1000000
+    ],
+    "multiplier_range": [
+      0,
+      2147483647
+    ],
+    "shift_range": [
+      -8,
+      0
+    ],
+    "exact_input_length": "1+11*channels",
+    "max_input_length": 89,
+    "output_bytes": "channels",
+    "output_value_range": [
+      -128,
+      127
+    ],
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "source_arithmetic": "total_shift=31-shift; round=1<<(total_shift-1); floor arithmetic shift of acc*multiplier+round by total_shift."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_length": 89,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "one two's-complement int8 result per channel",
+    "maximum_bytes": 8,
+    "null_or_short_output_result": -2
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "per_channel_bias_rounding",
+      "input_values": [
+        2,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        500,
+        -500,
+        1152862902,
+        1152862902,
+        -8,
+        -8
+      ],
+      "input_length": 23,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "01ff"
+    },
+    {
+      "id": "input_offset_and_accumulation",
+      "input_values": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1152862902,
+        -8
+      ],
+      "input_length": 12,
+      "output_capacity": 1,
+      "expected_result": 1,
+      "expected_output_hex": "01"
+    },
+    {
+      "id": "activation_clamp",
+      "input_values": [
+        2,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1000000,
+        -1000000,
+        2147483647,
+        2147483647,
+        0,
+        0
+      ],
+      "input_length": 23,
+      "output_capacity": 2,
+      "expected_result": 2,
+      "expected_output_hex": "7f80"
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [
+        2,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        -128,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        500,
+        -500,
+        1152862902,
+        1152862902,
+        -8,
+        -8
+      ],
+      "input_length": 23,
+      "output_capacity": 1,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_input_byte",
+      "input_values": [
+        1,
+        128,
+        -128,
+        -128,
+        -128,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1152862902,
+        0
+      ],
+      "input_length": 12,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid_shift",
+      "input_values": [
+        1,
+        -128,
+        -128,
+        -128,
+        -128,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1152862902,
+        1
+      ],
+      "input_length": 12,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "bad_frame_length",
+      "input_values": [
+        1,
+        -128,
+        -128,
+        -128,
+        -128,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1152862902
+      ],
+      "input_length": 11,
+      "output_capacity": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [
+        1,
+        -128,
+        -128,
+        -128,
+        -128,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1152862902,
+        -8
+      ],
+      "input_length": 12,
+      "output_capacity": 1,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

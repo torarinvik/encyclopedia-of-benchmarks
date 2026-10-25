@@ -1,0 +1,178 @@
+const PTRDIST_KS_MAX_MODULES: usize = 8
+const PTRDIST_KS_MAX_NETS: usize = 16
+const PTRDIST_KS_MAX_INPUT: usize = 146
+
+def ptrdist_ks_edge_cut(side: i64[8]&, members: i64[128]&, degrees: i64[16]&, net_count: usize) -> i64:
+    total: mutable i64 = 0
+    net: mutable usize = 0
+    while net < net_count:
+        i: mutable usize = 0
+        while i < degrees[net].usize():
+            j: mutable usize = i + 1
+            while j < degrees[net].usize():
+                if side[members[net * 8 + i].usize()] != side[members[net * 8 + j].usize()]:
+                    total <- total + 1
+                j <- j + 1
+            i <- i + 1
+        net <- net + 1
+    total
+
+def ptrdist_ks_net_cut(side: i64[8]&, members: i64[128]&, degrees: i64[16]&, net_count: usize) -> i64:
+    total: mutable i64 = 0
+    net: mutable usize = 0
+    while net < net_count:
+        first: i64 = side[members[net * 8].usize()]
+        i: mutable usize = 1
+        while i < degrees[net].usize():
+            if side[members[net * 8 + i].usize()] != first:
+                total <- total + 1
+                break
+            i <- i + 1
+        net <- net + 1
+    total
+
+def ptrdist_ks_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > PTRDIST_KS_MAX_INPUT: return -1
+    module_value: i64 = input[0]
+    net_value: i64 = input[1]
+    if module_value < 2 or module_value > 8 or module_value % 2 != 0 or net_value < 0 or net_value > 16: return -1
+    modules: usize = module_value.usize()
+    net_count: usize = net_value.usize()
+    members: mutable i64[128] = zeroed
+    degrees: mutable i64[16] = zeroed
+    cursor: mutable usize = 2
+    net: mutable usize = 0
+    while net < net_count:
+        if cursor >= length: return -1
+        degree_value: i64 = input[cursor]
+        cursor <- cursor + 1
+        if degree_value < 2 or degree_value > module_value or cursor + degree_value.usize() > length: return -1
+        degree: usize = degree_value.usize()
+        degrees[net] <- degree_value
+        i: mutable usize = 0
+        while i < degree:
+            member_value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if member_value < 0 or member_value >= module_value: return -1
+            j: mutable usize = 0
+            while j < i:
+                if members[net * 8 + j] == member_value: return -1
+                j <- j + 1
+            members[net * 8 + i] <- member_value
+            i <- i + 1
+        net <- net + 1
+    if cursor != length: return -1
+
+    half: usize = modules / 2
+    order_a: mutable i64[8] = zeroed
+    order_b: mutable i64[8] = zeroed
+    side: mutable i64[8] = zeroed
+    i: mutable usize = 0
+    while i < half:
+        order_a[i] <- i.i64()
+        order_b[i] <- (half + i).i64()
+        side[i] <- 0
+        side[half + i] <- 1
+        i <- i + 1
+    accepted_passes: mutable i64 = 0
+    while true:
+        work: mutable i64[8] = zeroed
+        remaining_a: mutable i64[8] = zeroed
+        remaining_b: mutable i64[8] = zeroed
+        selected_a: mutable i64[8] = zeroed
+        selected_b: mutable i64[8] = zeroed
+        i <- 0
+        while i < modules:
+            work[i] <- side[i]
+            i <- i + 1
+        i <- 0
+        while i < half:
+            remaining_a[i] <- order_a[i]
+            remaining_b[i] <- order_b[i]
+            i <- i + 1
+        count_a: mutable usize = half
+        count_b: mutable usize = half
+        cumulative_gain: mutable i64 = 0
+        best_gain: mutable i64 = -2147483647
+        best_prefix: mutable usize = 0
+        step: mutable usize = 0
+        while step < half:
+            baseline: i64 = ptrdist_ks_edge_cut(work, members, degrees, net_count)
+            pair_gain: mutable i64 = -2147483647
+            chosen_a: mutable i64 = -1
+            chosen_b: mutable i64 = -1
+            ai: mutable usize = 0
+            while ai < count_a:
+                a: i64 = remaining_a[ai]
+                bi: mutable usize = 0
+                while bi < count_b:
+                    b: i64 = remaining_b[bi]
+                    work[a.usize()] <- 1
+                    work[b.usize()] <- 0
+                    gain: i64 = baseline - ptrdist_ks_edge_cut(work, members, degrees, net_count)
+                    work[a.usize()] <- 0
+                    work[b.usize()] <- 1
+                    if gain > pair_gain:
+                        pair_gain <- gain
+                        chosen_a <- a
+                        chosen_b <- b
+                    bi <- bi + 1
+                ai <- ai + 1
+            selected_a[step] <- chosen_a
+            selected_b[step] <- chosen_b
+            work[chosen_a.usize()] <- 1
+            work[chosen_b.usize()] <- 0
+            i <- 0
+            while i < count_a:
+                if remaining_a[i] == chosen_a:
+                    j: mutable usize = i
+                    while j + 1 < count_a:
+                        remaining_a[j] <- remaining_a[j + 1]
+                        j <- j + 1
+                    count_a <- count_a - 1
+                    break
+                i <- i + 1
+            i <- 0
+            while i < count_b:
+                if remaining_b[i] == chosen_b:
+                    j: mutable usize = i
+                    while j + 1 < count_b:
+                        remaining_b[j] <- remaining_b[j + 1]
+                        j <- j + 1
+                    count_b <- count_b - 1
+                    break
+                i <- i + 1
+            cumulative_gain <- cumulative_gain + pair_gain
+            if cumulative_gain > best_gain:
+                best_gain <- cumulative_gain
+                best_prefix <- step + 1
+            step <- step + 1
+        if best_gain <= 0: break
+        next_a: mutable i64[8] = zeroed
+        next_b: mutable i64[8] = zeroed
+        i <- 0
+        while i < best_prefix:
+            next_a[i] <- selected_b[i]
+            next_b[i] <- selected_a[i]
+            i <- i + 1
+        while i < half:
+            next_a[i] <- selected_a[i]
+            next_b[i] <- selected_b[i]
+            i <- i + 1
+        i <- 0
+        while i < half:
+            order_a[i] <- next_a[i]
+            order_b[i] <- next_b[i]
+            side[order_a[i].usize()] <- 0
+            side[order_b[i].usize()] <- 1
+            i <- i + 1
+        accepted_passes <- accepted_passes + 1
+    mask: mutable i64 = 0
+    i <- 0
+    while i < modules:
+        if side[i] == 0: mask <- mask | (1.i64() << i)
+        i <- i + 1
+    mask + (ptrdist_ks_edge_cut(side, members, degrees, net_count) << 8) +
+        (ptrdist_ks_net_cut(side, members, degrees, net_count) << 17) + (accepted_passes << 22)
+
+export fn ptrdist_ks(input: i64&, length: usize) -> i64 = ptrdist_ks_impl

@@ -1,0 +1,6 @@
+#include <stddef.h>
+#include <stdint.h>
+#define MAX_CHANNELS 8
+#define MAX_INPUT_LENGTH (1 + 11 * MAX_CHANNELS)
+static int64_t rounded_shift(int64_t value,int shift){int64_t divisor=INT64_C(1)<<shift;if(value>=0)return value/divisor;return -((-value+divisor-1)/divisor);}
+int64_t depthconv(const int64_t *v,size_t n,uint8_t *out,size_t capacity){if(!v||n<1||n>MAX_INPUT_LENGTH)return -1;int64_t channels=v[0];if(channels<1||channels>MAX_CHANNELS||n!=1+11*(size_t)channels)return -1;size_t c=(size_t)channels;for(size_t i=1;i<1+8*c;i++)if(v[i]<-128||v[i]>127)return -1;for(size_t i=1+8*c;i<1+9*c;i++)if(v[i]<-1000000||v[i]>1000000)return -1;for(size_t i=1+9*c;i<1+10*c;i++)if(v[i]<0||v[i]>2147483647)return -1;for(size_t i=1+10*c;i<n;i++)if(v[i]<-8||v[i]>0)return -1;if(!out||capacity<c)return -2;for(size_t ch=0;ch<c;ch++){int32_t acc=0;for(size_t y=0;y<4;y++){int32_t x=(int32_t)v[1+y*c+ch]+128;int32_t w=(int32_t)v[1+4*c+y*c+ch];acc+=w*x;}acc+=(int32_t)v[1+8*c+ch];int shift=(int)(31-v[1+10*c+ch]);int64_t round=INT64_C(1)<<(shift-1);int64_t scaled=rounded_shift((int64_t)acc*v[1+9*c+ch]+round,shift);if(scaled>127)scaled=127;if(scaled< -128)scaled=-128;out[ch]=(uint8_t)(int8_t)scaled;}return (int64_t)c;}

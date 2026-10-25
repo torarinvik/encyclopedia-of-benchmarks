@@ -1,0 +1,48 @@
+# Clean-room bounded profile of TSVC s132; see package README.
+
+const TSVC_S132_MAX_N: usize = 64
+const TSVC_S132_MAX_INPUT_LENGTH: usize = 194
+const TSVC_S132_MAX_VALUE: i64 = 1000000
+
+def tsvc_s132_bounded(value: i64) -> bool:
+    value >= -TSVC_S132_MAX_VALUE and value <= TSVC_S132_MAX_VALUE
+
+def tsvc_s132_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s132_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 8 or length > TSVC_S132_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 2 or n_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    if length != 2 + 3 * n:
+        return -1
+
+    row_start: usize = 1
+    target_start: usize = row_start + n
+    b_start: usize = target_start + n
+    c1_index: usize = b_start + n
+    target: mutable i64[64] = zeroed
+    for i in 0..n:
+        target[i] <- input[target_start + i]
+        if not tsvc_s132_bounded(input[row_start + i]) or
+            not tsvc_s132_bounded(target[i]) or not tsvc_s132_bounded(input[b_start + i]):
+            return -1
+    c1: i64 = input[c1_index]
+    if not tsvc_s132_bounded(c1):
+        return -1
+    if output.is_null() or capacity < 8 * n:
+        return -2
+
+    for i in 1..n:
+        target[i] <- input[row_start + i - 1] + input[b_start + i] * c1
+    for i in 0..n:
+        tsvc_s132_store(target[i], output, 8 * i)
+    n.i64()
+
+export fn tsvc_s132_shifted_row_update(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s132_impl

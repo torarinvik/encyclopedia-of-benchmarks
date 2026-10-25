@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s114-transposed-lower-triangle-i64-le-v1",
+  "algorithm": "tsvc_s114_transposed_lower_triangle_update",
+  "function_symbol": "tsvc_s114_transposed_lower_triangle_update",
+  "description": "Bounded one-pass strict lower-triangle update from TSVC s114.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "TSVC/LinearDependence-dbl/tsc.c",
+      "TSVC/LinearDependence-dbl/info.sh",
+      "TSVC/tsc.inc",
+      "TSVC/tests.h"
+    ],
+    "symbol": "s114",
+    "source_lines": {
+      "codelet_start": 1004,
+      "codelet_end": 1031
+    },
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/LinearDependence-dbl",
+    "launcher_family": "TSVC/LinearDependence-dbl",
+    "launcher_options": [3570, 14],
+    "attribution": "The TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. These clean-room ports reuse no upstream code or comments and claim no upstream license or endorsement."
+  },
+  "contract": {
+    "operation": "Visit i upward from 0 to n-1, then j upward from 0 to i-1, assigning A[i,j] = A[j,i] + B[i,j] in place on a local copy.",
+    "input_layout": "[n, row_major_A[n*n], row_major_B[n*n]]",
+    "n_range": [2, 16],
+    "matrix_value_range": [-1000000, 1000000],
+    "exact_length": "1 + 2*n*n",
+    "arithmetic": "Inputs are integer-valued source doubles, so additions remain exact; only strict-lower-triangle A entries change.",
+    "output": "The full final A matrix in row-major little-endian signed i64 format.",
+    "success_result": "n*n values written",
+    "output_capacity_requirement": "At least 8*n*n bytes",
+    "input_modified": false,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "maximum_valid_length": 513,
+    "maximum_parseable_length": 513,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Complete final A matrix in row-major order.",
+    "maximum_values": 256,
+    "maximum_bytes": 2048,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 2048,
+    "meaning": "Maximum output workspace for a 16 by 16 signed-i64 matrix."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "two-by-two-transposed-lower-update",
+      "input_values": [2, 1, 2, 3, 4, 0, 0, 30, 0],
+      "input_length": 9,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "0100000000000000020000000000000020000000000000000400000000000000"
+    },
+    {
+      "id": "three-by-three-strict-triangle",
+      "input_values": [3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 10, 0, 0, 20, 30, 0],
+      "input_length": 19,
+      "output_capacity": 72,
+      "expected_result": 9,
+      "expected_output_hex": "0100000000000000020000000000000003000000000000000c0000000000000005000000000000000600000000000000170000000000000024000000000000000900000000000000"
+    },
+    {
+      "id": "signed-source-double-values",
+      "input_values": [2, -1, -2, -3, -4, 0, 0, -10, 0],
+      "input_length": 9,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "fffffffffffffffffefffffffffffffff4fffffffffffffffcffffffffffffff"
+    },
+    {
+      "id": "invalid-small-dimension",
+      "input_values": [1],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-short-matrix",
+      "input_values": [2, 1, 2, 3, 4, 0, 0, 30],
+      "input_length": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-out-of-range-element",
+      "input_values": [2, 1000001, 2, 3, 4, 0, 0, 0, 0],
+      "input_length": 9,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [2, 1, 2, 3, 4, 0, 0, 30, 0],
+      "input_length": 9,
+      "output_capacity": 32,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [2, 1, 2, 3, 4, 0, 0, 30, 0],
+      "input_length": 9,
+      "output_capacity": 31,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

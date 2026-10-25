@@ -1,0 +1,17 @@
+Embench-IoT picojpeg attribution
+
+Pinned upstream repository: https://github.com/embench/embench-iot
+Commit: 09c2ed8c3b7008c95d08b038de4a3f6dc103ed70
+Files: src/picojpeg/libpicojpeg.c and src/picojpeg/picojpeg_test.c
+
+The Embench wrapper/library source headers attribute this version to Embecosm
+Limited and the University of Bristol, copyright 2014-2019, with contributors
+Jeremy Bennett and James Pallister as applicable. The library identifies the
+original picojpeg v1.1 algorithm as public domain by Rich Geldreich and credits
+changes from Chris Phoenix. The upstream benchmark files declare
+SPDX-License-Identifier: GPL-3.0-or-later. See LICENSE.txt for the full GPL-3.0
+license text.
+
+The nine benchmark ports in this package were independently written to the
+restricted JPEG block contract documented in README.md; they do not contain
+copied upstream source code or comments.

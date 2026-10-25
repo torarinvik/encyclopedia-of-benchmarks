@@ -1,0 +1,126 @@
+extern cos(value: f64) -> f64
+extern sin(value: f64) -> f64
+
+const FFT_SIZE: usize = 8
+const BASE: i64 = 1000
+const SCALE: i64 = 1000000
+
+def freebench_pifft_fft(real: mutable f64[8]&, imag: mutable f64[8]&, inverse: bool) -> void:
+    reversed: usize[8] = {0, 4, 2, 6, 1, 5, 3, 7}
+    for i in 0..<8:
+        j: usize = reversed[i]
+        if i < j:
+            temp: f64 = real[i]
+            real[i] <- real[j]
+            real[j] <- temp
+            temp <- imag[i]
+            imag[i] <- imag[j]
+            imag[j] <- temp
+    for stage in 1..<4:
+        block: usize = 1 << stage
+        half: usize = block / 2
+        start: mutable usize = 0
+        while start < 8:
+            for offset in 0..<half:
+                sign: f64 = if inverse: 1.0 else: -1.0
+                angle: f64 = sign * 6.2831853071795864769 * offset.f64() / block.f64()
+                wr: f64 = cos(angle)
+                wi: f64 = sin(angle)
+                even: usize = start + offset
+                odd: usize = even + half
+                ur: f64 = real[even]
+                ui: f64 = imag[even]
+                vr: f64 = real[odd] * wr - imag[odd] * wi
+                vi: f64 = real[odd] * wi + imag[odd] * wr
+                real[even] <- ur + vr
+                imag[even] <- ui + vi
+                real[odd] <- ur - vr
+                imag[odd] <- ui - vi
+            start <- start + block
+    if inverse:
+        for i in 0..<8:
+            real[i] <- real[i] / 8.0
+            imag[i] <- imag[i] / 8.0
+
+def freebench_pifft_multiply(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
+    sign: mutable i64 = 1
+    if left < 0: sign <- -sign; left <- -left
+    if right < 0: sign <- -sign; right <- -right
+    left_real: mutable f64[8] = zeroed
+    left_imag: mutable f64[8] = zeroed
+    right_real: mutable f64[8] = zeroed
+    right_imag: mutable f64[8] = zeroed
+    for i in 0..<3:
+        left_real[i] <- (left % BASE).f64()
+        right_real[i] <- (right % BASE).f64()
+        left <- left / BASE
+        right <- right / BASE
+    freebench_pifft_fft(left_real&, left_imag&, false)
+    freebench_pifft_fft(right_real&, right_imag&, false)
+    for i in 0..<8:
+        product_real: f64 = left_real[i] * right_real[i] - left_imag[i] * right_imag[i]
+        product_imag: f64 = left_real[i] * right_imag[i] + left_imag[i] * right_real[i]
+        left_real[i] <- product_real
+        left_imag[i] <- product_imag
+    freebench_pifft_fft(left_real&, left_imag&, true)
+    product: mutable i64 = 0
+    place: mutable i64 = 1
+    for i in 0..<5:
+        coefficient: i64 = (left_real[i] + 0.5).i64()
+        product <- product + coefficient * place
+        place <- place * BASE
+    rounded: i64 = (product + SCALE / 2) / SCALE
+    sign * rounded
+
+def freebench_pifft_sqrt(value: i64) -> i64:
+    if value <= 0: return 0
+    radicand: i64 = value * SCALE
+    root: mutable i64 = radicand
+    while true:
+        next: i64 = (root + radicand / root) / 2
+        if next >= root: break
+        root <- next
+    lower_error: i64 = radicand - root * root
+    upper_error: i64 = (root + 1) * (root + 1) - radicand
+    if upper_error < lower_error: root + 1 else: root
+
+def freebench_pifft_half(value: i64) -> i64:
+    if value < 0: -((-value) / 2) else: value / 2
+
+def freebench_pifft_divide(numerator: i64, denominator: i64) -> i64:
+    if denominator <= 0: return 0
+    scaled: i64 = numerator * SCALE
+    if scaled < 0: -((-scaled + denominator / 2) / denominator)
+    else: (scaled + denominator / 2) / denominator
+
+def freebench_pifft_impl(nfft: i64) -> i64:
+    if nfft != 8: return -1
+    c: mutable i64 = freebench_pifft_sqrt(125000)
+    a: mutable i64 = SCALE + 3 * c
+    b: mutable i64 = freebench_pifft_sqrt(a)
+    e: mutable i64 = b - 625000
+    b <- b * 2
+    c <- e - c
+    a <- a + e
+    npow: mutable i64 = 4
+    for iteration in 0..<8:
+        npow <- npow * 2
+        e <- freebench_pifft_half(a + b)
+        b <- freebench_pifft_sqrt(freebench_pifft_multiply(a, b))
+        e <- e - b
+        b <- b * 2
+        c <- c - e
+        a <- e + b
+        if e >= -1 and e <= 1: break
+    e <- freebench_pifft_half(e)
+    e <- freebench_pifft_multiply(e, e)
+    a <- a + b
+    numerator: i64 = freebench_pifft_multiply(a, a) - e - freebench_pifft_half(e)
+    denominator: i64 = freebench_pifft_multiply(a, c) - e
+    pi: mutable i64 = freebench_pifft_divide(numerator, denominator)
+    pi <- (pi + npow / 2) / npow
+    (pi + 500) / 1000
+
+export fn freebench_pifft(nfft: i64) -> i64 = freebench_pifft_impl

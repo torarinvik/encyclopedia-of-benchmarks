@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "id": "freebench-pcompress2-bounded-v1",
+  "algorithm": "pcompress2",
+  "function_symbol": "pcompress2",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "FreeBench/pcompress2/",
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/FreeBench/pcompress2",
+    "attribution": "The upstream headers identify pCompress/pUnCompress as FreeBench v1 and name Peter Rundberg (April 2001); arithmetic.c attributes its model to Witten, Neal, and Cleary (1987).",
+    "license_status": "No explicit license grant was found in the pinned directory or repository root."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "FreeBench/pcompress2/info.sh",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/FreeBench/pcompress2/info.sh",
+    "source_profile": "The launcher compresses a file four times and then decompresses it; this package exposes one bounded compression pass and omits file I/O and repetition."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[length, byte_0, ..., byte_(length-1)]",
+    "length_range": [1, 32],
+    "byte_range": [0, 255],
+    "output_encoding": "four-byte little-endian input length, four-byte little-endian BWT primary row, then adaptive arithmetic-coded RLE packets",
+    "rotation_tie_break": "ascending cyclic-rotation start offset",
+    "rle_end_lookahead": "treat the one-past-end byte as end-of-run",
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2
+  },
+  "workspace": {
+    "bytes": 520
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 1,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "four-byte little-endian input length, four-byte little-endian BWT primary row, then adaptive arithmetic-coded RLE packets",
+    "maximum_bytes": 520,
+    "invalid_result": -1,
+    "insufficient_capacity_result": -2,
+    "null_output_result": -2
+  },
+  "cases": [
+    {
+      "id": "single_nul_byte",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "expected_result": 12,
+      "expected_output_hex": "01000000000000007fbf1002"
+    },
+    {
+      "id": "truncated_input",
+      "input_values": [2, 65],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "byte_out_of_range",
+      "input_values": [1, 256],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_capacity": 11,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [1, 0],
+      "input_length": 2,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

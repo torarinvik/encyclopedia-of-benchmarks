@@ -564,6 +564,41 @@ from natural_sort_oracle import MAX_INPUT_LENGTH as MAX_NATURAL_SORT_INPUT_LENGT
 from natural_sort_oracle import expected_output as natural_sort_expected_output
 from naive_bayes_oracle import MAX_INPUT_LENGTH as MAX_NAIVE_BAYES_INPUT_LENGTH
 from naive_bayes_oracle import expected_output as naive_bayes_expected_output
+from tsvc_s343_column_major_compaction_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S343_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S343_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s343_column_major_compaction_expected_output,
+)
+from tsvc_s281_reverse_coupled_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S281_REVERSE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S281_REVERSE_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s281_reverse_coupled_update_expected_output,
+)
+from cbench_tiffdither_oracle import (
+    MAX_INPUT_LENGTH as CBENCH_TIFFDITHER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_TIFFDITHER_MAX_OUTPUT_BYTES,
+    expected_output as cbench_tiffdither_expected_output,
+)
+from cbench_consumer_tiffmedian_oracle import (
+    MAX_INPUT_LENGTH as CBENCH_TIFFMEDIAN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_TIFFMEDIAN_MAX_OUTPUT_BYTES,
+    expected_output as cbench_consumer_tiffmedian_expected_output,
+)
+from cbench_consumer_tiff2bw_oracle import (
+    MAX_INPUT_LENGTH as CBENCH_TIFF2BW_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_TIFF2BW_MAX_OUTPUT_BYTES,
+    expected_output as cbench_consumer_tiff2bw_expected_output,
+)
+from cbench_bzip2_mtf_rle_oracle import (
+    MAX_INPUT_LENGTH as CBENCH_BZIP2_MTF_RLE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_BZIP2_MTF_RLE_MAX_OUTPUT_BYTES,
+    expected_output as cbench_bzip2_mtf_rle_expected_output,
+)
+from cbench_blowfish_cbc_oracle import (
+    MAX_INPUT_LENGTH as CBENCH_BLOWFISH_CBC_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_BLOWFISH_CBC_MAX_OUTPUT_BYTES,
+    expected_output as cbench_blowfish_cbc_expected_output,
+)
 from optimal_job_scheduling_oracle import MAX_INPUT_LENGTH as MAX_OPTIMAL_JOB_SCHEDULING_INPUT_LENGTH
 from optimal_job_scheduling_oracle import expected_output as optimal_job_scheduling_expected_output
 from one_hot_encode_oracle import MAX_INPUT_LENGTH as MAX_ONE_HOT_ENCODE_INPUT_LENGTH
@@ -936,6 +971,596 @@ from mibench_automotive_susan_oracle import (
     MAX_OUTPUT_BYTES as MIBENCH_AUTOMOTIVE_SUSAN_MAX_OUTPUT_BYTES,
     MAX_PARSEABLE_INPUT_LENGTH as MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH,
     expected_output as mibench_automotive_susan_oracle,
+)
+from cbench_automotive_susan_c_oracle import (
+    MAX_OUTPUT_BYTES as CBENCH_AUTOMOTIVE_SUSAN_C_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_AUTOMOTIVE_SUSAN_C_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as cbench_automotive_susan_c_oracle,
+)
+from cbench_automotive_susan_e_oracle import (
+    MAX_OUTPUT_BYTES as CBENCH_AUTOMOTIVE_SUSAN_E_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_AUTOMOTIVE_SUSAN_E_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as cbench_automotive_susan_e_oracle,
+)
+from freebench_distray_oracle import (
+    MAX_OUTPUT_BYTES as FREEBENCH_DISTRAY_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as FREEBENCH_DISTRAY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as freebench_distray_oracle,
+)
+from rodinia_dwt2d_oracle import (
+    MAX_INPUT_LENGTH as RODINIA_DWT2D_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RODINIA_DWT2D_MAX_OUTPUT_BYTES,
+    expected_output as rodinia_dwt2d_expected_output,
+    expected_result as rodinia_dwt2d_expected_result,
+)
+from edn_lattice_synthesis_oracle import (
+    MAX_ORDER as EDN_LATTICE_MAX_ORDER,
+    MAX_OUTPUT_BYTES as EDN_LATTICE_MAX_OUTPUT_BYTES,
+    oracle as edn_lattice_synthesis_oracle,
+)
+from edn_vec_mpy1_oracle import MAX_N as EDN_VEC_MPY1_MAX_N
+from edn_vec_mpy1_oracle import oracle as edn_vec_mpy1_oracle
+from edn_iir_cascade_oracle import MAX_SECTIONS as EDN_IIR_MAX_SECTIONS
+from edn_iir_cascade_oracle import oracle as edn_iir_cascade_oracle
+from edn_jpeg_dct_oracle import oracle as edn_jpeg_dct_oracle
+from nsichneu_oracle import (
+    INPUT_COUNT as NSICHNEU_INPUT_COUNT,
+    MAX_RUNS as NSICHNEU_MAX_RUNS,
+    MARK_LIMIT as NSICHNEU_MARK_LIMIT,
+    OUTPUT_BYTES as NSICHNEU_OUTPUT_BYTES,
+    expected_output as nsichneu_expected_output,
+)
+from pcompress2_oracle import (
+    MAX_LENGTH as PCOMPRESS2_MAX_LENGTH,
+    MAX_OUTPUT_BYTES as PCOMPRESS2_MAX_OUTPUT_BYTES,
+    expected_output as pcompress2_oracle,
+)
+from mibench_security_sha0_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as MIBENCH_SECURITY_SHA0_MAX_PARSEABLE_INPUT_LENGTH,
+    OUTPUT_BYTES as MIBENCH_SECURITY_SHA0_OUTPUT_BYTES,
+    expected_output as mibench_security_sha0_oracle,
+)
+from lac_adpcm_oracle import (
+    INVALID_RESULT as LAC_ADPCM_INVALID_RESULT,
+    MAX_DECODE_BYTES as LAC_ADPCM_MAX_DECODE_BYTES,
+    MAX_ENCODE_SAMPLES as LAC_ADPCM_MAX_ENCODE_SAMPLES,
+    MAX_INPUT_LENGTH as LAC_ADPCM_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as LAC_ADPCM_MAX_OUTPUT_BYTES,
+    OUTPUT_ERROR as LAC_ADPCM_OUTPUT_ERROR,
+    expected_output as lac_adpcm_oracle,
+)
+from mccat_05_eks_oracle import (
+    INPUT_SCALE as MCCAT_05_EKS_INPUT_SCALE,
+    INVALID_RESULT as MCCAT_05_EKS_INVALID_RESULT,
+    MAX_INPUT_LENGTH as MCCAT_05_EKS_MAX_INPUT_LENGTH,
+    MAX_N as MCCAT_05_EKS_MAX_N,
+    MAX_OUTPUT_BYTES as MCCAT_05_EKS_MAX_OUTPUT_BYTES,
+    OUTPUT_ERROR as MCCAT_05_EKS_OUTPUT_ERROR,
+    expected_output as mccat_05_eks_oracle,
+)
+from mccat_bintr_oracle import (
+    MAX_INPUT_LENGTH as MCCAT_BINTR_MAX_INPUT_LENGTH,
+    OUTPUT_BYTES as MCCAT_BINTR_OUTPUT_BYTES,
+    expected_output as mccat_bintr_oracle,
+)
+from mediabench_g721_encode_oracle import (
+    MAX_INPUT_LENGTH as MEDIABENCH_G721_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIABENCH_G721_MAX_OUTPUT_BYTES,
+    expected_output as mediabench_g721_encode_oracle,
+)
+from mediabench_gsm_rpe_grid_selection_oracle import (
+    MAX_INPUT_LENGTH as MEDIABENCH_GSM_RPE_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIABENCH_GSM_RPE_MAX_OUTPUT_BYTES,
+    expected_output as mediabench_gsm_rpe_grid_selection_oracle,
+)
+from rodinia_hybridsort_oracle import (
+    MAX_INPUT_LENGTH as RODINIA_HYBRIDSORT_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RODINIA_HYBRIDSORT_MAX_OUTPUT_BYTES,
+    expected_output as rodinia_hybridsort_expected_output,
+    expected_result as rodinia_hybridsort_expected_result,
+)
+from rodinia_mummergpu_oracle import (
+    MAX_INPUT_LENGTH as RODINIA_MUMMERGPU_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES,
+    expected_output as rodinia_mummergpu_expected_output,
+    expected_result as rodinia_mummergpu_expected_result,
+)
+from rodinia_streamcluster_pgain_oracle import (
+    MAX_INPUT_LENGTH as RODINIA_STREAMCLUSTER_PGAIN_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as RODINIA_STREAMCLUSTER_PGAIN_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as RODINIA_STREAMCLUSTER_PGAIN_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_POINTS as RODINIA_STREAMCLUSTER_PGAIN_MAX_POINTS,
+    MAX_DIMENSION as RODINIA_STREAMCLUSTER_PGAIN_MAX_DIMENSION,
+    expected_output as rodinia_streamcluster_pgain_expected_output,
+)
+from tsvc_indexed_gather_scatter_oracle import (
+    MAX_INPUT_LENGTH as TSVC_INDEXED_GATHER_SCATTER_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_INDEXED_GATHER_SCATTER_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_indexed_gather_scatter_expected_output,
+)
+from tsvc_s141_packed_symmetric_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S141_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S141_MAX_OUTPUT_BYTES,
+    MAX_N as TSVC_S141_MAX_N,
+    MAX_ROUNDS as TSVC_S141_MAX_ROUNDS,
+    expected_output as tsvc_s141_packed_symmetric_update_expected_output,
+)
+from tsvc_s131_forward_neighbor_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S131_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S131_MAX_OUTPUT_BYTES,
+    MAX_N as TSVC_S131_MAX_N,
+    MAX_PASSES as TSVC_S131_MAX_PASSES,
+    expected_output as tsvc_s131_forward_neighbor_update_expected_output,
+)
+from tsvc_s132_shifted_row_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S132_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S132_MAX_OUTPUT_BYTES,
+    MAX_N as TSVC_S132_MAX_N,
+    expected_output as tsvc_s132_shifted_row_update_expected_output,
+)
+from tsvc_s152_three_factor_accumulate_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S152_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S152_MAX_OUTPUT_BYTES,
+    MAX_N as TSVC_S152_MAX_N,
+    MAX_PASSES as TSVC_S152_MAX_PASSES,
+    expected_output as tsvc_s152_three_factor_accumulate_expected_output,
+)
+from tsvc_s161_mutually_exclusive_updates_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S161_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S161_MAX_N,
+    MAX_VALUE as TSVC_S161_MAX_VALUE,
+    expected_output as tsvc_s161_mutually_exclusive_updates_expected_output,
+)
+from tsvc_s211_ordered_neighbor_rewrite_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S211_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S211_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S211_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S211_MAX_PASSES,
+    MAX_VALUE as TSVC_S211_MAX_VALUE,
+    expected_output as tsvc_s211_ordered_neighbor_rewrite_expected_output,
+)
+from tsvc_s212_next_element_dependency_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S212_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S212_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S212_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S212_MAX_PASSES,
+    MAX_VALUE as TSVC_S212_MAX_VALUE,
+    expected_output as tsvc_s212_next_element_dependency_expected_output,
+)
+from tsvc_s114_transposed_lower_triangle_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S114_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S114_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S114_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S114_MAX_VALUE,
+    expected_output as tsvc_s114_transposed_lower_triangle_update_expected_output,
+)
+from tsvc_vif_masked_assignment_oracle import (
+    MAX_INPUT_LENGTH as TSVC_VIF_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_VIF_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_VIF_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_VIF_MAX_VALUE,
+    expected_output as tsvc_vif_masked_assignment_expected_output,
+)
+from tsvc_s278_branch_recompute_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S278_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S278_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S278_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S278_MAX_PASSES,
+    MAX_VALUE as TSVC_S278_MAX_VALUE,
+    expected_output as tsvc_s278_branch_recompute_expected_output,
+)
+from tsvc_s279_nested_branch_recompute_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S279_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S279_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S279_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S279_MAX_PASSES,
+    MAX_VALUE as TSVC_S279_MAX_VALUE,
+    expected_output as tsvc_s279_nested_branch_recompute_expected_output,
+)
+from tsvc_s2111_wavefront_add_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S2111_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S2111_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S2111_MAX_PASSES,
+    MAX_SIDE as TSVC_S2111_MAX_SIDE,
+    expected_output as tsvc_s2111_wavefront_add_recurrence_expected_output,
+)
+from tsvc_s353_unrolled_sparse_saxpy_oracle import (
+    MAX_ALPHA as TSVC_S353_MAX_ALPHA,
+    MAX_INPUT_LENGTH as TSVC_S353_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S353_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S353_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S353_MAX_VALUE,
+    MIN_N as TSVC_S353_MIN_N,
+    expected_output as tsvc_s353_unrolled_sparse_saxpy_expected_output,
+)
+from tsvc_s452_index_weighted_vector_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S452_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S452_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S452_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S452_MAX_VALUE,
+    expected_output as tsvc_s452_index_weighted_vector_map_expected_output,
+)
+from tsvc_s126_matrix_column_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S126_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S126_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S126_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S126_MAX_VALUE,
+    expected_output as tsvc_s126_matrix_column_recurrence_expected_output,
+)
+from tsvc_s322_second_order_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S322_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S322_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S322_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s322_second_order_recurrence_expected_output,
+)
+from tsvc_s321_first_order_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S321_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S321_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S321_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s321_first_order_recurrence_expected_output,
+)
+from tsvc_s128_strided_coupled_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S128_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S128_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S128_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S128_MAX_VALUE,
+    expected_output as tsvc_s128_strided_coupled_update_expected_output,
+)
+from tsvc_s323_coupled_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S323_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S323_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S323_MAX_OUTPUT_BYTES,
+    expected_output as tsvc_s323_coupled_recurrence_expected_output,
+)
+from tsvc_s127_fixed_pair_expansion_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S127_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S127_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S127_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S127_MAX_VALUE,
+    expected_output as tsvc_s127_fixed_pair_expansion_expected_output,
+)
+from tsvc_s123_conditional_pair_expansion_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S123_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S123_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S123_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S123_MAX_VALUE,
+    expected_output as tsvc_s123_conditional_pair_expansion_expected_output,
+)
+from tsvc_s122_reverse_strided_gather_add_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S122_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S122_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S122_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S122_MAX_VALUE,
+    expected_output as tsvc_s122_reverse_strided_gather_add_expected_output,
+)
+from tsvc_s315_maximum_with_index_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S315_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S315_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S315_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S315_MAX_VALUE,
+    expected_output as tsvc_s315_maximum_with_index_expected_output,
+)
+from tsvc_s453_recurrence_weighted_scale_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S453_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S453_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S453_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S453_MAX_VALUE,
+    expected_output as tsvc_s453_recurrence_weighted_scale_expected_output,
+)
+from tsvc_s342_conditional_unpack_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S342_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S342_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S342_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S342_MAX_VALUE,
+    expected_output as tsvc_s342_conditional_unpack_expected_output,
+)
+from tsvc_s124_conditional_fma_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S124_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S124_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S124_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S124_MAX_VALUE,
+    expected_output as tsvc_s124_conditional_fma_map_expected_output,
+)
+from tsvc_s125_matrix_flattened_fma_oracle import (
+    MAX_CELLS as TSVC_S125_MAX_CELLS,
+    MAX_INPUT_LENGTH as TSVC_S125_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S125_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S125_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S125_MAX_VALUE,
+    expected_output as tsvc_s125_matrix_flattened_fma_expected_output,
+)
+from tsvc_s319_coupled_reductions_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S319_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S319_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S319_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S319_MAX_VALUE,
+    expected_output as tsvc_s319_coupled_reductions_expected_output,
+)
+from versabench_dbms_keys_union_oracle import (
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_KEYS_UNION_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_KEYS_UNION_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as versabench_dbms_keys_union_expected_output,
+)
+from versabench_dbms_query_oracle import (
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_QUERY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as VERSABENCH_DBMS_QUERY_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_QUERY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as versabench_dbms_query_expected_output,
+)
+from versabench_dbms_insert_entry_oracle import (
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_INSERT_ENTRY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as VERSABENCH_DBMS_INSERT_ENTRY_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_INSERT_ENTRY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as versabench_dbms_insert_entry_expected_output,
+)
+from versabench_dbms_delete_entry_oracle import (
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_DELETE_ENTRY_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_ELEMENTS as VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_DELETE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as versabench_dbms_delete_entry_expected_output,
+)
+from versabench_dbms_contract_root_oracle import (
+    MAX_INPUT_LENGTH as VERSABENCH_DBMS_CONTRACT_ROOT_MAX_INPUT_LENGTH,
+    MAX_NODES as VERSABENCH_DBMS_CONTRACT_ROOT_MAX_NODES,
+    MAX_OUTPUT_BYTES as VERSABENCH_DBMS_CONTRACT_ROOT_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_ELEMENTS as VERSABENCH_DBMS_CONTRACT_ROOT_MAX_OUTPUT_ELEMENTS,
+    MAX_PARSEABLE_INPUT_LENGTH as VERSABENCH_DBMS_CONTRACT_ROOT_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as versabench_dbms_contract_root_expected_output,
+)
+from tsvc_s241_cross_coupled_product_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S241_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S241_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S241_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S241_MAX_VALUE,
+    expected_output as tsvc_s241_cross_coupled_product_map_expected_output,
+)
+from tsvc_s243_ordered_lookahead_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S243_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S243_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S243_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S243_MAX_VALUE,
+    expected_output as tsvc_s243_ordered_lookahead_update_expected_output,
+)
+from tsvc_s244_false_dependence_cycle_break_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S244_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S244_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S244_MAX_OUTPUT_BYTES,
+    MAX_OUTPUT_VALUES as TSVC_S244_MAX_OUTPUT_VALUES,
+    MAX_VALUE as TSVC_S244_MAX_VALUE,
+    expected_output as tsvc_s244_false_dependence_cycle_break_expected_output,
+)
+from tsvc_s1244_polynomial_neighbor_sum_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1244_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S1244_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S1244_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S1244_MAX_VALUE,
+    expected_output as tsvc_s1244_polynomial_neighbor_sum_expected_output,
+)
+from tsvc_s1221_lag4_add_recurrence_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S1221_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S1221_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S1221_MAX_OUTPUT_BYTES,
+    MAX_VALUE as TSVC_S1221_MAX_VALUE,
+    expected_output as tsvc_s1221_lag4_add_recurrence_expected_output,
+)
+from tsvc_s442_indexed_square_accumulate_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S442_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S442_MAX_N,
+    MAX_PASSES as TSVC_S442_MAX_PASSES,
+    MAX_VALUE as TSVC_S442_MAX_VALUE,
+    expected_output as tsvc_s442_indexed_square_accumulate_expected_output,
+)
+TSVC_S442_MAX_OUTPUT_BYTES = 8 * TSVC_S442_MAX_N
+from tsvc_s171_stride_indexed_accumulate_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S171_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S171_MAX_N,
+    MAX_STRIDE as TSVC_S171_MAX_STRIDE,
+    MAX_VALUE as TSVC_S171_MAX_VALUE,
+    MIN_VALUE as TSVC_S171_MIN_VALUE,
+    expected_output as tsvc_s171_stride_indexed_accumulate_expected_output,
+)
+TSVC_S171_MAX_OUTPUT_BYTES = 8 * (1 + (TSVC_S171_MAX_N - 1) * TSVC_S171_MAX_STRIDE)
+from tsvc_s4117_pair_replicated_gather_map_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S4117_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S4117_MAX_N,
+    MAX_VALUE as TSVC_S4117_MAX_VALUE,
+    MIN_VALUE as TSVC_S4117_MIN_VALUE,
+    expected_output as tsvc_s4117_pair_replicated_gather_map_expected_output,
+)
+TSVC_S4117_MAX_OUTPUT_BYTES = 8 * TSVC_S4117_MAX_N
+from tsvc_s162_guarded_shifted_fma_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S162_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S162_MAX_N,
+    MAX_VALUE as TSVC_S162_MAX_VALUE,
+    MIN_VALUE as TSVC_S162_MIN_VALUE,
+    expected_output as tsvc_s162_guarded_shifted_fma_expected_output,
+)
+TSVC_S162_MAX_OUTPUT_BYTES = 8 * TSVC_S162_MAX_N
+from tsvc_s4114_reverse_index_gather_fma_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S4114_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S4114_MAX_N,
+    MAX_VALUE as TSVC_S4114_MAX_VALUE,
+    MIN_VALUE as TSVC_S4114_MIN_VALUE,
+    expected_output as tsvc_s4114_reverse_index_gather_fma_expected_output,
+)
+TSVC_S4114_MAX_OUTPUT_BYTES = 8 * TSVC_S4114_MAX_N
+from tsvc_s318_strided_absolute_maximum_with_index_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S318_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S318_MAX_N,
+    MAX_PHYSICAL_N as TSVC_S318_MAX_PHYSICAL_N,
+    MAX_STRIDE as TSVC_S318_MAX_STRIDE,
+    MAX_VALUE as TSVC_S318_MAX_VALUE,
+    expected_output as tsvc_s318_strided_absolute_maximum_with_index_expected_output,
+)
+TSVC_S318_MAX_OUTPUT_BYTES = 16
+from tsvc_s2101_diagonal_matrix_fma_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S2101_MAX_INPUT_LENGTH,
+    MAX_MATRIX_VALUES as TSVC_S2101_MAX_MATRIX_VALUES,
+    MAX_N as TSVC_S2101_MAX_N,
+    MAX_VALUE as TSVC_S2101_MAX_VALUE,
+    expected_output as tsvc_s2101_diagonal_matrix_fma_expected_output,
+)
+TSVC_S2101_MAX_OUTPUT_BYTES = 8 * TSVC_S2101_MAX_MATRIX_VALUES
+from tsvc_s2102_identity_matrix_initialize_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S2102_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TSVC_S2102_MAX_OUTPUT_BYTES,
+    MAX_SIDE as TSVC_S2102_MAX_SIDE,
+    MAX_PASSES as TSVC_S2102_MAX_PASSES,
+    expected_output as tsvc_s2102_identity_matrix_initialize_expected_output,
+)
+from tsvc_vag_indexed_gather_copy_oracle import (
+    MAX_INPUT_LENGTH as TSVC_VAG_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_VAG_MAX_N,
+    MAX_VALUE as TSVC_VAG_MAX_VALUE,
+    expected_output as tsvc_vag_indexed_gather_copy_expected_output,
+)
+TSVC_VAG_MAX_OUTPUT_BYTES = 8 * TSVC_VAG_MAX_N
+from tsvc_s332_first_above_threshold_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S332_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S332_MAX_N,
+    MAX_VALUE as TSVC_S332_MAX_VALUE,
+    expected_output as tsvc_s332_first_above_threshold_expected_output,
+)
+TSVC_S332_MAX_OUTPUT_BYTES = 16
+from tsvc_s261_shifted_cross_array_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S261_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S261_MAX_N,
+    MAX_VALUE as TSVC_S261_MAX_VALUE,
+    expected_output as tsvc_s261_shifted_cross_array_update_expected_output,
+)
+TSVC_S261_MAX_OUTPUT_BYTES = 16 * TSVC_S261_MAX_N
+from mediabench_mpeg2_motion_vector_component_oracle import (
+    MAX_INPUT_LENGTH as MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as mediabench_mpeg2_motion_vector_component_expected_output,
+)
+from mibench_jpeg_ycbcr_to_rgb_oracle import (
+    MAX_INPUT_LENGTH as MIBENCH_JPEG_YCBCR_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as MIBENCH_JPEG_YCBCR_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as MIBENCH_JPEG_YCBCR_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_PIXELS as MIBENCH_JPEG_YCBCR_MAX_PIXELS,
+    expected_output as mibench_jpeg_ycbcr_to_rgb_expected_output,
+)
+from cbench_consumer_jpeg_h2v2_fancy_upsample_oracle import (
+    MAX_PARSEABLE_INPUT_LENGTH as CBENCH_JPEG_H2V2_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES,
+    expected_output as cbench_consumer_jpeg_h2v2_fancy_upsample_expected_output,
+)
+from parboil_tpacf_cross_correlation_oracle import (
+    MAX_INPUT_LENGTH as PARBOIL_TPACF_MAX_INPUT_LENGTH,
+    MAX_POINTS as PARBOIL_TPACF_MAX_POINTS,
+    NUM_BINS as PARBOIL_TPACF_NUM_BINS,
+    SCALE as PARBOIL_TPACF_SCALE,
+    expected_output as parboil_tpacf_cross_correlation_expected_output,
+)
+from parboil_mri_q_oracle import (
+    MAX_COMPONENT_RAW as PARBOIL_MRI_Q_MAX_COMPONENT_RAW,
+    MAX_INPUT_LENGTH as PARBOIL_MRI_Q_MAX_INPUT_LENGTH,
+    MAX_K as PARBOIL_MRI_Q_MAX_K,
+    MAX_OUTPUT_BYTES as PARBOIL_MRI_Q_MAX_OUTPUT_BYTES,
+    expected_output as parboil_mri_q_expected_output,
+)
+from parboil_cutcp_oracle import (
+    MAX_ATOMS as PARBOIL_CUTCP_MAX_ATOMS,
+    MAX_COMPONENT_RAW as PARBOIL_CUTCP_MAX_COMPONENT_RAW,
+    MAX_DIMENSION as PARBOIL_CUTCP_MAX_DIMENSION,
+    MAX_INPUT_LENGTH as PARBOIL_CUTCP_MAX_INPUT_LENGTH,
+    MAX_ORIGIN_RAW as PARBOIL_CUTCP_MAX_ORIGIN_RAW,
+    MAX_OUTPUT_BYTES as PARBOIL_CUTCP_MAX_OUTPUT_BYTES,
+    MIN_DIMENSION as PARBOIL_CUTCP_MIN_DIMENSION,
+    expected_output as parboil_cutcp_expected_output,
+)
+from parboil_spmv_jds_oracle import (
+    INVALID_RESULT as PARBOIL_SPMV_JDS_INVALID_RESULT,
+    MAX_INPUT_LENGTH as PARBOIL_SPMV_JDS_MAX_INPUT_LENGTH,
+    MAX_PARSEABLE_INPUT_LENGTH as PARBOIL_SPMV_JDS_MAX_PARSEABLE_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PARBOIL_SPMV_JDS_MAX_OUTPUT_BYTES,
+    OUTPUT_ERROR as PARBOIL_SPMV_JDS_OUTPUT_ERROR,
+    expected_output as parboil_spmv_jds_expected_output,
+)
+from parboil_histo_oracle import (
+    INVALID_RESULT as PARBOIL_HISTO_INVALID_RESULT,
+    MAX_BINS as PARBOIL_HISTO_MAX_BINS,
+    MAX_INPUT_LENGTH as PARBOIL_HISTO_MAX_INPUT_LENGTH,
+    MAX_ITERATIONS as PARBOIL_HISTO_MAX_ITERATIONS,
+    MAX_SAMPLES as PARBOIL_HISTO_MAX_SAMPLES,
+    OUTPUT_ERROR as PARBOIL_HISTO_OUTPUT_ERROR,
+    expected_output as parboil_histo_expected_output,
+)
+PARBOIL_HISTO_MAX_OUTPUT_BYTES = PARBOIL_HISTO_MAX_BINS
+from tsvc_s252_adjacent_product_pair_sum_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S252_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S252_MAX_N,
+    expected_output as tsvc_s252_adjacent_product_pair_sum_expected_output,
+)
+TSVC_S252_MAX_OUTPUT_BYTES = 8 * TSVC_S252_MAX_N
+from tsvc_s251_scalar_square_expansion_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S251_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S251_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S251_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S251_MAX_PASSES,
+    MAX_VALUE as TSVC_S251_MAX_VALUE,
+    expected_output as tsvc_s251_scalar_square_expansion_expected_output,
+)
+from tsvc_s256_array_expansion_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S256_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S256_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S256_MAX_OUTPUT_BYTES,
+    MAX_A0 as TSVC_S256_MAX_A0,
+    MAX_FACTOR as TSVC_S256_MAX_FACTOR,
+    MAX_C0 as TSVC_S256_MAX_C0,
+    expected_output as tsvc_s256_array_expansion_expected_output,
+)
+from tsvc_s253_conditional_affine_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S253_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S253_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S253_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S253_MAX_PASSES,
+    expected_output as tsvc_s253_conditional_affine_update_expected_output,
+)
+from tsvc_s272_threshold_dual_accumulate_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S272_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S272_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S272_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S272_MAX_PASSES,
+    expected_output as tsvc_s272_threshold_dual_accumulate_expected_output,
+)
+from tsvc_s271_positive_branch_axpy_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S271_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S271_MAX_N,
+    MAX_PASSES as TSVC_S271_MAX_PASSES,
+    expected_output as tsvc_s271_positive_branch_axpy_expected_output,
+)
+TSVC_S271_MAX_OUTPUT_BYTES = 8 * TSVC_S271_MAX_N
+from tsvc_s276_index_split_axpy_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S276_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S276_MAX_N,
+    MAX_PASSES as TSVC_S276_MAX_PASSES,
+    expected_output as tsvc_s276_index_split_axpy_expected_output,
+)
+TSVC_S276_MAX_OUTPUT_BYTES = 8 * TSVC_S276_MAX_N
+from tsvc_s277_guarded_carry_update_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S277_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S277_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S277_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S277_MAX_PASSES,
+    expected_output as tsvc_s277_guarded_carry_update_expected_output,
+)
+from tsvc_s274_dependent_conditional_overwrite_oracle import (
+    MAX_INPUT_LENGTH as TSVC_S274_MAX_INPUT_LENGTH,
+    MAX_N as TSVC_S274_MAX_N,
+    MAX_OUTPUT_BYTES as TSVC_S274_MAX_OUTPUT_BYTES,
+    MAX_PASSES as TSVC_S274_MAX_PASSES,
+    expected_output as tsvc_s274_dependent_conditional_overwrite_expected_output,
+)
+from simplify_fraction_oracle import (
+    MAX_INPUT_LENGTH as SIMPLIFY_FRACTION_MAX_INPUT_LENGTH,
+    MAX_ABS_COMPONENT as SIMPLIFY_FRACTION_MAX_ABS_COMPONENT,
+    OUTPUT_BYTES as SIMPLIFY_FRACTION_OUTPUT_BYTES,
+    expected_output as simplify_fraction_oracle,
 )
 from sha3_oracle import (
     INVALID_RESULT as SHA3_INVALID_RESULT,
@@ -1651,6 +2276,21 @@ from stream_vector_kernels_oracle import expected_output as stream_vector_kernel
 from idea_encrypt_decrypt_oracle import MAX_PARSEABLE_INPUT_LENGTH as IDEA_ENCRYPT_DECRYPT_MAX_PARSEABLE_INPUT_LENGTH
 from idea_encrypt_decrypt_oracle import MAX_OUTPUT_BYTES as IDEA_ENCRYPT_DECRYPT_MAX_OUTPUT_BYTES
 from idea_encrypt_decrypt_oracle import expected_output as idea_encrypt_decrypt_expected_output
+from idea_cfb64_oracle import (
+    MAX_OUTPUT_BYTES as IDEA_CFB64_MAX_OUTPUT_BYTES,
+    MAX_PARSEABLE_INPUT_LENGTH as IDEA_CFB64_MAX_PARSEABLE_INPUT_LENGTH,
+    expected_output as idea_cfb64_expected_output,
+)
+from llubenchmark_list_traversal_growth_oracle import (
+    GROWTH_MILLI as LLUBENCHMARK_GROWTH_MILLI,
+    MAX_INITIAL_LENGTH as LLUBENCHMARK_MAX_INITIAL_LENGTH,
+    MAX_INPUT_LENGTH as LLUBENCHMARK_MAX_INPUT_LENGTH,
+    MAX_ITERATIONS as LLUBENCHMARK_MAX_ITERATIONS,
+    MAX_LISTS as LLUBENCHMARK_MAX_LISTS,
+    MAX_NODES as LLUBENCHMARK_MAX_NODES,
+    expected_output as llubenchmark_list_traversal_growth_expected_output,
+)
+LLUBENCHMARK_MAX_OUTPUT_BYTES = 16
 from misc_lowercase_oracle import MAX_CHARACTERS as MISC_LOWERCASE_MAX_CHARACTERS
 from misc_lowercase_oracle import MAX_OUTPUT_BYTES as MISC_LOWERCASE_MAX_OUTPUT_BYTES
 from misc_lowercase_oracle import MAX_PARSEABLE_INPUT_LENGTH as MISC_LOWERCASE_MAX_PARSEABLE_INPUT_LENGTH
@@ -1668,6 +2308,9 @@ from mccat_bisect_oracle import expected_output as mccat_bisect_oracle
 MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH = 2
 from prolangs_c_allroots_oracle import OUTPUT_BYTES as PROLANGS_C_ALLROOTS_MAX_OUTPUT_BYTES
 from prolangs_c_allroots_oracle import expected_output as prolangs_c_allroots_oracle
+from prolangs_c_cdecl_oracle import MAX_INPUT as PROLANGS_C_CDECL_MAX_INPUT
+from prolangs_c_cdecl_oracle import MAX_OUTPUT as PROLANGS_C_CDECL_MAX_OUTPUT
+from prolangs_c_cdecl_oracle import expected_output as prolangs_c_cdecl_oracle
 PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH = 5
 from cbench_automotive_qsort1_oracle import MAX_INPUT_VALUES as CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES
 from cbench_automotive_qsort1_oracle import MAX_OUTPUT_BYTES as CBENCH_AUTOMOTIVE_QSORT1_MAX_OUTPUT_BYTES
@@ -2016,6 +2659,7 @@ WORD_FREQUENCY_BST_MAX_INPUT_LENGTH = WORD_FREQUENCY_BST_MAX_TEXT_BYTES + 1
 WORD_FREQUENCY_BST_MAX_PARSEABLE_INPUT_LENGTH = WORD_FREQUENCY_BST_MAX_INPUT_LENGTH + 1
 MAX_SLACK_TIME_SCHEDULING_INPUT_LENGTH = 1 + 2 * (SLACK_TIME_SCHEDULING_MAX_TASKS + 1)
 RECORDER_WORKSPACE_ALGORITHMS = {
+    'pcompress2',
     'fifocache',
     'elliptic_curve_key_exchange',
     'iso10126_d2_padding',
@@ -3291,6 +3935,17 @@ from uudecode_oracle import (
 from mibench_security_rijndael_oracle import (
     expected_output as mibench_security_rijndael_oracle,
 )
+from cbench_security_rijndael_decrypt_oracle import (
+    INPUT_BYTES as CBENCH_RIJNDAEL_DECRYPT_INPUT_BYTES,
+    OUTPUT_BYTES as CBENCH_RIJNDAEL_DECRYPT_OUTPUT_BYTES,
+    expected_output as cbench_security_rijndael_decrypt_expected_output,
+    expected_result as cbench_security_rijndael_decrypt_expected_result,
+)
+from tarfind_oracle import (
+    MAX_INPUT_LENGTH as TARFIND_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as TARFIND_MAX_OUTPUT_BYTES,
+    expected_output as tarfind_expected_output,
+)
 from mibench_security_blowfish_oracle import (
     INPUT_BYTES as MIBENCH_SECURITY_BLOWFISH_INPUT_BYTES,
     OUTPUT_BYTES as MIBENCH_SECURITY_BLOWFISH_OUTPUT_BYTES,
@@ -3300,6 +3955,27 @@ MIBENCH_SECURITY_BLOWFISH_MAX_PARSEABLE_INPUT_LENGTH = MIBENCH_SECURITY_BLOWFISH
 TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES = TRIMARAN_ENC_3DES_MAX_INPUT_LENGTH + 1
 from misc_reed_solomon_oracle import (
     expected_output as misc_reed_solomon_expected_output,
+)
+from depthconv_oracle import (
+    MAX_INPUT_LENGTH as DEPTHCONV_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as DEPTHCONV_MAX_OUTPUT_BYTES,
+    expected_output as depthconv_expected_output,
+)
+from qrduino_oracle import (
+    MAX_MESSAGE_LENGTH as QRDUINO_MAX_MESSAGE_LENGTH,
+    OUTPUT_BYTES as QRDUINO_OUTPUT_BYTES,
+    expected_output as qrduino_expected_output,
+)
+from picojpeg_oracle import (
+    MAX_INPUT_LENGTH as PICOJPEG_MAX_INPUT_LENGTH,
+    MAX_OUTPUT_BYTES as PICOJPEG_MAX_OUTPUT_BYTES,
+    expected_output as picojpeg_expected_output,
+    expected_result as picojpeg_expected_result,
+)
+from statemate_oracle import (
+    MAX_RUNS as STATEMATE_MAX_RUNS,
+    OUTPUT_BYTES as STATEMATE_OUTPUT_BYTES,
+    expected_output as statemate_expected_output,
 )
 
 
@@ -3319,6 +3995,48 @@ def misc_reed_solomon_suite_oracle(
     if output_is_null or (capacity is not None and capacity < result):
         return -2, b""
     return result, output
+
+
+def depthconv_suite_oracle(
+        values: list[int] | tuple[int, ...], capacity: int | None = None,
+        output_is_null: bool = False, input_is_null: bool = False,
+        input_length: int | None = None) -> tuple[int, bytes]:
+    if (input_is_null or type(output_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or (input_length is not None
+                and (type(input_length) is not int or input_length != len(values)))
+            or (capacity is not None and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    output = depthconv_expected_output(values)
+    if output is None:
+        return -1, b""
+    if output_is_null or (capacity is not None and capacity < len(output)):
+        return -2, b""
+    return len(output), output
+
+
+def qrduino_suite_oracle(values, output_capacity=None, output_is_null=False,
+                         input_is_null=False, input_length=None):
+    return qrduino_expected_output(values, output_capacity, output_is_null,
+                                   input_is_null, input_length)
+
+
+def picojpeg_suite_oracle(values, output_capacity=None, output_is_null=False,
+                          input_is_null=False, input_length=None):
+    if output_capacity is None:
+        output_capacity = PICOJPEG_MAX_OUTPUT_BYTES
+    result = picojpeg_expected_result(values, output_capacity, output_is_null,
+                                      input_is_null, input_length)
+    if result < 0:
+        return result, b""
+    output = picojpeg_expected_output(values)
+    return (result, output) if output is not None and len(output) == result else (-1, b"")
+
+
+def statemate_suite_oracle(values, output_capacity=None, output_is_null=False,
+                           input_is_null=False, input_length=None):
+    return statemate_expected_output(values, output_capacity, output_is_null,
+                                     input_is_null, input_length)
 
 
 def trimaran_enc_rc4_suite_oracle(
@@ -3404,6 +4122,764 @@ def mibench_security_blowfish_suite_oracle(
     return result, output
 
 
+def cbench_security_rijndael_decrypt_suite_oracle(
+        values, capacity=None, output_is_null=False, input_is_null=False,
+        input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > CBENCH_RIJNDAEL_DECRYPT_INPUT_BYTES + 1
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or input_length != (0 if input_is_null else len(values))))
+            or (input_is_null and values)
+            or (capacity is not None
+                and (type(capacity) is not int or capacity < 0))):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    result = cbench_security_rijndael_decrypt_expected_result(
+        values,
+        CBENCH_RIJNDAEL_DECRYPT_OUTPUT_BYTES if capacity is None else capacity,
+        output_is_null,
+    )
+    if result != CBENCH_RIJNDAEL_DECRYPT_OUTPUT_BYTES:
+        return result, b""
+    output = cbench_security_rijndael_decrypt_expected_output(values)
+    return ((result, output) if output is not None else (-1, b""))
+
+
+def rodinia_dwt2d_suite_oracle(values, output_capacity=None, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None and
+                (type(input_length) is not int
+                 or not 0 <= input_length <= RODINIA_DWT2D_MAX_INPUT_LENGTH))
+            or not isinstance(values, (list, tuple))
+            or (input_is_null and (values or output_is_null))
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    result = rodinia_dwt2d_expected_result(
+        values, RODINIA_DWT2D_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity,
+        output_is_null=output_is_null, input_is_null=input_is_null)
+    if result < 0:
+        return result, b""
+    output = rodinia_dwt2d_expected_output(values)
+    return (result, output) if output is not None and len(output) == result else (-1, b"")
+
+
+def edn_suite_oracle(values, output_capacity=None, output_is_null=False,
+                     input_is_null=False, input_length=None, *, algorithm):
+    specs = {
+        "edn_lattice_synthesis": (2 + 2 * EDN_LATTICE_MAX_ORDER, EDN_LATTICE_MAX_OUTPUT_BYTES,
+                                  edn_lattice_synthesis_oracle),
+        "edn_vec_mpy1": (2 + 2 * EDN_VEC_MPY1_MAX_N, 8 * EDN_VEC_MPY1_MAX_N,
+                         edn_vec_mpy1_oracle),
+        "edn_iir_cascade": (2 + 6 * EDN_IIR_MAX_SECTIONS, 8 * (1 + 2 * EDN_IIR_MAX_SECTIONS),
+                            edn_iir_cascade_oracle),
+        "edn_jpeg_dct": (76, 512, edn_jpeg_dct_oracle),
+    }
+    max_input_length, max_output_bytes, oracle = specs[algorithm]
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (input_length is not None and
+                (type(input_length) is not int or not 0 <= input_length <= max_input_length + 1))
+            or not isinstance(values, (list, tuple))
+            or len(values) > max_input_length + 1
+            or (input_is_null and (values or output_is_null))
+            or (not input_is_null and input_length is not None and input_length != len(values))
+            or (output_capacity is not None
+                and (type(output_capacity) is not int or output_capacity < 0))):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    result, output = oracle(values)
+    if result < 0:
+        return result, b""
+    if output_is_null:
+        return -2, b""
+    capacity = max_output_bytes if output_capacity is None else output_capacity
+    if capacity < result:
+        return -2, b""
+    return result, output
+
+
+def edn_lattice_synthesis_suite_oracle(values, output_capacity=None, output_is_null=False,
+                                      input_is_null=False, input_length=None):
+    return edn_suite_oracle(values, output_capacity, output_is_null, input_is_null,
+                            input_length, algorithm="edn_lattice_synthesis")
+
+
+def edn_vec_mpy1_suite_oracle(values, output_capacity=None, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    return edn_suite_oracle(values, output_capacity, output_is_null, input_is_null,
+                            input_length, algorithm="edn_vec_mpy1")
+
+
+def edn_iir_cascade_suite_oracle(values, output_capacity=None, output_is_null=False,
+                                 input_is_null=False, input_length=None):
+    return edn_suite_oracle(values, output_capacity, output_is_null, input_is_null,
+                            input_length, algorithm="edn_iir_cascade")
+
+
+def edn_jpeg_dct_suite_oracle(values, output_capacity=None, output_is_null=False,
+                              input_is_null=False, input_length=None):
+    return edn_suite_oracle(values, output_capacity, output_is_null, input_is_null,
+                            input_length, algorithm="edn_jpeg_dct")
+
+
+def mediabench_gsm_rpe_grid_selection_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = (MEDIABENCH_GSM_RPE_MAX_OUTPUT_BYTES if output_capacity is None
+                else output_capacity)
+    result, words = mediabench_gsm_rpe_grid_selection_oracle(
+        values, capacity, output_is_null, input_is_null, input_length)
+    if result < 0:
+        return result, b""
+    return result, struct.pack("<14q", *words)
+
+
+def rodinia_hybridsort_suite_oracle(values, output_capacity=None, output_is_null=False,
+                                    input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > RODINIA_HYBRIDSORT_MAX_INPUT_LENGTH
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= RODINIA_HYBRIDSORT_MAX_INPUT_LENGTH))
+            or (output_capacity is not None
+                and (type(output_capacity) is not int or output_capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    if input_is_null:
+        return -1, b""
+    capacity = RODINIA_HYBRIDSORT_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    result = rodinia_hybridsort_expected_result(values, capacity, output_is_null, False)
+    if result < 0:
+        return result, b""
+    output = rodinia_hybridsort_expected_output(values)
+    return (result, output) if output is not None and len(output) == result else (-1, b"")
+
+
+def rodinia_mummergpu_suite_oracle(values, output_capacity=None, output_is_null=False,
+                                    input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or not isinstance(values, (list, tuple))
+            or len(values) > RODINIA_MUMMERGPU_MAX_INPUT_LENGTH
+            or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                   for value in values)
+            or (input_length is not None
+                and (type(input_length) is not int
+                     or not 0 <= input_length <= RODINIA_MUMMERGPU_MAX_INPUT_LENGTH))
+            or (output_capacity is not None
+                and (type(output_capacity) is not int or output_capacity < 0))
+            or (input_is_null and values)
+            or (not input_is_null and input_length is not None and input_length != len(values))):
+        return -1, b""
+    capacity = (RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES
+                if output_capacity is None else output_capacity)
+    result = rodinia_mummergpu_expected_result(
+        values, capacity, output_is_null, input_is_null)
+    if result < 0:
+        return result, b""
+    output = rodinia_mummergpu_expected_output(values)
+    return (result, output) if output is not None and len(output) == result else (-1, b"")
+
+
+def rodinia_streamcluster_pgain_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (input_is_null or values is None
+            or input_length is not None and input_length != len(values)):
+        return -1, b""
+    return rodinia_streamcluster_pgain_expected_output(
+        values, output_capacity, output_is_null)
+
+
+def tsvc_indexed_gather_scatter_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = (TSVC_INDEXED_GATHER_SCATTER_MAX_OUTPUT_BYTES
+                if output_capacity is None else output_capacity)
+    return tsvc_indexed_gather_scatter_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s141_packed_symmetric_update_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S141_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s141_packed_symmetric_update_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s131_forward_neighbor_update_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S131_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s131_forward_neighbor_update_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s132_shifted_row_update_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S132_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s132_shifted_row_update_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s152_three_factor_accumulate_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S152_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s152_three_factor_accumulate_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s161_mutually_exclusive_updates_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = 2 * 8 * TSVC_S161_MAX_N if output_capacity is None else output_capacity
+    return tsvc_s161_mutually_exclusive_updates_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s211_ordered_neighbor_rewrite_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S211_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s211_ordered_neighbor_rewrite_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s212_next_element_dependency_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S212_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s212_next_element_dependency_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s114_transposed_lower_triangle_update_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S114_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s114_transposed_lower_triangle_update_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_vif_masked_assignment_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_VIF_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_vif_masked_assignment_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s278_branch_recompute_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S278_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s278_branch_recompute_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s279_nested_branch_recompute_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S279_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s279_nested_branch_recompute_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s2111_wavefront_add_recurrence_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S2111_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s2111_wavefront_add_recurrence_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s353_unrolled_sparse_saxpy_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S353_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s353_unrolled_sparse_saxpy_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s452_index_weighted_vector_map_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S452_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s452_index_weighted_vector_map_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s126_matrix_column_recurrence_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S126_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s126_matrix_column_recurrence_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s322_second_order_recurrence_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S322_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s322_second_order_recurrence_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s321_first_order_recurrence_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S321_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s321_first_order_recurrence_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s128_strided_coupled_update_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S128_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s128_strided_coupled_update_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s323_coupled_recurrence_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S323_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s323_coupled_recurrence_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s127_fixed_pair_expansion_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S127_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s127_fixed_pair_expansion_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s123_conditional_pair_expansion_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S123_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s123_conditional_pair_expansion_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s122_reverse_strided_gather_add_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S122_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s122_reverse_strided_gather_add_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s315_maximum_with_index_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S315_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s315_maximum_with_index_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s453_recurrence_weighted_scale_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S453_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s453_recurrence_weighted_scale_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s342_conditional_unpack_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S342_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s342_conditional_unpack_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s124_conditional_fma_map_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S124_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s124_conditional_fma_map_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s125_matrix_flattened_fma_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S125_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s125_matrix_flattened_fma_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s319_coupled_reductions_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S319_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s319_coupled_reductions_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def versabench_dbms_keys_union_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return versabench_dbms_keys_union_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def versabench_dbms_query_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = VERSABENCH_DBMS_QUERY_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return versabench_dbms_query_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def versabench_dbms_insert_entry_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = VERSABENCH_DBMS_INSERT_ENTRY_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return versabench_dbms_insert_entry_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def versabench_dbms_delete_entry_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return versabench_dbms_delete_entry_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def versabench_dbms_contract_root_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = (VERSABENCH_DBMS_CONTRACT_ROOT_MAX_OUTPUT_BYTES
+                if output_capacity is None else output_capacity)
+    return versabench_dbms_contract_root_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s241_cross_coupled_product_map_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S241_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s241_cross_coupled_product_map_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s243_ordered_lookahead_update_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S243_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s243_ordered_lookahead_update_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s244_false_dependence_cycle_break_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S244_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s244_false_dependence_cycle_break_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s1244_polynomial_neighbor_sum_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S1244_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s1244_polynomial_neighbor_sum_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s1221_lag4_add_recurrence_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S1221_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s1221_lag4_add_recurrence_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s442_indexed_square_accumulate_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S442_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s442_indexed_square_accumulate_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s171_stride_indexed_accumulate_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S171_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s171_stride_indexed_accumulate_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s4117_pair_replicated_gather_map_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S4117_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s4117_pair_replicated_gather_map_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s162_guarded_shifted_fma_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S162_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s162_guarded_shifted_fma_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s4114_reverse_index_gather_fma_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S4114_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s4114_reverse_index_gather_fma_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s318_strided_absolute_maximum_with_index_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S318_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s318_strided_absolute_maximum_with_index_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s2101_diagonal_matrix_fma_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S2101_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s2101_diagonal_matrix_fma_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s2102_identity_matrix_initialize_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S2102_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s2102_identity_matrix_initialize_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_vag_indexed_gather_copy_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_VAG_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_vag_indexed_gather_copy_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s332_first_above_threshold_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S332_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s332_first_above_threshold_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s261_shifted_cross_array_update_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S261_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s261_shifted_cross_array_update_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def mediabench_mpeg2_motion_vector_component_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = (MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES
+                if output_capacity is None else output_capacity)
+    return mediabench_mpeg2_motion_vector_component_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def mibench_jpeg_ycbcr_to_rgb_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = MIBENCH_JPEG_YCBCR_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return mibench_jpeg_ycbcr_to_rgb_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def cbench_consumer_jpeg_h2v2_fancy_upsample_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = (CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES
+                if output_capacity is None else output_capacity)
+    return cbench_consumer_jpeg_h2v2_fancy_upsample_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def parboil_tpacf_cross_correlation_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = PARBOIL_TPACF_NUM_BINS if output_capacity is None else output_capacity
+    return parboil_tpacf_cross_correlation_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def parboil_mri_q_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = (PARBOIL_MRI_Q_MAX_OUTPUT_BYTES
+                if output_capacity is None else output_capacity)
+    return parboil_mri_q_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def parboil_cutcp_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = PARBOIL_CUTCP_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return parboil_cutcp_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def parboil_spmv_jds_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (output_capacity is not None
+                and (type(output_capacity) is not int or output_capacity < 0))
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= PARBOIL_SPMV_JDS_MAX_PARSEABLE_INPUT_LENGTH))):
+        return PARBOIL_SPMV_JDS_INVALID_RESULT, b""
+    if not input_is_null and not isinstance(values, (list, tuple)):
+        return PARBOIL_SPMV_JDS_INVALID_RESULT, b""
+    result, output = parboil_spmv_jds_expected_output(None if input_is_null else values)
+    if result < 0:
+        return result, b""
+    if input_length is not None and input_length != len(values):
+        return PARBOIL_SPMV_JDS_INVALID_RESULT, b""
+    if (output_is_null
+            or (output_capacity is not None and output_capacity < result)):
+        return PARBOIL_SPMV_JDS_OUTPUT_ERROR, b""
+    return result, output
+
+
+def parboil_histo_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    if (type(output_is_null) is not bool or type(input_is_null) is not bool
+            or (output_capacity is not None
+                and (type(output_capacity) is not int or output_capacity < 0))
+            or (input_length is not None and (type(input_length) is not int
+                or not 0 <= input_length <= PARBOIL_HISTO_MAX_INPUT_LENGTH))):
+        return PARBOIL_HISTO_INVALID_RESULT, b""
+    if not input_is_null and not isinstance(values, (list, tuple)):
+        return PARBOIL_HISTO_INVALID_RESULT, b""
+    result, output = parboil_histo_expected_output(None if input_is_null else values)
+    if result < 0:
+        return result, b""
+    if input_length is not None and input_length != len(values):
+        return PARBOIL_HISTO_INVALID_RESULT, b""
+    if output_is_null or output_capacity is not None and output_capacity < result:
+        return PARBOIL_HISTO_OUTPUT_ERROR, b""
+    return result, output
+
+
+def tsvc_s252_adjacent_product_pair_sum_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S252_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s252_adjacent_product_pair_sum_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s251_scalar_square_expansion_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S251_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s251_scalar_square_expansion_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s256_array_expansion_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S256_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s256_array_expansion_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s253_conditional_affine_update_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S253_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s253_conditional_affine_update_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s272_threshold_dual_accumulate_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S272_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s272_threshold_dual_accumulate_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s271_positive_branch_axpy_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S271_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s271_positive_branch_axpy_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s276_index_split_axpy_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S276_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s276_index_split_axpy_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s277_guarded_carry_update_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S277_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s277_guarded_carry_update_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def tsvc_s274_dependent_conditional_overwrite_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = TSVC_S274_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return tsvc_s274_dependent_conditional_overwrite_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def idea_cfb64_suite_oracle(values, output_capacity=None, output_is_null=False,
+                            input_is_null=False, input_length=None):
+    capacity = IDEA_CFB64_MAX_OUTPUT_BYTES if output_capacity is None else output_capacity
+    return idea_cfb64_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
+def llubenchmark_list_traversal_growth_suite_oracle(
+        values, output_capacity=None, output_is_null=False,
+        input_is_null=False, input_length=None):
+    capacity = (LLUBENCHMARK_MAX_OUTPUT_BYTES
+                if output_capacity is None else output_capacity)
+    return llubenchmark_list_traversal_growth_expected_output(
+        values, capacity, output_is_null, input_is_null, input_length)
+
+
 BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "string_heap_sort": string_heap_sort_expected_output,
     "bitmap_block_allocation": bitmap_block_allocation_expected_output,
@@ -3431,6 +4907,7 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "bmm": versabench_bmm_oracle,
     "mccat_bisect": mccat_bisect_oracle,
     "prolangs_c_allroots": prolangs_c_allroots_suite_oracle,
+    "prolangs_c_cdecl": prolangs_c_cdecl_oracle,
     "cbench_automotive_qsort1": cbench_automotive_qsort1_suite_oracle,
     "8b10b": versabench_8b10b_oracle,
     "trimaran_enc_rc4": trimaran_enc_rc4_suite_oracle,
@@ -3439,9 +4916,99 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "uuencode": uuencode_oracle,
     "uudecode": uudecode_oracle,
     "mibench_security_rijndael": mibench_security_rijndael_oracle,
+    "cbench_security_rijndael_decrypt": cbench_security_rijndael_decrypt_suite_oracle,
+    "tarfind": tarfind_expected_output,
     "mibench_security_blowfish": mibench_security_blowfish_suite_oracle,
     "mibench_automotive_susan": mibench_automotive_susan_oracle,
+    "cbench_automotive_susan_c": cbench_automotive_susan_c_oracle,
+    "cbench_automotive_susan_e": cbench_automotive_susan_e_oracle,
+    "freebench_distray": freebench_distray_oracle,
+    "pcompress2": pcompress2_oracle,
+    "mibench_security_sha0": mibench_security_sha0_oracle,
+    "lac_adpcm": lac_adpcm_oracle,
+    "mccat_05_eks": mccat_05_eks_oracle,
+    "mccat_bintr": mccat_bintr_oracle,
+    "mediabench_g721_encode": mediabench_g721_encode_oracle,
+    "mediabench_gsm_rpe_grid_selection": mediabench_gsm_rpe_grid_selection_suite_oracle,
+    "rodinia_hybridsort": rodinia_hybridsort_suite_oracle,
+    "rodinia_mummergpu": rodinia_mummergpu_suite_oracle,
+    "rodinia_streamcluster_pgain": rodinia_streamcluster_pgain_suite_oracle,
+    "tsvc_indexed_gather_scatter": tsvc_indexed_gather_scatter_suite_oracle,
+    "tsvc_s141_packed_symmetric_update": tsvc_s141_packed_symmetric_update_suite_oracle,
+    "tsvc_s131_forward_neighbor_update": tsvc_s131_forward_neighbor_update_suite_oracle,
+    "tsvc_s132_shifted_row_update": tsvc_s132_shifted_row_update_suite_oracle,
+    "tsvc_s152_three_factor_accumulate": tsvc_s152_three_factor_accumulate_suite_oracle,
+    "tsvc_s161_mutually_exclusive_updates": tsvc_s161_mutually_exclusive_updates_suite_oracle,
+    "tsvc_s211_ordered_neighbor_rewrite": tsvc_s211_ordered_neighbor_rewrite_suite_oracle,
+    "tsvc_s212_next_element_dependency": tsvc_s212_next_element_dependency_suite_oracle,
+    "tsvc_s114_transposed_lower_triangle_update": tsvc_s114_transposed_lower_triangle_update_suite_oracle,
+    "tsvc_vif_masked_assignment": tsvc_vif_masked_assignment_suite_oracle,
+    "tsvc_s278_branch_recompute": tsvc_s278_branch_recompute_suite_oracle,
+    "tsvc_s279_nested_branch_recompute": tsvc_s279_nested_branch_recompute_suite_oracle,
+    "tsvc_s2111_wavefront_add_recurrence": tsvc_s2111_wavefront_add_recurrence_suite_oracle,
+    "tsvc_s353_unrolled_sparse_saxpy": tsvc_s353_unrolled_sparse_saxpy_suite_oracle,
+    "tsvc_s452_index_weighted_vector_map": tsvc_s452_index_weighted_vector_map_suite_oracle,
+    "tsvc_s126_matrix_column_recurrence": tsvc_s126_matrix_column_recurrence_suite_oracle,
+    "tsvc_s322_second_order_recurrence": tsvc_s322_second_order_recurrence_suite_oracle,
+    "tsvc_s321_first_order_recurrence": tsvc_s321_first_order_recurrence_suite_oracle,
+    "tsvc_s128_strided_coupled_update": tsvc_s128_strided_coupled_update_suite_oracle,
+    "tsvc_s323_coupled_recurrence": tsvc_s323_coupled_recurrence_suite_oracle,
+    "tsvc_s127_fixed_pair_expansion": tsvc_s127_fixed_pair_expansion_suite_oracle,
+    "tsvc_s123_conditional_pair_expansion": tsvc_s123_conditional_pair_expansion_suite_oracle,
+    "tsvc_s122_reverse_strided_gather_add": tsvc_s122_reverse_strided_gather_add_suite_oracle,
+    "tsvc_s315_maximum_with_index": tsvc_s315_maximum_with_index_suite_oracle,
+    "tsvc_s453_recurrence_weighted_scale": tsvc_s453_recurrence_weighted_scale_suite_oracle,
+    "tsvc_s342_conditional_unpack": tsvc_s342_conditional_unpack_suite_oracle,
+    "tsvc_s124_conditional_fma_map": tsvc_s124_conditional_fma_map_suite_oracle,
+    "tsvc_s125_matrix_flattened_fma": tsvc_s125_matrix_flattened_fma_suite_oracle,
+    "tsvc_s319_coupled_reductions": tsvc_s319_coupled_reductions_suite_oracle,
+    "versabench_dbms_keys_union": versabench_dbms_keys_union_suite_oracle,
+    "versabench_dbms_query": versabench_dbms_query_suite_oracle,
+    "versabench_dbms_insert_entry": versabench_dbms_insert_entry_suite_oracle,
+    "versabench_dbms_delete_entry": versabench_dbms_delete_entry_suite_oracle,
+    "versabench_dbms_contract_root": versabench_dbms_contract_root_suite_oracle,
+    "tsvc_s241_cross_coupled_product_map": tsvc_s241_cross_coupled_product_map_suite_oracle,
+    "tsvc_s243_ordered_lookahead_update": tsvc_s243_ordered_lookahead_update_suite_oracle,
+    "tsvc_s244_false_dependence_cycle_break": tsvc_s244_false_dependence_cycle_break_suite_oracle,
+    "tsvc_s1244_polynomial_neighbor_sum": tsvc_s1244_polynomial_neighbor_sum_suite_oracle,
+    "tsvc_s1221_lag4_add_recurrence": tsvc_s1221_lag4_add_recurrence_suite_oracle,
+    "tsvc_s442_indexed_square_accumulate": tsvc_s442_indexed_square_accumulate_suite_oracle,
+    "tsvc_s171_stride_indexed_accumulate": tsvc_s171_stride_indexed_accumulate_suite_oracle,
+    "tsvc_s4117_pair_replicated_gather_map": tsvc_s4117_pair_replicated_gather_map_suite_oracle,
+    "tsvc_s162_guarded_shifted_fma": tsvc_s162_guarded_shifted_fma_suite_oracle,
+    "tsvc_s4114_reverse_index_gather_fma": tsvc_s4114_reverse_index_gather_fma_suite_oracle,
+    "tsvc_s318_strided_absolute_maximum_with_index": (
+        tsvc_s318_strided_absolute_maximum_with_index_suite_oracle),
+    "tsvc_s2101_diagonal_matrix_fma": tsvc_s2101_diagonal_matrix_fma_suite_oracle,
+    "tsvc_s2102_identity_matrix_initialize": tsvc_s2102_identity_matrix_initialize_suite_oracle,
+    "tsvc_vag_indexed_gather_copy": tsvc_vag_indexed_gather_copy_suite_oracle,
+    "tsvc_s332_first_above_threshold": tsvc_s332_first_above_threshold_suite_oracle,
+    "tsvc_s261_shifted_cross_array_update": tsvc_s261_shifted_cross_array_update_suite_oracle,
+    "mediabench_mpeg2_motion_vector_component": mediabench_mpeg2_motion_vector_component_suite_oracle,
+    "mibench_jpeg_ycbcr_to_rgb": mibench_jpeg_ycbcr_to_rgb_suite_oracle,
+    "cbench_consumer_jpeg_h2v2_fancy_upsample": cbench_consumer_jpeg_h2v2_fancy_upsample_suite_oracle,
+    "parboil_tpacf_cross_correlation": parboil_tpacf_cross_correlation_suite_oracle,
+    "parboil_mri_q": parboil_mri_q_suite_oracle,
+    "parboil_cutcp": parboil_cutcp_suite_oracle,
+    "parboil_spmv_jds": parboil_spmv_jds_suite_oracle,
+    "parboil_histo": parboil_histo_suite_oracle,
+    "tsvc_s252_adjacent_product_pair_sum": tsvc_s252_adjacent_product_pair_sum_suite_oracle,
+    "tsvc_s251_scalar_square_expansion": tsvc_s251_scalar_square_expansion_suite_oracle,
+    "tsvc_s256_array_expansion": tsvc_s256_array_expansion_suite_oracle,
+    "tsvc_s253_conditional_affine_update": tsvc_s253_conditional_affine_update_suite_oracle,
+    "tsvc_s272_threshold_dual_accumulate": tsvc_s272_threshold_dual_accumulate_suite_oracle,
+    "tsvc_s271_positive_branch_axpy": tsvc_s271_positive_branch_axpy_suite_oracle,
+    "tsvc_s276_index_split_axpy": tsvc_s276_index_split_axpy_suite_oracle,
+    "tsvc_s277_guarded_carry_update": tsvc_s277_guarded_carry_update_suite_oracle,
+    "tsvc_s274_dependent_conditional_overwrite": tsvc_s274_dependent_conditional_overwrite_suite_oracle,
+    "idea_cfb64": idea_cfb64_suite_oracle,
+    "llubenchmark_list_traversal_growth": llubenchmark_list_traversal_growth_suite_oracle,
+    "simplify_fraction": simplify_fraction_oracle,
     "misc_reed_solomon": misc_reed_solomon_suite_oracle,
+    "depthconv": depthconv_suite_oracle,
+    "qrduino": qrduino_suite_oracle,
+    "picojpeg": picojpeg_suite_oracle,
+    "statemate": statemate_suite_oracle,
     "min_cost_max_flow": min_cost_max_flow_expected_output,
     "morton_sort": morton_sort_expected_output,
     "number_theoretic_transform": number_theoretic_transform_expected_output,
@@ -3455,10 +5022,29 @@ BYTE_OUTPUT_ALGORITHM_ORACLES = {
     "delaunay_triangulation": delaunay_triangulation_expected_output,
     "delaunay_mesh_refinement": delaunay_mesh_refinement_expected_output,
     "fortune_voronoi": fortune_voronoi_expected_output,
+    "tsvc_s343_column_major_compaction": tsvc_s343_column_major_compaction_expected_output,
+    "tsvc_s281_reverse_coupled_update": tsvc_s281_reverse_coupled_update_expected_output,
+    "cbench_tiffdither": cbench_tiffdither_expected_output,
+    "cbench_consumer_tiffmedian": cbench_consumer_tiffmedian_expected_output,
+    "cbench_consumer_tiff2bw": cbench_consumer_tiff2bw_expected_output,
+    "cbench_bzip2_mtf_rle": cbench_bzip2_mtf_rle_expected_output,
+    "cbench_blowfish_cbc": cbench_blowfish_cbc_expected_output,
+    "rodinia_dwt2d": rodinia_dwt2d_suite_oracle,
+    "edn_lattice_synthesis": edn_lattice_synthesis_suite_oracle,
+    "edn_vec_mpy1": edn_vec_mpy1_suite_oracle,
+    "edn_iir_cascade": edn_iir_cascade_suite_oracle,
+    "edn_jpeg_dct": edn_jpeg_dct_suite_oracle,
+    "nsichneu": nsichneu_expected_output,
 }
 RECORDER_WORKSPACE_ALGORITHMS.update(BYTE_OUTPUT_ALGORITHM_ORACLES)
 
 EXTERNAL_BYTE_OUTPUT_BOUNDS = {
+    "qrduino": (QRDUINO_MAX_MESSAGE_LENGTH + 2, QRDUINO_OUTPUT_BYTES),
+    "picojpeg": (PICOJPEG_MAX_INPUT_LENGTH, PICOJPEG_MAX_OUTPUT_BYTES),
+    "cbench_consumer_jpeg_h2v2_fancy_upsample": (
+        CBENCH_JPEG_H2V2_MAX_PARSEABLE_INPUT_LENGTH,
+        CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES),
+    "statemate": (2, STATEMATE_OUTPUT_BYTES),
     "min_cost_max_flow": (MIN_COST_MAX_FLOW_MAX_PARSEABLE_INPUT_LENGTH,
                           MIN_COST_MAX_FLOW_MAX_OUTPUT_BYTES),
     "morton_sort": (MORTON_SORT_MAX_PARSEABLE_INPUT_LENGTH, MORTON_SORT_MAX_OUTPUT_BYTES),
@@ -3481,6 +5067,186 @@ EXTERNAL_BYTE_OUTPUT_BOUNDS = {
                                  DELAUNAY_MESH_REFINEMENT_MAX_OUTPUT_BYTES),
     "fortune_voronoi": (FORTUNE_VORONOI_MAX_PARSEABLE_INPUT_LENGTH,
                         FORTUNE_VORONOI_MAX_OUTPUT_BYTES),
+    "tsvc_s343_column_major_compaction": (TSVC_S343_MAX_INPUT_LENGTH,
+                                          TSVC_S343_MAX_OUTPUT_BYTES),
+    "tsvc_s281_reverse_coupled_update": (TSVC_S281_REVERSE_MAX_INPUT_LENGTH,
+                                         TSVC_S281_REVERSE_MAX_OUTPUT_BYTES),
+    "cbench_tiffdither": (CBENCH_TIFFDITHER_MAX_INPUT_LENGTH,
+                          CBENCH_TIFFDITHER_MAX_OUTPUT_BYTES),
+    "cbench_consumer_tiffmedian": (CBENCH_TIFFMEDIAN_MAX_INPUT_LENGTH,
+                                   CBENCH_TIFFMEDIAN_MAX_OUTPUT_BYTES),
+    "cbench_consumer_tiff2bw": (CBENCH_TIFF2BW_MAX_INPUT_LENGTH,
+                                CBENCH_TIFF2BW_MAX_OUTPUT_BYTES),
+    "cbench_bzip2_mtf_rle": (CBENCH_BZIP2_MTF_RLE_MAX_INPUT_LENGTH,
+                              CBENCH_BZIP2_MTF_RLE_MAX_OUTPUT_BYTES),
+    "cbench_blowfish_cbc": (CBENCH_BLOWFISH_CBC_MAX_INPUT_LENGTH,
+                             CBENCH_BLOWFISH_CBC_MAX_OUTPUT_BYTES),
+    "freebench_distray": (FREEBENCH_DISTRAY_MAX_PARSEABLE_INPUT_LENGTH,
+                           FREEBENCH_DISTRAY_MAX_OUTPUT_BYTES),
+    "pcompress2": (PCOMPRESS2_MAX_LENGTH + 1, PCOMPRESS2_MAX_OUTPUT_BYTES),
+    "mibench_security_sha0": (MIBENCH_SECURITY_SHA0_MAX_PARSEABLE_INPUT_LENGTH,
+                               MIBENCH_SECURITY_SHA0_OUTPUT_BYTES),
+    "lac_adpcm": (LAC_ADPCM_MAX_INPUT_LENGTH, LAC_ADPCM_MAX_OUTPUT_BYTES),
+    "mccat_05_eks": (MCCAT_05_EKS_MAX_INPUT_LENGTH, MCCAT_05_EKS_MAX_OUTPUT_BYTES),
+    "mccat_bintr": (MCCAT_BINTR_MAX_INPUT_LENGTH, MCCAT_BINTR_OUTPUT_BYTES),
+    "mediabench_g721_encode": (MEDIABENCH_G721_MAX_INPUT_LENGTH,
+                                MEDIABENCH_G721_MAX_OUTPUT_BYTES),
+    "mediabench_gsm_rpe_grid_selection": (MEDIABENCH_GSM_RPE_MAX_INPUT_LENGTH,
+                                           MEDIABENCH_GSM_RPE_MAX_OUTPUT_BYTES),
+    "rodinia_hybridsort": (RODINIA_HYBRIDSORT_MAX_INPUT_LENGTH,
+                            RODINIA_HYBRIDSORT_MAX_OUTPUT_BYTES),
+    "rodinia_mummergpu": (RODINIA_MUMMERGPU_MAX_INPUT_LENGTH,
+                          RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES),
+    "rodinia_streamcluster_pgain": (RODINIA_STREAMCLUSTER_PGAIN_MAX_PARSEABLE_INPUT_LENGTH,
+                                     RODINIA_STREAMCLUSTER_PGAIN_MAX_OUTPUT_BYTES),
+    "tsvc_indexed_gather_scatter": (TSVC_INDEXED_GATHER_SCATTER_MAX_INPUT_LENGTH,
+                                    TSVC_INDEXED_GATHER_SCATTER_MAX_OUTPUT_BYTES),
+    "tsvc_s141_packed_symmetric_update": (TSVC_S141_MAX_INPUT_LENGTH,
+                                           TSVC_S141_MAX_OUTPUT_BYTES),
+    "tsvc_s131_forward_neighbor_update": (TSVC_S131_MAX_INPUT_LENGTH,
+                                          TSVC_S131_MAX_OUTPUT_BYTES),
+    "tsvc_s132_shifted_row_update": (TSVC_S132_MAX_INPUT_LENGTH,
+                                     TSVC_S132_MAX_OUTPUT_BYTES),
+    "tsvc_s152_three_factor_accumulate": (TSVC_S152_MAX_INPUT_LENGTH,
+                                          TSVC_S152_MAX_OUTPUT_BYTES),
+    "tsvc_s161_mutually_exclusive_updates": (TSVC_S161_MAX_INPUT_LENGTH,
+                                               16 * TSVC_S161_MAX_N),
+    "tsvc_s211_ordered_neighbor_rewrite": (TSVC_S211_MAX_INPUT_LENGTH,
+                                             TSVC_S211_MAX_OUTPUT_BYTES),
+    "tsvc_s212_next_element_dependency": (TSVC_S212_MAX_INPUT_LENGTH,
+                                            TSVC_S212_MAX_OUTPUT_BYTES),
+    "tsvc_s114_transposed_lower_triangle_update": (TSVC_S114_MAX_INPUT_LENGTH,
+                                                     TSVC_S114_MAX_OUTPUT_BYTES),
+    "tsvc_vif_masked_assignment": (TSVC_VIF_MAX_INPUT_LENGTH,
+                                    TSVC_VIF_MAX_OUTPUT_BYTES),
+    "tsvc_s278_branch_recompute": (TSVC_S278_MAX_INPUT_LENGTH,
+                                     TSVC_S278_MAX_OUTPUT_BYTES),
+    "tsvc_s279_nested_branch_recompute": (TSVC_S279_MAX_INPUT_LENGTH,
+                                            TSVC_S279_MAX_OUTPUT_BYTES),
+    "tsvc_s2111_wavefront_add_recurrence": (TSVC_S2111_MAX_INPUT_LENGTH,
+                                              TSVC_S2111_MAX_OUTPUT_BYTES),
+    "tsvc_s353_unrolled_sparse_saxpy": (TSVC_S353_MAX_INPUT_LENGTH,
+                                          TSVC_S353_MAX_OUTPUT_BYTES),
+    "tsvc_s452_index_weighted_vector_map": (TSVC_S452_MAX_INPUT_LENGTH,
+                                              TSVC_S452_MAX_OUTPUT_BYTES),
+    "tsvc_s126_matrix_column_recurrence": (TSVC_S126_MAX_INPUT_LENGTH,
+                                             TSVC_S126_MAX_OUTPUT_BYTES),
+    "tsvc_s322_second_order_recurrence": (TSVC_S322_MAX_INPUT_LENGTH,
+                                            TSVC_S322_MAX_OUTPUT_BYTES),
+    "tsvc_s321_first_order_recurrence": (TSVC_S321_MAX_INPUT_LENGTH,
+                                            TSVC_S321_MAX_OUTPUT_BYTES),
+    "tsvc_s128_strided_coupled_update": (TSVC_S128_MAX_INPUT_LENGTH,
+                                           TSVC_S128_MAX_OUTPUT_BYTES),
+    "tsvc_s323_coupled_recurrence": (TSVC_S323_MAX_INPUT_LENGTH,
+                                       TSVC_S323_MAX_OUTPUT_BYTES),
+    "tsvc_s127_fixed_pair_expansion": (TSVC_S127_MAX_INPUT_LENGTH,
+                                         TSVC_S127_MAX_OUTPUT_BYTES),
+    "tsvc_s123_conditional_pair_expansion": (TSVC_S123_MAX_INPUT_LENGTH,
+                                                TSVC_S123_MAX_OUTPUT_BYTES),
+    "tsvc_s122_reverse_strided_gather_add": (TSVC_S122_MAX_INPUT_LENGTH,
+                                                TSVC_S122_MAX_OUTPUT_BYTES),
+    "tsvc_s315_maximum_with_index": (TSVC_S315_MAX_INPUT_LENGTH,
+                                      TSVC_S315_MAX_OUTPUT_BYTES),
+    "tsvc_s453_recurrence_weighted_scale": (TSVC_S453_MAX_INPUT_LENGTH,
+                                             TSVC_S453_MAX_OUTPUT_BYTES),
+    "tsvc_s342_conditional_unpack": (TSVC_S342_MAX_INPUT_LENGTH,
+                                     TSVC_S342_MAX_OUTPUT_BYTES),
+    "tsvc_s124_conditional_fma_map": (TSVC_S124_MAX_INPUT_LENGTH,
+                                        TSVC_S124_MAX_OUTPUT_BYTES),
+    "tsvc_s125_matrix_flattened_fma": (TSVC_S125_MAX_INPUT_LENGTH,
+                                         TSVC_S125_MAX_OUTPUT_BYTES),
+    "tsvc_s319_coupled_reductions": (TSVC_S319_MAX_INPUT_LENGTH,
+                                       TSVC_S319_MAX_OUTPUT_BYTES),
+    "versabench_dbms_keys_union": (VERSABENCH_DBMS_KEYS_UNION_MAX_PARSEABLE_INPUT_LENGTH,
+                                     VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES),
+    "versabench_dbms_query": (VERSABENCH_DBMS_QUERY_MAX_PARSEABLE_INPUT_LENGTH,
+                               VERSABENCH_DBMS_QUERY_MAX_OUTPUT_BYTES),
+    "versabench_dbms_insert_entry": (VERSABENCH_DBMS_INSERT_ENTRY_MAX_PARSEABLE_INPUT_LENGTH,
+                                      VERSABENCH_DBMS_INSERT_ENTRY_MAX_OUTPUT_BYTES),
+    "versabench_dbms_delete_entry": (VERSABENCH_DBMS_DELETE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH,
+                                      VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_BYTES),
+    "versabench_dbms_contract_root": (VERSABENCH_DBMS_CONTRACT_ROOT_MAX_PARSEABLE_INPUT_LENGTH,
+                                       VERSABENCH_DBMS_CONTRACT_ROOT_MAX_OUTPUT_BYTES),
+    "tsvc_s241_cross_coupled_product_map": (TSVC_S241_MAX_INPUT_LENGTH,
+                                             TSVC_S241_MAX_OUTPUT_BYTES),
+    "tsvc_s243_ordered_lookahead_update": (TSVC_S243_MAX_INPUT_LENGTH,
+                                            TSVC_S243_MAX_OUTPUT_BYTES),
+    "tsvc_s244_false_dependence_cycle_break": (TSVC_S244_MAX_INPUT_LENGTH,
+                                                 TSVC_S244_MAX_OUTPUT_BYTES),
+    "tsvc_s1244_polynomial_neighbor_sum": (TSVC_S1244_MAX_INPUT_LENGTH,
+                                            TSVC_S1244_MAX_OUTPUT_BYTES),
+    "tsvc_s1221_lag4_add_recurrence": (TSVC_S1221_MAX_INPUT_LENGTH,
+                                        TSVC_S1221_MAX_OUTPUT_BYTES),
+    "tsvc_s442_indexed_square_accumulate": (TSVC_S442_MAX_INPUT_LENGTH,
+                                              TSVC_S442_MAX_OUTPUT_BYTES),
+    "tsvc_s171_stride_indexed_accumulate": (TSVC_S171_MAX_INPUT_LENGTH,
+                                              TSVC_S171_MAX_OUTPUT_BYTES),
+    "tsvc_s4117_pair_replicated_gather_map": (TSVC_S4117_MAX_INPUT_LENGTH,
+                                                TSVC_S4117_MAX_OUTPUT_BYTES),
+    "tsvc_s162_guarded_shifted_fma": (TSVC_S162_MAX_INPUT_LENGTH,
+                                        TSVC_S162_MAX_OUTPUT_BYTES),
+    "tsvc_s4114_reverse_index_gather_fma": (TSVC_S4114_MAX_INPUT_LENGTH,
+                                              TSVC_S4114_MAX_OUTPUT_BYTES),
+    "tsvc_s318_strided_absolute_maximum_with_index": (TSVC_S318_MAX_INPUT_LENGTH,
+                                                        TSVC_S318_MAX_OUTPUT_BYTES),
+    "tsvc_s2101_diagonal_matrix_fma": (TSVC_S2101_MAX_INPUT_LENGTH,
+                                         TSVC_S2101_MAX_OUTPUT_BYTES),
+    "tsvc_s2102_identity_matrix_initialize": (TSVC_S2102_MAX_INPUT_LENGTH,
+                                                TSVC_S2102_MAX_OUTPUT_BYTES),
+    "tsvc_vag_indexed_gather_copy": (TSVC_VAG_MAX_INPUT_LENGTH,
+                                       TSVC_VAG_MAX_OUTPUT_BYTES),
+    "tsvc_s332_first_above_threshold": (TSVC_S332_MAX_INPUT_LENGTH,
+                                          TSVC_S332_MAX_OUTPUT_BYTES),
+    "tsvc_s261_shifted_cross_array_update": (TSVC_S261_MAX_INPUT_LENGTH,
+                                               TSVC_S261_MAX_OUTPUT_BYTES),
+    "mediabench_mpeg2_motion_vector_component": (
+        MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_PARSEABLE_INPUT_LENGTH,
+        MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES),
+    "mibench_jpeg_ycbcr_to_rgb": (MIBENCH_JPEG_YCBCR_MAX_PARSEABLE_INPUT_LENGTH,
+                                     MIBENCH_JPEG_YCBCR_MAX_OUTPUT_BYTES),
+    "parboil_tpacf_cross_correlation": (PARBOIL_TPACF_MAX_INPUT_LENGTH,
+                                          PARBOIL_TPACF_NUM_BINS),
+    "parboil_mri_q": (PARBOIL_MRI_Q_MAX_INPUT_LENGTH,
+                       PARBOIL_MRI_Q_MAX_OUTPUT_BYTES),
+    "parboil_cutcp": (PARBOIL_CUTCP_MAX_INPUT_LENGTH,
+                         PARBOIL_CUTCP_MAX_OUTPUT_BYTES),
+    "parboil_spmv_jds": (PARBOIL_SPMV_JDS_MAX_PARSEABLE_INPUT_LENGTH,
+                           PARBOIL_SPMV_JDS_MAX_OUTPUT_BYTES),
+    "parboil_histo": (PARBOIL_HISTO_MAX_INPUT_LENGTH,
+                       PARBOIL_HISTO_MAX_OUTPUT_BYTES),
+    "tsvc_s252_adjacent_product_pair_sum": (TSVC_S252_MAX_INPUT_LENGTH,
+                                              TSVC_S252_MAX_OUTPUT_BYTES),
+    "tsvc_s251_scalar_square_expansion": (TSVC_S251_MAX_INPUT_LENGTH,
+                                            TSVC_S251_MAX_OUTPUT_BYTES),
+    "tsvc_s256_array_expansion": (TSVC_S256_MAX_INPUT_LENGTH,
+                                    TSVC_S256_MAX_OUTPUT_BYTES),
+    "tsvc_s253_conditional_affine_update": (TSVC_S253_MAX_INPUT_LENGTH,
+                                              TSVC_S253_MAX_OUTPUT_BYTES),
+    "tsvc_s272_threshold_dual_accumulate": (
+        TSVC_S272_MAX_INPUT_LENGTH, TSVC_S272_MAX_OUTPUT_BYTES),
+    "tsvc_s271_positive_branch_axpy": (
+        TSVC_S271_MAX_INPUT_LENGTH, TSVC_S271_MAX_OUTPUT_BYTES),
+    "tsvc_s276_index_split_axpy": (
+        TSVC_S276_MAX_INPUT_LENGTH, TSVC_S276_MAX_OUTPUT_BYTES),
+    "tsvc_s277_guarded_carry_update": (
+        TSVC_S277_MAX_INPUT_LENGTH, TSVC_S277_MAX_OUTPUT_BYTES),
+    "tsvc_s274_dependent_conditional_overwrite": (
+        TSVC_S274_MAX_INPUT_LENGTH, TSVC_S274_MAX_OUTPUT_BYTES),
+    "idea_cfb64": (IDEA_CFB64_MAX_PARSEABLE_INPUT_LENGTH,
+                    IDEA_CFB64_MAX_OUTPUT_BYTES),
+    "llubenchmark_list_traversal_growth": (LLUBENCHMARK_MAX_INPUT_LENGTH,
+                                            LLUBENCHMARK_MAX_OUTPUT_BYTES),
+    "simplify_fraction": (SIMPLIFY_FRACTION_MAX_INPUT_LENGTH,
+                           SIMPLIFY_FRACTION_OUTPUT_BYTES),
+    "depthconv": (DEPTHCONV_MAX_INPUT_LENGTH, DEPTHCONV_MAX_OUTPUT_BYTES),
+    "rodinia_dwt2d": (RODINIA_DWT2D_MAX_INPUT_LENGTH, RODINIA_DWT2D_MAX_OUTPUT_BYTES),
+    "edn_lattice_synthesis": (2 + 2 * EDN_LATTICE_MAX_ORDER + 1,
+                               EDN_LATTICE_MAX_OUTPUT_BYTES),
+    "edn_vec_mpy1": (2 + 2 * EDN_VEC_MPY1_MAX_N + 1, 8 * EDN_VEC_MPY1_MAX_N),
+    "edn_iir_cascade": (2 + 6 * EDN_IIR_MAX_SECTIONS + 1,
+                        8 * (1 + 2 * EDN_IIR_MAX_SECTIONS)),
+    "edn_jpeg_dct": (77, 512),
+    "nsichneu": (NSICHNEU_INPUT_COUNT + 1, NSICHNEU_OUTPUT_BYTES),
 }
 
 
@@ -33184,7 +34950,578 @@ def validate_tabu_search_workload(workload: dict) -> None:
 def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
     if not isinstance(workload.get("cases"), list) or not workload["cases"]:
         raise ValueError(f"{algorithm} workload must contain fixture cases")
-    if algorithm == "misc_reed_solomon":
+    if algorithm == "statemate":
+        pinned = "de24bdf561f4eaad7f37685641fa301f2b8b4bc3"
+        expected_ids = {
+            "one_source_default_settlement", "repeated_reset_and_settlement",
+            "zero_runs_rejected", "run_limit_exceeded", "trailing_input_rejected",
+            "output_capacity_too_small", "null_output", "null_input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "embench-iot-statemate-default-settlement-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded reset-and-settle execution of Embench-IoT Statemate's fixed no-stimulus car-window control path."
+                or source != {
+                    "repository": "embench/embench-iot", "commit": pinned,
+                    "path": "src/statemate/libstatemate.c", "symbol": "benchmark_body",
+                    "url": f"https://github.com/embench/embench-iot/blob/{pinned}/src/statemate/libstatemate.c",
+                    "version": f"Embench-IoT commit {pinned}",
+                    "license_note": "The target source declares SPDX-License-Identifier: GPL-3.0-or-later. The bounded fixed-path implementation is independent and retains source attribution and the GPL license.",
+                }
+                or workload.get("contract") != {
+                    "operation": "Repeat the source's fixed initialization, interface, and no-stimulus statechart settlement path, returning the verifier-visible Bitlist, state identifiers, and timers.",
+                    "input_layout": "[run_count]",
+                    "run_count_range": [1, STATEMATE_MAX_RUNS],
+                    "output_encoding": "64 one-byte Bitlist entries, 16 verifier-ordered state identifier bytes, and three 32-bit little-endian timer words.",
+                    "invalid_result": -1, "output_error_result": -2,
+                    "no_write_on_error": True,
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "encoding": "One run-count value.",
+                    "maximum_valid_length": 1, "maximum_parseable_length": 2,
+                    "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array", "encoding": "Source verifier snapshot.",
+                    "maximum_bytes": STATEMATE_OUTPUT_BYTES,
+                    "success_result": "number of bytes written", "null_output_result": -2,
+                    "insufficient_capacity_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": STATEMATE_OUTPUT_BYTES,
+                    "meaning": "Verifier-visible Bitlist, state identifier, and timer snapshot.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids
+                or len(workload["cases"]) != len(expected_ids)):
+            raise ValueError("statemate metadata differs from its pinned no-stimulus profile")
+        package = ROOT / "benchmarks" / "s" / "statemate"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "GPL-3.0-or-later" not in readme
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text):
+            raise ValueError("statemate README or GPL attribution is incomplete")
+        for relative in (
+                "c/s/statemate.c", "c3/s/statemate.c3", "cpp/s/statemate.cpp",
+                "elisa/s/statemate.elisa", "nim/s/statemate.nim", "odin/s/statemate.odin",
+                "rust/s/statemate.rs", "v/s/statemate.v", "zig/s/statemate.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"statemate port is missing: {relative}")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", STATEMATE_OUTPUT_BYTES)
+            if (not isinstance(values, list)
+                    or not {"id", "input_values", "input_length", "expected_result", "expected_output_hex"}
+                    <= set(case)
+                    or set(case) - {"id", "input_values", "input_length", "expected_result",
+                                    "expected_output_hex", "output_capacity", "input_is_null", "output_is_null"}
+                    or len(values) > 2
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                    or type(input_length) is not int or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool or type(capacity) is not int
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))
+                    or type(case.get("expected_result")) is not int
+                    or not isinstance(case.get("expected_output_hex"), str)):
+                raise ValueError(f"statemate fixture framing is invalid: {case.get('id')}")
+            expected_result, expected_output = statemate_expected_output(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (case["expected_result"] != expected_result
+                    or case["expected_output_hex"].lower() != expected_output.hex()):
+                raise ValueError(f"statemate fixture differs from its independent oracle: {case.get('id')}")
+    elif algorithm == "nsichneu":
+        pinned = "de24bdf561f4eaad7f37685641fa301f2b8b4bc3"
+        source = workload.get("pinned_source")
+        expected_ids = {
+            "source_default_no_transition", "t1_first_permutation_fires",
+            "t1_later_permutation_fires", "t2_first_subset_fires",
+            "t2_second_subset_fires", "both_transitions_and_repeat",
+            "equal_operands_do_not_fire", "zero_runs_rejected", "marking_limit_rejected",
+            "trailing_input_rejected", "output_capacity_too_small", "null_output", "null_input",
+        }
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                              "pinned_source", "contract", "input", "output", "measurement", "oracle", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "embench-iot-nsichneu-bounded-petri-net-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded source-ordered execution of the Embench NSicherNeu generated Petri/T-Net transition profile."
+                or source != {
+                    "repository": "embench/embench-iot", "commit": pinned,
+                    "path": "src/nsichneu/libnsichneu.c", "symbol": "benchmark_body",
+                    "url": f"https://github.com/embench/embench-iot/blob/{pinned}/src/nsichneu/libnsichneu.c",
+                    "declared_license": "GPL-3.0-or-later",
+                    "model_origin": "NSicherNeu Pr/T-Net model generated from a Sea2CHaRy description; C-LAB, Paderborn.",
+                }
+                or workload.get("contract") != {
+                    "operation": "Run the fixed P1/P2 transition scan in source order, returning the place counts and all verifier-sized marking arrays.",
+                    "input_layout": "[run_count, P1_marking_0, P1_marking_1, P1_marking_2, P2_marking_0, P2_marking_1, P2_marking_2, P2_marking_3, P2_marking_4]",
+                    "run_count_range": [1, NSICHNEU_MAX_RUNS],
+                    "marking_value_range": [-NSICHNEU_MARK_LIMIT, NSICHNEU_MARK_LIMIT],
+                    "invalid_result": -1, "output_error_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "maximum_valid_length": NSICHNEU_INPUT_COUNT,
+                    "maximum_parseable_length": NSICHNEU_INPUT_COUNT + 1,
+                    "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "17 little-endian signed-i64 values: P1 count and three marks, P2 count and five marks, P3 count and six marks",
+                    "maximum_bytes": NSICHNEU_OUTPUT_BYTES, "success_result": "number of bytes written",
+                    "null_output_result": -2, "insufficient_capacity_result": -2,
+                    "no_write_on_error": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or workload.get("oracle") != {
+                    "path": "benchmarks/nsichneu_oracle.py",
+                    "operation": "Compare all 17 little-endian state values with the independent source-ordered transition simulator.",
+                }
+                or {case.get("id") for case in workload.get("cases", []) if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("nsichneu metadata differs from its pinned Petri/T-Net transition profile")
+        package = ROOT / "benchmarks" / "n" / "nsichneu"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "GPL-3.0-or-later" not in readme
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text):
+            raise ValueError("nsichneu README or GPL license attribution is incomplete")
+        for relative in (
+                "c/n/nsichneu.c", "c3/n/nsichneu.c3", "cpp/n/nsichneu.cpp", "elisa/n/nsichneu.elisa",
+                "nim/n/nsichneu.nim", "odin/n/nsichneu.odin", "rust/n/nsichneu.rs",
+                "v/n/nsichneu.v", "zig/n/nsichneu.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"nsichneu port is missing: {relative}")
+        seen_ids = set()
+        for case in workload["cases"]:
+            case_id = case.get("id")
+            values = case.get("input_values")
+            input_null = case.get("input_is_null", False)
+            output_null = case.get("output_is_null", False)
+            capacity = case.get("output_capacity", NSICHNEU_OUTPUT_BYTES)
+            input_length = case.get("input_length")
+            if (set(case) - {"id", "input_values", "input_length", "expected_result",
+                             "expected_output_hex", "input_is_null", "output_is_null", "output_capacity"}
+                    or not {"id", "input_values", "input_length", "expected_result", "expected_output_hex"} <= set(case)
+                    or not isinstance(case_id, str) or case_id in seen_ids
+                    or not isinstance(values, list) or len(values) > NSICHNEU_INPUT_COUNT + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                    or type(input_length) is not int or type(input_null) is not bool
+                    or type(output_null) is not bool or type(capacity) is not int
+                    or (input_null and (values or output_null or input_length != 0))
+                    or (not input_null and input_length != len(values))
+                    or type(case.get("expected_result")) is not int
+                    or not isinstance(case.get("expected_output_hex"), str)):
+                raise ValueError(f"nsichneu fixture framing is invalid: {case_id}")
+            seen_ids.add(case_id)
+            result, output = nsichneu_expected_output(values, capacity, output_null, input_null, input_length)
+            if (case["expected_result"] != result
+                    or case["expected_output_hex"].lower() != output.hex()):
+                raise ValueError(f"nsichneu fixture differs from the independent transition oracle: {case_id}")
+
+    elif algorithm in {"edn_lattice_synthesis", "edn_vec_mpy1", "edn_iir_cascade", "edn_jpeg_dct"}:
+        edn_specs = {
+            "edn_lattice_synthesis": {
+                "id": "embench-edn-lattice-synthesis-v1", "function": "latsynth",
+                "max_input": 2 + 2 * EDN_LATTICE_MAX_ORDER,
+                "max_output": EDN_LATTICE_MAX_OUTPUT_BYTES,
+                "oracle": edn_lattice_synthesis_oracle,
+                "input": {
+                    "kind": "i64_array_bytes_output", "encoding": "[order, initial_f, b[0..order), k[0..order)]",
+                    "order_range": [1, 16], "initial_f_range": [-65536, 65535],
+                    "state_and_coefficient_range": [-1024, 1023],
+                    "output": "(order+1) little-endian signed i64 words [returned_f, updated_b...]",
+                    "shift": "arithmetic right shift (floor division by powers of two); bounded values keep every updated short in range",
+                    "invalid_result": -1, "capacity_error": -2, "no_write_on_error": True,
+                    "maximum_input_length": 34, "maximum_output_bytes": 136,
+                },
+            },
+            "edn_vec_mpy1": {
+                "id": "embench-edn-vec-mpy1-v1", "function": "vec_mpy1",
+                "max_input": 2 + 2 * EDN_VEC_MPY1_MAX_N,
+                "max_output": 8 * EDN_VEC_MPY1_MAX_N,
+                "oracle": edn_vec_mpy1_oracle,
+                "input": {
+                    "kind": "i64_array_bytes_output", "encoding": "[count, y[count], x[count], scaler]",
+                    "count_range": [1, 64], "short_value_range": [-1024, 1023],
+                    "operation": "y[i] += arithmetic_shift_right(scaler*x[i],15)",
+                    "output": "count little-endian signed i64 updated y values",
+                    "invalid_result": -1, "capacity_error": -2, "no_write_on_error": True,
+                    "maximum_input_length": 130, "maximum_output_bytes": 512,
+                },
+            },
+            "edn_iir_cascade": {
+                "id": "embench-edn-iir-cascade-v1", "function": "iir1",
+                "max_input": 2 + 6 * EDN_IIR_MAX_SECTIONS,
+                "max_output": 8 * (1 + 2 * EDN_IIR_MAX_SECTIONS),
+                "oracle": edn_iir_cascade_oracle,
+                "input": {
+                    "kind": "i64_array_bytes_output",
+                    "encoding": "[section_count, input_sample, four_coefficients_per_section..., two_initial_states_per_section...]",
+                    "section_count_range": [1, 8], "input_and_coefficient_range": [-1024, 1023],
+                    "state_range": [-1024, 1023],
+                    "operation": "apply the source's two-stage multiply-accumulate recurrence and state shift for each section in order",
+                    "output": "little-endian signed i64 words [final_output, state0,state1,...]",
+                    "invalid_result": -1, "capacity_error": -2, "no_write_on_error": True,
+                    "maximum_input_length": 50, "maximum_output_bytes": 136,
+                },
+            },
+            "edn_jpeg_dct": {
+                "id": "embench-edn-jpeg-dct-v1", "function": "jpegdct",
+                "max_input": 76, "max_output": 512,
+                "oracle": edn_jpeg_dct_oracle,
+                "input": {
+                    "kind": "i64_array_bytes_output",
+                    "encoding": "64 row-major signed-short block coefficients followed by 12 signed-short transform factors",
+                    "block_length": 64, "block_range": [-8, 8], "factor_range": [-32, 31],
+                    "output": "64 little-endian signed i64 transformed coefficients",
+                    "invalid_result": -1, "capacity_error": -2, "no_write_on_error": True,
+                    "maximum_input_length": 76, "maximum_output_bytes": 512,
+                    "transform": "two-pass factorized 8x8 DCT; rows then columns; source's signed-16 narrowing and right shifts",
+                },
+            },
+        }
+        spec = edn_specs[algorithm]
+        cases = workload.get("cases")
+        pinned = "09c2ed8c3b7008c95d08b038de4a3f6dc103ed70"
+        source = workload.get("source")
+        if (set(workload) != {"schema_version", "id", "algorithm", "source", "input", "cases", "measurement"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != spec["id"]
+                or workload.get("algorithm") != algorithm
+                or not isinstance(source, dict)
+                or source.get("repository") != "https://github.com/embench/embench-iot"
+                or source.get("commit") != pinned
+                or source.get("path") != "src/edn/libedn.c"
+                or source.get("function") != spec["function"]
+                or source.get("license") != "GPL-3.0-or-later"
+                or "GPL permission obtained by email from Björn Lisper" not in source.get("original_source", "")
+                or workload.get("input") != spec["input"]
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 7,
+                    "warmup_rounds": 1, "repetitions_per_sample": 5,
+                }
+                or not isinstance(cases, list) or not cases):
+            raise ValueError(f"{algorithm} workload metadata differs from the pinned EDN profile")
+        package = ROOT / "benchmarks" / "e" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        source_url = f"https://github.com/embench/embench-iot/blob/{pinned}/src/edn/libedn.c"
+        if (source_url not in readme or "GPL-3.0-or-later" not in readme
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text
+                or "Björn Lisper" not in notice):
+            raise ValueError(f"{algorithm} README, GPL license, or permission attribution is incomplete")
+        extensions = ("c", "c3", "cpp", "elisa", "nim", "odin", "rs", "v", "zig")
+        for language, extension in zip(("c", "c3", "cpp", "elisa", "nim", "odin", "rust", "v", "zig"), extensions):
+            if not (ROOT / language / "e" / f"{algorithm}.{extension}").is_file():
+                raise ValueError(f"{algorithm} {language} port is missing")
+        case_ids = set()
+        for case in cases:
+            values = case.get("input_values") if isinstance(case, dict) else None
+            case_id = case.get("id") if isinstance(case, dict) else None
+            if (not isinstance(case, dict)
+                    or set(case) != {"id", "input_values", "expected_result", "expected_output_bytes", "input_length"}
+                    or not isinstance(case_id, str) or case_id in case_ids
+                    or not isinstance(values, list) or len(values) > spec["max_input"] + 1
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                    or type(case.get("input_length")) is not int or case["input_length"] != len(values)
+                    or type(case.get("expected_result")) is not int
+                    or not isinstance(case.get("expected_output_bytes"), list)
+                    or any(type(byte) is not int or not 0 <= byte <= 255
+                           for byte in case["expected_output_bytes"])):
+                raise ValueError(f"{algorithm} fixture framing is invalid: {case_id}")
+            case_ids.add(case_id)
+            result, output = spec["oracle"](values)
+            if (case["expected_result"] != result
+                    or case["expected_output_bytes"] != list(output)
+                    or (result >= 0 and result != len(output))
+                    or (result < 0 and output)):
+                raise ValueError(f"{algorithm} fixture differs from the independent fixed-point oracle: {case_id}")
+
+    elif algorithm == "qrduino":
+        pinned = "de24bdf561f4eaad7f37685641fa301f2b8b4bc3"
+        expected_ids = {
+            "source_benchmark_payload", "embedded_nul_rejected", "non_ascii_byte_rejected",
+            "message_over_version_two_limit", "trailing_input_value_rejected",
+            "output_capacity_too_small", "null_output", "null_input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "embench-iot-qrduino-v2-l-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded byte-mode QR version 2-L encoding with Reed-Solomon parity, data placement, eight mask candidates, and the source-verified unmasked frame prefix."
+                or source != {
+                    "repository": "embench/embench-iot", "commit": pinned,
+                    "path": "src/qrduino/qrencode.c", "symbol": "qrencode",
+                    "url": f"https://github.com/embench/embench-iot/blob/{pinned}/src/qrduino/qrencode.c",
+                    "version": f"Embench-IoT commit {pinned}",
+                    "license_note": "The QRduino source declares SPDX-License-Identifier: GPL-3.0-or-later. These implementations are independently written; the package retains the GPL-3.0-or-later license and source attribution.",
+                }
+                or workload.get("contract") != {
+                    "operation": "Encode a bounded nonzero-ASCII byte string in QR byte mode at version 2, error-correction level L, then return the source benchmark's first 22 row-packed bytes from the unmasked frame.",
+                    "input_layout": "[message_length, byte_0, ..., byte_(message_length-1)]",
+                    "message_length_range": [1, QRDUINO_MAX_MESSAGE_LENGTH],
+                    "byte_range": [1, 127],
+                    "output_encoding": "The first 22 bytes of the 25-by-25 unmasked QR module matrix, packed MSB-first by row into four bytes per row.",
+                    "invalid_result": -1, "output_error_result": -2,
+                    "no_write_on_error": True,
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "encoding": "Length-prefixed nonzero ASCII bytes.",
+                    "maximum_valid_length": QRDUINO_MAX_MESSAGE_LENGTH + 1,
+                    "maximum_parseable_length": QRDUINO_MAX_MESSAGE_LENGTH + 2,
+                    "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array", "encoding": "Source-verified unmasked frame prefix.",
+                    "maximum_bytes": QRDUINO_OUTPUT_BYTES,
+                    "success_result": "number of bytes written", "null_output_result": -2,
+                    "insufficient_capacity_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": 2200, "meaning": "Bounded codeword, frame, reservation, and candidate-mask scratch.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 25,
+                }
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids
+                or len(workload["cases"]) != len(expected_ids)):
+            raise ValueError("qrduino metadata differs from its pinned version-2-L profile")
+        package = ROOT / "benchmarks" / "q" / "qrduino"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "GPL-3.0-or-later" not in readme
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text):
+            raise ValueError("qrduino README or GPL attribution is incomplete")
+        for relative in (
+                "c/q/qrduino.c", "c3/q/qrduino.c3", "cpp/q/qrduino.cpp",
+                "elisa/q/qrduino.elisa", "nim/q/qrduino.nim", "odin/q/qrduino.odin",
+                "rust/q/qrduino.rs", "v/q/qrduino.v", "zig/q/qrduino.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"qrduino port is missing: {relative}")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", QRDUINO_OUTPUT_BYTES)
+            if (not isinstance(values, list)
+                    or not {"id", "input_values", "input_length", "expected_result", "expected_output_hex"}
+                    <= set(case)
+                    or set(case) - {"id", "input_values", "input_length", "expected_result",
+                                    "expected_output_hex", "output_capacity", "input_is_null", "output_is_null"}
+                    or len(values) > QRDUINO_MAX_MESSAGE_LENGTH + 2
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                    or type(input_length) is not int or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool or type(capacity) is not int
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))
+                    or type(case.get("expected_result")) is not int
+                    or not isinstance(case.get("expected_output_hex"), str)):
+                raise ValueError(f"qrduino fixture framing is invalid: {case.get('id')}")
+            expected_result, expected_output = qrduino_expected_output(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (case["expected_result"] != expected_result
+                    or case["expected_output_hex"].lower() != expected_output.hex()):
+                raise ValueError(f"qrduino fixture differs from its independent oracle: {case.get('id')}")
+    elif algorithm == "picojpeg":
+        pinned = "09c2ed8c3b7008c95d08b038de4a3f6dc103ed70"
+        expected_ids = {
+            "positive_dc_and_ac", "negative_dc_and_ac", "short_output_capacity",
+            "invalid_soi_marker", "invalid_entropy_padding", "null_output", "null_input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "embench-picojpeg-grayscale-baseline-one-block-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded baseline grayscale JPEG block parsing, Huffman decoding, dequantization, and IDCT reconstruction."
+                or source != {
+                    "repository": "embench/embench-iot", "commit": pinned,
+                    "path": "src/picojpeg/libpicojpeg.c",
+                    "related_paths": ["src/picojpeg/picojpeg.h", "src/picojpeg/picojpeg_test.c"],
+                    "symbols": ["pjpeg_decode_init", "pjpeg_decode_mcu"],
+                    "url": f"https://github.com/embench/embench-iot/blob/{pinned}/src/picojpeg/libpicojpeg.c",
+                    "spdx": "GPL-3.0-or-later",
+                    "original_algorithm": "Picojpeg v1.1 by Rich Geldreich, identified as public domain; integrated change history credits Chris Phoenix.",
+                }
+                or workload.get("contract") != {
+                    "input_layout": "139 JPEG bytes for SOI + one DQT + one SOF0 grayscale 8x8 frame + one restricted DHT + one SOS + two entropy bytes + EOI",
+                    "input_length": PICOJPEG_MAX_INPUT_LENGTH,
+                    "marker_sequence": ["SOI", "DQT-8-bit-table-0", "SOF0-8x8-grayscale", "DHT-fixed-baseline-profile", "SOS-single-component", "two-byte-entropy-scan", "EOI"],
+                    "quant_table_range": [1, 255],
+                    "quant_table_profile": "One 8-bit zigzag-ordered table; entries 0 and 1 are caller-selected and entries 2..63 equal 1.",
+                    "dc_ac_category": 4,
+                    "signed_coefficient_values": "-15..-8 or 8..15",
+                    "huffman": "DC category 4 code 0; AC run-0/size-4 code 0; EOB code 10",
+                    "huffman_tables": "DC table has one length-1 code for symbol 4; AC table has one length-1 code for symbol 0x04 and one length-2 code for symbol 0x00.",
+                    "entropy_bits": "DC code + four magnitude bits + AC code + four magnitude bits + EOB + four one-bit pad bits",
+                    "coefficient_amplitude_decode": "For each four-bit raw amplitude r, the signed coefficient is r when r>=8, otherwise r-15.",
+                    "dequantization": "DC = decoded DC difference * quantization[0]; AC = decoded AC coefficient * quantization[1].",
+                    "idct": "Q16 standard basis factors [11363,9633,6436,2260,-2260,-6436,-9633,-11363]/65536 for horizontal frequency 1; pixel=floor(128+DC*Q0/8+AC*Q1*basis+0.5), clamped to [0,255]",
+                    "output_bytes": PICOJPEG_MAX_OUTPUT_BYTES,
+                    "invalid_result": -1, "output_error_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array_of_bytes", "length_exact": PICOJPEG_MAX_INPUT_LENGTH,
+                    "byte_range": [0, 255], "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array", "encoding": "64 row-major grayscale pixels",
+                    "maximum_bytes": PICOJPEG_MAX_OUTPUT_BYTES, "null_or_short_output_result": -2,
+                }
+                or workload.get("workspace") != {
+                    "bytes": PICOJPEG_MAX_OUTPUT_BYTES,
+                    "meaning": "Capacity for one reconstructed 8x8 grayscale block.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 20,
+                }
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids
+                or len(workload["cases"]) != len(expected_ids)):
+            raise ValueError("picojpeg metadata differs from its pinned grayscale one-block contract")
+        package = ROOT / "benchmarks" / "p" / "picojpeg"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "Rich Geldreich" not in notice or "Chris Phoenix" not in notice
+                or "GPL-3.0-or-later" not in notice
+                or "GNU GENERAL PUBLIC LICENSE" not in license_text):
+            raise ValueError("picojpeg README or GPL/public-domain attribution is incomplete")
+        for relative in (
+                "c/p/picojpeg.c", "c3/p/picojpeg.c3", "cpp/p/picojpeg.cpp",
+                "elisa/p/picojpeg.elisa", "nim/p/picojpeg.nim", "odin/p/picojpeg.odin",
+                "rust/p/picojpeg.rs", "v/p/picojpeg.v", "zig/p/picojpeg.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"picojpeg port is missing: {relative}")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_is_null = case.get("input_is_null", False)
+            output_is_null = case.get("output_is_null", False)
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", PICOJPEG_MAX_OUTPUT_BYTES)
+            if (not isinstance(values, list)
+                    or not {"id", "input_values", "input_length", "expected_result", "expected_output_hex"}
+                    <= set(case)
+                    or set(case) - {"id", "input_values", "input_length", "expected_result",
+                                    "expected_output_hex", "output_capacity", "input_is_null", "output_is_null"}
+                    or len(values) > PICOJPEG_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                    or type(input_length) is not int or type(input_is_null) is not bool
+                    or type(output_is_null) is not bool or type(capacity) is not int
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))
+                    or type(case.get("expected_result")) is not int
+                    or not isinstance(case.get("expected_output_hex"), str)):
+                raise ValueError(f"picojpeg fixture framing is invalid: {case.get('id')}")
+            expected_result = picojpeg_expected_result(
+                values, capacity, output_is_null, input_is_null, input_length)
+            expected_output = (picojpeg_expected_output(values) if expected_result >= 0 else b"")
+            if (case["expected_result"] != expected_result
+                    or case["expected_output_hex"].lower() != (expected_output or b"").hex()):
+                raise ValueError(f"picojpeg fixture differs from its independent oracle: {case.get('id')}")
+    elif algorithm == "depthconv":
+        max_input, max_output = DEPTHCONV_MAX_INPUT_LENGTH, DEPTHCONV_MAX_OUTPUT_BYTES
+        pinned = "09c2ed8c3b7008c95d08b038de4a3f6dc103ed70"
+        expected_ids = {
+            "per_channel_bias_rounding", "input_offset_and_accumulation",
+            "activation_clamp", "short_output_capacity", "invalid_input_byte",
+            "invalid_shift", "bad_frame_length", "null_output",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "embench-depthconv-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded per-channel quantized int8 depthwise convolution using the pinned Embench/TensorFlow Lite Micro kernel contract."
+                or source != {
+                    "repository": "embench/embench-iot", "commit": pinned,
+                    "path": "src/depthconv/depthconv.c",
+                    "symbol": "DepthwiseConvPerChannel",
+                    "url": f"https://github.com/embench/embench-iot/blob/{pinned}/src/depthconv/depthconv.c",
+                    "copyright": "Copyright 2024 The TensorFlow Authors. All Rights Reserved.",
+                    "spdx": "Apache-2.0",
+                    "rights": "Full Apache 2.0 text and attribution bundled in LICENSE.txt and NOTICE.txt; ports are clean-room and contain no copied source code/comments.",
+                }
+                or contract != {
+                    "operation": "For each channel, accumulate a 4-tap vertical depthwise filter with input offset 128 and bias; apply source-style per-channel rounded quantized multiplier/shift and clamp to signed int8.",
+                    "input_layout": "[channels, 4*channels input values row-major, 4*channels filter values row-major, channels biases, channels multipliers, channels shifts]",
+                    "channels_range": [1, 8], "input_filter_range": [-128, 127],
+                    "bias_range": [-1000000, 1000000],
+                    "multiplier_range": [0, 2147483647], "shift_range": [-8, 0],
+                    "exact_input_length": "1+11*channels",
+                    "max_input_length": DEPTHCONV_MAX_INPUT_LENGTH,
+                    "output_bytes": "channels", "output_value_range": [-128, 127],
+                    "invalid_result": -1, "output_error_result": -2,
+                    "no_write_on_error": True,
+                    "source_arithmetic": "total_shift=31-shift; round=1<<(total_shift-1); floor arithmetic shift of acc*multiplier+round by total_shift.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "maximum_length": DEPTHCONV_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "one two's-complement int8 result per channel",
+                    "maximum_bytes": DEPTHCONV_MAX_OUTPUT_BYTES,
+                    "null_or_short_output_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload["cases"]) != len(expected_ids)):
+            raise ValueError("depthconv metadata differs from its pinned quantized depthwise contract")
+        package = ROOT / "benchmarks" / "d" / "depthconv"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or "clean-room" not in readme
+                or "Apache License" not in license_text
+                or "Copyright 2024 The TensorFlow Authors" not in notice):
+            raise ValueError("depthconv README or Apache attribution files are incomplete")
+        for relative in (
+                "c/d/depthconv.c", "c3/d/depthconv.c3", "cpp/d/depthconv.cpp",
+                "elisa/d/depthconv.elisa", "nim/d/depthconv.nim", "odin/d/depthconv.odin",
+                "rust/d/depthconv.rs", "v/d/depthconv.v", "zig/d/depthconv.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"depthconv port is missing: {relative}")
+    elif algorithm == "misc_reed_solomon":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
         source = workload.get("pinned_source", {})
@@ -33343,6 +35680,115 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "must not be passed on without this header" not in readme
                 or "DERA Computer Vision and Electro Optics Group point of contact" not in readme):
             raise ValueError("mibench_automotive_susan README is missing source terms or required notice")
+    elif algorithm in {"cbench_automotive_susan_c", "cbench_automotive_susan_e"}:
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        contract = workload.get("contract", {})
+        corner_mode = algorithm == "cbench_automotive_susan_c"
+        mode = "c" if corner_mode else "e"
+        mode_name = "corners" if corner_mode else "edges"
+        mode_symbol = "susan_corners" if corner_mode else "susan_edges"
+        mode_flag = f"-{mode}"
+        expected_ids = {
+            "all_zero_minimum_image", "constant_gray_minimum_image",
+            "invalid_small_side", "invalid_large_side", "short_frame",
+            "null_input", "null_output", "insufficient_output_capacity",
+        }
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        source_path = f"cBench/automotive_susan_{mode}/src/susan.c"
+        expected_source = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "path": source_path, "symbol": mode_symbol,
+            "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/{source_path}",
+            "license_path": f"cBench/automotive_susan_{mode}/LICENSE",
+            "rights": "Crown Copyright (1995-1999), Stephen Smith SUSAN v2l. Research purposes only; not for sale; do not pass on without the complete source header retained. The cBench LICENSE notice and full SUSAN source notice are included in every port and README.",
+        }
+        output_path = f"output_large.{mode_name}.pgm"
+        expected_launcher = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "info_path": f"cBench/automotive_susan_{mode}/src/info.sh",
+            "run_path": f"cBench/automotive_susan_{mode}/src/_ccc_run",
+            "dataset_manifest": f"cBench/automotive_susan_{mode}/src/_ccc_info_datasets",
+            "bench_name": f"automotive_susan_{mode}",
+            "source_files": "*.c", "compile_flags": ["-lm"],
+            "mode_flag": mode_flag,
+            "dataset_1_command": f"../../automotive_susan_data/1.pgm {output_path} {mode_flag} > ftmp_out",
+            "input_path": "cBench/automotive_susan_data/1.pgm",
+            "output_path": output_path,
+            "output_wrapper": "P5 PGM header followed by the unchanged-dimension grayscale pixel plane.",
+        }
+        max_output = (CBENCH_AUTOMOTIVE_SUSAN_C_MAX_OUTPUT_BYTES if corner_mode
+                      else CBENCH_AUTOMOTIVE_SUSAN_E_MAX_OUTPUT_BYTES)
+        max_input = (CBENCH_AUTOMOTIVE_SUSAN_C_MAX_PARSEABLE_INPUT_LENGTH if corner_mode
+                     else CBENCH_AUTOMOTIVE_SUSAN_E_MAX_PARSEABLE_INPUT_LENGTH)
+        expected_operation = (
+            "Run the cBench `-c` launcher path: ordinary SUSAN corners with brightness threshold 20, full 37-site mask, max_no_corners 1850, seven-pixel non-maximum suppression, and default drawing mode."
+            if corner_mode else
+            "Run the cBench `-e` launcher path: ordinary SUSAN edges with brightness threshold 20, full 37-site mask, max_no_edges 2650, default one-pass thinning and default drawing mode."
+        )
+        expected_workspace = {
+            "bytes": 5889 if corner_mode else 2121,
+            "meaning": (
+                "Maximum bounded corner-call local storage: image, byte LUT, response and gradient planes, and up to 256 recorded marker coordinates."
+                if corner_mode else
+                "Maximum bounded edge-call local storage: image, byte LUT, response and marker planes, plus thinning scratch arrays."
+            ),
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != f"lac-dcc-cbench-automotive-susan-{mode_name}-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != expected_source
+                or launcher != expected_launcher
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "[side, row-major grayscale pixels...]"
+                or input_spec.get("side_range") != [11, 16]
+                or input_spec.get("pixel_range") != [0, 255]
+                or input_spec.get("maximum_valid_length") != 257
+                or input_spec.get("maximum_parseable_length") != max_input
+                or input_spec.get("invalid_input_result") != -1
+                or input_spec.get("null_input_result") != -1
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("encoding") != "raw row-major 8-bit grayscale image"
+                or output_spec.get("maximum_bytes") != max_output
+                or output_spec.get("capacity_unit") != "bytes"
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace") != expected_workspace
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("sample_count") != 5
+                or workload.get("measurement", {}).get("warmup_rounds") != 1
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 100
+                or contract.get("operation") != expected_operation
+                or contract.get("input_layout") != "[side, row-major grayscale pixels...]"
+                or contract.get("side_range") != [11, 16]
+                or contract.get("maximum_valid_input_length") != 257
+                or contract.get("maximum_parseable_input_length") != max_input
+                or contract.get("pixel_range") != [0, 255]
+                or contract.get("brightness_threshold") != 20
+                or contract.get("brightness_weight") != "Truncate 100*exp(-(|difference|/20)^6) to an unsigned byte, matching setup_brightness_lut form 6."
+                or contract.get("neighborhood") != "The full 37-site SUSAN mask: center plus 36 non-center samples over rows with widths 3,5,7,7,7,5,3."
+                or contract.get("border") != "No border extension; the source scans only centers with the complete mask and leaves unmarked source pixels unchanged."
+                or contract.get("output_encoding") != "Raw row-major 8-bit grayscale pixel plane from the source's same-dimension P5 output; omit the P5 text header."
+                or contract.get("success_result") != "Number of output bytes, exactly side*side."
+                or contract.get("invalid_result") != -1
+                or contract.get("output_error_result") != -2
+                or contract.get("rights_restrictions") != "Research purposes only; must not be sold; preserve the complete upstream SUSAN header and cBench LICENSE notice in each distributed port."
+                or {case.get("id") for case in workload["cases"] if isinstance(case, dict)} != expected_ids
+                or len(workload["cases"]) != len(expected_ids)):
+            raise ValueError(f"{algorithm} metadata differs from its pinned SUSAN mode contract")
+        readme = (ROOT / f"benchmarks/c/{algorithm}/README.md").read_text(encoding="utf-8")
+        if (source["url"] not in readme
+                or f"cBench/automotive_susan_{mode}/LICENSE" not in readme
+                or "Crown Copyright (1995-1999)" not in readme
+                or "research purposes only" not in readme
+                or "must not be sold" not in readme
+                or "must not be passed on without this header" not in readme
+                or "Source Code obtained from" not in readme):
+            raise ValueError(f"{algorithm} README is missing source terms or required license notice")
     elif algorithm == "mibench_security_rijndael":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -33430,6 +35876,140 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "must reproduce the above copyright" not in license_text
                 or "provided 'as is'" not in license_text):
             raise ValueError("mibench_security_rijndael README or bundled license is incomplete")
+    elif algorithm == "cbench_security_rijndael_decrypt":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "nist_aes256_inverse_vector", "zero_key_zero_plaintext_inverse",
+            "short_output_capacity", "bad_byte", "short_input", "null_output",
+        }
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        contract = workload.get("contract", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-cbench-security-rijndael-decrypt-aes256-block-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "cBench/security_rijndael_d/src/aes.c",
+                    "related_paths": ["cBench/security_rijndael_d/src/aes.h",
+                                      "cBench/security_rijndael_d/src/aesxam.c"],
+                    "symbol": "set_key(..., dec, ...) and decrypt",
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/security_rijndael_d/src/aes.c",
+                    "license": "Brian Gladman permission allows modification and redistribution subject to the complete two-condition notice; see LICENSE.txt.",
+                }
+                or launcher != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "cBench/security_rijndael_d/src/info.sh",
+                    "bench_name": "security_rijndael_d",
+                    "source_files": ["aes.c", "aesxam.c"],
+                    "run_options": "Dataset profiles pass mode d and a fixed 256-bit key; the wrapper decrypts CBC files.",
+                }
+                or contract != {
+                    "operation": "AES-256 decrypt one ciphertext block to raw inverse-block bytes before CBC chaining XOR.",
+                    "input_layout": "[32 key bytes, 16 ciphertext bytes]",
+                    "input_length": 48, "valid_byte_range": [0, 255],
+                    "output_encoding": "16 raw AES decrypted bytes",
+                    "invalid_result": -1, "output_error_result": -2,
+                    "no_write_on_error": True,
+                    "wrapper_excluded": "CBC XOR with prior ciphertext/IV, padding, file input/output, CLI modes, and repeated dataset profile.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array_of_bytes", "exact_length": 48,
+                    "valid_value_range": [0, 255], "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array", "maximum_bytes": 16,
+                    "success_result": 16, "invalid_input_result": -1,
+                    "null_or_short_output_result": -2,
+                }
+                or workload.get("workspace") != {
+                    "bytes": 16, "meaning": "Capacity for one AES plaintext block.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("cbench_security_rijndael_decrypt metadata differs from its pinned block contract")
+        package = ROOT / "benchmarks" / "c" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        required_notice = (
+            "Copyright (c) 2001 Dr Brian Gladman",
+            "Redistribution and use in source and binary forms",
+            "must retain the above copyright",
+            "must reproduce the above copyright",
+            "provided 'as is'",
+        )
+        if (source["url"] not in readme or "aesxam" not in readme
+                or "Brian Gladman" not in readme
+                or any(fragment not in license_text for fragment in required_notice)):
+            raise ValueError("cbench_security_rijndael_decrypt README or LICENSE.txt is incomplete")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"),
+                                    ("v", "v"), ("zig", "zig")):
+            port = (ROOT / language / "m" / f"{algorithm}.{extension}").read_text(
+                encoding="utf-8")
+            if any(fragment not in port for fragment in required_notice):
+                raise ValueError(f"{algorithm} {language} port is missing its full rights notice")
+    elif algorithm == "tarfind":
+        max_input, max_output = TARFIND_MAX_INPUT_LENGTH, TARFIND_MAX_OUTPUT_BYTES
+        pinned = "de24bdf561f4eaad7f37685641fa301f2b8b4bc3"
+        expected_ids = {
+            "early_middle_last_and_absent", "first_duplicate_header_wins",
+            "near_match_and_exact_case_sensitive_search", "maximum_record_and_query_counts",
+            "maximum_packed_input_length", "maximum_filename_length",
+            "malformed_lowercase_filename_byte", "malformed_filename_length",
+            "truncated_record_name", "trailing_values_rejected",
+            "output_capacity_too_small", "null_output", "null_input",
+        }
+        source = workload.get("pinned_source", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "embench-iot-tarfind-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "embench/embench-iot"
+                or source.get("commit") != pinned
+                or source.get("path") != "src/tarfind/tarfind.c"
+                or source.get("symbol") != "benchmark_body"
+                or "SPDX-License-Identifier: MIT" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("record_count_range") != [1, 35]
+                or workload.get("contract", {}).get("query_count_range") != [1, 5]
+                or workload.get("contract", {}).get("filename_length_range") != [5, 39]
+                or workload.get("input", {}).get("maximum_valid_length") != max_input
+                or workload.get("input", {}).get("maximum_parseable_length") != max_input
+                or workload.get("output", {}).get("maximum_bytes") != max_output
+                or workload.get("workspace") != {
+                    "bytes": max_output,
+                    "meaning": "Capacity for one result byte per supported query.",
+                }
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tarfind metadata differs from its pinned filename-search contract")
+        package = ROOT / "benchmarks" / "t" / "tarfind"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or "MIT" not in readme
+                or "Copyright (c) Julian Kunkel" not in license_text
+                or "Permission is hereby granted" not in license_text
+                or "THE SOFTWARE IS PROVIDED \"AS IS\"" not in license_text):
+            raise ValueError("tarfind README or MIT notice is incomplete")
+        for language, extension in (("c", "c"), ("c3", "c3"), ("cpp", "cpp"),
+                                    ("elisa", "elisa"), ("nim", "nim"),
+                                    ("odin", "odin"), ("rust", "rs"),
+                                    ("v", "v"), ("zig", "zig")):
+            port = (ROOT / language / "t" / f"tarfind.{extension}").read_text(
+                encoding="utf-8")
+            if "SPDX-License-Identifier: MIT" not in port:
+                raise ValueError(f"tarfind {language} port is missing its SPDX attribution")
     elif algorithm == "mibench_security_blowfish":
         pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
         source = workload.get("pinned_source", {})
@@ -34505,6 +37085,48 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                 or "No per-package license file" not in readme
                 or "synthetic deflation" not in readme):
             raise ValueError("prolangs_c_allroots README is missing source, algorithm, or license notes")
+    elif algorithm == "prolangs_c_cdecl":
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "plain-object", "array-of-pointers", "pointer-to-array",
+            "pointer-to-function", "array-of-function-pointers",
+            "void-parameter-normalization", "array-of-function-invalid",
+            "dimension-out-of-profile", "null-input", "short-output", "null-output",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-prolangs-c-cdecl-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+                or source.get("path") != "Prolangs-C/cdecl/cdecl.c"
+                or source.get("symbol") != "dodexplain"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or launcher.get("path") != "Prolangs-C/cdecl/info.sh"
+                or launcher.get("source_files") != ["cdecl.c"]
+                or launcher.get("compile_flags") != ["-std=gnu89"]
+                or launcher.get("stdin_path") != "Prolangs-C/cdecl/testset"
+                or contract.get("maximum_valid_input_length") != PROLANGS_C_CDECL_MAX_INPUT
+                or contract.get("maximum_output_bytes") != PROLANGS_C_CDECL_MAX_OUTPUT
+                or "identifier-outward order" not in contract.get("operation", "")
+                or workload.get("input", {}).get("maximum_valid_length") != PROLANGS_C_CDECL_MAX_INPUT
+                or workload.get("input", {}).get("maximum_parseable_length") != PROLANGS_C_CDECL_MAX_INPUT
+                or workload.get("output", {}).get("maximum_bytes") != PROLANGS_C_CDECL_MAX_OUTPUT
+                or workload.get("workspace", {}).get("bytes") != PROLANGS_C_CDECL_MAX_OUTPUT
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("prolangs_c_cdecl metadata differs from its bounded declarator contract")
+        readme = (ROOT / "benchmarks" / "p" / algorithm / "README.md").read_text(
+            encoding="utf-8")
+        if ("Prolangs-C/cdecl/cdecl.c" not in readme
+                or "no explicit license grant" not in readme.lower()
+                or "does not copy upstream code" not in readme):
+            raise ValueError("prolangs_c_cdecl README is missing source scope or rights details")
     elif algorithm == "cbench_automotive_qsort1":
         input_spec = workload.get("input", {})
         output_spec = workload.get("output", {})
@@ -34857,6 +37479,4999 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if ({case.get("id") for case in workload["cases"] if isinstance(case, dict)}
                 != expected_ids or len(workload["cases"]) != len(expected_ids)):
             raise ValueError(f"{algorithm} fixture IDs differ from its pinned workload")
+    elif algorithm == "pcompress2":
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "single_nul_byte", "truncated_input", "byte_out_of_range",
+            "short_output", "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "freebench-pcompress2-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "FreeBench/pcompress2/",
+                    "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/FreeBench/pcompress2",
+                    "attribution": "The upstream headers identify pCompress/pUnCompress as FreeBench v1 and name Peter Rundberg (April 2001); arithmetic.c attributes its model to Witten, Neal, and Cleary (1987).",
+                    "license_status": "No explicit license grant was found in the pinned directory or repository root.",
+                }
+                or launcher != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "FreeBench/pcompress2/info.sh",
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/FreeBench/pcompress2/info.sh",
+                    "source_profile": "The launcher compresses a file four times and then decompresses it; this package exposes one bounded compression pass and omits file I/O and repetition.",
+                }
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "[length, byte_0, ..., byte_(length-1)]"
+                or input_spec.get("length_range") != [1, PCOMPRESS2_MAX_LENGTH]
+                or input_spec.get("byte_range") != [0, 255]
+                or input_spec.get("rotation_tie_break") != "ascending cyclic-rotation start offset"
+                or input_spec.get("rle_end_lookahead") != "treat the one-past-end byte as end-of-run"
+                or input_spec.get("invalid_result") != -1
+                or input_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("encoding") != "four-byte little-endian input length, four-byte little-endian BWT primary row, then adaptive arithmetic-coded RLE packets"
+                or output_spec.get("maximum_bytes") != PCOMPRESS2_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != -1
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("null_output_result") != -2
+                or workload.get("workspace") != {"bytes": PCOMPRESS2_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or workload.get("measurement", {}).get("sample_count") != 1
+                or workload.get("measurement", {}).get("warmup_rounds") != 2
+                or workload.get("measurement", {}).get("repetitions_per_sample") != 100
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload["cases"]) != len(expected_ids)):
+            raise ValueError("pcompress2 metadata differs from its pinned bounded compression contract")
+        readme = (ROOT / "benchmarks/p/pcompress2/README.md").read_text(encoding="utf-8")
+        if (source["url"] not in readme
+                or launcher["url"] not in readme
+                or "No explicit license grant" not in readme
+                or "clean-room implementations" not in readme
+                or "adaptive arithmetic" not in readme):
+            raise ValueError("pcompress2 README is missing pinned provenance or rights context")
+    elif algorithm == "mibench_security_sha0":
+        sources = workload.get("pinned_sources", [])
+        contract = workload.get("contract", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "sha0_empty_message", "sha0_abc_standard_vector", "short_output_capacity",
+            "null_output", "message_too_long_for_single_block", "invalid_byte",
+            "trailing_input", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mibench-security-sha0-single-block-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or len(sources) != 2
+                or sources[0].get("repository") != "lac-dcc/Benchmarks"
+                or sources[0].get("commit") != pinned
+                or sources[0].get("path") != "MiBench/security-sha/sha.c"
+                or sources[0].get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/MiBench/security-sha"
+                or sources[1].get("repository") != "lac-dcc/Benchmarks"
+                or sources[1].get("commit") != pinned
+                or sources[1].get("path") != "cBench/security_sha/src/sha.c"
+                or sources[1].get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/cBench/security_sha/src"
+                or sources[1].get("launcher_mode") != "USE_MODIFIED_SHA is not defined; the message-schedule XOR expansion is not rotated, so this is SHA-0."
+                or contract.get("message_length_range") != [0, 55]
+                or contract.get("schedule") != "W[0..15] are big-endian words; W[t] = W[t-3] XOR W[t-8] XOR W[t-14] XOR W[t-16] for t=16..79, with no one-bit rotation. This is the defining difference from SHA-1."
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("message_length_range") != [0, 55]
+                or input_spec.get("byte_range") != [0, 255]
+                or input_spec.get("maximum_valid_input_length") != 56
+                or input_spec.get("maximum_parseable_input_length") != MIBENCH_SECURITY_SHA0_MAX_PARSEABLE_INPUT_LENGTH
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("maximum_bytes") != MIBENCH_SECURITY_SHA0_OUTPUT_BYTES
+                or output_spec.get("success_result") != MIBENCH_SECURITY_SHA0_OUTPUT_BYTES
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != MIBENCH_SECURITY_SHA0_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload["cases"]) != len(expected_ids)):
+            raise ValueError("mibench_security_sha0 metadata differs from its pinned SHA-0 contract")
+        readme = (ROOT / "benchmarks/s/mibench_security_sha0/README.md").read_text(
+            encoding="utf-8")
+        if (sources[0]["url"] not in readme
+                or "USE_MODIFIED_SHA" not in readme
+                or "unrotated SHA-0 recurrence" not in readme
+                or "no explicit license or redistribution grant" not in readme):
+            raise ValueError("mibench_security_sha0 README is missing SHA-0 provenance or rights context")
+    elif algorithm == "lac_adpcm":
+        sources = workload.get("pinned_sources", [])
+        contract = workload.get("contract", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "encode_zero", "encode_small_positive", "encode_pair_state_update",
+            "encode_negative", "decode_zero_byte", "decode_two_magnitude_four_codes",
+            "encode_empty", "decode_empty", "invalid_mode", "sample_out_of_range",
+            "packed_byte_out_of_range", "extra_input", "short_capacity", "null_output",
+            "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-ima-adpcm-encode-decode-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or len(sources) != 2
+                or [source.get("path") for source in sources] != [
+                    "cBench/telecom_adpcm_c/src/adpcm.c",
+                    "cBench/telecom_adpcm_d/src/adpcm.c",
+                ]
+                or any(source.get("repository") != "lac-dcc/Benchmarks"
+                       or source.get("commit") != pinned for source in sources)
+                or sources[0].get("symbols") != ["adpcm_coder"]
+                or sources[1].get("symbols") != ["adpcm_decoder"]
+                or contract.get("input_layout") != "[mode, count, payload...]"
+                or contract.get("encode_count_range") != [0, LAC_ADPCM_MAX_ENCODE_SAMPLES]
+                or contract.get("decode_byte_count_range") != [0, LAC_ADPCM_MAX_DECODE_BYTES]
+                or contract.get("invalid_result") != LAC_ADPCM_INVALID_RESULT
+                or contract.get("output_error_result") != LAC_ADPCM_OUTPUT_ERROR
+                or contract.get("no_write_on_error") is not True
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("maximum_parseable_length") != LAC_ADPCM_MAX_INPUT_LENGTH
+                or input_spec.get("mode_range") != [1, 2]
+                or input_spec.get("maximum_encode_samples") != LAC_ADPCM_MAX_ENCODE_SAMPLES
+                or input_spec.get("maximum_decode_bytes") != LAC_ADPCM_MAX_DECODE_BYTES
+                or input_spec.get("invalid_input_result") != LAC_ADPCM_INVALID_RESULT
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("maximum_bytes") != LAC_ADPCM_MAX_OUTPUT_BYTES
+                or output_spec.get("null_output_result") != LAC_ADPCM_OUTPUT_ERROR
+                or output_spec.get("insufficient_capacity_result") != LAC_ADPCM_OUTPUT_ERROR
+                or workload.get("workspace", {}).get("bytes") != LAC_ADPCM_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload["cases"]) != len(expected_ids)):
+            raise ValueError("lac_adpcm metadata differs from its pinned IMA/DVI contract")
+        readme = (ROOT / "benchmarks/i/lac_adpcm/README.md").read_text(encoding="utf-8")
+        if ("adpcm_coder" not in readme or "adpcm_decoder" not in readme
+                or "Permission to use, copy, modify, and distribute" not in readme
+                or "no local adpcm codec was present" not in readme.lower()):
+            raise ValueError("lac_adpcm README is missing source attribution or license notice")
+    elif algorithm == "mccat_05_eks":
+        source = workload.get("pinned_source", {})
+        launcher = workload.get("pinned_launcher", {})
+        contract = workload.get("contract", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "n3_diagonal_exact", "n3_source_shaped_gaussian_band",
+            "n3_single_second_band_coupling", "n4_single_second_band_coupling",
+            "n5_single_second_band_coupling", "n6_single_second_band_coupling",
+            "n7_single_second_band_coupling", "n8_single_second_band_coupling",
+            "asymmetric_matrix_invalid", "outside_band_nonzero_invalid",
+            "short_output_capacity", "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mccat-05-eks-bounded-symmetric-qr-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("paths") != [
+                    "McCat/05-eks/Jacobi.c", "McCat/05-eks/QRfact.c",
+                    "McCat/05-eks/MM.c", "McCat/05-eks/main.c",
+                ]
+                or source.get("symbols") != ["Jacobi", "Givens", "QRiterate", "MakeMatrix"]
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/McCat/05-eks"
+                or launcher.get("path") != "McCat/05-eks/info.sh"
+                or launcher.get("commit") != pinned
+                or contract.get("input_layout") != "[n, half_bandwidth, row-major n-by-n entries scaled by 1000000]"
+                or contract.get("dimension_range") != [3, MCCAT_05_EKS_MAX_N]
+                or contract.get("entry_range") != [-MCCAT_05_EKS_INPUT_SCALE, MCCAT_05_EKS_INPUT_SCALE]
+                or contract.get("matrix_requirements") != ["symmetric", "zero outside the declared band"]
+                or contract.get("algorithm") != "Apply the source's band-to-tridiagonal Givens rotations in its bandwidth/diagonal chase order, then apply shifted symmetric QR sweeps with the source Wilkinson shift and Givens rotations."
+                or contract.get("maximum_qr_sweeps") != 4096
+                or contract.get("output_order") != "descending absolute eigenvalue; signed ascending order for equal absolute magnitudes"
+                or contract.get("output_projection") != "Round each eigenvalue to nearest 1/1000, ties away from zero, then encode as signed i32 little-endian."
+                or contract.get("invalid_result") != MCCAT_05_EKS_INVALID_RESULT
+                or contract.get("output_error") != MCCAT_05_EKS_OUTPUT_ERROR
+                or contract.get("no_write_on_output_error") is not True
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("maximum_input_length") != MCCAT_05_EKS_MAX_INPUT_LENGTH
+                or input_spec.get("invalid_result") != MCCAT_05_EKS_INVALID_RESULT
+                or output_spec.get("kind") != "little-endian signed i32 vector"
+                or output_spec.get("maximum_output_bytes") != MCCAT_05_EKS_MAX_OUTPUT_BYTES
+                or output_spec.get("invalid_result") != MCCAT_05_EKS_INVALID_RESULT
+                or output_spec.get("null_output_result") != MCCAT_05_EKS_OUTPUT_ERROR
+                or output_spec.get("insufficient_capacity_result") != MCCAT_05_EKS_OUTPUT_ERROR
+                or output_spec.get("no_write_on_error") is not True
+                or workload.get("workspace", {}).get("bytes") != MCCAT_05_EKS_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload["cases"]
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload["cases"]) != len(expected_ids)):
+            raise ValueError("mccat_05_eks metadata differs from its pinned symmetric QR contract")
+        readme = (ROOT / "benchmarks/m/mccat_05_eks/README.md").read_text(
+            encoding="utf-8")
+        if (source["url"] not in readme
+                or "Givens band-to-tridiagonal reduction" not in readme
+                or "Copyright (C) 1996 McGill University." not in readme
+                or "provided this copyright notice is maintained" not in readme):
+            raise ValueError("mccat_05_eks README is missing source attribution or distribution notice")
+    elif algorithm == "mccat_bintr":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        expected_ids = {
+            "single_node_all_hits", "duplicate_insertion_and_alternating_hit_miss",
+            "wrong_probe_count", "null_input", "short_output_capacity",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mccat-17-bintr-dfs-membership-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("paths") != [
+                    "McCat/17-bintr/bintree.c", "McCat/17-bintr/bintree.h",
+                    "McCat/17-bintr/bnchmrk.c", "McCat/17-bintr/bnchmrk.in1",
+                    "McCat/17-bintr/info.sh",
+                ]
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/McCat/17-bintr"
+                or source.get("launcher") != {
+                    "bench_name": "17-bintr", "source_files": ["bintree.c", "bnchmrk.c"],
+                    "stdin": "bnchmrk.in1",
+                }
+                or contract.get("node_count_range") != [1, 64]
+                or contract.get("probe_count") != 100
+                or contract.get("value_range") != [-32768, 32767]
+                or contract.get("sentinel_value") != 0
+                or contract.get("membership") != "Run 100 independent generic recursive depth-first searches, visiting left before right after a miss. This matches the active memberOfBinaryTree call; the key-directed memberOfSortedBinaryTree call is commented out in the launcher."
+                or contract.get("output_layout") != "4-byte unsigned tree size little-endian, 8-byte IEEE-754 sum little-endian, 8-byte IEEE-754 mean little-endian, then a 13-byte membership bitmap (probe i is bit i modulo 8 of byte floor(i/8))."
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("maximum_parseable_length") != MCCAT_BINTR_MAX_INPUT_LENGTH
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("maximum_bytes") != MCCAT_BINTR_OUTPUT_BYTES
+                or output_spec.get("success_result") != MCCAT_BINTR_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != MCCAT_BINTR_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("mccat_bintr metadata differs from its pinned DFS-membership contract")
+        readme = (ROOT / "benchmarks/m/mccat_bintr/README.md").read_text(encoding="utf-8")
+        if (source["url"] not in readme
+                or "memberOfBinaryTree" not in readme
+                or "Copyright (C) 1996 McGill University." not in readme
+                or "provided the copyright notice remains" not in readme):
+            raise ValueError("mccat_bintr README is missing source attribution or distribution notice")
+        for case in workload["cases"]:
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            capacity = case.get("output_capacity", MCCAT_BINTR_OUTPUT_BYTES)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            if (not isinstance(values, list)
+                    or len(values) > MCCAT_BINTR_MAX_INPUT_LENGTH
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)
+                    or type(input_length) is not int
+                    or type(capacity) is not int
+                    or type(output_is_null) is not bool
+                    or type(input_is_null) is not bool
+                    or (input_is_null and (values or input_length != 0))
+                    or (not input_is_null and input_length != len(values))):
+                raise ValueError(f"mccat_bintr fixture framing is invalid: {case.get('id')}")
+            result, output = mccat_bintr_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (case.get("expected_result") != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"mccat_bintr fixture differs from its oracle: {case.get('id')}")
+    elif algorithm == "mediabench_g721_encode":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        source_url = (
+            f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/"
+            "mediabench/g721/g721encode")
+        pinned_sources = [{
+            "repository": "lac-dcc/Benchmarks",
+            "commit": pinned,
+            "path": "mediabench/g721/g721encode/g721.c",
+            "related_paths": [
+                "mediabench/g721/g721encode/g72x.c",
+                "mediabench/g721/g721encode/g72x.h",
+                "mediabench/g721/g721encode/g711.c",
+                "mediabench/g721/g721encode/encode.c",
+                "mediabench/g721/g721encode/info.sh",
+            ],
+            "symbols": ["g721_encoder", "update", "ulaw2linear", "pack_output"],
+            "url": source_url,
+            "launcher": "g721",
+            "license_note": (
+                "The required g711.c, g721.c, g72x.c, and g72x.h components grant "
+                "unrestricted use, copying, and modification without charge, with "
+                "warranty and liability disclaimers; their complete notice is "
+                "retained in every language port. The CLI adapter is not copied."),
+        }]
+        expected_ids = {
+            "empty-sequence", "single-ulaw-silence", "single-positive-ulaw-sample",
+            "two-ulaw-silence-samples", "invalid-count-above-bound",
+            "invalid-length-mismatch", "invalid-ulaw-byte", "short-output-capacity",
+            "null-output", "null-input", "empty-sequence-null-output",
+        }
+        contract = workload.get("contract", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        source_bound = workload.get("source_bound", {})
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "mediabench-g721-ulaw-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_sources") != pinned_sources
+                or contract.get("operation") != (
+                    "Encode a bounded sequence of u-law bytes with the pinned source's "
+                    "G.721 4-bit adaptive differential PCM state machine.")
+                or contract.get("input_layout") != "[count, u_law_byte...]"
+                or contract.get("count_range") != [0, 16]
+                or contract.get("sample_range") != [0, 255]
+                or contract.get("packing") != (
+                    "First 4-bit code occupies the low nibble; the next occupies the "
+                    "high nibble. An odd final code is padded by a zero high nibble.")
+                or contract.get("invalid_result") != -1
+                or contract.get("output_error_result") != -2
+                or contract.get("no_write_on_error") is not True
+                or contract.get("zero_count") != (
+                    "Returns zero without output writes; a null output pointer is accepted.")
+                or input_spec.get("kind") != "signed_i64_array"
+                or input_spec.get("encoding") != "sample count followed by u-law bytes"
+                or input_spec.get("length_range") != [1, MEDIABENCH_G721_MAX_INPUT_LENGTH]
+                or input_spec.get("maximum_parseable_length") != MEDIABENCH_G721_MAX_INPUT_LENGTH
+                or input_spec.get("exact_length") != "1 + count"
+                or input_spec.get("count_range") != [0, 16]
+                or input_spec.get("sample_range") != [0, 255]
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "byte_array"
+                or output_spec.get("maximum_bytes") != MEDIABENCH_G721_MAX_OUTPUT_BYTES
+                or output_spec.get("success_result") != "ceil(count / 2)"
+                or output_spec.get("null_output_result") != -2
+                or output_spec.get("insufficient_capacity_result") != -2
+                or source_bound.get("distinctness", "").find("IMA/DVI") < 0
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("mediabench_g721_encode metadata differs from its pinned u-law contract")
+        readme = (ROOT / "benchmarks/g/mediabench_g721_encode/README.md").read_text(
+            encoding="utf-8")
+        if (source_url not in readme
+                or "The complete notice is retained in each language port" not in readme
+                or "Sun Microsystems" not in readme
+                or "distinct from the local IMA/DVI" not in readme):
+            raise ValueError("mediabench_g721_encode README is missing source, rights, or distinction details")
+    elif algorithm == "simplify_fraction":
+        source_url = (
+            "https://github.com/TheAlgorithms/Python/blob/"
+            "e1a2a8b016001309a73d5fec4818c35cca139795/"
+            "maths/primelib.py#L663-L694")
+        expected_case_ids = {
+            "positive_reduction", "negative_numerator", "negative_denominator",
+            "both_negative", "zero_numerator_negative_denominator", "coprime_values",
+            "unit_denominator", "maximum_magnitude_reduction",
+        }
+        expected_abi_ids = {
+            "zero_denominator", "empty_input", "truncated_input", "extra_input_value",
+            "numerator_above_bound", "denominator_below_bound", "signed_i64_minimum",
+            "signed_i64_maximum", "insufficient_capacity", "null_output", "null_input",
+            "invalid_precedes_null_output", "invalid_precedes_short_capacity",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "thealgorithms-python-primelib-simplify-fraction-i64-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source") != {
+                    "repository": "TheAlgorithms/Python",
+                    "commit": "e1a2a8b016001309a73d5fec4818c35cca139795",
+                    "path": "maths/primelib.py", "symbol": "simplify_fraction",
+                    "url": source_url, "role": "algorithm",
+                    "dependencies": ["maths/greatest_common_divisor.py::gcd_by_iterative"],
+                }
+                or workload.get("contract", {}).get("input_encoding")
+                != "[numerator, denominator]"
+                or workload.get("contract", {}).get("operation")
+                != "Compute g=gcd(abs(numerator),abs(denominator)) and return (numerator//g, denominator//g)."
+                or workload.get("contract", {}).get("component_range")
+                != [-SIMPLIFY_FRACTION_MAX_ABS_COMPONENT,
+                    SIMPLIFY_FRACTION_MAX_ABS_COMPONENT]
+                or workload.get("contract", {}).get("denominator") != "Must be nonzero."
+                or "Preserve the sign" not in workload.get("contract", {}).get("sign_rule", "")
+                or workload.get("contract", {}).get("output_serialization")
+                != "Two signed i64 values in little-endian order: reduced numerator followed by reduced denominator."
+                or workload.get("contract", {}).get("output_bytes")
+                != SIMPLIFY_FRACTION_OUTPUT_BYTES
+                or workload.get("contract", {}).get("errors")
+                != "Malformed input, zero denominator, or out-of-range values return -1 before output checks. Null output or capacity below 16 returns -2 without writes."
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "encoding": "[numerator, denominator]",
+                    "component_range": [-SIMPLIFY_FRACTION_MAX_ABS_COMPONENT,
+                                        SIMPLIFY_FRACTION_MAX_ABS_COMPONENT],
+                    "denominator_nonzero": True, "exact_input_length": 2,
+                    "maximum_valid_input_values": 2,
+                    "maximum_input_values_for_malformed_cases": SIMPLIFY_FRACTION_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "raw_bytes",
+                    "encoding": "Reduced numerator and denominator as two little-endian signed i64 values.",
+                    "maximum_bytes": SIMPLIFY_FRACTION_OUTPUT_BYTES,
+                    "success_result": "output byte count", "invalid_input_result": -1,
+                    "invalid_output_buffer_result": -2, "null_output_result": -2,
+                    "no_write_on_error": True,
+                    "error_precedence": "Input validation precedes output pointer/capacity checks.",
+                }
+                or workload.get("workspace") != {
+                    "bytes": SIMPLIFY_FRACTION_OUTPUT_BYTES,
+                    "meaning": "Two reduced signed 64-bit integers.",
+                }
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_case_ids
+                or len(workload.get("cases", [])) != len(expected_case_ids)
+                or {case.get("id") for case in workload.get("abi_cases", [])
+                    if isinstance(case, dict)} != expected_abi_ids
+                or len(workload.get("abi_cases", [])) != len(expected_abi_ids)):
+            raise ValueError("simplify_fraction metadata differs from its pinned tuple contract")
+        readme = (ROOT / "benchmarks/s/simplify_fraction/README.md").read_text(
+            encoding="utf-8")
+        if (source_url not in readme or "denominator-sign behavior" not in readme
+                or "does not move a negative sign" not in readme):
+            raise ValueError("simplify_fraction README is missing source or sign-semantics details")
+        for case in workload["abi_cases"]:
+            values = case.get("input_values")
+            input_length = case.get("input_length")
+            capacity = case.get("output_capacity", SIMPLIFY_FRACTION_OUTPUT_BYTES)
+            output_is_null = case.get("output_is_null", False)
+            input_is_null = case.get("input_is_null", False)
+            allowed_keys = {
+                "id", "input_values", "input_length", "expected_result",
+                "expected_output_hex", "output_capacity", "output_is_null", "input_is_null",
+            }
+            if (set(case) - allowed_keys or not isinstance(values, list)
+                    or len(values) > SIMPLIFY_FRACTION_MAX_INPUT_LENGTH
+                    or type(input_length) is not int or input_length != len(values)
+                    or type(capacity) is not int or not 0 <= capacity <= MAX_OUTPUT_CAPACITY
+                    or type(output_is_null) is not bool or type(input_is_null) is not bool
+                    or input_is_null and values
+                    or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
+                           for value in values)):
+                raise ValueError(f"simplify_fraction ABI fixture framing is invalid: {case.get('id')}")
+            result, output = simplify_fraction_oracle(
+                values, capacity, output_is_null, input_is_null, input_length)
+            if (type(case.get("expected_result")) is not int
+                    or case["expected_result"] != result
+                    or case.get("expected_output_hex", "").lower() != output.hex()):
+                raise ValueError(f"simplify_fraction ABI fixture differs from its oracle: {case.get('id')}")
+    elif algorithm == "tsvc_s343_column_major_compaction":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "source_order_rectangular_all_selected", "positive_masks_skip_zero_and_negative",
+            "empty_selection", "preserve_duplicate_and_negative_payloads",
+            "signed_i64_payload_boundaries", "maximum_shape_column_order",
+            "truncated_header", "zero_rows", "extra_trailing_value",
+            "insufficient_output_capacity", "null_output", "null_input",
+        }
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "tsvc-s343-column-major-compaction-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("pinned_source") != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "paths": ["TSVC/tsc.inc", "TSVC/Packing-dbl/tsc.c",
+                              "TSVC/Packing-dbl/info.sh", "TSVC/README"],
+                    "symbols": ["s343"],
+                    "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC",
+                    "launcher": {"source_files": ["dummy.c", "tsc.c"],
+                                 "run_options": ["50000", "14"], "precision": "double"},
+                    "rights": "No explicit upstream license grant was found or inferred. Ports are clean-room implementations of the high-level scan-and-pack behavior; no upstream code or comments were reused.",
+                }
+                or workload.get("input") != {
+                    "kind": "packed_signed_64_bit_integer_array",
+                    "layout": "[rows, cols, data_row_major..., mask_row_major...]",
+                    "rows_range": [1, 8], "cols_range": [1, 8], "maximum_cells": 64,
+                    "maximum_packed_values": 130,
+                    "value_range": [-(1 << 63), (1 << 63) - 1],
+                    "requirement": "The packed length is exactly 2 + 2*rows*cols. Data and mask are row-major; the scan is column-major and selects data values whose mask is positive.",
+                    "invalid_result": -1, "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "Selected data values in column-major mask-scan order, each encoded as one little-endian signed 64-bit integer.",
+                    "successful_result": "Number of selected values written; output length is eight times the result.",
+                    "maximum_values": 64, "maximum_bytes": TSVC_S343_MAX_OUTPUT_BYTES,
+                    "capacity_requirement": "At least 8*rows*cols bytes, the maximum possible selected output for the matrix shape.",
+                }
+                or workload.get("workspace") != {
+                    "bytes": TSVC_S343_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum output buffer for 64 signed 64-bit values.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 9,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s343_column_major_compaction metadata differs from its bounded contract")
+        readme = (ROOT / "benchmarks/t/tsvc_s343_column_major_compaction/README.md").read_text(
+            encoding="utf-8")
+        if (f"{pinned}/TSVC/tsc.inc" not in readme
+                or "No explicit upstream license grant was found" not in readme
+                or "clean-room implementations" not in readme
+                or "no upstream code or comments were reused" not in readme):
+            raise ValueError("tsvc_s343_column_major_compaction README is missing source/rights details")
+    elif algorithm == "cbench_tiffdither":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "all_black_row", "threshold_equality_and_horizontal_diffusion",
+            "negative_error_truncates_toward_zero", "southwest_south_and_southeast_weights",
+            "non_byte_aligned_white_row", "final_input_row_is_not_emitted",
+            "wrong_input_length", "pixel_out_of_range", "output_capacity_too_small",
+            "null_input", "null_output",
+        }
+        expected_source = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "path": "cBench/consumer_tiffdither/src/tiffdither.c",
+            "symbol": "fsdither",
+            "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/consumer_tiffdither/src/tiffdither.c",
+            "license_notice": "Copyright (c) 1988-1997 Sam Leffler; Copyright (c) 1991-1997 Silicon Graphics, Inc. Permission permits use, modification, distribution and sale with notice retention; advertising name-use is restricted; warranty and liability are disclaimed.",
+            "launcher": {
+                "path": "cBench/consumer_tiffdither/src/info.sh",
+                "bench_name": "consumer_tiffdither", "source_files": "*.c",
+                "compile_flags": ["-lm"], "run_options": [],
+            },
+        }
+        expected_contract = {
+            "input_layout": "[width, height, threshold, row-major grayscale pixels...]",
+            "width_range": [1, 32], "height_range": [2, 16],
+            "threshold_range": [0, 255], "pixel_range": [0, 255],
+            "exact_input_length": "3 + width * height",
+            "error_diffusion": "Raster order; 7/16 east, 3/16 southwest, 5/16 south, 1/16 southeast; signed division truncates toward zero.",
+            "threshold_comparison": "Strictly greater than threshold sets a white bit and subtracts 255 from the quantization error; otherwise the value is the black-pixel error.",
+            "output_layout": "For each source row 0 through height-2, ceil(width/8) bytes, pixels left-to-right in most-significant-bit-first order; unused low bits are zero.",
+            "final_input_row": "Read by the source scanline loop but not emitted; the last-line flag suppresses downward diffusion into it, so it does not affect the result.",
+            "invalid_result": -1, "output_error_result": -2,
+            "no_write_on_error": True,
+        }
+        if (set(workload) != {
+                "schema_version", "id", "algorithm", "function_symbol", "description",
+                "pinned_source", "contract", "input", "output", "workspace",
+                "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-cbench-consumer-tiffdither-floyd-steinberg-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded 8-bit grayscale Floyd–Steinberg error diffusion with MSB-first packed rows."
+                or workload.get("pinned_source") != expected_source
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "encoding": "[width, height, threshold, width*height grayscale bytes]",
+                    "maximum_valid_length": CBENCH_TIFFDITHER_MAX_INPUT_LENGTH,
+                    "maximum_parseable_length": CBENCH_TIFFDITHER_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "MSB-first packed one-bit rows, omitting the final source row",
+                    "maximum_bytes": CBENCH_TIFFDITHER_MAX_OUTPUT_BYTES,
+                    "success_result": "ceil(width/8) * (height-1)",
+                    "null_output_result": -2, "insufficient_capacity_result": -2,
+                    "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": CBENCH_TIFFDITHER_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum caller-provided output buffer for 15 packed rows of width 32.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("cbench_tiffdither metadata differs from its pinned Floyd–Steinberg contract")
+        readme = (ROOT / "benchmarks" / "c" / "cbench_tiffdither" / "README.md").read_text(
+            encoding="utf-8")
+        if (f"{pinned}/cBench/consumer_tiffdither/src/tiffdither.c" not in readme
+                or "Copyright (c) 1988-1997 Sam Leffler" not in readme
+                or "Copyright (c) 1991-1997 Silicon Graphics, Inc." not in readme
+                or "Permission to use, copy, modify, distribute, and sell this software" not in readme
+                or "THE SOFTWARE IS PROVIDED \"AS-IS\"" not in readme
+                or "IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS" not in readme):
+            raise ValueError("cbench_tiffdither README is missing source or full permission notice")
+    elif algorithm == "cbench_consumer_tiffmedian":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "single-bin-repeated-color", "two-red-axis-bins",
+            "palette-limit-exceeds-unique-bins", "invalid-palette-limit",
+            "invalid-rgb-component", "null-input", "short-output", "null-output",
+        }
+        expected_source = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "path": "cBench/consumer_tiffmedian/src/tiffmedian.c",
+            "symbol": "splitbox",
+            "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/consumer_tiffmedian/src/tiffmedian.c",
+            "license_note": "No explicit license grant was found in the pinned tiffmedian.c file. The package is a clean-room implementation of the abstract algorithm and includes no upstream source text or comments. The separate bundled tiffio.h notice is not treated as a license for tiffmedian.c.",
+        }
+        expected_launcher = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "info_path": "cBench/consumer_tiffmedian/src/info.sh",
+            "bench_name": "consumer_tiffmedian", "source_files": "*.c",
+            "compile_flags": ["-lm"], "run_options": "",
+            "default_dither_mode": False,
+        }
+        expected_contract = {
+            "operation": "Construct the source-shaped median-cut RGB palette from the occupied 5-bit-per-channel histogram bins. The bounded package stops before TIFF output rendering and pixel-index mapping.",
+            "input_layout": "[palette_limit, pixel_count, r0, g0, b0, ...]",
+            "palette_limit_range": [1, 8], "pixel_count_range": [1, 16],
+            "component_range": [0, 255],
+            "histogram": "RGB components are quantized by shifting right three bits, producing a 32x32x32 histogram.",
+            "box_selection": "Select the first source-order box with greatest population among boxes with a nonzero channel range.",
+            "split_axis": "Longest channel span; ties prefer red, then green, then blue.",
+            "split_rule": "Accumulate per-axis histogram counts to floor(box_population/2), advancing one bin when the median position is the first bin. The lower box is inserted at the front of the palette list.",
+            "shrink_rule": "Contract both child boxes to the minimum and maximum occupied histogram coordinates on each channel.",
+            "palette_rule": "Emit 4*(minimum_bin+maximum_bin) for each channel, in current source box-list order.",
+            "output_encoding": "[actual_palette_count, R0, G0, B0, ...]",
+            "maximum_valid_input_length": CBENCH_TIFFMEDIAN_MAX_INPUT_LENGTH,
+            "maximum_output_bytes": CBENCH_TIFFMEDIAN_MAX_OUTPUT_BYTES,
+            "success_result": "Output byte length, exactly 1+3*actual_palette_count.",
+            "invalid_result": -1, "output_error_result": -2,
+            "errors": "Malformed framing, invalid palette or pixel counts, and non-byte RGB components return -1. Null output or insufficient capacity returns -2 without writes.",
+        }
+        if (set(workload) != {
+                "schema_version", "id", "algorithm", "function_symbol", "description",
+                "pinned_source", "pinned_launcher", "contract", "input", "output",
+                "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-cbench-consumer-tiffmedian-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded source-shaped median-cut construction of an RGB palette from a small pixel set."
+                or workload.get("pinned_source") != expected_source
+                or workload.get("pinned_launcher") != expected_launcher
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "encoding": "[palette_limit, pixel_count, row-major RGB triples...]",
+                    "maximum_valid_length": CBENCH_TIFFMEDIAN_MAX_INPUT_LENGTH,
+                    "maximum_parseable_length": CBENCH_TIFFMEDIAN_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "palette count followed by RGB palette entries",
+                    "maximum_bytes": CBENCH_TIFFMEDIAN_MAX_OUTPUT_BYTES,
+                    "capacity_unit": "bytes", "null_output_result": -2,
+                    "insufficient_capacity_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": CBENCH_TIFFMEDIAN_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum caller-provided palette output buffer for eight RGB entries and their count.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("cbench_consumer_tiffmedian metadata differs from its pinned palette contract")
+        readme = (ROOT / "benchmarks" / "c" / "cbench_consumer_tiffmedian" / "README.md").read_text(
+            encoding="utf-8")
+        if (f"{pinned}/cBench/consumer_tiffmedian/src/tiffmedian.c" not in readme
+                or "has no explicit license grant" not in readme
+                or "does not infer or claim one" not in readme
+                or "no upstream source code or comments are copied" not in readme
+                or "not presented as a license for tiffmedian.c" not in readme):
+            raise ValueError("cbench_consumer_tiffmedian README is missing source/rights details")
+    elif algorithm == "cbench_consumer_tiff2bw":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "black", "white", "red-green-blue-primaries", "mixed-color",
+            "multiple-pixels-source-order", "zero-pixel-count",
+            "truncated-rgb-triplet", "extra-trailing-value", "channel-out-of-range",
+            "null-input", "null-output", "insufficient-output-capacity",
+        }
+        expected_source = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "path": "cBench/consumer_tiff2bw/src/tiff2bw.c",
+            "symbols": ["compresscontig", "compresssep"],
+            "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/consumer_tiff2bw/src/tiff2bw.c",
+            "license_note": "The source grants use, copying, modification, distribution, and sale if the complete notice is retained; it restricts advertising use of the authors' names without prior written permission. The full notice is retained in every port and LICENSE.txt.",
+        }
+        expected_launcher = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "info_path": "cBench/consumer_tiff2bw/src/info.sh",
+            "bench_name": "consumer_tiff2bw", "source_files": "*.c",
+            "compile_flags": ["-lm"], "run_options": "",
+        }
+        expected_contract = {
+            "operation": "Convert each interleaved 8-bit RGB pixel to one weighted grayscale byte using the source's integer percentage weights.",
+            "input_layout": "[pixel_count, R0, G0, B0, ...]",
+            "pixel_count_range": [1, 64], "channel_range": [0, 255],
+            "exact_length": "1 + 3*pixel_count", "maximum_valid_input_length": 193,
+            "weight_expression": "PCT(x) = (x*255)/100 with integer division, producing RED=71, GREEN=150, BLUE=28.",
+            "arithmetic_order": "For each input-order pixel, initialize v=RED*R, add GREEN*G, then add BLUE*B; output v >> 8.",
+            "output_encoding": "One 8-bit grayscale value per pixel in input order.",
+            "success_result": "pixel_count, equal to output byte length",
+            "invalid_input_result": -1, "output_error_result": -2,
+            "errors": "Null or malformed input returns -1 before output checks. Null output or capacity below pixel_count returns -2 without writes.",
+        }
+        if (set(workload) != {
+                "schema_version", "id", "algorithm", "function_symbol", "description",
+                "pinned_source", "pinned_launcher", "contract", "input", "output",
+                "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-cbench-consumer-tiff2bw-rgb-to-gray-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded fixed-point RGB-to-gray transform from cBench consumer_tiff2bw."
+                or workload.get("pinned_source") != expected_source
+                or workload.get("pinned_launcher") != expected_launcher
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "encoding": "pixel count followed by interleaved red, green, and blue channel values",
+                    "maximum_valid_length": CBENCH_TIFF2BW_MAX_INPUT_LENGTH,
+                    "maximum_parseable_length": CBENCH_TIFF2BW_MAX_INPUT_LENGTH,
+                    "channel_range": [0, 255],
+                    "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "One source-weighted grayscale byte per RGB pixel.",
+                    "maximum_bytes": CBENCH_TIFF2BW_MAX_OUTPUT_BYTES,
+                    "capacity_unit": "bytes",
+                    "success_result": "Number of pixels converted; equal to the output byte count.",
+                    "invalid_input_result": -1, "null_output_result": -2,
+                    "insufficient_capacity_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": CBENCH_TIFF2BW_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum grayscale output for 64 RGB pixels.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("cbench_consumer_tiff2bw metadata differs from its pinned RGB-to-gray contract")
+        readme = (ROOT / "benchmarks" / "c" / "cbench_consumer_tiff2bw" / "README.md").read_text(
+            encoding="utf-8")
+        notice = (ROOT / "benchmarks" / "c" / "cbench_consumer_tiff2bw" / "LICENSE.txt").read_text(
+            encoding="utf-8")
+        if (f"{pinned}/cBench/consumer_tiff2bw/src/tiff2bw.c" not in readme
+                or "full notice is retained" not in readme
+                or "Copyright (c) 1988-1997 Sam Leffler" not in notice
+                or "Copyright (c) 1991-1997 Silicon Graphics, Inc." not in notice
+                or "Permission to use, copy, modify, distribute, and sell this software" not in notice
+                or "THE SOFTWARE IS PROVIDED \"AS-IS\"" not in notice
+                or "IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS" not in notice):
+            raise ValueError("cbench_consumer_tiff2bw README is missing source or full permission notice")
+    elif algorithm == "cbench_bzip2_mtf_rle":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "encode_single_symbol_zero_run", "encode_runb_runa_zero_run",
+            "encode_nonzero_mtf_ranks", "decode_runa_runb_to_four_symbols",
+            "decode_nonzero_mtf_ranks", "invalid_unsorted_decoder_alphabet",
+            "invalid_missing_eob", "output_capacity_too_small", "null_input",
+            "null_output",
+        }
+        expected_source = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "paths": ["cBench/bzip2e/src/compress.c",
+                      "cBench/bzip2e/src/bzlib_private.h",
+                      "cBench/bzip2d/src/decompress.c",
+                      "cBench/bzip2e/LICENSE", "cBench/bzip2d/LICENSE"],
+            "symbols": ["generateMTFValues", "BZ2_decompress"],
+            "url": f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/cBench/bzip2e",
+            "version": "bzip2/libbzip2 1.0.4, 20 December 2006",
+            "license_note": "Julian R Seward's permissive bzip2 license permits source and binary redistribution, with or without modification, when the notice, conditions, and disclaimer are retained. Altered versions must be plainly marked, origin must not be misrepresented, and the author's name must not be used to endorse derived products.",
+        }
+        expected_launchers = [
+            {"path": "cBench/bzip2e/src/info.sh", "bench_name": "bzip2e",
+             "source_files": "*.c", "compile_flags": ["-lm"], "run_options": []},
+            {"path": "cBench/bzip2d/src/info.sh", "bench_name": "bzip2d",
+             "source_files": "*.c", "compile_flags": ["-lm"], "run_options": []},
+        ]
+        expected_contract = {
+            "mode_0_input": "[0, 0, length, BWT_last_column_bytes...]; derive the ascending in-use byte alphabet, MTF encode, encode consecutive rank-zero runs as RUNA/RUNB, append EOB.",
+            "mode_1_input": "[1, alphabet_length, token_count, ascending alphabet bytes..., RUNA/RUNB/nonzero-rank tokens..., EOB]; expand zero runs and inverse-MTF to the BWT last column.",
+            "block_length_range": [1, 32], "alphabet_length_range": [1, 32],
+            "token_count_range": [2, 33],
+            "token_values": "RUNA=0, RUNB=1, nonzero MTF rank j is j+1, EOB=alphabet_length+1.",
+            "output_encoding": "Mode 0 emits one byte per MTF/RUNA/RUNB/EOB token; mode 1 emits the decoded BWT last-column bytes.",
+            "invalid_result": -1, "output_error_result": -2,
+            "no_write_on_error": True,
+        }
+        if (set(workload) != {
+                "schema_version", "id", "algorithm", "function_symbol", "description",
+                "pinned_source", "pinned_launchers", "contract", "input", "output",
+                "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-cbench-bzip2-mtf-runa-runb-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded bzip2 move-to-front coding with RUNA/RUNB zero-run tokens and EOB, plus its inverse."
+                or workload.get("pinned_source") != expected_source
+                or workload.get("pinned_launchers") != expected_launchers
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "encoding": "Mode 0 [0, 0, block_length, BWT_last_column_bytes...]; mode 1 [1, alphabet_length, token_count, ascending alphabet..., tokens...].",
+                    "maximum_valid_length": CBENCH_BZIP2_MTF_RLE_MAX_INPUT_LENGTH,
+                    "maximum_parseable_length": CBENCH_BZIP2_MTF_RLE_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "Mode 0 bzip2 MTF/RUNA/RUNB/EOB token bytes; mode 1 reconstructed BWT last-column bytes.",
+                    "maximum_bytes": CBENCH_BZIP2_MTF_RLE_MAX_OUTPUT_BYTES,
+                    "success_result": "number of bytes written",
+                    "null_output_result": -2,
+                    "insufficient_capacity_result": -2,
+                    "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": CBENCH_BZIP2_MTF_RLE_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum output buffer for 32 data symbols plus EOB.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("cbench_bzip2_mtf_rle metadata differs from its pinned MTF/RUNA/RUNB contract")
+        package = ROOT / "benchmarks" / "c" / "cbench_bzip2_mtf_rle"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (f"{pinned}/cBench/bzip2e/src/compress.c" not in readme
+                or f"{pinned}/cBench/bzip2d/src/decompress.c" not in readme
+                or "This program, \"bzip2\"" not in notice
+                or "All rights reserved." not in notice
+                or "Altered source versions must be plainly marked" not in notice
+                or "may not be used to endorse or promote products" not in notice
+                or "THIS SOFTWARE IS PROVIDED BY THE AUTHOR" not in notice
+                or "Julian Seward, Cambridge, UK." not in notice):
+            raise ValueError("cbench_bzip2_mtf_rle README or LICENSE.txt is missing pinned-source or complete rights details")
+        for relative in (
+                "c/c/cbench_bzip2_mtf_rle.c", "c3/c/cbench_bzip2_mtf_rle.c3",
+                "cpp/c/cbench_bzip2_mtf_rle.cpp", "elisa/c/cbench_bzip2_mtf_rle.elisa",
+                "nim/c/cbench_bzip2_mtf_rle.nim", "odin/c/cbench_bzip2_mtf_rle.odin",
+                "rust/c/cbench_bzip2_mtf_rle.rs", "v/c/cbench_bzip2_mtf_rle.v",
+                "zig/c/cbench_bzip2_mtf_rle.zig"):
+            source_text = (ROOT / relative).read_text(encoding="utf-8")
+            if ("This program, \"bzip2\"" not in source_text
+                    or "Altered source versions must be plainly marked" not in source_text
+                    or "THIS SOFTWARE IS PROVIDED BY THE AUTHOR" not in source_text):
+                raise ValueError(f"cbench_bzip2_mtf_rle port is missing its complete license notice: {relative}")
+    elif algorithm == "tsvc_s281_reverse_coupled_update":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "source-initializer-pattern", "same-pass-reverse-read",
+            "two-source-shaped-passes", "negative-coefficient-self-read",
+            "zero-coefficient-self-read", "zero-size", "zero-passes",
+            "truncated-array", "trailing-array-value", "a-out-of-range",
+            "c-out-of-range", "null-input", "null-output", "short-output-capacity",
+        }
+        expected_source = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "path": "TSVC/tsc.inc", "symbol": "s281",
+            "included_by": "TSVC/CrossingThresholds-dbl/tsc.c",
+            "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc",
+            "attribution": "The TSVC source comment attributes its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+            "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. Ports are clean-room implementations of the published loop behavior; no upstream code or comments are reused and no upstream license or endorsement is claimed.",
+        }
+        expected_launcher = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "info_path": "TSVC/CrossingThresholds-dbl/info.sh",
+            "bench_name": "CrossingThresholds-dbl",
+            "source_files": ["dummy.c", "tsc.c"],
+            "compile_flags": ["-std=gnu99", "-lm"],
+            "run_options": ["5880", "14"],
+        }
+        expected_contract = {
+            "operation": "For each pass and ascending i, compute x=A[n-i-1]+B[i]*C[i], then store A[i]=x-1 followed by B[i]=x.",
+            "input_layout": "[n, passes, A[0..n), B[0..n), C[0..n)]",
+            "n_range": [1, 16], "passes_range": [1, 8],
+            "a_range": [-2, 2], "b_range": [-2, 2], "c_range": [-1, 1],
+            "exact_length": "2 + 3*n", "maximum_valid_input_length": 50,
+            "arithmetic_type": "binary64 source double; declared inputs and all bounded intermediates are exact integers below 20000 in magnitude",
+            "traversal": "passes in ascending order, then i from 0 through n-1; each A update is visible to later reverse-index reads in that same pass",
+            "output_encoding": "Final A array followed by final B array, each as little-endian signed i64",
+            "success_result": "16*n output bytes", "invalid_input_result": -1,
+            "output_error_result": -2,
+            "errors": "Null or malformed input returns -1 before output checks. Null output or capacity below 16*n returns -2 without writes.",
+        }
+        if (set(workload) != {
+                "schema_version", "id", "algorithm", "function_symbol", "description",
+                "pinned_source", "pinned_launcher", "contract", "input", "output",
+                "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s281-reverse-coupled-update-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded source-shaped in-place reverse-coupled array update from TSVC s281."
+                or workload.get("pinned_source") != expected_source
+                or workload.get("pinned_launcher") != expected_launcher
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "encoding": "n, passes, then A, B, and C arrays of n integers each",
+                    "maximum_valid_length": TSVC_S281_REVERSE_MAX_INPUT_LENGTH,
+                    "maximum_parseable_length": TSVC_S281_REVERSE_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "Little-endian signed i64 values: final A array followed by final B array",
+                    "maximum_bytes": TSVC_S281_REVERSE_MAX_OUTPUT_BYTES,
+                    "capacity_unit": "bytes", "success_result": "16*n output bytes",
+                    "invalid_input_result": -1, "null_output_result": -2,
+                    "insufficient_capacity_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": TSVC_S281_REVERSE_MAX_OUTPUT_BYTES,
+                    "meaning": "Two output arrays of at most 16 signed i64 values each.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s281_reverse_coupled_update metadata differs from its bounded s281 contract")
+        package = ROOT / "benchmarks" / "t" / "tsvc_s281_reverse_coupled_update"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (f"{pinned}/TSVC/tsc.inc" not in readme
+                or "No explicit license grant was found" not in readme
+                or "clean-room implementations" not in readme
+                or "no upstream code or comments were reused" not in readme
+                or "No explicit license grant was found" not in rights
+                or "does not reuse upstream source code or comments" not in rights):
+            raise ValueError("tsvc_s281_reverse_coupled_update README or rights note is missing source scope")
+    elif algorithm == "cbench_blowfish_cbc":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "key0_encrypt_one_zero_iv", "key1_decrypt_one_zero_iv",
+            "key0_encrypt_two_chained_blocks", "key0_decrypt_two_chained_blocks",
+            "short_capacity", "null_output", "bad_direction", "bad_selector",
+            "zero_blocks", "bad_byte", "short_input",
+        }
+        expected_source = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "path": "cBench/security_blowfish_d/src/bf_cbc.c",
+            "related_paths": ["cBench/security_blowfish_d/src/bf_enc.c",
+                              "cBench/security_blowfish_d/src/bf_skey.c",
+                              "cBench/security_blowfish_d/src/bf_pi.h",
+                              "cBench/security_blowfish_d/src/blowfish.h",
+                              "MiBench/security-blowfish/bftest.c"],
+            "symbol": "BF_cbc_encrypt, BF_set_key, BF_encrypt",
+            "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/security_blowfish_d/src/bf_cbc.c",
+            "license": "Eric Young source license, reproduced verbatim in LICENSE.txt and every port; attribution and advertising acknowledgment apply; terms may not be changed.",
+        }
+        expected_launcher = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "path": "cBench/security_blowfish_d/src/info.sh",
+            "bench_name": "security_blowfish_d",
+            "source_files": ["bf_cbc.c", "bf_enc.c", "bf_skey.c"],
+            "run_options": [],
+            "scope_note": "The launcher builds the source-set benchmark without selecting a single runtime operation. This package profiles the CBC helper only; other modes and launcher behavior are excluded.",
+        }
+        expected_contract = {
+            "operation": "Expand one fixed source test key and apply Blowfish CBC to one through four blocks.",
+            "source_configuration": {
+                "block_bytes": 8,
+                "key_strings": ["abcdefghijklmnopqrstuvwxyz", "Who is John Galt?"],
+                "direction_encoding": {"0": "encrypt", "1": "decrypt"},
+                "iv_bytes": 8,
+                "block_byte_order": "big-endian, matching the source block primitive",
+            },
+            "input_layout": "[direction, key_selector, block_count, 8 IV bytes, 8*block_count data bytes]",
+            "minimum_blocks": 1, "maximum_blocks": 4,
+            "maximum_input_length": CBENCH_BLOWFISH_CBC_MAX_INPUT_LENGTH,
+            "output_encoding": "Exactly 8*block_count raw CBC result bytes",
+            "maximum_output_bytes": CBENCH_BLOWFISH_CBC_MAX_OUTPUT_BYTES,
+            "invalid_result": -1, "output_error_result": -2,
+            "errors": "Malformed framing, selectors, or byte values return -1 before output checks. Null output or insufficient capacity returns -2 without writes.",
+        }
+        if (set(workload) != {
+                "schema_version", "id", "algorithm", "function_symbol", "description",
+                "pinned_source", "pinned_launcher", "contract", "input", "output",
+                "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-cbench-security-blowfish-cbc-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded one-to-four-block Blowfish CBC encryption or decryption using either of the source test keys."
+                or workload.get("pinned_source") != expected_source
+                or workload.get("pinned_launcher") != expected_launcher
+                or workload.get("contract") != expected_contract
+                or workload.get("input") != {
+                    "kind": "signed_i64_array_of_bytes",
+                    "encoding": "direction, key selector, block count, 8 IV bytes, then block_count big-endian 8-byte blocks",
+                    "minimum_length": 19,
+                    "maximum_input_length": CBENCH_BLOWFISH_CBC_MAX_INPUT_LENGTH,
+                    "valid_value_range": [0, 255],
+                    "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "Raw CBC output blocks in big-endian byte order",
+                    "maximum_bytes": CBENCH_BLOWFISH_CBC_MAX_OUTPUT_BYTES,
+                    "success_result": "Bytes written, exactly 8*block_count",
+                    "invalid_input_result": -1, "null_output_result": -2,
+                    "insufficient_capacity_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": CBENCH_BLOWFISH_CBC_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum four-block output.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 5, "warmup_rounds": 1,
+                    "repetitions_per_sample": 20,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("cbench_blowfish_cbc metadata differs from its bounded CBC contract")
+        package = ROOT / "benchmarks" / "c" / "cbench_blowfish_cbc"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (f"{pinned}/cBench/security_blowfish_d/src/bf_cbc.c" not in readme
+                or f"{pinned}/cBench/security_blowfish_d/src/info.sh" not in readme
+                or "Copyright (C) 1995-1997 Eric Young" not in notice
+                or "All advertising materials mentioning features or use of this software" not in notice
+                or "This product includes cryptographic software written by" not in notice
+                or "THIS SOFTWARE IS PROVIDED BY ERIC YOUNG" not in notice
+                or "distribution terms for any publically available version or derivative" not in notice
+                or "required advertising acknowledgment" not in readme):
+            raise ValueError("cbench_blowfish_cbc README or LICENSE.txt is missing pinned-source or full rights details")
+        for relative in (
+                "c/c/cbench_blowfish_cbc.c", "c3/c/cbench_blowfish_cbc.c3",
+                "cpp/c/cbench_blowfish_cbc.cpp", "elisa/c/cbench_blowfish_cbc.elisa",
+                "nim/c/cbench_blowfish_cbc.nim", "odin/c/cbench_blowfish_cbc.odin",
+                "rust/c/cbench_blowfish_cbc.rs", "v/c/cbench_blowfish_cbc.v",
+                "zig/c/cbench_blowfish_cbc.zig"):
+            source_text = (ROOT / relative).read_text(encoding="utf-8")
+            if ("Copyright (C) 1995-1997 Eric Young" not in source_text
+                    or "All advertising materials mentioning features or use of this software" not in source_text
+                    or "THIS SOFTWARE IS PROVIDED BY ERIC YOUNG" not in source_text
+                    or "cannot simply be copied and put under another distribution licence" not in source_text):
+                raise ValueError(f"cbench_blowfish_cbc port is missing its complete license notice: {relative}")
+    elif algorithm == "mediabench_gsm_rpe_grid_selection":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "all_zero_ties_choose_grid_zero", "single_pulse_selects_grid_two",
+            "invalid_short", "invalid_sample_range",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "pinned_source",
+                    "contract", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mediabench-gsm-rpe-grid-selection-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source != {
+                    "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                    "path": "mediabench/gsm/toast/rpe.c", "symbol": "RPE_grid_selection",
+                    "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/mediabench/gsm/toast/rpe.c",
+                    "license_path": "mediabench/gsm/toast/COPYRIGHT",
+                    "license": "Use permitted with notice retention; warranty disclaimer",
+                    "launcher": "mediabench/gsm/toast/info.sh",
+                }
+                or workload.get("contract") != {
+                    "input": "exactly 40 signed 16-bit residual samples",
+                    "score": "for m=0..3, 2*sum((floor(x[m+3*i]/4))^2, i=0..12)",
+                    "tie_rule": "lowest grid index wins because only a strictly larger score replaces the current winner",
+                    "output": "[grid, 13 selected unshifted samples] as 14 signed 64-bit little-endian words",
+                    "invalid_result": -1, "output_error_result": -2,
+                    "success_result": 112, "no_write_on_error": True,
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "length_exact": 40,
+                    "sample_range": [-32768, 32767], "maximum_valid_input_length": 40,
+                    "maximum_parseable_input_length": 41, "invalid_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array", "encoding": "14 signed i64 little-endian values",
+                    "maximum_bytes": MEDIABENCH_GSM_RPE_MAX_OUTPUT_BYTES,
+                    "null_or_short_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 20,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("mediabench_gsm_rpe_grid_selection metadata differs from its pinned kernel contract")
+        package = ROOT / "benchmarks" / "m" / "mediabench_gsm_rpe_grid_selection"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        copyright_text = (package / "COPYRIGHT.txt").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "permits any use provided its notice is retained" not in readme
+                or "Copyright" not in copyright_text
+                or "warranty" not in license_text.lower()):
+            raise ValueError("mediabench_gsm_rpe_grid_selection README or rights notice is incomplete")
+        for relative in (
+                "c/m/mediabench_gsm_rpe_grid_selection.c",
+                "c3/m/mediabench_gsm_rpe_grid_selection.c3",
+                "cpp/m/mediabench_gsm_rpe_grid_selection.cpp",
+                "elisa/m/mediabench_gsm_rpe_grid_selection.elisa",
+                "nim/m/mediabench_gsm_rpe_grid_selection.nim",
+                "odin/m/mediabench_gsm_rpe_grid_selection.odin",
+                "rust/m/mediabench_gsm_rpe_grid_selection.rs",
+                "v/m/mediabench_gsm_rpe_grid_selection.v",
+                "zig/m/mediabench_gsm_rpe_grid_selection.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"mediabench_gsm_rpe_grid_selection port is missing: {relative}")
+        for case in workload["cases"]:
+            expected_values = case.get("expected_values")
+            if (set(case) - {"id", "input_values", "input_length", "expected_result", "expected_values"}
+                    or not {"id", "input_values", "input_length", "expected_result"} <= set(case)
+                    or type(case["input_length"]) is not int
+                    or type(case["expected_result"]) is not int
+                    or (case["expected_result"] == MEDIABENCH_GSM_RPE_MAX_OUTPUT_BYTES
+                        and (not isinstance(expected_values, list) or len(expected_values) != 14
+                             or any(type(value) is not int for value in expected_values)))
+                    or (case["expected_result"] < 0 and "expected_values" in case)):
+                raise ValueError(f"mediabench_gsm_rpe_grid_selection fixture shape is invalid: {case.get('id')}")
+    elif algorithm == "rodinia_hybridsort":
+        pinned = "f30e63663cfb114939a15c7ffc4ae112055ae6a8"
+        expected_ids = {
+            "four_values_cross_bins", "duplicates_retained_and_sorted", "range_endpoints",
+            "invalid_null_input", "invalid_truncated_frame", "invalid_non_multiple_of_quantum",
+            "invalid_all_values_equal", "short_output_no_write", "null_output_no_write",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {
+                    "schema_version", "id", "algorithm", "function_symbol", "description",
+                    "pinned_source", "contract", "input", "output", "workspace",
+                    "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "rodinia-hybridsort-bounded-histogram-merge-i64-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded histogram bucket partition followed by per-bucket merge sort, with source-shaped float bucket selection and a deterministic explicit input vector."
+                or source.get("repository") != "utcs-scea/rodinia"
+                or source.get("commit") != pinned
+                or source.get("paths") != [
+                    "cuda/hybridsort/run.sh", "cuda/hybridsort/hybridsort.cu",
+                    "cuda/hybridsort/histogram1024_kernel.cu", "cuda/hybridsort/mergeSort.cu"]
+                or source.get("url") != f"https://github.com/utcs-scea/rodinia/tree/{pinned}/cuda/hybridsort"
+                or workload.get("contract", {}).get("count_range") != [2, 64]
+                or workload.get("contract", {}).get("q_range") != [0, 1_000_000]
+                or workload.get("contract", {}).get("q_multiple") != 1000
+                or workload.get("contract", {}).get("bucket_count") != 1024
+                or workload.get("contract", {}).get("maximum_output_bytes") != RODINIA_HYBRIDSORT_MAX_OUTPUT_BYTES
+                or workload.get("input", {}).get("maximum_length") != RODINIA_HYBRIDSORT_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != RODINIA_HYBRIDSORT_MAX_OUTPUT_BYTES
+                or workload.get("workspace") != {"bytes": RODINIA_HYBRIDSORT_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("rodinia_hybridsort metadata differs from its pinned bounded contract")
+        package = ROOT / "benchmarks" / "r" / "rodinia_hybridsort"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rodinia_license = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        nvidia_notice = (package / "NVIDIA_NOTICE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "uniform bins" not in readme
+                or "Copyright (c)2008-2011 University of Virginia" not in rodinia_license
+                or "Redistribution and use" not in rodinia_license
+                or "Copyright 1993-2007 NVIDIA Corporation" not in nvidia_notice
+                or "U.S. Government End Users" not in nvidia_notice):
+            raise ValueError("rodinia_hybridsort README or source rights notices are incomplete")
+        for relative in (
+                "c/r/rodinia_hybridsort.c", "c3/r/rodinia_hybridsort.c3",
+                "cpp/r/rodinia_hybridsort.cpp", "elisa/r/rodinia_hybridsort.elisa",
+                "nim/r/rodinia_hybridsort.nim", "odin/r/rodinia_hybridsort.odin",
+                "rust/r/rodinia_hybridsort.rs", "v/r/rodinia_hybridsort.v",
+                "zig/r/rodinia_hybridsort.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"rodinia_hybridsort port is missing: {relative}")
+    elif algorithm == "rodinia_mummergpu":
+        pinned = "f30e63663cfb114939a15c7ffc4ae112055ae6a8"
+        expected_ids = {
+            "two_maximal_matches_at_same_query_start", "repeated_base_ties_and_duplicates",
+            "left_context_filters_nonmaximal_matches", "source_default_minimum_length_twenty",
+            "valid_no_match", "invalid_null_input", "invalid_base_code",
+            "short_output_no_write", "null_output_no_write",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "rodinia-mummergpu-bounded-maximal-exact-match-i64-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "utcs-scea/rodinia"
+                or source.get("commit") != "f30e63663cfb114939a15c7ffc4ae112055ae6a8"
+                or "cuda/mummergpu/COPYING" not in source.get("paths", [])
+                or source.get("url") != f"https://github.com/utcs-scea/rodinia/tree/{pinned}/cuda/mummergpu"
+                or workload.get("contract", {}).get("reference_length_range") != [1, 32]
+                or workload.get("contract", {}).get("query_length_range") != [1, 32]
+                or workload.get("contract", {}).get("min_match_length_range") != [1, 32]
+                or workload.get("contract", {}).get("maximum_output_bytes") != RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES
+                or workload.get("input", {}).get("maximum_length") != RODINIA_MUMMERGPU_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES
+                or workload.get("workspace") != {"bytes": RODINIA_MUMMERGPU_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("rodinia_mummergpu metadata differs from its pinned bounded contract")
+        package = ROOT / "benchmarks" / "m" / "rodinia_mummergpu"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "The Artistic License" not in license_text
+                or "Michael Schatz" not in readme
+                or "clean-room implementations" not in readme):
+            raise ValueError("rodinia_mummergpu README or full source rights notice is incomplete")
+        for relative in (
+                "c/m/rodinia_mummergpu.c", "c3/m/rodinia_mummergpu.c3",
+                "cpp/m/rodinia_mummergpu.cpp", "elisa/m/rodinia_mummergpu.elisa",
+                "nim/m/rodinia_mummergpu.nim", "odin/m/rodinia_mummergpu.odin",
+                "rust/m/rodinia_mummergpu.rs", "v/m/rodinia_mummergpu.v",
+                "zig/m/rodinia_mummergpu.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"rodinia_mummergpu port is missing: {relative}")
+    elif algorithm == "tsvc_indexed_gather_scatter":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "s491-repeated-scatter-last-write-wins", "s491-permutation-scatter",
+            "s4113-gather-and-repeated-scatter", "s4113-reverse-indexed-gather",
+            "s491-maximum-bounded-length", "invalid-codelet", "out-of-range-index",
+            "truncated-s491-tail", "operand-out-of-range", "insufficient-output-capacity",
+            "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-indexed-gather-scatter-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbols") != ["s491", "s4113"]
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("codelet_values") != [491, 4113]
+                or workload.get("contract", {}).get("n_range") != [1, 16]
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_INDEXED_GATHER_SCATTER_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_INDEXED_GATHER_SCATTER_MAX_OUTPUT_BYTES
+                or workload.get("workspace") != {"bytes": TSVC_INDEXED_GATHER_SCATTER_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_indexed_gather_scatter metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / "tsvc_indexed_gather_scatter"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_indexed_gather_scatter provenance or rights note is incomplete")
+        for relative in (
+                "c/t/tsvc_indexed_gather_scatter.c", "c3/t/tsvc_indexed_gather_scatter.c3",
+                "cpp/t/tsvc_indexed_gather_scatter.cpp", "elisa/t/tsvc_indexed_gather_scatter.elisa",
+                "nim/t/tsvc_indexed_gather_scatter.nim", "odin/t/tsvc_indexed_gather_scatter.odin",
+                "rust/t/tsvc_indexed_gather_scatter.rs", "v/t/tsvc_indexed_gather_scatter.v",
+                "zig/t/tsvc_indexed_gather_scatter.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_indexed_gather_scatter port is missing: {relative}")
+    elif algorithm == "tsvc_s141_packed_symmetric_update":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "single-cell", "three-by-three-two-rounds-lower-triangle-only",
+            "two-by-two-negative-initial-state-three-rounds", "zero-dimension-invalid",
+            "truncated-matrix-invalid", "matrix-value-out-of-range",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s141-packed-symmetric-update-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s141"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S141_MAX_N]
+                or workload.get("contract", {}).get("rounds_range") != [1, TSVC_S141_MAX_ROUNDS]
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S141_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S141_MAX_OUTPUT_BYTES
+                or workload.get("workspace") != {"bytes": TSVC_S141_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s141_packed_symmetric_update metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / "tsvc_s141_packed_symmetric_update"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s141_packed_symmetric_update provenance or rights note is incomplete")
+        for relative in (
+                "c/t/tsvc_s141_packed_symmetric_update.c", "c3/t/tsvc_s141_packed_symmetric_update.c3",
+                "cpp/t/tsvc_s141_packed_symmetric_update.cpp", "elisa/t/tsvc_s141_packed_symmetric_update.elisa",
+                "nim/t/tsvc_s141_packed_symmetric_update.nim", "odin/t/tsvc_s141_packed_symmetric_update.odin",
+                "rust/t/tsvc_s141_packed_symmetric_update.rs", "v/t/tsvc_s141_packed_symmetric_update.v",
+                "zig/t/tsvc_s141_packed_symmetric_update.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s141_packed_symmetric_update port is missing: {relative}")
+    elif algorithm == "tsvc_s131_forward_neighbor_update":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "single-element-unchanged", "one-pass-forward-neighbor-update",
+            "three-pass-neighbor-propagation", "zero-dimension-invalid",
+            "truncated-array-invalid", "operand-out-of-range",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s131-forward-neighbor-update-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s131"
+                or source.get("launcher_family") != "TSVC/GlobalDataFlow-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S131_MAX_N]
+                or workload.get("contract", {}).get("passes_range") != [1, TSVC_S131_MAX_PASSES]
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S131_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S131_MAX_OUTPUT_BYTES
+                or workload.get("workspace") != {"bytes": TSVC_S131_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s131_forward_neighbor_update metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / "tsvc_s131_forward_neighbor_update"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note
+                or "s151" not in readme):
+            raise ValueError("tsvc_s131_forward_neighbor_update provenance or rights note is incomplete")
+        for relative in (
+                "c/t/tsvc_s131_forward_neighbor_update.c", "c3/t/tsvc_s131_forward_neighbor_update.c3",
+                "cpp/t/tsvc_s131_forward_neighbor_update.cpp", "elisa/t/tsvc_s131_forward_neighbor_update.elisa",
+                "nim/t/tsvc_s131_forward_neighbor_update.nim", "odin/t/tsvc_s131_forward_neighbor_update.odin",
+                "rust/t/tsvc_s131_forward_neighbor_update.rs", "v/t/tsvc_s131_forward_neighbor_update.v",
+                "zig/t/tsvc_s131_forward_neighbor_update.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s131_forward_neighbor_update port is missing: {relative}")
+    elif algorithm == "tsvc_s132_shifted_row_update":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "two-row-single-update", "shifted-row-and-negative-scale",
+            "zero-scale-copies-previous-row-shift", "dimension-too-small",
+            "truncated-row-invalid", "scalar-out-of-range",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s132-shifted-row-update-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s132"
+                or source.get("launcher_family") != "TSVC/GlobalDataFlow-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [2, TSVC_S132_MAX_N]
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S132_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S132_MAX_OUTPUT_BYTES
+                or workload.get("workspace") != {"bytes": TSVC_S132_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s132_shifted_row_update metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / "tsvc_s132_shifted_row_update"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s132_shifted_row_update provenance or rights note is incomplete")
+        for relative in (
+                "c/t/tsvc_s132_shifted_row_update.c", "c3/t/tsvc_s132_shifted_row_update.c3",
+                "cpp/t/tsvc_s132_shifted_row_update.cpp", "elisa/t/tsvc_s132_shifted_row_update.elisa",
+                "nim/t/tsvc_s132_shifted_row_update.nim", "odin/t/tsvc_s132_shifted_row_update.odin",
+                "rust/t/tsvc_s132_shifted_row_update.rs", "v/t/tsvc_s132_shifted_row_update.v",
+                "zig/t/tsvc_s132_shifted_row_update.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s132_shifted_row_update port is missing: {relative}")
+    elif algorithm == "tsvc_s152_three_factor_accumulate":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "single-three-factor-addition", "mixed-sign-three-factor-updates",
+            "zero-factor-and-repeated-positive-update", "zero-dimension-invalid",
+            "truncated-array-invalid", "operand-out-of-range",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s152-three-factor-accumulate-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbols") != ["s152", "s152s"]
+                or source.get("launcher_family") != "TSVC/GlobalDataFlow-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S152_MAX_N]
+                or workload.get("contract", {}).get("passes_range") != [1, TSVC_S152_MAX_PASSES]
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S152_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S152_MAX_OUTPUT_BYTES
+                or workload.get("workspace") != {"bytes": TSVC_S152_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s152_three_factor_accumulate metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / "tsvc_s152_three_factor_accumulate"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s152_three_factor_accumulate provenance or rights note is incomplete")
+        for relative in (
+                "c/t/tsvc_s152_three_factor_accumulate.c", "c3/t/tsvc_s152_three_factor_accumulate.c3",
+                "cpp/t/tsvc_s152_three_factor_accumulate.cpp", "elisa/t/tsvc_s152_three_factor_accumulate.elisa",
+                "nim/t/tsvc_s152_three_factor_accumulate.nim", "odin/t/tsvc_s152_three_factor_accumulate.odin",
+                "rust/t/tsvc_s152_three_factor_accumulate.rs", "v/t/tsvc_s152_three_factor_accumulate.v",
+                "zig/t/tsvc_s152_three_factor_accumulate.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s152_three_factor_accumulate port is missing: {relative}")
+    elif algorithm == "tsvc_s161_mutually_exclusive_updates":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "negative-then-nonnegative-reads-prior-write", "all-negative-paths",
+            "all-nonnegative-paths", "dimension-too-small", "truncated-arrays",
+            "operand-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s161-mutually-exclusive-updates-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s161"
+                or source.get("launcher_family") != "TSVC/ControlFlow-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [2, TSVC_S161_MAX_N]
+                or workload.get("contract", {}).get("value_range") != [-TSVC_S161_MAX_VALUE, TSVC_S161_MAX_VALUE]
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S161_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != 16 * TSVC_S161_MAX_N
+                or workload.get("workspace") != {"bytes": 16 * TSVC_S161_MAX_N}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s161_mutually_exclusive_updates metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / "tsvc_s161_mutually_exclusive_updates"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s161_mutually_exclusive_updates provenance or rights note is incomplete")
+        for relative in (
+                "c/t/tsvc_s161_mutually_exclusive_updates.c", "c3/t/tsvc_s161_mutually_exclusive_updates.c3",
+                "cpp/t/tsvc_s161_mutually_exclusive_updates.cpp", "elisa/t/tsvc_s161_mutually_exclusive_updates.elisa",
+                "nim/t/tsvc_s161_mutually_exclusive_updates.nim", "odin/t/tsvc_s161_mutually_exclusive_updates.odin",
+                "rust/t/tsvc_s161_mutually_exclusive_updates.rs", "v/t/tsvc_s161_mutually_exclusive_updates.v",
+                "zig/t/tsvc_s161_mutually_exclusive_updates.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s161_mutually_exclusive_updates port is missing: {relative}")
+    elif algorithm in {"tsvc_s211_ordered_neighbor_rewrite",
+                       "tsvc_s212_next_element_dependency"}:
+        is_s211 = algorithm == "tsvc_s211_ordered_neighbor_rewrite"
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        symbol = "s211" if is_s211 else "s212"
+        family = "TSVC/StatementReordering-dbl"
+        max_n = TSVC_S211_MAX_N if is_s211 else TSVC_S212_MAX_N
+        max_passes = TSVC_S211_MAX_PASSES if is_s211 else TSVC_S212_MAX_PASSES
+        max_input = TSVC_S211_MAX_INPUT_LENGTH if is_s211 else TSVC_S212_MAX_INPUT_LENGTH
+        max_output = TSVC_S211_MAX_OUTPUT_BYTES if is_s211 else TSVC_S212_MAX_OUTPUT_BYTES
+        expected_ids = ({
+            "one-pass-sequential-neighbor-rewrite", "three-pass-right-neighbor-propagation",
+            "three-element-interior-update", "dimension-too-small", "truncated-arrays",
+            "operand-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        } if is_s211 else {
+            "one-pass-next-element-read-before-update", "two-pass-next-element-dependency",
+            "two-element-minimum-dimension", "dimension-too-small", "truncated-arrays",
+            "operand-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        })
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != f"lac-dcc-tsvc-{symbol}-{'ordered-neighbor-rewrite' if is_s211 else 'next-element-dependency'}-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != symbol
+                or source.get("launcher_family") != family
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != ([3, max_n] if is_s211 else [2, max_n])
+                or workload.get("contract", {}).get("passes_range") != [1, max_passes]
+                or workload.get("contract", {}).get("value_range") != [
+                    -(TSVC_S211_MAX_VALUE if is_s211 else TSVC_S212_MAX_VALUE),
+                    TSVC_S211_MAX_VALUE if is_s211 else TSVC_S212_MAX_VALUE]
+                or workload.get("contract", {}).get("maximum_valid_input_length") != max_input
+                or workload.get("input", {}).get("maximum_valid_length") != max_input
+                or workload.get("input", {}).get("maximum_parseable_length") != max_input
+                or workload.get("output", {}).get("maximum_bytes") != max_output
+                or workload.get("workspace") != {"bytes": max_output}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError(f"{algorithm} metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError(f"{algorithm} provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"{algorithm} port is missing: {relative}")
+    elif algorithm == "tsvc_s114_transposed_lower_triangle_update":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "two-by-two-transposed-lower-update", "three-by-three-strict-triangle",
+            "signed-source-double-values", "invalid-small-dimension", "invalid-short-matrix",
+            "invalid-out-of-range-element", "null-input", "null-output", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s114-transposed-lower-triangle-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s114"
+                or source.get("launcher_family") != "TSVC/LinearDependence-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC/LinearDependence-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [2, TSVC_S114_MAX_N]
+                or workload.get("contract", {}).get("matrix_value_range") != [-TSVC_S114_MAX_VALUE, TSVC_S114_MAX_VALUE]
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S114_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S114_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S114_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S114_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != TSVC_S114_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s114_transposed_lower_triangle_update metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s114_transposed_lower_triangle_update provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s114_transposed_lower_triangle_update port is missing: {relative}")
+    elif algorithm == "tsvc_vif_masked_assignment":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "mixed-positive-zero-negative-mask", "zero-and-negative-values-retain-destinations",
+            "single-element-retain-path", "dimension-zero", "truncated-arrays",
+            "operand-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-vif-masked-assignment-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "vif"
+                or source.get("launcher_family") != "TSVC/ControlLoops-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_VIF_MAX_N]
+                or workload.get("contract", {}).get("value_range") != [-TSVC_VIF_MAX_VALUE, TSVC_VIF_MAX_VALUE]
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_VIF_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_VIF_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_VIF_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_VIF_MAX_OUTPUT_BYTES
+                or workload.get("workspace") != {"bytes": TSVC_VIF_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_vif_masked_assignment metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_vif_masked_assignment provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_vif_masked_assignment port is missing: {relative}")
+    elif algorithm == "tsvc_s278_branch_recompute":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "one-pass-takes-both-branch-paths", "two-pass-branch-selection-changes-with-state",
+            "single-element-negative-branch", "dimension-zero", "truncated-arrays",
+            "operand-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s278-branch-recompute-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s278"
+                or source.get("launcher_family") != "TSVC/ControlFlow-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S278_MAX_N]
+                or workload.get("contract", {}).get("passes_range") != [1, TSVC_S278_MAX_PASSES]
+                or workload.get("contract", {}).get("value_range") != [-TSVC_S278_MAX_VALUE, TSVC_S278_MAX_VALUE]
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S278_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S278_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S278_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S278_MAX_OUTPUT_BYTES
+                or workload.get("workspace") != {"bytes": TSVC_S278_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s278_branch_recompute metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("TSVC/tsc.inc" not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s278_branch_recompute provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s278_branch_recompute port is missing: {relative}")
+    elif algorithm == "tsvc_s279_nested_branch_recompute":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "outer-positive-and-nested-negative-paths", "recomputed-a-selects-the-next-pass-path",
+            "single-element-positive-path", "truncated-frame", "array-value-out-of-range",
+            "pass-count-out-of-range", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s279-nested-branch-recompute-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s279"
+                or source.get("source_lines") != {
+                    "kernel_start": 2927, "kernel_end": 2960,
+                    "loop_start": 2937, "loop_end": 2952,
+                }
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/ControlFlow-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "argument_order": ["n", "passes", "A[n]", "B[n]", "C[n]", "D[n]", "E[n]"],
+                    "n_range": [1, TSVC_S279_MAX_N],
+                    "passes_range": [1, TSVC_S279_MAX_PASSES],
+                    "exact_length": "2 + 5*n",
+                    "maximum_valid_input_length": TSVC_S279_MAX_INPUT_LENGTH,
+                    "array_value_range": [-TSVC_S279_MAX_VALUE, TSVC_S279_MAX_VALUE],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "A_final[n] followed by B_final[n] followed by C_final[n]",
+                    "successful_result": "Number of output elements, 3*n.",
+                    "required_capacity": "24*n bytes.",
+                    "maximum_elements": 3 * TSVC_S279_MAX_N,
+                    "maximum_bytes": TSVC_S279_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s279 metadata differs from its pinned nested branch contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s279 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s279 language port is missing: {relative}")
+    elif algorithm == "tsvc_s2111_wavefront_add_recurrence":
+        pinned = "5d7b75df749241efa7a6f5be613d3fcc5cce38"
+        expected_ids = {
+            "one-interior-cell", "three-by-three-row-major-wavefront", "all-zero-matrix",
+            "truncated-frame", "matrix-value-out-of-range", "side-out-of-range",
+            "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s2111-wavefront-add-recurrence-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s2111"
+                or source.get("source_lines") != {
+                    "kernel_start": 3285, "kernel_end": 3311,
+                    "loop_start": 3293, "loop_end": 3297,
+                }
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/CrossingThresholds-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "argument_order": ["side", "passes", "matrix[side*side] row-major"],
+                    "side_range": [2, TSVC_S2111_MAX_SIDE],
+                    "passes_range": [1, TSVC_S2111_MAX_PASSES],
+                    "exact_length": "2 + side*side",
+                    "maximum_valid_input_length": TSVC_S2111_MAX_INPUT_LENGTH,
+                    "matrix_value_range": [-8, 8],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "complete final matrix in row-major order",
+                    "successful_result": "Number of output elements, side*side.",
+                    "required_capacity": "8*side*side bytes.",
+                    "maximum_elements": 64,
+                    "maximum_bytes": TSVC_S2111_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s2111 metadata differs from its pinned wavefront recurrence contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "profile projection" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s2111 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s2111 language port is missing: {relative}")
+    elif algorithm == "tsvc_s353_unrolled_sparse_saxpy":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "five-way-gather-with-repeated-indices", "ten-element-reversed-gather-signed-values",
+            "source-shaped-alpha-one-pass", "invalid-n-not-a-five-element-chunk",
+            "invalid-short-frame", "invalid-gather-index", "invalid-alpha-range",
+            "null-input", "null-output", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s353-unrolled-sparse-saxpy-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s353"
+                or source.get("launcher_family") != "TSVC/LoopRerolling-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC/LoopRerolling-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_values") != [5, 10, 15, 20]
+                or workload.get("contract", {}).get("alpha_range") != [-TSVC_S353_MAX_ALPHA, TSVC_S353_MAX_ALPHA]
+                or workload.get("contract", {}).get("vector_value_range") != [-TSVC_S353_MAX_VALUE, TSVC_S353_MAX_VALUE]
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S353_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S353_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S353_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 3 * TSVC_S353_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s353_unrolled_sparse_saxpy metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("TSVC/tsc.inc" not in readme or "LoopRerolling-dbl" not in readme
+                or pinned not in readme or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s353_unrolled_sparse_saxpy provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s353_unrolled_sparse_saxpy port is missing: {relative}")
+    elif algorithm == "tsvc_s452_index_weighted_vector_map":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "four-element-index-weighted-map", "three-element-signed-weights",
+            "single-element", "dimension-zero", "truncated-vectors",
+            "operand-out-of-range", "insufficient-output-capacity", "null-output",
+            "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s452-index-weighted-vector-map-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s452"
+                or source.get("launcher_family") != "TSVC/GlobalDataFlow-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S452_MAX_N]
+                or workload.get("contract", {}).get("value_range") != [-TSVC_S452_MAX_VALUE, TSVC_S452_MAX_VALUE]
+                or workload.get("contract", {}).get("exact_length") != "1 + 2*n"
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S452_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S452_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S452_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S452_MAX_OUTPUT_BYTES
+                or workload.get("workspace") != {"bytes": TSVC_S452_MAX_OUTPUT_BYTES}
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s452_index_weighted_vector_map metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s452_index_weighted_vector_map provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s452_index_weighted_vector_map port is missing: {relative}")
+    elif algorithm == "tsvc_s126_matrix_column_recurrence":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "two-by-two-column-update-and-skipped-coefficients",
+            "three-by-three-causal-column-recurrence", "invalid-small-matrix-order",
+            "invalid-short-matrix-frame", "invalid-out-of-range-coefficient", "null-input",
+            "null-output", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s126-matrix-column-recurrence-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or "TSVC/tsc.inc" not in source.get("paths", [])
+                or source.get("symbol") != "s126"
+                or source.get("launcher_family") != "TSVC/InductionVariable-dbl"
+                or source.get("launcher_options") != [9100, 14]
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC/InductionVariable-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [2, TSVC_S126_MAX_N]
+                or workload.get("contract", {}).get("matrix_value_range") != [-TSVC_S126_MAX_VALUE, TSVC_S126_MAX_VALUE]
+                or workload.get("contract", {}).get("exact_length") != "1 + 3*n*n"
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S126_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S126_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S126_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S126_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 3 * TSVC_S126_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s126_matrix_column_recurrence metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("TSVC/tsc.inc" not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s126_matrix_column_recurrence provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s126_matrix_column_recurrence port is missing: {relative}")
+    elif algorithm == "tsvc_s322_second_order_recurrence":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "six-element-two-lag-recurrence", "five-element-mixed-coefficients",
+            "minimum-dimension-preserves-seeds", "dimension-too-small", "truncated-vectors",
+            "coefficient-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s322-second-order-recurrence-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s322"
+                or source.get("launcher_family") != "TSVC/Recurrences-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [2, TSVC_S322_MAX_N]
+                or workload.get("contract", {}).get("value_range") != [-1, 1]
+                or workload.get("contract", {}).get("exact_length") != "1 + 3*n"
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S322_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S322_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S322_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S322_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s322_second_order_recurrence metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s322_second_order_recurrence provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s322_second_order_recurrence port is missing: {relative}")
+    elif algorithm == "tsvc_s321_first_order_recurrence":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "five-element-first-order-recurrence", "four-element-negative-seed",
+            "single-element-no-op-sweep", "dimension-zero", "truncated-vectors",
+            "coefficient-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s321-first-order-recurrence-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s321"
+                or source.get("launcher_family") != "TSVC/Recurrences-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S321_MAX_N]
+                or workload.get("contract", {}).get("value_range") != [-1, 1]
+                or workload.get("contract", {}).get("exact_length") != "1 + 2*n"
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S321_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S321_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S321_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S321_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s321_first_order_recurrence metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s321_first_order_recurrence provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s321_first_order_recurrence port is missing: {relative}")
+    elif algorithm == "tsvc_s128_strided_coupled_update":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "two-step-even-stride-coupled-update", "signed-three-step-update",
+            "one-element-boundary", "invalid-zero-length-vector", "invalid-short-frame",
+            "invalid-value-bound", "null-input", "null-output", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s128-strided-coupled-update-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or "TSVC/tsc.inc" not in source.get("paths", [])
+                or source.get("symbol") != "s128"
+                or source.get("launcher_family") != "TSVC/InductionVariable-dbl"
+                or source.get("launcher_options") != [9100, 14]
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC/InductionVariable-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S128_MAX_N]
+                or workload.get("contract", {}).get("vector_value_range") != [-TSVC_S128_MAX_VALUE, TSVC_S128_MAX_VALUE]
+                or workload.get("contract", {}).get("exact_length") != "1 + 5*n"
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S128_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S128_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S128_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S128_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 2 * TSVC_S128_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s128_strided_coupled_update metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("TSVC/tsc.inc" not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s128_strided_coupled_update provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s128_strided_coupled_update port is missing: {relative}")
+    elif algorithm == "tsvc_s323_coupled_recurrence":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "three-element-coupled-recurrence", "two-element-negative-coefficients",
+            "dimension-too-small", "truncated-vectors", "operand-out-of-range",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s323-coupled-recurrence-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s323"
+                or source.get("launcher_family") != "TSVC/Recurrences-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [2, TSVC_S323_MAX_N]
+                or workload.get("contract", {}).get("value_range") != [-1, 1]
+                or workload.get("contract", {}).get("exact_length") != "1 + 5*n"
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S323_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S323_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S323_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S323_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s323_coupled_recurrence metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s323_coupled_recurrence provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s323_coupled_recurrence port is missing: {relative}")
+    elif algorithm == "tsvc_s127_fixed_pair_expansion":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "two-input-signed-pair-expansion", "three-input-positive-pair-expansion",
+            "one-input-boundary", "invalid-zero-input-count", "invalid-short-frame",
+            "invalid-source-value-bound", "null-input", "null-output", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s127-fixed-pair-expansion-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or "TSVC/tsc.inc" not in source.get("paths", [])
+                or source.get("symbol") != "s127"
+                or source.get("launcher_family") != "TSVC/InductionVariable-dbl"
+                or source.get("launcher_options") != [9100, 14]
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC/InductionVariable-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S127_MAX_N]
+                or workload.get("contract", {}).get("vector_value_range") != [-TSVC_S127_MAX_VALUE, TSVC_S127_MAX_VALUE]
+                or workload.get("contract", {}).get("exact_length") != "1 + 4*n"
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S127_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S127_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S127_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S127_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 3 * TSVC_S127_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s127_fixed_pair_expansion metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("TSVC/tsc.inc" not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s127_fixed_pair_expansion provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s127_fixed_pair_expansion port is missing: {relative}")
+    elif algorithm == "tsvc_s124_conditional_fma_map":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "strict-positive-and-nonpositive-branches", "zero-condition-selects-c",
+            "one-element-boundary", "invalid-zero-input-count", "invalid-short-frame",
+            "invalid-source-value-bound", "null-input", "null-output", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s124-conditional-fma-map-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or "TSVC/tsc.inc" not in source.get("paths", [])
+                or source.get("symbol") != "s124"
+                or source.get("launcher_family") != "TSVC/InductionVariable-dbl"
+                or source.get("launcher_options") != [9100, 14]
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC/InductionVariable-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S124_MAX_N]
+                or workload.get("contract", {}).get("vector_value_range") != [-TSVC_S124_MAX_VALUE, TSVC_S124_MAX_VALUE]
+                or workload.get("contract", {}).get("exact_length") != "1 + 4*n"
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S124_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S124_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S124_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S124_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 5 * TSVC_S124_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s124_conditional_fma_map metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("TSVC/tsc.inc" not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s124_conditional_fma_map provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s124_conditional_fma_map port is missing: {relative}")
+    elif algorithm == "tsvc_s125_matrix_flattened_fma":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "two-by-two-signed-elementwise-multiply-add", "three-by-three-row-major-flattening",
+            "one-by-one-matrix", "invalid-zero-order", "invalid-short-frame",
+            "invalid-matrix-value-bound", "null-input", "null-output", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s125-matrix-flattened-fma-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or "TSVC/tsc.inc" not in source.get("paths", [])
+                or source.get("symbol") != "s125"
+                or source.get("launcher_family") != "TSVC/InductionVariable-dbl"
+                or source.get("launcher_options") != [9100, 14]
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC/InductionVariable-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S125_MAX_N]
+                or workload.get("contract", {}).get("matrix_value_range") != [-TSVC_S125_MAX_VALUE, TSVC_S125_MAX_VALUE]
+                or workload.get("contract", {}).get("exact_length") != "1 + 3*n*n"
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S125_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S125_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S125_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S125_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 4 * TSVC_S125_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s125_matrix_flattened_fma metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("TSVC/tsc.inc" not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s125_matrix_flattened_fma provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s125_matrix_flattened_fma port is missing: {relative}")
+    elif algorithm == "versabench_dbms_keys_union":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "one-box", "union-lowers-and-uppers", "degenerate-box-allowed",
+            "invalid-reversed-interval", "trailing-data", "short-output-capacity",
+            "null-output", "null-input",
+        }
+        source = workload.get("source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                              "contract", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-versabench-dbms-rtree-keys-union-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "VersaBench/dbms/keyUnion.c"
+                or "keysUnion" not in source.get("symbols", [])
+                or "No explicit redistribution license" not in source.get("license_status", "")
+                or contract.get("count_range") != [1, 16]
+                or contract.get("coordinate_range") != [-8, 8]
+                or contract.get("exact_input_length") != "1 + 8*count"
+                or contract.get("maximum_valid_input_length") != VERSABENCH_DBMS_KEYS_UNION_MAX_INPUT_LENGTH
+                or contract.get("maximum_parseable_input_length") != VERSABENCH_DBMS_KEYS_UNION_MAX_PARSEABLE_INPUT_LENGTH
+                or contract.get("output_bytes") != VERSABENCH_DBMS_KEYS_UNION_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("versabench_dbms_keys_union metadata differs from its pinned helper contract")
+        package = ROOT / "benchmarks" / "d" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        if ("VersaBench/dbms/keyUnion.c" not in readme or pinned not in readme
+                or "No explicit redistribution license" not in notice):
+            raise ValueError("versabench_dbms_keys_union source attribution or rights note is incomplete")
+        for relative in (
+                f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+                f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
+                f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"versabench_dbms_keys_union port is missing: {relative}")
+    elif algorithm == "versabench_dbms_query":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "single-leaf-mixed-hit-miss", "root-prunes-second-branch", "no-matching-leaf",
+            "invalid-node-frame", "short-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                              "contract", "profile", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-versabench-dbms-rtree-query-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "VersaBench/dbms/query.c"
+                or source.get("symbols") != ["query", "consistentKey"]
+                or "No explicit redistribution license" not in source.get("license_status", "")
+                or contract.get("node_count_range") != [1, 7]
+                or contract.get("level_range") != [0, 2]
+                or contract.get("entries_per_node_range") != [1, 4]
+                or contract.get("coordinate_range") != [-8, 8]
+                or contract.get("record_id_range") != [0, 31]
+                or contract.get("max_leaf_records") != 16
+                or contract.get("maximum_valid_input_words") != VERSABENCH_DBMS_QUERY_MAX_INPUT_LENGTH
+                or contract.get("maximum_parseable_input_words") != VERSABENCH_DBMS_QUERY_MAX_PARSEABLE_INPUT_LENGTH
+                or contract.get("maximum_output_bytes") != VERSABENCH_DBMS_QUERY_MAX_OUTPUT_BYTES
+                or workload.get("profile", {}).get("query_filter") != "key intersection only; non-key search list is empty"
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("versabench_dbms_query metadata differs from its pinned R-tree contract")
+        package = ROOT / "benchmarks" / "d" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        if ("VersaBench/dbms/query.c" not in readme or pinned not in readme
+                or "No explicit redistribution license" not in notice):
+            raise ValueError("versabench_dbms_query attribution or rights note is incomplete")
+        for relative in (
+                f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+                f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
+                f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"versabench_dbms_query port is missing: {relative}")
+    elif algorithm == "versabench_dbms_insert_entry":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "empty-root-leaf-insert", "recursive-descent-and-bottom-up-mbr-update",
+            "selected-path-mbr-mismatch", "short-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                              "contract", "profile", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-versabench-dbms-insert-entry-no-split-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "VersaBench/dbms/insertEntry.c"
+                or source.get("symbols") != ["insertEntry", "chooseEntry", "penalty", "keyUnion"]
+                or "No explicit redistribution license" not in source.get("license_status", "")
+                or contract.get("depth_range") != [0, 2]
+                or contract.get("children_per_branch_range") != [1, 4]
+                or contract.get("leaf_records_range") != [0, 3]
+                or contract.get("coordinate_range") != [-8, 8]
+                or contract.get("record_id_range") != [0, 31]
+                or contract.get("maximum_valid_input_words") != VERSABENCH_DBMS_INSERT_ENTRY_MAX_INPUT_LENGTH
+                or contract.get("maximum_parseable_input_words") != VERSABENCH_DBMS_INSERT_ENTRY_MAX_PARSEABLE_INPUT_LENGTH
+                or contract.get("maximum_output_bytes") != VERSABENCH_DBMS_INSERT_ENTRY_MAX_OUTPUT_BYTES
+                or workload.get("profile", {}).get("scope") != "No-split insertEntry success path only; overflow, node splitting, allocation, root growth, record I/O, full database command stream, and metrics harness are excluded."
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("versabench_dbms_insert_entry metadata differs from its bounded no-split contract")
+        package = ROOT / "benchmarks" / "d" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        if ("VersaBench/dbms/insertEntry.c" not in readme or pinned not in readme
+                or "No explicit redistribution license" not in notice):
+            raise ValueError("versabench_dbms_insert_entry attribution or rights note is incomplete")
+        for relative in (
+                f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+                f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
+                f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"versabench_dbms_insert_entry port is missing: {relative}")
+    elif algorithm == "versabench_dbms_delete_entry":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "delete-hit-adjust-surviving-mbr", "delete-all-unlinks-empty-child",
+            "invalid-child-mbr", "short-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                              "contract", "profile", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-versabench-dbms-delete-entry-one-level-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "VersaBench/dbms/deleteEntry.c"
+                or source.get("symbols") != ["deleteEntry", "consistentKey", "keysUnion", "deleteIndexEntry"]
+                or "No explicit redistribution license" not in source.get("license_status", "")
+                or contract.get("children_range") != [1, 4]
+                or contract.get("records_per_child_range") != [1, 4]
+                or contract.get("coordinate_range") != [-8, 8]
+                or contract.get("record_id_range") != [0, 31]
+                or contract.get("maximum_valid_input_words") != VERSABENCH_DBMS_DELETE_ENTRY_MAX_INPUT_LENGTH
+                or contract.get("maximum_parseable_input_words") != VERSABENCH_DBMS_DELETE_ENTRY_MAX_PARSEABLE_INPUT_LENGTH
+                or contract.get("maximum_output_elements") != VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_ELEMENTS
+                or contract.get("maximum_output_bytes") != VERSABENCH_DBMS_DELETE_ENTRY_MAX_OUTPUT_BYTES
+                or workload.get("profile", {}).get("scope") != "one internal root and leaf children; excludes outer delete() root collapse/conversion, non-key filtering, allocation/free and error-message side effects, database I/O, and benchmark command stream"
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("versabench_dbms_delete_entry metadata differs from its one-level contract")
+        package = ROOT / "benchmarks" / "d" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        if ("VersaBench/dbms/deleteEntry.c" not in readme or pinned not in readme
+                or "No explicit redistribution license" not in notice):
+            raise ValueError("versabench_dbms_delete_entry attribution or rights note is incomplete")
+        for relative in (
+                f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+                f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
+                f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"versabench_dbms_delete_entry port is missing: {relative}")
+    elif algorithm == "versabench_dbms_contract_root":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "repeated-single-child-promotion", "stop-at-multi-child-root",
+            "empty-internal-root-becomes-leaf", "leaf-root-unchanged",
+            "invalid-level-transition", "short-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                              "contract", "profile", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-versabench-dbms-delete-root-contract-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "VersaBench/dbms/delete.c"
+                or source.get("supporting_paths") != ["VersaBench/dbms/deleteEntry.c",
+                    "VersaBench/dbms/deleteIndexNode.c", "VersaBench/dbms/index.h",
+                    "VersaBench/dbms/delete.h"]
+                or source.get("launcher_path") != "VersaBench/dbms/info.sh"
+                or source.get("symbols") != ["delete"]
+                or source.get("author") != "M. L. Rivas"
+                or source.get("copyright") != "Copyright 1999, Atlantic Aerospace Electronics Corp."
+                or "No explicit redistribution license" not in source.get("license_status", "")
+                or contract.get("input_layout") != "[node_count,(level,entry_count)*] along a root-to-terminal sole-child chain"
+                or contract.get("node_count_range") != [1, VERSABENCH_DBMS_CONTRACT_ROOT_MAX_NODES]
+                or contract.get("level_range") != [0, 4]
+                or contract.get("entry_count_range") != [0, 4]
+                or contract.get("maximum_valid_input_words") != VERSABENCH_DBMS_CONTRACT_ROOT_MAX_INPUT_LENGTH
+                or contract.get("maximum_parseable_input_words") != VERSABENCH_DBMS_CONTRACT_ROOT_MAX_PARSEABLE_INPUT_LENGTH
+                or contract.get("output") != "little-endian signed i64 [promotion_count,final_root_level,final_root_entry_count]"
+                or contract.get("maximum_output_bytes") != VERSABENCH_DBMS_CONTRACT_ROOT_MAX_OUTPUT_BYTES
+                or contract.get("invalid_result") != -1
+                or contract.get("output_error_result") != -2
+                or workload.get("profile", {}).get("operation") != "Repeatedly promote a sole child while the root is internal; convert an empty internal root to an empty leaf root."
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("versabench_dbms_contract_root metadata differs from its bounded root-normalization contract")
+        package = ROOT / "benchmarks" / "d" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        if ("VersaBench/dbms/delete.c" not in readme or pinned not in readme
+                or "No explicit redistribution license" not in notice):
+            raise ValueError("versabench_dbms_contract_root attribution or rights note is incomplete")
+        for relative in (
+                f"c/d/{algorithm}.c", f"c3/d/{algorithm}.c3", f"cpp/d/{algorithm}.cpp",
+                f"elisa/d/{algorithm}.elisa", f"nim/d/{algorithm}.nim", f"odin/d/{algorithm}.odin",
+                f"rust/d/{algorithm}.rs", f"v/d/{algorithm}.v", f"zig/d/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"versabench_dbms_contract_root port is missing: {relative}")
+    elif algorithm == "tsvc_s319_coupled_reductions":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "three-element-fused-pair-sums", "two-element-coupled-reduction", "single-element",
+            "dimension-zero", "truncated-vectors", "operand-out-of-range",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s319-coupled-reductions-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s319"
+                or source.get("launcher_family") != "TSVC/Reductions-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("contract", {}).get("n_range") != [1, TSVC_S319_MAX_N]
+                or workload.get("contract", {}).get("value_range") != [-TSVC_S319_MAX_VALUE, TSVC_S319_MAX_VALUE]
+                or workload.get("contract", {}).get("exact_length") != "1 + 3*n"
+                or workload.get("contract", {}).get("maximum_valid_input_length") != TSVC_S319_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S319_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S319_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S319_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s319_coupled_reductions metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s319_coupled_reductions provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s319_coupled_reductions port is missing: {relative}")
+    elif algorithm == "tsvc_s122_reverse_strided_gather_add":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "launcher-default-full-reverse-add", "sparse-destinations-with-reverse-sequential-gather",
+            "single-final-destination", "one-element-reverse-add", "invalid-zero-vector-length",
+            "invalid-short-frame", "invalid-zero-lower-bound", "invalid-zero-stride",
+            "invalid-vector-value-bound", "null-input", "null-output", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "abi", "description", "pinned_source", "contract", "input",
+                              "output", "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s122-reverse-strided-gather-add-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s122"
+                or source.get("source_lines") != {"codelet_start": 1203, "codelet_end": 1229}
+                or source.get("launcher_family") != "TSVC/InductionVariable-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [1, TSVC_S122_MAX_N]
+                or contract.get("n1_range") != "1..n"
+                or contract.get("n3_range") != "1..n"
+                or contract.get("vector_value_range") != [-TSVC_S122_MAX_VALUE, TSVC_S122_MAX_VALUE]
+                or contract.get("exact_length") != "3 + 2*n"
+                or contract.get("maximum_valid_input_length") != TSVC_S122_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S122_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S122_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S122_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 512
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s122_reverse_strided_gather_add metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s122_reverse_strided_gather_add provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s122_reverse_strided_gather_add port is missing: {relative}")
+    elif algorithm == "tsvc_s315_maximum_with_index":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "first-of-equal-maxima", "negative-maximum", "singleton", "last-is-maximum",
+            "maximum-input-size", "insufficient-output-capacity", "truncated-values",
+            "count-out-of-range", "value-out-of-range",
+        }
+        source = workload.get("pinned_source", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s315-maximum-with-index-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s315"
+                or source.get("launcher_family") != "TSVC/Reductions-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input", {}).get("count_range") != [1, TSVC_S315_MAX_N]
+                or workload.get("input", {}).get("value_range") != [-TSVC_S315_MAX_VALUE, TSVC_S315_MAX_VALUE]
+                or workload.get("input", {}).get("maximum_valid_input_length") != TSVC_S315_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("required_output_capacity") != TSVC_S315_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s315_maximum_with_index metadata differs from its pinned reduction contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "s315" not in readme
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s315_maximum_with_index provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s315_maximum_with_index port is missing: {relative}")
+    elif algorithm == "tsvc_s453_recurrence_weighted_scale":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "signed-recurrence-scale", "mixed-positive-negative-scale", "single-element-recurrence",
+            "all-zero-vector", "invalid-zero-vector-length", "invalid-short-frame",
+            "invalid-value-bound", "null-input", "null-output", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s453-recurrence-weighted-scale-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s453"
+                or source.get("source_lines") != {"codelet_start": 4551, "codelet_end": 4575}
+                or source.get("launcher_family") != "TSVC/InductionVariable-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [1, TSVC_S453_MAX_N]
+                or contract.get("vector_value_range") != [-TSVC_S453_MAX_VALUE, TSVC_S453_MAX_VALUE]
+                or contract.get("exact_length") != "1+n"
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S453_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S453_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S453_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 512
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s453_recurrence_weighted_scale metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s453_recurrence_weighted_scale provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s453_recurrence_weighted_scale port is missing: {relative}")
+    elif algorithm == "tsvc_s342_conditional_unpack":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "scattered-positive-mask-consumes-packed-prefix", "no-positive-mask-preserves-destination",
+            "all-mask-positions-consume-full-packed-prefix", "ignored-packed-suffix", "singleton-selected",
+            "zero-dimension", "truncated-array", "value-out-of-range",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                              "pinned_source", "contract", "input", "output", "workspace",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s342-conditional-unpack-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s342"
+                or source.get("source_lines") != {
+                    "kernel_start": 4004, "kernel_end": 4032, "initialization": 616}
+                or source.get("launcher_family") != "TSVC/Packing-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [1, TSVC_S342_MAX_N]
+                or contract.get("value_range") != [-TSVC_S342_MAX_VALUE, TSVC_S342_MAX_VALUE]
+                or contract.get("exact_length") != "1 + 2*n"
+                or contract.get("maximum_valid_input_length") != TSVC_S342_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S342_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S342_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S342_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 512
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s342_conditional_unpack metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s342_conditional_unpack provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s342_conditional_unpack port is missing: {relative}")
+    elif algorithm == "tsvc_s241_cross_coupled_product_map":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "coupled-products-use-new-a-and-old-next-a", "minimum-length-preserves-final-pair",
+            "zero-products", "dimension-below-bound", "truncated-array", "value-out-of-range",
+            "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                              "pinned_source", "contract", "input", "output", "workspace",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s241-cross-coupled-product-map-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s241"
+                or source.get("source_lines") != {
+                    "kernel_start": 2156, "kernel_end": 2179,
+                    "initialization_start": 410, "initialization_end": 414}
+                or source.get("launcher_family") != "TSVC/NodeSplitting-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [2, TSVC_S241_MAX_N]
+                or contract.get("value_range") != [-TSVC_S241_MAX_VALUE, TSVC_S241_MAX_VALUE]
+                or contract.get("exact_length") != "1 + 4*n"
+                or contract.get("maximum_valid_input_length") != TSVC_S241_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S241_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S241_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S241_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != TSVC_S241_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s241_cross_coupled_product_map metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("TSVC/tsc.inc" not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s241_cross_coupled_product_map provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s241_cross_coupled_product_map port is missing: {relative}")
+    elif algorithm == "tsvc_s243_ordered_lookahead_update":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "ordered-lookahead-and-overwrite", "minimum-length-preserves-final-pair",
+            "unit-source-shaped-arrays", "dimension-below-bound", "truncated-array",
+            "value-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "description",
+                              "pinned_source", "contract", "input", "output", "workspace",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s243-ordered-lookahead-update-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s243"
+                or source.get("source_lines") != {
+                    "kernel_start": 2209, "kernel_end": 2233,
+                    "initialization_start": 420, "initialization_end": 425}
+                or source.get("launcher_family") != "TSVC/NodeSplitting-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [2, TSVC_S243_MAX_N]
+                or contract.get("value_range") != [-TSVC_S243_MAX_VALUE, TSVC_S243_MAX_VALUE]
+                or contract.get("exact_length") != "1 + 5*n"
+                or contract.get("maximum_valid_input_length") != TSVC_S243_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S243_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S243_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S243_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != TSVC_S243_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s243_ordered_lookahead_update metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s243_ordered_lookahead_update provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s243_ordered_lookahead_update port is missing: {relative}")
+    elif algorithm == "tsvc_s244_false_dependence_cycle_break":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "trace-preserves-intermediate-before-next-overwrite", "minimum-length-tail-dependency",
+            "invalid-vector-dimension", "invalid-short-frame", "invalid-value-bound",
+            "null-input", "null-output", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s244-false-dependence-cycle-break-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s244"
+                or source.get("source_lines") != {"codelet_start": 2237, "codelet_end": 2261}
+                or source.get("launcher_family") != "TSVC/NodeSplitting-dbl"
+                or source.get("launcher_options") != [10000, 14]
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [2, TSVC_S244_MAX_N]
+                or contract.get("vector_value_range") != [-TSVC_S244_MAX_VALUE, TSVC_S244_MAX_VALUE]
+                or contract.get("exact_length") != "1 + 4*n"
+                or contract.get("success_result") != "3*n-1 values written"
+                or "overwrites" not in contract.get("trace_reason", "")
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S244_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S244_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_values") != TSVC_S244_MAX_OUTPUT_VALUES
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S244_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != TSVC_S244_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s244_false_dependence_cycle_break metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "trace" not in readme.lower()
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s244_false_dependence_cycle_break provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s244_false_dependence_cycle_break port is missing: {relative}")
+    elif algorithm == "tsvc_s1244_polynomial_neighbor_sum":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "polynomial-update-and-old-lookahead", "minimum-length-tail-is-preserved",
+            "mixed-sign-neighbor-sums", "too-small-dimension", "truncated-array",
+            "out-of-range-value", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s1244-polynomial-neighbor-sum-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s1244"
+                or source.get("source_lines") != {"codelet_start": 2263, "codelet_end": 2285}
+                or source.get("launcher_family") != "TSVC/NodeSplitting-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [2, TSVC_S1244_MAX_N]
+                or contract.get("value_range") != [-TSVC_S1244_MAX_VALUE, TSVC_S1244_MAX_VALUE]
+                or contract.get("exact_length") != "1 + 4*n"
+                or contract.get("maximum_valid_input_length") != TSVC_S1244_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S1244_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S1244_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S1244_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 1024
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s1244_polynomial_neighbor_sum metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s1244_polynomial_neighbor_sum provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s1244_polynomial_neighbor_sum port is missing: {relative}")
+    elif algorithm == "tsvc_s1221_lag4_add_recurrence":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "four-independent-lag-chains", "signed-lag-four-chains",
+            "minimum-dimension-single-update", "invalid-dimension-below-minimum",
+            "invalid-short-frame", "invalid-vector-bound", "null-input", "null-output",
+            "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s1221-lag4-add-recurrence-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s1221"
+                or source.get("source_lines") != {"codelet_start": 1936, "codelet_end": 1957}
+                or source.get("launcher_family") != "TSVC/LoopRestructuring-dbl and TSVC/LoopRestructuring-flt"
+                or source.get("launcher_options") != {"double": [4350, 14], "float": [4350, 5]}
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [5, TSVC_S1221_MAX_N]
+                or contract.get("vector_value_range") != [-TSVC_S1221_MAX_VALUE, TSVC_S1221_MAX_VALUE]
+                or contract.get("exact_length") != "1 + 2*n"
+                or contract.get("maximum_valid_input_length") != TSVC_S1221_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S1221_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S1221_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S1221_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 512
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s1221_lag4_add_recurrence metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("TSVC/tsc.inc" not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s1221_lag4_add_recurrence provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s1221_lag4_add_recurrence port is missing: {relative}")
+    elif algorithm in {"tsvc_s162_guarded_shifted_fma",
+                       "tsvc_s4114_reverse_index_gather_fma"}:
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        is_s162 = algorithm == "tsvc_s162_guarded_shifted_fma"
+        symbol = "s162" if is_s162 else "s4114"
+        max_n = TSVC_S162_MAX_N if is_s162 else TSVC_S4114_MAX_N
+        max_input = TSVC_S162_MAX_INPUT_LENGTH if is_s162 else TSVC_S4114_MAX_INPUT_LENGTH
+        max_output = TSVC_S162_MAX_OUTPUT_BYTES if is_s162 else TSVC_S4114_MAX_OUTPUT_BYTES
+        expected_ids = ({
+            "launcher-shift-one-lookahead", "signed-shifted-products",
+            "branch-off-preserves-a", "one-slot-shift-has-empty-loop", "zero-dimension",
+            "unsupported-shift", "truncated-arrays", "value-out-of-range",
+            "insufficient-output-capacity", "null-output", "null-input",
+        } if is_s162 else {
+            "permuted-reverse-gather", "signed-gather-products", "single-element",
+            "zero-dimension", "index-out-of-range", "truncated-arrays",
+            "value-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        })
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        cases = workload.get("cases", [])
+        expected_paths = (["TSVC/ControlFlow-dbl/info.sh", "TSVC/ControlFlow-dbl/tsc.c",
+                           "TSVC/tsc.inc", "TSVC/tests.h"] if is_s162 else
+                          ["TSVC/IndirectAddressing-dbl/info.sh",
+                           "TSVC/IndirectAddressing-dbl/tsc.c", "TSVC/tsc.inc", "TSVC/tests.h"])
+        expected_line = 1637 if is_s162 else 4758
+        expected_family = "TSVC/ControlFlow-dbl" if is_s162 else "TSVC/IndirectAddressing-dbl"
+        expected_options = "2325 14" if is_s162 else "12500 14"
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("paths") != expected_paths
+                or source.get("symbol") != symbol
+                or source.get("source_lines", {}).get("codelet_start") != expected_line
+                or source.get("launcher_family") != expected_family
+                or source.get("launcher_type") != "double"
+                or source.get("launcher_run_options") != expected_options
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc#L{expected_line}"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [1, max_n]
+                or contract.get("value_range") != [-2, 2]
+                or contract.get("maximum_valid_input_length") != max_input
+                or contract.get("input_modified") is not False
+                or workload.get("input", {}).get("kind") != "bounded_signed_i64_array"
+                or workload.get("input", {}).get("maximum_valid_length") != max_input
+                or workload.get("input", {}).get("maximum_parseable_length") != max_input
+                or workload.get("output", {}).get("maximum_values") != max_n
+                or workload.get("output", {}).get("maximum_bytes") != max_output
+                or workload.get("workspace", {}).get("bytes") != max_output
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError(f"{algorithm} metadata differs from its pinned TSVC contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError(f"{algorithm} source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"{algorithm} language port is missing: {relative}")
+    elif algorithm == "tsvc_s318_strided_absolute_maximum_with_index":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "stride-two-first-tie-and-ignored-gaps", "stride-three-negative-maximum",
+            "equal-magnitude-keeps-first-signed-value-position", "singleton",
+            "maximum-logical-count", "insufficient-output-capacity", "invalid-stride",
+            "truncated-physical-array", "physical-value-out-of-range-even-in-gap",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "profile_note", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s318-strided-absolute-maximum-with-index-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s318"
+                or source.get("source_lines", {}).get("scan_start") != 3587
+                or source.get("source_lines", {}).get("scan_end") != 3602
+                or source.get("launcher_family") != "TSVC/Reductions-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input", {}).get("kind") != "signed_i64_array"
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S318_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("logical_count_range") != [1, TSVC_S318_MAX_N]
+                or workload.get("input", {}).get("stride_range") != [1, TSVC_S318_MAX_STRIDE]
+                or workload.get("output", {}).get("required_output_capacity") != TSVC_S318_MAX_OUTPUT_BYTES
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S318_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != TSVC_S318_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s318 metadata differs from its pinned bounded scan contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s318 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s318 language port is missing: {relative}")
+    elif algorithm == "tsvc_s256_array_expansion":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "singleton-no-row-update", "three-by-three-expansion",
+            "preserve-row-zero-negative-seed", "truncated-matrix",
+            "factor-out-of-range", "dimension-out-of-range", "short-output-buffer",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s256-array-expansion-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s256"
+                or source.get("source_lines") != {
+                    "kernel_start": 2543, "kernel_end": 2567,
+                    "loop_start": 2554, "loop_end": 2559,
+                }
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/Expansion-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "argument_order": ["n", "A0", "D[n]", "B[n*n] row-major", "C_initial[n*n] row-major"],
+                    "n_range": [1, TSVC_S256_MAX_N],
+                    "exact_length": "2 + n + 2*n*n",
+                    "maximum_valid_input_length": TSVC_S256_MAX_INPUT_LENGTH,
+                    "a0_range": [-TSVC_S256_MAX_A0, TSVC_S256_MAX_A0],
+                    "d_and_b_range": [-TSVC_S256_MAX_FACTOR, TSVC_S256_MAX_FACTOR],
+                    "c_initial_range": [-TSVC_S256_MAX_C0, TSVC_S256_MAX_C0],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "A_final[n] followed by C_final[n*n] in row-major order.",
+                    "successful_result": "Number of output elements, n+n*n.",
+                    "required_capacity": "8*(n+n*n) bytes.",
+                    "maximum_elements": TSVC_S256_MAX_N + TSVC_S256_MAX_N * TSVC_S256_MAX_N,
+                    "maximum_bytes": TSVC_S256_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s256 metadata differs from its pinned array-expansion contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s256 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s256 language port is missing: {relative}")
+    elif algorithm == "tsvc_s253_conditional_affine_update":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "conditional-branch-taken-and-skipped", "branch-rechecks-updated-state-across-passes",
+            "equal-threshold-leaves-state-unchanged", "invalid-dimension", "truncated-array-frame",
+            "array-value-out-of-range", "pass-count-out-of-range", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s253-conditional-affine-update-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s253"
+                or source.get("source_lines") != {
+                    "kernel_start": 2453, "kernel_end": 2480,
+                    "loop_start": 2465, "loop_end": 2472,
+                }
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/Expansion-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "argument_order": ["n", "passes", "A[n]", "B[n]", "C[n]", "D[n]"],
+                    "n_range": [1, TSVC_S253_MAX_N],
+                    "passes_range": [1, TSVC_S253_MAX_PASSES],
+                    "exact_length": "2 + 4*n",
+                    "maximum_valid_input_length": TSVC_S253_MAX_INPUT_LENGTH,
+                    "array_value_range": [-2, 2],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "A_final[n] followed by C_final[n].",
+                    "successful_result": "Number of output elements, 2*n.",
+                    "required_capacity": "16*n bytes.",
+                    "maximum_elements": 2 * TSVC_S253_MAX_N,
+                    "maximum_bytes": TSVC_S253_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s253 metadata differs from its pinned conditional-update contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s253 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s253 language port is missing: {relative}")
+    elif algorithm == "tsvc_s274_dependent_conditional_overwrite":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "computed-positive-and-zero-branches", "positive-branch-accumulates-across-passes",
+            "negative-computed-a-overwrites-with-product", "truncated-frame",
+            "array-value-out-of-range", "pass-count-out-of-range", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s274-dependent-conditional-overwrite-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s274"
+                or source.get("source_lines") != {
+                    "kernel_start": 2745, "kernel_end": 2771,
+                    "loop_start": 2755, "loop_end": 2763,
+                }
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/ControlFlow-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "argument_order": ["n", "passes", "B[n]", "C[n]", "D[n]", "E[n]"],
+                    "n_range": [1, TSVC_S274_MAX_N],
+                    "passes_range": [1, TSVC_S274_MAX_PASSES],
+                    "exact_length": "2 + 4*n",
+                    "maximum_valid_input_length": TSVC_S274_MAX_INPUT_LENGTH,
+                    "array_value_range": [-2, 2],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "A_final[n] followed by B_final[n].",
+                    "successful_result": "Number of output elements, 2*n.",
+                    "required_capacity": "16*n bytes.",
+                    "maximum_elements": 2 * TSVC_S274_MAX_N,
+                    "maximum_bytes": TSVC_S274_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s274 metadata differs from its pinned conditional-overwrite contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s274 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s274 language port is missing: {relative}")
+    elif algorithm == "tsvc_s272_threshold_dual_accumulate":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "launcher-threshold-selects-both-ends", "inclusive-threshold-and-repeated-accumulation",
+            "no-values-meet-threshold", "threshold-out-of-range", "truncated-frame",
+            "array-value-out-of-range", "pass-count-out-of-range", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s272-threshold-dual-accumulate-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s272"
+                or source.get("source_lines") != {
+                    "kernel_start": 2687, "kernel_end": 2712,
+                    "loop_start": 2698, "loop_end": 2704,
+                }
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/ControlFlow-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "argument_order": ["n", "passes", "threshold", "A[n]", "B[n]", "C[n]", "D[n]", "E[n]"],
+                    "n_range": [1, TSVC_S272_MAX_N],
+                    "passes_range": [1, TSVC_S272_MAX_PASSES],
+                    "threshold_range": [-2, 2],
+                    "exact_length": "3 + 5*n",
+                    "maximum_valid_input_length": TSVC_S272_MAX_INPUT_LENGTH,
+                    "array_value_range": [-2, 2],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "A_final[n] followed by B_final[n].",
+                    "successful_result": "Number of output elements, 2*n.",
+                    "required_capacity": "16*n bytes.",
+                    "maximum_elements": 2 * TSVC_S272_MAX_N,
+                    "maximum_bytes": TSVC_S272_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s272 metadata differs from its pinned thresholded update contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s272 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s272 language port is missing: {relative}")
+    elif algorithm == "tsvc_s271_positive_branch_axpy":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "strict-positive-mask-with-zero-and-negative", "repeated-positive-branch-accumulation",
+            "no-positive-mask-values", "truncated-frame", "array-value-out-of-range",
+            "pass-count-out-of-range", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s271-positive-branch-axpy-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s271"
+                or source.get("source_lines") != {
+                    "kernel_start": 2659, "kernel_end": 2683,
+                    "loop_start": 2670, "loop_end": 2676,
+                }
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/ControlFlow-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "argument_order": ["n", "passes", "A[n]", "B[n]", "C[n]"],
+                    "n_range": [1, TSVC_S271_MAX_N],
+                    "passes_range": [1, TSVC_S271_MAX_PASSES],
+                    "exact_length": "2 + 3*n",
+                    "maximum_valid_input_length": TSVC_S271_MAX_INPUT_LENGTH,
+                    "array_value_range": [-2, 2],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "A_final[n]",
+                    "successful_result": "Number of output elements, n.",
+                    "required_capacity": "8*n bytes.",
+                    "maximum_elements": TSVC_S271_MAX_N,
+                    "maximum_bytes": TSVC_S271_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s271 metadata differs from its pinned positive-branch contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s271 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s271 language port is missing: {relative}")
+    elif algorithm == "tsvc_s276_index_split_axpy":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "cutoff-uses-source-i-plus-one-condition", "repeated-pass-two-coefficient-regions",
+            "small-n-no-c-prefix", "truncated-frame", "array-value-out-of-range",
+            "pass-count-out-of-range", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s276-index-split-axpy-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s276"
+                or source.get("source_lines") != {
+                    "kernel_start": 2829, "kernel_end": 2856,
+                    "loop_start": 2840, "loop_end": 2849,
+                }
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/ControlFlow-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "argument_order": ["n", "passes", "A[n]", "B[n]", "C[n]", "D[n]"],
+                    "n_range": [1, TSVC_S276_MAX_N],
+                    "passes_range": [1, TSVC_S276_MAX_PASSES],
+                    "exact_length": "2 + 4*n",
+                    "maximum_valid_input_length": TSVC_S276_MAX_INPUT_LENGTH,
+                    "array_value_range": [-2, 2],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "A_final[n]",
+                    "successful_result": "Number of output elements, n.",
+                    "required_capacity": "8*n bytes.",
+                    "maximum_elements": TSVC_S276_MAX_N,
+                    "maximum_bytes": TSVC_S276_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s276 metadata differs from its pinned index-split update contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s276 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s276 language port is missing: {relative}")
+    elif algorithm == "tsvc_s277_guarded_carry_update":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "both-guards-and-next-b-write", "updated-b-controls-next-index-on-following-pass",
+            "nonnegative-a-skips-carry-write", "single-element-has-no-loop-iterations",
+            "truncated-frame", "array-value-out-of-range", "pass-count-out-of-range",
+            "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s277-guarded-carry-update-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s277"
+                or source.get("source_lines") != {
+                    "kernel_start": 2858, "kernel_end": 2890,
+                    "loop_start": 2869, "loop_end": 2882,
+                }
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/ControlFlow-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "argument_order": ["n", "passes", "A[n]", "B[n]", "C[n]", "D[n]", "E[n]"],
+                    "n_range": [1, TSVC_S277_MAX_N],
+                    "passes_range": [1, TSVC_S277_MAX_PASSES],
+                    "exact_length": "2 + 5*n",
+                    "maximum_valid_input_length": TSVC_S277_MAX_INPUT_LENGTH,
+                    "array_value_range": [-2, 2],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "A_final[n] followed by B_final[n]",
+                    "successful_result": "Number of output elements, 2*n.",
+                    "required_capacity": "16*n bytes.",
+                    "maximum_elements": 2 * TSVC_S277_MAX_N,
+                    "maximum_bytes": TSVC_S277_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s277 metadata differs from its pinned guarded carry contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s277 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s277 language port is missing: {relative}")
+    elif algorithm == "tsvc_s251_scalar_square_expansion":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "mixed-sign-linear-combinations", "multi-pass-squared-extreme", "zero-result",
+            "truncated-frame", "array-value-out-of-range", "pass-count-out-of-range",
+            "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s251-scalar-square-expansion-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s251"
+                or source.get("source_lines") != {
+                    "kernel_start": 2316, "kernel_end": 2340,
+                    "loop_start": 2328, "loop_end": 2333,
+                }
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or source.get("launcher_family") != "TSVC/Expansion-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input") != {
+                    "kind": "signed_64_bit_integer_array",
+                    "argument_order": ["n", "passes", "B[n]", "C[n]", "D[n]"],
+                    "n_range": [1, TSVC_S251_MAX_N],
+                    "passes_range": [1, TSVC_S251_MAX_PASSES],
+                    "exact_length": "2 + 3*n",
+                    "maximum_valid_input_length": TSVC_S251_MAX_INPUT_LENGTH,
+                    "array_value_range": [-TSVC_S251_MAX_VALUE, TSVC_S251_MAX_VALUE],
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "little_endian_signed_64_bit_array",
+                    "encoding": "A_final[n]",
+                    "successful_result": "Number of output elements, n.",
+                    "required_capacity": "8*n bytes.",
+                    "maximum_elements": TSVC_S251_MAX_N,
+                    "maximum_bytes": TSVC_S251_MAX_OUTPUT_BYTES,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s251 metadata differs from its pinned scalar-square contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s251 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s251 language port is missing: {relative}")
+    elif algorithm == "tsvc_s2101_diagonal_matrix_fma":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "two-by-two-diagonal-only-update", "three-by-three-preserves-off-diagonal",
+            "single-cell", "insufficient-output-capacity", "dimension-out-of-range",
+            "truncated-matrix-data", "matrix-value-out-of-range",
+        }
+        source = workload.get("pinned_source", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output", "workspace",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s2101-diagonal-matrix-fma-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s2101"
+                or source.get("source_lines", {}).get("kernel_start") != 3230
+                or source.get("source_lines", {}).get("diagonal_update_start") != 3242
+                or source.get("launcher_family") != "TSVC/CrossingThresholds-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or workload.get("input", {}).get("kind") != "signed_i64_array"
+                or workload.get("input", {}).get("dimension_range") != [1, TSVC_S2101_MAX_N]
+                or workload.get("input", {}).get("matrix_value_range")
+                != [-TSVC_S2101_MAX_VALUE, TSVC_S2101_MAX_VALUE]
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S2101_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != TSVC_S2101_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_values") != TSVC_S2101_MAX_MATRIX_VALUES
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S2101_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != TSVC_S2101_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s2101 metadata differs from its pinned diagonal matrix contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s2101 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s2101 language port is missing: {relative}")
+    elif algorithm == "tsvc_s2102_identity_matrix_initialize":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "two-by-two-identity", "three-by-three-repeated-initialization",
+            "singleton-identity", "invalid-side", "invalid-pass-count",
+            "extra-input-value", "short-output-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "abi", "description", "pinned_source", "input", "output",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s2102-identity-matrix-initialize-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "s2102"
+                or source.get("source_lines", {}).get("kernel_start") != 3257
+                or source.get("source_lines", {}).get("loop_start") != 3267
+                or source.get("source_lines", {}).get("loop_end") != 3273
+                or source.get("launcher_family") != "TSVC/CrossingThresholds-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("argument_order") != ["side", "passes"]
+                or input_spec.get("side_range") != [1, TSVC_S2102_MAX_SIDE]
+                or input_spec.get("passes_range") != [1, TSVC_S2102_MAX_PASSES]
+                or input_spec.get("maximum_valid_input_length") != TSVC_S2102_MAX_INPUT_LENGTH
+                or output_spec.get("kind") != "little_endian_signed_64_bit_array"
+                or output_spec.get("maximum_elements") != TSVC_S2102_MAX_OUTPUT_BYTES // 8
+                or output_spec.get("maximum_bytes") != TSVC_S2102_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s2102 metadata differs from its pinned identity initialization contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_s2102 source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s2102 language port is missing: {relative}")
+    elif algorithm == "tsvc_vag_indexed_gather_copy":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "duplicate-gather-indices", "reverse-gather-with-negative-values", "singleton",
+            "insufficient-output-capacity", "index-out-of-range", "truncated-values",
+            "value-out-of-range",
+        }
+        source = workload.get("pinned_source", {})
+        input_spec = workload.get("input", {})
+        output_spec = workload.get("output", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "input", "output",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-vag-indexed-gather-copy-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "TSVC/tsc.inc"
+                or source.get("symbol") != "vag"
+                or source.get("source_lines") != {
+                    "kernel_start": 4929, "kernel_end": 4953,
+                    "gather_assignment_start": 4942, "gather_assignment_end": 4945}
+                or source.get("launcher_family") != "TSVC/ControlLoops-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or input_spec.get("kind") != "signed_64_bit_integer_array"
+                or input_spec.get("argument_order") != ["count", "indexes[count]", "values[count]"]
+                or input_spec.get("count_range") != [1, TSVC_VAG_MAX_N]
+                or input_spec.get("index_range") != "0 through count-1; duplicate indexes are allowed"
+                or input_spec.get("value_range") != [-TSVC_VAG_MAX_VALUE, TSVC_VAG_MAX_VALUE]
+                or input_spec.get("exact_length") != "1 + 2*count"
+                or input_spec.get("maximum_valid_input_length") != TSVC_VAG_MAX_INPUT_LENGTH
+                or input_spec.get("invalid_input_result") != -1
+                or output_spec.get("kind") != "little_endian_signed_64_bit_integer_array"
+                or output_spec.get("encoding") != "Output[i] = values[indexes[i]] in ascending i order."
+                or output_spec.get("maximum_values") != TSVC_VAG_MAX_N
+                or output_spec.get("maximum_bytes") != TSVC_VAG_MAX_OUTPUT_BYTES
+                or output_spec.get("successful_result") != "Number of gathered values written (count)."
+                or output_spec.get("invalid_input_result") != -1
+                or output_spec.get("insufficient_output_capacity_result") != -2
+                or output_spec.get("capacity_requirement") != "At least 8*count bytes."
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_vag metadata differs from its pinned indexed gather-copy contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "TSVC/tsc.inc" not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights):
+            raise ValueError("tsvc_vag source attribution or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_vag language port is missing: {relative}")
+    elif algorithm == "tsvc_s4117_pair_replicated_gather_map":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "odd-length-pairs-repeat-final-gather", "even-length-two-value-groups",
+            "single-output", "zero-dimension", "truncated-gather-span",
+            "value-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s4117-pair-replicated-gather-map-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("paths") != ["TSVC/IndirectAddressing-dbl/info.sh",
+                                             "TSVC/IndirectAddressing-dbl/tsc.c",
+                                             "TSVC/tsc.inc", "TSVC/tests.h"]
+                or source.get("symbol") != "s4117"
+                or source.get("source_lines") != {
+                    "codelet_start": 4848, "codelet_end": 4870,
+                    "initialization_start": 740, "initialization_end": 743}
+                or source.get("launcher_family") != "TSVC/IndirectAddressing-dbl"
+                or source.get("launcher_type") != "double"
+                or source.get("launcher_run_options") != "12500 14"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc#L4848"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [1, TSVC_S4117_MAX_N]
+                or contract.get("input_layout") != "[n, B[n], C[ceil(n/2)], D[n]]"
+                or contract.get("c_length") != "ceil(n/2)"
+                or contract.get("value_range") != [TSVC_S4117_MIN_VALUE, TSVC_S4117_MAX_VALUE]
+                or contract.get("exact_length") != "1 + 2*n + ceil(n/2)"
+                or contract.get("maximum_valid_input_length") != TSVC_S4117_MAX_INPUT_LENGTH
+                or contract.get("input_modified") is not False
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S4117_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S4117_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_values") != TSVC_S4117_MAX_N
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S4117_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != TSVC_S4117_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s4117_pair_replicated_gather_map metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s4117_pair_replicated_gather_map provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s4117_pair_replicated_gather_map port is missing: {relative}")
+    elif algorithm == "tsvc_s171_stride_indexed_accumulate":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "stride-two-preserves-gap-slots", "contiguous-launcher-stride-shape",
+            "single-addend", "zero-dimension", "zero-stride", "truncated-a-span",
+            "value-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s171-stride-indexed-accumulate-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("paths") != ["TSVC/Symbolics-dbl/info.sh", "TSVC/Symbolics-dbl/tsc.c",
+                                             "TSVC/tsc.inc", "TSVC/tests.h"]
+                or source.get("symbol") != "s171"
+                or source.get("source_lines") != {
+                    "codelet_start": 1666, "codelet_end": 1687,
+                    "initialization_start": 331, "initialization_end": 333}
+                or source.get("launcher_family") != "TSVC/Symbolics-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc#L1666"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [1, TSVC_S171_MAX_N]
+                or contract.get("stride_range") != [1, TSVC_S171_MAX_STRIDE]
+                or contract.get("a_length") != "1 + (n - 1) * stride"
+                or contract.get("value_range") != [TSVC_S171_MIN_VALUE, TSVC_S171_MAX_VALUE]
+                or contract.get("exact_length") != "2 + a_length + n"
+                or contract.get("maximum_valid_input_length") != TSVC_S171_MAX_INPUT_LENGTH
+                or contract.get("input_modified") is not False
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S171_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S171_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_values")
+                != 1 + (TSVC_S171_MAX_N - 1) * TSVC_S171_MAX_STRIDE
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S171_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != TSVC_S171_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("tsvc_s171_stride_indexed_accumulate metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s171_stride_indexed_accumulate provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s171_stride_indexed_accumulate port is missing: {relative}")
+    elif algorithm == "tsvc_s442_indexed_square_accumulate":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "all-four-dispatch-arms-and-repeat", "each-source-once", "single-value-repeated-square",
+            "invalid-selector-zero", "invalid-selector-five", "truncated-arrays",
+            "value-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s442-indexed-square-accumulate-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("paths") != ["TSVC/ControlFlow-dbl/tsc.c", "TSVC/tsc.inc", "TSVC/tests.h"]
+                or source.get("symbol") != "s442"
+                or source.get("source_lines") != {"codelet_start": 4412, "codelet_end": 4451}
+                or source.get("launcher_family") != "TSVC/ControlFlow-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc#L4412"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [1, TSVC_S442_MAX_N]
+                or contract.get("passes_range") != [1, TSVC_S442_MAX_PASSES]
+                or contract.get("array_value_range") != [-TSVC_S442_MAX_VALUE, TSVC_S442_MAX_VALUE]
+                or contract.get("selector_range") != [1, 4]
+                or contract.get("exact_length") != "2 + 6*n"
+                or contract.get("maximum_valid_input_length") != TSVC_S442_MAX_INPUT_LENGTH
+                or contract.get("success_result") != "n values written"
+                or contract.get("input_modified") is not False
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S442_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S442_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_values") != TSVC_S442_MAX_N
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S442_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != TSVC_S442_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s442_indexed_square_accumulate metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s442_indexed_square_accumulate provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s442_indexed_square_accumulate port is missing: {relative}")
+    elif algorithm == "tsvc_s332_first_above_threshold":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "source-shaped-match-at-tail", "immediate-match-exits-at-first-element",
+            "strict-threshold-skips-equal-values", "no-match-source-sentinels",
+            "invalid-dimension", "truncated-values", "threshold-out-of-range",
+            "value-out-of-range", "insufficient-output-capacity", "null-output", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-searching-dbl-s332-first-above-threshold-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s332"
+                or source.get("source_lines") != {
+                    "codelet_start": 3933, "codelet_end": 3966,
+                    "initialization_start": 610, "initialization_end": 612}
+                or source.get("launcher_family") != "TSVC/Searching-dbl"
+                or source.get("launcher_options") != [80000, 14]
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/TSVC/tsc.inc#L3933"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [1, TSVC_S332_MAX_N]
+                or contract.get("threshold_range") != [-TSVC_S332_MAX_VALUE, TSVC_S332_MAX_VALUE]
+                or contract.get("value_range") != [-TSVC_S332_MAX_VALUE, TSVC_S332_MAX_VALUE]
+                or contract.get("exact_length") != "2 + n"
+                or contract.get("maximum_valid_input_length") != TSVC_S332_MAX_INPUT_LENGTH
+                or contract.get("success_result") != "2 values written"
+                or contract.get("input_modified") is not False
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S332_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S332_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_values") != 2
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S332_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 2048
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s332_first_above_threshold metadata differs from its pinned search contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s332_first_above_threshold provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s332_first_above_threshold port is missing: {relative}")
+    elif algorithm == "tsvc_s123_conditional_pair_expansion":
+        pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+        expected_ids = {
+            "mixed-conditional-output-count", "zero-and-negative-c-do-not-expand",
+            "one-element-no-extra-output", "invalid-zero-input-count", "invalid-short-frame",
+            "invalid-source-value-bound", "null-input", "null-output",
+            "insufficient-worst-case-capacity",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-tsvc-s123-conditional-pair-expansion-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("symbol") != "s123"
+                or source.get("source_lines") != {"codelet_start": 1275, "codelet_end": 1306}
+                or source.get("launcher_family") != "TSVC/InductionVariable-dbl"
+                or source.get("url") != f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/TSVC/InductionVariable-dbl"
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("n_range") != [1, TSVC_S123_MAX_N]
+                or contract.get("vector_value_range") != [-TSVC_S123_MAX_VALUE, TSVC_S123_MAX_VALUE]
+                or contract.get("exact_length") != "1 + 4*n"
+                or contract.get("maximum_valid_input_length") != TSVC_S123_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_valid_length") != TSVC_S123_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != TSVC_S123_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != TSVC_S123_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 1536
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("tsvc_s123_conditional_pair_expansion metadata differs from its pinned loop contract")
+        package = ROOT / "benchmarks" / "t" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights_note = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "clean-room" not in readme.lower()
+                or "No explicit license grant" not in rights_note):
+            raise ValueError("tsvc_s123_conditional_pair_expansion provenance or rights note is incomplete")
+        for relative in (
+                f"c/t/{algorithm}.c", f"c3/t/{algorithm}.c3", f"cpp/t/{algorithm}.cpp",
+                f"elisa/t/{algorithm}.elisa", f"nim/t/{algorithm}.nim", f"odin/t/{algorithm}.odin",
+                f"rust/t/{algorithm}.rs", f"v/t/{algorithm}.v", f"zig/t/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"tsvc_s123_conditional_pair_expansion port is missing: {relative}")
+    elif algorithm == "rodinia_streamcluster_pgain":
+        pinned = "f30e63663cfb114939a15c7ffc4ae112055ae6a8"
+        expected_ids = {
+            "profitable_candidate_keeps_existing_center", "candidate_is_not_profitable",
+            "invalid_candidate_already_open", "invalid_assignment_cost",
+        }
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "pinned_source", "pinned_launcher", "input", "output", "contract",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "rodinia-streamcluster-pgain-bounded-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or workload.get("pinned_source") != {
+                    "repository": "utcs-scea/rodinia", "commit": pinned,
+                    "paths": ["cuda/streamcluster/streamcluster_original.cpp",
+                              "cuda/streamcluster/run", "LICENSE"],
+                    "symbols": ["dist", "pgain"],
+                    "url": f"https://github.com/utcs-scea/rodinia/tree/{pinned}/cuda/streamcluster",
+                    "license": "Princeton University three-condition redistribution notice plus the repository's University of Virginia notice and citation request",
+                }
+                or workload.get("pinned_launcher") != {
+                    "path": "cuda/streamcluster/run",
+                    "command": "./sc_gpu 10 20 256 65536 65536 1000 none output.txt",
+                    "scope_note": "This bounded package measures one pgain candidate evaluation and commit/reject step, not pspeedy initialization or the launcher's full iterative schedule.",
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "layout": "[n, dimension, candidate, facility_cost, center_mask, assignments[n], weights[n], current_costs[n], coordinates[n*dimension]]",
+                    "valid_length": "5 + n*(3+dimension)",
+                    "maximum_valid_words": RODINIA_STREAMCLUSTER_PGAIN_MAX_INPUT_LENGTH,
+                    "invalid_input_result": -1,
+                    "insufficient_output_capacity_result": -2,
+                }
+                or workload.get("contract") != {
+                    "input_layout": "[n, dimension, candidate, facility_cost, center_mask, assignments[n], weights[n], current_costs[n], coordinates[n*dimension]]",
+                    "bounds": {"points": [2, RODINIA_STREAMCLUSTER_PGAIN_MAX_POINTS],
+                               "dimension": [1, RODINIA_STREAMCLUSTER_PGAIN_MAX_DIMENSION],
+                               "facility_cost": [1, 64], "weight": [1, 4], "coordinate": [-8, 8]},
+                    "input_length": "5 + n*(3+dimension)",
+                    "max_input_words": RODINIA_STREAMCLUSTER_PGAIN_MAX_INPUT_LENGTH,
+                    "max_parseable_input_words": RODINIA_STREAMCLUSTER_PGAIN_MAX_PARSEABLE_INPUT_LENGTH,
+                    "preconditions": "Nonempty center mask; candidate is not open; assignments target open centers; open centers self-assign at zero cost; current_costs exactly equal weight times squared Euclidean distance.",
+                    "operation": "Rodinia pgain: sum strict direct-switch cost deltas, accumulate current_cost minus candidate_cost per current center otherwise, subtract each strictly positive facility_cost+lower closure value, and open candidate iff resulting delta is strictly negative.",
+                    "output_layout": "little-endian signed i64 words [opened, gain, center_count, center_mask, objective, assignments'[n], costs'[n]]",
+                    "max_output_words": 5 + 2 * RODINIA_STREAMCLUSTER_PGAIN_MAX_POINTS,
+                    "max_output_bytes": RODINIA_STREAMCLUSTER_PGAIN_MAX_OUTPUT_BYTES,
+                    "malformed_result": -1,
+                    "null_or_short_output_result": -2,
+                }
+                or workload.get("output") != {
+                    "kind": "little-endian_signed_i64_vector",
+                    "layout": "[opened, gain, center_count, center_mask, objective, assignments'[n], costs'[n]]",
+                    "success_result": "5 + 2*n words",
+                    "maximum_bytes": RODINIA_STREAMCLUSTER_PGAIN_MAX_OUTPUT_BYTES,
+                }
+                or workload.get("workspace") != {"bytes": RODINIA_STREAMCLUSTER_PGAIN_MAX_OUTPUT_BYTES}
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call",
+                    "sample_count": 3, "warmup_rounds": 1, "repetitions_per_sample": 1,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("rodinia_streamcluster_pgain metadata differs from its pinned bounded contract")
+        package = ROOT / "benchmarks" / "s" / "rodinia_streamcluster_pgain"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("streamcluster_original.cpp" not in readme or pinned not in readme
+                or "Princeton University" not in license_text
+                or "University of Virginia" not in license_text
+                or "independently written" not in readme):
+            raise ValueError("rodinia_streamcluster_pgain provenance or combined rights notices are incomplete")
+        for relative in (
+                "c/s/rodinia_streamcluster_pgain.c", "c3/s/rodinia_streamcluster_pgain.c3",
+                "cpp/s/rodinia_streamcluster_pgain.cpp", "elisa/s/rodinia_streamcluster_pgain.elisa",
+                "nim/s/rodinia_streamcluster_pgain.nim", "odin/s/rodinia_streamcluster_pgain.odin",
+                "rust/s/rodinia_streamcluster_pgain.rs", "v/s/rodinia_streamcluster_pgain.v",
+                "zig/s/rodinia_streamcluster_pgain.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"rodinia_streamcluster_pgain port is missing: {relative}")
+    elif algorithm == "idea_cfb64":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        source = workload.get("source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "encrypt-known-vector-first-cfb-block", "decrypt-known-vector-one-block",
+            "encrypt-two-blocks-and-partial-tail", "decrypt-two-blocks-and-partial-tail",
+            "partial-segment-encryption", "invalid-mode", "bad-key-byte",
+            "length-frame-mismatch", "short-output-capacity", "null-output", "null-input",
+        }
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "source", "contract", "profile", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-cbench-security-pgp-idea-cfb64-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "cBench/security_pgp_d/src/idea.c"
+                or source.get("paths") != ["cBench/security_pgp_d/src/idea.c",
+                                            "cBench/security_pgp_e/src/idea.c"]
+                or source.get("launchers") != ["cBench/security_pgp_d/src/info.sh",
+                                                "cBench/security_pgp_e/src/info.sh"]
+                or source.get("additional_source") != {
+                    "path": "cBench/security_pgp_e/src/idea.c",
+                    "launcher_path": "cBench/security_pgp_e/src/info.sh",
+                    "symbol": "ideaCfbDecrypt",
+                }
+                or source.get("symbols") != ["ideaCipher", "ideaCfbInit", "ideaCfbEncrypt", "ideaCfbDecrypt"]
+                or "no explicit source-code redistribution grant" not in source.get("rights_status", "")
+                or contract.get("input_layout") != "[mode,text_length,key_byte[16],initial_iv_byte[8],data_byte[text_length]]"
+                or contract.get("mode") != {"0": "CFB64 encryption", "1": "CFB64 decryption"}
+                or contract.get("text_length_range") != [1, 24]
+                or contract.get("maximum_valid_input_words") != 50
+                or contract.get("maximum_parseable_input_words") != IDEA_CFB64_MAX_PARSEABLE_INPUT_LENGTH
+                or contract.get("maximum_output_bytes") != IDEA_CFB64_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("idea_cfb64 metadata differs from its bounded PGP contract")
+        package = ROOT / "benchmarks" / "p" / "idea_cfb64"
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        if ("cBench/security_pgp_d/src/idea.c" not in readme
+                or "cBench/security_pgp_e/src/idea.c" not in readme or pinned not in readme
+                or "redistribution license" not in notice.lower()
+                or "patent" not in notice.lower()):
+            raise ValueError("IDEA CFB64 attribution or rights notice is incomplete")
+        for relative in (
+                "c/p/idea_cfb64.c", "c3/p/idea_cfb64.c3", "cpp/p/idea_cfb64.cpp",
+                "elisa/p/idea_cfb64.elisa", "nim/p/idea_cfb64.nim", "odin/p/idea_cfb64.odin",
+                "rust/p/idea_cfb64.rs", "v/p/idea_cfb64.v", "zig/p/idea_cfb64.zig"):
+            port = ROOT / relative
+            if not port.is_file() or "idea_cfb64" not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"IDEA CFB64 language port is missing its symbol: {relative}")
+    elif algorithm == "llubenchmark_list_traversal_growth":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "growth-at-fourth-pass", "two-fractional-growth-events",
+            "zero-iteration-initial-pool", "invalid-list-count", "truncated-input",
+            "null-input", "null-output", "short-output-capacity",
+        }
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol",
+                              "abi", "description", "pinned_source", "contract", "input",
+                              "output", "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-llubenchmark-list-traversal-growth-i64-le-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("paths") != ["llubenchmark/info.sh", "llubenchmark/llubenchmark.c"]
+                or "No explicit license grant" not in source.get("license_note", "")
+                or contract.get("num_lists_range") != [1, LLUBENCHMARK_MAX_LISTS]
+                or contract.get("initial_length_range") != [1, LLUBENCHMARK_MAX_INITIAL_LENGTH]
+                or contract.get("iterations_range") != [0, LLUBENCHMARK_MAX_ITERATIONS]
+                or contract.get("growth_rate") != LLUBENCHMARK_GROWTH_MILLI / 1000
+                or contract.get("exact_length") != LLUBENCHMARK_MAX_INPUT_LENGTH
+                or contract.get("output_capacity_requirement") != LLUBENCHMARK_MAX_OUTPUT_BYTES
+                or contract.get("success_result") != 2
+                or workload.get("input", {}).get("maximum_valid_length") != LLUBENCHMARK_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != LLUBENCHMARK_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != LLUBENCHMARK_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 640
+                or workload.get("measurement", {}).get("comparison_model") != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("llubenchmark_list_traversal_growth metadata differs from its bounded contract")
+        package = ROOT / "benchmarks" / "l" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        rights = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("llubenchmark/llubenchmark.c" not in readme or pinned not in readme
+                or "No explicit license grant" not in rights):
+            raise ValueError("LLUBenchmark source attribution or rights note is incomplete")
+        for relative in (
+                f"c/l/{algorithm}.c", f"c3/l/{algorithm}.c3", f"cpp/l/{algorithm}.cpp",
+                f"elisa/l/{algorithm}.elisa", f"nim/l/{algorithm}.nim", f"odin/l/{algorithm}.odin",
+                f"rust/l/{algorithm}.rs", f"v/l/{algorithm}.v", f"zig/l/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"llubenchmark language port is missing its symbol: {relative}")
+    elif algorithm == "mediabench_mpeg2_motion_vector_component":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        source = workload.get("source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "zero-code-preserves-predictor", "positive-unit-delta", "negative-unit-delta",
+            "positive-boundary-wrap", "negative-boundary-wrap", "positive-residual-wrap",
+            "negative-residual-wrap", "invalid-r-size", "nonzero-residual-with-zero-code",
+            "short-output-capacity", "null-output", "null-input",
+        }
+        cases = workload.get("cases", [])
+        if (workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mediabench-mpeg2-motion-vector-component-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "mediabench/mpeg2/mpeg2dec/motion.c"
+                or source.get("supporting_paths") != ["mediabench/mpeg2/mpeg2dec/global.h",
+                                                        "mediabench/mpeg2/mpeg2dec/info.sh"]
+                or source.get("symbols") != ["decode_motion_vector"]
+                or contract.get("input_layout") != "[predictor,r_size,motion_code,motion_residual]"
+                or contract.get("maximum_valid_input_words") != 4
+                or contract.get("maximum_parseable_input_words")
+                != MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_PARSEABLE_INPUT_LENGTH
+                or contract.get("maximum_output_bytes") != MEDIABENCH_MPEG2_MOTION_VECTOR_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("MediaBench MPEG-2 metadata differs from its bounded motion-vector contract")
+        package = ROOT / "benchmarks" / "m" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        notice = (package / "NOTICE.txt").read_text(encoding="utf-8")
+        if ("motion.c" not in readme or pinned not in readme
+                or "patent" not in readme.lower() or "MPEG" not in notice):
+            raise ValueError("MediaBench MPEG-2 attribution or rights notice is incomplete")
+        for relative in (
+                f"c/m/{algorithm}.c", f"c3/m/{algorithm}.c3", f"cpp/m/{algorithm}.cpp",
+                f"elisa/m/{algorithm}.elisa", f"nim/m/{algorithm}.nim", f"odin/m/{algorithm}.odin",
+                f"rust/m/{algorithm}.rs", f"v/m/{algorithm}.v", f"zig/m/{algorithm}.zig"):
+            if not (ROOT / relative).is_file():
+                raise ValueError(f"MediaBench MPEG-2 language port is missing: {relative}")
+    elif algorithm == "mibench_jpeg_ycbcr_to_rgb":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        source = workload.get("source", {})
+        contract = workload.get("contract", {})
+        profile = workload.get("profile", {})
+        expected_ids = {
+            "neutral-black", "neutral-gray", "neutral-white", "chroma-extremes",
+            "invalid-sample", "frame-length-mismatch", "short-output", "null-output",
+        }
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "source",
+                              "contract", "profile", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-mibench-consumer-jpeg-ycbcr-to-rgb-i64-array-bytes-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or source.get("repository") != "lac-dcc/Benchmarks"
+                or source.get("commit") != pinned
+                or source.get("path") != "MiBench/consumer-jpeg/jdcolor.c"
+                or source.get("launcher_path") != "MiBench/consumer-jpeg/info.sh"
+                or source.get("symbols") != ["build_ycc_rgb_table", "ycc_rgb_convert"]
+                or contract.get("input_layout") != "[pixel_count,Y0,Cb0,Cr0,...]"
+                or contract.get("pixel_count_range") != [1, MIBENCH_JPEG_YCBCR_MAX_PIXELS]
+                or contract.get("sample_range") != [0, 255]
+                or contract.get("maximum_input_words") != MIBENCH_JPEG_YCBCR_MAX_INPUT_LENGTH
+                or contract.get("maximum_parseable_input_words")
+                != MIBENCH_JPEG_YCBCR_MAX_PARSEABLE_INPUT_LENGTH
+                or contract.get("maximum_output_bytes") != MIBENCH_JPEG_YCBCR_MAX_OUTPUT_BYTES
+                or profile.get("center_sample") != 128
+                or profile.get("scale_bits") != 16
+                or profile.get("fixed_constants") != {
+                    "red_from_cr": 91881, "blue_from_cb": 116130,
+                    "green_from_cb_magnitude": 22554, "green_from_cr_magnitude": 46802}
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("MiBench JPEG metadata differs from its bounded IJG color-conversion contract")
+        package = ROOT / "benchmarks" / "m" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if ("jdcolor.c" not in readme or pinned not in readme
+                or "Independent JPEG Group" not in readme
+                or "Permission is hereby granted" not in license_text):
+            raise ValueError("MiBench JPEG attribution or IJG license notice is incomplete")
+        for relative in (
+                f"c/m/{algorithm}.c", f"c3/m/{algorithm}.c3", f"cpp/m/{algorithm}.cpp",
+                f"elisa/m/{algorithm}.elisa", f"nim/m/{algorithm}.nim", f"odin/m/{algorithm}.odin",
+                f"rust/m/{algorithm}.rs", f"v/m/{algorithm}.v", f"zig/m/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"MiBench JPEG language port is missing its symbol: {relative}")
+    elif algorithm == "cbench_consumer_jpeg_h2v2_fancy_upsample":
+        pinned = "5d7b75df749241efa7a6f6f5be613d3fcc5cce38"
+        expected_ids = {
+            "horizontal_triangle_filter_and_two_rows_per_input",
+            "vertical_neighbor_context_and_row_order",
+            "constant_max_sample_edge_replication",
+            "width_below_fancy_selection_threshold", "sample_out_of_range",
+            "wrong_input_length", "short_output_capacity", "null_output",
+        }
+        source = {
+            "repository": "lac-dcc/Benchmarks", "commit": pinned,
+            "path": "cBench/consumer_jpeg_d/src/jdsample.c",
+            "symbol": "h2v2_fancy_upsample",
+            "url": f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/cBench/consumer_jpeg_d/src/jdsample.c",
+            "license_notice": "Independent JPEG Group software, Copyright (C) 1991-1996 Thomas G. Lane; permission to use, copy, modify, and distribute for any purpose without fee subject to README notice retention, source-change marking, attribution, and no-warranty/liability terms.",
+            "launcher": {
+                "path": "cBench/consumer_jpeg_d/src/info.sh",
+                "bench_name": "consumer_jpeg_d", "source_files": "*.c",
+                "compile_flags": ["-lm"], "run_options": [],
+            },
+        }
+        if (set(workload) != {
+                "schema_version", "id", "algorithm", "function_symbol", "description",
+                "pinned_source", "contract", "input", "output", "workspace",
+                "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "lac-dcc-cbench-consumer-jpeg-d-ijg-h2v2-fancy-upsampling-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("description") != "Bounded 2x2 IJG triangle-filter upsampling for one 8-bit component plane."
+                or workload.get("pinned_source") != source
+                or workload.get("contract") != {
+                    "input_layout": "[width, height, row-major 8-bit component samples...]",
+                    "width_range": [3, 16], "height_range": [1, 8],
+                    "sample_range": [0, 255], "exact_input_length": "2 + width * height",
+                    "operation": "Each input row emits two output rows. For each output row, vertical mixing forms S[x]=3*near[x]+far[x]. Horizontal expansion uses source boundary/general formulas over neighboring S values, with source biases and arithmetic right shift by 4.",
+                    "context_rows": "The source routine reads one adjacent row above/below each input row; this bounded plane profile supplies edge context by replicating the first or last image row.",
+                    "horizontal_edges": "The first and final expanded samples use the explicit source boundary formulas; input width is greater than two as required by the source fancy-method selection.",
+                    "output_layout": "Row-major 8-bit samples, width*2 by height*2; maximum 512 bytes.",
+                    "invalid_result": -1, "output_error_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "encoding": "[width, height, width*height component samples]",
+                    "maximum_valid_length": 130, "maximum_parseable_length": CBENCH_JPEG_H2V2_MAX_PARSEABLE_INPUT_LENGTH,
+                    "invalid_input_result": -1, "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array", "encoding": "Expanded 8-bit component plane, row-major",
+                    "maximum_bytes": CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES,
+                    "success_result": "4 * width * height", "null_output_result": -2,
+                    "insufficient_capacity_result": -2, "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": CBENCH_JPEG_H2V2_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum staged expanded plane for a 16x8 input plane.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or {case.get("id") for case in workload.get("cases", [])
+                    if isinstance(case, dict)} != expected_ids
+                or len(workload.get("cases", [])) != len(expected_ids)):
+            raise ValueError("cBench JPEG h2v2 metadata differs from its bounded IJG interpolation contract")
+        package = ROOT / "benchmarks" / "m" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (source["url"] not in readme or pinned not in readme
+                or "This software is based in part on the work of the Independent JPEG Group." not in readme
+                or "copyright (C) 1991-1998, Thomas G. Lane" not in readme
+                or "Permission is hereby granted to use, copy, modify, and distribute this" not in license_text
+                or "changes to the original" not in license_text):
+            raise ValueError("cBench JPEG h2v2 README or IJG redistribution notice is incomplete")
+        for relative in (
+                f"c/c/{algorithm}.c", f"c3/c/{algorithm}.c3", f"cpp/c/{algorithm}.cpp",
+                f"elisa/c/{algorithm}.elisa", f"nim/c/{algorithm}.nim", f"odin/c/{algorithm}.odin",
+                f"rust/c/{algorithm}.rs", f"v/c/{algorithm}.v", f"zig/c/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"cBench JPEG h2v2 language port is missing its symbol: {relative}")
+    elif algorithm == "parboil_tpacf_cross_correlation":
+        pinned = "ccf3d3126f1754ca85528722f4ced5894ccb852b"
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "orthogonal-pair-bin-18", "three-cross-pairs-in-distinct-bins",
+            "antipodal-pair-outside-max-angle", "invalid-empty-point-set",
+            "truncated-input", "null-input", "null-output", "short-output-capacity",
+        }
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "parboil-tpacf-cross-correlation-f32-histogram-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "yuhc/gpu-parboil"
+                or source.get("commit") != pinned
+                or source.get("paths") != ["benchmarks/tpacf/src/cuda_base/tpacf_kernel.cu",
+                                             "benchmarks/tpacf/src/base/model.h",
+                                             "benchmarks/tpacf/DESCRIPTION", "LICENSE"]
+                or source.get("symbols") != ["initBinB", "gen_hists"]
+                or source.get("constants") != {
+                    "num_bins": PARBOIL_TPACF_NUM_BINS, "min_arcmin": 1.0,
+                    "max_arcmin": 10000.0, "bins_per_decade": 5,
+                    "source_coordinate_type": "binary32 Cartesian components"}
+                or contract.get("input_layout") != "[data_count, random_count, data_xyz..., random_xyz...]"
+                or contract.get("point_count_range") != [1, PARBOIL_TPACF_MAX_POINTS]
+                or contract.get("coordinate_range") != [-PARBOIL_TPACF_SCALE, PARBOIL_TPACF_SCALE]
+                or contract.get("exact_length") != "2 + 3*(data_count + random_count)"
+                or contract.get("max_input_length") != PARBOIL_TPACF_MAX_INPUT_LENGTH
+                or contract.get("max_pairs") != PARBOIL_TPACF_MAX_POINTS ** 2
+                or contract.get("success_result") != PARBOIL_TPACF_NUM_BINS
+                or contract.get("output_capacity_requirement") != PARBOIL_TPACF_NUM_BINS
+                or workload.get("input", {}).get("maximum_valid_length") != PARBOIL_TPACF_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != PARBOIL_TPACF_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != PARBOIL_TPACF_NUM_BINS
+                or workload.get("workspace", {}).get("bytes") != 104
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("Parboil TPACF metadata differs from its bounded histogram contract")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "gen_hists" not in readme
+                or "Illinois Open Source License" not in license_text
+                or "Board of Trustees of the University of Illinois" not in license_text):
+            raise ValueError("Parboil TPACF source attribution or license notice is incomplete")
+        for relative in (
+                f"c/p/{algorithm}.c", f"c3/p/{algorithm}.c3", f"cpp/p/{algorithm}.cpp",
+                f"elisa/p/{algorithm}.elisa", f"nim/p/{algorithm}.nim", f"odin/p/{algorithm}.odin",
+                f"rust/p/{algorithm}.rs", f"v/p/{algorithm}.v", f"zig/p/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Parboil TPACF language port is missing its symbol: {relative}")
+    elif algorithm == "parboil_mri_q":
+        pinned = "ccf3d3126f1754ca85528722f4ced5894ccb852b"
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "zero_phase_zero_magnitude", "origin_single_unit_magnitude",
+            "origin_complex_magnitude_and_two_record_sum", "four_record_origin_source_bound",
+            "source_pi_over_two_phase", "bad_frame_length", "record_count_out_of_range",
+            "component_out_of_range", "short_capacity_no_write", "null_output_no_write",
+            "null_input",
+        }
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "parboil-mri-q-one-voxel-f32-q1000-i64-array-bytes-output-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "yuhc/gpu-parboil"
+                or source.get("commit") != pinned
+                or source.get("paths") != ["benchmarks/mri-q/src/cpu/computeQ.cc",
+                                              "benchmarks/mri-q/DESCRIPTION", "LICENSE"]
+                or source.get("symbols") != ["ComputePhiMagCPU", "ComputeQCPU"]
+                or source.get("constants") != {
+                    "max_k": PARBOIL_MRI_Q_MAX_K,
+                    "pi_x_2": "6.2831853071795864769252867665590058f as binary32",
+                    "source_component_type": "IEEE-754 binary32"}
+                or contract.get("input_layout")
+                != "[numK,x_u,y_u,z_u,(Kx_u,Ky_u,Kz_u,phiR_u,phiI_u)*numK]"
+                or contract.get("numK_range") != [1, PARBOIL_MRI_Q_MAX_K]
+                or contract.get("component_scale") != 1_000_000
+                or contract.get("component_raw_range")
+                != [-PARBOIL_MRI_Q_MAX_COMPONENT_RAW, PARBOIL_MRI_Q_MAX_COMPONENT_RAW]
+                or contract.get("exact_length") != "4 + 5*numK"
+                or contract.get("max_input_length") != PARBOIL_MRI_Q_MAX_INPUT_LENGTH
+                or contract.get("output_encoding")
+                != "signed i32 little-endian Qr*1000 then signed i32 little-endian Qi*1000; each uses nearest rounding with ties away from zero after the completed source recurrence."
+                or contract.get("output_bytes") != PARBOIL_MRI_Q_MAX_OUTPUT_BYTES
+                or contract.get("maximum_abs_q_component") != 8
+                or contract.get("success_result") != PARBOIL_MRI_Q_MAX_OUTPUT_BYTES
+                or contract.get("output_capacity_requirement") != PARBOIL_MRI_Q_MAX_OUTPUT_BYTES
+                or contract.get("invalid_result") != -1
+                or contract.get("output_error_result") != -2
+                or contract.get("no_write_on_error") is not True
+                or workload.get("input", {}).get("maximum_valid_length")
+                != PARBOIL_MRI_Q_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length")
+                != PARBOIL_MRI_Q_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes")
+                != PARBOIL_MRI_Q_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != 16
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("Parboil MRI-Q metadata differs from its bounded Q accumulation contract")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "ComputePhiMagCPU" not in readme
+                or "ComputeQCPU" not in readme
+                or "roundf(Qr*1000)" not in readme
+                or "Illinois Open Source License" not in license_text
+                or "Board of Trustees of the University of Illinois" not in license_text):
+            raise ValueError("Parboil MRI-Q source attribution or license notice is incomplete")
+        for relative in (
+                f"c/p/{algorithm}.c", f"c3/p/{algorithm}.c3", f"cpp/p/{algorithm}.cpp",
+                f"elisa/p/{algorithm}.elisa", f"nim/p/{algorithm}.nim", f"odin/p/{algorithm}.odin",
+                f"rust/p/{algorithm}.rs", f"v/p/{algorithm}.v", f"zig/p/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Parboil MRI-Q language port is missing its symbol: {relative}")
+    elif algorithm == "parboil_cutcp":
+        pinned = "ccf3d3126f1754ca85528722f4ced5894ccb852b"
+        expected_ids = {
+            "one_atom_half_cell_potential", "cutoff-boundary-is-excluded",
+            "zero-charge-skips-contributions", "opposite-charges-in-one-cell-cancel",
+            "invalid-dimension", "invalid-atom-cell-index", "truncated-atom-record",
+            "short-output-capacity-no-write", "null-output-no-write", "null-input",
+        }
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "description", "pinned_source", "contract", "input", "output",
+                              "workspace", "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "parboil-cutcp-bounded-cutoff-potential-lattice-q1000-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "yuhc/gpu-parboil"
+                or source.get("commit") != pinned
+                or source.get("paths") != [
+                    "benchmarks/cutcp/src/base/cutcpu.c", "benchmarks/cutcp/src/base/readatom.c",
+                    "benchmarks/cutcp/src/base/excl.c", "benchmarks/cutcp/src/base/cutoff.h",
+                    "benchmarks/cutcp/src/base/atom.h", "benchmarks/cutcp/src/base/main.c",
+                    "benchmarks/cutcp/DESCRIPTION", "LICENSE"]
+                or source.get("symbols") != ["cpu_compute_cutoff_potential_lattice", "get_atom_extent"]
+                or source.get("constants") != {
+                    "cell_length": 4.0, "max_dimension": PARBOIL_CUTCP_MAX_DIMENSION,
+                    "max_atoms": PARBOIL_CUTCP_MAX_ATOMS, "component_scale": 1_000_000,
+                    "output_scale": 1_000, "source_component_type": "IEEE-754 binary32"}
+                or contract.get("dimension_range") != [
+                    PARBOIL_CUTCP_MIN_DIMENSION, PARBOIL_CUTCP_MAX_DIMENSION]
+                or contract.get("atom_count_range") != [1, PARBOIL_CUTCP_MAX_ATOMS]
+                or contract.get("exact_length") != "9 + 4*atom_count"
+                or contract.get("max_input_length") != PARBOIL_CUTCP_MAX_INPUT_LENGTH
+                or contract.get("origin_raw_range") != [
+                    -PARBOIL_CUTCP_MAX_ORIGIN_RAW, PARBOIL_CUTCP_MAX_ORIGIN_RAW]
+                or contract.get("charge_raw_range") != [
+                    -PARBOIL_CUTCP_MAX_COMPONENT_RAW, PARBOIL_CUTCP_MAX_COMPONENT_RAW]
+                or contract.get("maximum_output_bytes") != PARBOIL_CUTCP_MAX_OUTPUT_BYTES
+                or contract.get("output_encoding") != (
+                    "One signed i32 little-endian Q1000 potential per lattice point in row-major "
+                    "(z,y,x) order; nearest rounding with halfway values away from zero after "
+                    "binary32 source accumulation.")
+                or contract.get("no_write_on_error") is not True
+                or workload.get("input", {}).get("maximum_valid_length") != PARBOIL_CUTCP_MAX_INPUT_LENGTH
+                or workload.get("input", {}).get("maximum_parseable_length") != PARBOIL_CUTCP_MAX_INPUT_LENGTH
+                or workload.get("output", {}).get("maximum_bytes") != PARBOIL_CUTCP_MAX_OUTPUT_BYTES
+                or workload.get("workspace", {}).get("bytes") != PARBOIL_CUTCP_MAX_OUTPUT_BYTES
+                or workload.get("measurement", {}).get("comparison_model")
+                != "i64_array_bytes_output_call"
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids
+                or len(cases) != len(expected_ids)):
+            raise ValueError("Parboil cutcp metadata differs from its pinned bounded potential contract")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "cpu_compute_cutoff_potential_lattice" not in readme
+                or "remove_exclusions" not in readme
+                or "Illinois Open Source License" not in license_text
+                or "Board of Trustees of the University of Illinois" not in license_text):
+            raise ValueError("Parboil cutcp source attribution or license notice is incomplete")
+        for relative in (
+                f"c/p/{algorithm}.c", f"c3/p/{algorithm}.c3", f"cpp/p/{algorithm}.cpp",
+                f"elisa/p/{algorithm}.elisa", f"nim/p/{algorithm}.nim", f"odin/p/{algorithm}.odin",
+                f"rust/p/{algorithm}.rs", f"v/p/{algorithm}.v", f"zig/p/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Parboil cutcp language port is missing its symbol: {relative}")
+    elif algorithm == "parboil_spmv_jds":
+        pinned = "ccf3d3126f1754ca85528722f4ced5894ccb852b"
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "two-row-permuted-jds", "one-row-negative-product", "invalid-permutation",
+            "invalid-diagonal-prefix", "bad-column-index", "out-of-range-value",
+            "short-output-capacity", "null-output", "null-input",
+        }
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "pinned_source", "contract", "input", "output", "workspace",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "parboil-spmv-jds-bounded-f32-vector-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "yuhc/gpu-parboil"
+                or source.get("commit") != pinned
+                or source.get("paths") != [
+                    "benchmarks/spmv/src/cpu/main.c", "benchmarks/spmv/src/cpu/file.c",
+                    "benchmarks/spmv/src/cpu/file.h", "LICENSE"]
+                or source.get("symbols") != ["coo_to_jds", "input_vec", "main"]
+                or "Illinois Open Source License" not in source.get("license", "")
+                or contract.get("input_layout") != (
+                    "[dimension, diagonal_depth, nnz, row_nnz[dimension], perm[dimension], "
+                    "ptr[depth+1], column_index[nnz], value_raw[nnz], vector_raw[dimension]]")
+                or contract.get("dimension_range") != [1, 8]
+                or contract.get("depth_range") != [1, 8]
+                or contract.get("maximum_valid_input_words") != PARBOIL_SPMV_JDS_MAX_INPUT_LENGTH
+                or contract.get("maximum_parseable_input_words")
+                != PARBOIL_SPMV_JDS_MAX_PARSEABLE_INPUT_LENGTH
+                or contract.get("maximum_output_bytes") != PARBOIL_SPMV_JDS_MAX_OUTPUT_BYTES
+                or contract.get("invalid_result") != PARBOIL_SPMV_JDS_INVALID_RESULT
+                or contract.get("output_error_result") != PARBOIL_SPMV_JDS_OUTPUT_ERROR
+                or contract.get("source_scope") != (
+                    "Preconverted Jagged Diagonal Storage only. COO parsing, symmetric expansion, "
+                    "50 repeated benchmark iterations, file I/O, and timing wrappers are excluded.")
+                or workload.get("input") != {
+                    "kind": "signed_i64_array",
+                    "maximum_valid_length": PARBOIL_SPMV_JDS_MAX_INPUT_LENGTH,
+                    "maximum_parseable_length": PARBOIL_SPMV_JDS_MAX_PARSEABLE_INPUT_LENGTH,
+                    "encoding": "JDS dimensions and row metadata followed by column indexes and signed Q1e-6 binary32 source values.",
+                    "invalid_input_result": -1,
+                    "null_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "byte_array",
+                    "encoding": "Little-endian uint32 dimension followed by dimension IEEE-754 binary32 row results.",
+                    "maximum_bytes": PARBOIL_SPMV_JDS_MAX_OUTPUT_BYTES,
+                    "capacity_unit": "bytes",
+                    "success_result": "dimension*4+4 bytes",
+                    "null_output_result": -2,
+                    "insufficient_capacity_result": -2,
+                    "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": PARBOIL_SPMV_JDS_MAX_OUTPUT_BYTES,
+                    "meaning": "Maximum-size staged output record; output is copied only after validation and computation succeed.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or not isinstance(cases, list) or len(cases) != len(expected_ids)
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+            raise ValueError("Parboil SpMV metadata differs from the bounded JDS contract")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "coo_to_jds" not in readme
+                or "clean-room" not in readme.lower()
+                or "Illinois Open Source License" not in license_text
+                or "Board of Trustees of the University of Illinois" not in license_text):
+            raise ValueError("Parboil SpMV source attribution or license notice is incomplete")
+        for relative in (
+                f"c/p/{algorithm}.c", f"c3/p/{algorithm}.c3", f"cpp/p/{algorithm}.cpp",
+                f"elisa/p/{algorithm}.elisa", f"nim/p/{algorithm}.nim", f"odin/p/{algorithm}.odin",
+                f"rust/p/{algorithm}.rs", f"v/p/{algorithm}.v", f"zig/p/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Parboil SpMV language port is missing its symbol: {relative}")
+        for case in cases:
+            values = case.get("input_values")
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            expected = parboil_spmv_jds_suite_oracle(
+                None if case.get("input_is_null", False) else values,
+                case.get("output_capacity"), case.get("output_is_null", False),
+                case.get("input_is_null", False), input_length)
+            try:
+                expected_output = bytes.fromhex(case.get("expected_output_hex", ""))
+            except (TypeError, ValueError) as error:
+                raise ValueError(f"Parboil SpMV fixture output is not valid hex: {case.get('id')}") from error
+            if (type(case.get("expected_result")) is not int
+                    or expected[0] != case["expected_result"] or expected[1] != expected_output):
+                raise ValueError(f"Parboil SpMV fixture differs from its JDS oracle: {case.get('id')}")
+    elif algorithm == "parboil_histo":
+        pinned = "ccf3d3126f1754ca85528722f4ced5894ccb852b"
+        source = workload.get("pinned_source", {})
+        contract = workload.get("contract", {})
+        expected_ids = {
+            "zero-iterations", "one-pass-counts-each-bin", "repeated-clear-and-rescan",
+            "empty-input-histogram", "saturate-at-u8-maximum", "out-of-range-sample",
+            "mismatched-sample-count", "short-output-buffer", "null-output", "null-input",
+        }
+        cases = workload.get("cases", [])
+        if (set(workload) != {"schema_version", "id", "algorithm", "function_symbol", "abi",
+                              "pinned_source", "contract", "input", "output", "workspace",
+                              "measurement", "cases"}
+                or workload.get("schema_version") != 1
+                or workload.get("id") != "parboil-histo-bounded-saturating-byte-frequency-v1"
+                or workload.get("algorithm") != algorithm
+                or workload.get("function_symbol") != algorithm
+                or workload.get("abi") != "i64_array_bytes_output"
+                or source.get("repository") != "yuhc/gpu-parboil"
+                or source.get("commit") != pinned
+                or source.get("paths") != [
+                    "benchmarks/histo/src/base/main.c", "benchmarks/histo/src/base/util.c", "LICENSE"]
+                or source.get("symbols") != ["main", "dump_histo_img"]
+                or "Illinois Open Source License" not in source.get("license", "")
+                or contract.get("input_layout") != (
+                    "[iterations, bin_count, sample_count, sample_0, ..., sample_(sample_count-1)]")
+                or contract.get("iterations_range") != [0, PARBOIL_HISTO_MAX_ITERATIONS]
+                or contract.get("bin_count_range") != [1, PARBOIL_HISTO_MAX_BINS]
+                or contract.get("sample_count_range") != [0, PARBOIL_HISTO_MAX_SAMPLES]
+                or contract.get("maximum_valid_input_words") != PARBOIL_HISTO_MAX_INPUT_LENGTH
+                or contract.get("maximum_parseable_input_words")
+                != PARBOIL_HISTO_MAX_INPUT_LENGTH
+                or contract.get("maximum_output_bytes") != PARBOIL_HISTO_MAX_OUTPUT_BYTES
+                or contract.get("invalid_result") != PARBOIL_HISTO_INVALID_RESULT
+                or contract.get("output_error_result") != PARBOIL_HISTO_OUTPUT_ERROR
+                or contract.get("source_scope") != (
+                    "Scalar CPU histogram recurrence only. Input-file parsing, BMP output/color "
+                    "conversion, GPU mapping, and timing wrappers are excluded.")
+                or workload.get("input") != {
+                    "kind": "signed_i64_array", "maximum_valid_length": PARBOIL_HISTO_MAX_INPUT_LENGTH,
+                    "maximum_parseable_length": PARBOIL_HISTO_MAX_INPUT_LENGTH,
+                    "encoding": "[iterations, bin_count, sample_count, samples...]; iterations 0..8, bins 1..256, samples 0..1024, and each sample in [0, bin_count-1].",
+                    "invalid_input_result": -1,
+                }
+                or workload.get("output") != {
+                    "kind": "raw_bytes",
+                    "encoding": "Exactly bin_count histogram bytes in ascending bin order; each count saturates at 255.",
+                    "maximum_bytes": PARBOIL_HISTO_MAX_OUTPUT_BYTES,
+                    "successful_result": "bin_count",
+                    "invalid_input_result": -1,
+                    "null_or_insufficient_output_result": -2,
+                    "no_write_on_error": True,
+                }
+                or workload.get("workspace") != {
+                    "bytes": PARBOIL_HISTO_MAX_OUTPUT_BYTES,
+                    "meaning": "Fixed u8 histogram array with at most 256 bins.",
+                }
+                or workload.get("measurement") != {
+                    "comparison_model": "i64_array_bytes_output_call", "sample_count": 5,
+                    "warmup_rounds": 1, "repetitions_per_sample": 100,
+                }
+                or not isinstance(cases, list) or len(cases) != len(expected_ids)
+                or {case.get("id") for case in cases if isinstance(case, dict)} != expected_ids):
+            raise ValueError("Parboil histogram metadata differs from its bounded saturation contract")
+        package = ROOT / "benchmarks" / "p" / algorithm
+        readme = (package / "README.md").read_text(encoding="utf-8")
+        license_text = (package / "LICENSE.txt").read_text(encoding="utf-8")
+        if (pinned not in readme or "lines 85–95" not in readme
+                or "clean-room" not in readme.lower()
+                or "Illinois Open Source License" not in license_text
+                or "Board of Trustees of the University of Illinois" not in license_text):
+            raise ValueError("Parboil histogram source attribution or license notice is incomplete")
+        for relative in (
+                f"c/p/{algorithm}.c", f"c3/p/{algorithm}.c3", f"cpp/p/{algorithm}.cpp",
+                f"elisa/p/{algorithm}.elisa", f"nim/p/{algorithm}.nim", f"odin/p/{algorithm}.odin",
+                f"rust/p/{algorithm}.rs", f"v/p/{algorithm}.v", f"zig/p/{algorithm}.zig"):
+            port = ROOT / relative
+            if not port.is_file() or algorithm not in port.read_text(encoding="utf-8"):
+                raise ValueError(f"Parboil histogram port is missing its symbol: {relative}")
+        for case in cases:
+            values = case.get("input_values")
+            input_is_null = case.get("input_is_null", False)
+            input_length = case.get("input_length", len(values) if isinstance(values, list) else None)
+            expected = parboil_histo_suite_oracle(
+                None if input_is_null else values, case.get("output_capacity"),
+                case.get("output_is_null", False), input_is_null, input_length)
+            try:
+                expected_output = bytes.fromhex(case.get("expected_output_hex", ""))
+            except (TypeError, ValueError) as error:
+                raise ValueError(f"Parboil histogram fixture output is invalid hex: {case.get('id')}") from error
+            if (type(case.get("expected_result")) is not int
+                    or expected[0] != case["expected_result"] or expected[1] != expected_output):
+                raise ValueError(f"Parboil histogram fixture differs from its oracle: {case.get('id')}")
     elif algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
         max_output = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][1]
         input_spec = workload.get("input", {})
@@ -34864,7 +42479,9 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         if (workload.get("schema_version") != 1
                 or workload.get("algorithm") != algorithm
                 or workload.get("function_symbol") != algorithm
-                or input_spec.get("kind") not in {"signed_i64_array", "packed_signed_64_integer_array"}
+                or input_spec.get("kind") not in {"signed_i64_array", "signed_i64_array_of_bytes",
+                                                   "packed_signed_64_integer_array",
+                                                   "packed_signed_64_bit_integer_array"}
                 or output_spec.get("maximum_bytes", output_spec.get("maximum_output_bytes")) != max_output
                 or workload.get("workspace", {}).get("bytes") != max_output
                 or workload.get("measurement", {}).get("comparison_model")
@@ -34880,7 +42497,14 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      if algorithm == "mibench_security_blowfish" else
                      MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "mibench_automotive_susan" else
+                     CBENCH_AUTOMOTIVE_SUSAN_C_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "cbench_automotive_susan_c" else
+                     CBENCH_AUTOMOTIVE_SUSAN_E_MAX_PARSEABLE_INPUT_LENGTH
+                     if algorithm == "cbench_automotive_susan_e" else
                      49 if algorithm == "mibench_security_rijndael" else
+                     CBENCH_RIJNDAEL_DECRYPT_INPUT_BYTES + 1
+                     if algorithm == "cbench_security_rijndael_decrypt" else
+                     TARFIND_MAX_INPUT_LENGTH if algorithm == "tarfind" else
                      TRIMARAN_ENC_RC4_MAX_PARSEABLE_INPUT_VALUES
                      if algorithm == "trimaran_enc_rc4" else
                      SMITH_WATERMAN_PYTHON_MAX_PARSEABLE_INPUT_LENGTH
@@ -34928,6 +42552,8 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
                      MCCAT_BISECT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "mccat_bisect" else
                      PROLANGS_C_ALLROOTS_MAX_PARSEABLE_INPUT_LENGTH
                      if algorithm == "prolangs_c_allroots" else
+                     PROLANGS_C_CDECL_MAX_INPUT
+                     if algorithm == "prolangs_c_cdecl" else
                      CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES if algorithm == "cbench_automotive_qsort1" else
                      VERSABENCH_8B10B_MAX_PARSEABLE_WORDS if algorithm == "8b10b" else
                      UINT_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "uint" else
@@ -34960,10 +42586,17 @@ def validate_new_byte_output_workload(workload: dict, algorithm: str) -> None:
         seen_ids.add(case_id)
         result, output = oracle(values, capacity, output_is_null, input_is_null, input_length)
         expected_hex = case.get("expected_output_hex", "")
+        if algorithm == "mediabench_gsm_rpe_grid_selection":
+            expected_values = case.get("expected_values")
+            output_matches_fixture = (
+                isinstance(expected_values, list) and len(output) == MEDIABENCH_GSM_RPE_MAX_OUTPUT_BYTES
+                and struct.unpack("<14q", output) == tuple(expected_values)
+                if result >= 0 else "expected_values" not in case and not output)
+        else:
+            output_matches_fixture = isinstance(expected_hex, str) and expected_hex.lower() == output.hex()
         if (type(case.get("expected_result")) is not int
-                or not isinstance(expected_hex, str)
                 or case["expected_result"] != result
-                or expected_hex.lower() != output.hex()):
+                or not output_matches_fixture):
             raise ValueError(f"{algorithm} fixture differs from its pinned oracle: {case_id}")
 
 
@@ -35029,6 +42662,8 @@ def main() -> int:
         parser.error("source, runner, or binary changed since the recorded build; rebuild first")
     letter = algorithm[0] if algorithm[0].isalpha() else "0-9"
     workload_path = args.workload or (
+        ROOT / "benchmarks" / "d" / algorithm / "workload.json"
+        if algorithm == "versabench_dbms_keys_union" else
         ROOT / "benchmarks" / "merge_sort_linked_list" / "workload.json"
         if algorithm == "merge_sort_linked_list" else
         ROOT / "benchmarks" / "merge_ksorted_linked_list" / "workload.json"
@@ -35840,6 +43475,10 @@ def main() -> int:
                             if algorithm == "mibench_security_blowfish" else
                             MIBENCH_AUTOMOTIVE_SUSAN_MAX_PARSEABLE_INPUT_LENGTH
                             if algorithm == "mibench_automotive_susan" else
+                            CBENCH_AUTOMOTIVE_SUSAN_C_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "cbench_automotive_susan_c" else
+                            CBENCH_AUTOMOTIVE_SUSAN_E_MAX_PARSEABLE_INPUT_LENGTH
+                            if algorithm == "cbench_automotive_susan_e" else
                             CBENCH_AUTOMOTIVE_QSORT1_MAX_INPUT_VALUES if algorithm == "cbench_automotive_qsort1" else
                             VERSABENCH_8B10B_MAX_PARSEABLE_WORDS if algorithm == "8b10b" else
                             TRIMARAN_ENC_3DES_MAX_PARSEABLE_INPUT_VALUES
@@ -35849,6 +43488,8 @@ def main() -> int:
                             UUENCODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uuencode" else
                             UUDECODE_MAX_PARSEABLE_INPUT_VALUES if algorithm == "uudecode" else
                             MAX_INPUT_LENGTH)
+        if algorithm in EXTERNAL_BYTE_OUTPUT_BOUNDS:
+            max_input_length = EXTERNAL_BYTE_OUTPUT_BOUNDS[algorithm][0]
         if (not isinstance(values, list) or len(values) > max_input_length
                 or any(type(value) is not int or not -(2**63) <= value < 2**63 for value in values)):
             raise ValueError(f"invalid signed 64-bit digit array in {case['id']}")
@@ -36855,6 +44496,9 @@ def main() -> int:
             expected_count, expected = required_count, b""
         elif output_is_null and algorithm == "poly1305" and required_count < 0:
             expected_count, expected = required_count, b""
+        elif (output_is_null and algorithm == "mediabench_g721_encode"
+              and required_count == 0 and not required_output):
+            expected_count, expected = required_count, required_output
         elif output_is_null and algorithm in {
                 "shortest_job_first", "slack_time_scheduling", "merge_linked_lists", "lru",
                 "singly_link_list_deletion", "iddfs", "hashmap", "long_utils",
@@ -36867,7 +44511,8 @@ def main() -> int:
                 "permutation_array",
                 "splay_tree",
                 "scapegoat_tree",
-                "shree_dharacharya_formula"} and required_count < 0:
+                "shree_dharacharya_formula", "mediabench_g721_encode",
+                "simplify_fraction"} and required_count < 0:
             expected_count, expected = required_count, b""
         elif output_is_null:
             null_result = workload.get("output", {}).get("null_output_result")

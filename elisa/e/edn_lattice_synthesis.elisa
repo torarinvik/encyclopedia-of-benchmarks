@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: GPL-3.0-or-later; see package NOTICE.txt.
+def edn_latsynth_put64(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for byte_index in 0..<8:
+        output[position + byte_index] <- ((bits >> (8 * byte_index)) & 255).u8()
+
+def edn_lattice_synthesis_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > 34: return -1
+    order_value: i64 = values[0]
+    accumulator: mutable i64 = values[1]
+    if order_value < 1 or order_value > 16 or accumulator < -65536 or accumulator > 65535: return -1
+    order: usize = order_value.usize()
+    if length != 2 + 2 * order: return -1
+    state: mutable i64[16] = zeroed
+    coefficient: mutable i64[16] = zeroed
+    for index in 0..<order:
+        state[index] <- values[2 + index]
+        coefficient[index] <- values[2 + order + index]
+        if state[index] < -1024 or state[index] > 1023 or coefficient[index] < -1024 or coefficient[index] > 1023: return -1
+    output_bytes: usize = 8 * (order + 1)
+    if output.is_null() or capacity < output_bytes: return -2
+    accumulator <- accumulator - state[order - 1] * coefficient[order - 1]
+    index: mutable usize = order - 1
+    while index > 0:
+        index <- index - 1
+        accumulator <- accumulator - state[index] * coefficient[index]
+        state[index + 1] <- state[index] + ((coefficient[index] * (accumulator >> 16)) >> 16)
+    state[0] <- accumulator >> 16
+    edn_latsynth_put64(output, 0, accumulator)
+    for index in 0..<order:
+        edn_latsynth_put64(output, 8 * (index + 1), state[index])
+    output_bytes.i64()
+
+export fn edn_lattice_synthesis(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = edn_lattice_synthesis_impl

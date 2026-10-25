@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-versabench-dbms-rtree-penalty-i64-scalar-v1",
+  "algorithm": "versabench_dbms_penalty",
+  "function_symbol": "versabench_dbms_penalty",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "VersaBench/dbms/penalty.c",
+    "supporting_paths": ["VersaBench/dbms/keyUnion.c", "VersaBench/dbms/volume.c", "VersaBench/dbms/index.h", "VersaBench/dbms/indexKey.h", "VersaBench/dbms/valid.c"],
+    "launcher_path": "VersaBench/dbms/info.sh",
+    "symbols": ["penalty", "keyUnion", "volume", "validIndexKey"],
+    "author": "M. L. Rivas",
+    "copyright": "Copyright 1999, Atlantic Aerospace Electronics Corp.",
+    "license_status": "No explicit redistribution license found in the pinned directory; local code is independently written and contains no copied source text."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "layout": "A lower_T_X_Y_Z, A upper_T_X_Y_Z, B lower_T_X_Y_Z, B upper_T_X_Y_Z",
+    "exact_length": 16,
+    "maximum_parseable_length": 17,
+    "coordinate_range": [-8, 8],
+    "box_rule": "lower[d] < upper[d] for all four dimensions",
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "meaning": "4D bounding volume of union(A,B) minus 4D volume of A",
+    "exact_range": [0, 65535],
+    "invalid_result": -1
+  },
+  "profile": {
+    "formula": "product(max(A.upper[d],B.upper[d])-min(A.lower[d],B.lower[d])) - product(A.upper[d]-A.lower[d])",
+    "arithmetic": "exact integer arithmetic over bounded coordinates",
+    "directional": true,
+    "scope": "standalone R-tree insertion enlargement helper only; no tree traversal or mutation"
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"unit-enlargement", "input_values":[0,0,0,0,1,1,1,1,1,0,0,0,2,1,1,1], "expected_result":1},
+    {"id":"contained-box-zero-penalty", "input_values":[0,0,0,0,2,2,2,2,1,1,1,1,2,2,2,2], "expected_result":0},
+    {"id":"asymmetric-enlargement", "input_values":[0,0,0,0,2,2,2,2,-1,-1,-1,-1,3,3,3,3], "expected_result":240},
+    {"id":"reverse-asymmetric-enlargement", "input_values":[-1,-1,-1,-1,3,3,3,3,0,0,0,0,2,2,2,2], "expected_result":0},
+    {"id":"maximum-bounded-value", "input_values":[0,0,0,0,1,1,1,1,-8,-8,-8,-8,8,8,8,8], "expected_result":65535},
+    {"id":"degenerate-box-invalid", "input_values":[0,0,0,0,0,1,1,1,1,0,0,0,2,1,1,1], "expected_result":-1},
+    {"id":"trailing-data", "input_values":[0,0,0,0,1,1,1,1,1,0,0,0,2,1,1,1,0], "expected_result":-1},
+    {"id":"null-input", "input_values":[], "input_is_null":true, "input_length":0, "expected_result":-1}
+  ]
+}

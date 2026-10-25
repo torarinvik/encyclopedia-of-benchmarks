@@ -1,0 +1,123 @@
+## Part of the Bison parser generator,
+## Copyright (C) 1984 Bob Corbett and Free Software Foundation, Inc.
+##
+## BISON is distributed in the hope that it will be useful, but WITHOUT ANY
+## WARRANTY.  No author or distributor accepts responsibility to anyone
+## for the consequences of using it or for whether it serves any
+## particular purpose or works at all, unless he says so in writing.
+## Refer to the BISON General Public License for full details.
+##
+## Everyone is granted permission to copy, modify and redistribute BISON,
+## but only under the conditions described in the BISON General Public
+## License.  A copy of this license is supposed to have been given to you
+## along with BISON so you can know your rights and responsibilities.  It
+## should be in a file named COPYING.  Among other things, the copyright
+## notice and this notice must be preserved on all copies.
+##
+## In other words, you are welcome to use, share and improve this program.
+## You are forbidden to forbid anyone else to use, share and improve
+## what you give them. Help stamp out software-hoarding!
+##
+## Modified 2026: bounded numeric grammar adapter; no upstream code is copied.
+
+const MAX_NONTERMINALS: usize = 16
+const MAX_TERMINALS: usize = 16
+const MAX_RULES: usize = 32
+const MAX_RHS: usize = 8
+const MAX_RHS_ITEMS: usize = MAX_RULES * MAX_RHS
+const MAX_INPUT_LENGTH: usize = 3 + MAX_RULES * (2 + MAX_RHS)
+
+def prolangs_c_bison_nullable_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 5 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 1 or input[0] > 16 or input[1] < 0 or input[1] > 16 or
+        input[2] < 1 or input[2] > 32:
+        return -1
+    nonterminal_count: usize = input[0].usize()
+    terminal_count: usize = input[1].usize()
+    rule_count: usize = input[2].usize()
+    lhs: mutable usize[32] = zeroed
+    rhs_start: mutable usize[32] = zeroed
+    rhs_length: mutable usize[32] = zeroed
+    remaining: mutable usize[32] = zeroed
+    rhs: mutable usize[256] = zeroed
+    eligible: mutable bool[32] = zeroed
+    nullable: mutable bool[16] = zeroed
+    queue: mutable usize[16] = zeroed
+    rhs_items: mutable usize = 0
+    offset: mutable usize = 3
+    rule: mutable usize = 0
+    parse_j: mutable usize = 0
+    work_j: mutable usize = 0
+    work_rule: mutable usize = 0
+    queue_head: mutable usize = 0
+    queue_tail: mutable usize = 0
+    queued_symbol: mutable usize = 0
+    symbol_index: mutable usize = 0
+    has_terminal: mutable bool = false
+    mask: mutable i64 = 0
+    bit: mutable i64 = 1
+    while rule < rule_count:
+        if offset + 2 > length:
+            return -1
+        if input[offset] < 0 or input[offset] >= nonterminal_count.i64 or
+            input[offset + 1] < 0 or input[offset + 1] > 8:
+            return -1
+        lhs[rule] <- input[offset].usize()
+        rhs_length[rule] <- input[offset + 1].usize()
+        offset <- offset + 2
+        rhs_start[rule] <- rhs_items
+        if offset + rhs_length[rule] > length or rhs_items + rhs_length[rule] > MAX_RHS_ITEMS:
+            return -1
+        has_terminal <- false
+        parse_j <- 0
+        while parse_j < rhs_length[rule]:
+            raw_symbol: i64 = input[offset]
+            offset <- offset + 1
+            if raw_symbol < 0 or raw_symbol >= (nonterminal_count + terminal_count).i64:
+                return -1
+            rhs[rhs_items] <- raw_symbol.usize()
+            rhs_items <- rhs_items + 1
+            if raw_symbol.usize() >= nonterminal_count:
+                has_terminal <- true
+            parse_j <- parse_j + 1
+        if rhs_length[rule] > 0 and not has_terminal:
+            eligible[rule] <- true
+            remaining[rule] <- rhs_length[rule]
+        rule <- rule + 1
+    if offset != length:
+        return -1
+
+    queue_tail <- 0
+    rule <- 0
+    while rule < rule_count:
+        if rhs_length[rule] == 0 and not nullable[lhs[rule]]:
+            nullable[lhs[rule]] <- true
+            queue[queue_tail] <- lhs[rule]
+            queue_tail <- queue_tail + 1
+        rule <- rule + 1
+    while queue_head < queue_tail:
+        queued_symbol <- queue[queue_head]
+        queue_head <- queue_head + 1
+        work_rule <- 0
+        while work_rule < rule_count:
+            if eligible[work_rule]:
+                work_j <- 0
+                while work_j < rhs_length[work_rule]:
+                    if rhs[rhs_start[work_rule] + work_j] == queued_symbol:
+                        remaining[work_rule] <- remaining[work_rule] - 1
+                        if remaining[work_rule] == 0 and not nullable[lhs[work_rule]]:
+                            nullable[lhs[work_rule]] <- true
+                            queue[queue_tail] <- lhs[work_rule]
+                            queue_tail <- queue_tail + 1
+                    work_j <- work_j + 1
+            work_rule <- work_rule + 1
+    mask <- 0
+    bit <- 1
+    symbol_index <- 0
+    while symbol_index < nonterminal_count:
+        if nullable[symbol_index]:
+            mask <- mask + bit
+        bit <- bit * 2
+        symbol_index <- symbol_index + 1
+    return mask

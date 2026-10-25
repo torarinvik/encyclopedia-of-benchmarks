@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-vag-indexed-gather-copy-i64-array-bytes-v1",
+  "algorithm": "tsvc_vag_indexed_gather_copy",
+  "function_symbol": "tsvc_vag_indexed_gather_copy",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded indexed gather assignment profile of TSVC vag.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "TSVC/tsc.inc",
+    "symbol": "vag",
+    "source_lines": {"kernel_start": 4929, "kernel_end": 4953, "gather_assignment_start": 4942, "gather_assignment_end": 4945},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc",
+    "launcher_family": "TSVC/ControlLoops-dbl",
+    "launcher_source": "TSVC/ControlLoops-dbl/tsc.c selects TYPE double and TESTS CONTROL_LOOPS.",
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. These ports independently implement the bounded gather-copy operation and reuse no upstream source code or comments; no upstream license or endorsement is claimed."
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "argument_order": ["count", "indexes[count]", "values[count]"],
+    "count_range": [1, 64],
+    "index_range": "0 through count-1; duplicate indexes are allowed",
+    "value_range": [-1000000, 1000000],
+    "exact_length": "1 + 2*count",
+    "maximum_valid_input_length": 129,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_integer_array",
+    "encoding": "Output[i] = values[indexes[i]] in ascending i order.",
+    "maximum_values": 64,
+    "maximum_bytes": 512,
+    "successful_result": "Number of gathered values written (count).",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "capacity_requirement": "At least 8*count bytes."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "duplicate-gather-indices",
+      "input_values": [4, 2, 2, 0, 3, 10, 20, 30, 40],
+      "input_length": 9,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "1e000000000000001e000000000000000a000000000000002800000000000000"
+    },
+    {
+      "id": "reverse-gather-with-negative-values",
+      "input_values": [4, 3, 2, 1, 0, -4, -3, -2, -1],
+      "input_length": 9,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "fffffffffffffffffefffffffffffffffdfffffffffffffffcffffffffffffff"
+    },
+    {
+      "id": "singleton",
+      "input_values": [1, 0, 7],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": 1,
+      "expected_output_hex": "0700000000000000"
+    },
+    {
+      "id": "insufficient-output-capacity",
+      "input_values": [3, 0, 1, 2, 5, 6, 7],
+      "input_length": 7,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "index-out-of-range",
+      "input_values": [2, 0, 2, 5, 6],
+      "input_length": 5,
+      "output_capacity": 16,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "truncated-values",
+      "input_values": [3, 0, 1, 2, 5, 6],
+      "input_length": 6,
+      "output_capacity": 24,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "value-out-of-range",
+      "input_values": [1, 0, 1000001],
+      "input_length": 3,
+      "output_capacity": 8,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    }
+  ]
+}

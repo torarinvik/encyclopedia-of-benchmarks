@@ -1,0 +1,135 @@
+## (c) William Landi 1991
+## Permission to use this code is granted as long as the copyright
+## notice remains in place.
+##
+## Clean-room bounded adaptation: numeric records replace the original text,
+## temporary-file, listing, and object-file interfaces; two-pass SIC/XE symbol
+## resolution and encoding are retained for the documented subset.
+
+const MAX_RECORDS: usize = 16
+const MAX_LABELS: usize = 16
+const MODULUS: i64 = 1000000007
+
+def prolangs_c_assembler_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 9 or length > 65:
+        return -1
+    if input[0] < 2 or input[0] > 16:
+        return -1
+    count: usize = input[0].usize()
+    if length != 1 + count * 4:
+        return -1
+    opcode: mutable i64[16] = zeroed
+    label: mutable i64[16] = zeroed
+    kind: mutable i64[16] = zeroed
+    operand: mutable i64[16] = zeroed
+    address: mutable i64[16] = zeroed
+    size: mutable i64[16] = zeroed
+    code: mutable i64[16] = zeroed
+    symbol: mutable i64[17] = zeroed
+    defined: mutable bool[17] = zeroed
+    i: mutable usize = 0
+    while i < count:
+        offset: usize = 1 + i * 4
+        if input[offset] < 0 or input[offset] > 11 or input[offset + 1] < 0 or input[offset + 1] > 16 or
+            input[offset + 2] < 0 or input[offset + 2] > 5 or input[offset + 3] < 0 or input[offset + 3] > 0xFFFFFF:
+            return -1
+        opcode[i] <- input[offset]
+        label[i] <- input[offset + 1]
+        kind[i] <- input[offset + 2]
+        operand[i] <- input[offset + 3]
+        i <- i + 1
+    if opcode[0] != 0 or opcode[count - 1] != 1 or label[0] == 0 or kind[0] != 0 or operand[0] > 0xFFFFF:
+        return -1
+    i <- 1
+    while i + 1 < count:
+        if opcode[i] == 0 or opcode[i] == 1:
+            return -1
+        i <- i + 1
+    if label[count - 1] != 0 or kind[count - 1] != 0 or operand[count - 1] != 0:
+        return -1
+
+    start_address: i64 = operand[0]
+    location: mutable i64 = start_address
+    address[0] <- location
+    defined[label[0].usize()] <- true
+    symbol[label[0].usize()] <- location
+    i <- 0
+    while i < count:
+        if i > 0:
+            address[i] <- location
+            if label[i] != 0:
+                id: usize = label[i].usize()
+                if defined[id] or location >= 0x100000:
+                    return -1
+                defined[id] <- true
+                symbol[id] <- location
+        if opcode[i] == 0:
+            if i != 0: return -1
+            size[i] <- 0
+        else if opcode[i] == 1:
+            if i != count - 1: return -1
+            size[i] <- 0
+        else if opcode[i] == 2:
+            if kind[i] != 0 or operand[i] > 256: return -1
+            size[i] <- operand[i]
+        else if opcode[i] == 3:
+            if kind[i] != 0 or operand[i] > 256: return -1
+            size[i] <- operand[i] * 3
+        else if opcode[i] == 4:
+            if kind[i] != 0: return -1
+            size[i] <- 3
+        else if opcode[i] >= 5 and opcode[i] <= 8:
+            if not ((kind[i] == 1 and operand[i] <= 4095) or
+                ((kind[i] == 2 or kind[i] == 3) and operand[i] >= 1 and operand[i] <= 16)):
+                return -1
+            size[i] <- 3
+        else if opcode[i] == 9:
+            if kind[i] != 0 or operand[i] != 0: return -1
+            size[i] <- 3
+        else if opcode[i] == 10:
+            if kind[i] != 4 or operand[i] > 5: return -1
+            size[i] <- 2
+        else if opcode[i] == 11:
+            if kind[i] != 5 or (operand[i] >> 4) > 5 or (operand[i] & 15) > 5: return -1
+            size[i] <- 2
+        else:
+            return -1
+        if i > 0:
+            if location > 0x100000 - size[i]: return -1
+            location <- location + size[i]
+        i <- i + 1
+    program_length: i64 = location - start_address
+    i <- 1
+    while i + 1 < count:
+        if opcode[i] == 4:
+            code[i] <- operand[i]
+        else if opcode[i] >= 5 and opcode[i] <= 8:
+            base: mutable i64 = 0x3C
+            if opcode[i] == 5: base <- 0
+            else if opcode[i] == 6: base <- 0x0C
+            else if opcode[i] == 7: base <- 0x18
+            ni: mutable i64 = 2
+            if kind[i] == 1: ni <- 1
+            else if kind[i] == 2: ni <- 3
+            field: mutable i64 = operand[i]
+            pc_relative: mutable i64 = 0
+            if kind[i] == 2 or kind[i] == 3:
+                id: usize = operand[i].usize()
+                if not defined[id]: return -1
+                field <- symbol[id] - (address[i] + 3)
+                if field < -2048 or field > 2047: return -1
+                pc_relative <- 1
+                field <- field & 0xFFF
+            code[i] <- (base | ni) * 65536 + pc_relative * 8192 + field
+        else if opcode[i] == 9: code[i] <- 0x4F0000
+        else if opcode[i] == 10: code[i] <- 0xB400 | (operand[i] << 4)
+        else if opcode[i] == 11: code[i] <- 0x9000 | operand[i]
+        i <- i + 1
+    checksum: mutable i64 = (program_length * 257 + start_address * 17) % MODULUS
+    i <- 0
+    while i < count:
+        checksum <- (checksum * 131 + (address[i] + 1) * 17 + code[i] * 3 + size[i]) % MODULUS
+        i <- i + 1
+    checksum
+
+export fn prolangs_c_assembler(input: i64&, length: usize) -> i64 = prolangs_c_assembler_impl

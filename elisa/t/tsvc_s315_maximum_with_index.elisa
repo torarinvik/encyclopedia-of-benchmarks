@@ -1,0 +1,40 @@
+# Clean-room bounded profile of TSVC s315; see package README.
+
+const TSVC_S315_MAX_N: usize = 64
+const TSVC_S315_MAX_INPUT_LENGTH: usize = 65
+const TSVC_S315_MAX_VALUE: i64 = 1000000
+
+def tsvc_s315_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s315_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 2 or length > TSVC_S315_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + n:
+        return -1
+    for i in 0..n:
+        value: i64 = input[i + 1]
+        if value < -TSVC_S315_MAX_VALUE or value > TSVC_S315_MAX_VALUE:
+            return -1
+    if output.is_null() or capacity < 16:
+        return -2
+
+    maximum: mutable i64 = input[1]
+    maximum_index: mutable usize = 0
+    for i in 0..n:
+        value: i64 = input[i + 1]
+        if value > maximum:
+            maximum <- value
+            maximum_index <- i
+    tsvc_s315_store(maximum, output, 0)
+    tsvc_s315_store(maximum_index.i64(), output, 8)
+    2
+
+export fn tsvc_s315_maximum_with_index(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s315_impl

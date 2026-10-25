@@ -1,0 +1,49 @@
+# /* +++Date last modified: 05-Jul-1997 */
+# 
+# /*
+# **        A Pratt-Boyer-Moore string search, written by Jerry Coffin
+# **  sometime or other in 1991.  Removed from original program, and
+# **  (incorrectly) rewritten for separate, generic use in early 1992.
+# **  Corrected with help from Thad Smith, late March and early
+# **  April 1992...hopefully it's correct this time. Revised by Bob Stout.
+# **
+# **  This is hereby placed in the Public Domain by its author.
+# **
+# **  10/21/93 rdg  Fixed bug found by Jeff Dunlop
+# */
+def cbench_office_pratt_boyer_moore_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 3 or length > 321: return -2
+    text_length: i64 = values[0]
+    pattern_length: i64 = values[1]
+    if text_length < 0 or text_length > 255 or pattern_length < 1 or pattern_length > 64 or length != 2 + text_length.usize() + pattern_length.usize(): return -2
+    text_start: usize = 2
+    pattern_start: usize = text_start + text_length.usize()
+    index: usize = text_start
+    while index < length:
+        if values[index] < 1 or values[index] > 127: return -2
+        index <- index + 1
+    shifts: mutable usize[128] = zeroed
+    index <- 0
+    while index < 128:
+        shifts[index] <- pattern_length.usize()
+        index <- index + 1
+    index <- 0
+    while index < pattern_length.usize():
+        shifts[values[pattern_start + index].usize()] <- pattern_length.usize() - index - 1
+        index <- index + 1
+    text_index: mutable usize = pattern_length.usize() - 1
+    while text_index < text_length.usize():
+        shift: mutable usize = shifts[values[text_start + text_index].usize()]
+        while text_index < text_length.usize() and shift > 0:
+            text_index <- text_index + shift
+            if text_index < text_length.usize(): shift <- shifts[values[text_start + text_index].usize()]
+        if text_index < text_length.usize() and shift == 0:
+            start: usize = text_index - pattern_length.usize() + 1
+            matched: mutable usize = 0
+            while matched < pattern_length.usize() and values[pattern_start + matched] == values[text_start + start + matched]:
+                matched <- matched + 1
+            if matched == pattern_length.usize(): return start.i64()
+            text_index <- text_index + 1
+    -1
+
+export fn cbench_office_pratt_boyer_moore(values: i64&, length: usize) -> i64 = cbench_office_pratt_boyer_moore_impl

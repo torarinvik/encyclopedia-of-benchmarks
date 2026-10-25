@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-consumer-jpeg-d-ijg-h2v2-fancy-upsampling-i64-array-bytes-output-v1",
+  "algorithm": "cbench_consumer_jpeg_h2v2_fancy_upsample",
+  "function_symbol": "cbench_consumer_jpeg_h2v2_fancy_upsample",
+  "description": "Bounded 2x2 IJG triangle-filter upsampling for one 8-bit component plane.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/consumer_jpeg_d/src/jdsample.c",
+    "symbol": "h2v2_fancy_upsample",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_jpeg_d/src/jdsample.c",
+    "license_notice": "Independent JPEG Group software, Copyright (C) 1991-1996 Thomas G. Lane; permission to use, copy, modify, and distribute for any purpose without fee subject to README notice retention, source-change marking, attribution, and no-warranty/liability terms.",
+    "launcher": {
+      "path": "cBench/consumer_jpeg_d/src/info.sh",
+      "bench_name": "consumer_jpeg_d",
+      "source_files": "*.c",
+      "compile_flags": ["-lm"],
+      "run_options": []
+    }
+  },
+  "contract": {
+    "input_layout": "[width, height, row-major 8-bit component samples...]",
+    "width_range": [3, 16],
+    "height_range": [1, 8],
+    "sample_range": [0, 255],
+    "exact_input_length": "2 + width * height",
+    "operation": "Each input row emits two output rows. For each output row, vertical mixing forms S[x]=3*near[x]+far[x]. Horizontal expansion uses source boundary/general formulas over neighboring S values, with source biases and arithmetic right shift by 4.",
+    "context_rows": "The source routine reads one adjacent row above/below each input row; this bounded plane profile supplies edge context by replicating the first or last image row.",
+    "horizontal_edges": "The first and final expanded samples use the explicit source boundary formulas; input width is greater than two as required by the source fancy-method selection.",
+    "output_layout": "Row-major 8-bit samples, width*2 by height*2; maximum 512 bytes.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[width, height, width*height component samples]",
+    "maximum_valid_length": 130,
+    "maximum_parseable_length": 131,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Expanded 8-bit component plane, row-major",
+    "maximum_bytes": 512,
+    "success_result": "4 * width * height",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "Maximum staged expanded plane for a 16x8 input plane."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "horizontal_triangle_filter_and_two_rows_per_input",
+      "input_values": [3, 1, 0, 100, 200],
+      "input_length": 5,
+      "expected_result": 12,
+      "expected_output_hex": "00194b7dafc800194b7dafc8"
+    },
+    {
+      "id": "vertical_neighbor_context_and_row_order",
+      "input_values": [3, 2, 40, 40, 40, 80, 80, 80],
+      "input_length": 8,
+      "expected_result": 24,
+      "expected_output_hex": "282828282828323232323232464646464646505050505050"
+    },
+    {
+      "id": "constant_max_sample_edge_replication",
+      "input_values": [3, 1, 255, 255, 255],
+      "input_length": 5,
+      "expected_result": 12,
+      "expected_output_hex": "ffffffffffffffffffffffff"
+    },
+    {
+      "id": "width_below_fancy_selection_threshold",
+      "input_values": [2, 1, 50, 60],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "sample_out_of_range",
+      "input_values": [3, 1, 0, 256, 0],
+      "input_length": 5,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "wrong_input_length",
+      "input_values": [3, 1, 20, 30],
+      "input_length": 4,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short_output_capacity",
+      "input_values": [3, 2, 40, 40, 40, 80, 80, 80],
+      "input_length": 8,
+      "output_capacity": 23,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null_output",
+      "input_values": [3, 1, 0, 100, 200],
+      "input_length": 5,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

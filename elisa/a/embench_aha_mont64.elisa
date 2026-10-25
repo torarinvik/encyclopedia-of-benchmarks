@@ -1,0 +1,49 @@
+def wide(a: u64, b: u64, high: mutable u64&, low: mutable u64&) -> void:
+    mask: u64 = 0xffffffff
+    a0: u64 = a & mask
+    a1: u64 = a >> 32
+    b0: u64 = b & mask
+    b1: u64 = b >> 32
+    p00: u64 = a0 * b0
+    p01: u64 = a0 * b1
+    p10: u64 = a1 * b0
+    p11: u64 = a1 * b1
+    low <- p00
+    old: u64 = low
+    low <- low + (p01 << 32)
+    high <- p11 + (p01 >> 32)
+    if low < old: high <- high + 1
+    old <- low
+    low <- low + (p10 << 32)
+    high <- high + (p10 >> 32)
+    if low < old: high <- high + 1
+
+def mont(a: u64, b: u64, m: u64, np: u64) -> u64:
+    thi: mutable u64 = 0
+    tlo: mutable u64 = 0
+    wide(a, b, &thi, &tlo)
+    tmmhi: mutable u64 = 0
+    tmmlo: mutable u64 = 0
+    wide(tlo * np, m, &tmmhi, &tmmlo)
+    ulo: mutable u64 = tlo + tmmlo
+    uhi: mutable u64 = thi + tmmhi
+    if ulo < tlo: uhi <- uhi + 1
+    overflow: bool = uhi < thi or (uhi == thi and ulo < tlo)
+    if overflow or uhi >= m: uhi <- uhi - m
+    uhi
+
+def nprime(m: u64) -> u64:
+    x: mutable u64 = 1
+    for _ in 0..<6: x <- x * (2 - m * x)
+    0 - x
+
+def embench_aha_mont64_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 3: return -1
+    if values[0] < 0 or values[1] < 0 or values[2] < 3 or (values[2] & 1) == 0: return -1
+    a: u64 = values[0].u64()
+    b: u64 = values[1].u64()
+    m: u64 = values[2].u64()
+    if a >= m or b >= m: return -1
+    mont(a, b, m, nprime(m)).i64()
+
+export fn embench_aha_mont64(values: i64&, length: usize) -> i64 = embench_aha_mont64_impl

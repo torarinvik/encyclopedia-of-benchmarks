@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-searching-dbl-s332-first-above-threshold-v1",
+  "algorithm": "tsvc_s332_first_above_threshold",
+  "function_symbol": "tsvc_s332_first_above_threshold",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded first-match search for the earliest value strictly greater than a threshold, matching TSVC s332.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["TSVC/Searching-dbl/info.sh", "TSVC/Searching-dbl/tsc.c", "TSVC/tsc.inc", "TSVC/tests.h"],
+    "symbol": "s332",
+    "source_lines": {"codelet_start": 3933, "codelet_end": 3966, "initialization_start": 610, "initialization_end": 612},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc#L3933",
+    "launcher_family": "TSVC/Searching-dbl",
+    "launcher_options": [80000, 14],
+    "attribution": "The upstream README attributes the suite to Maleki et al., An Evaluation of Vectorizing Compilers, PACT 2011, DOI 10.1109/PACT.2011.68.",
+    "license_note": "No explicit license grant was found in the pinned TSVC materials reviewed. These ports are clean-room implementations and reuse no upstream source code or comments; no upstream license or endorsement is claimed."
+  },
+  "contract": {
+    "operation": "Scan values in ascending order and stop at the first value strictly greater than threshold. Emit its zero-based index and value; if none qualifies, emit the source sentinels [-2, -1].",
+    "input_layout": "[n, threshold, values[n]]",
+    "n_range": [1, 256],
+    "threshold_range": [-1000000, 1000000],
+    "value_range": [-1000000, 1000000],
+    "exact_length": "2 + n",
+    "maximum_valid_input_length": 258,
+    "output": "[index, value] as little-endian signed i64 values; no-match sentinels are [-2,-1].",
+    "output_capacity_requirement": "At least 16 bytes.",
+    "success_result": "2 values written.",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "input_modified": false,
+    "source_profile": "One bounded search pass with the source's strict greater-than test and early exit. The source TYPE and threshold are integer-valued in this profile; comparisons are exact in binary64."
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "n and threshold followed by n values",
+    "maximum_valid_length": 258,
+    "maximum_parseable_length": 258,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Index and matching value, or source no-match sentinels.",
+    "maximum_values": 2,
+    "maximum_bytes": 16,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 2048},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "source-shaped-match-at-tail",
+      "input_values": [8, 1, 1, 0, 0, 0, 0, 0, 0, 2],
+      "input_length": 10,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "07000000000000000200000000000000"
+    },
+    {
+      "id": "immediate-match-exits-at-first-element",
+      "input_values": [4, 3, 5, 9, 3, 7],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "00000000000000000500000000000000"
+    },
+    {
+      "id": "strict-threshold-skips-equal-values",
+      "input_values": [4, 2, 2, 1, 2, 3],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "03000000000000000300000000000000"
+    },
+    {
+      "id": "no-match-source-sentinels",
+      "input_values": [4, 5, -2, 0, 5, -1],
+      "input_length": 6,
+      "output_capacity": 16,
+      "expected_result": 2,
+      "expected_output_hex": "feffffffffffffffffffffffffffffff"
+    },
+    {"id": "invalid-dimension", "input_values": [0, 0], "input_length": 2, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-values", "input_values": [3, 0, 1, 2], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "threshold-out-of-range", "input_values": [1, 1000001, 0], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "value-out-of-range", "input_values": [1, 0, -1000001], "input_length": 3, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "insufficient-output-capacity", "input_values": [1, 0, 1], "output_capacity": 15, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 0, 1], "output_capacity": 16, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 16, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

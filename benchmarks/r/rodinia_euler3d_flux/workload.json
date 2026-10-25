@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "id": "rodinia-euler3d-one-cell-four-face-flux-f32-v1",
+  "algorithm": "rodinia_euler3d_flux",
+  "function_symbol": "rodinia_euler3d_flux",
+  "description": "One source-ordered Euler3D conservative flux evaluation over four faces of one cell.",
+  "pinned_source": {
+    "repository": "utcs-scea/rodinia",
+    "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+    "paths": [
+      "cuda/cfd/euler3d.cu",
+      "cuda/cfd/README",
+      "cuda/cfd/run",
+      "LICENSE"
+    ],
+    "url": "https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/cfd",
+    "license": "Rodinia BSD-3-Clause; source attributes solver to Andrew Corrigan, AIAA-2009-4001."
+  },
+  "contract": {
+    "operation": "Compute source cuda_compute_flux for one cell in source face/component order.",
+    "input_layout": "[center state 5 f32 bit patterns, then four face records [kind, nx_bits, ny_bits, nz_bits, neighbor_state 5 f32 bit patterns]]",
+    "exact_input_length": 41,
+    "face_kinds": {
+      "0": "real neighbor",
+      "-1": "wing wall",
+      "-2": "far-field boundary"
+    },
+    "float_domain": {
+      "density": [
+        0.5,
+        2
+      ],
+      "momentum_component": [
+        -1,
+        1
+      ],
+      "density_energy": [
+        1,
+        5
+      ],
+      "normal_component": [
+        -1,
+        1
+      ],
+      "positive_pressure_required": true
+    },
+    "float_encoding": "Raw IEEE-754 binary32 bit patterns carried in nonnegative signed-i64 slots; face kind slots carry -2, -1, or 0.",
+    "arithmetic": "Source float constants and intermediates are binary32; face and conserved-component accumulation preserve CUDA source order.",
+    "far_field": {
+      "gamma": "1.4f",
+      "mach": "1.2f",
+      "angle_degrees": 0,
+      "density": "1.4f",
+      "pressure": "1.0f"
+    },
+    "output_projection": "sum((component_index+1)*round_away(flux_component*1000)) for [density,momentum_x,momentum_y,momentum_z,density_energy]; half values round away from zero.",
+    "invalid_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_length": 41,
+    "encoding": "face kind plus unsigned binary32 bit patterns in i64",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "encoding": "weighted fixed-point checksum of five flux components",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {
+      "id": "uniform_neighbors_opposite_faces_cancel",
+      "input_values": [
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        1065353216,
+        0,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        3212836864,
+        0,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        0,
+        1065353216,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        0,
+        3212836864,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976
+      ],
+      "input_length": 41,
+      "input_is_null": false,
+      "expected_result": 0
+    },
+    {
+      "id": "invalid_face_kind",
+      "input_values": [
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        -3,
+        1065353216,
+        0,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        3212836864,
+        0,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        0,
+        1065353216,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        0,
+        3212836864,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976
+      ],
+      "input_length": 41,
+      "input_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_word_invalid",
+      "input_values": [
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        1065353216,
+        0,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        3212836864,
+        0,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        0,
+        1065353216,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0,
+        0,
+        3212836864,
+        0,
+        1065353216,
+        0,
+        0,
+        0,
+        1075838976,
+        0
+      ],
+      "input_length": 42,
+      "input_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

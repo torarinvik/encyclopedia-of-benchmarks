@@ -1,0 +1,75 @@
+const MAX_NODES: usize = 10
+const MAX_EDGES: usize = 100
+const MAX_SIGNATURE_LENGTH: usize = 4
+const MAX_LABEL: i64 = 7
+
+def search_leg(values: i64&, edge_count: usize, labels_start: usize, signature_start: usize,
+               signature_length: usize, node: usize, signature_index: usize,
+               visited: mutable u64&) -> bool:
+    bit: u64 = (1).u64() << node
+    if (visited & bit) != 0:
+        return false
+    visited <- visited | bit
+    target_label: i64 = values[signature_start + signature_index]
+
+    for edge in 0..<edge_count:
+        if values[3 + 2 * edge].usize() != node:
+            continue
+        target: usize = values[4 + 2 * edge].usize()
+        if values[labels_start + target] != target_label:
+            continue
+        if signature_index + 1 == signature_length:
+            return true
+        next_visited: mutable u64 = 0
+        if search_leg(values, edge_count, labels_start, signature_start, signature_length,
+                      target, signature_index + 1, next_visited):
+            return true
+
+    for edge in 0..<edge_count:
+        if values[3 + 2 * edge].usize() != node:
+            continue
+        target: usize = values[4 + 2 * edge].usize()
+        if search_leg(values, edge_count, labels_start, signature_start, signature_length,
+                      target, signature_index, visited):
+            return true
+    false
+
+def doe_pathfinder_signature_search_impl(values: i64&, length: usize) -> i64:
+    if values == null or length < 3 or values[0] < 1 or values[0] > MAX_NODES.i64() or
+       values[1] < 0 or values[1] > MAX_EDGES.i64() or values[2] < 2 or
+       values[2] > MAX_SIGNATURE_LENGTH.i64():
+        return -2
+    node_count: usize = values[0].usize()
+    edge_count: usize = values[1].usize()
+    signature_length: usize = values[2].usize()
+    if edge_count > node_count * node_count or
+       length != 3 + 2 * edge_count + node_count + signature_length:
+        return -2
+
+    for edge in 0..<edge_count:
+        from: i64 = values[3 + 2 * edge]
+        to: i64 = values[4 + 2 * edge]
+        if from < 0 or from >= node_count.i64() or to < 0 or to >= node_count.i64():
+            return -2
+        for previous in 0..<edge:
+            if values[3 + 2 * previous] == from and values[4 + 2 * previous] == to:
+                return -2
+    labels_start: usize = 3 + 2 * edge_count
+    signature_start: usize = labels_start + node_count
+    for node in 0..<node_count:
+        if values[labels_start + node] < -1 or values[labels_start + node] > MAX_LABEL:
+            return -2
+    for index in 0..<signature_length:
+        if values[signature_start + index] < 0 or values[signature_start + index] > MAX_LABEL:
+            return -2
+
+    first_label: i64 = values[signature_start]
+    for node in 0..<node_count:
+        if values[labels_start + node] == first_label:
+            visited: mutable u64 = 0
+            if search_leg(values, edge_count, labels_start, signature_start, signature_length,
+                          node, 1, visited):
+                return 1
+    0
+
+export fn doe_pathfinder_signature_search(values: i64&, length: usize) -> i64 = doe_pathfinder_signature_search_impl

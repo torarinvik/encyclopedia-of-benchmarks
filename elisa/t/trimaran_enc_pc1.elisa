@@ -1,0 +1,54 @@
+# Pukall Cipher 1 adaptation; source author Alexander Pukall (1991), unrestricted use.
+const MAX_NUM_INPUT: i64 = 2049
+
+def pc1_code_step(words: mutable u16&, si: mutable u16&, x1a2: mutable u16&, index: usize) -> u16:
+    dx: mutable u16 = (x1a2[0].u32() + index.u32()).u16()
+    ax: mutable u16 = words[index]
+    cx: mutable u16 = 0x015a.u16()
+    bx: u16 = 0x4e35.u16()
+    tmp: mutable u16 = ax
+    ax <- si[0]; si[0] <- tmp
+    tmp <- ax; ax <- dx; dx <- tmp
+    if ax != 0.u16(): ax <- ((ax.u32() * bx.u32()) & 65535.u32()).u16()
+    tmp <- ax; ax <- cx; cx <- tmp
+    if ax != 0.u16():
+        ax <- ((ax.u32() * si[0].u32()) & 65535.u32()).u16()
+        cx <- (ax.u32() + cx.u32()).u16()
+    tmp <- ax; ax <- si[0]; si[0] <- tmp
+    ax <- ((ax.u32() * bx.u32()) & 65535.u32()).u16()
+    dx <- (cx.u32() + dx.u32()).u16()
+    ax <- (ax.u32() + 1.u32()).u16()
+    x1a2[0] <- dx
+    words[index] <- ax
+    ax ^ dx
+
+def pc1_assemble(words: mutable u16&, si: mutable u16&, x1a2: mutable u16&, key: u8&) -> u16:
+    words[0] <- ((key[0].u16() << 8) | key[1].u16())
+    inter: mutable u16 = pc1_code_step(words, si, x1a2, 0)
+    for i in 1..<16:
+        word: u16 = (key[2*i].u16() << 8) | key[2*i + 1].u16()
+        words[i] <- words[i - 1] ^ word
+        inter <- inter ^ pc1_code_step(words, si, x1a2, i)
+    inter
+
+def trimaran_enc_pc1(input: i64&, length: usize) -> i64:
+    if input.is_null() or length != 1 or input[0] < 1 or input[0] > MAX_NUM_INPUT:
+        return -1
+    key: mutable u8[32] = [97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,
+                           113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53]
+    words: mutable u16[16] = zeroed
+    si: mutable u16 = 0
+    x1a2: mutable u16 = 0
+    seed: mutable u32 = 1
+    last: mutable u16 = 0
+    for step in 0..<input[0].usize() - 1:
+        seed <- ((seed.u64() * 1664525.u64() + 1013904223.u64()) & 0xffffffff.u64()).u32()
+        plain: u16 = ((seed >> 16) & 0x7fff).u16()
+        inter: u16 = pc1_assemble(words, si, x1a2, key)
+        cipher: u16 = plain ^ ((inter >> 8) ^ (inter & 255.u16()))
+        feedback: u8 = plain.u8()
+        for i in 0..<32: key[i] <- key[i] ^ feedback
+        last <- cipher
+    last.i64()
+
+export fn trimaran_enc_pc1(input: i64&, length: usize) -> i64 = trimaran_enc_pc1

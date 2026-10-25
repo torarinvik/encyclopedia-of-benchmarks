@@ -1,0 +1,3 @@
+module edn_vec_mpy1;
+fn void put64(uint8* out,usz pos,long value){ulong u=(ulong)value;for(usz j=0;j<8;j++)out[pos+j]=(uint8)(u>>(8*j));}
+fn long edn_vec_mpy1(long* v,usz n,uint8* out,usz cap) @export("edn_vec_mpy1"){if(v==null||n<4||n>130)return -1;long count=v[0];if(count<1||count>64||n!=2+2*(usz)count)return -1;usz q=(usz)count;long scale=v[n-1];if(scale< -1024||scale>1023)return -1;long[64] y,x;for(usz i=0;i<q;i++){y[i]=v[1+i];x[i]=v[1+q+i];if(y[i]< -1024||y[i]>1023||x[i]< -1024||x[i]>1023)return -1;}usz bytes=8*q;if(out==null||cap<bytes)return -2;for(usz i=0;i<q;i++)y[i]+=(scale*x[i])>>15;for(usz i=0;i<q;i++)put64(out,8*i,y[i]);return (long)bytes;}

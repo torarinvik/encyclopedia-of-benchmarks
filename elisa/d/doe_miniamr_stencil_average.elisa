@@ -1,0 +1,91 @@
+# ************************************************************************
+#
+# miniAMR: stencil computations with boundary exchange and AMR.
+#
+# Copyright (2014) Sandia Corporation. Under the terms of Contract
+# DE-AC04-94AL85000 with Sandia Corporation. The U.S. Government
+# retains certain rights in this software.
+#
+# This library is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+# Questions? Contact Courtenay T. Vaughan (ctvaugh@sandia.gov)
+#                    Richard F. Barrett (rfbarre@sandia.gov)
+#
+# ************************************************************************
+const INVALID_RESULT: f64 = -1.0e300
+
+def doe_miniamr_stencil_average_impl(values: i64&, length: usize) -> f64:
+    if values == null or length < 68 or length > 220: return INVALID_RESULT
+    stencil: i64 = values[0]
+    nx_raw: i64 = values[1]
+    ny_raw: i64 = values[2]
+    nz_raw: i64 = values[3]
+    if stencil != 7 and stencil != 27: return INVALID_RESULT
+    if nx_raw < 2 or nx_raw > 4 or nx_raw % 2 != 0: return INVALID_RESULT
+    if ny_raw < 2 or ny_raw > 4 or ny_raw % 2 != 0: return INVALID_RESULT
+    if nz_raw < 2 or nz_raw > 4 or nz_raw % 2 != 0: return INVALID_RESULT
+
+    nx: usize = nx_raw.usize()
+    ny: usize = ny_raw.usize()
+    nz: usize = nz_raw.usize()
+    grid_cells: usize = (nx + 2) * (ny + 2) * (nz + 2)
+    if length != 4 + grid_cells: return INVALID_RESULT
+    q: mutable usize = 0
+    while q < grid_cells:
+        if values[4 + q] < -1000 or values[4 + q] > 1000: return INVALID_RESULT
+        q <- q + 1
+
+    stride_i: usize = (ny + 2) * (nz + 2)
+    stride_j: usize = nz + 2
+    work: mutable [64]f64 = [0.0; 64]
+    count: mutable usize = 0
+    i: mutable usize = 1
+    while i <= nx:
+        j: mutable usize = 1
+        while j <= ny:
+            k: mutable usize = 1
+            while k <= nz:
+                base: usize = 4 + i * stride_i + j * stride_j + k
+                if stencil == 7:
+                    sum: f64 = values[base - stride_i].f64() +
+                        values[base - stride_j].f64() + values[base - 1].f64() +
+                        values[base].f64() + values[base + 1].f64() +
+                        values[base + stride_j].f64() + values[base + stride_i].f64()
+                    work[count] <- sum / 7.0
+                else:
+                    sb: f64 = values[base - stride_i - stride_j - 1].f64() +
+                        values[base - stride_i - stride_j].f64() + values[base - stride_i - stride_j + 1].f64() +
+                        values[base - stride_i - 1].f64() + values[base - stride_i].f64() + values[base - stride_i + 1].f64() +
+                        values[base - stride_i + stride_j - 1].f64() + values[base - stride_i + stride_j].f64() + values[base - stride_i + stride_j + 1].f64()
+                    sm: f64 = values[base - stride_j - 1].f64() + values[base - stride_j].f64() + values[base - stride_j + 1].f64() +
+                        values[base - 1].f64() + values[base].f64() + values[base + 1].f64() +
+                        values[base + stride_j - 1].f64() + values[base + stride_j].f64() + values[base + stride_j + 1].f64()
+                    sf: f64 = values[base + stride_i - stride_j - 1].f64() + values[base + stride_i - stride_j].f64() + values[base + stride_i - stride_j + 1].f64() +
+                        values[base + stride_i - 1].f64() + values[base + stride_i].f64() + values[base + stride_i + 1].f64() +
+                        values[base + stride_i + stride_j - 1].f64() + values[base + stride_i + stride_j].f64() + values[base + stride_i + stride_j + 1].f64()
+                    work[count] <- (sb + sm + sf) / 27.0
+                count <- count + 1
+                k <- k + 1
+            j <- j + 1
+        i <- i + 1
+
+    checksum: mutable f64 = 0.0
+    q <- 0
+    while q < count:
+        value: f64 = work[q]
+        checksum <- checksum + (q + 1).f64() * value * value
+        q <- q + 1
+    checksum
+
+export fn doe_miniamr_stencil_average(values: i64&, length: usize) -> f64 = doe_miniamr_stencil_average_impl

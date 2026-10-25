@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "rodinia-lavamd-bounded-screened-pair-interactions-v1",
+  "algorithm": "rodinia_lavamd",
+  "function_symbol": "rodinia_lavamd",
+  "abi": "i64_array_scalar",
+  "description": "Bounded screened-particle potential and force accumulation for one home box and one neighboring box.",
+  "pinned_source": {
+    "repository": "utcs-scea/rodinia",
+    "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+    "paths": ["cuda/lavaMD/kernel/kernel_gpu_cuda.cu", "cuda/lavaMD/main.h", "cuda/lavaMD/main.c", "LICENSE"],
+    "symbols": ["kernel_gpu_cuda", "box"],
+    "url": "https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/lavaMD",
+    "license": "University of Virginia three-condition BSD-style license",
+    "copyright": "Copyright (c)2008-2011 University of Virginia"
+  },
+  "pinned_launcher": {
+    "repository": "utcs-scea/rodinia",
+    "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+    "path": "cuda/lavaMD/run",
+    "command": "./lavaMD -boxes1d 10",
+    "profile_note": "The bounded package replaces the launcher's 10-by-10-by-10 box workload with one home box and one supplied neighbor box."
+  },
+  "contract": {
+    "operation": "For each home particle, accumulate potential and force from all home particles followed by all particles in one neighbor box, preserving source order.",
+    "pair_formula": "dot=ax*bx+ay*by+az*bz; r2=av+bv-dot; vij=exp(-0.5*r2); fs=2*vij; potential+=b.charge*vij; force_xyz+=b.charge*fs*(a.xyz-b.xyz)",
+    "input_layout": "[home_count, neighbor_count, home particles then neighbor particles as (v_u,x_u,y_u,z_u,charge_u)]",
+    "component_encoding": "unsigned raw integer divided by 1000000.0 into binary64",
+    "component_raw_range": [0, 1000000],
+    "particle_count_range_per_box": [1, 4],
+    "output_formula": "1000000000000 + round_half_away(1000000 * sum_i((i+1)*(potential_i+force_x_i+force_y_i+force_z_i)))",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "packed_i64_array",
+    "layout": "[home_count, neighbor_count, home particles then neighbor particles as (v_u,x_u,y_u,z_u,charge_u)]",
+    "particle_count_range_per_box": [1, 4],
+    "component_encoding": "fixed point raw / 1000000.0; source order is v,x,y,z,charge",
+    "component_raw_range": [0, 1000000],
+    "exact_length": "2 + 5*(home_count + neighbor_count)",
+    "minimum_input_values": 12,
+    "maximum_input_values": 42,
+    "maximum_parseable_input_values": 43,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "i64_scalar",
+    "meaning": "one-trillion bias plus the micro-unit rounded weighted checksum of home-particle potential and force components",
+    "rounding": "nearest, ties away from zero",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "two_home_particles_and_one_neighbor_zero_separation",
+      "input_values": [2, 1, 5000, 100000, 0, 0, 100000, 5000, 100000, 0, 0, 100000, 5000, 100000, 0, 0, 200000],
+      "expected_result": 1000001200000
+    },
+    {
+      "id": "nonzero_force_at_zero_r2",
+      "input_values": [1, 1, 5000, 100000, 0, 0, 500000, 15000, 200000, 0, 0, 400000],
+      "expected_result": 1000000820000
+    },
+    {
+      "id": "all_zero_components",
+      "input_values": [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "expected_result": 1000000000000
+    },
+    {
+      "id": "invalid_empty_input",
+      "input_values": [],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_particle_count",
+      "input_values": [5, 1, 0, 0, 0, 0, 0],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_component_range",
+      "input_values": [1, 1, 0, 0, 0, 0, 1000001, 0, 0, 0, 0, 0],
+      "expected_result": -1
+    },
+    {
+      "id": "invalid_trailing_value",
+      "input_values": [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "expected_result": -1
+    }
+  ]
+}

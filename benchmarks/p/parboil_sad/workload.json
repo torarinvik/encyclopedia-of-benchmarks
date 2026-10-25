@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "parboil-sad-hierarchical-16x16-motion-search-i64-array-scalar-v1",
+  "algorithm": "parboil_sad",
+  "function_symbol": "parboil_sad",
+  "abi": "i64_array_scalar",
+  "description": "One Parboil 16x16 macroblock through its 4x4 motion-search SAD and hierarchical larger-block aggregation path.",
+  "pinned_source": {
+    "repository": "yuhc/gpu-parboil",
+    "commit": "ccf3d3126f1754ca85528722f4ced5894ccb852b",
+    "paths": [
+      "benchmarks/sad/src/base/sad_cpu.c",
+      "benchmarks/sad/src/base/sad.h",
+      "benchmarks/sad/src/base/main.c",
+      "benchmarks/sad/DESCRIPTION",
+      "LICENSE"
+    ],
+    "symbols": ["sad4_cpu", "sad4_one_macroblock", "larger_sads"],
+    "constants": {
+      "search_range": 16,
+      "search_positions": 1089,
+      "padded_search_positions": 1092,
+      "macroblock_width": 16,
+      "macroblock_height": 16,
+      "source_pixel_type": "unsigned 16-bit; profile restricts grayscale values to 0..255"
+    },
+    "source_links": {
+      "kernel": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/sad/src/base/sad_cpu.c",
+      "constants": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/sad/src/base/sad.h",
+      "launcher": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/sad/src/base/main.c",
+      "license": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/LICENSE"
+    },
+    "license": "Illinois Open Source License, University of Illinois/NCSA; full repository license reproduced in LICENSE.txt."
+  },
+  "contract": {
+    "operation": "Compute all source 4x4 block SADs for all 33x33 integer motion offsets, then construct block types 6, 5, 4, 3, 2, and 1 using the source's hierarchical vector additions.",
+    "input_layout": "64 packed little-endian u32 pixel groups for the current image, followed by 64 for the reference image; each 16x16 image is row-major with four groups per row and four grayscale bytes per group.",
+    "exact_input_length": 128,
+    "maximum_input_length": 128,
+    "packed_group_range": [0, 4294967295],
+    "pixel_range": [0, 255],
+    "macroblock_dimensions": [16, 16],
+    "search_offsets": "dy=-16..16 outer, dx=-16..16 inner; candidate reference coordinates clamp independently to [0,15] at image edges.",
+    "block_types": {
+      "1": {"height": 16, "width": 16, "blocks": 1},
+      "2": {"height": 8, "width": 16, "blocks": 2},
+      "3": {"height": 16, "width": 8, "blocks": 2},
+      "4": {"height": 8, "width": 8, "blocks": 4},
+      "5": {"height": 4, "width": 8, "blocks": 8},
+      "6": {"height": 8, "width": 4, "blocks": 8},
+      "7": {"height": 4, "width": 4, "blocks": 16}
+    },
+    "source_order": "The leaf kernel visits y-offset, x-offset, block row, block column, pixel row, pixel column. The larger_sads pass builds types 6, 5, 4, 3, 2, 1 in that order; each component uses the source's unsigned-16 value range. The three padded search slots are not part of the observable profile.",
+    "output_definition": "Signed-i64 sum of every SAD entry for types 1 through 7 and all 1089 offsets.",
+    "maximum_result": 497629440,
+    "invalid_result": -1,
+    "source_launcher_scope": "One 16x16 macroblock is the smallest legal image; image loading, output-file formatting, GPU texture operations, and multi-macroblock scheduling are excluded."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_valid_length": 128,
+    "maximum_parseable_length": 128,
+    "encoding": "Two 16x16 8-bit grayscale images, each encoded as row-major little-endian u32 words containing four consecutive pixels.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "encoding": "Sum of all SAD values from the seven source block types and all search positions.",
+    "maximum_value": 497629440,
+    "invalid_input_result": -1
+  },
+  "workspace": {
+    "bytes": 89544,
+    "meaning": "41 source block vectors of 1092 u16 slots each; only the first 1089 slots in each vector are observed."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "identical-black-macroblocks",
+      "input_values": [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+      ],
+      "input_length": 128,
+      "expected_result": 0
+    },
+    {
+      "id": "black-current-white-reference",
+      "input_values": [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+        4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+        4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+        4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+        4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+        4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+        4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+        4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295
+      ],
+      "input_length": 128,
+      "expected_result": 497629440
+    },
+    {
+      "id": "short-frame",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": -1
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+# Clean-room bounded profile of TSVC s2101; see package README.
+
+const TSVC_S2101_MAX_N: usize = 8
+const TSVC_S2101_MAX_CELLS: usize = TSVC_S2101_MAX_N * TSVC_S2101_MAX_N
+const TSVC_S2101_MAX_INPUT_LENGTH: usize = 1 + 3 * TSVC_S2101_MAX_CELLS
+const TSVC_S2101_MAX_VALUE: i64 = 100
+
+def tsvc_s2101_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s2101_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 4 or length > TSVC_S2101_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 8:
+        return -1
+    n: usize = n_value.usize()
+    cells: usize = n * n
+    if length != 1 + 3 * cells:
+        return -1
+    for i in 0..(3 * cells):
+        value: i64 = input[i + 1]
+        if value < -TSVC_S2101_MAX_VALUE or value > TSVC_S2101_MAX_VALUE:
+            return -1
+    if output.is_null() or capacity < 8 * cells:
+        return -2
+
+    for cell in 0..cells:
+        tsvc_s2101_store(input[cell + 1], output, 8 * cell)
+    for i in 0..n:
+        diagonal: usize = i * n + i
+        value: i64 = input[1 + diagonal] + input[1 + cells + diagonal] * input[1 + 2 * cells + diagonal]
+        tsvc_s2101_store(value, output, 8 * diagonal)
+    cells.i64()
+
+export fn tsvc_s2101_diagonal_matrix_fma(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s2101_impl

@@ -1,0 +1,47 @@
+const MAX_N: usize = 64
+const MAX_PASSES: i64 = 8
+
+def tsvc_s273_dependent_conditional_update_impl(values: i64&, length: usize) -> i64:
+    if length < 7 or length > 2 + 5 * MAX_N:
+        return -1
+    n_value: i64 = values[0]
+    passes_value: i64 = values[1]
+    if n_value < 1 or n_value > MAX_N.i64() or passes_value < 1 or passes_value > MAX_PASSES:
+        return -1
+    n: usize = n_value.usize()
+    passes: usize = passes_value.usize()
+    if length != 2 + 5 * n:
+        return -1
+    valid: bool =
+        while index < length |index: mutable usize = 2| -> valid:
+            if values[index] < -2 or values[index] > 2:
+                break false
+            index <- index + 1
+            true
+    if not valid:
+        return -1
+
+    a: mutable i64[MAX_N] = zeroed
+    b: mutable i64[MAX_N] = zeroed
+    c: mutable i64[MAX_N] = zeroed
+    d: mutable i64[MAX_N] = zeroed
+    e: mutable i64[MAX_N] = zeroed
+    for i in 0..n:
+        a[i] <- values[2 + i]
+        b[i] <- values[2 + n + i]
+        c[i] <- values[2 + 2 * n + i]
+        d[i] <- values[2 + 3 * n + i]
+        e[i] <- values[2 + 4 * n + i]
+    for iteration in 0..passes:
+        for i in 0..n:
+            a[i] <- a[i] + d[i] * e[i]
+            if a[i] < 0:
+                b[i] <- b[i] + d[i] * e[i]
+            c[i] <- c[i] + a[i] * d[i]
+
+    while i < n |i: mutable usize = 0, total: mutable i64 = 0| -> total:
+        total <- total + a[i] + b[i] + c[i]
+        i <- i + 1
+        total
+
+export fn tsvc_s273_dependent_conditional_update(values: i64&, length: usize) -> i64 = tsvc_s273_dependent_conditional_update_impl

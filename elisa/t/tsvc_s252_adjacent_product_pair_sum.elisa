@@ -1,0 +1,44 @@
+# Clean-room bounded port of TSVC s252; see package README for provenance.
+
+const TSVC_S252_MAX_N: usize = 64
+const TSVC_S252_MAX_INPUT_LENGTH: usize = 129
+
+def tsvc_s252_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def tsvc_s252_adjacent_product_pair_sum_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 3 or length > TSVC_S252_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 64:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + 2 * n:
+        return -1
+    b: mutable i64[64] = zeroed
+    c: mutable i64[64] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        b[i] <- input[1 + i]
+        c[i] <- input[1 + n + i]
+        if b[i] < -2 or b[i] > 2 or c[i] < -2 or c[i] > 2:
+            return -1
+        i <- i + 1
+    if output.is_null() or capacity < 8 * n:
+        return -2
+    previous_product: mutable i64 = 0
+    i <- 0
+    while i < n:
+        product: i64 = b[i] * c[i]
+        tsvc_s252_store_i64_le(product + previous_product, output, 8 * i)
+        previous_product <- product
+        i <- i + 1
+    n.i64()
+
+export fn tsvc_s252_adjacent_product_pair_sum(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s252_adjacent_product_pair_sum_impl

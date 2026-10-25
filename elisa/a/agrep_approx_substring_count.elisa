@@ -1,0 +1,38 @@
+const MAX_PATTERN_LENGTH: usize = 63
+const MAX_TEXT_LENGTH: usize = 4096
+const MAX_ERRORS: i64 = 2
+
+def agrep_approx_substring_count_impl(values: i64&, length: usize) -> i64:
+    if length < 3 or values[0] < 1 or values[0] > MAX_PATTERN_LENGTH.i64() or values[1] < 0 or values[1] > MAX_TEXT_LENGTH.i64() or values[2] < 0 or values[2] > MAX_ERRORS:
+        return -2
+    pattern_length: usize = values[0].usize()
+    text_length: usize = values[1].usize()
+    if length != 3 + pattern_length + text_length:
+        return -2
+    for index in 3..<length:
+        if values[index] < 32 or values[index] > 126:
+            return -2
+
+    previous: mutable i64[64] = zeroed
+    current: mutable i64[64] = zeroed
+    for index in 0..pattern_length:
+        previous[index] <- index.i64()
+    matches: mutable i64 = 0
+    text_offset: usize = 3 + pattern_length
+    for index in 0..<text_length:
+        current[0] <- 0
+        for pattern_index in 1..pattern_length:
+            substitution: i64 = previous[pattern_index - 1] + (values[3 + pattern_index - 1] == values[text_offset + index] ? 0 : 1)
+            best: mutable i64 = previous[pattern_index] + 1
+            if current[pattern_index - 1] + 1 < best:
+                best <- current[pattern_index - 1] + 1
+            if substitution < best:
+                best <- substitution
+            current[pattern_index] <- best
+        if current[pattern_length] <= values[2]:
+            matches <- matches + 1
+        for pattern_index in 0..pattern_length:
+            previous[pattern_index] <- current[pattern_index]
+    matches
+
+export fn agrep_approx_substring_count(values: i64&, length: usize) -> i64 = agrep_approx_substring_count_impl

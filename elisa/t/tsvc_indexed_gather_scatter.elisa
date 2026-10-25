@@ -1,0 +1,57 @@
+# Clean-room bounded profile of TSVC s491 and s4113; see package README.
+
+const TSVC_INDEXED_MAX_N: usize = 16
+const TSVC_INDEXED_MAX_INPUT_LENGTH: usize = 82
+const TSVC_INDEXED_MAX_OPERAND: i64 = 1000000
+
+def tsvc_indexed_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_indexed_bounded(value: i64) -> bool:
+    value >= -TSVC_INDEXED_MAX_OPERAND and value <= TSVC_INDEXED_MAX_OPERAND
+
+def tsvc_indexed_gather_scatter_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > TSVC_INDEXED_MAX_INPUT_LENGTH:
+        return -1
+    mode: i64 = input[0]
+    n_value: i64 = input[1]
+    if (mode != 491 and mode != 4113) or n_value < 1 or n_value > 16:
+        return -1
+    n: usize = n_value.usize()
+    arrays_per_index: usize = if mode == 491: 5 else: 4
+    if length != 2 + arrays_per_index * n:
+        return -1
+
+    index_start: usize = 2
+    a_start: usize = index_start + n
+    b_start: usize = a_start + n
+    c_start: usize = b_start + n
+    d_start: usize = c_start + n
+    state: mutable i64[16] = zeroed
+    for i in 0..n:
+        index: i64 = input[index_start + i]
+        if index < 0 or index >= n_value:
+            return -1
+        state[i] <- input[a_start + i]
+        if not tsvc_indexed_bounded(input[b_start + i]) or not tsvc_indexed_bounded(input[c_start + i]):
+            return -1
+        if mode == 491 and not tsvc_indexed_bounded(input[d_start + i]):
+            return -1
+    if output.is_null() or capacity < 8 * n:
+        return -2
+
+    for i in 0..n:
+        index: usize = input[index_start + i].usize()
+        if mode == 491:
+            state[index] <- input[b_start + i] + input[c_start + i] * input[d_start + i]
+        else:
+            state[index] <- input[b_start + index] + input[c_start + i]
+    for i in 0..n:
+        tsvc_indexed_store_i64(state[i], output, 8 * i)
+    n.i64()
+
+export fn tsvc_indexed_gather_scatter(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_indexed_gather_scatter_impl

@@ -1,0 +1,176 @@
+const BIN_SIDE: usize = 32
+const HISTOGRAM_SIZE: usize = 32768
+const MAX_PALETTE: usize = 8
+const MAX_PIXELS: usize = 16
+const MAX_INPUT_LENGTH: usize = 50
+
+struct CtmBox:
+    rmin: i64
+    rmax: i64
+    gmin: i64
+    gmax: i64
+    bmin: i64
+    bmax: i64
+    total: i64
+
+def ctm_hist_at(histogram: i64[32768]&, r: usize, g: usize, b: usize) -> i64:
+    histogram[(r * BIN_SIDE + g) * BIN_SIDE + b]
+
+def ctm_shrink_box(histogram: i64[32768]&, box: mutable CtmBox&) -> void:
+    rmin: mutable usize = BIN_SIDE
+    gmin: mutable usize = BIN_SIDE
+    bmin: mutable usize = BIN_SIDE
+    rmax: mutable i64 = -1
+    gmax: mutable i64 = -1
+    bmax: mutable i64 = -1
+    r: mutable usize = box.rmin.usize()
+    while r <= box.rmax.usize():
+        g: mutable usize = box.gmin.usize()
+        while g <= box.gmax.usize():
+            b: mutable usize = box.bmin.usize()
+            while b <= box.bmax.usize():
+                if ctm_hist_at(histogram, r, g, b) != 0:
+                    if r.i64() < rmin.i64(): rmin <- r
+                    if r.i64() > rmax: rmax <- r.i64()
+                    if g.i64() < gmin.i64(): gmin <- g
+                    if g.i64() > gmax: gmax <- g.i64()
+                    if b.i64() < bmin.i64(): bmin <- b
+                    if b.i64() > bmax: bmax <- b.i64()
+                b <- b + 1
+            g <- g + 1
+        r <- r + 1
+    box.rmin <- rmin.i64(); box.rmax <- rmax
+    box.gmin <- gmin.i64(); box.gmax <- gmax
+    box.bmin <- bmin.i64(); box.bmax <- bmax
+
+def ctm_largest_box(boxes: CtmBox[8]&, count: usize) -> i64:
+    selected: mutable i64 = -1
+    largest_total: mutable i64 = -1
+    i: mutable usize = 0
+    while i < count:
+        box: CtmBox = boxes[i]
+        spans: bool = box.rmax > box.rmin or box.gmax > box.gmin or box.bmax > box.bmin
+        if spans and box.total > largest_total:
+            selected <- i.i64()
+            largest_total <- box.total
+        i <- i + 1
+    selected
+
+def ctm_split_box(histogram: i64[32768]&, boxes: mutable CtmBox[8]&, count: mutable usize&, selected: usize) -> void:
+    upper: mutable CtmBox = boxes[selected]
+    rspan: i64 = upper.rmax - upper.rmin
+    gspan: i64 = upper.gmax - upper.gmin
+    bspan: i64 = upper.bmax - upper.bmin
+    axis: mutable usize = 0
+    if not (rspan >= gspan and rspan >= bspan):
+        if gspan >= bspan: axis <- 1
+        else: axis <- 2
+    first: usize = if axis == 0: upper.rmin.usize() else if axis == 1: upper.gmin.usize() else: upper.bmin.usize()
+    last: usize = if axis == 0: upper.rmax.usize() else if axis == 1: upper.gmax.usize() else: upper.bmax.usize()
+    along: mutable i64[32] = zeroed
+    r: mutable usize = upper.rmin.usize()
+    while r <= upper.rmax.usize():
+        g: mutable usize = upper.gmin.usize()
+        while g <= upper.gmax.usize():
+            b: mutable usize = upper.bmin.usize()
+            while b <= upper.bmax.usize():
+                coordinate: usize = if axis == 0: r else if axis == 1: g else: b
+                along[coordinate] <- along[coordinate] + ctm_hist_at(histogram, r, g, b)
+                b <- b + 1
+            g <- g + 1
+        r <- r + 1
+    median: i64 = upper.total / 2
+    accumulated: mutable i64 = 0
+    split: mutable usize = first
+    while split <= last:
+        accumulated <- accumulated + along[split]
+        if accumulated >= median: break
+        split <- split + 1
+    if split == first: split <- split + 1
+    lower: mutable CtmBox = upper
+    lower_total: mutable i64 = 0
+    upper_total: mutable i64 = 0
+    bin: mutable usize = first
+    while bin < split:
+        lower_total <- lower_total + along[bin]
+        bin <- bin + 1
+    bin <- split
+    while bin <= last:
+        upper_total <- upper_total + along[bin]
+        bin <- bin + 1
+    lower.total <- lower_total
+    upper.total <- upper_total
+    if axis == 0:
+        lower.rmax <- split.i64() - 1
+        upper.rmin <- split.i64()
+    else if axis == 1:
+        lower.gmax <- split.i64() - 1
+        upper.gmin <- split.i64()
+    else:
+        lower.bmax <- split.i64() - 1
+        upper.bmin <- split.i64()
+    ctm_shrink_box(histogram, lower)
+    ctm_shrink_box(histogram, upper)
+    boxes[selected] <- upper
+    i: mutable usize = count
+    while i > 0:
+        boxes[i] <- boxes[i - 1]
+        i <- i - 1
+    boxes[0] <- lower
+    count <- count + 1
+
+def cbench_consumer_tiffmedian_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or input_length < 5 or input_length > MAX_INPUT_LENGTH: return -1
+    palette_value: i64 = input[0]
+    pixel_value: i64 = input[1]
+    if palette_value < 1 or palette_value > MAX_PALETTE.i64() or pixel_value < 1 or pixel_value > MAX_PIXELS.i64(): return -1
+    palette_limit: usize = palette_value.usize()
+    pixel_count: usize = pixel_value.usize()
+    if input_length != 2 + 3 * pixel_count: return -1
+    i: mutable usize = 0
+    while i < 3 * pixel_count:
+        if input[i + 2] < 0 or input[i + 2] > 255: return -1
+        i <- i + 1
+    histogram: mutable i64[32768] = zeroed
+    boxes: mutable CtmBox[8] = zeroed
+    rmin: mutable usize = BIN_SIDE
+    gmin: mutable usize = BIN_SIDE
+    bmin: mutable usize = BIN_SIDE
+    rmax: mutable i64 = -1
+    gmax: mutable i64 = -1
+    bmax: mutable i64 = -1
+    p: mutable usize = 0
+    while p < pixel_count:
+        r: usize = (input[2 + 3 * p] / 8).usize()
+        g: usize = (input[3 + 3 * p] / 8).usize()
+        b: usize = (input[4 + 3 * p] / 8).usize()
+        index: usize = (r * BIN_SIDE + g) * BIN_SIDE + b
+        histogram[index] <- histogram[index] + 1
+        if r < rmin: rmin <- r
+        if r.i64() > rmax: rmax <- r.i64()
+        if g < gmin: gmin <- g
+        if g.i64() > gmax: gmax <- g.i64()
+        if b < bmin: bmin <- b
+        if b.i64() > bmax: bmax <- b.i64()
+        p <- p + 1
+    boxes[0].rmin <- rmin.i64(); boxes[0].rmax <- rmax
+    boxes[0].gmin <- gmin.i64(); boxes[0].gmax <- gmax
+    boxes[0].bmin <- bmin.i64(); boxes[0].bmax <- bmax
+    boxes[0].total <- pixel_count.i64()
+    box_count: mutable usize = 1
+    while box_count < palette_limit:
+        selected: i64 = ctm_largest_box(boxes, box_count)
+        if selected < 0: break
+        ctm_split_box(histogram, boxes, box_count, selected.usize())
+    output_bytes: usize = 1 + 3 * box_count
+    if output == null or output_capacity < output_bytes: return -2
+    output[0] <- box_count.u8()
+    i <- 0
+    while i < box_count:
+        output[1 + 3 * i] <- ((boxes[i].rmin + boxes[i].rmax) * 4).u8()
+        output[2 + 3 * i] <- ((boxes[i].gmin + boxes[i].gmax) * 4).u8()
+        output[3 + 3 * i] <- ((boxes[i].bmin + boxes[i].bmax) * 4).u8()
+        i <- i + 1
+    output_bytes.i64()
+
+export fn cbench_consumer_tiffmedian(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = cbench_consumer_tiffmedian_impl

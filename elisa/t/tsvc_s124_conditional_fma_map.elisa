@@ -1,0 +1,57 @@
+# Clean-room port of TSVC s124; see package README for provenance and rights.
+
+const TSVC_S124_MAX_N: usize = 32
+const TSVC_S124_MAX_INPUT_LENGTH: usize = 129
+
+def tsvc_s124_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def tsvc_s124_conditional_fma_map_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 5 or length > TSVC_S124_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 1 or n_value > 32:
+        return -1
+    n: usize = n_value.usize()
+    if length != 1 + 4 * n:
+        return -1
+    a: mutable i64[32] = zeroed
+    b: mutable i64[32] = zeroed
+    c: mutable i64[32] = zeroed
+    d: mutable i64[32] = zeroed
+    e: mutable i64[32] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        b[i] <- input[1 + i]
+        c[i] <- input[1 + n + i]
+        d[i] <- input[1 + 2 * n + i]
+        e[i] <- input[1 + 3 * n + i]
+        if b[i] < -100 or b[i] > 100 or c[i] < -100 or c[i] > 100 or
+                d[i] < -100 or d[i] > 100 or e[i] < -100 or e[i] > 100:
+            return -1
+        i <- i + 1
+    if output.is_null() or capacity < 8 * n:
+        return -2
+    j: mutable i64 = -1
+    i <- 0
+    while i < n:
+        if b[i] > 0:
+            j <- j + 1
+            a[j.usize()] <- b[i] + d[i] * e[i]
+        else:
+            j <- j + 1
+            a[j.usize()] <- c[i] + d[i] * e[i]
+        i <- i + 1
+    i <- 0
+    while i < n:
+        tsvc_s124_store_i64_le(a[i], output, 8 * i)
+        i <- i + 1
+    n.i64()
+
+export fn tsvc_s124_conditional_fma_map(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s124_conditional_fma_map_impl

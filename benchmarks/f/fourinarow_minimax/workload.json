@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-freebench-fourinarow-minimax-i64-array-scalar-v1",
+  "algorithm": "fourinarow_minimax",
+  "function_symbol": "fourinarow_minimax",
+  "description": "Bounded FreeBench Connect Four heuristic minimax with optional source mode-2 alpha-beta pruning.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["FreeBench/fourinarow/fourinarow.c", "FreeBench/fourinarow/info.sh", "FreeBench/fourinarow/test.in", "FreeBench/fourinarow/ref.in"],
+    "symbols": ["init_patterns", "value", "think", "bit_place_piece", "minimax_comp", "minimax_player", "minimax_comp_ab2", "minimax_player_ab2"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/FreeBench/fourinarow",
+    "distribution_notice": "Peter Rundberg, biff@ce.chalmers.se: \"Plese feel free to distribute this program as you like.\" No separate license file is present in the pinned package."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "FreeBench/fourinarow/info.sh",
+    "bench_name": "fourinarow",
+    "source_files": ["fourinarow.c"],
+    "compile_flags": ["-DVERSION=\"1.00\"", "-DCOMPDATE=\"today\"", "-DCFLAGS=\"\"", "-DHOSTNAME=\"thishost\""],
+    "run_options": {"test.in": [7, 2], "ref.in": [9, 2]}
+  },
+  "contract": {
+    "input_layout": "[depth, alpha_beta_mode, side, move_count, column_0, ...]",
+    "board": "6 rows by 7 columns; bit index is column + row*7; column pieces occupy rows bottom-up.",
+    "players": "Player 1 (human, minimizing) moves first; player 2 (computer, maximizing) follows. Side must match move_count parity.",
+    "depth": "Source recursion starts at depth 1 and evaluates before moving when depth >= depth_limit; a depth limit D therefore searches D-1 plies including the root move.",
+    "search_modes": {"0": "plain minimax", "2": "source second alpha-beta implementation with strict max>beta and min<alpha cutoffs"},
+    "heuristic": "Source's generated 4/3/2 masks score 1000/20/5 with human negative and computer positive; source loop order and row*6 horizontal/diagonal offsets are retained.",
+    "tie_behavior": "Max nodes keep the first equal-scoring column; min nodes keep the last equal-scoring column.",
+    "history": "Legal alternating column replay from an empty board; no earlier four-in-a-row; at most 20 moves.",
+    "result": "final_heuristic_score*8 + selected_root_column",
+    "invalid_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[depth, alpha_beta_mode, side, move_count, column_0, ...]",
+    "depth_range": [2, 7],
+    "alpha_beta_modes": [0, 2],
+    "side_range": [1, 2],
+    "move_count_range": [0, 20],
+    "column_range": [0, 6],
+    "exact_length": "4 + move_count",
+    "maximum_valid_input_length": 24,
+    "maximum_parseable_input_length": 24,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_integer",
+    "meaning": "Heuristic score multiplied by eight plus the chosen column.",
+    "valid_result_range": [-1134480, 1134486],
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {"id": "empty_board_human_tie_chooses_last", "input_values": [2, 0, 1, 0], "expected_result": 6},
+    {"id": "single_human_piece_computer_tie_chooses_first", "input_values": [2, 2, 2, 1, 0], "expected_result": 0},
+    {"id": "unsupported_broken_alpha_beta_method_one", "input_values": [2, 1, 1, 0], "expected_result": -1},
+    {"id": "side_does_not_match_history", "input_values": [2, 0, 2, 0], "expected_result": -1},
+    {"id": "length_mismatch", "input_values": [2, 0, 1, 1], "expected_result": -1},
+    {"id": "history_already_contains_four", "input_values": [2, 0, 2, 7, 0, 1, 0, 1, 0, 1, 0], "expected_result": -1}
+  ]
+}

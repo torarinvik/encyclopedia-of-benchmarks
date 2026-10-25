@@ -11,7 +11,10 @@ count.
 
 - ABI: `i64_array_scalar`, symbol `richards_benchmark`.
 - Input is `[idle_count]`, with `1 <= idle_count <= 1,000,000`. The upper bound
-  is the pinned source's `SMALL_PROBLEM_SIZE` iteration count.
+  matches the pinned source's optional `SMALL_PROBLEM_SIZE` iteration count.
+  The pinned launcher does not define that macro, so its default run uses
+  10,000,000 iterations; this package exposes the smaller compile-time profile
+  as a bounded input domain.
 - The six tasks retain source priorities, list insertion order, packet queue
   ordering, state-bit transitions, strict priority preemption on an empty
   queue, and worker/device/handler callbacks. The initial two work packets and

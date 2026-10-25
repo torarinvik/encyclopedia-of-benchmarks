@@ -1,0 +1,61 @@
+# Clean-room port of TSVC s353; see package README for provenance and rights.
+
+const TSVC_S353_MAX_N: usize = 20
+const TSVC_S353_MAX_INPUT_LENGTH: usize = 62
+
+def tsvc_s353_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+        byte <- byte + 1
+
+def tsvc_s353_unrolled_sparse_saxpy_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 17 or length > TSVC_S353_MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value < 5 or n_value > 20 or n_value % 5 != 0:
+        return -1
+    n: usize = n_value.usize()
+    if length != 2 + 3 * n:
+        return -1
+    alpha: i64 = input[1]
+    if alpha < -8 or alpha > 8:
+        return -1
+    a: mutable i64[20] = zeroed
+    b: mutable i64[20] = zeroed
+    indices: mutable i64[20] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        a[i] <- input[2 + i]
+        b[i] <- input[2 + n + i]
+        indices[i] <- input[2 + 2 * n + i]
+        if a[i] < -1000000 or a[i] > 1000000 or b[i] < -1000000 or b[i] > 1000000 or
+                indices[i] < 0 or indices[i] >= n_value:
+            return -1
+        i <- i + 1
+    output_bytes: usize = 8 * n
+    if output.is_null() or capacity < output_bytes:
+        return -2
+    i <- 0
+    while i < n:
+        j: usize = indices[i].usize()
+        a[i] <- a[i] + alpha * b[j]
+        j <- indices[i + 1].usize()
+        a[i + 1] <- a[i + 1] + alpha * b[j]
+        j <- indices[i + 2].usize()
+        a[i + 2] <- a[i + 2] + alpha * b[j]
+        j <- indices[i + 3].usize()
+        a[i + 3] <- a[i + 3] + alpha * b[j]
+        j <- indices[i + 4].usize()
+        a[i + 4] <- a[i + 4] + alpha * b[j]
+        i <- i + 5
+    i <- 0
+    while i < n:
+        tsvc_s353_store_i64_le(a[i], output, 8 * i)
+        i <- i + 1
+    n.i64()
+
+export fn tsvc_s353_unrolled_sparse_saxpy(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s353_unrolled_sparse_saxpy_impl

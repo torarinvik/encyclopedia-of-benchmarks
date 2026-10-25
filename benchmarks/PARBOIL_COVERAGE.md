@@ -1,0 +1,29 @@
+# Parboil source crosswalk
+
+This page records the pinned Parboil benchmark kernels represented in the local
+suite. It tracks source scope and provenance; it does not claim runtime
+verification of the language ports.
+
+| Source | Kernel | Local package and scope |
+|---|---|---|
+| [`benchmarks/lbm/src/cpu/lbm.c`](https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/lbm/src/cpu/lbm.c), `LBM_performStreamCollide` and LDC initialization, commit `ccf3d3126f1754ca85528722f4ced5894ccb852b` | D3Q19 lattice-Boltzmann stream/collide | [`parboil_lbm`](p/parboil_lbm/README.md) preserves one source-ordered step on a 3×3×3 LDC grid with one fluid center cell, binary32 moments, double-macro equilibrium products, and bounce-back boundaries. The input supplies the center populations and the output is a weighted fixed-point checksum. Full-grid setup, file input, simulation loops, and timing are outside this profile; source compiler floating-point flags are unspecified and the profile records its arithmetic assumption. |
+| [`benchmarks/histo/src/base/main.c`](https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/histo/src/base/main.c), saturating `numIterations` loop, commit `ccf3d3126f1754ca85528722f4ced5894ccb852b` | Per-value u8 histogram | [`parboil_histo`](p/parboil_histo/README.md) exposes the scalar frequency table with repeated clear-and-rescan iterations and per-bin saturation at 255. BMP conversion, input parsing, GPU mapping, and timing are excluded. |
+| [`benchmarks/spmv/src/cpu/main.c`](https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/spmv/src/cpu/main.c), preconverted JDS multiply loop, commit `ccf3d3126f1754ca85528722f4ced5894ccb852b` | Jagged diagonal sparse matrix-vector product | [`parboil_spmv_jds`](p/parboil_spmv_jds/README.md) preserves row-rank traversal, diagonal offsets, permutation scatter, and ordered binary32 multiply-accumulate. It accepts validated JDS arrays and excludes COO parsing, symmetric conversion, file I/O, and the repeated timing loop. |
+| [`benchmarks/mri-q/src/cpu/computeQ.cc`](https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/mri-q/src/cpu/computeQ.cc), `ComputePhiMagCPU` and `ComputeQCPU`, commit `ccf3d3126f1754ca85528722f4ced5894ccb852b` | Direct nonuniform 3D Fourier/Q accumulation at one voxel | [`parboil_mri_q`](p/parboil_mri_q/README.md) retains the source's two-pass complex-magnitude preprocessing and source-order binary32 phase/Q recurrence for up to four k-space records. The explicit output boundary is a pair of little-endian signed Q1000 integers; full-grid execution, input loading, and reconstruction are outside this bounded profile. |
+| [`benchmarks/tpacf/src/cuda_base/tpacf_kernel.cu`](https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/tpacf/src/cuda_base/tpacf_kernel.cu), `gen_hists` and `initBinB`, with constants from [`src/base/model.h`](https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/tpacf/src/base/model.h), commit `ccf3d3126f1754ca85528722f4ced5894ccb852b` | TPACF angular pair cross-correlation | [`parboil_tpacf_cross_correlation`](p/parboil_tpacf_cross_correlation/README.md) preserves the 20 logarithmic source bins, binary32 coordinate decode and dot-product order, and one bounded histogram block. File parsing, spherical-coordinate conversion, GPU tiling, and cross-block reduction remain outside this profile. |
+| [`benchmarks/cutcp/src/base/cutcpu.c`](https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/cutcp/src/base/cutcpu.c), `cpu_compute_cutoff_potential_lattice`, commit `ccf3d3126f1754ca85528722f4ced5894ccb852b` | Cutoff-weighted short-range electrostatic potential on a 3D lattice | [`parboil_cutcp`](p/parboil_cutcp/README.md) preserves bounded source binary32 cell hashing, reverse atom-chain order, cutoff clipping, and Q1000 serialization for up to four atoms. Half-cell atom placement keeps distances nonzero without adding a source-side near-field guard. Atom-file parsing and the later `remove_exclusions` pass remain excluded. |
+| [`benchmarks/sad/src/base/sad_cpu.c`](https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/sad/src/base/sad_cpu.c) and [`sad.h`](https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/sad/src/base/sad.h), `sad4_cpu` and `larger_sads`, commit `ccf3d3126f1754ca85528722f4ced5894ccb852b` | Hierarchical 16×16 block matching by sum of absolute differences | [`parboil_sad`](p/parboil_sad/README.md) covers all 1089 source motion offsets and seven hierarchical block types for one macroblock. It differs from generic image metrics by including the full source search window, edge-clamped reference coordinates, and the multi-level block aggregation. |
+
+All seven packages include the pinned Parboil repository license notice in
+their respective [`LICENSE.txt`](p/parboil_lbm/LICENSE.txt),
+[`LICENSE.txt`](p/parboil_histo/LICENSE.txt),
+[`LICENSE.txt`](p/parboil_spmv_jds/LICENSE.txt),
+[`LICENSE.txt`](p/parboil_mri_q/LICENSE.txt),
+[`LICENSE.txt`](p/parboil_tpacf_cross_correlation/LICENSE.txt), and
+[`LICENSE.txt`](p/parboil_cutcp/LICENSE.txt), and
+[`LICENSE.txt`](p/parboil_sad/LICENSE.txt). MRI-Q's direct
+Fourier accumulation is distinct from TPACF's pair histogram and from the
+local one-dimensional `cross_correlation` operation. Cutcp's cutoff potential
+is distinct from both MRI-Q's Fourier accumulation and TPACF's angular pair
+histogram. Parboil SAD is distinct from the local mean-absolute-error metrics:
+it performs a 33×33 motion search and sums the source's seven block-size levels.

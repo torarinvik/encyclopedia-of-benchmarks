@@ -1,0 +1,47 @@
+const INPUT_BYTES: usize = 139
+const OUTPUT_BYTES: usize = 64
+
+def floor_q16(value: i64) -> i64:
+    if value >= 0: return value / 65536
+    -((-value + 65535) / 65536)
+
+def valid_jpeg_block(v: i64&) -> bool:
+    if v[0] != 255 or v[1] != 216 or v[2] != 255 or v[3] != 219 or v[4] != 0 or v[5] != 67 or v[6] != 0: return false
+    for i in 0..<64:
+        if v[7 + i] < 1 or v[7 + i] > 255 or (i >= 2 and v[7 + i] != 1): return false
+    sof: [i64; 13] = [255, 192, 0, 11, 8, 0, 8, 0, 8, 1, 1, 17, 0]
+    for i in 0..<13:
+        if v[71 + i] != sof[i]: return false
+    if v[84] != 255 or v[85] != 196 or v[86] != 0 or v[87] != 39 or v[88] != 0 or v[89] != 1 or v[90] != 0 or v[105] != 4 or v[106] != 16 or v[107] != 1 or v[108] != 1 or v[123] != 4 or v[124] != 0: return false
+    for i in 91..<105:
+        if v[i] != 0: return false
+    for i in 109..<123:
+        if v[i] != 0: return false
+    sos: [i64; 10] = [255, 218, 0, 8, 1, 1, 0, 0, 63, 0]
+    for i in 0..<10:
+        if v[125 + i] != sos[i]: return false
+    v[137] == 255 and v[138] == 217
+
+def picojpeg_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length != INPUT_BYTES: return -1
+    for i in 0..<length:
+        if values[i] < 0 or values[i] > 255: return -1
+    if not valid_jpeg_block(values): return -1
+    scan: i64 = (values[135] << 8) | values[136]
+    if (scan & 0x8000) != 0 or (scan & 0x0400) != 0 or ((scan >> 4) & 3) != 2 or (scan & 15) != 15: return -1
+    dc_raw: i64 = (scan >> 11) & 15
+    ac_raw: i64 = (scan >> 6) & 15
+    dc: i64 = (if dc_raw >= 8: dc_raw else: dc_raw - 15) * values[7]
+    ac: i64 = (if ac_raw >= 8: ac_raw else: ac_raw - 15) * values[8]
+    if output.is_null() or capacity < OUTPUT_BYTES: return -2
+    factors: [i64; 8] = [11363, 9633, 6436, 2260, -2260, -6436, -9633, -11363]
+    for y in 0..<8:
+        for x in 0..<8:
+            numerator: i64 = 128 * 65536 + dc * 8192 + ac * factors[x] + 32768
+            pixel: i64 = floor_q16(numerator)
+            if pixel < 0: pixel <- 0
+            if pixel > 255: pixel <- 255
+            output[y * 8 + x] <- pixel.u8()
+    OUTPUT_BYTES.i64()
+
+export fn picojpeg(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = picojpeg_impl

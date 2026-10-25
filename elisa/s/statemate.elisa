@@ -1,0 +1,51 @@
+# Clean-room bounded profile of Embench-IoT Statemate's fixed control path.
+# SPDX-License-Identifier: GPL-3.0-or-later
+const STATE_COUNT: usize = 16
+const BITLIST_COUNT: usize = 64
+const TIMER_BYTES: usize = 12
+const OUTPUT_BYTES: usize = BITLIST_COUNT + STATE_COUNT + TIMER_BYTES
+const MAX_RUNS: i64 = 256
+const DEFAULT_STATES: u8[16] = [0, 0, 0, 3, 2, 1, 1, 0, 0, 0, 0, 0, 2, 1, 0, 1]
+
+def statemate_settle(snapshot: mutable u8&) -> void:
+    bitlist: mutable u8[BITLIST_COUNT] = zeroed
+    states: mutable u8[STATE_COUNT] = zeroed
+    timers: mutable u8[TIMER_BYTES] = zeroed
+    stable: mutable bool = false
+    while not stable:
+        stable <- true
+        index: mutable usize = 0
+        while index < STATE_COUNT:
+            if states[index] == 0 and DEFAULT_STATES[index] != 0:
+                states[index] <- DEFAULT_STATES[index]
+                stable <- false
+            index <- index + 1
+    bitlist[5] <- 1
+    index: mutable usize = 0
+    while index < BITLIST_COUNT:
+        snapshot[index] <- bitlist[index]
+        index <- index + 1
+    index <- 0
+    while index < STATE_COUNT:
+        snapshot[BITLIST_COUNT + index] <- states[index]
+        index <- index + 1
+    index <- 0
+    while index < TIMER_BYTES:
+        snapshot[BITLIST_COUNT + STATE_COUNT + index] <- timers[index]
+        index <- index + 1
+
+def statemate_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length != 1 or input[0] < 1 or input[0] > MAX_RUNS: return -1
+    if output == null or capacity < OUTPUT_BYTES: return -2
+    staged: mutable u8[OUTPUT_BYTES] = zeroed
+    run: mutable i64 = 0
+    while run < input[0]:
+        statemate_settle(staged[0]&)
+        run <- run + 1
+    index: mutable usize = 0
+    while index < OUTPUT_BYTES:
+        output[index] <- staged[index]
+        index <- index + 1
+    OUTPUT_BYTES.i64()
+
+export fn statemate(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = statemate_impl

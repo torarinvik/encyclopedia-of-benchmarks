@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s4117-pair-replicated-gather-map-i64-le-v1",
+  "algorithm": "tsvc_s4117_pair_replicated_gather_map",
+  "function_symbol": "tsvc_s4117_pair_replicated_gather_map",
+  "abi": "i64_array_bytes_output",
+  "description": "Bounded one-sweep TSVC s4117 map with a repeated half-rate C gather.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": ["TSVC/IndirectAddressing-dbl/info.sh", "TSVC/IndirectAddressing-dbl/tsc.c", "TSVC/tsc.inc", "TSVC/tests.h"],
+    "symbol": "s4117",
+    "source_lines": {"codelet_start": 4848, "codelet_end": 4870, "initialization_start": 740, "initialization_end": 743},
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/tsc.inc#L4848",
+    "launcher_family": "TSVC/IndirectAddressing-dbl",
+    "launcher_type": "double",
+    "launcher_run_options": "12500 14",
+    "attribution": "The TSVC source comments attribute its non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC source or repository material reviewed. These ports are clean-room implementations and reuse no upstream source code or comments; no upstream license or endorsement is claimed."
+  },
+  "contract": {
+    "operation": "For i=0..n-1, compute A[i] = B[i] + C[floor(i/2)] * D[i].",
+    "input_layout": "[n, B[n], C[ceil(n/2)], D[n]]",
+    "n_range": [1, 64],
+    "c_length": "ceil(n/2)",
+    "value_range": [-2, 2],
+    "exact_length": "1 + 2*n + ceil(n/2)",
+    "maximum_valid_input_length": 161,
+    "output": "A[n] as little-endian signed i64 values.",
+    "output_capacity_requirement": "At least 8*n bytes.",
+    "success_result": "n values written.",
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2,
+    "input_modified": false,
+    "source_profile": "One ascending execution of s4117's full-length loop. The source initializes A but overwrites every A[i]; caller input therefore contains only B, C, and D. The package bounds n, derives the shortest exact C span, and excludes timing repetitions, initialization, dummy calls, and checksums."
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "n, B[n], C[ceil(n/2)], D[n]",
+    "maximum_valid_length": 161,
+    "maximum_parseable_length": 161,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Computed A[n].",
+    "maximum_values": 64,
+    "maximum_bytes": 512,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {"bytes": 512},
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "odd-length-pairs-repeat-final-gather",
+      "input_values": [5, 1, -2, 0, 2, -1, 2, -1, 3, 1, 2, -2, 0, 1],
+      "input_length": 14,
+      "output_capacity": 40,
+      "expected_result": 5,
+      "expected_output_hex": "03000000000000000200000000000000020000000000000002000000000000000200000000000000"
+    },
+    {
+      "id": "even-length-two-value-groups",
+      "input_values": [4, -2, 0, 2, 1, -2, 3, 2, -1, 1, 2],
+      "input_length": 11,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "faffffffffffffff020000000000000005000000000000000700000000000000"
+    },
+    {
+      "id": "single-output",
+      "input_values": [1, -2, 2, -2],
+      "input_length": 4,
+      "output_capacity": 8,
+      "expected_result": 1,
+      "expected_output_hex": "faffffffffffffff"
+    },
+    {"id": "zero-dimension", "input_values": [0, 0, 0, 0], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "truncated-gather-span", "input_values": [2, 1, 2, 3, 4], "input_length": 5, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "value-out-of-range", "input_values": [1, 0, 3, 1], "input_length": 4, "expected_result": -1, "expected_output_hex": ""},
+    {"id": "insufficient-output-capacity", "input_values": [1, 0, 1, 1], "output_capacity": 7, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-output", "input_values": [1, 0, 1, 1], "output_capacity": 8, "output_is_null": true, "expected_result": -2, "expected_output_hex": ""},
+    {"id": "null-input", "input_values": [], "input_length": 0, "input_is_null": true, "output_capacity": 512, "expected_result": -1, "expected_output_hex": ""}
+  ]
+}

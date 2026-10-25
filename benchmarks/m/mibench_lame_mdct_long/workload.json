@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-mibench-consumer-lame-mdct-long-v1",
+  "algorithm": "mibench_lame_mdct_long",
+  "function_symbol": "mibench_lame_mdct_long",
+  "description": "Bounded long-block 18-to-18 modified discrete cosine transform helper from LAME.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "MiBench/consumer-lame/newmdct.c",
+    "symbols": ["mdct_long", "mdct_sub48"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/MiBench/consumer-lame/newmdct.c",
+    "launcher": "MiBench/consumer-lame/info.sh",
+    "license": "GNU Library General Public License version 2 or later",
+    "copyright": "Copyright (c) 1999 Takehiro Tominaga"
+  },
+  "contract": {
+    "operation": "Compute the LAME long-block MDCT helper over its 18 already-windowed input values.",
+    "formula": "out[m]=(4/36)*sum(x[k]*cos(pi*(2*m+1)*q[k]/144), k=0..17), m=0..17; q[k]=4*k+38 for k<9, otherwise 4*k+74",
+    "input": "exactly 18 finite binary64 values in [-16,16]",
+    "output": "18 binary64 coefficients in ascending source bin order",
+    "excluded": ["polyphase analysis filterbank", "window assembly", "short-block MDCT", "alias reduction", "MP3 encoding and bitstream", "WAV parsing", "timing/repetition wrapper"],
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 1e-10
+  },
+  "input": {"kind": "finite_float64_array", "length_exact": 18, "maximum_input_length": 19, "range": [-16,16], "invalid_result": -1},
+  "output": {"kind": "float64_array", "length": 18, "null_or_short_result": -2, "success_result": 18, "no_write_on_error": true, "absolute_tolerance": 1e-10, "relative_tolerance": 1e-10},
+  "workspace": {"elements": 18},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 20, "absolute_tolerance": 1e-10, "relative_tolerance": 1e-10},
+  "cases": [
+    {"id":"zero", "input_values":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":18, "expected_result":18},
+    {"id":"impulse", "input_values":[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":18, "expected_result":18},
+    {"id":"alternating_bounded", "input_values":[1,-1,2,-2,3,-3,4,-4,5,-5,6,-6,7,-7,8,-8,0.5,-0.5], "input_length":18, "expected_result":18},
+    {"id":"invalid_length", "input_values":[0,0], "input_length":2, "expected_result":-1},
+    {"id":"invalid_out_of_range", "input_values":[17.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":18, "expected_result":-1},
+    {"id":"short_output_capacity", "input_values":[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":18, "output_capacity":17, "expected_result":-2},
+    {"id":"null_output", "input_values":[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length":18, "output_capacity":18, "output_is_null":true, "expected_result":-2}
+  ]
+}

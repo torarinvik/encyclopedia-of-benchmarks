@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-prolangs-c-cdecl-i64-array-bytes-output-v1",
+  "algorithm": "prolangs_c_cdecl",
+  "function_symbol": "prolangs_c_cdecl",
+  "description": "Bounded ANSI-C declarator parsing with a canonical identifier-outward type-operator encoding.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "Prolangs-C/cdecl/cdecl.c",
+    "related_grammar": ["Prolangs-C/cdecl/cdgram.y.in", "Prolangs-C/cdecl/cdlex.l.in"],
+    "symbol": "dodexplain",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Prolangs-C/cdecl/cdecl.c",
+    "license_note": "No explicit license grant was found in the cdecl source directory or its parent Prolangs-C directory at the pinned commit. This package is a clean-room implementation of a bounded declarator grammar and precedence behavior; it does not copy upstream code, comments, or generated parser text, and does not claim an upstream license."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "info_path": "Prolangs-C/cdecl/info.sh",
+    "bench_name": "cdecl",
+    "source_files": ["cdecl.c"],
+    "compile_flags": ["-std=gnu89"],
+    "stdin_path": "Prolangs-C/cdecl/testset"
+  },
+  "contract": {
+    "operation": "Parse one bounded ANSI-C declaration and serialize its base type, identifier, and derived type operators in identifier-outward order. The representation captures C declarator binding precedence, including pointer/array/function nesting.",
+    "input_layout": "ASCII source declaration bytes represented as signed-i64 byte values.",
+    "grammar": "base-type declarator; base type is char, int, float, double, or void. Declarators support pointer prefixes, parenthesized declarators, fixed arrays [1..99], and function suffixes with up to three unnamed primitive or pointer-to-primitive parameters.",
+    "limits": "Input length 1..96 bytes, identifier length 1..16, pointer depth at most 8, derived operators at most 12, parenthesis nesting at most 6, and function arity at most 3.",
+    "canonical_base_type_codes": {"char": 1, "int": 2, "float": 3, "double": 4, "void": 5},
+    "canonical_operator_codes": {"pointer": 1, "array": 2, "function": 3},
+    "output_encoding": "[base_type_code, identifier_length, identifier_ascii_bytes..., operator_count, operators...]. Pointer is [1]; array is [2, dimension]; function is [3, arity, (parameter_base_type_code, parameter_pointer_depth)...]. Operators are emitted from the identifier outward, preserving declarator binding.",
+    "maximum_valid_input_length": 96,
+    "maximum_output_bytes": 128,
+    "success_result": "Canonical output byte length.",
+    "invalid_result": -1,
+    "output_error_result": -2,
+    "errors": "Invalid or unsupported syntax, bounds violations, null input, and invalid byte values return -1. Null output or insufficient capacity returns -2 without writes."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "ASCII declaration bytes",
+    "maximum_valid_length": 96,
+    "maximum_parseable_length": 96,
+    "invalid_input_result": -1,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "byte_array",
+    "encoding": "Canonical parsed declarator structure",
+    "maximum_bytes": 128,
+    "capacity_unit": "bytes",
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "no_write_on_error": true
+  },
+  "workspace": {
+    "bytes": 128,
+    "meaning": "Maximum caller-provided canonical parse output buffer."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "plain-object",
+      "input_values": [105, 110, 116, 32, 120],
+      "input_length": 5,
+      "output_capacity": 128,
+      "expected_result": 4,
+      "expected_output_hex": "02017800"
+    },
+    {
+      "id": "array-of-pointers",
+      "input_values": [105, 110, 116, 32, 42, 120, 91, 51, 93],
+      "input_length": 9,
+      "output_capacity": 128,
+      "expected_result": 7,
+      "expected_output_hex": "02017802020301"
+    },
+    {
+      "id": "pointer-to-array",
+      "input_values": [105, 110, 116, 32, 40, 42, 120, 41, 91, 51, 93],
+      "input_length": 11,
+      "output_capacity": 128,
+      "expected_result": 7,
+      "expected_output_hex": "02017802010203"
+    },
+    {
+      "id": "pointer-to-function",
+      "input_values": [105, 110, 116, 32, 40, 42, 102, 112, 41, 40, 99, 104, 97, 114, 44, 32, 105, 110, 116, 41],
+      "input_length": 20,
+      "output_capacity": 128,
+      "expected_result": 12,
+      "expected_output_hex": "020266700201030201000200"
+    },
+    {
+      "id": "array-of-function-pointers",
+      "input_values": [105, 110, 116, 32, 40, 42, 97, 91, 50, 93, 41, 40, 99, 104, 97, 114, 32, 42, 41],
+      "input_length": 19,
+      "output_capacity": 128,
+      "expected_result": 11,
+      "expected_output_hex": "0201610302020103010101"
+    },
+    {
+      "id": "void-parameter-normalization",
+      "input_values": [118, 111, 105, 100, 32, 102, 40, 118, 111, 105, 100, 41],
+      "input_length": 12,
+      "output_capacity": 128,
+      "expected_result": 6,
+      "expected_output_hex": "050166010300"
+    },
+    {
+      "id": "array-of-function-invalid",
+      "input_values": [105, 110, 116, 32, 102, 40, 41, 91, 50, 93],
+      "input_length": 10,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "dimension-out-of-profile",
+      "input_values": [105, 110, 116, 32, 120, 91, 49, 48, 48, 93],
+      "input_length": 10,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "output_capacity": 128,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output",
+      "input_values": [105, 110, 116, 32, 120],
+      "input_length": 5,
+      "output_capacity": 3,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [105, 110, 116, 32, 120],
+      "input_length": 5,
+      "output_capacity": 128,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

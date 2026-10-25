@@ -1,0 +1,5 @@
+No explicit license grant was found in the pinned LAC-DCC TSVC source or
+repository material reviewed for this benchmark. The ports independently
+implement the bounded `vif` loop behavior and reuse no upstream source code or
+comments. Source attribution and rights limitations are documented in
+README.md.

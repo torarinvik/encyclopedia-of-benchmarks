@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-consumer-mad-imdct36-v1",
+  "algorithm": "cbench_consumer_mad_imdct36",
+  "function_symbol": "cbench_consumer_mad_imdct36",
+  "description": "Bounded binary64 profile of libmad's 18-to-36 long-block inverse MDCT helper.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/consumer_mad/src/layer3.c",
+    "symbols": ["imdct36", "III_imdct_l"],
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_mad/src/layer3.c",
+    "launcher": "cBench/consumer_mad/src/info.sh",
+    "launcher_url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/consumer_mad/src/info.sh",
+    "license": "GNU GPL version 2 or (at your option) any later version",
+    "copyright": "Copyright (C) 2000-2001 Robert Leslie"
+  },
+  "contract": {
+    "operation": "Compute 36 unwindowed inverse-MDCT samples from one 18-coefficient long block.",
+    "formula": "x[n]=sum(k=0..17, X[k]*cos(pi*(2*n+19)*(2*k+1)/72)), n=0..35; evaluate k in ascending order with binary64 left-to-right accumulation; no normalization factor",
+    "input": "exactly 18 finite binary64 coefficients, each in [-16,16]",
+    "output": "36 binary64 unwindowed samples in ascending time index",
+    "arithmetic_profile": "binary64 canonical formula; mathematical transform of libmad imdct36, not bit-exact FPM_DEFAULT Q28 arithmetic",
+    "excluded": ["MPEG frame and side-information parsing", "Huffman decoding", "dequantization", "alias reduction", "normal/start/stop block windowing", "overlap-add history", "polyphase synthesis", "file and CLI handling"],
+    "invalid_input_result": -1,
+    "output_error_result": -2,
+    "no_write_on_error": true,
+    "absolute_tolerance": 1e-11,
+    "relative_tolerance": 1e-11
+  },
+  "input": {"kind": "finite_float64_array", "length_exact": 18, "maximum_input_length": 19, "range": [-16, 16], "invalid_result": -1},
+  "output": {"kind": "float64_array", "length": 36, "null_or_short_result": -2, "success_result": 36, "no_write_on_error": true, "absolute_tolerance": 1e-11, "relative_tolerance": 1e-11},
+  "workspace": {"elements": 36},
+  "measurement": {"comparison_model": "float64_slice_io_call", "sample_count": 5, "warmup_rounds": 1, "repetitions_per_sample": 20, "absolute_tolerance": 1e-11, "relative_tolerance": 1e-11},
+  "cases": [
+    {"id": "zero", "input_values": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 18, "expected_result": 36},
+    {"id": "impulse_first", "input_values": [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 18, "expected_result": 36},
+    {"id": "source_default_profile", "input_values": [0.25,-0.5,0.75,-1,1.25,-1.5,1.75,-2,2.25,-2.5,2.75,-3,3.25,-3.5,3.75,-4,4.25,-4.5], "input_length": 18, "expected_result": 36},
+    {"id": "alternating", "input_values": [1,-1,2,-2,3,-3,4,-4,5,-5,6,-6,7,-7,8,-8,0.5,-0.5], "input_length": 18, "expected_result": 36},
+    {"id": "invalid_length", "input_values": [0,0], "input_length": 2, "expected_result": -1},
+    {"id": "invalid_out_of_range", "input_values": [16.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 18, "expected_result": -1},
+    {"id": "short_output_capacity", "input_values": [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 18, "output_capacity": 35, "expected_result": -2},
+    {"id": "null_output", "input_values": [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "input_length": 18, "output_capacity": 36, "output_is_null": true, "expected_result": -2}
+  ]
+}

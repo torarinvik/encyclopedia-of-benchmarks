@@ -1,0 +1,165 @@
+# Anagram program by Raymond Chen, inspired by a similar program by Brian Scearce.
+# This program is Copyright 1991 by Raymond Chen. (rjc@math.princeton.edu)
+# This program may be freely distributed provided all alterations to the original are clearly indicated as such.
+# Alterations: bounded packed-array input, portable 64-bit packed letter counts, and scalar decomposition count.
+
+def ptrdist_anagram_search(candidate_masks: mutable u64&, candidate_lengths: i32&,
+        candidate_count: usize, order: i32&, letter_masks: u64&, sign_mask: u64,
+        remaining_mask: u64, remaining_length: usize, start_value: usize,
+        first_letter: usize) -> i64:
+    if remaining_length == 0:
+        return 1
+    pivot_position: mutable usize = first_letter
+    while pivot_position < 26:
+        letter: usize = order[pivot_position].usize()
+        if (remaining_mask & letter_masks[letter]) != 0:
+            break
+        pivot_position <- pivot_position + 1
+    if pivot_position == 26:
+        return 0
+    pivot: usize = order[pivot_position].usize()
+    start: mutable usize = start_value
+    ending: mutable usize = candidate_count
+    solutions: mutable i64 = 0
+    while start < ending:
+        candidate_mask: u64 = candidate_masks[start]
+        after: u64 = remaining_mask - candidate_mask
+        if (after & sign_mask) != 0:
+            start <- start + 1
+            continue
+        if (candidate_mask & letter_masks[pivot]) == 0:
+            temporary_mask: u64 = candidate_masks[start]
+            temporary_length: i32 = candidate_lengths[start]
+            candidate_masks[start] <- candidate_masks[ending - 1]
+            candidate_lengths[start] <- candidate_lengths[ending - 1]
+            candidate_masks[ending - 1] <- temporary_mask
+            candidate_lengths[ending - 1] <- temporary_length
+            ending <- ending - 1
+            continue
+        candidate_length: usize = candidate_lengths[start].usize()
+        next_length: usize = remaining_length - candidate_length
+        if next_length == 0:
+            solutions <- solutions + 1
+        else:
+            solutions <- solutions + ptrdist_anagram_search(candidate_masks, candidate_lengths,
+                candidate_count, order, letter_masks, sign_mask, after, next_length,
+                start, pivot_position)
+        start <- start + 1
+    solutions
+
+def ptrdist_anagram_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 3 or length > 222:
+        return -1
+    phrase_length_value: i64 = input[0]
+    if phrase_length_value < 1 or phrase_length_value > 16:
+        return -1
+    phrase_length: usize = phrase_length_value.usize()
+    count_offset: usize = phrase_length + 1
+    if count_offset >= length or input[count_offset] < 0 or input[count_offset] > 12:
+        return -1
+    phrase_counts: mutable u8[26] = zeroed
+    index: mutable usize = 0
+    while index < phrase_length:
+        value: i64 = input[index + 1]
+        letter: mutable usize = 0
+        if value >= 97 and value <= 122:
+            letter <- (value - 97).usize()
+        else if value >= 65 and value <= 90:
+            letter <- (value - 65).usize()
+        else:
+            return -1
+        phrase_counts[letter] <- phrase_counts[letter] + 1.u8()
+        index <- index + 1
+
+    word_count: usize = input[count_offset].usize()
+    offset: mutable usize = count_offset + 1
+    phrase_mask: mutable u64 = 0
+    sign_mask: mutable u64 = 0
+    letter_masks: mutable u64[26] = zeroed
+    letter_shifts: mutable usize[26] = zeroed
+    global_frequency: mutable u32[26] = zeroed
+    shift: mutable usize = 0
+    letter: mutable usize = 0
+    while letter < 26:
+        frequency: usize = phrase_counts[letter].usize()
+        if frequency != 0:
+            count_bits: mutable usize = 1
+            while (1.u64() << count_bits) <= frequency.u64():
+                count_bits <- count_bits + 1
+            if shift + count_bits + 1 > 64:
+                return -1
+            letter_masks[letter] <- ((1.u64() << count_bits) - 1.u64()) << shift
+            phrase_mask <- phrase_mask | (frequency.u64() << shift)
+            sign_mask <- sign_mask | (1.u64() << (shift + count_bits))
+            letter_shifts[letter] <- shift
+            shift <- shift + count_bits + 1
+        letter <- letter + 1
+
+    candidate_masks: mutable u64[12] = zeroed
+    candidate_lengths: mutable i32[12] = zeroed
+    candidate_count: mutable usize = 0
+    word_index: mutable usize = 0
+    while word_index < word_count:
+        if offset >= length or input[offset] < 1 or input[offset] > 16:
+            return -1
+        word_length: usize = input[offset].usize()
+        offset <- offset + 1
+        if word_length > length - offset:
+            return -1
+        counts: mutable u8[26] = zeroed
+        index <- 0
+        while index < word_length:
+            value: i64 = input[offset + index]
+            letter_index: mutable usize = 0
+            if value >= 97 and value <= 122:
+                letter_index <- (value - 97).usize()
+            else if value >= 65 and value <= 90:
+                letter_index <- (value - 65).usize()
+            else:
+                return -1
+            counts[letter_index] <- counts[letter_index] + 1.u8()
+            index <- index + 1
+        fits: mutable bool = true
+        index <- 0
+        while index < 26:
+            if counts[index] > phrase_counts[index]:
+                fits <- false
+            index <- index + 1
+        if fits and ((word_length >= 2 and word_length + 2 <= phrase_length) or word_length == phrase_length):
+            mask: mutable u64 = 0
+            index <- 0
+            while index < 26:
+                mask <- mask | (counts[index].u64() << letter_shifts[index])
+                global_frequency[index] <- global_frequency[index] + counts[index].u32()
+                index <- index + 1
+            candidate_masks[candidate_count] <- mask
+            candidate_lengths[candidate_count] <- word_length.i32()
+            candidate_count <- candidate_count + 1
+        offset <- offset + word_length
+        word_index <- word_index + 1
+    if offset != length:
+        return -1
+
+    order: mutable i32[26] = zeroed
+    index <- 0
+    while index < 26:
+        order[index] <- index.i32()
+        index <- index + 1
+    index <- 1
+    while index < 26:
+        key: i32 = order[index]
+        j: mutable usize = index
+        while j > 0:
+            previous: usize = order[j - 1].usize()
+            previous_frequency: u32 = if global_frequency[previous] == 0 { 0xffffffff.u32() } else { global_frequency[previous] }
+            key_frequency: u32 = if global_frequency[key.usize()] == 0 { 0xffffffff.u32() } else { global_frequency[key.usize()] }
+            if previous_frequency < key_frequency or (previous_frequency == key_frequency and previous < key.usize()):
+                break
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- key
+        index <- index + 1
+    ptrdist_anagram_search(&candidate_masks[0], &candidate_lengths[0], candidate_count,
+        &order[0], &letter_masks[0], sign_mask, phrase_mask, phrase_length, 0, 0)
+
+export fn ptrdist_anagram(input: i64&, length: usize) -> i64 = ptrdist_anagram_impl

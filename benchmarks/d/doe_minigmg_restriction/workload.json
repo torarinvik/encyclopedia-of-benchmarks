@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "doe-minigmg-restriction-v1",
+  "algorithm": "doe_minigmg_restriction",
+  "function_symbol": "doe_minigmg_restriction",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "DOE_ProxyApps_C/miniGMG/restriction.inc",
+    "symbol": "restriction"
+  },
+  "license_note": "The pinned miniGMG subtree provides a BSD-3-Clause-style redistribution grant and an additional enhancement-license paragraph; the complete source notice is preserved in LICENSE.txt.",
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "minimum_length": 11,
+    "maximum_length": 515,
+    "layout": [
+      "nx",
+      "ny",
+      "nz",
+      "fine_grid row-major with x varying fastest"
+    ],
+    "dimension_minimum": 2,
+    "dimension_maximum": 8,
+    "dimension_multiple": 2,
+    "fine_cell_minimum": -32768,
+    "fine_cell_maximum": 32767,
+    "exact_length": "3 + nx*ny*nz",
+    "invalid_input_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "definition": "sum((q+1)*r[q]*r[q]) in coarse k,j,i traversal order, where r[q] is the source-ordered mean of the corresponding eight fine cells and q starts at zero",
+    "relative_tolerance": 0.0,
+    "absolute_tolerance": 0.0,
+    "invalid_input_result": -1e300
+  },
+  "cases": [
+    {"id":"zero-single-coarse-cell","input_values":[2,2,2,0,0,0,0,0,0,0,0],"input_length":11,"expected_result":0.0},
+    {"id":"constant-single-coarse-cell","input_values":[2,2,2,1,1,1,1,1,1,1,1],"input_length":11,"expected_result":1.0},
+    {"id":"fractional-one-eighth-mean","input_values":[2,2,2,1,0,0,0,0,0,0,0],"input_length":11,"expected_result":0.015625},
+    {"id":"two-coarse-cells-with-position-weights","input_values":[4,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2],"input_length":19,"expected_result":9.0},
+    {"id":"four-coarse-cells-mixed-values","input_values":[4,4,2,0,0,1,1,0,0,1,1,2,2,3,3,2,2,3,3,0,0,1,1,0,0,1,1,2,2,3,3,2,2,3,3],"input_length":35,"expected_result":50.0},
+    {"id":"invalid-empty","input_values":[],"input_length":0,"expected_result":-1e300},
+    {"id":"invalid-null","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1e300},
+    {"id":"invalid-short-grid","input_values":[2,2,2],"input_length":3,"expected_result":-1e300},
+    {"id":"invalid-odd-dimension","input_values":[3,2,2,0,0,0,0,0,0,0,0,0,0,0,0],"input_length":15,"expected_result":-1e300},
+    {"id":"invalid-trailing-cell","input_values":[2,2,2,0,0,0,0,0,0,0,0,0],"input_length":12,"expected_result":-1e300},
+    {"id":"invalid-cell-below-range","input_values":[2,2,2,-32769,0,0,0,0,0,0,0],"input_length":11,"expected_result":-1e300},
+    {"id":"invalid-cell-above-range","input_values":[2,2,2,32768,0,0,0,0,0,0,0],"input_length":11,"expected_result":-1e300}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 7,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 10000
+  }
+}

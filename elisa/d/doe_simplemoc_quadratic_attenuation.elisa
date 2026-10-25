@@ -1,0 +1,180 @@
+# Copyright (c) 2014 John Tramm
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# Bounded source-shaped profile of SimpleMOC solver.c::attenuate_fluxes.
+
+extern exp(value: f64) -> f64
+
+const INVALID_RESULT: f64 = -1.0e300
+const FIXED_SCALE: f32 = 1000000.0.f32()
+const MAX_RAW: i64 = 10000000
+const MAX_GROUPS: i64 = 4
+const TABLE_SIZE: i64 = 353
+
+def smoc_add(a: f32, b: f32) -> f32:
+    (a + b).f32()
+
+def smoc_sub(a: f32, b: f32) -> f32:
+    (a - b).f32()
+
+def smoc_mul(a: f32, b: f32) -> f32:
+    (a * b).f32()
+
+def smoc_div(a: f32, b: f32) -> f32:
+    (a / b).f32()
+
+def smoc_fixed(raw: i64) -> f32:
+    smoc_div(raw.f32(), FIXED_SCALE)
+
+def smoc_exp_table(tau: f32) -> f32:
+    dx: f32 = smoc_div(10.0.f32(), TABLE_SIZE.f32())
+    max_value: f32 = smoc_sub(10.0.f32(), dx)
+    if tau > max_value:
+        return 1.0.f32()
+    rounded_index: f32 = smoc_add(smoc_div(tau, dx), smoc_mul(0.5.f32(), dx))
+    interval: i64 = rounded_index.i64()
+    anchor: f32 = smoc_mul(interval.f32(), dx)
+    e: f32 = exp((-anchor).f64()).f32()
+    slope: f32 = -e
+    anchor_offset: f32 = smoc_sub(anchor, 1.0.f32())
+    intercept_product: f32 = smoc_mul(anchor_offset, e)
+    intercept: f32 = smoc_add(1.0.f32(), intercept_product)
+    smoc_add(smoc_mul(slope, tau), intercept)
+
+def doe_simplemoc_quadratic_attenuation_impl(input: i64&, length: usize) -> f64:
+    if input.is_null() or length < 13 or length > 31:
+        return INVALID_RESULT
+    groups_raw: i64 = input[0]
+    if groups_raw < 1 or groups_raw > MAX_GROUPS:
+        return INVALID_RESULT
+    groups: usize = groups_raw.usize()
+    if length != 7 + 6 * groups:
+        return INVALID_RESULT
+
+    raw_index: usize = 1
+    while raw_index < length:
+        if input[raw_index] < -MAX_RAW or input[raw_index] > MAX_RAW:
+            return INVALID_RESULT
+        raw_index <- raw_index + 1
+
+    zin_raw: i64 = input[1]
+    dz_raw: i64 = input[2]
+    ds_raw: i64 = input[3]
+    mu_raw: i64 = input[4]
+    az_weight_raw: i64 = input[5]
+    polar_weight_raw: i64 = input[6]
+    if dz_raw < 10000 or ds_raw < 1000 or mu_raw < 0 or mu_raw > 1000000 or
+            az_weight_raw < 0 or az_weight_raw > 1000000 or
+            polar_weight_raw < 0 or polar_weight_raw > 1000000:
+        return INVALID_RESULT
+
+    zin: f32 = smoc_fixed(zin_raw)
+    dz: f32 = smoc_fixed(dz_raw)
+    ds: f32 = smoc_fixed(ds_raw)
+    mu: f32 = smoc_fixed(mu_raw)
+    az_weight: f32 = smoc_fixed(az_weight_raw)
+    polar_weight: f32 = smoc_fixed(polar_weight_raw)
+    twice_zin: mutable f32 = smoc_mul(2.0.f32(), zin)
+    if twice_zin < 0.0.f32(): twice_zin <- -twice_zin
+    if twice_zin > dz: return INVALID_RESULT
+    weight: f32 = smoc_mul(polar_weight, az_weight)
+    checksum: mutable f32 = 0.0.f32()
+
+    for group in 0..<groups:
+        base: usize = 7 + 6 * group
+        previous_raw: i64 = input[base]
+        center_raw: i64 = input[base + 1]
+        next_raw: i64 = input[base + 2]
+        sigma_raw: i64 = input[base + 3]
+        psi_raw: i64 = input[base + 4]
+        tally_raw: i64 = input[base + 5]
+        if sigma_raw < 100000 or psi_raw < 0 or tally_raw < 0:
+            return INVALID_RESULT
+
+        previous: f32 = smoc_fixed(previous_raw)
+        center: f32 = smoc_fixed(center_raw)
+        next: f32 = smoc_fixed(next_raw)
+        sigma: f32 = smoc_fixed(sigma_raw)
+        psi: f32 = smoc_fixed(psi_raw)
+        tally: f32 = smoc_fixed(tally_raw)
+
+        twice_dz: f32 = smoc_mul(2.0.f32(), dz)
+        c1: f32 = smoc_div(smoc_sub(previous, next), twice_dz)
+        twice_center: f32 = smoc_mul(2.0.f32(), center)
+        c2_numerator: f32 = smoc_add(smoc_sub(previous, twice_center), next)
+        c2_denominator: f32 = smoc_mul(twice_dz, dz)
+        c2: f32 = smoc_div(c2_numerator, c2_denominator)
+
+        q0_linear: f32 = smoc_mul(c1, zin)
+        q0_quadratic_first: f32 = smoc_mul(c2, zin)
+        q0_quadratic: f32 = smoc_mul(q0_quadratic_first, zin)
+        q0: f32 = smoc_add(smoc_add(center, q0_linear), q0_quadratic)
+        q1_curve: f32 = smoc_mul(2.0.f32(), c2)
+        q1: f32 = smoc_add(c1, smoc_mul(q1_curve, zin))
+        q2: f32 = c2
+
+        tau: f32 = smoc_mul(sigma, ds)
+        if tau <= 0.0.f32() or tau > 10.0.f32():
+            return INVALID_RESULT
+        exp_value: f32 = smoc_exp_table(tau)
+        sigma_squared: f32 = smoc_mul(sigma, sigma)
+        reuse_numerator: f32 = smoc_mul(2.0.f32(), exp_value)
+        reuse_denominator: f32 = smoc_mul(sigma, sigma_squared)
+        reuse_quotient: f32 = smoc_div(reuse_numerator, reuse_denominator)
+        reuse_polynomial: f32 = smoc_mul(tau, smoc_sub(tau, 2.0.f32()))
+        reuse: f32 = smoc_add(reuse_polynomial, reuse_quotient)
+
+        q0_tau: f32 = smoc_mul(q0, tau)
+        sigma_psi: f32 = smoc_mul(sigma, psi)
+        difference: f32 = smoc_sub(sigma_psi, q0)
+        difference_exp: f32 = smoc_mul(difference, exp_value)
+        integral_first: f32 = smoc_div(smoc_add(q0_tau, difference_exp), sigma_squared)
+        integral_second: f32 = smoc_mul(smoc_mul(q1, mu), reuse)
+
+        mu_squared: f32 = smoc_mul(mu, mu)
+        tau_minus_three: f32 = smoc_sub(tau, 3.0.f32())
+        tau_inner: f32 = smoc_add(smoc_mul(tau, tau_minus_three), 6.0.f32())
+        tau_outer: f32 = smoc_mul(tau, tau_inner)
+        six_exp: f32 = smoc_mul(6.0.f32(), exp_value)
+        integral_poly: f32 = smoc_sub(tau_outer, six_exp)
+        integral_denominator: f32 = smoc_mul(
+            smoc_mul(3.0.f32(), sigma_squared), sigma_squared)
+        integral_third: f32 = smoc_div(
+            smoc_mul(smoc_mul(q2, mu_squared), integral_poly), integral_denominator)
+        flux_integral: f32 = smoc_add(smoc_add(integral_first, integral_second), integral_third)
+        tally_delta: f32 = smoc_mul(weight, flux_integral)
+        tally_out: f32 = smoc_add(tally, tally_delta)
+
+        term1: f32 = smoc_div(smoc_mul(q0, exp_value), sigma)
+        term2_numerator: f32 = smoc_mul(
+            smoc_mul(q1, mu), smoc_sub(tau, exp_value))
+        term2: f32 = smoc_div(term2_numerator, sigma_squared)
+        term3: f32 = smoc_mul(smoc_mul(q2, mu_squared), reuse)
+        term4: f32 = smoc_mul(psi, smoc_sub(1.0.f32(), exp_value))
+        psi_out: f32 = smoc_add(smoc_add(smoc_add(term1, term2), term3), term4)
+
+        group_total: f32 = smoc_add(tally_out, psi_out)
+        weighted_total: f32 = smoc_mul((group + 1).f32(), group_total)
+        checksum <- smoc_add(checksum, weighted_total)
+
+    checksum.f64()
+
+export fn doe_simplemoc_quadratic_attenuation(input: i64&, length: usize) -> f64 =
+    doe_simplemoc_quadratic_attenuation_impl

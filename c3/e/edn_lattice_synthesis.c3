@@ -1,0 +1,3 @@
+module edn_lattice_synthesis;
+fn void put64(uint8* out,usz pos,long value){ulong u=(ulong)value;for(usz j=0;j<8;j++)out[pos+j]=(uint8)(u>>(8*j));}
+fn long edn_lattice_synthesis(long* v,usz n,uint8* out,usz cap) @export("edn_lattice_synthesis"){if(v==null||n<2||n>34)return -1;long order=v[0],f=v[1];if(order<1||order>16||f< -65536||f>65535||n!=2+2*(usz)order)return -1;usz q=(usz)order;long[16] b,k;for(usz i=0;i<q;i++){b[i]=v[2+i];k[i]=v[2+q+i];if(b[i]< -1024||b[i]>1023||k[i]< -1024||k[i]>1023)return -1;}usz bytes=8*(q+1);if(out==null||cap<bytes)return -2;f-=b[q-1]*k[q-1];for(usz z=q;z>1;z--){usz i=z-2;f-=b[i]*k[i];b[i+1]=b[i]+((k[i]*(f>>16))>>16);}b[0]=f>>16;put64(out,0,f);for(usz i=0;i<q;i++)put64(out,8*(i+1),b[i]);return (long)bytes;}

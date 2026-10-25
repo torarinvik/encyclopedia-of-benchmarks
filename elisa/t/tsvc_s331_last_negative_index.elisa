@@ -1,0 +1,12 @@
+def tsvc_s331_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 2 or length > 257: return -1
+    n: i64 = input[0]
+    if n < 1 or n > 256 or length != (1 + n).usize(): return -1
+    result: mutable i64 = 0
+    for index in 0..n.usize():
+        value: i64 = input[1 + index]
+        if value < -1_000_000 or value > 1_000_000: return -1
+        if value < 0: result <- (index + 1).i64()
+    result
+
+export fn tsvc_s331_last_negative_index(input: i64&, length: usize) -> i64 = tsvc_s331_impl

@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: GPL-3.0-or-later; see package NOTICE.txt.
+def put64(output: mutable u8&, position: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    for j in 0..<8: output[position + j] <- ((bits >> (8 * j)) & 255).u8()
+
+def edn_iir_cascade_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if values.is_null() or length < 2 or length > 50: return -1
+    count_value: i64 = values[0]
+    x: mutable i64 = values[1]
+    if count_value < 1 or count_value > 8 or x < -1024 or x > 1023: return -1
+    count: usize = count_value.usize()
+    if length != 2 + 6 * count: return -1
+    coefficients: mutable i64[32] = zeroed
+    states: mutable i64[16] = zeroed
+    for index in 0..<(4 * count):
+        coefficients[index] <- values[2 + index]
+        if coefficients[index] < -1024 or coefficients[index] > 1023: return -1
+    for index in 0..<(2 * count):
+        states[index] <- values[2 + 4 * count + index]
+        if states[index] < -1024 or states[index] > 1023: return -1
+    byte_count: usize = 8 * (1 + 2 * count)
+    if output.is_null() or capacity < byte_count: return -2
+    for section in 0..<count:
+        first: usize = 4 * section
+        state: usize = 2 * section
+        t: i64 = x + ((coefficients[first + 2] * states[state] + coefficients[first + 3] * states[state + 1]) >> 15)
+        x <- t + ((coefficients[first] * states[state] + coefficients[first + 1] * states[state + 1]) >> 15)
+        states[state + 1] <- states[state]
+        states[state] <- t
+    put64(output, 0, x)
+    for index in 0..<(2 * count): put64(output, 8 * (index + 1), states[index])
+    byte_count.i64()
+
+export fn edn_iir_cascade(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = edn_iir_cascade_impl

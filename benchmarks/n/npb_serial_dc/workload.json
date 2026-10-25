@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-npb-serial-dc-i64-array-scalar-v1",
+  "algorithm": "npb_serial_dc",
+  "function_symbol": "npb_serial_dc",
+  "description": "Aggregates every nonempty projection of a bounded multidimensional input, combining duplicate projected keys and checksumming ordered group results.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "NPB-serial/dc/info.sh",
+      "NPB-serial/dc/dc.c",
+      "NPB-serial/dc/adc.c",
+      "NPB-serial/dc/extbuild.c",
+      "NPB-serial/dc/rbt.c",
+      "NPB-serial/dc/ADC.par"
+    ],
+    "symbols": ["CalculateVeiwSizes", "ComputeGivenGroupbys", "TreeInsert", "computeChecksum"],
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/NPB-serial/dc",
+    "launcher": {
+      "bench_name": "dc",
+      "source_files": ["adc.c", "dc.c", "jobcntl.c", "c_print_results.c", "extbuild.c", "rbt.c"],
+      "run_options": ["10000000", "ADC.par"],
+      "small_program_size_compile_flag": "-DSMALL_PROBLEM_SIZE"
+    },
+    "rights": "NAS Parallel Benchmarks 3.3 DC notice permits use, copying, distribution, and modification for any purpose with or without fee; requests derived work reference NAS Parallel Benchmarks 3.3; software is provided as-is without express or implied warranty. Notice is included in each port and README."
+  },
+  "contract": {
+    "input_layout": "[dimension_count, row_count, row_0_attributes..., row_0_measure, ...]",
+    "dimension_count_range": [1, 5],
+    "row_count_range": [1, 16],
+    "attribute_value_range": [0, 7],
+    "measure_range": [0, 1000],
+    "views": "Every nonempty attribute subset, in ascending bitmask order",
+    "aggregation": "Equal projected keys merge; measures are summed; groups are ordered lexicographically by projected key",
+    "result": "Signed 64-bit deterministic checksum over each view mask, group count, ordered key, and measure sum",
+    "invalid_input_result": -1
+  },
+  "input": {
+    "kind": "signed_64_bit_integer_array",
+    "encoding": "dimension count, row count, then each row's attributes and measure",
+    "maximum_length": 98,
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "checksum of the sorted aggregate groups from all nonempty views",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "duplicate_projected_keys_and_view_order",
+      "input_values": [2, 4, 1, 7, 10, 1, 8, 20, 2, 7, 30, 1, 7, 5],
+      "input_length": 14,
+      "expected_result": 74598
+    },
+    {
+      "id": "one_dimension_group_merge_and_sort",
+      "input_values": [1, 3, 2, 1, 4, 2, 2, 3],
+      "input_length": 8,
+      "expected_result": 19629
+    },
+    {
+      "id": "maximum_dimensions_single_row",
+      "input_values": [5, 1, 0, 1, 2, 3, 4, 1000],
+      "input_length": 8,
+      "expected_result": 1386643
+    },
+    {
+      "id": "maximum_rows_single_group",
+      "input_values": [1, 16, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+      "input_length": 34,
+      "expected_result": 10261
+    },
+    {
+      "id": "malformed_packed_length",
+      "input_values": [1, 1, 3],
+      "input_length": 3,
+      "expected_result": -1
+    },
+    {
+      "id": "attribute_out_of_range",
+      "input_values": [1, 1, 8, 0],
+      "input_length": 4,
+      "expected_result": -1
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

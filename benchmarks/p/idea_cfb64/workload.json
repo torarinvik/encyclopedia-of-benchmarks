@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-security-pgp-idea-cfb64-i64-array-bytes-v1",
+  "algorithm": "idea_cfb64",
+  "function_symbol": "idea_cfb64",
+  "source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/security_pgp_d/src/idea.c",
+    "supporting_paths": ["cBench/security_pgp_d/src/idea.h", "cBench/security_pgp_e/src/idea.h", "cBench/security_pgp_d/src/info.sh", "cBench/security_pgp_e/src/info.sh"],
+    "launcher_path": "cBench/security_pgp_d/src/info.sh",
+    "paths": ["cBench/security_pgp_d/src/idea.c", "cBench/security_pgp_e/src/idea.c"],
+    "launchers": ["cBench/security_pgp_d/src/info.sh", "cBench/security_pgp_e/src/info.sh"],
+    "additional_source": {"path": "cBench/security_pgp_e/src/idea.c", "launcher_path": "cBench/security_pgp_e/src/info.sh", "symbol": "ideaCfbDecrypt"},
+    "symbols": ["ideaCipher", "ideaCfbInit", "ideaCfbEncrypt", "ideaCfbDecrypt"],
+    "authors": ["Xuejia Lai", "James L. Massey", "Colin Plumb"],
+    "rights_status": "Both pinned source variants state noncommercial use requires no license fee but provide no explicit source-code redistribution grant; the commercial patent licensing caveat and uncertainty are recorded in NOTICE.txt."
+  },
+  "contract": {
+    "input_layout": "[mode,text_length,key_byte[16],initial_iv_byte[8],data_byte[text_length]]",
+    "mode": {"0": "CFB64 encryption", "1": "CFB64 decryption"},
+    "text_length_range": [1, 24],
+    "byte_range": [0, 255],
+    "maximum_valid_input_words": 50,
+    "maximum_parseable_input_words": 51,
+    "output": "mode 0 emits CFB64 ciphertext; mode 1 emits CFB64 plaintext; both preserve source byte order and do not pad a partial final segment",
+    "maximum_output_bytes": 24,
+    "invalid_result": -1,
+    "output_error_result": -2
+  },
+  "profile": {
+    "feedback": "Encrypt current 8-byte feedback state with IDEA, XOR the next up-to-eight data bytes, then feed back ciphertext: transformed bytes for encryption, input bytes for decryption.",
+    "endianness": "IDEA key and block words use big-endian byte order, independent of host byte order.",
+    "scope": "One initialized CFB64 call in either direction. No resynchronization calls, PGP packet handling, random generation, file I/O, or command-line processing. The same standalone IDEA CFB helper is present in both pinned suites."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"encrypt-known-vector-first-cfb-block", "input_values":[0,8,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,0,0,1,0,2,0,3,0,0,0,0,0,0,0,0], "output_capacity":24, "expected_result":8, "expected_output_hex":"11fbed2b01986de5"},
+    {"id":"decrypt-known-vector-one-block", "input_values":[1,8,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,0,0,1,0,2,0,3,0,0,0,1,0,2,0,3], "output_capacity":24, "expected_result":8, "expected_output_hex":"11fbed2a019a6de6"},
+    {"id":"encrypt-two-blocks-and-partial-tail", "input_values":[0,19,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,0,0,1,0,2,0,3,17,251,237,42,1,154,109,230,17,251,237,42,1,154,109,230,17,251,237], "output_capacity":24, "expected_result":19, "expected_output_hex":"00000001000200030000000100020003000000"},
+    {"id":"decrypt-two-blocks-and-partial-tail", "input_values":[1,19,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,0,0,1,0,2,0,3,0,0,0,1,0,2,0,3,0,0,0,1,0,2,0,3,0,0,0], "output_capacity":24, "expected_result":19, "expected_output_hex":"11fbed2a019a6de611fbed2a019a6de611fbed"},
+    {"id":"partial-segment-encryption", "input_values":[0,3,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,0,0,1,0,2,0,3,0,0,0], "output_capacity":24, "expected_result":3, "expected_output_hex":"11fbed"},
+    {"id":"invalid-mode", "input_values":[2,1,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,0,0,1,0,2,0,3,0], "output_capacity":24, "expected_result":-1, "expected_output_hex":""},
+    {"id":"bad-key-byte", "input_values":[0,1,256,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,0,0,1,0,2,0,3,0], "output_capacity":24, "expected_result":-1, "expected_output_hex":""},
+    {"id":"length-frame-mismatch", "input_values":[1,2,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,0,0,1,0,2,0,3,0], "output_capacity":24, "expected_result":-1, "expected_output_hex":""},
+    {"id":"short-output-capacity", "input_values":[1,8,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,0,0,1,0,2,0,3,0,0,0,1,0,2,0,3], "output_capacity":7, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-output", "input_values":[0,1,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,0,0,1,0,2,0,3,0], "output_capacity":24, "output_is_null":true, "expected_result":-2, "expected_output_hex":""},
+    {"id":"null-input", "input_values":[], "input_is_null":true, "input_length":0, "output_capacity":24, "expected_result":-1, "expected_output_hex":""}
+  ]
+}

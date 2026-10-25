@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "id": "parboil-lbm-d3q19-one-step-i64-array-scalar-v1",
+  "algorithm": "parboil_lbm",
+  "function_symbol": "parboil_lbm",
+  "abi": "i64_array_scalar",
+  "description": "One Parboil D3Q19 LDC stream/collide step on the minimum 3x3x3 grid with one fluid cell.",
+  "pinned_source": {
+    "repository": "yuhc/gpu-parboil",
+    "commit": "ccf3d3126f1754ca85528722f4ced5894ccb852b",
+    "paths": [
+      "benchmarks/lbm/src/cpu/lbm.c",
+      "benchmarks/lbm/src/cpu/lbm.h",
+      "benchmarks/lbm/src/cpu/lbm_1d_array.h",
+      "benchmarks/lbm/src/cpu/config.h",
+      "benchmarks/lbm/src/cpu/main.c",
+      "LICENSE"
+    ],
+    "symbols": ["LBM_initializeGrid", "LBM_initializeSpecialCellsForLDC", "LBM_performStreamCollide"],
+    "source_links": {
+      "kernel": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/lbm/src/cpu/lbm.c",
+      "direction_macros": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/lbm/src/cpu/lbm_1d_array.h",
+      "constants": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/lbm/src/cpu/config.h",
+      "launcher": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/benchmarks/lbm/src/cpu/main.c",
+      "license": "https://github.com/yuhc/gpu-parboil/blob/ccf3d3126f1754ca85528722f4ced5894ccb852b/LICENSE"
+    },
+    "license": "Illinois Open Source License, University of Illinois/NCSA; complete text is reproduced in LICENSE.txt."
+  },
+  "contract": {
+    "operation": "Initialize a 3x3x3 D3Q19 LDC grid, replace the center populations from input, then perform one source-ordered stream/collide pass.",
+    "exact_input_length": 19,
+    "maximum_input_length": 19,
+    "input_layout": "Center-cell populations in source enum order C,N,S,E,W,T,B,NE,NW,SE,SW,NT,NB,ST,SB,ET,EB,WT,WB.",
+    "population_encoding": "Nonnegative signed-i64 fixed-point units of 1e-6; each entry is decoded to binary32 by f32(f32(raw)/f32(1000000)).",
+    "population_raw_range": [0, 100000],
+    "geometry": [3, 3, 3],
+    "boundary": "Any cell on a grid face is an LDC obstacle. The center is the sole fluid cell; source acceleration is inactive for this geometry.",
+    "direction_order": ["C", "N", "S", "E", "W", "T", "B", "NE", "NW", "SE", "SW", "NT", "NB", "ST", "SB", "ET", "EB", "WT", "WB"],
+    "source_order": "Visit z, then y, then x; x is fastest. For fluid cells compute rho, ux, uy, uz, u2, and collision populations in source order, then push q to its direction neighbor. For obstacle cells push the opposite source population to the q-direction neighbor. Destination is initialized to equilibrium weights before the one step.",
+    "arithmetic": "Population and moment operations are binary32 in source order. DFL1/DFL2/DFL3 are unsuffixed double literals; equilibrium multiplication and the addition to the binary32 base are binary64, then the destination store rounds to binary32. The profile assumes IEEE round-to-nearest, with no reassociation or contraction; the pinned source does not specify compiler floating-point flags.",
+    "projection": "Sum over active destination cells and q of (cell_index+1)*round_away(f32(population*f32(1000000))), with cell_index=x+3*y+9*z.",
+    "invalid_input_result": -1,
+    "source_scope": "One bounded LDC time step only; no file input, channel boundary handling, full-grid initialization pass, or timing wrapper."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_valid_length": 19,
+    "maximum_parseable_length": 19,
+    "encoding": "Nineteen nonnegative center-cell D3Q19 populations in fixed-point units of 1e-6.",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "encoding": "Weighted fixed-point checksum of all 513 active destination populations after one step.",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "rest-population-one-hand-derived",
+      "input_values": [100000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 19,
+      "input_is_null": false,
+      "expected_result": 365401848
+    },
+    {
+      "id": "zero-density-invalid",
+      "input_values": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 19,
+      "input_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "out-of-domain-population",
+      "input_values": [100001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "input_length": 19,
+      "input_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "short-input",
+      "input_values": [100000],
+      "input_length": 1,
+      "input_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

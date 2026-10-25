@@ -1,0 +1,6 @@
+DepthwiseConvPerChannel mathematical kernel attribution
+
+Copyright 2024 The TensorFlow Authors. All Rights Reserved.
+
+Upstream source: https://github.com/embench/embench-iot/blob/09c2ed8c3b7008c95d08b038de4a3f6dc103ed70/src/depthconv/depthconv.c
+The upstream file identifies this kernel as Apache-2.0. These language ports are clean-room implementations of its bounded arithmetic contract and do not copy source code or comments.

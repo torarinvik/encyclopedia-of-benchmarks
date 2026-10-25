@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-misc-flops-i64-array-float64-v1",
+  "algorithm": "misc_flops",
+  "function_symbol": "misc_flops",
+  "description": "Bounded deterministic evaluation of the eight distinct double-precision FLOPS kernels from FLoPS.c v2.0.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "Misc/flops/flops.c",
+      "Misc/flops/info.sh",
+      "Misc/flops-1/flops-1.c",
+      "Misc/flops-1/info.sh",
+      "Misc/flops-2/flops-2.c",
+      "Misc/flops-2/info.sh",
+      "Misc/flops-3/flops-3.c",
+      "Misc/flops-3/info.sh",
+      "Misc/flops-4/flops-4.c",
+      "Misc/flops-4/info.sh",
+      "Misc/flops-5/flops-5.c",
+      "Misc/flops-5/info.sh",
+      "Misc/flops-6/flops-6.c",
+      "Misc/flops-6/info.sh",
+      "Misc/flops-7/flops-7.c",
+      "Misc/flops-7/info.sh",
+      "Misc/flops-8/flops-8.c",
+      "Misc/flops-8/info.sh"
+    ],
+    "author_attribution": "FLoPS.c Version 2.0, 18 Dec 1992, Al Aburto (aburto@nosc.mil)",
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc"
+  },
+  "contract": {
+    "input_layout": "[module, steps]",
+    "module_range": [1, 8],
+    "steps_range": [2, 128],
+    "module_1_workload": "The source doubles the requested interval count before its rational integral loop; this profile uses 2*steps intervals.",
+    "module_2_workload": "Two source-ordered alternating series loops of steps iterations; returns the source's corrected pi estimate.",
+    "modules_3_to_8_workload": "Source-order trapezoidal integration loops with steps intervals and the source's polynomial/rational approximants.",
+    "results": {
+      "1": "Reciprocal of the module 1 rational-integral estimate (the source's sb value).",
+      "2": "The source's corrected alternating-series estimate for pi.",
+      "3": "Approximate integral of sin(x) over [0, pi/3].",
+      "4": "Approximate integral of cos(x) over [0, pi/3].",
+      "5": "Approximate integral of tan(x) over [0, pi/3].",
+      "6": "Approximate integral of sin(x)*cos(x) over [0, pi/4].",
+      "7": "The source-scaled negative three-integrand trapezoidal result over [0, 102.3321513995275].",
+      "8": "Approximate integral of sin(x)*cos(x)^2 over [0, pi/3]."
+    },
+    "invalid_result": -1e300
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "encoding": "[module, steps]",
+    "exact_length": 2,
+    "maximum_parseable_length": 3,
+    "module_range": [1, 8],
+    "steps_range": [2, 128],
+    "invalid_result": -1e300
+  },
+  "output": {
+    "kind": "binary64",
+    "invalid_result": -1e300,
+    "absolute_tolerance": 0.02,
+    "relative_tolerance": 1e-10,
+    "tolerance_note": "The expected results are mathematical reference values for the fixed 128-step examples. The independent oracle evaluates each exact bounded workload, including finite-grid approximation error."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_float64_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1,
+    "absolute_tolerance": 0.02,
+    "relative_tolerance": 1e-10
+  },
+  "cases": [
+    {"id": "module_1_rational_integral", "input_values": [1, 128], "expected_result": 25.2},
+    {"id": "module_2_atan_series_pi", "input_values": [2, 128], "expected_result": 3.141592653589793},
+    {"id": "module_3_sine_integral", "input_values": [3, 128], "expected_result": 0.5},
+    {"id": "module_4_cosine_integral", "input_values": [4, 128], "expected_result": 0.8660254037844386},
+    {"id": "module_5_tangent_integral", "input_values": [5, 128], "expected_result": 0.6931471805599453},
+    {"id": "module_6_sine_cosine_integral", "input_values": [6, 128], "expected_result": 0.25},
+    {"id": "module_7_mixed_rational_integrals", "input_values": [7, 128], "expected_result": -500.2},
+    {"id": "module_8_sine_cosine_squared_integral", "input_values": [8, 128], "expected_result": 0.2916666666666667},
+    {"id": "module_below_range", "input_values": [0, 16], "expected_result": -1e300},
+    {"id": "steps_below_range", "input_values": [3, 1], "expected_result": -1e300},
+    {"id": "steps_above_range", "input_values": [3, 129], "expected_result": -1e300},
+    {"id": "extra_input", "input_values": [3, 16, 0], "expected_result": -1e300}
+  ]
+}

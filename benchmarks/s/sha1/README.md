@@ -12,6 +12,8 @@ Success returns 20 and writes exactly 20 digest bytes. Invalid length, a null in
 
 The shared raw-byte contract follows the pinned C++, Go, JavaScript, Python, and Rust implementations. JavaScript must map each input byte to one code unit in U+0000 through U+00FF; converting the bytes through UTF-8 would change the digest. Python and the C++ adapter expose hexadecimal text and are normalized to the same raw digest bytes. The two C++ source copies are mirrors.
 
+LAC-DCC cBench `security_sha` selects SHA-0 because its launcher leaves `USE_MODIFIED_SHA` undefined; it is covered by the separate [`mibench_security_sha0`](../mibench_security_sha0/README.md) package. This README's SHA-1 contract follows the standard rotated schedule and does not claim the cBench profile.
+
 The pinned AArch64 assembly file is a fixed-input Rosetta Code demo with a 1,000-byte scratch buffer and an external I/O include. It is architecture-specific and does not define this arbitrary-byte contract.
 
 ## Pinned sources

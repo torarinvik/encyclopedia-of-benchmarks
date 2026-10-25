@@ -1,0 +1,58 @@
+extern exp(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+const SCALE: f64 = 1000000.0
+const BIAS: i64 = 1000000000000
+
+def rodinia_lavamd_impl(input: i64&, length: usize) -> i64:
+    if length < 12 or length > 42: return -1
+    home_value: i64 = input[0]
+    neighbor_value: i64 = input[1]
+    if home_value < 1 or home_value > 4 or neighbor_value < 1 or neighbor_value > 4: return -1
+    home_n: usize = home_value.usize()
+    neighbor_n: usize = neighbor_value.usize()
+    if length != 2 + 5 * (home_n + neighbor_n): return -1
+    particles: mutable f64[2][4][5] = zeroed
+    counts: usize[2] = [home_n, neighbor_n]
+    cursor: mutable usize = 2
+    box: mutable usize = 0
+    while box < 2:
+        p: mutable usize = 0
+        while p < counts[box]:
+            c: mutable usize = 0
+            while c < 5:
+                raw: i64 = input[cursor]
+                cursor <- cursor + 1
+                if raw < 0 or raw > 1000000: return -1
+                particles[box][p][c] <- raw.f64() / SCALE
+                c <- c + 1
+            p <- p + 1
+        box <- box + 1
+    total: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < home_n:
+        fv: mutable f64 = 0.0; fx: mutable f64 = 0.0; fy: mutable f64 = 0.0; fz: mutable f64 = 0.0
+        box <- 0
+        while box < 2:
+            j: mutable usize = 0
+            while j < counts[box]:
+                a: f64[5] = particles[0][i]
+                b: f64[5] = particles[box][j]
+                dot: f64 = a[1] * b[1] + a[2] * b[2] + a[3] * b[3]
+                r2: f64 = a[0] + b[0] - dot
+                vij: f64 = exp(-(0.5 * r2))
+                fs: f64 = 2.0 * vij
+                dx: f64 = a[1] - b[1]; dy: f64 = a[2] - b[2]; dz: f64 = a[3] - b[3]
+                fv <- fv + b[4] * vij
+                fx <- fx + b[4] * (fs * dx)
+                fy <- fy + b[4] * (fs * dy)
+                fz <- fz + b[4] * (fs * dz)
+                j <- j + 1
+            box <- box + 1
+        total <- total + (i + 1).f64() * ((fv + fx) + fy + fz)
+        i <- i + 1
+    scaled: f64 = total * SCALE
+    rounded: i64 = if scaled < 0.0: -(floor(-scaled + 0.5).i64()) else: floor(scaled + 0.5).i64()
+    return BIAS + rounded
+
+export fn rodinia_lavamd(input: i64&, length: usize) -> i64 = rodinia_lavamd_impl

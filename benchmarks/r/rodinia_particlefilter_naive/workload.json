@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "id": "rodinia-particlefilter-naive-one-transition-v1",
+  "algorithm": "rodinia_particlefilter_naive",
+  "function_symbol": "rodinia_particlefilter_naive",
+  "description": "One deterministic motion/weight/estimate/systematic-resampling transition.",
+  "pinned_source": {
+    "repository": "utcs-scea/rodinia",
+    "commit": "f30e63663cfb114939a15c7ffc4ae112055ae6a8",
+    "paths": [
+      "cuda/particlefilter/ex_particle_CUDA_naive_seq.cu",
+      "cuda/particlefilter/README.txt",
+      "cuda/particlefilter/run",
+      "LICENSE"
+    ],
+    "url": "https://github.com/utcs-scea/rodinia/tree/f30e63663cfb114939a15c7ffc4ae112055ae6a8/cuda/particlefilter",
+    "license": "University of Virginia BSD-3-Clause; complete notice and citations in LICENSE.txt."
+  },
+  "contract": {
+    "operation": "One source-order particle-filter iteration with supplied normal draws and pixel-intensity likelihood samples.",
+    "input_layout": "[particle_count,sample_count,u1_micro, per-particle (x_micro,y_micro,normal_x_micro,normal_y_micro,intensity_samples...)]",
+    "particle_count": [
+      1,
+      4
+    ],
+    "sample_count": [
+      1,
+      4
+    ],
+    "exact_input_length": "3 + particle_count*(4 + sample_count)",
+    "coordinate_range": [
+      -100,
+      100
+    ],
+    "normal_draw_range": [
+      -2,
+      2
+    ],
+    "intensity_range": [
+      0,
+      255
+    ],
+    "systematic_offset": "u1_micro/1e6 in [0,1/N)",
+    "motion": "x += 1 + 5*normal_x; y = y - 2 + 2*normal_y",
+    "likelihood": "mean over samples of ((I-100)^2-(I-228)^2)/50",
+    "weights": "uniform prior 1/N times exp(likelihood), normalized in particle order",
+    "resampling": "u[i]=u1+i/N; first sequential CDF entry >= u[i], fallback last",
+    "output_projection": "round_away(x_estimate*1000)+2*round_away(y_estimate*1000)+sum_i((2*i+3)*round_away(x_resampled_i*1000)+(2*i+4)*round_away(y_resampled_i*1000)); half away from zero",
+    "invalid_result": -1,
+    "source_quirk": "roundDouble returns newValue++ and therefore truncates toward zero; image-index mapping is outside this profile."
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "maximum_length": 35,
+    "encoding": "millionths for coordinates/noise/offset and integer intensity bytes",
+    "invalid_input_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_scalar",
+    "encoding": "weighted fixed-point checksum of estimated and resampled positions",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  },
+  "cases": [
+    {
+      "id": "equal_weights_systematic_cdf_tie",
+      "input_values": [
+        2,
+        1,
+        0,
+        10000000,
+        20000000,
+        0,
+        0,
+        164,
+        12000000,
+        24000000,
+        0,
+        0,
+        164
+      ],
+      "input_length": 13,
+      "input_is_null": false,
+      "expected_result": 320
+    },
+    {
+      "id": "single_particle",
+      "input_values": [
+        1,
+        1,
+        0,
+        3000000,
+        4000000,
+        0,
+        0,
+        100
+      ],
+      "input_length": 8,
+      "input_is_null": false,
+      "expected_result": 28
+    },
+    {
+      "id": "offset_outside_first_interval",
+      "input_values": [
+        2,
+        1,
+        500000,
+        10000000,
+        20000000,
+        0,
+        0,
+        164,
+        12000000,
+        24000000,
+        0,
+        0,
+        164
+      ],
+      "input_length": 13,
+      "input_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "trailing_word_invalid",
+      "input_values": [
+        2,
+        1,
+        0,
+        10000000,
+        20000000,
+        0,
+        0,
+        164,
+        12000000,
+        24000000,
+        0,
+        0,
+        164,
+        0
+      ],
+      "input_length": 14,
+      "input_is_null": false,
+      "expected_result": -1
+    },
+    {
+      "id": "null_input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1
+    }
+  ]
+}

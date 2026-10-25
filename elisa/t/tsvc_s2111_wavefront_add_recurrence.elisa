@@ -1,0 +1,43 @@
+# Clean-room bounded profile of TSVC s2111; see package README.
+
+const TSVC_S2111_MAX_SIDE: usize = 8
+const TSVC_S2111_MAX_PASSES: usize = 4
+const TSVC_S2111_MAX_CELLS: usize = 64
+const TSVC_S2111_MAX_INPUT_LENGTH: usize = 66
+
+def tsvc_s2111_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: u64 = value.u64()
+    for byte in 0..8:
+        output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
+
+def tsvc_s2111_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input.is_null() or length < 6 or length > TSVC_S2111_MAX_INPUT_LENGTH:
+        return -1
+    side_value: i64 = input[0]
+    passes_value: i64 = input[1]
+    if side_value < 2 or side_value > 8 or passes_value < 1 or passes_value > 4:
+        return -1
+    side: usize = side_value.usize()
+    cells: usize = side * side
+    if length != 2 + cells:
+        return -1
+
+    matrix: mutable i64[64] = zeroed
+    for cell in 0..cells:
+        value: i64 = input[2 + cell]
+        if value < -8 or value > 8:
+            return -1
+        matrix[cell] <- value
+    if output.is_null() or capacity < 8 * cells:
+        return -2
+
+    for pass in 0..passes_value.usize():
+        for row in 1..side:
+            for col in 1..side:
+                matrix[row * side + col] <- matrix[row * side + col - 1] + matrix[(row - 1) * side + col]
+    for cell in 0..cells:
+        tsvc_s2111_store(matrix[cell], output, 8 * cell)
+    cells.i64()
+
+export fn tsvc_s2111_wavefront_add_recurrence(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64 = tsvc_s2111_impl

@@ -1,0 +1,28 @@
+const MAX_COUNT: usize = 16
+const MAX_INPUT_LENGTH: usize = 1 + 8 * MAX_COUNT
+
+def dbms_keys_union_impl(values: i64&, length: usize, output: u8&, output_capacity: usize) -> i64:
+    if values.is_null() or length < 1 or length > MAX_INPUT_LENGTH + 1: return -1
+    raw_count: i64 = values[0]
+    if raw_count < 1 or raw_count > MAX_COUNT.i64(): return -1
+    count: usize = raw_count.usize()
+    if length != 1 + 8 * count: return -1
+    bounds: mutable [8]i64 = [0,0,0,0,0,0,0,0]
+    for d in 0..<4:
+        bounds[d] <- values[1 + d]
+        bounds[4 + d] <- values[5 + d]
+    for i in 0..<count:
+        at: usize = 1 + 8 * i
+        for d in 0..<4:
+            lo: i64 = values[at + d]
+            hi: i64 = values[at + 4 + d]
+            if lo < -8 or lo > 8 or hi < -8 or hi > 8 or lo > hi: return -1
+            if lo < bounds[d]: bounds[d] <- lo
+            if hi > bounds[4 + d]: bounds[4 + d] <- hi
+    if output.is_null() or output_capacity < 64: return -2
+    for i in 0..<8:
+        bits: u64 = bounds[i].u64()
+        for b in 0..<8: output[i * 8 + b] <- ((bits >> (8 * b)) & 255).u8()
+    64
+
+export fn versabench_dbms_keys_union(values: i64&, length: usize, output: u8&, output_capacity: usize) -> i64 = dbms_keys_union_impl

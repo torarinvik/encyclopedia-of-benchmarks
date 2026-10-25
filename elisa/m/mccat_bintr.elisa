@@ -1,0 +1,125 @@
+# Copyright (C) 1996 McGill University.
+# Copyright (C) 1996 McCAT System Group.
+# Copyright (C) 1996 ACAPS Benchmark Administrator
+#                    benadmin@acaps.cs.mcgill.ca
+#
+# This program is free software; you can redistribute it and/or modify
+# it provided this copyright notice is maintained.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
+
+const MCCAT_BINTR_MAX_NODES: usize = 64
+const MCCAT_BINTR_QUERY_COUNT: usize = 100
+const MCCAT_BINTR_OUTPUT_BYTES: usize = 33
+
+def mccat_bintr_tree_size(left: i32&, right: i32&, node: i32) -> i32:
+    if node < 0:
+        return 0
+    index: usize = node.usize()
+    1 + mccat_bintr_tree_size(left, right, left[index]) + mccat_bintr_tree_size(left, right, right[index])
+
+def mccat_bintr_tree_sum(values: i32&, left: i32&, right: i32&, node: i32) -> f64:
+    if node < 0:
+        return 0.0
+    index: usize = node.usize()
+    values[index].f64() + mccat_bintr_tree_sum(values, left, right, left[index]) + mccat_bintr_tree_sum(values, left, right, right[index])
+
+def mccat_bintr_member_dfs(values: i32&, left: i32&, right: i32&, node: i32, sought: i32) -> bool:
+    if node < 0:
+        return false
+    index: usize = node.usize()
+    if values[index] == sought:
+        return true
+    if mccat_bintr_member_dfs(values, left, right, left[index], sought):
+        return true
+    mccat_bintr_member_dfs(values, left, right, right[index], sought)
+
+def mccat_bintr_put_u32(output: mutable u8&, offset: usize, value: u32) -> void:
+    for byte in 0..<4:
+        output[offset + byte] <- ((value >> (8 * byte)) & 255).u8()
+
+def mccat_bintr_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
+    bits: mutable u64 = 0
+    memcpy(&bits, &value, 8)
+    for byte in 0..<8:
+        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+
+def mccat_bintr_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 103 or input_length > MCCAT_BINTR_MAX_NODES + 102:
+        return -1
+    node_count_value: i64 = input[0]
+    if node_count_value < 1 or node_count_value > 64:
+        return -1
+    node_count: usize = node_count_value.usize()
+    if input_length != node_count + 102 or input[node_count + 1] != 100:
+        return -1
+    for index in 0..<node_count:
+        value: i64 = input[index + 1]
+        if value == 0 or value < -32768 or value > 32767:
+            return -1
+    for index in 0..<MCCAT_BINTR_QUERY_COUNT:
+        value: i64 = input[node_count + 2 + index]
+        if value == 0 or value < -32768 or value > 32767:
+            return -1
+    if output.is_null() or output_capacity < MCCAT_BINTR_OUTPUT_BYTES:
+        return -2
+
+    values: mutable i32[64] = zeroed
+    left: mutable i32[64] = zeroed
+    right: mutable i32[64] = zeroed
+    for index in 0..<MCCAT_BINTR_MAX_NODES:
+        left[index] <- -1
+        right[index] <- -1
+    root: mutable i32 = -1
+    used: mutable i32 = 0
+    for index in 0..<node_count:
+        value: i32 = input[index + 1].i32()
+        if root < 0:
+            root <- 0
+            values[0] <- value
+            used <- 1
+        else:
+            current: mutable i32 = root
+            searching: mutable bool = true
+            while searching:
+                current_index: usize = current.usize()
+                if value == values[current_index]:
+                    searching <- false
+                elif value < values[current_index]:
+                    child: i32 = left[current_index]
+                    if child < 0:
+                        left[current_index] <- used
+                        values[used.usize()] <- value
+                        used <- used + 1
+                        searching <- false
+                    else:
+                        current <- child
+                else:
+                    child: i32 = right[current_index]
+                    if child < 0:
+                        right[current_index] <- used
+                        values[used.usize()] <- value
+                        used <- used + 1
+                        searching <- false
+                    else:
+                        current <- child
+
+    size: i32 = mccat_bintr_tree_size(&left[0], &right[0], root)
+    sum: f64 = mccat_bintr_tree_sum(&values[0], &left[0], &right[0], root)
+    mean: f64 = sum / size.f64()
+    mccat_bintr_put_u32(output, 0, size.u32())
+    mccat_bintr_put_f64(output, 4, sum)
+    mccat_bintr_put_f64(output, 12, mean)
+    for byte in 0..<13:
+        output[20 + byte] <- 0
+    for index in 0..<MCCAT_BINTR_QUERY_COUNT:
+        sought: i32 = input[node_count + 2 + index].i32()
+        if mccat_bintr_member_dfs(&values[0], &left[0], &right[0], root, sought):
+            output[20 + index / 8] <- output[20 + index / 8] | (1.u8() << (index % 8))
+    MCCAT_BINTR_OUTPUT_BYTES.i64()
+
+export fn mccat_bintr(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = mccat_bintr_impl

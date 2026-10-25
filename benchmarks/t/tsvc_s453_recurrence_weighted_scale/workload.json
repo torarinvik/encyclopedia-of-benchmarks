@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-tsvc-s453-recurrence-weighted-scale-i64-le-v1",
+  "algorithm": "tsvc_s453_recurrence_weighted_scale",
+  "function_symbol": "tsvc_s453_recurrence_weighted_scale",
+  "abi": "i64_array_bytes_output",
+  "description": "One bounded scalar-induction recurrence scaling pass from TSVC s453.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "TSVC/InductionVariable-dbl/info.sh",
+      "TSVC/InductionVariable-dbl/tsc.c",
+      "TSVC/tsc.inc",
+      "TSVC/tests.h"
+    ],
+    "symbol": "s453",
+    "source_lines": {
+      "codelet_start": 4551,
+      "codelet_end": 4575
+    },
+    "url": "https://github.com/lac-dcc/Benchmarks/tree/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/TSVC/InductionVariable-dbl",
+    "launcher_family": "TSVC/InductionVariable-dbl",
+    "launcher_options": [9100, 14],
+    "attribution": "The TSVC source comments attribute non-four-digit codelets to David Callahan, Jack Dongarra, and David Levine, Test Suite for Vectorizing Compilers.",
+    "license_note": "No explicit license grant was found in the pinned TSVC files or repository material reviewed. These clean-room ports reuse no upstream code or comments and claim no upstream license or endorsement."
+  },
+  "contract": {
+    "operation": "Initialize s=0; for ascending i, add 2 to s and assign A[i]=s*B[i].",
+    "input_layout": "[n, B[n]]",
+    "n_range": [1, 32],
+    "vector_value_range": [-100, 100],
+    "exact_length": "1+n",
+    "arithmetic": "B encodes integer-valued source doubles; recurrence values are even integers through 64 and products are exact in binary64 and fit signed i64.",
+    "passes": 1,
+    "output": "Complete A vector in source index order, little-endian signed i64.",
+    "success_result": "n output values written",
+    "output_capacity_requirement": "At least 8*n bytes",
+    "input_modified": false,
+    "invalid_input_result": -1,
+    "insufficient_output_capacity_result": -2
+  },
+  "input": {
+    "kind": "bounded_signed_i64_array",
+    "maximum_valid_length": 33,
+    "maximum_parseable_length": 33,
+    "null_input_result": -1
+  },
+  "output": {
+    "kind": "little_endian_signed_64_bit_array",
+    "encoding": "Complete recurrence-weighted output vector A.",
+    "maximum_values": 32,
+    "maximum_bytes": 256,
+    "null_output_result": -2,
+    "insufficient_capacity_result": -2,
+    "output_untouched_on_error": true
+  },
+  "workspace": {
+    "bytes": 512,
+    "meaning": "One local 32-value B vector and one local 32-value A vector."
+  },
+  "measurement": {
+    "comparison_model": "i64_array_bytes_output_call",
+    "sample_count": 5,
+    "warmup_rounds": 2,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {
+      "id": "signed-recurrence-scale",
+      "input_values": [4, 3, -2, 0, 5],
+      "input_length": 5,
+      "output_capacity": 32,
+      "expected_result": 4,
+      "expected_output_hex": "0600000000000000f8ffffffffffffff00000000000000002800000000000000"
+    },
+    {
+      "id": "mixed-positive-negative-scale",
+      "input_values": [3, -1, 4, 2],
+      "input_length": 4,
+      "output_capacity": 24,
+      "expected_result": 3,
+      "expected_output_hex": "feffffffffffffff10000000000000000c00000000000000"
+    },
+    {
+      "id": "single-element-recurrence",
+      "input_values": [1, 7],
+      "input_length": 2,
+      "output_capacity": 8,
+      "expected_result": 1,
+      "expected_output_hex": "0e00000000000000"
+    },
+    {
+      "id": "all-zero-vector",
+      "input_values": [5, 0, 0, 0, 0, 0],
+      "input_length": 6,
+      "output_capacity": 40,
+      "expected_result": 5,
+      "expected_output_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "invalid-zero-vector-length",
+      "input_values": [0],
+      "input_length": 1,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-short-frame",
+      "input_values": [2, 5],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "invalid-value-bound",
+      "input_values": [1, 101],
+      "input_length": 2,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-input",
+      "input_values": [],
+      "input_length": 0,
+      "input_is_null": true,
+      "expected_result": -1,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "null-output",
+      "input_values": [1, 7],
+      "input_length": 2,
+      "output_capacity": 8,
+      "output_is_null": true,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    },
+    {
+      "id": "short-output-capacity",
+      "input_values": [1, 7],
+      "input_length": 2,
+      "output_capacity": 7,
+      "expected_result": -2,
+      "expected_output_hex": ""
+    }
+  ]
+}

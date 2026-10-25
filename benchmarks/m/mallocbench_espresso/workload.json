@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "mallocbench-espresso-v1",
+  "algorithm": "mallocbench_espresso",
+  "function_symbol": "mallocbench_espresso",
+  "input": {
+    "kind": "i64_array_scalar",
+    "encoding": "[variable_count, on_set_mask, dont_care_mask]",
+    "variable_count_range": [1, 5],
+    "minterm_index": "bit k denotes minterm k; variable 0 is the least-significant minterm bit",
+    "mask_domain": "nonnegative signed i64 with no set bits at or above 2^variable_count",
+    "on_set_and_dont_care_must_be_disjoint": true,
+    "algorithm": "Start with one full minterm cube per ON point; in ascending minterm order, attempt to remove variable literals in ascending variable order if the resulting cube contains only ON or don't-care points; then remove terms in original order if all their ON points remain covered by other active terms.",
+    "result_encoding": "1024*cube_count + literal_count",
+    "invalid_result": -1
+  },
+  "cases": [
+    {"id":"empty_on_set","input_values":[2,0,0],"input_length":3,"expected_result":0},
+    {"id":"single_minterm_one_variable","input_values":[1,1,0],"input_length":3,"expected_result":1025},
+    {"id":"single_minterm_two_variables","input_values":[2,1,0],"input_length":3,"expected_result":1026},
+    {"id":"adjacent_minterms_merge","input_values":[2,3,0],"input_length":3,"expected_result":1025},
+    {"id":"all_minterms_constant_one","input_values":[2,15,0],"input_length":3,"expected_result":1024},
+    {"id":"greedy_overlapping_cover","input_values":[2,7,0],"input_length":3,"expected_result":2050},
+    {"id":"dont_care_enables_expansion","input_values":[2,1,4],"input_length":3,"expected_result":1025},
+    {"id":"three_variable_parity_pairing","input_values":[3,170,0],"input_length":3,"expected_result":1025},
+    {"id":"overlapping_on_and_dont_care","input_values":[2,1,1],"input_length":3,"expected_result":-1},
+    {"id":"mask_above_minterm_range","input_values":[2,16,0],"input_length":3,"expected_result":-1},
+    {"id":"zero_variables","input_values":[0,0,0],"input_length":3,"expected_result":-1},
+    {"id":"too_many_variables","input_values":[6,0,0],"input_length":3,"expected_result":-1},
+    {"id":"wrong_length","input_values":[2,1],"input_length":2,"expected_result":-1},
+    {"id":"null_input","input_values":[],"input_length":0,"input_is_null":true,"expected_result":-1}
+  ],
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 9,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 20
+  }
+}

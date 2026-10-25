@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "lac-dcc-cbench-ispell-lookup-chain-i64-array-scalar-v1",
+  "algorithm": "cbench_ispell_lookup_chain",
+  "function_symbol": "cbench_ispell_lookup_chain",
+  "abi": "i64_array_scalar",
+  "description": "Bounded Ispell hash-selected dictionary collision-chain lookup, without normalization or tree fallback.",
+  "pinned_source": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/office_ispell/src/lookup.c",
+    "symbol": "lookup",
+    "url": "https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/cBench/office_ispell/src/lookup.c",
+    "hash_source": "cBench/office_ispell/src/hash.c::hash",
+    "license": "Explicit modified source/binary redistribution permission in lookup.c; full conditions and notice in LICENSE.txt."
+  },
+  "pinned_launcher": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "path": "cBench/office_ispell/src/info.sh",
+    "bench_name": "office_ispell",
+    "source_files": ["*.c"],
+    "run_options": [],
+    "scope_note": "Profiles only lookup.c::lookup with dotree disabled and pre-normalized canonical ASCII words; excludes dictionary file parsing, capitalization/affix normalization, tree fallback, spellchecking, and CLI/file behavior."
+  },
+  "contract": {
+    "input_layout": "[table_size, query_length, entry_count, query_bytes[query_length], bucket_heads[table_size], next[entry_count], word_lengths[entry_count], concatenated_entry_word_bytes]",
+    "table_size_range": [1, 8],
+    "query_length_range": [1, 8],
+    "entry_count_range": [0, 8],
+    "word_length_range": [1, 8],
+    "alphabet": "All query and entry bytes are lowercase ASCII a-z; the caller-normalization stage is excluded.",
+    "hash": "Ispell 32-bit hash of ASCII-uppercase key bytes: pack first four bytes in order, then rotate left five and XOR each remaining byte; bucket is unsigned state modulo table_size.",
+    "chain_invariants": "Each entry index occurs exactly once across the bucket chains, next/head values are -1 or valid indexes, chains are acyclic, and every word hashes to the bucket containing it.",
+    "result": "One-based serialized entry index of the first exact query match in its selected bucket chain; zero if absent.",
+    "invalid_result": -1
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[table_size, query_length, entry_count, query bytes, bucket heads, next links, word lengths, concatenated word bytes]",
+    "maximum_valid_input_length": 107,
+    "maximum_parseable_input_length": 108,
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_64_bit_scalar",
+    "meaning": "One-based matching entry index, or zero when the source chain has no exact match.",
+    "valid_result_range": [0, 8],
+    "invalid_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 5,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 100
+  },
+  "cases": [
+    {"id":"match-at-chain-head","input_values":[1,3,2,99,97,116,0,1,-1,3,3,99,97,116,100,111,103],"input_length":17,"expected_result":1},
+    {"id":"match-after-collision","input_values":[1,3,2,100,111,103,0,1,-1,3,3,99,97,116,100,111,103],"input_length":17,"expected_result":2},
+    {"id":"absent-from-chain","input_values":[1,3,2,114,97,116,0,1,-1,3,3,99,97,116,100,111,103],"input_length":17,"expected_result":0},
+    {"id":"empty-table","input_values":[4,3,0,99,97,116,-1,-1,-1,-1],"input_length":10,"expected_result":0},
+    {"id":"cycle-is-invalid","input_values":[1,3,2,100,111,103,0,1,0,3,3,99,97,116,100,111,103],"input_length":17,"expected_result":-1},
+    {"id":"wrong-bucket-is-invalid","input_values":[2,1,1,97,0,-1,-1,1,97],"input_length":9,"expected_result":-1},
+    {"id":"uppercase-key-is-outside-profile","input_values":[1,3,1,67,97,116,0,-1,3,99,97,116],"input_length":12,"expected_result":-1}
+  ]
+}

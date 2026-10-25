@@ -1,0 +1,77 @@
+# Rodinia particlefilter_naive one-transition profile; full notice: benchmarks/r/rodinia_particlefilter_naive/LICENSE.txt.
+extern exp(value: f64) -> f64
+extern floor(value: f64) -> f64
+
+const MAX_PARTICLES: usize = 4
+const MAX_SAMPLES: usize = 4
+const SCALE: f64 = 1000000.0
+
+def pf_round_away(value: f64) -> i64:
+    scaled: f64 = value * 1000.0
+    if scaled < 0.0: return -(floor(-scaled + 0.5)).i64()
+    floor(scaled + 0.5).i64()
+
+def rodinia_particlefilter_naive_impl(input: i64&, length: usize) -> i64:
+    if input.is_null() or length < 8 or length > 35: return -1
+    n_raw: i64 = input[0]
+    samples_raw: i64 = input[1]
+    offset_raw: i64 = input[2]
+    if n_raw < 1 or n_raw > 4 or samples_raw < 1 or samples_raw > 4: return -1
+    n: usize = n_raw.usize()
+    samples: usize = samples_raw.usize()
+    if length != 3 + n * (4 + samples) or offset_raw < 0 or offset_raw >= 1000000 or offset_raw * n_raw >= 1000000: return -1
+    x: mutable f64[4] = zeroed
+    y: mutable f64[4] = zeroed
+    moved_x: mutable f64[4] = zeroed
+    moved_y: mutable f64[4] = zeroed
+    weights: mutable f64[4] = zeroed
+    cdf: mutable f64[4] = zeroed
+    resampled_x: mutable f64[4] = zeroed
+    resampled_y: mutable f64[4] = zeroed
+    for i in 0..<n:
+        at: usize = 3 + i * (4 + samples)
+        x_raw: i64 = input[at]
+        y_raw: i64 = input[at + 1]
+        nx_raw: i64 = input[at + 2]
+        ny_raw: i64 = input[at + 3]
+        if x_raw < -100000000 or x_raw > 100000000 or y_raw < -100000000 or y_raw > 100000000 or nx_raw < -2000000 or nx_raw > 2000000 or ny_raw < -2000000 or ny_raw > 2000000: return -1
+        x[i] <- x_raw.f64() / SCALE
+        y[i] <- y_raw.f64() / SCALE
+        moved_x[i] <- x[i] + 1.0 + 5.0 * (nx_raw.f64() / SCALE)
+        moved_y[i] <- y[i] - 2.0 + 2.0 * (ny_raw.f64() / SCALE)
+        likelihood_sum: mutable f64 = 0.0
+        for j in 0..<samples:
+            intensity: i64 = input[at + 4 + j]
+            if intensity < 0 or intensity > 255: return -1
+            foreground: f64 = (intensity - 100).f64()
+            background: f64 = (intensity - 228).f64()
+            likelihood_sum <- likelihood_sum + (foreground * foreground - background * background) / 50.0
+        likelihood: f64 = likelihood_sum / samples.f64()
+        weights[i] <- (1.0 / n.f64()) * exp(likelihood)
+    weight_sum: mutable f64 = 0.0
+    for i in 0..<n: weight_sum <- weight_sum + weights[i]
+    if weight_sum <= 0.0: return -1
+    for i in 0..<n: weights[i] <- weights[i] / weight_sum
+    estimate_x: mutable f64 = 0.0
+    estimate_y: mutable f64 = 0.0
+    for i in 0..<n:
+        estimate_x <- estimate_x + moved_x[i] * weights[i]
+        estimate_y <- estimate_y + moved_y[i] * weights[i]
+    cdf[0] <- weights[0]
+    for i in 1..<n: cdf[i] <- weights[i] + cdf[i - 1]
+    offset: f64 = offset_raw.f64() / SCALE
+    for i in 0..<n:
+        u: f64 = offset + i.f64() / n.f64()
+        selected: mutable usize = n - 1
+        for j in 0..<n:
+            if cdf[j] >= u:
+                selected <- j
+                break
+        resampled_x[i] <- moved_x[selected]
+        resampled_y[i] <- moved_y[selected]
+    checksum: mutable i64 = pf_round_away(estimate_x) + 2 * pf_round_away(estimate_y)
+    for i in 0..<n:
+        checksum <- checksum + (2 * i + 3).i64() * pf_round_away(resampled_x[i]) + (2 * i + 4).i64() * pf_round_away(resampled_y[i])
+    checksum
+
+export fn rodinia_particlefilter_naive(input: i64&, length: usize) -> i64 = rodinia_particlefilter_naive_impl

@@ -1,0 +1,87 @@
+/*
+Copyright (c) 1988-1997 Sam Leffler
+Copyright (c) 1991-1997 Silicon Graphics, Inc.
+
+Permission to use, copy, modify, distribute, and sell this software and
+its documentation for any purpose is hereby granted without fee, provided
+that (i) the above copyright notices and this permission notice appear in
+all copies of the software and related documentation, and (ii) the names of
+Sam Leffler and Silicon Graphics may not be used in any advertising or
+publicity relating to the software without the specific, prior written
+permission of Sam Leffler and Silicon Graphics.
+
+THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
+EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
+WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
+ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
+OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF
+LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+OF THIS SOFTWARE.
+*/
+
+const CBENCH_TIFFDITHER_MAX_WIDTH: i64 = 32
+const CBENCH_TIFFDITHER_MAX_HEIGHT: i64 = 16
+const CBENCH_TIFFDITHER_MAX_PIXELS: usize = 512
+const CBENCH_TIFFDITHER_MAX_OUTPUT_BYTES: usize = 60
+
+def cbench_tiffdither_trunc_div(value: i64, divisor: i64) -> i64:
+    if value < 0: return -((-value) / divisor)
+    value / divisor
+
+def cbench_tiffdither_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input.is_null() or input_length < 5 or input_length > 515:
+        return -1
+    width_value: i64 = input[0]
+    height_value: i64 = input[1]
+    threshold_value: i64 = input[2]
+    if width_value < 1 or width_value > CBENCH_TIFFDITHER_MAX_WIDTH or height_value < 2 or height_value > CBENCH_TIFFDITHER_MAX_HEIGHT or threshold_value < 0 or threshold_value > 255:
+        return -1
+    width: usize = width_value.usize()
+    height: usize = height_value.usize()
+    threshold: i64 = threshold_value
+    pixel_count: usize = width * height
+    if input_length != 3 + pixel_count:
+        return -1
+
+    work: mutable i16[512] = zeroed
+    for index in 0..<pixel_count:
+        pixel: i64 = input[index + 3]
+        if pixel < 0 or pixel > 255:
+            return -1
+        work[index] <- pixel.i16()
+
+    row_bytes: usize = (width + 7) / 8
+    output_size: usize = row_bytes * (height - 1)
+    if output.is_null() or output_capacity < output_size:
+        return -2
+    staged: mutable u8[60] = zeroed
+
+    for y in 0..<height - 1:
+        last_line: bool = y + 2 == height
+        for x in 0..<width:
+            at: usize = y * width + x
+            value: mutable i64 = work[at].i64()
+            if value < 0:
+                value <- 0
+            else:
+                if value > 255: value <- 255
+            if value > threshold:
+                staged[y * row_bytes + x / 8] <- staged[y * row_bytes + x / 8] | (128 >> (x % 8)).u8()
+                value <- value - 255
+            if x + 1 < width:
+                work[at + 1] <- (work[at + 1].i64() + cbench_tiffdither_trunc_div(value * 7, 16)).i16()
+            if not last_line:
+                if x > 0:
+                    work[at + width - 1] <- (work[at + width - 1].i64() + cbench_tiffdither_trunc_div(value * 3, 16)).i16()
+                work[at + width] <- (work[at + width].i64() + cbench_tiffdither_trunc_div(value * 5, 16)).i16()
+                if x + 1 < width:
+                    work[at + width + 1] <- (work[at + width + 1].i64() + cbench_tiffdither_trunc_div(value, 16)).i16()
+
+    for index in 0..<output_size:
+        output[index] <- staged[index]
+    output_size.i64()
+
+export fn cbench_tiffdither(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = cbench_tiffdither_impl
