@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "id": "olden-toronto-quadtree-perimeter-i64-v1",
+  "algorithm": "olden_perimeter",
+  "function_symbol": "olden_perimeter",
+  "description": "Return the exposed edge length of the bounded TORONTO Olden quadtree at the selected refinement level.",
+  "source_bound": {
+    "repository": "lac-dcc/Benchmarks",
+    "commit": "5d7b75df749241efa7a6e6f5be613d3fcc5cce38",
+    "paths": [
+      "Olden/perimeter/args.c",
+      "Olden/perimeter/main.c",
+      "Olden/perimeter/maketree.c",
+      "Olden/perimeter/perimeter.h"
+    ],
+    "configuration": "-DTORONTO; info.sh selects level 9 for SMALL_PROBLEM_SIZE and 11 otherwise; Makefile default is level 10"
+  },
+  "input": {
+    "kind": "signed_i64_array",
+    "encoding": "[refinement_level]",
+    "array_length": 1,
+    "accepted_level_range": [
+      9,
+      11
+    ],
+    "invalid_result": -1
+  },
+  "output": {
+    "kind": "signed_i64_integer",
+    "meaning": "sum of exposed black-quadtree-cell edge lengths in the TORONTO perimeter call",
+    "invalid_input_result": -1
+  },
+  "measurement": {
+    "comparison_model": "i64_array_scalar_call",
+    "sample_count": 3,
+    "warmup_rounds": 1,
+    "repetitions_per_sample": 1
+  },
+  "cases": [
+    {
+      "id": "small_problem_size_level_9",
+      "input_values": [
+        9
+      ],
+      "expected_result": 16384
+    },
+    {
+      "id": "makefile_default_level_10",
+      "input_values": [
+        10
+      ],
+      "expected_result": 16384
+    },
+    {
+      "id": "normal_problem_size_level_11",
+      "input_values": [
+        11
+      ],
+      "expected_result": 16384
+    },
+    {
+      "id": "empty_input",
+      "input_values": [],
+      "expected_result": -1
+    },
+    {
+      "id": "extra_input",
+      "input_values": [
+        9,
+        11
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "below_bounded_levels",
+      "input_values": [
+        8
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "above_bounded_levels",
+      "input_values": [
+        12
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "signed_minimum",
+      "input_values": [
+        -9223372036854775808
+      ],
+      "expected_result": -1
+    },
+    {
+      "id": "signed_maximum",
+      "input_values": [
+        9223372036854775807
+      ],
+      "expected_result": -1
+    }
+  ]
+}

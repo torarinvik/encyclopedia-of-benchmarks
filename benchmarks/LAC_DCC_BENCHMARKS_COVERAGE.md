@@ -46,9 +46,13 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | `Misc/fp-convert/info.sh` | `misc_fp_convert` | Newly implemented in this batch | [`misc_fp_convert`](m/misc_fp_convert/README.md): bounded float32 vector conversion and float64 dot-product accumulation. |
 | `Misc/evalloop/info.sh` | `evalloop` | Newly implemented in this batch | [`evalloop`](e/evalloop/README.md): bounded source opcode stream evaluation with uint32 accumulation and exact stdout bytes. |
 | `Misc/ReedSolomon/info.sh` | `ReedSolomon` | Newly implemented in this batch | [`misc_reed_solomon`](m/misc_reed_solomon/README.md): bounded shortened RS(204,188) encoding and zero/one-symbol error correction with source-compatible GF(256) arithmetic. |
+| [`Misc/mandel/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/mandel/info.sh) | `mandel` | Partial/related | [`mandelbrot`](m/mandelbrot/README.md) already implements the same `z = z*z + c` escape-time recurrence. This launcher samples a 500×500 grid for ten iterations and reduces the final complex values to one integer, so it is not added as a separate algorithm package. |
+| [`Misc/mandel-2/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/mandel-2/info.sh) | `mandel-2` | Partial/related | [`mandelbrot`](m/mandelbrot/README.md) already implements the same Mandelbrot escape-time recurrence. This launcher uses a fixed 78×78 grid, a 65,536-iteration limit, and ASCII output; it is treated as another rendering profile rather than a separate algorithm. |
 | `McGill/misr/info.sh` | `misr` | Newly implemented in this batch | [`mcgill_misr`](m/mcgill_misr/README.md): bounded ten-vector MISR simulation with source-seeded `lrand48` and exact two-line report. |
 | `PolyBench/linear-algebra/solvers/gramschmidt/info.sh` | `gramschmidt` | Partial/related | [`gram_schmidt`](g/gram_schmidt/README.md): same method, but matrix and output contracts differ. |
 | [`McCat/01-qbsort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/01-qbsort/info.sh) | `01-qbsort` | Newly implemented in this batch | [`mccat_qbsort`](m/mccat_qbsort/README.md): both source sorting paths, mode-selected, with the 1,000-repeat launcher profile. |
+| [`McCat/15-trie/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/15-trie/info.sh) | `15-trie` | Newly implemented in this batch | [`mccat_trie`](m/mccat_trie/README.md): inserts tokens into the source's continuation/alternative trie and emits distinct words in traversal order. |
+| [`McCat/03-testtrie/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/03-testtrie/info.sh) | `03-testtrie` | Partial/related | [`mccat_trie`](m/mccat_trie/README.md) already covers trie insertion and traversal. `03-testtrie` uses a 26-child trie and prints occurrence counts, while `15-trie` uses continuation/alternative links and emits each token once; no separate package is added for the shared trie algorithm. |
 | `PolyBench/medley/floyd-warshall/info.sh` | `floyd-warshall` | Partial/related | [`floyd_warshall`](f/floyd_warshall/README.md): same recurrence, local contract returns a requested source row. |
 | `PolyBench/medley/nussinov/info.sh` | `nussinov` | Newly implemented in this batch | [`nussinov`](n/nussinov/README.md): bounded dynamic-programming RNA folding recurrence. |
 | `Olden/treeadd/info.sh` | `treeadd` | Newly implemented in this batch | [`treeadd`](t/treeadd/README.md): full value-one binary tree construction and repeated recursive sum. |
@@ -83,7 +87,9 @@ A matching name alone is not evidence of coverage. “Exact local semantic match
 | `Trimaran/enc-rc4/info.sh` | `enc-rc4` | Newly implemented in this batch | [`trimaran_enc_rc4`](t/trimaran_enc_rc4/README.md): six fixed ARC4 validation vectors with the 2,000-pass small-launcher bound and GPL-2.0-or-later notice. |
 | `Trimaran/enc-3des/info.sh` | `enc-3des` | Partial/related | [`trimaran_enc_3des`](t/trimaran_enc_3des/README.md): bounded fixed-key, three-key 3DES ECB single-block encrypt/decrypt stage. Single-DES and two-key variants, the 10,000-transform Monte Carlo loop, launcher repeats, and CLI report are excluded. |
 | `NPB-serial/is/info.sh` | `is` | Newly implemented in this batch | [`npb_is`](n/npb_is/README.md): class-W integer sort with partial-rank checks and final full-order verification. |
-| `Olden/perimeter/info.sh` | `perimeter` | Pending semantic review/implementation | Same-name collision: local [`perimeter`](p/perimeter/README.md) computes regular-polygon perimeter. |
+| [`McGill/exptree/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/exptree/info.sh) | `exptree` | Newly implemented in this batch | [`mcgill_exptree`](m/mcgill_exptree/README.md): bounded iterative-deepening expression-tree search with source-order tie behavior. |
+| [`Olden/bisort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/bisort/info.sh) | `bisort` | Newly implemented in this batch | [`bisort`](b/bisort/README.md): bounded Olden tree generation followed by the source's recursive bitonic sort and checksum. |
+| [`Olden/perimeter/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/perimeter/info.sh) | `perimeter` | Newly implemented in this batch | [`olden_perimeter`](o/olden_perimeter/README.md): bounded TORONTO quadtree perimeter, under a distinct symbol because local [`perimeter`](p/perimeter/README.md) computes a regular polygon. |
 | `PolyBench/datamining/correlation/info.sh` | `correlation` | Newly implemented in this batch | [`polybench_correlation`](c/polybench_correlation/README.md): bounded initialized matrix correlation kernel; distinct from local scalar `correlation`. |
 
 The source-backed new packages are linked to commit `5d7b75df749241efa7a6e6f5be613d3fcc5cce38` in their READMEs. Their presence is recorded here as implementation coverage, not as a test result.
@@ -197,13 +203,13 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
 | [`McCat/01-qbsort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/01-qbsort/info.sh) | `01-qbsort` | Newly implemented in this batch |
-| [`McCat/03-testtrie/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/03-testtrie/info.sh) | `03-testtrie` | Pending semantic review/implementation |
+| [`McCat/03-testtrie/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/03-testtrie/info.sh) | `03-testtrie` | Partial/related: shares trie insertion and traversal with [`mccat_trie`](m/mccat_trie/README.md); its 26-child representation and duplicate occurrence counts are not ported as a separate package. |
 | [`McCat/04-bisect/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/04-bisect/info.sh) | `04-bisect` | Newly implemented in this batch | [`mccat_bisect`](m/mccat_bisect/README.md): bounded source-ordered Sturm bisection over the launcher's symmetric tridiagonal matrix, returning the printed eigenvalue/diagnostic vector. |
 | [`McCat/05-eks/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/05-eks/info.sh) | `05-eks` | Pending semantic review/implementation |
 | [`McCat/08-main/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/08-main/info.sh) | `08-main` | Pending semantic review/implementation |
 | [`McCat/09-vor/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/09-vor/info.sh) | `09-vor` | Pending semantic review/implementation |
 | [`McCat/12-IOtest/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/12-IOtest/info.sh) | `12-IOtest` | Pending semantic review/implementation |
-| [`McCat/15-trie/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/15-trie/info.sh) | `15-trie` | Pending semantic review/implementation |
+| [`McCat/15-trie/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/15-trie/info.sh) | `15-trie` | Newly implemented in this batch: [`mccat_trie`](m/mccat_trie/README.md) |
 | [`McCat/17-bintr/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McCat/17-bintr/info.sh) | `17-bintr` | Pending semantic review/implementation |
 
 ### McGill
@@ -211,7 +217,7 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
 | [`McGill/chomp/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/chomp/info.sh) | `chomp` | Pending semantic review/implementation |
-| [`McGill/exptree/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/exptree/info.sh) | `exptree` | Pending semantic review/implementation |
+| [`McGill/exptree/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/exptree/info.sh) | `exptree` | Newly implemented in this batch |
 | [`McGill/misr/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/misr/info.sh) | `misr` | Newly implemented in this batch |
 | [`McGill/queens/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/McGill/queens/info.sh) | `queens` | Newly implemented in this batch |
 
@@ -254,8 +260,8 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | [`Misc/fp-convert/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/fp-convert/info.sh) | `fp-convert` | Newly implemented in this batch |
 | [`Misc/himenobmtxpa/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/himenobmtxpa/info.sh) | `himenobmtxpa` | Pending semantic review/implementation |
 | [`Misc/lowercase/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/lowercase/info.sh) | `lowercase` | Newly implemented in this batch: [`misc_lowercase`](l/misc_lowercase/README.md) |
-| [`Misc/mandel-2/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/mandel-2/info.sh) | `mandel-2` | Pending semantic review/implementation |
-| [`Misc/mandel/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/mandel/info.sh) | `mandel` | Pending semantic review/implementation |
+| [`Misc/mandel-2/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/mandel-2/info.sh) | `mandel-2` | Partial/related: the core Mandelbrot iteration is covered by [`mandelbrot`](m/mandelbrot/README.md); this launcher changes only the fixed grid, limit, and text output profile. |
+| [`Misc/mandel/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/mandel/info.sh) | `mandel` | Partial/related: [`mandelbrot`](m/mandelbrot/README.md) covers the same escape-time recurrence; the source's 500×500 ten-iteration complex-value reduction is not a separate algorithm. |
 | [`Misc/matmul_f64_4x4/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/matmul_f64_4x4/info.sh) | `matmul_f64_4x4` | Newly implemented in this batch |
 | [`Misc/oourafft/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/oourafft/info.sh) | `oourafft` | Pending semantic review/implementation |
 | [`Misc/perlin/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Misc/perlin/info.sh) | `perlin` | Pending semantic review/implementation |
@@ -277,11 +283,11 @@ Rows not assigned a reviewed overlap above remain **Pending semantic review/impl
 | Upstream launcher path | Executable | Crosswalk status |
 |---|---|---|
 | [`Olden/bh/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/bh/info.sh) | `bh` | Pending semantic review/implementation |
-| [`Olden/bisort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/bisort/info.sh) | `bisort` | Pending semantic review/implementation |
+| [`Olden/bisort/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/bisort/info.sh) | `bisort` | Newly implemented in this batch |
 | [`Olden/em3d/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/em3d/info.sh) | `em3d` | Pending semantic review/implementation |
 | [`Olden/health/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/health/info.sh) | `health` | Pending semantic review/implementation |
 | [`Olden/mst/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/mst/info.sh) | `mst` | Pending semantic review/implementation |
-| [`Olden/perimeter/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/perimeter/info.sh) | `perimeter` | Pending semantic review/implementation |
+| [`Olden/perimeter/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/perimeter/info.sh) | `perimeter` | Newly implemented in this batch |
 | [`Olden/power/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/power/info.sh) | `power` | Pending semantic review/implementation |
 | [`Olden/treeadd/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/treeadd/info.sh) | `treeadd` | Newly implemented in this batch |
 | [`Olden/tsp/info.sh`](https://github.com/lac-dcc/Benchmarks/blob/5d7b75df749241efa7a6e6f5be613d3fcc5cce38/Olden/tsp/info.sh) | `tsp` | Pending semantic review/implementation |

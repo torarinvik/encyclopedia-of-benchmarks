@@ -1,0 +1,141 @@
+const BISORT_MIN_SIZE: i64 = 2
+const BISORT_MAX_SIZE: i64 = 1024
+const BISORT_MAX_NODES: usize = 1023
+const BISORT_MODULUS: i32 = 10000
+const BISORT_MULTIPLIER: i32 = 31415821
+const BISORT_RANGE: i32 = 100
+
+struct BisortNode:
+    value: i32
+    left: i32
+    right: i32
+
+struct BisortTree:
+    nodes: BisortNode[BISORT_MAX_NODES]
+    used: usize
+
+def bisort_multiply(p: i32, q: i32) -> i32:
+    p_high: i32 = p / BISORT_MODULUS
+    p_low: i32 = p % BISORT_MODULUS
+    q_high: i32 = q / BISORT_MODULUS
+    q_low: i32 = q % BISORT_MODULUS
+    ((p_low * q_high + p_high * q_low) % BISORT_MODULUS) * BISORT_MODULUS + p_low * q_low
+
+def bisort_next_random(seed: i32) -> i32:
+    bisort_multiply(seed, BISORT_MULTIPLIER) + 1
+
+def bisort_skip_random(seed_value: i32, count: i32) -> i32:
+    seed: mutable i32 = seed_value
+    index: mutable i32 = 0
+    while index < count:
+        seed <- bisort_next_random(seed)
+        index <- index + 1
+    seed
+
+def bisort_make_tree(tree: mutable BisortTree&, size: i32, seed_value: i32) -> i32:
+    if size <= 1:
+        return -1
+    seed: i32 = bisort_next_random(seed_value)
+    index: usize = tree.used
+    tree.used <- tree.used + 1
+    tree.nodes[index].value <- seed % BISORT_RANGE
+    half: i32 = size / 2
+    tree.nodes[index].left <- bisort_make_tree(tree, half, seed)
+    tree.nodes[index].right <- bisort_make_tree(tree, half, bisort_skip_random(seed, size + 1))
+    index.i32()
+
+def bisort_swap_left(tree: mutable BisortTree&, left: i32, right: i32,
+    left_left: i32, right_left: i32, left_value: i32, right_value: i32) -> void:
+    tree.nodes[right.usize()].value <- left_value
+    tree.nodes[right.usize()].left <- left_left
+    tree.nodes[left.usize()].left <- right_left
+    tree.nodes[left.usize()].value <- right_value
+
+def bisort_swap_right(tree: mutable BisortTree&, left: i32, right: i32,
+    left_right: i32, right_right: i32, left_value: i32, right_value: i32) -> void:
+    tree.nodes[right.usize()].value <- left_value
+    tree.nodes[right.usize()].right <- left_right
+    tree.nodes[left.usize()].right <- right_right
+    tree.nodes[left.usize()].value <- right_value
+
+def bisort_merge(tree: mutable BisortTree&, root: i32, spill_value: i32, direction: i32) -> i32:
+    spill: mutable i32 = spill_value
+    root_value: mutable i32 = tree.nodes[root.usize()].value
+    left: mutable i32 = tree.nodes[root.usize()].left
+    right: mutable i32 = tree.nodes[root.usize()].right
+    right_exchange: bool = (root_value > spill) != (direction != 0)
+    if right_exchange:
+        tree.nodes[root.usize()].value <- spill
+        spill <- root_value
+    while left >= 0:
+        left_value: i32 = tree.nodes[left.usize()].value
+        left_left: i32 = tree.nodes[left.usize()].left
+        left_right: i32 = tree.nodes[left.usize()].right
+        right_value: i32 = tree.nodes[right.usize()].value
+        right_left: i32 = tree.nodes[right.usize()].left
+        right_right: i32 = tree.nodes[right.usize()].right
+        element_exchange: bool = (left_value > right_value) != (direction != 0)
+        if right_exchange:
+            if element_exchange:
+                bisort_swap_right(tree, left, right, left_right, right_right, left_value, right_value)
+                left <- left_left
+                right <- right_left
+            else:
+                left <- left_right
+                right <- right_right
+        else if element_exchange:
+            bisort_swap_left(tree, left, right, left_left, right_left, left_value, right_value)
+            left <- left_right
+            right <- right_right
+        else:
+            left <- left_left
+            right <- right_left
+    if tree.nodes[root.usize()].left >= 0:
+        left_root: i32 = tree.nodes[root.usize()].left
+        right_root: i32 = tree.nodes[root.usize()].right
+        root_value <- tree.nodes[root.usize()].value
+        tree.nodes[root.usize()].value <- bisort_merge(tree, left_root, root_value, direction)
+        spill <- bisort_merge(tree, right_root, spill, direction)
+    spill
+
+def bisort_sort_tree(tree: mutable BisortTree&, root: i32, spill_value: i32, direction: i32) -> i32:
+    spill: mutable i32 = spill_value
+    if tree.nodes[root.usize()].left < 0:
+        if (tree.nodes[root.usize()].value > spill) != (direction != 0):
+            value: i32 = tree.nodes[root.usize()].value
+            tree.nodes[root.usize()].value <- spill
+            spill <- value
+        return spill
+    left: i32 = tree.nodes[root.usize()].left
+    right: i32 = tree.nodes[root.usize()].right
+    value: i32 = tree.nodes[root.usize()].value
+    tree.nodes[root.usize()].value <- bisort_sort_tree(tree, left, value, direction)
+    opposite: i32 = 1
+    if direction != 0:
+        opposite <- 0
+    spill <- bisort_sort_tree(tree, right, spill, opposite)
+    bisort_merge(tree, root, spill, direction)
+
+def bisort_checksum(tree: BisortTree&, index: i32, position: mutable i64&, sum: mutable i64&) -> void:
+    if index < 0:
+        return
+    bisort_checksum(tree, tree.nodes[index.usize()].left, position, sum)
+    position <- position + 1
+    sum <- sum + position * tree.nodes[index.usize()].value.i64()
+    bisort_checksum(tree, tree.nodes[index.usize()].right, position, sum)
+
+def bisort_impl(size: i64) -> i64:
+    if size < BISORT_MIN_SIZE or size > BISORT_MAX_SIZE:
+        return -1
+    tree: mutable BisortTree = zeroed
+    root: i32 = bisort_make_tree(tree, size.i32(), 12345768)
+    spill: mutable i32 = bisort_next_random(245867) % BISORT_RANGE
+    spill <- bisort_sort_tree(tree, root, spill, 0)
+    spill <- bisort_sort_tree(tree, root, spill, 1)
+    position: mutable i64 = 0
+    sum: mutable i64 = 0
+    bisort_checksum(tree, root, position, sum)
+    position <- position + 1
+    sum + position * spill.i64()
+
+export fn bisort(size: i64) -> i64 = bisort_impl(size)

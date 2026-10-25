@@ -632,6 +632,8 @@ from run_i64_array_scalar import validate_mono_alphabetic_workload
 from run_i64_array_scalar import validate_netbench_crc_workload
 from run_i64_array_scalar import validate_coremark_crc_workload
 from run_i64_array_scalar import validate_mibench_telecomm_crc32_workload
+from run_i64_array_scalar import validate_olden_perimeter_workload
+from run_i64_array_scalar import validate_mcgill_exptree_workload
 from run_i64_array_scalar import MAX_MONO_ALPHABETIC_CIPHER_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import validate_mono_alphabetic_cipher_workload
 from run_i64_array_scalar import validate_msd_radix_string_sorter_workload
@@ -706,6 +708,8 @@ from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_PATTERN_LENGTH
 from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_TEXT_LENGTH
 from run_i64_array_scalar import MCNAUGHTON_YAMADA_THOMPSON_MAX_VALID_INPUT_LENGTH
 from mcnaughton_yamada_thompson_oracle import expected_result as mcnaughton_yamada_thompson_oracle
+from olden_perimeter_oracle import expected_result as olden_perimeter_oracle
+from mcgill_exptree_oracle import expected_result as mcgill_exptree_oracle
 from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_KEY_LENGTH
 from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_PARSEABLE_INPUT_LENGTH
 from run_i64_array_scalar import PLAYFAIR_CIPHER_MAX_TEXT_LENGTH
@@ -1526,6 +1530,8 @@ ALGORITHMS += ("lamport_signature",)
 ALGORITHMS += ("netbench_crc",)
 ALGORITHMS += ("mibench_telecomm_crc32",)
 ALGORITHMS += ("coremark_crc",)
+ALGORITHMS += ("olden_perimeter",)
+ALGORITHMS += ("mcgill_exptree",)
 I64_MIN = -(2**63)
 I64_MAX = 2**63 - 1
 MAX_MINIMUM_COIN_CHANGE_COMBINATIONS_TARGET = 64
@@ -2025,6 +2031,10 @@ def monotonic_array_oracle(values: list[int]) -> int:
 
 
 def oracle(algorithm: str, values: list[int]) -> int:
+    if algorithm == "mcgill_exptree":
+        return mcgill_exptree_oracle(values)
+    if algorithm == "olden_perimeter":
+        return olden_perimeter_oracle(values)
     if algorithm == "trimaran_netbench_url_internet_checksum":
         if (len(values) < 2 or len(values) > 66
                 or any(type(value) is not int or not -(1 << 63) <= value < (1 << 63)
@@ -3160,6 +3170,10 @@ def corpus(algorithm: str, workload: dict) -> tuple[str, int]:
         validate_lwe_encryption_workload(workload)
     elif algorithm == "smith_waterman_java":
         validate_smith_waterman_java_workload(workload)
+    elif algorithm == "olden_perimeter":
+        validate_olden_perimeter_workload(workload)
+    elif algorithm == "mcgill_exptree":
+        validate_mcgill_exptree_workload(workload)
     cases = {tuple(encode_case(case, algorithm)): case["expected_result"]
              for case in workload["cases"] if not case.get("input_is_null", False)}
     special_records: list[str] = []

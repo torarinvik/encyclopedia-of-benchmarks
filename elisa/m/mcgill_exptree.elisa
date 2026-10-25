@@ -1,0 +1,99 @@
+const MCGILL_EXPTREE_MAX_LEAVES: usize = 4
+
+struct McGillExptreeCombination:
+    left: i64
+    right: i64
+    operation: usize
+
+struct McGillExptreeState:
+    count: usize
+    depth_limit: usize
+    goal: i64
+    best: i64
+    stopped: bool
+    work: i64[8]
+    current: McGillExptreeCombination[4]
+    saved: McGillExptreeCombination[4]
+
+def mcgill_exptree_distance(a: i64, b: i64) -> i64:
+    if a >= b: return a - b
+    b - a
+
+def mcgill_exptree_apply(left: i64, right: i64, operation: usize) -> i64:
+    if operation == 1: return left + right
+    if operation == 2: return left - right
+    if operation == 3: return left * right
+    left / right
+
+def mcgill_exptree_search(state: mutable McGillExptreeState&, depth: usize, used: u32) -> void:
+    if state.stopped: return
+    if depth == state.depth_limit:
+        candidate: i64 = state.work[state.count + depth - 1]
+        if mcgill_exptree_distance(candidate, state.goal) < mcgill_exptree_distance(state.best, state.goal):
+            state.best <- candidate
+            index: usize = 0
+            while index < depth:
+                state.saved[index] <- state.current[index]
+                index <- index + 1
+            if state.best == state.goal: state.stopped <- true
+        return
+
+    operation: mutable usize = 1
+    while operation <= 4 and not state.stopped:
+        first: mutable usize = 0
+        while first < state.count + depth and not state.stopped:
+            if (used & (1.u32() << first)) == 0:
+                second: mutable usize = 0
+                while second < first and not state.stopped:
+                    if (used & (1.u32() << second)) == 0:
+                        left: mutable i64 = state.work[first]
+                        right: mutable i64 = state.work[second]
+                        if not ((operation == 3 or operation == 4) and (left == 1 or right == 1)) and left != 0 and right != 0:
+                            if operation != 4 or left % right == 0:
+                                if (operation == 2 or operation == 4) and left < right:
+                                    temporary: i64 = left
+                                    left <- right
+                                    right <- temporary
+                                state.current[depth].left <- left
+                                state.current[depth].right <- right
+                                state.current[depth].operation <- operation
+                                state.work[state.count + depth] <- mcgill_exptree_apply(left, right, operation)
+                                mcgill_exptree_search(state, depth + 1, used | (1.u32() << first) | (1.u32() << second))
+                    second <- second + 1
+            first <- first + 1
+        operation <- operation + 1
+
+def mcgill_exptree_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > 6: return -1
+    goal: i64 = input[0]
+    raw_count: i64 = input[1]
+    if goal < 1 or goal > 1000000000 or raw_count < 1 or raw_count > MCGILL_EXPTREE_MAX_LEAVES.i64(): return -1
+    count: usize = raw_count.usize()
+    if length != count + 2: return -1
+
+    state: mutable McGillExptreeState = zeroed
+    state.count <- count
+    state.goal <- goal
+    index: usize = 0
+    while index < count:
+        value: i64 = input[2 + index]
+        if value < 1 or value > 100: return -1
+        state.work[index] <- value
+        index <- index + 1
+
+    index <- 0
+    while index < count:
+        if mcgill_exptree_distance(state.work[index], state.goal) < mcgill_exptree_distance(state.best, state.goal):
+            state.best <- state.work[index]
+        index <- index + 1
+    if state.best == state.goal: return state.best
+
+    depth_limit: usize = 1
+    while depth_limit < count:
+        state.depth_limit <- depth_limit
+        mcgill_exptree_search(state, 0, 0)
+        if state.stopped: break
+        depth_limit <- depth_limit + 1
+    state.best
+
+export fn mcgill_exptree(input: i64&, length: usize) -> i64 = mcgill_exptree_impl

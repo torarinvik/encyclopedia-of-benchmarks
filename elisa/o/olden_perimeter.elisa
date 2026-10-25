@@ -1,0 +1,27 @@
+def olden_perimeter_visit(x: i64, y: i64, span: i64, grid: i64, edge: i64) -> i64:
+    if span == 1:
+        perimeter: mutable i64 = 0
+        if x == 0: perimeter <- perimeter + edge
+        if x + 1 == grid: perimeter <- perimeter + edge
+        if y == 0: perimeter <- perimeter + edge
+        if y + 1 == grid: perimeter <- perimeter + edge
+        return perimeter
+    half: i64 = span / 2
+    olden_perimeter_visit(x, y, half, grid, edge) +
+        olden_perimeter_visit(x + half, y, half, grid, edge) +
+        olden_perimeter_visit(x, y + half, half, grid, edge) +
+        olden_perimeter_visit(x + half, y + half, half, grid, edge)
+
+def olden_perimeter_impl(values: i64&, length: usize) -> i64:
+    if values.is_null() or length != 1: return -1
+    level: i64 = values[0]
+    if level < 9 or level > 11: return -1
+    grid: mutable i64 = 1
+    i: mutable i64 = 0
+    while i < level:
+        grid <- grid * 2
+        i <- i + 1
+    edge: i64 = 4096 / grid
+    olden_perimeter_visit(0, 0, grid, grid, edge)
+
+export fn olden_perimeter(values: i64&, length: usize) -> i64 = olden_perimeter_impl

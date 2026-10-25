@@ -36,6 +36,8 @@ from trimaran_netbench_url_internet_checksum_oracle import (
 from drop3_oracle import INVALID_RESULT as DROP3_INVALID_RESULT
 from drop3_oracle import MAX_PARSEABLE_INPUT_LENGTH as DROP3_MAX_PARSEABLE_INPUT_LENGTH
 from drop3_oracle import expected_result as drop3_expected
+from olden_perimeter_oracle import expected_result as olden_perimeter_expected
+from mcgill_exptree_oracle import expected_result as mcgill_exptree_expected
 from five11_oracle import INVALID_RESULT as FIVE11_INVALID_RESULT
 from five11_oracle import MAX_PACKETS as FIVE11_MAX_PACKETS
 from five11_oracle import MAX_PARSEABLE_INPUT_LENGTH as FIVE11_MAX_PARSEABLE_INPUT_LENGTH
@@ -6123,6 +6125,8 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
                         NETBENCH_CRC_MAX_LENGTH if algorithm == "netbench_crc" else
                         TRIMARAN_NETBENCH_URL_CHECKSUM_MAX_INPUT_LENGTH + 1
                         if algorithm == "trimaran_netbench_url_internet_checksum" else
+                        7 if algorithm == "mcgill_exptree" else
+                        2 if algorithm == "olden_perimeter" else
                         MIBENCH_TELECOMM_CRC32_MAX_LENGTH
                         if algorithm == "mibench_telecomm_crc32" else
                         DROP3_MAX_PARSEABLE_INPUT_LENGTH if algorithm == "drop3" else
@@ -6686,6 +6690,14 @@ def encode_case(case: dict, algorithm: str) -> list[int]:
         expected_from_source = trimaran_netbench_url_internet_checksum_expected(values)
         if expected != expected_from_source:
             raise ValueError("trimaran_netbench_url_internet_checksum expected_result must match the bounded source helper checksum")
+    elif algorithm == "olden_perimeter":
+        expected_from_source = olden_perimeter_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("olden_perimeter expected_result must match the bounded TORONTO quadtree perimeter")
+    elif algorithm == "mcgill_exptree":
+        expected_from_source = mcgill_exptree_expected(values)
+        if expected != expected_from_source:
+            raise ValueError("mcgill_exptree expected_result must match the bounded McGill search")
     elif algorithm == "msd_radix_string_sorter":
         source_result = msd_radix_string_sorter_expected(values)
         expected_from_source = (MSD_RADIX_STRING_SORTER_INVALID_RESULT
@@ -14842,6 +14854,119 @@ def validate_mibench_telecomm_crc32_workload(workload: dict) -> None:
             raise ValueError(f"mibench_telecomm_crc32 fixture differs from its pinned bounded oracle: {case.get('id')}")
 
 
+def validate_olden_perimeter_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    expected_ids = {
+        "small_problem_size_level_9", "makefile_default_level_10",
+        "normal_problem_size_level_11", "empty_input", "extra_input",
+        "below_bounded_levels", "above_bounded_levels", "signed_minimum", "signed_maximum",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "olden-toronto-quadtree-perimeter-i64-v1"
+            or workload.get("algorithm") != "olden_perimeter"
+            or workload.get("function_symbol") != "olden_perimeter"
+            or workload.get("source_bound") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "paths": ["Olden/perimeter/args.c", "Olden/perimeter/main.c",
+                          "Olden/perimeter/maketree.c", "Olden/perimeter/perimeter.h"],
+                "configuration": "-DTORONTO; info.sh selects level 9 for SMALL_PROBLEM_SIZE and 11 otherwise; Makefile default is level 10",
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "encoding": "[refinement_level]",
+                "array_length": 1, "accepted_level_range": [9, 11], "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_integer",
+                "meaning": "sum of exposed black-quadtree-cell edge lengths in the TORONTO perimeter call",
+                "invalid_input_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 3,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }):
+        raise ValueError("olden_perimeter metadata differs from the pinned TORONTO quadtree contract")
+    readme = (ROOT / "benchmarks" / "o" / "olden_perimeter" / "README.md").read_text(
+        encoding="utf-8")
+    if (f"https://github.com/lac-dcc/Benchmarks/tree/{pinned}/Olden/perimeter" not in readme
+            or "regular-polygon perimeter" not in readme
+            or "license cannot be established" not in readme):
+        raise ValueError("olden_perimeter README is missing provenance or the existing perimeter distinction")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("olden_perimeter fixture IDs differ from the reviewed bounded contract")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "expected_result"}
+                or not isinstance(values, list) or len(values) > 2
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != olden_perimeter_expected(values)):
+            raise ValueError(f"olden_perimeter fixture differs from its bounded oracle: {case.get('id')}")
+
+
+def validate_mcgill_exptree_workload(workload: dict) -> None:
+    pinned = "5d7b75df749241efa7a6e6f5be613d3fcc5cce38"
+    source_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/McGill/exptree/exptree.c"
+    launcher_url = f"https://github.com/lac-dcc/Benchmarks/blob/{pinned}/McGill/exptree/info.sh"
+    expected_ids = {
+        "upstream_hardcoded_profile", "two_leaf_addition_exact", "exact_leaf_shortcut",
+        "exact_integer_division", "strict_tie_keeps_first_candidate", "source_zero_sentinel_edge",
+        "leaf_count_below_bound_invalid", "leaf_count_mismatch_invalid", "zero_leaf_invalid",
+        "too_many_leaves_invalid", "out_of_profile_parse_length_invalid",
+    }
+    if (workload.get("schema_version") != 1
+            or workload.get("id") != "lac-dcc-mcgill-exptree-bounded-scalar-v1"
+            or workload.get("algorithm") != "mcgill_exptree"
+            or workload.get("function_symbol") != "mcgill_exptree"
+            or workload.get("pinned_source") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "McGill/exptree/exptree.c",
+                "symbol": "getInput, doSearch, recSearch, calculate", "url": source_url,
+                "license_note": "The repository API reports no license, and this source file has no explicit license notice. The ports are independently written from the documented algorithm and observable behavior.",
+            }
+            or workload.get("pinned_launcher") != {
+                "repository": "lac-dcc/Benchmarks", "commit": pinned,
+                "path": "McGill/exptree/info.sh", "bench_name": "exptree",
+                "source_files": ["exptree.c"], "compile_flags": ["-lm"], "run_options": [],
+            }
+            or workload.get("input") != {
+                "kind": "signed_i64_array", "encoding": "[goal, leaf_count, leaf_values...]",
+                "max_valid_length": 6, "max_parseable_length": 7, "invalid_result": -1,
+            }
+            or workload.get("output") != {
+                "kind": "signed_i64_scalar",
+                "meaning": "Closest value selected by the search; ties retain the first value encountered. The upstream stdout expression is represented by its final evaluated value.",
+                "invalid_result": -1,
+            }
+            or workload.get("measurement") != {
+                "comparison_model": "i64_array_scalar_call", "sample_count": 5,
+                "warmup_rounds": 1, "repetitions_per_sample": 1,
+            }):
+        raise ValueError("mcgill_exptree metadata differs from the pinned bounded search contract")
+    readme = (ROOT / "benchmarks" / "m" / "mcgill_exptree" / "README.md").read_text(
+        encoding="utf-8")
+    if (source_url not in readme or launcher_url not in readme
+            or "license grant" not in readme
+            or "source's `best` variable starts at zero" not in readme):
+        raise ValueError("mcgill_exptree README is missing provenance or source behavior notes")
+    cases = workload.get("cases")
+    ids = ({case.get("id") for case in cases if isinstance(case, dict)}
+           if isinstance(cases, list) else set())
+    if not isinstance(cases, list) or len(cases) != len(expected_ids) or ids != expected_ids:
+        raise ValueError("mcgill_exptree fixture IDs differ from the reviewed bounded contract")
+    for case in cases:
+        values = case.get("input_values")
+        if (set(case) != {"id", "input_values", "input_length", "expected_result"}
+                or not isinstance(values, list) or len(values) > 7
+                or case.get("input_length") != len(values)
+                or any(type(value) is not int or not I64_MIN <= value <= I64_MAX for value in values)
+                or type(case.get("expected_result")) is not int
+                or case["expected_result"] != mcgill_exptree_expected(values)):
+            raise ValueError(f"mcgill_exptree fixture differs from its bounded oracle: {case.get('id')}")
+
+
 def validate_trimaran_netbench_url_internet_checksum_workload(workload: dict) -> None:
     expected_ids = {
         "empty_without_swap", "empty_with_swap", "one_byte_without_swap",
@@ -15064,6 +15189,10 @@ def main() -> int:
         validate_mibench_telecomm_crc32_workload(workload)
     elif algorithm == "trimaran_netbench_url_internet_checksum":
         validate_trimaran_netbench_url_internet_checksum_workload(workload)
+    elif algorithm == "olden_perimeter":
+        validate_olden_perimeter_workload(workload)
+    elif algorithm == "mcgill_exptree":
+        validate_mcgill_exptree_workload(workload)
     elif algorithm == "graph_enumeration":
         validate_graph_enumeration_workload(workload)
     elif algorithm == "lca":
